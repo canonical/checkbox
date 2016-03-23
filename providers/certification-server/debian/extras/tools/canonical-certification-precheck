@@ -1,0 +1,342 @@
+#!/bin/bash
+
+logfile=~/install.log
+currentuser=$(logname)
+codename=$(/usr/bin/lsb_release -s -c) 
+arch=$(dpkg --print-architecture)
+debinst="sudo debconf-apt-progress -- aptitude -y install"
+
+pass(){
+ eval pass${i}=1
+}
+
+fail(){
+ eval pass${i}=0
+}
+
+warn(){
+ eval pass${i}=2
+}
+
+info(){
+ eval pass${i}=3
+}
+
+
+
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets KVM_Image_Check" 
+yes=1
+
+while getopts "i" opt; do
+  case $opt in
+    i) individual="1";;
+  esac
+done
+
+echoname(){
+    echo -e "\n\e[1;33m============\e[m \e[1;34m$name\e[m \e[1;33m============\e[m"
+}
+
+Arch(){
+ name="Check architecture"
+ echoname
+ echo -e "Architecture: $arch"
+ eval info${i}=\"$arch\"
+ if [ $arch = i386 ] ; then
+	 warn
+ else
+	 info
+ fi
+}
+
+
+# Display version of canonical-certification-server package installed
+CCS_Version(){
+name="canonical-certification-server version"
+echoname
+ccs=$(apt-cache policy canonical-certification-server|grep Installed|awk '{print $2}')
+eval info${i}=\"$ccs\"
+
+if [[ $ccs = *none* ]] ; then
+	echo -e " canonical-certification-server might not be installed.\n Would you like to install it now? [Y/n]"
+	read -s -N1 a
+   	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+		echo " Installing canonical-certification-server..."
+		sudo apt-add-repository -y ppa:hardware-certification/public 1>/dev/null
+		sudo apt-get -q update 1>/dev/null
+		sudo apt-get -q install -y maas-cert-server 1>/dev/null
+		CCS_Version
+   	elif [[ $a == "N" || $a == "n" ]]; then
+		echo 
+		fail
+	fi
+else
+	echo " canonical-certification-server: $ccs"
+	info
+fi
+}
+
+# Secure ID is set in /etc/xdg/canonical-certification.conf (?)
+SID_Check(){
+name="Secure ID Check"
+echoname
+#if [ -n $secureid ];then
+if grep "^secure_id =" /etc/xdg/canonical-certification.conf ; then
+	secureid=$(grep "^secure_id =" /etc/xdg/canonical-certification.conf|awk '{print $3}')
+        echo " secure_id is configured as $secureid"
+	eval info${i}=\"$secureid\"
+        info
+else
+        echo -e " secure_id is not configured.\n Would you like to configure it now? [Y/n]"
+        read -s -N1 a
+        if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                read -e -p "Type the secure_id of your SUT: " sid 
+                sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" /etc/xdg/canonical-certification.conf
+		SID_Check
+        elif [[ $a == "N" || $a == "n" ]]; then
+		eval info${i}=\"Not Set\"
+                info
+        fi
+fi
+}
+
+# Check local availability of KVM image & possibly download from MAAS server if it’s available there, rather than have Checkbox pull from Internet, which tends to be slow
+KVM_Image_Check(){
+name="KVM Image Check"
+echoname
+kvmurl="http://cloud-images.ubuntu.com/$codename/current/$codename-server-cloudimg-$arch-disk1.img"
+if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
+	 kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+	 if curl --output /dev/null --silent --head --fail "$kvmurl"; then
+		 echo -e " We can get our image from $kvmurl.\n Continuing to use this image"
+        	 pass
+	 elif [ -f $kvmurl ] ; then
+		 echo " Local image $kvmurl exists."
+		 pass
+	 else
+		 echo " We cannot access $kvmurl." 
+		 fail
+	 fi
+		
+else
+	if curl --output /dev/null --silent --head --fail "$kvmurl"; then
+	 	echo -e " We can get our image from $kvmurl.\n Continuing to use this image"
+ 		pass
+	else
+ 		echo -e " Cannot access $kvmurl.\n Checking local image configuration."
+         	echo -e " KVM_IMAGE is not configured.\n Would you like to configure it now? [Y/n]"
+         	read -s -N1 a
+         	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                	read -e -p "Type the path of your KVM Image: " kvm 
+                	sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
+	 		kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+			if curl --output /dev/null --silent --head --fail "$kvmurl" || [ -f $kvmurl ]; then
+		 		echo " We can get our image from $kvmurl. Continuing to use this image"
+		 		pass
+		 	else
+				fail
+			fi
+         	elif [[ $a == "N" || $a == "n" ]]; then
+                	fail
+         	fi
+ 	fi
+fi
+}
+
+#Correct Ubuntu version installed (could be tricky to determine, so maybe too much effort -- or maybe just display the Ubuntu version and, if the script is interactive, ask the user to verify that it’s what was intended)
+Ubuntu_Version(){
+ name="Ubuntu Version"
+ echoname
+ release=$(/usr/bin/lsb_release -s -d)
+ eval info${i}=\"$release\"
+ if [[ $release == *LTS* ]] ; then
+        echo " $release is an LTS version of Ubuntu"
+        info
+ else
+        echo " $release is a non-LTS version of Ubuntu"
+        warn
+ fi
+}
+
+
+# All NICs are on the same network segment, to flag cabling, switch, or configuration errors (??)
+Network_Subnets(){
+name="Netork Subnets"
+echoname
+check_bcast=$(for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|lxcbr|bridge"`
+	do
+		ip addr show dev $nic | grep "inet "|awk '{print $4}'
+done|uniq|wc -l)
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|usb"`
+	do
+		echo  " $nic - $(ip addr show dev $nic | grep "inet "|awk '{print $2, $4}')"
+done
+echo
+if [ $check_bcast = 1 ]; then
+	pass
+	echo " All interfaces seem to be on the same subnet"
+else
+	echo " One or more interfaces are on separate subnets"
+	fail
+fi
+
+}
+
+# iperf and iperf3 are available on server specified in /etc/xdg/canonical-certification.conf (NOTE: iperf (2) will eventually become irrelevant)
+IPERF(){
+name="Iperf"
+echoname
+if [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 1 ];then
+	echo " IPERF is configured"
+	pass
+elif [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 0 ];then
+	echo -e " TEST_TARGET_IPERF is not configured.\n Would you like to configure it now? [Y/n]"
+	read -s -N1 a
+   	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+		read -e -p "Type the IP Address of the Iperf server: " ip
+		sudo sed -i "s/#TEST_TARGET_IPERF = .*/TEST_TARGET_IPERF = $ip/g" /etc/xdg/canonical-certification.conf
+	IPERF
+   	elif [[ $a == "N" || $a == "n" ]]; then
+		fail
+	fi
+fi
+local iperf2found=0
+local iperf3found=0
+for iperfserver in $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf | cut -d = -f 2 | sed s/,/\\n/g)
+        do
+                echo " Testing $iperfserver"
+                local iperffound=0
+                nc -z $iperfserver 5001
+                if [ $? = 0 ]; then
+                        echo " Iperf server found on port 5001 on $iperfserver"
+                        iperf2found=1
+                        iperffound=1
+                fi
+                iperf3 -c $iperfserver -n 1 &> /dev/null
+                if [ $? = 0 ]; then
+                        echo " Iperf3 server found on port 5201 on $iperfserver"
+                        iperf3found=1
+                        iperffound=1
+                fi
+                if [ $iperffound = 0 ]; then
+                        echo " No Iperf (2) or iperf3 server found on $iperfserver"
+                fi
+done
+if [[ $iperf2found == 0 ]]; then
+        echo " No iperf (2) server found"
+        fail
+fi
+if [[ $iperf3found == 0 ]]; then
+        echo " No iperf3 server found"
+        fail
+fi
+}
+
+# All NICs are enabled
+NICs_enabled(){
+name="All NICs enabled"
+echoname
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|grep -v lo`
+	do
+		state=$(cat /sys/class/net/$nic/operstate)
+		if [ $state = "up" ]; then
+			echo " Interface $nic is $state"
+			pass
+		elif [ $state = "down" ]; then
+			echo " Interface $nic is $state"
+			nicfail=1
+		fi
+done
+if [ "$nicfail" = "1" ]; then
+	fail
+fi
+}
+
+#### Installed RAM (STG says 4GiB minimum) ###
+Installed_Ram(){
+name="Check Installed Ram"
+echoname
+mem=$(cat /proc/meminfo |grep MemTotal|awk '{print $2}')
+eval info${i}="$mem "
+if [ $mem -lt 4096000 ] ; then
+	echo " $mem is less than 4G"
+	warn
+else
+	echo " $mem is greater than 4G"
+	pass
+fi
+}
+
+#CPU virtualization support (VMX/SVM)
+Virtualization_Support(){
+name="Virtualization Support"
+echoname
+cat /proc/cpuinfo |egrep "vmx|svm" >/dev/null
+if [ $? = 0 ]; then
+ echo " System has virtualization support"
+ pass
+else
+ echo " System does not have virtualization support"
+ fail
+fi
+}
+
+#EFI-mode installation (redundant with Checkbox test for same, but maybe good to warn about this issue before running Checkbox)
+EFI_Mode(){
+name="EFI-mode installation"
+echoname
+if [ -d /sys/firmware/efi ]; then
+	efi='This is an EFI Mode installation'
+	echo " $efi"
+	eval info${i}=\"$efi\"
+	info
+elif [ ! -d /sys/firmware/efi ]; then
+	efi='This is not an EFI Mode installation'
+	echo " $efi"
+	eval info${i}=\"$efi\"
+	info
+fi
+}
+
+runchoices() {
+ echo 
+ for i in $steps
+  do
+   eval "status=\$check${i}"
+   if [[ $status == "y" ]] || [[ "$yes" == "1" ]]; then
+    "$i"
+   else
+    echo -e "\e[1;31mskipping\e[m \e[1;34m$i\e[m"
+   fi
+ done
+}
+
+report() {
+    echo -e "\n\e[1;33m============\e[m \e[1;34mReport\e[m \e[1;33m============\e[m\n"
+ for i in $steps
+  do
+   eval "status=\$pass${i}"
+   if [ $status = "1" ];then
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;32m  Passed\e[m\n"
+   elif [ $status = "0" ];then
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;31m  Failed\e[m\n"
+   elif [ $status = "2" ];then
+    eval "detail=\$info${i}"
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;33m  $detail\e[m\n"
+   elif [ $status = "3" ];then
+    eval "detail=\$info${i}"
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;37m  $detail\e[m\n"
+   fi
+ done
+}
+
+runchoices
+report

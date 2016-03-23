@@ -1,3 +1,4 @@
 debian/extras/canonical-certification-config/canonical-certification.conf /etc/xdg
 debian/tmp/usr/share/plainbox-provider-certification-server/*
 debian/tmp/usr/share/plainbox-providers-1/*.provider
+debian/extras/tools/canonical-certification-precheck /usr/bin

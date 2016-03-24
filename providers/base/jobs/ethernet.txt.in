@@ -7,7 +7,7 @@ category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/detect
 requires:
  device.category == 'NETWORK' or device.category == 'WIRELESS'
- package.name == 'kmod'
+ package.name == 'kmod' or package.name == 'module-init-tools'
  package.name == 'pciutils'
 command: network_device_info
 estimated_duration: 1.2

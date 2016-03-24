@@ -293,7 +293,7 @@ category_id: 2013.com.canonical.plainbox::info
 id: info/audio_device_driver
 requires:
  package.name == 'pulseaudio-utils'
- package.name == 'kmod'
+ package.name == 'kmod' or package.name == 'module-init-tools'
  device.category == 'AUDIO'
 command: audio_driver_info
 estimated_duration: 0.177
@@ -304,7 +304,7 @@ category_id: 2013.com.canonical.plainbox::info
 id: info/network_devices
 requires:
  device.category == 'NETWORK' or device.category == 'WIRELESS'
- package.name == 'kmod'
+ package.name == 'kmod' or package.name == 'module-init-tools'
  package.name == 'pciutils'
 command: network_device_info
 estimated_duration: 0.550

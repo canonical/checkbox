@@ -204,8 +204,9 @@ class CheckboxLauncher(CheckboxCommand):
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)
             ctx.sa.select_providers(*self.launcher.providers)
-            self._maybe_resume_session() or self._start_new_session()
-            self._pick_jobs_to_run()
+            if not self._maybe_resume_session():
+                self._start_new_session()
+                self._pick_jobs_to_run()
             self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
             if self.is_interactive:
                 while True:

@@ -307,6 +307,7 @@ class CheckboxLauncher(CheckboxCommand):
         metadata = self.ctx.sa.resume_session(session.id)
         app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
         test_plan_id = app_blob['testplan_id']
+        last_job = metadata.running_job_name
         # FIXME selecting again the testplan on resume resets both # the static
         # and dynamic todo lists.  # We're then saving the selection from the
         # saved run_list # by accessing the session private context object.
@@ -316,7 +317,7 @@ class CheckboxLauncher(CheckboxCommand):
         self.ctx.sa.bootstrap()
         self.ctx.sa.use_alternate_selection(selected_id_list)
         # If we resumed maybe not rerun the same, probably broken job
-        self._handle_last_job_after_resume(metadata)
+        self._handle_last_job_after_resume(last_job)
 
     def _start_new_session(self):
         print(_("Preparing..."))
@@ -485,8 +486,7 @@ class CheckboxLauncher(CheckboxCommand):
             break
         return result_builder
 
-    def _handle_last_job_after_resume(self, metadata):
-        last_job = metadata.running_job_name
+    def _handle_last_job_after_resume(self, last_job):
         if last_job is None:
             return
         print(_("Previous session run tried to execute job: {}").format(

@@ -32,6 +32,7 @@ from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import all_units
+from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
 from plainbox.impl.unit._legacy import TemplateUnitValidatorLegacyAPI
 from plainbox.impl.unit.unit import Unit
@@ -366,6 +367,16 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         # XXX: extract raw dictionary from the resource object, there is no
         # normal API for that due to the way resource objects work.
         parameters = dict(object.__getattribute__(resource, '_data'))
+        accessed_parameters = set(itertools.chain(*{
+            get_accessed_parameters(value) for value in data.values()}))
+        # Recreate the parameters with only the subset that will actually be
+        # used by the template. Doing this filter can prevent exceptions like
+        # DependencyDuplicateError where an unused resource property can differ
+        # when resuming and bootstrapping sessions, causing job checksums
+        # mismatches.
+        # See https://bugs.launchpad.net/bugs/1561821
+        parameters = {
+            k: v for k, v in parameters.items() if k in accessed_parameters}
         # Add the special __index__ to the resource namespace variables
         parameters['__index__'] = index
         # Instantiate the class using the instantiation API

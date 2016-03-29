@@ -20,7 +20,7 @@ Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 Vcs-Git: git://anonscm.debian.org/python-modules/packages/checkbox-ng.git
 Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/checkbox-ng.git
-Homepage: http://launchpad.net/checkbox
+Homepage: https://launchpad.net/checkbox
 
 Package: checkbox-ng
 Architecture: all

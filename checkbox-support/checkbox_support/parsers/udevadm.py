@@ -633,12 +633,16 @@ class UdevadmDevice(object):
         elif (self._environment.get("DEVTYPE") == "disk" and
                 "ID_MODEL_ENC" in self._environment):
             return decode_id(self._environment["ID_MODEL_ENC"])
-        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+        elif self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
             if parent.product:
                 return parent.product
             else:
                 return self.name
+        elif (
+            self._environment.get("DEVTYPE") == "disk" and
+            self.driver == 'virtio_blk' and self.bus == 'virtio'):
+            return self.name
 
         # floppy
         if self.driver == "floppy":
@@ -810,7 +814,7 @@ class UdevadmParser(object):
            device._mmc_type == 'MMC'):
             return False
         # Do not ignore QEMU/KVM virtio disks
-        if ("ID_PART_TABLE_TYPE" in device._environment and
+        if ("DEVTYPE" in device._environment and
            device.bus == "virtio" and
            device.driver == "virtio_blk"):
             return False

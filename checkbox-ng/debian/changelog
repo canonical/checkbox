@@ -1,6 +1,7 @@
 checkbox-ng (0.23-3) UNRELEASED; urgency=medium
 
   * Fixed homepage (https)
+  * Fixed VCS URL (https)
 
  -- Ondřej Nový <novy@ondrej.org>  Tue, 29 Mar 2016 21:39:06 +0200
 

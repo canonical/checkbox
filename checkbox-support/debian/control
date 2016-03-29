@@ -20,7 +20,7 @@ X-Python3-Version: >= 3.2
 XS-Testsuite: autopkgtest
 Vcs-Git: git://anonscm.debian.org/python-modules/packages/checkbox-support.git
 Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/checkbox-support.git
-Homepage: http://launchpad.net/checkbox
+Homepage: https://launchpad.net/checkbox
 
 Package: python3-checkbox-support
 Architecture: all

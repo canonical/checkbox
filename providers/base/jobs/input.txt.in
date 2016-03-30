@@ -5,7 +5,6 @@ plugin: manual
 category_id: 2013.com.canonical.plainbox::input
 id: input/pointing_{product_slug}_{category}_{__index__}
 estimated_duration: 30.0
-requires: device.path == '{path}'
 _summary: Check pointing functionality for {product}
 _purpose:
     This will test your {product} device
@@ -78,7 +77,6 @@ plugin: manual
 category_id: 2013.com.canonical.plainbox::input
 id: input/clicking_{product_slug}_{category}_{__index__}
 estimated_duration: 30.0
-requires: device.path == '{path}'
 _summary: Check button functionality for {product}
 _purpose:
     This will test the buttons of your {product} device

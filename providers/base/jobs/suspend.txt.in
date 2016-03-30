@@ -2673,7 +2673,6 @@ plugin: manual
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/pointing-after-suspend_{product_slug}_{category}_{__index__}
 depends: suspend/suspend_advanced
-requires: device.path == "{path}"
 _description:
  PURPOSE:
      This will test your {product} device after suspend.
@@ -2690,7 +2689,6 @@ category_id: 2013.com.canonical.plainbox::suspend
 estimated_duration: 30.0
 id: suspend/clicking-after-suspend_{product_slug}_{category}_{__index__}
 depends: suspend/suspend_advanced
-requires: device.path == "{path}"
 _summary: Check post suspend button functionality for {product}
 _description:
  PURPOSE:

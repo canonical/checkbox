@@ -48,8 +48,10 @@ class CpuinfoParser(object):
                     continue
                 key, value = line.split(":", 1)
                 key, value = key.strip(), value.strip()
-
-                if key == 'processor':
+                # lp:1564595 - cpuinfo is different for s390x
+                if key == '#processors":
+                    count += int(value)
+                elif key == 'processor':
                     count += 1
 
                 # Handle bogomips on sparc

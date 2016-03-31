@@ -1,3 +1,9 @@
+plainbox-provider-certification-server (0.26-1) UNRELEASED; urgency=medium
+
+  * Update dependencies minimum version to avoid issues in Xenial (Fix lp:1563763)
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Thu, 31 Mar 2016 17:04:23 +0800
+
 plainbox-provider-certification-server (0.25-1) precise; urgency=medium
 
   * new upstream version

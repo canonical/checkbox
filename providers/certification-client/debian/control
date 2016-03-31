@@ -6,8 +6,8 @@ Uploaders: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 9.2),
                intltool,
-               plainbox (>= 0.20),
-               plainbox-provider-resource-generic (>= 0.19~),
+               plainbox (>= 0.27~),
+               plainbox-provider-resource-generic (>= 0.25~),
                python,
                python-distutils-extra,
                python-docutils,
@@ -19,14 +19,14 @@ Build-Depends: debhelper (>= 9.2),
 
 Package: plainbox-provider-certification-client
 Architecture: all
-Depends: plainbox-provider-checkbox (>= 0.21.4~),
-         plainbox-provider-resource-generic (>= 0.19~),
-         python3-plainbox (>= 0.22~),
+Depends: plainbox-provider-checkbox (>= 0.27~),
+         plainbox-provider-resource-generic (>= 0.25~),
+         python3-plainbox (>= 0.27~),
          ${misc:Depends}
 Recommends: bootchart,
             ethtool,
             fswebcam,
-            fwts (>= 15.07.00-0ubuntu1~),
+            fwts (>= 16.02.00-0ubuntu1~),
             glmark2,
             gtkperf,
             hdapsd,
@@ -55,7 +55,7 @@ Description: Client Certification provider for Plainbox
 Package: canonical-certification-client
 Architecture: all
 Depends: checkbox-converged (>= 1.2),
-         checkbox-ng (>= 0.20~),
+         checkbox-ng (>= 0.25~),
          plainbox-provider-certification-client (= ${source:Version}),
          ${misc:Depends}
 Description: Client Certification Launcher
@@ -65,7 +65,7 @@ Description: Client Certification Launcher
 
 Package: canonical-certification-submit
 Architecture: all
-Depends: checkbox-ng (>= 0.20~), ${misc:Depends}
+Depends: checkbox-ng (>= 0.25~), ${misc:Depends}
 Description: Tool for sending test results to Canonical Certification Website
  This package provides a simple command line tool for sending a "submission"
  file to the Canonical Certification Website. It is useful for sending test

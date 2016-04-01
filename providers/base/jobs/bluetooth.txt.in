@@ -170,17 +170,16 @@ id: bluetooth4/HOGP-mouse
 depends: bluetooth/detect-output
 requires:
  manifest.has_bt_smart == 'True'
- package.name == 'zenity'
+ package.name == 'bluez' and package.version >= '5.37'
 estimated_duration: 30.0
-command: bt_connect --mac `zenity --entry --title="device MAC" --text="Please enter the MAC address for testing"`
+command: bt_connect --mouse
 _description:
  PURPOSE:
      This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart mouse.
  STEPS:
      1. Enable a Bluetooth smart mouse, and put it into paring mode.
-     2. Use "hcitool scan" command in another terminal to get the MAC address of it.
-     3. Commence the test to do the auto-pairing, you will be asked to enter the MAC address.
-     4. After it's paired and connected, perform actions such as moving the pointer, right and left button clicks and double clicks.
+     2. Commence the test to do the auto-pairing, you will be asked to select targeting mouse from the list.
+     3. After it's paired and connected, perform actions such as moving the pointer, right and left button clicks and double clicks.
  VERIFICATION:
      Did the Bluetooth Smart mouse work as expected?
 
@@ -190,16 +189,15 @@ id: bluetooth4/HOGP-keyboard
 depends: bluetooth/detect-output
 requires:
  manifest.has_bt_smart == 'True'
- package.name == 'zenity'
+ package.name == 'bluez' and package.version >= '5.37'
 estimated_duration: 30.0
-command: bt_connect --mac `zenity --entry --title="device MAC" --text="Please enter the MAC address for testing"` && keyboard_test
+command: bt_connect --keyboard
 _description:
  PURPOSE:
      This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart keyboard.
  STEPS:
      1. Enable a Bluetooth Smart keyboard, and put it into paring mode.
-     2. Use "hcitool scan" command in another terminal to get the MAC address of it.
-     3. Commence the test to do the auto-pairing, you will be asked to enter the MAC address and PIN code.
-     4. After it's paired and connected, enter some text with your keyboard and close the small input test tool.
+     2. Commence the test to do the auto-pairing, you will be asked to select targeting keyboard from the list.
+     3. After it's paired and connected, enter some text with your keyboard and close the small input test tool.
  VERIFICATION:
      Did the Bluetooth Smart keyboard work as expected?

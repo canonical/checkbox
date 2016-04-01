@@ -33,7 +33,7 @@
 
 import sys
 import time
-import pdb
+
 import bt_helper
 
 from argparse import ArgumentParser
@@ -121,14 +121,12 @@ def main():
             chosen = False
         while not chosen:
             num = input('Which one would you like to connect to? (0 to exit) ')
-            #TODO: enter to default
+            # TODO: enter as default to 1st device
             if num == '0':
                 return 1
             chosen = num.isnumeric() and int(num) in devices.keys()
         print('{} chosen.'.format(devices[int(num)]))
         print("Pairing selected device..")
-
-        pdb.set_trace()
 
         # TODO:
         #   capture .pair() is failing

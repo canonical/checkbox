@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2015-11-09 09:54+0000\n"
+"PO-Revision-Date: 2016-04-01 20:27+0000\n"
 "Last-Translator: Jean-Marc <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2016-01-12 05:08+0000\n"
-"X-Generator: Launchpad (build 17881)\n"
+"X-Launchpad-Export-Date: 2016-04-02 05:15+0000\n"
+"X-Generator: Launchpad (build 17972)\n"
 "Language: fr\n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -28,7 +28,7 @@ msgstr "utilisation : "
 
 #: .././plainbox/impl/applogic.py:62
 msgid "None of the providers had a whitelist named '{}'"
-msgstr ""
+msgstr "Aucun des fournisseurs n'a une liste blanche nommée « {} »"
 
 #: .././plainbox/impl/applogic.py:104
 msgid "Environment variables for scripts and jobs"
@@ -108,12 +108,12 @@ msgstr "afficher le numéro de version du programme et quitter"
 
 #: .././plainbox/impl/clitools.py:484
 msgid "logging and debugging"
-msgstr ""
+msgstr "journalisation et débogage"
 
 #. TRANSLATORS: please keep --log-level=INFO untranslated
 #: .././plainbox/impl/clitools.py:499
 msgid "be more verbose (same as --log-level=INFO)"
-msgstr ""
+msgstr "soyez plus verbeux (identique à --log-level=INFO)"
 
 #. TRANSLATORS: please keep DEBUG untranslated
 #: .././plainbox/impl/clitools.py:507
@@ -123,7 +123,7 @@ msgstr ""
 #. TRANSLATORS: please keep DEBUG untranslated
 #: .././plainbox/impl/clitools.py:513
 msgid "display DEBUG messages in the console"
-msgstr ""
+msgstr "afficher les messages DEBUG dans la console"
 
 #: .././plainbox/impl/clitools.py:517
 msgid "LOGGER"
@@ -134,17 +134,19 @@ msgstr ""
 msgid ""
 "enable DEBUG messages on the specified logger (can be used multiple times)"
 msgstr ""
+"afficher les messages DEBUG dans un enregistreur spécifique (peut être "
+"utilisé plusieurs fois)"
 
 #. TRANSLATORS: please keep pdb untranslated
 #: .././plainbox/impl/clitools.py:529
 msgid "jump into pdb (python debugger) when a command crashes"
-msgstr ""
+msgstr "aller dans le pdb (python debugger) quand une commande bogue"
 
 #. TRANSLATORS: please keep SIGINT/KeyboardInterrupt and --pdb
 #. untranslated
 #: .././plainbox/impl/clitools.py:537
 msgid "crash on SIGINT/KeyboardInterrupt, useful with --pdb"
-msgstr ""
+msgstr "plantage dans SIGINT/KeyboardInterrupt, utile avec --pdb"
 
 #: .././plainbox/impl/clitools.py:554
 #: .././plainbox/vendor/argparse/py32-argparse.py:1956
@@ -156,7 +158,7 @@ msgstr "trop peu d'arguments"
 #. TRANSLATORS: please keep SystemExit untranslated
 #: .././plainbox/impl/clitools.py:566
 msgid "caught SystemExit, exiting"
-msgstr ""
+msgstr "SystemExit intercepté, sortie"
 
 #: .././plainbox/impl/clitools.py:571
 #, python-format
@@ -166,7 +168,7 @@ msgstr ""
 #: .././plainbox/impl/clitools.py:591
 #, python-format
 msgid "action for exception %r is %s"
-msgstr ""
+msgstr "l'action pour l'erreur %r est %s"
 
 #: .././plainbox/impl/clitools.py:596
 #, python-format

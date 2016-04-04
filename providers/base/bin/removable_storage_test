@@ -13,6 +13,8 @@ import sys
 import tempfile
 import time
 
+import gi
+gi.require_version('GUdev', '1.0')
 from gi.repository import GUdev
 
 from checkbox_support.dbus import connect_to_system_bus

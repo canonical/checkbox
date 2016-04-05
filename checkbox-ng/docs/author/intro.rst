@@ -10,7 +10,7 @@ Many years ago, a dark sorcerer known only as CR3 created a testing tool
 called ``hw-test`` with the vision of running tests against hardware to
 bless the hardware and deem it as Ubuntu Certified.  There was great
 rejoicing.  From the crowd that gathered around this tool came requests and
-requirements for new features, new tests and new methods of doing things. 
+requirements for new features, new tests and new methods of doing things.
 Over the subsequent years, a tool called Checkbox was created. It was the
 product of the design by committee philosophy and soon grew ponderous and
 difficult to understand except by a few known only as "The Developers."
@@ -49,7 +49,7 @@ Terminology
 In developing or using Plainbox, you'll run into several unfamiliar terms.
 Check the :doc:`../glossary` to learn what they mean. In fact, you should
 probably check it now. Pay particular attention to the terms *Checkbox*,
-*Plainbox*, *job*, *provier*, and *whitelist*.
+*Plainbox*, *job*, *provider*, and *whitelist*.
 
 Getting Started
 ---------------
@@ -80,7 +80,7 @@ whitelist to use:
  :width: 300
  :scale: 100
  :alt: checkbox-cli enables you to select which test suite to run.
- 
+
 With a whitelist selected, you can choose the individual tests to run:
 
 .. image:: cc3.png
@@ -123,8 +123,8 @@ A **job** or **test** is the smallest unit or description that Plainbox
 knows about. It describes a single test (historically they're called
 jobs). The simplest possible job is::
 
- id: a-job 
- plugin: manual 
+ id: a-job
+ plugin: manual
  description: Ensure your computer is turned on. Is the computer turned on?
 
 Jobs are shipped in a provider's jobs directory. This ultra-simple example

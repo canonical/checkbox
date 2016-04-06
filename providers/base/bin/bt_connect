@@ -24,7 +24,6 @@
 #
 # possibility to lockup, if it times out
 # TODO:
-#       4. adapting bluez5 stack based on: https://github.com/kissiel/bt_helper
 #       5. better exception handling (wrong PIN, authentication rejected)
 #       6. different PIN selection
 #       7. MAC address validator
@@ -77,23 +76,32 @@ def main():
             return 1
          
         for paireddevice in list(manager.get_bt_devices(filters={'Address': DEVICE_MAC, 'Paired': True})):
-            paireddevice.unpair()
-            print("Already paired, please reset the device to pairing mode..")
-            # Give tester some more awareness           
-            for i in range(0,11,1):
-                sys.stdout.write("\r"+str(i))
-                sys.stdout.flush()
-                time.sleep(1)
-            print("\n")
-        
-        # Todo:
-        # if device is not listed should return status code: 1
+            try:
+                paireddevice.unpair()
+            except bt_helper.BtException as state:
+                print("Unpairing failed: ", state)
+                return 1
+            else: 
+                print("Already paired, please reset the device to pairing mode..")
+                # Give tester some more awareness           
+                for i in range(0,11,1):
+                    sys.stdout.write("\r"+str(i))
+                    sys.stdout.flush()
+                    time.sleep(1)
+                print("\n")
         
         for device in list(manager.get_bt_devices(filters={'Address': DEVICE_MAC})):
-            device.pair()
-            print("Device paired")
-            return 0
-        
+            try:
+                device.pair()
+            except bt_helper.BtException as state:
+                print("Unable to pair: ", state)
+                return 1
+            else:
+                print("Device paired")
+                return 0
+        # capture all the silence failure
+        return 1
+
     else:
         TARGET = args.target
         print("Listing existing device")
@@ -114,8 +122,12 @@ def main():
         # may considering unpair every paired TARGET devices first?
         for paireddevice in list(manager.get_bt_devices(filters={'Icon': TARGET, 'Paired': True})):
             print("Unpairing known device: {}".format(paireddevice))
-            paireddevice.unpair()
-         
+            try:
+                paireddevice.unpair()
+            except bt_helper.BtException as state:
+                print("Unpairing failed: ", state)
+                return 1
+
         for num, dev in devices.items():
             print('{}. {} (RSSI: {})'.format(num, dev, dev.rssi))
             chosen = False
@@ -134,10 +146,11 @@ def main():
         #   https://github.com/kissiel/bt_helper/issues/11
         try:
             devices[int(num)].pair()
-        except:
-            print("ERROR: something wrong..")
+        except bt_helper.BtException as state:
+            print("ERROR: something wrong: ", state)
             return 1
         else:
+            print("Paired successfully.")
             return 0
 
 if __name__ == "__main__":

@@ -24,7 +24,6 @@
 #
 # possibility to lockup, if it times out
 # TODO:
-#       5. better exception handling (wrong PIN, authentication rejected)
 #       6. different PIN selection
 #       7. MAC address validator
 #       8. Use logging for information
@@ -38,8 +37,32 @@ import bt_helper
 from argparse import ArgumentParser
 
 
+def unpairing(devices, manager):
+    """ Unpairing paired devices and scanning device list again for rerun jobs. """
+    for dev in devices:
+        try:
+            print("INFO: Unpairing known device")
+            dev.unpair()
+        except bt_helper.BtException as state:
+            print("Warning: Unpairing failed", state)
+        break
+    else:
+        return
+    print("INFO: Please reset the device to pairing mode")
+    countdown_timer(13)
+    print("INFO: Re-scaning for devices in pairing mode")
+    manager.scan()
+
+def countdown_timer(sec):
+    """ Give user some more awareness while waiting. """
+    for i in range(sec,-1,-1):
+        sys.stdout.write("\rINFO: Re-parining in {:2}s".format(i))
+        sys.stdout.flush()
+        time.sleep(1)
+    print("\r")
+
 def main():
-    """Add argument parser here and do most of the job."""
+    """ Add argument parser here and do most of the job. """
     parser = ArgumentParser(description="Bluetooth auto paring and connect. Please select one option.")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--mac", type=str,
@@ -50,100 +73,64 @@ def main():
     group.add_argument("--keyboard", action="store_const",
                        const="input-keyboard", dest='target',
                        help="Pair with the last keyboard found from scan result.")
-    # TODO: TBD,
-    #   not many use case will have multiple bt interface and besides dbus should handle different naming.
-    #parser.add_argument("-i", "--interface", type=str,
-    #                    help="Device interface, e.g. hci0")
-    #
-    # TODO: TBD, not sure about this part
-    #parser.add_argument("-c", "--capability", type=str, default="DisplayYesNo")
-    #
     args = parser.parse_args()
     
     manager = bt_helper.BtManager()
-
-    # Power on device and scaning in advance.
-    manager.ensure_adapters_powered()    
+    # Power on bluetooth adapter and scanning devices in advance.
+    manager.ensure_adapters_powered()
     manager.scan()
 
-    if args.mac: 
-        DEVICE_MAC = args.mac
-        print("Trying to pair with {}.".format(DEVICE_MAC))
-        DEVICE = list(manager.get_bt_devices(filters={'Address': DEVICE_MAC}))
-       
-        if not DEVICE:
+    if args.mac:
+        # TODO check MAC format
+        print("INFO: Trying to pair with {}".format(args.mac))
+        device = list(manager.get_bt_devices(filters={'Address': args.mac}))
+        paired_device = list(manager.get_bt_devices(
+            filters={'Address': args.mac, 'Paired': True}))
+        if not device:
             print("ERROR: No pairable device found, terminating")
             return 1
-         
-        for paireddevice in list(manager.get_bt_devices(filters={'Address': DEVICE_MAC, 'Paired': True})):
-            try:
-                paireddevice.unpair()
-            except bt_helper.BtException as state:
-                print("Unpairing failed: ", state)
-                return 1
-            else: 
-                print("Already paired, please reset the device to pairing mode..")
-                # Give tester some more awareness           
-                for i in range(0,11,1):
-                    sys.stdout.write("\r"+str(i))
-                    sys.stdout.flush()
-                    time.sleep(1)
-                print("\n")
+
+        unpairing(paired_device, manager)
         
-        for device in list(manager.get_bt_devices(filters={'Address': DEVICE_MAC})):
+        for dev in device:
             try:
-                device.pair()
+                dev.pair()
             except bt_helper.BtException as state:
-                print("Unable to pair: ", state)
+                print("ERROR: Unable to pair: ", state)
                 return 1
             else:
-                print("Device paired")
+                print("INFO: Device paired")
                 return 0
-        # capture all the silence failure
-        return 1
-
     else:
-        TARGET = args.target
-        print("Listing existing device")
+        print("INFO: Listing targeting devices")
         #Listing device based on RSSI
-        devices = sorted(manager.get_bt_devices(
-            category=bt_helper.BT_ANY, filters={'Paired': False, 'Icon': TARGET}),
+        paired_targets = list(manager.get_bt_devices(category=bt_helper.BT_ANY, filters={'Paired': True, 'Icon': args.target}))
+        if not paired_targets:
+            print("INFO: No paired targeting devices found")
+            manager.scan()
+        else:
+            unpairing(paired_targets, manager)
+        
+        target_devices = sorted(manager.get_bt_devices(
+            category=bt_helper.BT_ANY, filters={'Paired': False, 'Icon': args.target}),
              key=lambda x: int(x.rssi or -255), reverse=True)
-        
-        if not devices:
-            print("Error: No devices detected")
+        if not target_devices:
+            print("ERROR: No target devices found, terminating")
             return 1
-    
-        print('Detected devices (sorted by RSSI; highest first).')
+        print('INFO: Detected devices (sorted by RSSI; highest first).')
         # let's assing numbers to devices
-        devices = dict(enumerate(devices, 1))
-        
-        # TODO: TBD,
-        # may considering unpair every paired TARGET devices first?
-        for paireddevice in list(manager.get_bt_devices(filters={'Icon': TARGET, 'Paired': True})):
-            print("Unpairing known device: {}".format(paireddevice))
-            try:
-                paireddevice.unpair()
-            except bt_helper.BtException as state:
-                print("Unpairing failed: ", state)
-                return 1
-
+        devices = dict(enumerate(target_devices, 1))
         for num, dev in devices.items():
             print('{}. {} (RSSI: {})'.format(num, dev, dev.rssi))
-            chosen = False
+        chosen = False
         while not chosen:
             num = input('Which one would you like to connect to? (0 to exit) ')
             # TODO: enter as default to 1st device
             if num == '0':
                 return 1
             chosen = num.isnumeric() and int(num) in devices.keys()
-        print('{} chosen.'.format(devices[int(num)]))
-        print("Pairing selected device..")
-
-        # TODO:
-        #   capture .pair() is failing
-        #   however it's only returning None even it's failing
-        #   https://github.com/kissiel/bt_helper/issues/11
+        print('INFO: {} chosen.'.format(devices[int(num)]))
+        print("INFO: Pairing selected device..")
         try:
             devices[int(num)].pair()
         except bt_helper.BtException as state:
@@ -152,6 +139,8 @@ def main():
         else:
             print("Paired successfully.")
             return 0
+    # capture all other silence failures
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main())

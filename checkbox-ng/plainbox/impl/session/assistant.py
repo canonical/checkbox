@@ -564,6 +564,10 @@ class SessionAssistant:
         self._manager = SessionManager.create(self._repo)
         self._context = self._manager.add_local_device_context()
         for provider in self._selected_providers:
+            if provider.problem_list:
+                _logger.error(
+                    "Problems encountered when loading %s provider: %s",
+                    provider.name, provider.problem_list)
             self._context.add_provider(provider)
         self._metadata = self._context.state.metadata
         self._metadata.app_id = self._app_id

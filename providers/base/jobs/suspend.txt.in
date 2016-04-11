@@ -2753,7 +2753,7 @@ command: glxgears; true
 _summary: Test that glxgears works after suspend
 _description:
  PURPOSE:
-     This test tests the basic 3D capabilities of your $product video card after suspend
+     This test tests the basic 3D capabilities of your video card after suspend
  STEPS:
      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
      2. Verify that the animation is not jerky or slow.

@@ -27,7 +27,6 @@
 #       6. different PIN selection
 #       7. MAC address validator
 #       8. Use logging for information
-#       9. PEP8
 
 import sys
 import time
@@ -38,7 +37,7 @@ from argparse import ArgumentParser
 
 
 def unpairing(devices, manager):
-    """ Unpairing paired devices and scanning device list again for rerun jobs. """
+    """ Unpairing paired devices and scanning again for rerun jobs. """
     for dev in devices:
         try:
             print("INFO: Unpairing known device")
@@ -53,28 +52,31 @@ def unpairing(devices, manager):
     print("INFO: Re-scaning for devices in pairing mode")
     manager.scan()
 
+
 def countdown_timer(sec):
     """ Give user some more awareness while waiting. """
-    for i in range(sec,-1,-1):
+    for i in range(sec, -1, -1):
         sys.stdout.write("\rINFO: Re-parining in {:2}s".format(i))
         sys.stdout.flush()
         time.sleep(1)
     print("\r")
 
+
 def main():
     """ Add argument parser here and do most of the job. """
-    parser = ArgumentParser(description="Bluetooth auto paring and connect. Please select one option.")
+    parser = ArgumentParser(description=("Bluetooth auto paring and connect. "
+                                         "Please select one option."))
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--mac", type=str,
                        help="Pair with a given MAC, not using scan result,")
     group.add_argument("--mouse", action="store_const",
                        const="input-mouse", dest='target',
-                       help="Pair with the last mouse found from scan result.")
+                       help="List and pair with mouse devices")
     group.add_argument("--keyboard", action="store_const",
                        const="input-keyboard", dest='target',
-                       help="Pair with the last keyboard found from scan result.")
+                       help="List and pair with keyboard devices")
     args = parser.parse_args()
-    
+
     manager = bt_helper.BtManager()
     # Power on bluetooth adapter and scanning devices in advance.
     manager.ensure_adapters_powered()
@@ -91,7 +93,7 @@ def main():
             return 1
 
         unpairing(paired_device, manager)
-        
+
         for dev in device:
             try:
                 dev.pair()
@@ -103,16 +105,18 @@ def main():
                 return 0
     else:
         print("INFO: Listing targeting devices")
-        #Listing device based on RSSI
-        paired_targets = list(manager.get_bt_devices(category=bt_helper.BT_ANY, filters={'Paired': True, 'Icon': args.target}))
+        # Listing device based on RSSI
+        paired_targets = list(manager.get_bt_devices(category=bt_helper.BT_ANY,
+                              filters={'Paired': True, 'Icon': args.target}))
         if not paired_targets:
             print("INFO: No paired targeting devices found")
             manager.scan()
         else:
             unpairing(paired_targets, manager)
-        
+
         target_devices = sorted(manager.get_bt_devices(
-            category=bt_helper.BT_ANY, filters={'Paired': False, 'Icon': args.target}),
+            category=bt_helper.BT_ANY, filters={
+             'Paired': False, 'Icon': args.target}),
              key=lambda x: int(x.rssi or -255), reverse=True)
         if not target_devices:
             print("ERROR: No target devices found, terminating")
@@ -124,7 +128,10 @@ def main():
             print('{}. {} (RSSI: {})'.format(num, dev, dev.rssi))
         chosen = False
         while not chosen:
-            num = input('Which one would you like to connect to? (0 to exit) ')
+            # print(flush=True) to bypass plainbox print() buffer.
+            print('Which one would you like to connect to? (0 to exit)',
+                  flush=True)
+            num = input()
             # TODO: enter as default to 1st device
             if num == '0':
                 return 1

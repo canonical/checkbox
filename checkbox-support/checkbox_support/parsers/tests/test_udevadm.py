@@ -625,6 +625,12 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
         self.assertEqual(self.count(devices, "DISK"), 1)
 
+    def test_EMMC_INTEL_NUC_SNAPPY(self):
+        devices = self.parse("INTEL_NUC_SNAPPY")
+        self.assertEqual(len(devices), 77)
+        # Check that the eMMC drive is reported as a DISK
+        self.assertEqual(self.count(devices, "DISK"), 1)
+
     def test_EMMC_NOT_AS_MAIN_DRIVE(self):
         devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=False)
         self.assertEqual(len(devices), 66)

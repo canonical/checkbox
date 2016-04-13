@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # This file is part of Checkbox.
 #
@@ -20,7 +19,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 #
 # possibility to lockup, if it times out
 # TODO:
@@ -36,44 +34,35 @@ import bt_helper
 from argparse import ArgumentParser
 
 
-def unpairing(devices, manager):
-    """ Unpairing paired devices and scanning again for rerun jobs. """
+def unpair_all(devices, manager):
+    """ Unpairing paired devices and scanning again for rerun jobs."""
     for dev in devices:
         try:
-            print("INFO: Unpairing known device")
+            print("INFO: Unpairing", dev)
             dev.unpair()
-        except bt_helper.BtException as state:
-            print("Warning: Unpairing failed", state)
-        break
+        except bt_helper.BtException as exc:
+            print("Warning: Unpairing failed", exc)
     else:
-        return
-    print("INFO: Please reset the device to pairing mode")
-    countdown_timer(13)
-    print("INFO: Re-scaning for devices in pairing mode")
-    manager.scan()
-
-
-def countdown_timer(sec):
-    """ Give user some more awareness while waiting. """
-    for i in range(sec, -1, -1):
-        sys.stdout.write("\rINFO: Re-parining in {:2}s".format(i))
-        sys.stdout.flush()
-        time.sleep(1)
-    print("\r")
+        # print(flush=True) to bypass plainbox output buffer.
+        print("INFO: Please reset the device to pairing mode in 13 seconds",
+              flush=True)
+        time.sleep(13)
+        print("INFO: Re-scaning for devices in pairing mode", flush=True)
+        manager.scan()
 
 
 def main():
-    """ Add argument parser here and do most of the job. """
+    """Add argument parser here and do most of the job."""
     parser = ArgumentParser(description=("Bluetooth auto paring and connect. "
                                          "Please select one option."))
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--mac", type=str,
                        help="Pair with a given MAC, not using scan result,")
     group.add_argument("--mouse", action="store_const",
-                       const="input-mouse", dest='target',
+                       const="input-mouse", dest="target",
                        help="List and pair with mouse devices")
     group.add_argument("--keyboard", action="store_const",
-                       const="input-keyboard", dest='target',
+                       const="input-keyboard", dest="target",
                        help="List and pair with keyboard devices")
     args = parser.parse_args()
 
@@ -92,13 +81,13 @@ def main():
             print("ERROR: No pairable device found, terminating")
             return 1
 
-        unpairing(paired_device, manager)
+        unpair_all(paired_device, manager)
 
         for dev in device:
             try:
                 dev.pair()
-            except bt_helper.BtException as state:
-                print("ERROR: Unable to pair: ", state)
+            except bt_helper.BtException as exc:
+                print("ERROR: Unable to pair: ", exc)
                 return 1
             else:
                 print("INFO: Device paired")
@@ -112,7 +101,7 @@ def main():
             print("INFO: No paired targeting devices found")
             manager.scan()
         else:
-            unpairing(paired_targets, manager)
+            unpair_all(paired_targets, manager)
 
         target_devices = sorted(manager.get_bt_devices(
             category=bt_helper.BT_ANY, filters={
@@ -121,27 +110,25 @@ def main():
         if not target_devices:
             print("ERROR: No target devices found, terminating")
             return 1
-        print('INFO: Detected devices (sorted by RSSI; highest first).')
+        print("INFO: Detected devices (sorted by RSSI; highest first).")
         # let's assing numbers to devices
         devices = dict(enumerate(target_devices, 1))
         for num, dev in devices.items():
-            print('{}. {} (RSSI: {})'.format(num, dev, dev.rssi))
+            print("{}. {} (RSSI: {})".format(num, dev, dev.rssi))
         chosen = False
         while not chosen:
-            # print(flush=True) to bypass plainbox print() buffer.
-            print('Which one would you like to connect to? (0 to exit)',
-                  flush=True)
+            print("Which one would you like to connect to? (0 to exit)")
             num = input()
             # TODO: enter as default to 1st device
             if num == '0':
                 return 1
             chosen = num.isnumeric() and int(num) in devices.keys()
-        print('INFO: {} chosen.'.format(devices[int(num)]))
+        print("INFO: {} chosen.".format(devices[int(num)]))
         print("INFO: Pairing selected device..")
         try:
             devices[int(num)].pair()
-        except bt_helper.BtException as state:
-            print("ERROR: something wrong: ", state)
+        except bt_helper.BtException as exc:
+            print("ERROR: something wrong: ", exc)
             return 1
         else:
             print("Paired successfully.")

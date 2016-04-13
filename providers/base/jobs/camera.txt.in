@@ -1,3 +1,7 @@
+unit: packaging meta-data
+os-id: debian
+Depends: gir1.2-cheese-3.0
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::camera
 id: camera/detect

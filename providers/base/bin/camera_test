@@ -164,13 +164,10 @@ class CameraTest:
     """
     A simple class that displays a test image via GStreamer.
     """
-    def __init__(self, args, gst_plugin=None, gst_video_type=None):
+    def __init__(self, args):
         self.args = args
-        self._mainloop = GObject.MainLoop()
         self._width = 640
         self._height = 480
-        self._gst_plugin = gst_plugin
-        self._gst_video_type = gst_video_type
 
     def detect(self):
         """
@@ -204,51 +201,62 @@ class CameraTest:
                   else '',
                   ' ]', sep="")
 
-            resolutions = self._get_supported_resolutions(device)
-            print('    ',
-                  self._supported_resolutions_to_string(resolutions).replace(
-                      "\n", " "),
-                  sep="")
+            resolutions = self._supported_resolutions_to_string(
+                self._get_supported_resolutions(device))
+            resolutions = resolutions.replace(
+                "Resolutions:", "    Resolutions:")
+            resolutions = resolutions.replace("Format:", "    Format:")
+            print(resolutions)
 
             if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE:
                 cap_status = 0
         return dev_status | cap_status
 
+    def _on_destroy(self, *args):
+        Clutter.main_quit()
+
+    def _take_photo(self, *args):
+        Cheese.Camera.take_photo(self.camera, self.filename)
+
     def led(self):
         """
         Activate camera (switch on led), but don't display any output
         """
-        pipespec = ("v4l2src device=%(device)s "
-                    "! %(type)s "
-                    "! %(plugin)s "
-                    "! testsink"
-                    % {'device': self.args.device,
-                       'type': self._gst_video_type,
-                       'plugin': self._gst_plugin})
-        logging.debug("LED test with pipeline %s", pipespec)
-        self._pipeline = Gst.parse_launch(pipespec)
-        self._pipeline.set_state(Gst.State.PLAYING)
-        time.sleep(3)
-        self._pipeline.set_state(Gst.State.NULL)
+        Clutter.threads_add_timeout(0, 3000, self._on_destroy, None, None)
+        video_texture = Clutter.Actor()
+        try:
+            camera = Cheese.Camera.new(
+                video_texture, self.args.device, self._width, self._height)
+        except TypeError: # libcheese < 3.18 still use Clutter.Texture
+            video_texture = Clutter.Texture()
+            camera = Cheese.Camera.new(
+                video_texture, self.args.device, self._width, self._height)
+        Cheese.Camera.setup(camera, None)
+        Cheese.Camera.play(camera)
+        Clutter.main()
 
     def display(self):
         """
         Displays the preview window
         """
-        pipespec = ("v4l2src device=%(device)s "
-                    "! %(type)s,width=%(width)d,height=%(height)d "
-                    "! %(plugin)s "
-                    "! autovideosink"
-                    % {'device': self.args.device,
-                       'type': self._gst_video_type,
-                       'width': self._width,
-                       'height': self._height,
-                       'plugin': self._gst_plugin})
-        logging.debug("display test with pipeline %s", pipespec)
-        self._pipeline = Gst.parse_launch(pipespec)
-        self._pipeline.set_state(Gst.State.PLAYING)
-        time.sleep(10)
-        self._pipeline.set_state(Gst.State.NULL)
+        stage = Clutter.Stage()
+        stage.set_title('Camera test')
+        stage.set_size(self._width, self._height)
+        stage.connect('destroy', self._on_destroy)
+        Clutter.threads_add_timeout(0, 10000, self._on_destroy, None, None)
+        video_texture = Clutter.Actor()
+        try:
+            camera = Cheese.Camera.new(
+                video_texture, self.args.device, self._width, self._height)
+        except TypeError: # libcheese < 3.18 still use Clutter.Texture
+            video_texture = Clutter.Texture()
+            camera = Cheese.Camera.new(
+                video_texture, self.args.device, self._width, self._height)
+        stage.add_actor(video_texture)
+        Cheese.Camera.setup(camera, None)
+        Cheese.Camera.play(camera)
+        stage.show()
+        Clutter.main()
 
     def still(self):
         """
@@ -272,7 +280,7 @@ class CameraTest:
                    "-d", self.args.device,
                    "-r", "%dx%d"
                    % (width, height), filename]
-        use_gstreamer = False
+        use_cheese = False
         if pixelformat:
             if 'MJPG' == pixelformat:  # special tweak for fswebcam
                 pixelformat = 'MJPEG'
@@ -281,40 +289,37 @@ class CameraTest:
         try:
             check_call(command, stdout=open(os.devnull, 'w'), stderr=STDOUT)
         except (CalledProcessError, OSError):
-            use_gstreamer = True
+            use_cheese = True
 
-        if use_gstreamer:
-            pipespec = ("v4l2src device=%(device)s "
-                        "! %(type)s,width=%(width)d,height=%(height)d "
-                        "! %(plugin)s "
-                        "! jpegenc "
-                        "! filesink location=%(filename)s"
-                        % {'device': self.args.device,
-                           'type': self._gst_video_type,
-                           'width': width,
-                           'height': height,
-                           'plugin': self._gst_plugin,
-                           'filename': filename})
-            logging.debug("still test with gstreamer and "
-                          "pipeline %s", pipespec)
-            self._pipeline = Gst.parse_launch(pipespec)
-            self._pipeline.set_state(Gst.State.PLAYING)
-            time.sleep(3)
-            self._pipeline.set_state(Gst.State.NULL)
+        if use_cheese:
+            stage = Clutter.Stage()
+            stage.connect('destroy', self._on_destroy)
+            video_texture = Clutter.Actor()
+            try:
+                self.camera = Cheese.Camera.new(
+                    video_texture, self.args.device, self._width, self._height)
+            except TypeError: # libcheese < 3.18 still use Clutter.Texture
+                video_texture = Clutter.Texture()
+                self.camera = Cheese.Camera.new(
+                    video_texture, self.args.device, self._width, self._height)
+            Cheese.Camera.setup(self.camera, None)
+            Cheese.Camera.play(self.camera)
+            self.filename = filename
+            Clutter.threads_add_timeout(0, 3000, self._take_photo , None, None)
+            Clutter.threads_add_timeout(0, 4000, self._on_destroy, None, None)
+            Clutter.main()
+            Cheese.Camera.stop(self.camera)
 
         if not quiet:
-            import imghdr
-            image_type = imghdr.what(filename)
-            pipespec = ("filesrc location=%(filename)s ! "
-                        "%(type)sdec ! "
-                        "videoscale ! "
-                        "imagefreeze ! autovideosink"
-                        % {'filename': filename,
-                           'type': image_type})
-            self._pipeline = Gst.parse_launch(pipespec)
-            self._pipeline.set_state(Gst.State.PLAYING)
-            time.sleep(10)
-            self._pipeline.set_state(Gst.State.NULL)
+            stage = Clutter.Stage()
+            stage.set_title('Camera still picture test')
+            stage.set_size(width, height)
+            stage.connect('destroy', self._on_destroy)
+            Clutter.threads_add_timeout(0, 10000, self._on_destroy, None, None)
+            still_texture = Clutter.Texture.new_from_file(filename)
+            stage.add_actor(still_texture)
+            stage.show()
+            Clutter.main()
 
     def _supported_resolutions_to_string(self, supported_resolutions):
         """
@@ -563,16 +568,20 @@ if __name__ == "__main__":
 
     # Import Gst only for the test cases that will need it
     if args.test in ['display', 'still', 'led', 'resolutions']:
+        import contextlib
+        # Workaround to avoid "cluttervideosink missing"
+        # See https://bugzilla.gnome.org/show_bug.cgi?id=721277
+        with contextlib.suppress(FileNotFoundError):
+            gst_registry = '~/.cache/gstreamer-1.0/registry.x86_64.bin'
+            os.remove(os.path.expanduser(gst_registry))
+        import gi
+        gi.require_version('Gst', '1.0')
         from gi.repository import Gst
-        if Gst.version()[0] > 0:
-            gst_plugin = 'videoconvert'
-            gst_video_type = 'video/x-raw'
-        else:
-            gst_plugin = 'ffmpegcolorspace'
-            gst_video_type = 'video/x-raw-yuv'
+        gi.require_version('Cheese', '3.0')
+        from gi.repository import Cheese
+        gi.require_version('Clutter', '1.0')
+        from gi.repository import Clutter
         Gst.init(None)
-        camera = CameraTest(args, gst_plugin, gst_video_type)
-    else:
-        camera = CameraTest(args)
-
+        Clutter.init()
+    camera = CameraTest(args)
     sys.exit(getattr(camera, args.test)())

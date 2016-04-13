@@ -13,6 +13,32 @@ will be used.
 
 This tutorial describes Launchers version 1.
 
+External configuration files
+============================
+
+Launcher can specify external file(s) to load values from.
+
+``[config]``
+
+Beginning of the configuration section.
+
+``config_filename``
+
+Name of the configuration file to look for. Default value: ``checkbox.conf``
+
+The directories that will be searched for the file are ``/etc/xdg/`` and
+``~/config/``.
+
+Example::
+
+    [config]
+    config_filename = testing.conf
+
+This will make checkbox look for ``/etc/xdg/testing.conf`` and
+``~/config/testing.conf`` files.
+
+For more details about value resolution order see :doc:`configs</configs>`
+
 Launcher meta-information
 =========================
 

@@ -596,7 +596,6 @@ category_id: 2013.com.canonical.plainbox::wireless
 id: wireless/stress_performance_device{__index__}_{interface}
 estimated_duration: 330.0
 requires:
- device.path == '{path}'
  package.name == 'iperf'
 environ: TEST_TARGET_IPERF
 user: root
@@ -650,7 +649,6 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::wireless
 id: wireless/iwconfig_check_device{__index__}_{interface}
 estimated_duration: 1.2
-requires: device.path == '{path}'
 command: iwconfig {interface}
 _description:
  This test executes iwconfig requests against wireless device {__index__} ({interface}).
@@ -679,7 +677,6 @@ category_id: 2013.com.canonical.plainbox::wireless
 id: wireless/maximum_bandwidth_device{__index__}_{interface}
 estimated_duration: 120.0
 requires:
- device.path == '{path}'
  package.name == 'zenity'
  package.name == 'iperf'
 environ: TEST_TARGET_IPERF

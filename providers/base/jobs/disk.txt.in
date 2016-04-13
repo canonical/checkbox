@@ -10,29 +10,6 @@ _description:
  Displays information about each disk detected on the system under test.
 
 unit: template
-template-imports: from 2013.com.canonical.certification import device
-template-resource: device
-template-filter: device.category == 'DISK' and device.name != ''
-plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
-id: staging/disk/stats_{name}
-requires:
- block_device.{name}_state != 'removable'
-user: root
-command: disk_stats_test {name}
-_summary: Disk statistics for /dev/{name}
-_description:
- This test checks disk stats, generates some activity and rechecks stats to
- verify they've changed. It also verifies that disks appear in the various
- files they're supposed to.
- .
- This test will inspect the following disk:
- .
-     product name: {product}
-     sysfs path: {path}
-     device node path: /dev/{name}
-
-unit: template
 template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
@@ -40,7 +17,6 @@ category_id: 2013.com.canonical.plainbox::disk
 id: disk/stats_{name}
 flags: deprecated
 requires:
- device.path == "{path}"
  block_device.{name}_state != 'removable'
 user: root
 command: disk_stats_test {name}
@@ -55,7 +31,6 @@ id: disk/smart_{name}
 estimated_duration: 180.0
 requires:
  package.name == 'smartmontools'
- device.path == "{path}"
  block_device.{name}_smart == 'True'
 _summary:
  Test SMART capabilities for {product}
@@ -72,7 +47,6 @@ category_id: 2013.com.canonical.plainbox::disk
 id: disk/read_performance_{name}
 estimated_duration: 65.0
 requires:
- device.path == "{path}"
  block_device.{name}_state != 'removable'
 _summary: Disk performance test for {product}
 _description: Disk performance test for {product}
@@ -88,7 +62,6 @@ id: disk/storage_device_{name}
 estimated_duration: 375.0
 user: root
 requires:
- device.path == "{path}"
  block_device.{name}_state != 'removable'
 _summary: Disk I/O stress test for {product}
 _description: Disk I/O stress test for {product}

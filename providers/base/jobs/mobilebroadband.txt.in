@@ -66,7 +66,6 @@ id: mobilebroadband/maximum_bandwidth_gsm_device{__index__}_{interface}
 depends: mobilebroadband/gsm_connection
 estimated_duration: 330.0
 requires:
- device.path == '{path}'
  package.name == 'zenity'
  package.name == 'iperf'
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
@@ -91,7 +90,6 @@ id: mobilebroadband/maximum_bandwidth_cdma_device{__index__}_{interface}
 depends: mobilebroadband/cdma_connection
 estimated_duration: 330.0
 requires:
- device.path == '{path}'
  package.name == 'zenity'
  package.name == 'iperf'
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS

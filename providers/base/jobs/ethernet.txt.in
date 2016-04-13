@@ -55,7 +55,6 @@ id: ethernet/multi_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
- device.path == '{path}'
  package.name == 'iperf'
  package.name == 'ethtool'
  package.name == 'nmap'
@@ -75,7 +74,6 @@ id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
- device.path == '{path}'
  package.name == 'iperf3'
  package.name == 'ethtool'
  package.name == 'nmap'
@@ -95,7 +93,6 @@ id: ethernet/ethertool_check_device{__index__}_{interface}
 _summary: ethtool check for NIC {interface}
 estimated_duration: 330.0
 requires:
- device.path == '{path}'
  package.name == 'ethtool'
 command: ethtool {interface}
 _description:
@@ -110,7 +107,6 @@ id: ethernet/maximum_bandwidth_device{__index__}_{interface}
 _summary: Maximum bandwidth test of device {__index__} ({interface})
 estimated_duration: 330.0
 requires:
- device.path == '{path}'
  package.name == 'zenity'
  package.name == 'iperf'
 user: root
@@ -135,7 +131,6 @@ id: ethernet/stress_performance_device{__index__}_{interface}
 _summary: Stress and performance test of ethernet device {__index__} ({interface})
 estimated_duration: 330.0
 requires:
- device.path == '{path}'
  package.name == 'ethtool'
 command: network test -i {interface} -t stress
 _description:

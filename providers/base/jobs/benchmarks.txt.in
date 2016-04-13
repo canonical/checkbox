@@ -5,7 +5,6 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::benchmarks
 id: benchmarks/disk/hdparm-read_{name}
 estimated_duration: 15.0
-requires: device.path == '{path}'
 user: root
 command: hdparm -t /dev/{name}
 _summary: Raw read timing benchmark of {name} using hdparm
@@ -18,7 +17,6 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::benchmarks
 id: benchmarks/disk/hdparm-cache-read_{name}
 estimated_duration: 10.0
-requires: device.path == '{path}'
 user: root
 command: hdparm -T /dev/{name}
 _summary: Cached read timing benchmark of {name} using hdparm

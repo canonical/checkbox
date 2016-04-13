@@ -110,7 +110,9 @@ QEMU_ARCH_CONFIG = {
         'qemu_bin': 'qemu-system-ppc64',
         'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
         'qemu_extra_args': [
-            '-machine', 'pseries',
+	    '-enable-kvm',
+            '-machine', 'pseries,usb=off',
+	    '-cpu', 'POWER8',
         ],
     },
 }
@@ -444,7 +446,13 @@ def test_kvm(args):
         image = args.image
 
     kvm_test = KVMTest(image, timeout, args.log_file)
+    # If arch is ppc64el, disable smt
+    if kvm_test.arch == 'ppc64el':
+        os.system("/usr/sbin/ppc64_cpu --smt=off")
     result = kvm_test.start()
+    # If arch is ppc64el, re-enable smt
+    if kvm_test.arch == 'ppc64el':
+        os.system("/usr/sbin/ppc64_cpu --smt=on")
 
     sys.exit(result)
 

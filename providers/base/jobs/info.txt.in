@@ -410,3 +410,11 @@ command: cat /proc/cmdline
 estimated_duration: 0.005
 _description: Attaches the kernel command line used to boot
 _summary: Attach a copy of /proc/cmdline
+
+id: config_file_attachment
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
+command: [ -f /etc/xdg/canonical-certification.conf ] && cat /etc/xdg/canonical-certification.conf
+estimated_duration: 0.005
+_description: Attaches the config file for debugging config issues
+_summary: Attach a copy of /etc/xdg/canonical-certification.conf

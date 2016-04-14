@@ -83,7 +83,7 @@ int test_clock_jitter(){
     if (failures == 0)
         printf ("PASSED: largest jitter seen was %lf\n",largest_jitter);
     else
-	    printf ("FAILED: %u iterations failed\n",failures);
+        printf ("FAILED: %u iterations failed\n",failures);
 
     return (failures > 0);
 }
@@ -134,8 +134,6 @@ int test_clock_direction()
  
         /* timersub() gives us the delta pretty simply */
         timersub(&tval_stop, &tval_start, &tval_result);
-        double starttime = tval_start.tv_sec + (tval_start.tv_usec / 1000000.0);
-        double stoptime = tval_stop.tv_sec + (tval_stop.tv_usec / 1000000.0);
         deltas[iteration] = (tval_result.tv_sec - sleeptime) + (tval_result.tv_usec / 1000000.0);
     }
 
@@ -158,10 +156,10 @@ int test_clock_direction()
 
 int main()
 {
-	int failures = test_clock_jitter();
+    int failures = test_clock_jitter();
     if (failures == 0)
-	{
-		failures = test_clock_direction();
-	}
-	return failures;
+    {
+        failures = test_clock_direction();
+    }
+    return failures;
 }

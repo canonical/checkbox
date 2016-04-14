@@ -1,4 +1,4 @@
-#!/bin/bash
+#/bin/bash
 
 logfile=~/install.log
 currentuser=$(logname)
@@ -183,7 +183,7 @@ fi
 
 }
 
-# iperf and iperf3 are available on server specified in /etc/xdg/canonical-certification.conf (NOTE: iperf (2) will eventually become irrelevant)
+# Check if iperf3 is available on server specified in /etc/xdg/canonical-certification.conf 
 IPERF(){
 name="Iperf"
 echoname
@@ -201,35 +201,22 @@ elif [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 
 		fail
 	fi
 fi
-local iperf2found=0
 local iperf3found=0
 for iperfserver in $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf | cut -d = -f 2 | sed s/,/\\n/g)
         do
-                echo " Testing $iperfserver"
-                local iperffound=0
-                nc -z $iperfserver 5001
-                if [ $? = 0 ]; then
-                        echo " Iperf server found on port 5001 on $iperfserver"
-                        iperf2found=1
-                        iperffound=1
-                fi
                 iperf3 -c $iperfserver -n 1 &> /dev/null
                 if [ $? = 0 ]; then
                         echo " Iperf3 server found on port 5201 on $iperfserver"
                         iperf3found=1
-                        iperffound=1
-                fi
-                if [ $iperffound = 0 ]; then
-                        echo " No Iperf (2) or iperf3 server found on $iperfserver"
+		else
+                        echo " No Iperf3 server found on $iperfserver"
                 fi
 done
-if [[ $iperf2found == 0 ]]; then
-        echo " No iperf (2) server found"
-        fail
-fi
 if [[ $iperf3found == 0 ]]; then
         echo " No iperf3 server found"
         fail
+else
+	pass
 fi
 }
 

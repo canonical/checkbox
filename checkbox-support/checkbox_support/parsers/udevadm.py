@@ -103,6 +103,11 @@ def find_pkname_is_root_mountpoint(devname, lsblk=None):
                 line.startswith('KNAME="{}'.format(devname))
             ):
                 return True
+            if (
+                line.endswith('MOUNTPOINT="/writable"') and
+                line.startswith('KNAME="{}'.format(devname))
+            ):
+                return True
     return False
 
 

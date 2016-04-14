@@ -58,6 +58,7 @@ Table of contents
    scripts/index.rst
    profiles.rst
    launcher-tutorial.rst
+   configs.rst
    release.rst
 
 Indices and tables

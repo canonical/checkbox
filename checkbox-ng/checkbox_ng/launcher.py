@@ -52,7 +52,7 @@ class LauncherDefinition(PlainBoxConfig):
 
     config_filename = config.Variable(
         section="config",
-        default="canonical-certification.conf",
+        default="checkbox.conf",
         help_text=_("Name of custom configuration file"))
 
     def get_concrete_launcher(self):

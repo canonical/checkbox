@@ -259,12 +259,12 @@ fi
 Virtualization_Support(){
 name="Virtualization Support"
 echoname
-cat /proc/cpuinfo |egrep "vmx|svm" >/dev/null
+/usr/sbin/kvm-ok >/dev/null
 if [ $? = 0 ]; then
  echo " System has virtualization support"
  pass
 else
- echo " System does not have virtualization support"
+ echo " System does NOT have virtualization support"
  fail
 fi
 }

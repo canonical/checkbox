@@ -480,7 +480,6 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         """
         if self._loaded:
             return
-        self._loaded = True
         start_time = now()
         entry_point_list = list(self._get_entry_points())
         entry_point_list.sort(key=lambda ep: ep.name)
@@ -495,6 +494,7 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
             else:
                 self.wrap_and_add_plugin(
                     entry_point.name, obj, now() - start_time)
+        self._loaded = True
 
     def _get_entry_points(self):
         """

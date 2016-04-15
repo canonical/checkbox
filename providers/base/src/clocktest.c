@@ -81,44 +81,85 @@ int test_clock_jitter(){
     }
 
     if (failures == 0)
-        printf ("PASSED, largest jitter seen was %lf\n",largest_jitter);
+        printf ("PASSED: largest jitter seen was %lf\n",largest_jitter);
     else
-	    printf ("FAILED, %u iterations failed\n",failures);
+        printf ("FAILED: %u iterations failed\n",failures);
 
     return (failures > 0);
 }
 
+/*
+ * This is the original test_clock_direction() function. I've left it here for
+ * reference and in case we wish to resurrect it for some reason. 
+ * This should be removed in the future if the new version pans out.
 int test_clock_direction()
 {
 	time_t starttime = 0;
 	time_t stoptime = 0;
 	int sleeptime = 60;
-	int delta = 0;
+	float delta = 0;
 
 	time(&starttime);
 	sleep(sleeptime);
 	time(&stoptime);
 
 	delta = (int)stoptime - (int)starttime - sleeptime;
-	printf("clock direction test: start time %d, stop time %d, sleeptime %u, delta %u\n",
+	printf("clock direction test: start time %d, stop time %d, sleeptime %u, delta %f\n",
 				(int)starttime, (int)stoptime, sleeptime, delta);
 	if (delta != 0)
 	{
 		printf("FAILED\n");
 		return 1;
 	}
-	/* otherwise */
+	/// * otherwise * /
 	printf("PASSED\n");
 	return 0;
-}
+}*/
 
+int test_clock_direction()
+{
+    struct timeval tval_start, tval_stop, tval_result;
+    int sleeptime = 60;
+    int failures = 0;
+    int iteration;
+    double deltas[5];
+    
+    printf("\nTesting clock direction for 5 minutes...\n");
+    /* Because skew can vary, we'll run it 5 times */
+    for (iteration = 0; iteration < 5; iteration++) {
+        /* Replace time() calls with POSIX gettimeofday() */
+        gettimeofday(&tval_start, NULL);
+        sleep(sleeptime);
+        gettimeofday(&tval_stop, NULL);
+ 
+        /* timersub() gives us the delta pretty simply */
+        timersub(&tval_stop, &tval_start, &tval_result);
+        deltas[iteration] = (tval_result.tv_sec - sleeptime) + (tval_result.tv_usec / 1000000.0);
+    }
+
+    for (iteration = 0; iteration < 5; iteration++) {
+        /* if any one iteration fails, test fails */
+        if (deltas[iteration] > 0.01)
+        {
+            printf("FAILED: Iteration %d delta: %f\n", iteration, deltas[iteration]);
+            failures += 1;
+        }
+        /* otherwise */
+        else {
+            printf("PASSED: Iteration %d delta: %f\n", iteration, deltas[iteration]);
+        }
+    }
+    printf("clock direction test: sleeptime %u sec per iteration, failed iterations: %d\n",
+            sleeptime, failures);
+    return (failures > 0);
+}
 
 int main()
 {
-	int failures = test_clock_jitter();
-	if (failures == 0)
-	{
-		failures = test_clock_direction();
-	}
-	return failures;
+    int failures = test_clock_jitter();
+    if (failures == 0)
+    {
+        failures = test_clock_direction();
+    }
+    return failures;
 }

@@ -48,7 +48,7 @@ _description:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::cpu
 id: cpu/clocktest
-estimated_duration: 60.0
+estimated_duration: 300.0
 command: clocktest
 _summary:
  Test CPUs for clock jitter

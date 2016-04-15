@@ -32,11 +32,11 @@
 #   --time-per-gig is extra time given to SOME stressors, measured in a
 #     seconds per GiB way. (The default is 10 seconds per GiB.)
 #
-# There are a total of 23 constant-run-time stressors and 6 variable-
+# There are a total of 22 constant-run-time stressors and 6 variable-
 # run-time stressors. Given the defaults, this works out to a total
-# expected default run time of 8700 seconds (145 minutes) plus 60 seconds
-# per GiB of RAM -- so a system with 16 GiB should take 161 minutes; one
-# with 32 GiB should take 177 minutes, and so on, using the default
+# expected default run time of 8400 seconds (145 minutes) plus 60 seconds
+# per GiB of RAM -- so a system with 16 GiB should take 156 minutes; one
+# with 32 GiB should take 172 minutes, and so on, using the default
 # values.
 
 
@@ -126,7 +126,7 @@ had_error=0
 
 # Constant-run-time stressors -- run them for the same length of time on all
 # systems....
-crt_stressors=("bsearch" "context" "hsearch" "lockbus" "lsearch" "matrix" \
+crt_stressors=("bsearch" "context" "hsearch" "lsearch" "matrix" \
                "memcpy" "null" "pipe" "qsort" "stack" "str" "stream" \
                "tsearch" "vm-rw" "wcs" "zero" "mlock" "mmapfork" "mmapmany" \
                "mremap" "shm-sysv" "vm-splice")

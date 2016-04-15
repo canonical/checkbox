@@ -88,7 +88,9 @@ _summary: Attach FWTS log to submission (to HWE)
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/ipmi_test
-requires: package.name == 'ipmitool'
+requires: 
+ package.name == 'ipmitool'
+ cpuinfo.platform != 's390x'
 user: root
 command: ipmi_test
 _summary:
@@ -112,7 +114,9 @@ command: boot_mode_test
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
-requires: package.name == 'ipmitool'
+requires: 
+ package.name == 'ipmitool'
+ cpuinfo.platform != 's390x'
 estimated_duration: 0.5
 user: root
 command: bmc_info

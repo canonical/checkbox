@@ -12,7 +12,7 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/xorg-version
 requires: package.name == "x11-utils"
-command: xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
+command: set -o pipefail; xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
 estimated_duration: 0.018
 _description: Test to output the Xorg version
 _summary: Test Xorg version

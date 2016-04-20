@@ -126,7 +126,7 @@ class QemuRunner(object):
         # Parameters common to all architectures
         self.params = [
             self.config['qemu_bin'],
-            "-m", "256",
+            "-m", "1024",
             "-display", "none",
             "-nographic",
             "-net", "nic",

@@ -20,33 +20,47 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-
 import os
 import sys
 import logging
+from argparse import ArgumentParser
 
 
-def main():
-    """Test that the computer booted in EFI mode, with Secure Boot active.
+def efi_boot_check():
+    """Test that the computer booted in EFI mode
+
+    :returns:
+        0 if /sys/firmware/efivars exists meaning booted in EFI mode
+        1 if booted in BIOS mode
+    """
+    efi_dir = "/sys/firmware/efi/"
+    if os.path.isdir(efi_dir):
+        logging.info("PASS: System booted in EFI mode")
+        return 0
+    else:
+        logging.error("FAIL: System did not boot in EFI mode")
+        return 1
+
+
+def secure_boot_check():
+    """Test that the computer booted with Secure Boot active.
 
     :returns:
         0 if Secure Boot is active
         1 if Secure Boot is inactive (could be disabled, not supported,
           or not booted in EFI mode)
     """
-    logging.basicConfig(level=logging.INFO)
-    sb_dir = "/sys/firmware/efi/"
+    sb_dir = "/sys/firmware/efi"
     sb_var = sb_dir + "efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c"
     if os.path.isdir(sb_dir):
         if os.path.isfile(sb_var):
             sb_info = open(sb_var).read()
             if ord(sb_info[4]) == 1:
-                logging.info("PASS: System booted in EFI mode boot with "
-                             "Secure Boot active.")
+                logging.info("PASS: System booted with Secure Boot active.")
                 return 0
             else:
-                logging.info("FAIL: System booted in EFI mode boot with "
-                             "Secure Boot available but inactive.")
+                logging.error("FAIL: System booted with "
+                              "Secure Boot available but inactive.")
                 return 1
         else:
             # NOTE: Normally, lack of sb_var indicates that the system
@@ -55,12 +69,27 @@ def main():
             # no system slips through because it supports Secure Boot but
             # does not create the sb_var when SB is inactive or has never
             # been activated.
-            logging.info("FAIL: System booted in EFI mode and does not "
-                         "appear to support Secure Boot.")
+            logging.error("FAIL: System does not appear to support "
+                          "Secure Boot.")
             return 1
     else:
         logging.info("FAIL: System did NOT boot in EFI mode.")
         return 1
+
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument('check',
+                        choices=['efi', 'secureboot'],
+                        help='The type of check to perform')
+    args = parser.parse_args()
+
+    FORMAT = '%(levelname)s: %(message)s'
+    logging.basicConfig(level=logging.INFO, format=FORMAT)
+    if args.check == 'efi':
+        return efi_boot_check()
+    else:
+        return secure_boot_check()
 
 
 if __name__ == '__main__':

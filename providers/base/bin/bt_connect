@@ -43,7 +43,8 @@ def unpair_all(devices, manager):
         except bt_helper.BtException as exc:
             print("Warning: Unpairing failed", exc)
     else:
-        # print(flush=True) to bypass plainbox output buffer.
+        # print(flush=True) to bypass plainbox output buffer,
+        # see LP: #1569808 for more details.
         print("INFO: Please reset the device to pairing mode in 13 seconds",
               flush=True)
         time.sleep(13)

@@ -168,6 +168,7 @@ plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-mouse
 depends: bluetooth/detect-output
+imports: from 2013.com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
  package.name == 'bluez' and package.version >= '5.37'
@@ -186,6 +187,7 @@ plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-keyboard
 depends: bluetooth/detect-output
+imports: from 2013.com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
  package.name == 'bluez' and package.version >= '5.37'

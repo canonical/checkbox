@@ -3,7 +3,7 @@ Encoding=UTF-8
 Name=CheckBox SRU for Desktop
 Comment=CheckBox can run after login to test a system automatically.
 Icon=checkbox
-Exec=sh -c "if [ -e /usr/share/oem-automation/flags/first-start-checkbox ]; then sudo apt-get dist-upgrade -y --force-yes > /home/ubuntu/oem-automation-dist-upgrade.log 2>&1; sudo rm -f /usr/share/oem-automation/flags/first-start-checkbox; sudo reboot; fi; if [ `pidof systemd` ]; then sudo systemctl start checkbox-ci-installed-notifier.service; /usr/bin/checkbox sru --check-config >/tmp/checkbox.log 2>&1; sudo systemctl start checkbox-ci-mailer.service; else sudo initctl emit checkbox-sru-started; /usr/bin/checkbox sru --check-config >/tmp/checkbox.log 2>&1; sudo initctl emit checkbox-sru-finished; fi"
+Exec=sh -c 'if [ -e /usr/share/oem-automation/flags/first-start-checkbox ]; then sleep 60; sudo apt-get dist-upgrade -y --force-yes -o Dpkg::Options::="--force-confnew" > /home/ubuntu/oem-automation-dist-upgrade.log 2>&1; sudo rm -f /usr/share/oem-automation/flags/first-start-checkbox; sudo reboot; fi; if [ `pidof systemd` ]; then sudo systemctl start checkbox-ci-installed-notifier.service; /usr/bin/checkbox sru --check-config >/tmp/checkbox.log 2>&1; sudo systemctl start checkbox-ci-mailer.service; else sudo initctl emit checkbox-sru-started; /usr/bin/checkbox sru --check-config >/tmp/checkbox.log 2>&1; sudo initctl emit checkbox-sru-finished; fi'
 Terminal=false
 Type=Application
 Categories=

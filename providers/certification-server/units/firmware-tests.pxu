@@ -29,7 +29,8 @@ mandatory_include:
     lsmod_attachment
     miscellanea/get_make_and_model
     miscellanea/get_maas_version
-    miscellanea/boot_mode
+    miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/secure_boot_mode               certification-status=non-blocker
     miscellanea/cpus_are_not_samples
     miscellanea/dmitest_server
     info/disk_partitions

@@ -29,14 +29,14 @@ mandatory_include:
     lsmod_attachment
     miscellanea/get_make_and_model
     miscellanea/get_maas_version
-    miscellanea/boot_mode
+    miscellanea/efi_boot_mode                  certification-status=blocker
     info/disk_partitions
     info/network_devices
     kernel_cmdline_attachment
 include:
-    info/hdparm_.*.txt
-    virtualization/kvm_check_vm
-    info/kvm_output
+    info/hdparm_.*.txt                         certification-status=non-blocker
+    virtualization/kvm_check_vm                certification-status=blocker
+    info/kvm_output                            certification-status=non-blocker
 bootstrap_include:
     device
     fwts

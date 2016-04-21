@@ -29,7 +29,7 @@ mandatory_include:
     lsmod_attachment
     miscellanea/get_make_and_model
     miscellanea/get_maas_version
-    miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/efi_boot_mode                  certification-status=non-blocker
     miscellanea/secure_boot_mode               certification-status=non-blocker
     info/network_devices
     kernel_cmdline_attachment

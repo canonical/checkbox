@@ -1,3 +1,8 @@
+unit: manifest entry
+id: has_bt_smart
+_name: Bluetooth Smart (4.0 or later) Support
+value-type: bool
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output
@@ -157,3 +162,40 @@ _description:
  retrieves it again using Bluetooth and verifies the checksum to ensure the
  transfer didn't corrupt the file.
 
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::bluetooth
+id: bluetooth4/HOGP-mouse
+depends: bluetooth/detect-output
+imports: from 2013.com.canonical.plainbox import manifest
+requires:
+ manifest.has_bt_smart == 'True'
+ package.name == 'bluez' and package.version >= '5.37'
+estimated_duration: 30.0
+command: bt_connect-weak-logging --mouse
+_purpose:
+     This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart mouse.
+_steps:
+     1. Enable a Bluetooth smart mouse, and put it into paring mode.
+     2. Commence the test to do the auto-pairing, you will be asked to select targeting mouse from the list.
+     3. After it's paired and connected, perform actions such as moving the pointer, right and left button clicks and double clicks.
+_verification:
+     Did the Bluetooth Smart mouse work as expected?
+
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::bluetooth
+id: bluetooth4/HOGP-keyboard
+depends: bluetooth/detect-output
+imports: from 2013.com.canonical.plainbox import manifest
+requires:
+ manifest.has_bt_smart == 'True'
+ package.name == 'bluez' and package.version >= '5.37'
+estimated_duration: 30.0
+command: bt_connect --keyboard
+_purpose:
+     This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart keyboard.
+_steps:
+     1. Enable a Bluetooth Smart keyboard, and put it into paring mode.
+     2. Commence the test to do the auto-pairing, you will be asked to select targeting keyboard from the list.
+     3. After it's paired and connected, enter some text with your keyboard and close the small input test tool.
+_verification:
+     Did the Bluetooth Smart keyboard work as expected?

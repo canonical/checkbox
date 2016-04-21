@@ -63,9 +63,9 @@ include:
     firewire/insert                                        certification-status=blocker
     firewire/storage-test                                  certification-status=blocker
     firewire/remove                                        certification-status=blocker
-    thunderbolt/insert                                     certification-status=non-blocker
-    thunderbolt/storage-test                               certification-status=non-blocker
-    thunderbolt/remove                                     certification-status=non-blocker
+    thunderbolt/insert                                     certification-status=blocker
+    thunderbolt/storage-test                               certification-status=blocker
+    thunderbolt/remove                                     certification-status=blocker
     monitor/1_powersaving_.*                               certification-status=blocker
     monitor/1_dim_brightness_.*                            certification-status=blocker
     monitor/1_displayport_.*                               certification-status=blocker
@@ -73,9 +73,9 @@ include:
     monitor/1_dvi_.*                                       certification-status=blocker
     monitor/1_hdmi_.*                                      certification-status=blocker
     audio/1_playback_hdmi_.*                               certification-status=blocker
-    monitor/1_thunderbolt_.*                               certification-status=non-blocker
-    audio/1_playback_thunderbolt_.*                        certification-status=non-blocker
-    thunderbolt/daisy-chain                                certification-status=non-blocker
+    monitor/1_thunderbolt_.*                               certification-status=blocker
+    audio/1_playback_thunderbolt_.*                        certification-status=blocker
+    thunderbolt/daisy-chain                                certification-status=blocker
     monitor/1_rca_.*                                       certification-status=blocker
     monitor/1_svideo_.*                                    certification-status=blocker
     monitor/1_vga_.*                                       certification-status=blocker
@@ -109,8 +109,8 @@ include:
     monitor/2_dvi_.*                                       certification-status=blocker
     monitor/2_hdmi_.*                                      certification-status=blocker
     audio/2_playback_hdmi_.*                               certification-status=blocker
-    monitor/2_thunderbolt_.*                               certification-status=non-blocker
-    audio/2_playback_thunderbolt_.*                        certification-status=non-blocker
+    monitor/2_thunderbolt_.*                               certification-status=blocker
+    audio/2_playback_thunderbolt_.*                        certification-status=blocker
     monitor/2_rca_.*                                       certification-status=blocker
     monitor/2_svideo_.*                                    certification-status=blocker
     monitor/2_vga_.*                                       certification-status=blocker
@@ -224,8 +224,6 @@ include:
     suspend/2_suspend_after_switch_to_card_.*              certification-status=blocker
     suspend/2_suspend-time-check_.*                        certification-status=non-blocker
     suspend/2_suspend-single-log-attach_.*
-    suspend/2_hybrid_sleep_.*                              certification-status=non-blocker
-    suspend/2_hybrid-sleep-single-log-attach_.*
     suspend/2_compiz_check_after_suspend_.*                certification-status=blocker
     suspend/2_driver_version_after_suspend_.*              certification-status=blocker
     suspend/2_resolution_after_suspend_.*                  certification-status=blocker
@@ -246,8 +244,6 @@ include:
     power-management/lid                                   certification-status=blocker
     power-management/lid_close                             certification-status=blocker
     power-management/lid_open                              certification-status=blocker
-    suspend/1_hybrid_sleep_.*                              certification-status=non-blocker
-    suspend/1_hybrid-sleep-single-log-attach_.*
     suspend/compiz_check_after_suspend                     certification-status=blocker
     suspend/driver_version_after_suspend                   certification-status=blocker
     suspend/resolution_after_suspend                       certification-status=blocker

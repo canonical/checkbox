@@ -103,13 +103,25 @@ _description:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
-id: miscellanea/boot_mode
+id: miscellanea/efi_boot_mode
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: Test that system booted in EFI mode
 _description: 
  Test to verify that the system booted in EFI mode with Secure Boot active.
-command: boot_mode_test
+command: boot_mode_test efi
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+id: miscellanea/secure_boot_mode
+requires:
+ cpuinfo.platform in ("i386", "x86_64", "aarch64")
+depends: miscellanea/efi_boot_mode
+_summary: Test that system booted with Secure Boot active
+_description: 
+ Test to verify that the system booted in Secure Boot active.
+command: boot_mode_test secureboot
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea

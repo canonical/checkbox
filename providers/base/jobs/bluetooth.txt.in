@@ -1,8 +1,6 @@
 unit: manifest entry
 id: has_bt_smart
 _name: Bluetooth Smart (4.0 or later) Support
-requires:
- device.category == 'BLUETOOTH'
 value-type: bool
 
 plugin: shell
@@ -173,7 +171,7 @@ requires:
  manifest.has_bt_smart == 'True'
  package.name == 'bluez' and package.version >= '5.37'
 estimated_duration: 30.0
-command: bt_connect --mouse
+command: bt_connect-weak-logging --mouse
 _purpose:
      This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart mouse.
 _steps:

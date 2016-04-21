@@ -19,12 +19,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-# possibility to lockup, if it times out
-# TODO:
-#       6. different PIN selection
-#       7. MAC address validator
-#       8. Use logging for information
 
 import sys
 import time
@@ -45,7 +39,7 @@ def unpair_all(devices, manager):
     else:
         # print(flush=True) to bypass plainbox output buffer,
         # see LP: #1569808 for more details.
-        print("INFO: Please reset the device to pairing mode in 13 seconds",
+        print("Please reset the device to pairing mode in 13 seconds",
               flush=True)
         time.sleep(13)
         print("INFO: Re-scaning for devices in pairing mode", flush=True)

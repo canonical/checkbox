@@ -41,7 +41,6 @@ include:
     audio/alsa_record_playback_external                    certification-status=blocker
     audio/playback_auto                                    certification-status=blocker
     audio/alsa_record_playback_internal                    certification-status=blocker
-    audio/alsa_record_playback_automated                   certification-status=blocker
     # See Monitor / Graphic test section for hybrid-graphic monitor audio tests
     bluetooth/detect-output                                certification-status=blocker
     bluetooth/audio-a2dp                                   certification-status=blocker
@@ -263,7 +262,6 @@ include:
     suspend/bluetooth_obex_send_after_suspend              certification-status=blocker
     suspend/bluetooth_obex_browse_after_suspend            certification-status=blocker
     suspend/bluetooth_obex_get_after_suspend               certification-status=blocker
-    suspend/record_playback_after_suspend                  certification-status=blocker
     suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
     suspend/microphone-plug-detection-after-suspend        certification-status=blocker
     suspend/playback_headphones-after-suspend              certification-status=blocker

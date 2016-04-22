@@ -115,6 +115,16 @@ QEMU_ARCH_CONFIG = {
 	    '-cpu', 'POWER8',
         ],
     },
+    's390x': {
+        'cloudimg_type': CLOUD_IMAGE_TYPE_DISK,
+        'cloudimg_arch': 's390x',
+        'qemu_bin': 'qemu-system-s390x',
+        'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
+        'qemu_extra_args': [
+	    '-enable-kvm',
+            '-machine', 's390-ccw-virtio-2.5',
+        ],
+    },
 }
 
 

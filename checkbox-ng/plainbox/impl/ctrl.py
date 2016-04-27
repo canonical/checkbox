@@ -606,15 +606,20 @@ class CheckBoxExecutionController(IExecutionController):
         # Create a nest for all the private executables needed for execution
         prefix = 'cwd-'
         suffix = '.{}'.format(job.checksum)
-        with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
-            logger.debug(
-                _("Job temporary current working directory: %s"), cwd_dir)
-            try:
-                yield cwd_dir
-            finally:
-                leftovers = self._find_leftovers(cwd_dir)
-                if leftovers:
-                    self.on_leftover_files(job, config, cwd_dir, leftovers)
+        try:
+            with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
+                logger.debug(
+                    _("Job temporary current working directory: %s"), cwd_dir)
+                try:
+                    yield cwd_dir
+                finally:
+                    leftovers = self._find_leftovers(cwd_dir)
+                    if leftovers:
+                        self.on_leftover_files(job, config, cwd_dir, leftovers)
+        except PermissionError as exc:
+            logger.warning(
+                _("There was a problem with temporary cwd %s, %s"),
+                cwd_dir, exc)
 
     def _find_leftovers(self, cwd_dir):
         """

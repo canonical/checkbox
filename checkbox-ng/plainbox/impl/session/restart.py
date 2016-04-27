@@ -205,7 +205,7 @@ def detect_restart_strategy() -> IRestartStrategy:
 
     # If we are running as a confined Snappy app this variable will have been
     # set by the launcher script
-    if(os.getenv("SNAP_APP_PATH")):
+    if(os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
         return SnappyRestartStrategy()
 
     raise LookupError("Unable to find appropriate strategy.""")

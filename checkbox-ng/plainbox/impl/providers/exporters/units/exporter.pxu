@@ -31,6 +31,12 @@ entry_point: text
 file_extension: txt
 
 unit: exporter
+id: tar
+_summary: Generate a tar.gz archive
+entry_point: tar
+file_extension: tar.gz
+
+unit: exporter
 id: xlsx
 _summary: Generate an Excel 2007+ XLSX document
 entry_point: xlsx

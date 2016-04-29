@@ -137,6 +137,7 @@ class TestRun(TestCase):
         2013.com.canonical.plainbox::json - Generate JSON output
         2013.com.canonical.plainbox::rfc822 - Generate RCF822 output
         2013.com.canonical.plainbox::text - Generate plain text output
+        2013.com.canonical.plainbox::tar - Generate a tar.gz archive
         2013.com.canonical.plainbox::xlsx - Generate an Excel 2007+ XLSX document
         """
         self.assertIn(cleandoc(expected) + "\n", io.combined)
@@ -153,6 +154,7 @@ class TestRun(TestCase):
         2013.com.canonical.plainbox::json: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status, machine-json
         2013.com.canonical.plainbox::rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
         2013.com.canonical.plainbox::text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
+        2013.com.canonical.plainbox::tar: 
         2013.com.canonical.plainbox::xlsx: with-sys-info, with-summary, with-job-description, with-text-attachments, with-unit-categories
         """
         self.assertIn(cleandoc(expected) + "\n", io.combined)

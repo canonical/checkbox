@@ -480,6 +480,7 @@ class SessionManager(pod.POD):
             '2013.com.canonical.plainbox::html': 'html',
             '2013.com.canonical.plainbox::json': 'json',
             '2013.com.canonical.plainbox::rfc822': 'rfc822',
+            '2013.com.canonical.plainbox::tar': 'tar',
             '2013.com.canonical.plainbox::text': 'text',
             '2013.com.canonical.plainbox::xlsx': 'xlsx'
         }

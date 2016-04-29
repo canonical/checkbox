@@ -114,11 +114,15 @@ class LauncherIngredient(Ingredient):
                 raise SystemExit(1)
             generic_launcher = LauncherDefinition()
             generic_launcher.read_string(text)
-            config_filename = generic_launcher.config_filename
+            config_filename = os.path.expandvars(
+                generic_launcher.config_filename)
+            if not os.path.split(config_filename)[0]:
+                configs = [
+                    '/etc/xdg/{}'.format(config_filename),
+                    os.path.expanduser('~/.config/{}'.format(config_filename))]
+            else:
+                configs = [config_filename]
             launcher = generic_launcher.get_concrete_launcher()
-        configs = [
-            '/etc/xdg/{}'.format(config_filename),
-            os.path.expanduser('~/.config/{}'.format(config_filename))]
         if context.args.launcher:
             configs.append(context.args.launcher)
         launcher.read(configs)

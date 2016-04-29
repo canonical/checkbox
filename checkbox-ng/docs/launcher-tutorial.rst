@@ -37,6 +37,17 @@ Example::
 This will make checkbox look for ``/etc/xdg/testing.conf`` and
 ``~/config/testing.conf`` files.
 
+The ``config_filename`` may be an absolute path, and may use environment
+variables
+
+Example::
+
+    [config]
+    $MYCONFIGS/testing.conf
+
+    [config]
+    /home/ubuntu/next-testing.conf
+
 For more details about value resolution order see :doc:`configs</configs>`
 
 Launcher meta-information

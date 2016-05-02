@@ -20,12 +20,17 @@
 import argparse
 import shlex
 
+from collections import OrderedDict
 from subprocess import check_output, CalledProcessError
 
 from checkbox_support.parsers.udevadm import UdevadmParser
 
+categories = ("ACCELEROMETER", "AUDIO", "BLUETOOTH", "CAPTURE", "CARDREADER",
+              "DISK", "KEYBOARD", "MOUSE", "NETWORK", "OTHER", "TOUCHPAD",
+              "TOUCHSCREEN", "USB", "VIDEO", "WIRELESS")
 
-class UdevResult:
+
+class UdevResultDump:
 
     attributes = ("path", "name", "bus", "category", "driver", "product_id",
                   "vendor_id", "subproduct_id", "subvendor_id", "product",
@@ -40,6 +45,29 @@ class UdevResult:
         print()
 
 
+class UdevResultLister:
+
+    def __init__(self, categories):
+        self.categories = categories
+        self._data = OrderedDict()
+        for c in categories:
+            self._data[c] = []
+
+    def display(self):
+        for c, devices in self._data.items():
+            print("{} ({}):".format(c, len(devices)))
+            for d in devices:
+                print(" - {}".format(d))
+            print()
+
+    def addDevice(self, device):
+        c = getattr(device, "category", None)
+        if c in self.categories:
+            p = getattr(device, "product", "Unknow product")
+            v = getattr(device, "vendor", "Unknow vendor")
+            self._data[c].append("{} {}".format(v, p))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--command", action='store', type=str,
@@ -50,6 +78,12 @@ def main():
                         default="lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT",
                         help="""Command to execute to get lsblk information.
                               Only change it if you know what you're doing.""")
+    parser.add_argument('-l','--list', nargs='+', choices=categories,
+                        metavar=("CATEGORY"),
+                        help="""List devices found under the requested
+                        categories.
+                        Acceptable categories to list are: 
+                        {}""".format(', '.join(categories)))
     args = parser.parse_args()
     try:
         output = check_output(shlex.split(args.command))
@@ -61,8 +95,13 @@ def main():
     output = output.decode("UTF-8", errors='ignore')
     lsblk = lsblk.decode("UTF-8", errors='ignore')
     udev = UdevadmParser(output, lsblk=lsblk)
-    result = UdevResult()
-    udev.run(result)
+    if args.list:
+        result = UdevResultLister(args.list)
+        udev.run(result)
+        result.display()
+    else:
+        result = UdevResultDump()
+        udev.run(result)
 
 
 if __name__ == "__main__":

@@ -286,3 +286,17 @@ user: root
 command: get_make_and_model
 _description: Retrieve the computer's make and model for easier access than digging through the dmidecode output.
 _summary: Gather info on the SUT's make and model
+
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::miscellanea
+estimated_duration: 5.0
+id: miscellanea/device_check
+command: udev_resource -l VIDEO NETWORK WIRELESS DISK | tee >([[ $DISPLAY ]] && zenity --text-info --title="Device report")
+_summary: Device Check
+_purpose:
+    Device check
+_steps:
+    1. Commence the test
+    2. Compare items on System Manifest to the devices known to udev
+_verification:
+    Do the devices reported by udev match the devices on the Manifest?

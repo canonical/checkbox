@@ -43,10 +43,10 @@ variables
 Example::
 
     [config]
-    $MYCONFIGS/testing.conf
+    config_filename = $MYCONFIGS/testing.conf
 
     [config]
-    /home/ubuntu/next-testing.conf
+    config_filename = /home/ubuntu/next-testing.conf
 
 For more details about value resolution order see :doc:`configs</configs>`
 

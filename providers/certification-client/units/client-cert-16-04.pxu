@@ -48,6 +48,8 @@ include:
     bluetooth/browse-files                                 certification-status=blocker
     bluetooth/file-transfer                                certification-status=blocker
     bluetooth/HID
+    bluetooth4/HOGP-mouse                                  certification-status=non-blocker
+    bluetooth4/HOGP-keyboard                               certification-status=non-blocker
     camera/detect                                          certification-status=blocker
     camera/still                                           certification-status=blocker
     camera/display                                         certification-status=blocker

@@ -100,7 +100,7 @@ class LauncherIngredient(Ingredient):
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
             launcher = DefaultLauncherDefinition()
-            config_filename = launcher.config_filename
+            configs = [launcher.config_filename]
         else:
             try:
                 with open(context.args.launcher,

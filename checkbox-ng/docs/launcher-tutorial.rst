@@ -27,7 +27,7 @@ Beginning of the configuration section.
 Name of the configuration file to look for. Default value: ``checkbox.conf``
 
 The directories that will be searched for the file are ``/etc/xdg/`` and
-``~/config/``.
+``~/.config/``.
 
 Example::
 

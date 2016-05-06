@@ -26,6 +26,7 @@ mandatory_include:
     sysctl_attachment
     sysfs_attachment
     udev_attachment
+    udev-summary_attachment
     lsmod_attachment
     miscellanea/get_make_and_model
     miscellanea/get_maas_version

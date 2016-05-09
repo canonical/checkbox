@@ -48,5 +48,5 @@ recursive-exclude daily-package-testing *
 recursive-exclude plainbox/vendor/textland-project COPYING README.md
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf
-recursive-include plainbox/data *.rng *.css *.js *.html *.xml
+recursive-include plainbox/data *.rng
 recursive-include plainbox/test-data *.json *.xml *.html

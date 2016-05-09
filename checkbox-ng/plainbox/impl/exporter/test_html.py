@@ -81,10 +81,10 @@ class HTMLExporterTests(TestCase):
         self.session_manager.add_local_device_context()
         self.session_state = self.session_manager.default_device_context.state
         session_state = self.session_state
-        session_state.add_job(self.job1)
-        session_state.add_job(self.job2)
-        session_state.add_job(self.job3)
-        session_state.add_job(self.attachment)
+        session_state.add_unit(self.job1)
+        session_state.add_unit(self.job2)
+        session_state.add_unit(self.job3)
+        session_state.add_unit(self.attachment)
         session_state.update_job_result(self.job1, self.result_fail)
         session_state.update_job_result(self.job2, self.result_pass)
         session_state.update_job_result(self.job3, self.result_skip)

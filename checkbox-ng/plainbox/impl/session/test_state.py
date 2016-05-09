@@ -166,13 +166,13 @@ class SessionStateAPITests(TestCase):
         # appended in any way.
         self.assertEqual(session._resource_map, {'R': [new_res]})
 
-    def test_add_job(self):
+    def test_add_unit(self):
         # Define a job
         job = make_job("A")
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
-        session.add_job(job)
+        session.add_unit(job)
         # The job got added to job list
         self.assertIn(job, session.job_list)
         # The job got added to job state map
@@ -186,13 +186,13 @@ class SessionStateAPITests(TestCase):
             session.job_state_map[job.id].readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor])
 
-    def test_add_job_duplicate_job(self):
+    def test_add_unit_duplicate_job(self):
         # Define a job
         job = make_job("A")
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
-        session.add_job(job)
+        session.add_unit(job)
         # The job got added to job list
         self.assertIn(job, session.job_list)
         # Define a perfectly identical job
@@ -202,18 +202,18 @@ class SessionStateAPITests(TestCase):
         #
         # Note that this does not raise any exceptions as the jobs are perfect
         # duplicates.
-        session.add_job(duplicate_job)
+        session.add_unit(duplicate_job)
         # The new job _did not_ get added to the job list
         self.assertEqual(len(session.job_list), 1)
         self.assertIsNot(duplicate_job, session.job_list[0])
 
-    def test_add_job_clashing_job(self):
+    def test_add_unit_clashing_job(self):
         # Define a job
         job = make_job("A")
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
-        session.add_job(job)
+        session.add_unit(job)
         # The job got added to job list
         self.assertIn(job, session.job_list)
         # Define a different job that clashes with the initial job
@@ -224,7 +224,7 @@ class SessionStateAPITests(TestCase):
         #
         # This raises an exception
         with self.assertRaises(DependencyDuplicateError) as call:
-            session.add_job(clashing_job)
+            session.add_unit(clashing_job)
         # The exception gets job in the right order
         self.assertIs(call.exception.affected_job, job)
         self.assertIs(call.exception.affecting_job, clashing_job)

@@ -2,7 +2,6 @@ id: udev-summary_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
 command: udev_resource -l DISK NETWORK USB
-estimated_duration: 0.044
 _description: Attaches a summary of devices found via udev
 _summary: Attach a summary of udev devices
 

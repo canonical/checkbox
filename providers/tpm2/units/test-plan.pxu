@@ -1,0 +1,29 @@
+# This file is part of Checkbox.
+#
+# Copyright 2016 Canonical Ltd.
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+unit: test plan
+id: tpm2.0
+_name: Run all TPM 2.0 (Trusted Platform Module) tests from TSS tpmtest
+_description:
+ This test plan contains all tests available from the TPM TSS tmptest
+ executable
+estimated_duration: 10m
+include:
+    tpm2.0/.*
+mandatory_include:
+    2013.com.canonical.certification::miscellanea/submission-resources

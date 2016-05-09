@@ -1,0 +1,219 @@
+# This file is part of Checkbox.
+#
+# Copyright 2016 Canonical Ltd.
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+unit: category
+id: tpm2
+_name: TPM 2.0 (Trusted Platform Module)
+
+unit: job
+id: tpm2.0/init-resource-mgr
+category_id: tpm2
+_summary: Start the resource manager daemon
+_description:
+ This job first checks if there is already started resource manager daemon.
+ If not, it starts the deamon and checks the daemon pid
+plugin: shell
+user: root
+command:
+ pidof resourcemgr || { start-stop-daemon --background --start --exec $(which resourcemgr) && sleep 5 && pidof resourcemgr; }
+estimated_duration: 6s
+flags: preserve-locale
+
+id: tpm2.0/tpm2_takeownership
+category_id: tpm2
+depends: tpm2.0/init-resource-mgr
+estimated_duration: 2
+plugin: shell
+_summary: tpm2_takeownership
+command: test_tpm2_takeownership_all.sh
+
+id: tpm2.0/tpm2_nv
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 2
+plugin: shell
+_summary: tpm2 NV tools
+command: test_tpm2_nv.sh
+
+id: tpm2.0/tpm2_listpcrs
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 15
+plugin: shell
+_summary: tpm2_listpcrs
+command: test_tpm2_listpcrs.sh
+
+id: tpm2.0/tpm2_getrandom
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 2
+plugin: shell
+_summary: tpm2_getrandom
+command: test_tpm2_getrandom.sh
+
+id: tpm2.0/tpm2_load
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_load
+command: test_tpm2_load.sh
+
+id: tpm2.0/tpm2_loadexternal
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_loadexternal
+command: test_tpm2_loadexternal.sh
+
+id: tpm2.0/tpm2_evictcontrol
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_evictcontrol
+command: test_tpm2_evictcontrol.sh
+
+id: tpm2.0/tpm2_hash
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_hash
+command: test_tpm2_hash.sh
+
+id: tpm2.0/tpm2_hmac
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 10
+plugin: shell
+_summary: tpm2_hmac
+command: test_tpm2_hmac.sh
+
+id: tpm2.0/tpm2_quote
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 10
+plugin: shell
+_summary: tpm2_quote
+command: test_tpm2_quote.sh
+
+id: tpm2.0/tpm2_unseal
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_unseal
+command: test_tpm2_unseal.sh
+
+id: tpm2.0/tpm2_akparse
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_akparse
+command: test_tpm2_akparse.sh
+
+id: tpm2.0/tpm2_certify
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_certify
+command: test_tpm2_certify.sh
+
+id: tpm2.0/tpm2_getpubek
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 10
+plugin: shell
+_summary: tpm2_getpubek
+command: test_tpm2_getpubek.sh
+
+id: tpm2.0/tpm2_getpubak
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 10
+plugin: shell
+_summary: tpm2_getpubak
+command: test_tpm2_getpubak.sh
+
+id: tpm2.0/tpm2_makecredential
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_makecredential
+command: test_tpm2_makecredential.sh
+
+id: tpm2.0/tpm2_activecredential
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_activatecredential
+command: test_tpm2_activecredential.sh
+
+id: tpm2.0/tpm2_readpublic
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_readpublic
+command: test_tpm2_readpublic.sh
+
+id: tpm2.0/tpm2_rsaencrypt
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 40
+plugin: shell
+_summary: tpm2_rsaencrypt
+command: test_tpm2_rsaencrypt.sh
+
+id: tpm2.0/tpm2_rsadecrypt
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 40
+plugin: shell
+_summary: tpm2_rsadecrypt
+command: test_tpm2_rsadecrypt.sh
+
+id: tpm2.0/tpm2_encryptdecrypt
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 40
+plugin: shell
+_summary: tpm2_encryptdecrypt
+command: test_tpm2_encryptdecrypt.sh
+
+id: tpm2.0/tpm2_sign
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_sign
+command: test_tpm2_sign.sh
+
+id: tpm2.0/tpm2_verifysignature
+category_id: tpm2
+depends: tpm2.0/tpm2_takeownership
+estimated_duration: 20
+plugin: shell
+_summary: tpm2_verifysignature
+command: test_tpm2_verifysignature.sh

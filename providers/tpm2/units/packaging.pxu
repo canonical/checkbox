@@ -1,0 +1,7 @@
+unit: packaging meta-data
+os-id: debian
+Depends: tpm2-tools
+
+unit: packaging meta-data
+os-id: debian
+Depends: dpkg

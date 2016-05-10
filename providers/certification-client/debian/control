@@ -21,6 +21,7 @@ Package: plainbox-provider-certification-client
 Architecture: all
 Depends: plainbox-provider-checkbox (>= 0.27~),
          plainbox-provider-resource-generic (>= 0.25~),
+         plainbox-provider-tpm2,
          python3-plainbox (>= 0.27~),
          ${misc:Depends}
 Recommends: bootchart,

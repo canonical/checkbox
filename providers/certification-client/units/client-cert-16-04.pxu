@@ -337,6 +337,7 @@ include:
     power-management/hibernate_30_cycles                   certification-status=non-blocker
     power-management/hibernate-30-cycle-log-attach
     stress/cpu_stress_test                                 certification-status=blocker
+    tpm2.0/.*                                              certification-status=non-blocker
     #Info attachment jobs
     codecs_attachment
     cpuinfo_attachment

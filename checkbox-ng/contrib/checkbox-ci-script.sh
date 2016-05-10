@@ -7,6 +7,9 @@ IP=$(ip addr show dev eth0 |grep "inet " |cut -f 6 -d " ")
 HOST=$(hostname)
 
 notification() {
+    # for some systems, their ethernet ports are not ready when this service is launched so
+    # will not notify yantok as expected.
+    sleep 60
     if [ -f $CHECKBOX_SERVER_CONF ]; then
         curl -F mini_ci_notification_installed="CheckBox NG CI testing run has installed on $RELEASE server $HOST $IP" $SUBMIT_CGI
     elif [ -f $CHECKBOX_DESKTOP_XDG ]; then

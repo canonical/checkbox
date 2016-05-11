@@ -8,7 +8,7 @@ id: camera/detect
 estimated_duration: 1.2
 requires:
  device.category == 'CAPTURE'
-command: camera_test detect
+command: if [ "`lsb_release -c | awk {'print $2'}`" == "precise" ]; then camera_test_legacy detect; else camera_test detect; fi
 _description: This Automated test attempts to detect a camera.
 
 plugin: user-interact-verify
@@ -18,7 +18,7 @@ estimated_duration: 120.0
 depends: camera/detect
 requires:
  device.category == 'CAPTURE'
-command: camera_test display
+command: if [ "`lsb_release -c | awk {'print $2'}`" == "precise" ]; then camera_test_legacy display; else camera_test display; fi
 _description:
  PURPOSE:
      This test will check that the built-in camera works
@@ -37,7 +37,7 @@ requires:
  package.name == 'eog'
  package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  device.category == 'CAPTURE'
-command: camera_test still
+command: if [ "`lsb_release -c | awk {'print $2'}`" == "precise" ]; then camera_test_legacy still; else camera_test still; fi
 _description:
  PURPOSE:
      This test will check that the built-in camera works
@@ -54,7 +54,7 @@ depends: camera/detect
 requires:
  package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  device.category == 'CAPTURE'
-command: camera_test resolutions
+command: if [ "`lsb_release -c | awk {'print $2'}`" == "precise" ]; then camera_test_legacy resolutions; else camera_test resolutions; fi
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.

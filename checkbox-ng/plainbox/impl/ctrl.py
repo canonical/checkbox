@@ -349,7 +349,7 @@ class CheckBoxSessionStateController(ISessionStateController):
         # with another job with the same id.
         for new_job in new_job_list:
             try:
-                added_job = session_state.add_job(new_job, recompute=False)
+                added_unit = session_state.add_unit(new_job, recompute=False)
             except DependencyDuplicateError as exc:
                 # XXX: there should be a channel where such errors could be
                 # reported back to the UI layer. Perhaps update_job_result()
@@ -381,13 +381,13 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # allows this iteration to happen) and break the cycle if we
                 # see the job being added.
                 job_state_map = session_state.job_state_map
-                job_state_map[added_job.id].via_job = job
-                via_cycle = get_via_cycle(job_state_map, added_job)
+                job_state_map[added_unit.id].via_job = job
+                via_cycle = get_via_cycle(job_state_map, added_unit)
                 if via_cycle:
                     logger.warning(_("Automatically breaking via-cycle: %s"),
                                    ' -> '.join(str(cycle_job)
                                                for cycle_job in via_cycle))
-                    job_state_map[added_job.id].via_job = None
+                    job_state_map[added_unit.id].via_job = None
 
 
 def get_via_cycle(job_state_map, job):

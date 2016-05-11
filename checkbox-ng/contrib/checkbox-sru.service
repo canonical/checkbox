@@ -11,9 +11,9 @@ After=checkbox-ci-installed-notifier.service
 Type=oneshot
 ExecStartPre=/bin/sh -c "/usr/bin/checkbox check-config || exit 1"
 ExecStartPre=/bin/mkdir -p /var/cache/plainbox
-ExecStart=- /bin/systemctl start checkbox-ci-installed-notifier.service 
+ExecStart=-/bin/systemctl start checkbox-ci-installed-notifier.service 
 ExecStart=/bin/sh -c "/usr/bin/checkbox sru > /tmp/checkbox-server.log 2>&1"
-ExecStopPost=- /bin/systemctl start checkbox-ci-mailer.service
+ExecStopPost=-/bin/systemctl start checkbox-ci-mailer.service
 
 [Install]
 # This is roughly equivalent to "start on runlevel [2345]"

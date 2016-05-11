@@ -1,3 +1,13 @@
+unit: manifest entry
+id: has_usb_type_c
+_name: USB Type-C Support
+value-type: bool
+
+unit: manifest entry
+id: has_usb_type_c_charging
+_name: USB Type-C Charging Port
+value-type: bool
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::usb
 id: usb/detect
@@ -35,6 +45,42 @@ _description:
      2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
      3. For keyboards, commence the test to launch a small tool. Type some text and close the tool.
  VERIFICATION:
+     Did the device work as expected?
+
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/c-to-a-adapter/hid
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_usb_type_c
+depends: usb/detect
+estimated_duration: 10.0
+command: keyboard_test
+_purpose:
+     This test will check that you can use a USB HID device plugged in a USB
+     Type-C port using a "USB Type-C to Type-A" adapter
+_steps:
+     1. Enable either a USB mouse or keyboard by plugging it in the USB Type-C port using a "USB Type-C to Type-A" adapter
+     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     3. For keyboards, commence the test to launch a small tool. Type some text and close the tool.
+_verification:
+     Did the device work as expected?
+
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/hid
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_usb_type_c
+depends: usb/detect
+estimated_duration: 10.0
+command: keyboard_test
+_purpose:
+     This test will check that you can use a USB HID device plugged in a USB
+     Type-C port
+_steps:
+     1. Enable either a USB mouse or keyboard by plugging it in the USB Type-C port
+     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     3. For keyboards, commence the test to launch a small tool. Type some text and close the tool.
+_verification:
      Did the device work as expected?
 
 plugin: user-interact
@@ -76,6 +122,48 @@ _description:
 
 plugin: user-interact
 category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/c-to-a-adapter/insert
+imports: from 2013.com.canonical.plainbox import manifest
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c
+estimated_duration: 10.0
+command: removable_storage_watcher -m 500000000 insert usb
+_purpose:
+     This test will check that the system correctly detects the insertion of
+     a USB 3 storage device in a USB Type-C connector using a "Type-C to Type-A"
+     adapter
+_steps:
+     1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
+        using a "USB Type-C to Type-A" adapter.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not unplug the device after the test.
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/insert
+imports: from 2013.com.canonical.plainbox import manifest
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c
+estimated_duration: 10.0
+command: removable_storage_watcher -m 500000000 insert usb
+_purpose:
+     This test will check that the system correctly detects the insertion of
+     a USB 3 storage device in a USB Type-C connector
+_steps:
+     1. Click "Test" and insert a USB 3 storage device in a USB Type-C port.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not unplug the device after the test.
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: 2013.com.canonical.plainbox::usb
 id: usb/remove
 depends: usb/insert
 estimated_duration: 10.0
@@ -107,6 +195,47 @@ _description:
      1. Click "Test" and remove the USB 3.0 device.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/c-to-a-adapter/remove
+imports: from 2013.com.canonical.plainbox import manifest
+depends: usb-c/c-to-a-adapter/insert
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c
+estimated_duration: 10.0
+command: removable_storage_watcher -m 500000000 remove usb
+_purpose:
+     This test will check that the system correctly detects the removal of
+     a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
+     to Type-A" adapter.
+_steps:
+     1. Click "Test" and remove the USB 3 device.
+        (Note: this test will time-out after 20 seconds.)
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/remove
+imports: from 2013.com.canonical.plainbox import manifest
+depends: usb-c/insert
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c
+estimated_duration: 10.0
+command: removable_storage_watcher -m 500000000 remove usb
+_purpose:
+     This test will check that the system correctly detects the removal of
+     a USB 3 storage device connected to a USB Type-C port.
+_steps:
+     1. Click "Test" and remove the USB 3 device.
+        (Note: this test will time-out after 20 seconds.)
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 
@@ -169,6 +298,36 @@ estimated_duration: 45.0
 command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb3/insert test is run.
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/c-to-a-adapter/storage-automated
+imports: from 2013.com.canonical.plainbox import manifest
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c
+depends: usb-c/c-to-a-adapter/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+ This test is automated and executes after the usb-c/c-to-a-adapter/insert test
+ is run.
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::usb
+id: usb-c/storage-automated
+imports: from 2013.com.canonical.plainbox import manifest
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c
+depends: usb-c/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+ This test is automated and executes after the usb-c/insert test
+ is run.
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::usb

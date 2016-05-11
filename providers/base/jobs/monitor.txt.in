@@ -149,3 +149,43 @@ _steps:
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the Thunderbolt-connected 
     screen in every mode?
+
+unit: template
+template-resource: graphics_card
+id: monitor/{index}_thunderbolt3_{product_slug}
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+estimated_duration: 15.0
+plugin: manual
+category_id: 2013.com.canonical.plainbox::monitor
+_summary: Display connected via Thunderbolt 3 for {vendor} {product}
+_purpose:
+    This test will check your Thunderbolt 3 port as a monitor interconnect for {vendor} {product}.
+_steps:
+    1. Connect a display (if not already connected) to the Thunderbolt 3 port on
+       your system
+    2. Switch display modes between in your Display Settings, check if it can be
+       set to mirrored, extended, displayed on external or onboard only
+_verification:
+    Was the desktop displayed correctly with {vendor} {product} on the Thunderbolt-connected 
+    screen in every mode?
+
+unit: template
+template-resource: graphics_card
+id: monitor/{index}_type-c_displayport_{product_slug}
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_usb_type_c
+estimated_duration: 15.0
+plugin: manual
+category_id: 2013.com.canonical.plainbox::monitor
+_summary: Display connected via DisplayPort using an USB Type-C port for {vendor} {product}
+_purpose:
+    This test will check the connection of a screen using a "USB Type-C to DisplayPort" adapter for {vendor} {product}.
+_steps:
+    1. Connect a display (if not already connected) to the USB Type-C port on
+       your system using a "USB Type-C to DisplayPort" adapter
+    2. Switch display modes between in your Display Settings, check if it can be
+       set to mirrored, extended, displayed on external or onboard only
+_verification:
+    Was the desktop displayed correctly with {vendor} {product} on the screen
+    connected using a "USB Type-C to DisplayPort" adapter in every mode?

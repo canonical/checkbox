@@ -231,8 +231,7 @@ estimated_duration: 30.0
 depends: power-management/battery_drain_idle power-management/battery_drain_movie power-management/battery_drain_sleep
 _description:
  PURPOSE:
-     This test will ensure that the AC is plugged back in after the battery.
-     tests
+     This test will ensure that the AC is plugged back in after the battery tests.
  STEPS:
      1. Plug laptop into AC.
  VERIFICATION:

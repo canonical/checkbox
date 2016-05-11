@@ -118,6 +118,63 @@ _steps:
 _verification:
     Did you hear the sound from the Thunderbolt device?
 
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::audio
+id: audio/{index}_playback_thunderbolt3_{product_slug}
+imports: from 2013.com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_thunderbolt3 == 'True'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Thunderbolt audio interface verification
+_steps:
+    1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the Thunderbolt device?
+
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::audio
+id: audio/{index}_playback_type-c_displayport_{product_slug}
+imports: from 2013.com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_usb_type_c
+ display.dp == 'supported'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    DisplayPort audio via USB Type-C port interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Typce-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the DisplayPort device?
+
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::audio
 id: audio/playback_headphones

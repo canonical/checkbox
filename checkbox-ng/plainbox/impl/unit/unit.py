@@ -36,7 +36,6 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.symbol import SymbolDefMeta
 from plainbox.impl.symbol import SymbolDefNs
 from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.unit._legacy import UnitLegacyAPI
 from plainbox.impl.unit.validators import IFieldValidator
 from plainbox.impl.unit.validators import MultiUnitFieldIssue
 from plainbox.impl.unit.validators import PresentFieldValidator
@@ -352,7 +351,7 @@ class UnitType(abc.ABCMeta):
         return super().__new__(mcls, name, bases, ns)
 
 
-class Unit(UnitLegacyAPI, metaclass=UnitType):
+class Unit(metaclass=UnitType):
     """
     Units are representations of data loaded from RFC822 definitions
 

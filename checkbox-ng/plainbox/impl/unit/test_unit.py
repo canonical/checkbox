@@ -35,15 +35,6 @@ from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
 
-def setUpModule():
-    warnings.filterwarnings(
-        'ignore', 'validate is deprecated since version 0.11')
-
-
-def tearDownModule():
-    warnings.resetwarnings()
-
-
 class IssueMixIn:
     """
     Mix in for TestCase to work with issues and issue lists
@@ -156,27 +147,6 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(unit5.get_record_value('key', 'default'), 'default')
         self.assertEqual(unit6.get_record_value('key'), None)
         self.assertEqual(unit6.get_record_value('key', 'default'), 'default')
-
-    def test_validate(self):
-        # Empty units are valid, with or without parameters
-        Unit({}).validate()
-        Unit({}, parameters={}).validate()
-        # Fields cannot refer to parameters that are not supplied
-        with self.assertRaises(ValidationError) as boom:
-            Unit({'field': '{param}'}, parameters={}).validate()
-        self.assertEqual(boom.exception.field, 'field')
-        self.assertEqual(boom.exception.problem, Problem.wrong)
-        # Fields must obey template constraints. (id: vary)
-        with self.assertRaises(ValidationError) as boom:
-            UnitWithId({'id': 'a-simple-id'}, parameters={}).validate()
-        self.assertEqual(boom.exception.field, 'id')
-        self.assertEqual(boom.exception.problem, Problem.constant)
-        # Fields must obey template constraints. (unit: const)
-        with self.assertRaises(ValidationError) as boom:
-            Unit({'unit': '{parametric_id}'},
-                 parameters={'parametric_id': 'foo'}).validate()
-        self.assertEqual(boom.exception.field, 'unit')
-        self.assertEqual(boom.exception.problem, Problem.variable)
 
     def test_get_translated_data__typical(self):
         """

@@ -72,7 +72,7 @@ from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
-from plainbox.impl.validation import ValidationError
+from plainbox.impl.validation import Severity
 from plainbox.vendor import morris
 from plainbox.vendor import extcmd
 
@@ -311,12 +311,12 @@ class CheckBoxSessionStateController(ISessionStateController):
                 logger.info(_("Instantiating unit: %s"), unit)
                 for new_unit in unit.instantiate_all(
                         session_state.resource_map[job.id]):
-                    try:
-                        new_unit.validate()
-                    except ValidationError as exc:
-                        logger.error(
-                            _("Ignoring invalid instantiated unit %s: %s"),
-                            new_unit, exc)
+                    check_result = new_unit.check()
+                    # Only ignore jobs for which check() returns an error
+                    if [c for c in check_result
+                            if c.severity == Severity.error]:
+                        logger.error(_("Ignoring invalid generated job %s"),
+                                     new_unit.id)
                     else:
                         session_state.add_unit(new_unit)
                         if new_unit.Meta.name == 'job':
@@ -338,11 +338,11 @@ class CheckBoxSessionStateController(ISessionStateController):
             if record.data.get('unit', 'job') != 'job':
                 continue
             new_job = job.create_child_job_from_record(record)
-            try:
-                new_job.validate()
-            except ValidationError as exc:
-                logger.error(_("Ignoring invalid generated job %s: %s"),
-                             new_job.id, exc)
+            check_result = new_job.check()
+            # Only ignore jobs for which check() returns an error
+            if [c for c in check_result if c.severity == Severity.error]:
+                logger.error(_("Ignoring invalid generated job %s"),
+                             new_job.id)
             else:
                 new_job_list.append(new_job)
         # Then for each new job, add it to the job_list, unless it collides

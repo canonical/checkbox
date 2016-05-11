@@ -48,8 +48,6 @@ class ExporterUnitTests(TestCase):
             'entry_point': 'text',
             'file_extension': 'file_extension',
         }, Origin(FileTextSource('file.txt'), 1, 2))
-        warnings.filterwarnings(
-            'ignore', 'validate is deprecated since version 0.11')
 
     def tearDown(self):
         warnings.resetwarnings()
@@ -97,20 +95,6 @@ class ExporterUnitTests(TestCase):
         self.assertEqual(
             sup.option_list,
             ['a', 'bc', 'de=f', 'g', 'h', 'ij-k', 'lm=nop', 'q_r'])
-
-    def test_validate(self):
-        # NOTE: this test depends on the order of checks in UnitValidator
-        # Id is required
-        with self.assertRaises(ValidationError) as boom:
-            ExporterUnit({}).validate()
-        self.assertEqual(boom.exception.problem, Problem.missing)
-        self.assertEqual(boom.exception.field, 'id')
-        # When both id, file_extension and entry_point are present, everything
-        # is OK
-        self.assertIsNone(ExporterUnit({
-            'id': 'id', 'entry_point': 'entry_point',
-            'file_extension': 'file_extension'
-        }).validate())
 
 
 class ExporterUnitFieldValidationTests(UnitWithIdFieldValidationTests):

@@ -33,8 +33,6 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
-from plainbox.impl.unit._legacy import TemplateUnitValidatorLegacyAPI
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit import UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
@@ -52,7 +50,7 @@ __all__ = ['TemplateUnit']
 logger = logging.getLogger("plainbox.unit.template")
 
 
-class TemplateUnitValidator(UnitValidator, TemplateUnitValidatorLegacyAPI):
+class TemplateUnitValidator(UnitValidator):
 
     """Validator for template unit."""
 
@@ -79,7 +77,7 @@ class TemplateUnitValidator(UnitValidator, TemplateUnitValidatorLegacyAPI):
                 yield issue
 
 
-class TemplateUnit(Unit, TemplateUnitLegacyAPI):
+class TemplateUnit(Unit):
 
     """
     Template that can instantiate zero or more additional units.

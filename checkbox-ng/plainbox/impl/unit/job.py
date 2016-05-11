@@ -34,7 +34,6 @@ from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit._legacy import JobDefinitionLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import DeprecatedFieldValidator
@@ -148,7 +147,7 @@ class _CertificationStatusValues(SymbolDef):
     blocker = 'blocker'
 
 
-class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
+class JobDefinition(UnitWithId, IJobDefinition):
     """
     Job definition class.
 
@@ -241,6 +240,10 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         The return value is always 'job'
         """
         return 'job'
+
+    @property
+    def name(self):
+        return self.get_record_value('name')
 
     @property
     def partial_id(self):

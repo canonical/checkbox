@@ -26,8 +26,6 @@ import logging
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit._legacy import UnitWithIdLegacyAPI
-from plainbox.impl.unit._legacy import UnitWithIdValidatorLegacyAPI
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit import UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
@@ -42,7 +40,7 @@ __all__ = ['UnitWithId']
 logger = logging.getLogger("plainbox.unit.unit_with_id")
 
 
-class UnitWithIdValidator(UnitValidator, UnitWithIdValidatorLegacyAPI):
+class UnitWithIdValidator(UnitValidator):
     """
     Validator for :class:`UnitWithId`
     """
@@ -70,7 +68,7 @@ class UnitWithIdValidator(UnitValidator, UnitWithIdValidatorLegacyAPI):
             message=message or stock_msg)
 
 
-class UnitWithId(Unit, UnitWithIdLegacyAPI):
+class UnitWithId(Unit):
     """
     Base class for Units that have unique identifiers
 

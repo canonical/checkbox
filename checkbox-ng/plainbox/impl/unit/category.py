@@ -33,7 +33,6 @@ import logging
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit._legacy import CategoryUnitLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
@@ -47,7 +46,7 @@ __all__ = ['CategoryUnit']
 logger = logging.getLogger("plainbox.unit.category")
 
 
-class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
+class CategoryUnit(UnitWithId):
     """
     Test Category Unit
 

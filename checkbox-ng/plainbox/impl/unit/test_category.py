@@ -48,8 +48,6 @@ class CategoryUnitTests(TestCase):
             '_id': 'id',
             '_name': 'name'
         }, Origin(FileTextSource('file.txt.in'), 1, 2))
-        warnings.filterwarnings(
-            'ignore', 'validate is deprecated since version 0.11')
 
     def tearDown(self):
         warnings.resetwarnings()
@@ -109,23 +107,6 @@ class CategoryUnitTests(TestCase):
         mgtrv.assert_called_once_with(cat.name)
         # Ensure tr_summary() returned its return value
         self.assertEqual(retval, mgtrv())
-
-    def test_validate(self):
-        # NOTE: this test depends on the order of checks in UnitValidator
-        # Id is required
-        with self.assertRaises(ValidationError) as boom:
-            CategoryUnit({}).validate()
-        self.assertEqual(boom.exception.problem, Problem.missing)
-        self.assertEqual(boom.exception.field, 'id')
-        # Name is also required
-        with self.assertRaises(ValidationError) as boom:
-            CategoryUnit({'id': 'id'}).validate()
-        self.assertEqual(boom.exception.problem, Problem.missing)
-        self.assertEqual(boom.exception.field, 'name')
-        # When both id and name are present, everything is OK
-        self.assertIsNone(CategoryUnit({
-            'id': 'id', 'name': 'name'
-        }).validate())
 
 
 class CategoryUnitFieldValidationTests(UnitWithIdFieldValidationTests):

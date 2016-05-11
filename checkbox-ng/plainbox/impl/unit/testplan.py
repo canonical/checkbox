@@ -31,7 +31,6 @@ from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit._legacy import TestPlanUnitLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import FieldValidatorBase
@@ -182,7 +181,7 @@ class NoBaseIncludeValidator(FieldValidatorBase):
                 raise NotImplementedError
 
 
-class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
+class TestPlanUnit(UnitWithId):
     """
     Test plan class
 

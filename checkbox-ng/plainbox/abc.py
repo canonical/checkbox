@@ -687,11 +687,11 @@ class IProvider1(IProviderBackend1):
 
     @abstractproperty
     def name(self):
-        """
-        name of this provider
+       """
+       name of this provider
 
-        This name should be dbus-friendly. It should not be localizable.
-        """
+       This name should be dbus-friendly. It should not be localizable.
+       """
 
     @abstractproperty
     def namespace(self):

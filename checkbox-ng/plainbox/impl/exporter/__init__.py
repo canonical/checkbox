@@ -33,7 +33,6 @@ import base64
 
 from plainbox.i18n import gettext as _
 from plainbox.abc import ISessionStateExporter
-from plainbox.impl import deprecated
 
 logger = getLogger("plainbox.exporter")
 
@@ -194,7 +193,6 @@ class SessionStateExporterBase(ISessionStateExporter):
         """
         self.dump(self.get_session_data_subset(session_manager), stream)
 
-    @deprecated('0.21', 'use .dump_from_session_manager instead')
     def get_session_data_subset(self, session_manager):
         """
         Compute a subset of session data.

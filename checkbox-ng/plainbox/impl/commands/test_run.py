@@ -137,7 +137,7 @@ class TestRun(TestCase):
         2013.com.canonical.plainbox::json - Generate JSON output
         2013.com.canonical.plainbox::rfc822 - Generate RCF822 output
         2013.com.canonical.plainbox::text - Generate plain text output
-        2013.com.canonical.plainbox::tar - Generate a tar.gz archive
+        2013.com.canonical.plainbox::tar - Generate a tar.xz archive
         2013.com.canonical.plainbox::xlsx - Generate an Excel 2007+ XLSX document
         """
         self.assertIn(cleandoc(expected) + "\n", io.combined)

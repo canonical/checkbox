@@ -852,6 +852,8 @@ class SessionAssistant:
         self._context.state.update_desired_job_list(
             desired_job_list, include_mandatory=False)
         for job in self._context.state.run_list:
+            if self._context.state.job_state_map[job.id].result_history:
+                continue
             UsageExpectation.of(self).allowed_calls[self.run_job] = (
                 "to run bootstrapping job")
             rb = self.run_job(job.id, 'silent', False)

@@ -312,14 +312,8 @@ class CheckboxLauncher(CheckboxCommand):
         app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
         test_plan_id = app_blob['testplan_id']
         last_job = metadata.running_job_name
-        # FIXME selecting again the testplan on resume resets both # the static
-        # and dynamic todo lists.  # We're then saving the selection from the
-        # saved run_list # by accessing the session private context object.
-        selected_id_list = [job.id for job in
-                            self.ctx.sa._context.state.run_list]
         self.ctx.sa.select_test_plan(test_plan_id)
         self.ctx.sa.bootstrap()
-        self.ctx.sa.use_alternate_selection(selected_id_list)
         # If we resumed maybe not rerun the same, probably broken job
         self._handle_last_job_after_resume(last_job)
 

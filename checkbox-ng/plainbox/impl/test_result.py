@@ -36,6 +36,7 @@ from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.testing_utils import make_io_log
+from plainbox.vendor import mock
 
 
 def load_tests(loader, tests, ignore):
@@ -62,17 +63,20 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
     def tearDown(self):
         self.scratch_dir.cleanup()
 
-    def test_smoke(self):
+    @mock.patch('plainbox.impl.result.logger')
+    def test_smoke(self, mock_logger):
         result = DiskJobResult({})
         self.assertEqual(str(result), "None")
         self.assertEqual(repr(result), "<DiskJobResult>")
         self.assertIsNone(result.outcome)
         self.assertIsNone(result.comments)
         self.assertEqual(result.io_log, ())
+        assert mock_logger.warning.call_count == 1
         self.assertIsNone(result.return_code)
         self.assertTrue(result.is_hollow)
 
-    def test_everything(self):
+    @mock.patch('plainbox.impl.result.logger')
+    def test_everything(self, mock_logger):
         result = DiskJobResult({
             'outcome': IJobResult.OUTCOME_PASS,
             'comments': "it said blah",
@@ -91,6 +95,7 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
+        assert mock_logger.warning.call_count == 1
         self.assertEqual(result.io_log_as_flat_text, 'blah\n')
         self.assertEqual(result.return_code, 0)
         self.assertFalse(result.is_hollow)

@@ -35,6 +35,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.qualifiers import JobIdQualifier
+from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.session import InhibitionCause
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
@@ -548,7 +549,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.job_inhibitor('A', 0).cause,
                          InhibitionCause.UNDESIRED)
 
-    def test_resource_job_with_broken_output(self):
+    @mock.patch('plainbox.impl.ctrl.logger')
+    def test_resource_job_with_broken_output(self, mock_logger):
         # This function checks how SessionState parses partially broken
         # resource jobs.  A JobResult with broken output is constructed below.
         # The output will describe one proper record, one broken record and
@@ -573,6 +575,13 @@ class SessionStateReactionToJobResultTests(TestCase):
         # record is entirely ignored.
         expected = {'R': [Resource({'attr': 'value-1'})]}
         self.assertEqual(self.session._resource_map, expected)
+
+        # Make sure the right warning was logged
+        mock_logger.warning.assert_called_once_with(
+            "local script %s returned invalid RFC822 data: %s",
+            self.job_R.id, RFC822SyntaxError(None, 3,
+                "Unexpected non-empty line: "
+                "'I-sound-like-a-broken-record\\n'"))
 
     def test_desire_job_X_updates_state_map(self):
         # This function checks what happens when the job X becomes desired via

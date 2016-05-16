@@ -161,7 +161,7 @@ class MiscTests(TestCase):
     def test_invalid_pattern_including(self):
         ns = Mock(name="ns")
         ns.whitelist = []
-        ns.include_pattern_list = ['?']
+        ns.include_pattern_list = ['\?']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(
             ns, [self.job_foo, self.job_bar])
@@ -171,7 +171,7 @@ class MiscTests(TestCase):
         ns = Mock(name="ns")
         ns.whitelist = []
         ns.include_pattern_list = ['fo.*']
-        ns.exclude_pattern_list = ['[bar']
+        ns.exclude_pattern_list = ['\[bar']
         observed = self.obj._get_matching_job_list(
             ns, [self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])

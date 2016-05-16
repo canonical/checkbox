@@ -115,6 +115,15 @@ class PlugInError(Exception):
     Exception that may be raised by PlugIn.__init__() to signal it cannot
     be fully loaded and should not be added to any collection.
     """
+    def __eq__(self, other):
+        if isinstance(other, PlugInError):
+            return True
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, PlugInError):
+            return False
+        return NotImplemented
 
 
 class PlugIn(IPlugIn):

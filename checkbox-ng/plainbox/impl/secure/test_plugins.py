@@ -257,7 +257,8 @@ class PlugInCollectionBaseTests(TestCase):
         self.assertEqual(
             self.col._plugins["new-name"].plugin_load_time, self.LOAD_TIME)
 
-    def test_wrap_and_add_plugin__problem(self):
+    @mock.patch('plainbox.impl.secure.plugins.logger')
+    def test_wrap_and_add_plugin__problem(self, mock_logger):
         """
         verify that PlugInCollectionBase.wrap_and_add_plugin() works when a
         problem occurs.
@@ -269,6 +270,8 @@ class PlugInCollectionBaseTests(TestCase):
                                             self.LOAD_TIME)
         self.assertIsInstance(self.col.problem_list[0], PlugInError)
         self.assertNotIn("new-name", self.col._plugins)
+        mock_logger.warning.assert_called_once_with(
+            "Unable to prepare plugin %s: %s", "new-name", PlugInError())
 
     def test_extra_wrapper_args(self):
         """

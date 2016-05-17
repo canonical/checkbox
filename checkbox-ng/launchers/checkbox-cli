@@ -678,7 +678,7 @@ class CheckboxLauncher(CheckboxCommand):
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir)
             for exporter, file_ext in [('hexr', '.xml'), ('html', '.html'),
-                                       ('xlsx', '.xlsx'), ('json', '.json')]:
+                                       ('xlsx', '.xlsx'), ('tar', '.tar.xz')]:
                 path = os.path.join(base_dir, ''.join(
                     ['submission_', timestamp, file_ext]))
                 self.launcher.transports['{}_file'.format(exporter)] = {

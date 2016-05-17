@@ -32,9 +32,9 @@ file_extension: txt
 
 unit: exporter
 id: tar
-_summary: Generate a tar.gz archive
+_summary: Generate a tar.xz archive
 entry_point: tar
-file_extension: tar.gz
+file_extension: tar.xz
 
 unit: exporter
 id: xlsx

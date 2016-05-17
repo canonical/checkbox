@@ -38,7 +38,7 @@ from plainbox.impl.exporter.xlsx import XLSXSessionStateExporter
 class TARSessionStateExporter(SessionStateExporterBase):
     """Session state exporter creating Tar archives."""
 
-    supported_option_list = ()
+    SUPPORTED_OPTION_LIST = ()
 
     def dump_from_session_manager(self, manager, stream):
         """

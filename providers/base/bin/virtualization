@@ -410,7 +410,7 @@ final_message: CERTIFICATION BOOT COMPLETE
 def test_kvm(args):
     print("Executing KVM Test", file=sys.stderr)
 
-    DEFAULT_CFG = "/etc/checkbox.d/virtualization.cfg"
+    DEFAULT_CFG = "/etc/xdg/virtualization.cfg"
     image = ""
     timeout = ""
 
@@ -422,7 +422,8 @@ def test_kvm(args):
     try:
         config.readfp(open(config_file))
     except IOError:
-        logging.warn("No config file found")
+        logging.warn("Config file %s was not found" % DEFAULT_CFG)
+        logging.warn("Now looking for ENV variables and command line arguments instead")
     else:
         try:
             timeout = config.getfloat("KVM", "timeout")

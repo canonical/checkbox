@@ -60,6 +60,7 @@ include:
     ethernet/ethtool_info                      certification-status=non-blocker
     ethernet/ethertool_check_.*                certification-status=non-blocker
     ethernet/multi_iperf3_nic_.*               certification-status=blocker
+    mediacard/sd-preinserted                   certification-status=blocker
     memory/info                                certification-status=blocker
     optical/detect                             certification-status=non-blocker
     optical/read-automated_.*                  certification-status=blocker

@@ -97,6 +97,10 @@ def slugify(_string):
 def find_pkname_is_root_mountpoint(devname, lsblk=None):
     """Check for partition mounted as root for a DISK device."""
     if lsblk:
+        try:
+            lsblk = lsblk.read()
+        except AttributeError:
+            pass
         for line in lsblk.splitlines():
             if (
                 line.endswith('MOUNTPOINT="/"') and

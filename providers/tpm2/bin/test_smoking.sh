@@ -1,3 +1,34 @@
+#;**********************************************************************;
+#
+# Copyright (c) 2016, Intel Corporation
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without 
+# modification, are permitted provided that the following conditions are met:
+# 
+# 1. Redistributions of source code must retain the above copyright notice, 
+# this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright notice, 
+# this list of conditions and the following disclaimer in the documentation 
+# and/or other materials provided with the distribution.
+#
+# 3. Neither the name of Intel Corporation nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#;**********************************************************************;
 #!/bin/sh
 new_path=`pwd`
 PATH="$PATH":"$new_path"
@@ -35,13 +66,14 @@ tpm2_getpubek  -H $ekHandle  -g 0x01 -f ek.pub1.out
 
 
 tpm2_getpubak  -E $ekHandle -k $akHandle -f ak.pub1.out -n ak.name_1.out |tee output_ak
-  if [ $? != 0 ] || [ ! -e ak.nake_1.out ];then
+  if [ $? != 0 ] || [ ! -e ak.name_1.out ];then
 	fail getpubak 
   fi
  
   grep  -A 3 "Name of loaded key:" output_ak|tr "\n" " " >grep.txt
   Loadkeyname=`sed -e 's/ //g'  grep.txt | awk  -F':' '{print $2}'`
 
+echo 123456 | xxd -r -ps > secret.data
 tpm2_makecredential -e ek.pub1.out  -s secret.data  -n $Loadkeyname -o makecredential.out
 
   if [ $? != 0 ];then
@@ -54,7 +86,7 @@ tpm2_activatecredential  -H $akHandle -k $ekHandle -f makecredential.out  -o act
 	fail activatecredential
   fi
 
-tpm2_akparse -f ak.pub1  -k akparse.out
+tpm2_akparse -f ak.pub1.out  -k akparse.out
 
   if [ $? != 0 ];then
 	fail akparse 

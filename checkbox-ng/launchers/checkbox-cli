@@ -717,10 +717,11 @@ class CheckboxLauncher(CheckboxCommand):
                        'submissions/submit/')
             secure_id = self.launcher.transports[transport].get(
                 'secure_id', None)
-            if not secure_id:
+            if not secure_id and self.is_interactive:
                 secure_id = input(self.C.BLUE(_('Enter secure-id:')))
-            options = "secure_id={}".format(secure_id)
-            self.transports[transport] = cls(url, options)
+            if secure_id:
+                options = "secure_id={}".format(secure_id)
+                self.transports[transport] = cls(url, options)
 
     def _export_results(self):
         for report in self.launcher.stock_reports:

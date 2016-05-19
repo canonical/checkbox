@@ -393,5 +393,6 @@ bootstrap_include:
     graphics_card
 mandatory_include:
     2013.com.canonical.plainbox::collect-manifest
+    miscellanea/device_check
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources

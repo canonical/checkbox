@@ -22,6 +22,7 @@
 import abc
 import errno
 import os
+import shlex
 import subprocess
 
 from plainbox.impl.secure.config import PlainBoxConfigParser
@@ -161,13 +162,21 @@ class SnappyRestartStrategy(IRestartStrategy):
         In this stategy plainbox will create and enable a systemd unit that
         will be run when the OS resumes.
         """
+        cmd = shlex.split(cmd)[0]
         snap_name = os.getenv('SNAP_NAME')
+        data_path = os.getenv('SNAP_DATA')
+        base_dir = 'snap'
+        if os.getenv("SNAP_APP_PATH"):
+            data_path = os.getenv('SNAP_APP_DATA_PATH')
+            base_dir = 'apps'
         # NOTE: This implies that any snap wishing to include a Checkbox
         # application to be autostarted creates snapcraft binary
-        # called "checkbox-autostart"
-        self.config.set('Service', 'ExecStart',
-                        '/apps/bin/{}.checkbox-autostart --resume {}'.format(
-                            snap_name, session_id))
+        # called "checkbox-cli"
+        binary_name = '/{}/bin/{}.checkbox-cli'.format(base_dir, snap_name)
+        self.config.set('Service', 'Environment',
+                        '"PLAINBOX_SESSION_REPOSITORY={}"'.format(data_path))
+        self.config.set('Service', 'ExecStart', '{} {}'.format(
+                            binary_name, ' '.join(cmd.split()[1:])))
         filename = self.get_autostart_config_filename()
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'wt') as stream:

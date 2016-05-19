@@ -192,14 +192,14 @@ class RFC822SyntaxError(SyntaxError):
 
     def __eq__(self, other):
         if isinstance(other, RFC822SyntaxError):
-            return ((self.filename, self.lineno, self.msg)
-                    == (other.filename, other.lineno, other.msg))
+            return ((self.filename, self.lineno, self.msg) ==
+                    (other.filename, other.lineno, other.msg))
         return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, RFC822SyntaxError):
-            return ((self.filename, self.lineno, self.msg)
-                    != (other.filename, other.lineno, other.msg))
+            return ((self.filename, self.lineno, self.msg) !=
+                    (other.filename, other.lineno, other.msg))
         return NotImplemented
 
     def __hash__(self):

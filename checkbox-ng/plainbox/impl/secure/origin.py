@@ -356,8 +356,8 @@ class CommandLineTextSource(ITextSource):
 
     def __eq__(self, other):
         if isinstance(other, CommandLineTextSource):
-            return (self.arg_name == other.arg_name
-                    and self.arg_value == other.arg_value)
+            return (self.arg_name == other.arg_name and
+                    self.arg_value == other.arg_value)
         return NotImplemented
 
     def __gt__(self, other):

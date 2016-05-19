@@ -181,14 +181,17 @@ class MainTests(TestCase):
                                 run a job with this checksum
 
         target job specification:
-          -T NAME=VALUE [NAME=VALUE ...], --target-environment NAME=VALUE [NAME=VALUE ...]
+          -T NAME=VALUE [NAME=VALUE ...], --target-environment NAME=VALUE \
+[NAME=VALUE ...]
                                 environment passed to the target job
 
         generator job specification:
           -g CHECKSUM, --generator CHECKSUM
-                                also run a job with this checksum (assuming it is a
+                                also run a job with this checksum (assuming \
+it is a
                                 local job)
-          -G NAME=VALUE [NAME=VALUE ...], --generator-environment NAME=VALUE [NAME=VALUE ...]
+          -G NAME=VALUE [NAME=VALUE ...], --generator-environment NAME=VALUE \
+[NAME=VALUE ...]
                                 environment passed to the generator job
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
@@ -219,7 +222,8 @@ class MainTests(TestCase):
                                            [-T NAME=VALUE [NAME=VALUE ...]]
                                            [-g CHECKSUM]
                                            [-G NAME=VALUE [NAME=VALUE ...]]
-        plainbox-trusted-launcher-1: error: one of the arguments -w/--warmup -t/--target is required
+        plainbox-trusted-launcher-1: error: one of the arguments -w/--warmup \
+-t/--target is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -271,7 +275,8 @@ class MainTests(TestCase):
         with TestIO(combined=True) as io:
             retval = main(['--target=1234', '--generator=5678'])
         # Ensure that the local job command was invoked
-        mock_launcher().run_generator_job.assert_called_with(local_job.checksum, None)
+        mock_launcher().run_generator_job.assert_called_with(
+            local_job.checksum, None)
         # Ensure that the target job command was invoked
         mock_launcher().run_shell_from_job.assert_called_with(
             target_job.checksum, None)
@@ -332,6 +337,7 @@ class MainTests(TestCase):
                                            [-T NAME=VALUE [NAME=VALUE ...]]
                                            [-g CHECKSUM]
                                            [-G NAME=VALUE [NAME=VALUE ...]]
-        plainbox-trusted-launcher-1: error: argument -T/--target-environment: expected NAME=VALUE
+        plainbox-trusted-launcher-1: error: argument \
+-T/--target-environment: expected NAME=VALUE
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

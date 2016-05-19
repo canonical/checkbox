@@ -711,10 +711,10 @@ def select_jobs(job_list, qualifier_list):
     included_set = set()
     excluded_set = set()
     for qualifier in flat_qualifier_list:
-        if (isinstance(qualifier, FieldQualifier)
-                and qualifier.field == 'id'
-                and isinstance(qualifier.matcher, OperatorMatcher)
-                and qualifier.matcher.op == operator.eq):
+        if (isinstance(qualifier, FieldQualifier) and
+                qualifier.field == 'id' and
+                isinstance(qualifier.matcher, OperatorMatcher) and
+                qualifier.matcher.op == operator.eq):
             # optimize the super-common case where a qualifier refers to
             # a specific job by using the id_to_index_map to instantly
             # perform the requested operation on a single job
@@ -722,8 +722,9 @@ def select_jobs(job_list, qualifier_list):
                 j_index = id_to_index_map[qualifier.matcher.value]
             except KeyError:
                 # The lookup can fail if the pattern is a constant reference to
-                # a generated job that doens't exist yet. To maintain correctness
-                # we should just ignore it, as it would not match anything yet.
+                # a generated job that doens't exist yet. To maintain
+                # correctness we should just ignore it, as it would not
+                # match anything yet.
                 continue
             job = job_list[j_index]
             vote = qualifier.get_vote(job)

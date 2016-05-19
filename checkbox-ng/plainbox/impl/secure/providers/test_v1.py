@@ -685,8 +685,8 @@ class Provider1Tests(TestCase):
 
     def setUp(self):
         self.provider = Provider1(
-            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION,
+            self.SECURE, self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
             self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
             self.BASE_DIR,
             # We are using dummy job definitions so let's not shout about those
@@ -888,8 +888,8 @@ class Provider1Tests(TestCase):
         circumstances
         """
         Provider1(
-            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION,
+            self.SECURE, self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
             self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
             self.BASE_DIR)
         mock_gettext.bindtextdomain.assert_called_once_with(
@@ -902,8 +902,8 @@ class Provider1Tests(TestCase):
         circumstances
         """
         Provider1(
-            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION,
+            self.SECURE, self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
             self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, locale_dir=None,
             base_dir=self.BASE_DIR)
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])

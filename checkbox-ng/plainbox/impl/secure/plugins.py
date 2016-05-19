@@ -132,7 +132,8 @@ class PlugIn(IPlugIn):
     and some arbitrary external object.
     """
 
-    def __init__(self, name: str, obj: object, load_time: float=0, wrap_time: float=0):
+    def __init__(self, name: str, obj: object, load_time: float=0,
+                 wrap_time: float=0):
         """
         Initialize the plug-in with the specified name and external object
 
@@ -548,8 +549,8 @@ class FsPlugInCollection(PlugInCollectionBase):
         :param wrapper_kwargs:
             additional keyword arguments passed to each instantiated wrapper
         """
-        if (not isinstance(dir_list, list)
-                or not all(isinstance(item, str) for item in dir_list)):
+        if (not isinstance(dir_list, list) or
+                not all(isinstance(item, str) for item in dir_list)):
             raise TypeError("dir_list needs to be List[str]")
         self._dir_list = dir_list
         self._ext = ext

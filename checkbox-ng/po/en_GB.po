@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2016-03-07 15:07+0000\n"
+"PO-Revision-Date: 2016-05-19 18:07+0000\n"
 "Last-Translator: Andi Chandler <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-05-14 05:13+0000\n"
+"X-Launchpad-Export-Date: 2016-05-20 05:15+0000\n"
 "X-Generator: Launchpad (build 18025)\n"
 
 #: .././checkbox_ng/certification.py:135
@@ -121,7 +121,7 @@ msgstr "Selecting Jobs For Execution"
 
 #: .././checkbox_ng/commands/newcli.py:317
 msgid "Choose tests to run on your system:"
-msgstr ""
+msgstr "Choose tests to run on your system:"
 
 #: .././checkbox_ng/commands/newcli.py:329
 msgid "Results"
@@ -141,7 +141,7 @@ msgstr ""
 
 #: .././checkbox_ng/commands/newcli.py:400
 msgid "Secure ID: "
-msgstr ""
+msgstr "Secure ID: "
 
 #: .././checkbox_ng/commands/newcli.py:403
 msgid "ERROR: Secure ID must be 15 or 18-character alphanumeric string"
@@ -204,44 +204,44 @@ msgstr "Canonical hardware identifier"
 
 #: .././checkbox_ng/commands/sru.py:65
 msgid "TEST-PLAN-ID"
-msgstr ""
+msgstr "TEST-PLAN-ID"
 
 #. TRANSLATORS: this is in imperative form
 #: .././checkbox_ng/commands/sru.py:68
 msgid "load the specified test plan"
-msgstr ""
+msgstr "load the specified test plan"
 
 #: .././checkbox_ng/commands/sru.py:71 .././checkbox_ng/config.py:88
 msgid "Send the data to non-production test server"
-msgstr ""
+msgstr "Send the data to non-production test server"
 
 #: .././checkbox_ng/commands/sru.py:75
 msgid "run check-config before starting"
-msgstr ""
+msgstr "run check-config before starting"
 
 #: .././checkbox_ng/commands/sru.py:88
 msgid "Configuration problems prevent running SRU tests"
-msgstr ""
+msgstr "Configuration problems prevent running SRU tests"
 
 #: .././checkbox_ng/commands/sru.py:113
 msgid "Results saved to {0}"
-msgstr ""
+msgstr "Results saved to {0}"
 
 #: .././checkbox_ng/commands/sru.py:118
 msgid "Sending hardware report to Canonical Certification"
-msgstr ""
+msgstr "Sending hardware report to Canonical Certification"
 
 #: .././checkbox_ng/commands/sru.py:119
 msgid "Server URL is: {0}"
-msgstr ""
+msgstr "Server URL is: {0}"
 
 #: .././checkbox_ng/commands/sru.py:131
 msgid "SRU Session"
-msgstr ""
+msgstr "SRU Session"
 
 #: .././checkbox_ng/commands/sru.py:172
 msgid "run automated stable release update tests"
-msgstr ""
+msgstr "run automated stable release update tests"
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -259,174 +259,180 @@ msgid ""
 "    This command sends the XML results file to the Certification website.\n"
 "    "
 msgstr ""
+"\n"
+"    submit test results to the Canonical certification website\n"
+"\n"
+"    This command sends the XML results file to the Certification website.\n"
+"    "
 
 #: .././checkbox_ng/commands/submit.py:98
 msgid "submit test results to the Canonical certification website"
-msgstr ""
+msgstr "submit test results to the Canonical certification website"
 
 #: .././checkbox_ng/commands/submit.py:104
 msgid "The path to the results xml file"
-msgstr ""
+msgstr "The path to the results xml file"
 
 #: .././checkbox_ng/commands/submit.py:114
 msgid "must be 15 or 18-character alphanumeric string"
-msgstr ""
+msgstr "must be 15 or 18-character alphanumeric string"
 
 #: .././checkbox_ng/commands/submit.py:124
 msgid "associate submission with a machine using this SECURE-ID"
-msgstr ""
+msgstr "associate submission with a machine using this SECURE-ID"
 
 #: .././checkbox_ng/commands/submit.py:152
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: .././checkbox_ng/commands/submit.py:154
 msgid "destination to submit to"
-msgstr ""
+msgstr "destination to submit to"
 
 #: .././checkbox_ng/config.py:43
 msgid "Secure ID of the system"
-msgstr ""
+msgstr "Secure ID of the system"
 
 #: .././checkbox_ng/config.py:48
 msgid "Whether to send the submission data to c3"
-msgstr ""
+msgstr "Whether to send the submission data to c3"
 
 #: .././checkbox_ng/config.py:52
 msgid "Whether to also send the submission data to HEXR"
-msgstr ""
+msgstr "Whether to also send the submission data to HEXR"
 
 #: .././checkbox_ng/config.py:58
 msgid "Email address to log into the Launchpad HWDB"
-msgstr ""
+msgstr "Email address to log into the Launchpad HWDB"
 
 #: .././checkbox_ng/config.py:63
 msgid "URL of the certification website"
-msgstr ""
+msgstr "URL of the certification website"
 
 #: .././checkbox_ng/config.py:69
 msgid "URL of the launchpad hardware database"
-msgstr ""
+msgstr "URL of the launchpad hardware database"
 
 #: .././checkbox_ng/config.py:74
 msgid "Location of the fallback file"
-msgstr ""
+msgstr "Location of the fallback file"
 
 #: .././checkbox_ng/config.py:78
 msgid "Optional whitelist with which to run SRU testing"
-msgstr ""
+msgstr "Optional whitelist with which to run SRU testing"
 
 #: .././checkbox_ng/config.py:82
 msgid "Optional test plan with which to run SRU testing"
-msgstr ""
+msgstr "Optional test plan with which to run SRU testing"
 
 #: .././checkbox_ng/launcher.py:47
 msgid "Application Title"
-msgstr ""
+msgstr "Application Title"
 
 #: .././checkbox_ng/launcher.py:51
 msgid "Welcome Message"
-msgstr ""
+msgstr "Welcome Message"
 
 #. TODO: valid regexp text validator
 #: .././checkbox_ng/launcher.py:56
 msgid "Pattern that whitelists need to match to be displayed"
-msgstr ""
+msgstr "Pattern that whitelists need to match to be displayed"
 
 #. TODO: valid regexp text validator
 #: .././checkbox_ng/launcher.py:61
 msgid "Pattern that whitelists need to match to be selected"
-msgstr ""
+msgstr "Pattern that whitelists need to match to be selected"
 
 #: .././checkbox_ng/launcher.py:67
 msgid "If enabled then suite selection screen is not displayed"
-msgstr ""
+msgstr "If enabled then suite selection screen is not displayed"
 
 #: .././checkbox_ng/launcher.py:73
 msgid "If enabled then test selection screen is not displayed"
-msgstr ""
+msgstr "If enabled then test selection screen is not displayed"
 
 #. TODO: probably a choice validator
 #: .././checkbox_ng/launcher.py:78
 msgid "Type of the input field?"
-msgstr ""
+msgstr "Type of the input field?"
 
 #: .././checkbox_ng/launcher.py:82
 msgid "Label on the 'send' button"
-msgstr ""
+msgstr "Label on the 'send' button"
 
 #. TODO: default?
 #: .././checkbox_ng/launcher.py:88
 msgid "If enabled then test results will be also sent to HEXR"
-msgstr ""
+msgstr "If enabled then test results will be also sent to HEXR"
 
 #: .././checkbox_ng/launcher.py:93
 msgid "Where to submit the test results to"
-msgstr ""
+msgstr "Where to submit the test results to"
 
 #: .././checkbox_ng/launcher.py:98
 msgid ""
 "HTTP endpoint to submit data to, using the transport specified with "
 "submit_to."
 msgstr ""
+"HTTP endpoint to submit data to using the transport specified with submit_to."
 
 #: .././checkbox_ng/launcher.py:104
 msgid "Secure ID to identify the system this submission belongs to."
-msgstr ""
+msgstr "Secure ID to identify the system this submission belongs to."
 
 #: .././checkbox_ng/launcher.py:109
 msgid "Name of custom configuration file"
-msgstr ""
+msgstr "Name of custom configuration file"
 
 #: .././checkbox_ng/launcher.py:113
 msgid "Don't suppress the output of certain job plugin types."
-msgstr ""
+msgstr "Don't suppress the output of certain job plugin types."
 
 #: .././checkbox_ng/launcher.py:116
 msgid "Section with only exported unit ids as keys (no values)"
-msgstr ""
+msgstr "Section with only exported unit IDs as keys (no values)"
 
 #: .././checkbox_ng/launchpad.py:66
 msgid "Cannot get {0} resource job"
-msgstr ""
+msgstr "Cannot get {0} resource job"
 
 #: .././checkbox_ng/launchpad.py:70
 msgid "{0} has no attribute {1}"
-msgstr ""
+msgstr "{0} has no attribute {1}"
 
 #: .././checkbox_ng/launchpad.py:97
 msgid "DMI resources not found"
-msgstr ""
+msgstr "DMI resources not found"
 
 #: .././checkbox_ng/launchpad.py:110
 msgid "System ID not found"
-msgstr ""
+msgstr "System ID not found"
 
 #: .././checkbox_ng/launchpad.py:196
 #, python-format
 msgid "Success! Server said %s"
-msgstr ""
+msgstr "Success! Server said %s"
 
 #: .././checkbox_ng/launchpad.py:197
 msgid "The submission was uploaded to Launchpad successfully"
-msgstr ""
+msgstr "The submission was uploaded to Launchpad successfully"
 
 #: .././checkbox_ng/ui.py:73
 msgid "< Continue >"
-msgstr ""
+msgstr "< Continue >"
 
 #: .././checkbox_ng/ui.py:194 .././checkbox_ng/ui.py:321
 msgid "Enter"
-msgstr ""
+msgstr "Enter"
 
 #: .././checkbox_ng/ui.py:197 .././checkbox_ng/ui.py:324
 msgid ": Expand/Collapse"
-msgstr ""
+msgstr ": Expand/Collapse"
 
 #: .././checkbox_ng/ui.py:213
 msgid "Start "
-msgstr ""
+msgstr "Start "
 
 #: .././checkbox_ng/ui.py:345
 msgid "inish"
-msgstr ""
+msgstr "inish"

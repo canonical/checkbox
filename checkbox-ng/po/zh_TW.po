@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2016-01-19 09:26+0000\n"
+"PO-Revision-Date: 2016-05-19 12:23+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-05-14 05:13+0000\n"
+"X-Launchpad-Export-Date: 2016-05-20 05:15+0000\n"
 "X-Generator: Launchpad (build 18025)\n"
 "Language: \n"
 
@@ -355,7 +355,7 @@ msgstr "若啟用則將不會顯示測試選擇頁面"
 #. TODO: probably a choice validator
 #: .././checkbox_ng/launcher.py:78
 msgid "Type of the input field?"
-msgstr ""
+msgstr "輸入欄的類別？"
 
 #: .././checkbox_ng/launcher.py:82
 msgid "Label on the 'send' button"

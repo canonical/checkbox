@@ -24,7 +24,6 @@ Test definitions for plainbox.impl.unit.template module
 """
 
 from unittest import TestCase
-import warnings
 
 from plainbox.abc import IProvider1
 from plainbox.impl.resource import Resource
@@ -37,7 +36,6 @@ from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
-from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
 

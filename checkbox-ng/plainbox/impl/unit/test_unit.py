@@ -24,14 +24,11 @@ Test definitions for plainbox.impl.unit (package init file)
 """
 
 from unittest import TestCase
-import warnings
 
 from plainbox.abc import IProvider1
 from plainbox.impl.unit.unit import Unit
-from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
-from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
 

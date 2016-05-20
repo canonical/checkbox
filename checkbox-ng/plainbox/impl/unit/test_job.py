@@ -25,7 +25,6 @@ Test definitions for plainbox.impl.unit.job module
 """
 
 from unittest import TestCase
-import warnings
 
 from plainbox.impl.providers.v1 import Provider1
 from plainbox.impl.secure.origin import FileTextSource
@@ -38,7 +37,6 @@ from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
-from plainbox.impl.validation import ValidationError
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor import mock
 

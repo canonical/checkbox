@@ -34,7 +34,6 @@ from plainbox.impl.unit.exporter import ExporterUnitSupport
 from plainbox.impl.unit.test_unit_with_id import UnitWithIdFieldValidationTests
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
-from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
 

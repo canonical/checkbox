@@ -329,7 +329,7 @@ class PresentFieldValidator(CorrectFieldValueValidator):
             issue if the validation fails. By default it is derived from the
             specified issue ``kind`` by :meth:`UnitValidator.explain()`.
         """
-        correct_fn = lambda value: value is not None
+        def correct_fn(value): return value is not None
         super().__init__(correct_fn, kind, severity, message, onlyif)
 
 
@@ -360,7 +360,7 @@ class UselessFieldValidator(CorrectFieldValueValidator):
             issue if the validation fails. By default it is derived from the
             specified issue ``kind`` by :meth:`UnitValidator.explain()`.
         """
-        correct_fn = lambda value: value is None
+        def correct_fn(value): return value is None
         super().__init__(correct_fn, kind, severity, message, onlyif)
 
 
@@ -390,9 +390,9 @@ class TranslatableFieldValidator(FieldValidatorBase):
     """
 
     def check(self, parent, unit, field):
-        if (unit.virtual is False
-                and unit.get_record_value(field) is not None
-                and not unit.is_translatable_field(field)):
+        if (unit.virtual is False and
+                unit.get_record_value(field) is not None and not
+                unit.is_translatable_field(field)):
             yield parent.warning(unit, field, Problem.expected_i18n)
 
 
@@ -409,8 +409,8 @@ class UntranslatableFieldValidator(FieldValidatorBase):
     """
 
     def check(self, parent, unit, field):
-        if (unit.get_record_value(field)
-                and unit.is_translatable_field(field)):
+        if (unit.get_record_value(field) and
+                unit.is_translatable_field(field)):
             yield parent.warning(unit, field, Problem.unexpected_i18n)
 
 
@@ -639,8 +639,8 @@ class UnitReferenceValidator(FieldValidatorBase):
                     if not constraint.constraint_fn(referrer, referee):
                         yield parent.error(
                             unit, field, Problem.bad_reference,
-                            self.message or constraint.message
-                            or _("referee constraint failed"))
+                            self.message or constraint.message or
+                            _("referee constraint failed"))
             elif n > 1:
                 # more than one is also good, which one are we targeting?
                 yield parent.error(

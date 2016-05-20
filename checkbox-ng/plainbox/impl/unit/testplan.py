@@ -337,7 +337,8 @@ class TestPlanUnit(UnitWithId):
             the include and exclude fields.
         """
         qual_list = []
-        qual_list.extend(self._gen_qualifiers('include', self.mandatory_include, True))
+        qual_list.extend(
+            self._gen_qualifiers('include', self.mandatory_include, True))
         return CompositeQualifier(qual_list)
 
     def get_bootstrap_qualifier(self, excluding=False):
@@ -611,8 +612,8 @@ class TestPlanUnit(UnitWithId):
                     lambda duration, unit: unit.estimated_duration > 0,
                     message="value must be a positive number",
                     onlyif=lambda unit: (
-                        unit.virtual is False
-                        and unit.get_record_value('estimated_duration'))),
+                        unit.virtual is False and
+                        unit.get_record_value('estimated_duration'))),
             ],
             fields.icon: [
                 UntranslatableFieldValidator,
@@ -677,10 +678,14 @@ class TestPlanUnitSupport:
     And the qualifiers:
 
         >>> support.qualifier  # doctest: +NORMALIZE_WHITESPACE
-        CompositeQualifier(qualifier_list=[FieldQualifier('id', OperatorMatcher(<built-in function eq>, 'job-a'), inclusive=True),
-                                           FieldQualifier('id', OperatorMatcher(<built-in function eq>, 'job-b'), inclusive=True),
-                                           FieldQualifier('id', OperatorMatcher(<built-in function eq>, 'job-c'), inclusive=True),
-                                           FieldQualifier('id', PatternMatcher('^job-[x-z]$'), inclusive=False)])
+        CompositeQualifier(qualifier_list=[FieldQualifier('id', \
+OperatorMatcher(<built-in function eq>, 'job-a'), inclusive=True),
+                                           FieldQualifier('id', \
+OperatorMatcher(<built-in function eq>, 'job-b'), inclusive=True),
+                                           FieldQualifier('id', \
+OperatorMatcher(<built-in function eq>, 'job-c'), inclusive=True),
+                                           FieldQualifier('id', \
+PatternMatcher('^job-[x-z]$'), inclusive=False)])
     """
 
     def __init__(self, testplan):

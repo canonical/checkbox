@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2016-01-22 03:05+0000\n"
+"PO-Revision-Date: 2016-05-19 12:19+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2016-05-14 05:13+0000\n"
+"X-Launchpad-Export-Date: 2016-05-20 05:15+0000\n"
 "X-Generator: Launchpad (build 18025)\n"
 "Language: \n"
 
@@ -670,7 +670,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/cmd_startprovider.py:96
 msgid "create an empty provider"
-msgstr ""
+msgstr "建立一個空的供應包"
 
 #: .././plainbox/impl/commands/crash.py:43
 msgid "crashing as requested"
@@ -1695,7 +1695,7 @@ msgstr ""
 
 #: .././plainbox/impl/providers/special.py:86
 msgid "Hardware Manifest Provider"
-msgstr ""
+msgstr "硬體清單供應包"
 
 #: .././plainbox/impl/providers/special.py:105
 msgid "Exporters Provider"
@@ -2154,7 +2154,7 @@ msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:1344
 msgid "Name of the provider"
-msgstr ""
+msgstr "供應包名稱"
 
 #: .././plainbox/impl/secure/providers/v1.py:1353
 msgid "Namespace of the provider"
@@ -2162,7 +2162,7 @@ msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:1368
 msgid "Version of the provider"
-msgstr ""
+msgstr "供應包版本"
 
 #: .././plainbox/impl/secure/providers/v1.py:1377
 msgid "Description of the provider"
@@ -3446,11 +3446,11 @@ msgstr ""
 #. TRANSLATORS: don't translate the extension name
 #: .././plainbox/provider_manager.py:536
 msgid "remove the generated .provider file"
-msgstr ""
+msgstr "移除產生出來的 .provider 檔"
 
 #: .././plainbox/provider_manager.py:539
 msgid "overwrite existing provider files"
-msgstr ""
+msgstr "複寫現存的供應包檔"
 
 #: .././plainbox/provider_manager.py:543
 msgid "directory to use (defaults to user's home provider path)"
@@ -3459,16 +3459,16 @@ msgstr ""
 #: .././plainbox/provider_manager.py:551
 #, python-format
 msgid "Removing provider file: %s"
-msgstr ""
+msgstr "移除供應包檔案中：%s"
 
 #: .././plainbox/provider_manager.py:555
 msgid "Provider file already exists: {}"
-msgstr ""
+msgstr "供應包檔案已存在：{}"
 
 #: .././plainbox/provider_manager.py:558
 #, python-format
 msgid "Creating provider file: %s"
-msgstr ""
+msgstr "建立供應包檔案中：%s"
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the

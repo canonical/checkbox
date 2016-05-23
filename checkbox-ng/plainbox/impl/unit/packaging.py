@@ -299,10 +299,10 @@ def _strategy_id_version(unit, os_release):
     _logger.debug(_("Considering strategy: %s"),
                   _("os-id == ID and os-version-id == VERSION_ID"))
     return (
-        'ID' in os_release
-        and unit.os_id == os_release['ID']
-        and 'VERSION_ID' in os_release
-        and unit.os_version_id == os_release['VERSION_ID']
+        'ID' in os_release and
+        unit.os_id == os_release['ID'] and
+        'VERSION_ID' in os_release and
+        unit.os_version_id == os_release['VERSION_ID']
     )
 
 
@@ -310,9 +310,9 @@ def _strategy_id(unit, os_release):
     _logger.debug(_("Considering strategy: %s"),
                   _("os-id == ID and os-version-id == undefined"))
     return (
-        'ID' in os_release
-        and unit.os_id == os_release['ID']
-        and unit.os_version_id is None
+        'ID' in os_release and
+        unit.os_id == os_release['ID'] and
+        unit.os_version_id is None
     )
 
 
@@ -320,9 +320,9 @@ def _strategy_id_like(unit, os_release):
     _logger.debug(_("Considering strategy: %s"),
                   _("os-id == ID_LIKE and os-version-id == undefined"))
     return (
-        'ID_LIKE' in os_release
-        and unit.os_id == os_release['ID_LIKE']
-        and unit.os_version_id is None
+        'ID_LIKE' in os_release and
+        unit.os_id == os_release['ID_LIKE'] and
+        unit.os_version_id is None
     )
 
 
@@ -337,9 +337,9 @@ class PackagingDriverBase(IPackagingDriver):
         os_release = self.os_release
         if unit.Meta.name != PackagingMetaDataUnit.Meta.name:
             return False
-        if (not _strategy_id_version(unit, os_release)
-                and not _strategy_id(unit, os_release)
-                and not _strategy_id_like(unit, os_release)):
+        if (not _strategy_id_version(unit, os_release) and not
+                _strategy_id(unit, os_release) and not
+                _strategy_id_like(unit, os_release)):
             _logger.debug(_("All strategies unsuccessful"))
             return False
         _logger.debug(_("Last strategy was successful"))
@@ -460,8 +460,8 @@ def get_packaging_driver() -> IPackagingDriver:
     """Get the packaging driver appropriate for the current platform."""
     if sys.platform.startswith("linux"):
         os_release = get_os_release()
-        if (os_release.get('ID') == 'debian'
-                or os_release.get('ID_LIKE') == 'debian'):
+        if (os_release.get('ID') == 'debian' or
+                os_release.get('ID_LIKE') == 'debian'):
             _logger.info(_("Using Debian packaging driver"))
             return DebianPackagingDriver(os_release)
     _logger.info(_("Using null packaging driver"))

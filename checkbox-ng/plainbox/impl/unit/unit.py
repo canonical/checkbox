@@ -207,8 +207,8 @@ class UnitValidator:
                 elif '_{}'.format(field) in unit[0].field_offset_map:
                     if origin is None:
                         origin = origin.with_offset(
-                            unit[0].field_offset_map['_{}'.format(field)]
-                            + offset).just_line()
+                            unit[0].field_offset_map['_{}'.format(field)] +
+                            offset).just_line()
         else:
             cls = UnitFieldIssue
             if origin is None:
@@ -220,8 +220,8 @@ class UnitValidator:
                 elif '_{}'.format(field) in unit.field_offset_map:
                     if origin is None:
                         origin = origin.with_offset(
-                            unit.field_offset_map['_{}'.format(field)]
-                            + offset).just_line()
+                            unit.field_offset_map['_{}'.format(field)] +
+                            offset).just_line()
         issue = cls(message, severity, kind, origin, unit, field)
         self.issue_list.append(issue)
         return issue

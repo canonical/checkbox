@@ -1432,7 +1432,11 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         exporter = self._manager.create_exporter(exporter_id, option_list,
                                                  strict=False)
-        timestamp = datetime.datetime.utcnow().isoformat()
+        
+        # LP:1585326 maintain isoformat but removing ':' chars that cause
+        # issues when copying files.
+        isoformat = "%Y-%m-%dT%H.%M.%S.%f"
+        timestamp = datetime.datetime.utcnow().strftime(isoformat)
         path = os.path.join(dir_path, ''.join(
             ['submission_', timestamp, '.', exporter.unit.file_extension]))
         with open(path, 'wb') as stream:

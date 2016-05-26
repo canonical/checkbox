@@ -857,6 +857,12 @@ class UdevadmParser(object):
         if device.vendor == "iDRAC":
             return True
 
+        # Ignore virtual devices created by Cisco CIMC manager
+        # See pad.lv/1585802
+        if device.product == "Virtual FDD/HDD" or
+           device.product == "Virtual Floppy":
+            return True
+
         return False
 
     def getAttributes(self, path):

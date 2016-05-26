@@ -95,7 +95,7 @@ class WarmupCommandsIngredient(Ingredient):
 
 
 class LauncherIngredient(Ingredient):
-    """Ingredient that adds Checkbox Launcher suppotrt to guacamole.:"""
+    """Ingredient that adds Checkbox Launcher support to guacamole."""
     def late_init(self, context):
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
@@ -200,6 +200,19 @@ class CheckboxLauncher(CheckboxCommand):
             # it's a legacy launcher, use legacy way of running commands
             from checkbox_ng.tools import CheckboxLauncherTool
             raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
+        if self.launcher.ui_type == 'converged':
+            # Stop processing the launcher config and call the QML ui
+            qml_main_file = '/usr/share/checkbox-converged/checkbox-touch.qml'
+            basedir = os.path.dirname(__file__)
+            # XXX This relative path is a ugly way to find the dev version of
+            # checkbox-converged. Once the checkbox project will move to git,
+            # this method will no longer work
+            if basedir not in os.getenv('PATH'):
+                qml_main_file = os.path.abspath(os.path.join(
+                    basedir, '../../checkbox-touch/checkbox-touch.qml'))
+            cmd = ['qmlscene', qml_main_file,
+                   '--launcher={}'.format(os.path.abspath(ctx.args.launcher))]
+            os.execvp(cmd[0], cmd)
 
         try:
             self.C = Colorizer()

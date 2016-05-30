@@ -673,7 +673,10 @@ class CheckboxLauncher(CheckboxCommand):
             self.launcher.exporters['hexr'] = {
                 'unit': '2013.com.canonical.plainbox::hexr'}
             self.launcher.transports['c3-staging'] = {
-                'type': 'certification', 'staging': 'yes'}
+                'type': 'certification',
+                'secure_id': self.launcher.transports.get('c3', {}).get(
+                    'secure_id', None),
+                'staging': 'yes'}
             self.launcher.reports['upload to certification-staging'] = {
                 'transport': 'c3-staging', 'exporter': 'hexr'}
         elif report == 'submission_files':

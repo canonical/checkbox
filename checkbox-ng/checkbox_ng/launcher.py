@@ -244,7 +244,8 @@ class LauncherDefinition1(LauncherDefinition):
         section='ui',
         name='type',
         default='interactive',
-        validator_list=[config.ChoiceValidator(['interactive', 'silent'])],
+        validator_list=[config.ChoiceValidator(
+            ['interactive', 'silent', 'converged'])],
         help_text=_('Type of stock user interface to use.'))
 
     dont_suppress_output = config.Variable(

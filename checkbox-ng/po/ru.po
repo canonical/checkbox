@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2014-06-25 12:46+0000\n"
+"PO-Revision-Date: 2016-05-29 20:51+0000\n"
 "Last-Translator: ☠Jay ZDLin☠ <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2016-05-14 05:13+0000\n"
-"X-Generator: Launchpad (build 18025)\n"
+"X-Launchpad-Export-Date: 2016-05-30 05:13+0000\n"
+"X-Generator: Launchpad (build 18053)\n"
 "Language: ru\n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -470,7 +470,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/cmd_selftest.py:48
 msgid "abort the test on first failure"
-msgstr ""
+msgstr "прекратить тест после первого сбоя"
 
 #: .././plainbox/impl/commands/cmd_selftest.py:53
 msgid "run tests quietly"
@@ -601,15 +601,15 @@ msgstr ""
 
 #: .././plainbox/impl/commands/cmd_special.py:42
 msgid "special/internal commands"
-msgstr ""
+msgstr "специальные/внутренние команды"
 
 #: .././plainbox/impl/commands/cmd_special.py:48
 msgid "list jobs instead of running them"
-msgstr ""
+msgstr "вывести список заданий, а не запускать их"
 
 #: .././plainbox/impl/commands/cmd_special.py:52
 msgid "list jobs with cheksums instead of running them"
-msgstr ""
+msgstr "вывести список заданий с контрольными суммами, а не запускать их"
 
 #: .././plainbox/impl/commands/cmd_special.py:56
 msgid "list all unique resource expressions"
@@ -1050,7 +1050,7 @@ msgstr "Данная сессия не может быть возобновле�
 
 #: .././plainbox/impl/commands/inv_run.py:699
 msgid "Analyzing Jobs"
-msgstr ""
+msgstr "Анализ заданий"
 
 #: .././plainbox/impl/commands/inv_run.py:717
 msgid "Authentication"
@@ -1118,7 +1118,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/inv_run.py:922
 msgid "Please decide what to do next:"
-msgstr ""
+msgstr "Необходимо выбрать последующее действие:"
 
 #: .././plainbox/impl/commands/inv_run.py:923
 msgid "outcome"
@@ -1132,7 +1132,7 @@ msgstr "комментарии"
 #: .././plainbox/impl/commands/inv_run.py:927
 msgctxt "none comment"
 msgid "none"
-msgstr ""
+msgstr "пусто"
 
 #: .././plainbox/impl/commands/inv_run.py:960
 msgid "Warning"

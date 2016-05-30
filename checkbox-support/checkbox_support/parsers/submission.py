@@ -857,10 +857,10 @@ class SubmissionResult(object):
 
     def addSnapPackage(self, snap_package):
         snap_package_version = {
-            "name": snap_package["name"],
-            "date": snap_package["properties"]["date"],
-            "version": snap_package["properties"]["version"],
-            "developer": snap_package["properties"]["developer"],
+            "name": snap_package.get("name"),
+            "version": snap_package.get("properties", {}).get("version"),
+            "date": snap_package.get("properties", {}).get("date"),
+            "developer": snap_package.get("properties", {}).get("developer"),
             }
         self.dispatcher.publishEvent(
             "snap_package_version", snap_package_version)

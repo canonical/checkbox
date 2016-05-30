@@ -349,6 +349,17 @@ class TestSubmissionParser(TestCase):
         package_version = result["snap_package_versions"][0]
         self.assertEqual(package_version["name"], "ubuntu-core")
         self.assertEqual(package_version["version"], "14")
+        self.assertEqual(package_version["developer"], "ubuntu")
+
+    def test_snap_package_versions_with_date(self):
+        """Snap Package parses correctly with optional date element."""
+        result = self.getResult("submission_snap_packages_with_date.xml")
+        self.assertTrue("snap_package_versions" in result)
+        self.assertEqual(len(result["snap_package_versions"]), 1)
+
+        package_version = result["snap_package_versions"][0]
+        self.assertEqual(package_version["name"], "ubuntu-core")
+        self.assertEqual(package_version["version"], "14")
         self.assertEqual(package_version["date"], "2015-10-13")
         self.assertEqual(package_version["developer"], "ubuntu")
 

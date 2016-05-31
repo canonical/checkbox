@@ -1,5 +1,3 @@
 debian/tmp/usr/bin/canonical-certification-cli /usr/bin
 debian/tmp/usr/bin/canonical-certification-client /usr/bin
-debian/tmp/usr/bin/canonical-certification-gui /usr/bin
 debian/tmp/usr/share/applications/canonical-certification-client.desktop /usr/share/applications/
-debian/tmp/usr/share/applications/canonical-certification-gui.desktop /usr/share/applications/

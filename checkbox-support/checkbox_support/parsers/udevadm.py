@@ -468,6 +468,13 @@ class UdevadmDevice(object):
         return None
 
     @property
+    def major(self):
+        # See http://pad.lv/1559189
+        # We need the Major to identify IBM s390 disk devices (DASDs)
+        if "MAJOR" in self._environment:
+            return self._environment["MAJOR"]
+
+    @property
     def driver(self):
         if "DRIVER" in self._environment:
             return self._environment["DRIVER"]
@@ -652,6 +659,9 @@ class UdevadmDevice(object):
             self._environment.get("DEVTYPE") == "disk" and
             self.driver == 'virtio_blk' and self.bus == 'virtio'):
             return self.name
+        elif self.major == "94":
+            # See http://pad.lv/1559189
+            return "IBM s390 Virtual Disk"
 
         # floppy
         if self.driver == "floppy":
@@ -803,6 +813,14 @@ class UdevadmParser(object):
         self.devices = OrderedDict()
 
     def _ignoreDevice(self, device):
+        # See http://pad.lv/1559189
+        # s390 LPARs and zVM DASDs provide very little info via udev so we
+        # need to handle them before anything else, otherwise they'll never
+        # appear. These devices all have Major number 94, so this is the
+        # easiest way to locate them.
+        if device.major == "94":
+            return False
+
         # Ignore devices without bus information
         if not device.bus:
             return True

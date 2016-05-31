@@ -5,5 +5,5 @@ launcher_version = 1
 stock_reports = text, submission_files, certification
 
 [test plan]
-unit = 2013.com.canonical.certification::client-cert-14-04
-filter = *
+unit = 2013.com.canonical.certification::client-cert-16-04
+filter = *client-cert*, *client-selftest*, *client-hwe*

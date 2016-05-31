@@ -89,6 +89,14 @@ def parse_args():
     return parser.parse_args()
 
 
+def bus_ordering(record):
+    if record.get('bus') == "pci":
+        # We are looking for this ---------------v
+        # /devices/pci0000:00/0000:00:02.1/0000:01:00.0
+        return int(record.get('path').split(':')[-2])
+    return 0
+
+
 def main():
     """
     graphics_card_resource was done as a script to be able to reuse it in
@@ -106,13 +114,15 @@ def main():
 
     udev_output = subprocess_lines_generator(udev_command)
 
-    # udev_devices generates one dict per device, the generator shown
+    # udev_devices generates one dict per device, the list shown
     # below filters that to only VIDEO ones
-    video_devices_generator = (r for r in udev_devices(udev_output)
+    video_devices = list(r for r in udev_devices(udev_output)
                                if r.get("category", "") == 'VIDEO')
-    # Lazily add index to each video device (enumerate on a generator)
+    video_devices.sort(key=lambda r: bus_ordering(r))
+
+    # Lazily add index to each video device
     try:
-        for index, record in enumerate(video_devices_generator, 1):
+        for index, record in enumerate(video_devices, 1):
             record['index'] = index
             if 'product' not in record:
                 # Fake a product name with the product_id

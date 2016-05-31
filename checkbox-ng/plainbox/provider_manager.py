@@ -1254,6 +1254,22 @@ class I18NCommand(ManageCommand):
             '--pot',
         ], self.po_dir, dry_run)
 
+        qml_files = []
+        for dirname, dirs, filenames in os.walk(self.get_provider().data_dir):
+            for name in filenames:
+                f = os.path.join(dirname, name)
+                if (os.path.splitext(f)[1].lower() == '.qml' and
+                        os.path.isfile(f)):
+                    qml_files.append(os.path.relpath(f, self.po_dir))
+        if qml_files:
+            self._cmd([
+                'xgettext',
+                '-o', '{}.pot'.format(self.definition.gettext_domain),
+                '--qt', '--c++', '--join-existing',
+                '--keyword=tr', '--keyword=tr:1,2',
+                '--from-code=UTF-8',
+            ] + qml_files, self.po_dir, dry_run)
+
     def _merge_po(self, dry_run):
         for item in os.listdir(self.po_dir):
             if not item.endswith('.po'):

@@ -1,0 +1,284 @@
+# Russian translation for checkbox
+# Copyright (c) 2016 Rosetta Contributors and Canonical Ltd 2016
+# This file is distributed under the same license as the checkbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: checkbox\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2016-03-07 15:06+0800\n"
+"PO-Revision-Date: 2016-05-30 17:06+0000\n"
+"Last-Translator: Данил Тютюник <den.tyutyunik@ya.ru>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2016-05-31 05:14+0000\n"
+"X-Generator: Launchpad (build 18053)\n"
+
+#. summary
+#: ../jobs/resource.pxu:68
+msgid "Collect information about the CPU"
+msgstr "Сбор информации о процессоре"
+
+#. description
+#: ../jobs/resource.pxu:69
+msgid "Gets CPU resource info from /proc/cpuinfo"
+msgstr "Получает данные ресурса CPU из /proc/cpuinfo"
+
+#. summary
+#: ../jobs/resource.pxu:76
+msgid "Collect information about installation media (casper)"
+msgstr "Сбор информации о установочном носителе (casper)"
+
+#. description
+#: ../jobs/resource.pxu:77
+msgid "Gets installation info from casper.log and media-info"
+msgstr "Получает данные установки из casper.log и медиа-информации"
+
+#. summary
+#: ../jobs/resource.pxu:84
+msgid "Collect information about dpkg version"
+msgstr "Сбор информации о версии DPKG"
+
+#. description
+#: ../jobs/resource.pxu:85
+msgid "Gets info on the version of dpkg installed"
+msgstr "Получает информацию о установленной версии DPKG"
+
+#. description
+#: ../jobs/resource.pxu:92
+msgid "Generates resource info from gconf settings"
+msgstr "Генерация информации от настроек Gconf"
+
+#. summary
+#: ../jobs/resource.pxu:93
+msgid "Collect information about software configuration (gconf)"
+msgstr "Сбор информации о конфигурации программного обеспечения (GConf)"
+
+#. description
+#: ../jobs/resource.pxu:100
+msgid "Generates release info based on /etc/lsb-release"
+msgstr "Формирует релиз на основе информации из /etc/lsb-release"
+
+#. summary
+#: ../jobs/resource.pxu:101
+msgid "Collect information about installed system (lsb-release)"
+msgstr "Сбор информации об установленной системе (LSB-release)"
+
+#. description
+#: ../jobs/resource.pxu:107
+msgid "Generates resource info based on /proc/meminfo"
+msgstr "Формирует данные о /proc/meminfo"
+
+#. summary
+#: ../jobs/resource.pxu:108
+msgid "Collect information about system memory (/proc/meminfo)"
+msgstr "Сбор информации о системной памяти (/proc/meminfo)"
+
+#. description
+#: ../jobs/resource.pxu:114
+msgid "Generates resources info on running kernel modules"
+msgstr "Формирует данные о запущенных модулях ядра"
+
+#. summary
+#: ../jobs/resource.pxu:115
+msgid "Collect information about kernel modules"
+msgstr "Сбор информации о модулях ядра"
+
+#. description
+#: ../jobs/resource.pxu:123
+msgid "Generates a list of packages"
+msgstr "Формирует список пакетов"
+
+#. summary
+#: ../jobs/resource.pxu:124
+msgid "Collect information about installed software packages"
+msgstr "Сбор информации об установленных пакетах программного обеспечения"
+
+#. summary
+#: ../jobs/resource.pxu:129
+msgid "Enumerate available system executables"
+msgstr "Перечисление доступных системных исполняемых файлов"
+
+#. description
+#: ../jobs/resource.pxu:130
+msgid "Generates a resource for all available executables"
+msgstr "Создает ресурс для всех доступных исполняемых файлов"
+
+#. description
+#: ../jobs/resource.pxu:140
+msgid "Creates resource info from udev"
+msgstr "Создает данные из Udev"
+
+#. summary
+#: ../jobs/resource.pxu:141
+msgid "Collect information about hardware devices (udev)"
+msgstr "Сбор информации об аппаратных устройствах (Udev)"
+
+#. summary
+#: ../jobs/resource.pxu:149
+msgid "Collect unfiltered udev data"
+msgstr "Сбор неотсортированных данных Udev"
+
+#. description
+#: ../jobs/resource.pxu:150
+msgid ""
+"This job collects the udev database in mostly raw format. The only "
+"transformations applied are basic changes to make the format compatible with "
+"RFC822 syntax required by PlainBox."
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:161
+msgid "Collect information about hardware devices (DMI)"
+msgstr "Сбор информации об аппаратных устройствах (DMI)"
+
+#. description
+#: ../jobs/resource.pxu:173
+msgid "Creates resource info from uname output"
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:174
+msgid "Collect information about the running kernel"
+msgstr "Сбор информации о запущенном ядре"
+
+#. description
+#: ../jobs/resource.pxu:180
+msgid "Create resource info for supported sleep states"
+msgstr "Создание информации для поддерживаемых состояний сна"
+
+#. description
+#: ../jobs/resource.pxu:189
+msgid "Create resource info for supported optical actions ({name})"
+msgstr ""
+"Создание информации ресурса для поддерживаемых оптических действий ({name})"
+
+#. description
+#: ../jobs/resource.pxu:196
+msgid "Create resource info for removable block devices"
+msgstr "Создание информации для съемных блочных устройств"
+
+#. description
+#: ../jobs/resource.pxu:203
+msgid "Creates display resource info from xrandr output"
+msgstr "Создание информации о дисплеи из XRandR вывода"
+
+#. description
+#: ../jobs/resource.pxu:208
+msgid "Creates resource info for supported USB versions"
+msgstr "Создает данные ресурса для поддерживаемых версий USB"
+
+#. summary
+#: ../jobs/resource.pxu:209
+msgid "Collect information about supported types of USB"
+msgstr "Сбор информации о поддерживаемых типах USB"
+
+#. description
+#: ../jobs/resource.pxu:221
+msgid "Creates resource info from xinput output."
+msgstr "Создает данные из Xinput вывода."
+
+#. description
+#: ../jobs/resource.pxu:226
+msgid "Create resource info for environment variables"
+msgstr "Создание информации о переменных окружения"
+
+#. description
+#: ../jobs/resource.pxu:236
+msgid "Create resource for mobile broadband devices"
+msgstr "Создаине информации о мобильных широкополосных устройств"
+
+#. description
+#: ../jobs/resource.pxu:243
+msgid "Resource for hardware virtualization"
+msgstr "Ресурс для аппаратной виртуализации"
+
+#. description
+#: ../jobs/resource.pxu:256
+msgid "Creates resource info for wifi supported protocols/interfaces"
+msgstr "Создает данные поддерживаемых протоколов/интерфейсов для WiFi"
+
+#. description
+#: ../jobs/resource.pxu:268
+msgid "Creates resource info for RTC"
+msgstr "Создает данные для RTC"
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid "Provide links to requirements documents."
+msgstr "Укажите ссылки на требования документов."
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid "The requirement document should contain sets of name/link pairs."
+msgstr "В этом документе требование должно содержать наборы пар имя/ссылка."
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid ""
+"Each requirement should have two keys with their respective values: name: "
+"(to be used as the anchor text) link: (the actual URL)"
+msgstr ""
+"Каждое требование должно иметь два ключа с соответствующими значениями: имя: "
+"(для использования в качестве якорного текста) ссылка: (фактический адрес)"
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid "Each set should be separated from the previous one by a new line."
+msgstr "Каждый набор должен быть отделен от предыдущего новой линии."
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid "Example:"
+msgstr "Пример:"
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid "name: Requirement 1 link: http://example.com/requirement1"
+msgstr "name: Requirement 1 link: http://example.com/requirement1"
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid "name: requirement 2 link: http://example.com/requirement2"
+msgstr "name: requirement 2 link: http://example.com/requirement2"
+
+#. description
+#: ../jobs/resource.pxu:279
+msgid ""
+"Providers wishing to use this feature need to: 1- Write a job that places a "
+"suitably-formatted file in $PLAINBOX_SESSION_SHARE 2- Update their "
+"whitelists to run that job *before* miscellanea/submission-resources\n"
+"   or the \"requirements\" resource job."
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:307
+msgid "Generate an entry for each graphics card present in the system."
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:313
+msgid "Resources to gather system information"
+msgstr "Ресурсы для сбора информации о системе"
+
+#. summary
+#: ../jobs/resource.pxu:314
+msgid "Resources"
+msgstr "Ресурсы"
+
+#. description
+#: ../jobs/resource.pxu:323
+msgid "Generate an entry for each FWTS test available"
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:331
+msgid "Generate an entry for each MIR integration tests"
+msgstr ""
+
+#: ../manage.py:48
+msgid "PlainBox resources provider"
+msgstr "Поставщик ресурсов PlainBox"

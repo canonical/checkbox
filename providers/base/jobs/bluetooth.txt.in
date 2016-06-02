@@ -22,7 +22,7 @@ command:
  output=$(hcitool dev | tail -n+2 | awk '{print $2}' | tee $PLAINBOX_SESSION_SHARE/bluetooth_address)
  echo "$output"
  if [ -z "$output" ]; then
-     "BT hardware not available"
+     echo "BT hardware not available"
      exit 1
  fi
 _description:

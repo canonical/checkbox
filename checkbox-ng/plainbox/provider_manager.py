@@ -1254,6 +1254,8 @@ class I18NCommand(ManageCommand):
             '--pot',
         ], self.po_dir, dry_run)
 
+        if not self.get_provider().data_dir:
+            return
         qml_files = []
         for dirname, dirs, filenames in os.walk(self.get_provider().data_dir):
             for name in filenames:

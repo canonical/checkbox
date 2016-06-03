@@ -95,7 +95,7 @@ class TARSessionStateExporter(SessionStateExporterBase):
                     continue
                 for stdstream in ('stdout', 'stderr'):
                     filename = recordname.replace('record.gz', stdstream)
-                    if os.path.getsize(filename):
+                    if os.path.exists(filename) and os.path.getsize(filename):
                         arcname = os.path.basename(filename)
                         if stdstream == 'stdout':
                             arcname = os.path.splitext(arcname)[0]

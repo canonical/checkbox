@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2016-06-01 20:03+0000\n"
+"PO-Revision-Date: 2016-06-02 18:34+0000\n"
 "Last-Translator: Данил Тютюник <den.tyutyunik@ya.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-06-02 05:13+0000\n"
-"X-Generator: Launchpad (build 18053)\n"
+"X-Launchpad-Export-Date: 2016-06-03 05:14+0000\n"
+"X-Generator: Launchpad (build 18086)\n"
 
 #: .././checkbox_ng/certification.py:135
 msgid "Secure ID not specified"
@@ -306,7 +306,7 @@ msgstr ""
 
 #: .././checkbox_ng/config.py:58
 msgid "Email address to log into the Launchpad HWDB"
-msgstr ""
+msgstr "Email адрес для входа в Launchpad HWDB"
 
 #: .././checkbox_ng/config.py:63
 msgid "URL of the certification website"

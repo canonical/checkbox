@@ -154,7 +154,7 @@ id: audio/{index}_playback_type-c_displayport_{product_slug}
 imports: from 2013.com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
- manifest.has_usb_type_c
+ manifest.has_usb_type_c == 'True'
  display.dp == 'supported'
  device.category == 'AUDIO'
  package.name == 'alsa-base'

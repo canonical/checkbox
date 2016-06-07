@@ -174,7 +174,7 @@ unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_displayport_{product_slug}
 imports: from 2013.com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c
+requires: manifest.has_usb_type_c == 'True'
 estimated_duration: 15.0
 plugin: manual
 category_id: 2013.com.canonical.plainbox::monitor

@@ -198,8 +198,11 @@ Beginning of the user interface section
 
 ``type``
 
-Type of UI to use. This has to be set to ``interactive`` or to ``silent``.
-Default value: ``interactive``.
+Type of UI to use. This has to be set to ``interactive``, ``silent`` or
+``converged``.
+Default value: ``interactive``, which runs the Checkbox command line version.
+Note: the ``converged`` UI type will launch the QML interface and requires
+checkbox-converged to be installed on your system.
 Note: using ``silent`` UI type requires forcing test selection and test plan
 selection.
 

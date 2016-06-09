@@ -57,7 +57,11 @@ class SpecialInvocation(CheckBoxInvocationMixIn):
         # specified just operate on the whole set. The ns.special check
         # prevents people starting plainbox from accidentally running _all_
         # jobs without prompting.
-        if ns.special is not None and not ns.include_pattern_list:
+        if (
+            ns.special is not None and
+            not ns.include_pattern_list and
+            not ns.test_plan
+        ):
             matching_job_list = job_list
         return matching_job_list
 

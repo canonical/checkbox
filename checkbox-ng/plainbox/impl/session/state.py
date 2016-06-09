@@ -390,7 +390,9 @@ class SessionDeviceContext:
             it does so before any of the units from that provider are added.
         """
         if provider in self._provider_list:
-            raise ValueError(_("attempting to add the same provider twice"))
+            raise ValueError(
+                _("attempting to add the same provider twice: %s"
+                  % provider.name))
         self._provider_list.append(provider)
         self.on_provider_added(provider)
         if add_units:
@@ -412,7 +414,8 @@ class SessionDeviceContext:
         This method fires the :meth:`on_unit_added()` signal
         """
         if unit in self._unit_list:
-            raise ValueError(_("attempting to add the same unit twice"))
+            raise ValueError(
+                _("attempting to add the same unit twice: %s" % unit.id))
         self.state.add_unit(unit)
         # NOTE: no need to fire the on_unit_added() signal because the state
         # object and we've connected it to will fire our version.

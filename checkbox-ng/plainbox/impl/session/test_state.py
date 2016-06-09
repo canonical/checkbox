@@ -44,6 +44,7 @@ from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.vendor import mock
 from plainbox.vendor.morris import SignalTestCase
 
@@ -800,7 +801,7 @@ class SessionDeviceContextTests(SignalTestCase):
     def setUp(self):
         self.ctx = SessionDeviceContext()
         self.provider = mock.Mock(name='provider', spec_set=Provider1)
-        self.unit = mock.Mock(name='unit', spec_set=Unit)
+        self.unit = mock.Mock(name='unit', spec_set=UnitWithId)
         self.unit.provider = self.provider
         self.provider.unit_list = [self.unit]
         self.provider.problem_list = []

@@ -24,6 +24,7 @@ import collections
 import logging
 import operator
 import re
+from functools import lru_cache
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.qualifiers import CompositeQualifier
@@ -237,16 +238,33 @@ class TestPlanUnit(UnitWithId):
         return self.get_record_value('exclude')
 
     @property
+    def nested_part(self):
+        return self.get_record_value('nested_part')
+
+    @property
     def icon(self):
         return self.get_record_value('icon')
 
     @property
     def category_overrides(self):
-        return self.get_record_value('category-overrides')
+        return self.get_record_value('category_overrides')
 
     @property
     def certification_status_overrides(self):
-        return self.get_record_value('certification-status-overrides')
+        return self.get_record_value('certification_status_overrides')
+
+    @property
+    def provider_list(self):
+        """
+        List of provider to used when calling get_throwaway_manager().
+        Meant to be used by unit tests only.
+        """
+        if hasattr(self, "_provider_list"):
+            return self._provider_list
+
+    @provider_list.setter
+    def provider_list(self, value):
+        self._provider_list = value
 
     @property
     def estimated_duration(self):
@@ -299,21 +317,51 @@ class TestPlanUnit(UnitWithId):
     def get_bootstrap_job_ids(self):
         """Compute and return a set of job ids from bootstrap_include field."""
         job_ids = set()
-        if self.bootstrap_include is None:
-            return job_ids
+        if self.bootstrap_include is not None:
 
-        class V(Visitor):
+            class V(Visitor):
 
-            def visit_Text_node(visitor, node: Text):
-                job_ids.add(self.qualify_id(node.text))
+                def visit_Text_node(visitor, node: Text):
+                    job_ids.add(self.qualify_id(node.text))
 
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_(
-                    "unable to parse bootstrap_include: %s"), node.msg)
+                def visit_Error_node(visitor, node: Error):
+                    logger.warning(_(
+                        "unable to parse bootstrap_include: %s"), node.msg)
 
-        V().visit(WordList.parse(self.bootstrap_include))
+            V().visit(WordList.parse(self.bootstrap_include))
+        for tp_unit in self.get_nested_part():
+            job_ids |= tp_unit.get_bootstrap_job_ids()
         return job_ids
 
+    @lru_cache(maxsize=None)
+    def get_nested_part(self):
+        """Compute and return a set of test plan ids from nested_part field."""
+        nested_parts = []
+        if self.nested_part is not None:
+            from plainbox.impl.session import SessionManager
+            with SessionManager.get_throwaway_manager(self.provider_list) as m:
+                context = m.default_device_context
+                testplan_ids = []
+
+                class V(Visitor):
+
+                    def visit_Text_node(visitor, node: Text):
+                        testplan_ids.append(self.qualify_id(node.text))
+
+                    def visit_Error_node(visitor, node: Error):
+                        logger.warning(_(
+                            "unable to parse nested_part: %s"), node.msg)
+
+                V().visit(WordList.parse(self.nested_part))
+                for tp_id in testplan_ids:
+                    try:
+                        nested_parts.append(context.get_unit(tp_id, 'test plan'))
+                    except KeyError:
+                        logger.warning(_(
+                            "unable to find nested part: %s"), tp_id)
+        return nested_parts
+
+    @lru_cache(maxsize=None)
     def get_qualifier(self):
         """
         Convert this test plan to an equivalent qualifier for job selection
@@ -326,8 +374,11 @@ class TestPlanUnit(UnitWithId):
         qual_list.extend(self._gen_qualifiers('include', self.include, True))
         qual_list.extend(self._gen_qualifiers('exclude', self.exclude, False))
         qual_list.extend([self.get_bootstrap_qualifier(excluding=True)])
+        for tp_unit in self.get_nested_part():
+            qual_list.extend([tp_unit.get_qualifier()])
         return CompositeQualifier(qual_list)
 
+    @lru_cache(maxsize=None)
     def get_mandatory_qualifier(self):
         """
         Convert this test plan to an equivalent qualifier for job selection
@@ -339,20 +390,24 @@ class TestPlanUnit(UnitWithId):
         qual_list = []
         qual_list.extend(
             self._gen_qualifiers('include', self.mandatory_include, True))
+        for tp_unit in self.get_nested_part():
+            qual_list.extend([tp_unit.get_mandatory_qualifier()])
         return CompositeQualifier(qual_list)
 
+    @lru_cache(maxsize=None)
     def get_bootstrap_qualifier(self, excluding=False):
         """
         Convert this test plan to an equivalent qualifier for job selection
         """
         qual_list = []
-        if self.bootstrap_include is None:
-            return CompositeQualifier(qual_list)
-        field_origin = self.origin.just_line().with_offset(
-            self.field_offset_map['bootstrap_include'])
-        qual_list = [FieldQualifier(
-            'id', OperatorMatcher(operator.eq, target_id), field_origin,
-            not excluding) for target_id in self.get_bootstrap_job_ids()]
+        if self.bootstrap_include is not None:
+            field_origin = self.origin.just_line().with_offset(
+                self.field_offset_map['bootstrap_include'])
+            qual_list = [FieldQualifier(
+                'id', OperatorMatcher(operator.eq, target_id), field_origin,
+                not excluding) for target_id in self.get_bootstrap_job_ids()]
+        for tp_unit in self.get_nested_part():
+            qual_list.extend([tp_unit.get_bootstrap_qualifier(excluding)])
         return CompositeQualifier(qual_list)
 
     def _gen_qualifiers(self, field_name, field_value, inclusive):
@@ -547,6 +602,7 @@ class TestPlanUnit(UnitWithId):
             mandatory_include = 'mandatory_include'
             bootstrap_include = 'bootstrap_include'
             exclude = 'exclude'
+            nested_part = 'nested_part'
             estimated_duration = 'estimated_duration'
             icon = 'icon'
             category_overrides = 'category-overrides'
@@ -602,6 +658,9 @@ class TestPlanUnit(UnitWithId):
             fields.exclude: [
                 NonEmptyPatternIntersectionValidator,
             ],
+            fields.nested_part: [
+                NonEmptyPatternIntersectionValidator,
+            ],
             fields.estimated_duration: [
                 UntranslatableFieldValidator,
                 TemplateInvariantFieldValidator,
@@ -649,17 +708,17 @@ class TestPlanUnitSupport:
     Some examples of how that works, given this test plan:
         >>> testplan = TestPlanUnit({
         ...     'include': '''
-        ...         job-a certification-status=blocker, category-id=example
-        ...         job-b certification-status=non-blocker
+        ...         job-a certification_status=blocker, category-id=example
+        ...         job-b certification_status=non-blocker
         ...         job-c
         ...     ''',
         ...     'exclude': '''
         ...         job-[x-z]
         ...     ''',
-        ...     'category-overrides': '''
+        ...     'category_overrides': '''
         ...         apply other-example to job-[bc]
         ...     ''',
-        ...     'certification-status-overrides': '''
+        ...     'certification_status_overrides': '''
         ...         apply not-part-of-certification to job-c
         ...     ''',
         ...     })
@@ -810,6 +869,8 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                 override_list.append((pattern, 'category_id', category_id))
 
         V().visit(OverrideFieldList.parse(testplan.category_overrides))
+        for tp_unit in testplan.get_nested_part():
+            override_list.extend(self._get_category_overrides(tp_unit))
         return override_list
 
     def _get_blocker_status_overrides(
@@ -824,20 +885,21 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         is the overridden value.
         """
         override_list = []
-        if testplan.certification_status_overrides is None:
-            return override_list
+        if testplan.certification_status_overrides is not None:
 
-        class V(Visitor):
+            class V(Visitor):
 
-            def visit_FieldOverride_node(self, node: FieldOverride):
-                blocker_status = node.value.text
-                pattern = r"^{}$".format(
-                    testplan.qualify_id(node.pattern.text))
-                override_list.append(
-                    (pattern, 'certification_status', blocker_status))
+                def visit_FieldOverride_node(self, node: FieldOverride):
+                    blocker_status = node.value.text
+                    pattern = r"^{}$".format(
+                        testplan.qualify_id(node.pattern.text))
+                    override_list.append(
+                        (pattern, 'certification_status', blocker_status))
 
-        V().visit(OverrideFieldList.parse(
-            testplan.certification_status_overrides))
+            V().visit(OverrideFieldList.parse(
+                testplan.certification_status_overrides))
+        for tp_unit in testplan.get_nested_part():
+            override_list.extend(self._get_blocker_status_overrides(tp_unit))
         return override_list
 
     def _get_inline_overrides(
@@ -850,21 +912,22 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         subsequently packed into a tuple ``(pattern, field_value_list)``.
         """
         override_list = []
-        if testplan.include is None:
-            return override_list
+        if testplan.include is not None:
 
-        class V(Visitor):
+            class V(Visitor):
 
-            def visit_IncludeStmt_node(self, node: IncludeStmt):
-                if not node.overrides:
-                    return
-                pattern = r"^{}$".format(
-                    testplan.qualify_id(node.pattern.text))
-                field_value_list = [
-                    (override_exp.field.text.replace('-', '_'),
-                     override_exp.value.text)
-                    for override_exp in node.overrides]
-                override_list.append((pattern, field_value_list))
+                def visit_IncludeStmt_node(self, node: IncludeStmt):
+                    if not node.overrides:
+                        return
+                    pattern = r"^{}$".format(
+                        testplan.qualify_id(node.pattern.text))
+                    field_value_list = [
+                        (override_exp.field.text.replace('-', '_'),
+                         override_exp.value.text)
+                        for override_exp in node.overrides]
+                    override_list.append((pattern, field_value_list))
 
-        V().visit(IncludeStmtList.parse(testplan.include))
+            V().visit(IncludeStmtList.parse(testplan.include))
+        for tp_unit in testplan.get_nested_part():
+            override_list.extend(self._get_inline_overrides(tp_unit))
         return override_list

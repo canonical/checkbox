@@ -33,6 +33,7 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.unit.testplan import TestPlanUnit
+from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.vendor import mock
 
 
@@ -133,7 +134,7 @@ class TestTestPlan(TestCase):
 
     def test_category_override__normal(self):
         unit = TestPlanUnit({
-            'category-overrides': 'value',
+            'category_overrides': 'value',
         }, provider=self.provider)
         self.assertEqual(unit.category_overrides, 'value')
 
@@ -385,3 +386,126 @@ class TestTestPlan(TestCase):
         }, provider=self.provider)
         self.assertEqual(unit.get_bootstrap_job_ids(),
                          set(['ns::Foo', 'ns::Bar']))
+
+
+class TestNestedTestPlan(TestCase):
+
+    def setUp(self):
+        self.provider1 = mock.Mock(name='provider1', spec_set=IProvider1)
+        self.provider1.namespace = 'ns1'
+        self.provider2 = mock.Mock(name='provider2', spec_set=IProvider1)
+        self.provider2.namespace = 'ns2'
+        self.tp1 = TestPlanUnit({
+            'id': 'tp1',
+            'unit': 'test-plan',
+            'name': 'An example test plan 1',
+            'include': 'Foo',
+            'nested_part': 'tp2'
+        }, provider=self.provider1)
+        self.tp2 = TestPlanUnit({
+            'id': 'tp2',
+            'unit': 'test-plan',
+            'name': 'An example test plan 2',
+            'include': 'Bar',
+            'mandatory_include': 'Baz',
+            'bootstrap_include': 'Qux'
+        }, provider=self.provider1)
+        self.tp3 = TestPlanUnit({
+            'id': 'tp3',
+            'unit': 'test-plan',
+            'name': 'An example test plan 3',
+            'include': '# nothing\n',
+            'nested_part': 'tp2',
+            'certification_status_overrides': 'apply blocker to Bar'
+        }, provider=self.provider1)
+        self.tp4 = TestPlanUnit({
+            'id': 'tp4',
+            'unit': 'test-plan',
+            'name': 'An example test plan 4',
+            'include': '# nothing\n',
+            'nested_part': (
+                'tp2\n'
+                'tp5\n'
+                )
+        }, provider=self.provider1)
+        self.tp5 = TestPlanUnit({
+            'id': 'tp5',
+            'unit': 'test-plan',
+            'name': 'An example test plan 5',
+            'include': 'Baz2',
+        }, provider=self.provider1)
+        self.tp6 = TestPlanUnit({
+            'id': 'tp6',
+            'unit': 'test-plan',
+            'name': 'An example test plan 6',
+            'include': 'Foo',
+            'nested_part': 'ns2::tp7'
+        }, provider=self.provider1)
+        self.tp7 = TestPlanUnit({
+            'id': 'tp7',
+            'unit': 'test-plan',
+            'name': 'An example test plan 7',
+            'include': 'Bar'
+        }, provider=self.provider2)
+        self.provider1.unit_list = []
+        self.provider2.unit_list = [self.tp7]
+        self.tp7.provider_list = [self.provider1, self.provider2]
+        for i in range(1, 7):
+            tp = getattr(self, 'tp{}'.format(i))
+            tp.provider_list = [self.provider1, self.provider2]
+            self.provider1.unit_list.append(tp)
+
+    def test_nested_tesplan__qualifiers(self):
+        qual_list = self.tp1.get_qualifier().get_primitive_qualifiers()
+        mandatory_qual_list = \
+            self.tp1.get_mandatory_qualifier().get_primitive_qualifiers()
+        bootstrap_qual_list = \
+            self.tp1.get_bootstrap_qualifier().get_primitive_qualifiers()
+        self.assertEqual(qual_list[0].field, 'id')
+        self.assertIsInstance(qual_list[0].matcher, OperatorMatcher)
+        self.assertEqual(qual_list[0].matcher.value, 'ns1::Foo')
+        self.assertEqual(qual_list[0].inclusive, True)
+        self.assertEqual(qual_list[1].field, 'id')
+        self.assertIsInstance(qual_list[1].matcher, OperatorMatcher)
+        self.assertEqual(qual_list[1].matcher.value, 'ns1::Qux')
+        self.assertEqual(qual_list[1].inclusive, False)
+        self.assertEqual(qual_list[2].field, 'id')
+        self.assertIsInstance(qual_list[2].matcher, OperatorMatcher)
+        self.assertEqual(qual_list[2].matcher.value, 'ns1::Bar')
+        self.assertEqual(qual_list[2].inclusive, True)
+        self.assertEqual(mandatory_qual_list[0].field, 'id')
+        self.assertIsInstance(mandatory_qual_list[0].matcher, OperatorMatcher)
+        self.assertEqual(mandatory_qual_list[0].matcher.value, 'ns1::Baz')
+        self.assertEqual(mandatory_qual_list[0].inclusive, True)
+        self.assertEqual(bootstrap_qual_list[0].field, 'id')
+        self.assertIsInstance(bootstrap_qual_list[0].matcher, OperatorMatcher)
+        self.assertEqual(bootstrap_qual_list[0].matcher.value, 'ns1::Qux')
+        self.assertEqual(bootstrap_qual_list[0].inclusive, True)
+
+    def test_nested_tesplan__certification_status_override(self):
+        support = TestPlanUnitSupport(self.tp3)
+        self.assertEqual(
+            support.override_list,
+            [('^ns1::Bar$', [('certification_status', 'blocker')])])
+
+    def test_nested_tesplan__multiple_parts(self):
+        qual_list = self.tp4.get_qualifier().get_primitive_qualifiers()
+        self.assertEqual(qual_list[1].field, 'id')
+        self.assertIsInstance(qual_list[1].matcher, OperatorMatcher)
+        self.assertEqual(qual_list[1].matcher.value, 'ns1::Bar')
+        self.assertEqual(qual_list[1].inclusive, True)
+        self.assertEqual(qual_list[3].field, 'id')
+        self.assertIsInstance(qual_list[3].matcher, OperatorMatcher)
+        self.assertEqual(qual_list[3].matcher.value, 'ns1::Baz2')
+        self.assertEqual(qual_list[3].inclusive, True)
+
+    def test_nested_tesplan__multiple_namespaces(self):
+        qual_list = self.tp6.get_qualifier().get_primitive_qualifiers()
+        self.assertEqual(qual_list[0].field, 'id')
+        self.assertIsInstance(qual_list[0].matcher, OperatorMatcher)
+        self.assertEqual(qual_list[0].matcher.value, 'ns1::Foo')
+        self.assertEqual(qual_list[0].inclusive, True)
+        self.assertEqual(qual_list[1].field, 'id')
+        self.assertIsInstance(qual_list[1].matcher, OperatorMatcher)
+        self.assertEqual(qual_list[1].matcher.value, 'ns2::Bar')
+        self.assertEqual(qual_list[1].inclusive, True)

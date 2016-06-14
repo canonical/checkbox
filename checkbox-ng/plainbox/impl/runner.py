@@ -846,7 +846,7 @@ class JobRunner(IJobRunner):
         # an element of extcmd.Chain()).
         #
         # Send the first copy of the data through bytes->text decoder and
-        # then to the UI delegate. This cold be something provided by the
+        # then to the UI delegate. This could be something provided by the
         # higher level caller or the default FallbackCommandOutputPrinter.
         #
         # Send the second copy of the data to the IOLogRecordGenerator instance

@@ -44,7 +44,6 @@ include:
     # See Monitor / Graphic test section for hybrid-graphic monitor audio tests
     bluetooth/detect-output                                certification-status=blocker
     bluetooth/audio-a2dp                                   certification-status=blocker
-    bluetooth/audio                                        certification-status=blocker
     bluetooth/browse-files                                 certification-status=blocker
     bluetooth/file-transfer                                certification-status=blocker
     bluetooth/HID

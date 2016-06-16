@@ -101,7 +101,7 @@ include:
     graphics/1_video_.*                                    certification-status=blocker
     graphics/1_minimum_resolution_.*
     graphics/1_cycle_resolution_.*                         certification-status=non-blocker
-    graphics/2_switch_card_.*                              certification-status=blocker
+    graphics/2_switch_card_.*_xenial                       certification-status=blocker
     graphics/2_maximum_resolution_.*                       certification-status=blocker
     graphics/2_glxgears_.*                                 certification-status=blocker
     graphics/2_driver_version_.*                           certification-status=blocker
@@ -240,38 +240,38 @@ include:
     suspend/bluetooth_obex_get_before_suspend              certification-status=blocker
     # Test card 2 first, if present, since it's the one we will be using
     # after coming back from suspend if the system has hybrid graphics.
-    suspend/2_resolution_before_suspend_.*                 certification-status=blocker
-    suspend/2_suspend_after_switch_to_card_.*              certification-status=blocker
-    suspend/2_suspend-time-check_.*                        certification-status=non-blocker
-    suspend/2_suspend-single-log-attach_.*
-    suspend/2_compiz_check_after_suspend_.*                certification-status=blocker
-    suspend/2_driver_version_after_suspend_.*              certification-status=blocker
-    suspend/2_resolution_after_suspend_.*                  certification-status=blocker
-    suspend/2_display_after_suspend_.*                     certification-status=blocker
-    suspend/2_glxgears_after_suspend_.*                    certification-status=blocker
-    suspend/2_video_after_suspend_.*                       certification-status=blocker
-    suspend/2_cycle_resolutions_after_suspend_.*           certification-status=non-blocker
-    suspend/2_xrandr_screens_after_suspend_.*.tar.gz
+    suspend/2_resolution_before_suspend_.*_xenial          certification-status=blocker
+    suspend/2_suspend_after_switch_to_card_.*_xenial       certification-status=blocker
+    suspend/2_suspend-time-check_.*_xenial                 certification-status=non-blocker
+    suspend/2_suspend-single-log-attach_.*_xenial
+    suspend/2_compiz_check_after_suspend_.*_xenial         certification-status=blocker
+    suspend/2_driver_version_after_suspend_.*_xenial       certification-status=blocker
+    suspend/2_resolution_after_suspend_.*_xenial           certification-status=blocker
+    suspend/2_display_after_suspend_.*_xenial              certification-status=blocker
+    suspend/2_glxgears_after_suspend_.*_xenial             certification-status=blocker
+    suspend/2_video_after_suspend_.*_xenial                certification-status=blocker
+    suspend/2_cycle_resolutions_after_suspend_.*_xenial    certification-status=non-blocker
+    suspend/2_xrandr_screens_after_suspend_.*.tar.gz_xenial
     power-management/2_hibernate_advanced_.*               certification-status=non-blocker
     power-management/2_hibernate-single-log-attach_.*
     # Now we ask to switch to the first graphics card. This requires a restart
     # of checkbox.
-    graphics/1_switch_card_.*                              certification-status=blocker
-    suspend/resolution_before_suspend                      certification-status=blocker
+    graphics/1_switch_card_.*_xenial                       certification-status=blocker
+    suspend/1_resolution_before_suspend_.*_xenial          certification-status=blocker
     suspend/suspend_advanced                               certification-status=blocker
-    suspend/suspend-time-check                             certification-status=non-blocker
-    suspend/suspend-single-log-attach
+    suspend/1_suspend-time-check_.*_xenial                 certification-status=non-blocker
+    suspend/1_suspend-single-log-attach_.*_xenial
     power-management/lid                                   certification-status=blocker
     power-management/lid_close                             certification-status=blocker
     power-management/lid_open                              certification-status=blocker
-    suspend/compiz_check_after_suspend                     certification-status=blocker
-    suspend/driver_version_after_suspend                   certification-status=blocker
-    suspend/resolution_after_suspend                       certification-status=blocker
-    suspend/display_after_suspend                          certification-status=blocker
-    suspend/glxgears_after_suspend                         certification-status=blocker
-    suspend/video_after_suspend                            certification-status=blocker
-    suspend/cycle_resolutions_after_suspend                certification-status=non-blocker
-    suspend/xrandr_screens_after_suspend.tar.gz
+    suspend/1_compiz_check_after_suspend_.*_xenial         certification-status=blocker
+    suspend/1_driver_version_after_suspend_.*_xenial       certification-status=blocker
+    suspend/1_resolution_after_suspend_.*_xenial           certification-status=blocker
+    suspend/1_display_after_suspend_.*_xenial              certification-status=blocker
+    suspend/1_glxgears_after_suspend_.*_xenial             certification-status=blocker
+    suspend/1_video_after_suspend_.*_xenial                certification-status=blocker
+    suspend/1_cycle_resolutions_after_suspend_.*_xenial    certification-status=non-blocker
+    suspend/1_xrandr_screens_after_suspend.tar.gz_xenial
     keys/sleep                                             certification-status=blocker
     led/power-blink-suspend                                certification-status=blocker
     led/suspend                                            certification-status=blocker

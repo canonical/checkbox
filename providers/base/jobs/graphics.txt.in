@@ -3,7 +3,9 @@ template-resource: graphics_card
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_driver_version_{product_slug}
-command: graphics_driver
+command:
+ source graphics_env {vendor_slug} {index}
+ graphics_driver
 estimated_duration: 0.5
 _description: Parses Xorg.0.Log and discovers the running X driver and version for the {vendor} {product} graphics card
 _summary: Test X driver/version for {vendor} {product}
@@ -103,7 +105,9 @@ category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_minimum_resolution_{product_slug}
 requires:
  device.category == 'VIDEO'
-command: resolution_test --horizontal 800 --vertical 600
+command:
+ source graphics_env {vendor_slug} {index}
+ resolution_test --horizontal 800 --vertical 600
 estimated_duration: 0.331
 _summary: Test that {vendor} {product} meets minimum resolution requirement
 _description:
@@ -120,6 +124,7 @@ requires:
  device.category == 'VIDEO'
  package.name == 'zenity'
 command: 
+   source graphics_env {vendor_slug} {index}
    maxi="$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{{print $1}}')"
    now="$(python3 -c 'from gi.repository import Gdk; screen=Gdk.Screen.get_default(); geo = screen.get_monitor_geometry(screen.get_primary_monitor()); print(geo.width, "x", geo.height, sep="")')"
    test "$maxi" != "$now" && notify="\nPlease switch to the maximum resolution \nfor every graphic tests"
@@ -182,7 +187,9 @@ category_id: 2013.com.canonical.plainbox::graphics
 requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
-command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+command:
+ source graphics_env {vendor_slug} {index}
+ gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed with {vendor} {product}
 _description:
  PURPOSE:
@@ -207,7 +214,9 @@ category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_cycle_resolution_{product_slug}
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
-command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
+command:
+ source graphics_env {vendor_slug} {index}
+ xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
 estimated_duration: 250.000
 _summary: Test resolution cycling for {vendor} {product}
 _description:
@@ -224,7 +233,9 @@ plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
 depends: graphics/xorg-version
-command: rotation_test_using_dbus
+command:
+ source graphics_env {vendor_slug} {index}
+ rotation_test_using_dbus
 estimated_duration: 20.000
 _summary: Test rotation for {vendor} {product}
 _description:
@@ -242,7 +253,9 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_compiz_check_{product_slug}
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+command:
+ source graphics_env {vendor_slug} {index}
+ ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
 _description: Check that {vendor} {product} hardware is able to run compiz
 _summary: Test Compiz support for {vendor} {product}
@@ -264,7 +277,10 @@ plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_glxgears_{product_slug}
 requires: package.name == 'mesa-utils'
-command: glxgears; true
+command:
+ source graphics_env {vendor_slug} {index}
+ glxgears
+ true
 _summary: Test that glxgears works for {vendor} {product}
 _description:
  PURPOSE:
@@ -379,14 +395,36 @@ category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}
 _summary: Test GPU switching for {vendor} {product}
 _description:
- PURPOSE:
+_purpose:
      Manually switch to the {vendor} {product} card.
- STEPS:
-     1. If your system is already running with the {vendor} {product} card, then please mark this test as "passed" and proceed.
-     2. Using the appropriate tool (either NVidia settings or AMD Control Center), switch your system to use the {vendor} {product} graphics card. This will require restarting your session.
-     3. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
-     4. Don't answer the verification question until the system has restarted with the {vendor} {product} card enabled.
- VERIFICATION:
+_steps:
+     Note: If your system is already running with the {vendor} {product} card, then please mark this test as "passed" and proceed.
+     .
+     1. Using the appropriate tool (either NVidia settings or AMD Control Center), switch your system to use the {vendor} {product} graphics card. This will require restarting your session.
+     2. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
+     3. Don't answer the verification question until the system has restarted with the {vendor} {product} card enabled.
+_verification:
+     Is the system using the {vendor} {product} card now?
+
+unit: template
+template-resource: graphics_card
+plugin: manual
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_switch_card_{product_slug}_xenial
+requires:
+ device.driver in ['nouveau', 'nvidia']
+ lsb.codename == 'xenial'
+_summary: Test GPU switching for {vendor} {product}
+_description:
+_purpose:
+     Manually switch to the {vendor} {product} card.
+_steps:
+     Note: If your system is already running with the {vendor} {product} card, then please mark this test as "passed" and proceed.
+     .
+     1. Using the appropriate tool (e.g. NVidia settings), switch your system to use the {vendor} {product} graphics card. This will require restarting your session.
+     2. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
+     3. Don't answer the verification question until the system has restarted with the {vendor} {product} card enabled.
+_verification:
      Is the system using the {vendor} {product} card now?
 
 unit: template

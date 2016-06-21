@@ -1,0 +1,31 @@
+#!/bin/bash
+# This script checks if the submitted VIDEO resource is from AMD and if it is
+# a discrete GPU (graphics_card_resource orders GPUs by index: 1 is the
+# integrated one, 2 is the discrete one).
+#
+# This script has to be sourced in order to set an environment variable that
+# is used by the open source AMD driver to trigger the use of discrete GPU.
+
+VENDOR_SLUG=$1
+INDEX=$2
+UBUNTU_CODENAME=`lsb_release -c | awk {'print $2'}`
+
+# We only want to set the DRI_PRIME env variable on Xenial (16.04) systems
+# running more than 1 GPU.
+if [[ $UBUNTU_CODENAME == "xenial" ]]; then
+    NB_GPU=`cat /var/log/gpu-manager.log | grep "How many cards?" | awk {'print $NF'}`
+    if [ $NB_GPU -gt 1 ]; then
+        if [[ $VENDOR_SLUG == *AMD* ]]; then
+            if [ $INDEX -gt 1 ]; then
+                # See https://wiki.archlinux.org/index.php/PRIME
+                echo "Setting up PRIME GPU offloading for AMD discrete GPU"
+                PROVIDER_ID=`xrandr --listproviders | grep "Sink Output" | awk {'print $4'} | tail -1`
+                SINK_ID=`xrandr --listproviders | grep "Source Output" | awk {'print $4'} | tail -1`
+                xrandr --setprovideroffloadsink ${PROVIDER_ID} ${SINK_ID}
+                export DRI_PRIME=1
+            else
+                export DRI_PRIME=
+            fi
+        fi
+    fi
+fi

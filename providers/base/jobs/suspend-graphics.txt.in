@@ -1,0 +1,191 @@
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_resolution_before_suspend_{product_slug}_xenial
+after: graphics/{index}_switch_card_{product_slug}_xenial
+estimated_duration: 1.2
+_description: Record the current resolution before suspending.
+command:
+ source graphics_env {vendor_slug} {index}
+ xrandr -q |grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
+
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+requires:
+ sleep.mem == 'supported'
+ rtc.state == 'supported'
+after: graphics/{index}_switch_card_{product_slug}_xenial
+user: root
+environ: PLAINBOX_SESSION_SHARE
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+ else
+  echo "Calling sleep_test"
+  set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+ fi
+estimated_duration: 90.0
+_summary: Test suspend/resume after switching to {vendor} {product}
+_description:
+ PURPOSE:
+     This test will check suspend and resume after switching to {vendor} {product} graphics card.
+ STEPS:
+     1. Ensure you have switched to {vendor} {product} graphics card.
+     2. Click "Test" and your system will suspend for about 30 - 60 seconds
+     3. Observe the Power LED to see if it blinks or changes color during suspend
+     4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     5. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system suspend and resume correctly after switching to {vendor} {product} graphics card?
+     (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
+
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_resolution_after_suspend_{product_slug}_xenial
+estimated_duration: 1.2
+depends: suspend/{index}_resolution_before_suspend_{product_slug}_xenial
+_description: Test to see that we have the same resolution after resuming as before.
+command:
+ source graphics_env {vendor_slug} {index}
+ xrandr -q |grep '*'| awk '{{print $1}}' | diff $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt -
+
+unit: template
+template-resource: graphics_card
+plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_display_after_suspend_{product_slug}_xenial
+after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+_summary: Test display function after suspend for {vendor} {product}
+_description:
+ PURPOSE:
+     This test will check that the display is correct after suspend and resume on the {vendor} {product} graphics card.
+ STEPS:
+     1. Check that your display does not show up visual artifacts after resuming.
+ VERIFICATION:
+     Does the display work normally after resuming from suspend using the {vendor} {product} graphics card?
+
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_xenial
+requires: package.name == 'xorg'
+after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+estimated_duration: 120.0
+command:
+ source graphics_env {vendor_slug} {index}
+ xrandr_cycle --keyword={index}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+_description:
+ PURPOSE:
+     This test will cycle through the detected display modes
+ STEPS:
+     1. Click "Test" and the display will cycle trough the display modes
+ VERIFICATION:
+     Did your display look fine in the detected mode?
+
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_xenial
+depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_xenial
+command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
+_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
+
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_compiz_check_after_suspend_{product_slug}_xenial
+after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+requires: package.name == 'nux-tools'
+command:
+ source graphics_env {vendor_slug} {index}
+ ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+estimated_duration: 0.130
+_description: Check that {product} hardware is able to run compiz after suspend
+_summary: Test Compiz support for {product} after suspend
+
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_glxgears_after_suspend_{product_slug}_xenial
+after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+requires: package.name == 'mesa-utils'
+command:
+ source graphics_env {vendor_slug} {index}
+ glxgears
+ true
+_summary: Test that glxgears works for {vendor} {product} after suspend
+_description:
+ PURPOSE:
+     This test tests the basic 3D capabilities of your {vendor} {product} video card after suspend
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
+
+unit: template
+template-resource: graphics_card
+id: suspend/{index}_video_after_suspend_{product_slug}_xenial
+after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+requires:
+ package.name == 'xorg'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+command:
+ source graphics_env {vendor_slug} {index}
+ gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+_summary: Test that video can be displayed after suspend with {vendor} {product}
+_description:
+ PURPOSE:
+     This test will test the default display after suspend with a sample video
+ STEPS:
+     1. Click "Test" to display a video test.
+ VERIFICATION:
+     Do you see color bars and static?
+
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_driver_version_after_suspend_{product_slug}_xenial
+after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+command:
+ source graphics_env {vendor_slug} {index}
+ graphics_driver
+estimated_duration: 0.500
+_description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {vendor} {product} graphics card
+_summary: Test X driver/version after suspend for {vendor} {product}
+
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_suspend-single-log-attach_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
+_description:
+ Attaches the log from the single suspend/resume test to the results
+
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_suspend-time-check_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+estimated_duration: 1.2
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+_description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+

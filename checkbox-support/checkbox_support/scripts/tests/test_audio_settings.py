@@ -24,7 +24,7 @@ from __future__ import unicode_literals
 import os
 import unittest
 
-from checkbox_support.scripts.audio_settings import _guess_hdmi_profile
+from checkbox_support.scripts.audio_settings import _guess_hdmi_profile, volume_regex
 from checkbox_support.parsers.tests.test_pactl import PactlDataMixIn
 
 
@@ -154,3 +154,18 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
             _guess_hdmi_profile(self.get_text(
                 "desktop-raring-t430s-dp-available")),
             ('2', 'output:hdmi-stereo'))
+
+class RegexTest(unittest.TestCase):
+    
+    def test_volume_regex_trusty(self):
+        """Testing pactl 4.0 output"""
+        pactl_volume = "    Volume: 0:  47% 1:  47%"
+        volume = int(volume_regex.search(pactl_volume).group(1).strip())
+        self.assertEqual(volume, 47)
+
+    def test_volume_regex_xenial(self):
+        """Testing pactl 8.0 output"""
+        # See lp:1595380 for more info
+        pactl_volume = "    Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB"
+        volume = int(volume_regex.search(pactl_volume).group(1).strip())
+        self.assertEqual(volume, 100)

@@ -38,7 +38,7 @@ DIRECTIONS = {"source": "input", "sink": "output"}
 default_pattern = "(?<=Default %s: ).*"
 index_regex = re.compile("(?<=index: )[0-9]*")
 muted_regex = re.compile("(?<=Mute: ).*")
-volume_regex = re.compile("Volume: (?:0|front-left):\s*([0-9]*)")
+volume_regex = re.compile("Volume: (?:0|front-left):[\s\/0-9]*\s([0-9]*)")
 name_regex = re.compile("(?<=Name:).*")
 
 entry_pattern = "Name: %s.*?(?=Properties)"

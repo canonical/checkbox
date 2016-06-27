@@ -13,7 +13,7 @@ UBUNTU_CODENAME=`lsb_release -c | awk {'print $2'}`
 # We only want to set the DRI_PRIME env variable on Xenial (16.04) systems
 # running more than 1 GPU.
 if [[ $UBUNTU_CODENAME == "xenial" ]]; then
-    NB_GPU=`cat /var/log/gpu-manager.log | grep "How many cards?" | awk {'print $NF'}`
+    NB_GPU=`udev_resource -l VIDEO | grep -oP -m1 '\d+'`
     if [ $NB_GPU -gt 1 ]; then
         if [[ $VENDOR_SLUG == *AMD* ]]; then
             if [ $INDEX -gt 1 ]; then

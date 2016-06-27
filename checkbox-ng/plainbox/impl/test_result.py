@@ -52,6 +52,9 @@ class CommonTestsMixIn:
         result = self.result_cls({})
         self.assertIsNone(result.comments)
 
+    def test_append_comments_with_invalid_chars(self):
+        result = self.result_cls({'comments': '\x1b\x5b\x36\x7e'})
+        self.assertEqual(result.comments, "")
 
 class DiskJobResultTests(TestCase, CommonTestsMixIn):
 

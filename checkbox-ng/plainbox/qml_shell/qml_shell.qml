@@ -32,7 +32,7 @@
     presented to the user, letting them decide the final outcome of a test.
 */
 import QtQuick 2.0
-import Ubuntu.Components 1.1
+import Ubuntu.Components 1.3
 import io.thp.pyotherside 1.4
 
 MainView {

@@ -43,3 +43,10 @@ entry_point: xlsx
 file_extension: xlsx
 options:
  with-sys-info, with-summary, with-job-description, with-text-attachments, with-unit-categories
+
+unit: exporter
+id: global
+_summary: Generate a text file containing only the test run global result
+entry_point: jinja2
+file_extension: txt
+data: {"template": "global.txt"}

@@ -1229,7 +1229,6 @@ class SessionAssistant:
             if autorestart:
                 self._restart_strategy.diffuse_application_restart(
                     self._app_id)
-            self._context.state.metadata.running_job_name = None
             self._manager.checkpoint()
             ui.finished_running(job, job_state, builder.get_result())
         else:

@@ -21,7 +21,6 @@ import sys
 import os
 
 from setuptools import setup, find_packages
-from distutils.version import LooseVersion
 
 if "test" in sys.argv:
     # Reset locale for setup.py test
@@ -37,17 +36,6 @@ with open(os.path.join(base_dir, "README.rst"), encoding="UTF-8") as stream:
 
 # Check if we are running on readthedocs.org builder.
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-# Check if we're able to include OAuth support
-try:
-    import requests
-except ImportError:
-    extra_install_requires = ['requests >= 1.0']
-else:
-    if LooseVersion(requests.__version__) >= LooseVersion('2.0.0'):
-        extra_install_requires = ['requests >= 2.0.0', 'requests-oauthlib']
-    else:
-        extra_install_requires = ['requests >= 1.0']
 
 setup(
     name="plainbox",
@@ -86,7 +74,8 @@ setup(
         'Jinja2 >= 2.7',
         'guacamole >= 0.9',
         'padme >= 1.1.1',
-    ] + extra_install_requires,
+        'requests >= 1.0',
+    ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',
     },

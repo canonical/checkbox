@@ -476,6 +476,7 @@ class SessionManager(pod.POD):
                     exporter_map[unit.id] = support
         # Patch exporter map to expose short names
         legacy_mapping = {
+            '2013.com.canonical.plainbox::global': 'global',
             '2013.com.canonical.plainbox::hexr': 'xml',
             '2013.com.canonical.plainbox::html': 'html',
             '2013.com.canonical.plainbox::json': 'json',

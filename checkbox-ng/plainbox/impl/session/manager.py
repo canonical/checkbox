@@ -551,8 +551,8 @@ class SessionManager(pod.POD):
             repo = SessionStorageRepository(tmp)
             if provider_list is None:
                 provider_list = get_providers()
-                manager = cls.create(repo=repo)
             try:
+                manager = cls.create(repo=repo)
                 manager.add_local_device_context()
                 device_context = manager.default_device_context
                 for provider in provider_list:

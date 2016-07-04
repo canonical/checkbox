@@ -1059,11 +1059,9 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         test_plan = self._manager.test_plans[0]
-        potential_job_list = select_jobs(
-            self._context.state.job_list,
-            [test_plan.get_qualifier(), test_plan.get_mandatory_qualifier()])
         return list(set(
-            test_plan.get_effective_category_map(potential_job_list).values()))
+            test_plan.get_effective_category_map(
+                self._context.state.run_list).values()))
 
     @raises(UnexpectedMethodCall)
     def get_mandatory_jobs(self) -> 'Iterable[str]':
@@ -1432,7 +1430,7 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         exporter = self._manager.create_exporter(exporter_id, option_list,
                                                  strict=False)
-        
+
         # LP:1585326 maintain isoformat but removing ':' chars that cause
         # issues when copying files.
         isoformat = "%Y-%m-%dT%H.%M.%S.%f"

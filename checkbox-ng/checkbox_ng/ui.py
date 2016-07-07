@@ -133,7 +133,7 @@ class ShowMenu(IApplication):
             ctx.move_to(4, 3 + i)
             ctx.print("[{}] - {}".format(
                 'X' if i in self.selection else ' ',
-                self.menu[i].replace('ihv-', '').capitalize()))
+                self.menu[i].replace('ihv-', '')))
 
         # Display "OK" at bottom of menu
         ctx.attributes.style = NORMAL

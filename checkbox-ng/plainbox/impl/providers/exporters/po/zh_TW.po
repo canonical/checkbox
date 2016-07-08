@@ -1,0 +1,71 @@
+# Chinese (Traditional) translation for checkbox
+# Copyright (c) 2016 Rosetta Contributors and Canonical Ltd 2016
+# This file is distributed under the same license as the checkbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: checkbox\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2016-05-09 23:35+0200\n"
+"PO-Revision-Date: 2016-07-08 04:45+0000\n"
+"Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
+"Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2016-07-08 05:16+0000\n"
+"X-Generator: Launchpad (build 18115)\n"
+
+#. summary
+#: ../units/exporter.pxu:3
+msgid "Generate XML (for certification)"
+msgstr "輸出 XML (認證用)"
+
+#. summary
+#: ../units/exporter.pxu:10
+msgid "Generate a standalone HTML"
+msgstr "輸出獨立的 HTML 格式檔"
+
+#. summary
+#: ../units/exporter.pxu:17
+msgid "Generate JSON output"
+msgstr "輸出 JSON 格式檔"
+
+#. summary
+#: ../units/exporter.pxu:23
+msgid "Generate RCF822 output"
+msgstr "輸出 RCF822 格式檔"
+
+#. summary
+#: ../units/exporter.pxu:29
+msgid "Generate plain text output"
+msgstr "輸出純文字格式檔"
+
+#. summary
+#: ../units/exporter.pxu:35
+msgid "Generate a tar.gz archive"
+msgstr "輸出 tar.gz 壓縮檔"
+
+#. summary
+#: ../units/exporter.pxu:41
+msgid "Generate an Excel 2007+ XLSX document"
+msgstr "輸出 Excel 2007+ XLSX 文件格式檔"
+
+#. This is exporters_def.description,
+#. we need it here to extract is as a part of this provider
+#: ../manage.py:45
+msgid "Exporters Provider"
+msgstr "報表輸出器供應包"
+
+#: ../manage.py:55 ../manage.py:66
+msgid "The Exporters provider is special"
+msgstr "這是一個特別的報表輸出器供應包"
+
+#: ../manage.py:56
+msgid "You don't need to develop it explicitly"
+msgstr "您不需要直接對它進行開發"
+
+#: ../manage.py:67
+msgid "You don't need to install it explicitly"
+msgstr "您不需要額外安裝它"

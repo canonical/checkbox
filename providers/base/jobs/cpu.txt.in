@@ -27,6 +27,7 @@ id: cpu/maxfreq_test
 estimated_duration: 0.6
 requires:
  package.name == 'fwts'
+ cpuinfo.platform in ("i386", "x86_64", "aarch64")
 user: root
 command: fwts_test -t maxfreq -l $PLAINBOX_SESSION_SHARE/maxfreq_test.log
 _summary:

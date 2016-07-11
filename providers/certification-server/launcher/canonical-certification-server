@@ -5,7 +5,7 @@ launcher_version = 1
 stock_reports = text, submission_files, certification
 
 [test plan]
-unit = 2013.com.canonical.certification::14.04-server-full
+unit = 2013.com.canonical.certification::16.04-server-full
 filter = *-server-*, *-only, *virtual*, *firmware-tests
 
 [config]

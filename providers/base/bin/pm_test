@@ -324,11 +324,11 @@ class Command(object):
                        '- returncode:\n{0}'.format(self.process.returncode)]
             if stdout:
                 if type(stdout) is bytes:
-                    stdout = stdout.decode('utf-8')
+                    stdout = stdout.decode('utf-8', 'ignore')
                 message.append('- stdout:\n{0}'.format(stdout))
             if stderr:
                 if type(stderr) is bytes:
-                    stderr = stderr.decode('utf-8')
+                    stderr = stderr.decode('utf-8', 'ignore')
                 message.append('- stderr:\n{0}'.format(stderr))
             logging.debug('\n'.join(message))
 

@@ -908,6 +908,9 @@ class JobRunner(IJobRunner):
                 # Run the job command using extcmd
                 return_code = self._run_extcmd(
                     job, job_state, config, extcmd_popen, ctrl)
+                # Always return something useful (even with PermissionError)
+                if return_code is None:
+                    return_code = -1
                 logger.debug(
                     _("job[%s] command return code: %r"), job.id, return_code)
             finally:

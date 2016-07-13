@@ -484,6 +484,10 @@ class SourceDistributionCommand(ManageCommand):
                 dst_name = os.path.join(self.toplevel_name, name)
                 if os.path.exists(src_name):
                     tarball.add(src_name, dst_name)
+        subprocess.call(
+            'gpg --armor --sign --detach-sig {}.tar.gz'.format(
+            self.toplevel_name),
+            shell=True, cwd=self.dist_dir)
 
 
 @docstring(

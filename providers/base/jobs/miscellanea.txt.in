@@ -71,7 +71,7 @@ id: miscellanea/fwts_results.log
 requires:
   package.name == 'fwts'
 command:
- [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_results.log ]] && cat ${PLAINBOX_SESSION_SHARE}/fwts_results.log
+ [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_results.log ]] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_results.log | base64
 _description: Attaches the miscellanes/fwts_test results log to the submission.
 
 plugin: attachment
@@ -261,7 +261,7 @@ category_id: 2013.com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/oops_results.log
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log | base64
 _description: Attaches the FWTS oops results log to the submission
 
 plugin: shell

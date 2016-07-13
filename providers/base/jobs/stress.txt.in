@@ -127,7 +127,7 @@ category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend-30-cycle-log-attach
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log ] && xz -c $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log | base64
 _description:
  Attaches the log from the 30 cycle Suspend/Resume test if it exists
 
@@ -136,7 +136,7 @@ category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend-30-cycle-log-attach-with-reboots
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles_with_reboots
-command: [ -e $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log ] && cat $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log
+command: [ -e $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log ] && xz -c $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log | base64
 _description:
  Attaches the log from the '30 cycle Suspend/Resume and one reboot times 3' test if it exists
 

@@ -18,7 +18,7 @@ id: firmware/fwts_{name}.log
 estimated_duration: 1.2
 requires: package.name == 'fwts'
 user: root
-command: [[ -e $PLAINBOX_SESSION_SHARE/fwts_{name}.log ]] && cat $PLAINBOX_SESSION_SHARE/fwts_{name}.log
+command: [[ -e $PLAINBOX_SESSION_SHARE/fwts_{name}.log ]] && xz -c $PLAINBOX_SESSION_SHARE/fwts_{name}.log | base64
 _description: Attach log for FWTS {name} test.
 _summary: Attach log for FWTS {name} test.
 

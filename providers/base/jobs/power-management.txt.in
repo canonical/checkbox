@@ -31,7 +31,7 @@ estimated_duration: 2.0
 _description: Attach log from fwts wakealarm test
 requires:
  package.name == 'fwts'
-command: [ -e ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log
+command: [ -e ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log | base64
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::power-management

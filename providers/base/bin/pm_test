@@ -369,21 +369,27 @@ class CountdownDialog(Gtk.Dialog):
             {'template': 'Gathering hardware information in {time} seconds...',
              'timeout': hardware_delay,
              'callback': self.on_hardware_info_timeout_cb}
+        system_info_event = \
+            {'template': 'Gathering system information in {time} seconds...',
+             'timeout': 2,
+             'callback': self.on_system_info_timeout_cb}
 
         if iterations == 0:
-            # In first iteration, gather hardware information directly
-            # and perform pm-operation
+            # In first iteration, gather hardware and system  information
+            # directly and perform pm-operation
             self.on_hardware_info_timeout_cb()
+            self.on_system_info_timeout_cb()
             self.events = [operation_event]
         elif iterations < iterations_count:
             # In last iteration, wait before gathering hardware information
             # and perform pm-operation
             self.events = [operation_event,
-                           hardware_info_event]
+                          hardware_info_event,
+                          system_info_event]
         else:
             # In last iteration, wait before gathering hardware information
             # and finish the test
-            self.events = [hardware_info_event]
+            self.events = [hardware_info_event, system_info_event]
 
         self.label = Gtk.Label()
         self.vbox.pack_start(self.label, True, True, 0)
@@ -480,6 +486,18 @@ class CountdownDialog(Gtk.Dialog):
             # Don't abort the test loop,
             # errors can be retrieved by pm_log_check
             logging.error('Problem found in logs by fwts')
+
+    def on_system_info_timeout_cb(self):
+        """
+        Gather system information and print it to logs
+        """
+        logging.info('Gathering system information...')
+        logging.debug('--- beginning of dmesg ---')
+        logging.debug(Command('dmesg').run().stdout)
+        logging.debug('--- end of dmesg ---')
+        logging.debug('--- beginning of syslog ---')
+        logging.debug(Command('cat /var/log/syslog').run().stdout)
+        logging.debug('--- end of syslog ---')
 
 
 class MessageDialog(object):

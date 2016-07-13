@@ -310,7 +310,7 @@ _description:
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-attach
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && xz -c $PLAINBOX_SESSION_SHARE/suspend_single.log | base64
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -320,7 +320,7 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && xz -c $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log | base64
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -341,7 +341,7 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
 depends: suspend/{index}_hybrid_sleep_{product_slug}
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && xz -c $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log | base64
 _description:
  Attaches the log from the single hybrid sleep/resume test to the results
 
@@ -1594,7 +1594,7 @@ _description:
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-auto-single-log-attach
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_auto_single_log ] && cat $PLAINBOX_SESSION_SHARE/suspend_auto_single_log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_auto_single_log ] && xz -c $PLAINBOX_SESSION_SHARE/suspend_auto_single_log | base64
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -2833,6 +2833,6 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 estimated_duration: 0.5
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log | base64
 _description: Attaches the FWTS oops results log to the submission after suspend
 

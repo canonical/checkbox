@@ -74,4 +74,4 @@ class TextSessionStateExporter(SessionStateExporterBase):
                         self.C.custom(
                             result.outcome_meta().unicode_sigil,
                             result.outcome_meta().color_ansi)
-                        for result in state.result_history))
+                        for result in state.result_history).encode("UTF-8"))

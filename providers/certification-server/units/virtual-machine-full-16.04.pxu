@@ -50,6 +50,7 @@ include:
     disk/read_performance_.*                   certification-status=blocker
     disk/smart_.*                              certification-status=non-blocker
     disk/storage_device_.*                     certification-status=blocker
+    disk/disk_stress_ng_.*                     certification-status=blocker
     ethernet/detect                            certification-status=non-blocker
     ethernet/info_automated                    certification-status=non-blocker
     ethernet/ethtool_info                      certification-status=non-blocker

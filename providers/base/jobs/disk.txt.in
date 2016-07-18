@@ -76,6 +76,7 @@ id: disk/disk_stress_ng_{name}
 estimated_duration: 4560.0
 user: root
 requires:
+ package.name == 'stress-ng'
  block_device.{name}_state != 'removable'
 _summary: Disk stress_ng test for {product}
 _description: Disk stress_ng test for {product}

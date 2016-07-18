@@ -23,7 +23,7 @@
 # stress-ng program.
 #
 # Usage:
-#   disk_stress_ng [ --disk-device <device-filename> ]
+#   disk_stress_ng [ <device-filename> ]
 #                  [ --base-time <time-in-seconds> ]
 #                  [ --really-run ]
 #
@@ -36,26 +36,29 @@
 
 get_params() {
     disk_device="/dev/sda"
-    base_time="60"
+    short_device="sda"
+    base_time="240"
     really_run="N"
     while [ $# -gt 0 ] ; do
         case $1 in
-            --disk-device) disk_device="/dev/$2"
-                shift
-                ;;
             --base-time) base_time="$2"
                 shift
                 ;;
             --really-run) really_run="Y"
                 ;;
-            *) echo "Usage: $0 [ --disk-device <device-name> ] [ --base-time <time-in-seconds> ]"
-                echo "              [ --really-run ]"
-                exit 1
+            *) disk_device="/dev/$1"
+                disk_device=`echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g"`
+                short_device=$(echo $disk_device | sed "s/\/dev//g")
+                if [ ! -b $disk_device ] ; then
+                    echo "Unknown block device \"$disk_device\""
+                    echo "Usage: $0 [ --base-time <time-in-seconds> ] [ --really-run ]"
+                    echo "           [ device-file ]"
+                    exit 1
+                fi
                 ;;
         esac
         shift
     done
-    disk_device=`echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g"`
     mounted_part="N"
 } # get_params()
 
@@ -93,6 +96,7 @@ find_largest_partition() {
 #   $test_dir -- Directory in which tests will occur
 #   $mount_point -- Location where filesystem is mounted
 #   $mounted_part -- Sets to "Y" if script mounted partition
+#   $made_mountpoint -- Sets to "Y" if script created the mount point
 mount_filesystem() {
     test_dir="/tmp/disk_stress_ng"
     if [ -b $disk_device ]
@@ -119,9 +123,13 @@ mount_filesystem() {
         echo "Found largest partition: \"$largest_part\""
         mount_point=$(df | grep "$largest_part " | tr -s " " | cut -d " " -f 6)
         if [ "$mount_point" == "" ] && [ "$really_run" == "Y" ] ; then
-            mount_point="/tmp/disk_stress_ng$disk_device"
+            disk_device=$(echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g")
+            mount_point="/mnt$short_device"
             echo "No partition is mounted from $disk_device; attempting to mount one...."
-            mkdir -p "$mount_point"
+            if [ ! -d $mount_point ] ; then
+                mkdir -p "$mount_point"
+                made_mountpoint="Y"
+            fi
             mount "$largest_part" "$mount_point"
             mounted_part="Y"
         fi
@@ -129,9 +137,6 @@ mount_filesystem() {
             test_dir="/tmp/disk_stress_ng"
         else
             test_dir="$mount_point/tmp/disk_stress_ng"
-        fi
-        if [ "$really_run" == "Y" ] ; then
-            mkdir -p "$test_dir"
         fi
         echo "Test will use $largest_part, mounted at \"$mount_point\", using $largest_fs"
     else
@@ -187,7 +192,6 @@ run_stressor() {
 
 
 get_params "$@"
-echo "disk_device is $disk_device"
 mount_filesystem
 echo "test_dir is $test_dir"
 
@@ -211,22 +215,22 @@ echo "Estimated total run time is $total_runtime seconds"
 echo ""
 
 if [ "$really_run" == "Y" ] ; then
+    mkdir -p "$test_dir"
     for stressor in ${disk_stressors[@]}; do
         run_stressor $stressor $base_time
     done
+    rm -rf "$test_dir"
     if [ "$mounted_part" == "Y" ] ; then
-        umount $mount_point
+        umount "$mount_point"
+        if [ "$made_mountpoint" == "Y" ] ; then
+            rmdir "$mount_point"
+        fi
     fi
 else
     echo "To actually run tests, pass the --really-run option."
     echo "Script is now terminating...."
     exit 1
 fi
-
-# 
-# for stressor in ${vrt_stressors[@]}; do
-#     run_stressor $stressor $variable_time
-# done
 
 echo "*******************************************************************"
 if [ $had_error = "0" ] ; then

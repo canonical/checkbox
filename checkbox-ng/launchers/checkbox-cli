@@ -40,8 +40,6 @@ from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
 from checkbox_ng.certification import InvalidSecureIDError
-from checkbox_ng.launcher import DefaultLauncherDefinition
-from checkbox_ng.launcher import LauncherDefinition
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
 from plainbox.i18n import pgettext as C_
@@ -54,6 +52,8 @@ from plainbox.impl.color import Colorizer
 from plainbox.impl.ingredients import CanonicalCrashIngredient
 from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
+from plainbox.impl.launcher import DefaultLauncherDefinition
+from plainbox.impl.launcher import LauncherDefinition
 from plainbox.impl.result import tr_outcome
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult

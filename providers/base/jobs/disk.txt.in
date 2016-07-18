@@ -67,6 +67,21 @@ _summary: Disk I/O stress test for {product}
 _description: Disk I/O stress test for {product}
 command: storage_test {name}
 
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
+id: disk/disk_stress_ng_{name}
+estimated_duration: 4560.0
+user: root
+requires:
+ package.name == 'stress-ng'
+ block_device.{name}_state != 'removable'
+_summary: Disk stress_ng test for {product}
+_description: Disk stress_ng test for {product}
+command: disk_stress_ng {name} --base-time 240 --really-run
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk
 id: disk/spindown

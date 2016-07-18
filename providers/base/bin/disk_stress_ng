@@ -1,0 +1,242 @@
+#!/bin/bash
+
+# Script to disk stress tests using stress-ng
+#
+# Copyright (c) 2016 Canonical Ltd.
+#
+# Authors
+#   Rod Smith <rod.smith@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# The purpose of this script is to run disk stress tests using the
+# stress-ng program.
+#
+# Usage:
+#   disk_stress_ng [ <device-filename> ]
+#                  [ --base-time <time-in-seconds> ]
+#                  [ --really-run ]
+#
+# Parameters:
+#  --disk-device -- This is the WHOLE-DISK device filename WITHOUT "/dev/"
+#                   (e.g., sda). The script finds a filesystem on that
+#                   device, mounts it if necessary, and runs the tests on
+#                   that mounted filesystem.
+# Test with iostat
+
+get_params() {
+    disk_device="/dev/sda"
+    short_device="sda"
+    base_time="240"
+    really_run="N"
+    while [ $# -gt 0 ] ; do
+        case $1 in
+            --base-time) base_time="$2"
+                shift
+                ;;
+            --really-run) really_run="Y"
+                ;;
+            *) disk_device="/dev/$1"
+                disk_device=`echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g"`
+                short_device=$(echo $disk_device | sed "s/\/dev//g")
+                if [ ! -b $disk_device ] ; then
+                    echo "Unknown block device \"$disk_device\""
+                    echo "Usage: $0 [ --base-time <time-in-seconds> ] [ --really-run ]"
+                    echo "           [ device-file ]"
+                    exit 1
+                fi
+                ;;
+        esac
+        shift
+    done
+    mounted_part="N"
+} # get_params()
+
+
+# Find the largest partition that holds a supported filesystem on $disk_device.
+# Output:
+#   $largest_part -- Device filename of largest qualifying partition
+#   $largest_size -- Size of largest qualifying partition
+#   $largest_fs -- Filesystem (ext4, etc.) used on largest qualifying partition
+#   $unsupported_fs -- Empty or contains name of unsupported filesystem found on disk
+find_largest_partition() {
+    largest_part=""
+    largest_size=0
+    partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+    unsupported_fs=""
+    for partition in $(echo "$partitions" | cut -d " " -f 1) ; do
+        part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
+        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)
+        if [ "$part_size" -gt "$largest_size" ] && [ -n "$blkid_info" ]  ; then
+            largest_size=$part_size
+            largest_part="/dev/$partition"
+            largest_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+        fi
+        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ntfs\|vfat\|hfs)
+        if [ -n "$blkid_info" ]  ; then
+            # If there's an NTFS, HFS+, or FAT filesystem on the disk make note of it....
+            unsupported_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+        fi
+    done
+} # find_largest_partition()
+
+# Find the largest filesystem on $disk_device. If that partition is not
+# already mounted, try to mount it.
+# Output:
+#   $test_dir -- Directory in which tests will occur
+#   $mount_point -- Location where filesystem is mounted
+#   $mounted_part -- Sets to "Y" if script mounted partition
+#   $made_mountpoint -- Sets to "Y" if script created the mount point
+mount_filesystem() {
+    test_dir="/tmp/disk_stress_ng"
+    if [ -b $disk_device ]
+    then
+        echo "$disk_device is a block device"
+
+        #Add a check for warnings
+        WARN=$(parted -s ${disk_device} print | grep "^Warning.*${disk}.*[Rr]ead-only" 2>&1)
+        if [[ $? == 0 ]]
+        then
+            echo "Warning found in parted output:"
+            echo $WARN
+            echo "Aborting Test"
+            exit 1
+        fi
+    else
+        echo "$disk_device is not a block device! Aborting!"
+        exit 1
+    fi
+
+    find_largest_partition
+
+    if [ -n "$largest_part" ] ; then
+        echo "Found largest partition: \"$largest_part\""
+        mount_point=$(df | grep "$largest_part " | tr -s " " | cut -d " " -f 6)
+        if [ "$mount_point" == "" ] && [ "$really_run" == "Y" ] ; then
+            disk_device=$(echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g")
+            mount_point="/mnt$short_device"
+            echo "No partition is mounted from $disk_device; attempting to mount one...."
+            if [ ! -d $mount_point ] ; then
+                mkdir -p "$mount_point"
+                made_mountpoint="Y"
+            fi
+            mount "$largest_part" "$mount_point"
+            mounted_part="Y"
+        fi
+        if [ "$mount_point" == "/" ] ; then
+            test_dir="/tmp/disk_stress_ng"
+        else
+            test_dir="$mount_point/tmp/disk_stress_ng"
+        fi
+        echo "Test will use $largest_part, mounted at \"$mount_point\", using $largest_fs"
+    else
+        echo "There appears to be no partition with a suitable filesystem"
+        echo "on $disk_device; please create a suitable partition and re-run"
+        echo "this test."
+        if [ -n "unsupported_fs" ] ; then
+            echo "NOTE: A filesystem of type $unsupported_fs was found, but is not supported"
+            echo "by this test. A Linux-native filesystem (ext2/3/4fs, XFS, JFS, or Btrfs)"
+            echo "is required."
+        fi
+        exit 1
+    fi
+} # mount_filesystem()
+
+
+# Run an individual stressor
+# Input:
+#   $1 = stressor name (e.g., copyfile, dentry)
+#   $2 = run time
+# Output:
+#   had_error -- sets to "1" if an error occurred
+run_stressor() {
+    local runtime="$2"
+    # Multiply runtime by 5; will forcefully terminate if stress-ng
+    # fails to return in that time.
+    end_time=$((runtime*5))
+    echo "Running stress-ng $1 stressor for $2 seconds...."
+    # Use "timeout" command to launch stress-ng, to catch it should it go into
+    # la-la land
+    timeout -s 9 $end_time stress-ng --aggressive --verify --timeout $runtime \
+            --temp-path $test_dir --$1 0
+    return_code="$?"
+    echo "return_code is $return_code"
+    if [ "$return_code" != "0" ] ; then
+        had_error=1
+        echo "*****************************************************************"
+        if [ $return_code = "137" ] ; then
+            echo "** stress-ng disk test timed out and was forcefully terminated!"
+        else
+            echo "** Error $return_code reported on stressor $stressor!)"
+        fi
+        echo "*****************************************************************"
+        had_error=1
+        result=$return_code
+    fi
+} # run_stressor()
+
+
+#
+# Main program body....
+#
+
+
+get_params "$@"
+mount_filesystem
+echo "test_dir is $test_dir"
+
+had_error=0
+
+# Tests Colin said to try but that aren't present as of standard stress-ng
+# in Ubuntu 16.04:
+#
+#  "chown" "copyfile" "ioprio" "locka" "lockofd" "madvise" "msync" "seal"
+#
+# TODO: Consider adding these tests for Ubuntu 18.04, or ealier with an
+# updated stress-ng in the certification PPA....
+
+disk_stressors=("aio" "aiol" "chdir" "chmod" "dentry"  "dir" "fallocate" \
+                "fiemap" "filename" "flock" "fstat" "hdd"  "lease" "lockf" \
+                "mknod" "readahead" "seek" "sync-file" "xattr")
+
+total_runtime=$((${#disk_stressors[@]}*$base_time))
+
+echo "Estimated total run time is $total_runtime seconds"
+echo ""
+
+if [ "$really_run" == "Y" ] ; then
+    mkdir -p "$test_dir"
+    for stressor in ${disk_stressors[@]}; do
+        run_stressor $stressor $base_time
+    done
+    rm -rf "$test_dir"
+    if [ "$mounted_part" == "Y" ] ; then
+        umount "$mount_point"
+        if [ "$made_mountpoint" == "Y" ] ; then
+            rmdir "$mount_point"
+        fi
+    fi
+else
+    echo "To actually run tests, pass the --really-run option."
+    echo "Script is now terminating...."
+    exit 1
+fi
+
+echo "*******************************************************************"
+if [ $had_error = "0" ] ; then
+    echo "** stress-ng disk test passed!"
+else
+    echo "** stress-ng disk test failed; most recent error was $result"
+fi
+echo "*******************************************************************"
+exit $result

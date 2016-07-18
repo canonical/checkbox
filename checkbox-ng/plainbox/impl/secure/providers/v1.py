@@ -4,6 +4,10 @@
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
+# PEP440 version pattern:
+# Copyright (c) Donald Stufft and individual contributors.
+# All rights reserved.
+#
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
@@ -1272,19 +1276,49 @@ class ProviderNameValidator(PatternValidator):
 
 class VersionValidator(PatternValidator):
     """
-    A validator for provider provider version.
+    A validator for provider version.
 
-    Provider version must be a sequence of non-negative numbers separated by
-    dots. At most one version number must be present, which may be followed by
-    any sub-versions.
+    Provider version must follow PEP440.
+    See https://www.python.org/dev/peps/pep-0440/
     """
 
+    _PATTERN = (
+        "v?"
+        "(?:"
+        "(?:(?P<epoch>[0-9]+)!)?"                           # epoch
+        "(?P<release>[0-9]+(?:\.[0-9]+)*)"                  # release segment
+        "(?P<pre>"                                          # pre-release
+        "[-_\.]?"
+        "(?P<pre_l>(a|b|c|rc|alpha|beta|pre|preview))"
+        "[-_\.]?"
+        "(?P<pre_n>[0-9]+)?"
+        ")?"
+        "(?P<post>"                                         # post release
+        "(?:-(?P<post_n1>[0-9]+))"
+        "|"
+        "(?:"
+        "[-_\.]?"
+        "(?P<post_l>post|rev|r)"
+        "[-_\.]?"
+        "(?P<post_n2>[0-9]+)?"
+        ")"
+        ")?"
+        "(?P<dev>"                                          # dev release
+        "[-_\.]?"
+        "(?P<dev_l>dev)"
+        "[-_\.]?"
+        "(?P<dev_n>[0-9]+)?"
+        ")?"
+        ")"
+        "(?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?"   # local version
+    )
+
     def __init__(self):
-        super().__init__("^[0-9]+(\.[0-9]+)*$")
+        super().__init__(self._PATTERN)
 
     def __call__(self, variable, new_value):
         if super().__call__(variable, new_value):
-            return _("must be a sequence of digits separated by dots")
+            return _("must be a PEP440 compatible version")
 
 
 class ExistingDirectoryValidator(IValidator):

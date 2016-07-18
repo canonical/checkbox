@@ -79,11 +79,19 @@ class VersionValidatorTests(TestCase):
         version = "5"
         self.assertEqual(self.validator(self.variable, version), None)
 
+    def test_PEP440_rc_versions_work(self):
+        version = "1.20rc6"
+        self.assertEqual(self.validator(self.variable, version), None)
+
+    def test_PEP440_dev_versions_work(self):
+        version = "1.20.6.dev0"
+        self.assertEqual(self.validator(self.variable, version), None)
+
     def test_bad_values_dont(self):
-        version = "1.5a7"
+        version = "FOOBAR"
         self.assertEqual(
             self.validator(self.variable, version),
-            "must be a sequence of digits separated by dots")
+            "must be a PEP440 compatible version")
 
 
 class ExistingDirectoryValidatorTests(TestCase):
@@ -310,17 +318,17 @@ class Provider1DefinitionTests(TestCase):
         """
         def_ = Provider1Definition()
         with self.assertRaises(ValidationError) as boom:
-            def_.version = "2014.4+bzr46"
+            def_.version = "FOOBAR+git4654654654"
         self.assertEqual(
             str(boom.exception),
-            "must be a sequence of digits separated by dots")
+            "must be a PEP440 compatible version")
 
     def test_init_validation__typical_version(self):
         """
         verify that Provider1Definition allows typical values for the 'version'
         field
         """
-        for ver in ('0.7.1', '0.7', '0', '2014.4', '12.04.5'):
+        for ver in ('0.7.1', '0.7', '0', '2014.4', '12.04.5', '2014.4+bzr46'):
             def_ = Provider1Definition()
             def_.version = ver
             self.assertEqual(def_.version, ver)

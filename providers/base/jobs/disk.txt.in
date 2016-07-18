@@ -80,7 +80,7 @@ requires:
  block_device.{name}_state != 'removable'
 _summary: Disk stress_ng test for {product}
 _description: Disk stress_ng test for {product}
-command: disk_stress_ng --disk-device {name} --base-time 240 --really-run
+command: disk_stress_ng {name} --base-time 240 --really-run
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk

@@ -34,9 +34,9 @@ import re
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import SECURE_ID_PATTERN
 
 from checkbox_ng.certification import CertificationTransport
-from checkbox_ng.config import SECURE_ID_PATTERN
 
 
 class SubmitInvocation:

@@ -28,9 +28,7 @@ import os
 
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.secure import config
-
-
-SECURE_ID_PATTERN = r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$"
+from plainbox.impl.transport import SECURE_ID_PATTERN
 
 
 class CheckBoxConfig(PlainBoxConfig):

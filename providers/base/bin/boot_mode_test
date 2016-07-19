@@ -50,8 +50,8 @@ def secure_boot_check():
         1 if Secure Boot is inactive (could be disabled, not supported,
           or not booted in EFI mode)
     """
-    sb_dir = "/sys/firmware/efi"
-    sb_var = sb_dir + "efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c"
+    sb_dir = "/sys/firmware/efi/efivars/"
+    sb_var = sb_dir + "SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c"
     if os.path.isdir(sb_dir):
         if os.path.isfile(sb_var):
             sb_info = open(sb_var).read()

@@ -23,6 +23,7 @@ _description: Attach log for FWTS {name} test.
 _summary: Attach log for FWTS {name} test.
 
 plugin:shell
+category_id: 2013.com.canonical.plainbox::firmware
 id: firmware/fwts_desktop_diagnosis
 estimated_duration: 10.0
 requires:
@@ -36,6 +37,7 @@ command:
  fwts_test --qa -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
 
 plugin:shell
+category_id: 2013.com.canonical.plainbox::firmware
 id: firmware/fwts_desktop_diagnosis_hwe
 estimated_duration: 5.0
 requires:

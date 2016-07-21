@@ -33,9 +33,8 @@ import re
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportBase
 from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import SECURE_ID_PATTERN
 import requests
-
-from checkbox_ng.config import SECURE_ID_PATTERN
 
 
 logger = getLogger("checkbox.ng.certification")

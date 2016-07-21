@@ -61,10 +61,10 @@ from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
 from plainbox.vendor.textland import get_display
 
-from checkbox_ng.certification import InvalidSecureIDError
 from checkbox_ng.misc import SelectableJobTreeNode
 from checkbox_ng.ui import ScrollableTreeNode
 from checkbox_ng.ui import ShowMenu

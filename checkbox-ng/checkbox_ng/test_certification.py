@@ -30,6 +30,7 @@ from unittest import TestCase
 
 from pkg_resources import resource_string
 from plainbox.impl.applogic import PlainBoxConfig
+from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.vendor import mock
 from plainbox.vendor.mock import MagicMock
@@ -37,7 +38,6 @@ from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 import requests
 
 from checkbox_ng.certification import CertificationTransport
-from checkbox_ng.certification import InvalidSecureIDError
 
 
 class CertificationTransportTests(TestCase):

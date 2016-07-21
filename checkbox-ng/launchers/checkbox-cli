@@ -39,31 +39,31 @@ from guacamole.ingredients import argparse
 from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
-from checkbox_ng.certification import InvalidSecureIDError
-from checkbox_ng.launcher import DefaultLauncherDefinition
-from checkbox_ng.launcher import LauncherDefinition
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
 from plainbox.i18n import pgettext as C_
+from plainbox.impl.color import Colorizer
 from plainbox.impl.commands.inv_run import Action
 from plainbox.impl.commands.inv_run import ActionUI
 from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_run import ReRunJob
 from plainbox.impl.commands.inv_run import seconds_to_human_duration
-from plainbox.impl.color import Colorizer
 from plainbox.impl.ingredients import CanonicalCrashIngredient
 from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
-from plainbox.impl.result import tr_outcome
+from plainbox.impl.launcher import DefaultLauncherDefinition
+from plainbox.impl.launcher import LauncherDefinition
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
-from plainbox.vendor.textland import get_display
+from plainbox.impl.result import tr_outcome
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
-from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.session.restart import detect_restart_strategy
-from plainbox.impl.transport import get_all_transports
+from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import InvalidSecureIDError
+from plainbox.impl.transport import get_all_transports
+from plainbox.vendor.textland import get_display
 
 from checkbox_ng.misc import SelectableJobTreeNode
 from checkbox_ng.ui import ScrollableTreeNode

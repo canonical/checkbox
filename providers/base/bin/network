@@ -24,6 +24,7 @@ from argparse import (
     ArgumentParser,
     RawTextHelpFormatter
 )
+import datetime
 import fcntl
 import logging
 import os
@@ -57,7 +58,8 @@ class IPerfPerformanceTest(object):
             iperf3,
             protocol="tcp",
             data_size="1",
-            run_time=None):
+            run_time=None,
+            scan_timeout=3600):
 
         self.iface = Interface(interface)
         self.target = target
@@ -67,6 +69,7 @@ class IPerfPerformanceTest(object):
         self.iperf3 = iperf3
         self.data_size = data_size
         self.run_time = run_time
+        self.scan_timeout = scan_timeout
 
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
@@ -461,12 +464,23 @@ def interface_test(args):
     if error_number == 0:
         test_targets_list = test_targets.split(",")
         test_targets_list.reverse()
-        # Keep testing until a success or we run out of targets
+        start_time = datetime.datetime.now()
+        first_loop = True
+        # Keep testing until a success or we run out of both targets and time
         while test_targets_list:
             test_target = test_targets_list.pop().strip()
             error_number = run_test(args, test_target)
-            if not error_number:
+            elapsed_seconds = (datetime.datetime.now() - start_time).seconds
+            if (elapsed_seconds > args.scan_timeout and not first_loop) or \
+                    not error_number:
                 break
+            if not test_targets_list:
+                logging.info(" Exhausted test target list; trying again "
+                             .center(60, "="))
+                test_targets_list = test_targets.split(",")
+                test_targets_list.reverse()
+                time.sleep(30)
+                first_loop = False
 
     for iface in extra_interfaces:
         logging.debug("Restoring interface:%s", iface)
@@ -586,6 +600,11 @@ TEST_TARGET_IPERF = iperf-server.example.com
               "seconds.  For iperf tests, this will send data for the amount "
               "of time indicated, rather than until a certain file size is "
               "reached."))
+    test_parser.add_argument(
+        '--scan-timeout', type=int,
+        default=60,
+        help=("Sets the maximum time, in seconds, the test will scan for "
+              "iperf servers before giving up."))
     test_parser.add_argument(
         '--config', type=str,
         default="/etc/checkbox.d/network.cfg",

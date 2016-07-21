@@ -32,9 +32,9 @@ from checkbox_ng.commands import CheckboxCommand
 from checkbox_ng.commands.newcli import CliInvocation2
 from checkbox_ng.commands.submit import SubmitCommand
 from checkbox_ng.config import CheckBoxConfig
-from checkbox_ng.launcher import LauncherDefinition
 
 from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
+from plainbox.impl.launcher import LauncherDefinition
 
 logger = logging.getLogger("checkbox.ng.commands.launcher")
 

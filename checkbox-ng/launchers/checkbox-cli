@@ -224,6 +224,12 @@ class CheckboxLauncher(CheckboxCommand):
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()
+            self.base_dir = os.path.join(
+                os.getenv(
+                    'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
+                "checkbox-ng")
+            if 'submission_files' in self.launcher.stock_reports:
+                print("Reports will be saved to: {}".format(self.base_dir))
             self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
             if self.is_interactive:
                 while True:
@@ -684,15 +690,11 @@ class CheckboxLauncher(CheckboxCommand):
             # issues when copying files.
             isoformat = "%Y-%m-%dT%H.%M.%S.%f"
             timestamp = datetime.datetime.utcnow().strftime(isoformat)
-            base_dir = os.path.join(
-                os.getenv(
-                    'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
-                "checkbox-ng")
-            if not os.path.exists(base_dir):
-                os.makedirs(base_dir)
+            if not os.path.exists(self.base_dir):
+                os.makedirs(self.base_dir)
             for exporter, file_ext in [('hexr', '.xml'), ('html', '.html'),
                                        ('xlsx', '.xlsx'), ('tar', '.tar.xz')]:
-                path = os.path.join(base_dir, ''.join(
+                path = os.path.join(self.base_dir, ''.join(
                     ['submission_', timestamp, file_ext]))
                 self.launcher.transports['{}_file'.format(exporter)] = {
                     'type': 'file',

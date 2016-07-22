@@ -1,4 +1,4 @@
 Exporters Provider
 ==================
 
-This provider ships all plainbow exporter units.
+This provider ships all plainbox exporter units.

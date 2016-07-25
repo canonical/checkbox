@@ -9,7 +9,6 @@
 ./checkbox_ng/commands/submit.py
 ./checkbox_ng/commands/test_sru.py
 ./checkbox_ng/config.py
-./checkbox_ng/launcher.py
 ./checkbox_ng/launchpad.py
 ./checkbox_ng/main.py
 ./checkbox_ng/test_certification.py

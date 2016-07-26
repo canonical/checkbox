@@ -492,12 +492,14 @@ class CountdownDialog(Gtk.Dialog):
         Gather system information and print it to logs
         """
         logging.info('Gathering system information...')
-        logging.debug('--- beginning of dmesg ---')
-        logging.debug(Command('dmesg').run().stdout)
-        logging.debug('--- end of dmesg ---')
-        logging.debug('--- beginning of syslog ---')
-        logging.debug(Command('cat /var/log/syslog').run().stdout)
-        logging.debug('--- end of syslog ---')
+        # FIXME: Commented out as it created huge log files
+        # during stress tests.
+        #logging.debug('--- beginning of dmesg ---')
+        #logging.debug(Command('dmesg').run().stdout)
+        #logging.debug('--- end of dmesg ---')
+        #logging.debug('--- beginning of syslog ---')
+        #logging.debug(Command('cat /var/log/syslog').run().stdout)
+        #logging.debug('--- end of syslog ---')
 
 
 class MessageDialog(object):

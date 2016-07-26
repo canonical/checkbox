@@ -50,3 +50,10 @@ _summary: Generate a text file containing only the test run global result
 entry_point: jinja2
 file_extension: txt
 data: {"template": "global.txt"}
+
+unit: exporter
+id: junit
+_summary: Generate junit XML
+entry_point: jinja2
+file_extension: junit.xml
+data: {"template": "junit.xml"}

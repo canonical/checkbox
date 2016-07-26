@@ -1,0 +1,28 @@
+{%- set state = manager.default_device_context.state -%}
+{%- set job_state_map = state.job_state_map -%}
+{%- set passes = manager.state.get_outcome_stats()["pass"] -%}
+{%- set fails = manager.state.get_outcome_stats()["fail"] -%}
+{%- set skips = manager.state.get_outcome_stats()["skip"] + 
+                manager.state.get_outcome_stats()["not-supported"] -%} 
+{%- set errors = manager.state.get_outcome_stats()["crash"] -%}
+<?xml version="1.0" encoding="UTF-8"?>
+  <testsuites failures="{{ fails }}" name="" tests="{{ passes }}" skipped="{{ skips }}" errors="{{ errors }}">
+    {%- for job_id in job_state_map|sort %}
+    {%- set job_state = job_state_map[job_id] %}
+    {%- if job_state.job.plugin not in ("resource", "local", "attachment") and job_state.result.outcome %}
+    <testcase classname="{{ job_state.job.id }}" name="{{ job_state.job.id }}" time="{{ job_state.result.execution_duration }}">
+    {%- if job_state.result.outcome == 'skip' or job_state.result.outcome == 'not-supported' -%}
+      <skipped />
+    {%- elif job_state.result.outcome == 'fail' -%}
+      <failure type="">
+      {{ job_state.result.io_log_as_flat_text }}
+      </failure>
+    {%- elif job_state.result.outcome == 'crash' -%}
+      <error type="">
+      {{ job_state.result.io_log_as_flat_text }}
+      </error>
+    {%- endif %}
+    </testcase>
+    {%- endif -%}
+    {%- endfor %}
+  </testsuites>

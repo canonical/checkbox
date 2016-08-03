@@ -71,11 +71,11 @@ class CertificationTransportTests(TestCase):
         self.assertTrue(transport._submit_to_hexr is True)
 
     def test_invalid_length_secure_id_are_rejected(self):
-        for length in (14, 16, 20):
-            dummy_id = "a" * length
-            option_string = "secure_id={}".format(dummy_id)
-            with self.assertRaises(InvalidSecureIDError):
-                CertificationTransport(self.valid_url, option_string)
+        length = 14
+        dummy_id = "a" * length
+        option_string = "secure_id={}".format(dummy_id)
+        with self.assertRaises(InvalidSecureIDError):
+            CertificationTransport(self.valid_url, option_string)
 
     def test_invalid_characters_in_secure_id_are_rejected(self):
         option_string = "secure_id=aA0#"

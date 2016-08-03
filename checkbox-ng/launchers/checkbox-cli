@@ -200,7 +200,7 @@ class CheckboxLauncher(CheckboxCommand):
             # it's a legacy launcher, use legacy way of running commands
             from checkbox_ng.tools import CheckboxLauncherTool
             raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
-        if self.launcher.ui_type == 'converged':
+        if self.launcher.ui_type in ['converged', 'converged-silent']:
             # Stop processing the launcher config and call the QML ui
             qml_main_file = '/usr/share/checkbox-converged/checkbox-touch.qml'
             basedir = os.path.dirname(__file__)

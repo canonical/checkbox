@@ -111,7 +111,7 @@ class SubmitCommand(PlainBoxCommand):
         def secureid(secure_id):
             if not re.match(SECURE_ID_PATTERN, secure_id):
                 raise ArgumentTypeError(
-                    _("must be 15 or 18-character alphanumeric string"))
+                    _("must be 15-character (or more) alphanumeric string"))
             return secure_id
 
         required_check = False

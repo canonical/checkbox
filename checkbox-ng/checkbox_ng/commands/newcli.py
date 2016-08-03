@@ -404,8 +404,8 @@ class CliInvocation2(RunInvocation):
                                 self.config.secure_id = input(_("Secure ID: "))
                             except ValidationError:
                                 print(
-                                    _("ERROR: Secure ID must be 15 or "
-                                      "18-character alphanumeric string"))
+                                    _("ERROR: Secure ID must be 15-character "
+                                      "(or more) alphanumeric string"))
                             else:
                                 again = False
                                 self.submit_certification_results()

@@ -109,7 +109,7 @@ class TransportBase(ISessionStateTransport):
             raise ValueError(_("No valid options in option string"))
 
 
-SECURE_ID_PATTERN = r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$"
+SECURE_ID_PATTERN = r"^[a-zA-Z0-9]{15,}$"
 
 
 class InvalidSecureIDError(ValueError):
@@ -142,7 +142,7 @@ class CertificationTransport(TransportBase):
         Initialize the Certification Transport.
 
         The options string may contain 'secure_id' which must be
-        a 15- or 18-character alphanumeric ID for the system.
+        a 15-character (or more) alphanumeric ID for the system.
 
         It may also contain a submit_to_hexr boolean, set to 1
         to enable submission to hexr.
@@ -264,7 +264,7 @@ class CertificationTransport(TransportBase):
     def _validate_secure_id(self, secure_id):
         if not re.match(SECURE_ID_PATTERN, secure_id):
             raise InvalidSecureIDError(
-                _("secure_id must be 15 or 18-character alphanumeric string"))
+                _("secure_id must be a 15 characters (or more) alphanumeric string"))
 
 
 def oauth_available():

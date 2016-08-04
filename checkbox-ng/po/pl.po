@@ -7,63 +7,66 @@ msgid ""
 msgstr ""
 "Project-Id-Version: checkbox-ng 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-11 16:06+0800\n"
+"POT-Creation-Date: 2016-08-03 16:58+0200\n"
 "PO-Revision-Date: 2014-04-17 06:45+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-28 05:20+0000\n"
-"X-Generator: Launchpad (build 18153)\n"
+"X-Launchpad-Export-Date: 2016-08-04 05:20+0000\n"
+"X-Generator: Launchpad (build 18169)\n"
 "Language: Polish\n"
 
-#: .././checkbox_ng/certification.py:135
+#: .././checkbox_ng/certification.py:127
 msgid "Secure ID not specified"
 msgstr "Nie podano bezpiecznego identyfikatora"
 
-#: .././checkbox_ng/certification.py:138
+#: .././checkbox_ng/certification.py:130
 #, python-format
-msgid "Sending to %s, hardware id is %s"
-msgstr "Wysyłanie do %s, identyfikator sprzętu to %s"
+msgid "Sending to %s, Secure ID is %s"
+msgstr ""
 
-#: .././checkbox_ng/certification.py:144
+#: .././checkbox_ng/certification.py:136
 #, python-format
 msgid "submit_to_hexr set to %s by config"
 msgstr ""
 
-#: .././checkbox_ng/certification.py:148
+#: .././checkbox_ng/certification.py:140
 #, python-format
 msgid "submit_to_hexr set to %s by UI"
 msgstr ""
 
-#: .././checkbox_ng/certification.py:164 .././checkbox_ng/launchpad.py:183
+#: .././checkbox_ng/certification.py:156 .././checkbox_ng/launchpad.py:183
+#, python-brace-format
 msgid "Request to {0} timed out: {1}"
 msgstr "Żądanie do {0} przekroczyło czas oczekiwania: {1}"
 
-#: .././checkbox_ng/certification.py:167 .././checkbox_ng/launchpad.py:186
+#: .././checkbox_ng/certification.py:159 .././checkbox_ng/launchpad.py:186
+#, python-brace-format
 msgid "Invalid destination URL: {0}"
 msgstr "Niewłaściwy docelowy URL: {0}"
 
-#: .././checkbox_ng/certification.py:170 .././checkbox_ng/launchpad.py:189
+#: .././checkbox_ng/certification.py:162 .././checkbox_ng/launchpad.py:189
+#, python-brace-format
 msgid "Unable to connect to {0}: {1}"
 msgstr "Nie można połączyć się z {0}: {1}"
 
-#: .././checkbox_ng/certification.py:189
-msgid "secure_id must be 15 or 18-character alphanumeric string"
-msgstr "secure_id musi mieć od 15 do 18 znaków alfanumerycznych"
+#: .././checkbox_ng/certification.py:181
+msgid "secure_id must be 15-character (or more) alphanumeric string"
+msgstr ""
 
 #: .././checkbox_ng/commands/cli.py:70
 msgid "run check-config"
 msgstr ""
 
 #: .././checkbox_ng/commands/cli.py:71
-#: .././checkbox_ng/commands/launcher.py:108
+#: .././checkbox_ng/commands/launcher.py:110
 msgid "user interface options"
 msgstr ""
 
 #: .././checkbox_ng/commands/cli.py:77
-#: .././checkbox_ng/commands/launcher.py:111
+#: .././checkbox_ng/commands/launcher.py:113
 msgid "skip tests that require interactivity"
 msgstr "pomiń testy wymagające interaktywności"
 
@@ -76,118 +79,125 @@ msgstr ""
 msgid "Unable to load launcher definition: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/launcher.py:69
+#: .././checkbox_ng/commands/launcher.py:71
 msgid "Unable to start launcher because of errors:"
 msgstr ""
 
-#: .././checkbox_ng/commands/launcher.py:102
+#: .././checkbox_ng/commands/launcher.py:104
 msgid "LAUNCHER"
 msgstr ""
 
-#: .././checkbox_ng/commands/launcher.py:103
+#: .././checkbox_ng/commands/launcher.py:105
 msgid "launcher definition file to use"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:119
-#: .././checkbox_ng/commands/newcli.py:130
+#: .././checkbox_ng/commands/newcli.py:123
+#: .././checkbox_ng/commands/newcli.py:134
 #, python-format
 msgid "Incorrect pattern %r: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:147
+#: .././checkbox_ng/commands/newcli.py:151
 #, python-format
 msgid "There is no test plan: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:236
+#: .././checkbox_ng/commands/newcli.py:240
 #, python-format
 msgid "Selected testplans: %r"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:259
+#: .././checkbox_ng/commands/newcli.py:263
 msgid "Suite selection"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:262
+#: .././checkbox_ng/commands/newcli.py:266
 msgid "No testplan selected, aborting"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:291
+#: .././checkbox_ng/commands/newcli.py:295
 msgid "Selecting Job Generators"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:310
+#: .././checkbox_ng/commands/newcli.py:314
 msgid "Selecting Jobs For Execution"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:317
+#: .././checkbox_ng/commands/newcli.py:321
 msgid "Choose tests to run on your system:"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:329
+#: .././checkbox_ng/commands/newcli.py:333
 msgid "Results"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:368
+#: .././checkbox_ng/commands/newcli.py:372
 msgid "View results"
 msgstr "Zobacz wyniki"
 
-#: .././checkbox_ng/commands/newcli.py:397
+#: .././checkbox_ng/commands/newcli.py:401
+#, python-brace-format
 msgid ""
 "\n"
 "Submit results to {0}?"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:400
+#: .././checkbox_ng/commands/newcli.py:404
 msgid "Secure ID: "
 msgstr "Bezpieczny identyfikator: "
 
-#: .././checkbox_ng/commands/newcli.py:403
-msgid "ERROR: Secure ID must be 15 or 18-character alphanumeric string"
+#: .././checkbox_ng/commands/newcli.py:407
+msgid "ERROR: Secure ID must be 15-character (or more) alphanumeric string"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:421
+#: .././checkbox_ng/commands/newcli.py:425
 msgid ""
 "\n"
 "Submit results to launchpad.net/+hwdb?"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:423
+#: .././checkbox_ng/commands/newcli.py:427
 msgid "Email address: "
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format markers.
-#: .././checkbox_ng/commands/newcli.py:439
+#: .././checkbox_ng/commands/newcli.py:443
+#, python-brace-format
 msgid "Submitting results to {0} for email_address {1}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
-#: .././checkbox_ng/commands/newcli.py:450
+#: .././checkbox_ng/commands/newcli.py:454
+#, python-brace-format
 msgid "Submission uploaded to: {0}"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:456
+#: .././checkbox_ng/commands/newcli.py:460
+#, python-brace-format
 msgid "Bad response from {0} transport"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format markers.
-#: .././checkbox_ng/commands/newcli.py:464
+#: .././checkbox_ng/commands/newcli.py:468
+#, python-brace-format
 msgid "Submitting results to {0} for secure_id {1}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
-#: .././checkbox_ng/commands/newcli.py:485
+#: .././checkbox_ng/commands/newcli.py:489
 #: .././checkbox_ng/commands/submit.py:64
+#, python-brace-format
 msgid "Successfully sent, submission status at {0}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
-#: .././checkbox_ng/commands/newcli.py:489
+#: .././checkbox_ng/commands/newcli.py:493
 #: .././checkbox_ng/commands/submit.py:68
+#, python-brace-format
 msgid "Successfully sent, server response: {0}"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:514
+#: .././checkbox_ng/commands/newcli.py:518
 msgid "Select jobs to re-run"
 msgstr ""
 
@@ -208,7 +218,7 @@ msgstr ""
 msgid "load the specified test plan"
 msgstr ""
 
-#: .././checkbox_ng/commands/sru.py:71 .././checkbox_ng/config.py:88
+#: .././checkbox_ng/commands/sru.py:71 .././checkbox_ng/config.py:86
 msgid "Send the data to non-production test server"
 msgstr ""
 
@@ -221,6 +231,7 @@ msgid "Configuration problems prevent running SRU tests"
 msgstr ""
 
 #: .././checkbox_ng/commands/sru.py:113
+#, python-brace-format
 msgid "Results saved to {0}"
 msgstr ""
 
@@ -229,6 +240,7 @@ msgid "Sending hardware report to Canonical Certification"
 msgstr ""
 
 #: .././checkbox_ng/commands/sru.py:119
+#, python-brace-format
 msgid "Server URL is: {0}"
 msgstr ""
 
@@ -266,7 +278,7 @@ msgid "The path to the results xml file"
 msgstr ""
 
 #: .././checkbox_ng/commands/submit.py:114
-msgid "must be 15 or 18-character alphanumeric string"
+msgid "must be 15-character (or more) alphanumeric string"
 msgstr ""
 
 #: .././checkbox_ng/commands/submit.py:124
@@ -281,113 +293,49 @@ msgstr "URL"
 msgid "destination to submit to"
 msgstr ""
 
-#: .././checkbox_ng/config.py:43
+#: .././checkbox_ng/config.py:41
 msgid "Secure ID of the system"
 msgstr ""
 
-#: .././checkbox_ng/config.py:48
+#: .././checkbox_ng/config.py:46
 msgid "Whether to send the submission data to c3"
 msgstr ""
 
-#: .././checkbox_ng/config.py:52
+#: .././checkbox_ng/config.py:50
 msgid "Whether to also send the submission data to HEXR"
 msgstr ""
 
-#: .././checkbox_ng/config.py:58
+#: .././checkbox_ng/config.py:56
 msgid "Email address to log into the Launchpad HWDB"
 msgstr ""
 
-#: .././checkbox_ng/config.py:63
+#: .././checkbox_ng/config.py:61
 msgid "URL of the certification website"
 msgstr ""
 
-#: .././checkbox_ng/config.py:69
+#: .././checkbox_ng/config.py:67
 msgid "URL of the launchpad hardware database"
 msgstr ""
 
-#: .././checkbox_ng/config.py:74
+#: .././checkbox_ng/config.py:72
 msgid "Location of the fallback file"
 msgstr ""
 
-#: .././checkbox_ng/config.py:78
+#: .././checkbox_ng/config.py:76
 msgid "Optional whitelist with which to run SRU testing"
 msgstr ""
 
-#: .././checkbox_ng/config.py:82
+#: .././checkbox_ng/config.py:80
 msgid "Optional test plan with which to run SRU testing"
 msgstr ""
 
-#: .././checkbox_ng/launcher.py:47
-msgid "Application Title"
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:51
-msgid "Welcome Message"
-msgstr ""
-
-#. TODO: valid regexp text validator
-#: .././checkbox_ng/launcher.py:56
-msgid "Pattern that whitelists need to match to be displayed"
-msgstr ""
-
-#. TODO: valid regexp text validator
-#: .././checkbox_ng/launcher.py:61
-msgid "Pattern that whitelists need to match to be selected"
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:67
-msgid "If enabled then suite selection screen is not displayed"
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:73
-msgid "If enabled then test selection screen is not displayed"
-msgstr ""
-
-#. TODO: probably a choice validator
-#: .././checkbox_ng/launcher.py:78
-msgid "Type of the input field?"
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:82
-msgid "Label on the 'send' button"
-msgstr ""
-
-#. TODO: default?
-#: .././checkbox_ng/launcher.py:88
-msgid "If enabled then test results will be also sent to HEXR"
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:93
-msgid "Where to submit the test results to"
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:98
-msgid ""
-"HTTP endpoint to submit data to, using the transport specified with "
-"submit_to."
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:104
-msgid "Secure ID to identify the system this submission belongs to."
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:109
-msgid "Name of custom configuration file"
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:113
-msgid "Don't suppress the output of certain job plugin types."
-msgstr ""
-
-#: .././checkbox_ng/launcher.py:116
-msgid "Section with only exported unit ids as keys (no values)"
-msgstr ""
-
 #: .././checkbox_ng/launchpad.py:66
+#, python-brace-format
 msgid "Cannot get {0} resource job"
 msgstr "Nie można uzyskać zadania zasobu {0}"
 
 #: .././checkbox_ng/launchpad.py:70
+#, python-brace-format
 msgid "{0} has no attribute {1}"
 msgstr "{0} nie ma atrybutu {1}"
 
@@ -412,18 +360,18 @@ msgstr ""
 msgid "< Continue >"
 msgstr ""
 
-#: .././checkbox_ng/ui.py:194 .././checkbox_ng/ui.py:321
+#: .././checkbox_ng/ui.py:197 .././checkbox_ng/ui.py:325
 msgid "Enter"
 msgstr ""
 
-#: .././checkbox_ng/ui.py:197 .././checkbox_ng/ui.py:324
+#: .././checkbox_ng/ui.py:200 .././checkbox_ng/ui.py:328
 msgid ": Expand/Collapse"
 msgstr ""
 
-#: .././checkbox_ng/ui.py:213
+#: .././checkbox_ng/ui.py:216
 msgid "Start "
 msgstr ""
 
-#: .././checkbox_ng/ui.py:345
+#: .././checkbox_ng/ui.py:349
 msgid "inish"
 msgstr ""

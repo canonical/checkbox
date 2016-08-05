@@ -14,10 +14,6 @@ raid_types = ["megaraid", "cciss", "3ware", "areca"]
 
 def device_state(name):
     """Follow pmount policy to find if a device is removable or internal."""
-    with open('/sys/block/%s/device/block/%s/removable' % (name, name),
-              "rt") as f:
-        if f.read(1) == '1':
-            return 'removable'
 
     path = rootdir_pattern.sub('', os.readlink('/sys/block/%s' % name))
     hotplug_buses = ("usb", "ieee1394", "mmc", "pcmcia", "firewire")

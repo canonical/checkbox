@@ -37,6 +37,7 @@ import sys
 import tempfile
 
 from plainbox.i18n import gettext as _, ngettext
+from plainbox.impl.runner import slugify
 
 logger = logging.getLogger("plainbox.session.storage")
 
@@ -249,7 +250,7 @@ class SessionStorage:
         return os.path.join(self._location, self._SESSION_FILE)
 
     @classmethod
-    def create(cls, base_dir, legacy_mode=False):
+    def create(cls, base_dir, legacy_mode=False, prefix='pbox-'):
         """
         Create a new :class:`SessionStorage` in a random subdirectory
         of the specified base directory. The base directory is also
@@ -263,6 +264,10 @@ class SessionStorage:
         :param legacy_mode:
             If False (defaults to True) then the caller is expected to
             handle multiple sessions by itself.
+
+        :param prefix:
+            String which should prefix all session filenames. The prefix is
+            sluggified before use.
 
         .. note::
             Legacy mode is where applications using PlainBox API can only
@@ -279,7 +284,7 @@ class SessionStorage:
         if not os.path.exists(base_dir):
             os.makedirs(base_dir)
         location = tempfile.mkdtemp(
-            prefix='pbox-', suffix='.session', dir=base_dir)
+            prefix=slugify(prefix), suffix='.session', dir=base_dir)
         logger.debug(_("Created new storage in %r"), location)
         self = cls(location)
         if legacy_mode:

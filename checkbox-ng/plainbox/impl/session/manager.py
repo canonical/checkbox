@@ -187,7 +187,7 @@ class SessionManager(pod.POD):
             return self.default_device_context.state
 
     @classmethod
-    def create(cls, repo=None, legacy_mode=False):
+    def create(cls, repo=None, legacy_mode=False, prefix='pbox-'):
         """
         Create an empty session manager.
 
@@ -217,7 +217,7 @@ class SessionManager(pod.POD):
         logger.debug("SessionManager.create()")
         if repo is None:
             repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, legacy_mode)
+        storage = SessionStorage.create(repo.location, legacy_mode, prefix)
         WellKnownDirsHelper(storage).populate()
         return cls([], storage)
 

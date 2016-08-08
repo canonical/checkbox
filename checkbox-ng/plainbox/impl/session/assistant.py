@@ -561,7 +561,7 @@ class SessionAssistant:
         methods to see if session should be resumed instead.
         """
         UsageExpectation.of(self).enforce()
-        self._manager = SessionManager.create(self._repo)
+        self._manager = SessionManager.create(self._repo, prefix=title + '-')
         self._context = self._manager.add_local_device_context()
         for provider in self._selected_providers:
             if provider.problem_list:

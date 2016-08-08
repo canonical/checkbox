@@ -28,6 +28,7 @@ latter class be used to create (allocate) and remove all of the files
 associated with a particular session.
 """
 
+import datetime
 import errno
 import logging
 import os
@@ -283,8 +284,18 @@ class SessionStorage:
         """
         if not os.path.exists(base_dir):
             os.makedirs(base_dir)
-        location = tempfile.mkdtemp(
-            prefix=slugify(prefix), suffix='.session', dir=base_dir)
+        isoformat = "%Y-%m-%dT%H.%M.%S"
+        timestamp = datetime.datetime.utcnow().strftime(isoformat)
+        location = os.path.join(base_dir, "{prefix}{timestamp}{suffix}".format(
+            prefix=slugify(prefix), timestamp=timestamp, suffix='.session'))
+        uniq = 1
+        while os.path.exists(location):
+            location = os.path.join(
+                base_dir, "{prefix}{timestamp}_({uniq}){suffix}".format(
+                    prefix=slugify(prefix), timestamp=timestamp,
+                    uniq=uniq, suffix='.session'))
+            uniq += 1
+        os.mkdir(location)
         logger.debug(_("Created new storage in %r"), location)
         self = cls(location)
         if legacy_mode:

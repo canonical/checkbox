@@ -339,7 +339,9 @@ class CheckboxLauncher(CheckboxCommand):
     def _start_new_session(self):
         print(_("Preparing..."))
         title = self.launcher.app_id
-        if self.ctx.args.launcher:
+        if self.ctx.args.title:
+            title = self.ctx.args.title
+        elif self.ctx.args.launcher:
             title = os.path.basename(self.ctx.args.launcher)
         if self.launcher.app_version:
             title += ' {}'.format(self.launcher.app_version)
@@ -815,6 +817,9 @@ class CheckboxLauncher(CheckboxCommand):
         parser.add_argument(
             '--verify', action='store_true',
             help=_('only validate the launcher'))
+        parser.add_argument(
+            '--title', action='store', metavar='SESSION_NAME',
+            help=_('title of the session to use'))
 
 
 if __name__ == '__main__':

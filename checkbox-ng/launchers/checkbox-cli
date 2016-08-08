@@ -339,6 +339,8 @@ class CheckboxLauncher(CheckboxCommand):
     def _start_new_session(self):
         print(_("Preparing..."))
         title = self.launcher.app_id
+        if self.ctx.args.launcher:
+            title = os.path.basename(self.ctx.args.launcher)
         if self.launcher.app_version:
             title += ' {}'.format(self.launcher.app_version)
         self.ctx.sa.start_new_session(title)

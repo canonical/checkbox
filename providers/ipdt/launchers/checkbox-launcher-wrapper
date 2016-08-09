@@ -1,0 +1,17 @@
+#!/bin/sh
+# This wrapper, which is installed as $SNAP/bin/checkbox-launcher
+# (taking over $SNAP/usr/bin/checkbox-launcher in priority) serves
+# two purposes:
+# - It sets a PROVIDERPATH that plainbox can find bundled providers:
+#   each provider is installed to /providers/$name, they are listed
+#   in a typical :-separated PATH-like variable.
+# This is largely tracked as https://bugs.launchpad.net/plainbox/+bug/1473939
+export PROVIDERPATH="$SNAP/providers/plainbox-provider-snappy:$SNAP/providers/plainbox-provider-snappy-resource"
+export PATH="$PATH:$SNAP/usr/sbin:$SNAP/sbin"
+export PYTHONPATH="$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH"
+# - It works around a bug in snapcraft which causes scripts to refer
+#   to the wrong (outside, not bundled) interpreter.
+# https://bugs.launchpad.net/snapcraft/+bug/1486659
+# NOTE: Here python3 is already the one from the snap, because we are running
+# in altered environment and PATH is set accordingly.
+exec python3 $(which checkbox-launcher) "$@"

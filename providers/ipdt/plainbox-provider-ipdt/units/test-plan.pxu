@@ -1,0 +1,26 @@
+# Copyright 2015-2016 Canonical Ltd.
+# All rights reserved.
+
+id: ipdt-plan
+unit: test plan
+_name: IPDT
+_description:
+ Runs the Intel Processor Diagnostic Test Suite
+estimated_duration: 1h
+include:
+    ipdt/.*
+mandatory_include:
+    2013.com.canonical.plainbox::manifest
+    2013.com.canonical.plainbox::package
+    2013.com.canonical.plainbox::snap
+    2013.com.canonical.plainbox::uname
+    2013.com.canonical.plainbox::lsb
+    2013.com.canonical.plainbox::cpuinfo
+    2013.com.canonical.plainbox::dpkg
+    2013.com.canonical.plainbox::dmi_attachment
+    2013.com.canonical.plainbox::sysfs_attachment
+    2013.com.canonical.plainbox::udev_attachment
+    2013.com.canonical.plainbox::lspci_attachment
+    2013.com.canonical.plainbox::lsusb_attachment
+    2013.com.canonical.plainbox::dmi
+    2013.com.canonical.plainbox::meminfo

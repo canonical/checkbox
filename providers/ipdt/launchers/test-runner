@@ -1,0 +1,10 @@
+#!/usr/bin/env checkbox-cli-wrapper
+[launcher]
+app_id = 2016.com.intel.ipdt:checkbox-ipdt
+launcher_version = 1
+stock_reports = text, submission_files
+
+[test plan]
+unit = 2016.com.intel.ipdt::ipdt-plan
+forced = yes
+

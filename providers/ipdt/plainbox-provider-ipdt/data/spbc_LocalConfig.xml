@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?spbc_LocalConfig.xml Version="1.0.0.0"?>
+<spbc_LocalConfig  spbcLocalConfig="SoC Model"   >
+	<SoCModels Dec = "53|55|73|74|76">
+	</SoCModels>
+</spbc_LocalConfig>

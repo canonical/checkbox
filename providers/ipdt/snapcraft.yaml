@@ -1,0 +1,39 @@
+name: checkbox-ipdt
+summary: Snappy Plainbox Provider for IPDT
+confinement: devmode
+description: >
+  The provider is a collection of tests to be run on systems with Intel(R) Processors
+version: 0.11~s16
+
+apps:
+    plainbox:
+        command: bin/plainbox-wrapper
+    checkbox:
+        command: bin/checkbox-wrapper
+    test-runner:
+        command: bin/test-runner
+    python3:
+        command: python3
+
+parts:
+    # This requires a custom version of snapcraft
+    plainbox-provider-ipdt:
+        plugin: plainbox-provider
+        source: ./plainbox-provider-ipdt
+        after: [checkbox]
+        stage-packages:
+            - freeglut3-dev
+            - util-linux
+            - xserver-xorg-video-intel
+        build-packages:
+            - python3-plainbox
+    plainbox-provider-snappy-resource:
+        after: [plainbox-provider-ipdt]
+    launchers:
+        plugin: copy
+        files:
+            launchers/plainbox-wrapper: bin/plainbox-wrapper
+            launchers/checkbox-wrapper: bin/checkbox-wrapper
+            launchers/checkbox-launcher-wrapper: bin/checkbox-launcher-wrapper
+            launchers/checkbox-cli-wrapper: bin/checkbox-cli-wrapper
+            launchers/test-runner: bin/test-runner

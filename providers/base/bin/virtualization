@@ -88,7 +88,7 @@ QEMU_ARCH_CONFIG = {
     },
     'amd64': {
         'cloudimg_type': CLOUD_IMAGE_TYPE_DISK,
-        'cloudimg_arch': 'i386',
+        'cloudimg_arch': 'amd64',
         'qemu_bin': 'qemu-system-x86_64',
         'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
         'qemu_extra_args': [

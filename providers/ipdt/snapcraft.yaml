@@ -24,9 +24,6 @@ parts:
         stage-packages:
             - freeglut3-dev
             - util-linux
-            - xserver-xorg-video-intel
-        build-packages:
-            - python3-plainbox
     plainbox-provider-snappy-resource:
         after: [plainbox-provider-ipdt]
     plainbox-provider-ipdt-gpu:
@@ -37,8 +34,6 @@ parts:
             - freeglut3-dev
             - util-linux
             - xserver-xorg-video-intel
-        build-packages:
-            - python3-plainbox
     launchers:
         plugin: copy
         files:

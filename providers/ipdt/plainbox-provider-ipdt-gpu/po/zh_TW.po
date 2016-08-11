@@ -1,0 +1,4118 @@
+# Chinese (Traditional) translation for plainbox-provider-plano 
+# Copyright (C) 2016 Canonical Ltd
+# This file is distributed under the same license as the plainbox-provider-plano package.
+# Po-Hsu Lin <po-hsu.lin@canonical.com>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: plainbox-provider-plano\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-04-27 11:17+0800\n"
+"PO-Revision-Date: 2016-03-03 07:23+0000\n"
+"Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
+"Language-Team: Chinese (Traditional) <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../manage.py:94
+msgid "Test Definitions (Jobs)"
+msgstr "測試敘述（Jobs）"
+
+#. Create a section with static information
+#: ../manage.py:110
+msgid "Test Descriptions"
+msgstr "測試敘述"
+
+#. Add columns: category, id and description
+#: ../manage.py:121
+msgid "Category"
+msgstr "類別"
+
+#. Add columns: id
+#: ../manage.py:122 ../manage.py:201
+msgid "Test Case ID"
+msgstr "測試項目 ID"
+
+#: ../manage.py:123
+msgid "Description"
+msgstr "敘述"
+
+#: ../manage.py:124
+msgid "Command"
+msgstr "指令"
+
+#: ../manage.py:125
+msgid "Duration"
+msgstr "需時"
+
+#: ../manage.py:167
+msgid "{}"
+msgstr "{}"
+
+#. Create a section with static information
+#: ../manage.py:183
+msgid "Test Plan Name"
+msgstr "測試計畫名稱"
+
+#: ../manage.py:185
+msgid "Test Plan ID"
+msgstr "測試計畫 ID"
+
+#: ../manage.py:202
+msgid "Summary"
+msgstr "摘要"
+
+#: ../manage.py:223
+msgid "FILE"
+msgstr "FILE"
+
+#: ../manage.py:224
+msgid "path of the .xlsx file to write"
+msgstr "欲寫入的 .xlsx 檔案路徑"
+
+#: ../manage.py:231
+msgid "Plainbox Provider for Snappy devices"
+msgstr ""
+
+#. name
+#: ../units/audio.pxu:3
+msgid "Audio"
+msgstr "音效"
+
+#. summary
+#: ../units/audio.pxu:7
+msgid "External microphone works"
+msgstr "外接麥克風運作正常"
+
+#. purpose
+#: ../units/audio.pxu:8
+msgid "Check that an external microphone works"
+msgstr "檢查外接麥克風運作是否正常"
+
+#. summary
+#: ../units/audio.pxu:27
+msgid "Headphones work"
+msgstr "耳機運作正常"
+
+#. purpose
+#: ../units/audio.pxu:28
+msgid "Check headphones work"
+msgstr "檢查耳機運作是否正常"
+
+#. steps
+#: ../units/audio.pxu:30
+msgid ""
+"1. Plug headset to headset port 2. Execute following command:\n"
+" alsamixer\n"
+"3. Use arrow key to adjust volume, m key to mute/unmute 4. Make sure all "
+"channels are not muted and have an appropriate volume 5. Press q to exit "
+"alsamixer 6. Execute following command:\n"
+" arecord | aplay\n"
+"7. Speak in to microphone on headset"
+msgstr ""
+
+#. verification
+#: ../units/audio.pxu:40 ../units/suspend.pxu:52
+msgid "Verify that your voice is reproduced through the headphones clearly"
+msgstr "檢查您的聲音是否有清楚的從耳機中重新播放出來"
+
+#. name
+#: ../units/bluetooth.pxu:3
+msgid "Bluetooth"
+msgstr "藍牙"
+
+#. name
+#: ../units/bluetooth.pxu:7
+msgid "Bluetooth - BlueZ Self Tests"
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:11
+msgid "Bluetooth input device works"
+msgstr "藍牙輸入裝置運作正常"
+
+#. purpose
+#: ../units/bluetooth.pxu:12
+msgid ""
+"Check bluetooth input device work Since there's only CLI with ubuntu-core, "
+"test keyboard only"
+msgstr ""
+
+#. steps
+#: ../units/bluetooth.pxu:15
+msgid ""
+"1. Run following command to start bluetoothctl console:\n"
+" bluetoothctl -a\n"
+"***Following steps are run in bluetoothctl console*** 2. Power on the "
+"device:\n"
+" power on\n"
+"3. Register agent for keyboard:\n"
+" agent KeyboardOnly\n"
+" default-agent\n"
+"4. Put controller in pairable mode:\n"
+" pairable on\n"
+"5. Scan nearby bluetooth device:\n"
+" scan on\n"
+"6. Stop Scanning after bluetooth keyboard is found:\n"
+" scan off\n"
+"7. Pair bluetooth\n"
+" pair [MAC address of bluetooth keyboard]\n"
+"8. Enter PIN Code on bluetooth keyboard if needed 9. Trust the bluetooth "
+"keyboard\n"
+" trust [MAC address of bluetooth keyboard]\n"
+"10. Connect to bluetooth keyboard:\n"
+" connect [MAC address of bluetooth keyboard]\n"
+"11. Quit bluetoothctl console\n"
+" quit\n"
+"12. Use bluetooth keyboard to input"
+msgstr ""
+"1. 執行以下指令來啟動 bluetoothctl 控制台：\n"
+" bluetoothctl -a\n"
+"***以下步驟皆於 bluetoothctl 控制台中進行*** 2. 啟動藍牙裝置：\n"
+" power on\n"
+"3. 設定給鍵盤用的 agent：\n"
+" agent KeyboardOnly\n"
+" default-agent\n"
+"4. 將控制器設定為可配對模式：\n"
+" pairable on\n"
+"5. 掃描附近的藍牙裝置：\n"
+" scan on\n"
+"6. 在找到藍牙鍵盤後停止掃描：\n"
+" scan off\n"
+"7. 與藍牙裝置配對\n"
+" pair [藍牙鍵盤的 MAC 地址]\n"
+"8. 若有需要，請於藍牙鍵盤上輸入 PIN 碼 9. 信任該藍牙鍵盤\n"
+" trust [藍牙鍵盤的 MAC 地址]\n"
+"10. 連線至藍牙鍵盤：\n"
+" connect [藍牙鍵盤的 MAC 地址]\n"
+"11. 離開 bluetoothctl 控制台\n"
+" quit\n"
+"12. 透過藍牙鍵盤來輸入"
+
+#. verification
+#: ../units/bluetooth.pxu:40
+msgid "Can input from bluetooth input device"
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:50
+msgid "Gather list of tests provided by bluez rfcomm test binary"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:51
+msgid ""
+"Bluez includes some internal test that exercise the stack. This resource "
+"collects a list of the provided rfcomm tests."
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:68
+msgid "{bluez-internal-rfcomm-test}"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:69
+msgid "Runs a specific test from the rfcomm test suite"
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:80
+msgid "Gather list of tests provided by bluez hci test binary"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:81
+msgid ""
+"Bluez includes some internal test that exercise the stack. This resource "
+"collects a list of the provided hci tests."
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:98
+msgid "{bluez-internal-hci-test}"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:99
+msgid "Runs a specific test from the hci test suite"
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:110
+msgid "Gather list of tests provided by bluez mgmt test binary"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:111
+msgid ""
+"Bluez includes some internal test that exercise the stack. This resource "
+"collects a list of the provided mgmt tests."
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:128
+msgid "{bluez-internal-mgmt-test}"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:129
+msgid "Runs a specific test from the mgmt test suite"
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:140
+msgid "Gather list of tests provided by bluez user channel test binary"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:141
+msgid ""
+"Bluez includes some internal test that exercise the stack. This resource "
+"collects a list of the provided user channel tests."
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:158
+msgid "{bluez-internal-uc-test}"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:159
+msgid "Runs a specific test from the user channel test suite"
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:170
+msgid "Gather list of tests provided by bluez bnep test binary"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:171
+msgid ""
+"Bluez includes some internal test that exercise the stack. This resource "
+"collects a list of the provided bnep tests."
+msgstr ""
+
+#. summary
+#: ../units/bluetooth.pxu:188
+msgid "{bluez-internal-bnep-test}"
+msgstr ""
+
+#. description
+#: ../units/bluetooth.pxu:189
+msgid "Runs a specific test from the bnep test suite"
+msgstr ""
+
+#. name
+#: ../units/cpu.pxu:3
+msgid "CPU"
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:20
+msgid "Test the CPU scaling capabilities"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:22
+msgid ""
+"Use Firmware Test Suite (fwts cpufreq) to test the scaling capabilities of "
+"the CPU."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:32
+msgid "Attach CPU scaling capabilities log"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:34
+msgid ""
+"Attaches the log generated by cpu/scaling_test to the results submission."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:49
+msgid "Test that the CPU can run at its max frequency"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:51
+msgid ""
+"Use the Firmware Test Suite (fwts cpufreq) to ensure that the CPU can run at "
+"its maximum frequency."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:61
+msgid "Attach CPU max frequency log"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:63
+msgid ""
+"Attaches the log generated by cpu/maxfreq_test to the results submission."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:71
+msgid "Tests the CPU for clock jitter"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:73
+msgid "Runs a test for clock jitter on SMP machines."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:82
+msgid "Test offlining of each CPU core"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:84
+msgid "Attempts to offline each core in a multicore system."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:94
+msgid "Check CPU topology for accuracy between proc and sysfs"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:96
+msgid ""
+"Parses information about CPU topology provided by proc and sysfs and checks "
+"that they are consistent."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:107
+msgid "Validate that the Vector Floating Point Unit is running on ARM device"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:109
+msgid "Validate that the Vector Floating Point Unit is running on ARM device."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:119
+msgid "Run C-States tests"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:121
+msgid ""
+"Uses the Firmware Test Suite (fwts) to test the power saving states of the "
+"CPU."
+msgstr ""
+
+#. summary
+#: ../units/cpu.pxu:134
+msgid "Attach C-States test log"
+msgstr ""
+
+#. description
+#: ../units/cpu.pxu:136
+msgid "Attaches the FWTS desktop diagnosis results log to the submission."
+msgstr ""
+
+#. name
+#: ../units/disk.pxu:3
+msgid "Disk"
+msgstr ""
+
+#. summary
+#: ../units/disk.pxu:7
+msgid "Gathers information about each disk detected"
+msgstr ""
+
+#. description
+#: ../units/disk.pxu:8
+msgid ""
+"Uses lsblk to gather information about each disk detected on the system "
+"under test."
+msgstr ""
+
+#. summary
+#: ../units/disk.pxu:26
+msgid "Disk statistics for {product}"
+msgstr ""
+
+#. description
+#: ../units/disk.pxu:27
+msgid ""
+"This test checks disk stats, generates some activity and rechecks stats to "
+"verify they've changed. It also verifies that disks appear in the various "
+"files they're supposed to."
+msgstr ""
+
+#. description
+#: ../units/disk.pxu:27
+msgid "This test will inspect the following disk:"
+msgstr ""
+
+#. description
+#: ../units/disk.pxu:27
+msgid ""
+"    product name: {product}\n"
+"    sysfs path: {path}\n"
+"    device node path: /dev/{name}"
+msgstr ""
+
+#. summary
+#: ../units/disk.pxu:46
+msgid "Disk performance test for {product}"
+msgstr ""
+
+#. description
+#: ../units/disk.pxu:47
+msgid "Verify that disk storage performs at or above baseline performance"
+msgstr ""
+
+#. summary
+#: ../units/disk.pxu:60
+msgid "Disk I/O stress test for {product}"
+msgstr ""
+
+#. description
+#: ../units/disk.pxu:61
+msgid "Take the path of the storage device and test is it a block device"
+msgstr ""
+
+#. name
+#: ../units/ethernet.pxu:3
+msgid "Ethernet"
+msgstr "乙太網路"
+
+#. summary
+#: ../units/ethernet.pxu:7
+msgid "Report info about available network devices"
+msgstr ""
+
+#. description
+#: ../units/ethernet.pxu:9
+msgid ""
+"Test to detect and return information about available network controllers on "
+"the system under test."
+msgstr ""
+
+#. summary
+#: ../units/ethernet.pxu:25
+msgid "Can ping another machine over Ethernet port {interface}"
+msgstr ""
+
+#. description
+#: ../units/ethernet.pxu:26
+msgid "Check Ethernet works by pinging another machine"
+msgstr "透過 ping 其他機器來檢查乙太網路是否運作正常"
+
+#. summary
+#: ../units/ethernet.pxu:38
+msgid "Ensure ethernet port {interface} is physically disconnected"
+msgstr ""
+
+#. purpose
+#: ../units/ethernet.pxu:39
+msgid ""
+"Check that ethernet port {interface} is detected as being in the correct "
+"state to begin a hotplug connection test."
+msgstr ""
+
+#. steps
+#: ../units/ethernet.pxu:42
+msgid ""
+"1. Ensure there is no ethernet cable attached to port {interface}. 2. Begin "
+"test."
+msgstr ""
+
+#. summary
+#: ../units/ethernet.pxu:60
+msgid "Ethernet port {interface} hotplug detection test"
+msgstr ""
+
+#. purpose
+#: ../units/ethernet.pxu:61
+msgid ""
+"Check ethernet port {interface} connects when cable inserted. Assumes an IP "
+"address will be assigned by DHCP. Connection asserted by pinging the network "
+"defined gateway."
+msgstr ""
+
+#. steps
+#: ../units/ethernet.pxu:65
+msgid ""
+"1. Begin the test. 2. Insert the ethernet cable in to ethernet port "
+"{interface}. 3. This test will timeout and fail if the insertion and "
+"connection\n"
+"   establishment has not been detected (10 second timeout for each check)."
+msgstr ""
+
+#. summary
+#: ../units/ethernet.pxu:113
+msgid "Ethernet port {interface} hotplug disconnect step"
+msgstr ""
+
+#. purpose
+#: ../units/ethernet.pxu:114
+msgid ""
+"Check that when cable removed from ethernet port {interface} the system "
+"detects this correctly."
+msgstr ""
+
+#. steps
+#: ../units/ethernet.pxu:117
+msgid ""
+"1. Depends on previous hotplug connection test passing. We will now test\n"
+" cable disconnection.\n"
+"2. Begin the test. 3. Remove the ethernet cable from ethernet port "
+"{interface}. 4. This test will timeout and fail if the removal has not been "
+"detected and\n"
+" interface marked as down (10 second timeout for each check)."
+msgstr ""
+
+#. name
+#: ../units/led.pxu:3
+msgid "LEDs"
+msgstr "LED"
+
+#. summary
+#: ../units/led.pxu:7
+msgid "Power LED behavior when powered"
+msgstr "啟動後的電源 LED 指示燈行為"
+
+#. purpose
+#: ../units/led.pxu:8
+msgid "Check power led is on when system is powered on"
+msgstr "檢查在系統啟動後電源 LED 指示燈是否有亮起"
+
+#. steps
+#: ../units/led.pxu:10
+msgid "1. Check power led when system is powered on"
+msgstr "1. 在系統啟動後檢查電源 LED 指示燈"
+
+#. verification
+#: ../units/led.pxu:12 ../units/suspend.pxu:116
+msgid "Power led is on when system is powered on"
+msgstr "在系統啟動後電源 LED 指示燈有亮起"
+
+#. summary
+#: ../units/led.pxu:19
+msgid "Power LED behavior when suspended"
+msgstr "暫停時的電源 LED 指示燈行為"
+
+#. purpose
+#: ../units/led.pxu:20
+msgid "Check power led is blinking when system is in suspend"
+msgstr "檢查電源 LED 指示燈在系統暫停時是否會閃爍"
+
+#. steps
+#: ../units/led.pxu:22
+msgid "1. Suspend the system 2. Check power led when system is in suspend"
+msgstr "1. 讓系統進入暫停狀態 2. 在系統暫停時檢查電源 LED 指示燈狀態"
+
+#. verification
+#: ../units/led.pxu:25
+msgid "Power led is blinking when system is in suspend"
+msgstr "當系統暫停時電源 LED 指示燈會閃爍"
+
+#. summary
+#: ../units/led.pxu:32
+msgid "Bluetooth LED behavior"
+msgstr "藍牙 LED 指示燈行為"
+
+#. purpose
+#: ../units/led.pxu:33
+msgid "Check bluetooth LED behavior is correct"
+msgstr "檢查藍牙 LED 指示燈行為是否正確"
+
+#. steps
+#: ../units/led.pxu:35
+msgid ""
+"1. Run following command to start bluetoothctl console:\n"
+" bluetoothctl -a\n"
+"***Following steps are run in bluetoothctl console*** 2. Power on the "
+"device:\n"
+" power on\n"
+"3. Power off the device:\n"
+" power off\n"
+"4. Quit bluetoothctl console\n"
+" quit"
+msgstr ""
+"1. 執行以下指令來啟動 bluetoothctl 控制台：\n"
+" bluetoothctl -a\n"
+"***以下步驟皆於 bluetoothctl 控制台中進行*** 2. 啟動藍牙裝置：\n"
+" power on\n"
+"3. 關閉藍牙裝置：\n"
+" power off\n"
+"4. 離開 bluetoothctl 控制台\n"
+" quit"
+
+#. verification
+#: ../units/led.pxu:45
+msgid "Bluetooth LED is turned on in step 2, and turned off in step 3."
+msgstr "藍牙 LED 指示燈會在步驟二中亮起，在步驟三中熄滅。"
+
+#. summary
+#: ../units/led.pxu:52
+msgid "Serial ports LED behavior"
+msgstr "序列埠 LED 指示燈行為"
+
+#. purpose
+#: ../units/led.pxu:53
+msgid "Check serial ports LED behavior is correct"
+msgstr "檢查序列埠 LED 指示燈行為是否正確 "
+
+#. steps
+#: ../units/led.pxu:55
+msgid "1. Start the test to send data to all serial ports (/dev/ttyS*)"
+msgstr "1. 執行測試來發送資料到所有的序列埠 (/dev/ttyS*)"
+
+#. verification
+#: ../units/led.pxu:57
+msgid "All serial ports LED are on for a few seconds (3-4s)"
+msgstr "所有的序列埠 LED 會點亮幾秒鐘 (3到4秒)"
+
+#. summary
+#: ../units/memory.pxu:7
+msgid "Check amount of memory reported by meminfo against DMI"
+msgstr ""
+
+#. description
+#: ../units/memory.pxu:9
+msgid ""
+"This test checks the amount of memory which is reporting in meminfo against "
+"the size of the memory modules detected by DMI."
+msgstr ""
+
+#. summary
+#: ../units/memory.pxu:21
+msgid "Run memory stress test including swapping to disk"
+msgstr ""
+
+#. description
+#: ../units/memory.pxu:23
+msgid ""
+"Test to perform some basic stress and exercise of system memory. This test "
+"also includes an over-commit function to force swapping to disk, thus SUTs "
+"should have suitably large swap files for the amount of RAM they have "
+"installed."
+msgstr ""
+
+#. name
+#: ../units/monitor.pxu:3
+msgid "Display"
+msgstr "顯示"
+
+#. summary
+#: ../units/monitor.pxu:7
+msgid "Monitor works (DVI)"
+msgstr "螢幕運作正常 (DVI)"
+
+#. purpose
+#: ../units/monitor.pxu:8
+msgid "Check output to display through DVI port"
+msgstr "檢查透過 DVI 連接埠的視訊輸出"
+
+#. steps
+#: ../units/monitor.pxu:10
+msgid "1. Connect display to DVI port 2. Check the display"
+msgstr "1. 將外接螢幕連接至 DVI 連接埠 2. 檢查螢幕狀態"
+
+#. summary
+#: ../units/monitor.pxu:20
+msgid "Monitor works (HDMI)"
+msgstr "螢幕運作正常 (HDMI)"
+
+#. purpose
+#: ../units/monitor.pxu:21
+msgid "Check output to display through HDMI port"
+msgstr "檢查透過 HDMI 連接埠的視訊輸出"
+
+#. steps
+#: ../units/monitor.pxu:23
+msgid "1. Connect display to HDMI port 2. Check the display"
+msgstr "1. 將外接螢幕連接至 HDMI 連接埠 2. 檢查螢幕狀態"
+
+#. summary
+#: ../units/monitor.pxu:33
+msgid "Monitor works (DVI-to-VGA)"
+msgstr "螢幕運作正常 (DVI 轉 VGA)"
+
+#. purpose
+#: ../units/monitor.pxu:34
+msgid "Check output to display through VGA adaptor on DVI port"
+msgstr "檢查在 DVI 連接埠上透過 VGA 轉接頭的視訊輸出"
+
+#. steps
+#: ../units/monitor.pxu:36
+msgid "1. Connect display to VGA adaptor on DVI port 2. Check the display"
+msgstr "1. 將外接螢幕透過 VGA 轉接頭接上 DVI 連接埠 2. 檢查螢幕狀態"
+
+#. summary
+#: ../units/monitor.pxu:46
+msgid "Monitor works (HDMI-to-VGA)"
+msgstr "螢幕運作正常 (HDMI-to-VGA)"
+
+#. purpose
+#: ../units/monitor.pxu:47
+msgid "Check output to display through VGA adaptor on HDMI port"
+msgstr "檢查在 HDMI 連接埠上透過 VGA 轉接頭的視訊輸出"
+
+#. steps
+#: ../units/monitor.pxu:49
+msgid "1. Connect display to VGA adaptor on HDMI port 2. Check the display"
+msgstr "1. 將外接螢幕透過 VGA 轉接頭接上 HDMI 連接埠 2. 檢查螢幕狀態"
+
+#. verification
+#: ../units/monitor.pxu:52 ../units/suspend.pxu:176
+msgid "Output to display works"
+msgstr "視訊輸出運作正常"
+
+#. name
+#: ../units/power-management.pxu:3
+msgid "Power and Power Management"
+msgstr "電源與電源管理"
+
+#. summary
+#: ../units/power-management.pxu:7
+msgid "System can be powered off"
+msgstr "系統電源能夠被關閉"
+
+#. purpose
+#: ../units/power-management.pxu:8
+msgid "Check system can poweroff successfully"
+msgstr "檢查系統電源是否能成功的被關閉"
+
+#. steps
+#: ../units/power-management.pxu:10
+msgid ""
+"1. Execute following command:\n"
+" sudo poweroff"
+msgstr ""
+
+#. verification
+#: ../units/power-management.pxu:13
+msgid "System poweroff successfully"
+msgstr "系統電源成功的被關閉"
+
+#. summary
+#: ../units/power-management.pxu:20
+msgid "System can be rebooted"
+msgstr "系統能夠被重新啟動"
+
+#. purpose
+#: ../units/power-management.pxu:21
+msgid "Check system can reboot"
+msgstr "檢查系統是否能被重新啟動"
+
+#. steps
+#: ../units/power-management.pxu:23
+msgid ""
+"1. Execute following command:\n"
+" sudo reboot"
+msgstr ""
+
+#. verification
+#: ../units/power-management.pxu:26
+msgid "    System reboot into system successfully"
+msgstr ""
+
+#. name
+#: ../units/rtc.pxu:3
+msgid "Real Time Clock (RTC)"
+msgstr "實時時鐘 (RTC)"
+
+#. summary
+#: ../units/rtc.pxu:7
+msgid "RTC battery tracks the time"
+msgstr "RTC 電池可紀錄時間"
+
+#. purpose
+#: ../units/rtc.pxu:8
+msgid "RTC battery backup power can send system wakeup event"
+msgstr "RTC 電池的備份電源能夠送出喚醒系統的事件"
+
+#. steps
+#: ../units/rtc.pxu:10
+msgid "1. Start the test to poweroff the system (wakeup scheduled in 30s)"
+msgstr "1. 開始測試來關閉系統 (已安排於30秒內喚醒)"
+
+#. verification
+#: ../units/rtc.pxu:12
+msgid "RTC can wake up the system successfully"
+msgstr "RTC 可以成功的喚醒此系統"
+
+#. name
+#: ../units/serial.pxu:3
+msgid "Serial Port"
+msgstr "序列埠"
+
+#. summary
+#: ../units/serial.pxu:7
+msgid "Serial debugging console is enabled and operational"
+msgstr "序列除錯控制台已經啟用並正常運作中"
+
+#. purpose
+#: ../units/serial.pxu:8
+msgid "Check user can log into system through serial port from another machine"
+msgstr "檢查使用者是否可以由另一台機器透過序列埠來登入"
+
+#. steps
+#: ../units/serial.pxu:10
+msgid ""
+"1. Connect USB to db9 null modem adapter cable to serial port of test "
+"machine 2. Connect the cable to USB port of another ubuntu machine (client) "
+"3. Install screen on client (if not done in Prerequisite) 4. Execute "
+"following command on client:\n"
+" sudo screen /dev/ttyUSB0\n"
+"5. Start getty service on test machine:\n"
+" sudo systemctl start getty@[rs232 device, ex. /dev/ttyS0].service\n"
+"6. Log into the test machine from terminal on client"
+msgstr ""
+
+#. verification
+#: ../units/serial.pxu:19
+msgid ""
+"1. Output to client is fine after getty service started 2. Log into test "
+"machine from terminal on client successfully"
+msgstr ""
+"1. 在 getty 服務啟動後，到客戶端的輸出正常無誤 2. 順利在客戶端從終端機登入測"
+"試機臺"
+
+#. name
+#: ../units/snappy.pxu:3
+msgid "Snappy Ubuntu Core"
+msgstr "Snappy Ubuntu Core"
+
+#. summary
+#: ../units/snappy.pxu:7
+msgid "Test that the snappy list command is working."
+msgstr "測試 snappy list 指令是否運作正常"
+
+#. purpose
+#: ../units/snappy.pxu:8
+msgid "If snappy list command is working then should at least find the"
+msgstr ""
+
+#. purpose
+#: ../units/snappy.pxu:8
+msgid "ubuntu-core package."
+msgstr ""
+
+#. summary
+#: ../units/snappy.pxu:17
+msgid "Test that the snappy search command is working."
+msgstr "測試 snappy search 指令運作正常。"
+
+#. purpose
+#: ../units/snappy.pxu:18
+msgid "If snappy search command is working then should find hello-dbus-fwk"
+msgstr ""
+
+#. purpose
+#: ../units/snappy.pxu:18
+msgid "in the store."
+msgstr ""
+
+#. summary
+#: ../units/snappy.pxu:27
+msgid "Test the snappy install command is able to install hello-world snap."
+msgstr "測試 snappy install 指令可以安裝 hello-world snap。"
+
+#. purpose
+#: ../units/snappy.pxu:28
+msgid ""
+"The store should contain the basic hello-world snap makes sure this can be "
+"downloaded and installed on the system."
+msgstr ""
+"Store 中應該要包含最基本的 hello-world snap 來確定它可以被下載並安裝在本系統"
+"上。"
+
+#. summary
+#: ../units/snappy.pxu:38
+msgid "Test the snappy remove command is able to remove the hello-world snap."
+msgstr "測試 snappy remove 指令是否能夠移除 hello-world snap"
+
+#. purpose
+#: ../units/snappy.pxu:39
+msgid "After having installed the hello-world snap, check it can removed."
+msgstr ""
+
+#. summary
+#: ../units/snappy.pxu:48
+msgid "Update the system using the \"snappy\" tool"
+msgstr "透過 \"snappy\" 工具來更新系統"
+
+#. purpose
+#: ../units/snappy.pxu:49
+msgid "Check ubuntu-core can be updated by snappy update"
+msgstr "檢查 ubuntu-core 是否能透過 snappy update 指令來進行更新"
+
+#. steps
+#: ../units/snappy.pxu:51
+msgid ""
+"1. sudo mount -o remount,rw / 2. sudo vi /etc/system-image/channel.ini 3. "
+"Check version number in both build_number and version_detail, assume it's N "
+"4. Modify version number in both build_number and version_detail to N-1 5. "
+"Reboot the system and log in 6. sudo snappy update 7. Reboot the system and "
+"log in 8. snappy list -v"
+msgstr ""
+"1. sudo mount -o remount,rw / 2. sudo vi /etc/system-image/channel.ini 3. 於 "
+"build_number 與 version_detail 中檢查版本號，假設其為 N 4. 將 build_number "
+"與 version_detail 中的版號改為 N-1 5. 重新啟動並登入系統 6. sudo snappy "
+"update 7. 重新啟動並登入系統8. snappy list -v"
+
+#. summary
+#: ../units/snappy.pxu:69
+msgid "Rollback system update using the \"snappy\" tool"
+msgstr "透過 \"snappy\" 工具來撤回系統更新"
+
+#. purpose
+#: ../units/snappy.pxu:70
+msgid "Check ubuntu-core can be reverted by snappy rollback"
+msgstr "檢查 ubuntu-core 可以透過 snappy rollback 指令來進行回溯"
+
+#. steps
+#: ../units/snappy.pxu:72
+msgid ""
+"1. Follow the steps in case snappy/update to update ubuntu-core 2. sudo "
+"snappy rollback ubuntu-core 3. Reboot the system and log in 4. snappy list -v"
+msgstr ""
+"1. 依照 snappy/update 測試項目裡的步驟來升級 ubuntu-core 2. sudo snappy "
+"rollback ubuntu-core 3. 重新啟動並登入系統 4. snappy list -v"
+
+#. verification
+#: ../units/snappy.pxu:77
+msgid ""
+"Check ubuntu-core version in the list 1. System is currently boot the ubuntu-"
+"core version N-1 (With a \"\"*\"\" at the end of line) 2. Another ubuntu-"
+"core version is N"
+msgstr ""
+"檢查列表中的 ubuntu-core 版本 1. 系統目前是使用版本為 N-1 的 ubuntu-core (最"
+"後面會有個 \"\"*\"\" 符號) 2. 另一個 ubuntu-core 版本為 N"
+
+#. summary
+#: ../units/snappy.pxu:86
+msgid "Re-apply the update after rollback using the \"snappy\" tool"
+msgstr "透過 \"snappy\" 工具在撤回更新後重新套用更新"
+
+#. purpose
+#: ../units/snappy.pxu:87
+msgid "Check ubuntu-core can be updated again by snappy update after rollback"
+msgstr "檢查 ubuntu-core 在撤回更新後是否能再用 snappy update 來再次更新"
+
+#. steps
+#: ../units/snappy.pxu:89
+msgid ""
+"1. Follow the steps in case snappy/rollback to update ubuntu-core and "
+"rollback 2. sudo snappy update 3. Reboot the system and log in 4. snappy "
+"list -v"
+msgstr ""
+"1. 依照 snappy/rollback 測試項目裡的步驟來更新 ubuntu-core 並進行回溯 2. "
+"sudo snappy update 3. 重新啟動並登入系統 4. snappy list -v"
+
+#. verification
+#: ../units/snappy.pxu:94
+msgid ""
+"Check ubuntu-core version in the list 1. System is currently boot the ubuntu-"
+"core version N (With a \"\"*\"\" at the end of line) 2. Another ubuntu-core "
+"version is N-1"
+msgstr ""
+"檢查列表中的 ubuntu-core 版本 1. 系統目前是使用版本為 N 的 ubuntu-core (最後"
+"面會有個 \"\"*\"\" 符號) 2. 另一個 ubuntu-core 版本為 N-1"
+
+#. summary
+#: ../units/snappy.pxu:103
+msgid "Automatically rollback after failed boot after upgrade"
+msgstr "在升級造成無法開機後自動回溯"
+
+#. purpose
+#: ../units/snappy.pxu:104
+msgid ""
+"Check system will rollback to original ubuntu-core if failed to boot the "
+"updated one"
+msgstr "檢查系統如果無法開機進入更新後的 ubuntu-core ，是否會回溯至原本的版本"
+
+#. steps
+#: ../units/snappy.pxu:106
+msgid ""
+"1. Follow the steps in case snappy/update to update ubuntu-core 2. Download "
+"following systemd unit and copy it to user home:\n"
+"    http://people.canonical.com/~jhunt/systemd/conf/deadlock.service\n"
+"3. sudo mount -o remount,rw /writable/cache/system 4. sudo cp deadlock."
+"service /writable/cache/system/lib/systemd/system/ 5. sudo mkdir -p /"
+"writable/cache/system/lib/systemd/system/sysinit.target.requires/ 6. sudo "
+"chroot /writable/cache/system 7. ln -s /lib/systemd/system/deadlock.service /"
+"lib/systemd/system/sysinit.target.requires/deadlock.service 8. exit 9. sudo "
+"snappy rollback ubuntu-core 10. sudo reboot 11. The boot will hang before "
+"reaching a getty login prompt due to deadlock.service 12. Power-cycle the "
+"device 13. snappy list -v"
+msgstr ""
+"1. 依照 snappy/update 測試項目裡的步驟來升級 ubuntu-core 2. 下載下列 systemd "
+"檔並將其複製到使用者家目錄：\n"
+"    http://people.canonical.com/~jhunt/systemd/conf/deadlock.service\n"
+"3. sudo mount -o remount,rw /writable/cache/system 4. sudo cp deadlock."
+"service /writable/cache/system/lib/systemd/system/ 5. sudo mkdir -p /"
+"writable/cache/system/lib/systemd/system/sysinit.target.requires/ 6. sudo "
+"chroot /writable/cache/system 7. ln -s /lib/systemd/system/deadlock.service /"
+"lib/systemd/system/sysinit.target.requires/deadlock.service 8. exit 9. sudo "
+"snappy rollback ubuntu-core 10. sudo reboot 11. 開機程序將會因為 deadlock."
+"service 的關係而在進行到 getty 登入畫面之前停住 12. 重新啟動裝置 13. snappy "
+"list -v"
+
+#. verification
+#: ../units/snappy.pxu:121
+msgid ""
+"1. Check system can boot at step 12 2. Check system is currently boot the "
+"ubuntu-core version N (With a \"\"*\"\" at the end of line)"
+msgstr ""
+"1. 檢查系統可以在步驟 12 開機 2. 檢查系統目前是使用版本為 N 的 ubuntu-core "
+"(最後面會有個 \"\"*\"\" 符號)"
+
+#. summary
+#: ../units/snappy.pxu:129
+msgid "SSH is enabled and operational"
+msgstr "SSH 已啟動並正常運作中"
+
+#. purpose
+#: ../units/snappy.pxu:130
+msgid "Check if user can access the system through ssh from other machine"
+msgstr "檢查使用者是否能夠從其他機器上透過 ssh 連線至本系統"
+
+#. steps
+#: ../units/snappy.pxu:132
+msgid ""
+"1. Execute following command on other machine in same network\n"
+"    ssh [user id]@[ip address of the testing system]\n"
+"2. Enter password to login"
+msgstr ""
+"1. 於位在同個網域下的其他系統上執行下列指令\n"
+"    ssh [使用者名稱]@[當前待測系統的 ip 位置]\n"
+"2. 輸入密碼來登入"
+
+#. verification
+#: ../units/snappy.pxu:136
+msgid "Can log into system through ssh from other machine"
+msgstr "可以由其他機器透過 ssh 登入系統"
+
+#. summary
+#: ../units/snappy.pxu:143
+msgid "WebDM (Device Manager) is enabled and operational"
+msgstr "WebDM (裝置管理員) 已啟動且運作正常"
+
+#. purpose
+#: ../units/snappy.pxu:144
+msgid "Check user can access webdm from other machine"
+msgstr "檢查使用者是否可由其他機器存取 webdm"
+
+#. steps
+#: ../units/snappy.pxu:146
+msgid ""
+"1. Connect Ethernet cable before boot 2. Boot into system 3. Browse "
+"following url with browser from other machine in same network\n"
+"    http://[ip address of the testing system]:4200"
+msgstr ""
+"1. 請在開機前接上網路線 2. 啟動系統 3. 在同個網域下的其他系統上用瀏覽器打開以"
+"下網址\n"
+"    http://[ip address of the testing system]:4200"
+
+#. verification
+#: ../units/snappy.pxu:151
+msgid "Can access webdm interface"
+msgstr "能夠存取 webdm 介面"
+
+#. summary
+#: ../units/stress.pxu:3
+msgid "System can be suspended 30 times"
+msgstr "系統可以成功的暫停 30 次"
+
+#. purpose
+#: ../units/stress.pxu:4
+msgid "Check system can suspend 30 times successfully"
+msgstr "檢查系統可以成功的暫停 30 次"
+
+#. steps
+#: ../units/stress.pxu:6
+msgid ""
+"1. Execute following command:\n"
+"    sudo systemctl suspend\n"
+"2. Resume the system 3. Repeat steps 1~2 30 times."
+msgstr ""
+
+#. verification
+#: ../units/stress.pxu:11
+msgid "System suspend and resume successfully each time"
+msgstr "系統每次都可以成功的暫停並恢復"
+
+#. summary
+#: ../units/stress.pxu:18
+msgid "System can be rebooted 30 times"
+msgstr "系統可以成功的重新啟動 30 次"
+
+#. purpose
+#: ../units/stress.pxu:19
+msgid "Check system can reboot 30 times successfully"
+msgstr "檢查系統可以成功的重新啟動 30 次"
+
+#. steps
+#: ../units/stress.pxu:21
+msgid ""
+"1. Log into system 2. Execute following command:\n"
+"    sudo reboot\n"
+"3. Repeat steps 1~2 30 times."
+msgstr ""
+
+#. verification
+#: ../units/stress.pxu:26
+msgid "System reboot successfully each time"
+msgstr "系統每次都可以成功的重新啟動"
+
+#. summary
+#: ../units/stress.pxu:33
+msgid "System can be powered off (and on) 30 times"
+msgstr "系統可以成功的關閉電源 (並啟動) 30 次"
+
+#. purpose
+#: ../units/stress.pxu:34
+msgid "Check system can poweroff 30 times successfully"
+msgstr "檢查系統可以成功的關閉電源 30 次"
+
+#. steps
+#: ../units/stress.pxu:36
+msgid ""
+"1. Log into system 2. Execute following command:\n"
+"    sudo poweroff\n"
+"3. Boot the system 4. Repeat steps 1~3 30 times."
+msgstr ""
+
+#. verification
+#: ../units/stress.pxu:42
+msgid "System poweroff successfully each time"
+msgstr "系統可以每次都成功的關閉電源"
+
+#. summary
+#: ../units/suspend.pxu:2
+msgid "System can be suspended"
+msgstr "系統可以被暫停"
+
+#. purpose
+#: ../units/suspend.pxu:3
+msgid "Check the system can suspend successfully"
+msgstr "檢查系統可否成功的暫停"
+
+#. steps
+#: ../units/suspend.pxu:5
+msgid ""
+"1. Execute the following command:\n"
+" sudo systemctl suspend"
+msgstr ""
+"1. 執行以下指令：\n"
+" sudo systemctl suspend"
+
+#. verification
+#: ../units/suspend.pxu:8
+msgid "System suspends successfully"
+msgstr "系統成功的暫停"
+
+#. summary
+#: ../units/suspend.pxu:15
+msgid "Headphones work (after suspend)"
+msgstr "耳機運作正常 (系統自暫停恢復後)"
+
+#. purpose
+#: ../units/suspend.pxu:16
+msgid "Check that headphones work after suspend"
+msgstr "檢查耳機在系統自暫停恢復後是否運作正常"
+
+#. steps
+#: ../units/suspend.pxu:18
+msgid ""
+"1. Plug in headset to headset port 2. Execute the following command:\n"
+" alsamixer\n"
+"3. Use arrow key to adjust volume, m key to mute/unmute 4. Make sure all "
+"channels are not muted and have an appropriate volume 5. Press q to exit "
+"alsamixer 6. Suspend the device 7. Resume the device 6. Execute following "
+"command:\n"
+" arecord | aplay\n"
+"7. Speak in to microphone on headset"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:37
+msgid "External microphone works (after suspend)"
+msgstr "外接麥克風運作正常 (系統自暫停恢復後)"
+
+#. purpose
+#: ../units/suspend.pxu:38
+msgid "Check that an external microphone works after suspend"
+msgstr "檢查外接麥克風在系統自暫停恢復後是否運作正常"
+
+#. steps
+#: ../units/suspend.pxu:40
+msgid ""
+"1. Plug headset to headset port 2. Execute following command:\n"
+" alsamixer\n"
+"3. Use arrow key to adjust volume, m key to mute/unmute 4. Make sure all "
+"channels are not muted and have an appropriate volume 5. Press q to exit "
+"alsamixer 6. Suspend the device 7. Resume the device 8. Execute following "
+"command:\n"
+" arecord | aplay\n"
+"9. Speak in to microphone on headset"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:59
+msgid "After suspend, bluetooth keyboard works"
+msgstr "系統自暫停恢復後，藍牙鍵盤運作正常"
+
+#. purpose
+#: ../units/suspend.pxu:60
+msgid ""
+"Check a bluetooth input device works after suspending the system. Given "
+"Ubuntu is CLI only, this implies a keyboard test."
+msgstr ""
+
+#. steps
+#: ../units/suspend.pxu:63
+msgid ""
+"1. Scan nearby devices:\n"
+"    hcitool scan\n"
+"2. Pair a bluetooth input device\n"
+"    bluez-simple-agent hci0 [MAC address of bluetooth input device]\n"
+"3. Set paired input device workable\n"
+"    sudo bluez-test-input connect [MAC address of bluetooth input device]\n"
+"4. Suspend the device 5. Resume the device"
+msgstr ""
+"1. 掃描周遭的裝置：\n"
+"    hcitool scan\n"
+"2. 與藍牙輸入裝置配對\n"
+"    bluez-simple-agent hci0 [藍牙輸入裝置的 MAC 地址]\n"
+"3. 將配對的輸入裝置設定為可運作狀態\n"
+"    sudo bluez-test-input connect [藍牙輸入裝置的 MAC 地址]\n"
+"4. 讓機器進入暫停狀態 5. 讓其從暫停狀態中恢復"
+
+#. verification
+#: ../units/suspend.pxu:72
+msgid "Can input from input device"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:79
+msgid "After suspend, can ping another machine over first Ethernet port"
+msgstr "系統自暫停恢復後，可經由第一個乙太網路連接埠 ping 其他機器"
+
+#. steps
+#: ../units/suspend.pxu:82
+msgid ""
+"1. Make sure Ethernet cable is connected and can access internet 2. Suspend "
+"the device 3. Resume the device 4. ping -I eth0 google.com"
+msgstr ""
+"1. 確定乙太網路線有接上機器並能夠連上網路 2. 讓機器進入暫停狀態 3. 讓其從暫停"
+"狀態中恢復 4. ping -I eth0 google.com"
+
+#. summary
+#: ../units/suspend.pxu:94
+msgid "After suspend, can ping another machine over second Ethernet port"
+msgstr "系統自暫停恢復後，可經由第二個乙太網路連接埠 ping 其他機器"
+
+#. purpose
+#: ../units/suspend.pxu:95
+msgid "Check Ethernet works after suspend by pinging another machine"
+msgstr "透過 ping 其他機器來檢查乙太網路在系統自暫停恢復後是否運作正常"
+
+#. steps
+#: ../units/suspend.pxu:97
+msgid ""
+"1. Make sure Ethernet cable is connected and can access internet 2. Suspend "
+"the device 3. Resume the device 4. ping -I eth1 google.com"
+msgstr ""
+"1. 確定乙太網路線有接上機器並能夠連上網路 2. 讓機器進入暫停狀態 3. 讓其從暫停"
+"狀態中恢復 4. ping -I eth0 google.com"
+
+#. verification
+#: ../units/suspend.pxu:102
+msgid "Can successfully get ping responses from google.com"
+msgstr "可以成功的從 google.com 收到 ping 的回應"
+
+#. summary
+#: ../units/suspend.pxu:109
+msgid "After suspend, Power LED behaves correctly"
+msgstr "系統自暫停恢復後，電源 LED 指示燈運作正常"
+
+#. purpose
+#: ../units/suspend.pxu:110
+msgid "Check power LED is on when system is powered on after suspend"
+msgstr "檢查電源 LED 指示燈在系統自暫停恢復後是否有亮起"
+
+#. steps
+#: ../units/suspend.pxu:112
+msgid ""
+"1. Suspend the device 2. Resume the device 3. Check power led when system is "
+"powered on"
+msgstr ""
+"1. 讓機器進入暫停狀態 2. 讓其從暫停狀態中恢復 3. 在系統啟動後檢查電源 LED 指"
+"示燈是否有亮起"
+
+#. summary
+#: ../units/suspend.pxu:123
+msgid "After suspend, a Monitor works when connected by DVI"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:124
+msgid "Check output to display through DVI port after suspend"
+msgstr "檢查系統自暫停恢復後透過 DVI 視訊連接埠的輸出"
+
+#. steps
+#: ../units/suspend.pxu:126
+msgid ""
+"1. Connect display to DVI port 2. Check the display 3. Suspend the device 4. "
+"Resume the device"
+msgstr ""
+"1. 將外接螢幕連接至 DVI 連接埠 2. 檢查螢幕狀態 3. 讓機器進入暫停狀態 4. 讓其"
+"從暫停狀態中恢復"
+
+#. summary
+#: ../units/suspend.pxu:138
+msgid "After suspend , a Monitor works when connected by HDMI"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:139
+msgid "Check output to display through HDMI port after suspend"
+msgstr "檢查系統自暫停恢復後透過 HDMI 視訊連接埠的輸出"
+
+#. steps
+#: ../units/suspend.pxu:141
+msgid ""
+"1. Connect display to HDMI port 2. Check the display 3. Suspend the device "
+"4. Resume the device"
+msgstr ""
+"1. 將外接螢幕連接至 HDMI 連接埠 2. 檢查螢幕狀態 3. 讓機器進入暫停狀態 4. 讓其"
+"從暫停狀態中恢復"
+
+#. summary
+#: ../units/suspend.pxu:153
+msgid "After suspend, a Monitor works when connected by DVI-to-VGA"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:154
+msgid "Check output to display through VGA adaptor on DVI port after suspend"
+msgstr "檢查系統自暫停恢復後在 DVI 連接埠上透過 VGA 轉接頭的視訊輸出"
+
+#. steps
+#: ../units/suspend.pxu:156
+msgid ""
+"1. Connect display to VGA adaptor on DVI port 2. Check the display 3. "
+"Suspend the device 4. Resume the device"
+msgstr ""
+"1. 將外接螢幕透過 VGA 轉接頭接上 DVI 連接埠 2. 檢查螢幕狀態 3. 讓機器進入暫停"
+"狀態 4. 讓其從暫停狀態中恢復"
+
+#. summary
+#: ../units/suspend.pxu:168
+msgid "After suspend, a Monitor works when connected by HDMI-to-VGA"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:169
+msgid "Check output to display through VGA adaptor on HDMI port after suspend"
+msgstr "檢查系統自暫停恢復後在 HDMI 連接埠上透過 VGA 轉接頭的視訊輸出"
+
+#. steps
+#: ../units/suspend.pxu:171
+msgid ""
+"1. Connect display to VGA adaptor on HDMI port 2. Check the display 3. "
+"Suspend the device 4. Resume the device"
+msgstr ""
+"1. 將外接螢幕透過 VGA 轉接頭接上 HDMI 連接埠 2. 檢查螢幕狀態 3. 讓機器進入暫"
+"停狀態 4. 讓其從暫停狀態中恢復"
+
+#. summary
+#: ../units/suspend.pxu:183
+msgid "After suspend, the serial debugging console is enabled and operational"
+msgstr "系統自暫停恢復後，序列除錯控制中心會被啟用並運作正常。"
+
+#. purpose
+#: ../units/suspend.pxu:184
+msgid ""
+"Check user can still access the test machine through serial port from "
+"another machine"
+msgstr "檢查使用者是否仍舊可以由另一台機器透過序列埠來存取測試機"
+
+#. steps
+#: ../units/suspend.pxu:187
+msgid ""
+"1. Connect USB to db9 null modem adapter cable to serial port of test "
+"machine 2. Connect the cable to USB port of another ubuntu machine (client) "
+"3. Install screen on client (if not done in Prerequisite) 4. Execute "
+"following command on client:\n"
+" sudo screen /dev/ttyUSB0\n"
+"5. Start getty service on test machine:\n"
+" sudo systemctl start getty@[rs232 device, ex. /dev/ttyS0].service\n"
+"6. Log into the test machine from terminal on client 7. Execute following "
+"command in screen on client:\n"
+" sudo systemctl suspend\n"
+"8. Resume the test machine 9. Try to run some commands in terminal on client"
+msgstr ""
+
+#. verification
+#: ../units/suspend.pxu:200
+msgid "Can still run commands in terminal on client after suspend"
+msgstr "系統自暫停恢復後，仍舊能夠從客戶端的終端機上執行指令"
+
+#. summary
+#: ../units/suspend.pxu:207
+msgid "After suspend, USB keyboard works"
+msgstr "系統自暫停恢復後，USB 鍵盤運作正常"
+
+#. purpose
+#: ../units/suspend.pxu:208
+msgid "Check USB input device works after suspend"
+msgstr "檢查 USB 輸入裝置在系統自暫停恢復後是否正常運作"
+
+#. steps
+#: ../units/suspend.pxu:210
+msgid ""
+"1. Connect USB keyboard 2. Input some characters with the USB keyboard 3. "
+"Suspend the device 4. Wake the device 5. Input some characters with the USB "
+"keyboard"
+msgstr ""
+"1. 接上 USB 鍵盤 2. 透過 USB 鍵盤輸入一些文字 3. 讓機器進入暫停狀態 4. 讓其從"
+"暫停狀態中恢復 5. 透過 USB 鍵盤輸入一些文字"
+
+#. verification
+#: ../units/suspend.pxu:216
+msgid "Confirm the characters are displayed correctly"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:223
+msgid "After suspend, USB storage device insertion detected"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:224
+msgid "Check system can detect USB storage when inserted after suspend"
+msgstr ""
+
+#. steps
+#: ../units/suspend.pxu:226
+msgid "1. Press continue 2. Connect USB storage device"
+msgstr ""
+
+#. verification
+#: ../units/suspend.pxu:229
+msgid "Can find new USB storage device messages in /var/log/syslog"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:238
+msgid "After suspend, USB storage device read & write works"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:239
+msgid "Check system can read/write to USB storage correctly after suspend"
+msgstr ""
+
+#. steps
+#: ../units/suspend.pxu:241
+msgid ""
+"1. This task is fully automatic and need USB insertion test was applied "
+"first."
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:252
+msgid "After suspend, USB storage removal works"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:253
+msgid "Check system can detect removal of a USB storage device after suspend"
+msgstr ""
+
+#. steps
+#: ../units/suspend.pxu:255
+msgid "1. Press continue 2. Disconnect USB storage device"
+msgstr ""
+
+#. verification
+#: ../units/suspend.pxu:258
+msgid "Can find USB storage device removed messages in /var/log/syslog"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:267
+msgid "After suspend, USB3 storage device insertion detected"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:268
+msgid ""
+"Check system can detect insertion of a USB3 storage device after suspend"
+msgstr ""
+
+#. steps
+#: ../units/suspend.pxu:270
+msgid "1. Press continue 2. Connect USB3 storage device"
+msgstr ""
+
+#. verification
+#: ../units/suspend.pxu:273
+msgid "Can find new USB3 storage device messages in /var/log/syslog"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:282
+msgid "After suspend, USB3 storage device read & write works"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:283
+msgid ""
+"Check system can read/write to USB3 storage devices correctly after suspend"
+msgstr ""
+
+#. steps
+#: ../units/suspend.pxu:285
+msgid ""
+"1. This task is fully automatic and need USB3 insertion test was applied "
+"first."
+msgstr ""
+
+#. verification
+#: ../units/suspend.pxu:287 ../units/usb.pxu:90
+msgid "This task is fully automatic and will verify the result for you."
+msgstr "此測試為全自動化的並且會自動替您驗證測試結果"
+
+#. summary
+#: ../units/suspend.pxu:296
+msgid "After suspend, USB3 storage removal works"
+msgstr ""
+
+#. purpose
+#: ../units/suspend.pxu:297
+msgid "Check system can detect USB3 storage removal after suspend"
+msgstr ""
+
+#. steps
+#: ../units/suspend.pxu:299
+msgid "1. Press continue 2. Disconnect USB3 storage device"
+msgstr ""
+
+#. verification
+#: ../units/suspend.pxu:302
+msgid "Can find USB3 storage device removed messages in /var/log/syslog"
+msgstr ""
+
+#. summary
+#: ../units/suspend.pxu:311
+msgid "After suspend, System can discover Wi-Fi networks"
+msgstr "系統自暫停恢復後能夠掃描到 Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/suspend.pxu:312
+msgid "Check system can find a wireless network AP nearby after suspend"
+msgstr "檢查系統是否能在暫停恢復後掃描到附近的無線網路基地台"
+
+#. steps
+#: ../units/suspend.pxu:314
+msgid ""
+"1. sudo iw dev mlan0 scan 2. Suspend the device 3. Resume the device 4. sudo "
+"iw dev mlan0 scan"
+msgstr ""
+"1. sudo iw dev mlan0 scan 2. 讓機器進入暫停狀態 3. 讓其從暫停狀態中恢復 4. "
+"sudo iw dev mlan0 scan"
+
+#. verification
+#: ../units/suspend.pxu:319
+msgid "In step 4, can see nearby wireless network AP"
+msgstr "在步驟 4 中應該要能夠看到附近的無線網路基地台"
+
+#. summary
+#: ../units/suspend.pxu:326
+msgid "After suspend, system can connect to unencrypted 802.11ac Wi-Fi network"
+msgstr "系統自暫停恢復後，系統能夠連線至未加密的 802.11ac Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/suspend.pxu:327
+msgid "Check system can connect to insecure 802.11ac AP after suspend"
+msgstr "檢查系統是否能在由暫停恢復後連線至不安全的 802.11ac 無線網路基地台"
+
+#. summary
+#: ../units/suspend.pxu:343
+msgid ""
+"After suspend, system can connect to unencrypted 802.11b/g Wi-Fi network"
+msgstr "系統自暫停恢復後，系統能夠連線至未加密的 802.11ac Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/suspend.pxu:344
+msgid "Check system can connect to insecure 802.11b/g AP after suspend"
+msgstr "檢查系統是否能在由暫停恢復後連線至不安全的802.11b/g 無線網路基地台"
+
+#. summary
+#: ../units/suspend.pxu:360
+msgid "After suspend, system can connect to unencrypted 802.11n Wi-Fi network"
+msgstr "系統自暫停恢復後，系統能夠連線至未加密的 802.11n Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/suspend.pxu:361
+msgid "Check system can connect to insecure 802.11n AP after suspend"
+msgstr "檢查系統是否能在由暫停恢復後連線至不安全的 802.11n 無線網路基地台"
+
+#. summary
+#: ../units/suspend.pxu:377
+msgid ""
+"After suspend, system can connect to WPA-encrypted 802.11ac Wi-Fi network"
+msgstr "系統自暫停恢復後，系統能夠連線至 WPA 加密的 802.11ac Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/suspend.pxu:378
+msgid "Check system can connect to 802.11ac AP with wpa security after suspend"
+msgstr ""
+"檢查系統是否能在由暫停恢復後連線至有 WPA 安全性的 802.11ac 無線網路基地台"
+
+#. summary
+#: ../units/suspend.pxu:394
+msgid ""
+"After suspend, system can connect to WPA-encrypted 802.11b/g Wi-Fi network"
+msgstr "系統自暫停恢復後，系統能夠連線至 WPA 加密的 802.11b/g Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/suspend.pxu:395
+msgid ""
+"Check system can connect to 802.11b/g AP with wpa security after suspend"
+msgstr ""
+"檢查系統是否能在由暫停恢復後連線至有 WPA 安全性的 802.11b/g 無線網路基地台"
+
+#. summary
+#: ../units/suspend.pxu:411
+msgid ""
+"After suspend, system can connect to WPA-encrypted 802.11n Wi-Fi network"
+msgstr "系統自暫停恢復後，系統能夠連線至 WPA 加密的 802.11n Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/suspend.pxu:412
+msgid "Check system can connect to 802.11n AP with wpa security after suspend"
+msgstr ""
+"檢查系統是否能在由暫停恢復後連線至有 WPA 安全性的 802.11n 無線網路基地台"
+
+#. steps
+#: ../units/suspend.pxu:414 ../units/wireless.pxu:125
+msgid ""
+"1. Remove all wireless configuration in /etc/network/interfaces and /etc/"
+"network/interfaces.d 2. Commence the test"
+msgstr ""
+"1. 移除位在 /etc/network/interfaces 與 /etc/network/interfaces.d 下的無線網路"
+"設定 2. 進行測試"
+
+#. verification
+#: ../units/suspend.pxu:417 ../units/wireless.pxu:128
+msgid ""
+"If there's \"Connection test passed\" message in result, mark the test as "
+"passed."
+msgstr ""
+"如果在測試結果中有看到 \"Connection test passed\" 的訊息，請將此測試標記為測"
+"試通過。"
+
+#. name
+#: ../units/test-plan.pxu:9
+msgid "QA tests for Snappy Ubuntu Core devices"
+msgstr ""
+
+#. description
+#: ../units/test-plan.pxu:10
+msgid ""
+"QA test plan that includes all generic, reusable tests for Snappy Ubuntu "
+"Core devices."
+msgstr ""
+
+#. name
+#: ../units/usb.pxu:3
+msgid "USB 2.0"
+msgstr "USB 2.0"
+
+#. name
+#: ../units/usb.pxu:7
+msgid "USB 3.0"
+msgstr "USB 3.0"
+
+#. summary
+#: ../units/usb.pxu:11
+msgid "USB keyboard works"
+msgstr "USB 鍵盤運作正常"
+
+#. purpose
+#: ../units/usb.pxu:12
+msgid "Check USB input device works"
+msgstr "檢查 USB 輸入裝置運作是否正常"
+
+#. steps
+#: ../units/usb.pxu:14
+msgid "1. Connect USB keyboard 2. Input somethings with USB keyboard"
+msgstr "1. 接上 USB 鍵盤 2. 用該 USB 鍵盤輸入一些文字"
+
+#. verification
+#: ../units/usb.pxu:17
+msgid "What just input is displayed correctly"
+msgstr ""
+
+#. summary
+#: ../units/usb.pxu:24
+msgid "USB 2.0 storage device insertion detected"
+msgstr "偵測到 USB 2.0 儲存裝置的插入"
+
+#. purpose
+#: ../units/usb.pxu:25
+msgid "Check system can detect USB 2.0 storage when inserted"
+msgstr "檢查系統是否能偵測到 USB 2.0 儲存裝置的插入"
+
+#. steps
+#: ../units/usb.pxu:27
+msgid "1. Press continue 2. Connect USB 2.0 storage device"
+msgstr "1. 按下以繼續 2. 插入 USB 2.0 儲存裝置"
+
+#. verification
+#: ../units/usb.pxu:30
+msgid "Can find new USB 2.0 storage device messages in /var/log/syslog"
+msgstr "可於 /var/log/syslog 中發現 USB 2.0 儲存裝置的新訊息"
+
+#. summary
+#: ../units/usb.pxu:39
+msgid "USB 2.0 storage device read & write works"
+msgstr "USB 2.0 儲存裝置讀寫運作正常"
+
+#. purpose
+#: ../units/usb.pxu:40
+msgid "Check system can read/write to USB 2.0 storage correctly"
+msgstr "檢查系統是否能夠正常讀寫 USB 2.0 儲存裝置"
+
+#. steps
+#: ../units/usb.pxu:42
+msgid ""
+"1. This task is fully automatic and need USB 2.0 insertion test was applied "
+"first."
+msgstr "1. 本測試是全自動的並且需要事先啟動 USB 2.0 插入測試"
+
+#. summary
+#: ../units/usb.pxu:54
+msgid "USB 2.0 storage device removal detected"
+msgstr "偵測到 USB 2.0 儲存裝置被移除"
+
+#. purpose
+#: ../units/usb.pxu:55
+msgid "Check system can detect removal of a USB 2.0 storage device"
+msgstr "檢查系統是否可以偵測到 USB 2.0 儲存裝置被移除"
+
+#. steps
+#: ../units/usb.pxu:57
+msgid "1. Press continue 2. Disconnect USB 2.0 storage device"
+msgstr "1. 按下以繼續 2. 拔除 USB 2.0 儲存裝置"
+
+#. verification
+#: ../units/usb.pxu:60
+msgid "Can find USB 2.0 storage device removed messages in /var/log/syslog"
+msgstr "可於 /var/log/syslog 中發現 USB 2.0 儲存裝置被移除的訊息"
+
+#. summary
+#: ../units/usb.pxu:70
+msgid "USB 3.0 storage device insertion detected"
+msgstr "偵測到 USB 3.0 儲存裝置的插入"
+
+#. purpose
+#: ../units/usb.pxu:71
+msgid "Check system can detect insertion of a USB 3.0 storage device"
+msgstr "檢查系統是否能偵測到 USB 3.0 儲存裝置的插入"
+
+#. steps
+#: ../units/usb.pxu:73
+msgid "1. Press continue 2. Connect USB 3.0 storage device"
+msgstr "1. 按下以繼續 2. 插入 USB 3.0 儲存裝置"
+
+#. verification
+#: ../units/usb.pxu:76
+msgid "Can find new USB 3.0 storage device messages in /var/log/syslog"
+msgstr "可於 /var/log/syslog 中發現 USB 3.0 儲存裝置的新訊息"
+
+#. summary
+#: ../units/usb.pxu:85
+msgid "USB 3.0 storage device read & write works"
+msgstr "USB 3.0 儲存裝置讀寫是否運作正常"
+
+#. purpose
+#: ../units/usb.pxu:86
+msgid "Check system can read/write to USB 3.0 storage devices correctly"
+msgstr "檢查系統是否能夠正常讀寫 USB 3.0 儲存裝置"
+
+#. steps
+#: ../units/usb.pxu:88
+msgid ""
+"1. This task is fully automatic and need USB 3.0 insertion test was applied "
+"first."
+msgstr "1. 本測試是全自動的並且需要事先啟動 USB 3.0 插入測試"
+
+#. summary
+#: ../units/usb.pxu:100
+msgid "USB 3.0 storage device removal detected"
+msgstr "偵測到 USB 3.0 儲存裝置被移除"
+
+#. purpose
+#: ../units/usb.pxu:101
+msgid "Check system can detect removal of a USB 3.0 storage device"
+msgstr "檢查系統是否可以偵測到 USB 3.0 儲存裝置被移除"
+
+#. steps
+#: ../units/usb.pxu:103
+msgid "1. Press continue 2. Disconnect USB 3.0 storage device"
+msgstr "1. 按下以繼續 2. 拔除 USB 3.0 儲存裝置"
+
+#. verification
+#: ../units/usb.pxu:106
+msgid "Can find USB 3.0 storage device removed messages in /var/log/syslog"
+msgstr "可於 /var/log/syslog 中發現 USB 3.0 儲存裝置被移除的訊息"
+
+#. summary
+#: ../units/usb.pxu:121
+msgid "Attach output of lsusb"
+msgstr ""
+
+#. description
+#: ../units/usb.pxu:122
+msgid "Attaches a list of detected USB devices."
+msgstr ""
+
+#. summary
+#: ../units/watchdog.pxu:2
+msgid "Load watchdog kernel module when boot"
+msgstr "於開機時載入 watchdog 核心模組"
+
+#. purpose
+#: ../units/watchdog.pxu:3
+msgid "Verify watchdog kernel module is loaded when boot"
+msgstr "檢查 watchdog 核心模組於開機時有被載入"
+
+#. steps
+#: ../units/watchdog.pxu:4
+msgid ""
+"1. Make sure you didn't load watchdog kernel module manually after boot, if "
+"you did, reboot the system and then run this test. 2. Commence the test"
+msgstr ""
+"1. 確定您沒有在開機後手動載入 watchdog 核心模組，或有的話請重新開機再執行本測"
+"試 2. 進行測試"
+
+#. summary
+#: ../units/watchdog.pxu:19
+msgid "Verify watchdog daemon is started during boot"
+msgstr "檢查 watchdog 常駐程式在開機時是否有啟動"
+
+#. description
+#: ../units/watchdog.pxu:20
+msgid ""
+"The watchdog deamon should be started by the init process during boot to "
+"ensure the system resets in extreme circumstances."
+msgstr ""
+"Watchdog 系統服務會被 init 程序在開機時啟動以確保系統可在極端的狀況下重置。"
+
+#. summary
+#: ../units/watchdog.pxu:32
+msgid ""
+"Verify the watchdog keepalive daemon is up once watchdog daemon is killed"
+msgstr "檢查 watchdog keepalive 常駐程式在 watchdog 常駐程式中止時是否會啟動"
+
+#. description
+#: ../units/watchdog.pxu:33
+msgid ""
+"If the system is in a responsive state the keepalive daemon will provide "
+"time for a the init process to do a managed reboot rather than allowing a "
+"hard reset to occur."
+msgstr ""
+"如果系統還在一個有反應的狀態，keepalive 系統服務會提供時間給初始化進程來進行"
+"受控制的重新開機而不是直接強制重啟。"
+
+#. summary
+#: ../units/watchdog.pxu:47
+msgid "Test that the watchdog module can trigger a system reset"
+msgstr "檢查 watchdog 模組是否可以觸發系統重置"
+
+#. purpose
+#: ../units/watchdog.pxu:48
+msgid ""
+"The watchdog module should be capable of issuing a hard reset of the SUT."
+msgstr "watchdog 模組應該要能夠讓待測機器強制重開機"
+
+#. steps
+#: ../units/watchdog.pxu:50
+msgid ""
+"1. Commence the test to kill (SIGKILL) the watchdog daemon. 2. Once the "
+"watchdog timeout has expired the SUT should reset itself. 3. The board will "
+"reboot and the user should resume the test session."
+msgstr ""
+"1. 進行測試來殺掉 (SIGKILL) watchdog 常駐程式。 2. 當 watchdog 逾時後待測機器"
+"應該會被強制重開機。 3. 機器將會重開而且使用者應該可以恢復測試作業。"
+
+#. verification
+#: ../units/watchdog.pxu:54
+msgid "Did the board reset itself?"
+msgstr "板子有重新啟動嗎？"
+
+#. name
+#: ../units/wireless.pxu:3
+msgid "Wi-Fi"
+msgstr "Wi-Fi"
+
+#. summary
+#: ../units/wireless.pxu:9
+msgid "Resource job to identify Wi-Fi devices"
+msgstr "判斷 Wi-Fi 設備的 resource job"
+
+#. description
+#: ../units/wireless.pxu:10
+msgid "Job to scan for the presence of Wi-Fi network adapters which"
+msgstr ""
+
+#. description
+#: ../units/wireless.pxu:10
+msgid "should then have the following collection of tests run against them."
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:17
+msgid "System can discover Wi-Fi networks"
+msgstr "系統能夠掃描到 Wi-Fi 無線網路"
+
+#. description
+#: ../units/wireless.pxu:32
+msgid "Check system can find a wireless network AP nearby"
+msgstr "檢查系統是否能掃描到附近的無線網路基地台"
+
+#. summary
+#: ../units/wireless.pxu:139
+msgid "System can connect to unencrypted 802.11ac Wi-Fi network"
+msgstr "系統能夠連線至未加密的 802.11ac Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/wireless.pxu:140
+msgid "Check system can connect to insecure 802.11ac AP"
+msgstr "檢查系統是否能夠連線至不安全的 802.11ac 無線網路基地台"
+
+#. summary
+#: ../units/wireless.pxu:161
+msgid "System can connect to unencrypted 802.11b/g Wi-Fi network"
+msgstr "系統能夠連線至未加密的 802.11b/g Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/wireless.pxu:162
+msgid "Check system can connect to insecure 802.11b/g AP"
+msgstr "檢查系統是否能夠連線至不安全的802.11b/g 無線網路基地台"
+
+#. summary
+#: ../units/wireless.pxu:183
+msgid "System can connect to unencrypted 802.11n Wi-Fi network"
+msgstr "系統能夠連線至未加密的 802.11n Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/wireless.pxu:184
+msgid "Check system can connect to insecure 802.11n AP"
+msgstr "檢查系統是否能夠連線至不安全的 802.11n 無線網路基地台"
+
+#. summary
+#: ../units/wireless.pxu:205
+msgid "System can connect to WPA-encrypted 802.11ac Wi-Fi network"
+msgstr "系統能夠連線至 WPA 加密的 802.11ac Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/wireless.pxu:206
+msgid "Check system can connect to 802.11ac AP with wpa security"
+msgstr "檢查系統是否能夠連線至有 WPA 安全性的 802.11ac 無線網路基地台"
+
+#. summary
+#: ../units/wireless.pxu:227
+msgid "System can connect to WPA-encrypted 802.11b/g Wi-Fi network"
+msgstr "系統能夠連線至 WPA 加密的 802.11b/g Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/wireless.pxu:228
+msgid "Check system can connect to 802.11b/g AP with wpa security"
+msgstr "檢查系統是否能夠連線至有 WPA 安全性的 802.11b/g 無線網路基地台"
+
+#. summary
+#: ../units/wireless.pxu:249
+msgid "System can connect to WPA-encrypted 802.11n Wi-Fi network"
+msgstr "系統能夠連線至 WPA 加密的 802.11n Wi-Fi 無線網路"
+
+#. purpose
+#: ../units/wireless.pxu:250
+msgid "Check system can connect to 802.11n AP with wpa security"
+msgstr "檢查系統是否能夠連線至有 WPA 安全性的 802.11n 無線網路基地台"
+
+#. summary
+#: ../units/wireless.pxu:272
+msgid "System can act as an 802.11a Wi-Fi Access Point"
+msgstr "系統可以作為 802.11a Wi-Fi 無線網路基地台"
+
+#. purpose
+#: ../units/wireless.pxu:280
+msgid " Check that the system can create an 802.11a Access Point"
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:292
+msgid "System can act as an 802.11b Wi-Fi Access Point"
+msgstr "系統可以作為 802.11b Wi-Fi 無線網路基地台"
+
+#. purpose
+#: ../units/wireless.pxu:300
+msgid " Check that the system can create an 802.11b Access Point"
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:312
+msgid "System can act as an 802.11g Wi-Fi Access Point"
+msgstr "系統是否可以作為 802.11g Wi-Fi 無線網路基地台"
+
+#. purpose
+#: ../units/wireless.pxu:320
+msgid " Check that the system can create an 802.11g Access Point"
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:332
+msgid "System can act as an 802.11ad Wi-Fi Access Point"
+msgstr "系統是否可以作為 802.11ad Wi-Fi 無線網路基地台"
+
+#. purpose
+#: ../units/wireless.pxu:340
+msgid " Check that the system can create an 802.11ad Access Point"
+msgstr ""
+
+#. steps
+#: ../units/wireless.pxu:342
+msgid ""
+" 1. Using a suitable Wi-Fi client try to detect the presence of the AP\n"
+"  called \"UbuntuCoreTest\"\n"
+" 2. Attempt to connect to the AP using password \"snappyubuntucore\""
+msgstr ""
+
+#. verification
+#: ../units/wireless.pxu:346
+msgid " Did the client connect?"
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:353
+msgid "System can act as an 802.11a Wi-Fi Access Point (automated test)"
+msgstr "系統是否可以作為 802.11a Wi-Fi 無線網路基地台 (自動化測試)"
+
+#. purpose
+#: ../units/wireless.pxu:361
+msgid ""
+" Check that the system can create an 802.11a Access Point (automated test)"
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:367
+msgid "System can act as an 802.11b Wi-Fi Access Point (automated test)"
+msgstr "系統是否可以作為 802.11b Wi-Fi 無線網路基地台 (自動化測試)"
+
+#. purpose
+#: ../units/wireless.pxu:375
+msgid ""
+" Check that the system can create an 802.11b Access Point (automated test)"
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:381
+msgid "System can act as an 802.11g Wi-Fi Access Point (automated test)"
+msgstr "系統是否可以作為 802.11g Wi-Fi 無線網路基地台 (自動化測試)"
+
+#. purpose
+#: ../units/wireless.pxu:389
+msgid ""
+" Check that the system can create an 802.11g Access Point (automated test)"
+msgstr ""
+
+#. summary
+#: ../units/wireless.pxu:395
+msgid "System can act as an 802.11ad Wi-Fi Access Point (automated test)"
+msgstr "系統是否可以作為 802.11ad Wi-Fi 無線網路基地台 (自動化測試)"
+
+#. purpose
+#: ../units/wireless.pxu:403
+msgid ""
+" Check that the system can create an 802.11ad Access Point (automated test)"
+msgstr ""
+
+# 可信賴平台模組 http://windows.microsoft.com/zh-tw/windows-vista/what-is-the-trusted-platform-module-security-hardware
+#. name
+#: ../units/tpm/category.pxu:9
+msgid "TPM (Trusted Platform Module)"
+msgstr "TPM (可信賴平台模組)"
+
+#. name
+#: ../units/tpm/manifest.pxu:9
+msgid "TPM chip"
+msgstr "TPM 晶片"
+
+#. summary
+#: ../units/tpm/sysfs.pxu:11
+msgid "Count the number of visible TPM chips in sysfs"
+msgstr "計算在 sysfs 裡面顯示的 TPM 晶片組數量"
+
+#. description
+#: ../units/tpm/sysfs.pxu:12
+msgid ""
+"This job just counts the number of visible TPM chips in as reported by tpm-"
+"sysfs-resource tool. The only resource attribute is 'count'"
+msgstr ""
+"本測試項目只會統計根據  tpm-sysfs-resource 工具所回報顯示的 TPM 晶片組數量。 "
+"這裡的 resource 屬性只有 'count'"
+
+#. summary
+#: ../units/tpm/sysfs.pxu:23
+msgid "Collect TPM information from sysfs"
+msgstr "從 sysfs 中收集 TPM 資訊"
+
+#. description
+#: ../units/tpm/sysfs.pxu:24
+msgid ""
+"This job collects all the available TPM information from /sys/class/tpm/*/"
+"device/*."
+msgstr "本測試將會從 /sys/class/tpm/*/device/* 中收集可用的 TPM 資訊。"
+
+#. summary
+#: ../units/tpm/sysfs.pxu:41
+msgid "Collect TPM information from sysfs (after taking ownership)"
+msgstr "從 sysfs 收集 TPM 資訊 (取得控制權後)"
+
+#. summary
+#: ../units/tpm/sysfs.pxu:58
+msgid "Collect TPM information from sysfs (after clearing ownership)"
+msgstr "從 sysfs 收集 TPM 資訊 (清除控制權後)"
+
+#. description
+#: ../units/tpm/sysfs.pxu:59
+msgid ""
+"This job collects all the available TPM information from /sys/class/tpm/*/"
+"device/*. Distinct files present there are converted to attributes of "
+"resource records."
+msgstr ""
+"本測試收集所有來自於 /sys/class/tpm/*/device/* 可用的 TPM 資訊。位於該處的檔"
+"案會被轉換成 resource 紀錄的屬性 。"
+
+#. summary
+#: ../units/tpm/sysfs.pxu:74
+msgid "Collect DMI information from sysfs"
+msgstr "從 sysfs 收集 DMI 資訊"
+
+#. description
+#: ../units/tpm/sysfs.pxu:75
+msgid ""
+"This job collects all the available DMI information from /sys/class/dmi/id/"
+"*. The main purpose of including this job is to allow the provider to "
+"include vendor-specific quirks by looking at the sysfs_dmi.bios_vendor "
+"attribute."
+msgstr ""
+"本測試從 /sys/class/dmi/id/* 收集所有可用的 DMI 資訊。其主要的目的是允許 "
+"provider 透過檢查 sysfs_dmi.bios_vendor 屬性來包含廠商針對性的 quirks 。"
+
+#. name
+#: ../units/tpm/test-plan.pxu:9
+msgid "TPM (Trusted Platform Module) Smoke Tests"
+msgstr ""
+
+#. description
+#: ../units/tpm/test-plan.pxu:10
+msgid ""
+"This test plan contains simple tests for the TPM chip. The tests will ensure "
+"that the TPM chip is present, is visible by the OS and that ownership over "
+"the chip can be taken."
+msgstr ""
+"這個測試計畫包含一些針對 TPM 晶片簡單的測試。這些測試會確保 TPM 晶片有出現、"
+"能夠被系統看見而且晶片的控制權是能夠被取得的。"
+
+#. description
+#: ../units/tpm/test-plan.pxu:10
+msgid "After testing, a number of logs are collected for additional analysis."
+msgstr "測試後，一些紀錄檔會被收集起來做額外的分析。"
+
+#. name
+#: ../units/tpm/test-plan.pxu:43
+msgid "Collect TPM (Trusted Platform Module) Information"
+msgstr "收集 TPM (可信賴平台模組) 的相關資訊"
+
+#. description
+#: ../units/tpm/test-plan.pxu:44
+msgid ""
+"This test plan contains a selection of jobs that collect various bits of "
+"information about a TPM chip. They are designed to run with an owned TPM "
+"chip that uses well-known (20 zero bytes) owner key."
+msgstr ""
+"這個測試計畫包含數個會收集關於 TPM 晶片各種資訊的測試項目。這些測試被設計來在"
+"已取得控制權並採用眾所周知的控制者金鑰 (20 個位元組的0) 的 TPM 晶片上執行。"
+
+#. description
+#: ../units/tpm/test-plan.pxu:44
+msgid ""
+"This test plan is not interactive, apart from the manifest collection step."
+msgstr "本測試計畫除了收集 manifest 的步驟之外，皆為非互動式的測試。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:10
+msgid "Use BIOS to activate a disabled TPM chip"
+msgstr "透過 BIOS 來啟用一個已停用的 TPM 晶片"
+
+#. summary
+#: ../units/tpm/tpm.pxu:43
+msgid "Use BIOS to activate an inactive TPM chip"
+msgstr "透過 BIOS 來啟用一個非運作中的 TPM 晶片"
+
+#. purpose
+#: ../units/tpm/tpm.pxu:44
+msgid "This job will reconfigure the TPM chip to be in the Active state."
+msgstr "本測試將會把 TPM 晶片狀態重置為 Active。"
+
+#. steps
+#: ../units/tpm/tpm.pxu:46
+msgid ""
+" - Commence the test to restart the machine\n"
+" - Enter BIOS using machine-specific hot-key (typically F1, F2, or delete)\n"
+" - Navigate to TPM menu, the precise location may depend on your BIOS "
+"version\n"
+"   and the make and model of your DUT. On some models it is under the\n"
+"   following menu: Security / Security Chip.\n"
+" - Change the current setting to Active\n"
+" - Save BIOS settings\n"
+" - Power the machine off (NOTE: a reboot may not be sufficient)\n"
+" - Power the machine back on again\n"
+" - Let the machine boot\n"
+" - Restart the testing application"
+msgstr ""
+" - 進行測試來重新啟動機器\n"
+" - 透過特定的熱鍵進入 BIOS (一般是 F1、F2 或 delete)\n"
+" - 切換至 TPM 選單，確切的位置會因為您待測機器的製造商或 BIOS 版本而不同。\n"
+"   在某些機器上它會位在下列選單中：Security / Security Chip\n"
+" - 將目前的設定改為 Active\n"
+" - 儲存 BIOS 設定\n"
+" - 將機器關機 (註：重開機可能不足以完成此測試)\n"
+" - 將機器開機\n"
+" - 讓機器進行開機程序\n"
+" - 重新啟動測試程式"
+
+#. summary
+#: ../units/tpm/tpm.pxu:76
+msgid "Clear ownership of the TPM chip"
+msgstr "清除 TPM 晶片的控制權"
+
+#. purpose
+#: ../units/tpm/tpm.pxu:77
+msgid ""
+"This job tries to automatically clear the ownership of an owned TPM chip. It "
+"uses well-known owner secret (20 bytes of zeros)."
+msgstr ""
+"本測試項目將會自動對一個已取得控制權的 TPM 晶片來嘗試清除控制權。將會使用一組"
+"最常見的密碼 (20 個位元組的0)。"
+
+#. purpose
+#: ../units/tpm/tpm.pxu:77
+msgid ""
+"NOTE: The actual TPM chip will be cleared after the machine reboots.  After "
+"reboot the TPM will be in the default state: unowned, disabled and inactive. "
+"Subsequent jobs will instruct test operator to enter BIOS and re-enable the "
+"chip."
+msgstr ""
+"注意：實際上 TPM 晶片在重開機器之後會被清空。重啟後 TPM 會變成預設的狀態：未"
+"設定控制權、未啟用然後沒有在運作。接下來的測試會指示測試人員進到 BIOS 並重新"
+"啟用晶片。"
+
+#. steps
+#: ../units/tpm/tpm.pxu:85
+msgid "INSTRUCTIONS FOR CLEARING THE TPM CHIP:"
+msgstr "清除 TPM 晶片設定的說明："
+
+#. steps
+#: ../units/tpm/tpm.pxu:85
+msgid ""
+" - Commence the test to reboot the machine\n"
+" - Let the machine boot\n"
+" - Restart the testing application"
+msgstr ""
+" - 進行測試來重新啟動機器\n"
+" - 讓機器開機\n"
+" - 重新啟動測試程式"
+
+#. summary
+#: ../units/tpm/tpm.pxu:101
+msgid "Re-enable TPM chip in BIOS (after clearing ownership)"
+msgstr "在 BIOS 裡面重新啟用 TPM 晶片(在清除控制權後)"
+
+#. purpose
+#: ../units/tpm/tpm.pxu:102
+msgid ""
+"This job will re-enable the TPM chip in the BIOS after having cleared the "
+"ownership."
+msgstr "本測試項目會在清除控制權之後重新在 BIOS 裡啟用 TPM 晶片。"
+
+#. steps
+#: ../units/tpm/tpm.pxu:104
+msgid ""
+"To enable the TPM chip in the BIOS, write down the following instructions "
+"and exit the testing application."
+msgstr "針對啟用 BIOS 裡的 TPM 晶片，請紀錄下列的說明並結束這個測試軟體。"
+
+#. steps
+#: ../units/tpm/tpm.pxu:104
+msgid "INSTRUCTIONS FOR ENABLING THE TPM CHIP:"
+msgstr "啟用 TPM 晶片的說明："
+
+#. steps
+#: ../units/tpm/tpm.pxu:104
+msgid ""
+" - Commence the test to restart the machine\n"
+" - Enter BIOS using machine-specific hot-key (typically F1, F2, or delete)\n"
+" - Navigate to TPM menu, the precise location may depend on your BIOS "
+"version\n"
+"   and the make and model of your DUT. On some models it is under the\n"
+"   following menu: Security / Security Chip.\n"
+" - Change the current setting to Active. If it is already in the active "
+"state\n"
+"   then set it to Disabled and then back to Active. This might be a bug in "
+"the BIOS.\n"
+" - Save BIOS settings\n"
+" - Power the machine off (NOTE: a reboot may not be sufficient)\n"
+" - Power the machine back on again\n"
+" - Let the machine boot\n"
+" - Restart the testing application"
+msgstr ""
+" - 進行測試來重新啟動機器\n"
+" - 透過特定的熱鍵進入 BIOS (通常是 F1、F2 或 delete)\n"
+" - 切換至 TPM 選單，確切的位置會因為您待測機器的製造商或 BIOS 版本而不同。\n"
+"   在某些機器上它會位在下列選單中：Security / Security Chip.\n"
+" - 將目前的設定改為 Active。若它已經是 Active 的狀態的話，\n"
+"   請將它設定成 Disabled 然後再切換回 Active。這可能是 BIOS 中的臭蟲\n"
+" - 儲存 BIOS 設定\n"
+" - 將機器關機 (註：重開機可能不足以完成此測試)\n"
+" - 將機器開機\n"
+" - 讓機器進行開機程序\n"
+" - 重新啟動測試程式"
+
+#. summary
+#: ../units/tpm/tpm.pxu:132
+msgid "Take ownership of the TPM chip"
+msgstr "取得 TPM 晶片的控制權"
+
+#. description
+#: ../units/tpm/tpm.pxu:133
+msgid ""
+"This job tries to automatically take the ownership of an unowned TPM chip. "
+"It uses well-known owner and SRK secretes (20 bytes of zeros)."
+msgstr ""
+"本測試項目將會自動對一個尚未設定控制權的 TPM 晶片嘗試來取得控制權。將會使用一"
+"組最常見的密碼 (20 個位元組的0)。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:147
+msgid "Collect the output of tpm_version"
+msgstr "收集 tpm_version 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:148
+msgid ""
+"This job collects the output of \"tpm_version\" for inspection by a "
+"Certification engineer."
+msgstr "本測試將會收集 \"tpm_version\" 的輸出，以供認證工程師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:159
+msgid "Collect the output of tpm_selftest"
+msgstr "收集 tpm_selftest 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:160
+msgid ""
+"This job collects the output of \"tpm_selftest\" for inspection by the "
+"Certification engineer."
+msgstr "本測試將會收集 \"tpm_selftest\" 的輸出，以供認證工程師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:171
+msgid "Collect the output of tpm_setactive --status --well-known"
+msgstr "收集 tpm_setactive --status --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:172
+msgid ""
+"This simply collects the output of \"tpm_setactive --status --well-known\" "
+"for inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_setactive --status --well-known\" 的輸出，以供認證工程師"
+"查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:183
+msgid "Collect the output of tpm_nvinfo"
+msgstr "收集 tpm_nvinfo 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:184
+msgid ""
+"This simply collects the output of \"tpm_nvinfo\" for inspection by a "
+"Certification engineer."
+msgstr "本測試將會收集 \"tpm_nvinfo\" 的輸出，以供認證工程師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:194
+msgid "Collect the output of tpm_restrictpubek --status --well-known"
+msgstr "收集 tpm_restrictpubek --status --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:195
+msgid ""
+"This simply collects the output of \"tpm_restrictpubek --status --well-known"
+"\" for inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_restrictpubek --status --well-known\" 的輸出，以供認證工"
+"程師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:205
+msgid "Collect the output of tpm_restrictsrk --status --well-known"
+msgstr "收集 tpm_restrictsrk --status --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:206
+msgid ""
+"This simply collects the output of \"tpm_restrictsrk --status --well-known\" "
+"for inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_restrictsrk --status --well-known\" 的輸出，以供認證工程"
+"師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:216
+msgid "Collect the output of tpm_setclearable--status --well-known"
+msgstr "收集 tpm_setclearable--status --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:217
+msgid ""
+"This simply collects the output of \"tpm_setclearable --status --well-known"
+"\" for inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_setclearable --status --well-known\" 的輸出，以供認證工"
+"程師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:227
+msgid "Collect the output of tpm_setenable --status --well-known"
+msgstr "收集 tpm_setenable --status --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:228
+msgid ""
+"This simply collects the output of \"tpm_setenable --status --well-known\" "
+"for inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_setenable --status --well-known\" 的輸出，以供認證工程師"
+"查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:238
+msgid "Collect the output of tpm_setownable --status --well-known"
+msgstr "收集 tpm_setownable --status --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:239
+msgid ""
+"This simply collects the output of \"tpm_setownable --status --well-known\" "
+"for inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_setownable --status --well-known\" 的輸出，以供認證工程"
+"師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:249
+msgid "Collect the output of tpm_setpresence --status --well-known"
+msgstr "收集 tpm_setpresence --status --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:250
+msgid ""
+"This simply collects the output of \"tpm_setpresence --status --well-known\" "
+"for inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_setpresence --status --well-known\" 的輸出，以供認證工程"
+"師查閱。"
+
+#. summary
+#: ../units/tpm/tpm.pxu:260
+msgid "Collect the output of tpm_getpubek --well-known"
+msgstr "收集 tpm_getpubek --well-known 的輸出"
+
+#. description
+#: ../units/tpm/tpm.pxu:261
+msgid ""
+"This simply collects the output of \"tpm_getpubek --well-known\" for "
+"inspection by a Certification engineer."
+msgstr ""
+"本測試將會收集 \"tpm_getpubek --well-known\" 的輸出，以供認證工程師查閱。"
+
+#. name
+#: ../units/wwan/category.pxu:3
+msgid "Wireless Wide Area Network"
+msgstr "無線廣域網路"
+
+#. summary
+#: ../units/wwan/jobs.pxu:11
+msgid "Identify if WWAN module is missing"
+msgstr "檢查 WWAN 模組是否不存在"
+
+#. purpose
+#: ../units/wwan/jobs.pxu:12
+msgid ""
+"Tests that there is a WWAN module present and indicates that testing of it "
+"should follow."
+msgstr "檢查 WWAN 模組是否存在，並以此判斷是否要進行後續測試"
+
+#. summary
+#: ../units/wwan/jobs.pxu:31
+msgid "Verify a GSM broadband modem can create a data connection"
+msgstr "檢查 GSM 無線寬頻網路數據機是否能建立資料連線"
+
+#. description
+#: ../units/wwan/jobs.pxu:32
+msgid ""
+"Any modems discovered by the resource job that list GSM support will be "
+"tested to ensure a data connection can be made."
+msgstr ""
+"任何被 Resource Job 偵測到並列有支援 GSM 的數據機都會被測試來確定可以建立資料"
+"連線。"
+
+#. name
+#: ../units/wwan/manifest.pxu:9
+msgid "WWAN module"
+msgstr "WWAN 模組"
+
+#. description
+#: ../units/wwan/resource.pxu:13
+msgid "Gather device info about WWAN modems"
+msgstr "收集關於 WWAN 數據機的裝置資訊"
+
+#~ msgid "Plainbox Provider for QA of devices in the Plano project"
+#~ msgstr "針對 Plano 專案 QA 設備測試的 Plainbox Provider 。"
+
+#~ msgid "UEFI (Unified Extensible Firmware Interface)"
+#~ msgstr "UEFI (統一可延伸韌體介面)"
+
+#~ msgid "Software (not hardware related)"
+#~ msgstr "軟體 (與硬體無關)"
+
+#~ msgid "Bootstrap (preparation for testing)"
+#~ msgstr "初始化程式 (準備測試)"
+
+#~ msgid "General Purpose I/O"
+#~ msgstr "通用型之輸入輸出"
+
+#~ msgid "System for factory process"
+#~ msgstr "Factory Process 專用系統"
+
+#~ msgid "System recovery"
+#~ msgstr "系統還原"
+
+#~ msgid "Installation (via live USB)"
+#~ msgstr "安裝 (透過 Live USB)"
+
+#~ msgid "Can boot into Snappy Ubuntu Core system after installation"
+#~ msgstr "於安裝後是否能開機進入 Snappy Ubuntu Core 系統"
+
+#~ msgid "Installation (via live USB) for factory mode"
+#~ msgstr "安裝 (透過 Live USB)"
+
+#~ msgid ""
+#~ "This will test if image can be installed successfully by dd in a live "
+#~ "system"
+#~ msgstr "本測試將會檢查是否能在 Live System 中透過 dd 指令來安裝映像檔"
+
+#~ msgid ""
+#~ "1. Follow the installation guide in release note to install the image"
+#~ msgstr "1. 依照發行說明中的安裝步驟來安裝映像檔"
+
+#~ msgid ""
+#~ "1. After reboot from live system, there are \"Factory Mode\" and\n"
+#~ "   \"Factory Restore\" in grub menu, and default is \"Factory Mode\"\n"
+#~ "2. System boot into Factory Mode successfully"
+#~ msgstr ""
+#~ "1. 自 Live System 重新開機後，在 grub 選單中應該會看到 \"Factory Mode\" 以"
+#~ "及\n"
+#~ "   \"Factory Restore\" 的選項，而且預設選項是 \"Factory Mode\"\n"
+#~ "2. 系統成功的開入工廠模式"
+
+#~ msgid "Packages for factory process"
+#~ msgstr "Factory Process 的套件"
+
+#~ msgid "Check if packages needed for factory process are installed"
+#~ msgstr "檢查 Factory Process 所需的套件是否有被安裝。"
+
+#~ msgid ""
+#~ "1. Boot into Factory Mode 2. Execute following command\n"
+#~ "  snappy list"
+#~ msgstr ""
+#~ "1. 開機進入工廠模式 2. 執行以下指令\n"
+#~ "  snappy list"
+
+#~ msgid ""
+#~ "Following packages are installed\n"
+#~ "  factory-diag\n"
+#~ "  plainbox-provider-plano"
+#~ msgstr ""
+#~ "已安裝以下套件\n"
+#~ "  factory-diag\n"
+#~ "  plainbox-provider-plano"
+
+#~ msgid "Report of factory diagnosis"
+#~ msgstr "工廠診斷測試報告"
+
+#~ msgid "Check if report of factory diagnosis shows up correctly"
+#~ msgstr "檢查工廠診斷測試報告是否有正確的出現"
+
+#~ msgid ""
+#~ "1. Boot into Factory Mode 2. Use browser in another machine to browse "
+#~ "following URL\n"
+#~ "  http://[ip address of the test unit]:5188"
+#~ msgstr ""
+#~ "1. 開機進入工廠模式 2. 在另一台機器上用瀏覽器打開以下網址\n"
+#~ "  http://[待測系統的 IP 位置]:5188"
+
+#~ msgid "A page with test result shows up"
+#~ msgstr "測試結果的頁面應該會出現"
+
+#~ msgid "Factory reset from report of factory diagnosis"
+#~ msgstr "透過工廠診斷測試來恢復原廠設定"
+
+#~ msgid "Check factory reset from report of factory diagnosis"
+#~ msgstr "檢查工廠診斷測試報告上的恢復原廠設定功能"
+
+#~ msgid ""
+#~ "1. Boot into Factory Mode 2. Use browser in another machine to browse "
+#~ "following URL\n"
+#~ "  http://[ip address of the test unit]:5188\n"
+#~ "3. Click \"Factory Reset\" button"
+#~ msgstr ""
+#~ "1. 開機進入工廠模式 2. 在另一台機器上用瀏覽器打開以下網址\n"
+#~ "  http://[待測系統的 IP 位置]:51883. 按下 \"Factory Reset\" 按鈕"
+
+#~ msgid ""
+#~ "1. System reboot and start factory restore process 2. System successfully "
+#~ "complete factory restore process and\n"
+#~ "   reboot to normal system"
+#~ msgstr ""
+#~ "1. 系統重開機後開始還原原廠設定 2. 系統成功的完成還原原廠設定然後重新啟動"
+#~ "至正常狀態的系統"
+
+#~ msgid "Factory restore from boot device menu"
+#~ msgstr "從開機裝置選單進行恢復原廠設定"
+
+#~ msgid "Check if user can do factory restore from boot device menu"
+#~ msgstr "檢查使用者是否可以從開機裝置選單進行恢復原廠設定"
+
+#~ msgid ""
+#~ "1. Boot the system 2. Bring up boot device menu(ex. press F12 key during "
+#~ "boot) 3. Select factory_restore"
+#~ msgstr ""
+#~ "1. 開機 2. 叫出開機裝置選單 (例如在開機時按下 F12) 3. 選擇 factory_restore"
+
+#~ msgid ""
+#~ "1. System start factory restore process 2. System successfully complete "
+#~ "factory restore process and\n"
+#~ "   reboot to normal system"
+#~ msgstr ""
+#~ "1. 系統開始還原原廠設定 2. 系統成功的完成還原原廠設定然後重新啟動至正常狀"
+#~ "態的系統"
+
+#~ msgid ""
+#~ "If snappy list command is working then should at least find the ubuntu-"
+#~ "core package."
+#~ msgstr "如果 snappy list 運作正常，那麼它應該至少能找到 ubuntu-core 套件。"
+
+#~ msgid ""
+#~ "If snappy search command is working then should find hello-dbus-fwk in "
+#~ "the store."
+#~ msgstr ""
+#~ "如果 snappy search 指令運作正常，那麼它應該至少能在 Store 中找到 hello-"
+#~ "dbus-fwk。"
+
+#~ msgid ""
+#~ "After having installed the hello-world snap, check if it can be removed."
+#~ msgstr "在安裝 hello-world snap 後，檢查它是否能被移除"
+
+#~ msgid "Test that image is using the correct snappy store configuration."
+#~ msgstr "測試映像檔是否有使用正確的 snappy store 設定"
+
+#~ msgid ""
+#~ "The image can be tied to using a particular store for the OEM. This tests "
+#~ "the store for the image is as expected."
+#~ msgstr ""
+#~ "此映像檔可以與特定的 OEM store 綁定。此測項會檢查是否一如預期的使用針對這"
+#~ "個映像檔的 store。"
+
+#~ msgid "Snappy install command - beta channel store"
+#~ msgstr "Snappy 安裝指令 - beta channel store"
+
+#~ msgid ""
+#~ "Test the snappy install command is able to install snap in beta channel "
+#~ "store."
+#~ msgstr "測試 snappy 安裝指令是否能安裝來自 beta channel store 的 Snap。"
+
+#~ msgid "Snappy install command - edge channel store"
+#~ msgstr "Snappy 安裝指令 - edge channel store"
+
+#~ msgid ""
+#~ "Test the snappy install command is able to install snap in edge channel "
+#~ "store."
+#~ msgstr "檢驗 snappy 安裝指令是否能安裝來自 edge channel store 的 snap 。"
+
+#~ msgid "Generic store does not show oem packages"
+#~ msgstr "一般的 Snappy Store 中不會出現 OEM 套件"
+
+#~ msgid "Check if oem packages can be found in generic snappy store"
+#~ msgstr "檢查是否可以在一般的 Snappy Store 中找到 OEM 套件"
+
+#~ msgid ""
+#~ "1. Install generic snappy ubuntu image on another machine(vm is also "
+#~ "fine) ***Following steps are run on the machine with generic snappy "
+#~ "ubuntu*** 2. Boot into system 3. Execute the following command:\n"
+#~ "  snappy search"
+#~ msgstr ""
+#~ "1. 在另一台機器 (虛擬機器也可以) 上安裝一般的 Snappy Ubuntu 映像檔 ***請在"
+#~ "那台安裝了一般的 Snappy Ubuntu 映像檔的機器上進行以下操作*** 2. 啟動系統 "
+#~ "3. 執行以下指令：\n"
+#~ "  snappy search"
+
+#~ msgid ""
+#~ "Following packages should not be listed in generic store:\n"
+#~ "   ccm-wda\n"
+#~ "   dcm\n"
+#~ "   plano-uefi-fw-tools\n"
+#~ "   plano-amd64"
+#~ msgstr ""
+#~ "以下套件不應該出現在一般的 Snappy Store 中：\n"
+#~ "   ccm-wda\n"
+#~ "   dcm\n"
+#~ "   plano-uefi-fw-tools\n"
+#~ "   plano-amd64"
+
+#~ msgid "Enable manufacturing mode allowing testing of UEFI capsule update"
+#~ msgstr "啟用工廠模式來允許測試 UEFI capsule 更新"
+
+#~ msgid ""
+#~ "To allow updates between arbitrary versions we need to put the system in "
+#~ "to manufacturing mode"
+#~ msgstr "為了能在兩個任意的版本之間更新我們需要把系統設置成工廠模式"
+
+#~ msgid ""
+#~ "1. On a desktop PC extract STL-000300.zip 2. Extract STL-960101.zip 2. "
+#~ "Place STL-Rom_16MB_DUALBOOT_TXE_1.375MB.bin from STL-960101 in the "
+#~ "directory\n"
+#~ " STL-000300/Factory\n"
+#~ "3. Copy the Factory folder on to a USB flash drive 4. Boot in to EFI "
+#~ "shell and use FPT tool to program\n"
+#~ "  STL-Rom_16MB_DUALBOOT_TXE_1.375MB.bin in to the SUT\n"
+#~ "5. Reboot and enter BIOS 6. Set service tag “1234567” in Setup Menu. Set "
+#~ "UEFI boot. 7. Add a boot option to Snappy on the hard drive. 8. Reboot in "
+#~ "to EFI Shell, enable manufacturing mode. 9. Run “MfgMode64W.efi +OSMM” "
+#~ "and “MfgMode64W.efi RAMM” 10. Reboot in to BIOS 11. Setup Menu -> "
+#~ "Maintenance -> Dell Development Configuration. Enable\n"
+#~ " “Enable Flash Update Signature Override”"
+#~ msgstr ""
+#~ "1. 在另一台電腦上解壓縮 STL-000300.zip 2. 解壓縮 STL-960101.zip 2. 將來自 "
+#~ "STL-960101 壓縮檔的 STL-Rom_16MB_DUALBOOT_TXE_1.375MB.bin 放入 STL-000300/"
+#~ "Factory 資料夾中\n"
+#~ "3. 將該 Factory 資料夾複製到 USB 隨身碟上 4. 開機進入 EFI shell 並使用 "
+#~ "FPT 工具來將 STL-Rom_16MB_DUALBOOT_TXE_1.375MB.bin 寫入待測機器中\n"
+#~ "5. 重新開機並進入 BIOS 6. 在 Setup 選單中將 service tag 設為 \"1234567\"，"
+#~ "並設定為使用 UEFI 模式開機。 7. 將以硬碟上的 Snappy 開機加入開機選項中。 "
+#~ "8. 重新開機進入 EFI Shell，啟動工廠模式。 9. 執行 \"MfgMode64W.efi +OSMM"
+#~ "\" 以及 \"MfgMode64W.efi RAMM\" 10. 重新開機進入 BIOS 11. Setup 選單 -> "
+#~ "Maintenance -> Dell Development Configuration。啟用 \"Enable Flash Update "
+#~ "Signature Override\""
+
+#~ msgid ""
+#~ "1. The output of the \"MfgMode64W.efi RAMM\" command should show OSMM as "
+#~ "Enabled"
+#~ msgstr "1. \"MfgMode64W.efi RAMM\" 指令的輸出應該要顯示 OSMM 為 Enabled"
+
+#~ msgid "Use fwupdate tool to insert a new UEFI capsule"
+#~ msgstr "透過 fwupdate 工具來插入新的 UEFI capsule"
+
+#~ msgid "Check that system is able to support update of the boot firmware"
+#~ msgstr "檢查系統可以支援開機韌體的更新"
+
+#~ msgid ""
+#~ "1. Extract STL-960102.zip to get the updated capsule firmware.bin 2. Copy "
+#~ "the capsule update on to the SUT\n"
+#~ "  scp firmware.bin [user id]@[ip address of the testing system]\n"
+#~ "3. Manually copy fwupdate.efi in to place:\n"
+#~ "  sudo cp /usr/lib/fwupdate/fwupdate.efi /boot/efi/EFI/ubuntu/\n"
+#~ "4. Identify the GUID of the BIOS to flash:\n"
+#~ "  sudo fwupdate -l\n"
+#~ "  {X-X-X-X-X} version X can be updated to any version above X\n"
+#~ "5. Apply the update\n"
+#~ "  sudo fwupdate -a X-X-X-X-X firmware.bin"
+#~ msgstr ""
+#~ "1. 解壓縮 STL-960102.zip 來取得更新後的 capsule firmware.bin 2. 將該  "
+#~ "capsule 更新檔複製到測試機器上\n"
+#~ "  scp firmware.bin [使用者名稱]@[待側系統的 IP 位置]\n"
+#~ "3. 手動將 fwupdate.efi 複製到正確的位置：\n"
+#~ "  sudo cp /usr/lib/fwupdate/fwupdate.efi /boot/efi/EFI/ubuntu/\n"
+#~ "4. 檢查要燒錄的 BIOS 的 GUID：\n"
+#~ "  sudo fwupdate -l\n"
+#~ "  {X-X-X-X-X} 版本 X 可以被更新至任何比 X 還要新的版本\n"
+#~ "5. 套用更新\n"
+#~ "  sudo fwupdate -a X-X-X-X-X firmware.bin"
+
+#~ msgid ""
+#~ "1. Run this command to get EFI boot information:\n"
+#~ "  sudo efibootmgr -v\n"
+#~ "2. Verify that the \"BootNext\" field matches the updated version"
+#~ msgstr ""
+#~ "1. 執行此指令來取得 EFI 開機資訊：\n"
+#~ "  sudo efibootmgr -v\n"
+#~ "2. 檢查 \"BootNext\" 欄位與更新後的版本相符"
+
+#~ msgid "Check the SUT boots correctly after UEFI capsule update"
+#~ msgstr "檢查待側系統在更新 UEFI capsule 後是否能正常開機"
+
+#~ msgid ""
+#~ "Check that the system is able to boot back in to the OS correctly after "
+#~ "an update is applied to the boot firmware"
+#~ msgstr "檢查系統在套用開機韌體更新後能夠正確的開進作業系統"
+
+#~ msgid ""
+#~ "1. The system will be rebooted 2. Observe that the system reboots in to "
+#~ "the Firmware Updater. 3. When the OS has rebooted re-launch the plainbox "
+#~ "test tool."
+#~ msgstr ""
+#~ "1. 系統將會被重新啟動 2. 觀察系統是否有重新開機進入 Firmware Updater。 3. "
+#~ "當作業系統重新啟動後請再次打開 plainbox 測試工具"
+
+#~ msgid ""
+#~ "1. Ensure that the Firmware Updater completes successfully 2. Ensure that "
+#~ "the SUT then boots correctly."
+#~ msgstr "1. 確保 Firmware Updater 順利完成 2. 確保待測機器能正常開機。"
+
+#~ msgid ""
+#~ "Check that the SUT reports a successful update of the UEFI information"
+#~ msgstr "檢查待測機器是否有回報更新成功的 UEFI 資訊"
+
+#~ msgid ""
+#~ "Check that after a reboot, querying the boot firmware version information "
+#~ "confirms the update completed correctly."
+#~ msgstr "在重新開機後，查詢開機韌體版本資訊來確認有正確完成更新。"
+
+#~ msgid "1. The boot firmware version will be read automatically."
+#~ msgstr "1. 開機韌體版本將會被自動讀取。"
+
+#~ msgid ""
+#~ "Verify that the text following the GUID shows the new capsule version "
+#~ "number e.g. \"version 6291713 can be updated to any version above 0\""
+#~ msgstr ""
+#~ "驗證接在 GUID 後的文字有顯示 capsule 的新版號，例如：\"version 6291713 "
+#~ "can be updated to any version above 0\""
+
+#~ msgid "Use fwupd tool to insert a new UEFI capsule from lvfs server"
+#~ msgstr "使用 fwupd 工具來從 lvfs 伺服器插入新的 UEFI capsule"
+
+#~ msgid ""
+#~ "Check that system is able to support update of the boot firmware from "
+#~ "lvfs server"
+#~ msgstr "檢查系統是否能夠透過 lvfs 伺服器進行開機韌體更新"
+
+#~ msgid ""
+#~ "1. Edit /var/lib/apps/plano-uefi-fw-tools/current/etc/fwupd.conf and set "
+#~ "the DownloadURI to:\n"
+#~ "  https://secure-lvfs.rhcloud.com/downloads/firmware-"
+#~ "c1255377a9c3465f605183b8b648e57a5202a890.xml.gz\n"
+#~ "2. Refresh with new config:\n"
+#~ "  sudo fwupdmgr refresh\n"
+#~ "3. Check details of current firmware:\n"
+#~ "  sudo fwupdmgr get-devices\n"
+#~ "4. Check details of the firmware on server:\n"
+#~ "  sudo fwupdmgr get-updates\n"
+#~ "5. Apply the update\n"
+#~ "  sudo fwupdmgr update -v --allow-older --allow-reinstall\n"
+#~ "6. Run following command and check EFI boot information:\n"
+#~ "  sudo efibootmgr -v\n"
+#~ "7. Reboot the system"
+#~ msgstr ""
+#~ "1. 編輯 /var/lib/apps/plano-uefi-fw-tools/current/etc/fwupd.conf 然後把 "
+#~ "DownloadURI 設成：\n"
+#~ "  https://secure-lvfs.rhcloud.com/downloads/firmware-"
+#~ "c1255377a9c3465f605183b8b648e57a5202a890.xml.gz\n"
+#~ "2. 更新為新設定：\n"
+#~ "  sudo fwupdmgr get-devices\n"
+#~ "3. 檢查目前韌體的詳細資訊：\n"
+#~ "  sudo fwupdmgr get-devices\n"
+#~ "4. 檢查在伺服器上韌體的詳細資訊：\n"
+#~ "  sudo fwupdmgr get-updates\n"
+#~ "5. 套用更新：\n"
+#~ "  sudo fwupdmgr update -v --allow-older --allow-reinstall\n"
+#~ "6. 執行以下指令並檢查 EFI 開機資訊：\n"
+#~ "  sudo efibootmgr -v\n"
+#~ "7. 重新啟動系統"
+
+#~ msgid ""
+#~ "1. In step 6, verify that the \"BootNext\" field matches the firmware "
+#~ "updater 2. After reboot, system boot into firmware updater and update the "
+#~ "firmware 3. After firmware updated, system reboot back to system "
+#~ "successfully 4. Use following command, verify the version of current "
+#~ "firmware is same as the one you got from server\n"
+#~ "  sudo fwupdmgr get-devices"
+#~ msgstr ""
+#~ "1. 在步驟 6 中，請驗證 \"BootNext\" 欄位是否與 firmware updater 一致 2. 重"
+#~ "開機後，系統開進 firmware updater 並更新韌體 3. 韌體更新後，順利的重新開機"
+#~ "回到系統 4. 使用以下的指令來驗證目前韌體的版本是否跟您從伺服器上取得的一"
+#~ "致\n"
+#~ "  sudo fwupdmgr get-devices"
+
+#~ msgid "Use fwupd tool to insert a new UEFI capsule from local file"
+#~ msgstr "使用 fwupd 工具來從本地端檔案插入新的 UEFI capsule"
+
+#~ msgid ""
+#~ "Check that system is able to support update of the boot firmware from "
+#~ "local file"
+#~ msgstr "檢查系統是否能夠透過本地端檔案進行開機韌體更新"
+
+#~ msgid ""
+#~ "1. Get firmware.cab from STL-XXXXXX.zip 2. Check details of current "
+#~ "firmware:\n"
+#~ "  sudo fwupdmgr get-devices\n"
+#~ "3. Check details of the firmware from zip file:\n"
+#~ "  sudo fwupdmgr get-details [Full path of firmware.cab]\n"
+#~ "4. Apply the update\n"
+#~ "  sudo fwupdmgr install [Full path of firmware.cab] -v --allow-older --"
+#~ "allow-reinstall\n"
+#~ "5. Run following command and check EFI boot information:\n"
+#~ "  sudo efibootmgr -v\n"
+#~ "6. Reboot the system"
+#~ msgstr ""
+#~ "1. 從 STL-XXXXXX.zip 中取得 firmware.cab 2. 檢查當前韌體的詳細資訊：\n"
+#~ "  sudo fwupdmgr get-devices\n"
+#~ "3. 檢查來自壓縮檔裡韌體的詳細資訊：\n"
+#~ "  sudo fwupdmgr get-details [firmware.cab 的完整路徑]\n"
+#~ "4. 套用更新\n"
+#~ "  sudo fwupdmgr install [Full path of firmware.cab] -v --allow-older --"
+#~ "allow-reinstall\n"
+#~ "5. 執行以下指令並檢查 EFI 開機資訊：\n"
+#~ "  sudo efibootmgr -v\n"
+#~ "6. 重新啟動系統"
+
+#~ msgid ""
+#~ "1. In step 5, verify that the \"BootNext\" field matches the firmware "
+#~ "updater 2. After reboot, system boot into firmware updater and update the "
+#~ "firmware 3. After firmware updated, system reboot back to system "
+#~ "successfully 4. Use following command, verify the version of current "
+#~ "firmware is same as the one you got from zip file\n"
+#~ "  sudo fwupdmgr get-devices"
+#~ msgstr ""
+#~ "1. 在步驟 5 中，請驗證 \"BootNext\" 欄位是否與 firmware updater 一致 2. 重"
+#~ "開機後，系統開進 firmware updater 並更新韌體 3. 韌體更新後，順利的重新開機"
+#~ "回到系統 4. 使用以下的指令來驗證目前韌體的版本是否跟您從 zip 檔中取得的一"
+#~ "致\n"
+#~ "  sudo fwupdmgr get-devices"
+
+#~ msgid ""
+#~ "1. Plug headset to headset port 2. Execute the following command:\n"
+#~ " alsamixer\n"
+#~ "3. Use arrow key to adjust volume, m key to mute/unmute 4. Make sure all "
+#~ "channels are not muted and have an appropriate volume 5. Press q to exit "
+#~ "alsamixer 6. Execute the following command:\n"
+#~ " arecord | aplay\n"
+#~ "7. Speak in to microphone on headset"
+#~ msgstr ""
+#~ "1. 將耳機麥克風插入耳麥孔中 2. 執行以下指令：\n"
+#~ " alsamixer\n"
+#~ "3. 使用方向鍵來調整音量，m 鍵來靜音/解除靜音 4. 確定所有聲道都沒有被靜音且"
+#~ "音量適中 5. 按下 q 離開 alsamixer 6. 執行以下指令：\n"
+#~ " arecord | aplay\n"
+#~ "7. 對耳機麥克風的麥克風說話"
+
+#~ msgid "Check bluetooth input device works"
+#~ msgstr "檢查藍牙輸入裝置運作是否正常"
+
+#~ msgid "Can ping another machine over first Ethernet port"
+#~ msgstr "可經由第一個乙太網路連接埠 ping 其他機器"
+
+#~ msgid "Can ping another machine over second Ethernet port"
+#~ msgstr "可經由第二個乙太網路連接埠 ping 其他機器"
+
+#~ msgid "Ensure ethernet port 1 is physically disconnected"
+#~ msgstr "確定第一個乙太網路連接埠沒有連接網路線"
+
+#~ msgid ""
+#~ "Check that ethernet port 1 is detected as being in the correct state to "
+#~ "begin a hotplug connection test."
+#~ msgstr ""
+#~ "為了開始熱插拔連線測試，檢查第一個乙太網路連接埠是否有被偵測到並處於正確的"
+#~ "狀態。"
+
+#~ msgid ""
+#~ "1. Ensure there is no ethernet cable attached to port 1. 2. Begin test."
+#~ msgstr "1. 確定網路線沒有接上第一個乙太網路連接埠。2. 開始測試。"
+
+#~ msgid "Ethernet port 1 hotplug detection test"
+#~ msgstr "第一個乙太網路連接埠的熱插拔偵測測試"
+
+#~ msgid ""
+#~ "Check ethernet port 1 connects when cable inserted. Assumes an IP address "
+#~ "will be assigned by DHCP. Connection asserted by pinging the network "
+#~ "defined gateway."
+#~ msgstr ""
+#~ "在插入網路線至第一個乙太網路連接埠後透過 ping 預設閘道來測試檢查連線狀態 "
+#~ "(假設網址位置會由 DHCP 指派)。"
+
+#~ msgid ""
+#~ "1. Begin the test. 2. Insert the ethernet cable in to ethernet port 1. 3. "
+#~ "This test will timeout and fail if the insertion and connection\n"
+#~ "   establishment has not been detected (10 second timeout for each check)."
+#~ msgstr ""
+#~ "1. 開始測試。 2. 插上網路線到乙太網路連接埠 1 。 3. 本測項如果因插入和連線"
+#~ "建立沒有被偵測到（每項檢驗10秒後逾時）會逾時並失敗。"
+
+#~ msgid "Ethernet port 1 hotplug disconnect step"
+#~ msgstr "第一個乙太網路連接埠的熱插拔斷線測試"
+
+#~ msgid ""
+#~ "Check that when cable removed from ethernet port 1 the system detects "
+#~ "this correctly."
+#~ msgstr "檢查系統是否能偵測到網路線從第一個乙太網路連接埠移除。"
+
+#~ msgid ""
+#~ "1. Depends on previous hotplug connection test passing. We will now test\n"
+#~ " cable disconnection.\n"
+#~ "2. Begin the test. 3. Remove the ethernet cable from ethernet port 1. 4. "
+#~ "This test will timeout and fail if the removal has not been detected and\n"
+#~ " interface marked as down (10 second timeout for each check)."
+#~ msgstr ""
+#~ "1. 根據前面測試通過的熱插拔連線測試。我們現在將會測試移除網路線。\n"
+#~ "2. 開始測試。3. 從第一個乙太網路連接埠移除網路線。4. 如果沒有偵測到網路線"
+#~ "的拔開和連接介面被標示為關閉 (每項檢驗10秒後逾時) 本測項會逾時並失敗。 "
+
+#~ msgid "Ensure ethernet port 2 is physically disconnected"
+#~ msgstr "確定第二個乙太網路連接埠沒有連接網路線"
+
+#~ msgid ""
+#~ "Check that ethernet port 2 is detected as being in the correct state to "
+#~ "begin a hotplug connection test."
+#~ msgstr ""
+#~ "為了開始熱插拔連線測試，檢查第二個乙太網路連接埠是否有被偵測到並處於正確的"
+#~ "狀態。"
+
+#~ msgid ""
+#~ "1. Ensure there is no ethernet cable attached to port 2. 2. Begin test."
+#~ msgstr "1. 確定網路線沒有接上第二個乙太網路連接埠。2. 開始測試。"
+
+#~ msgid "Ethernet port 2 hotplug detection test"
+#~ msgstr "第二個乙太網路連接埠的熱插拔偵測測試"
+
+#~ msgid ""
+#~ "Check ethernet port 2 connects when cable inserted. Assumes an IP address "
+#~ "will be assigned by DHCP. Connection asserted by pinging the network "
+#~ "defined gateway."
+#~ msgstr ""
+#~ "在插入網路線至第二個乙太網路連接埠後透過 ping 預設閘道來測試檢查連線狀態 "
+#~ "(假設網址位置會由 DHCP 指派)。"
+
+#~ msgid ""
+#~ "1. Begin the test. 2. Insert the ethernet cable in to ethernet port 2. 3. "
+#~ "This test will timeout and fail if the insertion and connection\n"
+#~ "   establishment has not been detected (10 second timeout for each check)."
+#~ msgstr ""
+#~ "1. 開始測試。2. 插入乙太網路線至第二個乙太網路連接埠。3. 如果沒有偵測到網"
+#~ "路線的插入而且連線沒有被建立 (每項檢驗10秒後逾時) 本測項會逾時並失敗。"
+
+#~ msgid "Ethernet port 2 hotplug disconnect step"
+#~ msgstr "第二個乙太網路連接埠的熱插拔斷線測試"
+
+#~ msgid ""
+#~ "Check that when cable removed from ethernet port 2 the system detects "
+#~ "this correctly."
+#~ msgstr "檢查系統是否能偵測到網路線從第二個乙太網路連接埠移除。"
+
+#~ msgid ""
+#~ "1. Depends on previous hotplug connection test passing. We will now test\n"
+#~ " cable disconnection.\n"
+#~ "2. Begin the test. 3. Remove the ethernet cable from ethernet port 2. 4. "
+#~ "This test will timeout and fail if the removal has not been detected and\n"
+#~ " interface marked as down (10 second timeout for each check)."
+#~ msgstr ""
+#~ "1. 若先前的熱插拔連線測試有成功，我們現在將會進行斷線測試。\n"
+#~ "2. 開始測試。3. 將網路線自第二個乙太網路連接埠上移除。4. 若 10 秒內沒有偵"
+#~ "測\n"
+#~ "到網路線的移除，而且隨後 10 秒內網路介面沒有被標記為 down，則本測試將逾時"
+#~ "並失敗"
+
+#~ msgid ""
+#~ "1. Connect USB to db9 null modem adapter cable to serial port of test "
+#~ "machine 2. Connect the cable to USB port of another ubuntu machine "
+#~ "(client) 3. Install screen on client 4. Execute following command on "
+#~ "client:\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. Start getty service on test machine:\n"
+#~ " sudo systemctl start getty@[rs232 device, ex. /dev/ttyS0].service\n"
+#~ "6. Log into the test machine from terminal on client"
+#~ msgstr ""
+#~ "1. 將 USB 轉 DB9 虛擬數據機纜線接上待測機的序列埠 2. 將該纜線接上另一台 "
+#~ "Ubuntu 機器的 USB 埠 (客戶端) 3. 於該客戶端上安裝 screen 4. 於客戶端上執行"
+#~ "以下指令：\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. 在待測機上啟動 getty 服務：\n"
+#~ " sudo systemctl start getty@[rs232 裝置，如 /dev/ttyS0].service\n"
+#~ "6. 從客戶端的終端機登入待測機"
+
+#~ msgid ""
+#~ "1. Execute the following command:\n"
+#~ " sudo poweroff"
+#~ msgstr ""
+#~ "1. 執行下列指令：\n"
+#~ " sudo poweroff"
+
+#~ msgid ""
+#~ "1. Execute the following command:\n"
+#~ " sudo reboot"
+#~ msgstr ""
+#~ "1. 執行下列指令：\n"
+#~ " sudo reboot"
+
+#~ msgid "System reboot successfully"
+#~ msgstr "系統成功的重新啟動"
+
+#~ msgid ""
+#~ "Job to scan for the presence of Wi-Fi network adapters which should then "
+#~ "have the following collection of tests run against them."
+#~ msgstr "用於偵測現有 Wi-Fi 網卡的 Job，稍候會有一整組針對這些網卡的測試。"
+
+#~ msgid "Check that the system can create an 802.11a Access Point"
+#~ msgstr "檢查系統是否可以作為 802.11a Wi-Fi 無線網路基地台"
+
+#~ msgid "Check that the system can create an 802.11b Access Point"
+#~ msgstr "檢查系統是否可以作為 802.11b Wi-Fi 無線網路基地台"
+
+#~ msgid "Check that the system can create an 802.11g Access Point"
+#~ msgstr "檢查系統是否可以作為 802.11g Wi-Fi 無線網路基地台"
+
+#~ msgid "Check that the system can create an 802.11ad Access Point"
+#~ msgstr "檢查系統是否可以作為 802.11g Wi-Fi 無線網路基地台"
+
+#~ msgid ""
+#~ "1. Using a suitable Wi-Fi client try to detect the presence of the AP\n"
+#~ " called \"UbuntuCoreTest\"\n"
+#~ "2. Attempt to connect to the AP using password \"snappyubuntucore\""
+#~ msgstr ""
+#~ "1. 使用一個合適的 Wi-Fi 客戶端來嘗試偵測名為\"UbuntuCoreTest\" 的無線基地"
+#~ "台\n"
+#~ "2. 嘗試以 \"snappyubuntucore\" 為密碼連線至該無線基地台"
+
+#~ msgid "Did the client connect?"
+#~ msgstr "客戶端能連上無線基地台嗎？"
+
+#~ msgid ""
+#~ "Check that the system can create an 802.11a Access Point (automated test)"
+#~ msgstr "檢查系統是否可以作為 802.11a Wi-Fi 無線網路基地台 (自動化測試)"
+
+#~ msgid ""
+#~ "Check that the system can create an 802.11b Access Point (automated test)"
+#~ msgstr "檢查系統是否可以作為 802.11b Wi-Fi 無線網路基地台 (自動化測試)"
+
+#~ msgid ""
+#~ "Check that the system can create an 802.11g Access Point (automated test)"
+#~ msgstr "檢查系統是否可以作為 802.11g Wi-Fi 無線網路基地台 (自動化測試)"
+
+#~ msgid ""
+#~ "Check that the system can create an 802.11ad Access Point (automated test)"
+#~ msgstr "檢查系統是否可以作為 802.11ad Wi-Fi 無線網路基地台 (自動化測試)"
+
+#~ msgid ""
+#~ "1. Plug headset to headset port 2. Execute the following command:\n"
+#~ " alsamixer\n"
+#~ "3. Use arrow key to adjust volume, m key to mute/unmute 4. Make sure all "
+#~ "channels are not muted and have an appropriate volume 5. Press q to exit "
+#~ "alsamixer 6. Suspend the device 7. Resume the device 8. Execute the "
+#~ "following command:\n"
+#~ " arecord | aplay\n"
+#~ "9. Speak in to microphone on headset"
+#~ msgstr ""
+#~ "1. 將耳機麥克風插入耳麥孔中 2. 執行以下指令：\n"
+#~ " alsamixer\n"
+#~ "3. 使用方向鍵來調整音量，m 鍵來靜音/解除靜音 4. 確定所有聲道都沒有被靜音且"
+#~ "音量適中 5. 按下 q 離開 alsamixer 6. 讓機器進入暫停狀態 7. 讓其從暫停狀態"
+#~ "中恢復 8. 執行以下指令：\n"
+#~ " arecord | aplay\n"
+#~ "9. 對耳機麥克風的麥克風說話"
+
+#~ msgid ""
+#~ "Check a bluetooth input device works after suspending the system. Since  "
+#~ "there's only CLI with ubuntu-core, test keyboard only"
+#~ msgstr ""
+#~ "檢查藍牙輸入裝置在系統自暫停恢復後是否運作正常，由於在 ubuntu-core 上僅有"
+#~ "命令行介面，故僅需測試鍵盤"
+
+#~ msgid ""
+#~ "Confirm characters from Bluetooth input device are displayed correctly"
+#~ msgstr "確認從藍牙輸入裝置輸入的字元有正確的顯示出來"
+
+#~ msgid "After suspend, a monitor works when connected by DVI"
+#~ msgstr "系統自暫停恢復後，外接螢幕可以運作於 DVI 視訊連接埠上"
+
+#~ msgid "After suspend, a monitor works when connected by HDMI"
+#~ msgstr "系統自暫停恢復後，外接螢幕可以運作於 HDMI 視訊連接埠上"
+
+#~ msgid "After suspend, a monitor works when connected by DVI-to-VGA"
+#~ msgstr "系統自暫停恢復後，透過 DVI 轉 VGA 的螢幕輸出運作正常"
+
+#~ msgid "After suspend, a monitor works when connected by HDMI-to-VGA"
+#~ msgstr "系統自暫停恢復後，透過 HDMI 轉 VGA 的螢幕輸出運作正常"
+
+#~ msgid ""
+#~ "1. Connect USB to db9 null modem adapter cable to serial port of test "
+#~ "machine 2. Connect the cable to USB port of another ubuntu machine "
+#~ "(client) 3. Install screen on client 4. Execute following command on "
+#~ "client:\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. Start getty service on test machine:\n"
+#~ " sudo systemctl start getty@[rs232 device, ex. /dev/ttyS0].service\n"
+#~ "6. Log into the test machine from terminal on client 7. Execute following "
+#~ "command in screen on client:\n"
+#~ " sudo systemctl suspend\n"
+#~ "8. Resume the test machine 9. Try to run some commands in terminal on "
+#~ "client"
+#~ msgstr ""
+#~ "1. 將 USB 轉 DB9 虛擬數據機纜線接上待測機的序列埠 2. 將該纜線接上另一台 "
+#~ "Ubuntu 機器的 USB 埠 (客戶端) 3. 於該客戶端上安裝 screen 4. 於客戶端上執行"
+#~ "以下指令：\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. 在待測機上啟動 getty 服務：\n"
+#~ " sudo systemctl start getty@[rs232 裝置，如 /dev/ttyS0].service\n"
+#~ "6. 從客戶端的終端機登入待測機 7. 於客戶端的終端機裡執行以下指令：\n"
+#~ " sudo systemctl suspend\n"
+#~ "8. 讓待測機從暫停狀態中恢復 9. 嘗試在客戶端的終端機裡執行一些指令"
+
+#~ msgid "Confirm the inputted characters are displayed correctly"
+#~ msgstr "確認輸入的字元有正確的顯示出來"
+
+#~ msgid "After suspend, USB 2.0 storage device insertion detected"
+#~ msgstr "系統自暫停恢復後，偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid "Check system can detect USB 2.0 storage when inserted after suspend"
+#~ msgstr "檢查系統是否能在暫停恢復後偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid "After suspend, USB 2.0 storage device read & write works"
+#~ msgstr "系統自暫停恢復後，USB 2.0 儲存裝置讀寫運作正常"
+
+#~ msgid ""
+#~ "Check system can read/write to USB 2.0 storage correctly after suspend"
+#~ msgstr "檢查系統是否能在暫停恢復後正常讀寫 USB 2.0 儲存裝置"
+
+#~ msgid "After suspend, USB 2.0 storage removal detected"
+#~ msgstr "系統自暫停恢復後，偵測到 USB 2.0 儲存裝置被移除"
+
+#~ msgid ""
+#~ "Check system can detect removal of a USB 2.0 storage device after suspend"
+#~ msgstr "檢查系統是否能在暫停恢復後偵測到 USB 2.0 儲存裝置被移除"
+
+#~ msgid "After suspend, USB 3.0 storage device insertion detected"
+#~ msgstr "系統自暫停恢復後，偵測到 USB 3.0 儲存裝置的插入"
+
+#~ msgid ""
+#~ "Check system can detect insertion of a USB 3.0 storage device after "
+#~ "suspend"
+#~ msgstr "檢查系統是否能在暫停恢復後偵測到 USB 3.0 儲存裝置被移除"
+
+#~ msgid "After suspend, USB 3.0 storage device read & write works"
+#~ msgstr "系統自暫停恢復後，USB 3.0 儲存裝置讀寫運作正常"
+
+#~ msgid ""
+#~ "Check system can read/write to USB 3.0 storage devices correctly after "
+#~ "suspend"
+#~ msgstr "檢查系統是否能在暫停恢復後正常讀寫 USB 3.0 儲存裝置"
+
+#~ msgid "After suspend, USB 3.0 storage removal detected"
+#~ msgstr "系統自暫停恢復後，偵測到 USB 2.0 儲存裝置被移除"
+
+#~ msgid "Check system can detect USB 3.0 storage removal after suspend"
+#~ msgstr "檢查系統是否能在暫停恢復後偵測到 USB 3.0 儲存裝置被移除"
+
+#~ msgid ""
+#~ "1. Execute the following command:\n"
+#~ "    sudo systemctl suspend\n"
+#~ "2. Resume the system 3. Repeat steps 1~2 30 times."
+#~ msgstr ""
+#~ "1. 執行下列指令：\n"
+#~ "    sudo systemctl suspend\n"
+#~ "2. 讓其從暫停狀態中恢復 3. 重複步驟 1~2 30 次。"
+
+#~ msgid ""
+#~ "1. Log into system 2. Execute the following command:\n"
+#~ "    sudo reboot\n"
+#~ "3. Repeat steps 1~2 30 times."
+#~ msgstr ""
+#~ "1. 登入系統 2. 執行以下指令：\n"
+#~ "    sudo reboot\n"
+#~ "3. 重複步驟 1~2 30 次。"
+
+#~ msgid ""
+#~ "1. Log into system 2. Execute the following command:\n"
+#~ "    sudo poweroff\n"
+#~ "3. Boot the system 4. Repeat steps 1~3 30 times."
+#~ msgstr ""
+#~ "1. 登入系統 2. 執行以下指令：\n"
+#~ "    sudo poweroff\n"
+#~ "3. 啟動系統 4. 重複步驟 1~3 30 次。"
+
+#~ msgid "QA tests for Marble Arch"
+#~ msgstr "對 Marble Arch 的 QA 測試"
+
+#~ msgid ""
+#~ "QA test plan for the Marble Arch (codename) hardware.  This test plan "
+#~ "contains all of the tests used to validate the Marble Arch device."
+#~ msgstr ""
+#~ "針對 Marble Arch (代號) 硬體的 QA 測試計畫，本測試計畫包含所有用來檢驗 "
+#~ "Marble Arch 裝置的測試"
+
+#~ msgid "QA tests for St. Louis"
+#~ msgstr "對 St. Louis 的 QA 測試"
+
+#~ msgid ""
+#~ "QA test plan for the St. Louis (codename) hardware. This test plan "
+#~ "contains all of the tests used to validate the St. Louis device."
+#~ msgstr ""
+#~ "針對 St. Louis (代號) 硬體的 QA 測試計畫，本測試計畫包含所有用來檢驗 St. "
+#~ "Louis 裝置的測試"
+
+#~ msgid "QA tests for St. Louis IOM"
+#~ msgstr "對 St. Louis IOM 的 QA 測試"
+
+#~ msgid ""
+#~ "QA test plan for St. Louis IOM hardware.  This test plan contains all of "
+#~ "the tests used to validate the IOM hardware for St. Louis."
+#~ msgstr ""
+#~ "對 St. Louis IOM 硬體裝置的測試計畫。本測試計畫包含所有用來驗證供 St. "
+#~ "Louis 使用的 IOM 硬體的測試項目。"
+
+#~ msgid "UEFI capsule update tests for St. Louis"
+#~ msgstr "針對 St. Louis 的 UEFI capsule 更新測試"
+
+#~ msgid ""
+#~ "QA test plan for the St. Louis (codename) hardware. This plan contains "
+#~ "just the tests to validate UEFI capsule updating."
+#~ msgstr ""
+#~ "針對 St. Louis (代號) 硬體的 QA 測試計畫。本測試計畫僅包含驗證 UEFI "
+#~ "capsule 更新的測試"
+
+#~ msgid "Serial TX/RX is operational on the RS232 port"
+#~ msgstr "RS232 序列埠上的傳送接收運作正常"
+
+#~ msgid ""
+#~ "Check that comms work on the RS232 port even if the console is not "
+#~ "outputting on this device."
+#~ msgstr ""
+#~ "檢查即便終端介面沒有在這台設備上吐出訊息，comms 仍能在 RS232 序列埠上運"
+#~ "作。"
+
+#~ msgid ""
+#~ "1. Connect USB to db9 null modem adapter cable to serial port of test "
+#~ "machine 2. Connect the cable to USB port of another ubuntu machine "
+#~ "(client) 3. Install screen on client 4. Execute following command on "
+#~ "client:\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. On test machine, identify the RS232 serial port device e.g. ttyS0 6. "
+#~ "On test machine, execute the following command:\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS0"
+#~ msgstr ""
+#~ "1. 將 USB 轉 DB9 虛擬數據機纜線接上待測機的序列埠 2. 將該纜線接上另一台 "
+#~ "Ubuntu 機器的 USB 埠 (客戶端) 3. 於該客戶端上安裝 screen 4. 於客戶端上執行"
+#~ "以下指令：\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. 在待測機上，找出該 RS232 序列埠裝置，如 ttyS0 6. 在待測機上，執行以下指"
+#~ "令：\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS0"
+
+#~ msgid "Serial TX/RX is operational on RS485 ports"
+#~ msgstr "RS485 序列埠上的傳送接收運作正常"
+
+#~ msgid "Check that comms work on two RS485 ports"
+#~ msgstr "檢查在兩個 RS485 序列埠之間的通訊是否正常"
+
+#~ msgid ""
+#~ "1. Connect two RS485 ports on test unit with RS485 cable 2. Change "
+#~ "permission to let user read/write RS485 ports(change # corresponding to "
+#~ "two ports)\n"
+#~ " sudo chmod 777 /dev/ttyS# /dev/ttyS#\n"
+#~ "3. Put first RS485 port waiting for transmission\n"
+#~ " cat < /dev/ttyS#\n"
+#~ "4. In another terminal, send out test transmission from second rs485 "
+#~ "port\n"
+#~ " echo \"test\" > /dev/ttyS#\n"
+#~ "5. Check if the data received successfully in first terminal 6. Run step "
+#~ "3~5 again, but this time, put second port waiting and use first port to "
+#~ "send out transmission"
+#~ msgstr ""
+#~ "1. 用 RS485 纜線將待測機上的兩個 RS485 序列埠連接起來 2. 修改存取權限讓使"
+#~ "用者能夠對 RS485 序列埠進行讀寫 (將 # 改為對應的兩個連接埠)\n"
+#~ " sudo chmod 777 /dev/ttyS# /dev/ttyS#\n"
+#~ "3. 將第一個 RS485 序列埠設定為接收\n"
+#~ " cat < /dev/ttyS#\n"
+#~ "4. 請在另一個終端機中透過第二個 RS485 序列埠送出訊號\n"
+#~ " echo \"test\" > /dev/ttyS#\n"
+#~ "5. 檢查資料是否有被正確的傳送到第一個終端機裡 6. 再次執行步驟 3~5，但這次"
+#~ "請將第二個序列埠設定為接收，並用第一個序列埠來送出訊號"
+
+#~ msgid ""
+#~ "1. Can send data successfully form first RS485 port to second RS485 port "
+#~ "2. Can send data successfully form second RS485 port to first RS485 port"
+#~ msgstr ""
+#~ "1. 可以成功的由第一個 RS485 序列埠送出資料到第二個 RS485 序列埠 2. 可以成"
+#~ "功的由第二個 RS485 序列埠送出資料到第一個 RS485 序列埠"
+
+#~ msgid "Serial TX/RX is operational on the RS422 port"
+#~ msgstr "RS422 序列埠上的傳送接收運作正常"
+
+#~ msgid ""
+#~ "Check that comms work on the RS422 port This test will use RS485 port on "
+#~ "same unit to test RS422 transmit and receive separately"
+#~ msgstr ""
+#~ "檢查在 RS422 序列埠上的通訊是否正常，本測試將會使用本機上的 RS485 序列埠來"
+#~ "個別測試 RS422 序列埠的傳送與接收"
+
+#~ msgid ""
+#~ "1. Connect RS485 and RS422 ports on same unit as following with RS485 "
+#~ "cable\n"
+#~ " Transmit from 422 to 485:\n"
+#~ "  RS422      RS485\n"
+#~ "  TXA(-) --- A(-)\n"
+#~ "  TXB(+) --- B(+)\n"
+#~ "  GND    --- GND\n"
+#~ "  RXA(-)\n"
+#~ "  RXB(+)\n"
+#~ "2. Change permission to let user read/write RS422/RS485 ports(change # "
+#~ "corresponding to two ports)\n"
+#~ " sudo chmod 777 /dev/ttyS# /dev/ttyS#\n"
+#~ "3. Put the RS485 port waiting for transmission\n"
+#~ " cat < /dev/ttyS#\n"
+#~ "4. In another terminal, send out test transmission from the RS422 port\n"
+#~ " echo \"test\" > /dev/ttyS#\n"
+#~ "5. Check if the data received successfully in first terminal 6. Re-"
+#~ "configure the connection cable as following\n"
+#~ " Transmit from 485 to 422:\n"
+#~ "  RS422      RS485\n"
+#~ "  TXA(-)\n"
+#~ "  TXB(+)\n"
+#~ "  GND    --- GND\n"
+#~ "  RXA(-) --- A(-)\n"
+#~ "  RXB(+) --- B(+)\n"
+#~ "7. Run step 3~5 again, but this time, put RS422 port waiting and use the "
+#~ "RS485 port to send out transmission"
+#~ msgstr ""
+#~ "1. 用 RS485 纜線以下列方式連接本機的 RS485 與 RS422 序列埠\n"
+#~ " 自 422 傳送至 485：\n"
+#~ "  RS422      RS485\n"
+#~ "  TXA(-) --- A(-)\n"
+#~ "  TXB(+) --- B(+)\n"
+#~ "  GND    --- GND\n"
+#~ "  RXA(-)\n"
+#~ "  RXB(+)\n"
+#~ "2. 修改存取權限讓使用者能夠對 RS422/RS485 序列埠進行讀寫 (將 #改為對應的兩"
+#~ "個連接埠)\n"
+#~ " sudo chmod 777 /dev/ttyS# /dev/ttyS#\n"
+#~ "3. 將 RS485 序列埠設定為接收\n"
+#~ " cat < /dev/ttyS#\n"
+#~ "4. 請在另一個終端機中透過 RS422 序列埠送出測試訊號\n"
+#~ " echo \"test\" > /dev/ttyS#\n"
+#~ "5. 檢查資料是否有被正確的傳送到第一個終端機裡 6. 重新依照下列方式設定纜"
+#~ "線\n"
+#~ " 自 485 傳送至 422：\n"
+#~ "  RS422      RS485\n"
+#~ "  TXA(-)\n"
+#~ "  TXB(+)\n"
+#~ "  GND    --- GND\n"
+#~ "  RXA(-) --- A(-)\n"
+#~ "  RXB(+) --- B(+)\n"
+#~ "7. 再次執行步驟 3~5，但這次請將 RS422 序列埠設定為接收，並用 RS485 序列埠"
+#~ "來送出訊號"
+
+#~ msgid ""
+#~ "1. Can send data successfully form RS422 port to RS485 port 2. Can send "
+#~ "data successfully form RS485 port to RS422 port"
+#~ msgstr ""
+#~ "1. 可以成功的由 RS422 序列埠送出資料到 RS485 序列埠 2. 可以成功的由 RS485 "
+#~ "序列埠送出資料到 RS422 序列埠"
+
+#~ msgid "Serial TX/RX is operational on the second serial port"
+#~ msgstr "第二個序列埠上的傳送接收運作正常"
+
+#~ msgid "Check that comms work on the second serial port"
+#~ msgstr "檢查在第二個序列埠上的通訊是否正常"
+
+#~ msgid ""
+#~ "1. Connect an appropriate adapter cable to serial port of test machine 2. "
+#~ "Connect the cable to USB port of another ubuntu machine (client) 3. "
+#~ "Install screen on client 4. Execute following command on client:\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. On test machine, identify the second serial port device e.g. ttyS1 6. "
+#~ "On test machine, execute the following command:\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS1"
+#~ msgstr ""
+#~ "1. 將 USB 轉 DB9 虛擬數據機纜線接上待測機的序列埠 2. 將該纜線接上另一台 "
+#~ "Ubuntu 機器的 USB 埠 (客戶端) 3. 於該客戶端上安裝 screen 4. 於客戶端上執行"
+#~ "以下指令：\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. 在待測機上，找出該第二個序列埠裝置，如 ttyS1 6. 在待測機上，執行以下指"
+#~ "令：\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS1"
+
+#~ msgid "Serial TX/RX is operational on the third port"
+#~ msgstr "第三個序列埠上的傳送接收運作正常"
+
+#~ msgid "Check that comms work on the third serial port"
+#~ msgstr "檢查在第三個序列埠上的通訊是否正常"
+
+#~ msgid ""
+#~ "1. Connect an appropriate adapter cable to serial port of test machine 2. "
+#~ "Connect the cable to USB port of another ubuntu machine (client) 3. "
+#~ "Install screen on client 4. Execute following command on client:\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. On test machine, identify the third serial port device e.g. ttyS2 6. "
+#~ "On test machine, execute the following command:\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS2"
+#~ msgstr ""
+#~ "1. 將 USB 轉 DB9 虛擬數據機纜線接上待測機的序列埠 2. 將該纜線接上另一台 "
+#~ "Ubuntu 機器的 USB 埠 (客戶端) 3. 於該客戶端上安裝 screen 4. 於客戶端上執行"
+#~ "以下指令：\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. 在待測機上，找出該第二個序列埠裝置，如 ttyS4 6. 在待測機上，執行以下指"
+#~ "令：\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS4"
+
+#~ msgid "Serial TX/RX is operational on the fourth port"
+#~ msgstr "第四個序列埠上的傳送接收運作正常"
+
+#~ msgid "Check that comms work on the fourth serial port"
+#~ msgstr "檢查在第四個序列埠上的通訊是否正常"
+
+#~ msgid ""
+#~ "1. Connect an appropriate adapter cable to serial port of test machine 2. "
+#~ "Connect the cable to USB port of another ubuntu machine (client) 3. "
+#~ "Install screen on client 4. Execute following command on client:\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. On test machine, identify the fourth serial port device e.g. ttyS3 6. "
+#~ "On test machine, execute the following command:\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS3"
+#~ msgstr ""
+#~ "1. 將 USB 轉 DB9 虛擬數據機纜線接上待測機的序列埠 2. 將該纜線接上另一台 "
+#~ "Ubuntu 機器的 USB 埠 (客戶端) 3. 於該客戶端上安裝 screen 4. 於客戶端上執行"
+#~ "以下指令：\n"
+#~ " sudo screen /dev/ttyUSB0\n"
+#~ "5. 在待測機上，找出該第四個序列埠裝置，如 ttyS3 6. 在待測機上，執行以下指"
+#~ "令：\n"
+#~ " sudo python3 -m serial.tools.miniterm /dev/ttyS3"
+
+#~ msgid ""
+#~ "1. Send some characters from the test machine and see they are "
+#~ "transmitted\n"
+#~ " to the client machine correctly\n"
+#~ "2. Send some characters from the client machine and see they are "
+#~ "transmitted\n"
+#~ " to the test machine correctly"
+#~ msgstr ""
+#~ "1. 從待測機上傳送一些字元看看它們是否會被正確的傳到客戶端上\n"
+#~ "2. 從客戶端上傳送一些字元看看它們是否會被正確的傳到測試機上"
+
+#~ msgid "Control cloud LED through GPIO"
+#~ msgstr "透過 GPIO 控制雲端服務 LED 指示燈"
+
+#~ msgid "Check system can control cloud LED through GPIO"
+#~ msgstr "檢查系統能夠透過 GPIO 控制雲端服務 LED 指示燈"
+
+#~ msgid "1. Click Test button to start the test 2. Observe cloud LED"
+#~ msgstr "1. 按下測試按鈕來開始測試 2. 觀察雲端服務 LED 指示燈"
+
+#~ msgid "Cloud LED is turned on for few seconds and then turned off"
+#~ msgstr "雲端服務 LED 指示燈有被點亮幾秒鐘然後熄滅"
+
+#~ msgid "USB keyboard works on USB 2.0 port number 1"
+#~ msgstr "USB 鍵盤在第一個 USB 2.0 連接埠上運作正常"
+
+#~ msgid "Check USB input device works on port number 1"
+#~ msgstr "檢查 USB 輸入裝置在第一個連接埠上運作是否正常"
+
+#~ msgid ""
+#~ "1. Connect a USB keyboard to port number 1 (looking at the rear of the "
+#~ "system,\n"
+#~ " this is the port on the right closest to the HDMI port).\n"
+#~ "2. Input something with the USB keyboard"
+#~ msgstr ""
+#~ "1. 將 USB 鍵盤接上第一個連接埠 (請檢查系統的背面，\n"
+#~ "這個連接埠在右側靠近 HDMI 連接埠的地方)。\n"
+#~ "2. 透過 USB 鍵盤輸入一些文字"
+
+#~ msgid "USB keyboard works on USB 2.0 port number 2"
+#~ msgstr "USB 鍵盤在第二個 USB 2.0 連接埠上運作正常"
+
+#~ msgid "Check USB input device works on port number 2"
+#~ msgstr "檢查 USB 輸入裝置在第二個連接埠上運作是否正常"
+
+#~ msgid ""
+#~ "1. Connect a USB keyboard to port number 2 (looking at the rear of the "
+#~ "system,\n"
+#~ " this is the port on the left closest to the corner of the system).\n"
+#~ "2. Input something with the USB keyboard"
+#~ msgstr ""
+#~ "1. 將 USB 鍵盤接上第二個連接埠 (請檢查系統的背面，\n"
+#~ "這個連接埠位在最左側的角落)。\n"
+#~ "2. 透過 USB 鍵盤輸入一些文字"
+
+#~ msgid "USB 2.0 storage device insertion detected on USB 2.0 port number 1"
+#~ msgstr "在第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid ""
+#~ "Check system can detect USB 2.0 storage when inserted on USB 2.0 port "
+#~ "number 1"
+#~ msgstr ""
+#~ "檢查系統是否能在第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid "USB 2.0 storage device insertion detected on USB 2.0 port number 2"
+#~ msgstr "在第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid ""
+#~ "Check system can detect USB 2.0 storage when inserted on USB 2.0 port "
+#~ "number 2"
+#~ msgstr ""
+#~ "檢查系統是否能在第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid "USB 2.0 storage device read & write works on USB 2.0 port number 1"
+#~ msgstr "在第一個 USB 2.0 連接埠上的 USB 2.0 儲存裝置讀寫運作正常"
+
+#~ msgid ""
+#~ "Check system can read and write to a storage device connected to port "
+#~ "number 1 (rear of device next to HDMI port)."
+#~ msgstr ""
+#~ "檢查系統是否可以對第一個連接埠上的儲存裝置進行讀寫操作 (這個連接埠在機器背"
+#~ "面，HDMI 連接埠旁邊)。"
+
+#~ msgid "USB 2.0 storage device read & write works on USB 2.0 port number 2"
+#~ msgstr "在第二個 USB 2.0 連接埠上的 USB 2.0 儲存裝置讀寫運作正常"
+
+#~ msgid ""
+#~ "Check system can read and write to a storage device connected to port "
+#~ "number 2 (rear of device next to edge of case)."
+#~ msgstr ""
+#~ "檢查系統是否可以對第二個連接埠上的儲存裝置進行讀寫操作 (這個連接埠在機器背"
+#~ "面，靠近外殼的邊緣)。"
+
+#~ msgid "USB 2.0 storage device removal detected on USB 2.0 port number 1"
+#~ msgstr "在第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的移除"
+
+#~ msgid ""
+#~ "Check system can detect removal of a USB 2.0 storage device on USB 2.0 "
+#~ "port number 1"
+#~ msgstr ""
+#~ "檢查系統是否能在第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的移除"
+
+#~ msgid "USB 2.0 storage device removal detected on USB 2.0 port number 2"
+#~ msgstr "在第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的移除"
+
+#~ msgid ""
+#~ "Check system can detect removal of a USB 2.0 storage device on USB 2.0 "
+#~ "port number 2"
+#~ msgstr ""
+#~ "檢查系統是否能在第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的移除"
+
+#~ msgid "USB 3.0 storage device insertion detected on SuperSpeed port"
+#~ msgstr "在 SuperSpeed 連接埠上偵測到 USB 3.0 儲存裝置的插入"
+
+#~ msgid ""
+#~ "Check system can detect insertion of a USB 3.0 storage device on "
+#~ "SuperSpeed port"
+#~ msgstr "檢查系統是否能在 SuperSpeed 連接埠上偵測到 USB 3.0 儲存裝置的插入"
+
+#~ msgid "USB 3.0 storage device read & write works on SuperSpeed port"
+#~ msgstr "在 SuperSpeed 連接埠上的 USB 3.0 儲存裝置讀寫運作正常"
+
+#~ msgid ""
+#~ "Check system can read and write to a storage device connected to the "
+#~ "SuperSpeed port (front of device next to ethernet port 1)."
+#~ msgstr ""
+#~ "檢查系統是否可以對 SuperSpeed 連接埠上的儲存裝置進行讀寫操作 (這個連接埠在"
+#~ "機器正面，第一個乙太網路連接埠的旁邊)。"
+
+#~ msgid "USB 3.0 storage device removal detected on SuperSpeed port"
+#~ msgstr "在 SuperSpeed 連接埠上偵測到 USB 3.0 儲存裝置的移除"
+
+#~ msgid "Check system can detect USB 3.0 storage removal on SuperSpeed port"
+#~ msgstr "檢查系統是否能在 SuperSpeed 連接埠上偵測到 USB 3.0 儲存裝置的移除"
+
+#~ msgid "CANBus (Controller Area Network Bus)"
+#~ msgstr "CANBus (控制器區域網路)"
+
+#~ msgid "Identify if CANBus module is missing"
+#~ msgstr "檢查 CANBus 模組是否不存在"
+
+#~ msgid ""
+#~ "Tests that there is a CANBus module present and indicates that testing of "
+#~ "it should follow."
+#~ msgstr "檢查 CANBus 模組是否存在，並以此判斷是否要進行後續測試"
+
+#~ msgid "CANBus: read CAN configuration"
+#~ msgstr "CANBus：讀取 CAN 設定"
+
+#~ msgid "Tests that can request the CAN configuration from the module."
+#~ msgstr "本測試將會由該模組讀取 CAN 設定"
+
+#~ msgid "CANBus: read CAN module firmware version"
+#~ msgstr "CANBus：讀取 CAN 模組韌體版本資訊"
+
+#~ msgid "Tests that can read the firmware version from the module."
+#~ msgstr "本測試將會由該模組讀取韌體版本資訊"
+
+#~ msgid "CANBus: test input and output of USB channel"
+#~ msgstr "CANBus：測試 USB channel 的輸入輸出"
+
+#~ msgid ""
+#~ "Tests that data sent on the input interrupt to USB channel is returned."
+#~ msgstr "測試傳送至 USB channel 輸入中斷插入的資料是否有被回傳"
+
+#~ msgid "CANBus module"
+#~ msgstr "CANBus 模組"
+
+#~ msgid "Gather device info about CANBus modules"
+#~ msgstr "收集關於 CANBus 模組的裝置資訊"
+
+#~ msgid "Get information about the CANBus module including device nodes"
+#~ msgstr "收集關於 CANBus 模組包含設備節點在內的資訊"
+
+#~ msgid "Input/Output Module"
+#~ msgstr "輸入/輸出模組"
+
+#~ msgid "Detect PCI-E device on PCI-E slot on IOM"
+#~ msgstr "偵測在 IOM 上 PCI-E 插槽上的 PCI-E 裝置"
+
+#~ msgid ""
+#~ "Check that system can detect PCI-E device connected to PCI-E slot on IOM"
+#~ msgstr "檢查系統是否可以偵測安裝於 IOM 上 PCI-E 插槽上的 PCI-E 裝置"
+
+#~ msgid ""
+#~ "1. Make sure PCI-E device is connected before system boot 2. Commence the "
+#~ "test"
+#~ msgstr "1. 確定 PCI-E 裝置在開機前已連接至本系統 2. 進行測試"
+
+#~ msgid "Verify device id of the PCI-E device is listed"
+#~ msgstr "檢查該 PCI-E 裝置的 ID 是否有被列出來 "
+
+#~ msgid "Serial TX/RX is operational on the RS232 port on IOM"
+#~ msgstr "IOM 上 RS232 序列埠上的傳送接收運作正常"
+
+#~ msgid "USB keyboard works on USB 2.0 port number 1 on IOM"
+#~ msgstr "USB 鍵盤在 IOM 上的第一個 USB 2.0 連接埠上運作正常"
+
+#~ msgid "Check USB input device works on port number 1 on IOM"
+#~ msgstr "檢查 USB 輸入裝置在 IOM 上的第一個 USB 2.0 連接埠上是否運作正常"
+
+#~ msgid ""
+#~ "1. Connect a USB keyboard to port number 1 on IOM 2. Input something with "
+#~ "the USB keyboard"
+#~ msgstr "1. 將 USB 鍵盤接上 IOM 的第一個連接埠 2. 用該 USB 鍵盤輸入一些文字"
+
+#~ msgid "USB keyboard works on USB 2.0 port number 2 on IOM"
+#~ msgstr "USB 鍵盤在 IOM 上的第二個 USB 2.0 連接埠上運作正常"
+
+#~ msgid "Check USB input device works on port number 2 on IOM"
+#~ msgstr "檢查 USB 輸入裝置在 IOM 上的第二個 USB 2.0 連接埠上是否運作正常"
+
+#~ msgid ""
+#~ "1. Connect a USB keyboard to port number 2 on IOM 2. Input something with "
+#~ "the USB keyboard"
+#~ msgstr "1. 將 USB 鍵盤接上 IOM 的第二個連接埠 2. 用該 USB 鍵盤輸入一些文字"
+
+#~ msgid "USB keyboard works on USB 2.0 port number 3 on IOM"
+#~ msgstr "USB 鍵盤在 IOM 上的第三個 USB 2.0 連接埠上運作正常"
+
+#~ msgid "Check USB input device works on port number 3 on IOM"
+#~ msgstr "檢查 USB 輸入裝置在 IOM 上的第三個 USB 2.0 連接埠上是否運作正常"
+
+#~ msgid ""
+#~ "1. Connect a USB keyboard to port number 3 on IOM 2. Input something with "
+#~ "the USB keyboard"
+#~ msgstr "1. 將 USB 鍵盤接上 IOM 的第三個連接埠 2. 用該 USB 鍵盤輸入一些文字"
+
+#~ msgid ""
+#~ "USB 2.0 storage device insertion detected on USB 2.0 port number 1 on IOM"
+#~ msgstr "在 IOM 上的第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid ""
+#~ "Check system can detect USB 2.0 storage when inserted on USB 2.0 port "
+#~ "number 1 on IOM"
+#~ msgstr ""
+#~ "檢查系統是否能在 IOM 上的第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的"
+#~ "插入"
+
+#~ msgid ""
+#~ "USB 2.0 storage device insertion detected on USB 2.0 port number 2 on IOM"
+#~ msgstr "在 IOM 上的第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid ""
+#~ "Check system can detect USB 2.0 storage when inserted on USB 2.0 port "
+#~ "number 2 on IOM"
+#~ msgstr ""
+#~ "檢查系統是否能在 IOM 上的第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的"
+#~ "插入"
+
+#~ msgid ""
+#~ "USB 2.0 storage device insertion detected on USB 2.0 port number 3 on IOM"
+#~ msgstr "在 IOM 上的第三個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的插入"
+
+#~ msgid ""
+#~ "Check system can detect USB 2.0 storage when inserted on USB 2.0 port "
+#~ "number 3 on IOM"
+#~ msgstr ""
+#~ "檢查系統是否能在 IOM 上的第三個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的"
+#~ "插入"
+
+#~ msgid ""
+#~ "USB 2.0 storage device read & write works on USB 2.0 port number 1 on IOM"
+#~ msgstr "USB 2.0 儲存裝置在 IOM 上的第一個 USB 2.0 連接埠上的讀寫運作正常"
+
+#~ msgid ""
+#~ "Tests system can read and write to a storage device connected to port "
+#~ "number 1 of the additional I/O Module."
+#~ msgstr ""
+#~ "檢查系統是否可以對連接在附加的 I/O 模組上第一個連接埠的儲存裝置進行讀寫操"
+#~ "作。"
+
+#~ msgid ""
+#~ "USB 2.0 storage device read & write works on USB 2.0 port number 2 on IOM"
+#~ msgstr "USB 2.0 儲存裝置在 IOM 上的第二個 USB 2.0 連接埠上的讀寫運作正常"
+
+#~ msgid ""
+#~ "Tests system can read and write to a storage device connected to port "
+#~ "number 2 of the additional I/O Module."
+#~ msgstr ""
+#~ "檢查系統是否可以對連接在附加的 I/O 模組上第二個連接埠的儲存裝置進行讀寫操"
+#~ "作。"
+
+#~ msgid ""
+#~ "USB 2.0 storage device read & write works on USB 2.0 port number 3 on IOM"
+#~ msgstr "USB 2.0 儲存裝置在 IOM 上的第三個 USB 2.0 連接埠上的讀寫運作正常"
+
+#~ msgid ""
+#~ "Tests system can read and write to a storage device connected to port "
+#~ "number 3 of the additional I/O Module."
+#~ msgstr ""
+#~ "檢查系統是否可以對連接在附加的 I/O 模組上第三個連接埠的儲存裝置進行讀寫操"
+#~ "作。"
+
+#~ msgid ""
+#~ "USB 2.0 storage device removal detected on USB 2.0 port number 1 on IOM"
+#~ msgstr "在 IOM 上的第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的移除"
+
+#~ msgid ""
+#~ "Check system can detect removal of a USB 2.0 storage device on USB 2.0 "
+#~ "port number 1 on IOM"
+#~ msgstr ""
+#~ "檢查系統是否能在 IOM 上的第一個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的"
+#~ "移除"
+
+#~ msgid ""
+#~ "USB 2.0 storage device removal detected on USB 2.0 port number 2 on IOM"
+#~ msgstr "在 IOM 上的第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的移除"
+
+#~ msgid ""
+#~ "Check system can detect removal of a USB 2.0 storage device on USB 2.0 "
+#~ "port number 2 on IOM"
+#~ msgstr ""
+#~ "檢查系統是否能在 IOM 上的第二個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的"
+#~ "移除"
+
+#~ msgid ""
+#~ "USB 2.0 storage device removal detected on USB 2.0 port number 3 on IOM"
+#~ msgstr "在 IOM 上的第三個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的移除"
+
+#~ msgid ""
+#~ "Check system can detect removal of a USB 2.0 storage device on USB 2.0 "
+#~ "port number 3 on IOM"
+#~ msgstr ""
+#~ "檢查系統是否能在 IOM 上的第三個 USB 2.0 連接埠上偵測到 USB 2.0 儲存裝置的"
+#~ "移除"
+
+#~ msgid "Identify if IOM I/O Expansion module is missing"
+#~ msgstr "檢查 IOM I/O 擴充模組是否遺失"
+
+#~ msgid ""
+#~ "Tests that there is a IOM I/O Expansion module present and indicates that "
+#~ "testing of it should follow."
+#~ msgstr "檢查 IOM I/O 擴充模組是否存在，並以此判斷是否要進行後續測試。"
+
+#~ msgid "IOM: read PIC firmware version"
+#~ msgstr "IOM: 讀取 PIC 韌體版本"
+
+#~ msgid "Tests that can read the PIC firmware version from the module."
+#~ msgstr "從模組中讀取 PIC 韌體版本資訊的測試。"
+
+#~ msgid "IOM: read the SKU ID"
+#~ msgstr "IOM: 讀取 SKU ID"
+
+#~ msgid "Tests that can read the IOM SKU ID from the module."
+#~ msgstr "從模組中讀取 IOM SKU ID 的測試。"
+
+#~ msgid "IOM: read the Board ID"
+#~ msgstr "IOM: 讀取 Board ID"
+
+#~ msgid "Tests that can read the Board ID from the module."
+#~ msgstr "從模組讀取 Board ID 的測試項目。"
+
+#~ msgid "IOM: read the GPIO data buffer"
+#~ msgstr "IOM: 讀取 GPIO 資料緩衝區"
+
+#~ msgid "Tests that can read the GPIO data buffer."
+#~ msgstr "讀取 GPIO 資料緩衝區的測試項目。"
+
+#~ msgid "IOM: Write the GPIO data buffer"
+#~ msgstr "IOM: 寫入 GPIO 資料緩衝區"
+
+#~ msgid "Tests that can write the GPIO data buffer."
+#~ msgstr "檢查能夠寫入 GPIO 資料緩衝區。"
+
+#~ msgid "IOM: Set the GPIO output mode type"
+#~ msgstr "IOM: 設定 GPIO 輸出模式類型"
+
+#~ msgid "Tests that can set the GPIO output mode type."
+#~ msgstr "設定 GPIO 輸出模式類型的測試項目。"
+
+#~ msgid "IOM: Set the GPIO input mode type"
+#~ msgstr "IOM: 設定 GPIO 輸入模式類型"
+
+#~ msgid "Tests that can set the GPIO input mode type."
+#~ msgstr "設定 GPIO 輸入模式類型的測試項目。"
+
+#~ msgid "I/O module"
+#~ msgstr "I/O 模組"
+
+#~ msgid "Gather device info about I/O modules"
+#~ msgstr "收集 I/O 模組的裝置相關資訊"
+
+#~ msgid "Get information about the I/O module including device nodes"
+#~ msgstr "取得關於 I/O 模組包含設備節點的資訊"
+
+#~ msgid "TPM (Trusted Platform Module) Smoke Tests for St. Louis"
+#~ msgstr "對 St. Louis TPM (可信賴平台模組) 的煙霧測試"
+
+#~ msgid "Zigbee"
+#~ msgstr "Zigbee"
+
+#~ msgid "Identify if Zigbee module is missing"
+#~ msgstr "檢查 Zigbee 模組是否不存在"
+
+#~ msgid ""
+#~ "Tests that there is a Zigbee module present and indicates that testing of "
+#~ "it should follow."
+#~ msgstr "檢查 Zigbee 模組是否存在，並以此判斷是否要進行後續測試"
+
+#~ msgid "Get product identification information of the Zigbee device"
+#~ msgstr "取得 Zigbee 裝置識別資訊"
+
+#~ msgid "Get Zigbee product identification information with AT command"
+#~ msgstr "利用 AT 指令取得 Zigbee 裝置識別資訊"
+
+#~ msgid "Read the current licence key assigned to the Zigbee device"
+#~ msgstr "讀取目前指派給 Zigbee 設備的授權金鑰"
+
+#~ msgid ""
+#~ "Use an AT command to read data from the S-Register storing the currently "
+#~ "assigned licence key"
+#~ msgstr "使用 AT 指令讀取來自 S-Register 所儲存目前被指派的授權金鑰的資料"
+
+#~ msgid "Scan for Zigbee PANs and print details of any found"
+#~ msgstr "掃描 Zigbee 個人區域網路 (PAN) 並印出所有找到的詳細資訊"
+
+#~ msgid ""
+#~ "Sends the AT command to scan for active PANs. The list of PANs found is "
+#~ "parsed and printed."
+#~ msgstr ""
+#~ "利用 AT 指令來掃描運作中的個人區域網路。找到的個人區域網路列表將會被印出"
+#~ "來。"
+
+#~ msgid "Zigbee module"
+#~ msgstr "Zigbee 模組"
+
+#~ msgid "Gather device info about Zigbee modules"
+#~ msgstr "收集關於 Zigbee 模組的裝置資訊"
+
+#~ msgid "Get information about the Zigbee module including device nodes"
+#~ msgstr "收集關於 Zigbee 模組包含設備節點在內的資訊"
+
+#~ msgid "Check first ethernet port connects when cable inserted"
+#~ msgstr "檢查第一個乙太網路連接埠於插入網路線時是否會自動連線"
+
+#~ msgid ""
+#~ "1. Ensure that there is no ethernet cable attached to the system. 2. "
+#~ "Begin the test. 3. Insert the ethernet cable in to ethernet port 1. 4. "
+#~ "This test will timeout and fail if the insertion and connection\n"
+#~ "   establishment has not been detected within 60 seconds."
+#~ msgstr ""
+#~ " 1. 確定本系統沒有接上任何網路線。\n"
+#~ " 2. 開始測試。\n"
+#~ " 3. 將網路線插入第一個乙太網路連接埠。\n"
+#~ " 4. 若沒有偵測到網路線的插入及連線的建立，本測試將會在 60 秒後逾時並失敗。"
+
+#~ msgid "Detect when cable removed from first ethernet port"
+#~ msgstr "於網路線自第一個乙太網路連接埠移除時進行偵測"
+
+#~ msgid ""
+#~ "1. Ensure there is a an ethernet cable attached to port 1. 2. Begin the "
+#~ "test. 3. Remove the ethernet cable from ethernet port 1. 4. This test "
+#~ "will timeout and fail if the removal has not been detected\n"
+#~ "    within 20 seconds."
+#~ msgstr ""
+#~ " 1. 確定網路線有接上第一個乙太網路連接埠。\n"
+#~ " 2. 開始測試。\n"
+#~ " 3. 將網路線自第一個乙太網路連接埠上移除。\n"
+#~ " 4. 若沒有偵測到網路線的移除，本測試將在 20 秒後逾時並失敗。"
+
+#~ msgid "Second ethernet port hotplug connect step"
+#~ msgstr "第二個乙太網路連接埠的熱插拔連線測試"
+
+#~ msgid "Check second ethernet port connects when cable inserted"
+#~ msgstr "檢查第二個乙太網路連接埠於插入網路線時是否會自動連線"
+
+#~ msgid ""
+#~ "1. Ensure that there is no ethernet cable attached to the system. 2. "
+#~ "Begin the test. 3. Insert the ethernet cable in to ethernet port 2. 4. "
+#~ "This test will timeout and fail if the insertion and connection\n"
+#~ "   establishment has not been detected within 60 seconds."
+#~ msgstr ""
+#~ " 1. 確定本系統沒有接上任何網路線。\n"
+#~ " 2. 開始測試。\n"
+#~ " 3. 將網路線插入第二個乙太網路連接埠。\n"
+#~ " 4. 若沒有偵測到網路線的插入及連線的建立，本測試將會在 60 秒後逾時並失敗。"
+
+#~ msgid "Detect when cable removed from second ethernet port"
+#~ msgstr "於網路線自第二個乙太網路連接埠移除時進行偵測"
+
+#~ msgid ""
+#~ "1. Ensure there is a an ethernet cable attached to port 2. 2. Begin the "
+#~ "test. 3. Remove the ethernet cable from ethernet port 2. 4. This test "
+#~ "will timeout and fail if the removal has not been detected\n"
+#~ "    within 20 seconds."
+#~ msgstr ""
+#~ " 1. 確定網路線有接上第二個乙太網路連接埠。\n"
+#~ " 2. 開始測試。\n"
+#~ " 3. 將網路線自第二個乙太網路連接埠上移除。\n"
+#~ " 4. 若沒有偵測到網路線的移除，本測試將在 20 秒後逾時並失敗。"
+
+#~ msgid "System reboot into system successfully"
+#~ msgstr "系統成功的重新啟動"

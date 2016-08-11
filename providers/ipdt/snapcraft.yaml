@@ -29,6 +29,16 @@ parts:
             - python3-plainbox
     plainbox-provider-snappy-resource:
         after: [plainbox-provider-ipdt]
+    plainbox-provider-ipdt-gpu:
+        plugin: plainbox-provider
+        source: ./plainbox-provider-ipdt-gpu
+        after: [plainbox-provider-snappy-resource]
+        stage-packages:
+            - freeglut3-dev
+            - util-linux
+            - xserver-xorg-video-intel
+        build-packages:
+            - python3-plainbox
     launchers:
         plugin: copy
         files:

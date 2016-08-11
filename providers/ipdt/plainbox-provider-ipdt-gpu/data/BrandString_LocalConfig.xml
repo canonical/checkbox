@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?BrandString_LocalConfig.xml Version="1.0.0.0"?>
+<BrandString_LocalConfig  BrandString_LocalConfig="CPU String Definitions"   >
+  <Stringdefinitions definitions 		= "Intel"
+					SampleStringParts 	= "Genuine Intel|###"
+					CoreStringParts 	= "Intel(R)|Core(TM)|CPU|@"
+					XeonStringParts 	= "Intel(R)|Xeon(R)|CPU|@"
+					AtomStringParts 	= "Intel(R)|Atom|(TM)|CPU|@"
+					PentiumStringParts 	= "Intel(R)|Pentium(R)|CPU|@"
+					CeleronStringParts 	= "Intel(R)|Celeron(R)|CPU|@"
+					>
+  </Stringdefinitions>
+  
+</BrandString_LocalConfig>

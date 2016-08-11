@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?LocalConfig.xml Version="1.0.4.0"?>
+<LocalModuleConfig  LocalConfigItem="Some Item">
+  <PCH Chipset="NM10|S5|S6|S7|S7Patsburg|S8|S9|S9Wellsburg|SKL|SunrisePoint|Lewisburg" IntelDeviceBDF="0|31|0" deviceIDPCI="0|31|0|2" SteppingPCI="0|31|0|8"/>
+  <NM10 
+       LPCDeviceID="0x27bc"
+       PCHNameDefault="Intel(R) NM10 Family Express Chipset"
+       PCHNameID="0x27bc"
+       PCHName="Intel(R) NM10 Family Express Chipset"
+       RevID="" Stepping="" 
+       PCIDevices ="0|30|0" PCIe="0|1|0" PCIe2="0|28|0-3" SATA="0|31|2" Audio="0|27|0" LAN="1|8|0"
+       />
+  <89xx 
+       LPCDeviceID="0x2310|0x2390"
+       PCHNameDefault="Intel(R) Communications Chipset 89xx Series"
+       PCHNameID="0x2310|0x2390"
+       PCHName="Intel(R) Communications Chipset DH89xxCC|Intel(R) Communications Chipset DH89xxCL"
+       RevID="" Stepping="" 
+       PCIDevices ="0|30|0" PCIe="0|28|0-3" SATA="0|31|2" SATA2="0|31|5"
+       />
+  <S5
+       LPCDeviceID="0x3b01|0x3b02|0x3b03|0x3b04|0x3b05|0x3b06|0x3b07|0x3b08|0x3b09|0x3b0a|0x3b0b|0x3b0c|0x3b0d|0x3b0e|0x3b0f|0x3b10|0x3b11|0x3b12|0x3b13|0x3b14|0x3b15|0x3b16|0x3b17|0x3b18|0x3b19|0x3b1a|0x3b1b|0x3b1c|0x3b1d|0x3b1e|0x3b1f"
+       PCHNameDefault="Intel(R) 5 Series Chipset and Intel(R) 3400 Series Chipset"
+       PCHNameID="0x3B02|0x3B03|0x3B06|0x3B07|0x3B08|0x3B0A|0x3B0B|0x3B0F|0x3B12|0x3B14|0x3B16"
+       PCHName="Intel(R) P55 Chipset|Intel(R) PM55 Chipset|Intel(R) H55 Chipset|Intel(R) QM57 Chipset|Intel(R) H57 Chipset|Intel(R) Q57 Chipset|Intel(R) HM57 Chipset|Intel(R) QS57 Chipset|Intel(R) 3400 Chipset|Intel(R) 3420 Chipset|Intel(R) 3450 Chipset"
+       RevID="5|6" Stepping="B2|B3"
+       PCIDevices ="0|30|0" PCIe="0|1|0" PCIe2="0|28|0-7" SATA="0|31|2" SATA2="0|31|5" Audio="0|27|0" LAN="0|25|0"
+       />
+  <S6
+       LPCDeviceID="0x1C40|0x1C41|0x1C42|0x1C43|0x1C44|0x1C45|0x1C46|0x1C47|0x1C48|0x1C49|0x1C4a|0x1C4b|0x1C4c|0x1C4d|0x1C4e|0x1C4f|0x1C50|0x1C51|0x1C52|0x1C53|0x1C54|0x1C55|0x1C56|0x1C57|0x1C58|0x1C59|0x1C5a|0x1C5b|0x1C5c|0x1C5d|0x1C5e|0x1C5f"
+       PCHNameDefault="Intel(R) 6 Series Chipset or Intel(R) C200 Series Chipset"
+       PCHNameID="0x1C41|0x1C43|0x1C44|0x1C46|0x1C47|0x1C49|0x1C4A|0x1C4B|0x1C4C|0x1C4D|0x1C4E|0x1C4F|0x1C50|0x1C52|0x1C54|0x1C56|0x1C58|0x1C59|0x1C5C|0x1C5A"
+       PCHName="Intel(R) Mobile SFF 6 Series|Intel(R) Mobile 6 Series Chipset|Intel(R) Z68 Chipset|Intel(R) P67 Chipset|Intel(R) UM67 Chipset|Intel(R) HM65 Chipset|Intel(R) H67 Chipset|Intel(R) HM67 Chipset|Intel(R) Q65 Chipset|Intel(R) QS67 Chipset|Intel(R) Q67 Chipset|Intel(R) QM67 Chipset|Intel(R) B65 Chipset|Intel(R) C202 Chipset|Intel(R) C204 Chipset|Intel(R) C206 Chipset|Intel(R) Upgraded B65 Chipset|Intel(R) Upgraded HM67 Chipset|Intel(R) H61 Chipset|Intel(R) Upgraded Q67 Chipset"
+       RevID="4|5" Stepping="B2|B3" 
+       PCIDevices ="0|30|0" PCIe="0|28|0-7" PCIe2="0|1|0" SATA="0|31|2" SATA2="0|31|5" Audio="0|27|0" LAN="0|25|0"
+       />
+  <S7
+       LPCDeviceID="0x1e40|0x1e41|0x1e42|0x1e43|0x1e44|0x1e45|0x1e46|0x1e47|0x1e48|0x1e49|0x1e4a|0x1e4b|0x1e4c|0x1e4d|0x1e4e|0x1e4f|0x1e50|0x1e51|0x1e52|0x1e53|0x1e54|0x1e55|0x1e56|0x1e57|0x1e58|0x1e59|0x1e5a|0x1e5b|0x1e5c|0x1e5d|0x1e5e|0x1e5f"
+       PCHNameDefault="Intel(R) 7 Series Chipset or Intel(R) C216 Series Chipset"
+       PCHNameID="0x1E44|0x1E46|0x1E47|0x1E48|0x1E49|0x1E4A|0x1E53|0x1E55|0x1E56|0x1E57|0x1E58|0x1E59|0x1E5B|0x1E5D|0x1E5E"
+       PCHName="Intel(R) Z77 Express Chipset|Intel(R) Z75 Express Chipset|Intel(R) Q77 Express Chipset|Intel(R) Q75 Express Chipset|Intel(R) B75 Express Chipset|Intel(R) H77 Express Chipset|Intel(R) C216 Express Chipset|Mobile Intel(R) QM77 Express Chipset|Mobile Intel(R) QS77 Express Chipset|Mobile Intel(R) HM77 Express Chipset|Mobile Intel(R) UM77 Express Chipset|Mobile Intel(R) HM76 Express Chipset|Mobile Intel(R) UM77 Express Chipset|Mobile Intel(R) HM75 Express Chipset|Mobile Intel(R) HM70 Express Chipset"
+       RevID="0|1|2|3|4" Stepping="A0|A1|B0|C0|C1"
+       PCIDevices ="0|30|0" PCIe="0|1|0" PCIe2="0|28|0-7" SATA="0|31|2" SATA2="0|31|5" Audio="0|27|0" LAN="0|25|0"
+       />
+
+  <S7Patsburg
+      LPCDeviceID="0x1d40|0x1d41"
+      PCHNameDefault="Intel(R) X79 Express Chipset or Intel(R) C600 Series Chipset"
+      PCHNameID="0x1D40|0x1D41"
+      PCHName="Intel(R) X79 Express Chipset or Intel(R) C600 Series Chipset|Intel(R) X79 Express Chipset or Intel(R) C600 Series Chipset"
+      RevID="1|3|4|5|6" Stepping="A0|A2|B0|C0|C1"
+      PCIDevices ="0|30|0" PCIe="0|1|0" PCIe2="0|28|0-7" SATA="0|31|2" SATA2="0|31|5" Audio="0|27|0" LAN="0|25|0"
+       />
+    
+ <S8
+       LPCDeviceID="0x8c40|0x8c41|0x8c42|0x8c43|0x8c44|0x8c45|0x8c46|0x8c47|0x8c48|0x8c49|0x8c4a|0x8c4b|0x8c4c|0x8c4d|0x8c4e|0x8c4f|0x8c50|0x8c51|0x8c52|0x8c53|0x8c54|0x8c55|0x8c56|0x8c57|0x8c58|0x8c59|0x8c5a|0x8c5b|0x8c5c|0x8c5d|0x8c5e|0x8c5f|9c40|9c41|9c42|9c43|9c44|9c45|9c46|9c47"
+       PCHNameDefault="Intel(R) 8 Series Chipset or Intel(R) C220 Series Chipset"
+       PCHNameID="0x8C41|0x8C42|0x8C44|0x8C46|0x8C49|0x8C4A|0x8C4B|0x8C4C|0x8C4E|0x8C4F|0x8C50|0x8C52|0x8C54|0x8C56|0x8C5C|9c40|9c41|9c42|9c43|9c44|9c45|9c46|9c47"
+       PCHName="Intel(R) 8 Series Chipset Mobile Super SKU|Intel(R) 8 Series or Intel(R) C220 Chipset Desktop Super SKU|Intel(R) Z87 Express Chipset|Intel(R) Z85 Express Chipset|Intel(R) HM86 Express Chipset|Intel(R) H87 Express Chipset|Intel(R) HM87 Express Chipset|Intel(R) Q85 Express Chipset|Intel(R) Q87 Express Chipset|Intel(R) QM87 Express Chipset|Intel(R) B85 Express Chipset|Intel(R) C222 Series Chipset Server Essential SKU|Intel(R) C224 Series Chipset Server Standard SKU|Intel(R) C226 Series Chipset Server Advanced SKU|Intel(R) C220 Series Chipset H81 Express|Intel(R) 8 Series Chipset|Intel(R) 8 Series Chipset|Intel(R) 8 Series Chipset|Intel(R) 8 Series Chipset|Intel(R) 8 Series Chipset|Intel(R) 8 Series Chipset|Intel(R) 8 Series Chipset|Intel(R) 8 Series Chipset"     
+       PCIDevices ="0|30|0" PCIe="0|1|0" PCIe2="0|28|0-7" SATA="0|31|2" SATA2="0|31|5" Audio="0|27|0" LAN="0|25|0" RevID="1|2|3|4" Stepping="A1|B0|C0|C1"
+       />
+  <S9
+       LPCDeviceID="0x8cc1|0x8cc2|0x8cc4|0x8cc6|0x8cc3|0x9cc1|0x9cc2|0x9cc3|0x9cc5|0x9cc6|0x9cc7|0x9cc9"
+       PCHNameDefault="Intel(R) 9 Series Chipset"
+       PCHNameID="0x8CC1|0x8CC2|0x8CC4|0x8CC6|0x8CC3|0x9CC1|0x9CC2|0x9CC3|0x9CC5|0x9CC6|0x9CC7|0x9CC9"
+       PCHName="Intel® 9 Series Chipset - Mobile Full Featured Engineering Sample|Intel® 9 Series Chipset - Desktop Full Featured Engineering Sample|Intel® 9 Series Chipset - Z97|Intel® 9 Series Chipset - H97|Intel® 9 Series Chipset - HM97|Wildcat Point-LP|Wildcat Point-LP|Wildcat Point-LP|Wildcat Point-LP|Wildcat Point-LP|Wildcat Point-LP|Wildcat Point-LP"
+       PCIDevices ="0|30|0" PCIe="0|1|0" PCIe2="0|28|0-7" SATA="0|31|2" SATA2="0|31|5" Audio="0|27|0" LAN="0|25|0"
+       RevID="0" Stepping="A0"
+       />
+ <S9Wellsburg
+       LPCDeviceID="8d40|8d41|8d42|8d43|8d44|8d45|8d46|8d47|8d48|8d49|8d4a|8d4b|8d4c|8d4d|8d4e|8d4f"
+       PCHNameDefault="Intel(R) X99 Series Chipset or Intel(R) Series C610 Chipset"
+       PCHNameID="0x8D44|0x8D47"
+       PCHName="Intel(R) X99 Series Chipset|Intel(R) X99 Series Chipset"
+       PCIDevices ="0|30|0" PCIe="0|1|0" PCIe2="0|28|0-7" SATA="0|31|2" SATA2="0|31|5" Audio="0|27|0" LAN="0|25|0"
+       RevID="5" Stepping="B1"
+       />
+ <SKL
+       LPCDeviceID="0x9d40|0x9d41|0x9d42|0x9d43|0x9d44|0x9d45|0x9d46|0x9d47|0x9d48|0x9d49|0x9d4a|0x9d4b|0x9d4c|0x9d4d|0x9d4e|0x9d4f|0x9d50|0x9d51|0x9d52|0x9d53|0x9d54|0x9d55|0x9d56|0x9d57|0x9d58|0x9d59|0x9d5a|0x9d5b|0x9d5c|0x9d5d|0x9d5e|0x9d5f|0xA146|0xA145"
+       PCHNameDefault="Skylake Platform Controller Hub"
+       PCHNameID="0x9D41|0x9D43|0x9D46|0x9D48"
+       PCHName="Skylake Platform Controller Hub - Full featured engineering sample|SKL-U Base|SKL-Y Premium|SKL-U Premium"
+       PCIDevices ="0|30|0" PCIe="0|29|0-7" PCIe2="0|28|0-7" PCIe3="0|27|0-3" SATA="0|23|0" Audio="0|31|3" LAN="0|31|6"
+       RevID="1|9|16|32|33" Stepping="A1|A2|B0|C0|C1"
+       />
+
+  <SunrisePoint
+       LPCDeviceID="0xA140|0xA141|0xA142|0xA143|0xA144|0xA145|0xA146|0xA147|0xA148|0xA149|0xA14A|0xA14B|0xA14C|0xA14D|0xA14E|0xA14F|0xA150|0xA151|0xA152|0xA153|0xA154|0xA155|0xA156|0xA157|0xA158|0xA159|0xA15A|0xA15B|0xA15C|0xA15D|0xA15E|0xA15F"
+       PCHNameDefault="Intel(R) 100 Series and Intel(R) C230 Series Chipset"
+       PCHNameID="0xA141|0xA143|0xA144|0xA145|0xA146|0xA147|0xA148|0xA149|0xA14A|0xA14B|0xA14D|0xA14E|0xA150"
+       PCHName="Full featured Client engineering sample|Intel(R) H110 Chipset|Intel(R) H170 Chipset|Intel(R) Z170 Chipset|Intel(R) Q170 Chipset|Intel(R) Q150 Chipset|Intel(R) B150 Chipset|Intel(R) C236 Chipset|Intel(R) C232 Chipset|Full featured Server engineering sample|Intel(R) QM170 Chipset|Intel(R) HM170 Chipset|Intel(R) CM236 Chipset"
+       PCIDevices ="0|30|0" PCIe="0|29|0-7" PCIe2="0|28|0-7" PCIe3="0|27|0-3" SATA="0|23|0" Audio="0|31|3" LAN="0|31|6"
+       RevID="0|16|32|48|49" Stepping="A0|B0|C1|D0|D1"
+       />
+  <Lewisburg
+       LPCDeviceID="0xA242|0xA243|0xA1C1|0xA1C2|0xA1C3|0xA1C4|0xA1C5|0xA1C6|0xA1C7"
+       PCHNameDefault="Lewisburg Platform Controller Hub"
+       PCHNameID="0xA242|0xA243"
+       PCHName="Lewisburg PCH supersku|Lewisburg PCH supersku"
+       PCIDevices ="0|30|0" PCIe="0|29|0-7" PCIe2="0|28|0-7" PCIe3="0|27|0-3" SATA="0|23|0" Audio="0|31|3" LAN="0|31|6"
+       RevID="0" Stepping="A0"
+       />
+</LocalModuleConfig>

@@ -1,16 +1,14 @@
 # Copyright 2015-2016 Canonical Ltd.
 # All rights reserved.
 
-id: ipdt-plan
+id: ipdt-gpu-plan
 unit: test plan
-_name: IPDTGPU
+_name: IPDT
 _description:
  Runs the Intel Processor Diagnostic Test Suite
 estimated_duration: 1h
 include:
-    ipdt/.*
-nested_part:
-    2016.com.intel.ipdtgpu::ipdt-gpu-plan
+    ipdtgpu/.*
 mandatory_include:
     2013.com.canonical.plainbox::manifest
     2013.com.canonical.plainbox::package

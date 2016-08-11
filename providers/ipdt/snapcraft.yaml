@@ -22,7 +22,6 @@ parts:
         source: ./plainbox-provider-ipdt
         after: [checkbox]
         stage-packages:
-            - freeglut3-dev
             - util-linux
     plainbox-provider-snappy-resource:
         after: [plainbox-provider-ipdt]

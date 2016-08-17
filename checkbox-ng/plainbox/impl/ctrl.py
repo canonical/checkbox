@@ -1279,6 +1279,9 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         # Doesn't work for windows jobs
         if 'win32' in job.get_flag_set():
             return -1
+        # Doesn't work with snappy
+        if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
+            return -1
         # Only makes sense with jobs that need to run as another user
         # Promote this controller only if the trusted launcher is authorized to
         # run jobs as another user
@@ -1373,6 +1376,9 @@ class RootViaPkexecExecutionController(
         """
         # Doesn't work for windows jobs
         if 'win32' in job.get_flag_set():
+            return -1
+        # Doesn't work with snappy
+        if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
             return -1
         if job.user is not None:
             return 1

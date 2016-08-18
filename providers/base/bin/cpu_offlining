@@ -1,22 +1,24 @@
 #!/bin/bash
 
-echo "Beginning CPU Offlining Test" 1>&2
-
 result=0
 cpu_count=0
+offline_fails="Offline Failed:"
+online_fails="Online Failed:"
+exitcode=0
 
 # Turn CPU cores off
 for cpu_num in `ls /sys/devices/system/cpu | grep -o cpu[0-9]*`; do
     if [ -f /sys/devices/system/cpu/$cpu_num/online ]; then
         if [ "$cpu_num" != "cpu0" ]; then
             ((cpu_count++))
-            echo "Offlining $cpu_num" 1>&2
             echo 0 > /sys/devices/system/cpu/$cpu_num/online
-
-            grep -w -i -q $cpu_num /proc/interrupts
-            if [ $? -eq 0 ]; then
+            sleep 0.5
+            output=`grep -w -i $cpu_num /proc/interrupts`
+            result=$?
+            if [ $result -eq 0 ]; then
                 echo "ERROR: Failed to offline $cpu_num" 1>&2
-                result=1
+                offline_fails="$offline_fails $cpu_num"
+                exitcode=1
             fi
         fi
     fi
@@ -26,21 +28,25 @@ done
 for cpu_num in `ls /sys/devices/system/cpu | grep -o cpu[0-9]*`; do
     if [ -f /sys/devices/system/cpu/$cpu_num/online ]; then
         if [ "$cpu_num" != "cpu0" ]; then        
-            echo "Onlining $cpu_num" 1>&2
             echo 1 > /sys/devices/system/cpu/$cpu_num/online
-            grep -w -i -q $cpu_num /proc/interrupts
-            if [ $? -eq 1 ]; then
+            sleep 0.5
+            output=`grep -w -i $cpu_num /proc/interrupts`
+            result=$?
+            if [ $result -eq 1 ]; then
                 echo "ERROR: Failed to online $cpu_num" 1>&2
-                result=1
+                online_fails="$online_fails $cpu_num"
+                exitcode=1
             fi
         fi
     fi
 done
 
-if [ $result -eq 0 ]; then
+if [ $exitcode -eq 0 ]; then
     echo "Successfully turned $cpu_count cores off and back on"
 else
     echo "Error with offlining one or more cores.  CPU offline may not work if this is an ARM system." 1>&2
+    echo $offline_fails 1>&2
+    echo $online_fails 1>&2
 fi
 
-exit $result
+exit $exitcode

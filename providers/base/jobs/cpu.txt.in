@@ -59,7 +59,7 @@ _description:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::cpu
 id: cpu/offlining_test
-estimated_duration: 1.0
+estimated_duration: 128.0
 user: root
 command: cpu_offlining
 _summary:

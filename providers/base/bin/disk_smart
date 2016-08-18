@@ -188,10 +188,12 @@ def count_raid_disks(disk):
 
 
 def initiate_smart_test(disk, raid_element, raid_type, type='short'):
+    # Note, '-t force' ensures we abort any existing smart test in progress
+    # and start a clean run.
     if raid_type == 'none':
-        ctl_command = 'smartctl -t {} {}'.format(type, disk)
+        ctl_command = 'smartctl -t {} -t force {}'.format(type, disk)
     else:
-        ctl_command = ('smartctl -t {} {} -d {},{}'.
+        ctl_command = ('smartctl -t {} -t force {} -d {},{}'.
                        format(type, disk, raid_type, raid_element))
     logging.debug('Beginning test with {}'.format(ctl_command))
 
@@ -217,6 +219,9 @@ def get_smart_entries(disk, raid_element, raid_type, type='selftest'):
                                   universal_newlines=True)
         returncode = 0
     except CalledProcessError as err:
+        logging.error("Error encountered checking SMART Log")
+        logging.error("\tsmartctl returned code: {}".format(err.returncode))
+        logging.error("\tSee 'man smartctl' for info on return code meanings")
         stdout = err.output
         returncode = err.returncode
 
@@ -264,9 +269,12 @@ def in_progress(current_entries):
     :returns:
         True if an "in-progress" message is found, False otherwise
     """
+    # LP:1612220 Only check first log entry for status to avoid false triggers
+    # on older interrupted tests that may still show an "in progress" status.
     statuses = [entry for entry in current_entries
                 if isinstance(entry, dict)
                 and 'status' in entry
+                and entry['number'] == 1
                 and (entry['status'] == 'Self-test routine in progress'
                      or "Self test in progress" in entry['status'])]
     if statuses:
@@ -304,7 +312,7 @@ def poll_for_status(args, disk, raid_element, raid_type, previous_entries):
     """
     # Priming read... this is here in case our test is finished or fails
     # immediate after it beginsAccording to.
-    logging.debug('Polling selftest.log for status')
+    logging.debug('Polling SMART selftest log for status')
     keep_going = True
 
     while keep_going:
@@ -315,6 +323,8 @@ def poll_for_status(args, disk, raid_element, raid_type, previous_entries):
                                                         raid_type)
         if current_entries != previous_entries:
             if not in_progress(current_entries):
+                logging.debug("Current log entries differ from starting log"
+                              " entries. Stopping polling.")
                 keep_going = False
 
         if args.timeout is not None:
@@ -358,6 +368,12 @@ def run_smart_test(args, disk, raid_element, raid_type):
     if len(previous_entries) > 20:
         # Abort the previous instance
         # so that polling can identify the difference
+
+        # The proper way to kill the test is using -X
+        # kill_smart_test(disk, raid_element, raid_type)
+        # Then re-initiate the test
+        logging.debug("Log is 20+ entries long. Restarting test to add an"
+                      " abort message to make the log diff easier")
         initiate_smart_test(disk, raid_element, raid_type)
         previous_entries, returncode = get_smart_entries(disk, raid_element,
                                                          raid_type)
@@ -376,8 +392,15 @@ def run_smart_test(args, disk, raid_element, raid_type):
                           "for some reason. Run 'sudo smartctl -l selftest "
                           "{} -d {},{}' to see the SMART log".
                           format(disk, raid_type, raid_element))
-        logging.debug("Last smartctl return code: %d", returncode)
-        logging.debug("Last smartctl run status: %s", status)
+        logging.error("\tLast smartctl return code: %d", returncode)
+        logging.error("\tLast smartctl run status: %s", status)
+        logging.debug("\tMost Recent SMART LOG Entry:")
+        for log_entry in log:
+            if log_entry['number'] == 1:
+                logging.debug("\t# {}\t{}\t{}\t{}\t{}\t{}".format(
+                              log_entry['number'], log_entry['description'],
+                              log_entry['status'], log_entry['remaining'],
+                              log_entry['lifetime'], log_entry['lba']))  
         return False
     else:
         if raid_type == 'none':

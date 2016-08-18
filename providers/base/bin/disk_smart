@@ -272,11 +272,11 @@ def in_progress(current_entries):
     # LP:1612220 Only check first log entry for status to avoid false triggers
     # on older interrupted tests that may still show an "in progress" status.
     statuses = [entry for entry in current_entries
-                if isinstance(entry, dict)
-                and 'status' in entry
-                and entry['number'] == 1
-                and (entry['status'] == 'Self-test routine in progress'
-                     or "Self test in progress" in entry['status'])]
+                if isinstance(entry,
+                              dict) and 'status' in entry and
+                entry['number'] == 1 and (
+                    entry['status'] == 'Self-test routine in progress' or
+                    "Self test in progress" in entry['status'])]
     if statuses:
         for entry in statuses:
             logging.debug('%s %s %s %s' % (entry['number'],
@@ -400,7 +400,7 @@ def run_smart_test(args, disk, raid_element, raid_type):
                 logging.debug("\t# {}\t{}\t{}\t{}\t{}\t{}".format(
                               log_entry['number'], log_entry['description'],
                               log_entry['status'], log_entry['remaining'],
-                              log_entry['lifetime'], log_entry['lba']))  
+                              log_entry['lifetime'], log_entry['lba']))
         return False
     else:
         if raid_type == 'none':
@@ -461,8 +461,8 @@ def main():
         success = True
         for raid_element in range(0, num_disks):
             if enable_smart(disk, raid_element, raid_type):
-                success = (run_smart_test(args, disk, raid_element, raid_type)
-                           and success)
+                success = (run_smart_test(args, disk, raid_element,
+                                          raid_type) and success)
             else:
                 success = False
     if success is False:

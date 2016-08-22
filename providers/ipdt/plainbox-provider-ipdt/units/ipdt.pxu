@@ -9,7 +9,7 @@ _summary: Sample Production Bit Checker
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 spbc -c
 _purpose:
@@ -23,7 +23,7 @@ _summary: Genuine Intel Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 genintel -c
 _purpose:
@@ -37,9 +37,9 @@ _summary: Temperature Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
-  taskset -c 0 temperature -usp 1 
+  taskset -c 0 temperature -usp 1
 _purpose:
   Temperature test measures the CPU junction temperature in Celsius and displays the value below the shutdown value of zero. The default failing set point is 5 degrees Celsius, so if the measured temperature is less than 5 from shutdown. the test will fail.
 flags: preserve-locale
@@ -51,7 +51,7 @@ _summary: Brand String Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 brandstring -c
 _purpose:
@@ -65,7 +65,8 @@ _summary: CPU Frequency Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+environ: LD_LIBRARY_PATH
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 CPUFreq -c
 _purpose:
@@ -79,7 +80,7 @@ _summary: Floating Point Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 Math_FP -c
 _purpose:
@@ -93,7 +94,7 @@ _summary: Prime Number Generation Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 Math_PrimeNum -c
 _purpose:
@@ -107,7 +108,7 @@ _summary: Cache Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 cache -c
 _purpose:
@@ -121,7 +122,7 @@ _summary: AVX Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 avx -c
 _purpose:
@@ -135,7 +136,7 @@ _summary: Integrated Memory Controller Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 IMC -c
 _purpose:
@@ -149,7 +150,8 @@ _summary: Platform Controller Hub Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+environ: LD_LIBRARY_PATH
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 PCH -c
 _purpose:
@@ -163,7 +165,7 @@ _summary: MMX/SSE Test
 plugin: shell
 user: root
 estimated_duration: 30.0
-command: 
+command:
   cd $PLAINBOX_PROVIDER_DATA
   taskset -c 0 mmxsse -c
 _purpose:

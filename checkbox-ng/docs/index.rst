@@ -53,6 +53,7 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
+   tutorials.rst
    bugs.rst
    stack.rst
    launcher-tutorial.rst

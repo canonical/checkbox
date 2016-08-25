@@ -1,16 +1,17 @@
-.. CheckboxNG documentation master file, created by
+.. Checkbox documentation master file, created by
    sphinx-quickstart on Wed Feb 13 11:18:39 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-CheckboxNG
+Checkbox
 ==========
 
-CheckboxNG is a hardware testing tool useful for certifying laptops, desktops
-and servers with Ubuntu. It is a new version of :term:`Checkbox` that is built
-directly on top of :term:`PlainBox`
+Checkbox is a flexible test automation software.
+It's the main tool used in Ubuntu Certification program.
 
-CheckboxNG *replaces* Checkbox, where applicable. 
+You can use checkbox without any modification to check if your system is
+behaving correctly or you can develop your own set of tests to check your
+needs. See :ref:`tutorials` for details.
 
 .. warning::
 
@@ -20,19 +21,19 @@ CheckboxNG *replaces* Checkbox, where applicable.
 Installation
 ^^^^^^^^^^^^
 
-CheckboxNG can be installed from a :abbr:`PPA (Personal Package Archive)`
+Checkbox can be installed from a :abbr:`PPA (Personal Package Archive)`
 (recommended) or :abbr:`pypi (python package index)` on Ubuntu Precise (12.04)
 or newer.
 
 .. code-block:: bash
 
-    $ sudo add-apt-repository ppa:checkbox-dev/ppa && sudo apt-get update && sudo apt-get install checkbox-ng 
+    $ sudo add-apt-repository ppa:hardware-certification/public && sudo apt-get update && sudo apt-get install checkbox-ng
 
 Running stable release update tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CheckboxNG has special support for running stable release updates tests in an
-automated manner. This runs all the jobs from the *sru.whitelist* and sends the
+Checkbox has special support for running stable release updates tests in an
+automated manner. This runs all the jobs from the *sru.test plan* and sends the
 results to the certification website.
 
 To run SRU tests you will need to know the so-called :term:`Secure ID` of the
@@ -52,14 +53,13 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
+   tutorials.rst
    bugs.rst
    stack.rst
-   changelog.rst
-   scripts/index.rst
-   profiles.rst
    launcher-tutorial.rst
    configs.rst
-   release.rst
+   snappy.rst
+   testing-snappy.rst
 
 Indices and tables
 ==================

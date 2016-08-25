@@ -61,7 +61,7 @@ def check_object_path(key, url, path):
 intersphinx_mapping = {}
 intersphinx_mapping.update(
     check_object_path(
-        'python', 'http:/docs.python.org/',
+        'python', 'http://docs.python.org/',
         '/usr/share/doc/python{}/html/objects.inv'.format(
             '.'.join([str(x) for x in sys.version_info[0:2]]))))
 intersphinx_mapping.update(
@@ -83,7 +83,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'CheckboxNG'
-copyright = '2013-2016, Zygmunt Krynicki'
+copyright = '2013-2016, Checkbox Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -166,7 +166,7 @@ html_theme_options = {}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -231,7 +231,7 @@ latex_elements = {
 # documentclass [howto/manual]).
 latex_documents = [
     ('index', 'CheckboxNG.tex', 'CheckboxNG Documentation',
-     'Zygmunt Krynicki', 'manual'),
+     'Checkbox Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -261,9 +261,9 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'checkbox_ng', 'CheckboxNG Documentation',
-     ['Zygmunt Krynicki'], 1),
+     ['Checkbox Developers'], 1),
     ('stack', 'checkbox-stack', 'description of the checkbox stack',
-     ['Zygmunt Krynicki'], 1),
+     ['Checkbox Developers'], 1),
 ]
 
 # If true, show URL addresses after external links.
@@ -277,7 +277,7 @@ man_show_urls = True
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'CheckboxNG', 'CheckboxNG Documentation',
-     'Zygmunt Krynicki', 'CheckboxNG', 'One line description of project.',
+     'Checkbox Developers', 'CheckboxNG', 'One line description of project.',
      'Miscellaneous'),
 ]
 

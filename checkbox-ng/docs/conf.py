@@ -83,7 +83,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'CheckboxNG'
-copyright = '2013-2016, Zygmunt Krynicki'
+copyright = '2013-2016, Checkbox Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -231,7 +231,7 @@ latex_elements = {
 # documentclass [howto/manual]).
 latex_documents = [
     ('index', 'CheckboxNG.tex', 'CheckboxNG Documentation',
-     'Zygmunt Krynicki', 'manual'),
+     'Checkbox Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -261,9 +261,9 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'checkbox_ng', 'CheckboxNG Documentation',
-     ['Zygmunt Krynicki'], 1),
+     ['Checkbox Developers'], 1),
     ('stack', 'checkbox-stack', 'description of the checkbox stack',
-     ['Zygmunt Krynicki'], 1),
+     ['Checkbox Developers'], 1),
 ]
 
 # If true, show URL addresses after external links.
@@ -277,7 +277,7 @@ man_show_urls = True
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'CheckboxNG', 'CheckboxNG Documentation',
-     'Zygmunt Krynicki', 'CheckboxNG', 'One line description of project.',
+     'Checkbox Developers', 'CheckboxNG', 'One line description of project.',
      'Miscellaneous'),
 ]
 

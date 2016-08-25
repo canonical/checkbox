@@ -3,10 +3,11 @@ Checkbox/plainbox launchers tutorial
 
 Checkbox launchers are INI files that customize checkbox experience. The
 customization includes:
- * choosing what jobs will be run
- * how to handle machine restart
- * what type of UI to use
- * how to handle the results
+
+* choosing what jobs will be run
+* how to handle machine restart
+* what type of UI to use
+* how to handle the results
 
 Each section in the launcher is optional, when not supplied, the default values
 will be used.

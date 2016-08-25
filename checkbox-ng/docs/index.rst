@@ -54,12 +54,7 @@ Table of contents
 
    bugs.rst
    stack.rst
-   changelog.rst
-   scripts/index.rst
-   profiles.rst
-   launcher-tutorial.rst
    configs.rst
-   release.rst
 
 Indices and tables
 ==================

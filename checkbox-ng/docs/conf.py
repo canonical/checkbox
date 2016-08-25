@@ -61,7 +61,7 @@ def check_object_path(key, url, path):
 intersphinx_mapping = {}
 intersphinx_mapping.update(
     check_object_path(
-        'python', 'http:/docs.python.org/',
+        'python', 'http://docs.python.org/',
         '/usr/share/doc/python{}/html/objects.inv'.format(
             '.'.join([str(x) for x in sys.version_info[0:2]]))))
 intersphinx_mapping.update(

@@ -58,6 +58,7 @@ Table of contents
    stack.rst
    launcher-tutorial.rst
    configs.rst
+   snappy.rst
 
 Indices and tables
 ==================

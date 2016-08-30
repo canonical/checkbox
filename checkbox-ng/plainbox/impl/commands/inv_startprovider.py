@@ -379,7 +379,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
                automatically fails any job that has a failed dependency.
             plugin: shell
             command: true
-            depends: examples/intermediate/dependency-target
+            depends: dependency-target
             estimated_duration: 0.01
 
             # TODO: this should be possible:

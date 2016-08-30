@@ -353,12 +353,20 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             """))
 
         things.append(File("examples-intermediate.pxu", parent, full_text="""
+            unit: test plan
+            id: intermediate
+            _name: Examples - intermediate
+            _description: Jobs using advanced provider functionality
+            estimated_duration: 0.03
+            include:
+                examples/intermediate/.*
+
             unit: category
             id: examples/intermediate
             _name: Examples/intermediate
 
             unit: job
-            id: dependency-target
+            id: examples/intermediate/dependency-target
             category_id: examples/intermediate
             _summary: Example job that some other job depends on
             _description:
@@ -378,7 +386,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             estimated_duration: 0.01
 
             unit: job
-            id: dependency-source
+            id: examples/intermediate/dependency-source
             category_id: examples/intermediate
             _summary: Example job that depends on another job
             _description:
@@ -397,7 +405,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             plugin: shell
             command: true
             flags: preserve-locale
-            depends: dependency-target
+            depends: examples/intermediate/dependency-target
             estimated_duration: 0.01
 
             # TODO: this should be possible:
@@ -430,7 +438,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             estimated_duration: 0.03
 
             unit: job
-            id: test-webcam
+            id: examples/intermediate/test-webcam
             category_id: examples/intermediate
             _summary: Example job depending on structured resource
             _purpose:

@@ -269,6 +269,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             plugin: shell
             estimated_duration: 0.01
             command: true
+            flags: preserve-locale
 
             unit: job
             id: always-fail
@@ -282,6 +283,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             plugin: shell
             estimated_duration: 0.01
             command: false
+            flags: preserve-locale
             """))
 
         things.append(File("examples-normal.pxu", parent, full_text="""
@@ -301,6 +303,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             estimated_duration: 0.01
             command:
                test "$(cat $PLAINBOX_PROVIDER_DATA/example.dat)" = "DATA"
+            flags: preserve-locale
 
             unit: job
             id: bin-access
@@ -315,6 +318,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             plugin: shell
             estimated_duration: 0.01
             command: custom-executable
+            flags: preserve-locale
 
             unit: job
             id: info-collection
@@ -334,6 +338,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             plugin: attachment
             estimated_duration: 0.01
             command: cat /proc/cpuinfo
+            flags: preserve-locale
             """))
 
         things.append(File("examples-intermediate.pxu", parent, full_text="""
@@ -358,6 +363,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
                the results, for example)
             plugin: shell
             command: true
+            flags: preserve-locale
             estimated_duration: 0.01
 
             unit: job
@@ -379,6 +385,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
                automatically fails any job that has a failed dependency.
             plugin: shell
             command: true
+            flags: preserve-locale
             depends: dependency-target
             estimated_duration: 0.01
 
@@ -408,6 +415,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
                echo "type: WEBCAM"
                echo ""
                echo "type: WIFI"
+            flags: preserve-locale
             estimated_duration: 0.03
 
             unit: job

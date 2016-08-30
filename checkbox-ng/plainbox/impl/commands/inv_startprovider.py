@@ -192,97 +192,97 @@ class ProviderSkeleton(EmptyProviderSkeleton):
     things.append(po_dir)
 
     things.append(File("README.md", full_text="""
-         Skeleton for a new PlainBox provider
-         ====================================
+        Skeleton for a new PlainBox provider
+        ====================================
 
-         This is a skeleton PlainBox provider that was generated using
-         ``plainbox startprovider ...``.
+        This is a skeleton PlainBox provider that was generated using
+        ``plainbox startprovider ...``.
 
-         It is just the starting point, there is nothing here of value to you
-         yet. If you know how this works then just remove this file along with
-         other example content and start working on your new tests,
-         otherwise, read on.
+        It is just the starting point, there is nothing here of value to you
+        yet. If you know how this works then just remove this file along with
+        other example content and start working on your new tests,
+        otherwise, read on.
 
-         Inside the ``jobs/`` directory you will find several files that define
-         a number of "jobs" (more than one job per file actually). A job, in
-         PlainBox parlance, is the smallest piece of executable test code. Each
-         job has a name and a number of other attributes.
+        Inside the ``jobs/`` directory you will find several files that define
+        a number of "jobs" (more than one job per file actually). A job, in
+        PlainBox parlance, is the smallest piece of executable test code. Each
+        job has a name and a number of other attributes.
 
-         Jobs can be arranged in lists, test plans if you will that are known
-         as "whitelists". Those are defined in the ``whitelists/`` directory,
-         this time one per file. You can create as many whitelists as you need,
-         referring to arbitrary subsets of your jobs.
+        Jobs can be arranged in lists, test plans if you will that are known
+        as "whitelists". Those are defined in the ``whitelists/`` directory,
+        this time one per file. You can create as many whitelists as you need,
+        referring to arbitrary subsets of your jobs.
 
-         Then there are the ``bin/`` and ``data/`` directories. Those are
-         entirely for custom content you may need. You can put arbitrary
-         executables in ``bin/``, and those will be available to your job
-         definitions. Similarly you can keep any data your jobs might need
-         inside the ``data/`` directory. Referring to that directory at runtime
-         is a little bit trickier but one of the examples generated in this
-         skeleton shows how to do that.
+        Then there are the ``bin/`` and ``data/`` directories. Those are
+        entirely for custom content you may need. You can put arbitrary
+        executables in ``bin/``, and those will be available to your job
+        definitions. Similarly you can keep any data your jobs might need
+        inside the ``data/`` directory. Referring to that directory at runtime
+        is a little bit trickier but one of the examples generated in this
+        skeleton shows how to do that.
 
-         Lastly there is the ``manage.py`` script. It requires python3 to run.
-         It depends on the python3-plainbox Debian package (or just the
-         PlainBox 0.5 upstream package) installed. This script can automate and
-         simplify a number of tasks that you will want to do as a test
-         developer.
+        Lastly there is the ``manage.py`` script. It requires python3 to run.
+        It depends on the python3-plainbox Debian package (or just the
+        PlainBox 0.5 upstream package) installed. This script can automate and
+        simplify a number of tasks that you will want to do as a test
+        developer.
 
-         Run ``./manage.py --help`` to see what sub-commands are available. You
-         can additionally pass ``--help`` to each sub command, for example
-         ``./manage.py install --help`` will print the description of the
-         install command and all the arguments it supports.
+        Run ``./manage.py --help`` to see what sub-commands are available. You
+        can additionally pass ``--help`` to each sub command, for example
+        ``./manage.py install --help`` will print the description of the
+        install command and all the arguments it supports.
 
-         That is it for now. You should check out the official documentation
-         for test authors at
-         http://plainbox.readthedocs.org/en/latest/author/index.html
+        That is it for now. You should check out the official documentation
+        for test authors at
+        http://plainbox.readthedocs.org/en/latest/author/index.html
 
-         If you find bugs or would like to see additional features developed
-         you can file bugs on the parent project page:
-         https://bugs.launchpad.net/checkbox/+filebug
-         """))
+        If you find bugs or would like to see additional features developed
+        you can file bugs on the parent project page:
+        https://bugs.launchpad.net/checkbox/+filebug
+        """))
 
     with units_dir as parent:
 
         things.append(File("examples-trivial.pxu", parent, full_text="""
-             # Two example jobs, both using the 'shell' "plugin". See the
-             # documentation for examples of other test cases including
-             # interactive tests, "resource" tests and a few other types.
-             #
-             # The summary and description keys are prefixed with _
-             # to indicate that they can be translated.
-             #
-             # http://plainbox.rtfd.org/en/latest/author/jobs.html
-             unit: category
-             id: examples/trivial
-             _name: Examples/trivial
+            # Two example jobs, both using the 'shell' "plugin". See the
+            # documentation for examples of other test cases including
+            # interactive tests, "resource" tests and a few other types.
+            #
+            # The summary and description keys are prefixed with _
+            # to indicate that they can be translated.
+            #
+            # http://plainbox.rtfd.org/en/latest/author/jobs.html
+            unit: category
+            id: examples/trivial
+            _name: Examples/trivial
 
 
-             unit: job
-             id: always-pass
-             category_id: examples/trivial
-             _summary: A test that always passes
-             _description:
-                A test that always passes
-                .
-                This simple test will always succeed, assuming your
-                platform has a 'true' command that returns 0.
-             plugin: shell
-             estimated_duration: 0.01
-             command: true
+            unit: job
+            id: always-pass
+            category_id: examples/trivial
+            _summary: A test that always passes
+            _description:
+               A test that always passes
+               .
+               This simple test will always succeed, assuming your
+               platform has a 'true' command that returns 0.
+            plugin: shell
+            estimated_duration: 0.01
+            command: true
 
-             unit: job
-             id: always-fail
-             category_id: examples/trivial
-             _summary: A test that always fails
-             _description:
-                A test that always fails
-                .
-                This simple test will always fail, assuming your
-                platform has a 'false' command that returns 1.
-             plugin: shell
-             estimated_duration: 0.01
-             command: false
-             """))
+            unit: job
+            id: always-fail
+            category_id: examples/trivial
+            _summary: A test that always fails
+            _description:
+               A test that always fails
+               .
+               This simple test will always fail, assuming your
+               platform has a 'false' command that returns 1.
+            plugin: shell
+            estimated_duration: 0.01
+            command: false
+            """))
 
         things.append(File("examples-normal.pxu", parent, full_text="""
             unit: category
@@ -444,15 +444,15 @@ class ProviderSkeleton(EmptyProviderSkeleton):
     with whitelists_dir as parent:
 
         things.append(File("trivial.whitelist", parent, full_text="""
-             # select two trivial jobs by directly selecting their names
-             examples/trivial/always-pass
-             examples/trivial/always-fail
-             """))
+            # select two trivial jobs by directly selecting their names
+            examples/trivial/always-pass
+            examples/trivial/always-fail
+            """))
 
         things.append(File("normal.whitelist", parent, full_text="""
-             # use regular expression to select all normal jobs
-             examples/normal/.*
-             """))
+            # use regular expression to select all normal jobs
+            examples/normal/.*
+            """))
 
     with po_dir as parent:
 
@@ -467,37 +467,37 @@ class ProviderSkeleton(EmptyProviderSkeleton):
     with data_dir as parent:
 
         things.append(File("README.md", parent, full_text="""
-             Container for arbitrary data needed by tests
-             ============================================
+            Container for arbitrary data needed by tests
+            ============================================
 
-             You can refer to files from this directory, in your scripts, using
-             the $PLAINBOX\\_PROVIDER\\_DATA environment variable. See the job
-             examples/data-access for details.
+            You can refer to files from this directory, in your scripts, using
+            the $PLAINBOX\\_PROVIDER\\_DATA environment variable. See the job
+            examples/data-access for details.
 
-             You should delete this file as anything here is automatically
-             distributed in the source tarball or installed.
-             """))
+            You should delete this file as anything here is automatically
+            distributed in the source tarball or installed.
+            """))
 
         things.append(File("example.dat", parent, full_text="DATA"))
 
     with bin_dir as parent:
 
         things.append(File("README.md", parent, full_text="""
-             Container for arbitrary executables needed by tests
-             ===================================================
+            Container for arbitrary executables needed by tests
+            ===================================================
 
-             You can execute files from this directory without any additional
-             setup, they are automatically added to the PATH of the executing
-             job examples/bin-access for details.
+            You can execute files from this directory without any additional
+            setup, they are automatically added to the PATH of the executing
+            job examples/bin-access for details.
 
-             You should delete this file as anything here is automatically
-             distributed in the source tarball or installed.
-             """))
+            You should delete this file as anything here is automatically
+            distributed in the source tarball or installed.
+            """))
 
         things.append(File("custom-executable", parent, True, full_text="""
-             #!/bin/sh
-             echo "Custom script executed"
-             """))
+            #!/bin/sh
+            echo "Custom script executed"
+            """))
 
     things.append(File(".gitignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
 

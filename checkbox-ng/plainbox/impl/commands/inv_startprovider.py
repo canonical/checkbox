@@ -179,9 +179,6 @@ class ProviderSkeleton(EmptyProviderSkeleton):
     units_dir = Directory("units")
     things.append(units_dir)
 
-    whitelists_dir = Directory("whitelists")
-    things.append(whitelists_dir)
-
     data_dir = Directory("data")
     things.append(data_dir)
 
@@ -208,10 +205,9 @@ class ProviderSkeleton(EmptyProviderSkeleton):
         PlainBox parlance, is the smallest piece of executable test code. Each
         job has a name and a number of other attributes.
 
-        Jobs can be arranged in lists, test plans if you will that are known
-        as "whitelists". Those are defined in the ``whitelists/`` directory,
-        this time one per file. You can create as many whitelists as you need,
-        referring to arbitrary subsets of your jobs.
+        Jobs can be arranged in test plans - lists that specify which jobs to
+        run. You can create as many test plans as you need, referring to
+        arbitrary subsets of your jobs.
 
         Then there are the ``bin/`` and ``data/`` directories. Those are
         entirely for custom content you may need. You can put arbitrary
@@ -256,9 +252,16 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             id: examples/trivial
             _name: Examples/trivial
 
+            unit: test plan
+            id: trivial
+            _name: Examples - trivial
+            _description: Jobs using only the basic functionality
+            estimated_duration: 0.02
+            include:
+                examples/trivial/.*
 
             unit: job
-            id: always-pass
+            id: examples/trivial/always-pass
             category_id: examples/trivial
             _summary: A test that always passes
             _description:
@@ -272,7 +275,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             flags: preserve-locale
 
             unit: job
-            id: always-fail
+            id: examples/trivial/always-fail
             category_id: examples/trivial
             _summary: A test that always fails
             _description:
@@ -287,12 +290,20 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             """))
 
         things.append(File("examples-normal.pxu", parent, full_text="""
+            unit: test plan
+            id: normal
+            _name: Examples - normal
+            _description: Jobs using provider data nad binaries
+            estimated_duration: 0.03
+            include:
+                examples/normal/.*
+
             unit: category
             id: examples/normal
             _name: Examples/normal
 
             unit: job
-            id: data-access
+            id: examples/normal/data-access
             category_id: examples/normal
             _summary: Example job using provider-specific data
             _description:
@@ -306,7 +317,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             flags: preserve-locale
 
             unit: job
-            id: bin-access
+            id: examples/normal/bin-access
             category_id: examples/normal
             _summary: Example job using provider-specific executable
             _description:
@@ -321,7 +332,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             flags: preserve-locale
 
             unit: job
-            id: info-collection
+            id: examples/normal/info-collection
             category_id: examples/normal
             _summary: Example job attaching command output to results
             _description:
@@ -447,19 +458,6 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             requires:
                 detected_device.type == "WEBCAM"
             estimated_duration: 30
-            """))
-
-    with whitelists_dir as parent:
-
-        things.append(File("trivial.whitelist", parent, full_text="""
-            # select two trivial jobs by directly selecting their names
-            examples/trivial/always-pass
-            examples/trivial/always-fail
-            """))
-
-        things.append(File("normal.whitelist", parent, full_text="""
-            # use regular expression to select all normal jobs
-            examples/normal/.*
             """))
 
     with po_dir as parent:

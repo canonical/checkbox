@@ -433,17 +433,17 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             id: test-webcam
             category_id: examples/intermediate
             _summary: Example job depending on structured resource
-            _description:
+            _purpose:
                This test illustrates two concepts. It is the first test that
                uses manual jobs (totally not automated test type). It also
                uses a resource dependency, via a resource program, to limit
                this test only on a machine that has a hypothetical webcam.
-               .
+            _steps:
                If you run this example unmodified (selecting just this job)
                you will see that PlainBox will automatically run the
                'detected_device' job before attempting to run this one. This
                will happen, even if you explicitly order the jobs incorrectly.
-               .
+            _verification:
                If you edit the resource job to not print information about the
                hypothetical WEBCAM device (just remove that line) and rerun
                this job you will see that it automatically gets skipped

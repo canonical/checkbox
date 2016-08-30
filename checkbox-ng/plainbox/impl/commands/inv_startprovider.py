@@ -289,157 +289,157 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             id: examples/normal
             _name: Examples/normal
 
-             unit: job
-             id: data-access
-             category_id: examples/normal
-             _summary: Example job using provider-specific data
-             _description:
-                This test illustrates that custom data can be accessed using
-                the $PLAINBOX_PROVIDER_DATA environment variable. It points to
-                the absolute path of the data directory of the provider.
-             plugin: shell
-             estimated_duration: 0.01
-             command:
-                test "$(cat $PLAINBOX_PROVIDER_DATA/example.dat)" = "DATA"
+            unit: job
+            id: data-access
+            category_id: examples/normal
+            _summary: Example job using provider-specific data
+            _description:
+               This test illustrates that custom data can be accessed using
+               the $PLAINBOX_PROVIDER_DATA environment variable. It points to
+               the absolute path of the data directory of the provider.
+            plugin: shell
+            estimated_duration: 0.01
+            command:
+               test "$(cat $PLAINBOX_PROVIDER_DATA/example.dat)" = "DATA"
 
-             unit: job
-             id: bin-access
-             category_id: examples/normal
-             _summary: Example job using provider-specific executable
-             _description:
-                This test illustrates that custom executables can be accessed
-                directly, if placed in the bin/ directory of the provider.
-                .
-                Those are made available in the PATH, at runtime. This job
-                succeeds because the custom-executable script returns 0.
-             plugin: shell
-             estimated_duration: 0.01
-             command: custom-executable
+            unit: job
+            id: bin-access
+            category_id: examples/normal
+            _summary: Example job using provider-specific executable
+            _description:
+               This test illustrates that custom executables can be accessed
+               directly, if placed in the bin/ directory of the provider.
+               .
+               Those are made available in the PATH, at runtime. This job
+               succeeds because the custom-executable script returns 0.
+            plugin: shell
+            estimated_duration: 0.01
+            command: custom-executable
 
-             unit: job
-             id: info-collection
-             category_id: examples/normal
-             _summary: Example job attaching command output to results
-             _description:
-                This test illustrates that output of a job may be collected
-                for analysis using the plugin type ``attachment``
-                .
-                Attachment jobs may fail and behave almost the same as shell
-                jobs (exit status decides their outcome)
-                .
-                The output is saved but, depending on how tests are how results
-                are handled, may not be displayed. You can save attachments
-                using, for example, the JSON test result exporter, like this:
-                ``plainbox run -f json -p with-attachments``
-             plugin: attachment
-             estimated_duration: 0.01
-             command: cat /proc/cpuinfo
-             """))
+            unit: job
+            id: info-collection
+            category_id: examples/normal
+            _summary: Example job attaching command output to results
+            _description:
+               This test illustrates that output of a job may be collected
+               for analysis using the plugin type ``attachment``
+               .
+               Attachment jobs may fail and behave almost the same as shell
+               jobs (exit status decides their outcome)
+               .
+               The output is saved but, depending on how tests are how results
+               are handled, may not be displayed. You can save attachments
+               using, for example, the JSON test result exporter, like this:
+               ``plainbox run -f json -p with-attachments``
+            plugin: attachment
+            estimated_duration: 0.01
+            command: cat /proc/cpuinfo
+            """))
 
         things.append(File("examples-intermediate.pxu", parent, full_text="""
             unit: category
             id: examples/intermediate
             _name: Examples/intermediate
 
-             unit: job
-             id: dependency-target
-             category_id: examples/intermediate
-             _summary: Example job that some other job depends on
-             _description:
-                This test illustrates how a job can be a dependency of another
-                job. The dependency graph can be arbitrarily complex, it just
-                cannot have any cycles. PlainBox will discover various problems
-                related to dependencies, including cyclic dependencies and
-                jobs that are depended upon, without a definition.
-                .
-                This job simply "passes" all the time but realistic examples
-                may include multi-stage manipulation (detect a device, set it
-                up, perform some automatic and some manual tests and summarise
-                the results, for example)
-             plugin: shell
-             command: true
-             estimated_duration: 0.01
+            unit: job
+            id: dependency-target
+            category_id: examples/intermediate
+            _summary: Example job that some other job depends on
+            _description:
+               This test illustrates how a job can be a dependency of another
+               job. The dependency graph can be arbitrarily complex, it just
+               cannot have any cycles. PlainBox will discover various problems
+               related to dependencies, including cyclic dependencies and
+               jobs that are depended upon, without a definition.
+               .
+               This job simply "passes" all the time but realistic examples
+               may include multi-stage manipulation (detect a device, set it
+               up, perform some automatic and some manual tests and summarise
+               the results, for example)
+            plugin: shell
+            command: true
+            estimated_duration: 0.01
 
-             unit: job
-             id: dependency-source
-             category_id: examples/intermediate
-             _summary: Example job that depends on another job
-             _description:
-                This test illustrates how a job can depend on another job.
-                .
-                If you run this example unmodified (selecting just this job)
-                you will see that PlainBox will automatically run the
-                'dependency-target' job before attempting to run this one.
-                This will happen, even if you explicitly order the jobs
-                incorrectly.
-                .
-                If you edit the 'dependency-target' job to run 'false' instead
-                of 'true' and rerun this job you will see that it automatically
-                fails without being started. This is because of a rule which
-                automatically fails any job that has a failed dependency.
-             plugin: shell
-             command: true
-             depends: examples/intermediate/dependency-target
-             estimated_duration: 0.01
+            unit: job
+            id: dependency-source
+            category_id: examples/intermediate
+            _summary: Example job that depends on another job
+            _description:
+               This test illustrates how a job can depend on another job.
+               .
+               If you run this example unmodified (selecting just this job)
+               you will see that PlainBox will automatically run the
+               'dependency-target' job before attempting to run this one.
+               This will happen, even if you explicitly order the jobs
+               incorrectly.
+               .
+               If you edit the 'dependency-target' job to run 'false' instead
+               of 'true' and rerun this job you will see that it automatically
+               fails without being started. This is because of a rule which
+               automatically fails any job that has a failed dependency.
+            plugin: shell
+            command: true
+            depends: examples/intermediate/dependency-target
+            estimated_duration: 0.01
 
-             # TODO: this should be possible:
-             # name: examples/intermediate/detected-device
-             # resource-object: examples.intermediate.detected_device
-             unit: job
-             id: detected_device
-             category_id: examples/intermediate
-             _summary: Example job producing structured resource data
-             _description:
-                This job illustrates that not all jobs are designed to be a
-                "test". PlainBox has a system of the so-called resources.
-                .
-                Technically a resource is a list of records with named fields.
-                Any program that prints RFC822-like output can be considered a
-                valid resource. Here a hypothetical resource program has
-                detected (fake) two devices which are represented as records
-                with the field ``device``.
-                .
-                Resources are ran on demand, their output parsed and stored.
-                All resources are made available to jobs that use resource
-                programs. See the next job for an example of how that can be
-                useful.
-             plugin: resource
-             command:
-                echo "type: WEBCAM"
-                echo ""
-                echo "type: WIFI"
-             estimated_duration: 0.03
+            # TODO: this should be possible:
+            # name: examples/intermediate/detected-device
+            # resource-object: examples.intermediate.detected_device
+            unit: job
+            id: detected_device
+            category_id: examples/intermediate
+            _summary: Example job producing structured resource data
+            _description:
+               This job illustrates that not all jobs are designed to be a
+               "test". PlainBox has a system of the so-called resources.
+               .
+               Technically a resource is a list of records with named fields.
+               Any program that prints RFC822-like output can be considered a
+               valid resource. Here a hypothetical resource program has
+               detected (fake) two devices which are represented as records
+               with the field ``device``.
+               .
+               Resources are ran on demand, their output parsed and stored.
+               All resources are made available to jobs that use resource
+               programs. See the next job for an example of how that can be
+               useful.
+            plugin: resource
+            command:
+               echo "type: WEBCAM"
+               echo ""
+               echo "type: WIFI"
+            estimated_duration: 0.03
 
-             unit: job
-             id: test-webcam
-             category_id: examples/intermediate
-             _summary: Example job depending on structured resource
-             _description:
-                This test illustrates two concepts. It is the first test that
-                uses manual jobs (totally not automated test type). It also
-                uses a resource dependency, via a resource program, to limit
-                this test only on a machine that has a hypothetical webcam.
-                .
-                If you run this example unmodified (selecting just this job)
-                you will see that PlainBox will automatically run the
-                'detected_device' job before attempting to run this one. This
-                will happen, even if you explicitly order the jobs incorrectly.
-                .
-                If you edit the resource job to not print information about the
-                hypothetical WEBCAM device (just remove that line) and rerun
-                this job you will see that it automatically gets skipped
-                without being started. This is because of a rule which
-                automatically skips any job that has unmet requirement.
-                .
-                Resources are documented in detail here:
-                http://plainbox.rtfd.org/en/latest/search.html?q=resources
-                Please look at the ``Resources`` chapter there (it may move so
-                a search link is more reliable)
-             plugin: manual
-             requires:
-                 detected_device.type == "WEBCAM"
-             estimated_duration: 30
-             """))
+            unit: job
+            id: test-webcam
+            category_id: examples/intermediate
+            _summary: Example job depending on structured resource
+            _description:
+               This test illustrates two concepts. It is the first test that
+               uses manual jobs (totally not automated test type). It also
+               uses a resource dependency, via a resource program, to limit
+               this test only on a machine that has a hypothetical webcam.
+               .
+               If you run this example unmodified (selecting just this job)
+               you will see that PlainBox will automatically run the
+               'detected_device' job before attempting to run this one. This
+               will happen, even if you explicitly order the jobs incorrectly.
+               .
+               If you edit the resource job to not print information about the
+               hypothetical WEBCAM device (just remove that line) and rerun
+               this job you will see that it automatically gets skipped
+               without being started. This is because of a rule which
+               automatically skips any job that has unmet requirement.
+               .
+               Resources are documented in detail here:
+               http://plainbox.rtfd.org/en/latest/search.html?q=resources
+               Please look at the ``Resources`` chapter there (it may move so
+               a search link is more reliable)
+            plugin: manual
+            requires:
+                detected_device.type == "WEBCAM"
+            estimated_duration: 30
+            """))
 
     with whitelists_dir as parent:
 

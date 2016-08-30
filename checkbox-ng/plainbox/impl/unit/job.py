@@ -979,6 +979,15 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         'has-leftovers makes no sense without a command'
                     ),
                     onlyif=lambda unit: unit.command is None),
+                # The preserve-cwd flag is useless without a command
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        'preserve-cwd' not in unit.get_flag_set()),
+                    Problem.useless, Severity.advice,
+                    message=_(
+                        'preserve-cwd makes no sense without a command'
+                    ),
+                    onlyif=lambda unit: unit.command is None),
             ],
             fields.qml_file: [
                 UntranslatableFieldValidator,

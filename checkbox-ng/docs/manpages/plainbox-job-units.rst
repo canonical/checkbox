@@ -301,6 +301,14 @@ Following fields may be used by the job unit:
             command: echo "Jobs are simple!"
             flags: simple
 
+.. _job_flag_preserve_cwd:
+
+    ``preserve-cwd``:
+        This flag makes plainbox run the job command in the current working
+        directory without creating a temp folder (and running the command from
+        this temp folder). Sometimes needed on snappy
+        (See http://pad.lv/1618197)
+
     Additional flags may be present in job definition; they are ignored.
 
 ``imports``:

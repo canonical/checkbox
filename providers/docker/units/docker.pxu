@@ -1,0 +1,73 @@
+# Copyright 2016 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+
+unit: category
+id: docker
+_name: Docker containers
+
+id: docker/info
+category_id: docker
+requires: snap.name == 'docker'
+command: docker info
+_summary: Display system-wide information about docker
+flags: simple preserve-cwd
+
+id: docker/hello-world
+category_id: docker
+requires: snap.name == 'docker'
+command: docker run --rm hello-world
+_summary: Download and run trivial hello-world container
+flags: simple preserve-cwd
+
+id: docker/ubuntu
+category_id: docker
+requires: snap.name == 'docker'
+command: docker run --rm ubuntu echo 'Hello world'
+_summary: Download and run Ubuntu container
+flags: simple preserve-cwd
+
+id: docker/ubuntu-interative
+category_id: docker
+requires: snap.name == 'docker'
+command: docker run --rm -i ubuntu bash <<< "echo 'Hello world'"
+_summary: Test an interactive shell in Ubuntu container
+flags: simple preserve-cwd
+
+id: docker/ubuntu-kill
+category_id: docker
+requires: snap.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -dit --name test ubuntu bash)
+ docker ps --no-trunc | grep $ID
+ docker kill test
+ docker rm test
+_summary: Test killing containers
+flags: simple preserve-cwd
+
+id: docker/compose-single
+category_id: docker
+requires: snap.name == 'docker'
+command:
+ set -e
+ if [[ -z $SNAP ]]; then
+     COMPOSE_COMMAND=docker-compose
+ else
+     COMPOSE_COMMAND=docker.compose
+ fi
+ yml=$(cat <<EOF
+ test:
+   image: ubuntu
+   command: bash
+   tty: true
+ EOF
+ )
+ echo "$yml" | $COMPOSE_COMMAND -f - up -d
+ docker ps
+ echo "$yml" | $COMPOSE_COMMAND -f - kill
+ echo "$yml" | $COMPOSE_COMMAND -f - rm -v -f -a
+_summary: Test docker compose with a single container
+flags: simple preserve-cwd

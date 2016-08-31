@@ -27,12 +27,12 @@ Installing Ubuntu Core on KVM
 Download the following release of Ubuntu Core (or the one provided by Canonical
 for your project)::
 
-    $ wget https://people.canonical.com/~mvo/all-snaps/amd64-all-snap.img.xz
+    $ wget http://people.canonical.com/~mvo/all-snaps/16/all-snaps-pc.img.xz
 
 Install it on a snappy DUT or boot the img file in kvm with::
 
-    $ unxz amd64-all-snap.img.xz
-    $ kvm -m 4096 -redir tcp:8022::22 ./amd64-all-snap.img
+    $ unxz all-snaps-pc.img.xz
+    $ kvm -m 4096 -redir tcp:8022::22 ./all-snaps-pc.img
 
 Log in as the ubuntu user (password ubuntu)::
 
@@ -40,19 +40,15 @@ Log in as the ubuntu user (password ubuntu)::
 
 Perform a snappy update::
 
-    $ sudo snappy update
+    $ sudo snap refresh
 
 Installing Checkbox Snap
 ````````````````````````
 
 Now you are ready to install the checkbox snap,
-download it from launchpad::
+install it straight from the store.
 
-    $ wget https://code.launchpad.net/~checkbox-dev/+snap/checkbox-snappy/+build/444/+files/checkbox-snappy_0.1_amd64.snap
-
-Copy the snap file to the target system (using scp or snappy-remote)::
-
-    $ snappy-remote --url=ssh://localhost:8022 install ./checkbox-snappy_0.1_amd64.snap
+    & sudo snap install checkbox-snappy --edge --devmode
 
 
 Running Checkbox

@@ -82,6 +82,20 @@ _summary: Disk stress_ng test for {product}
 _description: Disk stress_ng test for {product}
 command: disk_stress_ng {name} --base-time 240 --really-run
 
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
+id: disk/disk_cpu_load_{name}
+estimated_duration: 15
+user: root
+requires:
+ block_device.{name}_state != 'removable'
+_summary: Check of CPU load imposed by {product}
+_description: Check to ensure CPU load of {product} is not too high
+command: disk_cpu_load {name}
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk
 id: disk/spindown

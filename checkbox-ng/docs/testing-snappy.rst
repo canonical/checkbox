@@ -48,7 +48,7 @@ Installing Checkbox Snap
 Now you are ready to install the checkbox snap,
 install it straight from the store.
 
-    & sudo snap install checkbox-snappy --edge --devmode
+    $ sudo snap install checkbox-snappy --edge --devmode
 
 
 Running Checkbox

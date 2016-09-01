@@ -8,6 +8,37 @@ unit: category
 id: docker
 _name: Docker containers
 
+id: docker_resource
+plugin: resource
+category_id: docker
+_summary: Configure docker jobs
+_description:
+ Configure arch image prefix (if needed) and docker compose command
+command:
+ echo arch: $SNAP_ARCH
+ case $SNAP_ARCH in
+   amd64)
+     echo 'arch_supported: yes'
+     echo 'image_prefix: '
+   ;;
+   armhf)
+     echo 'arch_supported: yes'
+     echo 'image_prefix: armhf/'
+   ;;
+   *)
+     echo "arch_supported: no"
+     echo 'image_prefix: '
+     exit 1
+   ;;
+ esac
+ if [[ -z $SNAP ]]; then
+     echo 'compose_command: docker-compose'
+ else
+     echo 'compose_command: docker.compose'
+ fi
+estimated_duration: 1s
+flags: preserve-locale
+
 id: docker/info
 category_id: docker
 requires: snap.name == 'docker'
@@ -15,59 +46,95 @@ command: docker info
 _summary: Display system-wide information about docker
 flags: simple preserve-cwd
 
-id: docker/hello-world
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/hello-world_{arch}
 category_id: docker
-requires: snap.name == 'docker'
-command: docker run --rm hello-world
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command: docker run --rm {image_prefix}hello-world
 _summary: Download and run trivial hello-world container
 flags: simple preserve-cwd
 
-id: docker/ubuntu
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/ubuntu_{arch}
 category_id: docker
-requires: snap.name == 'docker'
-command: docker run --rm ubuntu echo 'Hello world'
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command: docker run --rm {image_prefix}ubuntu echo 'Hello world'
 _summary: Download and run Ubuntu container
 flags: simple preserve-cwd
 
-id: docker/ubuntu-interative
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/ubuntu-interative_{arch}
 category_id: docker
-requires: snap.name == 'docker'
-command: docker run --rm -i ubuntu bash <<< "echo 'Hello world'"
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command: docker run --rm -i {image_prefix}ubuntu bash <<< "echo 'Hello world'"
 _summary: Test an interactive shell in Ubuntu container
 flags: simple preserve-cwd
 
-id: docker/ubuntu-kill
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/ubuntu-kill_{arch}
 category_id: docker
-requires: snap.name == 'docker'
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
 command:
  set -e
- ID=$(docker run -dit --name test ubuntu bash)
+ ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
  docker ps --no-trunc | grep $ID
  docker kill test
  docker rm test
 _summary: Test killing containers
 flags: simple preserve-cwd
 
-id: docker/compose-single
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/compose-single_{arch}
 category_id: docker
-requires: snap.name == 'docker'
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
 command:
  set -e
- if [[ -z $SNAP ]]; then
-     COMPOSE_COMMAND=docker-compose
- else
-     COMPOSE_COMMAND=docker.compose
- fi
  yml=$(cat <<EOF
  test:
-   image: ubuntu
+   image: {image_prefix}ubuntu
    command: bash
    tty: true
  EOF
  )
- echo "$yml" | $COMPOSE_COMMAND -f - up -d
+ echo "$yml" | {compose_command} -f - up -d
  docker ps
- echo "$yml" | $COMPOSE_COMMAND -f - kill
- echo "$yml" | $COMPOSE_COMMAND -f - rm -v -f -a
+ echo "$yml" | {compose_command} -f - kill
+ echo "$yml" | {compose_command} -f - rm -v -f -a
 _summary: Test docker compose with a single container
 flags: simple preserve-cwd
+
+id: docker-full
+unit: test plan
+_name: Fully automated QA tests for Docker containers
+_description:
+ QA test plan for Docker containers (docker and docker-compose)
+estimated_duration: 120
+include:
+    docker/info
+    docker/hello-world_.*
+    docker/ubuntu_.*
+    docker/ubuntu-interative_.*
+    docker/ubuntu-kill_.*
+    docker/compose-single_.*
+bootstrap_include:
+    docker_resource

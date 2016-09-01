@@ -117,7 +117,7 @@ command:
  EOF
  )
  echo "$yml" | {compose_command} -f - up -d
- docker ps
+ docker ps | grep '_test_1'
  echo "$yml" | {compose_command} -f - kill
  echo "$yml" | {compose_command} -f - rm -v -f -a
 _summary: Test docker compose with a single container

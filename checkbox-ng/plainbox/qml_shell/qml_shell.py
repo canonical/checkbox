@@ -98,7 +98,11 @@ class QmlShellCommand(PlainBoxCommand):
                 break
             if line.startswith(test_result_object_prefix):
                 obj_json = line[len(test_result_object_prefix):]
-                test_res = json.loads(obj_json)
+                try:
+                    test_res = json.loads(obj_json)
+                except json.JSONDecodeError as exc:
+                    print(_("Problem with parsing JSON %s" % exc))
+                    print(_("JSON returned by the test:\n %s" % obj_json))
             else:
                 print(line)
 

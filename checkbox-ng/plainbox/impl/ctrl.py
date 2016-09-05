@@ -1060,7 +1060,8 @@ class QmlJobExecutionController(CheckBoxExecutionController):
                     try:
                         return ret, json.loads(res_object_json_string)
                     except (ValueError, TypeError):
-                        # qml-job did not print proper json object
+                        logger.error(_(
+                            "QML job did not return a proper json object"))
                         return ret, None
 
     def execute_job(self, job, job_state, config, session_dir, extcmd_popen):

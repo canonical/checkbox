@@ -32,7 +32,7 @@
     presented to the user, letting them decide the final outcome of a test.
 */
 import QtQuick 2.0
-import Ubuntu.Components 0.1
+import Ubuntu.Components 1.2
 import io.thp.pyotherside 1.2
 
 MainView {
@@ -45,7 +45,6 @@ MainView {
         Component.onCompleted: {
             addImportPath(Qt.resolvedUrl('.'));
             py.importModule('pipe_handler', function() {
-                console.log('pipe_handler.py imported');
                 py.readAndClose(args.values['fd-in'], function(testingShellData) {
                     var new_data = JSON.parse(testingShellData);
                     for (var attrname in new_data) { testingShell[attrname] = new_data[attrname]; }

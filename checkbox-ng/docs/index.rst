@@ -58,6 +58,7 @@ Table of contents
    stack.rst
    launcher-tutorial.rst
    configs.rst
+   nested-test-plan.rst
    snappy.rst
    testing-snappy.rst
 

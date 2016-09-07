@@ -57,6 +57,7 @@ Table of contents
 
    intro.rst
    tutorials.rst
+   units/index.rst
    bugs.rst
    stack.rst
    launcher-tutorial.rst

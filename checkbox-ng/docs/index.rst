@@ -60,6 +60,7 @@ Table of contents
    bugs.rst
    stack.rst
    launcher-tutorial.rst
+   qml-job-tutorial.rst
    configs.rst
    snappy.rst
    testing-snappy.rst

@@ -18,6 +18,8 @@ needs. See :ref:`tutorials` for details.
     Documentation is under development. Some things are wrong, inaccurate or
     describe development goals rather than current state.
 
+.. _installation:
+
 Installation
 ^^^^^^^^^^^^
 
@@ -51,12 +53,15 @@ Table of contents
 =================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
+   intro.rst
    tutorials.rst
+   units/index.rst
    bugs.rst
    stack.rst
    launcher-tutorial.rst
+   qml-job-tutorial.rst
    configs.rst
    nested-test-plan.rst
    snappy.rst

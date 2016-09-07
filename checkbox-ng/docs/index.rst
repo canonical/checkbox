@@ -18,6 +18,8 @@ needs. See :ref:`tutorials` for details.
     Documentation is under development. Some things are wrong, inaccurate or
     describe development goals rather than current state.
 
+.. _installation:
+
 Installation
 ^^^^^^^^^^^^
 

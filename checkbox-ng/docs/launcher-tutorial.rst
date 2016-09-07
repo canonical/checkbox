@@ -244,6 +244,7 @@ Example:
     [environment]
     TESTING_HOST = 192.168.0.100
 
+.. _generating-reports:
 
 Generating reports
 ==================

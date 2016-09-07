@@ -234,3 +234,12 @@ _description:
      You'll need to keep moving your finger on the touchpad for 10 seconds.
  VERIFICATION:
      Did the mouse cursor move without interruption?
+
+plugin: qml
+category_id: 2013.com.canonical.plainbox::touchpad
+id: touchpad/palm-rejection
+requires: dmi.product in ['Notebook','Laptop','Portable']
+estimated_duration: 20
+_description:
+ This test checks if touchpad ignores palm touches
+qml_file: palm_rejection.qml

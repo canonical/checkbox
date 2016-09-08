@@ -1,5 +1,5 @@
-Checkbox/plainbox nested test plans tutorial
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Checkbox nested test plans tutorial
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We designed checkbox to consume test providers. Hence the test harness and the
 tests are completely separated. Checkbox can load tests from multiple providers.

@@ -1,5 +1,5 @@
-Checkbox/plainbox launchers tutorial
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Checkbox launchers tutorial
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Checkbox launchers are INI files that customize checkbox experience. The
 customization includes:

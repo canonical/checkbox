@@ -1,1 +1,2 @@
-python-guacamole
+python3-guacamole
+python3-lxml

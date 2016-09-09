@@ -447,35 +447,10 @@ final_message: CERTIFICATION BOOT COMPLETE
 def test_kvm(args):
     print("Executing KVM Test", file=sys.stderr)
 
-    DEFAULT_CFG = "/etc/xdg/virtualization.cfg"
     image = ""
     timeout = ""
 
-    # Configuration data can come from three sources.
-    # Lowest priority is the config file.
-    config_file = DEFAULT_CFG
-    config = configparser.SafeConfigParser()
-
-    try:
-        config.readfp(open(config_file))
-    except IOError:
-        logging.warn("Config file %s was not found" % DEFAULT_CFG)
-        logging.warn("Now looking for ENV variables and command line arguments instead")
-    else:
-        try:
-            timeout = config.getfloat("KVM", "timeout")
-        except ValueError:
-            logging.warning('Invalid or Empty timeout in config file. '
-                            'Falling back to default')
-        except configparser.NoSectionError as e:
-            logging.exception(e)
-
-        try:
-            image = config.get("KVM", "image")
-        except configparser.NoSectionError:
-            logging.exception('Invalid or Empty image in config file.')
-
-    # Next in priority are environment variables.
+    # First in priority are environment variables.
     if 'KVM_TIMEOUT' in os.environ:
         try:
             timeout = float(os.environ['KVM_TIMEOUT'])

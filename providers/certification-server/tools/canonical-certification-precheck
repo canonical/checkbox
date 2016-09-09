@@ -37,7 +37,7 @@ echoname(){
 Arch(){
  name="Check architecture"
  echoname
- echo -e "Architecture: $arch"
+ echo -e " Architecture: $arch"
  eval info${i}=\"$arch\"
  if [ $arch = i386 ] ; then
 	 warn
@@ -87,7 +87,7 @@ else
     echo -e " secure_id is not configured.\n Would you like to configure it now? [Y/n]"
     read -s -N1 a
     if [[ $a == "Y" || $a == "y" || -z $a ]]; then
-        read -e -p "Type the secure_id of your SUT: " sid 
+        read -e -p " Please enter the secure_id of your SUT: " sid 
         sudo sed -i "s/#\[transport:c3\]/\[transport:c3\]/g" /etc/xdg/canonical-certification.conf
 	    sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" /etc/xdg/canonical-certification.conf
 	    SID_Check
@@ -125,7 +125,7 @@ else
          	echo -e " KVM_IMAGE is not configured.\n Would you like to configure it now? [Y/n]"
          	read -s -N1 a
          	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
-                	read -e -p "Type the path of your KVM Image: " kvm 
+                	read -e -p " Please enter the path of your KVM Image: " kvm 
                 	sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
 	 		kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
 			if curl --output /dev/null --silent --head --fail "$kvmurl" || [ -f $kvmurl ]; then
@@ -191,7 +191,7 @@ elif [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 
 	echo -e " TEST_TARGET_IPERF is not configured.\n Would you like to configure it now? [Y/n]"
 	read -s -N1 a
    	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
-		read -e -p "Type the IP Address of the Iperf server: " ip
+		read -e -p " Please enter the IP Address of the Iperf server: " ip
 		sudo sed -i "s/#TEST_TARGET_IPERF = .*/TEST_TARGET_IPERF = $ip/g" /etc/xdg/canonical-certification.conf
 	IPERF
    	elif [[ $a == "N" || $a == "n" ]]; then

@@ -1,10 +1,7 @@
 #!/bin/bash
 
-logfile=~/install.log
-currentuser=$(logname)
 codename=$(/usr/bin/lsb_release -s -c) 
 arch=$(dpkg --print-architecture)
-debinst="sudo debconf-apt-progress -- aptitude -y install"
 
 pass(){
  eval pass${i}=1

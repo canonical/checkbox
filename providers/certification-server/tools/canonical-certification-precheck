@@ -230,6 +230,9 @@ for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|grep -v lo`
 		elif [ $state = "down" ]; then
 			echo " Interface $nic is $state"
 			nicfail=1
+		elif [ $state = "unknown" ]; then
+			eval info${i}="unknown"
+			warn
 		fi
 done
 if [ "$nicfail" = "1" ]; then

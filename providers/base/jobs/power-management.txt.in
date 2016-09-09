@@ -49,14 +49,14 @@ _description:
  PURPOSE:
   This test will check the system's ability to power-off and boot.
  STEPS:
-  1. Select "Test" to begin.
+  1. Press "Enter" to begin.
   2. The machine will shut down.
   3. Power the machine back on.
   4. After rebooting, wait for the test prompts to inform you that the test is complete.
   5. Once the test has completed, restart checkbox and select 'Re-run' when prompted.
  VERIFICATION:
-  If the machine successfully shuts down and boots, select 'Yes', otherwise,
-  select 'No'.
+  If the machine successfully shuts down and boots, select Pass, otherwise,
+  select Fail.
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::power-management
@@ -83,12 +83,13 @@ _description:
  PURPOSE:
   This test will check the system's ability to reboot cleanly.
  STEPS:
-  1. Select "Test" to begin.
+  1. Press "Enter" to begin.
   2. The machine will reboot.
   3. After rebooting, wait for the test prompts to inform you that the test is complete.
   4. Once the test has completed, restart checkbox and select Re-Run when prompted.
  VERIFICATION:
-  If the machine successfully reboots, select Yes then select Next.
+  If the machine successfully reboots, select Pass, otherwise,
+  select Fail.
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::power-management
@@ -128,7 +129,7 @@ _description:
  PURPOSE:
      This test will check your lid sensors
  STEPS:
-     1. Click "Test".
+     1. Press "Enter".
      2. Close and open the lid.
  VERIFICATION:
      Did the screen turn off while the lid was closed?
@@ -148,7 +149,7 @@ _description:
  PURPOSE:
      This test will check your lid sensors.
  STEPS:
-     1. Click "Test".
+     1. Press "Enter".
      2. Close the lid.
      3. Wait 5 seconds with the lid closed.
      4. Open the lid.
@@ -247,13 +248,13 @@ _description:
  PURPOSE:
      This test will verify that your system can successfully reboot.
  STEPS:
-     1. Select 'Test' to initiate a system reboot.
+     1. Press 'Enter' to initiate a system reboot.
      2. When the grub boot menu is displayed, boot into Ubuntu (Or allow the
      system to automatically boot on its own).
      3. Once the system has restarted, log in and restart checkbox-certification-server.
      4. Select 'Re-Run' to return to this test.
-     5. Select 'Yes' to indicate the test has passed if the system rebooted
-     successfully, otherwise, select 'No' to indicate there was a problem.
+     5. Select Pass to indicate the test has passed if the system rebooted
+     successfully, otherwise, select 'Fail' to indicate there was a problem.
  VERIFICATION:
      Did the system reboot correctly?
 
@@ -267,13 +268,13 @@ _description:
  PURPOSE:
      This test will check your system shutdown/booting cycle
  STEPS:
-     1. Select 'Test' to initiate a system shutdown.
+     1. Press 'Enter' to initiate a system shutdown.
      2. Power the system back on.
      3. From the grub menu, boot into the Xen Hypervisor.
      4. When the system has restarted, log in and restart checkbox-certification-server.
      5. Select 'Re-Run' to return to this test.
-     6. Select 'Yes' to indicate the test has passed if the machine shut down
-     successfully otherwise, Select 'No' to indicate there was a problem.
+     6. Select Pass to indicate the test has passed if the machine shut down
+     successfully otherwise, Select 'Fail' to indicate there was a problem.
  VERIFICATION:
      Did the system shutdown and boot correctly?
 

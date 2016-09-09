@@ -201,7 +201,7 @@ fi
 local iperf3found=0
 for iperfserver in $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf | cut -d = -f 2 | sed s/,/\\n/g)
         do
-                iperf3 -c $iperfserver -n 1 &> /dev/null
+                iperf3 -c $iperfserver -n 1 >/dev/null 2>&1
                 if [ $? = 0 ]; then
                         echo " Iperf3 server found on port 5201 on $iperfserver"
                         iperf3found=1

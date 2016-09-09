@@ -1197,6 +1197,11 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         Initialize a new RootViaPTL1ExecutionController
         """
         super().__init__(provider_list)
+        # The plainbox-trusted-launcher does not work with snappy env (requires
+        # policykit)
+        if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
+            self.is_supported = False
+            return
         # Ask pkaction(1) if the "run-plainbox-job" policykit action is
         # registered on this machine.
         action_id = b"org.freedesktop.policykit.pkexec.run-plainbox-job"

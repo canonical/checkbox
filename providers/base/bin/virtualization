@@ -44,6 +44,7 @@ import tempfile
 import tarfile
 import time
 import urllib.request
+from urllib.parse import urlparse
 
 DEFAULT_TIMEOUT = 500
 
@@ -200,35 +201,68 @@ class KVMTest(object):
         self.arch = check_output(['dpkg', '--print-architecture'],
                                  universal_newlines=True).strip()
         self.qemu_config = QEMU_ARCH_CONFIG[self.arch]
+        self.release = lsb_release.get_lsb_information()["CODENAME"]
 
-    def download_image(self):
+    def url_to_path(self, image_path):
+        """
+        Test the provided image path to determine if it's a URL or or a simple
+        file path
+        """
+        url = urlparse(image_path)
+        if url.scheme == '' or url.scheme == 'file':
+            # Gives us path wheter we specify a filesystem path or a file URL
+            logging.debug("Cloud image exists locally at %s" % url.path)
+            return url.path
+        elif url.scheme == 'http' or url.scheme == 'ftp':
+            # Gives us the stuff needed to build the URL to download the image
+            return self.download_image(image_path)
+
+    def construct_cloud_filename(self):
+        """
+        Build a URL for official Ubuntu images hosted either at
+        cloud-images.ubuntu.com or on a maas server hosting a mirror of
+        cloud-images.ubuntu.com
+        """
+        if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
+            cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
+                        self.release, self.qemu_config['cloudimg_arch'])
+        elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
+            cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
+                        self.release, self.qemu_config['cloudimg_arch'])
+        else:
+            logging.error("Unknown cloud image type")
+            sys.exit(1)
+        return cloud_iso
+
+    def download_image(self, image_url=None):
         """
         Downloads Cloud image for same release as host machine
         """
-
-        # Check Ubuntu release info. Example {quantal, precise}
-        release = lsb_release.get_lsb_information()["CODENAME"]
-
-        # Construct URL
-        cloud_url = "http://cloud-images.ubuntu.com"
-
-        if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
-            cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
-                        release, self.qemu_config['cloudimg_arch'])
-        elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
-            cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
-                        release, self.qemu_config['cloudimg_arch'])
+        if image_url is None:
+            # If we have not specified a URL to get our images from, default 
+            # to ubuntu.com
+            cloud_url = "http://cloud-images.ubuntu.com"
+            cloud_iso = self.construct_cloud_filename()
+            full_url = "/".join((
+                cloud_url, self.release, "current", cloud_iso))
         else:
-            logging.error("Unknown cloud image type")
-            return False
-        image_url = "/".join((
-            cloud_url, release, "current", cloud_iso))
-
+            url = urlparse(image_url)
+            if url.path.endswith('/') or url.path == '':
+                # If we have a relative URL (MAAS server mirror)
+                cloud_url = image_url
+                cloud_iso = self.construct_cloud_filename()
+                full_url = "/".join((
+                    cloud_url, cloud_iso))
+            else:
+                # Assume anything else is an absolute URL to a remote server
+                cloud_iso = url.path.split('/')[-1]
+                cloud_url = "{}://{}".format(url.scheme, url.netloc)
+                full_url = image_url
         logging.debug("Downloading {}, from {}".format(cloud_iso, cloud_url))
 
         # Attempt download
         try:
-            resp = urllib.request.urlretrieve(image_url, cloud_iso)
+            resp = urllib.request.urlretrieve(full_url, cloud_iso)
         except (IOError,
                 OSError,
                 urllib.error.HTTPError,
@@ -362,7 +396,10 @@ final_message: CERTIFICATION BOOT COMPLETE
                 logging.debug('No image specified, downloading one now.')
                 # Download cloud image
                 self.image = self.download_image()
-
+            else:
+                logging.debug('Cloud image location specified: %s.' % self.image)
+                self.image = self.url_to_path(self.image)
+            
             if self.image and os.path.isfile(self.image):
 
                 if "cloud" in self.image:

@@ -190,6 +190,7 @@ include:
     power-management/fwts_wakealarm                        certification-status=blocker
     power-management/fwts_wakealarm-log-attach
     touchpad/detected-as-mouse                             certification-status=blocker
+    touchpad/palm-rejection                                certification-status=non-blocker
     touchpad/continuous-move                               certification-status=blocker
     touchpad/horizontal                                    certification-status=blocker
     touchpad/vertical                                      certification-status=blocker

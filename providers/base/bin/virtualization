@@ -111,9 +111,9 @@ QEMU_ARCH_CONFIG = {
         'qemu_bin': 'qemu-system-ppc64',
         'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
         'qemu_extra_args': [
-	    '-enable-kvm',
+            '-enable-kvm',
             '-machine', 'pseries,usb=off',
-	    '-cpu', 'POWER8',
+            '-cpu', 'POWER8',
         ],
     },
     's390x': {
@@ -122,7 +122,7 @@ QEMU_ARCH_CONFIG = {
         'qemu_bin': 'qemu-system-s390x',
         'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
         'qemu_extra_args': [
-	    '-enable-kvm',
+            '-enable-kvm',
             '-machine', 's390-ccw-virtio-2.5',
         ],
     },
@@ -239,7 +239,7 @@ class KVMTest(object):
         Downloads Cloud image for same release as host machine
         """
         if image_url is None:
-            # If we have not specified a URL to get our images from, default 
+            # If we have not specified a URL to get our images from, default
             # to ubuntu.com
             cloud_url = "http://cloud-images.ubuntu.com"
             cloud_iso = self.construct_cloud_filename()
@@ -397,9 +397,10 @@ final_message: CERTIFICATION BOOT COMPLETE
                 # Download cloud image
                 self.image = self.download_image()
             else:
-                logging.debug('Cloud image location specified: %s.' % self.image)
+                logging.debug('Cloud image location specified: %s.' %
+                              self.image)
                 self.image = self.url_to_path(self.image)
-            
+
             if self.image and os.path.isfile(self.image):
 
                 if "cloud" in self.image:

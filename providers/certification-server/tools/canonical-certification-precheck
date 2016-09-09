@@ -161,11 +161,11 @@ Ubuntu_Version(){
 Network_Subnets(){
 name="Netork Subnets"
 echoname
-check_bcast=$(for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|lxcbr|bridge"`
+check_bcast=$(for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`
 	do
 		ip addr show dev $nic | grep "inet "|awk '{print $4}'
 done|uniq|wc -l)
-for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|usb"`
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`
 	do
 		echo  " $nic - $(ip addr show dev $nic | grep "inet "|awk '{print $2, $4}')"
 done
@@ -221,7 +221,7 @@ fi
 NICs_enabled(){
 name="All NICs enabled"
 echoname
-for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|grep -v lo`
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`
 	do
 		state=$(cat /sys/class/net/$nic/operstate)
 		if [ $state = "up" ]; then

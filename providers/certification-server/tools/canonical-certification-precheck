@@ -78,7 +78,7 @@ SID_Check(){
 name="Secure ID Check"
 echoname
 #if [ -n $secureid ];then
-if grep "^secure_id =" /etc/xdg/canonical-certification.conf ; then
+if grep "^secure_id =" /etc/xdg/canonical-certification.conf >/dev/null ; then
 	secureid=$(grep "^secure_id =" /etc/xdg/canonical-certification.conf|awk '{print $3}')
         echo " secure_id is configured as $secureid"
 	eval info${i}=\"$secureid\"

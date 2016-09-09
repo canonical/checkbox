@@ -61,7 +61,7 @@ if [[ $ccs = *none* ]] ; then
 		echo " Installing canonical-certification-server..."
 		sudo apt-add-repository -y ppa:hardware-certification/public 1>/dev/null
 		sudo apt-get -q update 1>/dev/null
-		sudo apt-get -q install -y maas-cert-server 1>/dev/null
+		sudo apt-get -q install -y canonical-certification-server 1>/dev/null
 		CCS_Version
    	elif [[ $a == "N" || $a == "n" ]]; then
 		echo 

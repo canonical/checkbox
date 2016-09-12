@@ -7,7 +7,7 @@ after: graphics/{index}_switch_card_{product_slug}_xenial
 estimated_duration: 1.2
 _description: Record the current resolution before suspending.
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  xrandr -q |grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
 
 unit: template
@@ -53,7 +53,7 @@ estimated_duration: 1.2
 depends: suspend/{index}_resolution_before_suspend_{product_slug}_xenial
 _description: Test to see that we have the same resolution after resuming as before.
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  xrandr -q |grep '*'| awk '{{print $1}}' | diff $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt -
 
 unit: template
@@ -80,7 +80,7 @@ requires: package.name == 'xorg'
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 estimated_duration: 120.0
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  xrandr_cycle --keyword={index}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
@@ -107,7 +107,7 @@ id: suspend/{index}_compiz_check_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 requires: package.name == 'nux-tools'
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
 _description: Check that {product} hardware is able to run compiz after suspend
@@ -121,7 +121,7 @@ id: suspend/{index}_glxgears_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 requires: package.name == 'mesa-utils'
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  glxgears
  true
 _summary: Test that glxgears works for {vendor} {product} after suspend
@@ -145,7 +145,7 @@ requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed after suspend with {vendor} {product}
 _description:
@@ -163,7 +163,7 @@ category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_driver_version_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  graphics_driver
 estimated_duration: 0.500
 _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {vendor} {product} graphics card

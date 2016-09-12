@@ -4,7 +4,7 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_driver_version_{product_slug}
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  graphics_driver
 estimated_duration: 0.5
 _description: Parses Xorg.0.Log and discovers the running X driver and version for the {vendor} {product} graphics card
@@ -106,7 +106,7 @@ id: graphics/{index}_minimum_resolution_{product_slug}
 requires:
  device.category == 'VIDEO'
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  resolution_test --horizontal 800 --vertical 600
 estimated_duration: 0.331
 _summary: Test that {vendor} {product} meets minimum resolution requirement
@@ -124,7 +124,7 @@ requires:
  device.category == 'VIDEO'
  package.name == 'zenity'
 command: 
-   source graphics_env {vendor_slug} {index}
+   source graphics_env {driver} {index}
    maxi="$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{{print $1}}')"
    now="$(python3 -c 'from gi.repository import Gdk; screen=Gdk.Screen.get_default(); geo = screen.get_monitor_geometry(screen.get_primary_monitor()); print(geo.width, "x", geo.height, sep="")')"
    test "$maxi" != "$now" && notify="\nPlease switch to the maximum resolution \nfor every graphic tests"
@@ -188,7 +188,7 @@ requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed with {vendor} {product}
 _description:
@@ -215,7 +215,7 @@ id: graphics/{index}_cycle_resolution_{product_slug}
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
 estimated_duration: 250.000
 _summary: Test resolution cycling for {vendor} {product}
@@ -234,7 +234,7 @@ category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
 depends: graphics/xorg-version
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  rotation_test_using_dbus
 estimated_duration: 20.000
 _summary: Test rotation for {vendor} {product}
@@ -254,7 +254,7 @@ category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_compiz_check_{product_slug}
 requires: package.name == 'nux-tools'
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
 _description: Check that {vendor} {product} hardware is able to run compiz
@@ -278,7 +278,7 @@ category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_glxgears_{product_slug}
 requires: package.name == 'mesa-utils'
 command:
- source graphics_env {vendor_slug} {index}
+ source graphics_env {driver} {index}
  glxgears
  true
 _summary: Test that glxgears works for {vendor} {product}
@@ -412,7 +412,7 @@ plugin: manual
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}_xenial
 requires:
- device.driver in ['nouveau', 'nvidia']
+ graphics_card.driver in ['nouveau', 'nvidia', 'amdgpu-pro']
  lsb.codename == 'xenial'
 _summary: Test GPU switching for {vendor} {product}
 _description:
@@ -421,7 +421,10 @@ _purpose:
 _steps:
      Note: If your system is already running with the {vendor} {product} card, then please mark this test as "passed" and proceed.
      .
-     1. Using the appropriate tool (e.g. NVidia settings), switch your system to use the {vendor} {product} graphics card. This will require restarting your session.
+     1. Using the appropriate tool (e.g. NVidia settings, amdgpu-pro-px), switch your system to use the {vendor} {product} graphics card. This will require restarting your session.
+     If using amdgpu-pro drivers, use the following command to switch to:
+         - integrated GPU: sudo /opt/amdgpu-pro/bin/amdgpu-pro-px --mode powersaving
+         - discrete GPU: sudo /opt/amdgpu-pro/bin/amdgpu-pro-px --mode performance
      2. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
      3. Don't answer the verification question until the system has restarted with the {vendor} {product} card enabled.
 _verification:

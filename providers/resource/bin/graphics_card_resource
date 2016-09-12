@@ -124,6 +124,10 @@ def main():
     try:
         for index, record in enumerate(video_devices, 1):
             record['index'] = index
+            if not subprocess.call(['dpkg-query', '-W', 'amdgpu-pro'],
+                                   stderr=subprocess.STDOUT,
+                                   stdout=subprocess.DEVNULL):
+                record['driver'] = 'amdgpu-pro'
             if 'product' not in record:
                 # Fake a product name with the product_id
                 try:

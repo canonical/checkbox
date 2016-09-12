@@ -49,9 +49,6 @@ from urllib.parse import urlparse
 DEFAULT_TIMEOUT = 500
 
 
-class XENTest(object):
-    pass
-
 # The "TAR" type is a tarball that contains both
 # a disk image and a kernel binary. This is useful
 # on architectures that don't (yet) have a bootloader

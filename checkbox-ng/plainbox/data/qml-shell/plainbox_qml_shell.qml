@@ -109,7 +109,8 @@ MainView {
     }
 
     function testDone(res) {
-        py.writeAndClose(JSON.stringify(res), args.values['fd-out'], Qt.quit);
+        var json_str = JSON.stringify(res) || ""
+        py.writeAndClose(json_str, args.values['fd-out'], Qt.quit);
     }
     PageStack {
         id: pageStack

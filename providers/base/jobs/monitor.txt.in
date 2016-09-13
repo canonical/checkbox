@@ -85,7 +85,7 @@ _verification:
 unit: template
 template-resource: graphics_card
 id: monitor/{index}_multi-head_{product_slug}
-requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower']
+requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
 plugin: manual
 category_id: 2013.com.canonical.plainbox::monitor
 _purpose:

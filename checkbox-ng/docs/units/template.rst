@@ -1,3 +1,5 @@
+.. _templates:
+
 =============
 Template Unit
 =============

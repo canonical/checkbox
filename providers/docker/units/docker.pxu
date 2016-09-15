@@ -117,9 +117,13 @@ command:
  EOF
  )
  echo "$yml" | {compose_command} -f - up -d
- docker ps | grep '_test_1'
+ docker ps | grep '_test_1' | grep 'Up'
  echo "$yml" | {compose_command} -f - kill
+ docker ps -a | grep '_test_1' | grep 'Exited (137)'
  echo "$yml" | {compose_command} -f - rm -v -f -a
+ docker ps -a | grep '_test_1' || exit 0
+ echo "The container is still available"
+ exit 1
 _summary: Test docker compose with a single container
 flags: simple preserve-cwd
 

@@ -11,6 +11,7 @@ All units follow :ref:`rfc822`.
     job.rst
     test-plan.rst
     category.rst
+    resource.rst
     template.rst
     exporter.rst
     manifest-entry.rst

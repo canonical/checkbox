@@ -208,14 +208,14 @@ def detect_restart_strategy() -> IRestartStrategy:
     :raises LookupError:
         When no such object can be found.
     """
-    if os.path.isdir('/etc/xdg/autostart'):
-        # NOTE: Assume this is a terminal application
-        return XDGRestartStrategy(app_terminal=True)
-
     # If we are running as a confined Snappy app this variable will have been
     # set by the launcher script
     if(os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
         return SnappyRestartStrategy()
+        
+    if os.path.isdir('/etc/xdg/autostart'):
+        # NOTE: Assume this is a terminal application
+        return XDGRestartStrategy(app_terminal=True)
 
     raise LookupError("Unable to find appropriate strategy.""")
 

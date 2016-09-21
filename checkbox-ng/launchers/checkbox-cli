@@ -452,17 +452,19 @@ class CheckboxLauncher(CheckboxCommand):
         while True:
             if job.plugin in ('user-interact', 'user-interact-verify',
                               'user-verify', 'manual'):
-                ui.notify_about_purpose(job)
+                # FIXME: get rid of pulling sa's internals
+                jsm = self.ctx.sa._context._state._job_state_map
+                if jsm[job.id].can_start():
+                    ui.notify_about_purpose(job)
                 if (self.is_interactive and
                         job.plugin in ('user-interact',
                                        'user-interact-verify',
                                        'manual')):
-                    ui.notify_about_steps(job)
+                    if jsm[job.id].can_start():
+                        ui.notify_about_steps(job)
                     if job.plugin == 'manual':
                         cmd = 'run'
                     else:
-                        # FIXME: get rid of pulling sa's internals
-                        jsm = self.ctx.sa._context._state._job_state_map
                         if jsm[job.id].can_start():
                             cmd = ui.wait_for_interaction_prompt(job)
                         else:

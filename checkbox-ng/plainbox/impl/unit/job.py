@@ -988,6 +988,15 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         'preserve-cwd makes no sense without a command'
                     ),
                     onlyif=lambda unit: unit.command is None),
+                # The suppress-output flag is useless without a command
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        'suppress-output' not in unit.get_flag_set()),
+                    Problem.useless, Severity.advice,
+                    message=_(
+                        'suppress-output makes no sense without a command'
+                    ),
+                    onlyif=lambda unit: unit.command is None),
             ],
             fields.qml_file: [
                 UntranslatableFieldValidator,

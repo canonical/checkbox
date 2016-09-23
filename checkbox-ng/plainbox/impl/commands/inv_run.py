@@ -756,8 +756,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
         self.run_single_job_with_ui(job, self.get_ui_for_job(job))
 
     def get_ui_for_job(self, job):
-        if self.ns.dont_suppress_output is False and job.plugin in (
-                'local', 'resource', 'attachment'):
+        if self.ns.dont_suppress_output is False and (job.plugin in (
+                'local', 'resource', 'attachment') or
+                'suppress-output' in job.get_flag_set()):
             return NormalUI(self.C.c, show_cmd_output=False)
         else:
             return NormalUI(self.C.c, show_cmd_output=True)

@@ -5,7 +5,7 @@ _name: IPDT GPU Tests
 unit: job
 id: ipdtgpu/IGD
 category_id: ipdtgpu
-_summary: Integrated Graphics Device  IGD
+_summary: Integrated Graphics Device IGD
 plugin: shell
 user: root
 estimated_duration: 30.0
@@ -14,7 +14,7 @@ command:
   taskset -c 0 IGD -c
 _purpose:
   IGD, or Integrated Graphics Device, is a test used to detect if Intel(R) Integrated Graphics are detected on the CPU being tested.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdtgpu/GFX
@@ -29,4 +29,4 @@ command:
   taskset -c 0 GFX -c
 _purpose:
   Launches a 2D Color Spectrum test and a 3D Graphics test.
-flags: preserve-locale
+flags: preserve-locale suppress-output

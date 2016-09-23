@@ -3,9 +3,9 @@
 
 id: ipdt-gpu-plan
 unit: test plan
-_name: IPDT
+_name: IPDT (Graphics)
 _description:
- Runs the Intel Processor Diagnostic Test Suite
+ Runs the Intel Processor Diagnostic Test Suite (Graphics)
 estimated_duration: 1h
 include:
     ipdtgpu/.*

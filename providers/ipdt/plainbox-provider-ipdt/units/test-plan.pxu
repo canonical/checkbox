@@ -9,8 +9,6 @@ _description:
 estimated_duration: 1h
 include:
     ipdt/.*
-nested_part:
-    2016.com.intel.ipdtgpu::ipdt-gpu-plan
 mandatory_include:
     2013.com.canonical.plainbox::manifest
     2013.com.canonical.plainbox::package

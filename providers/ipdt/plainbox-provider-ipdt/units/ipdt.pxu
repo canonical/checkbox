@@ -14,7 +14,7 @@ command:
   taskset -c 0 spbc -c
 _purpose:
   The purpose of spbc.exe is to determine if the processor under test is either a sample or production processor
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/genintel
@@ -28,7 +28,7 @@ command:
   taskset -c 0 genintel -c
 _purpose:
   GenIntel.exe reads the General Specific Register and compares it to "GeniunIntel". If the read value matches the expected value, the test will pass.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/temperature
@@ -42,7 +42,7 @@ command:
   taskset -c 0 temperature -usp 1
 _purpose:
   Temperature test measures the CPU junction temperature in Celsius and displays the value below the shutdown value of zero. The default failing set point is 5 degrees Celsius, so if the measured temperature is less than 5 from shutdown. the test will fail.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/brandstring
@@ -56,7 +56,7 @@ command:
   taskset -c 0 brandstring -c
 _purpose:
   Reads the brand string parts from the CPU and compares them against parts from a configuration file. If all expected parts from the configuration file are found in the parts from the CPU, the test will pass.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/CPUFreq
@@ -71,7 +71,7 @@ command:
   taskset -c 0 CPUFreq -c
 _purpose:
   Compares the value between expected and detected CPU frequency, base clock frequency and QPI rate.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/Math_FP
@@ -85,7 +85,7 @@ command:
   taskset -c 0 Math_FP -c
 _purpose:
   Performs floating points mathematic operation.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/Math_PrimeNum
@@ -99,7 +99,7 @@ command:
   taskset -c 0 Math_PrimeNum -c
 _purpose:
   Checks how fast the CPU can search for prime numbers.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/cache
@@ -113,7 +113,7 @@ command:
   taskset -c 0 cache -c
 _purpose:
   The purpose of CPU Cache test is to display the size of the L1, L2, and L3 Cache, whichever is present. The CPUID instruction is used to read the general purpose EAX, EBX, ECX, and EDX registers. The test retrieves the L1, L2, and L3 Cache size information
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/avx
@@ -127,7 +127,7 @@ command:
   taskset -c 0 avx -c
 _purpose:
   The purpose of the AVX test is to detect and test the presence of the following AVX features on your Intel processor : AVX (Advanced Vector Extensions), AES (Advanced Encryption Standard), PCLMULQDQ (Carry-Less Multiplication of two 64 bit operands)
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/IMC
@@ -141,7 +141,7 @@ command:
   taskset -c 0 IMC -c
 _purpose:
   Displays or compares the value between expected and detected memory, performs simple memory patterns test.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/PCH
@@ -156,7 +156,7 @@ command:
   taskset -c 0 PCH -c
 _purpose:
   Displays the chipset information and external Device Enumeration.
-flags: preserve-locale
+flags: preserve-locale suppress-output
 
 unit: job
 id: ipdt/mmxsse
@@ -171,4 +171,4 @@ command:
 _purpose:
   Detects which MMX & SSE, SSE2, SSE3, SSSE3, SSE4 instruction sets are supported on the processor being tested.
   If the instruction set is supported then the test will execute all MMX & SSE instructions for the supported instruction sets.
-flags: preserve-locale
+flags: preserve-locale suppress-output

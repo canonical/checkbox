@@ -39,6 +39,7 @@ user: root
 estimated_duration: 30.0
 command:
   cd $PLAINBOX_PROVIDER_DATA
+  modprobe msr
   taskset -c 0 temperature -usp 1
 _purpose:
   Temperature test measures the CPU junction temperature in Celsius and displays the value below the shutdown value of zero. The default failing set point is 5 degrees Celsius, so if the measured temperature is less than 5 from shutdown. the test will fail.

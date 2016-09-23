@@ -437,8 +437,9 @@ class CheckboxLauncher(CheckboxCommand):
                 estimated_time -= job.estimated_duration
 
     def _get_ui_for_job(self, job):
-        if not self.launcher.dont_suppress_output and job.plugin in (
-                'local', 'resource', 'attachment'):
+        if not self.launcher.dont_suppress_output and (job.plugin in (
+                'local', 'resource', 'attachment') or
+                'suppress-output' in job.get_flag_set()):
             return CheckboxUI(self.C.c, show_cmd_output=False)
         else:
             return CheckboxUI(self.C.c, show_cmd_output=True)

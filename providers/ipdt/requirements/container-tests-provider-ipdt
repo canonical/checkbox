@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+git clone git://git.launchpad.net/plainbox-provider-snappy
+python3 ./plainbox-provider-snappy/plainbox-provider-snappy-resource/manage.py develop --force
+python3 ./plainbox-provider-snappy/plainbox-provider-snappy/manage.py develop --force
+
+./plainbox-provider-ipdt/manage.py validate
+./plainbox-provider-ipdt-gpu/manage.py validate

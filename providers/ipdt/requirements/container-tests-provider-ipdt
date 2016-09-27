@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+function finish {
+  rm -rf ./plainbox-provider-snappy
+}
+trap finish EXIT
 
 set -e
 

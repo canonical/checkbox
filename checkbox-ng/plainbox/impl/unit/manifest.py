@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2016 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -20,12 +21,9 @@
 import logging
 
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import MemberOfFieldValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import TemplateVariantFieldValidator
-from plainbox.impl.unit.validators import TranslatableFieldValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 
 logger = logging.getLogger("plainbox.unit.manifest")
 
@@ -98,19 +96,19 @@ class ManifestEntryUnit(UnitWithId):
 
         field_validators = {
             fields.name: [
-                TranslatableFieldValidator,
-                TemplateVariantFieldValidator,
-                PresentFieldValidator,
+                concrete_validators.translatable,
+                concrete_validators.templateVariant,
+                concrete_validators.present,
             ],
             fields.value_type: [
-                UntranslatableFieldValidator,
-                PresentFieldValidator(),
+                concrete_validators.untranslatable,
+                concrete_validators.present,
                 MemberOfFieldValidator(['bool', 'natural']),
             ],
             fields.value_unit: [
                 # OPTIONAL
             ],
             fields.resource_key: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable
             ]
         }

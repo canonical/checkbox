@@ -30,16 +30,10 @@ in a compatible way.
 
 import logging
 
-from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import TemplateVariantFieldValidator
-from plainbox.impl.unit.validators import TranslatableFieldValidator
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
 
 __all__ = ['CategoryUnit']
 
@@ -108,20 +102,10 @@ class CategoryUnit(UnitWithId):
 
         field_validators = {
             fields.name: [
-                TranslatableFieldValidator,
-                TemplateVariantFieldValidator,
-                PresentFieldValidator,
-                # We want the name to be a single line
-                CorrectFieldValueValidator(
-                    lambda name: name.count("\n") == 0,
-                    Problem.wrong, Severity.warning,
-                    message=_("please use only one line"),
-                    onlyif=lambda unit: unit.name is not None),
-                # We want the name to be relatively short
-                CorrectFieldValueValidator(
-                    lambda name: len(name) <= 80,
-                    Problem.wrong, Severity.warning,
-                    message=_("please stay under 80 characters"),
-                    onlyif=lambda unit: unit.name is not None),
+                concrete_validators.translatable,
+                concrete_validators.templateVariant,
+                concrete_validators.present,
+                concrete_validators.oneLine,
+                concrete_validators.shortValue,
             ]
         }

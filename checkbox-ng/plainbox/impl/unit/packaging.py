@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2016 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -120,9 +121,8 @@ import sys
 from plainbox.i18n import gettext as _
 from plainbox.impl.device import get_os_release
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit import Unit
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 
 _logger = logging.getLogger("plainbox.unit.packaging")
 
@@ -164,11 +164,11 @@ class PackagingMetaDataUnit(Unit):
 
         field_validators = {
             fields.os_id: [
-                UntranslatableFieldValidator,
-                PresentFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.present,
             ],
             fields.os_version_id: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
             ],
         }
 

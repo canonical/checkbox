@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2016 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -32,16 +33,14 @@ from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import FieldValidatorBase
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
-from plainbox.impl.unit.validators import TemplateVariantFieldValidator
-from plainbox.impl.unit.validators import TranslatableFieldValidator
 from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.unit.validators import compute_value_map
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
@@ -609,40 +608,30 @@ class TestPlanUnit(UnitWithId):
 
         field_validators = {
             fields.name: [
-                TranslatableFieldValidator,
-                TemplateVariantFieldValidator,
-                PresentFieldValidator,
-                # We want the summary to be a single line
-                CorrectFieldValueValidator(
-                    lambda name: name.count("\n") == 0,
-                    Problem.wrong, Severity.warning,
-                    message=_("please use only one line"),
-                    onlyif=lambda unit: unit.name is not None),
-                # We want the summary to be relatively short
-                CorrectFieldValueValidator(
-                    lambda name: len(name) <= 80,
-                    Problem.wrong, Severity.warning,
-                    message=_("please stay under 80 characters"),
-                    onlyif=lambda unit: unit.name is not None),
+                concrete_validators.translatable,
+                concrete_validators.templateVariant,
+                concrete_validators.present,
+                concrete_validators.oneLine,
+                concrete_validators.shortValue,
             ],
             fields.description: [
-                TranslatableFieldValidator,
-                TemplateVariantFieldValidator,
+                concrete_validators.translatable,
+                concrete_validators.templateVariant,
                 PresentFieldValidator(
                     severity=Severity.advice,
                     onlyif=lambda unit: unit.virtual is False),
             ],
             fields.include: [
-                NonEmptyPatternIntersectionValidator,
-                PresentFieldValidator(),
+                NonEmptyPatternIntersectionValidator(),
+                concrete_validators.present,
             ],
             fields.mandatory_include: [
-                NonEmptyPatternIntersectionValidator,
-                NoBaseIncludeValidator,
+                NonEmptyPatternIntersectionValidator(),
+                NoBaseIncludeValidator(),
             ],
             fields.bootstrap_include: [
-                UntranslatableFieldValidator,
-                NoBaseIncludeValidator,
+                concrete_validators.untranslatable,
+                NoBaseIncludeValidator(),
                 UnitReferenceValidator(
                     lambda unit: unit.get_bootstrap_job_ids(),
                     constraints=[
@@ -656,14 +645,14 @@ class TestPlanUnit(UnitWithId):
                                       "allowed in bootstrapping_include"))])
             ],
             fields.exclude: [
-                NonEmptyPatternIntersectionValidator,
+                NonEmptyPatternIntersectionValidator(),
             ],
             fields.nested_part: [
-                NonEmptyPatternIntersectionValidator,
+                NonEmptyPatternIntersectionValidator(),
             ],
             fields.estimated_duration: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     severity=Severity.advice,
                     onlyif=lambda unit: unit.virtual is False),
@@ -675,7 +664,7 @@ class TestPlanUnit(UnitWithId):
                         unit.get_record_value('estimated_duration'))),
             ],
             fields.icon: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
             ],
             fields.category_overrides: [
                 # optional

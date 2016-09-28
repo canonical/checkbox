@@ -1,9 +1,10 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2016 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -34,6 +35,7 @@ from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import DeprecatedFieldValidator
@@ -41,12 +43,9 @@ from plainbox.impl.unit.validators import MemberOfFieldValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import ShellProgramValidator
-from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
-from plainbox.impl.unit.validators import TemplateVariantFieldValidator
-from plainbox.impl.unit.validators import TranslatableFieldValidator
 from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.unit.validators import UselessFieldValidator
+
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 from plainbox.impl.xparsers import Error
@@ -701,46 +700,32 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
         field_validators = {
             fields.name: [
-                UntranslatableFieldValidator,
-                TemplateVariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateVariant,
                 DeprecatedFieldValidator(
                     _("use 'id' and 'summary' instead of 'name'")),
             ],
             # NOTE: 'id' validators are "inherited" so we don't have it here
             fields.summary: [
-                TranslatableFieldValidator,
-                TemplateVariantFieldValidator,
+                concrete_validators.translatable,
+                concrete_validators.templateVariant,
                 PresentFieldValidator(severity=Severity.advice),
-                # We want the summary to be a single line
-                CorrectFieldValueValidator(
-                    lambda summary: summary.count("\n") == 0,
-                    Problem.wrong, Severity.warning,
-                    message=_("please use only one line"),
-                    onlyif=lambda unit: unit.summary is not None),
-                # We want the summary to be relatively short
-                CorrectFieldValueValidator(
-                    lambda summary: len(summary) <= 80,
-                    Problem.wrong, Severity.warning,
-                    message=_("please stay under 80 characters"),
-                    onlyif=lambda unit: unit.summary is not None),
+                concrete_validators.oneLine,
+                concrete_validators.shortValue,
             ],
             fields.plugin: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
-                PresentFieldValidator,
-                CorrectFieldValueValidator(
-                    lambda plugin: plugin != 'local',
-                    Problem.deprecated, Severity.advice,
-                    message=_("please migrate to job templates, "
-                              "see plainbox-template-unit(7) for details")),
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
+                concrete_validators.present,
                 MemberOfFieldValidator(_PluginValues.get_all_symbols()),
+                concrete_validators.localDeprecated,
                 CorrectFieldValueValidator(
                     lambda plugin: plugin != 'user-verify',
                     Problem.deprecated, Severity.advice,
                     message=_("please migrate to user-interact-verify")),
             ],
             fields.command: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),
@@ -764,11 +749,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
                               " instead of CHECKBOX_DATA"),
                     onlyif=lambda unit: unit.command is not None),
                 # We want to catch silly mistakes that shlex can detect
-                ShellProgramValidator,
+                ShellProgramValidator(),
             ],
             fields.description: [
-                TranslatableFieldValidator,
-                TemplateVariantFieldValidator,
+                concrete_validators.translatable,
+                concrete_validators.templateVariant,
                 # Description is mandatory for manual jobs
                 PresentFieldValidator(
                     message=_("manual jobs must have a description field, or a"
@@ -792,7 +777,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                             unit.verification is None))),
             ],
             fields.purpose: [
-                TranslatableFieldValidator,
+                concrete_validators.translatable,
                 PresentFieldValidator(
                     severity=Severity.advice,
                     message=("please use purpose, steps, and verification"
@@ -803,7 +788,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     unit.get_record_value('summary') is None),
             ],
             fields.steps: [
-                TranslatableFieldValidator,
+                concrete_validators.translatable,
                 PresentFieldValidator(
                     severity=Severity.advice,
                     message=("please use purpose, steps, and verification"
@@ -813,7 +798,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     unit.startup_user_interaction_required),
             ],
             fields.verification: [
-                TranslatableFieldValidator,
+                concrete_validators.translatable,
                 PresentFieldValidator(
                     severity=Severity.advice,
                     message=("please use purpose, steps, and verification"
@@ -823,8 +808,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         'manual', 'user-verify', 'user-interact-verify')),
             ],
             fields.user: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 # User should be either None or 'root'
                 CorrectFieldValueValidator(
                     message=_("user can only be 'root'"),
@@ -835,16 +820,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     onlyif=lambda unit: unit.command is None)
             ],
             fields.environ: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 # Environ is useless without a command to run
                 UselessFieldValidator(
                     message=_("environ without a command makes no sense"),
                     onlyif=lambda unit: unit.command is None),
             ],
             fields.estimated_duration: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     severity=Severity.advice,
                     onlyif=lambda unit: 'simple' not in unit.get_flag_set()
@@ -856,7 +841,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         unit.get_record_value('estimated_duration'))),
             ],
             fields.depends: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_direct_dependencies() is not None)),
@@ -870,7 +855,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.after: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_after_dependencies() is not None)),
@@ -882,7 +867,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                             message=_("the referenced unit is not a job"))])
             ],
             fields.requires: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),
                     onlyif=lambda unit: unit.requires is not None),
@@ -904,15 +889,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.shell: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 # Shell should be only '/bin/sh', or None (which gives bash)
-                MemberOfFieldValidator(['/bin/sh', '/bin/bash', 'bash'],
+                MemberOfFieldValidator(
+                    ['/bin/sh', '/bin/bash', 'bash'],
                     message=_("only /bin/sh and /bin/bash are allowed")),
             ],
             fields.imports: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         list(unit.get_imported_jobs()) is not None)),
@@ -928,8 +914,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.category_id: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 UnitReferenceValidator(
                     lambda unit: (
                         [unit.get_category_id()] if unit.category_id else ()),
@@ -943,8 +929,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.flags: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         'simple' in unit.get_flag_set() or
@@ -994,8 +980,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     onlyif=lambda unit: unit.command is None),
             ],
             fields.qml_file: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     onlyif=lambda unit: unit.plugin == 'qml'),
                 CorrectFieldValueValidator(
@@ -1011,8 +997,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                                          unit.qml_file)),
             ],
             fields.certification_status: [
-                UntranslatableFieldValidator,
-                TemplateInvariantFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 MemberOfFieldValidator(
                     _CertificationStatusValues.get_all_symbols()),
             ],

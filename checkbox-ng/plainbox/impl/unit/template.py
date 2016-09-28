@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2016 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -32,14 +33,13 @@ from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import all_units
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit import UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
@@ -427,7 +427,7 @@ class TemplateUnit(Unit):
 
         field_validators = {
             fields.template_unit: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_record_value('template-unit') is not None),
@@ -436,8 +436,8 @@ class TemplateUnit(Unit):
                         " unit type")),
             ],
             fields.template_resource: [
-                UntranslatableFieldValidator,
-                PresentFieldValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.present,
                 UnitReferenceValidator(
                     lambda unit: (
                         [unit.resource_id] if unit.resource_id else []),
@@ -457,7 +457,7 @@ class TemplateUnit(Unit):
                 #       onlyif job itself is not deprecated
             ],
             fields.template_filter: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
                 # All templates need a valid (or empty) template filter
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_filter_program(),
@@ -465,7 +465,7 @@ class TemplateUnit(Unit):
                 # TODO: must refer to the same job as template-resource
             ],
             fields.template_imports: [
-                UntranslatableFieldValidator,
+                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         list(unit.get_imported_jobs()) is not None)),

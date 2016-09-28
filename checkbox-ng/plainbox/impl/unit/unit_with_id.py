@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2016 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -26,13 +27,11 @@ import logging
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit import UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import TemplateVariantFieldValidator
 from plainbox.impl.unit.validators import UniqueValueValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 
 __all__ = ['UnitWithId']
 
@@ -111,14 +110,10 @@ class UnitWithId(Unit):
 
         field_validators = {
             fields.id: [
-                # We don't want anyone marking id up for translation
-                UntranslatableFieldValidator,
-                # We want this field to be present at all times
-                PresentFieldValidator,
-                # We want each instance to have a different identifier
-                TemplateVariantFieldValidator,
-                # When checking in a globally, all units need an unique value
-                UniqueValueValidator,
+                concrete_validators.untranslatable,
+                concrete_validators.present,
+                concrete_validators.templateVariant,
+                UniqueValueValidator(),
                 # We want to have bare, namespace-less identifiers
                 CorrectFieldValueValidator(
                     lambda value, unit: (

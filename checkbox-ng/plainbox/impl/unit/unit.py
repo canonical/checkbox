@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2016 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -35,13 +36,12 @@ from plainbox.impl.symbol import Symbol
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.symbol import SymbolDefMeta
 from plainbox.impl.symbol import SymbolDefNs
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.unit.validators import IFieldValidator
 from plainbox.impl.unit.validators import MultiUnitFieldIssue
 from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import UnitFieldIssue
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
@@ -77,9 +77,10 @@ class UnitValidator:
         :returns:
             A generator yielding subsequent issues
         """
-        for field_validator, field in self.make_field_validators(unit):
-            for issue in field_validator.check(self, unit, field):
-                yield issue
+        for field, validators in sorted(unit.Meta.field_validators.items()):
+            for validator in validators:
+                for issue in validator.check(self, unit, field):
+                    yield issue
 
     def check_in_context(self, unit, context):
         """
@@ -92,41 +93,11 @@ class UnitValidator:
         :returns:
             A generator yielding subsequent issues
         """
-        for field_validator, field in self.make_field_validators(unit):
-            for issue in field_validator.check_in_context(
-                    self, unit, field, context):
-                yield issue
-
-    def make_field_validators(self, unit):
-        """
-        Convert unit meta-data to a sequence of validators
-
-        :returns:
-            A generator for pairs (field_validator, field) where
-            field_validator is an instance of :class:`IFieldValidator` and
-            field is a symbol with the field name.
-        """
-        for field, spec in sorted(unit.Meta.field_validators.items()):
-            if isinstance(spec, type):
-                validator_list = [spec]
-            elif isinstance(spec, list):
-                validator_list = spec
-            else:
-                raise TypeError(_(
-                    "{}.Meta.fields[{!r}] is not a validator"
-                ).format(unit.__class__.__name__, field))
-            for index, spec in enumerate(validator_list):
-                # If it's a validator class, instantiate it
-                if isinstance(spec, type) \
-                        and issubclass(spec, IFieldValidator):
-                    yield spec(), field
-                # If it's a validator instance, just return it
-                elif isinstance(spec, IFieldValidator):
-                    yield spec, field
-                else:
-                    raise TypeError(_(
-                        "{}.Meta.fields[{!r}][{}] is not a validator"
-                    ).format(unit.__class__.__name__, field, index))
+        for field, validators in sorted(unit.Meta.field_validators.items()):
+            for validator in validators:
+                for issue in validator.check_in_context(
+                        self, unit, field, context):
+                    yield issue
 
     def advice(self, unit, field, kind, message=None, *, offset=0,
                origin=None):
@@ -840,12 +811,8 @@ class Unit(metaclass=UnitType):
 
         field_validators = {
             fields.unit: [
-                # We don't want anyone marking unit type up for translation
-                UntranslatableFieldValidator,
-                # We want each instantiated template to define same unit type
-                TemplateInvariantFieldValidator,
-                # We want to gently advise everyone to mark all units with
-                # and explicit unit type so that we can disable default 'job'
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     severity=Severity.advice,
                     message=_("unit should explicitly define its type")),

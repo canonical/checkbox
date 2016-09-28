@@ -30,6 +30,7 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit.job import propertywithsymbols
 from plainbox.impl.unit.unit import Unit, UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import MemberOfFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
@@ -146,11 +147,5 @@ class FileUnit(Unit):
                         'faq.html#faq-1'
                     )),
             ],
-            fields.role: [
-                CorrectFieldValueValidator(
-                    lambda value: value in FileRole.get_all_symbols(),
-                    message=_('valid values are: {}').format(
-                        ', '.join(str(sym) for sym in sorted(
-                            FileRole.get_all_symbols())))),
-            ]
+            fields.role: [MemberOfFieldValidator(FileRole.get_all_symbols())]
         }

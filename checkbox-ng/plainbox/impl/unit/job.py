@@ -37,6 +37,7 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import DeprecatedFieldValidator
+from plainbox.impl.unit.validators import MemberOfFieldValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import ShellProgramValidator
@@ -728,16 +729,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 TemplateInvariantFieldValidator,
                 PresentFieldValidator,
                 CorrectFieldValueValidator(
-                    lambda plugin: (
-                        plugin in JobDefinition.plugin.get_all_symbols()),
-                    message=_('valid values are: {}').format(
-                        ', '.join(str(sym) for sym in sorted(
-                            _PluginValues.get_all_symbols())))),
-                CorrectFieldValueValidator(
                     lambda plugin: plugin != 'local',
                     Problem.deprecated, Severity.advice,
                     message=_("please migrate to job templates, "
                               "see plainbox-template-unit(7) for details")),
+                MemberOfFieldValidator(_PluginValues.get_all_symbols()),
                 CorrectFieldValueValidator(
                     lambda plugin: plugin != 'user-verify',
                     Problem.deprecated, Severity.advice,
@@ -911,8 +907,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 UntranslatableFieldValidator,
                 TemplateInvariantFieldValidator,
                 # Shell should be only '/bin/sh', or None (which gives bash)
-                CorrectFieldValueValidator(
-                    lambda shell: shell in ('/bin/sh', '/bin/bash', 'bash'),
+                MemberOfFieldValidator(['/bin/sh', '/bin/bash', 'bash'],
                     message=_("only /bin/sh and /bin/bash are allowed")),
             ],
             fields.imports: [
@@ -1018,12 +1013,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.certification_status: [
                 UntranslatableFieldValidator,
                 TemplateInvariantFieldValidator,
-                CorrectFieldValueValidator(
-                    lambda certification_status: (
-                        certification_status in
-                        _CertificationStatusValues.get_all_symbols()),
-                    message=_('valid values are: {}').format(
-                        ', '.join(str(sym) for sym in sorted(
-                            _CertificationStatusValues.get_all_symbols())))),
+                MemberOfFieldValidator(
+                    _CertificationStatusValues.get_all_symbols()),
             ],
         }

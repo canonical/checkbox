@@ -364,6 +364,36 @@ class UselessFieldValidator(CorrectFieldValueValidator):
         super().__init__(correct_fn, kind, severity, message, onlyif)
 
 
+class MemberOfFieldValidator(CorrectFieldValueValidator):
+    """Validator ensuring the value is a member of a given set."""
+
+    def __init__(self, possible_values, kind=None, severity=None, message=None,
+                 onlyif=None):
+        """
+        possible_values:
+            Iterable with values that the membership will be testsed against.
+        kind:
+            Kind of issue to report. By default this is Problem.useless
+        severity:
+            Severity of the issue to report. By default this is
+            Severity.warning
+        message:
+            Customized error message. This message will be used to report the
+            issue if the validation fails. By default it is derived from the
+            specified issue ``kind`` by :meth:`UnitValidator.explain()`.
+        onlyif:
+            An optional function that checks if this validator should be
+            applied or not. The function is called with the `unit` as the only
+            argument.  If it returns True then the validator proceeds to
+            perform its check.
+        """
+        def correct_fn(value): return value in possible_values
+        if not message:
+            message = _('valid values are: {}').format(
+                ', '.join(str(val) for val in sorted(possible_values)))
+        super().__init__(correct_fn, kind, severity, message, onlyif)
+
+
 class DeprecatedFieldValidator(FieldValidatorBase):
     """
     Validator ensuring that deprecated field is not used (passed a value)

@@ -21,7 +21,7 @@ import logging
 
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import MemberOfFieldValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import TemplateVariantFieldValidator
 from plainbox.impl.unit.validators import TranslatableFieldValidator
@@ -105,8 +105,7 @@ class ManifestEntryUnit(UnitWithId):
             fields.value_type: [
                 UntranslatableFieldValidator,
                 PresentFieldValidator(),
-                CorrectFieldValueValidator(
-                    lambda value_type: value_type in ('bool', 'natural')),
+                MemberOfFieldValidator(['bool', 'natural']),
             ],
             fields.value_unit: [
                 # OPTIONAL

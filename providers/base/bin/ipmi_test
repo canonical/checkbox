@@ -1,27 +1,31 @@
 #!/bin/bash
 
 # Now make sure the modules are loaded
-for module in ipmi_si ipmi_devintf ipmi_msghandler; do
+for module in ipmi_si ipmi_devintf ipmi_powernv ipmi_ssif ipmi_msghandler; do
     if lsmod |grep -q $module; then
         echo "$module already loaded"
     else
-        echo "Loading $module..."
-        modprobe $module
+        echo "Attempting to load $module..."
+        modprobe $module > /dev/null
         result=$?
         # If the IPMI drivers don't load, it could be the system has no BMC, or
-        # the IPMI driver is bad.  We should error and Fail here.
+        # the IPMI driver is bad or not applicable to this SUT.
         if [ $result -eq 1 ]; then
-            echo "ERROR: Unable to load module $module" >&2
-            echo "Aborting IPMI test run." >&2
-            exit 1
+            echo
+            echo "*******************************************"
+            echo "WARNING: Unable to load module $module"
+            echo "Continuing run, but in-band IPMI may fail"
+            echo "*******************************************"
+            echo
         else
-            echo "Successfully loaded module $module"
+            echo "Successfully loaded module $module\n\n"
         fi
     fi
 done
 
 # Now get our info from ipmitool to make sure communication works
 # First lest check chassis status
+echo
 echo "Checking for chassis status"
 ipmitool chassis status && echo "Successfully got chassis status" && chassis=0 || chassis=1
 echo "Checking to see if we can get sensor data"

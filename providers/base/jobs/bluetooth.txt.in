@@ -52,7 +52,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::bluetooth
 id: bluetooth/file-transfer
-depends: bluetooth/browse-files bluetooth/detect-output
+depends: bluetooth/detect-output
 estimated_duration: 120.0
 _description:
  PURPOSE:

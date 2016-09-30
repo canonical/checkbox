@@ -91,7 +91,8 @@ echoname
 #if [ -n $secureid ];then
 if grep "^secure_id =" /etc/xdg/canonical-certification.conf >/dev/null ; then
 	secureid=$(grep "^secure_id =" /etc/xdg/canonical-certification.conf|awk '{print $3}')
-    echo " secure_id is configured as $secureid Is this correct? [Y/n]"
+    echo " Secure ID is configured as '$secureid'."
+    echo " Is this correct? [Y/n]"
     read -s -N1 a
     if [[ $a == "n" || $a == "N" ]]; then
         configure_SID

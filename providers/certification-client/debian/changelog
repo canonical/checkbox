@@ -1,8 +1,9 @@
-plainbox-provider-certification-client (0.28.0~rc1-1) UNRELEASED; urgency=medium
+plainbox-provider-certification-client (0.28.0-1) UNRELEASED; urgency=medium
 
   * "new upstream version"
+  * "new upstream version"
 
- -- pierre <pierre@trane>  Mon, 19 Sep 2016 17:32:35 +0800
+ -- pierre <pierre@trane>  Fri, 30 Sep 2016 17:43:45 +0800
 
 plainbox-provider-certification-client (0.27-1) precise; urgency=medium
 

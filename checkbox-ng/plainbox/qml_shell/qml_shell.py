@@ -126,7 +126,7 @@ class PlainboxQmlShellTool(SingleCommandToolMixIn, PlainBoxToolBase):
         """
         Get the version reported by this executable
         """
-        return cls.format_version_tuple(plainbox_version)
+        return plainbox_version
 
     @classmethod
     def get_config_cls(cls):

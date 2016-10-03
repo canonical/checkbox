@@ -184,8 +184,7 @@ class TestMain(TestCase):
             with self.assertRaises(SystemExit) as call:
                 stubbox_main(['--version'])
             self.assertEqual(call.exception.args, (0,))
-        self.assertEqual(io.combined, "{}\n".format(
-            ToolBase.format_version_tuple(version)))
+        self.assertEqual(io.combined, "{}\n".format(version))
 
     @suppress_warnings
     # Temporarily supress warnings (i.e. ResourceWarning) to work around

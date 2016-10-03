@@ -97,7 +97,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         self._timestamp = timestamp
         # Use current version unless told otherwise
         if client_version is None:
-            client_version = "{}.{}.{}".format(*version[:3])
+            client_version = version
         self._client_version = client_version
         # Remember client name
         self._client_name = client_name

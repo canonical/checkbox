@@ -27,7 +27,6 @@ from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 import logging
 
-from plainbox import __version__ as plainbox_version
 from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionStorageRepository

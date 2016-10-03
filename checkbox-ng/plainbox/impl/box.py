@@ -72,7 +72,7 @@ class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
         """
         Get the version reported by this executable
         """
-        return cls.format_version_tuple(plainbox_version)
+        return plainbox_version
 
     def create_parser_object(self):
         parser = super().create_parser_object()

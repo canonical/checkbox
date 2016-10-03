@@ -41,8 +41,7 @@ class TestMain(TestCase):
             with self.assertRaises(SystemExit) as call:
                 main(['--version'])
             self.assertEqual(call.exception.args, (0,))
-        self.assertEqual(io.combined, "{}\n".format(
-            ToolBase.format_version_tuple(version)))
+        self.assertEqual(io.combined, "{}\n".format(version))
 
     def test_help(self):
         with TestIO(combined=True) as io:

@@ -56,7 +56,7 @@ class CheckboxToolBase(ToolBase):
         """
         Get the version of the checkbox-ng package
         """
-        return cls.format_version_tuple(version)
+        return version
 
     @classmethod
     def get_config_cls(cls):

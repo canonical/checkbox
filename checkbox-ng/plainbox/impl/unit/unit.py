@@ -383,6 +383,7 @@ class Unit(metaclass=UnitType):
         self._checksum = None
         self._parameters = parameters
         self._virtual = virtual
+        self._hash_cache = None
 
     @classmethod
     def instantiate_template(cls, data, raw_data, origin, provider, parameters,
@@ -413,7 +414,9 @@ class Unit(metaclass=UnitType):
         return self.checksum != other.checksum
 
     def __hash__(self):
-        return hash(self.checksum)
+        if self._hash_cache is None:
+            self._hash_cache = int(self.checksum, 16)
+        return self._hash_cache
 
     @property
     def unit(self):

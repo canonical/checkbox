@@ -413,7 +413,7 @@ class SessionDeviceContext:
 
         This method fires the :meth:`on_unit_added()` signal
         """
-        if unit in self._unit_list:
+        if unit in frozenset(self._unit_list):
             raise ValueError(
                 _("attempting to add the same unit twice: %s" % unit.id))
         self.state.add_unit(unit)

@@ -405,8 +405,6 @@ class Unit(metaclass=UnitType):
                    field_offset_map)
 
     def __eq__(self, other):
-        if not isinstance(other, Unit):
-            return False
         return self.checksum == other.checksum
 
     def __ne__(self, other):

@@ -262,9 +262,6 @@ class TestUnitDefinition(TestCase):
         self.assertNotEqual(
             Unit({}, parameters={'param': 'value1'}),
             Unit({}, parameters={'param': 'value2'}))
-        # Ensure that units are not equal to other classes
-        self.assertTrue(Unit({}) != object())
-        self.assertFalse(Unit({}) == object())
 
     def test_get_accessed_parameters(self):
         # There are no accessed parameters if the unit is not parameterized

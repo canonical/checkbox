@@ -1,9 +1,13 @@
-checkbox-ng (0.23-3) UNRELEASED; urgency=medium
+checkbox-ng (0.29-1) UNRELEASED; urgency=medium
 
+  [ Ondřej Nový ]
   * Fixed homepage (https)
   * Fixed VCS URL (https)
 
- -- Ondřej Nový <novy@ondrej.org>  Tue, 29 Mar 2016 21:39:06 +0200
+  [ Sylvain Pineau ]
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Wed, 05 Oct 2016 13:43:10 +0200
 
 checkbox-ng (0.23-2) unstable; urgency=medium
 

@@ -296,14 +296,14 @@ class Interface(socket.socket):
             logging.error(e.output)
             ethinfo = None
         finally:
-            expression = '(\\d+)(base)([A-Z]+)'
+            expression = '(\\d+)(base)([A-Z]+)|(\d+)(Mb/s)'
             regex = re.compile(expression)
             speeds = [0]
             if ethinfo:
                 for i in ethinfo:
                     hit = regex.search(i)
                     if hit:
-                        speeds.append(int(hit.group(1)))
+                        speeds.append(int(re.sub("\D", "", hit.group(0))))
             return max(speeds)
 
     @property

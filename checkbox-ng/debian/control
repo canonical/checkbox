@@ -8,10 +8,10 @@ Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
 Build-Depends: debhelper (>= 9),
                dh-python,
                python3-all,
-               python3-checkbox-support (>= 0.22),
+               python3-checkbox-support (>= 0.25),
                python3-docutils,
                python3-guacamole (>= 0.9),
-               python3-plainbox (>= 0.24),
+               python3-plainbox (>= 0.27),
                python3-requests (>= 1.0),
                python3-setuptools,
                python3-sphinx,
@@ -20,7 +20,7 @@ Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/checkbox-ng.git
 Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/checkbox-ng.git
-Homepage: https://launchpad.net/checkbox
+Homepage: https://launchpad.net/checkbox-ng
 
 Package: checkbox-ng
 Architecture: all
@@ -38,9 +38,9 @@ Description: PlainBox based test runner
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: python3-checkbox-support (>= 0.22),
+Depends: python3-checkbox-support (>= 0.25),
          python3-guacamole (>= 0.9),
-         python3-plainbox (>= 0.24),
+         python3-plainbox (>= 0.27),
          python3-requests (>= 1.0),
          python3-xlsxwriter,
          ${misc:Depends},

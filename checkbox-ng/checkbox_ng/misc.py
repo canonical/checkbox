@@ -298,7 +298,7 @@ class SelectableJobTreeNode(JobTreeNode):
                 else:
                     tree.current_index += 1
                 result = category.get_node_by_index(index, tree)
-                if result != (None, None):
+                if result[0] is not None and result[1] is not None:
                     return result
             for job in self.jobs:
                 if index == tree.current_index:

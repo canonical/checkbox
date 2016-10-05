@@ -437,12 +437,15 @@ class CheckboxLauncher(CheckboxCommand):
                 estimated_time -= job.estimated_duration
 
     def _get_ui_for_job(self, job):
-        if not self.launcher.dont_suppress_output and (job.plugin in (
-                'local', 'resource', 'attachment') or
-                'suppress-output' in job.get_flag_set()):
-            return CheckboxUI(self.C.c, show_cmd_output=False)
-        else:
-            return CheckboxUI(self.C.c, show_cmd_output=True)
+        show_out = True
+        if self.launcher.output == 'hide-resource-and-attachment':
+            if job.plugin in ('local', 'resource', 'attachment'):
+                show_out = False
+        elif self.launcher.output == 'hide':
+            show_out = False
+        if 'suppress-output' in job.get_flag_set():
+            show_out = False
+        return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
     def _run_single_job_with_ui_loop(self, job, ui):
         print(self.C.header(job.tr_summary(), fill='-'))

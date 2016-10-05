@@ -209,8 +209,30 @@ test selection and test plan selection.
 
 ``dont_suppress_output``
 
+.. note::
+
+    This field is deprecated, use 'output' to specify which jobs should have
+    their output printed to the screen.
+
 Setting this field to ``yes`` disables hiding of command output for jobs of
 type ``local``, ``resource`` and ``attachment``. Default value: ``no``.
+
+``output``
+
+This setting lets you hide output of commands run by checkbox. It can be set to
+one of the following values:
+
+- ``show`` - output of all jobs will be printed
+- ``hide`` - commands' output will be hidden
+- ``hide-resource-and-attachment`` - output of resource and attachment jobs
+  will be hidden, output of other job types will be printed
+
+Default value: ``show``
+
+.. note::
+
+    Individual jobs can have their output hidden by specifying
+    'suppress-output' in their definition.
 
 Restart section
 ===============
@@ -421,6 +443,7 @@ staging version of certification site and saved to /tmp/submission.xml
 
     [ui]
     type = silent
+    output = hide
 
     [transport:certification]
     type = certification

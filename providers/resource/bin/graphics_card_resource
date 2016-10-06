@@ -146,6 +146,8 @@ def main():
                     fake_vendor = "PCI ID unknown"
                 record['vendor'] = fake_vendor
                 record['vendor_slug'] = slugify(fake_vendor)
+            if 'driver' not in record:
+                record['driver'] = 'unknown'
             # Finally, print the record
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]

@@ -1,3 +1,9 @@
+checkbox-support (0.29) UNRELEASED; urgency=medium
+
+  * Open for development (remove this message before releasing)
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:19:08 +0800
+
 checkbox-support (0.28) unstable; urgency=medium
 
   * New upstream release

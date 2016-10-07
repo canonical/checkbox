@@ -1,3 +1,10 @@
+plainbox-provider-resource-generic (0.28) unstable; urgency=medium
+
+  [ Pierre Equoy ]
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:18:52 +0800
+
 plainbox-provider-resource-generic (0.23-1) unstable; urgency=medium
 
   * New upstream release

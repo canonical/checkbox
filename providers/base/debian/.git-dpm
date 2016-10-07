@@ -2,10 +2,10 @@
 e0db94a71dd65763074c4d151983ceb56a79c811
 e0db94a71dd65763074c4d151983ceb56a79c811
 156b229bf984e0c32c1659ea1550e3f57a73d1fa
-156b229bf984e0c32c1659ea1550e3f57a73d1fa
-plainbox-provider-checkbox_0.25.orig.tar.gz
-08be2dedd07012ff426bf50c3e409143c0ba7c1a
-1352242
+b6bb9df376bfa9d7444cb619e093a7336c980761
+plainbox-provider-checkbox_0.31.orig.tar.gz
+324b40f559baf88b8eb9fb13ccf8dcbd8a92bc1d
+1701772
 debianTag="debian/%e%v"
 patchedTag="patched/%e%v"
 upstreamTag="upstream/%e%u"

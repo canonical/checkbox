@@ -3,7 +3,7 @@ Upstream-Name: plainbox-provider-checkbox
 Source: https://launchpad.net/checkbox
 
 Files: *
-Copyright: Copyright 2007-2015 Canonical Ltd.
+Copyright: Copyright 2007-2016 Canonical Ltd.
 License: GPL-3
 
 Files: bin/alsa_info
@@ -53,6 +53,12 @@ License: GPL-2
 Files: src/threaded_memtest.c
 Copyright: Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
 License: GPL-2
+
+Files: bin/disk_info
+Copyright:
+ Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+ Industrial Technology Research Institute
+License: GPL-3
 
 License: GPL-2
  This program is free software; you can redistribute it and/or modify

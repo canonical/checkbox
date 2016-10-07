@@ -11,9 +11,9 @@ Build-Depends: debhelper (>= 9),
                plainbox-provider-resource-generic (>= 0.17),
                python (>= 2.7),
                python3,
-               python3-checkbox-support (>= 0.18),
+               python3-checkbox-support (>= 0.22),
                python3-debian,
-               python3-plainbox (>= 0.22)
+               python3-plainbox (>= 0.24)
 Standards-Version: 3.9.6
 Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-checkbox/trunk/
 Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-checkbox/trunk/
@@ -25,7 +25,7 @@ Depends: plainbox-provider-resource-generic (>= 0.17),
          python (>= 2.7),
          python2.7,
          python3,
-         python3-checkbox-support (>= 0.18),
+         python3-checkbox-support (>= 0.22),
          ${misc:Depends},
          ${plainbox:Depends},
          ${shlibs:Depends}

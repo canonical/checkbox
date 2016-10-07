@@ -1,3 +1,11 @@
+plainbox-provider-checkbox (0.24-1) unstable; urgency=medium
+
+  * New upstream maintenance release
+  * debian/control: Depend on more recent version of python3-checkbox-support
+    and python3-plainbox. 
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Thu, 07 Jan 2016 18:03:36 +0100
+
 plainbox-provider-checkbox (0.21.3-1) unstable; urgency=medium
 
   * New upstream maintenance release:

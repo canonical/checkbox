@@ -6,3 +6,6 @@ ce295790f895e42d2e9896b63ac25ccd2d9f3a0d
 plainbox-provider-resource-generic_0.23.orig.tar.gz
 05872507394660b980f251882ae5bd94d85099d5
 122077
+debianTag="debian/%e%v"
+patchedTag="patched/%e%v"
+upstreamTag="upstream/%e%u"

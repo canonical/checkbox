@@ -1,3 +1,4 @@
 version=3
 opts=pgpsigurlmangle=s/$/.asc/ \
-    http://pypi.python.org/packages/source/p/plainbox-provider-checkbox/plainbox-provider-checkbox-(.*)\.tar\.gz
+    http://launchpad.net/plainbox-provider-checkbox/+download/ \
+    https://launchpad\.net/plainbox-provider-checkbox/.*/.*/\+download/2013\.com\.canonical\.certification.checkbox-(.*).tar.gz

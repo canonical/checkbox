@@ -1,10 +1,19 @@
 #!/usr/bin/make -f
-export PYBUILD_NAME=plainbox-provider-checkbox
 
 %:
-	dh $@ --with=python3 --buildsystem=pybuild
+	dh $@
+
+override_dh_auto_clean:
+	python3 manage.py clean
+
+override_dh_auto_build:
+	python3 manage.py build
+	python3 manage.py i18n
+
+override_dh_auto_test:
+	python3 manage.py validate 
 
 override_dh_auto_install:
-	dh_auto_install
-	rm -rf debian/*/usr/lib/python3*/dist-packages/*.egg-info
-	rm -rf debian/*/usr/lib/plainbox-providers-1/checkbox/bin/*.c
+	python3 manage.py install \
+		--prefix=/usr --layout=unix \
+		--root=$(CURDIR)/debian/plainbox-provider-checkbox/

@@ -1,3 +1,28 @@
+plainbox-provider-checkbox (0.4-1) unstable; urgency=medium
+
+  * New upstream release. List of bugfixes:
+    https://launchpad.net/plainbox-provider-checkbox/14.04/0.4
+  * debian/watch: look for new releases on launchpad
+  * debian/rules: stop using pybuild and use manage.py
+    {i18n,build,install,validate} instead. This also drops dependency on
+    python3-distutils-extra and replaces that with intltool
+  * debian/control: drop X-Python3-Version
+  * debian/control: make plainbox-provider-checkbox depend on python and
+    python2.7 (for some scripts) rather than suggesting them.
+  * debian/upstream/signing-key.asc: Use armoured gpg keys to avoid having to
+    keep binary files in Debian packaging. Also, replace that with my key
+    since I made the 0.3 release upstream.
+  * debian/source/lintian-overrides: add an override for warning about no
+    source for flash movie with reference to a bug report that discusses that
+    issue.
+  * debian/source/include-binaries: drop (no longer needed)
+  * debian/patches: drop (no longer needed)
+  * debian/plainbox-provider-checkbox.lintian-overrides: drop (no longer
+    needed)
+  * Stop being a python3 module, move to from DPMT to PAPT
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 07 Apr 2014 19:00:31 +0200
+
 plainbox-provider-checkbox (0.3-2) unstable; urgency=low
 
   * Patch the checkbox.provider file to add the version number, required by

@@ -13,28 +13,10 @@ override_dh_auto_build:
 override_dh_auto_test:
 	python3 manage.py validate --loose --legacy
 
-pkg_name=plainbox-provider-checkbox
-verbose_id=2013.com.canonical.certification:checkbox
-terse_id=$(pkg_name)
-
 override_dh_auto_install:
 	python3 manage.py install \
 		--prefix=/usr --layout=unix \
-		--root=$(CURDIR)/debian/$(pkg_name)/
-	# Rename provider directory to avoid having colon in the PATH
-	mv $(CURDIR)/debian/$(pkg_name)/usr/lib/$(verbose_id) \
-		$(CURDIR)/debian/$(pkg_name)/usr/lib/$(terse_id)
-	mv $(CURDIR)/debian/$(pkg_name)/usr/share/$(verbose_id) \
-		$(CURDIR)/debian/$(pkg_name)/usr/share/$(terse_id)
-	# Rename the .provider file, mind the mangling of : done by manage.py install!
-	mv $(CURDIR)/debian/$(pkg_name)/usr/share/plainbox-providers-1/$(subst :,.,$(verbose_id)).provider \
-		$(CURDIR)/debian/$(pkg_name)/usr/share/plainbox-providers-1/$(terse_id).provider
-	# Reflect changes in the .provider meta-data
-	sed -i -e 's!$(verbose_id)!$(terse_id)!g' \
-		$(CURDIR)/debian/$(pkg_name)/usr/share/plainbox-providers-1/$(terse_id).provider
-	# But don't modify the name, it has to be exactly as before
-	sed -i -e 's!name = $(terse_id)!name = $(verbose_id)!g' \
-		$(CURDIR)/debian/$(pkg_name)/usr/share/plainbox-providers-1/$(terse_id).provider
+		--root=$(CURDIR)/debian/plainbox-provider-checkbox/
 
 override_dh_gencontrol:
 	python3 manage.py packaging

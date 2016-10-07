@@ -19,7 +19,7 @@ Copyright:
  Copyright (C) 1999-2009 the contributors
  .
  The JPEG metadata parser is a part of bfg-pages:
- http://code.google.com/p/bfg-pages/source/browse/trunk/pages/getimageinfo.py
+ https://github.com/yphus/bfg-pages/blob/master/pages/getimageinfo.py
  Copyright (C) Tim Hoffman
 License: GPL-3
 

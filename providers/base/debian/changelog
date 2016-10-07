@@ -1,3 +1,15 @@
+plainbox-provider-checkbox (0.25-1) unstable; urgency=medium
+
+  * New upstream maintenance release
+  * debian/watch: match new upstream tarball names
+  * debian/rules: simplify override_dh_auto_install since installation
+    directories are all named plainbox-provider-checkbox
+  * debian/control: remove python2.x, dh-python and obexd-client dependencies
+  * debian/patches: New patch to depends on kmod instead of module-init-tools.
+    (Closes: #811187)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 15 Jan 2016 16:51:16 +0100
+
 plainbox-provider-checkbox (0.24-1) unstable; urgency=medium
 
   * New upstream maintenance release

@@ -1,0 +1,10 @@
+--- a/jobs/ethernet.txt.in
++++ b/jobs/ethernet.txt.in
+@@ -1,6 +1,6 @@
+ unit: packaging meta-data
+ os-id: debian
+-Depends: module-init-tools
++Depends: kmod
+ 
+ plugin: shell
+ category_id: 2013.com.canonical.plainbox::ethernet

@@ -14,11 +14,11 @@ Build-Depends: autoconf,
                pkg-config,
                python3,
                python3-debian,
-               python3-plainbox (>= 0.22)
+               python3-plainbox (>= 0.27)
 Standards-Version: 3.9.6
 Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-resource-generic/trunk/
 Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-resource-generic/trunk/
-Homepage: http://launchpad.net/checkbox
+Homepage: http://launchpad.net/plainbox-provider-resource
 
 Package: plainbox-provider-resource-generic
 Architecture: any

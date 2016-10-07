@@ -1,3 +1,10 @@
+plainbox-provider-checkbox (0.31) unstable; urgency=medium
+
+  [ Pierre Equoy ]
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:18:21 +0800
+
 plainbox-provider-checkbox (0.25-1) unstable; urgency=medium
 
   * New upstream maintenance release

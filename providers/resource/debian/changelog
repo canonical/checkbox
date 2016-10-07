@@ -1,3 +1,10 @@
+plainbox-provider-resource-generic (0.19-2) unstable; urgency=low
+
+  * Patch packaging meta-data to avoid depending on dmidecode for the following
+    architectures: armel, mips, mipsel, powerpc, ppc64el and s390x.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 08 Sep 2015 16:51:00 +0200
+
 plainbox-provider-resource-generic (0.19-1) unstable; urgency=medium
 
   * New upstream release

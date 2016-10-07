@@ -1,3 +1,9 @@
+plainbox-provider-checkbox (0.32) UNRELEASED; urgency=medium
+
+  * Open for development (remove this message before releasing)
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:19:09 +0800
+
 plainbox-provider-checkbox (0.31) unstable; urgency=medium
 
   [ Pierre Equoy ]

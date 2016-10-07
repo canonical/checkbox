@@ -6,3 +6,6 @@ e0db94a71dd65763074c4d151983ceb56a79c811
 plainbox-provider-checkbox_0.25.orig.tar.gz
 08be2dedd07012ff426bf50c3e409143c0ba7c1a
 1352242
+debianTag="debian/%e%v"
+patchedTag="patched/%e%v"
+upstreamTag="upstream/%e%u"

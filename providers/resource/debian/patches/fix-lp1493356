@@ -1,3 +1,15 @@
+From 5077ad34f3e2baa935602768ac7ae96348020293 Mon Sep 17 00:00:00 2001
+From: Sylvain Pineau <sylvain.pineau@canonical.com>
+Date: Tue, 8 Sep 2015 16:51:00 +0200
+Subject: fix-lp1493356
+
+Patch-Name: fix-lp1493356
+---
+ jobs/resource.pxu | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/jobs/resource.pxu b/jobs/resource.pxu
+index c4e321e..314168d 100644
 --- a/jobs/resource.pxu
 +++ b/jobs/resource.pxu
 @@ -20,7 +20,7 @@ Suggests: x11-server-utils

@@ -1,3 +1,15 @@
+From e0db94a71dd65763074c4d151983ceb56a79c811 Mon Sep 17 00:00:00 2001
+From: Sylvain Pineau <sylvain.pineau@canonical.com>
+Date: Fri, 15 Jan 2016 16:51:16 +0100
+Subject: remove-module-init-tools
+
+Patch-Name: remove-module-init-tools
+---
+ jobs/ethernet.txt.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/jobs/ethernet.txt.in b/jobs/ethernet.txt.in
+index 2cc1f22..d0e5795 100644
 --- a/jobs/ethernet.txt.in
 +++ b/jobs/ethernet.txt.in
 @@ -1,6 +1,6 @@

@@ -1,3 +1,10 @@
+plainbox-provider-checkbox (0.3-2) unstable; urgency=low
+
+  * Patch the checkbox.provider file to add the version number, required by
+    plainbox >= 0.5.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 28 Jan 2014 13:20:39 +0100
+
 plainbox-provider-checkbox (0.3-1) unstable; urgency=low
 
   * Initial release (Closes: #735208)

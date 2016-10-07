@@ -1,0 +1,11 @@
+Description: Add the provider version for compatibility with plainbox >= 0.5
+Author: Sylvain Pineau <sylvain.pineau@canonical.com>
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/checkbox.provider
++++ b/checkbox.provider
+@@ -2,3 +2,4 @@
+ name = 2013.com.canonical:checkbox
+ location = /usr/lib/plainbox-providers-1/checkbox/
+ description = CheckBox provider
++version = 1.0

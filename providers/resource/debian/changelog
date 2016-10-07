@@ -1,3 +1,18 @@
+plainbox-provider-resource-generic (0.17-1) unstable; urgency=medium
+
+  * New upstream release 
+  * debian/copyright: refresh dates 
+  * debian/rules: rename provider directories to avoid having colon in any
+    filesystem path 
+  * debian/control: bump Standards-Version to 3.9.6 (no change required) 
+  * debian/upstream/signing-key.asc: Re-export the public key of Sylvain
+    Pineau (using gpg --armor --export-options export-minimal --export
+    '7ED72CD1'). The old key there didn't validate and I'm not quite sure
+    whose key that was. 
+  * debian/watch: escape one more dot 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 14:42:54 +0100
+
 plainbox-provider-resource-generic (0.3-1) unstable; urgency=medium
 
   * New upstream release. List of bugfixes:

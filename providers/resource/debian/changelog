@@ -1,3 +1,12 @@
+plainbox-provider-resource-generic (0.23-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/watch: match new upstream tarball names
+  * debian/rules: simplify override_dh_auto_install since installation
+    directories are all named plainbox-provider-resource-generic
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 15 Jan 2016 21:45:29 +0100
+
 plainbox-provider-resource-generic (0.22-1) unstable; urgency=medium
 
   * New upstream release

@@ -1,3 +1,9 @@
+plainbox-provider-resource-generic (0.22-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 08 Jan 2016 09:23:03 +0100
+
 plainbox-provider-resource-generic (0.19-2) unstable; urgency=low
 
   * Patch packaging meta-data to avoid depending on dmidecode for the following

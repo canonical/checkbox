@@ -7,52 +7,54 @@ Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
            Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
 Build-Depends: debhelper (>= 9),
                intltool,
-               plainbox-provider-resource-generic (>= 0.17),
+               plainbox-provider-resource-generic (>= 0.25),
                python3,
-               python3-checkbox-support (>= 0.22),
+               python3-checkbox-support (>= 0.25),
                python3-debian,
-               python3-plainbox (>= 0.24)
+               python3-plainbox (>= 0.27)
 Standards-Version: 3.9.6
 Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-checkbox/trunk/
 Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-checkbox/trunk/
-Homepage: http://launchpad.net/checkbox
+Homepage: http://launchpad.net/plainbox-provider-checkbox
 
 Package: plainbox-provider-checkbox
 Architecture: any
-Depends: plainbox-provider-resource-generic (>= 0.17),
+Depends: plainbox-provider-resource-generic (>= 0.25),
          python3,
-         python3-checkbox-support (>= 0.22),
+         python3-checkbox-support (>= 0.25),
          ${misc:Depends},
          ${plainbox:Depends},
          ${shlibs:Depends}
-Recommends: gir1.2-gst-plugins-base-1.0,
+Recommends: bonnie++,
+            curl,
+            ethtool,
+            gir1.2-cheese-3.0,
+            gir1.2-gst-plugins-base-1.0,
             gir1.2-gstreamer-1.0,
             gstreamer1.0-plugins-good,
             gstreamer1.0-pulseaudio,
+            hdparm,
+            kmod,
             libgstreamer1.0-0,
+            lshw,
             pm-utils,
             python3-apt,
             python3-dbus,
             python3-gi,
+            python3-guacamole,
+            smartmontools,
+            sysstat,
             ${plainbox:Recommends}
-Suggests: bonnie++,
-          bootchart,
-          curl,
-          ethtool,
+Suggests: fswebcam,
           fwts,
-          git-core,
           glmark2,
           glmark2-es2,
-          hdparm,
-          lshw,
+          gtkperf,
+          imagemagick,
           mesa-utils,
-          nmap,
           obexftp,
           render-bench,
-          smartmontools,
-          sox,
           stress,
-          sysstat,
           wmctrl,
           ${plainbox:Suggests}
 X-Plainbox-Provider: yes

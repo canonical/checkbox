@@ -4,14 +4,14 @@
 	dh $@
 
 override_dh_auto_clean:
-	python3 manage.py clean
+	-python3 manage.py clean
 
 override_dh_auto_configure:
 	cd src && autoreconf -i
 
 override_dh_auto_build:
 	python3 manage.py build
-	python3 manage.py i18n
+	python3 manage.py i18n --dont-update-pot --dont-merge-po
 
 override_dh_auto_test:
 	python3 manage.py validate 
@@ -38,3 +38,7 @@ override_dh_auto_install:
 	# But don't modify the name, it has to be exactly as before
 	sed -i -e 's!name = $(terse_id)!name = $(verbose_id)!g' \
 		$(CURDIR)/debian/$(pkg_name)/usr/share/plainbox-providers-1/$(terse_id).provider
+
+override_dh_gencontrol:
+	python3 manage.py packaging
+	dh_gencontrol

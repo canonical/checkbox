@@ -1,20 +1,20 @@
 Source: plainbox-provider-resource-generic
 Section: utils
 Priority: optional
-Maintainer: Checkbox Developers <checkbox-dev@lists.launchpad.net> 
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
 Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
            Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
            Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
-Build-Depends:
- autoconf,
- automake,
- debhelper (>= 9),
- intltool,
- libnl-3-dev,
- libnl-genl-3-dev,
- pkg-config,
- python3,
- python3-plainbox (>= 0.5.3),
+Build-Depends: autoconf,
+               automake,
+               debhelper (>= 9),
+               intltool,
+               libnl-3-dev,
+               libnl-genl-3-dev,
+               pkg-config,
+               python3,
+               python3-debian,
+               python3-plainbox (>= 0.22)
 Standards-Version: 3.9.6
 Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-resource-generic/trunk/
 Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-resource-generic/trunk/
@@ -22,12 +22,10 @@ Homepage: http://launchpad.net/checkbox
 
 Package: plainbox-provider-resource-generic
 Architecture: any
-Depends:
- ${misc:Depends},
- ${shlibs:Depends},
- python3 (>= 3.2),
- python3-checkbox-support (>= 0.2),
-Recommends: dmidecode, dpkg (>= 1.13), lsb-release, wodim
+Depends: ${misc:Depends}, ${plainbox:Depends}, ${shlibs:Depends}
+Suggests: ${plainbox:Suggests}
+Recommends: ${plainbox:Recommends}
+X-Plainbox-Provider: yes
 Description: CheckBox generic resource jobs provider
  This package provides the generic resource jobs. It is used together
  alongside with PlainBox.

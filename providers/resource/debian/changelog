@@ -1,3 +1,29 @@
+plainbox-provider-resource-generic (0.19-1) unstable; urgency=medium
+
+  * New upstream release
+  * List of bug fixes and enhancements:
+    https://launchpad.net/plainbox-provider-resource/trunk/0.18
+    https://launchpad.net/plainbox-provider-resource/trunk/0.19
+  * Allow debian/rules 'clean' to fail so that plainbox doesn't have to be
+    installed to build the source package in a clean tree. 
+  * debian/control: Use the new email address for the team
+    (checkbox-devel@lists.ubuntu.com). 
+  * debian/control: Depend on more recent version of plainbox to get the
+    packaging meta-data unit which blocks validation.
+  * debian/control, debian/rules: Depend on python3-debian for plainbox
+    packaging system integration. Activate plainbox packaging integration
+    through "./manage.py packaging", "X-Plainbox-Provider: yes" and
+    ${plainbox:Depends} and similar. This lets plainbox look at packaging
+    meta-data units contained in the provider being packaged (at .txt.in, .txt
+    and .pxu files) and determine appropriate dependencies. This lessens the
+    maintenance burden on the package maintainer and shifts it onto the
+    upstream developers to provide accurate packaging meta-data for each
+    specific distribution. This also means that separate packaging for similar
+    distributions (Debian, Ubuntu and bleeding-edge Ubuntu PPA is far easier
+    to work with as bulk of the work is shared).
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 28 Apr 2015 10:35:39 +0200
+
 plainbox-provider-resource-generic (0.17-1) unstable; urgency=medium
 
   * New upstream release 

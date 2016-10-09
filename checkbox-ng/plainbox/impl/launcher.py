@@ -248,6 +248,13 @@ class LauncherDefinition1(LauncherDefinition):
             ['interactive', 'silent', 'converged', 'converged-silent'])],
         help_text=_('Type of stock user interface to use.'))
 
+    output = config.Variable(
+        section='ui',
+        default='show',
+        validator_list=[config.ChoiceValidator(
+            ['show', 'hide', 'hide-resource-and-attachment'])],
+        help_text=_('Silence or restrict command output'))
+
     dont_suppress_output = config.Variable(
         section="ui", kind=bool, default=False,
         help_text=_("Don't suppress the output of certain job plugin types."))

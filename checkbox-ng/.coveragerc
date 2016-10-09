@@ -1,0 +1,24 @@
+[run]
+branch = True
+omit =
+    plainbox/impl/commands/test_*
+    plainbox/impl/exporter/test_*
+    plainbox/impl/integration_tests.py
+    plainbox/impl/secure/test_*
+    plainbox/impl/test_*
+    plainbox/impl/transport/test_*
+    plainbox/setup.py
+    plainbox/test_*
+    plainbox/testing_utils/test_*
+    plainbox/tests.py
+    plainbox/vendor/*
+
+[report]
+exclude_lines =
+    @abc.abstractmethod
+    @abc.abstractproperty
+    @abstractmethod
+    @abstractproperty
+    @public
+    pragma: no cover
+    raise NotImplementedError

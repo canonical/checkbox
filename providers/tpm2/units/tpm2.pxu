@@ -40,7 +40,7 @@ depends: tpm2.0/init-resource-mgr
 estimated_duration: 2
 plugin: shell
 _summary: tpm2_takeownership
-command: test_tpm2_takeownership_all.sh
+command: [[ -z $SNAP ]] && test_tpm2_takeownership_all.sh || bash -c "$(cat `which test_tpm2_takeownership_all.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_nv
 category_id: tpm2
@@ -48,7 +48,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 2
 plugin: shell
 _summary: tpm2 NV tools
-command: test_tpm2_nv.sh
+command: [[ -z $SNAP ]] && test_tpm2_nv.sh || bash -c "$(cat `which test_tpm2_nv.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_listpcrs
 category_id: tpm2
@@ -56,7 +56,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 15
 plugin: shell
 _summary: tpm2_listpcrs
-command: test_tpm2_listpcrs.sh
+command: [[ -z $SNAP ]] && test_tpm2_listpcrs.sh || bash -c "$(cat `which test_tpm2_listpcrs.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_getrandom
 category_id: tpm2
@@ -64,7 +64,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 2
 plugin: shell
 _summary: tpm2_getrandom
-command: test_tpm2_getrandom.sh
+command: [[ -z $SNAP ]] && test_tpm2_getrandom.sh || bash -c "$(cat `which test_tpm2_getrandom.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_load
 category_id: tpm2
@@ -72,7 +72,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_load
-command: test_tpm2_load.sh
+command: [[ -z $SNAP ]] && test_tpm2_load.sh || bash -c "$(cat `which test_tpm2_load.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_loadexternal
 category_id: tpm2
@@ -80,7 +80,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_loadexternal
-command: test_tpm2_loadexternal.sh
+command: [[ -z $SNAP ]] && test_tpm2_loadexternal.sh || bash -c "$(cat `which test_tpm2_loadexternal.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_evictcontrol
 category_id: tpm2
@@ -88,7 +88,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_evictcontrol
-command: test_tpm2_evictcontrol.sh
+command: [[ -z $SNAP ]] && test_tpm2_evictcontrol.sh || bash -c "$(cat `which test_tpm2_evictcontrol.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_hash
 category_id: tpm2
@@ -96,7 +96,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_hash
-command: test_tpm2_hash.sh
+command: [[ -z $SNAP ]] && test_tpm2_hash.sh || bash -c "$(cat `which test_tpm2_hash.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_hmac
 category_id: tpm2
@@ -104,7 +104,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
 _summary: tpm2_hmac
-command: test_tpm2_hmac.sh
+command: [[ -z $SNAP ]] && test_tpm2_hmac.sh || bash -c "$(cat `which test_tpm2_hmac.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_quote
 category_id: tpm2
@@ -112,7 +112,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
 _summary: tpm2_quote
-command: test_tpm2_quote.sh
+command: [[ -z $SNAP ]] && test_tpm2_quote.sh || bash -c "$(cat `which test_tpm2_quote.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_unseal
 category_id: tpm2
@@ -120,7 +120,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_unseal
-command: test_tpm2_unseal.sh
+command: [[ -z $SNAP ]] && test_tpm2_unseal.sh || bash -c "$(cat `which test_tpm2_unseal.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_akparse
 category_id: tpm2
@@ -128,7 +128,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_akparse
-command: test_tpm2_akparse.sh
+command: [[ -z $SNAP ]] && test_tpm2_akparse.sh || bash -c "$(cat `which test_tpm2_akparse.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_certify
 category_id: tpm2
@@ -136,7 +136,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_certify
-command: test_tpm2_certify.sh
+command: [[ -z $SNAP ]] && test_tpm2_certify.sh || bash -c "$(cat `which test_tpm2_certify.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_getpubek
 category_id: tpm2
@@ -144,7 +144,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
 _summary: tpm2_getpubek
-command: test_tpm2_getpubek.sh
+command: [[ -z $SNAP ]] && test_tpm2_getpubek.sh || bash -c "$(cat `which test_tpm2_getpubek.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_getpubak
 category_id: tpm2
@@ -152,7 +152,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
 _summary: tpm2_getpubak
-command: test_tpm2_getpubak.sh
+command: [[ -z $SNAP ]] && test_tpm2_getpubak.sh || bash -c "$(cat `which test_tpm2_getpubak.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_makecredential
 category_id: tpm2
@@ -160,7 +160,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_makecredential
-command: test_tpm2_makecredential.sh
+command: [[ -z $SNAP ]] && test_tpm2_makecredential.sh || bash -c "$(cat `which test_tpm2_makecredential.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_activecredential
 category_id: tpm2
@@ -168,7 +168,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_activatecredential
-command: test_tpm2_activecredential.sh
+command: [[ -z $SNAP ]] && test_tpm2_activecredential.sh || bash -c "$(cat `which test_tpm2_activecredential.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_readpublic
 category_id: tpm2
@@ -176,7 +176,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_readpublic
-command: test_tpm2_readpublic.sh
+command: [[ -z $SNAP ]] && test_tpm2_readpublic.sh || bash -c "$(cat `which test_tpm2_readpublic.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_rsaencrypt
 category_id: tpm2
@@ -184,7 +184,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 40
 plugin: shell
 _summary: tpm2_rsaencrypt
-command: test_tpm2_rsaencrypt.sh
+command: [[ -z $SNAP ]] && test_tpm2_rsaencrypt.sh || bash -c "$(cat `which test_tpm2_rsaencrypt.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_rsadecrypt
 category_id: tpm2
@@ -192,7 +192,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 40
 plugin: shell
 _summary: tpm2_rsadecrypt
-command: test_tpm2_rsadecrypt.sh
+command: [[ -z $SNAP ]] && test_tpm2_rsadecrypt.sh || bash -c "$(cat `which test_tpm2_rsadecrypt.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_encryptdecrypt
 category_id: tpm2
@@ -200,7 +200,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 40
 plugin: shell
 _summary: tpm2_encryptdecrypt
-command: test_tpm2_encryptdecrypt.sh
+command: [[ -z $SNAP ]] && test_tpm2_encryptdecrypt.sh || bash -c "$(cat `which test_tpm2_encryptdecrypt.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_sign
 category_id: tpm2
@@ -208,7 +208,7 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_sign
-command: test_tpm2_sign.sh
+command: [[ -z $SNAP ]] && test_tpm2_sign.sh || bash -c "$(cat `which test_tpm2_sign.sh` | sed 's/\btpm2_/tpm2\./')"
 
 id: tpm2.0/tpm2_verifysignature
 category_id: tpm2
@@ -216,4 +216,4 @@ depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
 _summary: tpm2_verifysignature
-command: test_tpm2_verifysignature.sh
+command: [[ -z $SNAP ]] && test_tpm2_verifysignature.sh || bash -c "$(cat `which test_tpm2_verifysignature.sh` | sed 's/\btpm2_/tpm2\./')"

@@ -1,0 +1,5 @@
+plainbox-provider-tpm2 (1.0-1) UNRELEASED; urgency=low
+
+  * Initial release
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 09 May 2016 16:45:46 +0200

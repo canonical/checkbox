@@ -44,7 +44,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 # mocked away in 'plainbox/docs/conf.py'. This speeds up the build process.
 # and makes it independent on any packages that are hard to get in a virtualenv
 if on_rtd:
-    install_requires = []
+    install_requires = ['plainbox >= 0.5.3',]
 else:
     install_requires = [
         'checkbox-support >= 0.2',

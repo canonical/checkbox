@@ -49,6 +49,7 @@ from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_run import ReRunJob
 from plainbox.impl.commands.inv_run import seconds_to_human_duration
 from plainbox.impl.ingredients import CanonicalCrashIngredient
+from plainbox.impl.ingredients import CanonicalCommand
 from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
 from plainbox.impl.launcher import DefaultLauncherDefinition
@@ -153,35 +154,13 @@ class CheckboxCommandRecipe(CommandRecipe):
         ]
 
 
-class CheckboxCommand(Command):
-
-    """
-    A command with Checkbox-enhanced ingredients.
-
-    This command has additional items in the guacamole execution context:
-    :class:`DisplayIngredient` object ``display``
-    :class:`SessionAssistantIngredient` object ``sa``
-    :class:`LauncherIngredient` object ``launcher``
-    """
-
-    bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"
-
-    def main(self, argv=None, exit=True):
-        """
-        Shortcut for running a command.
-
-        See :meth:`guacamole.recipes.Recipe.main()` for details.
-        """
-        return CheckboxCommandRecipe(self).main(argv, exit)
-
-
 class CheckboxUI(NormalUI):
 
     def considering_job(self, job, job_state):
         pass
 
 
-class CheckboxLauncher(CheckboxCommand):
+class Launcher(Command):
     app_id = '2016.com.canonical:checkbox-cli'
 
     def get_sa_api_version(self):
@@ -196,6 +175,7 @@ class CheckboxLauncher(CheckboxCommand):
             # exited by now, so validation passed
             print(_("Launcher seems valid."))
             return
+        self.launcher = ctx.cmd_toplevel.launcher
         if not self.launcher.launcher_version:
             # it's a legacy launcher, use legacy way of running commands
             from checkbox_ng.tools import CheckboxLauncherTool
@@ -825,5 +805,38 @@ class CheckboxLauncher(CheckboxCommand):
             help=_('title of the session to use'))
 
 
+class CheckboxCommand(CanonicalCommand):
+
+    """
+    A command with Checkbox-enhanced ingredients.
+
+    If no command is given, launcher command is assumed.
+    See checkbox-cli launcher -h for more information
+    """
+
+    bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"
+
+    sub_commands = (
+        ('launcher', Launcher),
+    )
+
+    def main(self, argv=None, exit=True):
+        """
+        Shortcut for running a command.
+
+        See :meth:`guacamole.recipes.Recipe.main()` for details.
+        """
+        return CheckboxCommandRecipe(self).main(argv, exit)
+
+
 def main():
-    CheckboxLauncher().main()
+    # the next block preserves checkbox-cli universal invocation, i.e.:
+    # $ checkbox-cli             -> runs default settings
+    # $ checkbox-cli my-launcher -> runs checkbox-cli with `my-launcher` as
+    #                               launcher
+    # $ checkbox-cli launcher my-launcher ->  same as ^
+    # to achieve that the following code 'injects launcher subcommand to argv
+    if (len(sys.argv) == 1 or len(sys.argv) > 1 and
+            os.path.exists(sys.argv[1]) and os.path.isfile(sys.argv[1])):
+        sys.argv.insert(1, 'launcher')
+    CheckboxCommand().main()

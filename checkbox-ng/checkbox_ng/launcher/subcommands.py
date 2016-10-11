@@ -18,3 +18,694 @@
 """
 Definition of sub-command classes for checkbox-cli
 """
+from argparse import SUPPRESS
+import copy
+import datetime
+import fnmatch
+import gettext
+import json
+import logging
+import os
+import sys
+
+from guacamole import Command
+
+from plainbox.abc import IJobResult
+from plainbox.i18n import ngettext
+from plainbox.i18n import pgettext as C_
+from plainbox.impl.color import Colorizer
+from plainbox.impl.commands.inv_run import Action
+from plainbox.impl.commands.inv_run import ActionUI
+from plainbox.impl.commands.inv_run import NormalUI
+from plainbox.impl.commands.inv_run import ReRunJob
+from plainbox.impl.commands.inv_run import seconds_to_human_duration
+from plainbox.impl.result import JobResultBuilder
+from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result import tr_outcome
+from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.jobs import InhibitionCause
+from plainbox.impl.session.restart import detect_restart_strategy
+from plainbox.impl.session.restart import get_strategy_by_name
+from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import InvalidSecureIDError
+from plainbox.impl.transport import get_all_transports
+
+from checkbox_ng.misc import SelectableJobTreeNode
+from checkbox_ng.ui import ScrollableTreeNode
+from checkbox_ng.ui import ShowMenu
+from checkbox_ng.ui import ShowRerun
+
+_ = gettext.gettext
+
+_logger = logging.getLogger("checkbox-ng.launcher.subcommands")
+
+
+class Launcher(Command):
+    app_id = '2016.com.canonical:checkbox-cli'
+
+    def get_sa_api_version(self):
+        return self.launcher.api_version
+
+    def get_sa_api_flags(self):
+        return self.launcher.api_flags
+
+    def invoked(self, ctx):
+        if ctx.args.verify:
+            # validation is always run, so if there were any errors the program
+            # exited by now, so validation passed
+            print(_("Launcher seems valid."))
+            return
+        self.launcher = ctx.cmd_toplevel.launcher
+        if not self.launcher.launcher_version:
+            # it's a legacy launcher, use legacy way of running commands
+            from checkbox_ng.tools import CheckboxLauncherTool
+            raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
+        if self.launcher.ui_type in ['converged', 'converged-silent']:
+            # Stop processing the launcher config and call the QML ui
+            qml_main_file = '/usr/share/checkbox-converged/checkbox-touch.qml'
+            basedir = os.path.dirname(__file__)
+            # XXX This relative path is a ugly way to find the dev version of
+            # checkbox-converged. Once the checkbox project will move to git,
+            # this method will no longer work
+            if basedir not in os.getenv('PATH'):
+                qml_main_file = os.path.abspath(os.path.join(
+                    basedir, '../../checkbox-touch/checkbox-touch.qml'))
+            cmd = ['qmlscene', qml_main_file,
+                   '--launcher={}'.format(os.path.abspath(ctx.args.launcher))]
+            os.execvp(cmd[0], cmd)
+
+        try:
+            self.C = Colorizer()
+            self.ctx = ctx
+            self._configure_restart(ctx)
+            self._prepare_transports()
+            ctx.sa.use_alternate_configuration(self.launcher)
+            ctx.sa.select_providers(*self.launcher.providers)
+            if not self._maybe_resume_session():
+                self._start_new_session()
+                self._pick_jobs_to_run()
+            self.base_dir = os.path.join(
+                os.getenv(
+                    'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
+                "checkbox-ng")
+            if 'submission_files' in self.launcher.stock_reports:
+                print("Reports will be saved to: {}".format(self.base_dir))
+            self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
+            if self.is_interactive:
+                while True:
+                    if not self._maybe_rerun_jobs():
+                        break
+            self._export_results()
+            ctx.sa.finalize_session()
+            return 0 if ctx.sa.get_summary()['fail'] == 0 else 1
+        except KeyboardInterrupt:
+            return 1
+
+    @property
+    def is_interactive(self):
+        """
+        Flag indicating that this is an interactive invocation.
+
+        We can then interact with the user when we encounter OUTCOME_UNDECIDED.
+        """
+        return self.launcher.ui_type == 'interactive'
+
+    def _configure_restart(self, ctx):
+        if SA_RESTARTABLE not in self.get_sa_api_flags():
+            return
+        if self.launcher.restart_strategy:
+            try:
+                cls = get_strategy_by_name(
+                    self.launcher.restart_strategy)
+                kwargs = copy.deepcopy(self.launcher.restart)
+                # [restart] section has the kwargs for the strategy initializer
+                # and the 'strategy' which is not one, let's pop it
+                kwargs.pop('strategy')
+                strategy = cls(**kwargs)
+                ctx.sa.use_alternate_restart_strategy(strategy)
+
+            except KeyError:
+                _logger.warning(_('Unknown restart strategy: %s', (
+                    self.launcher.restart_strategy)))
+                _logger.warning(_(
+                    'Using automatically detected restart strategy'))
+                try:
+                    strategy = detect_restart_strategy()
+                except LookupError as exc:
+                    _logger.warning(exc)
+                    _logger.warning(_('Automatic restart disabled!'))
+                    strategy = None
+        else:
+            strategy = detect_restart_strategy()
+        if strategy:
+            ctx.sa.configure_application_restart(
+                lambda session_id: [
+                    ' '.join([
+                        os.path.abspath(__file__),
+                        os.path.abspath(ctx.args.launcher),
+                        "--resume", session_id])
+                ])
+
+    def _maybe_resume_session(self):
+        resume_candidates = list(self.ctx.sa.get_resumable_sessions())
+        if self.ctx.args.session_id:
+            requested_sessions = [s for s in resume_candidates if (
+                s.id == self.ctx.args.session_id)]
+            if requested_sessions:
+                # session_ids are unique, so there should be only 1
+                self._resume_session(requested_sessions[0])
+                return True
+            else:
+                raise RuntimeError("Requested session is not resumable!")
+        elif self.is_interactive:
+            print(self.C.header(_("Resume Incomplete Session")))
+            print(ngettext(
+                "There is {0} incomplete session that might be resumed",
+                "There are {0} incomplete sessions that might be resumed",
+                len(resume_candidates)
+            ).format(len(resume_candidates)))
+            return self._run_resume_ui_loop(resume_candidates)
+        else:
+            return False
+
+    def _run_resume_ui_loop(self, resume_candidates):
+        for candidate in resume_candidates:
+            cmd = self._pick_action_cmd([
+                Action('r', _("resume this session"), 'resume'),
+                Action('n', _("next session"), 'next'),
+                Action('c', _("create new session"), 'create')
+            ], _("Do you want to resume session {0!a}?").format(candidate.id))
+            if cmd == 'next':
+                continue
+            elif cmd == 'create' or cmd is None:
+                return False
+            elif cmd == 'resume':
+                self._resume_session(candidate)
+                return True
+
+    def _pick_action_cmd(self, action_list, prompt=None):
+        return ActionUI(action_list, prompt).run()
+
+    def _resume_session(self, session):
+        metadata = self.ctx.sa.resume_session(session.id)
+        app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+        test_plan_id = app_blob['testplan_id']
+        last_job = metadata.running_job_name
+        self.ctx.sa.select_test_plan(test_plan_id)
+        self.ctx.sa.bootstrap()
+        # If we resumed maybe not rerun the same, probably broken job
+        self._handle_last_job_after_resume(last_job)
+
+    def _start_new_session(self):
+        print(_("Preparing..."))
+        title = self.launcher.app_id
+        if self.ctx.args.title:
+            title = self.ctx.args.title
+        elif self.ctx.args.launcher:
+            title = os.path.basename(self.ctx.args.launcher)
+        if self.launcher.app_version:
+            title += ' {}'.format(self.launcher.app_version)
+        self.ctx.sa.start_new_session(title)
+        if self.launcher.test_plan_forced:
+            tp_id = self.launcher.test_plan_default_selection
+        elif not self.is_interactive:
+            # XXX: this maybe somewhat redundant with validation
+            _logger.error(_(
+                'Non-interactive session without test plan specified in the '
+                'launcher!'))
+            raise SystemExit(1)
+        else:
+            tp_id = self._interactively_pick_test_plan()
+            if tp_id is None:
+                raise SystemExit(_("No test plan selected."))
+        self.ctx.sa.select_test_plan(tp_id)
+        self.ctx.sa.update_app_blob(json.dumps(
+            {'testplan_id': tp_id, }).encode("UTF-8"))
+        self.ctx.sa.bootstrap()
+
+    def _interactively_pick_test_plan(self):
+        test_plan_ids = self.ctx.sa.get_test_plans()
+        filtered_tp_ids = set()
+        for filter in self.launcher.test_plan_filters:
+            filtered_tp_ids.update(fnmatch.filter(test_plan_ids, filter))
+        filtered_tp_ids = list(filtered_tp_ids)
+        filtered_tp_ids.sort(
+            key=lambda tp_id: self.ctx.sa.get_test_plan(tp_id).name)
+        test_plan_names = [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
+                           filtered_tp_ids]
+        preselected_indecies = []
+        if self.launcher.test_plan_default_selection:
+            try:
+                preselected_indecies = [test_plan_names.index(
+                    self.ctx.sa.get_test_plan(
+                        self.launcher.test_plan_default_selection).name)]
+            except KeyError:
+                _logger.warning(_('%s test plan not found'),
+                                self.launcher.test_plan_default_selection)
+                preselected_indecies = []
+        try:
+            selected_index = self.ctx.display.run(
+                ShowMenu(_("Select test plan"),
+                         test_plan_names, preselected_indecies,
+                         multiple_allowed=False))[0]
+        except IndexError:
+            return None
+        return filtered_tp_ids[selected_index]
+
+    def _pick_jobs_to_run(self):
+        if self.launcher.test_selection_forced:
+            # by default all tests are selected; so we're done here
+            return
+        job_list = [self.ctx.sa.get_job(job_id) for job_id in
+                    self.ctx.sa.get_static_todo_list()]
+        tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa, job_list)
+        for category in tree.get_descendants():
+            category.expanded = False
+        title = _('Choose tests to run on your system:')
+        self.ctx.display.run(ScrollableTreeNode(tree, title))
+        # NOTE: tree.selection is correct but ordered badly. To retain
+        # the original ordering we should just treat it as a mask and
+        # use it to filter jobs from get_static_todo_list.
+        wanted_set = frozenset([job.id for job in tree.selection])
+        job_id_list = [job_id for job_id in self.ctx.sa.get_static_todo_list()
+                       if job_id in wanted_set]
+        self.ctx.sa.use_alternate_selection(job_id_list)
+
+    def _run_jobs(self, jobs_to_run):
+        estimated_time = 0
+        for job_id in jobs_to_run:
+            job = self.ctx.sa.get_job(job_id)
+            if (job.estimated_duration is not None and
+                    estimated_time is not None):
+                estimated_time += job.estimated_duration
+            else:
+                estimated_time = None
+        for job_no, job_id in enumerate(jobs_to_run, start=1):
+            print(self.C.header(
+                _('Running job {} / {}. Estimated time left: {}').format(
+                    job_no, len(jobs_to_run),
+                    seconds_to_human_duration(max(0, estimated_time))
+                    if estimated_time is not None else _("unknown")),
+                fill='-'))
+            job = self.ctx.sa.get_job(job_id)
+            builder = self._run_single_job_with_ui_loop(
+                job, self._get_ui_for_job(job))
+            result = builder.get_result()
+            self.ctx.sa.use_job_result(job_id, result)
+            if (job.estimated_duration is not None and
+                    estimated_time is not None):
+                estimated_time -= job.estimated_duration
+
+    def _get_ui_for_job(self, job):
+        if not self.launcher.dont_suppress_output and (job.plugin in (
+                'local', 'resource', 'attachment') or
+                'suppress-output' in job.get_flag_set()):
+            return CheckboxUI(self.C.c, show_cmd_output=False)
+        else:
+            return CheckboxUI(self.C.c, show_cmd_output=True)
+
+    def _run_single_job_with_ui_loop(self, job, ui):
+        print(self.C.header(job.tr_summary(), fill='-'))
+        print(_("ID: {0}").format(job.id))
+        print(_("Category: {0}").format(
+            self.ctx.sa.get_job_state(job.id).effective_category_id))
+        comments = ""
+        while True:
+            if job.plugin in ('user-interact', 'user-interact-verify',
+                              'user-verify', 'manual'):
+                # FIXME: get rid of pulling sa's internals
+                jsm = self.ctx.sa._context._state._job_state_map
+                if jsm[job.id].can_start():
+                    ui.notify_about_purpose(job)
+                if (self.is_interactive and
+                        job.plugin in ('user-interact',
+                                       'user-interact-verify',
+                                       'manual')):
+                    if jsm[job.id].can_start():
+                        ui.notify_about_steps(job)
+                    if job.plugin == 'manual':
+                        cmd = 'run'
+                    else:
+                        if jsm[job.id].can_start():
+                            cmd = ui.wait_for_interaction_prompt(job)
+                        else:
+                            # 'running' the job will make it marked as skipped
+                            # because of the failed dependency
+                            cmd = 'run'
+                    if cmd == 'run' or cmd is None:
+                        result_builder = self.ctx.sa.run_job(job.id, ui, False)
+                    elif cmd == 'comment':
+                        new_comment = input(self.C.BLUE(
+                            _('Please enter your comments:') + '\n'))
+                        if new_comment:
+                            comments += new_comment + '\n'
+                        continue
+                    elif cmd == 'skip':
+                        result_builder = JobResultBuilder(
+                            outcome=IJobResult.OUTCOME_SKIP,
+                            comments=_("Explicitly skipped before"
+                                       " execution"))
+                        if comments != "":
+                            result_builder.comments = comments
+                        break
+                    elif cmd == 'quit':
+                        raise SystemExit()
+                else:
+                    result_builder = self.ctx.sa.run_job(job.id, ui, False)
+            else:
+                if 'noreturn' in job.get_flag_set():
+                    ui.noreturn_job()
+                result_builder = self.ctx.sa.run_job(job.id, ui, False)
+            if (self.is_interactive and
+                    result_builder.outcome == IJobResult.OUTCOME_UNDECIDED):
+                try:
+                    if comments != "":
+                        result_builder.comments = comments
+                    ui.notify_about_verification(job)
+                    self._interaction_callback(job, result_builder)
+                except ReRunJob:
+                    self.ctx.sa.use_job_result(job.id,
+                                               result_builder.get_result())
+                    continue
+            break
+        return result_builder
+
+    def _handle_last_job_after_resume(self, last_job):
+        if last_job is None:
+            return
+        print(_("Previous session run tried to execute job: {}").format(
+            last_job))
+        cmd = self._pick_action_cmd([
+            Action('s', _("skip that job"), 'skip'),
+            Action('p', _("mark it as passed and continue"), 'pass'),
+            Action('f', _("mark it as failed and continue"), 'fail'),
+            Action('r', _("run it again"), 'run'),
+        ], _("What do you want to do with that job?"))
+        if cmd == 'skip' or cmd is None:
+            result = MemoryJobResult({
+                'outcome': IJobResult.OUTCOME_SKIP,
+                'comments': _("Skipped after resuming execution")
+            })
+        elif cmd == 'pass':
+            result = MemoryJobResult({
+                'outcome': IJobResult.OUTCOME_PASS,
+                'comments': _("Passed after resuming execution")
+            })
+        elif cmd == 'fail':
+            result = MemoryJobResult({
+                'outcome': IJobResult.OUTCOME_FAIL,
+                'comments': _("Failed after resuming execution")
+            })
+        elif cmd == 'run':
+            result = None
+        if result:
+            self.ctx.sa.use_job_result(last_job, result)
+
+    def _maybe_rerun_jobs(self):
+        # create a list of jobs that qualify for rerunning
+        rerun_candidates = self._get_rerun_candidates()
+        # bail-out early if no job qualifies for rerunning
+        if not rerun_candidates:
+            return False
+        tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa,
+                                                        rerun_candidates)
+        # nothing to select in root node and categories - bailing out
+        if not tree.jobs and not tree._categories:
+            return False
+        # deselect all by default
+        tree.set_descendants_state(False)
+        self.ctx.display.run(ShowRerun(tree, _("Select jobs to re-run")))
+        wanted_set = frozenset(tree.selection)
+        if not wanted_set:
+            # nothing selected - nothing to run
+            return False
+        rerun_candidates = []
+        # include resource jobs that selected jobs depend on
+        resources_to_rerun = []
+        for job in wanted_set:
+            job_state = self.ctx.sa.get_job_state(job.id)
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                    resources_to_rerun.append(inhibitor.related_job)
+        # reset outcome of jobs that are selected for re-running
+        for job in list(wanted_set) + resources_to_rerun:
+            self.ctx.sa.get_job_state(job.id).result = MemoryJobResult({})
+            rerun_candidates.append(job.id)
+        self._run_jobs(rerun_candidates)
+        return True
+
+    def _get_rerun_candidates(self):
+        """Get all the tests that might be selected for rerunning."""
+        def rerun_predicate(job_state):
+            return job_state.result.outcome in (
+                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
+                IJobResult.OUTCOME_NOT_SUPPORTED, IJobResult.OUTCOME_SKIP)
+        rerun_candidates = []
+        todo_list = self.ctx.sa.get_static_todo_list()
+        job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
+                      in todo_list}
+        for job_id, job_state in job_states.items():
+            if rerun_predicate(job_state):
+                rerun_candidates.append(self.ctx.sa.get_job(job_id))
+        return rerun_candidates
+
+    def _interaction_callback(self, job, result_builder,
+                              prompt=None, allowed_outcome=None):
+        result = result_builder.get_result()
+        if prompt is None:
+            prompt = _("Select an outcome or an action: ")
+        if allowed_outcome is None:
+            allowed_outcome = [IJobResult.OUTCOME_PASS,
+                               IJobResult.OUTCOME_FAIL,
+                               IJobResult.OUTCOME_SKIP]
+        allowed_actions = [
+            Action('c', _('add a comment'), 'set-comments')
+        ]
+        if IJobResult.OUTCOME_PASS in allowed_outcome:
+            allowed_actions.append(
+                Action('p', _('set outcome to {0}').format(
+                    self.C.GREEN(C_('set outcome to <pass>', 'pass'))),
+                    'set-pass'))
+        if IJobResult.OUTCOME_FAIL in allowed_outcome:
+            allowed_actions.append(
+                Action('f', _('set outcome to {0}').format(
+                    self.C.RED(C_('set outcome to <fail>', 'fail'))),
+                    'set-fail'))
+        if IJobResult.OUTCOME_SKIP in allowed_outcome:
+            allowed_actions.append(
+                Action('s', _('set outcome to {0}').format(
+                    self.C.YELLOW(C_('set outcome to <skip>', 'skip'))),
+                    'set-skip'))
+        if job.command is not None:
+            allowed_actions.append(
+                Action('r', _('re-run this job'), 're-run'))
+        if result.return_code is not None:
+            if result.return_code == 0:
+                suggested_outcome = IJobResult.OUTCOME_PASS
+            else:
+                suggested_outcome = IJobResult.OUTCOME_FAIL
+            allowed_actions.append(
+                Action('', _('set suggested outcome [{0}]').format(
+                    tr_outcome(suggested_outcome)), 'set-suggested'))
+        while result.outcome not in allowed_outcome:
+            print(_("Please decide what to do next:"))
+            print("  " + _("outcome") + ": {0}".format(
+                self.C.result(result)))
+            if result.comments is None:
+                print("  " + _("comments") + ": {0}".format(
+                    C_("none comment", "none")))
+            else:
+                print("  " + _("comments") + ": {0}".format(
+                    self.C.CYAN(result.comments, bright=False)))
+            cmd = self._pick_action_cmd(allowed_actions)
+            if cmd == 'set-pass':
+                result_builder.outcome = IJobResult.OUTCOME_PASS
+            elif cmd == 'set-fail':
+                result_builder.outcome = IJobResult.OUTCOME_FAIL
+            elif cmd == 'set-skip' or cmd is None:
+                result_builder.outcome = IJobResult.OUTCOME_SKIP
+            elif cmd == 'set-suggested':
+                result_builder.outcome = suggested_outcome
+            elif cmd == 'set-comments':
+                new_comment = input(self.C.BLUE(
+                    _('Please enter your comments:') + '\n'))
+                if new_comment:
+                    result_builder.add_comment(new_comment)
+            elif cmd == 're-run':
+                raise ReRunJob
+            result = result_builder.get_result()
+
+    def _prepare_stock_report(self, report):
+        # this is purposefully not using pythonic dict-keying for better
+        # readability
+        if not self.launcher.transports:
+            self.launcher.transports = dict()
+        if not self.launcher.exporters:
+            self.launcher.exporters = dict()
+        if not self.launcher.reports:
+            self.launcher.reports = dict()
+        if report == 'text':
+            self.launcher.exporters['text'] = {
+                'unit': '2013.com.canonical.plainbox::text'}
+            self.launcher.transports['stdout'] = {
+                'type': 'stream', 'stream': 'stdout'}
+            # '1_' prefix ensures ordering amongst other stock reports. This
+            # report name does not appear anywhere (because of forced: yes)
+            self.launcher.reports['1_text_to_screen'] = {
+                'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
+        elif report == 'certification':
+            self.launcher.exporters['hexr'] = {
+                'unit': '2013.com.canonical.plainbox::hexr'}
+            self.launcher.transports['c3'] = {
+                'type': 'certification',
+                'secure_id': self.launcher.transports.get('c3', {}).get(
+                    'secure_id', None)}
+            self.launcher.reports['upload to certification'] = {
+                'transport': 'c3', 'exporter': 'hexr'}
+        elif report == 'certification-staging':
+            self.launcher.exporters['hexr'] = {
+                'unit': '2013.com.canonical.plainbox::hexr'}
+            self.launcher.transports['c3-staging'] = {
+                'type': 'certification',
+                'secure_id': self.launcher.transports.get('c3', {}).get(
+                    'secure_id', None),
+                'staging': 'yes'}
+            self.launcher.reports['upload to certification-staging'] = {
+                'transport': 'c3-staging', 'exporter': 'hexr'}
+        elif report == 'submission_files':
+            # LP:1585326 maintain isoformat but removing ':' chars that cause
+            # issues when copying files.
+            isoformat = "%Y-%m-%dT%H.%M.%S.%f"
+            timestamp = datetime.datetime.utcnow().strftime(isoformat)
+            if not os.path.exists(self.base_dir):
+                os.makedirs(self.base_dir)
+            for exporter, file_ext in [('hexr', '.xml'), ('html', '.html'),
+                                       ('junit', '.junit.xml'),
+                                       ('xlsx', '.xlsx'), ('tar', '.tar.xz')]:
+                path = os.path.join(self.base_dir, ''.join(
+                    ['submission_', timestamp, file_ext]))
+                self.launcher.transports['{}_file'.format(exporter)] = {
+                    'type': 'file',
+                    'path': path}
+                if exporter not in self.launcher.exporters:
+                    self.launcher.exporters[exporter] = {
+                        'unit': '2013.com.canonical.plainbox::{}'.format(
+                            exporter)}
+                self.launcher.reports['2_{}_file'.format(exporter)] = {
+                    'transport': '{}_file'.format(exporter),
+                    'exporter': '{}'.format(exporter),
+                    'forced': 'yes'
+                }
+
+    def _prepare_transports(self):
+        self._available_transports = get_all_transports()
+        self.transports = dict()
+
+    def _create_transport(self, transport):
+        if transport in self.transports:
+            return
+        # depending on the type of transport we need to pick variable that
+        # serves as the 'where' param for the transport. In case of
+        # certification site the URL is supplied here
+        tr_type = self.launcher.transports[transport]['type']
+        if tr_type not in self._available_transports:
+            _logger.error(_("Unrecognized type '%s' of transport '%s'"),
+                          tr_type, transport)
+            raise SystemExit(1)
+        cls = self._available_transports[tr_type]
+        if tr_type == 'file':
+            self.transports[transport] = cls(
+                self.launcher.transports[transport]['path'])
+        elif tr_type == 'stream':
+            self.transports[transport] = cls(
+                self.launcher.transports[transport]['stream'])
+        elif tr_type == 'certification':
+            if self.launcher.transports[transport].get('staging', False):
+                url = ('https://certification.staging.canonical.com/'
+                       'submissions/submit/')
+            else:
+                url = ('https://certification.canonical.com/'
+                       'submissions/submit/')
+            secure_id = self.launcher.transports[transport].get(
+                'secure_id', None)
+            if not secure_id and self.is_interactive:
+                secure_id = input(self.C.BLUE(_('Enter secure-id:')))
+            if secure_id:
+                options = "secure_id={}".format(secure_id)
+                self.transports[transport] = cls(url, options)
+
+    def _export_results(self):
+        for report in self.launcher.stock_reports:
+            self._prepare_stock_report(report)
+        # reports are stored in an ordinary dict(), so sorting them ensures
+        # the same order of submitting them between runs, and if they
+        # share common prefix, they are next to each other
+        for name, params in sorted(self.launcher.reports.items()):
+            if self.is_interactive and not params.get('forced', False):
+                message = _("Do you want to submit '{}' report?").format(name)
+                cmd = self._pick_action_cmd([
+                    Action('y', _("yes"), 'y'),
+                    Action('n', _("no"), 'n')
+                ], message)
+            else:
+                cmd = 'y'
+            if cmd == 'n':
+                continue
+            exporter_id = self.launcher.exporters[params['exporter']]['unit']
+            done_sending = False
+            while not done_sending:
+                try:
+                    self._create_transport(params['transport'])
+                    transport = self.transports[params['transport']]
+                    result = self.ctx.sa.export_to_transport(
+                        exporter_id, transport)
+                    if result and 'url' in result:
+                        print(result['url'])
+                except TransportError as exc:
+                    _logger.warning(
+                        _("Problem occured when submitting %s report: %s"),
+                        name, exc)
+                    if self._retry_dialog():
+                        # let's remove current transport, so in next
+                        # iteration it will be "rebuilt", so if some parts
+                        # were user-provided, checkbox will ask for them
+                        # again
+                        self.transports.pop(params['transport'])
+                        continue
+                except InvalidSecureIDError:
+                    _logger.warning(_("Invalid secure_id"))
+                    if self._retry_dialog():
+                        self.launcher.transports['c3'].pop('secure_id')
+                        continue
+                done_sending = True
+
+    def _retry_dialog(self):
+        if self.is_interactive:
+            message = _("Do you want to retry?")
+            cmd = self._pick_action_cmd([
+                Action('y', _("yes"), 'y'),
+                Action('n', _("no"), 'n')
+            ], message)
+            if cmd == 'y':
+                return True
+        return False
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'launcher', metavar=_('LAUNCHER'), nargs='?',
+            help=_('launcher definition file to use'))
+        parser.add_argument(
+            '--resume', dest='session_id', metavar='SESSION_ID',
+            help=SUPPRESS)
+        parser.add_argument(
+            '--verify', action='store_true',
+            help=_('only validate the launcher'))
+        parser.add_argument(
+            '--title', action='store', metavar='SESSION_NAME',
+            help=_('title of the session to use'))
+
+
+class CheckboxUI(NormalUI):
+
+    def considering_job(self, job, job_state):
+        pass

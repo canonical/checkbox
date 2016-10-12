@@ -49,6 +49,15 @@ class MainLoopStage(metaclass=abc.ABCMeta):
     def C(self):
         """Colorizer instance to use."""
 
+    @property
+    @abc.abstractmethod
+    def is_interactive(self):
+        """
+        Flag indicating that this is an interactive invocation.
+
+        We can then interact with the user when we encounter OUTCOME_UNDECIDED.
+        """
+
     def _run_single_job_with_ui_loop(self, job, ui):
         print(self.C.header(job.tr_summary(), fill='-'))
         print(_("ID: {0}").format(job.id))

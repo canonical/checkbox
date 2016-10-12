@@ -600,3 +600,62 @@ class CheckboxUI(NormalUI):
 
     def considering_job(self, job, job_state):
         pass
+
+
+class Run(Command, MainLoopStage):
+    name = 'run'
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'PATTERN', nargs="*",
+            help=_("run jobs matching the given regular expression"))
+        parser.add_argument(
+            '--non-interactive', action='store_true',
+            help=_("skip tests that require interactivity"))
+
+    @property
+    def C(self):
+        return self._C
+
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    @property
+    def is_interactive(self):
+        """
+        Flag indicating that this is an interactive invocation.
+
+        We can then interact with the user when we encounter OUTCOME_UNDECIDED.
+        """
+        return (sys.stdin.isatty() and sys.stdout.isatty() and not
+                self.ctx.args.non_interactive)
+
+    def invoked(self, ctx):
+        self._C = Colorizer()
+        self.ctx = ctx
+        self.sa.select_providers('*')
+        self.sa.start_new_session('checkbox-run')
+        tps = self.sa.get_test_plans()
+        selection = ctx.args.PATTERN
+        if len(selection) == 1 and selection[0] in tps:
+            self.just_run_test_plan(selection[0])
+        else:
+            self.run_matching_jobs(selection)
+        self.sa.finalize_session()
+        self._print_results()
+        return 0 if self.sa.get_summary()['fail'] == 0 else 1
+
+    def just_run_test_plan(self, tp_id):
+        self.sa.select_test_plan(tp_id)
+        self.sa.bootstrap()
+        self._run_jobs(self.sa.get_dynamic_todo_list())
+
+    def _print_results(self):
+        all_transports = get_all_transports()
+        transport = all_transports['stream']('stdout')
+        exporter_id = '2013.com.canonical.plainbox::text'
+        self.sa.export_to_transport(exporter_id, transport)
+
+    def run_matching_jobs(self, patterns):
+        pass

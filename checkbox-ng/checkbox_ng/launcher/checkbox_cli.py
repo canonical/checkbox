@@ -40,7 +40,7 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 from plainbox.vendor.textland import get_display
 
-from checkbox_ng.launcher.subcommands import Launcher, Run, StartProvider
+from checkbox_ng.launcher.subcommands import Launcher, List, Run, StartProvider
 
 
 _ = gettext.gettext
@@ -141,6 +141,7 @@ class CheckboxCommand(CanonicalCommand):
 
     sub_commands = (
         ('launcher', Launcher),
+        ('list', List),
         ('run', Run),
         ('startprovider', StartProvider),
     )

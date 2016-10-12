@@ -39,6 +39,7 @@ from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
 from plainbox.impl.developer import UsageExpectation
+from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
 from plainbox.impl.secure.origin import Origin
@@ -52,6 +53,7 @@ from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
+from plainbox.public import get_providers
 
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.misc import SelectableJobTreeNode
@@ -676,3 +678,39 @@ class Run(Command, MainLoopStage):
         transport = all_transports['stream']('stdout')
         exporter_id = '2013.com.canonical.plainbox::text'
         self.sa.export_to_transport(exporter_id, transport)
+
+
+class List(Command):
+    name = 'list'
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'GROUP', nargs='?',
+            help=_("list objects from the specified group"))
+        parser.add_argument(
+            '-a', '--attrs', default=False, action="store_true",
+            help=_("show object attributes"))
+
+    def invoked(self, ctx):
+        print_objs(ctx.args.GROUP, ctx.args.attrs)
+
+
+def print_objs(group, show_attrs=False):
+    obj = Explorer(get_providers()).get_object_tree()
+    indent = ""
+    def _show(obj, indent):
+        if group is None or obj.group == group:
+            # Display the object name and group
+            print("{}{} {!r}".format(indent, obj.group, obj.name))
+            indent += "  "
+            if show_attrs:
+                for key, value in obj.attrs.items():
+                    print("{}{:15}: {!r}".format(indent, key, value))
+        if obj.children:
+            if group is None:
+                print("{}{}".format(indent, _("children")))
+                indent += "  "
+            for child in obj.children:
+                _show(child, indent)
+
+    _show(obj, "")

@@ -40,7 +40,7 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 from plainbox.vendor.textland import get_display
 
-from checkbox_ng.launcher.subcommands import Launcher
+from checkbox_ng.launcher.subcommands import Launcher, StartProvider
 
 
 _ = gettext.gettext
@@ -69,6 +69,9 @@ class WarmupCommandsIngredient(Ingredient):
 class LauncherIngredient(Ingredient):
     """Ingredient that adds Checkbox Launcher support to guacamole."""
     def late_init(self, context):
+        if context.args.command1.get_cmd_name != 'launcher':
+            context.cmd_toplevel.launcher = DefaultLauncherDefinition()
+            return
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
             launcher = DefaultLauncherDefinition()
@@ -138,6 +141,7 @@ class CheckboxCommand(CanonicalCommand):
 
     sub_commands = (
         ('launcher', Launcher),
+        ('startprovider', StartProvider),
     )
 
     def main(self, argv=None, exit=True):

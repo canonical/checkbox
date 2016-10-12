@@ -26,6 +26,7 @@ import gettext
 import json
 import logging
 import os
+import re
 import sys
 
 from guacamole import Command
@@ -35,6 +36,8 @@ from plainbox.i18n import ngettext
 from plainbox.impl.color import Colorizer
 from plainbox.impl.commands.inv_run import Action
 from plainbox.impl.commands.inv_run import NormalUI
+from plainbox.impl.commands.inv_startprovider import (
+    EmptyProviderSkeleton, IQN, ProviderSkeleton)
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
@@ -53,6 +56,26 @@ from checkbox_ng.ui import ShowRerun
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
+
+
+class StartProvider(Command):
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'name', metavar=_('name'), type=IQN,
+            # TRANSLATORS: please keep the YYYY.example... text unchanged or at
+            # the very least translate only YYYY and some-name. In either case
+            # some-name must be a reasonably-ASCII string (should be safe for a
+            # portable directory name)
+            help=_("provider name, eg: YYYY.example.org:some-name"))
+        parser.add_argument(
+            '--empty', action='store_const', const=EmptyProviderSkeleton,
+            default=ProviderSkeleton, dest='skeleton',
+            help=_('create an empty provider'))
+
+    def invoked(self, ctx):
+        ctx.args.skeleton(ctx.args.name).instantiate(
+            '.', name=ctx.args.name,
+            gettext_domain=re.sub("[.:]", "_", ctx.args.name))
 
 
 class Launcher(Command, MainLoopStage):

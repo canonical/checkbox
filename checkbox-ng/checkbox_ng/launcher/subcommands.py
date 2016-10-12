@@ -38,8 +38,14 @@ from plainbox.impl.commands.inv_run import Action
 from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
+from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
+from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import FieldQualifier
+from plainbox.impl.secure.qualifiers import PatternMatcher
+from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
@@ -651,11 +657,22 @@ class Run(Command, MainLoopStage):
         self.sa.bootstrap()
         self._run_jobs(self.sa.get_dynamic_todo_list())
 
+    def run_matching_jobs(self, patterns):
+        # XXX: SessionAssistant doesn't allow running hand-picked list of jobs
+        # this is why this method touches SA's internal to manipulate state, so
+        # those jobs may be run
+        qualifiers = []
+        for pattern in patterns:
+            qualifiers.append(
+                FieldQualifier('id', PatternMatcher(pattern), Origin('args')))
+        jobs = select_jobs(self.sa._context.state.job_list, qualifiers)
+        self.sa._context.state.update_desired_job_list(jobs)
+        UsageExpectation.of(self.sa).allowed_calls = (
+            self.sa._get_allowed_calls_in_normal_state())
+        self._run_jobs(self.sa.get_dynamic_todo_list())
+
     def _print_results(self):
         all_transports = get_all_transports()
         transport = all_transports['stream']('stdout')
         exporter_id = '2013.com.canonical.plainbox::text'
         self.sa.export_to_transport(exporter_id, transport)
-
-    def run_matching_jobs(self, patterns):
-        pass

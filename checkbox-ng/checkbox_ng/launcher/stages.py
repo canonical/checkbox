@@ -225,4 +225,3 @@ class MainLoopStage(metaclass=abc.ABCMeta):
 
     def _pick_action_cmd(self, action_list, prompt=None):
         return ActionUI(action_list, prompt).run()
-

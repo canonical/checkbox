@@ -74,22 +74,38 @@ fi
 }
 
 # Secure ID is set in /etc/xdg/canonical-certification.conf (?)
+configure_SID(){
+    read -e -p " Please enter the secure_id of your SUT: " sid 
+    if grep "#secure_id" /etc/xdg/canonical-certification.conf >/dev/null ; then
+        sudo sed -i "s/#\[transport:c3\]/\[transport:c3\]/g" /etc/xdg/canonical-certification.conf
+	    sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" /etc/xdg/canonical-certification.conf
+    else
+	    sudo sed -i "s/secure_id =.*/secure_id = $sid/g" /etc/xdg/canonical-certification.conf
+    fi
+}
+
+
 SID_Check(){
 name="Secure ID Check"
 echoname
 #if [ -n $secureid ];then
 if grep "^secure_id =" /etc/xdg/canonical-certification.conf >/dev/null ; then
 	secureid=$(grep "^secure_id =" /etc/xdg/canonical-certification.conf|awk '{print $3}')
-        echo " secure_id is configured as $secureid"
-	eval info${i}=\"$secureid\"
+    echo " Secure ID is configured as '$secureid'."
+    echo " Is this correct? [Y/n]"
+    read -s -N1 a
+    if [[ $a == "n" || $a == "N" ]]; then
+        configure_SID
+        SID_Check
+    else
+	    eval info${i}=\"$secureid\"
         info
+    fi
 else
     echo -e " secure_id is not configured.\n Would you like to configure it now? [Y/n]"
     read -s -N1 a
     if [[ $a == "Y" || $a == "y" || -z $a ]]; then
-        read -e -p " Please enter the secure_id of your SUT: " sid 
-        sudo sed -i "s/#\[transport:c3\]/\[transport:c3\]/g" /etc/xdg/canonical-certification.conf
-	    sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" /etc/xdg/canonical-certification.conf
+        configure_SID
 	    SID_Check
     elif [[ $a == "N" || $a == "n" ]]; then
 		eval info${i}=\"Not Set\"

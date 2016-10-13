@@ -1,3 +1,5 @@
+.. _launcher-tutorial:
+
 Checkbox launchers tutorial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

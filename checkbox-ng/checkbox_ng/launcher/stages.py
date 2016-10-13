@@ -49,11 +49,6 @@ class MainLoopStage(metaclass=abc.ABCMeta):
     def C(self):
         """Colorizer instance to use."""
 
-    @property
-    @abc.abstractmethod
-    def dont_suppress_output(self):
-        """If true jobs' command output will be printed"""
-
     def _run_single_job_with_ui_loop(self, job, ui):
         print(self.C.header(job.tr_summary(), fill='-'))
         print(_("ID: {0}").format(job.id))
@@ -187,15 +182,12 @@ class MainLoopStage(metaclass=abc.ABCMeta):
 
     def _get_ui_for_job(self, job):
         class CheckboxUI(NormalUI):
-
             def considering_job(self, job, job_state):
                 pass
-        if not self.dont_suppress_output and (job.plugin in (
-                'local', 'resource', 'attachment') or
-                'suppress-output' in job.get_flag_set()):
-            return CheckboxUI(self.C.c, show_cmd_output=False)
-        else:
-            return CheckboxUI(self.C.c, show_cmd_output=True)
+        show_out = True
+        if 'suppress-output' in job.get_flag_set():
+            show_out = False
+        return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
     def _run_jobs(self, jobs_to_run):
         estimated_time = 0

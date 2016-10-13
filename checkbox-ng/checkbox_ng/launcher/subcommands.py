@@ -66,10 +66,6 @@ class Launcher(Command, MainLoopStage):
     def C(self):
         return self._C
 
-    @property
-    def dont_suppress_output(self):
-        return self.launcher.dont_suppress_output
-
     def get_sa_api_version(self):
         return self.launcher.api_version
 
@@ -528,6 +524,20 @@ class Launcher(Command, MainLoopStage):
             if cmd == 'y':
                 return True
         return False
+
+    def _get_ui_for_job(self, job):
+        class CheckboxUI(NormalUI):
+            def considering_job(self, job, job_state):
+                pass
+        show_out = True
+        if self.launcher.output == 'hide-resource-and-attachment':
+            if job.plugin in ('local', 'resource', 'attachment'):
+                show_out = False
+        elif self.launcher.output == 'hide':
+            show_out = False
+        if 'suppress-output' in job.get_flag_set():
+            show_out = False
+        return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
     def register_arguments(self, parser):
         parser.add_argument(

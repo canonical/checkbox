@@ -47,9 +47,9 @@ tpm2_nvrelease -x $nv_test_index -a $nv_auth_handle
  fi
 fi
 
-tpm2_nvdefine -x $nv_test_index -a $nv_auth_handle -s 32 -t 0x2000A -P '' 
+tpm2_nvdefine -x $nv_test_index -a $nv_auth_handle -s 32 -t 0x2000A  
 if [ $? != 0 ];then 
-echo "nvdefine fail, Please check your environment!"
+echo "nvdefine fail,Please check your environment!"
 exit 1
 fi
 
@@ -73,14 +73,14 @@ fi
 
 tpm2_nvlist|grep -i $nv_test_index
 if [ $? != 0 ];then 
-echo "nvlist fail or double check the define index!"
+echo "nvlist  fail or double check the define index!"
 exit 1
 fi
 
 tpm2_nvrelease -x $nv_test_index -a $nv_auth_handle  
 
 if [ $? != 0 ];then 
- echo "nvrelease fail or double check the define index!"
+ echo "nvrelease  fail or double check the define index!"
  exit 1
 else
  echo "release the nv index OK!"

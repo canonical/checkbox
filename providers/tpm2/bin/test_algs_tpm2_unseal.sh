@@ -40,6 +40,10 @@ kalg_c=
 
 rm *.log  context*  op* name.load*
 
+if [ ! -e "secret.data" ]   
+  then    
+echo "12345678" > secret.data
+fi 
 
 for  halg_p in 0x0004 0x000B 0x000C 0x000D 0x0012  
    do
@@ -48,7 +52,7 @@ for  halg_p in 0x0004 0x000B 0x000C 0x000D 0x0012
  
      tpm2_createprimary -A p -g $halg_p  -G $kalg_p -C context.p_"$halg_p"_"$kalg_p"
      if [ $? != 0 ];then
-     echo "createprimary for context.p_"$halg_p"_"$kalg_p" fail, please check the environment or parameters!"
+     echo "createprimary for context.p_"$halg_p"_"$kalg_p" fail, please check the environment or      parameters!"
      continue 
 	 fi
  
@@ -67,7 +71,7 @@ for  halg_p in 0x0004 0x000B 0x000C 0x000D 0x0012
 
 		 tpm2_load -c context.p_"$halg_p"_"$kalg_p"  -u opu_"$halg_p""$kalg_p"_"$halg_c""$kalg_c"  -r opr_"$halg_p""$kalg_p"_"$halg_c""$kalg_c"  -n name.load_"$halg_p""$kalg_p"_"$halg_c""$kalg_c" -C context_load_"$halg_p""$kalg_p"_"$halg_c""$kalg_c"
 		if [ $? != 0 ];then
-		echo "load for context.p_"$halg_p"_"$kalg_p"  fail, please check the environment or parameters!"
+		echo "load for context.p_"$halg_p"_"$kalg_p"  fail, please check the environment or      parameters!"
 		echo "load context.p_"$halg_p"_"$kalg_p" for create  context_load_"$halg_p""$kalg_p"_"$halg_c""$kalg_c" fail" >>load_error.log
 		fi
 	

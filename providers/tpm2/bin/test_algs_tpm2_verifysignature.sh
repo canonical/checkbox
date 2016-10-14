@@ -34,15 +34,22 @@
 
 context_p=
 halg=
+new_path=`dirname $0`
+PATH="$PATH":"$new_path"
 
 ctx_count=`ls |grep -c context_load`
 if [ $ctx_count -le 1 ];then
 	echo "we should execute test_algs.sh first!"
 	wait 5
-    ./test_algs.sh
+	test_algs.sh
 fi
 
 rm test_algs_*.log sign_*  verifysig_*  tickt_verify*
+
+if [ ! -e "secret.data" ]   
+  then    
+echo "12345678" > secret.data
+fi 
 
 #for  halg_p in 0x0004 0x000B 0x000C 0x000D 0x0012  
 for  context_p in `ls context_load*`   

@@ -33,7 +33,7 @@
 ####before this script, please make sure all test scripts copy here, TPM is initialized.
 
 #!/bin/bash
-new_path=`pwd`
+new_path=`dirname $0`
 PATH="$PATH":"$new_path"
 
 rm test_all_pass.log test_all_fail.log
@@ -53,7 +53,7 @@ $1
 	fi
 }
  
-func test_tpm2_takeownership_all.sh
+func  test_tpm2_takeownership_all.sh
 
 func test_tpm2_nv.sh
 

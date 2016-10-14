@@ -31,7 +31,7 @@
 #;**********************************************************************;
 #!/bin/bash
  
-new_path=`pwd`
+new_path=`dirname $0`
 PATH="$PATH":"$new_path"
 
 file_input_data=ak_pub.out

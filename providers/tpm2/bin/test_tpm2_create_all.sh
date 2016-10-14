@@ -31,6 +31,8 @@
 #;**********************************************************************;
 #!/bin/sh
 
+new_path=`dirname $0`
+PATH="$PATH":"$new_path"
 pCtx=
 gAlg=
 GAlg=
@@ -41,7 +43,7 @@ ctx_count=`ls |grep -c context_load`
 if [ $ctx_count -le 1 ];then
 	echo "we should execute test_tpm2_createprimary_all.sh first!"
 	wait 5
-    ./test_tpm2_createprimary_all.sh
+    test_tpm2_createprimary_all.sh
 fi
 
 for pCtx in `ls ctx.cpri*`
@@ -53,7 +55,7 @@ for pCtx in `ls ctx.cpri*`
             tpm2_create -c $pCtx -g $gAlg -G $GAlg -o opu."$pCtx".g"$gAlg".G"$GAlg" -O opr."$pCtx".g"$gAlg".G"$GAlg"
             if [ $? != 0 ];then 
             echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg"
-            echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg" >> create.error.log
+            echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg" >> create.error.log             
             fi
         done
     done

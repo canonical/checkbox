@@ -30,9 +30,6 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
 #!/bin/bash
-new_path=`pwd`
-PATH="$PATH":"$new_path"
-
 file_primary_key_ctx=context.p_B1
 file_certify_key_pub=opuB1_B8
 file_certify_key_priv=oprB1_B8

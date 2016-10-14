@@ -30,15 +30,13 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
 #!/bin/bash
-new_path=`pwd`
-PATH="$PATH":"$new_path"
-
 alg_primary_obj=0x000B
 alg_primary_key=0x0001
 alg_create_obj=0x000B
 alg_create_key=0x0008
 
 alg_quote=0x0004
+alg_quote1=0x000b
 
 file_primary_key_ctx=context.p_"$alg_primary_obj"_"$alg_primary_key"
 file_quote_key_pub=opu_"$alg_create_obj"_"$alg_create_key"
@@ -49,6 +47,8 @@ file_quote_output=quote_"$file_quote_key_ctx"
 
 Handle_ak_quote=0x81010016
 Handle_ek_quote=0x81010017
+
+nonce=12345abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345abcde
 
 fail()
 {
@@ -82,9 +82,15 @@ if [ $? != 0 ];then
 	fail load   
 fi
 
-tpm2_quote -c $file_quote_key_ctx  -g 0x4 -l 16,17,18 -o $file_quote_output
+tpm2_quote -c $file_quote_key_ctx  -g $alg_quote -l 16,17,18 -o $file_quote_output -q $nonce
 if [ $? != 0 ];then
-	fail decrypt 
+	fail quote 
+fi
+
+rm $file_quote_output -rf
+tpm2_quote -c $file_quote_key_ctx  -L $alg_quote:16,17,18+$alg_quote1:16,17,18 -o $file_quote_output -q $nonce
+if [ $? != 0 ];then
+	fail quote 
 fi
 
 #####handle testing
@@ -94,7 +100,13 @@ if [ $? != 0 ];then
 fi
  
 rm quote_handle_output_"$Handle_ak_quote" -rf
-tpm2_quote -k $Handle_ak_quote  -g $alg_quote -l 16,17,18 -o quote_handle_output_"$Handle_ak_quote"
+tpm2_quote -k $Handle_ak_quote  -g $alg_quote -l 16,17,18 -o quote_handle_output_"$Handle_ak_quote" -q $nonce
+if [ $? != 0 ];then
+	fail quote_handle 
+fi
+
+rm quote_handle_output_"$Handle_ak_quote" -rf
+tpm2_quote -k $Handle_ak_quote  -L $alg_quote:16,17,18+$alg_quote1:16,17,18 -o quote_handle_output_"$Handle_ak_quote" -q $nonce
 if [ $? != 0 ];then
 	fail quote_handle 
 fi
@@ -113,7 +125,7 @@ if [ $? != 0 ];then
 fi
 
 rm quote_handle_output_"$Handle_ak_quote" -rf
-tpm2_quote -k  $Handle_ak_quote -g $alg_quote -l 16,17,18 -o quote_handle_output_"$Handle_ak_quote"
+tpm2_quote -k  $Handle_ak_quote -g $alg_quote -l 16,17,18 -o quote_handle_output_"$Handle_ak_quote" -q $nonce
 if [ $? != 0 ];then
 	fail quote_handle_ak 
 fi

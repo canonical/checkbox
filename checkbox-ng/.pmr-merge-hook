@@ -6,3 +6,6 @@ git clone https://git.launchpad.net/~checkbox-dev/checkbox/+git/support
 time -o timing.dat ./support/test-in-lxc.sh
 echo "Complete test time:"
 cat timing.dat
+
+# Ping rtfd.org to refresh the documentation
+curl -X POST http://readthedocs.org/build/plainbox

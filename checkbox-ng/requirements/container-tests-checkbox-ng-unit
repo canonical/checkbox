@@ -2,7 +2,6 @@
 
 function finish {
   rm -rf ./plainbox
-  rm -rf ./checkbox-support
 }
 trap finish EXIT
 
@@ -11,9 +10,5 @@ set -e
 git clone git://git.launchpad.net/plainbox
 echo "I: running 'develop' on plainbox"
 ( cd ./plainbox/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
-
-git clone git://git.launchpad.net/checkbox-support
-echo "I: running 'develop' on checkbox-support"
-( cd ./checkbox-support/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
 
 python3 setup.py test

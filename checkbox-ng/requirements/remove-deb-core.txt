@@ -1,4 +1,3 @@
 checkbox-cli
 checkbox-ng
-checkbox-ng-service
 python3-chekbox-ng

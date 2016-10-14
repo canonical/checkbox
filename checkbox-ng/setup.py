@@ -47,7 +47,6 @@ if on_rtd:
     install_requires = ['plainbox >= 0.5.3',]
 else:
     install_requires = [
-        'checkbox-support >= 0.2',
         'guacamole >= 0.9',
         'plainbox >= 0.5.3',
         'requests >= 1.0',
@@ -75,8 +74,6 @@ setup(
         'plainbox.transport': [
             'certification='
             'checkbox_ng.certification:CertificationTransport',
-            'launchpad='
-            'checkbox_ng.launchpad:LaunchpadTransport',
         ],
     },
     include_package_data=True)

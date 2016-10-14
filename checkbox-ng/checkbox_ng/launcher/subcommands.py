@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # This file is part of Checkbox.
 #
 # Copyright 2016 Canonical Ltd.
@@ -16,11 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
-Checkbox Launcher Interpreter Application
+Definition of sub-command classes for checkbox-cli
 """
-
 from argparse import SUPPRESS
 import copy
 import datetime
@@ -29,33 +26,16 @@ import gettext
 import json
 import logging
 import os
-import subprocess
 import sys
 
 from guacamole import Command
-from guacamole.core import Ingredient
-from guacamole.ingredients import ansi
-from guacamole.ingredients import argparse
-from guacamole.ingredients import cmdtree
-from guacamole.recipes.cmd import CommandRecipe
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
-from plainbox.i18n import pgettext as C_
 from plainbox.impl.color import Colorizer
 from plainbox.impl.commands.inv_run import Action
-from plainbox.impl.commands.inv_run import ActionUI
 from plainbox.impl.commands.inv_run import NormalUI
-from plainbox.impl.commands.inv_run import ReRunJob
-from plainbox.impl.commands.inv_run import seconds_to_human_duration
-from plainbox.impl.ingredients import CanonicalCrashIngredient
-from plainbox.impl.ingredients import RenderingContextIngredient
-from plainbox.impl.ingredients import SessionAssistantIngredient
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.launcher import LauncherDefinition
-from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.result import tr_outcome
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
@@ -63,126 +43,28 @@ from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
-from plainbox.vendor.textland import get_display
 
+from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.misc import SelectableJobTreeNode
 from checkbox_ng.ui import ScrollableTreeNode
 from checkbox_ng.ui import ShowMenu
 from checkbox_ng.ui import ShowRerun
 
-
 _ = gettext.gettext
 
-_logger = logging.getLogger("checkbox-launcher")
+_logger = logging.getLogger("checkbox-ng.launcher.subcommands")
 
 
-class DisplayIngredient(Ingredient):
-
-    """Ingredient that adds a Textland display to guacamole."""
-
-    def late_init(self, context):
-        """Add a DisplayIngredient as ``display`` to the guacamole context."""
-        context.display = get_display()
-
-
-class WarmupCommandsIngredient(Ingredient):
-    """Ingredient that runs given commands at startup."""
-    def late_init(self, context):
-        # https://bugs.launchpad.net/checkbox-ng/+bug/1423949
-        # MAAS-deployed server images need "tput reset" to keep ugliness
-        # from happening....
-        subprocess.check_call(['tput', 'reset'])
-
-
-class LauncherIngredient(Ingredient):
-    """Ingredient that adds Checkbox Launcher support to guacamole."""
-    def late_init(self, context):
-        if not context.args.launcher:
-            # launcher not supplied from cli - using the default one
-            launcher = DefaultLauncherDefinition()
-            configs = [launcher.config_filename]
-        else:
-            try:
-                with open(context.args.launcher,
-                          'rt', encoding='UTF-8') as stream:
-                    first_line = stream.readline()
-                    if not first_line.startswith("#!"):
-                        stream.seek(0)
-                    text = stream.read()
-            except IOError as exc:
-                _logger.error(_("Unable to load launcher definition: %s"), exc)
-                raise SystemExit(1)
-            generic_launcher = LauncherDefinition()
-            generic_launcher.read_string(text)
-            config_filename = os.path.expandvars(
-                generic_launcher.config_filename)
-            if not os.path.split(config_filename)[0]:
-                configs = [
-                    '/etc/xdg/{}'.format(config_filename),
-                    os.path.expanduser('~/.config/{}'.format(config_filename))]
-            else:
-                configs = [config_filename]
-            launcher = generic_launcher.get_concrete_launcher()
-        if context.args.launcher:
-            configs.append(context.args.launcher)
-        launcher.read(configs)
-        if launcher.problem_list:
-            _logger.error(_("Unable to start launcher because of errors:"))
-            for problem in launcher.problem_list:
-                _logger.error("%s", str(problem))
-            raise SystemExit(1)
-        context.cmd_toplevel.launcher = launcher
-
-
-class CheckboxCommandRecipe(CommandRecipe):
-
-    """A recipe for using Checkbox-enhanced commands."""
-
-    def get_ingredients(self):
-        """Get a list of ingredients for guacamole."""
-        return [
-            cmdtree.CommandTreeBuilder(self.command),
-            cmdtree.CommandTreeDispatcher(),
-            argparse.ParserIngredient(),
-            CanonicalCrashIngredient(),
-            ansi.ANSIIngredient(),
-            LauncherIngredient(),
-            SessionAssistantIngredient(),
-            RenderingContextIngredient(),
-            DisplayIngredient(),
-        ]
-
-
-class CheckboxCommand(Command):
-
-    """
-    A command with Checkbox-enhanced ingredients.
-
-    This command has additional items in the guacamole execution context:
-    :class:`DisplayIngredient` object ``display``
-    :class:`SessionAssistantIngredient` object ``sa``
-    :class:`LauncherIngredient` object ``launcher``
-    """
-
-    bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"
-
-    def main(self, argv=None, exit=True):
-        """
-        Shortcut for running a command.
-
-        See :meth:`guacamole.recipes.Recipe.main()` for details.
-        """
-        return CheckboxCommandRecipe(self).main(argv, exit)
-
-
-class CheckboxUI(NormalUI):
-
-    def considering_job(self, job, job_state):
-        pass
-
-
-class CheckboxLauncher(CheckboxCommand):
+class Launcher(Command, MainLoopStage):
     app_id = '2016.com.canonical:checkbox-cli'
+
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    @property
+    def C(self):
+        return self._C
 
     def get_sa_api_version(self):
         return self.launcher.api_version
@@ -196,6 +78,7 @@ class CheckboxLauncher(CheckboxCommand):
             # exited by now, so validation passed
             print(_("Launcher seems valid."))
             return
+        self.launcher = ctx.cmd_toplevel.launcher
         if not self.launcher.launcher_version:
             # it's a legacy launcher, use legacy way of running commands
             from checkbox_ng.tools import CheckboxLauncherTool
@@ -215,7 +98,7 @@ class CheckboxLauncher(CheckboxCommand):
             os.execvp(cmd[0], cmd)
 
         try:
-            self.C = Colorizer()
+            self._C = Colorizer()
             self.ctx = ctx
             self._configure_restart(ctx)
             self._prepare_transports()
@@ -323,9 +206,6 @@ class CheckboxLauncher(CheckboxCommand):
                 self._resume_session(candidate)
                 return True
 
-    def _pick_action_cmd(self, action_list, prompt=None):
-        return ActionUI(action_list, prompt).run()
-
     def _resume_session(self, session):
         metadata = self.ctx.sa.resume_session(session.id)
         app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
@@ -411,108 +291,6 @@ class CheckboxLauncher(CheckboxCommand):
                        if job_id in wanted_set]
         self.ctx.sa.use_alternate_selection(job_id_list)
 
-    def _run_jobs(self, jobs_to_run):
-        estimated_time = 0
-        for job_id in jobs_to_run:
-            job = self.ctx.sa.get_job(job_id)
-            if (job.estimated_duration is not None and
-                    estimated_time is not None):
-                estimated_time += job.estimated_duration
-            else:
-                estimated_time = None
-        for job_no, job_id in enumerate(jobs_to_run, start=1):
-            print(self.C.header(
-                _('Running job {} / {}. Estimated time left: {}').format(
-                    job_no, len(jobs_to_run),
-                    seconds_to_human_duration(max(0, estimated_time))
-                    if estimated_time is not None else _("unknown")),
-                fill='-'))
-            job = self.ctx.sa.get_job(job_id)
-            builder = self._run_single_job_with_ui_loop(
-                job, self._get_ui_for_job(job))
-            result = builder.get_result()
-            self.ctx.sa.use_job_result(job_id, result)
-            if (job.estimated_duration is not None and
-                    estimated_time is not None):
-                estimated_time -= job.estimated_duration
-
-    def _get_ui_for_job(self, job):
-        show_out = True
-        if self.launcher.output == 'hide-resource-and-attachment':
-            if job.plugin in ('local', 'resource', 'attachment'):
-                show_out = False
-        elif self.launcher.output == 'hide':
-            show_out = False
-        if 'suppress-output' in job.get_flag_set():
-            show_out = False
-        return CheckboxUI(self.C.c, show_cmd_output=show_out)
-
-    def _run_single_job_with_ui_loop(self, job, ui):
-        print(self.C.header(job.tr_summary(), fill='-'))
-        print(_("ID: {0}").format(job.id))
-        print(_("Category: {0}").format(
-            self.ctx.sa.get_job_state(job.id).effective_category_id))
-        comments = ""
-        while True:
-            if job.plugin in ('user-interact', 'user-interact-verify',
-                              'user-verify', 'manual'):
-                # FIXME: get rid of pulling sa's internals
-                jsm = self.ctx.sa._context._state._job_state_map
-                if jsm[job.id].can_start():
-                    ui.notify_about_purpose(job)
-                if (self.is_interactive and
-                        job.plugin in ('user-interact',
-                                       'user-interact-verify',
-                                       'manual')):
-                    if jsm[job.id].can_start():
-                        ui.notify_about_steps(job)
-                    if job.plugin == 'manual':
-                        cmd = 'run'
-                    else:
-                        if jsm[job.id].can_start():
-                            cmd = ui.wait_for_interaction_prompt(job)
-                        else:
-                            # 'running' the job will make it marked as skipped
-                            # because of the failed dependency
-                            cmd = 'run'
-                    if cmd == 'run' or cmd is None:
-                        result_builder = self.ctx.sa.run_job(job.id, ui, False)
-                    elif cmd == 'comment':
-                        new_comment = input(self.C.BLUE(
-                            _('Please enter your comments:') + '\n'))
-                        if new_comment:
-                            comments += new_comment + '\n'
-                        continue
-                    elif cmd == 'skip':
-                        result_builder = JobResultBuilder(
-                            outcome=IJobResult.OUTCOME_SKIP,
-                            comments=_("Explicitly skipped before"
-                                       " execution"))
-                        if comments != "":
-                            result_builder.comments = comments
-                        break
-                    elif cmd == 'quit':
-                        raise SystemExit()
-                else:
-                    result_builder = self.ctx.sa.run_job(job.id, ui, False)
-            else:
-                if 'noreturn' in job.get_flag_set():
-                    ui.noreturn_job()
-                result_builder = self.ctx.sa.run_job(job.id, ui, False)
-            if (self.is_interactive and
-                    result_builder.outcome == IJobResult.OUTCOME_UNDECIDED):
-                try:
-                    if comments != "":
-                        result_builder.comments = comments
-                    ui.notify_about_verification(job)
-                    self._interaction_callback(job, result_builder)
-                except ReRunJob:
-                    self.ctx.sa.use_job_result(job.id,
-                                               result_builder.get_result())
-                    continue
-            break
-        return result_builder
-
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:
             return
@@ -591,72 +369,6 @@ class CheckboxLauncher(CheckboxCommand):
             if rerun_predicate(job_state):
                 rerun_candidates.append(self.ctx.sa.get_job(job_id))
         return rerun_candidates
-
-    def _interaction_callback(self, job, result_builder,
-                              prompt=None, allowed_outcome=None):
-        result = result_builder.get_result()
-        if prompt is None:
-            prompt = _("Select an outcome or an action: ")
-        if allowed_outcome is None:
-            allowed_outcome = [IJobResult.OUTCOME_PASS,
-                               IJobResult.OUTCOME_FAIL,
-                               IJobResult.OUTCOME_SKIP]
-        allowed_actions = [
-            Action('c', _('add a comment'), 'set-comments')
-        ]
-        if IJobResult.OUTCOME_PASS in allowed_outcome:
-            allowed_actions.append(
-                Action('p', _('set outcome to {0}').format(
-                    self.C.GREEN(C_('set outcome to <pass>', 'pass'))),
-                    'set-pass'))
-        if IJobResult.OUTCOME_FAIL in allowed_outcome:
-            allowed_actions.append(
-                Action('f', _('set outcome to {0}').format(
-                    self.C.RED(C_('set outcome to <fail>', 'fail'))),
-                    'set-fail'))
-        if IJobResult.OUTCOME_SKIP in allowed_outcome:
-            allowed_actions.append(
-                Action('s', _('set outcome to {0}').format(
-                    self.C.YELLOW(C_('set outcome to <skip>', 'skip'))),
-                    'set-skip'))
-        if job.command is not None:
-            allowed_actions.append(
-                Action('r', _('re-run this job'), 're-run'))
-        if result.return_code is not None:
-            if result.return_code == 0:
-                suggested_outcome = IJobResult.OUTCOME_PASS
-            else:
-                suggested_outcome = IJobResult.OUTCOME_FAIL
-            allowed_actions.append(
-                Action('', _('set suggested outcome [{0}]').format(
-                    tr_outcome(suggested_outcome)), 'set-suggested'))
-        while result.outcome not in allowed_outcome:
-            print(_("Please decide what to do next:"))
-            print("  " + _("outcome") + ": {0}".format(
-                self.C.result(result)))
-            if result.comments is None:
-                print("  " + _("comments") + ": {0}".format(
-                    C_("none comment", "none")))
-            else:
-                print("  " + _("comments") + ": {0}".format(
-                    self.C.CYAN(result.comments, bright=False)))
-            cmd = self._pick_action_cmd(allowed_actions)
-            if cmd == 'set-pass':
-                result_builder.outcome = IJobResult.OUTCOME_PASS
-            elif cmd == 'set-fail':
-                result_builder.outcome = IJobResult.OUTCOME_FAIL
-            elif cmd == 'set-skip' or cmd is None:
-                result_builder.outcome = IJobResult.OUTCOME_SKIP
-            elif cmd == 'set-suggested':
-                result_builder.outcome = suggested_outcome
-            elif cmd == 'set-comments':
-                new_comment = input(self.C.BLUE(
-                    _('Please enter your comments:') + '\n'))
-                if new_comment:
-                    result_builder.add_comment(new_comment)
-            elif cmd == 're-run':
-                raise ReRunJob
-            result = result_builder.get_result()
 
     def _prepare_stock_report(self, report):
         # this is purposefully not using pythonic dict-keying for better
@@ -813,6 +525,20 @@ class CheckboxLauncher(CheckboxCommand):
                 return True
         return False
 
+    def _get_ui_for_job(self, job):
+        class CheckboxUI(NormalUI):
+            def considering_job(self, job, job_state):
+                pass
+        show_out = True
+        if self.launcher.output == 'hide-resource-and-attachment':
+            if job.plugin in ('local', 'resource', 'attachment'):
+                show_out = False
+        elif self.launcher.output == 'hide':
+            show_out = False
+        if 'suppress-output' in job.get_flag_set():
+            show_out = False
+        return CheckboxUI(self.C.c, show_cmd_output=show_out)
+
     def register_arguments(self, parser):
         parser.add_argument(
             'launcher', metavar=_('LAUNCHER'), nargs='?',
@@ -828,5 +554,7 @@ class CheckboxLauncher(CheckboxCommand):
             help=_('title of the session to use'))
 
 
-if __name__ == '__main__':
-    CheckboxLauncher().main()
+class CheckboxUI(NormalUI):
+
+    def considering_job(self, job, job_state):
+        pass

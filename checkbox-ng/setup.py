@@ -65,9 +65,9 @@ setup(
     description="Checkbox - Command Line Test Runner",
     long_description=long_description,
     install_requires=install_requires,
-    scripts = ['launchers/checkbox-cli'],
     entry_points={
         'console_scripts': [
+            'checkbox-cli=checkbox_ng.launcher.checkbox_cli:main',
             'checkbox=checkbox_ng.main:main',
             'checkbox-submit=checkbox_ng.main:submit',
             'checkbox-launcher=checkbox_ng.main:launcher',

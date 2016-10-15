@@ -397,7 +397,8 @@ class SessionDeviceContext:
         self.on_provider_added(provider)
         if add_units:
             for unit in provider.unit_list:
-                self.add_unit(unit)
+                self.add_unit(unit, False)
+        self.state._recompute_job_readiness()
 
     def add_unit(self, unit, recompute=True):
         """

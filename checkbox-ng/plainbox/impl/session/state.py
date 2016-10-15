@@ -399,7 +399,7 @@ class SessionDeviceContext:
             for unit in provider.unit_list:
                 self.add_unit(unit)
 
-    def add_unit(self, unit):
+    def add_unit(self, unit, recompute=True):
         """
         Add a unit to the context.
 
@@ -416,7 +416,7 @@ class SessionDeviceContext:
         if unit in frozenset(self._unit_list):
             raise ValueError(
                 _("attempting to add the same unit twice: %s" % unit.id))
-        self.state.add_unit(unit)
+        self.state.add_unit(unit, recompute)
         # NOTE: no need to fire the on_unit_added() signal because the state
         # object and we've connected it to will fire our version.
 

@@ -245,6 +245,7 @@ class SessionDeviceContext:
             self._provider_list = []
             self._state = SessionState(self._unit_list)
             self._unit_id_map = {}
+            self._already_added_checksums = set()
         else:
             if not isinstance(state, SessionState):
                 raise TypeError
@@ -257,6 +258,8 @@ class SessionDeviceContext:
             self._state = state
             self._unit_id_map = {unit.id: unit for unit in state.unit_list if
                                  isinstance(unit, UnitWithId)}
+            self._already_added_checksums = set(
+                [unit.checksum for unit in self.unit_list])
 
         self._test_plan_list = []
         # Connect SessionState's signals to fire our signals. This
@@ -414,9 +417,10 @@ class SessionDeviceContext:
 
         This method fires the :meth:`on_unit_added()` signal
         """
-        if unit in frozenset(self._unit_list):
+        if unit.checksum in self._already_added_checksums:
             raise ValueError(
                 _("attempting to add the same unit twice: %s" % unit.id))
+        self._already_added_checksums.add(unit.checksum)
         self.state.add_unit(unit, recompute)
         # NOTE: no need to fire the on_unit_added() signal because the state
         # object and we've connected it to will fire our version.
@@ -433,6 +437,7 @@ class SessionDeviceContext:
         if unit not in self._unit_list:
             raise ValueError(
                 _("attempting to remove unit not in this context"))
+        self._already_added_checksums.remove(unit.checksum)
         self.state.remove_unit(unit)
         # NOTE: no need to fire the on_unit_removed() signal because the state
         # object and we've connected it to will fire our version.

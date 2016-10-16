@@ -42,13 +42,21 @@ output_ak_pub_name=ak_name_pub.out
 
 rm $output_ek_pub $output_ak_pub $output_ak_pub_name -rf 
 
- tpm2_getpubek  -H $handle_ek -g $ek_alg -f $output_ek_pub 
+if [[ -z $SNAP ]]; then
+    tpm2_getpubek  -H $handle_ek -g $ek_alg -f $output_ek_pub
+else
+    tpm2.getpubek  -H $handle_ek -g $ek_alg -f $output_ek_pub
+fi
 if [ $? != 0 ] || [ ! -e $output_ek_pub ];then
 echo "getpubek fail, please check the environment or parameters!"
 exit 1
 fi
 
-tpm2_getpubak  -E $handle_ek  -k $handle_ak -g $ak_alg -D $digestAlg -s $signAlg -f $output_ak_pub  -n $output_ak_pub_name 
+if [[ -z $SNAP ]]; then
+    tpm2_getpubak  -E $handle_ek  -k $handle_ak -g $ak_alg -D $digestAlg -s $signAlg -f $output_ak_pub  -n $output_ak_pub_name
+else
+    tpm2.getpubak  -E $handle_ek  -k $handle_ak -g $ak_alg -D $digestAlg -s $signAlg -f $output_ak_pub  -n $output_ak_pub_name
+fi
 
 if [ $? != 0 ] || [ ! -e $output_ak_pub ];then
 echo "getpubak fail, please check the environment or parameters!"

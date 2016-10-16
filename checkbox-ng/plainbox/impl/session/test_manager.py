@@ -26,12 +26,12 @@ Test definitions for plainbox.impl.session.manager module
 
 from unittest import expectedFailure
 
-from plainbox.abc import IJobDefinition
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import SessionStorage
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.suspend import SessionSuspendHelper
+from plainbox.impl.unit.job import JobDefinition
 from plainbox.vendor import mock
 from plainbox.vendor.morris import SignalTestCase
 
@@ -105,7 +105,7 @@ class SessionManagerTests(SignalTestCase):
         verify that SessionManager.load_session() correctly delegates the task
         to various other objects
         """
-        job = mock.Mock(name='job', spec_set=IJobDefinition)
+        job = mock.Mock(name='job', spec_set=JobDefinition)
         unit_list = [job]
         flags = None
         helper_name = "plainbox.impl.session.manager.SessionResumeHelper"

@@ -93,7 +93,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         if with_lsblk:
             lsblk = self.get_lsblk(name)
         return parse_udevadm_output(
-            self.get_text(name), lsblk, 64)["device_list"]
+            self.get_text(name), lsblk, 64)["devices"]
 
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])

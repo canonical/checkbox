@@ -79,6 +79,9 @@ class StartProvider(Command):
 
 
 class Launcher(Command, MainLoopStage):
+
+    name = 'launcher'
+
     app_id = '2016.com.canonical:checkbox-cli'
 
     @property

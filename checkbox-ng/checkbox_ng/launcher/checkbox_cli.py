@@ -69,7 +69,7 @@ class WarmupCommandsIngredient(Ingredient):
 class LauncherIngredient(Ingredient):
     """Ingredient that adds Checkbox Launcher support to guacamole."""
     def late_init(self, context):
-        if context.args.command1.get_cmd_name != 'launcher':
+        if context.args.command1.get_cmd_name() != 'launcher':
             context.cmd_toplevel.launcher = DefaultLauncherDefinition()
             return
         if not context.args.launcher:

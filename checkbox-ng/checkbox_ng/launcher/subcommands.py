@@ -620,6 +620,37 @@ class Run(Command, MainLoopStage):
         parser.add_argument(
             '--non-interactive', action='store_true',
             help=_("skip tests that require interactivity"))
+        parser.add_argument(
+            '-f', '--output-format',
+            default='2013.com.canonical.plainbox::text',
+            metavar=_('FORMAT'),
+            help=_('save test results in the specified FORMAT'
+                   ' (pass ? for a list of choices)'))
+        parser.add_argument(
+            '-p', '--output-options', default='',
+            metavar=_('OPTIONS'),
+            help=_('comma-separated list of options for the export mechanism'
+                   ' (pass ? for a list of choices)'))
+        parser.add_argument(
+            '-o', '--output-file', default='-',
+            metavar=_('FILE'),# type=FileType("wb"),
+            help=_('save test results to the specified FILE'
+                   ' (or to stdout if FILE is -)'))
+        parser.add_argument(
+            '-t', '--transport',
+            metavar=_('TRANSPORT'),
+                choices=[_('?')] + list(get_all_transports().keys()),
+            help=_('use TRANSPORT to send results somewhere'
+                   ' (pass ? for a list of choices)'))
+        parser.add_argument(
+            '--transport-where',
+            metavar=_('WHERE'),
+            help=_('where to send data using the selected transport'))
+        parser.add_argument(
+            '--transport-options',
+            metavar=_('OPTIONS'),
+            help=_('comma-separated list of key-value options (k=v) to '
+                   'be passed to the transport'))
 
     @property
     def C(self):
@@ -645,6 +676,7 @@ class Run(Command, MainLoopStage):
         self.sa.select_providers('*')
         self.sa.start_new_session('checkbox-run')
         tps = self.sa.get_test_plans()
+        self._configure_report()
         selection = ctx.args.PATTERN
         if len(selection) == 1 and selection[0] in tps:
             self.just_run_test_plan(selection[0])
@@ -673,11 +705,49 @@ class Run(Command, MainLoopStage):
             self.sa._get_allowed_calls_in_normal_state())
         self._run_jobs(self.sa.get_dynamic_todo_list())
 
+    def _configure_report(self):
+        """Configure transport and exporter."""
+        if self.ctx.args.output_format == '?':
+            print_objs('exporter')
+            raise SystemExit(0)
+        if self.ctx.args.transport == '?':
+            print(', '.join(get_all_transports()))
+            raise SystemExit(0)
+        if not self.ctx.args.transport:
+            if self.ctx.args.transport_where:
+                _logger.error(_(
+                    "--transport-where is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.transport_options:
+                _logger.error(_(
+                    "--transport-options is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.output_file != '-':
+                self.transport = 'file'
+                self.transport_where = self.ctx.args.output_file
+                self.transport_options = ''
+            else:
+                self.transport = 'stream'
+                self.transport_where = 'stdout'
+                self.transport_options = ''
+        else:
+            if self.ctx.args.transport not in get_all_transports():
+                _logger.error("The selected transport %r is not available",
+                             self.ctx.args.transport)
+                raise SystemExit(1)
+            self.transport = self.ctx.args.transport
+            self.transport_where = self.ctx.args.transport_where
+            self.transport_options = self.ctx.args.transport_options
+        self.exporter = self.ctx.args.output_format
+        self.exporter_opts = self.ctx.args.output_options
+
+
     def _print_results(self):
         all_transports = get_all_transports()
-        transport = all_transports['stream']('stdout')
-        exporter_id = '2013.com.canonical.plainbox::text'
-        self.sa.export_to_transport(exporter_id, transport)
+        transport = get_all_transports()[self.transport](
+            self.transport_where, self.transport_options)
+        self.sa.export_to_transport(
+            self.exporter, transport, self.exporter_opts)
 
 
 class List(Command):

@@ -65,6 +65,25 @@ environ: PLAINBOX_SESSION_SHARE
 command:
  fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_results.log
 
+# The miscellanea/fwupdate job requires the fwupdate package
+unit: packaging meta-data
+os-id: debian
+Depends: fwupdate
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::miscellanea
+id: miscellanea/fwupdate
+estimated_duration: 1.0
+depends: miscellanea/efi_boot_mode
+requires:
+  cpuinfo.platform in ("i386", "x86_64", "aarch64", "armhf")
+  package.name == 'fwupdate'
+_description:
+ Determine if EFI firmware supports update from OS.
+_summary:
+ Check for firmware update support.
+command: fwupdate -s
+
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/fwts_results.log

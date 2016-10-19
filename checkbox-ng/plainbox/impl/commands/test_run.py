@@ -34,7 +34,6 @@ from inspect import cleandoc
 from unittest import TestCase
 
 from plainbox.impl.box import main
-from plainbox.impl.exporter.json import JSONSessionStateExporter
 from plainbox.impl.exporter.rfc822 import RFC822SessionStateExporter
 from plainbox.impl.exporter.text import TextSessionStateExporter
 from plainbox.testing_utils.io import TestIO
@@ -152,7 +151,7 @@ class TestRun(TestCase):
         Each format may support a different set of options
         2013.com.canonical.plainbox::hexr: 
         2013.com.canonical.plainbox::html: 
-        2013.com.canonical.plainbox::json: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status, machine-json
+        2013.com.canonical.plainbox::json: 
         2013.com.canonical.plainbox::rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
         2013.com.canonical.plainbox::text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
         2013.com.canonical.plainbox::tar: 

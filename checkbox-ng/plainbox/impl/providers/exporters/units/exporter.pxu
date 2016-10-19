@@ -15,8 +15,9 @@ data: {"template": "checkbox.html"}
 unit: exporter
 id: json
 _summary: Generate JSON output
-entry_point: json
+entry_point: jinja2
 file_extension: json
+data: {"template": "checkbox.json"}
 
 unit: exporter
 id: rfc822

@@ -74,7 +74,7 @@ class IntegrationTests(TestCaseWithParameters):
         # Skip tests that are not applicable for the current system
         self.skip_if_incompatible()
         # Execute the job and remember the results.
-        (self.job_id, self.job_outcome, self.job_execution_duration,
+        (self.job_id, self.job_outcome,
          self.job_return_code, self.job_stdout,
          self.job_stderr) = self.cache.get(
              key=('job-run-artifacts', self.parameters.scenario_pathname),
@@ -183,9 +183,6 @@ def execute_job(job_id):
         # Load the actual results and keep them in memory
         with open(pathname, encoding='UTF-8') as stream:
             job_result = json.load(stream)
-            job_outcome = job_result['result_map'][job_id]['outcome']
-            job_execution_duration = job_result['result_map'][job_id] \
-                                               ['execution_duration']
+            job_outcome = job_result[0]['results'][0]['status']
     # [ At this time TestIO and TemporaryDirectory are gone ]
-    return (job_id, job_outcome, job_execution_duration,
-           job_return_code, io.stdout, io.stderr)
+    return (job_id, job_outcome, job_return_code, io.stdout, io.stderr)

@@ -493,10 +493,18 @@ class Launcher(Command, MainLoopStage):
                 secure_id = input(self.C.BLUE(_('Enter secure-id:')))
             if secure_id:
                 options = "secure_id={}".format(secure_id)
-                self.transports[transport] = cls(url, options)
+            else:
+                options = ""
+            self.transports[transport] = cls(url, options)
 
     def _export_results(self):
         for report in self.launcher.stock_reports:
+            # skip stock c3 report if secure_id is not given from config files
+            # or launchers, and the UI is non-interactive (silent)
+            if (report in ['certification', 'certification-staging'] and
+                    'c3' not in self.launcher.transports and
+                    self.is_interactive == False):
+                continue
             self._prepare_stock_report(report)
         # reports are stored in an ordinary dict(), so sorting them ensures
         # the same order of submitting them between runs, and if they

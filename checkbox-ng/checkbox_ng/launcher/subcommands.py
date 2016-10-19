@@ -39,7 +39,7 @@ from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
@@ -126,6 +126,14 @@ class Launcher(Command, MainLoopStage):
         try:
             self._C = Colorizer()
             self.ctx = ctx
+            # now we have all the correct flags and options, so we need to
+            # replace the previously built SA with the defaults
+            ctx.sa = SessionAssistant(
+                self.get_app_id(),
+                self.get_cmd_version(),
+                self.get_sa_api_version(),
+                self.get_sa_api_flags(),
+            )
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)

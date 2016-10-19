@@ -13,6 +13,11 @@ depends:
  lsblk_attachment
  sysfs_attachment
  udev_attachment
+ dkms_info_json
+ udev_json
+ raw_devices_dmi_json
+ modprobe_json
+ lspci_standard_config_json
 estimated_duration: 1.0
 command: true
 _summary:

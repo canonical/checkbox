@@ -61,6 +61,7 @@ static const char *ifmodes[] = {
 	"P2P_client",
 	"P2P_GO",
 	"P2P_device",
+	"outside_context_BSS",
 };
 
 #define BIT(x) (1ULL<<(x))

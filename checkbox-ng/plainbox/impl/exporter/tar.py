@@ -31,8 +31,10 @@ import tarfile
 import time
 
 from plainbox.impl.exporter import SessionStateExporterBase
-from plainbox.impl.exporter.json import JSONSessionStateExporter
+from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.exporter.xlsx import XLSXSessionStateExporter
+from plainbox.impl.unit.exporter import ExporterUnitSupport
+from plainbox.public import get_providers
 
 
 class TARSessionStateExporter(SessionStateExporterBase):
@@ -61,7 +63,9 @@ class TARSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP,
             SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS
         ]
-        json_exporter = JSONSessionStateExporter(options_list)
+        exporter_unit = self._get_all_exporter_units()[
+            '2013.com.canonical.plainbox::json']
+        json_exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
         json_exporter.dump_from_session_manager(manager, json_stream)
         json_tarinfo = tarfile.TarInfo(name="submission.json")
         json_tarinfo.size = json_stream.tell()
@@ -103,3 +107,11 @@ class TARSessionStateExporter(SessionStateExporterBase):
 
     def dump(self, session, stream):
         pass
+
+    def _get_all_exporter_units(self):
+        exporter_map = {}
+        for provider in get_providers():
+            for unit in provider.unit_list:
+                if unit.Meta.name == 'exporter':
+                    exporter_map[unit.id] = ExporterUnitSupport(unit)
+        return exporter_map

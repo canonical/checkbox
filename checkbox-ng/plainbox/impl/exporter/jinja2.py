@@ -25,6 +25,7 @@
     THIS MODULE DOES NOT HAVE A STABLE PUBLIC API
 """
 
+import json
 from datetime import datetime
 
 from jinja2 import Environment
@@ -139,6 +140,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
     def customize_environment(self, env):
         """Register filters and tests custom to the HEXR exporter."""
         env.autoescape = True
+        env.filters['jsonify'] = json.dumps
         env.filters['sorted_xmlattr'] = do_sorted_xmlattr
         env.filters['strip_ns'] = do_strip_ns
         env.tests['is_name'] = do_is_name

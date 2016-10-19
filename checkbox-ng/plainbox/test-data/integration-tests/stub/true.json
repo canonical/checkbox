@@ -4,7 +4,7 @@
     "result": {
         "result_map": {
             "2013.com.canonical.plainbox::stub/true": {
-                "outcome": "pass"
+                "outcome": "passed"
             }
         }
     }

@@ -1,0 +1,117 @@
+{%- set ns = '2013.com.canonical.certification::' -%}
+{%- set state = manager.default_device_context.state -%}
+{%- set resource_map = state.resource_map -%}
+{%- set job_state_map = state.job_state_map -%}
+[
+    {%- if ns ~ 'package' in state.resource_map %}
+    {
+        "packages": [
+        {%- set package_resource_list = state.resource_map[ns ~ 'package'] %}
+        {%- for package_resource in package_resource_list %}
+            {
+                "name": "{{ package_resource.name }}",
+                "version": "{{ package_resource.version }}"
+            }{%- if not loop.last -%},{%- endif %}
+        {%- endfor %}
+        ]
+    },
+    {%- endif %}
+    {%- if ns ~ 'snap' in state.resource_map %}
+    {
+        "snap-packages": [
+        {%- set snap_package_resource_list = state.resource_map[ns ~ 'snap'] %}
+        {%- for snap_package_resource in snap_package_resource_list %}
+            {
+                "name": "{{ snap_package_resource.name }}",
+                {%- for key in snap_package_resource|reject('is_name')|sort %}
+                "{{ key }}": "{{ snap_package_resource[key] }}"{%- if not loop.last -%},{%- endif %}
+                {%- endfor %}
+            }{%- if not loop.last -%},{%- endif %}
+        {%- endfor %}
+        ]
+    },
+    {%- endif %}
+    {%- if ns ~ 'lsb' in state.resource_map and state.resource_map[ns ~ 'lsb'][0] %}
+    {%- set lsb_resource = state.resource_map[ns ~ 'lsb'][0] %}
+    {
+        "distribution": {
+            {%- for key in lsb_resource|sort %}
+            "{{ key }}": "{{ lsb_resource[key] }}"{%- if not loop.last -%},{%- endif %}
+            {%- endfor %}
+        }
+    },
+    {%- endif %}
+    {
+        "results": [
+        {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "local", "attachment") %}
+            {
+                "id": "{{ job_state.job.id }}",
+                "name": "{{ job_state.job.tr_summary() }}",
+                "certification_status": "{{ job_state.effective_certification_status }}",
+                "category": "{{ job_state.effective_category_id }}",
+                "status": "{{ job_state.result.outcome_meta().tr_label }}",
+                "comments": {{ job_state.result.comments | jsonify | safe }},
+                "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
+                "type": "test",
+                "project": "certification"
+            }{%- if not loop.last -%},{%- endif %}
+        {%- endfor %}
+        ]
+    }{%- if ns ~ 'dkms_info_json' in state.job_state_map and state.job_state_map[ns ~ 'dkms_info_json'].result.outcome %},
+    {%- set dkms_info_json = state.job_state_map[ns ~ 'dkms_info_json'].result.io_log_as_text_attachment %}
+    {{ dkms_info_json | indent(4, false) | safe }}
+    {%- endif %}
+    {%- if ns ~ 'udev_json' in state.job_state_map and state.job_state_map[ns ~ 'udev_json'].result.outcome %},
+    {%- set udev_json = state.job_state_map[ns ~ 'udev_json'].result.io_log_as_text_attachment %}
+    {{ udev_json | indent(4, false) | safe }}
+    {%- endif %}
+    {%- if ns ~ 'raw_devices_dmi_json' in state.job_state_map and state.job_state_map[ns ~ 'raw_devices_dmi_json'].result.outcome %},
+    {%- set udev_json = state.job_state_map[ns ~ 'raw_devices_dmi_json'].result.io_log_as_text_attachment %}
+    {{ udev_json | indent(4, false) | safe }}
+    {%- endif %}
+    {%- if ns ~ 'modprobe_json' in state.job_state_map and state.job_state_map[ns ~ 'modprobe_json'].result.outcome %},
+    {%- set modprobe_json = state.job_state_map[ns ~ 'modprobe_json'].result.io_log_as_text_attachment %}
+    {{ modprobe_json | indent(4, false) | safe }}
+    {%- endif %}
+    {%- if ns ~ 'lspci_standard_config_json' in state.job_state_map and state.job_state_map[ns ~ 'lspci_standard_config_json'].result.outcome %},
+    {%- set lspci_standard_config_json = state.job_state_map[ns ~ 'lspci_standard_config_json'].result.io_log_as_text_attachment %}
+    {{ lspci_standard_config_json | indent(4, false) | safe }}
+    {%- endif %}
+    {%- if ns ~ 'uname' in state.resource_map and state.resource_map[ns ~ 'uname'][0] %},
+    {%- set uname_resource = state.resource_map[ns ~ 'uname'][0] %}
+    {
+        "kernel": "{{ uname_resource.release }}"
+    }
+    {%- endif %}
+    {%- if ns ~ 'dpkg' in state.resource_map and state.resource_map[ns ~ 'dpkg'][0] %},
+    {%- set dpkg_resource = state.resource_map[ns ~ 'dpkg'][0] %}
+    {
+        "architecture": "{{ dpkg_resource.architecture }}"
+    }
+    {%- endif %}
+    {%- if ns ~ 'meminfo' in state.resource_map and state.resource_map[ns ~ 'meminfo'][0] %},
+    {%- set meminfo = state.resource_map[ns ~ 'meminfo'][0] %}
+    {
+        "memory": {
+            "swap": {{ meminfo.swap }},
+            "total": {{ meminfo.total }}
+        }
+    }
+    {%- endif %}
+    {%- if ns ~ 'cpuinfo' in state.resource_map and state.resource_map[ns ~ 'cpuinfo'][0] %},
+    {%- set processor_resource = state.resource_map[ns ~ 'cpuinfo'][0] %}
+    {
+        "processor": {
+        {%- for key in processor_resource|sort %}
+            "{{ key }}": "{{ processor_resource[key] }}"{%- if not loop.last -%},{%- endif %}
+        {%- endfor %}
+        }
+    }
+    {%- endif %}
+    {%- if ns ~ 'kernel_cmdline_attachment' in state.job_state_map and state.job_state_map[ns ~ 'kernel_cmdline_attachment'].result.outcome %},
+    {
+    {%- set kernel_cmdline = state.job_state_map[ns ~ 'kernel_cmdline_attachment'].result.io_log_as_text_attachment %}
+        "kernel-cmdline": {{ kernel_cmdline.strip() | jsonify | safe }}
+    }
+    {%- endif %}
+]

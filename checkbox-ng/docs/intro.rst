@@ -28,6 +28,99 @@ With a test plan selected, you can choose the individual tests to run:
 When the tests are run, the results are saved to files and the program
 prompts to submit them to Launchpad.
 
+Checkbox Command Line
+---------------------
+
+When checkbox is run without any arguments, i.e.::
+
+    $ checkbox-cli
+
+Interactive session is started with the default options.
+
+checkbox-cli startprovider
+``````````````````````````
+
+``startprovider`` subcommand creates a new provider, e.g.::
+
+    $ checkbox-cli startprovider 2016.com.acme:example
+
+The command will also add example units to that provider, to create an empty
+provider, use ``--empty`` option, e.g.::
+
+    $ checkbox-cli --empty startprovider 2016.com.acme:another-example
+
+
+checkbox-cli list
+`````````````````
+
+``list`` command prints out all units of the following type.
+
+Currently there are following types you can list:
+
+    - job
+    - test plan
+    - category
+    - file
+    - template
+    - file
+    - manifest entry
+    - packaging meta-data
+    - exporter
+
+Example::
+
+    $ checkbox-cli list job
+
+    $ checkbox-cli list "test plan"
+
+.. note::
+    For multi-word types like 'test plan' remember to escape the spaces in
+    between, or enquote the type name.
+
+
+
+checkbox-cli launcher
+`````````````````````
+
+``launcher`` command lets you customize checkbox experience.
+
+See :ref:`launcher-tutorial` for more details.
+
+.. note::
+    ``launcher`` is implied when invoking checkbox-cli with a file as the only
+    argument. e.g.::
+
+        $ checkbox-cli my-launcher
+
+    is equivalent to::
+
+        $ checkbox-cli launcher my-launcher
+
+checkbox-cli run
+````````````````
+
+``run`` lets you run particular test plan or a set of jobs.
+
+To just run one test plan, use the test plan's id as an argument, e.g.::
+
+    $ checkbox-cli run 2013.com.canonical.certification::smoke
+
+To run a hand-picked set of jobs, use regex pattern(s) as arguments. Jobs
+with id matching the expresion will be run, e.g.::
+
+    $ checkbox-cli run 2016.com.acme:.*
+
+.. note::
+    The command above runs all jobs which id begins with ``2016.com.acme:``
+    will be run
+
+You can use multiple patterns to match against, e.g.::
+
+    $ checkbox-cli run .*true .*false
+
+.. note::
+    The command above runs all jobs which id ends with 'true' or 'false'
+
 Looking Deeper
 --------------
 

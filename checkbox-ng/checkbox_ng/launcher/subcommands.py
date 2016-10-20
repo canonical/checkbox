@@ -38,14 +38,22 @@ from plainbox.impl.commands.inv_run import Action
 from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
+from plainbox.impl.developer import UsageExpectation
+from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
+from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import FieldQualifier
+from plainbox.impl.secure.qualifiers import PatternMatcher
+from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
+from plainbox.public import get_providers
 
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.misc import SelectableJobTreeNode
@@ -600,3 +608,186 @@ class CheckboxUI(NormalUI):
 
     def considering_job(self, job, job_state):
         pass
+
+
+class Run(Command, MainLoopStage):
+    name = 'run'
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'PATTERN', nargs="*",
+            help=_("run jobs matching the given regular expression"))
+        parser.add_argument(
+            '--non-interactive', action='store_true',
+            help=_("skip tests that require interactivity"))
+        parser.add_argument(
+            '-f', '--output-format',
+            default='2013.com.canonical.plainbox::text',
+            metavar=_('FORMAT'),
+            help=_('save test results in the specified FORMAT'
+                   ' (pass ? for a list of choices)'))
+        parser.add_argument(
+            '-p', '--output-options', default='',
+            metavar=_('OPTIONS'),
+            help=_('comma-separated list of options for the export mechanism'
+                   ' (pass ? for a list of choices)'))
+        parser.add_argument(
+            '-o', '--output-file', default='-',
+            metavar=_('FILE'),# type=FileType("wb"),
+            help=_('save test results to the specified FILE'
+                   ' (or to stdout if FILE is -)'))
+        parser.add_argument(
+            '-t', '--transport',
+            metavar=_('TRANSPORT'),
+                choices=[_('?')] + list(get_all_transports().keys()),
+            help=_('use TRANSPORT to send results somewhere'
+                   ' (pass ? for a list of choices)'))
+        parser.add_argument(
+            '--transport-where',
+            metavar=_('WHERE'),
+            help=_('where to send data using the selected transport'))
+        parser.add_argument(
+            '--transport-options',
+            metavar=_('OPTIONS'),
+            help=_('comma-separated list of key-value options (k=v) to '
+                   'be passed to the transport'))
+
+    @property
+    def C(self):
+        return self._C
+
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    @property
+    def is_interactive(self):
+        """
+        Flag indicating that this is an interactive invocation.
+
+        We can then interact with the user when we encounter OUTCOME_UNDECIDED.
+        """
+        return (sys.stdin.isatty() and sys.stdout.isatty() and not
+                self.ctx.args.non_interactive)
+
+    def invoked(self, ctx):
+        self._C = Colorizer()
+        self.ctx = ctx
+        self.sa.select_providers('*')
+        self.sa.start_new_session('checkbox-run')
+        tps = self.sa.get_test_plans()
+        self._configure_report()
+        selection = ctx.args.PATTERN
+        if len(selection) == 1 and selection[0] in tps:
+            self.just_run_test_plan(selection[0])
+        else:
+            self.run_matching_jobs(selection)
+        self.sa.finalize_session()
+        self._print_results()
+        return 0 if self.sa.get_summary()['fail'] == 0 else 1
+
+    def just_run_test_plan(self, tp_id):
+        self.sa.select_test_plan(tp_id)
+        self.sa.bootstrap()
+        print(self.C.header(_("Running Selected Test Plan")))
+        self._run_jobs(self.sa.get_dynamic_todo_list())
+
+    def run_matching_jobs(self, patterns):
+        # XXX: SessionAssistant doesn't allow running hand-picked list of jobs
+        # this is why this method touches SA's internal to manipulate state, so
+        # those jobs may be run
+        qualifiers = []
+        for pattern in patterns:
+            qualifiers.append(
+                FieldQualifier('id', PatternMatcher(pattern), Origin('args')))
+        jobs = select_jobs(self.sa._context.state.job_list, qualifiers)
+        self.sa._context.state.update_desired_job_list(jobs)
+        UsageExpectation.of(self.sa).allowed_calls = (
+            self.sa._get_allowed_calls_in_normal_state())
+        print(self.C.header(_("Running Selected Jobs")))
+        self._run_jobs(self.sa.get_dynamic_todo_list())
+
+    def _configure_report(self):
+        """Configure transport and exporter."""
+        if self.ctx.args.output_format == '?':
+            print_objs('exporter')
+            raise SystemExit(0)
+        if self.ctx.args.transport == '?':
+            print(', '.join(get_all_transports()))
+            raise SystemExit(0)
+        if not self.ctx.args.transport:
+            if self.ctx.args.transport_where:
+                _logger.error(_(
+                    "--transport-where is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.transport_options:
+                _logger.error(_(
+                    "--transport-options is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.output_file != '-':
+                self.transport = 'file'
+                self.transport_where = self.ctx.args.output_file
+                self.transport_options = ''
+            else:
+                self.transport = 'stream'
+                self.transport_where = 'stdout'
+                self.transport_options = ''
+        else:
+            if self.ctx.args.transport not in get_all_transports():
+                _logger.error("The selected transport %r is not available",
+                             self.ctx.args.transport)
+                raise SystemExit(1)
+            self.transport = self.ctx.args.transport
+            self.transport_where = self.ctx.args.transport_where
+            self.transport_options = self.ctx.args.transport_options
+        self.exporter = self.ctx.args.output_format
+        self.exporter_opts = self.ctx.args.output_options
+
+
+    def _print_results(self):
+        all_transports = get_all_transports()
+        transport = get_all_transports()[self.transport](
+            self.transport_where, self.transport_options)
+        print(self.C.header(_("Results")))
+        if self.transport == 'file':
+            print(_("Saving results to {}").format(self.transport_where))
+        elif self.transport == 'certification':
+            print(_("Sending results to {}").format(self.transport_where))
+        self.sa.export_to_transport(
+            self.exporter, transport, self.exporter_opts)
+
+
+class List(Command):
+    name = 'list'
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'GROUP', nargs='?',
+            help=_("list objects from the specified group"))
+        parser.add_argument(
+            '-a', '--attrs', default=False, action="store_true",
+            help=_("show object attributes"))
+
+    def invoked(self, ctx):
+        print_objs(ctx.args.GROUP, ctx.args.attrs)
+
+
+def print_objs(group, show_attrs=False):
+    obj = Explorer(get_providers()).get_object_tree()
+    indent = ""
+    def _show(obj, indent):
+        if group is None or obj.group == group:
+            # Display the object name and group
+            print("{}{} {!r}".format(indent, obj.group, obj.name))
+            indent += "  "
+            if show_attrs:
+                for key, value in obj.attrs.items():
+                    print("{}{:15}: {!r}".format(indent, key, value))
+        if obj.children:
+            if group is None:
+                print("{}{}".format(indent, _("children")))
+                indent += "  "
+            for child in obj.children:
+                _show(child, indent)
+
+    _show(obj, "")

@@ -587,6 +587,8 @@ class Launcher(Command, MainLoopStage):
             show_out = False
         if 'suppress-output' in job.get_flag_set():
             show_out = False
+        if 'use-chunked-io' in job.get_flag_set():
+            show_out = True
         return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
     def register_arguments(self, parser):

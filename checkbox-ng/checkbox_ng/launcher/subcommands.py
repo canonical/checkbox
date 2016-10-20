@@ -689,6 +689,7 @@ class Run(Command, MainLoopStage):
     def just_run_test_plan(self, tp_id):
         self.sa.select_test_plan(tp_id)
         self.sa.bootstrap()
+        print(self.C.header(_("Running Selected Test Plan")))
         self._run_jobs(self.sa.get_dynamic_todo_list())
 
     def run_matching_jobs(self, patterns):
@@ -703,6 +704,7 @@ class Run(Command, MainLoopStage):
         self.sa._context.state.update_desired_job_list(jobs)
         UsageExpectation.of(self.sa).allowed_calls = (
             self.sa._get_allowed_calls_in_normal_state())
+        print(self.C.header(_("Running Selected Jobs")))
         self._run_jobs(self.sa.get_dynamic_todo_list())
 
     def _configure_report(self):
@@ -746,6 +748,11 @@ class Run(Command, MainLoopStage):
         all_transports = get_all_transports()
         transport = get_all_transports()[self.transport](
             self.transport_where, self.transport_options)
+        print(self.C.header(_("Results")))
+        if self.transport == 'file':
+            print(_("Saving results to {}").format(self.transport_where))
+        elif self.transport == 'certification':
+            print(_("Sending results to {}").format(self.transport_where))
         self.sa.export_to_transport(
             self.exporter, transport, self.exporter_opts)
 

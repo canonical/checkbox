@@ -241,7 +241,7 @@ class KVMTest(object):
 
         def _construct_url(initial_url, cloud_iso):
             return "/".join((initial_url, cloud_iso))
-        
+
         def _test_cloud_url(url):
             # test our URL to make sure it's reachable
             ret = requests.head(url)
@@ -249,7 +249,7 @@ class KVMTest(object):
                 return False
             else:
                 return True
-            
+
         if image_url is None:
             # If we have not specified a URL to get our images from, default
             # to ubuntu.com
@@ -260,8 +260,9 @@ class KVMTest(object):
             # Test our URL and rebuild with alternate name
             if not _test_cloud_url(full_url):
                 logging.warn("Cloud Image URL not valid: %s" % full_url)
-                logging.warn(" * This means we could not reach the remote file. "
-                             "We'll now try with a different filename schema.")
+                logging.warn(" * This means we could not reach the remote "
+                             "file. Retrying with a different filename "
+                             "schema.")
                 cloud_iso = _construct_filename("modern")
                 full_url = _construct_url(initial_url, cloud_iso)
                 # retest one more time then exit if it still fails
@@ -272,19 +273,23 @@ class KVMTest(object):
                                   "finding the expected file.  Check the URL "
                                   "noted above.")
                     sys.exit(1)
-                else: return full_url
-            else: return full_url
+                else:
+                    return full_url
+            else:
+                return full_url
         else:
             url = urlparse(image_url)
-            if url.path.endswith('/') or url.path == '' or not url.path.endswith(".img"):
+            if url.path.endswith('/') or url.path == '' or
+            not url.path.endswith(".img"):
                 # If we have a relative URL (local copies of official images)
                 # http://192.168.0.1/ or http://192.168.0.1/images/
                 cloud_iso = _construct_filename()
                 full_url = _construct_url(image_url.rstrip("/"), cloud_iso)
                 if not _test_cloud_url(full_url):
                     logging.warn("Cloud Image URL not valid: %s" % full_url)
-                    logging.warn(" * This means we could not reach the remote file. "
-                                 "We'll now try with a different filename schema.")
+                    logging.warn(" * This means we could not reach the remote "
+                                 "file. Retrying with a different filename "
+                                 "schema.")
                     cloud_iso = _construct_filename("modern")
                     full_url = _construct_url(image_url.rstrip("/"), cloud_iso)
                     if not _test_cloud_url(full_url):
@@ -294,15 +299,18 @@ class KVMTest(object):
                                       "finding the expected file.  Check the "
                                       "URL noted above.")
                         sys.exit(1)
-                    else: return full_url
-                else: return full_url
+                    else:
+                        return full_url
+                else:
+                    return full_url
             else:
                 # Assume anything else is an absolute URL to a remote server
                 if not _test_cloud_url(image_url):
                     logging.error("Cloud Image URL invalid: %s" % image_url)
                     logging.error(" * Check the URL and ensure it is correct")
                     sys.exit(1)
-                else: return image_url
+                else:
+                    return image_url
 
     def download_image(self, image_url=None):
         """
@@ -313,7 +321,7 @@ class KVMTest(object):
         else:
             full_url = self.construct_cloud_url(image_url)
         logging.debug("Acquiring cloud image from: {}".format(full_url))
-        
+
         # Attempt download
         try:
             resp = urllib.request.urlretrieve(full_url, cloud_iso)
@@ -563,10 +571,9 @@ def main():
         logging.basicConfig(level=args.log_level)
     except AttributeError:
         pass  # avoids exception when trying to run without specifying 'kvm'
-    
+
     # silence normal output from requests module
     logging.getLogger("requests").setLevel(logging.WARNING)
-
 
     # to check if not len(sys.argv) > 1
     if len(vars(args)) == 0:

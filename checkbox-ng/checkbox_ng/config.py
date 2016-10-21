@@ -50,22 +50,11 @@ class CheckBoxConfig(PlainBoxConfig):
         help_text=_("Whether to also send the submission data to HEXR"),
         kind=bool)
 
-    # TODO: Add a validator to check if email looks fine
-    email_address = config.Variable(
-        section="sru",
-        help_text=_("Email address to log into the Launchpad HWDB"))
-
     # TODO: Add a validator to check if URL looks fine
     c3_url = config.Variable(
         section="sru",
         help_text=_("URL of the certification website"),
         default="https://certification.canonical.com/submissions/submit/")
-
-    # TODO: Add a validator to check if URL looks fine
-    lp_url = config.Variable(
-        section="sru",
-        help_text=_("URL of the launchpad hardware database"),
-        default="https://launchpad.net/+hwdb/+submit")
 
     fallback_file = config.Variable(
         section="sru",

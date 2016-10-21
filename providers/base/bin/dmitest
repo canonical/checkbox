@@ -112,7 +112,7 @@ def standard_tests(args, stream):
     """
     if args.test_type == 'server':
         if not find_in_section(stream, 'Chassis Information', 'Type:',
-                               ['server', 'rack mount', 'blade',
+                               ['server', 'rack mount', 'blade', 'other',
                                 'expansion chassis', 'multi-system', 'tower'],
                                False):
             print("*** Incorrect or unknown server chassis type!")

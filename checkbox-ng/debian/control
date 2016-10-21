@@ -8,7 +8,6 @@ Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
 Build-Depends: debhelper (>= 9),
                dh-python,
                python3-all,
-               python3-checkbox-support (>= 0.25),
                python3-docutils,
                python3-guacamole (>= 0.9),
                python3-plainbox (>= 0.27),
@@ -38,8 +37,7 @@ Description: PlainBox based test runner
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: python3-checkbox-support (>= 0.25),
-         python3-guacamole (>= 0.9),
+Depends: python3-guacamole (>= 0.9),
          python3-plainbox (>= 0.27),
          python3-requests (>= 1.0),
          python3-xlsxwriter,

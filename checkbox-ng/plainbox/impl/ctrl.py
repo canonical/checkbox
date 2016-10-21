@@ -1434,7 +1434,13 @@ class RootViaSudoExecutionController(
             in_admin_group = grp.getgrnam("admin").gr_gid in posix.getgroups()
         except KeyError:
             in_admin_group = False
-        self.user_can_sudo = in_sudo_group or in_admin_group
+        # On snappy, the group check does not work. Let's verify if snap
+        # create-user made a rule for the current user
+        in_sudoers_d = False
+        if (os.getenv("SNAP")):
+            in_sudoers_d = os.path.exists(
+                '/etc/sudoers.d/create-user-{}'.format(os.getenv('USER')))
+        self.user_can_sudo = in_sudo_group or in_admin_group or in_sudoers_d
 
     def get_execution_command(self, job, job_state, config, session_dir,
                               nest_dir):

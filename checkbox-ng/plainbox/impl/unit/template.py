@@ -59,7 +59,8 @@ class TemplateUnitValidator(UnitValidator):
             yield issue
         # Apart from all the per-field checks, ensure that the unit,
         # if instantiated with fake resource, produces a valid target unit
-        accessed_parameters = unit.get_accessed_parameters(force=True)
+        accessed_parameters = unit.get_accessed_parameters(
+            force=True, template_engine=unit.template_engine)
         resource = Resource({
             key: key.upper()
             for key in set(itertools.chain(*accessed_parameters.values()))
@@ -360,13 +361,17 @@ class TemplateUnit(Unit):
             key: value for key, value in self._raw_data.items()
             if not key.startswith('template-')
         }
+        # Only keep the template-engine field
+        raw_data['template-engine'] = self.template_engine
+        data['template-engine'] = raw_data['template-engine']
         # Override the value of the 'unit' field from 'template-unit' field
         data['unit'] = raw_data['unit'] = self.template_unit
         # XXX: extract raw dictionary from the resource object, there is no
         # normal API for that due to the way resource objects work.
         parameters = dict(object.__getattribute__(resource, '_data'))
-        accessed_parameters = set(itertools.chain(*{
-            get_accessed_parameters(value) for value in data.values()}))
+        accessed_parameters = set(itertools.chain(*{get_accessed_parameters(
+            value, template_engine=self.template_engine)
+            for value in data.values()}))
         # Recreate the parameters with only the subset that will actually be
         # used by the template. Doing this filter can prevent exceptions like
         # DependencyDuplicateError where an unused resource property can differ

@@ -456,7 +456,11 @@ class TemplateInvariantFieldValidator(FieldValidatorBase):
             # No value? No problem!
             if value is None:
                 return
-            param_set = get_accessed_parameters(value)
+            if unit.template_engine == 'jinja2':
+                param_set = get_accessed_parameters(
+                    value, template_engine='jinja2')
+            else:
+                param_set = get_accessed_parameters(value)
             # Invariant fields cannot depend on any parameters
             if len(param_set) != 0:
                 yield parent.error(unit, field, Problem.variable, self.message)
@@ -476,7 +480,11 @@ class TemplateVariantFieldValidator(FieldValidatorBase):
             value = unit._data.get(field)
             # No value? No problem!
             if value is not None:
-                param_set = get_accessed_parameters(value)
+                if unit.template_engine == 'jinja2':
+                    param_set = get_accessed_parameters(
+                        value, template_engine='jinja2')
+                else:
+                    param_set = get_accessed_parameters(value)
                 # Variant fields must depend on some parameters
                 if len(param_set) == 0:
                     yield parent.error(

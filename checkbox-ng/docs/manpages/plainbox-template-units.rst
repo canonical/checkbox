@@ -68,14 +68,20 @@ There are four fields that are specific to the template unit:
 
     This field is optional.
 
+``template-engine``:
+    Name of the template engine to use, default is python string formatting
+    (See PEP 3101). Currently the only other supported engine is jinja2.
+
+    This field is optional.
+
 Instantiation
 -------------
 
 When a template is instantiated, a single record object is used to fill in the
 parametric values to all the applicable fields. Each field is formatted using
-the python formatting language. Within each field the record is exposed as the
-variable named by the ``template_resource`` field. Record data is exposed as
-attributes of that object.
+the template-engine (default is python formatting language. Within each field
+the record is exposed as the variable named by the ``template_resource`` field.
+Record data is exposed as attributes of that object.
 
 The special parameter ``__index__`` can be used to iterate over the devices
 matching the ``template-filter`` field.

@@ -29,6 +29,8 @@ import json
 import logging
 import string
 
+from jinja2 import Template
+
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
@@ -475,6 +477,16 @@ class Unit(metaclass=UnitType):
         return self._parameters
 
     @property
+    def template_engine(self):
+        """
+        value of the 'template-engine' field.
+
+        This attribute stores the template engine to use, default is python
+        string formatting (See PEP 3101).
+        """
+        return self._data.get('template-engine', 'default')
+
+    @property
     def virtual(self):
         """
         Flag indicating if this unit is a virtual unit
@@ -495,7 +507,8 @@ class Unit(metaclass=UnitType):
         """
         return self._parameters is not None
 
-    def get_accessed_parameters(self, *, force=False):
+    def get_accessed_parameters(self, *, force=False,
+                                template_engine='default'):
         """
         Get a set of attributes accessed from each template attribute
 
@@ -504,6 +517,10 @@ class Unit(metaclass=UnitType):
             non-parametric unit.  This is only intended to be called by
             TemplateUnit to inspect what the generated unit looks like in the
             early validation code.
+        :param template_engine (keyword-only):
+            If different from default python string templating, the name of
+            the template engine to use to parse the data. Currently only Jinja2
+            is supported.
         :returns:
             A dictionary of sets with names of attributes accessed by each
             template field. Note that for non-parametric Units the return value
@@ -516,7 +533,8 @@ class Unit(metaclass=UnitType):
         """
         if force or self.is_parametric:
             return {
-                key: get_accessed_parameters(value)
+                key: get_accessed_parameters(value,
+                                             template_engine=template_engine)
                 for key, value in self._data.items()
             }
         else:
@@ -555,14 +573,15 @@ class Unit(metaclass=UnitType):
         :returns:
             The value of the field, possibly with parameters inserted, or the
             default value
-        :raises:
-            KeyError if the field is parametrized but parameters are incorrect
         """
         value = self._data.get('_{}'.format(name))
         if value is None:
             value = self._data.get('{}'.format(name), default)
         if value is not None and self.is_parametric:
-            value = string.Formatter().vformat(value, (), self.parameters)
+            if self.template_engine == 'jinja2':
+                value = Template(value).render(self.parameters)
+            else:
+                value = string.Formatter().vformat(value, (), self.parameters)
         return value
 
     def get_raw_record_value(self, name, default=None):
@@ -576,8 +595,6 @@ class Unit(metaclass=UnitType):
         :returns:
             The raw value of the field, possibly with parameters inserted, or
             the default value
-        :raises:
-            KeyError if the field is parametrized but parameters are incorrect
 
         The raw value may have additional whitespace or indentation around the
         text. It will also not have the magic RFC822 dots removed. In general
@@ -587,7 +604,10 @@ class Unit(metaclass=UnitType):
         if value is None:
             value = self._raw_data.get('{}'.format(name), default)
         if value is not None and self.is_parametric:
-            value = string.Formatter().vformat(value, (), self.parameters)
+            if self.template_engine == 'jinja2':
+                value = Template(value).render(self.parameters)
+            else:
+                value = string.Formatter().vformat(value, (), self.parameters)
         return value
 
     def get_translated_record_value(self, name, default=None):
@@ -626,8 +646,11 @@ class Unit(metaclass=UnitType):
                 # might fail due to broken translations. Perhaps we should
                 # handle exceptions here and hint that this might be the cause
                 # of the problem?
-                msgstr = string.Formatter().vformat(
-                    msgstr, (), self.parameters)
+                if self.template_engine == 'jinja2':
+                    msgstr = Template(msgstr).render(self.parameters)
+                else:
+                    msgstr = string.Formatter().vformat(
+                        msgstr, (), self.parameters)
             return msgstr
         # If there was no marked-for-translation value then let's just return
         # the normal (untranslatable) version.
@@ -636,8 +659,11 @@ class Unit(metaclass=UnitType):
             # NOTE: there is no need to normalize anything as we already got
             # the non-raw value here.
             if self.is_parametric:
-                msgstr = string.Formatter().vformat(
-                    msgstr, (), self.parameters)
+                if self.template_engine == 'jinja2':
+                    msgstr = Template(msgstr).render(self.parameters)
+                else:
+                    msgstr = string.Formatter().vformat(
+                        msgstr, (), self.parameters)
             return msgstr
         # If we have nothing better let's just return the default value
         return default

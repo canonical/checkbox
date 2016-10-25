@@ -327,6 +327,27 @@ class TemplateUnitTests(TestCase):
         self.assertEqual(unit_list[0].partial_id, 'check-device-sda1')
 
 
+class TemplateUnitJinja2Tests(TestCase):
+
+    def test_instantiate_one_jinja2(self):
+        template = TemplateUnit({
+            'template-resource': 'resource',
+            'template-engine': 'jinja2',
+            'id': 'check-device-{{ dev_name }}',
+            'summary': 'Test {{ name }} ({{ sys_path }})',
+            'plugin': 'shell',
+        })
+        job = template.instantiate_one(Resource({
+            'dev_name': 'sda1',
+            'name': 'some device',
+            'sys_path': '/sys/something',
+        }))
+        self.assertIsInstance(job, JobDefinition)
+        self.assertEqual(job.partial_id, 'check-device-sda1')
+        self.assertEqual(job.summary, 'Test some device (/sys/something)')
+        self.assertEqual(job.plugin, 'shell')
+
+
 class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = TemplateUnit

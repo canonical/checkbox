@@ -589,6 +589,8 @@ class Launcher(Command, MainLoopStage):
             show_out = False
         if 'use-chunked-io' in job.get_flag_set():
             show_out = True
+        if self.ctx.args.dont_suppress_output:
+            show_out = True
         return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
     def register_arguments(self, parser):
@@ -604,6 +606,9 @@ class Launcher(Command, MainLoopStage):
         parser.add_argument(
             '--title', action='store', metavar='SESSION_NAME',
             help=_('title of the session to use'))
+        parser.add_argument(
+            '--dont-suppress-output', action='store_true', default=False,
+            help=_('Absolutely always show command output'))
 
 
 class CheckboxUI(NormalUI):

@@ -26,6 +26,7 @@ from argparse import (
 )
 import datetime
 import fcntl
+import ipaddress
 import logging
 import os
 import re
@@ -402,6 +403,50 @@ def run_test(args, test_target):
     return error_number
 
 
+def make_target_list(iface, test_targets, log_warnings):
+    """Convert comma-separated string of test targets into a list form.
+
+    Converts test target list in string form into Python list form, omitting
+    entries that are not on the current network segment.
+    :param iface:
+        Name of network interface device (eth0, etc.)
+    :param test_targets:
+        Input test targets as string of comma-separated IP addresses or
+        hostnames
+    :param emit_warnings:
+        Whether to log warning messages
+    :returns:
+        List form of input string, minus invalid values
+    """
+    test_targets_list = test_targets.split(",")
+    net = ipaddress.IPv4Network("{}/{}".format(Interface(iface).ipaddress,
+                                               Interface(iface).netmask),
+                                False)
+    first_addr = net.network_address + 1
+    last_addr = first_addr + net.num_addresses - 2
+    return_list = list(test_targets_list)
+    for test_target in test_targets_list:
+        try:
+            test_target_ip = socket.gethostbyname(test_target)
+        except OSError:
+            test_target_ip = test_target
+        try:
+            target = ipaddress.IPv4Address(test_target_ip)
+            if (target < first_addr) or (target > last_addr):
+                if log_warnings:
+                    logging.warning("test server {} ({}) is NOT ".
+                                    format(test_target, target))
+                    logging.warning("within {}; skipping".format(net))
+                return_list.remove(test_target)
+        except ValueError:
+            if log_warnings:
+                logging.warning("Invalid address: {}; skipping".
+                                format(test_target))
+            return_list.remove(test_target)
+    return_list.reverse()
+    return return_list
+
+
 def interface_test(args):
     if not ("test_type" in vars(args)):
         return
@@ -412,11 +457,12 @@ def interface_test(args):
     if (args.test_type.lower() == "iperf" or
             args.test_type.lower() == "stress"):
         test_targets = test_parameters["test_target_iperf"]
+        test_targets_list = make_target_list(args.interface, test_targets, True)
 
     # Validate that we got reasonable values
-    if not test_targets or "example.com" in test_targets:
+    if not test_targets_list or "example.com" in test_targets:
         # Default values found in config file
-        logging.error("Target server has not been supplied.")
+        logging.error("Valid target server has not been supplied.")
         logging.info("Configuration settings can be configured 3 different "
                      "ways:")
         logging.info("1- If calling the script directly, pass the --target "
@@ -462,8 +508,6 @@ def interface_test(args):
             error_number = 3
 
     if error_number == 0:
-        test_targets_list = test_targets.split(",")
-        test_targets_list.reverse()
         start_time = datetime.datetime.now()
         first_loop = True
         # Keep testing until a success or we run out of both targets and time
@@ -477,8 +521,7 @@ def interface_test(args):
             if not test_targets_list:
                 logging.info(" Exhausted test target list; trying again "
                              .center(60, "="))
-                test_targets_list = test_targets.split(",")
-                test_targets_list.reverse()
+                test_targets_list = make_target_list(args.interface, test_targets, False)
                 time.sleep(30)
                 first_loop = False
 

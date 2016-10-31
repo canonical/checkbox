@@ -705,8 +705,8 @@ class Run(Command, MainLoopStage):
         # those jobs may be run
         qualifiers = []
         for pattern in patterns:
-            qualifiers.append(
-                FieldQualifier('id', PatternMatcher(pattern), Origin('args')))
+            qualifiers.append(FieldQualifier('id', PatternMatcher(
+                '^{}$'.format(pattern)), Origin('args')))
         jobs = select_jobs(self.sa._context.state.job_list, qualifiers)
         self.sa._context.state.update_desired_job_list(jobs)
         UsageExpectation.of(self.sa).allowed_calls = (

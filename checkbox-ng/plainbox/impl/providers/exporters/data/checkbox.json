@@ -114,4 +114,24 @@
         "kernel-cmdline": {{ kernel_cmdline.strip() | jsonify | safe }}
     }
     {%- endif %}
+    {%- if ns ~ 'dell_bto_xml_attachment_json' in state.job_state_map and state.job_state_map[ns ~ 'dell_bto_xml_attachment_json'].result.outcome == 'pass' %},
+    {
+    {%- set bto = state.job_state_map[ns ~ 'dell_bto_xml_attachment_json'].result.io_log_as_text_attachment %}
+        "bto-info": {{ bto | indent(8, false) | safe }}
+    }
+    {%- endif %}
+    {%- if ns ~ 'recovery_info_attachment_json' in state.job_state_map and state.job_state_map[ns ~ 'recovery_info_attachment_json'].result.outcome == 'pass' %},
+    {
+    {%- set recovery = state.job_state_map[ns ~ 'recovery_info_attachment_json'].result.io_log_as_text_attachment %}
+        "image-version": {{ recovery | indent(8, false) | safe }}
+    }
+    {%- endif %}
+    {%- if ns ~ 'info/buildstamp' in state.job_state_map and state.job_state_map[ns ~ 'info/buildstamp'].result.outcome %}
+    {%- set buildstamp = state.job_state_map[ns ~ 'info/buildstamp'].result.io_log_as_text_attachment.rstrip().splitlines() %}
+    {%- if buildstamp|length == 2 %},
+    {
+        "buildstamp": {{ buildstamp[1] | jsonify | safe }}
+    }
+    {%- endif %}
+    {%- endif %}
 ]

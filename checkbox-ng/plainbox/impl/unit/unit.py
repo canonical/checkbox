@@ -576,7 +576,7 @@ class Unit(metaclass=UnitType):
         """
         value = self._data.get('_{}'.format(name))
         if value is None:
-            value = self._data.get('{}'.format(name), default)
+            value = self._data.get(name, default)
         if value is not None and self.is_parametric:
             if self.template_engine == 'jinja2':
                 value = Template(value).render(self.parameters)

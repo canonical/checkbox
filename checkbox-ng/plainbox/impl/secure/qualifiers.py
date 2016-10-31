@@ -136,13 +136,20 @@ class RegExpJobQualifier(SimpleQualifier):
     expression
     """
 
+    # RegExp qualifier is instantiated many times. To speed up the process,
+    # let's keep cache of compiled re object. (usually there are only a few of
+    # those
+    re_cache = dict()
+
     def __init__(self, pattern, origin, inclusive=True):
         """
         Initialize a new RegExpJobQualifier with the specified pattern.
         """
         super().__init__(origin, inclusive)
         try:
-            self._pattern = re.compile(pattern)
+            if pattern not in self.re_cache:
+                self.re_cache[pattern] = re.compile(pattern)
+            self._pattern = self.re_cache[pattern]
         except sre_constants.error as exc:
             assert len(exc.args) == 1
             # XXX: This is a bit crazy but this lets us have identical error

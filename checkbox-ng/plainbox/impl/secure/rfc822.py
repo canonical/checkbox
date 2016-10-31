@@ -42,10 +42,13 @@ logger = logging.getLogger("plainbox.secure.rfc822")
 
 
 def normalize_rfc822_value(value):
-    # Remove the multi-line dot marker
-    value = re.sub('^(\s*)\.$', '\\1', value, flags=re.M)
-    # Remove consistent indentation
-    value = textwrap.dedent(value)
+    # multi-line markers and consistent indentation happens only on multi-line
+    # values, so let's run those operations only on multi-line values
+    if value.count('\n') > 1:
+        # Remove the multi-line dot marker
+        value = re.sub('^(\s*)\.$', '\\1', value, flags=re.M)
+        # Remove consistent indentation
+        value = textwrap.dedent(value)
     # Strip the remaining whitespace
     value = value.strip()
     return value

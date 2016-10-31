@@ -89,7 +89,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         for i,j in enumerate(devices):
             print(i, j.category, [getattr(j, a) for a in attributes])
         """
-        lsblk=None
+        lsblk = ''
         if with_lsblk:
             lsblk = self.get_lsblk(name)
         return parse_udevadm_output(

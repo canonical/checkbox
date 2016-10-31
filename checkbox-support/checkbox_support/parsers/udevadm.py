@@ -22,6 +22,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from collections import OrderedDict
+from subprocess import check_output, CalledProcessError
 import re
 import string
 
@@ -1046,6 +1047,12 @@ def parse_udevadm_output(output, lsblk=None, bits=None):
     :returns: :class:`UdevadmParser` object that corresponds to the
     parsed input
     """
+    if lsblk is None:
+        try:
+            lsblk = check_output(
+                ['lsblk', '-i', '-n', '-P', '-o', 'KNAME,TYPE,MOUNTPOINT'])
+        except CalledProcessError as exc:
+            lsblk = ''
     udev = UdevadmParser(output, lsblk, bits)
     result = UdevResult()
     udev.run(result)

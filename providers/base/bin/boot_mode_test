@@ -24,7 +24,36 @@ import os
 import sys
 import logging
 from argparse import ArgumentParser
+from platform import linux_distribution
 
+
+def version_check(check):
+    """Check the installed Ubuntu version to see if it is older than 16.04
+    (Xenial) and run the requested check
+
+    :returns:
+        0 if if the installed version is older than 16.04 regardless of return
+        code from the requested check
+
+        return code from requested check if the installed version is 16.04 or
+        newer.
+    """
+    installed_version = '14.04.5'
+    #installed_version = linux_distribution()[1]
+    if installed_version < '16.04':
+        logging.info("This system appears to be older than 16.04 LTS so this "
+                     "will not block a certification in progress.")
+        if check == 'efi':
+            efi_boot_check()
+            return 0
+        else:
+            secure_boot_check()
+            return 0
+    else:
+        if check == 'efi':
+            return efi_boot_check()
+        else:
+            return secure_boot_check()
 
 def efi_boot_check():
     """Test that the computer booted in EFI mode
@@ -86,11 +115,7 @@ def main():
 
     FORMAT = '%(levelname)s: %(message)s'
     logging.basicConfig(level=logging.INFO, format=FORMAT)
-    if args.check == 'efi':
-        return efi_boot_check()
-    else:
-        return secure_boot_check()
-
+    return version_check(args.check)
 
 if __name__ == '__main__':
     sys.exit(main())

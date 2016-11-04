@@ -173,7 +173,8 @@ class Launcher(Command, MainLoopStage):
 
         We can then interact with the user when we encounter OUTCOME_UNDECIDED.
         """
-        return self.launcher.ui_type == 'interactive'
+        return (self.launcher.ui_type == 'interactive' and
+            sys.stdin.isatty() and sys.stdout.isatty())
 
     def _configure_restart(self, ctx):
         if SA_RESTARTABLE not in self.get_sa_api_flags():

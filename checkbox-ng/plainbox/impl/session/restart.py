@@ -4,6 +4,7 @@
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Jonathan Cave <jonathan.cave@canonical.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -24,6 +25,7 @@ import errno
 import os
 import shlex
 import subprocess
+import tempfile
 
 from plainbox.impl.secure.config import PlainBoxConfigParser
 
@@ -146,6 +148,7 @@ class SnappyRestartStrategy(IRestartStrategy):
         section = 'Service'
         config.add_section(section)
         config.set(section, 'Type', 'oneshot')
+        config.set(section, 'User', os.getenv('USER'))
 
         section = 'Install'
         config.add_section(section)
@@ -164,24 +167,23 @@ class SnappyRestartStrategy(IRestartStrategy):
         """
         cmd = shlex.split(cmd)[0]
         snap_name = os.getenv('SNAP_NAME')
-        data_path = os.getenv('SNAP_DATA')
         base_dir = 'snap'
         if os.getenv("SNAP_APP_PATH"):
-            data_path = os.getenv('SNAP_APP_DATA_PATH')
             base_dir = 'apps'
         # NOTE: This implies that any snap wishing to include a Checkbox
         # application to be autostarted creates snapcraft binary
         # called "checkbox-cli"
         binary_name = '/{}/bin/{}.checkbox-cli'.format(base_dir, snap_name)
-        self.config.set('Service', 'Environment',
-                        '"PLAINBOX_SESSION_REPOSITORY={}"'.format(data_path))
         self.config.set('Service', 'ExecStart', '{} {}'.format(
                             binary_name, ' '.join(cmd.split()[1:])))
         filename = self.get_autostart_config_filename()
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, 'wt') as stream:
-            self.config.write(stream, space_around_delimiters=False)
-        subprocess.call(['systemctl', 'enable', self.service_name])
+        stream = tempfile.NamedTemporaryFile('wt', delete=False)
+        self.config.write(stream, space_around_delimiters=False)
+        stream.close()
+        subprocess.call(['sudo', 'cp', stream.name, filename])
+        os.unlink(stream.name)
+        subprocess.call(['sudo', 'systemctl', 'enable', self.service_name])
 
     def diffuse_application_restart(self, app_id: str) -> None:
         """
@@ -189,14 +191,8 @@ class SnappyRestartStrategy(IRestartStrategy):
         the session after an OS reboot.
         """
         filename = self.get_autostart_config_filename()
-        subprocess.call(['systemctl', 'disable', self.service_name])
-        try:
-            os.remove(filename)
-        except OSError as exc:
-            if exc.errno == errno.ENOENT:
-                pass
-            else:
-                raise
+        subprocess.call(['sudo', 'systemctl', 'disable', self.service_name])
+        subprocess.call(['sudo', 'rm', filename])
 
 
 def detect_restart_strategy() -> IRestartStrategy:

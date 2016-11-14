@@ -124,7 +124,7 @@ def main():
     try:
         for index, record in enumerate(video_devices, 1):
             record['index'] = index
-            if not subprocess.call(['dpkg-query', '-W', 'amdgpu-pro'],
+            if not subprocess.call(['dpkg-query', '-W', 'vulkan-amdgpu-pro'],
                                    stderr=subprocess.STDOUT,
                                    stdout=subprocess.DEVNULL):
                 record['driver'] = 'amdgpu-pro'

@@ -148,6 +148,12 @@ def main():
                 record['vendor_slug'] = slugify(fake_vendor)
             if 'driver' not in record:
                 record['driver'] = 'unknown'
+            # lp:1636060 – If discrete GPU is using amdgpu driver,
+            # we set the prime_offload_gpu flag to 'On'
+            if index == 2 and record['driver'] == 'amdgpu':
+                record['prime_offload_gpu'] = 'On'
+            else:
+                record['prime_offload_gpu'] = 'Off'
             # Finally, print the record
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]

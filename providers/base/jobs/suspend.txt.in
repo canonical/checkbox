@@ -15,6 +15,7 @@ command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/resolut
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}
@@ -234,6 +235,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_suspend_after_switch_to_card_{product_slug}
@@ -316,6 +318,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}
@@ -355,6 +358,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-time-check_{product_slug}
@@ -415,6 +419,7 @@ command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/re
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_after_suspend_{product_slug}
@@ -596,6 +601,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: manual
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_display_after_suspend_{product_slug}
@@ -1515,6 +1521,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
@@ -1550,6 +1557,7 @@ _description: This attaches screenshots from the suspend/cycle_resolutions_after
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
@@ -2699,6 +2707,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_compiz_check_after_suspend_{product_slug}
@@ -2796,6 +2805,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/{index}_driver_version_after_suspend_{product_slug}

@@ -1,5 +1,6 @@
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_vga_{product_slug}
 requires: display.vga == 'supported' or display.dp == 'supported'
 plugin: manual
@@ -14,6 +15,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dvi_{product_slug}
 requires: display.dvi == 'supported'
 plugin: manual
@@ -28,6 +30,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_displayport_{product_slug}
 requires: display.dp == 'supported'
 plugin: manual
@@ -42,6 +45,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_hdmi_{product_slug}
 requires: display.hdmi == 'supported'
 plugin: manual
@@ -56,6 +60,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_svideo_{product_slug}
 requires: display.svideo == 'supported'
 plugin: manual
@@ -70,6 +75,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_rca_{product_slug}
 requires: display.rca == 'supported'
 plugin: manual
@@ -84,6 +90,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_multi-head_{product_slug}
 requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
 plugin: manual
@@ -101,6 +108,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_powersaving_{product_slug}
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::monitor
@@ -115,6 +123,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dim_brightness_{product_slug}
 requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
 plugin: user-interact-verify
@@ -132,6 +141,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_thunderbolt_{product_slug}
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
@@ -152,6 +162,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_thunderbolt3_{product_slug}
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
@@ -173,6 +184,7 @@ _verification:
 unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_displayport_{product_slug}
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'
 estimated_duration: 15.0

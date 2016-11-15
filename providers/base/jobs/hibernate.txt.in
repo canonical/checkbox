@@ -28,6 +28,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 requires:
  sleep.disk == 'supported'
  rtc.state == 'supported'
@@ -72,6 +73,7 @@ _description: attaches log from single hibernate/resume test to results
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::hibernate
 id: power-management/{index}_hibernate-single-log-attach_{product_slug}

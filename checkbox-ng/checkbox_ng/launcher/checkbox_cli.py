@@ -77,6 +77,7 @@ class LauncherIngredient(Ingredient):
             launcher = DefaultLauncherDefinition()
             configs = [launcher.config_filename]
         else:
+            configs = [context.args.launcher]
             try:
                 with open(context.args.launcher,
                           'rt', encoding='UTF-8') as stream:
@@ -92,14 +93,12 @@ class LauncherIngredient(Ingredient):
             config_filename = os.path.expandvars(
                 generic_launcher.config_filename)
             if not os.path.split(config_filename)[0]:
-                configs = [
+                configs += [
                     '/etc/xdg/{}'.format(config_filename),
                     os.path.expanduser('~/.config/{}'.format(config_filename))]
             else:
-                configs = [config_filename]
+                configs.append(config_filename)
             launcher = generic_launcher.get_concrete_launcher()
-        if context.args.launcher:
-            configs.append(context.args.launcher)
         launcher.read(configs)
         if launcher.problem_list:
             _logger.error(_("Unable to start launcher because of errors:"))

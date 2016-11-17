@@ -28,6 +28,6 @@ Apps using SessionAssistant or the plainbox internals directly
 
 Note that if same configuration variable is defined in more then one place, the
 value resolution is as follows:
-1. launcher being invoked (only the new syntax launchers)
-2. config file from ``~/.config``
+1. config file from ``~/.config``
+2. launcher being invoked (only the new syntax launchers)
 3. config file from ``/etc/xdg``

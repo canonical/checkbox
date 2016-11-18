@@ -38,6 +38,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::audio
 id: audio/{index}_playback_hdmi_{product_slug}
@@ -65,6 +66,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::audio
 id: audio/{index}_playback_displayport_{product_slug}
@@ -92,6 +94,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::audio
 id: audio/{index}_playback_thunderbolt_{product_slug}
@@ -120,6 +123,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::audio
 id: audio/{index}_playback_thunderbolt3_{product_slug}
@@ -148,6 +152,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::audio
 id: audio/{index}_playback_type-c_displayport_{product_slug}

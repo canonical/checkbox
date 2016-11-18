@@ -1,5 +1,6 @@
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_driver_version_{product_slug}
@@ -100,6 +101,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_minimum_resolution_{product_slug}
@@ -117,6 +119,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: graphics/{index}_maximum_resolution_{product_slug}
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::graphics
@@ -209,6 +212,7 @@ _summary: Test that VESA drivers are not in use
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_cycle_resolution_{product_slug}
@@ -229,6 +233,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
@@ -249,6 +254,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_compiz_check_{product_slug}
@@ -390,6 +396,7 @@ _description:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: manual
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}

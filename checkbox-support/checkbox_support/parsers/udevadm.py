@@ -125,6 +125,7 @@ class UdevadmDevice(object):
         "_stack",
         "_bus",
         "_interface",
+        "_mac",
         "_product",
         "_product_id",
         "_subproduct_id",
@@ -142,6 +143,7 @@ class UdevadmDevice(object):
         self._stack = stack
         self._bus = None
         self._interface = None
+        self._mac = None
         self._product = None
         self._product_id = None
         self._subproduct_id = None
@@ -790,6 +792,22 @@ class UdevadmDevice(object):
                 return 'UNKNOWN'
         return None
 
+    @property
+    def mac(self):
+        if self._mac is not None:
+            return self._mac
+        if self.category in ("NETWORK", "WIRELESS"):
+            if "ID_NET_NAME_MAC" in self._environment:
+                mac = self._environment["ID_NET_NAME_MAC"][3:]
+                return ':'.join([mac[i:i+2] for i in range(0, len(mac), 2)])
+            else:
+                return 'UNKNOWN'
+        return None
+
+    @mac.setter
+    def mac(self, value):
+        self._mac = value
+
     @interface.setter
     def interface(self, value):
         self._interface = value
@@ -797,7 +815,8 @@ class UdevadmDevice(object):
     def as_json(self):
         attributes = ("path", "bus", "category", "driver", "product_id",
                       "vendor_id", "subproduct_id", "subvendor_id", "product",
-                      "vendor", "interface", "name", "product_slug", "vendor_slug")
+                      "vendor", "interface", "mac", "name", "product_slug",
+                      "vendor_slug")
 
         return {a: getattr(self, a) for a in attributes if getattr(self, a)}
 
@@ -1050,7 +1069,8 @@ def parse_udevadm_output(output, lsblk=None, bits=None):
     if lsblk is None:
         try:
             lsblk = check_output(
-                ['lsblk', '-i', '-n', '-P', '-o', 'KNAME,TYPE,MOUNTPOINT'])
+                ['lsblk', '-i', '-n', '-P', '-o', 'KNAME,TYPE,MOUNTPOINT'],
+                universal_newlines=True)
         except CalledProcessError as exc:
             lsblk = ''
     udev = UdevadmParser(output, lsblk, bits)

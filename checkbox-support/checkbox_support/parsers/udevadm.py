@@ -1069,7 +1069,8 @@ def parse_udevadm_output(output, lsblk=None, bits=None):
     if lsblk is None:
         try:
             lsblk = check_output(
-                ['lsblk', '-i', '-n', '-P', '-o', 'KNAME,TYPE,MOUNTPOINT'])
+                ['lsblk', '-i', '-n', '-P', '-o', 'KNAME,TYPE,MOUNTPOINT'],
+                universal_newlines=True)
         except CalledProcessError as exc:
             lsblk = ''
     udev = UdevadmParser(output, lsblk, bits)

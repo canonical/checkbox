@@ -28,6 +28,7 @@ Depends:
  python3-checkbox-support (>= 0.27),
  plainbox-provider-checkbox (>= 0.27),
  python-opencv
+X-Plainbox-Provider: yes
 Description: CheckBox SRU jobs provider
  This package provides the SRU (Stable Release Updates) jobs. It is used together
  alongside with Plainbox.

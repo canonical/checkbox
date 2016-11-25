@@ -1,0 +1,22 @@
+#!/bin/bash
+
+function finish {
+  rm -rf ./plainbox
+  rm -rf ./plainbox-provider-resource
+  rm -rf ./plainbox-provider-checkbox
+}
+trap finish EXIT
+
+set -e
+
+git clone git://git.launchpad.net/plainbox
+echo "I: running 'develop' on plainbox"
+( cd ./plainbox/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
+
+git clone git://git.launchpad.net/plainbox-provider-resource
+python3 ./plainbox-provider-resource/manage.py develop --force
+
+git clone git://git.launchpad.net/plainbox-provider-checkbox
+python3 ./plainbox-provider-checkbox/manage.py develop --force
+
+./manage.py validate

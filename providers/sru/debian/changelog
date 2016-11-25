@@ -2,7 +2,7 @@ plainbox-provider-sru (1.6-1) UNRELEASED; urgency=medium
 
   * Open for development (remove this message before releasing)
 
- -- Pierre Equoy <pierre.equoy@canonical.com> Fri, 30 Sep 2016 15:19:33 +0800
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:19:33 +0800
 
 plainbox-provider-sru (1.5) unstable; urgency=medium
 
@@ -11,7 +11,7 @@ plainbox-provider-sru (1.5) unstable; urgency=medium
   [ pierre ]
   * New upstream release
 
- -- Pierre Equoy <pierre.equoy@canonical.com> Fri, 30 Sep 2016 15:18:33 +0800
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:18:33 +0800
 
 plainbox-provider-sru (1.4) unstable; urgency=medium
 

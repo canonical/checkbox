@@ -1156,11 +1156,13 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
             delta_env['LANG'] = 'C.UTF-8'
             delta_env['LANGUAGE'] = ''
             delta_env['LC_ALL'] = 'C.UTF-8'
-        # Preserve PYTHONHOME and PYTHONUSERBASE on Snappy
+        # Preserve the copy_vars variables + those prefixed with SNAP on Snappy
         if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
-            for var in ['PYTHONHOME', 'PYTHONUSERBASE']:
-                if var in base_env:
-                    delta_env[var] = base_env[var]
+            copy_vars = ['PYTHONHOME', 'PYTHONUSERBASE', 'LD_LIBRARY_PATH',
+                         'GI_TYPELIB_PATH']
+            for key, value in base_env.items():
+                if key in copy_vars or key.startswith('SNAP'):
+                    delta_env[key] = value
         return delta_env
 
     def get_execution_environment(self, job, job_state, config, session_dir,

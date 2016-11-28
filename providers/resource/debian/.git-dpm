@@ -1,11 +1,11 @@
 # see git-dpm(1) from git-dpm package
-6f7755d9df653df20763da97e6552cfb447e9786
-6f7755d9df653df20763da97e6552cfb447e9786
-6f7755d9df653df20763da97e6552cfb447e9786
-6f7755d9df653df20763da97e6552cfb447e9786
-plainbox-provider-resource-generic_0.28.orig.tar.gz
-941072e9a8d75b61a3afd706af1056f969f8e4eb
-126938
+6abcb51eb585fce9bb9317b2366beb49a9c60e9f
+6abcb51eb585fce9bb9317b2366beb49a9c60e9f
+6abcb51eb585fce9bb9317b2366beb49a9c60e9f
+6abcb51eb585fce9bb9317b2366beb49a9c60e9f
+plainbox-provider-resource-generic_0.30.0~rc1.orig.tar.gz
+2ac863afe52a496e37c9206c7ff2511c001e00e6
+127070
 debianTag="debian/%e%v"
 patchedTag="patched/%e%v"
 upstreamTag="upstream/%e%u"

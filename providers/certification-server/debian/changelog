@@ -1,9 +1,13 @@
-plainbox-provider-certification-server (0.29.0-1) UNRELEASED; urgency=medium
+plainbox-provider-certification-server (0.30.0~rc1-1) UNRELEASED; urgency=medium
 
+  [ pierre ]
   * "new upstream version"
   * "new upstream version"
 
- -- pierre <pierre@trane>  Fri, 30 Sep 2016 17:43:59 +0800
+  [ Pierre Equoy ]
+  * "new upstream version"
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Mon, 28 Nov 2016 15:42:49 +0800
 
 plainbox-provider-certification-server (0.28-1) precise; urgency=medium
 

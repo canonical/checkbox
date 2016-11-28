@@ -39,7 +39,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 setup(
     name="plainbox",
-    version="0.32.dev0",
+    version="0.32.0rc1",
     url="https://launchpad.net/plainbox/",
     packages=find_packages(),
     author="Zygmunt Krynicki",

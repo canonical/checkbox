@@ -1,11 +1,11 @@
 # see git-dpm(1) from git-dpm package
-b6bb9df376bfa9d7444cb619e093a7336c980761
-b6bb9df376bfa9d7444cb619e093a7336c980761
-b6bb9df376bfa9d7444cb619e093a7336c980761
-b6bb9df376bfa9d7444cb619e093a7336c980761
-plainbox-provider-checkbox_0.31.orig.tar.gz
-324b40f559baf88b8eb9fb13ccf8dcbd8a92bc1d
-1701772
+5ed7fa501b7dd41627af8bd33766d7e6eeccd923
+5ed7fa501b7dd41627af8bd33766d7e6eeccd923
+5ed7fa501b7dd41627af8bd33766d7e6eeccd923
+5ed7fa501b7dd41627af8bd33766d7e6eeccd923
+plainbox-provider-checkbox_0.33.0~rc1.orig.tar.gz
+52436fdb2002bdecafa8a01a15296084bcaf09c3
+1703209
 debianTag="debian/%e%v"
 patchedTag="patched/%e%v"
 upstreamTag="upstream/%e%u"

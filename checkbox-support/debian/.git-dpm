@@ -6,6 +6,3 @@
 checkbox-support_0.29.0~rc1.orig.tar.gz
 9f9613e0a91b0bd9e90029fd5bfa2f43ce916d12
 754416
-debianTag="debian/%e%v"
-patchedTag="patched/%e%v"
-upstreamTag="upstream/%e%u"

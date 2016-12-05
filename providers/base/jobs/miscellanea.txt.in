@@ -132,6 +132,20 @@ command: boot_mode_test secureboot
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+user: root
+id: miscellanea/efi_pxeboot
+requires:
+ cpuinfo.platform in ("i386", "x86_64", "aarch64")
+depends: miscellanea/efi_boot_mode
+_summary: Test that system booted from the network
+_description: 
+ Test to verify that the system booted from the network.
+ Works only on EFI-based systems.
+command: efi-pxeboot
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
 requires: 
  package.name == 'ipmitool'

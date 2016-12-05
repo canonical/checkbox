@@ -40,7 +40,6 @@ mandatory_include:
 include:
     miscellanea/ipmi_test
     miscellanea/bmc_info
-    miscellanea/fwupdate                       certification-status=non-blocker
     miscellanea/fwts_test
     miscellanea/fwts_results.log
     memory/info

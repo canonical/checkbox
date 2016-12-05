@@ -119,14 +119,8 @@ class Launcher(Command, MainLoopStage):
             raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
         if self.launcher.ui_type in ['converged', 'converged-silent']:
             # Stop processing the launcher config and call the QML ui
-            qml_main_file = '/usr/share/checkbox-converged/checkbox-touch.qml'
-            basedir = os.path.dirname(__file__)
-            # XXX This relative path is a ugly way to find the dev version of
-            # checkbox-converged. Once the checkbox project will move to git,
-            # this method will no longer work
-            if basedir not in os.getenv('PATH'):
-                qml_main_file = os.path.abspath(os.path.join(
-                    basedir, '../../checkbox-touch/checkbox-touch.qml'))
+            qml_main_file = os.path.join('/usr/share/checkbox-converged',
+                                         'checkbox-converged.qml')
             cmd = ['qmlscene', qml_main_file,
                    '--launcher={}'.format(os.path.abspath(ctx.args.launcher))]
             os.execvp(cmd[0], cmd)

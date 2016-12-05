@@ -33,6 +33,7 @@ mandatory_include:
     miscellanea/get_maas_version
     miscellanea/efi_boot_mode                  certification-status=blocker
     miscellanea/secure_boot_mode               certification-status=non-blocker
+    miscellanea/efi_pxeboot                    certification-status=non-blocker
     miscellanea/cpus_are_not_samples
     miscellanea/dmitest_server
     info/disk_partitions

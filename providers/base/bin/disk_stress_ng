@@ -63,11 +63,40 @@ get_params() {
 } # get_params()
 
 
-# Find the largest partition that holds a supported filesystem on $disk_device.
+# Find the largest logical volume in an LVM partition.
 # Output:
 #   $largest_part -- Device filename of largest qualifying partition
 #   $largest_size -- Size of largest qualifying partition
 #   $largest_fs -- Filesystem (ext4, etc.) used on largest qualifying partition
+# Note: Above variables are initialized in find_largest_partition(), which
+# calls this function.
+# Caveat: If LVM is used, there can be no guarantee that a specific disk
+# device is actually being tested. Thus, an LVM configuration should span
+# just one disk device. LVM may be used on one disk, but subsequent disks
+# should use "raw" partitions.
+find_largest_lv() {
+    local partonly=$(echo $partition | cut -f 3 -d "/")
+    for syslv in $(ls -d /sys/block/dm-*/slaves/$partonly) ; do
+        lv=$(echo "$syslv" | cut -f 4 -d "/")
+        size=$(cat /sys/block/$lv/size)
+        sector_size=$(cat /sys/block/$lv/queue/hw_sector_size)
+        let size=$size*$sector_size
+        local blkid_info=$(blkid -s TYPE /dev/$lv | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)
+        if [ "$size" -gt "$largest_size" ] && [ -n "$blkid_info" ] ; then
+            local blkid_info=$(blkid -s TYPE /dev/$lv)
+            largest_size=$size
+            largest_part="/dev/$lv"
+            largest_fs=$(blkid -s TYPE "/dev/$lv" | cut -d "=" -f 2)
+        fi
+    done
+} # find_largest_lv()
+
+
+# Find the largest partition that holds a supported filesystem on $disk_device.
+# Output:
+#   $largest_part -- Device filename of largest qualifying partition or logical volume
+#   $largest_size -- Size of largest qualifying partition or logical volume
+#   $largest_fs -- Filesystem (ext4, etc.) used on largest qualifying partition or logicl volume
 #   $unsupported_fs -- Empty or contains name of unsupported filesystem found on disk
 find_largest_partition() {
     largest_part=""
@@ -76,11 +105,15 @@ find_largest_partition() {
     unsupported_fs=""
     for partition in $(echo "$partitions" | cut -d " " -f 1) ; do
         part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
-        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)
+        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs\|LVM2_member)
         if [ "$part_size" -gt "$largest_size" ] && [ -n "$blkid_info" ]  ; then
-            largest_size=$part_size
-            largest_part="/dev/$partition"
-            largest_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+            if [[ "$blkid_info" =~ .*LVM2_member.* ]] ; then
+                find_largest_lv
+            else
+                largest_size=$part_size
+                largest_part="/dev/$partition"
+                largest_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+            fi
         fi
         local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ntfs\|vfat\|hfs)
         if [ -n "$blkid_info" ]  ; then

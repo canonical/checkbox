@@ -1,9 +1,10 @@
-checkbox-ng (0.30.0~rc1-1) UNRELEASED; urgency=medium
+checkbox-ng (0.30.0~rc2-1) UNRELEASED; urgency=medium
 
   * Open for development (remove this message before releasing)
   * "new upstream version"
+  * "new upstream version"
 
- -- Pierre Equoy <pierre.equoy@canonical.com>  Mon, 28 Nov 2016 15:39:36 +0800
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Tue, 06 Dec 2016 10:22:32 +0800
 
 checkbox-ng (0.29-1) UNRELEASED; urgency=medium
 

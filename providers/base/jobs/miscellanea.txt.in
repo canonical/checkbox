@@ -65,11 +65,6 @@ environ: PLAINBOX_SESSION_SHARE
 command:
  fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_results.log
 
-# The miscellanea/fwupdate job requires the fwupdate package
-unit: packaging meta-data
-os-id: debian
-Depends: fwupdate
-
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/fwupdate

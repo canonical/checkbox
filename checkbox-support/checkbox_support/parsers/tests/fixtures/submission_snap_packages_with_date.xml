@@ -2,11 +2,16 @@
 <system version="1.0">
 <software>
 <snap_packages>
-<snap_package id="0" name="ubuntu-core">
-<property name="version" type="str">14</property>
-<property name="date" type="str">2015-10-13</property>
-<property name="developer" type="str">ubuntu</property>
-</snap_package>
+  <snap_package id="0" name="core">
+    <property name="channel" type="str">edge</property>
+    <property name="confinement" type="str">strict</property>
+    <property name="developer" type="str">canonical</property>
+    <property name="devmode" type="str">False</property>
+    <property name="install-date" type="str">2016-12-05T16:07:14+01:00</property>
+    <property name="revision" type="str">620</property>
+    <property name="type" type="str">os</property>
+    <property name="version" type="str">16.04.1</property>
+  </snap_package>
 </snap_packages>
 </software>
 </system>

@@ -358,10 +358,13 @@ class TestSubmissionParser(TestCase):
         self.assertEqual(len(result["snap_package_versions"]), 1)
 
         package_version = result["snap_package_versions"][0]
-        self.assertEqual(package_version["name"], "ubuntu-core")
-        self.assertEqual(package_version["version"], "14")
-        self.assertEqual(package_version["date"], "2015-10-13")
-        self.assertEqual(package_version["developer"], "ubuntu")
+        self.assertEqual(package_version["name"], "core")
+        self.assertEqual(package_version["version"], "16.04.1")
+        self.assertEqual(package_version["install-date"], "2016-12-05T16:07:14+01:00")
+        self.assertEqual(package_version["developer"], "canonical")
+        self.assertEqual(package_version["confinement"], "strict")
+        self.assertEqual(package_version["revision"], "620")
+        self.assertEqual(package_version["channel"], "edge")
 
     def test_package_modaliases(self):
         """

@@ -225,9 +225,12 @@ This setting lets you hide output of commands run by checkbox. It can be set to
 one of the following values:
 
 - ``show`` - output of all jobs will be printed
-- ``hide`` - commands' output will be hidden
 - ``hide-resource-and-attachment`` - output of resource and attachment jobs
   will be hidden, output of other job types will be printed
+- ``hide-automated`` - output of shell jobs as well as attachment and resource
+  jobs will be hidden. Only interactive job command's output will be shown
+- ``hide`` - same as ``hide-automated``. This value is depracated, use
+  ``hide-automated``
 
 Default value: ``show``
 

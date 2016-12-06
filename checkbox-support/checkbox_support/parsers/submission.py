@@ -859,8 +859,11 @@ class SubmissionResult(object):
         snap_package_version = {
             "name": snap_package.get("name"),
             "version": snap_package.get("properties", {}).get("version"),
-            "date": snap_package.get("properties", {}).get("date"),
+            "install-date": snap_package.get("properties", {}).get("install-date"),
             "developer": snap_package.get("properties", {}).get("developer"),
+            "confinement": snap_package.get("properties", {}).get("confinement"),
+            "revision": snap_package.get("properties", {}).get("revision"),
+            "channel": snap_package.get("properties", {}).get("channel"),
             }
         self.dispatcher.publishEvent(
             "snap_package_version", snap_package_version)

@@ -578,8 +578,9 @@ class Launcher(Command, MainLoopStage):
         if self.launcher.output == 'hide-resource-and-attachment':
             if job.plugin in ('local', 'resource', 'attachment'):
                 show_out = False
-        elif self.launcher.output == 'hide':
-            show_out = False
+        elif self.launcher.output in ['hide', 'hide-automated']:
+            if job.plugin in ('shell', 'local', 'resource', 'attachment'):
+                show_out = False
         if 'suppress-output' in job.get_flag_set():
             show_out = False
         if 'use-chunked-io' in job.get_flag_set():

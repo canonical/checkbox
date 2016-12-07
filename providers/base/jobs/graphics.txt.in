@@ -396,7 +396,6 @@ _description:
 
 unit: template
 template-resource: graphics_card
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: manual
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}
@@ -415,6 +414,7 @@ _verification:
 
 unit: template
 template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: manual
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}_xenial

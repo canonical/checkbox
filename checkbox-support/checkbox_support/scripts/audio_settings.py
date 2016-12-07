@@ -370,7 +370,7 @@ def main():
         if not args.device:
             logging.error("No device specified to change settings of!")
             return 1
-        if not args.volume:
+        if args.volume is None:
             logging.error("No volume level specified!")
             return 1
 

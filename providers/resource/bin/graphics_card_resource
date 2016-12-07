@@ -149,11 +149,11 @@ def main():
             if 'driver' not in record:
                 record['driver'] = 'unknown'
             # lp:1636060 – If discrete GPU is using amdgpu driver,
-            # we set the prime_offload_gpu flag to 'On'
+            # we set the prime_gpu_offload flag to 'On'
             if index == 2 and record['driver'] == 'amdgpu':
-                record['prime_offload_gpu'] = 'On'
+                record['prime_gpu_offload'] = 'On'
             else:
-                record['prime_offload_gpu'] = 'Off'
+                record['prime_gpu_offload'] = 'Off'
             # Finally, print the record
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]

@@ -1,9 +1,10 @@
-checkbox-support (0.29.0~rc1-1) UNRELEASED; urgency=medium
+checkbox-support (0.29.0~rc2-1) UNRELEASED; urgency=medium
 
   * Open for development (remove this message before releasing)
   * "new upstream version"
+  * "new upstream version"
 
- -- Pierre Equoy <pierre.equoy@canonical.com>  Mon, 28 Nov 2016 15:38:59 +0800
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Wed, 07 Dec 2016 10:46:24 +0800
 
 checkbox-support (0.28) unstable; urgency=medium
 

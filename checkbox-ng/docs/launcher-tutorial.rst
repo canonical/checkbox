@@ -229,7 +229,7 @@ one of the following values:
   will be hidden, output of other job types will be printed
 - ``hide-automated`` - output of shell jobs as well as attachment and resource
   jobs will be hidden. Only interactive job command's output will be shown
-- ``hide`` - same as ``hide-automated``. This value is depracated, use
+- ``hide`` - same as ``hide-automated``. This value is deprecated, use
   ``hide-automated``
 
 Default value: ``show``

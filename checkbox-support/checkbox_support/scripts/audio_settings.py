@@ -36,7 +36,7 @@ TYPES = ("source", "sink")
 DIRECTIONS = {"source": "input", "sink": "output"}
 
 default_pattern = "(?<=Default %s: ).*"
-index_regex = re.compile("(?<=index: )[0-9]*")
+index_regex = re.compile("(?<=Sink Input #)[0-9]*")
 muted_regex = re.compile("(?<=Mute: ).*")
 volume_regex = re.compile("Volume: (?:0|front-left):[\s\/0-9]*\s([0-9]*)")
 name_regex = re.compile("(?<=Name:).*")
@@ -185,7 +185,7 @@ def restore_profiles_settings(profiles_file):
 
 
 def move_sinks(name):
-    sink_inputs = check_output(["pacmd", "list-sink-inputs"],
+    sink_inputs = check_output(["pactl", "list", "sink-inputs"],
                                universal_newlines=True,
                                env=unlocalized_env())
     input_indexes = index_regex.findall(sink_inputs)
@@ -193,7 +193,7 @@ def move_sinks(name):
     for input_index in input_indexes:
         try:
             with open(os.devnull, 'wb') as DEVNULL:
-                check_call(["pacmd", "move-sink-input", input_index, name],
+                check_call(["pactl", "move-sink-input", input_index, name],
                            stdout=DEVNULL)
         except CalledProcessError:
             logging.error("Failed to move input %d to sink %d" %
@@ -252,7 +252,7 @@ def set_audio_settings(device, mute, volume):
                     logging.info("[ Fallback sink ]".center(80, '='))
                     logging.info("Name: {}".format(name))
                     with open(os.devnull, 'wb') as DEVNULL:
-                        check_call(["pacmd", "set-default-%s" % type, name],
+                        check_call(["pactl", "set-default-%s" % type, name],
                                    stdout=DEVNULL)
                 except CalledProcessError:
                     logging.error("Failed to set default %s" % type)
@@ -303,7 +303,7 @@ def restore_audio_settings(file):
 
         try:
             with open(os.devnull, 'wb') as DEVNULL:
-                check_call(["pacmd", "set-default-%s" % type, name],
+                check_call(["pactl", "set-default-%s" % type, name],
                            stdout=DEVNULL)
         except CalledProcessError:
             logging.error("Failed to restore default %s" % name)
@@ -370,7 +370,7 @@ def main():
         if not args.device:
             logging.error("No device specified to change settings of!")
             return 1
-        if not args.volume:
+        if args.volume is None:
             logging.error("No volume level specified!")
             return 1
 

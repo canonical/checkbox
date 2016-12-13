@@ -1,9 +1,10 @@
-plainbox-provider-tpm2 (1.1.0~rc1-1) UNRELEASED; urgency=low
+plainbox-provider-tpm2 (1.1.0-1) UNRELEASED; urgency=low
 
   [ Sylvain Pineau ]
   * Initial release
 
   [ Pierre Equoy ]
   * "new upstream version"
+  * "new upstream version"
 
- -- Pierre Equoy <pierre.equoy@canonical.com>  Mon, 28 Nov 2016 15:42:09 +0800
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Tue, 13 Dec 2016 11:07:23 +0800

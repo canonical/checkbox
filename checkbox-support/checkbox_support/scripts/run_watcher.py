@@ -17,7 +17,7 @@ import os
 import re
 import signal
 import logging
-from log_watcher import LogWatcher
+from checkbox_support.log_watcher import LogWatcher
 
 global ARGS
 USB_INSERT_TIMEOUT = 30  # sec
@@ -212,7 +212,7 @@ def no_usb_timeout(signum, frame):
     logging.info("no USB storage insertion was detected from /var/log/syslog")
     sys.exit(1)
 
-if __name__ == "__main__":
+def main():
     # access the parser
     parser = argparse.ArgumentParser()
     parser.add_argument('testcase',
@@ -221,6 +221,7 @@ if __name__ == "__main__":
     parser.add_argument('usb_type',
                         choices=['usb2', 'usb3'],
                         help=("usb2 or usb3"))
+    global ARGS
     ARGS = parser.parse_args()
 
     # set up the log watcher

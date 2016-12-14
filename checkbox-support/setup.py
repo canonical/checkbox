@@ -75,5 +75,8 @@ setup(
             ("bto=checkbox_support.parsers.image_info:parse_bto_attachment"
              "_output"),
         ],
+        'console_scripts': [
+            "checkbox-support-run_watcher=checkbox_support.scripts.run_watcher:main",
+        ],
     },
 )

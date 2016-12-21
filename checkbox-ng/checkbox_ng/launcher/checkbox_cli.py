@@ -145,6 +145,20 @@ class CheckboxCommand(CanonicalCommand):
         ('startprovider', StartProvider),
     )
 
+    def register_arguments(self, parser):
+        parser.add_argument('-v', '--verbose', action='store_true', help=_(
+            'print more logging from checkbox'))
+        parser.add_argument('--debug', action='store_true', help=_(
+            'print debug messages from checkbox'))
+
+    def invoked(self, ctx):
+        if ctx.args.verbose:
+            logging_level = logging.INFO
+            logging.basicConfig(level=logging_level)
+        if ctx.args.debug:
+            logging_level = logging.DEBUG
+            logging.basicConfig(level=logging_level)
+
     def main(self, argv=None, exit=True):
         """
         Shortcut for running a command.

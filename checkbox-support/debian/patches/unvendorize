@@ -1,4 +1,4 @@
-From 7414617ec93467419df710cf15ff94bf4bb28a0a Mon Sep 17 00:00:00 2001
+From a6473a7cfe5796d5f88a540b4245727e05d76eb5 Mon Sep 17 00:00:00 2001
 From: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Date: Thu, 8 Oct 2015 08:38:43 -0700
 Subject: Remove vendorized modules

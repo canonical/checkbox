@@ -259,6 +259,11 @@ class LauncherDefinition1(LauncherDefinition):
         section="ui", kind=bool, default=False,
         help_text=_("Don't suppress the output of certain job plugin types."))
 
+    verbosity = config.Variable(
+        section="ui", validator_list=[config.ChoiceValidator(
+            ['normal', 'verbose', 'debug'])], help_text=_('Verbosity level'),
+        default='normal')
+
     restart_strategy = config.Variable(
         section='restart',
         name='strategy',

@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets KVM_Image_Check" 
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check" 
 yes=1
 
 while getopts "i" opt; do
@@ -111,6 +111,109 @@ else
 		eval info${i}=\"Not Set\"
         info
     fi
+fi
+}
+
+Hard_Disks(){
+name="Hard Disk Filesystem Check"
+echoname
+local all_ok="Y"
+local disk_UUIDs=()
+local show_UUIDs="N"
+local release_year="$(echo $DISTRIB_RELEASE | cut -f 1 -d ".")"
+for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
+    local drive="/dev/$disk"
+    # Suport for "-s PTUUID" in blkid was not present in Trusty, but does
+    # exist in Xenial. Without that support, the PTUUID check produces false
+    # alarms.
+    if [ $release_year -gt 15 ]; then
+        local UUID="$(sudo blkid -s PTUUID -o value $drive)"
+        case "${disk_UUIDs[@]}" in
+            $UUID) echo " Duplicate disk partition table GUID/UUID ($UUID)"
+                echo " on $drive; possible multipath system!"
+                show_UUIDs="Y"
+                all_ok="N"
+                ;;
+        esac
+        disk_UUIDs+=($UUID)
+    fi
+    if [ $(cat "/sys/block/$disk/removable") == "0" ]; then
+        local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ' ' | sed 's/,*$//g')"
+        echo " Filesystem(s) detected on $drive: $fs"
+        if [ -z "$(echo $fs | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)" ]; then
+            if [ ! -z "$(echo $fs | grep LVM2_member)" ]; then
+                fs_mapper="$(sudo blkid -s TYPE -o value /dev/mapper/* | sort | uniq | tr '\n' ' ' | sed 's/,*$//g')"
+                echo " Filesystem(s) detected in /dev/mapper: $fs_mapper"
+                if [ -z "$(echo $fs_mapper | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)" ]; then
+                    echo " No suitable filesystem detected on $drive."
+                    all_ok="N"
+                fi
+            else
+                echo " No suitable filesystem detected on $drive."
+                all_ok="N"
+            fi
+        fi
+    fi
+done
+if [ "$show_UUIDs" == "Y" ]; then
+    echo " Full partition table GUID/UUID ('PTUUID') information:"
+    for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
+        echo "   $(sudo blkid -s PTUUID /dev/$disk)"
+    done
+fi
+if [ "$all_ok" == "Y" ]; then
+    pass
+else
+    fail
+fi
+}
+
+USB_Disks(){
+name="USB Disks Check"
+echoname
+local all_ok="Y"
+local usb2_disks=()
+local usb3_disks=()
+for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
+    local drive="/dev/$disk"
+    if [ $(cat "/sys/block/$disk/removable") == "1" ]; then
+        local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ' ' | sed 's/,*$//g')"
+        echo " Filesystem(s) detected on $drive: $fs"
+        if [ "$fs" == "iso9660,vfat" ]; then
+            echo " $drive may hold an Ubuntu installer, which is not suitable for certification"
+            echo " testing."
+            all_ok="N"
+        elif [ -z "$(echo $fs | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs\|vfat)" ]; then
+            echo " No suitable filesystem detected on $drive."
+            all_ok="N"
+        fi
+        if [ ! -z "$(ls -l /sys/block/$disk | grep -E usb2)" ]; then
+            usb2_disks+=($drive)
+        fi
+        if [ ! -z "$(ls -l /sys/block/$disk | grep -E usb3)" ]; then
+            usb3_disks+=($drive)
+        fi
+    fi
+done
+if [ -z "$usb2_disks" ]; then
+    echo " No USB2 disks detected."
+    all_ok="N"
+else
+    echo " Detected USB2 disk(s): ${usb2_disks[*]}"
+fi
+if [ ! -z "$(lsusb | grep "3.0 root hub")" ]; then
+    echo " Found USB 3.0 root hub"
+    if [ -z "$usb3_disks" ]; then
+        echo " No USB3 disks detected."
+        all_ok="N"
+    else
+        echo " Detected USB3 disk(s): ${usb3_disks[*]}"
+    fi
+fi
+if [ "$all_ok" == "Y" ]; then
+    pass
+else
+    fail
 fi
 }
 
@@ -211,7 +314,7 @@ Ubuntu_Version(){
 
 # All NICs are on the same network segment, to flag cabling, switch, or configuration errors (??)
 Network_Subnets(){
-name="Netork Subnets"
+name="Network Subnets"
 echoname
 check_bcast=$(for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`
 	do
@@ -377,6 +480,8 @@ report() {
    fi
  done
 }
+
+. /etc/lsb-release
 
 runchoices
 report

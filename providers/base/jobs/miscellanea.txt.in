@@ -303,15 +303,9 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 estimated_duration: 0.1
 id: miscellanea/get_maas_version
-command:
- if [ -s /etc/installed-by-maas ]; then 
-   cat /etc/installed-by-maas
- else
-   echo "MAAS VERSION NOT FOUND" >&2
-   false
- fi
+command: maas-version-check
 _description: If system was installed via MAAS from a cert server, the MAAS version used should be contained in /etc/installed-by-maas
-_summary: Attach MAAS version used to deploy the SUT
+_summary: Verify MAAS version used to deploy the SUT
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea

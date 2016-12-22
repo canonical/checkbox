@@ -38,16 +38,16 @@ def version_check(check):
         return code from requested check if the installed version is 16.04 or
         newer.
     """
-    installed_version = linux_distribution()[1]
-    if installed_version < '16.04':
+    installed_version = int(linux_distribution()[1].split()[0])
+    if installed_version < 16:
         logging.info("This system appears to be older than 16.04 LTS so this "
                      "will not block a certification in progress.")
         if check == 'efi':
             efi_boot_check()
-            return 0
         else:
             secure_boot_check()
-            return 0
+        
+        return 0
     else:
         if check == 'efi':
             return efi_boot_check()

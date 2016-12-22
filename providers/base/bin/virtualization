@@ -273,14 +273,13 @@ class KVMTest(object):
                                   "finding the expected file.  Check the URL "
                                   "noted above.")
                     sys.exit(1)
-                else:
-                    return full_url
-            else:
-                return full_url
         else:
             url = urlparse(image_url)
-            if url.path.endswith('/') or url.path == '' or
-            not url.path.endswith(".img"):
+            if (
+                    url.path.endswith('/') or 
+                    url.path == ''  or 
+                    not url.path.endswith(".img")
+                ):
                 # If we have a relative URL (local copies of official images)
                 # http://192.168.0.1/ or http://192.168.0.1/images/
                 cloud_iso = _construct_filename()
@@ -299,10 +298,6 @@ class KVMTest(object):
                                       "finding the expected file.  Check the "
                                       "URL noted above.")
                         sys.exit(1)
-                    else:
-                        return full_url
-                else:
-                    return full_url
             else:
                 # Assume anything else is an absolute URL to a remote server
                 if not _test_cloud_url(image_url):
@@ -310,7 +305,9 @@ class KVMTest(object):
                     logging.error(" * Check the URL and ensure it is correct")
                     sys.exit(1)
                 else:
-                    return image_url
+                    full_url = image_url
+        
+        return full_url
 
     def download_image(self, image_url=None):
         """

@@ -5,7 +5,7 @@ import re
 from time import time
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE
-from syslog import *
+from syslog import syslog, LOG_INFO
 from shutil import which
 import os
 

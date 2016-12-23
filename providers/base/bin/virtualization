@@ -8,6 +8,7 @@ Copyright (C) 2013, 2014 Canonical Ltd.
 Authors
   Jeff Marcom <jeff.marcom@canonical.com>
   Daniel Manrique <roadmr@ubuntu.com>
+  Jeff Lane <jeff@ubuntu.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3,
@@ -30,6 +31,7 @@ import os
 import re
 import logging
 import lsb_release
+import requests
 import shlex
 import signal
 from subprocess import (
@@ -214,48 +216,108 @@ class KVMTest(object):
             # Gives us the stuff needed to build the URL to download the image
             return self.download_image(image_path)
 
-    def construct_cloud_filename(self):
+    def construct_cloud_url(self, image_url=None):
         """
         Build a URL for official Ubuntu images hosted either at
         cloud-images.ubuntu.com or on a maas server hosting a mirror of
         cloud-images.ubuntu.com
         """
-        if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
-            cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
-                        self.release, self.qemu_config['cloudimg_arch'])
-        elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
-            cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
-                        self.release, self.qemu_config['cloudimg_arch'])
+        def _construct_filename(alt_pattern=None):
+            if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
+                cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
+                            self.release, self.qemu_config['cloudimg_arch'])
+            elif alt_pattern is "modern":
+                # LP 1635345 - yakkety and beyond have a new naming scheme
+                cloud_iso = "%s-server-cloudimg-%s.img" % (
+                            self.release, self.qemu_config['cloudimg_arch'])
+            elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
+                cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
+                            self.release, self.qemu_config['cloudimg_arch'])
+            else:
+                logging.error("Unknown cloud image type")
+                sys.exit(1)
+
+            return cloud_iso
+
+        def _construct_url(initial_url, cloud_iso):
+            return "/".join((initial_url, cloud_iso))
+
+        def _test_cloud_url(url):
+            # test our URL to make sure it's reachable
+            ret = requests.head(url)
+            if ret.status_code is not 200:
+                return False
+            else:
+                return True
+
+        if image_url is None:
+            # If we have not specified a URL to get our images from, default
+            # to ubuntu.com
+            cloud_iso = _construct_filename()
+            initial_url = "/".join(("http://cloud-images.ubuntu.com",
+                                    self.release, "current"))
+            full_url = _construct_url(initial_url, cloud_iso)
+            # Test our URL and rebuild with alternate name
+            if not _test_cloud_url(full_url):
+                logging.warn("Cloud Image URL not valid: %s" % full_url)
+                logging.warn(" * This means we could not reach the remote "
+                             "file. Retrying with a different filename "
+                             "schema.")
+                cloud_iso = _construct_filename("modern")
+                full_url = _construct_url(initial_url, cloud_iso)
+                # retest one more time then exit if it still fails
+                if not _test_cloud_url(full_url):
+                    logging.error("Cloud URL is not valid: %s" %
+                                  full_url)
+                    logging.error(" * It appears that there is a problem "
+                                  "finding the expected file.  Check the URL "
+                                  "noted above.")
+                    sys.exit(1)
         else:
-            logging.error("Unknown cloud image type")
-            sys.exit(1)
-        return cloud_iso
+            url = urlparse(image_url)
+            if (
+                    url.path.endswith('/') or 
+                    url.path == ''  or 
+                    not url.path.endswith(".img")
+                ):
+                # If we have a relative URL (local copies of official images)
+                # http://192.168.0.1/ or http://192.168.0.1/images/
+                cloud_iso = _construct_filename()
+                full_url = _construct_url(image_url.rstrip("/"), cloud_iso)
+                if not _test_cloud_url(full_url):
+                    logging.warn("Cloud Image URL not valid: %s" % full_url)
+                    logging.warn(" * This means we could not reach the remote "
+                                 "file. Retrying with a different filename "
+                                 "schema.")
+                    cloud_iso = _construct_filename("modern")
+                    full_url = _construct_url(image_url.rstrip("/"), cloud_iso)
+                    if not _test_cloud_url(full_url):
+                        logging.error("Cloud URL is not valid: %s" %
+                                      full_url)
+                        logging.error(" * It appears that there is a problem "
+                                      "finding the expected file.  Check the "
+                                      "URL noted above.")
+                        sys.exit(1)
+            else:
+                # Assume anything else is an absolute URL to a remote server
+                if not _test_cloud_url(image_url):
+                    logging.error("Cloud Image URL invalid: %s" % image_url)
+                    logging.error(" * Check the URL and ensure it is correct")
+                    sys.exit(1)
+                else:
+                    full_url = image_url
+        
+        return full_url
 
     def download_image(self, image_url=None):
         """
         Downloads Cloud image for same release as host machine
         """
         if image_url is None:
-            # If we have not specified a URL to get our images from, default
-            # to ubuntu.com
-            cloud_url = "http://cloud-images.ubuntu.com"
-            cloud_iso = self.construct_cloud_filename()
-            full_url = "/".join((
-                cloud_url, self.release, "current", cloud_iso))
+            full_url = self.construct_cloud_url()
         else:
-            url = urlparse(image_url)
-            if url.path.endswith('/') or url.path == '':
-                # If we have a relative URL (MAAS server mirror)
-                cloud_url = image_url
-                cloud_iso = self.construct_cloud_filename()
-                full_url = "/".join((
-                    cloud_url, cloud_iso))
-            else:
-                # Assume anything else is an absolute URL to a remote server
-                cloud_iso = url.path.split('/')[-1]
-                cloud_url = "{}://{}".format(url.scheme, url.netloc)
-                full_url = image_url
-        logging.debug("Downloading {}, from {}".format(cloud_iso, cloud_url))
+            full_url = self.construct_cloud_url(image_url)
+        logging.debug("Acquiring cloud image from: {}".format(full_url))
 
         # Attempt download
         try:
@@ -394,7 +456,7 @@ final_message: CERTIFICATION BOOT COMPLETE
                 # Download cloud image
                 self.image = self.download_image()
             else:
-                logging.debug('Cloud image location specified: %s.' %
+                logging.debug('Cloud image location specified: %s' %
                               self.image)
                 self.image = self.url_to_path(self.image)
 
@@ -506,6 +568,9 @@ def main():
         logging.basicConfig(level=args.log_level)
     except AttributeError:
         pass  # avoids exception when trying to run without specifying 'kvm'
+
+    # silence normal output from requests module
+    logging.getLogger("requests").setLevel(logging.WARNING)
 
     # to check if not len(sys.argv) > 1
     if len(vars(args)) == 0:

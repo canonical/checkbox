@@ -161,7 +161,7 @@ def main():
     #                               launcher
     # $ checkbox-cli launcher my-launcher ->  same as ^
     # to achieve that the following code 'injects launcher subcommand to argv
-    if (len(sys.argv) == 1 or len(sys.argv) > 1 and
-            os.path.exists(sys.argv[1]) and os.path.isfile(sys.argv[1])):
+    known_cmds = [x[0] for x in CheckboxCommand.sub_commands]
+    if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
     CheckboxCommand().main()

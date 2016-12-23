@@ -117,6 +117,15 @@ class Launcher(Command, MainLoopStage):
             # it's a legacy launcher, use legacy way of running commands
             from checkbox_ng.tools import CheckboxLauncherTool
             raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
+        logging_level = {
+            'normal': logging.WARNING,
+            'verbose': logging.INFO,
+            'debug': logging.DEBUG,
+        }[self.launcher.verbosity]
+        if not ctx.args.verbose and not ctx.args.debug:
+            # Command line args take precendence
+            logging.basicConfig(level=logging_level)
+
         if self.launcher.ui_type in ['converged', 'converged-silent']:
             # Stop processing the launcher config and call the QML ui
             qml_main_file = os.path.join('/usr/share/checkbox-converged',
@@ -605,6 +614,14 @@ class Launcher(Command, MainLoopStage):
         parser.add_argument(
             '--dont-suppress-output', action='store_true', default=False,
             help=_('Absolutely always show command output'))
+        # the next to options are and should be exact copies of what the
+        # top-level command offers - this is here so when someone launches
+        # checkbox-cli through launcher, they have those options available
+        parser.add_argument('-v', '--verbose', action='store_true', help=_(
+            'print more logging from checkbox'))
+        parser.add_argument('--debug', action='store_true', help=_(
+            'print debug messages from checkbox'))
+
 
 
 class CheckboxUI(NormalUI):

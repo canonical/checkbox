@@ -145,6 +145,20 @@ class CheckboxCommand(CanonicalCommand):
         ('startprovider', StartProvider),
     )
 
+    def register_arguments(self, parser):
+        parser.add_argument('-v', '--verbose', action='store_true', help=_(
+            'print more logging from checkbox'))
+        parser.add_argument('--debug', action='store_true', help=_(
+            'print debug messages from checkbox'))
+
+    def invoked(self, ctx):
+        if ctx.args.verbose:
+            logging_level = logging.INFO
+            logging.basicConfig(level=logging_level)
+        if ctx.args.debug:
+            logging_level = logging.DEBUG
+            logging.basicConfig(level=logging_level)
+
     def main(self, argv=None, exit=True):
         """
         Shortcut for running a command.
@@ -161,7 +175,7 @@ def main():
     #                               launcher
     # $ checkbox-cli launcher my-launcher ->  same as ^
     # to achieve that the following code 'injects launcher subcommand to argv
-    if (len(sys.argv) == 1 or len(sys.argv) > 1 and
-            os.path.exists(sys.argv[1]) and os.path.isfile(sys.argv[1])):
+    known_cmds = [x[0] for x in CheckboxCommand.sub_commands]
+    if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
     CheckboxCommand().main()

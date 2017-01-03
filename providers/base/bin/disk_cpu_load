@@ -24,13 +24,14 @@
 #
 # Usage:
 #   disk_cpu_load [ --max-load <load> ] [ --xfer <mebibytes> ]
-#                 [ <device-filename> ]
+#                 [ --verbose ] [ <device-filename> ]
 #
 # Parameters:
 #  --max-load <load> -- The maximum acceptable CPU load, as a percentage.
 #                       Defaults to 30.
 #  --xfer <mebibytes> -- The amount of data to read from the disk, in
 #                        mebibytes. Defaults to 4096 (4 GiB).
+#  --verbose -- If present, produce more verbose output
 #  <device-filename> -- This is the WHOLE-DISK device filename (with or
 #                       without "/dev/"), e.g. "sda" or "/dev/sda". The
 #                       script finds a filesystem on that device, mounts
@@ -44,6 +45,7 @@ set -e
 get_params() {
     disk_device="/dev/sda"
     short_device="sda"
+    verbose=0
     max_load=30
     xfer=4096
     while [ $# -gt 0 ] ; do
@@ -53,6 +55,8 @@ get_params() {
                 ;;
             --xfer) xfer="$2"
                 shift
+                ;;
+            --verbose) verbose=1
                 ;;
             *) disk_device="/dev/$1"
                disk_device=`echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g"`
@@ -109,8 +113,15 @@ compute_cpu_load() {
     let diff_total=${end_total}-${start_total}
     let diff_used=$diff_total-$diff_idle
 
+    if [ "$verbose" == "1" ] ; then
+        echo "Start CPU time = $start_total"
+        echo "End CPU time = $end_total"
+        echo "CPU time used = $diff_used"
+        echo "Total elapsed time = $diff_total"
+    fi
+
     if [ "$diff_total" != "0" ] ; then
-        let cpu_load=($diff_used*100)/$diff_total
+        cpu_load=$(echo "($diff_used*100)/$diff_total" | bc)
     else
         cpu_load=0
     fi
@@ -127,7 +138,13 @@ echo "Testing CPU load when reading $xfer MiB from $disk_device"
 echo "Maximum acceptable CPU load is $max_load"
 blockdev --flushbufs $disk_device
 start_load="$(grep "cpu " /proc/stat | tr -s " " | cut -d " " -f 2-)"
+if [ "$verbose" == "1" ] ; then
+    echo "Beginning disk read...."
+fi
 dd if="$disk_device" of=/dev/null bs=1048576 count="$xfer" &> /dev/null
+if [ "$verbose" == "1" ] ; then
+    echo "Disk read complete!"
+fi
 end_load="$(grep "cpu " /proc/stat | tr -s " " | cut -d " " -f 2-)"
 compute_cpu_load "$start_load" "$end_load"
 echo "Detected disk read CPU load is $cpu_load"

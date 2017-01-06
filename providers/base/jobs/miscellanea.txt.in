@@ -191,7 +191,7 @@ id: miscellanea/dmitest_server
 requires: package.name == 'dmidecode'
 estimated_duration: 0.5
 user: root
-command: dmitest --test_versions --test_serials server
+command: dmitest --test_versions server
 _description:
  Sanity check of DMI system identification data (for servers)
 _summary:

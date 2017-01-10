@@ -238,6 +238,7 @@ def main():
                         help="Set to check serial number information")
     args = parser.parse_args()
 
+    bad_data = False
     # Command to retrieve DMI information
     COMMAND = "dmidecode"
     if args.dmifile:
@@ -257,8 +258,11 @@ def main():
         try:
             stream.append(line.decode('utf-8'))
         except UnicodeDecodeError as ude:
-            print("DATA ERROR: {} \n\t{}".format(ude, line))
+            print("DATA ERROR: {}".format(ude))
+            print("\tLINE NUMBER {}: {}".format(dmi_out.index(line) + 1, line))
             stream.append("ERROR: BAD DATA FOUND HERE")
+            bad_data = True
+
     if args.show_dmi:
         print("===== DMI Data Used: =====")
         for line in stream:
@@ -288,6 +292,10 @@ def main():
             print("\nFailed {0} tests (see above)".format(retval))
     else:
         print("\nPassed all tests")
+
+    if bad_data:
+        print("\nBad Characters discovered in DMI output. Rerun with "
+              "the --show_dmi option to see more")
 
     return retval
 

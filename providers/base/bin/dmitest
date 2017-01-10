@@ -248,7 +248,7 @@ def main():
     except subprocess.CalledProcessError as err:
         print("Error running {}: {}".format(COMMAND, err))
         return 1
-    
+
     # Convert the bytes output separately, line by line, because it's possible
     # that someone put non-encodable characters in DMI, which cases a
     # UnicodeDecodeError that is non-helpful.  LP: 1655155
@@ -257,14 +257,14 @@ def main():
         try:
             stream.append(line.decode('utf-8'))
         except UnicodeDecodeError as ude:
-            print("DATA ERROR: {} \n\t{}".format(ude,line))
+            print("DATA ERROR: {} \n\t{}".format(ude, line))
             stream.append("ERROR: BAD DATA FOUND HERE")
     if args.show_dmi:
         print("===== DMI Data Used: =====")
         for line in stream:
             print(line)
         print("===== DMI Output Complete =====")
-    
+
     retval = 0
     if args.test_type == 'server' or args.test_type == 'desktop':
         retval += standard_tests(args, stream)

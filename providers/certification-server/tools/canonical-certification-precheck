@@ -372,27 +372,52 @@ else
 fi
 }
 
-# All NICs are enabled
+# All NICs are enabled and set to maximum speed
 NICs_enabled(){
-name="All NICs enabled"
+name="All NICs enabled and at maximum supported speed"
 echoname
-for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`
-	do
-		state=$(cat /sys/class/net/$nic/operstate)
-		if [ $state = "up" ]; then
-			echo " Interface $nic is $state"
-			pass
-		elif [ $state = "down" ]; then
-			echo " Interface $nic is $state"
-			nicfail=1
-		elif [ $state = "unknown" ]; then
-			eval info${i}="unknown"
-			warn
-		fi
+local worst_status=0
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`; do
+    local state=$(cat /sys/class/net/$nic/operstate)
+    # /sys/class/net/wlan0/speed produces an error and returns nothing,
+    # so protect against this as a special case.
+    local current_speed=$(cat /sys/class/net/$nic/speed 2> /dev/null)
+    if [ -z "$current_speed" ]; then
+        current_speed=0
+    fi
+    local max_speed=0
+    # current_speed (above) and speed (below) are computed in the same way here as
+    # in the "network" Checkbox script (give or take bash vs. Python differences).
+    # If one is changed, the other should be, too.
+    for speed in $(ethtool $nic 2> /dev/null | egrep '[[:digit:]](base)([A-Z]+)|[[:digit:]](Mb/s)' | \
+                   sed 's/[^0-9 ]*//g' | tr " " "\n" | sort | uniq | sed '/^\s*$/d'); do
+        if [ $speed -ge $max_speed ]; then
+            max_speed="$speed"
+        fi
+    done
+    echo -n " Interface $nic is $state"
+    if [ "$state" != "down" ]; then
+        echo -n " and running at $current_speed of $max_speed Mbps"
+    fi
+    if [ $current_speed -gt 0 ] && [ $current_speed -ge $max_speed ] && [ "$state" == "up" ]; then
+        echo "; config is OK"
+    elif ([ $current_speed -eq 0 ] && [ "$state" == "up" ]) || [ "$state" == "unknown" ]; then
+        echo "; config is UNKNOWN"
+        let worst_status=$(($worst_status | 1))
+    else
+        echo "; config is BAD"
+        let worst_status=$(($worst_status | 2))
+    fi
 done
-if [ "$nicfail" = "1" ]; then
-	fail
-fi
+case "$worst_status" in
+    0) pass
+        ;;
+    1) eval info${i}=\"Unknown config\"
+        warn
+        ;;
+    *) fail
+        ;;
+esac
 }
 
 #### Installed RAM (STG says 4GiB minimum) ###

@@ -257,7 +257,7 @@ class ScrollableTreeNode(IApplication):
             node.expanded = not(node.expanded)
 
     def _scroll(self, direction):
-        visible_length = len(self.tree.render(as_summary=self.summary))
+        visible_length = len(self.tree)
         # Scroll the tree view
         if (direction == "up" and
                 self.highlight == 0 and self.top != 0):

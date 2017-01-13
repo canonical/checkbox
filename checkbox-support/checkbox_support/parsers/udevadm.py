@@ -185,6 +185,13 @@ class UdevadmDevice(object):
         if bus == 'input' and any(d.bus == 'usb' for d in self._stack):
             bus = 'usb'
 
+        # Only keep one device per udev path
+        if (
+            bus == 'bluetooth' and
+            [d for d in reversed(self._stack) if d.category == "BLUETOOTH"]
+        ):
+            return None
+
         return bus
 
     @bus.setter
@@ -864,6 +871,10 @@ class UdevadmParser(object):
         if ("DEVTYPE" in device._environment and
            device.bus == "virtio" and
            device.driver == "virtio_blk"):
+            return False
+        # Do not ignore Bluetooth devices w/o product & vendor ID.
+        # These can be virtual devices, yet still constitute valid devices.
+        if device.category == "BLUETOOTH":
             return False
 
         # Ignore devices without product AND vendor information

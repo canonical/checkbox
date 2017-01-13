@@ -242,7 +242,8 @@ class Launcher(Command, MainLoopStage):
             cmd = self._pick_action_cmd([
                 Action('r', _("resume this session"), 'resume'),
                 Action('n', _("next session"), 'next'),
-                Action('c', _("create new session"), 'create')
+                Action('c', _("create new session"), 'create'),
+                Action('d', _("delete old sessions"), 'delete'),
             ], _("Do you want to resume session {0!a}?").format(candidate.id))
             if cmd == 'next':
                 continue
@@ -251,6 +252,10 @@ class Launcher(Command, MainLoopStage):
             elif cmd == 'resume':
                 self._resume_session(candidate)
                 return True
+            elif cmd == 'delete':
+                ids = [candidate.id for candidate in resume_candidates]
+                self._delete_old_sessions(ids)
+                return False
 
     def _resume_session(self, session):
         metadata = self.ctx.sa.resume_session(session.id)
@@ -288,6 +293,10 @@ class Launcher(Command, MainLoopStage):
         self.ctx.sa.update_app_blob(json.dumps(
             {'testplan_id': tp_id, }).encode("UTF-8"))
         self.ctx.sa.bootstrap()
+
+    def _delete_old_sessions(self, ids):
+        completed_ids = [s[0] for s in self.ctx.sa.get_old_sessions()]
+        self.ctx.sa.delete_sessions(completed_ids + ids)
 
     def _interactively_pick_test_plan(self):
         test_plan_ids = self.ctx.sa.get_test_plans()

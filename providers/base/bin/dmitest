@@ -28,6 +28,8 @@
 :param --dmifile:
     Input filename; optional. If specified, file is used instead of
     dmidecode output.
+:param --show_dmi:
+    Print the DMI data used. For debugging purposes if errors are encountered.
 :param --test_versions:
     Include chassis, system, and base boad version numbers among tests.
 :param --test_serials:
@@ -228,25 +230,44 @@ def main():
                         choices=['server', 'desktop', 'cpu-check'])
     parser.add_argument('--dmifile',
                         help="File to use in lieu of dmidecode.")
+    parser.add_argument('--show_dmi', action="store_true",
+                        help="Print DMI Data used for debugging purposes.")
     parser.add_argument('--test_versions', action="store_true",
                         help="Set to check version information")
     parser.add_argument('--test_serials', action="store_true",
                         help="Set to check serial number information")
     args = parser.parse_args()
 
+    bad_data = False
     # Command to retrieve DMI information
     COMMAND = "dmidecode"
+    if args.dmifile:
+        COMMAND = ['cat', args.dmifile]
+        print("Reading " + args.dmifile + " as DMI data")
     try:
-        if args.dmifile:
-            print("Reading " + args.dmifile + " as DMI data")
-            stream = subprocess.check_output(['cat', args.dmifile],
-                                             universal_newlines=True).splitlines()
-        else:
-            stream = subprocess.check_output(COMMAND,
-                                             universal_newlines=True).splitlines()
+        dmi_out = subprocess.check_output(COMMAND).splitlines()
     except subprocess.CalledProcessError as err:
         print("Error running {}: {}".format(COMMAND, err))
         return 1
+
+    # Convert the bytes output separately, line by line, because it's possible
+    # that someone put non-encodable characters in DMI, which cases a
+    # UnicodeDecodeError that is non-helpful.  LP: 1655155
+    stream = []
+    for line in dmi_out:
+        try:
+            stream.append(line.decode('utf-8'))
+        except UnicodeDecodeError as ude:
+            print("DATA ERROR: {}".format(ude))
+            print("\tLINE NUMBER {}: {}".format(dmi_out.index(line) + 1, line))
+            stream.append("ERROR: BAD DATA FOUND HERE")
+            bad_data = True
+
+    if args.show_dmi:
+        print("===== DMI Data Used: =====")
+        for line in stream:
+            print(line)
+        print("===== DMI Output Complete =====")
 
     retval = 0
     if args.test_type == 'server' or args.test_type == 'desktop':
@@ -271,6 +292,10 @@ def main():
             print("\nFailed {0} tests (see above)".format(retval))
     else:
         print("\nPassed all tests")
+
+    if bad_data:
+        print("\nBad Characters discovered in DMI output. Rerun with "
+              "the --show_dmi option to see more")
 
     return retval
 

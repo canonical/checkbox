@@ -283,6 +283,15 @@ class SelectableJobTreeNode(JobTreeNode):
         self.current_index = 0
         self._resource_jobs = []
 
+    def __len__(self):
+        l = 0
+        if self.expanded:
+            for category in self.categories:
+                l += 1 + len(category)
+            for job in self.jobs:
+                l += 1
+        return l
+
     def get_node_by_index(self, index, tree=None):
         """
         Return the node found at the position given by index considering the

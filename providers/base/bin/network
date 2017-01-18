@@ -280,29 +280,26 @@ class Interface(socket.socket):
 
     @property
     def max_speed(self):
-        # Parse ethtool data for max speed since /sys/class/net/DEV/speed only
-        # reports link speed.
-
-        # Search for things that look like 100baseSX,
-        # 40000baseNX, 10000baseT
+        # Parse mii-tool data for max speed
+        # search for numbers in the line starting with 'capabilities'
+        # return largest number as max_speed
         try:
-            ethinfo = check_output(['ethtool', self.interface],
-                                   universal_newlines=True,
-                                   stderr=STDOUT).split(' ')
+            info = check_output(['mii-tool', '-v',  self.interface],
+                                universal_newlines=True,
+                                stderr=STDOUT).split('\n')
         except FileNotFoundError:
-            logging.warning('ethtool not found! Unable to get max speed')
+            logging.warning('mii-tool not found! Unable to get max speed')
             ethinfo = None
         except CalledProcessError as e:
-            logging.error('ethtool returned an error!')
+            logging.error('mii-tool returned an error!')
             logging.error(e.output)
             ethinfo = None
         finally:
-            expression = '(\\d+)(base)([A-Z]+)|(\d+)(Mb/s)'
-            regex = re.compile(expression)
+            regex = re.compile(r'(\d+)(base)([A-Z]+)')
             speeds = [0]
-            if ethinfo:
-                for i in ethinfo:
-                    hit = regex.search(i)
+            for line in filter(lambda l: 'capabilities' in l, info):
+                for s in line.split(' '):
+                    hit = regex.search(s)
                     if hit:
                         speeds.append(int(re.sub("\D", "", hit.group(0))))
             return max(speeds)

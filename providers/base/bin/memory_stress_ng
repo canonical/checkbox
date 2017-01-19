@@ -114,6 +114,8 @@ echo "Variable run time is $variable_time seconds per stressor"
 
 had_error=0
 
+numa_nodes=$(numactl --hardware | grep available | head -n 1 | cut -f 2 -d " ")
+
 # NOTE: Specify stressors in two arrays rather than rely on stress-ng's
 # --class memory,vm option for two reasons:
 #  1. We want to run some stressors (those that exhaust all memory)
@@ -130,6 +132,9 @@ crt_stressors=("bsearch" "context" "hsearch" "lsearch" "matrix" \
                "memcpy" "null" "pipe" "qsort" "stack" "str" "stream" \
                "tsearch" "vm-rw" "wcs" "zero" "mlock" "mmapfork" "mmapmany" \
                "mremap" "shm-sysv" "vm-splice")
+if [ "$numa_nodes" -gt 1 ]; then
+    crt_stressors+=("numa")
+fi
 crt_runtime=$((${#crt_stressors[@]}*$base_time))
 
 # Variable-run-time stressors -- run them longer on systems with more RAM....
@@ -152,7 +157,7 @@ echo "*******************************************************************"
 if [ $had_error = "0" ] ; then
     echo "** stress-ng memory test passed!"
 else
-    echo "** stress-ng memory test failed; most recent error was $return_code"
+    echo "** stress-ng memory test failed; most recent error was $result"
 fi
 echo "*******************************************************************"
 exit $result

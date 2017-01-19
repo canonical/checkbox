@@ -800,6 +800,36 @@ class List(Command):
     def invoked(self, ctx):
         print_objs(ctx.args.GROUP, ctx.args.attrs)
 
+class ListBootstrapped(Command):
+    name = 'list-bootstrapped'
+
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'TEST_PLAN',
+            help=_("test-plan id to bootstrap"))
+        parser.add_argument(
+            '--partial', default=False, action="store_true",
+            help=_("print only partial id"))
+
+    def invoked(self, ctx):
+        self.ctx = ctx
+        self.sa.select_providers('*')
+        self.sa.start_new_session('checkbox-listing-ephemeral')
+        tps = self.sa.get_test_plans()
+        if ctx.args.TEST_PLAN not in tps:
+            raise SystemExit('Test plan not found')
+        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.bootstrap()
+        for job_id in self.sa.get_static_todo_list():
+            if ctx.args.partial:
+                print(self.sa.get_job(job_id).partial_id)
+            else:
+                print(job_id)
+
 
 def print_objs(group, show_attrs=False):
     obj = Explorer(get_providers()).get_object_tree()

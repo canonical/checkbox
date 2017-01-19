@@ -80,6 +80,8 @@ setup(
                 "checkbox_support.scripts.run_watcher:main"),
             ("checkbox-support-fwts_test="
                 "checkbox_support.scripts.fwts_test:main"),
+            ("checkbox-support-network="
+                "checkbox_support.scripts.network:main"),
         ],
     },
 )

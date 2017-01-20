@@ -93,7 +93,7 @@ def bus_ordering(record):
     if record.get('bus') == "pci":
         # We are looking for this ---------------v
         # /devices/pci0000:00/0000:00:02.1/0000:01:00.0
-        return int(record.get('path').split(':')[-2])
+        return int(record.get('path').split(':')[-2], 16)
     return 0
 
 

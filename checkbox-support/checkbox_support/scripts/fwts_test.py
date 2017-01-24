@@ -18,60 +18,35 @@ INTERACTIVE_TESTS = ['ac_adapter',
                      'power_button',
                      'brightness',
                      'lid']
+# Tests recommended by the Hardware Enablement Team (HWE)
 # These are performed on QA certification runs
 QA_TESTS = ['acpitests',
-            'acpidump',
-            'acpitables',
-            'apicinstance',
+            'apicedge',
             'aspm',
-            'bios32',
+            'cpufreq',
             'dmicheck',
-            'ebda',
-            'mpcheck',
+            'esrt',
+            'klog',
+            'maxfreq',
             'msr',
+            'mtrr',
             'nx',
-            'version']
-# These are advanced tests that shouldn't affect certification status
-NON_CERT_TESTS = ['bios_info',
-                  'cmosdump',
-                  'cpufreq',
-                  'crs',
-                  'crsdump',
-                  'csm',
-                  'ebdadump',
-                  'fan',
-                  'gpedump',
-                  'hda_audio',
-                  'maxfreq',
-                  'maxreadreq',
-                  'memmapdump',
-                  'microcode',
-                  'mpdump',
-                  'os2gap',
-                  'osilinux',
-                  'pciirq',
-                  'plddump',
-                  'pnp',
-                  'prsdump',
-                  'romdump',
-                  'securebootcert',
-                  'syntaxcheck',
-                  'uefidump',
-                  'uefirtmisc',
-                  'uefirttime',
-                  'uefirtvariable',
-                  'uefivarinfo',
-                  'wakealarm'
-                  ]
+            'oops',
+            'uefibootpath',
+            'uefirtmisc',
+            'uefirttime',
+            'uefirtvariable',
+            'version',
+            'virt']
 # The following tests will record logs in a separate file for the HWE team
-HWE_TESTS = ['mtrr',
+HWE_TESTS = ['version',
+             'mtrr',
              'virt',
              'apicedge',
              'klog',
-             'oops',
-             'uefibootpath']
-CERT_TESTS = sorted(QA_TESTS + HWE_TESTS)
-TESTS = sorted(QA_TESTS + NON_CERT_TESTS + HWE_TESTS)
+             'oops']
+# By default, we launch all the tests
+TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 
 
 def get_sleep_times(start_marker, end_marker, sleep_time, resume_time):
@@ -236,12 +211,6 @@ def main():
     group.add_argument('--list',
                        action='store_true',
                        help='List all tests in fwts.')
-    group.add_argument('--list-cert',
-                       action='store_true',
-                       help='List all certification tests in fwts.')
-    group.add_argument('--list-advanced',
-                       action='store_true',
-                       help='List all advanced tests in fwts.')
     group.add_argument('--list-hwe',
                        action='store_true',
                        help='List all HWE concerned tests in fwts')
@@ -282,12 +251,6 @@ def main():
     elif args.list:
         print('\n'.join(TESTS))
         return 0
-    elif args.list_cert:
-        print('\n'.join(CERT_TESTS))
-        return 0
-    elif args.list_advanced:
-        print('\n'.join(NON_CERT_TESTS))
-        return 0
     elif args.list_hwe:
         print('\n'.join(HWE_TESTS))
         return 0
@@ -296,8 +259,6 @@ def main():
         return 0
     elif args.test:
         tests.extend(args.test)
-    elif args.all:
-        tests.extend(TESTS)
     elif args.hwe:
         tests.extend(HWE_TESTS)
     elif args.qa:
@@ -335,7 +296,7 @@ def main():
             args.resume_time = 3
         tests.extend(args.sleep)
     else:
-        tests.extend(CERT_TESTS)
+        tests.extend(TESTS)
 
     # run the tests we want
     if args.sleep:

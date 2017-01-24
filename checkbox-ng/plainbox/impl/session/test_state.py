@@ -264,6 +264,75 @@ class SessionStateAPITests(TestCase):
             session.job_state_map[sibling.id].readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor])
 
+    def test_also_after_suspend_flag(self):
+        # Define a job
+        job = make_job("A", summary="foo", flags='also-after-suspend',
+                       depends="A")
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_unit(job)
+        # Both jobs got added to job list
+        self.assertEqual(len(session.job_list), 2)
+        self.assertIn(job, session.job_list)
+        self.assertEqual(session.job_list[1].id, 'after-suspend-A')
+        self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
+        self.assertEqual(
+            session.job_list[1].depends,
+            'A 2013.com.canonical.certification::suspend/suspend_advanced')
+        sibling = session.job_list[1]
+        self.assertNotIn('also-after-suspend', sibling.get_flag_set())
+        # Both jobs got added to job state map
+        self.assertIs(session.job_state_map[job.id].job, job)
+        self.assertIs(session.job_state_map[sibling.id].job, sibling)
+        # Both jobs are not added to the desired job list
+        self.assertNotIn(job, session.desired_job_list)
+        self.assertNotIn(sibling, session.desired_job_list)
+        # Both jobs are not in the run list
+        self.assertNotIn(job, session.run_list)
+        self.assertNotIn(sibling, session.run_list)
+        # Both jobs are not selected to run
+        self.assertEqual(
+            session.job_state_map[job.id].readiness_inhibitor_list,
+            [UndesiredJobReadinessInhibitor])
+        self.assertEqual(
+            session.job_state_map[sibling.id].readiness_inhibitor_list,
+            [UndesiredJobReadinessInhibitor])
+
+    def test_also_after_suspend_auto_flag(self):
+        # Define a job
+        job = make_job("A", summary="foo", flags='also-after-suspend-auto')
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_unit(job)
+        # Both jobs got added to job list
+        self.assertEqual(len(session.job_list), 2)
+        self.assertIn(job, session.job_list)
+        self.assertEqual(session.job_list[1].id, 'after-suspend-auto-A')
+        self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
+        self.assertEqual(
+            session.job_list[1].depends,
+            '2013.com.canonical.certification::suspend/suspend_advanced_auto')
+        sibling = session.job_list[1]
+        self.assertNotIn('also-after-suspend-auto', sibling.get_flag_set())        
+        # Both jobs got added to job state map
+        self.assertIs(session.job_state_map[job.id].job, job)
+        self.assertIs(session.job_state_map[sibling.id].job, sibling)
+        # Both jobs are not added to the desired job list
+        self.assertNotIn(job, session.desired_job_list)
+        self.assertNotIn(sibling, session.desired_job_list)
+        # Both jobs are not in the run list
+        self.assertNotIn(job, session.run_list)
+        self.assertNotIn(sibling, session.run_list)
+        # Both jobs are not selected to run
+        self.assertEqual(
+            session.job_state_map[job.id].readiness_inhibitor_list,
+            [UndesiredJobReadinessInhibitor])
+        self.assertEqual(
+            session.job_state_map[sibling.id].readiness_inhibitor_list,
+            [UndesiredJobReadinessInhibitor])
+
     def test_get_estimated_duration_auto(self):
         # Define jobs with an estimated duration
         one_second = make_job("one_second", plugin="shell",
@@ -836,6 +905,7 @@ class SessionDeviceContextTests(SignalTestCase):
         self.provider.unit_list = [self.unit]
         self.provider.problem_list = []
         self.job = mock.Mock(name='job', spec_set=JobDefinition, siblings=None)
+        self.job.get_flag_set = mock.Mock(return_value=())
         self.job.Meta.name = 'job'
 
     def test_smoke(self):

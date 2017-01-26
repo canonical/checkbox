@@ -112,7 +112,7 @@ class SessionCommand(PlainBoxCommand):
         group = export_parser.add_argument_group(_("output options"))
         group.add_argument(
             '-f', '--output-format', default='text',
-            metavar=_('FORMAT'), choices=[_('?')],
+            metavar=_('FORMAT'),
             help=_('save test results in the specified FORMAT'
                    ' (pass ? for a list of choices)'))
         group.add_argument(

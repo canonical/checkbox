@@ -17,3 +17,8 @@ Depends: fwupdate
 unit: packaging meta-data
 os-id: debian
 Depends: numactl
+
+# The canonical-certification-precheck tool requires bc
+unit: packaging meta-data
+os-id: debian
+Depends: bc

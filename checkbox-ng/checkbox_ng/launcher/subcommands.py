@@ -831,11 +831,14 @@ class ListBootstrapped(Command):
                 print(job_id)
 
 
-def print_objs(group, show_attrs=False):
+def print_objs(group, show_attrs=False, filter_fun=None):
     obj = Explorer(get_providers()).get_object_tree()
     indent = ""
     def _show(obj, indent):
         if group is None or obj.group == group:
+            # object must satisfy filter_fun (if supplied) to be printed
+            if filter_fun and not filter_fun(obj):
+                return
             # Display the object name and group
             print("{}{} {!r}".format(indent, obj.group, obj.name))
             indent += "  "

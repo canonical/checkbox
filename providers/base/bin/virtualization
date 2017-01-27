@@ -112,7 +112,7 @@ QEMU_ARCH_CONFIG = {
         'qemu_extra_args': [
             '-enable-kvm',
             '-machine', 'pseries,usb=off',
-            '-cpu', 'POWER8',
+            '-cpu', 'host',
         ],
     },
     's390x': {

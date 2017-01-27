@@ -454,6 +454,10 @@ class UdevadmDevice(object):
             if self._environment["DRIVER"] == "floppy":
                 return "FLOPPY"
 
+        if "DEVLINKS" in self._environment:
+            if "canbus" in self._environment["DEVLINKS"]:
+                return "CANBUS"
+
         # Some audio and serial devices have a product but no vendor
         # or product id. Special-case their categories for backwards-
         # compatibility.
@@ -555,6 +559,11 @@ class UdevadmDevice(object):
         if self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
             return parent.product_id
+        # canbus
+        if "DEVLINKS" in self._environment:
+            if "canbus" in self._environment["DEVLINKS"]:
+                if "ID_MODEL_ID" in self._environment:
+                    return decode_id(self._environment["ID_MODEL_ID"])
         return None
 
     @product_id.setter
@@ -587,6 +596,11 @@ class UdevadmDevice(object):
         if self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
             return parent.vendor_id
+        # canbus
+        if "DEVLINKS" in self._environment:
+            if "canbus" in self._environment["DEVLINKS"]:
+                if "ID_VENDOR_ID" in self._environment:
+                    return decode_id(self._environment["ID_VENDOR_ID"])
         return None
 
     @vendor_id.setter
@@ -725,6 +739,11 @@ class UdevadmDevice(object):
             if element in self._environment:
                 return self._environment[element].strip('"')
 
+        if "DEVLINKS" in self._environment:
+            if "canbus" in self._environment["DEVLINKS"]:
+                if "ID_MODEL_ENC" in self._environment:
+                    return decode_id(self._environment["ID_MODEL_ENC"])
+
         return None
 
     @product.setter
@@ -781,6 +800,11 @@ class UdevadmDevice(object):
         if "IFINDEX" in self._environment and "INTERFACE" in self._environment:
             if "ID_VENDOR_ENC" in self._environment:
                 return decode_id(self._environment["ID_VENDOR_ENC"])
+
+        if "DEVLINKS" in self._environment:
+            if "canbus" in self._environment["DEVLINKS"]:
+                if "ID_VENDOR_ENC" in self._environment:
+                    return decode_id(self._environment["ID_VENDOR_ENC"])
 
         return None
 

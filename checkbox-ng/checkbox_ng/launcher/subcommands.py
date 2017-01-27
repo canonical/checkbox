@@ -25,6 +25,7 @@ import fnmatch
 import gettext
 import json
 import logging
+import operator
 import os
 import re
 import sys
@@ -829,6 +830,20 @@ class ListBootstrapped(Command):
                 print(self.sa.get_job(job_id).partial_id)
             else:
                 print(job_id)
+
+
+def get_all_jobs():
+    root = Explorer(get_providers()).get_object_tree()
+    def get_jobs(obj):
+        jobs = []
+        if obj.group == 'job':
+            jobs.append(obj.attrs)
+        elif obj.group == 'template' and obj.attrs['template_unit'] == 'job':
+            jobs.append(obj.attrs)
+        for child in obj.children:
+            jobs += get_jobs(child)
+        return jobs
+    return sorted(get_jobs(root),key=operator.itemgetter('id'))
 
 
 def print_objs(group, show_attrs=False, filter_fun=None):

@@ -188,8 +188,11 @@ for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
             all_ok="N"
         fi
         path=$(readlink -f /sys/block/$disk)
-        hub_version=$(cat "$(echo $path | cut -d "/" -f 1-6)/version" | tr -d " ")
-        device_version=$(cat "$(echo $path | cut -d "/" -f 1-7)/version" | tr -d " ")
+        num_elements=$(echo $path | sed -n -e 's/usb[0-9].*//p' | sed 's/[^\/]//g' | awk '{ print length }')
+        let hub_fields=$num_elements+1
+        let device_fields=$num_elements+2
+        hub_version=$(cat "$(echo $path | cut -d "/" -f 1-$hub_fields)/version" | tr -d " ")
+        device_version=$(cat "$(echo $path | cut -d "/" -f 1-$device_fields)/version" | tr -d " ")
         if [ $(echo "$hub_version"'>='"3.0" | bc -l) == "1" ] && \
            [ $(echo "$device_version"'>='"3.0" | bc -l) == "1" ]; then
             usb3_disks+=($drive)

@@ -19,6 +19,7 @@
 Definition of sub-command classes for checkbox-cli
 """
 from argparse import SUPPRESS
+from collections import defaultdict
 import copy
 import datetime
 import fnmatch
@@ -797,8 +798,32 @@ class List(Command):
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",
             help=_("show object attributes"))
+        parser.add_argument(
+            '-f', '--format', default='id: {id}\n{tr_summary}\n', type=str,
+            help=_(("output format, as passed to print function. "
+                "Use '?' to list possible values")))
 
     def invoked(self, ctx):
+        if ctx.args.GROUP == 'all-jobs':
+            if ctx.args.attrs:
+                print_objs('job', True)
+                filter_fun = lambda u: u.attrs['template_unit'] == 'job'
+                print_objs('template', True, filter_fun)
+            jobs = get_all_jobs()
+            if ctx.args.format == '?':
+                all_keys = set()
+                for job in jobs:
+                    all_keys.update(job.keys())
+                print(list(all_keys))
+                return
+            for job in jobs:
+                unescaped = ctx.args.format.replace(
+                    '\\n', '\n').replace('\\t', '\t')
+                print(unescaped.format(
+                    **defaultdict(lambda: _('<missing>'), job)), end='')
+            return
+        if ctx.args.format:
+            print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
         print_objs(ctx.args.GROUP, ctx.args.attrs)
 
 class ListBootstrapped(Command):

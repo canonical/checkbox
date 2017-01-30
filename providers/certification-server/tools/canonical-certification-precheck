@@ -177,7 +177,7 @@ local usb3_disks=()
 for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
     local drive="/dev/$disk"
     if [ $(cat "/sys/block/$disk/removable") == "1" ]; then
-        local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ' ' | sed 's/,*$//g')"
+        local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ',' | sed 's/,*$//g')"
         echo " Filesystem(s) detected on $drive: $fs"
         if [ "$fs" == "iso9660,vfat" ]; then
             echo " $drive may hold an Ubuntu installer, which is not suitable for certification"
@@ -187,11 +187,18 @@ for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
             echo " No suitable filesystem detected on $drive."
             all_ok="N"
         fi
-        if [ ! -z "$(ls -l /sys/block/$disk | grep -E usb2)" ]; then
-            usb2_disks+=($drive)
-        fi
-        if [ ! -z "$(ls -l /sys/block/$disk | grep -E usb3)" ]; then
+        path=$(readlink -f /sys/block/$disk)
+        num_elements=$(echo $path | sed -n -e 's/usb[0-9].*//p' | sed 's/[^\/]//g' | awk '{ print length }')
+        let hub_fields=$num_elements+1
+        let device_fields=$num_elements+2
+        hub_version=$(cat "$(echo $path | cut -d "/" -f 1-$hub_fields)/version" | tr -d " ")
+        device_version=$(cat "$(echo $path | cut -d "/" -f 1-$device_fields)/version" | tr -d " ")
+        if [ $(echo "$hub_version"'>='"3.0" | bc -l) == "1" ] && \
+           [ $(echo "$device_version"'>='"3.0" | bc -l) == "1" ]; then
             usb3_disks+=($drive)
+        elif [ $(echo "$hub_version"'>='"2.0" | bc -l) == "1" ] && \
+             [ $(echo "$device_version"'>='"2.0" | bc -l) == "1" ]; then
+            usb2_disks+=($drive)
         fi
     fi
 done

@@ -1,11 +1,15 @@
-plainbox-provider-resource-generic (0.30.0-1) UNRELEASED; urgency=medium
+plainbox-provider-resource-generic (0.31.0~rc1-1) UNRELEASED; urgency=medium
 
+  [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
 
- -- Pierre Equoy <pierre.equoy@canonical.com>  Tue, 13 Dec 2016 11:06:40 +0800
+  [ Sylvain Pineau ]
+  * "new upstream version"
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 30 Jan 2017 14:20:59 +0100
 
 plainbox-provider-resource-generic (0.28) unstable; urgency=medium
 

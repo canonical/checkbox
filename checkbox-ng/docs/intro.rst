@@ -102,6 +102,20 @@ Example::
     have to explictly use it.
 
 
+checkbox-cli list-bootstrapped
+``````````````````````````````
+
+This special command list all the jobs that would be run on the device after
+the boostrapping phase, i.e. after all the resource jobs are run, and all
+of the templates were instatntiated.
+
+It requires an argument being the test plan for which the bootstrapping should
+execute.
+
+Example::
+
+    $ checkbox-cli list-bootstrapped 2013.com.canonical.certification::default
+
 
 checkbox-cli launcher
 `````````````````````

@@ -309,7 +309,87 @@ Following fields may be used by the job unit:
         this temp folder). Sometimes needed on snappy
         (See http://pad.lv/1618197)
 
+.. _job_flag_also_after_suspend:
+
+    ``also-after-suspend``: See ``siblings`` below.
+
+.. _job_flag_also_after_suspend_auto:
+
+    ``also-after-suspend-auto``: See ``siblings`` below.
+
     Additional flags may be present in job definition; they are ignored.
+
+``siblings``:
+    (optional) This field creates copies of the current job definition
+    but using a dictionary of overridden fields. The intend is to reduce the
+    amount of job definitions when only a few changes are required to make a
+    job. For example we often run the same test after suspend. In that case
+    only a new id, a new job dependency (e.g suspend/advanced) and an updated
+    summary are required.
+    Other possible uses of this feature are tests creation for a fixed/limited
+    list of external ports (USB port 1, USB port 2). Useful when such
+    enumerations cannot be computed from a resource job.
+    This field is interpreted as a JSON blob, an array of dictionaries.
+
+    A minimal job using the siblings field looks as follows::
+
+        id: foo
+        _summary: foo foo foo
+        command: echo "Hello world"
+        flags: simple
+        _siblings: [
+            { "id": "foo-after-suspend",
+              "_summary": "foo foo foo after suspend",
+              "depends": suspend/advanced}
+        ]
+
+    Another example creating two more jobs in order to cover a total of 3
+    external USB ports::
+
+        id: usb_test_port1
+        _summary: usb stress test_(port 1)
+        command: usb_stress.py
+        flags: simple
+        _siblings: [
+            { "id": "usb_test_port2",
+              "_summary": "usb stress test_(port 2)"},
+            { "id": "usb_test_port3",
+              "_summary": "usb stress test_(port 3)"},
+        ]
+
+    For convenience two flags can be set (``also-after-suspend`` and
+    ``also-after-suspend-auto``) to create siblings with predefined settings to
+    add "after suspend" jobs.
+
+    Given the base job::
+
+        id:foo
+        _summary: bar
+        flags: also-after-suspend also-after-suspend-auto
+        [...]
+
+    The ``also-after-suspend`` flag is a shortcut to create the following job::
+
+        id: after-suspend-foo
+        _summary: bar after suspend (S3)
+        depends: 2013.com.canonical.certification::suspend/suspend_advanced
+
+    ``also-after-suspend-auto`` is a shortcut to create the following job::
+
+        id: after-suspend-auto-foo
+        _summary: bar after suspend (S3)
+        depends: 2013.com.canonical.certification::suspend/suspend_advanced_auto
+
+.. warning::
+    The curly braces used in this field have to be escaped when used in a
+    template job (python format, Jinja2 templates do not have this issue).
+    The syntax for templates is::
+
+            _siblings: [
+                {{ "id": "bar-after-suspend_{interface}",
+                  "_summary": "bar after suspend",
+                  "depends": suspend/advanced}}
+            ]
 
 ``imports``:
     (optional) This field lists all the resource jobs that will have to be

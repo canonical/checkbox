@@ -22,6 +22,7 @@ Session State Handling.
 ============================================================
 """
 import collections
+import json
 import logging
 import re
 
@@ -1099,6 +1100,78 @@ class SessionState:
             self.on_job_state_map_changed()
             self.on_unit_added(new_job)
             self.on_job_added(new_job)
+            if new_job.siblings:
+                for overrides in json.loads(new_job.tr_siblings()):
+                    data = {
+                        key: value for key, value in new_job._data.items()
+                        if not key.endswith('siblings')
+                    }
+                    data.update(overrides)
+                    self._add_job_unit(
+                        JobDefinition(
+                            data,
+                            origin=new_job.origin,
+                            provider=new_job.provider,
+                            controller=new_job.controller,
+                            parameters=new_job.parameters,
+                            field_offset_map=new_job.field_offset_map),
+                        recompute)
+            if 'also-after-suspend' in new_job.get_flag_set():
+                data = {
+                    key: value for key, value in new_job._data.items()
+                    if not key.endswith('siblings')
+                }
+                data['flags'] = data['flags'].replace('also-after-suspend', '')
+                data['flags'] = data['flags'].replace(
+                    'also-after-suspend-auto', '')
+                data['id'] = "after-suspend-{}".format(new_job.partial_id)
+                data['_summary'] = "{} after suspend (S3)".format(
+                    new_job.summary)
+                provider_id = "2013.com.canonical.certification"
+                suspend_test_id = "suspend/suspend_advanced"
+                if new_job.depends:
+                    data['depends'] += " {}::{}".format(provider_id,
+                                                        suspend_test_id)
+                else:
+                    data['depends'] = "{}::{}".format(provider_id,
+                                                      suspend_test_id)
+                self._add_job_unit(
+                    JobDefinition(
+                        data,
+                        origin=new_job.origin,
+                        provider=new_job.provider,
+                        controller=new_job.controller,
+                        parameters=new_job.parameters,
+                        field_offset_map=new_job.field_offset_map),
+                    recompute)
+            if 'also-after-suspend-auto' in new_job.get_flag_set():
+                data = {
+                    key: value for key, value in new_job._data.items()
+                    if not key.endswith('siblings')
+                }
+                data['flags'] = data['flags'].replace('also-after-suspend', '')
+                data['flags'] = data['flags'].replace(
+                    'also-after-suspend-auto', '')
+                data['id'] = "after-suspend-auto-{}".format(new_job.partial_id)
+                data['_summary'] = "{} after suspend (S3)".format(
+                    new_job.summary)
+                provider_id = "2013.com.canonical.certification"
+                suspend_test_id = "suspend/suspend_advanced_auto"
+                if new_job.depends:
+                    data['depends'] += " {}::{}".format(provider_id,
+                                                        suspend_test_id)
+                else:
+                    data['depends'] = "{}::{}".format(provider_id,
+                                                      suspend_test_id)
+                self._add_job_unit(
+                    JobDefinition(
+                        data,
+                        origin=new_job.origin,
+                        provider=new_job.provider,
+                        controller=new_job.controller,
+                        parameters=new_job.parameters,
+                        field_offset_map=new_job.field_offset_map),
+                    recompute)
             return new_job
         else:
             # If there is a clash report DependencyDuplicateError only when the

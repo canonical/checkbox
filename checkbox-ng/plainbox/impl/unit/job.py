@@ -23,6 +23,7 @@
 =========================================
 """
 
+import json
 import logging
 import re
 import os
@@ -326,6 +327,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.get_record_value('flags')
 
     @property
+    def siblings(self):
+        return self.get_record_value('siblings')
+
+    @property
     def shell(self):
         """
         Shell that is used to interpret the command
@@ -483,6 +488,12 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Get the translated version of :meth:`verification`
         """
         return self.get_translated_record_value('verification')
+
+    def tr_siblings(self):
+        """
+        Get the translated version of :meth:`siblings`
+        """
+        return self.get_translated_record_value('siblings')
 
     def get_environ_settings(self):
         """
@@ -697,6 +708,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             verification = 'verification'
             qml_file = 'qml_file'
             certification_status = 'certification_status'
+            siblings = 'siblings'
 
         field_validators = {
             fields.name: [
@@ -1001,5 +1013,28 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(
                     _CertificationStatusValues.get_all_symbols()),
+            ],
+            fields.siblings: [
+                concrete_validators.translatable,
+                CorrectFieldValueValidator(
+                    lambda value, unit: json.loads(value),
+                    Problem.syntax_error, Severity.error,
+                    onlyif=lambda unit: unit.siblings),
+                CorrectFieldValueValidator(
+                    lambda value, unit: type(json.loads(value)) is list,
+                    Problem.syntax_error, Severity.error,
+                    onlyif=lambda unit: unit.siblings),
+                CorrectFieldValueValidator(
+                    lambda value, unit: all(
+                        [type(s) is dict for s in json.loads(value)]),
+                    Problem.syntax_error, Severity.error,
+                    onlyif=lambda unit: unit.siblings),
+                CorrectFieldValueValidator(
+                    lambda value, unit: all(
+                        [all([hasattr(JobDefinition, k.lstrip('_'))
+                         for k in s.keys()]) for s in json.loads(value)]),
+                    Problem.bad_reference, Severity.error,
+                    message=_('unknown override job field'),
+                    onlyif=lambda unit: unit.siblings),
             ],
         }

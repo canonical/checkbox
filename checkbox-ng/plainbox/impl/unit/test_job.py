@@ -745,6 +745,38 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             issue_list, self.unit_cls.Meta.fields.flags,
             Problem.useless, Severity.advice, message)
 
+    def test_siblings__valid_json(self):
+        issue_list = self.unit_cls({
+            '_siblings': 'foo'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.siblings,
+            Problem.syntax_error, Severity.error)
+
+    def test_siblings__is_list(self):
+        issue_list = self.unit_cls({
+            '_siblings': '{"foo": "bar"}'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.siblings,
+            Problem.syntax_error, Severity.error)
+
+    def test_siblings__is_list_of_dicts(self):
+        issue_list = self.unit_cls({
+            '_siblings': '[1,2,3]'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.siblings,
+            Problem.syntax_error, Severity.error)
+
+    def test_siblings__override_only_JobDefinition_fields(self):
+        issue_list = self.unit_cls({
+            '_siblings': '[{"id": "bar", "foo": "bar"}]'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.siblings,
+            Problem.bad_reference, Severity.error)
+
 
 class TestJobDefinition(TestCase):
 
@@ -763,7 +795,8 @@ class TestJobDefinition(TestCase):
             '_summary': 'summary-value',
             '_requires': 'requires',
             '_command': 'command',
-            '_description': 'description-value'
+            '_description': 'description-value',
+            '_siblings': '[{"id": "foo", "depends": "bar"}]'
         }, Origin(FileTextSource('file.txt.in'), 1, 5))
         self._min_record = RFC822Record({
             'plugin': 'plugin',
@@ -807,6 +840,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
         self.assertEqual(job.description, "description-value")
+        self.assertEqual(job.siblings, '[{"id": "foo", "depends": "bar"}]')
 
     def test_smoke_min_record(self):
         job = JobDefinition(self._min_record.data)

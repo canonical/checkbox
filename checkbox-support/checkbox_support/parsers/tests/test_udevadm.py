@@ -137,27 +137,27 @@ E: UDEV_LOG=3
         device = result.getDevice("NETWORK")
         self.assertTrue(device)
 
-    def _test_DELL_INSPIRON3521_TOUCHSCREEN(self):
+    def test_DELL_INSPIRON3521_TOUCHSCREEN(self):
         """
         Check devices category having the ID_INPUT_TOUCHSCREEN property
         """
         devices = self.parse("DELL_INSPIRON3521_TOUCHSCREEN")
-        self.assertEqual(len(devices), 59)
+        self.assertEqual(len(devices), 62)
         # Check the Accelerometer device category/product
         self.assertEqual(devices[36].category, "TOUCHSCREEN")
         self.assertEqual(devices[36].product, "ELAN Touchscreen")
         self.assertEqual(self.count(devices, "VIDEO"), 1)
-        self.assertEqual(self.count(devices, "AUDIO"), 1)
+        self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
         self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
-        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 2)
         self.assertEqual(self.count(devices, "CDROM"), 1)
         self.assertEqual(self.count(devices, "FIREWIRE"), 0)
         self.assertEqual(self.count(devices, "MOUSE"), 0)
         self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
         self.assertEqual(self.count(devices, "TOUCHSCREEN"), 1)
         self.assertEqual(self.count(devices, "RAID"), 0)
-        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
@@ -179,7 +179,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
         self.assertEqual(self.count(devices, "RAID"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
-        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
 
@@ -197,7 +197,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
         self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
         self.assertEqual(self.count(devices, "RAID"), 1)
-        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
         # Check that a Bluetooth device is properly detected
         # See https://bugs.launchpad.net/checkbox/+bug/1075052
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
@@ -225,7 +225,7 @@ E: UDEV_LOG=3
         # https://bugs.launchpad.net/checkbox/+bug/1167733
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
-        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
 
     def test_DELL_VOSTRO3460_FINGERPRINT(self):
         """
@@ -277,7 +277,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
         self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
         self.assertEqual(self.count(devices, "RAID"), 0)
-        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
@@ -465,7 +465,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
         self.assertEqual(self.count(devices, "WIRELESS"), 0)
         self.assertEqual(self.count(devices, "RAID"), 0)
-        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         expected_devices = [(None, "VIDEO", "pci", 0x8086, 0x2E32)]
         self.verify_devices(devices, expected_devices)
@@ -492,7 +492,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "ACCELEROMETER"), 1)
         self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
         self.assertEqual(self.count(devices, "RAID"), 0)
-        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
@@ -604,7 +604,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
         self.assertEqual(self.count(devices, "RAID"), 0)
-        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 0)
 
     def test_EMMC_AS_MAIN_DRIVE(self):
         devices = self.parse("EMMC_AS_MAIN_DRIVE")
@@ -844,7 +844,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "MOUSE"), 1)
         self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
         self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
-        self.assertEqual(self.count(devices, "DISK"), 3)
+        self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
         self.assertEqual(self.count(devices, "RAID"), 0)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
@@ -860,6 +860,24 @@ E: UDEV_LOG=3
              "NETWORK", "pci", 0x10EC, 0x8168),
             ]
         self.verify_devices(devices, expected_devices)
+
+    def test_CARA_T(self):
+        # A Snappy system with CANBus
+        devices = self.parse("CARA_T")
+        self.assertEqual(len(devices), 78)
+        self.assertEqual(self.count(devices, "VIDEO"), 0)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 2)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "CANBUS"), 1)
 
     def verify_devices(self, devices, expected_device_list):
         """

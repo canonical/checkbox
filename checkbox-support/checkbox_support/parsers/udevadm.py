@@ -429,7 +429,7 @@ class UdevadmDevice(object):
                     # we need to test, and is a valid disk device
                     # we need to report.
                     return "DISK"
-                if self.driver = dasd-eckd:
+                if self.driver == 'dasd-eckd':
                     # IBM s390x DASD device types
                     return "DISK"
             if devtype == "scsi_device":

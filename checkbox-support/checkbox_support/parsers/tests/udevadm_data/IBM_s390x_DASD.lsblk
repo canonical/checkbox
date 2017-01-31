@@ -1,0 +1,7 @@
+KNAME="dasda" TYPE="disk" MOUNTPOINT=""
+KNAME="dasda1" TYPE="part" MOUNTPOINT="/boot"
+KNAME="dasda2" TYPE="part" MOUNTPOINT="[SWAP]"
+KNAME="dasdb" TYPE="disk" MOUNTPOINT=""
+KNAME="dasdb1" TYPE="part" MOUNTPOINT="/var"
+KNAME="dasdc" TYPE="disk" MOUNTPOINT=""
+KNAME="dasdc1" TYPE="part" MOUNTPOINT="/"

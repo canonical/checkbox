@@ -406,6 +406,7 @@ class UdevadmDevice(object):
             if (
                 id_type == "disk"
                 and not any(d.category == "CARDREADER" for d in self._stack)
+                and not any(d.bus == 'usb' for d in self._stack)
             ):
                 return "DISK"
             if not any(d.bus == 'usb' for d in self._stack):

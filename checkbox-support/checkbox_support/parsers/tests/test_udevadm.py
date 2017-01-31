@@ -861,6 +861,24 @@ E: UDEV_LOG=3
             ]
         self.verify_devices(devices, expected_devices)
 
+    def test_CARA_T(self):
+        # A Snappy system with CANBus
+        devices = self.parse("CARA_T")
+        self.assertEqual(len(devices), 78)
+        self.assertEqual(self.count(devices, "VIDEO"), 0)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 2)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "CANBUS"), 1)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

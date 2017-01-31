@@ -430,6 +430,9 @@ class UdevadmDevice(object):
                     # we need to test, and is a valid disk device
                     # we need to report.
                     return "DISK"
+                if self.driver == 'dasd-eckd':
+                    # IBM s390x DASD device types
+                    return "DISK"
             if devtype == "scsi_device":
                 match = SCSI_RE.match(self._environment.get("MODALIAS", ""))
                 type = int(match.group("type"), 16) if match else -1

@@ -878,6 +878,11 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "CANBUS"), 1)
+    
+    def test_IBM_s390x_DASD(self):
+        devices = self.parse("IBM_s390x_DASD")
+        self.assertEqual(len(devices), 8)
+        self.assertEqual(self.count(devices, "DISK"), 3)
 
     def verify_devices(self, devices, expected_device_list):
         """

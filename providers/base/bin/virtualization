@@ -36,8 +36,11 @@ import signal
 from subprocess import (
     Popen,
     PIPE,
+    STDOUT,
+    DEVNULL,
     CalledProcessError,
     check_output,
+    check_call,
     call
 )
 import sys
@@ -513,6 +516,123 @@ final_message: CERTIFICATION BOOT COMPLETE
 
         return status
 
+class LXDTest(object):
+
+    def __init__(self, template = None, rootfs = None):
+        self.rootfs_url = rootfs
+        self.template_url = template
+        self.rootfs_tarball = None
+        self.template_tarball = None
+
+    def setup(self):
+        # Initialize LXD
+        result = True
+        logging.debug("Attempting to initialize LXD")
+        try:
+            check_output(['lxd'], universal_newlines=True, stderr=STDOUT)
+        except CalledProcessError as err:
+            logging.debug('LXD appears to be running')
+            logging.debug(err.output)
+        else:
+            try:
+                check_output(['lxd', 'init', '--auto'], stderr=DEVNULL)
+            except CalledProcessError as init_error:
+                logging.error('Unable to initialize LXD')
+                logging.error(init_error.output)
+                result = False
+
+        # Retrieve and insert LXD images
+        if self.template_url is not None:
+            filename = urlparse(self.template_url).path.split('/')[-1]
+            self.template_tarball = self.download_images(self.template_url,
+                                                         filename)
+            if not self.template_tarball:
+                logging.error("Unable to download {} from "
+                        "{}".format(self.template_tarball, self.template_url))
+                logging.error("Aborting")
+                result = False
+
+        if self.rootfs_url is not None:
+            filename = urlparse(self.rootfs_url).path.split('/')[-1]
+            self.rootfs_tarball = self.download_images(self.rootfs_url,
+                                                       filename)
+            if not self.rootfs_tarball:
+                logging.error("Unable to download {} from{}".format(
+                              self.rootfs_tarball, self.rootfs_url))
+                logging.error("Aborting")
+                result = False
+
+        # Insert images
+        # TODO:
+        # * catch situation where image already exists
+        logging.debug("Importing images into LXD")
+        cmd = 'lxc image import {} rootfs {} --alias ubuntu'.format(
+              self.template_tarball, self.rootfs_tarball)
+        try:
+            check_output(shlex.split(cmd), universal_newlines=True)
+        except CalledProcessError as err:
+            logging.error("Failed to insert LXC images.")
+            logging.error(err.output)
+            result = False
+        
+        return result
+
+    def download_images(self, url, filename):
+        """
+        Downloads LXD files for same release as host machine
+        """
+        logging.debug("Attempting download of {} from {}".format(filename, 
+                                                                 url))
+        try:
+            resp = urllib.request.urlretrieve(url, filename)
+        except (IOError,
+                Error,
+                urllib.error.HTTPError,
+                urllib.error.URLError) as exception:
+            logging.error("Failed download of image from %s: %s",
+                          image_url, exception)
+            return False
+
+        if not os.path.isfile(filename):
+            logging.warn("Can not find {}".format(filename))
+            return False
+
+        return filename
+
+    def start(self):
+        """
+        Creates a container and performs the test
+        """
+        result = self.setup()
+        if not result:
+            logging.warn("One or more setup stages failed.")
+
+        # Create container
+        try:
+            check_call(['lxc', 'launch', 'ubuntu', "testbed"])
+        except CalledProcessError as err:
+            logging.error("Unable to launch container!")
+            logging.error(err)
+            return False
+
+        cmd = "lxc exec testbed uptime"
+        try:
+            print(check_output(shlex.split(cmd), universal_newlines=True))
+        except CalledProcessError as err:
+            logging.error("Failed to connect to container!")
+            logging.error(err)
+            return False
+
+        print("PASS: Container was succssfully started and checked")
+        return True
+
+def test_lxd(args):
+    print("Executing LXD Test")
+    
+    lxd_test = LXDTest(args.template, args.rootfs)
+    
+    result = lxd_test.start()
+    sys.exit(result)
 
 def test_kvm(args):
     print("Executing KVM Test", file=sys.stderr)
@@ -558,6 +678,11 @@ def main():
     # Main cli options
     kvm_test_parser = subparsers.add_parser(
         'kvm', help=("Run kvm virtualization test"))
+    lxd_test_parser = subparsers.add_parser(
+        'lxd', help=("Run the LXD validation test"))
+    parser.add_argument('--debug', dest='log_level',
+                        action="store_const", const=logging.DEBUG,
+                        default=logging.INFO)
 
     # Sub test options
     kvm_test_parser.add_argument(
@@ -567,10 +692,13 @@ def main():
     kvm_test_parser.add_argument(
         '-l', '--log-file', default='virt_debug',
         help="Location for debugging output log. Defaults to %(default)s.")
-    kvm_test_parser.add_argument('--debug', dest='log_level',
-                                 action="store_const", const=logging.DEBUG,
-                                 default=logging.INFO)
     kvm_test_parser.set_defaults(func=test_kvm)
+
+    lxd_test_parser.add_argument(
+        '--template', type=str, default=None)
+    lxd_test_parser.add_argument(
+        '--rootfs', type=str, default=None)
+    lxd_test_parser.set_defaults(func=test_lxd)
 
     args = parser.parse_args()
 

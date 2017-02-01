@@ -1,30 +1,4 @@
 [encoding: UTF-8]
 manage.py
-[type: gettext/rfc822deb] units/audio.pxu
-[type: gettext/rfc822deb] units/bluetooth.pxu
-[type: gettext/rfc822deb] units/cpu.pxu
-[type: gettext/rfc822deb] units/disk.pxu
-[type: gettext/rfc822deb] units/ethernet.pxu
-[type: gettext/rfc822deb] units/led.pxu
-[type: gettext/rfc822deb] units/memory.pxu
-[type: gettext/rfc822deb] units/monitor.pxu
-[type: gettext/rfc822deb] units/power-management.pxu
-[type: gettext/rfc822deb] units/rtc.pxu
-[type: gettext/rfc822deb] units/serial.pxu
-[type: gettext/rfc822deb] units/snappy.pxu
-[type: gettext/rfc822deb] units/stress.pxu
-[type: gettext/rfc822deb] units/suspend.pxu
+[type: gettext/rfc822deb] units/ipdt.pxu
 [type: gettext/rfc822deb] units/test-plan.pxu
-[type: gettext/rfc822deb] units/usb.pxu
-[type: gettext/rfc822deb] units/watchdog.pxu
-[type: gettext/rfc822deb] units/wireless.pxu
-[type: gettext/rfc822deb] units/tpm/category.pxu
-[type: gettext/rfc822deb] units/tpm/manifest.pxu
-[type: gettext/rfc822deb] units/tpm/packaging.pxu
-[type: gettext/rfc822deb] units/tpm/sysfs.pxu
-[type: gettext/rfc822deb] units/tpm/test-plan.pxu
-[type: gettext/rfc822deb] units/tpm/tpm.pxu
-[type: gettext/rfc822deb] units/wwan/category.pxu
-[type: gettext/rfc822deb] units/wwan/jobs.pxu
-[type: gettext/rfc822deb] units/wwan/manifest.pxu
-[type: gettext/rfc822deb] units/wwan/resource.pxu

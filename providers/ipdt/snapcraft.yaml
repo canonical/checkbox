@@ -3,7 +3,7 @@ summary: Snappy Plainbox Provider for IPDT
 confinement: devmode
 description: >
   The provider is a collection of tests to be run on systems with Intel(R) Processors
-version: 0.12~s16
+version: 1.0
 
 apps:
     plainbox:

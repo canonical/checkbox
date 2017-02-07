@@ -183,11 +183,14 @@ class XorgLog(object):
 
             # EDID and Modelines
             # We use this part to determine which driver is in use
-            # For Intel / RADEON
+            # For Intel / RADEON / Matrox (using modesetting)
             m = re.search(r'\(II\) (.*)\(\d+\): EDID for output (.*)', line)
             if m:
                 self.displays[display_name] = display
-                self.video_driver = m.group(1)
+                if m.group(1) == "modeset":
+                    self.video_driver = "modesetting"
+                else:
+                    self.video_driver = m.group(1)
                 display_name = m.group(2)
                 display = {'Output': display_name}
                 continue

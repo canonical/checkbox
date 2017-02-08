@@ -14,7 +14,8 @@ Vcs-Git: git://git.launchpad.net/plainbox-provider-canonical-certification
 Package: plainbox-provider-certification-server
 Architecture: all
 Depends: plainbox-provider-checkbox (>= 0.27~)
-Recommends: bonnie++,
+Recommends: bc,
+            bonnie++,
             canonical-certification-submit,
             cpu-checker,
             fwts (>=16.02.00-0ubuntu1~),

@@ -132,7 +132,7 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme_path = ['_templates']
+# html_theme_path = ['_templates']
 html_theme = 'alabaster'
 html_theme_options = {
 	'github_button': 'false',

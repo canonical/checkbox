@@ -82,8 +82,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'CheckboxNG'
-copyright = '2013-2016, Checkbox Developers'
+project = 'Checkbox'
+copyright = '2013-2017, Checkbox Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -133,8 +133,20 @@ pygments_style = 'sphinx'
 # -- Options for HTML output -------------------------------------------------
 
 html_theme_path = ['_templates']
-html_theme = 'ubuntu1204'
-html_theme_options = {}
+html_theme = 'alabaster'
+html_theme_options = {
+	'github_button': 'false',
+    'page_width': '1040px',
+    'sidebar_width': '320px',
+    'sidebar_link': '#E95420',
+    'sidebar_link_underscore': '#E95420',
+    'link': '#E95420',
+    'link_hover': '#E95420',
+    'font_family': "'Ubuntu', sans-serif",
+    'head_font_family': "'Ubuntu', sans-serif",
+    'code_font_family': "'Ubuntu Mono', monospace",
+    'code_font_size': '1em'
+    }
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -177,7 +189,14 @@ html_theme_options = {}
 # html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-# html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html'
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -260,7 +279,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'checkbox_ng', 'CheckboxNG Documentation',
+    ('index', 'checkbox_ng', 'Checkbox Documentation',
      ['Checkbox Developers'], 1),
     ('stack', 'checkbox-stack', 'description of the checkbox stack',
      ['Checkbox Developers'], 1),
@@ -276,8 +295,8 @@ man_show_urls = True
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'CheckboxNG', 'CheckboxNG Documentation',
-     'Checkbox Developers', 'CheckboxNG', 'One line description of project.',
+    ('index', 'Checkbox', 'Checkbox Documentation',
+     'Checkbox Developers', 'Checkbox', 'Checkbox is a flexible test automation software. It’s the main tool used in Ubuntu Certification program.',
      'Miscellaneous'),
 ]
 

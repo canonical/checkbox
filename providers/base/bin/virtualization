@@ -529,48 +529,56 @@ class LXDTest(object):
         # Initialize LXD
         result = True
         logging.debug("Attempting to initialize LXD")
+        # TODO: Need a method to see if LXD is already initialized
         try:
-            check_output(['lxd'], universal_newlines=True, stderr=STDOUT)
-        except CalledProcessError as err:
-            logging.debug('LXD appears to be running')
-            logging.debug(err.output)
-        else:
-            try:
-                check_output(['lxd', 'init', '--auto'], stderr=DEVNULL)
-            except CalledProcessError as init_error:
-                logging.error('Unable to initialize LXD')
-                logging.error(init_error.output)
-                result = False
+            check_output(['lxd', 'init', '--auto'], stderr=DEVNULL)
+        except CalledProcessError as init_error:
+            logging.error('Unable to initialize LXD')
+            logging.debug(init_error.output)
+            result = False
 
         # Retrieve and insert LXD images
+        logging.debug("Downloading template.")
         if self.template_url is not None:
-            filename = urlparse(self.template_url).path.split('/')[-1]
-            self.template_tarball = self.download_images(self.template_url,
-                                                         filename)
-            if not self.template_tarball:
-                logging.error("Unable to download {} from "
-                        "{}".format(self.template_tarball, self.template_url))
-                logging.error("Aborting")
-                result = False
-
+            targetfile = urlparse(self.template_url).path.split('/')[-1]
+            filename = os.path.join('/tmp', targetfile)
+            if not os.path.isfile(filename):
+            	self.template_tarball = self.download_images(self.template_url,
+                                                             filename)
+            	if not self.template_tarball:
+                	logging.error("Unable to download {} from "
+                        	"{}".format(self.template_tarball, self.template_url))
+                	logging.error("Aborting")
+                	result = False
+            else:
+                logging.debug("Template file {} already exists. "
+                              "Skipping Download.".format(filename))
+                self.template_tarball = filename
+        
+        logging.debug("Downloading rootfs.")
         if self.rootfs_url is not None:
-            filename = urlparse(self.rootfs_url).path.split('/')[-1]
-            self.rootfs_tarball = self.download_images(self.rootfs_url,
+            targetfile = urlparse(self.rootfs_url).path.split('/')[-1]
+            filename = os.path.join('/tmp', targetfile)
+            if not os.path.isfile(filename):
+                self.rootfs_tarball = self.download_images(self.rootfs_url,
                                                        filename)
-            if not self.rootfs_tarball:
-                logging.error("Unable to download {} from{}".format(
+                if not self.rootfs_tarball:
+                    logging.error("Unable to download {} from{}".format(
                               self.rootfs_tarball, self.rootfs_url))
-                logging.error("Aborting")
-                result = False
+                    logging.error("Aborting")
+                    result = False
+            else:
+                logging.debug("Template file {} already exists. "
+                              "Skipping Download.".format(filename))
+                self.rootfs_tarball = filename
 
         # Insert images
-        # TODO:
-        # * catch situation where image already exists
+        # TODO: check to see if ubuntu already exists
         logging.debug("Importing images into LXD")
         cmd = 'lxc image import {} rootfs {} --alias ubuntu'.format(
               self.template_tarball, self.rootfs_tarball)
         try:
-            check_output(shlex.split(cmd), universal_newlines=True)
+            check_output(shlex.split(cmd), stderr=STDOUT, universal_newlines=True)
         except CalledProcessError as err:
             logging.error("Failed to insert LXC images.")
             logging.error(err.output)
@@ -600,6 +608,22 @@ class LXDTest(object):
 
         return filename
 
+    def cleanup(self):
+        # Clean up image
+        logging.debug('Cleaning up images and containers created during test')
+        try:
+            check_output(['lxc', 'image', 'delete', 'ubuntu'], stderr=STDOUT, universal_newlines=True)
+        except CalledProcessError as err:
+            logging.error('Unable to remove image from LXC image store. This may cause problems on re-runs')
+            logging.debug(err.output)
+
+        # Clean up container
+        try:
+            check_output(['lxc', 'delete', 'testbed', '--force'], stderr=STDOUT, universal_newlines=True)
+        except CalledProcessError as err:
+            logging.error('Unable to destroy container. This may cause problems on re-runs')
+            logging.debug(err.output)
+
     def start(self):
         """
         Creates a container and performs the test
@@ -609,22 +633,24 @@ class LXDTest(object):
             logging.warn("One or more setup stages failed.")
 
         # Create container
+        logging.debug("Launching container")
         try:
-            check_call(['lxc', 'launch', 'ubuntu', "testbed"])
+            check_output(['lxc', 'launch', 'ubuntu', "testbed"], stderr=STDOUT, universal_newlines=True)
         except CalledProcessError as err:
             logging.error("Unable to launch container!")
-            logging.error(err)
+            logging.debug(err.output)
             return False
+        
+        time.sleep(60)
 
         cmd = "lxc exec testbed uptime"
         try:
-            print(check_output(shlex.split(cmd), universal_newlines=True))
+            check_output(shlex.split(cmd), stderr=STDOUT, universal_newlines=True)
         except CalledProcessError as err:
             logging.error("Failed to connect to container!")
-            logging.error(err)
+            logging.debug(err.output)
             return False
 
-        print("PASS: Container was succssfully started and checked")
         return True
 
 def test_lxd(args):
@@ -633,6 +659,12 @@ def test_lxd(args):
     lxd_test = LXDTest(args.template, args.rootfs)
     
     result = lxd_test.start()
+    lxd_test.cleanup()
+    if result:
+        print("PASS: Container was succssfully started and checked")
+    else:
+        print("FAIL: Container was not started and checked")
+
     sys.exit(result)
 
 def test_kvm(args):

@@ -819,8 +819,10 @@ class List(Command):
             for job in jobs:
                 unescaped = ctx.args.format.replace(
                     '\\n', '\n').replace('\\t', '\t')
-                print(unescaped.format(
-                    **defaultdict(lambda: _('<missing>'), job)), end='')
+                class DefaultKeyedDict(defaultdict):
+                    def __missing__(self, key):
+                        return _('<missing {}>').format(key)
+                print(unescaped.format(**DefaultKeyedDict(None, job)), end='')
             return
         if ctx.args.format:
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))

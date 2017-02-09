@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
 from argparse import ArgumentParser
 import configparser
 from glob import glob
@@ -222,7 +221,7 @@ class KVMTest(object):
         cloud-images.ubuntu.com or on a maas server hosting a mirror of
         cloud-images.ubuntu.com
         """
-        def _construct_filename(alt_pattern=None):
+        def _construct_filename(alt_pattern=None, initial_url=None):
             if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
                 cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
                             self.release, self.qemu_config['cloudimg_arch'])
@@ -233,6 +232,10 @@ class KVMTest(object):
             elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
                 cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
                             self.release, self.qemu_config['cloudimg_arch'])
+            elif initial_url is not none:
+                # LP 1662580 - if we pass a full URL, assume the last piece is
+                # the filname and return that.
+                cloud_iso = initial_url.split('/')[-1]
             else:
                 logging.error("Unknown cloud image type")
                 sys.exit(1)
@@ -306,17 +309,18 @@ class KVMTest(object):
                     sys.exit(1)
                 else:
                     full_url = image_url
+                    cloud_iso = _construct_filename(initial_url=full_url)
         
-        return full_url
+        return full_url, cloud_iso
 
     def download_image(self, image_url=None):
         """
         Downloads Cloud image for same release as host machine
         """
         if image_url is None:
-            full_url = self.construct_cloud_url()
+            full_url, cloud_iso = self.construct_cloud_url()
         else:
-            full_url = self.construct_cloud_url(image_url)
+            full_url, cloud_iso = self.construct_cloud_url(image_url)
         logging.debug("Acquiring cloud image from: {}".format(full_url))
 
         # Attempt download

@@ -822,6 +822,13 @@ class List(Command):
                 class DefaultKeyedDict(defaultdict):
                     def __missing__(self, key):
                         return _('<missing {}>').format(key)
+                # formatters are allowed to use special field 'unit_type' so
+                # let's add it to the job representation
+                assert 'unit_type' not in job.keys()
+                if job.get('template_unit') == 'job':
+                    job['unit_type'] = 'template_job'
+                else:
+                    job['unit_type'] = 'job'
                 print(unescaped.format(**DefaultKeyedDict(None, job)), end='')
             return
         if ctx.args.format:

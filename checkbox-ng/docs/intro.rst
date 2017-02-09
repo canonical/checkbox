@@ -85,14 +85,19 @@ For the 'all-jobs' group, the output may be formatted to suit your needs. Use
 ``--format`` option when listing ``all-jobs``. The string will be interpolated
 using properties of the listed jobs. Invoke
 ``checkbox-cli list all-jobs --format ?``
-to see available properties. If the job definition doesn't have the specified,
-``<missing>`` will be printed in its place instead.
+to see available properties. If the job definition doesn't have the specified
+property, ``<missing $property_name>`` will be printed in its place instead.
+Additional property - ``unit_type`` is provided to the formatter when listing
+all jobs. It is set to 'job' for normal jobs and 'template job' for jobs
+generated with a template unit.
 
 Example::
 
     $ checkbox-cli list all-jobs -f "{id}\n\t{tr_summary}\n"
 
     $ checkbox-cli list all-jobs -f "{id}\n"
+
+    $ checkbox-cli list all-jobs -f "{unit_type:12} | {id:50} | {summary}\n"
 
 .. note::
     ``\n`` and ``\t`` in the formatting string are interpreted and replaced

@@ -66,6 +66,8 @@ Currently there are following types you can list:
     - manifest entry
     - packaging meta-data
     - exporter
+    - all-jobs (this special type list both, jobs and templates generating
+      jobs and has a different output formatting)
 
 Example::
 
@@ -73,10 +75,51 @@ Example::
 
     $ checkbox-cli list "test plan"
 
+    $ checkbox-cli list all-jobs
+
 .. note::
     For multi-word types like 'test plan' remember to escape the spaces in
     between, or enquote the type name.
 
+For the 'all-jobs' group, the output may be formatted to suit your needs. Use
+``--format`` option when listing ``all-jobs``. The string will be interpolated
+using properties of the listed jobs. Invoke
+``checkbox-cli list all-jobs --format ?``
+to see available properties. If the job definition doesn't have the specified
+property, ``<missing $property_name>`` will be printed in its place instead.
+Additional property - ``unit_type`` is provided to the formatter when listing
+all jobs. It is set to 'job' for normal jobs and 'template job' for jobs
+generated with a template unit.
+
+Example::
+
+    $ checkbox-cli list all-jobs -f "{id}\n\t{tr_summary}\n"
+
+    $ checkbox-cli list all-jobs -f "{id}\n"
+
+    $ checkbox-cli list all-jobs -f "{unit_type:12} | {id:50} | {summary}\n"
+
+.. note::
+    ``\n`` and ``\t`` in the formatting string are interpreted and replaced
+    with new line and tab respectively.
+
+    When using own formatting, the jobs are not suffixed with a new line - you
+    have to explictly use it.
+
+
+checkbox-cli list-bootstrapped
+``````````````````````````````
+
+This special command list all the jobs that would be run on the device after
+the boostrapping phase, i.e. after all the resource jobs are run, and all
+of the templates were instatntiated.
+
+It requires an argument being the test plan for which the bootstrapping should
+execute.
+
+Example::
+
+    $ checkbox-cli list-bootstrapped 2013.com.canonical.certification::default
 
 
 checkbox-cli launcher

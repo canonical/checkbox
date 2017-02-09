@@ -19,12 +19,14 @@
 Definition of sub-command classes for checkbox-cli
 """
 from argparse import SUPPRESS
+from collections import defaultdict
 import copy
 import datetime
 import fnmatch
 import gettext
 import json
 import logging
+import operator
 import os
 import re
 import sys
@@ -796,16 +798,96 @@ class List(Command):
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",
             help=_("show object attributes"))
+        parser.add_argument(
+            '-f', '--format', default='id: {id}\n{tr_summary}\n', type=str,
+            help=_(("output format, as passed to print function. "
+                "Use '?' to list possible values")))
 
     def invoked(self, ctx):
+        if ctx.args.GROUP == 'all-jobs':
+            if ctx.args.attrs:
+                print_objs('job', True)
+                filter_fun = lambda u: u.attrs['template_unit'] == 'job'
+                print_objs('template', True, filter_fun)
+            jobs = get_all_jobs()
+            if ctx.args.format == '?':
+                all_keys = set()
+                for job in jobs:
+                    all_keys.update(job.keys())
+                print(list(all_keys))
+                return
+            for job in jobs:
+                unescaped = ctx.args.format.replace(
+                    '\\n', '\n').replace('\\t', '\t')
+                class DefaultKeyedDict(defaultdict):
+                    def __missing__(self, key):
+                        return _('<missing {}>').format(key)
+                # formatters are allowed to use special field 'unit_type' so
+                # let's add it to the job representation
+                assert 'unit_type' not in job.keys()
+                if job.get('template_unit') == 'job':
+                    job['unit_type'] = 'template_job'
+                else:
+                    job['unit_type'] = 'job'
+                print(unescaped.format(**DefaultKeyedDict(None, job)), end='')
+            return
+        if ctx.args.format:
+            print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
         print_objs(ctx.args.GROUP, ctx.args.attrs)
 
+class ListBootstrapped(Command):
+    name = 'list-bootstrapped'
 
-def print_objs(group, show_attrs=False):
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'TEST_PLAN',
+            help=_("test-plan id to bootstrap"))
+        parser.add_argument(
+            '--partial', default=False, action="store_true",
+            help=_("print only partial id"))
+
+    def invoked(self, ctx):
+        self.ctx = ctx
+        self.sa.select_providers('*')
+        self.sa.start_new_session('checkbox-listing-ephemeral')
+        tps = self.sa.get_test_plans()
+        if ctx.args.TEST_PLAN not in tps:
+            raise SystemExit('Test plan not found')
+        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.bootstrap()
+        for job_id in self.sa.get_static_todo_list():
+            if ctx.args.partial:
+                print(self.sa.get_job(job_id).partial_id)
+            else:
+                print(job_id)
+
+
+def get_all_jobs():
+    root = Explorer(get_providers()).get_object_tree()
+    def get_jobs(obj):
+        jobs = []
+        if obj.group == 'job':
+            jobs.append(obj.attrs)
+        elif obj.group == 'template' and obj.attrs['template_unit'] == 'job':
+            jobs.append(obj.attrs)
+        for child in obj.children:
+            jobs += get_jobs(child)
+        return jobs
+    return sorted(get_jobs(root),key=operator.itemgetter('id'))
+
+
+def print_objs(group, show_attrs=False, filter_fun=None):
     obj = Explorer(get_providers()).get_object_tree()
     indent = ""
     def _show(obj, indent):
         if group is None or obj.group == group:
+            # object must satisfy filter_fun (if supplied) to be printed
+            if filter_fun and not filter_fun(obj):
+                return
             # Display the object name and group
             print("{}{} {!r}".format(indent, obj.group, obj.name))
             indent += "  "

@@ -38,7 +38,7 @@ def version_check(check):
         return code from requested check if the installed version is 16.04 or
         newer.
     """
-    installed_version = int(linux_distribution()[1].split()[0])
+    installed_version = int(linux_distribution()[1].split('.')[0])
     if installed_version < 16:
         logging.info("This system appears to be older than 16.04 LTS so this "
                      "will not block a certification in progress.")

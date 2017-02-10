@@ -517,6 +517,7 @@ final_message: CERTIFICATION BOOT COMPLETE
 
         return status
 
+
 class RunCommand(object):
     """
     Runs a command and can return all needed info:
@@ -526,25 +527,25 @@ class RunCommand(object):
     * original command
 
     Convenince class to avoid the same repetitive code to run shell commands.
-    """ 
+    """
 
-    def __init__(self, cmd = None):
+    def __init__(self, cmd=None):
         self.stdout = None
         self.stderr = None
         self.returncode = None
         self.cmd = cmd
         self.run(self.cmd)
 
-
-    def run(self,cmd):
-        proc = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    def run(self, cmd):
+        proc = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE,
+                     universal_newlines=True)
         self.stdout, self.stderr = proc.communicate()
-        self.returncode = proc.returncode 
+        self.returncode = proc.returncode
 
 
 class LXDTest(object):
 
-    def __init__(self, template = None, rootfs = None):
+    def __init__(self, template=None, rootfs=None):
         self.rootfs_url = rootfs
         self.template_url = template
         self.rootfs_tarball = None
@@ -555,7 +556,8 @@ class LXDTest(object):
     def run_command(self, cmd):
         task = RunCommand(cmd)
         if task.returncode != 0:
-            logging.error('Command {} returnd a code of {}'.format(task.cmd, task.returncode))
+            logging.error('Command {} returnd a code of {}'.format(
+                          task.cmd, task.returncode))
             logging.error(' STDOUT: {}'.format(task.stdout))
             logging.error(' STDERR: {}'.format(task.stderr))
             return False
@@ -570,34 +572,33 @@ class LXDTest(object):
         if not self.run_command('lxd init --auto'):
             logging.error('Error encounterd while initializing LXD')
             result = False
-            
+
         # Retrieve and insert LXD images
         logging.debug("Downloading template.")
         if self.template_url is not None:
-            filename = urlparse(self.template_url).path.split('/')[-1]
-            #targetfile = urlparse(self.template_url).path.split('/')[-1]
-            #filename = os.path.join('/tmp', targetfile)
+            targetfile = urlparse(self.template_url).path.split('/')[-1]
+            filename = os.path.join('/tmp', targetfile)
             if not os.path.isfile(filename):
-            	self.template_tarball = self.download_images(self.template_url,
+                self.template_tarball = self.download_images(self.template_url,
                                                              filename)
-            	if not self.template_tarball:
-                	logging.error("Unable to download {} from "
-                        	"{}".format(self.template_tarball, self.template_url))
-                	logging.error("Aborting")
-                	result = False
+                if not self.template_tarball:
+                    logging.error("Unable to download {} from "
+                                  "{}".format(self.template_tarball,
+                                              self.template_url))
+                    logging.error("Aborting")
+                    result = False
             else:
                 logging.debug("Template file {} already exists. "
                               "Skipping Download.".format(filename))
                 self.template_tarball = filename
-        
+
         logging.debug("Downloading rootfs.")
         if self.rootfs_url is not None:
-            filname = urlparse(self.rootfs_url).path.split('/')[-1]
-            #targetfile = urlparse(self.rootfs_url).path.split('/')[-1]
-            #filename = os.path.join('/tmp', targetfile)
+            targetfile = urlparse(self.rootfs_url).path.split('/')[-1]
+            filename = os.path.join('/tmp', targetfile)
             if not os.path.isfile(filename):
                 self.rootfs_tarball = self.download_images(self.rootfs_url,
-                                                       filename)
+                                                           filename)
                 if not self.rootfs_tarball:
                     logging.error("Unable to download {} from{}".format(
                               self.rootfs_tarball, self.rootfs_url))
@@ -612,18 +613,20 @@ class LXDTest(object):
         # TODO: check to see if ubuntu already exists
         logging.debug("Importing images into LXD")
         cmd = 'lxc image import {} rootfs {} --alias {}'.format(
-                      self.template_tarball, self.rootfs_tarball, self.image_alias)
+                      self.template_tarball, self.rootfs_tarball,
+                      self.image_alias)
         if not self.run_command(cmd):
-            logging.error('Error encountered while attempting to import images into LXD')
+            logging.error('Error encountered while attempting to '
+                          'import images into LXD')
             result = False
-        
+
         return result
 
     def download_images(self, url, filename):
         """
         Downloads LXD files for same release as host machine
         """
-        logging.debug("Attempting download of {} from {}".format(filename, 
+        logging.debug("Attempting download of {} from {}".format(filename,
                                                                  url))
         try:
             resp = urllib.request.urlretrieve(url, filename)
@@ -659,19 +662,22 @@ class LXDTest(object):
 
         # Create container
         logging.debug("Launching container")
-        if not self.run_command('lxc launch {} {}'.format(self.image_alias,self.name)):
+        if not self.run_command('lxc launch {} {}'.format(self.image_alias,
+                                                          self.name)):
             return False
-        cmd = "lxc exec {} dd if=/dev/urandom of=testdata.txt bs=1024 count=1000".format(self.name)
-        if not self.run_command(cmd):       
+        cmd = ("lxc exec {} dd if=/dev/urandom of=testdata.txt "
+               "bs=1024 count=1000".format(self.name))
+        if not self.run_command(cmd):
             return False
 
         return True
 
+
 def test_lxd(args):
     logging.debug("Executing LXD Test")
-    
+
     lxd_test = LXDTest(args.template, args.rootfs)
-    
+
     result = lxd_test.start()
     lxd_test.cleanup()
     if result:
@@ -680,6 +686,7 @@ def test_lxd(args):
     else:
         print("FAIL: Container was not started and checked")
         sys.exit(1)
+
 
 def test_kvm(args):
     print("Executing KVM Test", file=sys.stderr)

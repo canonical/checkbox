@@ -14,3 +14,18 @@ _description:
  cloud image.
 _summary:
  Verify KVM guest boots
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::virtualization
+id: virtualization/verify_lxd
+user: root
+environ: LXD_TEMPLATE LXD_ROOTFS
+estimated_duration: 30.0
+requires:
+ package.name == 'lxd-client'
+ package.name == 'lxd'
+command: virtualization lxd --template $LXD_TEMPLATE --rootfs $LXD_ROOTFS
+_description:
+ Verifies that an LXD container can be created and launched
+_summary:
+ Verify LXD container launches

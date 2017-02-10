@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+import pdb
 from argparse import ArgumentParser
 import configparser
 from glob import glob
@@ -516,6 +517,31 @@ final_message: CERTIFICATION BOOT COMPLETE
 
         return status
 
+class RunCommand(object):
+    """
+    Runs a command and can return all needed info:
+    * stdout
+    * stderr
+    * return code
+    * original command
+
+    Convenince class to avoid the same repetitive code to run shell commands.
+    """ 
+
+    def __init__(self, cmd = None):
+        self.stdout = None
+        self.stderr = None
+        self.returncode = None
+        self.cmd = cmd
+        self.run(self.cmd)
+
+
+    def run(self,cmd):
+        proc = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        self.stdout, self.stderr = proc.communicate()
+        self.returncode = proc.returncode 
+
+
 class LXDTest(object):
 
     def __init__(self, template = None, rootfs = None):
@@ -523,24 +549,34 @@ class LXDTest(object):
         self.template_url = template
         self.rootfs_tarball = None
         self.template_tarball = None
+        self.name = 'testbed'
+        self.image_alias = 'ubuntu'
+
+    def run_command(self, cmd):
+        task = RunCommand(cmd)
+        if task.returncode != 0:
+            logging.error('Command {} returnd a code of {}'.format(task.cmd, task.returncode))
+            logging.error(' STDOUT: {}'.format(task.stdout))
+            logging.error(' STDERR: {}'.format(task.stderr))
+            return False
+
+        return True
 
     def setup(self):
         # Initialize LXD
         result = True
         logging.debug("Attempting to initialize LXD")
         # TODO: Need a method to see if LXD is already initialized
-        try:
-            check_output(['lxd', 'init', '--auto'], stderr=DEVNULL)
-        except CalledProcessError as init_error:
-            logging.error('Unable to initialize LXD')
-            logging.debug(init_error.output)
+        if not self.run_command('lxd init --auto'):
+            logging.error('Error encounterd while initializing LXD')
             result = False
-
+            
         # Retrieve and insert LXD images
         logging.debug("Downloading template.")
         if self.template_url is not None:
-            targetfile = urlparse(self.template_url).path.split('/')[-1]
-            filename = os.path.join('/tmp', targetfile)
+            filename = urlparse(self.template_url).path.split('/')[-1]
+            #targetfile = urlparse(self.template_url).path.split('/')[-1]
+            #filename = os.path.join('/tmp', targetfile)
             if not os.path.isfile(filename):
             	self.template_tarball = self.download_images(self.template_url,
                                                              filename)
@@ -556,8 +592,9 @@ class LXDTest(object):
         
         logging.debug("Downloading rootfs.")
         if self.rootfs_url is not None:
-            targetfile = urlparse(self.rootfs_url).path.split('/')[-1]
-            filename = os.path.join('/tmp', targetfile)
+            filname = urlparse(self.rootfs_url).path.split('/')[-1]
+            #targetfile = urlparse(self.rootfs_url).path.split('/')[-1]
+            #filename = os.path.join('/tmp', targetfile)
             if not os.path.isfile(filename):
                 self.rootfs_tarball = self.download_images(self.rootfs_url,
                                                        filename)
@@ -574,13 +611,10 @@ class LXDTest(object):
         # Insert images
         # TODO: check to see if ubuntu already exists
         logging.debug("Importing images into LXD")
-        cmd = 'lxc image import {} rootfs {} --alias ubuntu'.format(
-              self.template_tarball, self.rootfs_tarball)
-        try:
-            check_output(shlex.split(cmd), stderr=STDOUT, universal_newlines=True)
-        except CalledProcessError as err:
-            logging.error("Failed to insert LXC images.")
-            logging.error(err.output)
+        cmd = 'lxc image import {} rootfs {} --alias {}'.format(
+                      self.template_tarball, self.rootfs_tarball, self.image_alias)
+        if not self.run_command(cmd):
+            logging.error('Error encountered while attempting to import images into LXD')
             result = False
         
         return result
@@ -608,20 +642,12 @@ class LXDTest(object):
         return filename
 
     def cleanup(self):
-        # Clean up image
+        """
+        Clean up test files an containers created
+        """
         logging.debug('Cleaning up images and containers created during test')
-        try:
-            check_output(['lxc', 'image', 'delete', 'ubuntu'], stderr=STDOUT, universal_newlines=True)
-        except CalledProcessError as err:
-            logging.error('Unable to remove image from LXC image store. This may cause problems on re-runs')
-            logging.debug(err.output)
-
-        # Clean up container
-        try:
-            check_output(['lxc', 'delete', 'testbed', '--force'], stderr=STDOUT, universal_newlines=True)
-        except CalledProcessError as err:
-            logging.error('Unable to destroy container. This may cause problems on re-runs')
-            logging.debug(err.output)
+        self.run_command('lxc image delete {}'.format(self.image_alias))
+        self.run_command('lxc delete --force {}'.format(self.name))
 
     def start(self):
         """
@@ -633,27 +659,16 @@ class LXDTest(object):
 
         # Create container
         logging.debug("Launching container")
-        try:
-            check_output(['lxc', 'launch', 'ubuntu', "testbed"], stderr=STDOUT, universal_newlines=True)
-        except CalledProcessError as err:
-            logging.error("Unable to launch container!")
-            logging.debug(err.output)
+        if not self.run_command('lxc launch {} {}'.format(self.image_alias,self.name)):
             return False
-        
-        time.sleep(60)
-
-        cmd = "lxc exec testbed uptime"
-        try:
-            check_output(shlex.split(cmd), stderr=STDOUT, universal_newlines=True)
-        except CalledProcessError as err:
-            logging.error("Failed to connect to container!")
-            logging.debug(err.output)
+        cmd = "lxc exec {} dd if=/dev/urandom of=testdata.txt bs=1024 count=1000".format(self.name)
+        if not self.run_command(cmd):       
             return False
 
         return True
 
 def test_lxd(args):
-    print("Executing LXD Test")
+    logging.debug("Executing LXD Test")
     
     lxd_test = LXDTest(args.template, args.rootfs)
     
@@ -661,10 +676,10 @@ def test_lxd(args):
     lxd_test.cleanup()
     if result:
         print("PASS: Container was succssfully started and checked")
+        sys.exit(0)
     else:
         print("FAIL: Container was not started and checked")
-
-    sys.exit(result)
+        sys.exit(1)
 
 def test_kvm(args):
     print("Executing KVM Test", file=sys.stderr)

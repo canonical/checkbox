@@ -8,25 +8,37 @@ Subject: Revert the documentation theme back to default
  in Debian.
 Origin: upstream
 Forwarded: not-needed
-Last-Update: 2015-07-21
+Last-Update: 2017-02-10
 
 Patch-Name: documentation-theme
 ---
- docs/conf.py | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ docs/conf.py | 16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
 diff --git a/docs/conf.py b/docs/conf.py
-index 4f27778..df846e3 100644
+index a39b82c..ccfe3b6 100644
 --- a/docs/conf.py
 +++ b/docs/conf.py
-@@ -132,9 +132,7 @@ pygments_style = 'sphinx'
- 
+@@ -133,20 +133,8 @@ pygments_style = 'sphinx'
  # -- Options for HTML output -------------------------------------------------
  
--html_theme_path = ['_templates']
--html_theme = 'ubuntu1204'
--html_theme_options = {}
+ # html_theme_path = ['_templates']
+-html_theme = 'alabaster'
+-html_theme_options = {
+-	'github_button': 'false',
+-    'page_width': '1040px',
+-    'sidebar_width': '320px',
+-    'sidebar_link': '#E95420',
+-    'sidebar_link_underscore': '#E95420',
+-    'link': '#E95420',
+-    'link_hover': '#E95420',
+-    'font_family': "'Ubuntu', sans-serif",
+-    'head_font_family': "'Ubuntu', sans-serif",
+-    'code_font_family': "'Ubuntu Mono', monospace",
+-    'code_font_size': '1em'
+-    }
 +html_theme = 'default'
++html_theme_options = {}
  
  # The theme to use for HTML and HTML Help pages.  See the documentation for
  # a list of builtin themes.

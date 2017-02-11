@@ -8,7 +8,7 @@ requires:
  package.name == 'qemu-system'
  package.name == 'qemu-utils'
  virtualization.kvm == 'supported'
-command: virtualization kvm --debug --log-file=$PLAINBOX_SESSION_SHARE/virt_debug
+command: virtualization --debug kvm --log-file=$PLAINBOX_SESSION_SHARE/virt_debug
 _description:
  Verifies that a KVM guest can be created and booted using an Ubuntu Server
  cloud image.

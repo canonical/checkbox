@@ -279,7 +279,8 @@ class SessionStateAPITests(TestCase):
         self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
         self.assertEqual(
             session.job_list[1].depends,
-            'A 2013.com.canonical.certification::suspend/suspend_advanced')
+            ('A 2013.com.canonical.certification::suspend/'
+            'suspend_advanced_auto'))
         sibling = session.job_list[1]
         self.assertNotIn('also-after-suspend', sibling.get_flag_set())
         # Both jobs got added to job state map
@@ -299,9 +300,9 @@ class SessionStateAPITests(TestCase):
             session.job_state_map[sibling.id].readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor])
 
-    def test_also_after_suspend_auto_flag(self):
+    def test_also_after_suspend_manual_flag(self):
         # Define a job
-        job = make_job("A", summary="foo", flags='also-after-suspend-auto')
+        job = make_job("A", summary="foo", flags='also-after-suspend-manual')
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
@@ -309,13 +310,13 @@ class SessionStateAPITests(TestCase):
         # Both jobs got added to job list
         self.assertEqual(len(session.job_list), 2)
         self.assertIn(job, session.job_list)
-        self.assertEqual(session.job_list[1].id, 'after-suspend-auto-A')
+        self.assertEqual(session.job_list[1].id, 'after-suspend-manual-A')
         self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
         self.assertEqual(
             session.job_list[1].depends,
-            '2013.com.canonical.certification::suspend/suspend_advanced_auto')
+            '2013.com.canonical.certification::suspend/suspend_advanced')
         sibling = session.job_list[1]
-        self.assertNotIn('also-after-suspend-auto', sibling.get_flag_set())        
+        self.assertNotIn('also-after-suspend-manual', sibling.get_flag_set())
         # Both jobs got added to job state map
         self.assertIs(session.job_state_map[job.id].job, job)
         self.assertIs(session.job_state_map[sibling.id].job, sibling)

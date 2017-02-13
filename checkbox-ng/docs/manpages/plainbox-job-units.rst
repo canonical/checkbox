@@ -313,9 +313,9 @@ Following fields may be used by the job unit:
 
     ``also-after-suspend``: See ``siblings`` below.
 
-.. _job_flag_also_after_suspend_auto:
+.. _job_flag_also_after_suspend_manual:
 
-    ``also-after-suspend-auto``: See ``siblings`` below.
+    ``also-after-suspend-manual``: See ``siblings`` below.
 
     Additional flags may be present in job definition; they are ignored.
 
@@ -358,27 +358,27 @@ Following fields may be used by the job unit:
         ]
 
     For convenience two flags can be set (``also-after-suspend`` and
-    ``also-after-suspend-auto``) to create siblings with predefined settings to
-    add "after suspend" jobs.
+    ``also-after-suspend-manual``) to create siblings with predefined settings
+    to add "after suspend" jobs.
 
     Given the base job::
 
         id:foo
         _summary: bar
-        flags: also-after-suspend also-after-suspend-auto
+        flags: also-after-suspend also-after-suspend-manual
         [...]
 
     The ``also-after-suspend`` flag is a shortcut to create the following job::
 
         id: after-suspend-foo
         _summary: bar after suspend (S3)
-        depends: 2013.com.canonical.certification::suspend/suspend_advanced
-
-    ``also-after-suspend-auto`` is a shortcut to create the following job::
-
-        id: after-suspend-auto-foo
-        _summary: bar after suspend (S3)
         depends: 2013.com.canonical.certification::suspend/suspend_advanced_auto
+
+    ``also-after-suspend-manual`` is a shortcut to create the following job::
+
+        id: after-suspend-manual-foo
+        _summary: bar after suspend (S3)
+        depends: 2013.com.canonical.certification::suspend/suspend_advanced
 
 .. warning::
     The curly braces used in this field have to be escaped when used in a

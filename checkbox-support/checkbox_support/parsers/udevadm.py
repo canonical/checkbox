@@ -430,6 +430,12 @@ class UdevadmDevice(object):
                     # we need to test, and is a valid disk device
                     # we need to report.
                     return "DISK"
+                if '/dev/mapper' in self._environment.get('DEVLINKS', ''):
+                    if "ID_FS_TYPE" in self._environment:
+                        if self._environment["ID_FS_TYPE"] != 'swap':
+                            return "DISK"
+                    else:
+                        return "DISK"
                 if self.driver == 'dasd-eckd':
                     # IBM s390x DASD device types
                     return "DISK"
@@ -876,6 +882,13 @@ class UdevadmParser(object):
         if device.major == "94":
             return False
 
+        # Keep /dev/mapper devices (non swap)
+        if '/dev/mapper' in device._environment.get('DEVLINKS', ''):
+            if "ID_FS_TYPE" in device._environment:
+                if device._environment["ID_FS_TYPE"] == 'swap':
+                    return True
+            return False
+
         # Ignore devices without bus information
         if not device.bus:
             return True
@@ -1043,6 +1056,16 @@ class UdevadmParser(object):
                     self.devices[device._raw_path] = device
             stack.append(device)
 
+        dev_mapper_devices = []
+        for d in self.devices.values():
+            if d.category == 'DISK':
+                if '/dev/mapper' in d._environment.get('DEVLINKS', ''):
+                    if "ID_FS_TYPE" in d._environment:
+                        if d._environment["ID_FS_TYPE"] != 'swap':
+                            dev_mapper_devices.append(d)
+                    else:
+                        dev_mapper_devices.append(d)
+
         for device in list(self.devices.values()):
             if device.category in ("NETWORK", "WIRELESS", "OTHER"):
                 dev_interface = [
@@ -1058,6 +1081,11 @@ class UdevadmParser(object):
                     dev_interface.vendor_id = device.vendor_id
                     dev_interface.subproduct_id = device.subproduct_id
                     dev_interface.subvendor_id = device.subvendor_id
+                    self.devices.pop(device._raw_path, None)
+            # If dev/mapper list devices then they take precedence over the
+            # other block devices
+            if dev_mapper_devices and device.category == 'DISK':
+                if device not in dev_mapper_devices:
                     self.devices.pop(device._raw_path, None)
 
         [result.addDevice(device) for device in self.devices.values()]

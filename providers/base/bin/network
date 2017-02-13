@@ -280,29 +280,46 @@ class Interface(socket.socket):
 
     @property
     def max_speed(self):
-        # Parse mii-tool data for max speed
-        # search for numbers in the line starting with 'capabilities'
-        # return largest number as max_speed
+        speeds = [0]
+        # parse ethtool output, look for things like:
+        # 100baseSX, 40000baseNX, 10000baseT
         try:
-            info = check_output(['mii-tool', '-v',  self.interface],
-                                universal_newlines=True,
-                                stderr=STDOUT).split('\n')
-        except FileNotFoundError:
-            logging.warning('mii-tool not found! Unable to get max speed')
-            ethinfo = None
-        except CalledProcessError as e:
-            logging.error('mii-tool returned an error!')
-            logging.error(e.output)
-            ethinfo = None
-        finally:
-            regex = re.compile(r'(\d+)(base)([A-Z]+)')
-            speeds = [0]
-            for line in filter(lambda l: 'capabilities' in l, info):
-                for s in line.split(' '):
-                    hit = regex.search(s)
+            ethinfo = check_output(['ethtool', self.interface],
+                                   universal_newlines=True,
+                                   stderr=STDOUT).split(' ')
+            expression = '(\\d+)(base)([A-Z]+)|(\d+)(Mb/s)'
+
+            regex = re.compile(expression)
+            if ethinfo:
+                for i in ethinfo:
+                    hit = regex.search(i)
                     if hit:
                         speeds.append(int(re.sub("\D", "", hit.group(0))))
-            return max(speeds)
+        except CalledProcessError as e:
+            logging.error('ethtool returned an error!')
+            logging.error(e.output)
+        except FileNotFoundError:
+            logging.warning('ethtool not found! Trying mii-tool')
+            # Parse mii-tool data for max speed
+            # search for numbers in the line starting with 'capabilities'
+            # return largest number as max_speed
+            try:
+                info = check_output(['mii-tool', '-v',  self.interface],
+                                    universal_newlines=True,
+                                    stderr=STDOUT).split('\n')
+                regex = re.compile(r'(\d+)(base)([A-Z]+)')
+                speeds = [0]
+                for line in filter(lambda l: 'capabilities' in l, info):
+                    for s in line.split(' '):
+                        hit = regex.search(s)
+                        if hit:
+                            speeds.append(int(re.sub("\D", "", hit.group(0))))
+            except FileNotFoundError:
+                logging.warning('mii-tool not found! Unable to get max speed')
+            except CalledProcessError as e:
+                logging.error('mii-tool returned an error!')
+                logging.error(e.output)
+        return max(speeds)
 
     @property
     def macaddress(self):

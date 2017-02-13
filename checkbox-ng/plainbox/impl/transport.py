@@ -351,7 +351,7 @@ class StreamTransport(TransportBase):
         """
         translating_stream = ByteStringStreamTranslator(
             self._stream, self._stream.encoding)
-        copyfileobj(data, translating_stream)
+        copyfileobj(data, translating_stream, -1)
         self._stream.flush()
         return {}
 

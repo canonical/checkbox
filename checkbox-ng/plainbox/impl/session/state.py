@@ -1123,12 +1123,12 @@ class SessionState:
                 }
                 data['flags'] = data['flags'].replace('also-after-suspend', '')
                 data['flags'] = data['flags'].replace(
-                    'also-after-suspend-auto', '')
+                    'also-after-suspend-manual', '')
                 data['id'] = "after-suspend-{}".format(new_job.partial_id)
                 data['_summary'] = "{} after suspend (S3)".format(
                     new_job.summary)
                 provider_id = "2013.com.canonical.certification"
-                suspend_test_id = "suspend/suspend_advanced"
+                suspend_test_id = "suspend/suspend_advanced_auto"
                 if new_job.depends:
                     data['depends'] += " {}::{}".format(provider_id,
                                                         suspend_test_id)
@@ -1144,19 +1144,19 @@ class SessionState:
                         parameters=new_job.parameters,
                         field_offset_map=new_job.field_offset_map),
                     recompute)
-            if 'also-after-suspend-auto' in new_job.get_flag_set():
+            if 'also-after-suspend-manual' in new_job.get_flag_set():
                 data = {
                     key: value for key, value in new_job._data.items()
                     if not key.endswith('siblings')
                 }
                 data['flags'] = data['flags'].replace('also-after-suspend', '')
                 data['flags'] = data['flags'].replace(
-                    'also-after-suspend-auto', '')
-                data['id'] = "after-suspend-auto-{}".format(new_job.partial_id)
+                    'also-after-suspend-manual', '')
+                data['id'] = "after-suspend-manual-{}".format(new_job.partial_id)
                 data['_summary'] = "{} after suspend (S3)".format(
                     new_job.summary)
                 provider_id = "2013.com.canonical.certification"
-                suspend_test_id = "suspend/suspend_advanced_auto"
+                suspend_test_id = "suspend/suspend_advanced"
                 if new_job.depends:
                     data['depends'] += " {}::{}".format(provider_id,
                                                         suspend_test_id)

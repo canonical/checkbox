@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
 from argparse import ArgumentParser
 import configparser
 from glob import glob
@@ -32,6 +31,7 @@ import re
 import logging
 import lsb_release
 import requests
+from requests.packages.urllib3.exceptions import NewConnectionError
 import shlex
 import signal
 from subprocess import (
@@ -216,13 +216,13 @@ class KVMTest(object):
             # Gives us the stuff needed to build the URL to download the image
             return self.download_image(image_path)
 
-    def construct_cloud_url(self, image_url=None):
+    def get_image_name_and_url(self, image_url=None):
         """
         Build a URL for official Ubuntu images hosted either at
         cloud-images.ubuntu.com or on a maas server hosting a mirror of
         cloud-images.ubuntu.com
         """
-        def _construct_filename(alt_pattern=None):
+        def _construct_filename(alt_pattern=None, initial_url=None):
             if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
                 cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
                             self.release, self.qemu_config['cloudimg_arch'])
@@ -233,6 +233,10 @@ class KVMTest(object):
             elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
                 cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
                             self.release, self.qemu_config['cloudimg_arch'])
+            elif initial_url:
+                # LP 1662580 - if we pass a full URL, assume the last piece is
+                # the filname and return that.
+                cloud_iso = initial_url.split('/')[-1]
             else:
                 logging.error("Unknown cloud image type")
                 sys.exit(1)
@@ -244,7 +248,13 @@ class KVMTest(object):
 
         def _test_cloud_url(url):
             # test our URL to make sure it's reachable
-            ret = requests.head(url)
+            try:
+                ret = requests.head(url)
+            except (OSError, NewConnectionError) as e:
+                logging.error("Unable to connect to {}".format(url))
+                logging.error(e)
+                return False
+
             if ret.status_code is not 200:
                 return False
             else:
@@ -276,10 +286,10 @@ class KVMTest(object):
         else:
             url = urlparse(image_url)
             if (
-                    url.path.endswith('/') or 
-                    url.path == ''  or 
+                    url.path.endswith('/') or
+                    url.path == '' or
                     not url.path.endswith(".img")
-                ):
+                    ):
                 # If we have a relative URL (local copies of official images)
                 # http://192.168.0.1/ or http://192.168.0.1/images/
                 cloud_iso = _construct_filename()
@@ -306,17 +316,18 @@ class KVMTest(object):
                     sys.exit(1)
                 else:
                     full_url = image_url
-        
-        return full_url
+                    cloud_iso = _construct_filename(initial_url=full_url)
+
+        return full_url, cloud_iso
 
     def download_image(self, image_url=None):
         """
         Downloads Cloud image for same release as host machine
         """
         if image_url is None:
-            full_url = self.construct_cloud_url()
+            full_url, cloud_iso = self.get_image_name_and_url()
         else:
-            full_url = self.construct_cloud_url(image_url)
+            full_url, cloud_iso = self.get_image_name_and_url(image_url)
         logging.debug("Acquiring cloud image from: {}".format(full_url))
 
         # Attempt download

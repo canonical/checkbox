@@ -114,6 +114,22 @@ else
 fi
 }
 
+# Sets $usb_disk to 1 if /dev/$1 is a USB disk, or to 0 otherwise
+Is_USB(){
+local disk=$1
+usb_disk=0
+local drive="/dev/$disk"
+if [ -d "/sys/bus/usb/devices" ]; then
+    path=$(readlink -f /sys/block/$disk)
+    for usbname in $(ls /sys/bus/usb/devices); do
+        usbpath=$(readlink -f /sys/bus/usb/devices/$usbname)
+        if [[ "$path" == "$usbpath"* ]]; then
+            usb_disk=1
+        fi
+    done
+fi
+}
+
 Hard_Disks(){
 name="Hard Disk Filesystem Check"
 echoname
@@ -137,7 +153,8 @@ for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
         esac
         disk_UUIDs+=($UUID)
     fi
-    if [ $(cat "/sys/block/$disk/removable") == "0" ]; then
+    Is_USB $disk
+    if [ "$usb_disk" == "0" ]; then
         local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ' ' | sed 's/,*$//g')"
         echo " Filesystem(s) detected on $drive: $fs"
         if [ -z "$(echo $fs | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)" ]; then
@@ -174,9 +191,16 @@ echoname
 local all_ok="Y"
 local usb2_disks=()
 local usb3_disks=()
+if [ ! -d "/sys/bus/usb" ]; then
+    eval info${i}=\"No USB bus\"
+    echo " No USB bus detected!"
+    warn
+    return
+fi
 for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
     local drive="/dev/$disk"
-    if [ $(cat "/sys/block/$disk/removable") == "1" ]; then
+    Is_USB $disk
+    if [ "$usb_disk" == 1 ]; then
         local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ',' | sed 's/,*$//g')"
         echo " Filesystem(s) detected on $drive: $fs"
         if [ "$fs" == "iso9660,vfat" ]; then

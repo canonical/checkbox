@@ -30,6 +30,34 @@ function run_bonnie() {
     fi
 }
 
+# Find the largest partition that holds a supported filesystem on $disk_device.
+# This code is adapted from a similar function in `disk_stress_ng`.
+# Output:
+#   $largest_part -- Device filename of largest qualifying partition or logical volume
+#   $largest_size -- Size of largest qualifying partition or logical volume
+#   $largest_fs -- Filesystem (ext4, etc.) used on largest qualifying partition or logical volume
+#   $unsupported_fs -- Empty or contains name of unsupported filesystem found on disk
+find_largest_partition() {
+    largest_part=""
+    largest_size=0
+    partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk | grep part | tr -s " ")
+    unsupported_fs=""
+    for partition in $(echo "$partitions" | cut -d " " -f 1) ; do
+        part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
+        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)
+        if [ "$part_size" -gt "$largest_size" ] && [ -n "$blkid_info" ]  ; then
+            largest_size=$part_size
+            largest_part="/dev/$partition"
+            largest_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+        fi
+        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ntfs\|vfat\|hfs)
+        if [ -n "$blkid_info" ]  ; then
+            # If there's an NTFS, HFS+, or FAT filesystem on the disk make note of it....
+            unsupported_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+        fi
+    done
+} # find_largest_partition()
+
 disk=/dev/$1
 
 if [ -b $disk ]
@@ -62,7 +90,17 @@ then
             echo "$disk is mounted, proceeding."
         else
             echo "$disk is not mounted. It must be mounted before testing."
-            exit 1
+            find_largest_partition
+            if [ -n "$largest_part" ]
+            then
+                dest=/tmp/drive/$partition
+                echo "Mounting $largest_part into $dest..."
+                mkdir -p $dest
+                mount $largest_part $dest
+            else
+                echo "$disk has no partition. Please format this drive and re-launch the test."
+                exit 1
+            fi
         fi
 
 

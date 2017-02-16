@@ -354,7 +354,9 @@ class SessionStorage:
         Remove all filesystem entries associated with this instance.
         """
         logger.debug(_("Removing session storage from %r"), self._location)
-        shutil.rmtree(self._location)
+        def error_handler(function, path, excinfo):
+            logger.warning(_("Cannot remove %s"), path)
+        shutil.rmtree(self._location, onerror=error_handler)
 
     def load_checkpoint(self):
         """

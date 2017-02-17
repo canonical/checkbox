@@ -131,7 +131,7 @@ find_largest_partition() {
 #   $mounted_part -- Sets to "Y" if script mounted partition
 #   $made_mountpoint -- Sets to "Y" if script created the mount point
 mount_filesystem() {
-    test_dir="/tmp/disk_stress_ng"
+    test_dir="/tmp/disk_stress_ng_$(uuidgen)"
     if [ -b $disk_device ]
     then
         echo "$disk_device is a block device"
@@ -167,9 +167,9 @@ mount_filesystem() {
             mounted_part="Y"
         fi
         if [ "$mount_point" == "/" ] ; then
-            test_dir="/tmp/disk_stress_ng"
+            test_dir="/tmp/disk_stress_ng_$(uuidgen)"
         else
-            test_dir="$mount_point/tmp/disk_stress_ng"
+            test_dir="$mount_point/tmp/disk_stress_ng_$(uuidgen)"
         fi
         echo "Test will use $largest_part, mounted at \"$mount_point\", using $largest_fs"
     else
@@ -200,11 +200,28 @@ run_stressor() {
     echo "Running stress-ng $1 stressor for $2 seconds...."
     # Use "timeout" command to launch stress-ng, to catch it should it go into
     # la-la land
-    timeout -s 9 $end_time stress-ng --aggressive --verify --timeout $runtime \
-            --temp-path $test_dir --$1 0
+    timeout -s 14 $end_time stress-ng --aggressive --verify --timeout $runtime \
+            --temp-path $test_dir --$1 0 --hdd-opts dsync  --readahead-bytes 16M -k
     return_code="$?"
     echo "return_code is $return_code"
     if [ "$return_code" != "0" ] ; then
+	#
+	# a small grace period to allow stressors to terminate
+	#
+    	sleep 10
+	#
+	# still running? aggressively kill all stressors
+	#
+	pids=$(pidof stress-ng)
+	if [ -n "$pids" ]; then
+		kill -9 $pids
+		sleep 1
+		kill -9 $pids
+		pids=$(pidof stress-ng)
+		if [ -n "$pids" ]; then
+			echo "Note: stress-ng (PIDS $pids) could not be killed"
+		fi
+	fi
         had_error=1
         echo "*****************************************************************"
         if [ $return_code = "137" ] ; then
@@ -243,6 +260,19 @@ disk_stressors=("aio" "aiol" "chdir" "chmod" "dentry"  "dir" "fallocate" \
                 "mknod" "readahead" "seek" "sync-file" "xattr")
 
 total_runtime=$((${#disk_stressors[@]}*$base_time))
+
+#
+# Ensure we have emnough async I/O events available, scale it
+# based on number of CPUs on the machine
+#
+if [ -e /proc/sys/fs/aio-max-nr ] ; then
+	aiomax=$((8192 * $(nproc)))
+	aionow=$(cat /proc/sys/fs/aio-max-nr)
+	if [ $aiomax -gt $aionow ] ; then
+		echo $aiomax > /proc/sys/fs/aio-max-nr
+		echo "Setting aio-max-nr to $aiomax"
+	fi
+fi
 
 echo "Estimated total run time is $total_runtime seconds"
 echo ""

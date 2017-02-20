@@ -157,7 +157,8 @@ class JobTreeNode:
         """
         root_node = cls()
         for job in job_list:
-            cat_name = sa.get_category(job.category_id).tr_name()
+            cat_id = sa.get_job_state(job.id).effective_category_id
+            cat_name = sa.get_category(cat_id).tr_name()
             matches = [n for n in root_node.categories if n.name == cat_name]
             if not matches:
                 node = cls(cat_name)

@@ -6,5 +6,7 @@ git clone https://git.launchpad.net/~checkbox-dev/checkbox/+git/support
 time -o timing.dat ./support/test-in-lxc.sh
 echo "Complete test time:"
 cat timing.dat
-./support/lp-snap-build checkbox-snappy -o ce-certification-qa -a amd64
-./support/lp-snap-build checkbox-snappy -o ce-certification-qa -a armhf
+./support/lp-snap-build checkbox-snappy-edge -o ce-certification-qa -a amd64
+./support/lp-snap-build checkbox-snappy-edge -o ce-certification-qa -a armhf
+./support/lp-snap-build checkbox-snappy-beta -o ce-certification-qa -a amd64
+./support/lp-snap-build checkbox-snappy-beta -o ce-certification-qa -a armhf

@@ -22,6 +22,8 @@ _name: TPM 2.0 (Trusted Platform Module)
 
 unit: job
 id: tpm2.0/init-resource-mgr
+requires: manifest.has_tpm2_chip == 'True'
+imports: from 2013.com.canonical.plainbox import manifest
 category_id: tpm2
 _summary: Start the resource manager daemon
 _description:

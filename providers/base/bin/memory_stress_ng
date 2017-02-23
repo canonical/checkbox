@@ -114,7 +114,12 @@ echo "Variable run time is $variable_time seconds per stressor"
 
 had_error=0
 
-numa_nodes=$(numactl --hardware | grep available | head -n 1 | cut -f 2 -d " ")
+command -v numactl >/dev/null 2>&1
+if [ $? == 0 ] ; then
+    numa_nodes=$(numactl --hardware | grep available | head -n 1 | cut -f 2 -d " ")
+else
+    numa_nodes=1
+fi
 
 # NOTE: Specify stressors in two arrays rather than rely on stress-ng's
 # --class memory,vm option for two reasons:

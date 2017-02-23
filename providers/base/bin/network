@@ -477,7 +477,8 @@ def interface_test(args):
     if (args.test_type.lower() == "iperf" or
             args.test_type.lower() == "stress"):
         test_targets = test_parameters["test_target_iperf"]
-        test_targets_list = make_target_list(args.interface, test_targets, True)
+        test_targets_list = make_target_list(args.interface, test_targets,
+                                             True)
 
     # Validate that we got reasonable values
     if not test_targets_list or "example.com" in test_targets:
@@ -541,7 +542,9 @@ def interface_test(args):
             if not test_targets_list:
                 logging.info(" Exhausted test target list; trying again "
                              .center(60, "="))
-                test_targets_list = make_target_list(args.interface, test_targets, False)
+                test_targets_list = make_target_list(args.interface,
+                                                     test_targets,
+                                                     False)
                 time.sleep(30)
                 first_loop = False
 

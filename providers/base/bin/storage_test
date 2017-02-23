@@ -59,6 +59,7 @@ find_largest_partition() {
 } # find_largest_partition()
 
 disk=/dev/$1
+scripted_mount=0
 
 if [ -b $disk ]
 then
@@ -93,10 +94,13 @@ then
             find_largest_partition
             if [ -n "$largest_part" ]
             then
-                dest=/tmp/drive/$partition
+                dest=`mktemp -dq --tmpdir drive.XXX`
                 echo "Mounting $largest_part into $dest..."
-                mkdir -p $dest
                 mount $largest_part $dest
+                if [[ $? == 0 ]]
+                then
+                    scripted_mount=1
+                fi
             else
                 echo "$disk has no partition. Please format this drive and re-launch the test."
                 exit 1
@@ -115,12 +119,33 @@ then
             if [ $size_int -gt 10 ]
             then
                 run_bonnie $disk
+                if [[ $scripted_mount == 1 ]]
+                then
+                    echo "$largest_part was mounted by this script. Unmounting it now..."
+                    umount $largest_part
+                    echo "Removing temporary mount directory $dest..."
+                    rm -rf $dest
+                fi
             else
                 echo "$disk is too small to be used for testing."
+                if [[ $scripted_mount == 1 ]]
+                then
+                    echo "$largest_part was mounted by this script. Unmounting it now..."
+                    umount $largest_part
+                    echo "Removing temporary mount directory $dest..."
+                    rm -rf $dest
+                fi
                 exit 1
             fi
         else
             run_bonnie $disk
+            if [[ $scripted_mount == 1 ]]
+            then
+                echo "$largest_part was mounted by this script. Unmounting it now..."
+                umount $largest_part
+                echo "Removing temporary mount directory $dest..."
+                rm -rf $dest
+            fi
         fi
     else
        echo "$disk doesn't report a size."

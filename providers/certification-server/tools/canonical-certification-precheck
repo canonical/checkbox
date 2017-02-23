@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check" 
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check XDG_Check" 
 yes=1
 
 while getopts "i" opt; do
@@ -46,6 +46,47 @@ Arch(){
  fi
 }
 
+XDG_Check(){
+ name="XDG Config file Check"
+ echoname
+ failstatus=0
+ prevstatus=0
+ for section in common transport:c3 environment
+     do grep ^'\['$section'\]' /etc/xdg/canonical-certification.conf >/dev/null 2>&1
+      exitstatus=$?
+      printf "%15s" " [$section] "
+      printf "%0.1s" " "{1..5}
+      if [ $exitstatus = "0" ] ; then
+        printf "\e[1;32m  OK\e[m\n"
+        failstatus=1
+      else
+        printf "\e[1;31m  Not found\e[m\n"
+        if [ $section = "common" ] ; then
+            failstatus=3
+        else
+                failstatus=2
+                if [ $prevstatus = $failstatus ] ; then
+                    output="[$section],[$prevsection]"
+                else
+                    output=[$section]
+                fi
+                eval info${i}=\"\$output\ missing\"
+                prevsection=$section
+        fi
+      fi
+     if [ $prevstatus -gt $failstatus ] ; then
+        failstatus=$prevstatus
+     fi
+     prevstatus=$failstatus
+ done
+ if [ $failstatus = 3 ] ; then
+    fail
+ elif [ $failstatus = 2 ] ; then
+    warn
+ else
+    pass
+ fi
+}
 
 # Display version of canonical-certification-server package installed
 CCS_Version(){

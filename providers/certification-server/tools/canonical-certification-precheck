@@ -22,7 +22,6 @@ info(){
 
 
 steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check XDG_Check" 
-yes=1
 
 while getopts "i" opt; do
   case $opt in
@@ -34,6 +33,7 @@ echoname(){
     echo -e "\n\e[1;33m============\e[m \e[1;34m$name\e[m \e[1;33m============\e[m"
 }
 
+# Check architecture
 Arch(){
  name="Check architecture"
  echoname
@@ -46,6 +46,7 @@ Arch(){
  fi
 }
 
+# Check for valid section headers in xdg config file
 XDG_Check(){
  name="XDG Config file Check"
  echoname
@@ -125,11 +126,10 @@ configure_SID(){
     fi
 }
 
-
+# Check for Secure ID config
 SID_Check(){
 name="Secure ID Check"
 echoname
-#if [ -n $secureid ];then
 if grep "^secure_id =" /etc/xdg/canonical-certification.conf >/dev/null ; then
 	secureid=$(grep "^secure_id =" /etc/xdg/canonical-certification.conf|awk '{print $3}')
     echo " Secure ID is configured as '$secureid'."
@@ -171,6 +171,7 @@ if [ -d "/sys/bus/usb/devices" ]; then
 fi
 }
 
+# Check for valid filesystem
 Hard_Disks(){
 name="Hard Disk Filesystem Check"
 echoname
@@ -226,6 +227,7 @@ else
 fi
 }
 
+# Check for USB storage devices
 USB_Disks(){
 name="USB Disks Check"
 echoname
@@ -368,7 +370,7 @@ if curl --output /dev/null --silent --head -fail "$kvmurl"; then
 	fi
 }
 
-#Correct Ubuntu version installed (could be tricky to determine, so maybe too much effort -- or maybe just display the Ubuntu version and, if the script is interactive, ask the user to verify that it’s what was intended)
+# Correct Ubuntu version installed (could be tricky to determine, so maybe too much effort -- or maybe just display the Ubuntu version and, if the script is interactive, ask the user to verify that it’s what was intended)
 Ubuntu_Version(){
  name="Ubuntu Version"
  echoname
@@ -492,7 +494,7 @@ case "$worst_status" in
 esac
 }
 
-#### Installed RAM (STG says 4GiB minimum) ###
+# Installed RAM (STG says 4GiB minimum)
 Installed_Ram(){
 name="Check Installed Ram"
 echoname
@@ -507,7 +509,7 @@ else
 fi
 }
 
-#CPU virtualization support (VMX/SVM)
+# CPU virtualization support (VMX/SVM)
 Virtualization_Support(){
 name="Virtualization Support"
 echoname
@@ -521,7 +523,7 @@ else
 fi
 }
 
-#EFI-mode installation (redundant with Checkbox test for same, but maybe good to warn about this issue before running Checkbox)
+# EFI-mode installation (redundant with Checkbox test for same, but maybe good to warn about this issue before running Checkbox)
 EFI_Mode(){
 name="EFI-mode installation"
 echoname
@@ -543,11 +545,7 @@ runchoices() {
  for i in $steps
   do
    eval "status=\$check${i}"
-   if [[ $status == "y" ]] || [[ "$yes" == "1" ]]; then
     "$i"
-   else
-    echo -e "\e[1;31mskipping\e[m \e[1;34m$i\e[m"
-   fi
  done
 }
 

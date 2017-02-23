@@ -151,9 +151,15 @@ mount_filesystem() {
     fi
 
     find_largest_partition
-
+    
     if [ -n "$largest_part" ] ; then
         echo "Found largest partition: \"$largest_part\""
+        # If largest partition is too small, just abort with a message
+        if [ $largest_size -lt 10000000000 ] ; then
+            echo "Warning: $largest_part is less than 10GiB in size"
+            echo "Disk is too small to test.  Aborting test!"
+            exit 1
+        fi
         mount_point=$(df | grep "$largest_part " | tr -s " " | cut -d " " -f 6)
         if [ "$mount_point" == "" ] && [ "$really_run" == "Y" ] ; then
             disk_device=$(echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g")

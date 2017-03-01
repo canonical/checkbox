@@ -25,7 +25,10 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from gettext import gettext as _
 from logging import getLogger
+
+from plainbox.abc import IJobResult
 
 
 logger = getLogger("checkbox.ng.commands.cli")
@@ -165,6 +168,39 @@ class JobTreeNode:
                 root_node.add_category(node)
             else:
                 node = matches[0]
+            node.add_job(job)
+        return root_node
+
+    @classmethod
+    def create_rerun_tree(cls, sa, job_list):
+        """
+        Build a rooted JobTreeNode from a job list for the re-run screen.
+        The jobs are categorized by their outcome (failed, skipped, ...)
+        instead of by the category they belong to.
+
+        :argument sa:
+            A session assistant object
+        :argument job_list:
+            List of jobs to consider for building the tree.
+        """
+        section_names = {
+            IJobResult.OUTCOME_FAIL: _("Failed Jobs"),
+            IJobResult.OUTCOME_SKIP: _("Skipped Jobs"),
+            IJobResult.OUTCOME_CRASH: _("Crashed Jobs"),
+        }
+        root_node = cls()
+        for job in job_list:
+            cat_id = sa.get_job_state(job.id).effective_category_id
+            cat_name = sa.get_category(cat_id).tr_name()
+            job_outcome = sa.get_job_state(job.id).result.outcome
+            job_section = section_names[job_outcome]
+            matches = [n for n in root_node.categories if n.name == job_section]
+            if not matches:
+                node = cls(job_section)
+                root_node.add_category(node)
+            else:
+                node = matches[0]
+
             node.add_job(job)
         return root_node
 

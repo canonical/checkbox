@@ -385,7 +385,7 @@ class Launcher(Command, MainLoopStage):
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
-        tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa,
+        tree = SelectableJobTreeNode.create_rerun_tree(self.ctx.sa,
                                                         rerun_candidates)
         # nothing to select in root node and categories - bailing out
         if not tree.jobs and not tree._categories:
@@ -417,7 +417,7 @@ class Launcher(Command, MainLoopStage):
         def rerun_predicate(job_state):
             return job_state.result.outcome in (
                 IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-                IJobResult.OUTCOME_NOT_SUPPORTED, IJobResult.OUTCOME_SKIP)
+                IJobResult.OUTCOME_SKIP)
         rerun_candidates = []
         todo_list = self.ctx.sa.get_static_todo_list()
         job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id

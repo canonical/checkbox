@@ -583,11 +583,11 @@ class SessionDeviceContext:
 
     def _compute_override_map(self):
         """Compute the map of field overrides."""
-        override_map = collections.defaultdict(list)
+        override_map = collections.OrderedDict()
         for test_plan in self._test_plan_list:
             support = TestPlanUnitSupport(test_plan)
             for pattern, override_list in support.override_list:
-                override_map[pattern].extend(override_list)
+                override_map.setdefault(pattern, []).extend(override_list)
         return override_map
 
     def _invalidate_override_map(self, *args, **kwargs):

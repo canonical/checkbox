@@ -260,7 +260,7 @@ class Interface(socket.socket):
             nic_data = fcntl.ioctl(self.fileno(), 0x8915, freq)
         except IOError:
             logging.error("No IP address for %s", self.interface)
-            return 1
+            return None
         return socket.inet_ntoa(nic_data[20:24])
 
     @property
@@ -271,7 +271,7 @@ class Interface(socket.socket):
             mask_data = fcntl.ioctl(self.fileno(), 0x891b, freq)
         except IOError:
             logging.error("No netmask for %s", self.interface)
-            return 1
+            return None
         return socket.inet_ntoa(mask_data[20:24])
 
     @property
@@ -433,9 +433,15 @@ def make_target_list(iface, test_targets, log_warnings):
         List form of input string, minus invalid values
     """
     test_targets_list = test_targets.split(",")
-    net = ipaddress.IPv4Network("{}/{}".format(Interface(iface).ipaddress,
-                                               Interface(iface).netmask),
-                                False)
+    try:
+        net = ipaddress.IPv4Network("{}/{}".format(Interface(iface).ipaddress,
+                                                   Interface(iface).netmask),
+                                    False)
+    except ipaddress.AddressValueError as e:
+        logging.error("Device {}: Invalid IP Address".format(iface))
+        logging.error("  {}".format(e))
+        logging.error("Aborting test now")
+        sys.exit(1)
     first_addr = net.network_address + 1
     last_addr = first_addr + net.num_addresses - 2
     return_list = list(test_targets_list)
@@ -471,7 +477,8 @@ def interface_test(args):
     if (args.test_type.lower() == "iperf" or
             args.test_type.lower() == "stress"):
         test_targets = test_parameters["test_target_iperf"]
-        test_targets_list = make_target_list(args.interface, test_targets, True)
+        test_targets_list = make_target_list(args.interface, test_targets,
+                                             True)
 
     # Validate that we got reasonable values
     if not test_targets_list or "example.com" in test_targets:
@@ -535,7 +542,9 @@ def interface_test(args):
             if not test_targets_list:
                 logging.info(" Exhausted test target list; trying again "
                              .center(60, "="))
-                test_targets_list = make_target_list(args.interface, test_targets, False)
+                test_targets_list = make_target_list(args.interface,
+                                                     test_targets,
+                                                     False)
                 time.sleep(30)
                 first_loop = False
 

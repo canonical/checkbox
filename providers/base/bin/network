@@ -454,10 +454,9 @@ def make_target_list(iface, test_targets, log_warnings):
             target = ipaddress.IPv4Address(test_target_ip)
             if (target < first_addr) or (target > last_addr):
                 if log_warnings:
-                    logging.warning("test server {} ({}) is NOT ".
-                                    format(test_target, target))
-                    logging.warning("within {}; skipping".format(net))
-                return_list.remove(test_target)
+                    logging.warning("Test server {} ({}) is NOT within {}".
+                                    format(test_target, target, net))
+                    logging.warning("This may cause test issues")
         except ValueError:
             if log_warnings:
                 logging.warning("Invalid address: {}; skipping".

@@ -75,10 +75,27 @@ run_stressor() {
     end_time=$((runtime*15/10))
     echo "Running stress-ng $1 stressor for $2 seconds...."
     # Use "timeout" command to launch stress-ng, to catch it should it go into la-la land
-    timeout -s 9 $end_time stress-ng --aggressive --verify --timeout $runtime --$1 0
+    timeout -s 14 $end_time stress-ng -k --aggressive --verify --timeout $runtime --$1 0
     return_code="$?"
     echo "return_code is $return_code"
     if [ "$return_code" != "0" ] ; then
+         #                                                                             
+         # a small grace period to allow stressors to terminate                     
+         #                                                                     
+             sleep 10                                                         
+         #                                                                   
+         # still running? aggressively kill all stressors                   
+         #                                                                             
+         pids=$(pidof stress-ng)
+         if [ -n "$pids" ]; then
+             kill -9 $pids
+             sleep 1
+             kill -9 $pids
+             pids=$(pidof stress-ng)
+             if [ -n "$pids" ]; then
+                 echo "Note: stress-ng (PIDS $pids) could not be killed"
+             fi
+         fi        
         had_error=1
         echo "*****************************************************************"
         if [ $return_code = "137" ] ; then

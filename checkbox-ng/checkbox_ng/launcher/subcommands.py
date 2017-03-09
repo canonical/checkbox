@@ -527,6 +527,22 @@ class Launcher(Command, MainLoopStage):
             else:
                 options = ""
             self.transports[transport] = cls(url, options)
+        elif tr_type == 'submission-service':
+            secure_id = self.launcher.transports[transport].get(
+                'secure_id', None)
+            if not secure_id and self.is_interactive:
+                secure_id = input(self.C.BLUE(_('Enter secure-id:')))
+            if secure_id:
+                options = "secure_id={}".format(secure_id)
+            else:
+                options = ""
+            if self.launcher.transports[transport].get('staging', False):
+                url = ('https://submission.staging.canonical.com/'
+                       '1.0/submission/hardware/{}'.format(secure_id))
+            else:
+                url = ('https://submission.canonical.com/'
+                       '1.0/submission/hardware/{}'.format(secure_id))
+            self.transports[transport] = cls(url, options)
 
     def _export_results(self):
         for report in self.launcher.stock_reports:

@@ -74,6 +74,8 @@ setup(
         'plainbox.transport': [
             'certification='
             'checkbox_ng.certification:CertificationTransport',
+            'submission-service='
+            'checkbox_ng.certification:CertificationTransport',
         ],
     },
     include_package_data=True)

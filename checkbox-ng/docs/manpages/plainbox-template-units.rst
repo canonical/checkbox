@@ -171,7 +171,7 @@ that generates a job for each hard drive available on the system::
    _summary: Check stats changes for each disk
    id: disk/stats
    requires: device.category == 'DISK'
-   _description: 
+   _description:
     This test generates some disk activity and checks the stats to ensure drive
     activity is being recorded properly.
    command:
@@ -206,3 +206,39 @@ After migration to a template unit job, it looks like this::
 The ``template-resource`` used here (``device``) refers to a resource job using the ``udev_resource`` script to get information about the system. The ``udev_resource`` script returns a list of items with attributes such as ``path`` and ``name``, so we can use these directly in our template.
 
 We end up with a shorter (from 19 lines to 11!) and more readable template.
+
+Simple Jinja templates example
+------------------------------
+
+Jinja2 can be used as the templating engine instead of python string python. This allows the author access to some powerful templating features including expressions.
+
+First here is the previous disk stats example converted to jinja2::
+
+    unit: template
+    template-resource: device
+    template-filter: device.category == 'DISK'
+    template-engine: jinja2
+    plugin: shell
+    category_id: 2013.com.canonical.plainbox::disk
+    id: disk/stats_{{ name }}
+    requires:
+    device.path == "{{ path }}"
+    block_device.{{ name }}_state != 'removable'
+    user: root
+    command: disk_stats_test {{ name }}
+    _description: This test checks {{ name }} disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
+
+Template engine additional features
+-----------------------------------
+
+Plainbox populates the template parameter dictionary with some extra keys to aid the author.
+
+``__index__``:
+    If a template unit can result in N content jobs then this variable is equal to how many jobs have been created so far.
+
+    Available for ``template-engine``: all
+
+``__system_env__``:
+    When the plainbox encounters a template to render it will populate this variable with the executing shell's enviroment variables as ``os.environ``
+
+    Available for ``template-engine``: ``jinja2``

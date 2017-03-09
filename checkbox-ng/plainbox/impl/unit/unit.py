@@ -27,6 +27,7 @@ import collections
 import hashlib
 import json
 import logging
+import os
 import string
 
 from jinja2 import Template
@@ -579,7 +580,14 @@ class Unit(metaclass=UnitType):
             value = self._data.get(name, default)
         if value is not None and self.is_parametric:
             if self.template_engine == 'jinja2':
-                value = Template(value).render(self.parameters)
+                # Add the current system environment variables to the
+                # parameters so that they can be used in all fields (i.e. not
+                # just in the command shell). By adding here rather than in the
+                # template instantiation we avoid problems with creation of
+                # checkpoints
+                tmp_params = self.parameters.copy()
+                tmp_params.update({'__system_env__': os.environ})
+                value = Template(value).render(tmp_params)
             else:
                 value = string.Formatter().vformat(value, (), self.parameters)
         return value

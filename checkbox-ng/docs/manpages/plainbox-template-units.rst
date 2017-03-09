@@ -210,7 +210,7 @@ We end up with a shorter (from 19 lines to 11!) and more readable template.
 Simple Jinja templates example
 ------------------------------
 
-Jinja2 can be used as the templating engine instead of python string python. This allows the author access to some powerful templating features including expressions.
+Jinja2 can be used as the templating engine instead of python string formatting. This allows the author to access some powerful templating features including expressions.
 
 First here is the previous disk stats example converted to jinja2::
 
@@ -235,8 +235,6 @@ Plainbox populates the template parameter dictionary with some extra keys to aid
 
 ``__index__``:
     If a template unit can result in N content jobs then this variable is equal to how many jobs have been created so far.
-
-    Available for ``template-engine``: all
 
 ``__system_env__``:
     When the plainbox encounters a template to render it will populate this variable with the executing shell's enviroment variables as ``os.environ``

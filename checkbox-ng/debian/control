@@ -40,6 +40,7 @@ Architecture: all
 Depends: python3-guacamole (>= 0.9),
          python3-plainbox (>= 0.27),
          python3-requests (>= 1.0),
+         python3-urwid,
          python3-xlsxwriter,
          ${misc:Depends},
          ${python3:Depends}

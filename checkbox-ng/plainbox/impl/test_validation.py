@@ -74,7 +74,7 @@ class IssueTests(TestCase):
         self.origin.__str__.return_value = '<origin>'
         self.kind.__str__.return_value = '<kind>'
         self.severity.__str__.return_value = '<severity>'
-        self.assertEqual(str(self.issue), "<origin>: <severity>: <message>")
+        self.assertEqual(str(self.issue), "<severity>: <origin>: <message>")
 
     def test_str__without_origin(self):
         self.issue.origin = None

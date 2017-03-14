@@ -25,6 +25,8 @@
 from gettext import gettext as _
 import urwid
 
+from plainbox.abc import IJobResult
+
 
 _widget_cache = {}
 test_info_list = ()
@@ -272,6 +274,101 @@ class CategoryBrowser:
     def unhandled_input(self, key):
         if key in ('t', 'T'):
             raise urwid.ExitMainLoop()
+
+
+class RerunWidget(CategoryWidget):
+    """Widget for a rerun category."""
+    section_names = {
+        IJobResult.OUTCOME_FAIL: _("Failed Jobs"),
+        IJobResult.OUTCOME_SKIP: _("Skipped Jobs"),
+        IJobResult.OUTCOME_CRASH: _("Crashed Jobs"),
+    }
+
+    def __init__(self, node):
+        super().__init__(node)
+        self.expanded = True
+        if node.get_depth() == 0:
+            self.expanded = True
+        self.update_expanded_icon()
+
+    def get_display_text(self):
+        node = self.get_node()
+        if node.get_depth() == 0:
+            return _("Categories")
+        elif node.get_depth() == 1:
+            return self.section_names[node.get_value()]
+        else:
+            return node.get_value()
+
+
+class RerunNode(CategoryNode):
+    """Metadata storage for rerun categories"""
+
+    def load_widget(self):
+        return RerunWidget(self)
+
+    def load_child_keys(self):
+        if self.get_depth() == 0:
+            return sorted(set([job['outcome'] for job in test_info_list]))
+        if self.get_depth() == 1:
+            return sorted(set([job['category_name'] for job in test_info_list
+                               if job['outcome'] == self.get_value()]))
+        else:
+            return sorted([
+                job['id'] for job in test_info_list
+                if job['category_name'] == self.get_key() and
+                job['outcome'] == self.get_parent().get_key()])
+
+    def load_child_node(self, key):
+        """Return either a CategoryNode or JobNode"""
+        if self.get_depth() == 0:
+            return RerunNode(key, parent=self, key=key, depth=1)
+        if self.get_depth() == 1:
+            return RerunNode(key, parent=self, key=key, depth=2)
+        else:
+            value = next(
+                job['name'] for job in test_info_list if job.get("id") == key)
+            return JobNode(
+                value, parent=self, key=key, depth=self.get_depth() + 1)
+
+
+class ReRunBrowser(CategoryBrowser):
+    footer_text = [('Press ('), ('rerun', 'R'), (') to Rerun selection, ('),
+                   ('start', 'F'), (') to Finish')]
+
+    def __init__(self, title, sa, rerun_candidates):
+        global test_info_list
+        test_info_list = tuple(({
+            "id": job.id,
+            "name": job.tr_summary(),
+            "category_name": sa.get_category(
+                sa.get_job_state(job.id).effective_category_id).tr_name(),
+            "outcome": sa.get_job_state(job.id).result.outcome,
+        } for job in rerun_candidates))
+        self.header = urwid.Padding(urwid.Text(title), left=1)
+        self.root_node = RerunNode(sa)
+        root_node_widget = self.root_node.get_widget()
+        root_node_widget.flagged = False
+        root_node_widget.update_w()
+        root_node_widget.set_descendants_state(False)
+        self.listbox = urwid.TreeListBox(urwid.TreeWalker(self.root_node))
+        self.listbox.offset_rows = 1
+        self.footer = urwid.Padding(urwid.Text(self.footer_text), left=1)
+        self.view = urwid.Frame(
+            urwid.AttrWrap(urwid.LineBox(self.listbox), 'body'),
+            header=urwid.AttrWrap(self.header, 'head'),
+            footer=urwid.AttrWrap(self.footer, 'foot'))
+
+    def unhandled_input(self, key):
+        if key in ('r', 'R'):
+            raise urwid.ExitMainLoop()
+        elif key in ('f', 'F'):
+            root_node_widget = self.root_node.get_widget()
+            root_node_widget.flagged = False
+            root_node_widget.update_w()
+            root_node_widget.set_descendants_state(False)
+            raise urwid.ExitMainLoop()
+
 
 def TestPlanBrowser(title, test_plan_list, selection=None):
     palette = [

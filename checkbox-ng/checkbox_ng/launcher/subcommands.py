@@ -59,9 +59,7 @@ from plainbox.public import get_providers
 
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.urwid_ui import CategoryBrowser
-from checkbox_ng.misc import SelectableJobTreeNode
-from checkbox_ng.ui import ScrollableTreeNode
-from checkbox_ng.ui import ShowRerun
+from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import TestPlanBrowser
 
 _ = gettext.gettext
@@ -380,30 +378,23 @@ class Launcher(Command, MainLoopStage):
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
-        tree = SelectableJobTreeNode.create_rerun_tree(self.ctx.sa,
-                                                        rerun_candidates)
-        # nothing to select in root node and categories - bailing out
-        if not tree.jobs and not tree._categories:
-            return False
-        # deselect all by default
-        tree.set_descendants_state(False)
-        self.ctx.display.run(ShowRerun(tree, _("Select jobs to re-run")))
-        wanted_set = frozenset(tree.selection)
+        wanted_set = ReRunBrowser(
+            _("Select jobs to re-run"), self.ctx.sa, rerun_candidates).run()
         if not wanted_set:
             # nothing selected - nothing to run
             return False
         rerun_candidates = []
         # include resource jobs that selected jobs depend on
         resources_to_rerun = []
-        for job in wanted_set:
-            job_state = self.ctx.sa.get_job_state(job.id)
+        for job_id in wanted_set:
+            job_state = self.ctx.sa.get_job_state(job_id)
             for inhibitor in job_state.readiness_inhibitor_list:
                 if inhibitor.cause == InhibitionCause.FAILED_DEP:
-                    resources_to_rerun.append(inhibitor.related_job)
+                    resources_to_rerun.append(inhibitor.related_job.id)
         # reset outcome of jobs that are selected for re-running
-        for job in list(wanted_set) + resources_to_rerun:
-            self.ctx.sa.get_job_state(job.id).result = MemoryJobResult({})
-            rerun_candidates.append(job.id)
+        for job_id in list(wanted_set) + resources_to_rerun:
+            self.ctx.sa.get_job_state(job_id).result = MemoryJobResult({})
+            rerun_candidates.append(job_id)
         self._run_jobs(rerun_candidates)
         return True
 

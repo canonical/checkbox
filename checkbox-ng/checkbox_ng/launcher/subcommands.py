@@ -60,8 +60,8 @@ from plainbox.public import get_providers
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.misc import SelectableJobTreeNode
 from checkbox_ng.ui import ScrollableTreeNode
-from checkbox_ng.ui import ShowMenu
 from checkbox_ng.ui import ShowRerun
+from checkbox_ng.urwid_ui import TestPlanBrowser
 
 _ = gettext.gettext
 
@@ -310,24 +310,22 @@ class Launcher(Command, MainLoopStage):
             key=lambda tp_id: self.ctx.sa.get_test_plan(tp_id).name)
         test_plan_names = [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
                            filtered_tp_ids]
-        preselected_indecies = []
+        preselected_index = None
         if self.launcher.test_plan_default_selection:
             try:
-                preselected_indecies = [test_plan_names.index(
+                preselected_index = test_plan_names.index(
                     self.ctx.sa.get_test_plan(
-                        self.launcher.test_plan_default_selection).name)]
+                        self.launcher.test_plan_default_selection).name)
             except KeyError:
                 _logger.warning(_('%s test plan not found'),
                                 self.launcher.test_plan_default_selection)
-                preselected_indecies = []
+                preselected_index = None
         try:
-            selected_index = self.ctx.display.run(
-                ShowMenu(_("Select test plan"),
-                         test_plan_names, preselected_indecies,
-                         multiple_allowed=False))[0]
-        except IndexError:
+            selected_index = TestPlanBrowser(
+                _("Select test plan"), test_plan_names, preselected_index)
+            return filtered_tp_ids[selected_index]
+        except (IndexError, TypeError):
             return None
-        return filtered_tp_ids[selected_index]
 
     def _pick_jobs_to_run(self):
         if self.launcher.test_selection_forced:

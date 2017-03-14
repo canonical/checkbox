@@ -58,6 +58,7 @@ from plainbox.impl.transport import get_all_transports
 from plainbox.public import get_providers
 
 from checkbox_ng.launcher.stages import MainLoopStage
+from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.misc import SelectableJobTreeNode
 from checkbox_ng.ui import ScrollableTreeNode
 from checkbox_ng.ui import ShowRerun
@@ -333,15 +334,11 @@ class Launcher(Command, MainLoopStage):
             return
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
-        tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa, job_list)
-        for category in tree.get_descendants():
-            category.expanded = False
-        title = _('Choose tests to run on your system:')
-        self.ctx.display.run(ScrollableTreeNode(tree, title))
+        wanted_set = CategoryBrowser(
+            _("Choose tests to run on your system:"), self.ctx.sa).run()
         # NOTE: tree.selection is correct but ordered badly. To retain
         # the original ordering we should just treat it as a mask and
         # use it to filter jobs from get_static_todo_list.
-        wanted_set = frozenset([job.id for job in tree.selection])
         job_id_list = [job_id for job_id in self.ctx.sa.get_static_todo_list()
                        if job_id in wanted_set]
         self.ctx.sa.use_alternate_selection(job_id_list)

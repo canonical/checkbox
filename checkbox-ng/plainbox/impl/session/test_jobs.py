@@ -147,6 +147,8 @@ class JobStateTests(TestCase):
                          self.job.category_id)
         self.assertEqual(self.job_state.effective_certification_status,
                          self.job.certification_status)
+        self.assertEqual(self.job_state.effective_auto_retry,
+                         self.job.auto_retry)
         self.assertIsNone(self.job_state.via_job)
 
     def test_getting_job(self):

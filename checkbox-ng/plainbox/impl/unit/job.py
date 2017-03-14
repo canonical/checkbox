@@ -147,6 +147,19 @@ class _CertificationStatusValues(SymbolDef):
     non_blocker = 'non-blocker'
     blocker = 'blocker'
 
+class _AutoRetryValues(SymbolDef):
+    """
+    Symbols for each value of the JobDefinition.auto_retry field
+
+    unspecified:
+        Default value for all jobs.
+    no:
+        This means that even if automatic retries are enabled in the launcher,
+        this specific job will not be automatically retried.
+    """
+    unspecified = 'unspecified'
+    no = 'no'
+
 
 class JobDefinition(UnitWithId, IJobDefinition):
     """
@@ -376,6 +389,21 @@ class JobDefinition(UnitWithId, IJobDefinition):
         qml_file = self.get_record_value('qml_file')
         if qml_file is not None and self.provider is not None:
             return os.path.join(self.provider.data_dir, qml_file)
+
+    @propertywithsymbols(symbols=_AutoRetryValues)
+    def auto_retry(self):
+        """
+        Check if this job should be automatically retried if it fails.
+
+        The default certification status of all jobs is
+        ``AutoRetry.unspecified``
+
+        .. note::
+            Remember that the auto-retry value can be overridden by a test
+            plan.  You should, instead, consider the effective auto-retry
+            value that can be obtained from :class:`JobState`.
+        """
+        return self.get_record_value('auto-retry', 'unspecified')
 
     @propertywithsymbols(symbols=_CertificationStatusValues)
     def certification_status(self):
@@ -709,6 +737,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             qml_file = 'qml_file'
             certification_status = 'certification_status'
             siblings = 'siblings'
+            auto_retry = 'auto_retry'
 
         field_validators = {
             fields.name: [
@@ -1036,5 +1065,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.bad_reference, Severity.error,
                     message=_('unknown override job field'),
                     onlyif=lambda unit: unit.siblings),
+            ],
+            fields.auto_retry: [
+                concrete_validators.untranslatable,
+                concrete_validators.templateInvariant,
+                MemberOfFieldValidator(
+                    _AutoRetryValues.get_all_symbols()),
             ],
         }

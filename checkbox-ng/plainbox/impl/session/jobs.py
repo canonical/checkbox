@@ -326,6 +326,16 @@ class JobState(pod.POD):
         doc="the effective certification status of this job",
         type=str)
 
+    effective_auto_retry = OverridableJobField(
+        job_field="auto_retry",
+        doc="the ability to automatically retry this job if it fails",
+        type=str)
+
+    attempts = pod.Field(
+        doc="number of attempts remaining (in auto-retry mode)",
+        type=int,
+        initial_fn=lambda: 3)
+
     # NOTE: the `result` property just exposes the last result from the
     # `result_history` tuple above. The API is used everywhere so it should not
     # be broken in any way but the way forward is the sequence stored in
@@ -353,7 +363,7 @@ class JobState(pod.POD):
 
     def can_start(self):
         """Quickly check if the associated job can run right now."""
-        return len(self.readiness_inhibitor_list) == 0
+        return len(self.readiness_inhibitor_list) == 0 and self.attempts > 0
 
     def get_readiness_description(self):
         """Get a human readable description of the current readiness state."""

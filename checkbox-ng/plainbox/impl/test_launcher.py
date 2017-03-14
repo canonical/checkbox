@@ -105,6 +105,9 @@ class LauncherDefinition1Tests(TestCase):
         self.assertEqual(l.test_plan_forced, False)
         self.assertEqual(l.test_selection_forced, False)
         self.assertEqual(l.ui_type, 'interactive')
+        self.assertEqual(l.auto_retry, False)
+        self.assertEqual(l.max_attempts, 3)
+        self.assertEqual(l.delay_before_retry, 1)
         self.assertEqual(l.restart_strategy, Unset)
 
     def test_smoke(self):
@@ -124,6 +127,9 @@ class LauncherDefinition1Tests(TestCase):
         forced = yes
         [ui]
         type = silent
+        auto_retry = yes
+        max_attempts = 5
+        delay_before_retry = 60
         [restart]
         strategy = magic
         [report:foo_report]
@@ -145,6 +151,9 @@ class LauncherDefinition1Tests(TestCase):
         self.assertEqual(l.test_plan_forced, True)
         self.assertEqual(l.test_selection_forced, True)
         self.assertEqual(l.ui_type, 'silent')
+        self.assertEqual(l.auto_retry, True)
+        self.assertEqual(l.max_attempts, 5)
+        self.assertEqual(l.delay_before_retry, 60)
         self.assertEqual(l.restart_strategy, 'magic')
         self.assertEqual(l.reports, {
             'foo_report': {'exporter': 'bar_exporter', 'transport': 'file'}})

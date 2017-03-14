@@ -264,6 +264,26 @@ class LauncherDefinition1(LauncherDefinition):
             ['normal', 'verbose', 'debug'])], help_text=_('Verbosity level'),
         default='normal')
 
+    auto_retry = config.Variable(
+        section='ui',
+        kind=bool,
+        default=False,
+        help_text=_("Automatically retry failed jobs at the end"
+                    " of the session."))
+
+    max_attempts = config.Variable(
+        section='ui',
+        kind=int,
+        default=3,
+        help_text=_("Number of attempts to run a job when in auto-retry mode."))
+
+    delay_before_retry = config.Variable(
+        section='ui',
+        kind=int,
+        default=1,
+        help_text=_("Delay (in seconds) before retrying failed jobs in"
+                    " auto-retry mode."))
+
     restart_strategy = config.Variable(
         section='restart',
         name='strategy',

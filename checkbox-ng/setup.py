@@ -50,6 +50,7 @@ else:
         'guacamole >= 0.9',
         'plainbox >= 0.5.3',
         'requests >= 1.0',
+        'urwid >= 1.1.1',
     ]
 
 setup(

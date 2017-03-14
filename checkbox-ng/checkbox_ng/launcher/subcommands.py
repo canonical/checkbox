@@ -30,6 +30,7 @@ import operator
 import os
 import re
 import sys
+import time
 
 from guacamole import Command
 
@@ -48,7 +49,6 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import PatternMatcher
-from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
@@ -159,10 +159,19 @@ class Launcher(Command, MainLoopStage):
                 "checkbox-ng")
             if 'submission_files' in self.launcher.stock_reports:
                 print("Reports will be saved to: {}".format(self.base_dir))
+            # we initialize the nb of attempts for all the selected jobs...
+            for job_id in self.ctx.sa.get_dynamic_todo_list():
+                job_state = self.ctx.sa.get_job_state(job_id)
+                job_state.attempts = self.launcher.max_attempts
+            # ... before running them
             self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
-            if self.is_interactive:
+            if self.is_interactive and not self.launcher.auto_retry:
                 while True:
                     if not self._maybe_rerun_jobs():
+                        break
+            elif self.launcher.auto_retry:
+                while True:
+                    if not self._maybe_auto_retry_jobs():
                         break
             self._export_results()
             ctx.sa.finalize_session()
@@ -371,6 +380,50 @@ class Launcher(Command, MainLoopStage):
             result = None
         if result:
             self.ctx.sa.use_job_result(last_job, result)
+
+    def _maybe_auto_retry_jobs(self):
+        # create a list of jobs that qualify for rerunning
+        retry_candidates = self._get_auto_retry_candidates()
+        # bail-out early if no job qualifies for rerunning
+        if not retry_candidates:
+            return False
+        # we wait before retrying
+        delay = self.launcher.delay_before_retry
+        _logger.info(_("Waiting {} seconds before retrying failed"
+                       " jobs...".format(delay)))
+        time.sleep(delay)
+        candidates = []
+        # include resource jobs that jobs to retry depend on
+        resources_to_rerun = []
+        for job in retry_candidates:
+            job_state = self.ctx.sa.get_job_state(job.id)
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                    resources_to_rerun.append(inhibitor.related_job)
+        # reset outcome of jobs that are selected for re-running
+        for job in retry_candidates + resources_to_rerun:
+            self.ctx.sa.get_job_state(job.id).result = MemoryJobResult({})
+            candidates.append(job.id)
+            _logger.info("{}: {} attempts".format(
+                job.id,
+                self.ctx.sa.get_job_state(job.id).attempts
+            ))
+        self._run_jobs(candidates)
+        return True
+
+    def _get_auto_retry_candidates(self):
+        """Get all the tests that might be selected for an automatic retry."""
+        def retry_predicate(job_state):
+            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) \
+                   and job_state.effective_auto_retry != 'no'
+        retry_candidates = []
+        todo_list = self.ctx.sa.get_static_todo_list()
+        job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
+                      in todo_list}
+        for job_id, job_state in job_states.items():
+            if retry_predicate(job_state) and job_state.attempts > 0:
+                retry_candidates.append(self.ctx.sa.get_job(job_id))
+        return retry_candidates
 
     def _maybe_rerun_jobs(self):
         # create a list of jobs that qualify for rerunning

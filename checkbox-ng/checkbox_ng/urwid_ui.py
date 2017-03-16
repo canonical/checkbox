@@ -233,6 +233,50 @@ class CategoryNode(urwid.ParentNode):
                 value, parent=self, key=key, depth=self.get_depth() + 1)
 
 
+class CategoryWalker(urwid.TreeWalker):
+    """ListWalker-compatible class for displaying CategoryWidgets."""
+
+    def __init__(self, root_node):
+        self.root_node = root_node
+        self.focus = root_node.get_widget().next_inorder().get_node()
+
+    def get_prev(self, start_from):
+        widget = start_from.get_widget()
+        target = widget.prev_inorder()
+        if target is None or target is self.root_node.get_widget():
+            return None, None
+        else:
+            return target, target.get_node()
+
+
+class CategoryListBox(urwid.TreeListBox):
+    """A ListBox with special handling for navigation and
+    collapsing of CategoryWidgets"""
+
+    def move_focus_to_parent(self, size):
+        """Move focus to parent of widget in focus."""
+        widget, pos = self.body.get_focus()
+        parentpos = pos.get_parent()
+        if parentpos is None or parentpos is pos.get_root():
+            return
+        middle, top, bottom = self.calculate_visible( size )
+        row_offset, focus_widget, focus_pos, focus_rows, cursor = middle
+        trim_top, fill_above = top
+        for widget, pos, rows in fill_above:
+            row_offset -= rows
+            if pos == parentpos:
+                self.change_focus(size, pos, row_offset)
+                return
+        self.change_focus(size, pos.get_parent())
+
+    def focus_home(self, size):
+        """Move focus to first category."""
+        widget, pos = self.body.get_focus()
+        rootnode = pos.get_root()
+        self.change_focus(
+            size, rootnode.get_widget().next_inorder().get_node())
+
+
 class CategoryBrowser:
     palette = [
         ('body', 'light gray', 'black'),
@@ -259,7 +303,7 @@ class CategoryBrowser:
         self.header = urwid.Padding(urwid.Text(title), left=1)
         root_node = CategoryNode(sa)
         root_node.get_widget().set_descendants_state(True)
-        self.listbox = urwid.TreeListBox(urwid.TreeWalker(root_node))
+        self.listbox = CategoryListBox(CategoryWalker(root_node))
         self.listbox.offset_rows = 1
         self.footer = urwid.Padding(urwid.Text(self.footer_text), left=1)
         self.view = urwid.Frame(
@@ -361,7 +405,7 @@ class ReRunBrowser(CategoryBrowser):
         root_node_widget.flagged = False
         root_node_widget.update_w()
         root_node_widget.set_descendants_state(False)
-        self.listbox = urwid.TreeListBox(urwid.TreeWalker(self.root_node))
+        self.listbox = CategoryListBox(CategoryWalker(self.root_node))
         self.listbox.offset_rows = 1
         self.footer = urwid.Padding(urwid.Text(self.footer_text), left=1)
         self.view = urwid.Frame(

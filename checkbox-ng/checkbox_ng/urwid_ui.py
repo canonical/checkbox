@@ -437,7 +437,7 @@ class ReRunBrowser(CategoryBrowser):
             raise urwid.ExitMainLoop()
 
 
-def TestPlanBrowser(title, test_plan_list, selection=None):
+def test_plan_browser(title, test_plan_list, selection=None):
     palette = [
         ('body', 'light gray', 'black', 'standout'),
         ('header', 'black', 'light gray', 'bold'),

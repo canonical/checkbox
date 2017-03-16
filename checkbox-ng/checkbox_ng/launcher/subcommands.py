@@ -60,7 +60,7 @@ from plainbox.public import get_providers
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
-from checkbox_ng.urwid_ui import TestPlanBrowser
+from checkbox_ng.urwid_ui import test_plan_browser
 
 _ = gettext.gettext
 
@@ -320,7 +320,7 @@ class Launcher(Command, MainLoopStage):
                                 self.launcher.test_plan_default_selection)
                 preselected_index = None
         try:
-            selected_index = TestPlanBrowser(
+            selected_index = test_plan_browser(
                 _("Select test plan"), test_plan_names, preselected_index)
             return filtered_tp_ids[selected_index]
         except (IndexError, TypeError):

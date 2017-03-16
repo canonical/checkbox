@@ -94,6 +94,7 @@ class FlagUnitWidget(urwid.TreeWidget):
         return False
 
     def unhandled_keys(self, size, key):
+        global show_job_ids, _widget_cache
         if key == " ":
             self.flagged = not self.flagged
             self.set_descendants_state(self.flagged)
@@ -103,13 +104,22 @@ class FlagUnitWidget(urwid.TreeWidget):
             self.expanded = not self.expanded
             self.update_expanded_icon()
         elif key in ('i', 'I'):
-            global show_job_ids, _widget_cache
             show_job_ids = not show_job_ids
             for w in _widget_cache.values():
                 w._w.base_widget.widget_list[-1] = urwid.Padding(
                     w.load_inner_widget(),
                     width=('relative', 100),
                     left=w.get_indent_cols())
+        elif key in ('s', 'S'):
+            root_node_widget = self.get_node().get_root().get_widget()
+            root_node_widget.flagged = True
+            root_node_widget.update_w()
+            root_node_widget.set_descendants_state(True)
+        elif key in ('d', 'D'):
+            root_node_widget = self.get_node().get_root().get_widget()
+            root_node_widget.flagged = False
+            root_node_widget.update_w()
+            root_node_widget.set_descendants_state(False)
         else:
             return key
 

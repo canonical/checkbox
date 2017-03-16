@@ -51,7 +51,7 @@ echo "12345678" > $file_input_data
 fi 
 
 tpm2_takeownership -c
-tpm2_createprimary -A p -g $alg_primary_obj -G $alg_primary_key -C $file_primary_key_ctx
+tpm2_createprimary -A e -g $alg_primary_obj -G $alg_primary_key -C $file_primary_key_ctx
 if [ $? != 0 ];then
 echo "createprimary fail, please check the environment or parameters!"
 exit 1
@@ -70,7 +70,7 @@ exit 1
 fi
 
 #tpm2_unseal -c context_load_out1.out -o usl.data.out
-tpm2_unseal -c $file_unseal_key_ctx $ -o $file_unseal_output_data 
+tpm2_unseal -c $file_unseal_key_ctx -o $file_unseal_output_data 
 if [ $? != 0 ];then
 echo "unseal fail, please check the environment or parameters!"
 exit 1

@@ -52,6 +52,13 @@ class FlagUnitWidget(urwid.TreeWidget):
     def selectable(self):
         return True
 
+    def get_indent_cols(self):
+        depth = self.get_node().get_depth()
+        if depth > 1:
+            return self.indent_cols * (self.get_node().get_depth() - 1)
+        else:
+            return 1
+
     def get_indented_widget(self):
         indent_cols = self.get_indent_cols()
         widget = self.get_inner_widget()
@@ -85,11 +92,17 @@ class FlagUnitWidget(urwid.TreeWidget):
         return key
 
     def mouse_event(self, size, event, button, col, row, focus):
-        if self.is_leaf or event != 'mouse press' or button != 1:
+        if event != 'mouse press' or button != 1:
             return False
-        if row == 0 and col == self.get_indent_cols() + 4:
+        expand_col = 4
+        if self.get_node().get_depth() > 1:
+            expand_col = self.get_indent_cols() + 4
+        if not self.is_leaf and row == 0 and col == expand_col:
             self.expanded = not self.expanded
             self.update_expanded_icon()
+            return True
+        if row == 0 and col < 3:
+            self.unhandled_keys(size, " ")
             return True
         return False
 

@@ -36,6 +36,7 @@ PATH="$PATH":"$new_path"
 pCtx=
 gAlg=
 GAlg=
+gAlgList="0x04 0x0B"
 
 rm create.error.log
 
@@ -46,9 +47,21 @@ if [ $ctx_count -le 1 ];then
     test_tpm2_createprimary_all.sh
 fi
 
+if [[ "$@" == *"--384"* ]]; then
+    gAlgList="$gAlgList 0x0C"
+fi
+
+if [[ "$@" == *"--512"* ]]; then
+    gAlgList="$gAlgList 0x0D"
+fi
+
+if [[ "$@" == *"--sm3256"* ]]; then
+    gAlgList="$gAlgList 0x12"
+fi
+
 for pCtx in `ls ctx.cpri*`
     do
-    for gAlg in 0x04 0x0B 0x0C 0x0D 0x12
+    for gAlg in $gAlgList
         do 
         for GAlg in 0x01 0x08 0x23 0x25
             do 

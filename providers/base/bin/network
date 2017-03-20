@@ -108,7 +108,7 @@ class IPerfPerformanceTest(object):
 
         logging.debug("Executing command {}".format(cmd))
         logging.debug("Starting iperf against {}, this could take a while...".
-                     format(self.target))
+                      format(self.target))
         try:
             iperf_return = check_output(
                 shlex.split(cmd), universal_newlines=True)
@@ -170,16 +170,16 @@ class IPerfPerformanceTest(object):
             if percent < self.fail_threshold or \
                     cpu_load > self.cpu_load_fail_threshold:
                 logging.warning("Poor network performance detected against {}".
-                             format(self.target))
+                                format(self.target))
                 if percent < self.fail_threshold:
                     logging.warning("  Transfer speed: {} Mb/s".
-                                 format(throughput))
+                                    format(throughput))
                     logging.warning("  {:03.2f}% of theoretical max {} Mb/s\n".
-                                 format(percent, int(self.iface.max_speed)))
+                                    format(percent, int(self.iface.max_speed)))
                 if cpu_load > self.cpu_load_fail_threshold:
                     logging.warning("  CPU load: {}%".format(cpu_load))
                     logging.warning("  CPU load is above {}% maximum\n".
-                                 format(self.cpu_load_fail_threshold))
+                                    format(self.cpu_load_fail_threshold))
                 return 30
 
             logging.debug("Passed benchmark against {}".format(self.target))
@@ -406,7 +406,7 @@ def run_test(args, test_target):
             run_num += 1
             logging.info(" Test Run Number %s ".center(60, "-"), run_num)
             error_number = iperf_benchmark.run()
-            #logging.info(" Finished run number %s ".center(60, "-"), run_num)
+            logging.info('')
     elif args.test_type.lower() == "stress":
         stress_benchmark = StressPerformanceTest(args.interface,
                                                  test_target, args.iperf3)
@@ -540,7 +540,7 @@ def interface_test(args):
                 break
             if not test_targets_list:
                 logging.warning(" Exhausted test target list; trying again "
-                             .center(60, "="))
+                                .center(60, "="))
                 test_targets_list = make_target_list(args.interface,
                                                      test_targets,
                                                      False)

@@ -29,7 +29,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
-#!/bin/sh
+#!/bin/bash
 
 new_path=`dirname $0`
 PATH="$PATH":"$new_path"

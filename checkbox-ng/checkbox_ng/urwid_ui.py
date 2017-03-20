@@ -189,9 +189,9 @@ class JobTreeWidget(FlagUnitWidget):
     def get_display_text(self):
         global show_job_ids
         if show_job_ids:
-            return self.get_node().get_key()
+            return self.get_node().get_value()[0]
         else:
-            return self.get_node().get_value()
+            return self.get_node().get_value()[1]
 
 
 class CategoryWidget(FlagUnitWidget):
@@ -241,7 +241,8 @@ class CategoryNode(urwid.ParentNode):
                                 key=key, depth=self.get_depth() + 1)
         else:
             value = next(
-                job['name'] for job in test_info_list if job.get("id") == key)
+                (job['partial_id'], job['name']) for job in test_info_list
+                if job.get("id") == key)
             return JobNode(
                 value, parent=self, key=key, depth=self.get_depth() + 1)
 
@@ -272,7 +273,7 @@ class CategoryListBox(urwid.TreeListBox):
         parentpos = pos.get_parent()
         if parentpos is None or parentpos is pos.get_root():
             return
-        middle, top, bottom = self.calculate_visible( size )
+        middle, top, bottom = self.calculate_visible(size)
         row_offset, focus_widget, focus_pos, focus_rows, cursor = middle
         trim_top, fill_above = top
         for widget, pos, rows in fill_above:
@@ -310,6 +311,7 @@ class CategoryBrowser:
         global test_info_list
         test_info_list = tuple(({
             "id": job.id,
+            "partial_id": job.partial_id,
             "name": job.tr_summary(),
             "category_id": sa.get_job_state(job.id).effective_category_id,
         } for job in job_units))
@@ -394,7 +396,8 @@ class RerunNode(CategoryNode):
             return RerunNode(key, parent=self, key=key, depth=2)
         else:
             value = next(
-                job['name'] for job in test_info_list if job.get("id") == key)
+                (job['partial_id'], job['name']) for job in test_info_list
+                if job.get("id") == key)
             return JobNode(
                 value, parent=self, key=key, depth=self.get_depth() + 1)
 
@@ -407,6 +410,7 @@ class ReRunBrowser(CategoryBrowser):
         global test_info_list
         test_info_list = tuple(({
             "id": job.id,
+            "partial_id": job.partial_id,
             "name": job.tr_summary(),
             "category_name": sa.get_category(
                 sa.get_job_state(job.id).effective_category_id).tr_name(),

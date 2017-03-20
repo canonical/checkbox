@@ -34,14 +34,32 @@
 Atype=
 gAlg=
 GAlg=
+gAlgList="0x04 0x0B"
+AtypeList="o e n"
+
+if [[ "$@" == *"--384"* ]]; then
+    gAlgList="$gAlgList 0x0C"
+fi
+
+if [[ "$@" == *"--512"* ]]; then
+    gAlgList="$gAlgList 0x0D"
+fi
+
+if [[ "$@" == *"--sm3256"* ]]; then
+    gAlgList="$gAlgList 0x12"
+fi
+
+if [[ "$@" == *"--platform"* ]]; then
+    AtypeList="$AtypeList p"
+fi
 
 rm -f createprimary.error.log
 
-for gAlg in 0x04 0x0B 0x0C 0x0D 0x12
+for gAlg in $gAlgList
     do 
         for GAlg in 0x01 0x08 0x23 0x25
             do 
-                for Atype in o e p n 
+                for Atype in $AtypeList
                     do 
                     tpm2_createprimary -A $Atype -g $gAlg -G $GAlg -C ctx.cpri."$Atype".g"$gAlg".G"$GAlg"
                     if [ $? != 0 ];then 

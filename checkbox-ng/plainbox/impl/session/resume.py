@@ -765,6 +765,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             else:
                 raise IncompatibleJobError(
                     _("Definition of job {!r} has changed").format(job_id))
+        # Generate siblings
+        session.add_unit(job)
         # The result may not be there. This method is called for all the jobs
         # we're supposed to check but not all such jobs need to have results
         if job.id not in results_repr:

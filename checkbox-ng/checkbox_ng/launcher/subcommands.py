@@ -58,10 +58,9 @@ from plainbox.impl.transport import get_all_transports
 from plainbox.public import get_providers
 
 from checkbox_ng.launcher.stages import MainLoopStage
-from checkbox_ng.misc import SelectableJobTreeNode
-from checkbox_ng.ui import ScrollableTreeNode
-from checkbox_ng.ui import ShowMenu
-from checkbox_ng.ui import ShowRerun
+from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.urwid_ui import ReRunBrowser
+from checkbox_ng.urwid_ui import test_plan_browser
 
 _ = gettext.gettext
 
@@ -310,24 +309,22 @@ class Launcher(Command, MainLoopStage):
             key=lambda tp_id: self.ctx.sa.get_test_plan(tp_id).name)
         test_plan_names = [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
                            filtered_tp_ids]
-        preselected_indecies = []
+        preselected_index = None
         if self.launcher.test_plan_default_selection:
             try:
-                preselected_indecies = [test_plan_names.index(
+                preselected_index = test_plan_names.index(
                     self.ctx.sa.get_test_plan(
-                        self.launcher.test_plan_default_selection).name)]
+                        self.launcher.test_plan_default_selection).name)
             except KeyError:
                 _logger.warning(_('%s test plan not found'),
                                 self.launcher.test_plan_default_selection)
-                preselected_indecies = []
+                preselected_index = None
         try:
-            selected_index = self.ctx.display.run(
-                ShowMenu(_("Select test plan"),
-                         test_plan_names, preselected_indecies,
-                         multiple_allowed=False))[0]
-        except IndexError:
+            selected_index = test_plan_browser(
+                _("Select test plan"), test_plan_names, preselected_index)
+            return filtered_tp_ids[selected_index]
+        except (IndexError, TypeError):
             return None
-        return filtered_tp_ids[selected_index]
 
     def _pick_jobs_to_run(self):
         if self.launcher.test_selection_forced:
@@ -335,15 +332,11 @@ class Launcher(Command, MainLoopStage):
             return
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
-        tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa, job_list)
-        for category in tree.get_descendants():
-            category.expanded = False
-        title = _('Choose tests to run on your system:')
-        self.ctx.display.run(ScrollableTreeNode(tree, title))
+        wanted_set = CategoryBrowser(
+            _("Choose tests to run on your system:"), self.ctx.sa).run()
         # NOTE: tree.selection is correct but ordered badly. To retain
         # the original ordering we should just treat it as a mask and
         # use it to filter jobs from get_static_todo_list.
-        wanted_set = frozenset([job.id for job in tree.selection])
         job_id_list = [job_id for job_id in self.ctx.sa.get_static_todo_list()
                        if job_id in wanted_set]
         self.ctx.sa.use_alternate_selection(job_id_list)
@@ -385,30 +378,23 @@ class Launcher(Command, MainLoopStage):
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
-        tree = SelectableJobTreeNode.create_rerun_tree(self.ctx.sa,
-                                                        rerun_candidates)
-        # nothing to select in root node and categories - bailing out
-        if not tree.jobs and not tree._categories:
-            return False
-        # deselect all by default
-        tree.set_descendants_state(False)
-        self.ctx.display.run(ShowRerun(tree, _("Select jobs to re-run")))
-        wanted_set = frozenset(tree.selection)
+        wanted_set = ReRunBrowser(
+            _("Select jobs to re-run"), self.ctx.sa, rerun_candidates).run()
         if not wanted_set:
             # nothing selected - nothing to run
             return False
         rerun_candidates = []
         # include resource jobs that selected jobs depend on
         resources_to_rerun = []
-        for job in wanted_set:
-            job_state = self.ctx.sa.get_job_state(job.id)
+        for job_id in wanted_set:
+            job_state = self.ctx.sa.get_job_state(job_id)
             for inhibitor in job_state.readiness_inhibitor_list:
                 if inhibitor.cause == InhibitionCause.FAILED_DEP:
-                    resources_to_rerun.append(inhibitor.related_job)
+                    resources_to_rerun.append(inhibitor.related_job.id)
         # reset outcome of jobs that are selected for re-running
-        for job in list(wanted_set) + resources_to_rerun:
-            self.ctx.sa.get_job_state(job.id).result = MemoryJobResult({})
-            rerun_candidates.append(job.id)
+        for job_id in list(wanted_set) + resources_to_rerun:
+            self.ctx.sa.get_job_state(job_id).result = MemoryJobResult({})
+            rerun_candidates.append(job_id)
         self._run_jobs(rerun_candidates)
         return True
 
@@ -526,6 +512,22 @@ class Launcher(Command, MainLoopStage):
                 options = "secure_id={}".format(secure_id)
             else:
                 options = ""
+            self.transports[transport] = cls(url, options)
+        elif tr_type == 'submission-service':
+            secure_id = self.launcher.transports[transport].get(
+                'secure_id', None)
+            if not secure_id and self.is_interactive:
+                secure_id = input(self.C.BLUE(_('Enter secure-id:')))
+            if secure_id:
+                options = "secure_id={}".format(secure_id)
+            else:
+                options = ""
+            if self.launcher.transports[transport].get('staging', False):
+                url = ('https://submission.staging.canonical.com/'
+                       '1.0/submission/hardware/{}'.format(secure_id))
+            else:
+                url = ('https://submission.canonical.com/'
+                       '1.0/submission/hardware/{}'.format(secure_id))
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):

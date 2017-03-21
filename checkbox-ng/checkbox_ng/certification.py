@@ -46,9 +46,12 @@ class CertificationTransport(TransportBase):
     Transport for sending data to certification database.
      - POSTs data to a http(s) endpoint
      - Adds a header with a hardware identifier
-     - Data is expected to be in checkbox xml-compatible format.
-       This means it will work best with a stream produced by the
-       xml exporter.
+     - Payload can be in:
+        * checkbox xml-compatible format.
+          This means it will work best with a stream produced by the xml
+          exporter.
+        * LZMA compressed tarball that includes a submission.json and results
+          from checkbox.
    """
 
     def __init__(self, where, options):

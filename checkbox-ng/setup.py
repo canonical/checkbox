@@ -50,11 +50,12 @@ else:
         'guacamole >= 0.9',
         'plainbox >= 0.5.3',
         'requests >= 1.0',
+        'urwid >= 1.1.1',
     ]
 
 setup(
     name="checkbox-ng",
-    version="0.32.0.dev0",
+    version="0.33.0.dev0",
     url="https://launchpad.net/checkbox-ng/",
     packages=find_packages(),
     author="Zygmunt Krynicki",
@@ -73,6 +74,8 @@ setup(
         ],
         'plainbox.transport': [
             'certification='
+            'checkbox_ng.certification:CertificationTransport',
+            'submission-service='
             'checkbox_ng.certification:CertificationTransport',
         ],
     },

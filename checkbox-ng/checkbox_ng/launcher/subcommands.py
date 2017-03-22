@@ -854,7 +854,7 @@ class List(Command):
             '-a', '--attrs', default=False, action="store_true",
             help=_("show object attributes"))
         parser.add_argument(
-            '-f', '--format', default='id: {id}\n{tr_summary}\n', type=str,
+            '-f', '--format', type=str,
             help=_(("output format, as passed to print function. "
                 "Use '?' to list possible values")))
 
@@ -871,6 +871,11 @@ class List(Command):
                     all_keys.update(job.keys())
                 print(list(all_keys))
                 return
+            if not ctx.args.format:
+                # setting default in parser.add_argument would apply to all
+                # the list invocations. We want default to be present only for
+                # the 'all-jobs' group.
+                ctx.args.format = 'id: {id}\n{tr_summary}\n'
             for job in jobs:
                 unescaped = ctx.args.format.replace(
                     '\\n', '\n').replace('\\t', '\t')
@@ -886,7 +891,7 @@ class List(Command):
                     job['unit_type'] = 'job'
                 print(unescaped.format(**DefaultKeyedDict(None, job)), end='')
             return
-        if ctx.args.format:
+        elif ctx.args.format:
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
         print_objs(ctx.args.GROUP, ctx.args.attrs)
 

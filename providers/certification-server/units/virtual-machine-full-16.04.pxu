@@ -30,7 +30,7 @@ mandatory_include:
     udev-summary_attachment
     lsmod_attachment
     miscellanea/get_make_and_model
-    miscellanea/get_maas_version
+    miscellanea/get_maas_version               certification-status=blocker
     info/disk_partitions
     info/network_devices
     kernel_cmdline_attachment

@@ -305,6 +305,25 @@ class CategoryBrowser:
 
     footer_text = [('Press ('), ('start', 'T'), (') to start Testing')]
 
+    help_text = urwid.ListBox(urwid.SimpleListWalker([
+        urwid.Text(('focus', " Keyboard Controls and Shortcuts "), 'center'),
+        urwid.Divider(),
+        urwid.Text("Expand/Collapse          Enter/+/-"),
+        urwid.Text("Select/Deselect all      s/d"),
+        urwid.Text("Select/Deselect          Space"),
+        urwid.Text("Navigation               Up/Down"),
+        urwid.Text("                         Home/End"),
+        urwid.Text("                         PageUp/PageDown"),
+        urwid.Text("Back to parent category  Left"),
+        urwid.Text("Toggle job id/summary    i"),
+        urwid.Text("Exit (abandon session)   Ctrl+C"),
+        urwid.Divider(),
+        urwid.Text(('focus', " Mouse Support "), 'center'),
+        urwid.Divider(),
+        urwid.Text("Line selection           Left-click"),
+        urwid.Text("Expand/Collapse          Left-click on +/-"),
+        urwid.Text("Select/Deselect          Left-click on [X]")]))
+
     def __init__(self, title, sa):
         job_units = [sa.get_job(job_id) for job_id in
                      sa.get_static_todo_list()]
@@ -320,11 +339,17 @@ class CategoryBrowser:
         root_node.get_widget().set_descendants_state(True)
         self.listbox = CategoryListBox(CategoryWalker(root_node))
         self.listbox.offset_rows = 1
-        self.footer = urwid.Padding(urwid.Text(self.footer_text), left=1)
+        self.footer = urwid.Columns(
+            [urwid.Padding(urwid.Text(self.footer_text), left=1),
+             urwid.Text('(H) Help ', 'right')])
         self.view = urwid.Frame(
             urwid.AttrWrap(urwid.LineBox(self.listbox), 'body'),
             header=urwid.AttrWrap(self.header, 'head'),
             footer=urwid.AttrWrap(self.footer, 'foot'))
+        help_w = urwid.AttrWrap(urwid.LineBox(self.help_text), 'body')
+        self.help_view = urwid.Overlay(
+            help_w, self.view,
+            'center', ('relative', 80), 'middle', ('relative', 80))
 
     def run(self):
         """Run the urwid MainLoop."""
@@ -341,8 +366,15 @@ class CategoryBrowser:
         return frozenset(selection)
 
     def unhandled_input(self, key):
-        if key in ('t', 'T'):
-            raise urwid.ExitMainLoop()
+        if self.loop.widget == self.view:
+            if key in ('t', 'T'):
+                raise urwid.ExitMainLoop()
+            elif key in ('h', 'H', '?', 'f1'):
+                self.loop.widget = self.help_view
+                return True
+        else:
+            if key in ('h', 'H', '?', 'f1', 'esc'):
+                self.loop.widget = self.view
 
 
 class RerunWidget(CategoryWidget):
@@ -424,21 +456,34 @@ class ReRunBrowser(CategoryBrowser):
         root_node_widget.set_descendants_state(False)
         self.listbox = CategoryListBox(CategoryWalker(self.root_node))
         self.listbox.offset_rows = 1
-        self.footer = urwid.Padding(urwid.Text(self.footer_text), left=1)
+        self.footer = urwid.Columns(
+            [urwid.Padding(urwid.Text(self.footer_text), left=1),
+             urwid.Text('(H) Help ', 'right')])
         self.view = urwid.Frame(
             urwid.AttrWrap(urwid.LineBox(self.listbox), 'body'),
             header=urwid.AttrWrap(self.header, 'head'),
             footer=urwid.AttrWrap(self.footer, 'foot'))
+        help_w = urwid.AttrWrap(urwid.LineBox(self.help_text), 'body')
+        self.help_view = urwid.Overlay(
+            help_w, self.view,
+            'center', ('relative', 80), 'middle', ('relative', 80))
 
     def unhandled_input(self, key):
-        if key in ('r', 'R'):
-            raise urwid.ExitMainLoop()
-        elif key in ('f', 'F'):
-            root_node_widget = self.root_node.get_widget()
-            root_node_widget.flagged = False
-            root_node_widget.update_w()
-            root_node_widget.set_descendants_state(False)
-            raise urwid.ExitMainLoop()
+        if self.loop.widget == self.view:
+            if key in ('r', 'R'):
+                raise urwid.ExitMainLoop()
+            elif key in ('f', 'F'):
+                root_node_widget = self.root_node.get_widget()
+                root_node_widget.flagged = False
+                root_node_widget.update_w()
+                root_node_widget.set_descendants_state(False)
+                raise urwid.ExitMainLoop()
+            elif key in ('h', 'H', '?', 'f1'):
+                self.loop.widget = self.help_view
+                return True
+        else:
+            if key in ('h', 'H', '?', 'f1', 'esc'):
+                self.loop.widget = self.view
 
 
 def test_plan_browser(title, test_plan_list, selection=None):

@@ -248,7 +248,7 @@ Possible values are:
 - ``verbose`` - report important events that take place during execution (E.g.
   adding units, starting jobs, changing the state of the session)
 
-- ``degug`` - print out everything
+- ``debug`` - print out everything
 
 Default value: ``normal``
 
@@ -256,6 +256,43 @@ Default value: ``normal``
 
     You can also change this behavior when invoking Checkbox by using
     ``--verbose`` and ``--debug`` options respectively.
+
+``auto-retry``
+
+If set to ``yes``, failed jobs will automatically be retried at the end of
+the testing session. In addition, the re-run screen (where user can select
+failed and skipped jobs to re-run) will not be shown. Default value: ``no``.
+
+``max_attempts``
+Defines the maximum number of times a job should be run in auto-retry mode.
+If the job passes, it won't be retried even if the maximum number of attempts
+have not been reached. Default value: ``3``.
+
+``delay_before_retry``
+The number of seconds to wait before retrying the failed jobs at the end of
+the testing session. This can be useful when the jobs relying on external
+factors (e.g. a WiFi access point) and you want to wait before retrying the
+same job. Default value: ``1``.
+
+.. warning::
+
+    When ``auto-retry`` is set to ``yes``, **every** failing jobs will be retried.
+    This can be a problem, for instance, for jobs that take a really long time
+    to run. To avoid this, you can use the ``auto-retry=no`` inline override
+    in the test plan to explicitely mark each job you do not wish to see
+    retried.
+
+    For example::
+
+        id: foo-bar-and-froz
+        _name: Tests Foo, Bar and Froz
+        include:
+            foo
+            bar     auto-retry=no
+            froz
+
+    In that case, even if job ``bar`` fails and auto-retry is activated, it
+    will not be retried.
 
 Restart section
 ===============

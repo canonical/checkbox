@@ -257,7 +257,7 @@ Default value: ``normal``
     You can also change this behavior when invoking Checkbox by using
     ``--verbose`` and ``--debug`` options respectively.
 
-``auto-retry``
+``auto_retry``
 
 If set to ``yes``, failed jobs will automatically be retried at the end of
 the testing session. In addition, the re-run screen (where user can select
@@ -276,7 +276,7 @@ same job. Default value: ``1``.
 
 .. warning::
 
-    When ``auto-retry`` is set to ``yes``, **every** failing jobs will be retried.
+    When ``auto_retry`` is set to ``yes``, **every** failing jobs will be retried.
     This can be a problem, for instance, for jobs that take a really long time
     to run. To avoid this, you can use the ``auto-retry=no`` inline override
     in the test plan to explicitely mark each job you do not wish to see

@@ -316,6 +316,7 @@ class CategoryBrowser:
         urwid.Text("                         PageUp/PageDown"),
         urwid.Text("Back to parent category  Left"),
         urwid.Text("Toggle job id/summary    i"),
+        urwid.Text('Show job details         m'),
         urwid.Text("Exit (abandon session)   Ctrl+C"),
         urwid.Divider(),
         urwid.Text(('focus', " Mouse Support "), 'center'),

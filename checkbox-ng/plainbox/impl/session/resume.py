@@ -688,6 +688,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         results_repr = _validate(session_repr, key='results', value_type=dict)
         # List of jobs (ids) that could not be processed on the first pass
         leftover_jobs = deque()
+        # Ensure siblings are generated in the session
+        [session.add_unit(u) for u in self.job_list if u.Meta.name == 'job']
         # Run a first pass through jobs and results. Anything that didn't
         # work (generated jobs) gets added to leftover_jobs list.
         # To make this bit deterministic (we like determinism) we're always
@@ -765,8 +767,6 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             else:
                 raise IncompatibleJobError(
                     _("Definition of job {!r} has changed").format(job_id))
-        # Generate siblings
-        session.add_unit(job)
         # The result may not be there. This method is called for all the jobs
         # we're supposed to check but not all such jobs need to have results
         if job.id not in results_repr:

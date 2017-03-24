@@ -477,6 +477,7 @@ class ReRunBrowser(CategoryBrowser):
 
     def __init__(self, title, sa, rerun_candidates):
         global test_info_list
+        self.session_assitant = sa
         test_info_list = tuple(({
             "id": job.id,
             "partial_id": job.partial_id,
@@ -518,8 +519,14 @@ class ReRunBrowser(CategoryBrowser):
             elif key in ('h', 'H', '?', 'f1'):
                 self.loop.widget = self.help_view
                 return True
+            elif key in ('m', 'M'):
+                if self.listbox.focus is not None:
+                    node = self.listbox.focus.get_node()
+                    if isinstance(node, JobNode):
+                        self.loop.widget = self._job_detail_view(node)
+                        return True
         else:
-            if key in ('h', 'H', '?', 'f1', 'esc'):
+            if key in ('h', 'H', '?', 'f1', 'esc', 'm', 'M'):
                 self.loop.widget = self.view
 
 

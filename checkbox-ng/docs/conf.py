@@ -24,9 +24,9 @@ else:
     # Inject mock modules so that we can build the
     # documentation without having the real stuff available
     from plainbox.vendor import mock
-    for mod_name in ['lxml', 'xlsxwriter', 'requests', 'requests.exceptions',
-                     'dbus', 'dbus.lowlevel', 'dbus.exceptions',
-                     'dbus._compat', 'dbus.service', '_dbus_bindings']:
+    for mod_name in ['lxml', 'xlsxwriter', 'dbus', 'dbus.lowlevel',
+                     'dbus.exceptions', 'dbus._compat', 'dbus.service',
+                     '_dbus_bindings']:
         sys.modules[mod_name] = mock.Mock()
         print("Mocked {}".format(mod_name))
 try:

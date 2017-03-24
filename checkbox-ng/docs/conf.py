@@ -28,8 +28,6 @@ else:
         'xlsxwriter',
         'xlsxwriter.workbook',
         'xlsxwriter.utility',
-        'requests',
-        'requests.exceptions'
     ]
     # Inject mock modules so that we can build the
     # documentation without having the real stuff available

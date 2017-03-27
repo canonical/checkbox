@@ -25,6 +25,7 @@
 import logging
 import copy
 
+from plainbox.impl.color import get_color_for_tty
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
@@ -83,9 +84,20 @@ class Issue:
         self.origin = origin
 
     def __str__(self):
+        ansi = get_color_for_tty()
         if self.origin is not None:
-            return "{origin}: {severity}: {message}".format(
-                origin=self.origin, severity=_(str(self.severity)),
+            severity = _(str(self.severity))
+            if self.severity == Severity.error:
+                severity = (ansi.f.RED + ansi.s.BRIGHT + _(str(self.severity))
+                            + ansi.s.RESET_ALL)
+            if self.severity == Severity.warning:
+                severity = (ansi.f.YELLOW + _(str(self.severity))
+                            + ansi.s.RESET_ALL)
+            if self.severity == Severity.advice:
+                severity = (ansi.f.BLUE + _(str(self.severity))
+                            + ansi.s.RESET_ALL)
+            return "{severity}: {origin}: {message}".format(
+                origin=self.origin, severity=severity,
                 message=self.message)
         else:
             return "{severity}: {message}".format(

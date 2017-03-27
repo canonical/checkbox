@@ -2,8 +2,12 @@ unit: category
 id: ipdt
 _name: IPDT
 
-unit: job
-id: ipdt/SPBC
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/SPBC-{platform}
 category_id: ipdt
 _summary: Sample Production Bit Checker
 plugin: shell
@@ -22,8 +26,12 @@ _purpose:
   The purpose of spbc.exe is to determine if the processor under test is either a sample or production processor
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/genintel
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/genintel-{platform}
 category_id: ipdt
 _summary: Genuine Intel Test
 plugin: shell
@@ -42,8 +50,12 @@ _purpose:
   GenIntel.exe reads the General Specific Register and compares it to "GeniunIntel". If the read value matches the expected value, the test will pass.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/temperature
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/temperature-{platform}
 category_id: ipdt
 _summary: Temperature Test
 plugin: shell
@@ -63,8 +75,12 @@ _purpose:
   Temperature test measures the CPU junction temperature in Celsius and displays the value below the shutdown value of zero. The default failing set point is 5 degrees Celsius, so if the measured temperature is less than 5 from shutdown. the test will fail.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/brandstring
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/brandstring-{platform}
 category_id: ipdt
 _summary: Brand String Test
 plugin: shell
@@ -83,8 +99,12 @@ _purpose:
   Reads the brand string parts from the CPU and compares them against parts from a configuration file. If all expected parts from the configuration file are found in the parts from the CPU, the test will pass.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/CPUFreq
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/CPUFreq-{platform}
 category_id: ipdt
 _summary: CPU Frequency Test
 plugin: shell
@@ -104,8 +124,12 @@ _purpose:
   Compares the value between expected and detected CPU frequency, base clock frequency and QPI rate.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/Math_FP
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/Math_FP-{platform}
 category_id: ipdt
 _summary: Floating Point Test
 plugin: shell
@@ -124,8 +148,12 @@ _purpose:
   Performs floating points mathematic operation.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/Math_PrimeNum
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/Math_PrimeNum-{platform}
 category_id: ipdt
 _summary: Prime Number Generation Test
 plugin: shell
@@ -144,8 +172,12 @@ _purpose:
   Checks how fast the CPU can search for prime numbers.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/cache
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/cache-{platform}
 category_id: ipdt
 _summary: Cache Test
 plugin: shell
@@ -164,8 +196,12 @@ _purpose:
   The purpose of CPU Cache test is to display the size of the L1, L2, and L3 Cache, whichever is present. The CPUID instruction is used to read the general purpose EAX, EBX, ECX, and EDX registers. The test retrieves the L1, L2, and L3 Cache size information
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/avx
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/avx-{platform}
 category_id: ipdt
 _summary: AVX Test
 plugin: shell
@@ -184,8 +220,12 @@ _purpose:
   The purpose of the AVX test is to detect and test the presence of the following AVX features on your Intel processor : AVX (Advanced Vector Extensions), AES (Advanced Encryption Standard), PCLMULQDQ (Carry-Less Multiplication of two 64 bit operands)
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/IMC
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/IMC-{platform}
 category_id: ipdt
 _summary: Integrated Memory Controller Test
 plugin: shell
@@ -204,8 +244,12 @@ _purpose:
   Displays or compares the value between expected and detected memory, performs simple memory patterns test.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/PCH
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/PCH-{platform}
 category_id: ipdt
 _summary: Platform Controller Hub Test
 plugin: shell
@@ -225,8 +269,12 @@ _purpose:
   Displays the chipset information and external Device Enumeration.
 flags: preserve-locale suppress-output
 
-unit: job
-id: ipdt/mmxsse
+unit: template
+template-imports: from 2013.com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/mmxsse-{platform}
 category_id: ipdt
 _summary: MMX/SSE Test
 plugin: shell

@@ -31,7 +31,6 @@ import re
 import logging
 import lsb_release
 import requests
-from requests.packages.urllib3.exceptions import NewConnectionError
 import shlex
 import signal
 from subprocess import (
@@ -250,9 +249,9 @@ class KVMTest(object):
             # test our URL to make sure it's reachable
             try:
                 ret = requests.head(url)
-            except (OSError, NewConnectionError) as e:
+            except OSError as e:
                 logging.error("Unable to connect to {}".format(url))
-                logging.error(e)
+                logging.error(" * Message: {}".format(e.with_traceback(None)))
                 return False
 
             if ret.status_code is not 200:

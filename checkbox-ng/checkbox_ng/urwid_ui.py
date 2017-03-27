@@ -316,6 +316,7 @@ class CategoryBrowser:
         urwid.Text("                         PageUp/PageDown"),
         urwid.Text("Back to parent category  Left"),
         urwid.Text("Toggle job id/summary    i"),
+        urwid.Text('Show job details         m'),
         urwid.Text("Exit (abandon session)   Ctrl+C"),
         urwid.Divider(),
         urwid.Text(('focus', " Mouse Support "), 'center'),
@@ -325,6 +326,7 @@ class CategoryBrowser:
         urwid.Text("Select/Deselect          Left-click on [X]")]))
 
     def __init__(self, title, sa):
+        self.session_assitant = sa
         job_units = [sa.get_job(job_id) for job_id in
                      sa.get_static_todo_list()]
         global test_info_list
@@ -372,9 +374,44 @@ class CategoryBrowser:
             elif key in ('h', 'H', '?', 'f1'):
                 self.loop.widget = self.help_view
                 return True
+            elif key in ('m', 'M'):
+                if self.listbox.focus is not None:
+                    node = self.listbox.focus.get_node()
+                    if isinstance(node, JobNode):
+                        self.loop.widget = self._job_detail_view(node)
+                        return True
         else:
-            if key in ('h', 'H', '?', 'f1', 'esc'):
+            if key in ('h', 'H', '?', 'f1', 'esc', 'm', 'M'):
                 self.loop.widget = self.view
+
+    def _job_detail_view(self, node):
+        job_id = node.get_key()
+        job = self.session_assitant.get_job(job_id)
+        summary_txt = job.tr_summary() or _('No summary provided for this job')
+        user_txt = (_('This job is fully automated') if job.automated
+                    else _('This job requires some manual interaction'))
+        duration_txt = _('No estimated duration provided for this job')
+        if job.estimated_duration is not None:
+            duration_txt = '{} {}'.format(job.estimated_duration, _('seconds'))
+        desc_txt = (job.tr_description() or
+                    _('No description provided for this job'))
+        contents = [urwid.Text(('focus', ' Job Details '), 'center'),
+                    urwid.Divider()]
+
+        def add_section(title, body):
+            contents.extend([urwid.Text(title), urwid.Text(body),
+                            urwid.Divider()])
+        add_section(_('Job Identifier:'), job_id)
+        add_section(_('Summary:'), summary_txt)
+        add_section(_('User input:'), user_txt)
+        add_section(_('Estimated duration:'), duration_txt)
+        add_section(_('Description:'), desc_txt)
+        detail_text = urwid.ListBox(urwid.SimpleListWalker(contents))
+        detail_w = urwid.AttrWrap(urwid.LineBox(detail_text), 'body')
+        job_detail_view = urwid.Overlay(
+            detail_w, self.view,
+            'center', ('relative', 80), 'middle', ('relative', 80))
+        return job_detail_view
 
 
 class RerunWidget(CategoryWidget):
@@ -440,6 +477,7 @@ class ReRunBrowser(CategoryBrowser):
 
     def __init__(self, title, sa, rerun_candidates):
         global test_info_list
+        self.session_assitant = sa
         test_info_list = tuple(({
             "id": job.id,
             "partial_id": job.partial_id,
@@ -481,8 +519,14 @@ class ReRunBrowser(CategoryBrowser):
             elif key in ('h', 'H', '?', 'f1'):
                 self.loop.widget = self.help_view
                 return True
+            elif key in ('m', 'M'):
+                if self.listbox.focus is not None:
+                    node = self.listbox.focus.get_node()
+                    if isinstance(node, JobNode):
+                        self.loop.widget = self._job_detail_view(node)
+                        return True
         else:
-            if key in ('h', 'H', '?', 'f1', 'esc'):
+            if key in ('h', 'H', '?', 'f1', 'esc', 'm', 'M'):
                 self.loop.widget = self.view
 
 

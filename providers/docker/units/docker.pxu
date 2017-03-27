@@ -28,7 +28,6 @@ command:
    *)
      echo "arch_supported: no"
      echo 'image_prefix: '
-     exit 1
    ;;
  esac
  if [[ -z $SNAP ]]; then

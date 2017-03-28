@@ -36,6 +36,7 @@ gAlg=
 GAlg=
 gAlgList="0x04 0x0B"
 AtypeList="o e n"
+STATUS=0
 
 if [[ "$@" == *"--384"* ]]; then
     gAlgList="$gAlgList 0x0C"
@@ -53,7 +54,7 @@ if [[ "$@" == *"--platform"* ]]; then
     AtypeList="$AtypeList p"
 fi
 
-rm -f createprimary.error.log
+rm -f createprimary.error.log ctx.cpri.*
 
 for gAlg in $gAlgList
     do 
@@ -65,8 +66,9 @@ for gAlg in $gAlgList
                     if [ $? != 0 ];then 
                     echo "tpm2_createprimary error: Atype=$Atype gAlg=$gAlg GAlg=$GAlg"
                     echo "tpm2_createprimary error: Atype=$Atype gAlg=$gAlg GAlg=$GAlg" >> createprimary.error.log
+                    STATUS=1
                     fi
                 done
         done
 done
-
+exit $STATUS

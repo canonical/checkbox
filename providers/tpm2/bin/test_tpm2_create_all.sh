@@ -37,13 +37,13 @@ pCtx=
 gAlg=
 GAlg=
 gAlgList="0x04 0x0B"
+STATUS=0
 
-rm create.error.log
+rm -f create.error.log opr* opu*
 
-ctx_count=`ls |grep -c context_load`
+ctx_count=`ls | grep -c ^ctx.cpri`
 if [ $ctx_count -le 1 ];then
 	echo "we should execute test_tpm2_createprimary_all.sh first!"
-	wait 5
     test_tpm2_createprimary_all.sh
 fi
 
@@ -69,8 +69,9 @@ for pCtx in `ls ctx.cpri*`
             if [ $? != 0 ];then 
             echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg"
             echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg" >> create.error.log             
+            STATUS=1
             fi
         done
     done
 done
-
+exit $STATUS

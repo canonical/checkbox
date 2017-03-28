@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check XDG_Check" 
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check"
 
 while getopts "i" opt; do
   case $opt in
@@ -369,6 +369,142 @@ if curl --output /dev/null --silent --head -fail "$kvmurl"; then
 		fail
 	fi
 }
+
+# Check local availability of LXD images or pull from Internet, which tends to be slow
+LXD_Image_Check(){
+name="LXD Image Check"
+echoname
+
+#Check template image
+if grep "^LXD_TEMPLATE =" /etc/xdg/canonical-certification.conf >/dev/null; then
+    templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+    if curl --output /dev/null --silent --head -fail "$templateurl"; then
+        echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+        pass
+    else
+	    echo -e " $templateurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
+        read -s -N1 a
+        if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+            read -e -p " Enter the path of your LXD Template File: " template
+            sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" /etc/xdg/canonical-certification.conf
+            templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+            if curl --output /dev/null --silent --head -fail "$templateurl"; then
+                echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+                pass
+                return 0
+            else
+	            echo -e " We cannot get the LXD template image from $kvmurl.\n Marking as failed"
+	            fail
+                return 0
+            fi
+        else
+		    echo -e " Leaving configuration but commenting out."
+	        sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+        fi
+    fi
+else
+    echo -e " LXD_TEMPLATE is not configured.\n Note: If left unconfigured, we will attempt to get the LXD image from the ubuntu LXD image stream.\n Would you like to configure it now? [Y/n]"
+    read -s -N1 a
+    if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+        read -e -p " Enter the URL of your LXD Template File: " template
+        sudo sed -i "s,#LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" /etc/xdg/canonical-certification.conf
+        templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+        if curl --output /dev/null --silent --head -fail "$templateurl"; then
+            echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+            pass
+        else
+	        echo -e " $templateurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
+            read -s -N1 a
+            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                read -e -p " Enter the path of your LXD Template File: " template
+                sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" /etc/xdg/canonical-certification.conf
+                templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                if curl --output /dev/null --silent --head -fail "$templateurl"; then
+                    echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+                    pass
+                    return 0
+                else
+	                echo -e " We cannot get the LXD template image from $kvmurl.\n Marking as failed"
+	                fail
+                    return 0
+                fi
+            else
+		        echo -e " Leaving configuration but commenting out."
+	            sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+            fi
+        fi
+    else
+        echo -e " Leaving LXD_TEMPLATE unconfigured"
+        fail
+    fi
+fi
+# Check RootFS
+if grep "^LXD_ROOTFS =" /etc/xdg/canonical-certification.conf >/dev/null; then
+    rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+    if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+        echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+        pass
+    else
+	    echo -e " $rootfsurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
+        read -s -N1 a
+        if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+            read -e -p " Enter the path of your ROOTFS File: " rootfs
+            sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" /etc/xdg/canonical-certification.conf
+            rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+            if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+                echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+                pass
+                return 0
+            else
+	            echo -e " We cannot get the rootfs file from $rootfsurl.\n Marking as failed"
+	            fail
+                return 0
+            fi
+        else
+		    echo -e " Leaving configuration but commenting out."
+	        sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+            fail
+        fi
+    fi
+else
+    echo -e " LXD_ROOTFS is not configured.\n Note: If left unconfigured, we will attempt to get the ROOTFS image from the ubuntu LXD image stream.\n Would you like to configure it now? [Y/n]"
+    read -s -N1 a
+    if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+        read -e -p " Enter the URL of your ROOTFS File: " rootfs
+        sudo sed -i "s,#LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" /etc/xdg/canonical-certification.conf
+        rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+        if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+            echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+            pass
+        else
+	        echo -e " $rootfsurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
+            read -s -N1 a
+            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                read -e -p " Enter the path of your ROOTFS Template File: " rootfs
+                sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" /etc/xdg/canonical-certification.conf
+                rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+                    echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+                    pass
+                    return 0
+                else
+	                echo -e " We cannot get the rootfs image from $rootfsurl.\n Marking as failed"
+	                fail
+                    return 0
+                fi
+            else
+		        echo -e " Leaving configuration but commenting out."
+	            sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+                fail
+            fi
+        fi
+    else
+        echo -e " Leaving LXD_ROOTFS unconfigured"
+        fail
+    fi
+fi
+}
+
 
 # Correct Ubuntu version installed (could be tricky to determine, so maybe too much effort -- or maybe just display the Ubuntu version and, if the script is interactive, ask the user to verify that it’s what was intended)
 Ubuntu_Version(){

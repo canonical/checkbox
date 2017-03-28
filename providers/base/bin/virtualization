@@ -690,7 +690,7 @@ class LXDTest(object):
         if not self.run_command('lxc launch {} {}'.format(self.image_alias,
                                                           self.name)):
             return False
-        
+
         logging.debug("Container listing:")
         cmd = ("lxc list")
         if not self.run_command(cmd):
@@ -701,7 +701,6 @@ class LXDTest(object):
                "bs=1024 count=1000".format(self.name))
         if not self.run_command(cmd):
             return False
-        
 
         return True
 

@@ -205,6 +205,8 @@ class UdevadmDevice(object):
                 devtype = self._environment["DEVTYPE"]
                 if devtype in ("wlan", "wimax"):
                     return "WIRELESS"
+                elif devtype == "wwan":
+                    return "WWAN"
             # Ralink and realtek SDIO wireless
             if "INTERFACE" in self._environment:
                 if (self.driver and
@@ -820,7 +822,7 @@ class UdevadmDevice(object):
     def interface(self):
         if self._interface is not None:
             return self._interface
-        if self.category in ("NETWORK", "WIRELESS"):
+        if self.category in ("NETWORK", "WIRELESS", "WWAN"):
             if "INTERFACE" in self._environment:
                 return self._environment["INTERFACE"]
             else:
@@ -831,7 +833,7 @@ class UdevadmDevice(object):
     def mac(self):
         if self._mac is not None:
             return self._mac
-        if self.category in ("NETWORK", "WIRELESS"):
+        if self.category in ("NETWORK", "WIRELESS", "WWAN"):
             if "ID_NET_NAME_MAC" in self._environment:
                 mac = self._environment["ID_NET_NAME_MAC"][3:]
                 return ':'.join([mac[i:i+2] for i in range(0, len(mac), 2)])
@@ -1044,10 +1046,10 @@ class UdevadmParser(object):
             stack.append(device)
 
         for device in list(self.devices.values()):
-            if device.category in ("NETWORK", "WIRELESS", "OTHER"):
+            if device.category in ("NETWORK", "WIRELESS", "WWAN", "OTHER"):
                 dev_interface = [
                     d for d in self.devices.values()
-                    if d.category in ("NETWORK", "WIRELESS") and
+                    if d.category in ("NETWORK", "WIRELESS", "WWAN") and
                     device._raw_path != d._raw_path and
                     device._raw_path + '/' in d._raw_path
                 ]

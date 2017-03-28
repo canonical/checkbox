@@ -551,7 +551,7 @@ E: UDEV_LOG=3
                             ("82579LM Gigabit Network Connection",
                              "NETWORK", "pci", 0x8086, 0x1502),
                             ("H5321 gw",
-                             "NETWORK", "usb", 0x0bdb, 0x1926)
+                             "WWAN", "usb", 0x0bdb, 0x1926)
                             ]
         self.assertEqual(len(devices), 103)
         # Check that the Thinkpad hotkeys are not a CAPTURE device
@@ -563,7 +563,7 @@ E: UDEV_LOG=3
         self.assertEqual(
             devices[54].vendor,
             "Ericsson Business Mobile Networks BV")
-        self.assertEqual(devices[54].category, "NETWORK")
+        self.assertEqual(devices[54].category, "WWAN")
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 9)
         # Logitech Illuminated keyboard + T430S keyboard + KVM
@@ -578,7 +578,8 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "RAID"), 0)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
-        self.assertEqual(self.count(devices, "NETWORK"), 2)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "WWAN"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 2)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.verify_devices(devices, expected_devices)

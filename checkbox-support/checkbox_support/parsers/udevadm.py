@@ -1049,7 +1049,7 @@ class UdevadmParser(object):
                     d for d in self.devices.values()
                     if d.category in ("NETWORK", "WIRELESS") and
                     device._raw_path != d._raw_path and
-                    device._raw_path in d._raw_path
+                    device._raw_path + '/' in d._raw_path
                 ]
                 if dev_interface:
                     dev_interface = dev_interface.pop()

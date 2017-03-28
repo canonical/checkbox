@@ -884,6 +884,14 @@ E: UDEV_LOG=3
         self.assertEqual(len(devices), 8)
         self.assertEqual(self.count(devices, "DISK"), 3)
 
+    def test_MELLANOX_40GBPS(self):
+        # An IBM Power S822LC with a 40 Gbps Mellanox NIC reported too few
+        # network devices because one device's name (enP8p1s0) was a
+        # substring of another (enP8p1s0d1), and was therefore ignored. See
+        # https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1675091
+        devices = self.parse("MELLANOX_40GBPS")
+        self.assertEqual(self.count(devices, "NETWORK"), 8)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

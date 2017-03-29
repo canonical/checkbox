@@ -376,6 +376,21 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
 
+    def test_TOSHIBA_NVME(self):
+        devices = self.parse("TOSHIBA_NVME")
+        self.assertEqual(len(devices), 127)
+        self.assertEqual(self.count(devices, "VIDEO"), 2)
+        self.assertEqual(self.count(devices, "AUDIO"), 2)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+        self.assertEqual(self.count(devices, "MOUSE"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "WIRELESS"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")
         self.assertEqual(len(devices), 71)

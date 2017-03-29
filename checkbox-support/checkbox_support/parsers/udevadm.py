@@ -426,7 +426,7 @@ class UdevadmDevice(object):
                     # A QEMU/KVM virtual disk, but should be treated
                     # as DISK nonetheless
                     return "DISK"
-                if self.driver == 'nvme' and self.bus == 'pci':
+                if self.driver == 'nvme' and self.bus in ('pci', 'nvme'):
                     # NVMe device in PCIe bus, this should also be
                     # treated as DISK as it presents block devices
                     # we need to test, and is a valid disk device
@@ -498,11 +498,15 @@ class UdevadmDevice(object):
     def driver(self):
         if "DRIVER" in self._environment:
             return self._environment["DRIVER"]
-        # Check parent device for driver
+        # Check parent devices for driver
         if self._stack:
             parent = self._stack[-1]
             if "DRIVER" in parent._environment:
                 return parent._environment["DRIVER"]
+            if self.bus == 'nvme' and parent._stack:
+                parent = parent._stack[-1]
+                if "DRIVER" in parent._environment:
+                    return parent._environment["DRIVER"]
         return None
 
     @property
@@ -565,6 +569,9 @@ class UdevadmDevice(object):
         if self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
             return parent.product_id
+        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+            parent = self._stack[-2]
+            return parent.product_id
         # canbus
         if "DEVLINKS" in self._environment:
             if "canbus" in self._environment["DEVLINKS"]:
@@ -602,6 +609,9 @@ class UdevadmDevice(object):
         if self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
             return parent.vendor_id
+        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+            parent = self._stack[-2]
+            return parent.vendor_id
         # canbus
         if "DEVLINKS" in self._environment:
             if "canbus" in self._environment["DEVLINKS"]:
@@ -624,6 +634,9 @@ class UdevadmDevice(object):
         if self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
             return parent.subproduct_id
+        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+            parent = self._stack[-2]
+            return parent.subproduct_id
         return None
 
     @subproduct_id.setter
@@ -640,6 +653,9 @@ class UdevadmDevice(object):
             return int(subvendor_id, 16)
         if self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
+            return parent.subvendor_id
+        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+            parent = self._stack[-2]
             return parent.subvendor_id
         return None
 
@@ -679,8 +695,10 @@ class UdevadmDevice(object):
         elif (self._environment.get("DEVTYPE") == "disk" and
                 "ID_MODEL_ENC" in self._environment):
             return decode_id(self._environment["ID_MODEL_ENC"])
-        elif self.driver == "nvme" and self.bus == 'pci' and self._stack:
-            parent = self._stack[-1]
+        elif self.driver == "nvme" and self.bus == 'pci':
+            return self.name
+        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+            parent = self._stack[-2]
             if parent.product:
                 return parent.product
             else:
@@ -784,6 +802,9 @@ class UdevadmDevice(object):
             return self._environment["ID_VENDOR_FROM_DATABASE"]
         if self.driver == "nvme" and self.bus == 'pci' and self._stack:
             parent = self._stack[-1]
+            return parent.vendor
+        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+            parent = self._stack[-2]
             return parent.vendor
 
         # bluetooth (if USB base class is vendor specific)
@@ -890,7 +911,7 @@ class UdevadmParser(object):
         # Do not ignore nvme devices on the pci bus, these are to be treated
         # as disks (categorization is done elsewhere). Note that the *parent*
         # device will have no category, though it's not ignored per se.
-        if device.bus == 'pci' and device.driver == 'nvme':
+        if device.bus in ('pci', 'nvme') and device.driver == 'nvme':
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
         if ("ID_PART_TABLE_TYPE" in device._environment and

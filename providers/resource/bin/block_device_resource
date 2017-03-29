@@ -58,8 +58,10 @@ def device_rotation(name):
     Check the device queue/rotational parameter to determine if it's a spinning
     device or a non-spinning device, which indicates it's an SSD.
     """
-    with open('/sys/block/%s/device/block/%s/queue/rotational' % (name, name),
-              "rt") as f:
+    path = '/sys/block/{0}/device/block/{0}/queue/rotational'.format(name)
+    if not os.path.exists(path):
+        return 'no'
+    with open(path, "rt") as f:
         if f.read(1) == '1':
             return 'yes'
 

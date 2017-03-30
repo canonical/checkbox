@@ -1076,6 +1076,8 @@ class UdevadmParser(object):
                 ]
                 if dev_interface:
                     dev_interface = dev_interface.pop()
+                    if dev_interface.interface == 'UNKNOWN':
+                        continue
                     dev_interface.bus = device.bus
                     dev_interface.product_id = device.product_id
                     dev_interface.vendor_id = device.vendor_id

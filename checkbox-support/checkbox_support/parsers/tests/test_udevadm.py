@@ -378,7 +378,7 @@ E: UDEV_LOG=3
 
     def test_TOSHIBA_NVME(self):
         devices = self.parse("TOSHIBA_NVME")
-        self.assertEqual(len(devices), 127)
+        self.assertEqual(len(devices), 128)
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)

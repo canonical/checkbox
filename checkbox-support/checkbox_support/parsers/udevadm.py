@@ -753,6 +753,8 @@ class UdevadmDevice(object):
             if "canbus" in self._environment["DEVLINKS"]:
                 if "ID_MODEL_ENC" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ENC"])
+            if "/dev/mapper" in self._environment["DEVLINKS"]:
+                return self.name
 
         return None
 

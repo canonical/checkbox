@@ -767,8 +767,8 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "RAID"), 0)
         self.assertEqual(self.count(devices, "DISK"), 1)
 
-    def test_IBM_PSERIES_P8(self):
-        # Apparnently a virtualized system on a pSeries P8
+    def test_IBM_PSERIES_P7(self):
+        # Apparently a virtualized system on a pSeries P7
         # Quite bare-bones, server-oriented system
         devices = self.parse("IBM_PSERIES_POWER7")
         self.assertEqual(self.count(devices, "VIDEO"), 0)
@@ -788,6 +788,27 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "RAID"), 0)
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(len(devices), 4)
+
+    def test_IBM_PSERIES_P8(self):
+        # server-oriented system
+        devices = self.parse("IBM_PSERIES_POWER8")
+        self.assertEqual(self.count(devices, "VIDEO"), 0)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 0)
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 0)
+        self.assertEqual(self.count(devices, "CARDREADER"), 0)
+        self.assertEqual(self.count(devices, "CDROM"), 1)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
+        self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
+        self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 0)
+        self.assertEqual(self.count(devices, "NETWORK"), 4)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "RAID"), 2)
+        self.assertEqual(self.count(devices, "DISK"), 9)
+        self.assertEqual(len(devices), 46)
 
     def test_XEON(self):
         devices = self.parse("XEON")

@@ -1117,10 +1117,10 @@ def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
 
 class UdevResult(object):
     def __init__(self):
-        self.devices = {"devices": []}
+        self.devices = []
 
     def addDevice(self, device):
-        self.devices["devices"].append(device)
+        self.devices.append(device)
 
 
 def parse_udevadm_output(output, lsblk=None, bits=None):

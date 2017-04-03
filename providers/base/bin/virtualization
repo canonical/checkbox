@@ -620,7 +620,7 @@ class LXDTest(object):
                 self.rootfs_tarball = filename
 
         # Insert images
-        if result is True:
+        if self.template_url is not None and  self.rootfs_url is not None:
             logging.debug("Importing images into LXD")
             cmd = 'lxc image import {} rootfs {} --alias {}'.format(
                         self.template_tarball, self.rootfs_tarball,
@@ -707,7 +707,22 @@ class LXDTest(object):
 def test_lxd(args):
     logging.debug("Executing LXD Test")
 
-    lxd_test = LXDTest(args.template, args.rootfs)
+    template = None
+    rootfs = None
+
+    # First in priority are environment variables.
+    if 'LXD_TEMPLATE' in os.environ:
+        template = os.environ['LXD_TEMPLATE']
+    if 'LXD_ROOTFS' in os.environ:
+        rootfs = os.environ['LXD_ROOTFS']
+
+    # Finally, highest-priority are command line arguments.
+    if args.template:
+        template = args.template
+    if args.rootfs:
+        rootfs = args.rootfs
+
+    lxd_test = LXDTest(template, rootfs)
 
     result = lxd_test.start()
     lxd_test.cleanup()

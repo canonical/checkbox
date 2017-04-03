@@ -1,7 +1,9 @@
 id: dkms_info_json
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-command: dkms_info  --format json | plainbox dev parse dkms-info
+command:
+ dkms_info  --format json | plainbox dev parse dkms-info | \
+ jq --indent 4 '.dkms_info'
 _description: Attaches json dumps of installed dkms package information.
 _summary: Attaches json dumps of installed dkms package information.
 
@@ -26,9 +28,9 @@ requires: package.name == 'dmidecode'
 user: root
 command:
  dmidecode -t bios -t system | plainbox dev parse dmidecode | \
- jq --indent 4 '{"raw-devices-dmi": [.[0]."_attributes" +
+ jq --indent 4 '[.[0]."_attributes" +
                 {"category": .[0]."category"}, .[1]."_attributes" +
-                {"category": .[1]."category"}]}'
+                {"category": .[1]."category"}]'
 estimated_duration: 1
 _description: Attaches dmidecode output
 _summary: Attaches json dumps of udev_resource raw dmi devices
@@ -38,8 +40,7 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
 command:
  find /etc/modprobe.* -name \*.conf | xargs cat | plainbox dev parse modprobe |
- jq --indent 4 'to_entries | {"modprobe-info":
-                map({"module": .key, "options": .value})}'
+ jq --indent 4 'to_entries | map({"module": .key, "options": .value})'
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
 _summary: Attach the contents of /etc/modprobe.*
@@ -48,7 +49,9 @@ id: lspci_standard_config_json
 _summary: Attach PCI configuration space hex dump
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-command: lspci -x | plainbox dev parse pci-subsys-id
+command:
+ lspci -x | plainbox dev parse pci-subsys-id | \
+ jq --indent 4 '.pci_subsystem_id'
 estimated_duration: 0.1
 _description: Attaches a hex dump of the standard part of the PCI configuration
  space for all PCI devices.

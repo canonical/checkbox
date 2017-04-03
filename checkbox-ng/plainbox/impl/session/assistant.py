@@ -1287,6 +1287,14 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         job = self._context.get_unit(job_id, 'job')
         self._context.state.update_job_result(job, result)
+        try:
+            if self._config.auto_retry:
+                self._context.state.job_state_map[job_id].attempts -= 1
+        except AttributeError:
+            # auto_retry is not available in a bare PlainboxConfig (which
+            # happens when using `checkbox-cli run, or plainbox`, and with old,
+            # legacy Launchers. They are not expected to do auto-retries.
+            pass
         self._manager.checkpoint()
         # Set up expectations so that run_job() and use_job_result() must be
         # called in pairs and applications cannot just forget and call

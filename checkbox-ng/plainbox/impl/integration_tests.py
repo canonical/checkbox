@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012-2017 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -82,9 +82,10 @@ class IntegrationTests(TestCaseWithParameters):
 
     def test_job_outcome(self):
         # Check that results match expected values
-        self.assertEqual(self.job_outcome,
-                         self.scenario_data['result']['result_map'] \
-                                           [self.job_id]['outcome'])
+        self.assertEqual(
+            self.job_outcome,
+            next(r for r in self.scenario_data['results']
+                 if r['id'] == self.job_id)['status'])
 
     def test_job_return_code(self):
         # Check the return code for correctness
@@ -175,14 +176,14 @@ def execute_job(job_id):
                     '--output-format=2013.com.canonical.plainbox::json',
                     '-o', pathname])
             except SystemExit as exc:
-                # Capture SystemExit that is always raised by stubbox_main() so that we
-                # can observe the return code as well.
+                # Capture SystemExit that is always raised by stubbox_main()
+                # so that we can observe the return code as well.
                 job_return_code = exc.args[0]
             else:
                 job_return_code = None
         # Load the actual results and keep them in memory
         with open(pathname, encoding='UTF-8') as stream:
             job_result = json.load(stream)
-            job_outcome = job_result[0]['results'][0]['status']
+            job_outcome = job_result['results'][0]['status']
     # [ At this time TestIO and TemporaryDirectory are gone ]
     return (job_id, job_outcome, job_return_code, io.stdout, io.stderr)

@@ -572,7 +572,7 @@ class UdevadmDevice(object):
         if match:
             return int(match.group("product_id"), 16)
         # disk
-        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+        if self.driver == "nvme" and self.bus in ('pci', 'misc') and self._stack:
             parent = self._stack[-1]
             return parent.product_id
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
@@ -612,7 +612,7 @@ class UdevadmDevice(object):
                 vendor_id = 9
             return vendor_id
         # disk
-        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+        if self.driver == "nvme" and self.bus in ('pci', 'misc') and self._stack:
             parent = self._stack[-1]
             return parent.vendor_id
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
@@ -637,7 +637,7 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id, subproduct_id = pci_subsys_id.split(":")
             return int(subproduct_id, 16)
-        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+        if self.driver == "nvme" and self.bus in ('pci', 'misc') and self._stack:
             parent = self._stack[-1]
             return parent.subproduct_id
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
@@ -657,7 +657,7 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id, subproduct_id = pci_subsys_id.split(":")
             return int(subvendor_id, 16)
-        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+        if self.driver == "nvme" and self.bus in ('pci', 'misc') and self._stack:
             parent = self._stack[-1]
             return parent.subvendor_id
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
@@ -701,7 +701,7 @@ class UdevadmDevice(object):
         elif (self._environment.get("DEVTYPE") == "disk" and
                 "ID_MODEL_ENC" in self._environment):
             return decode_id(self._environment["ID_MODEL_ENC"])
-        elif self.driver == "nvme" and self.bus == 'pci':
+        elif self.driver == "nvme" and self.bus in ('pci', 'misc'):
             return self.name
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
             parent = self._stack[-2]
@@ -808,7 +808,7 @@ class UdevadmDevice(object):
 
         if "ID_VENDOR_FROM_DATABASE" in self._environment:
             return self._environment["ID_VENDOR_FROM_DATABASE"]
-        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+        if self.driver == "nvme" and self.bus in ('pci', 'misc') and self._stack:
             parent = self._stack[-1]
             return parent.vendor
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:

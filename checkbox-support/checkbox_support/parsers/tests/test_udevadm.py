@@ -351,7 +351,7 @@ E: UDEV_LOG=3
         expected_devices = [("NetXtreme BCM5720 Gigabit Ethernet PCIe",
                              "NETWORK", "pci", 0x14E4, 0x165F, 4),
                             ]
-        self.assertEqual(len(devices), 250)
+        self.assertEqual(len(devices), 252)
         self.assertEqual(self.count(devices, "NETWORK"), 4)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
@@ -360,7 +360,7 @@ E: UDEV_LOG=3
 
     def test_REALTEK_CARD_READER_AND_NVME(self):
         devices = self.parse("REALTEK_CARD_READER_AND_NVME")
-        self.assertEqual(len(devices), 126)
+        self.assertEqual(len(devices), 127)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 4)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -856,7 +856,7 @@ E: UDEV_LOG=3
         # Ignore virtual devices created by Dell iDRAC manager
         # See https://bugs.launchpad.net/bugs/1308702
         devices = self.parse("DELL_IDRAC")
-        self.assertEqual(len(devices), 243)
+        self.assertEqual(len(devices), 244)
         self.assertEqual(self.count(devices, "CDROM"), 1)
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(self.count(devices, "FLOPPY"), 0)

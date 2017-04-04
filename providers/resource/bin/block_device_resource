@@ -137,21 +137,20 @@ def smart_support(name):
                     break
     return supported
 
-for path in glob('/sys/block/*/device'):
-    name = re.sub('.*/(.*?)/device', '\g<1>', path)
+for path in glob('/sys/block/*/device') + glob('/sys/block/*/dm'):
+    name = re.sub('.*/(.*?)/(device|dm)', '\g<1>', path)
     state = device_state(name)
     usb2 = usb_support(name, 2.00)
     usb3 = usb_support(name, 3.00)
     rotation = device_rotation(name)
     smart = smart_support(name)
-    # FIXME: Remove leading block device name when the requirements
-    # checking code in Checkbox allows it
     print("""\
-%(name)s_state: %(state)s
-%(name)s_usb2: %(usb2)s
-%(name)s_usb3: %(usb3)s
-%(name)s_rotation: %(rotation)s
-%(name)s_smart: %(smart)s
+name: %(name)s
+state: %(state)s
+usb2: %(usb2)s
+usb3: %(usb3)s
+rotation: %(rotation)s
+smart: %(smart)s
 """ % {"name": name,
        "state": state,
        "usb2": usb2,

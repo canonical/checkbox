@@ -239,7 +239,7 @@ id: info/hdparm_{name}.txt
 estimated_duration: 1.0
 requires:
  package.name == 'hdparm'
- block_device.{name}_state != 'removable'
+ block_device.state != 'removable' and block_device.name == '{name}'
 user: root
 command: hdparm -I /dev/{name}
 _summary: Attaches info from hdparm about {name}

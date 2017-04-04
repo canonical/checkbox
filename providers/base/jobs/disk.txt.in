@@ -17,7 +17,7 @@ category_id: 2013.com.canonical.plainbox::disk
 id: disk/stats_{name}
 flags: deprecated
 requires:
- block_device.{name}_state != 'removable'
+ block_device.state != 'removable' and block_device.name == '{name}'
 user: root
 command: disk_stats_test {name}
 _description: This test checks {name} disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
@@ -31,7 +31,7 @@ id: disk/smart_{name}
 estimated_duration: 180.0
 requires:
  package.name == 'smartmontools'
- block_device.{name}_smart == 'True'
+ block_device.smart == 'True'  and block_device.name == '{name}'
 _summary:
  Test SMART capabilities for {product}
 _description:
@@ -47,7 +47,7 @@ category_id: 2013.com.canonical.plainbox::disk
 id: disk/read_performance_{name}
 estimated_duration: 65.0
 requires:
- block_device.{name}_state != 'removable'
+ block_device.state != 'removable' and block_device.name == '{name}'
 _summary: Disk performance test for {product}
 _description: Disk performance test for {product}
 user: root
@@ -62,7 +62,7 @@ id: disk/storage_device_{name}
 estimated_duration: 375.0
 user: root
 requires:
- block_device.{name}_state != 'removable'
+ block_device.state != 'removable' and block_device.name == '{name}'
 _summary: Disk I/O stress test for {product}
 _description: Disk I/O stress test for {product}
 command: storage_test {name}
@@ -77,7 +77,7 @@ estimated_duration: 4560.0
 user: root
 requires:
  package.name == 'stress-ng'
- block_device.{name}_state != 'removable'
+ block_device.state != 'removable' and block_device.name == '{name}'
 _summary: Disk stress_ng test for {product}
 _description: Disk stress_ng test for {product}
 command: disk_stress_ng {name} --base-time 240 --really-run
@@ -91,7 +91,7 @@ id: disk/disk_cpu_load_{name}
 estimated_duration: 15
 user: root
 requires:
- block_device.{name}_state != 'removable'
+ block_device.state != 'removable' and block_device.name == '{name}'
 _summary: Check of CPU load imposed by {product}
 _description: Check to ensure CPU load of {product} is not too high
 command: disk_cpu_load {name}

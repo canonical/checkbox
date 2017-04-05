@@ -616,6 +616,8 @@ class Launcher(Command, MainLoopStage):
                         exporter_id, transport)
                     if result and 'url' in result:
                         print(result['url'])
+                    elif result and 'status_url' in result:
+                        print(result['status_url'])
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting %s report: %s"),

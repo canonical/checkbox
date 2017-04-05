@@ -192,7 +192,7 @@ def version_tests(args, stream, dmi_data):
     """
     retval = 0
     if find_in_section(stream, dmi_data, 'Chassis Information', 'Version:',
-                       ['to be filled by o\.e\.m\.', 'empty'],
+                       ['to be filled by o\.e\.m\.', 'empty', 'x\.x'],
                        False):
         dmi_data['Chassis Information']['Version'] += \
                 " *** Invalid chassis version!"
@@ -205,7 +205,7 @@ def version_tests(args, stream, dmi_data):
                 " *** Invalid system information version!"
         retval += 1
     if find_in_section(stream, dmi_data, 'Base Board Information', 'Version:',
-                       ['base board version',
+                       ['base board version', 'x\.x',
                         'empty', 'to be filled by o\.e\.m\.'], False):
         dmi_data['Base Board Information']['Version'] += \
                 " *** Invalid base board version!"

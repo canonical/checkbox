@@ -76,7 +76,7 @@ setup(
             'certification='
             'checkbox_ng.certification:CertificationTransport',
             'submission-service='
-            'checkbox_ng.certification:CertificationTransport',
+            'checkbox_ng.certification:SubmissionServiceTransport',
         ],
     },
     include_package_data=True)

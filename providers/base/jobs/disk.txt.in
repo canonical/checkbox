@@ -1,3 +1,8 @@
+# This is for disk/apste_support_on_*
+unit: packaging meta-data
+os-id: debian
+Depends: nvme-cli
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk
 id: disk/detect
@@ -128,3 +133,13 @@ _description:
   The verification of this test is automated. Do not change the
   automatically selected result.
 
+unit: template
+template-resource: device
+template-filter: device.driver == 'nvme' and device.category == 'OTHER'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
+id: disk/apste_support_on_{name}
+estimated_duration: 1.0
+user: root
+command: nvme get-feature -f 0x0c -H /dev/{name} | grep '(APSTE).*Enabled' && test -e /sys/class/nvme/{name}/power/pm_qos_latency_tolerance_us
+_summary: Check support for Autonomous Power State Transition on {name}

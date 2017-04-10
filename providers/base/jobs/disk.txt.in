@@ -72,6 +72,11 @@ _summary: Disk I/O stress test for {product}
 _description: Disk I/O stress test for {product}
 command: storage_test {name}
 
+# The stress/disk_stress_ng_test job requires uuid-runtime package
+unit: packaging meta-data
+os-id: debian
+Depends: uuid-runtime
+
 unit: template
 template-resource: device
 template-filter: device.category == 'DISK'

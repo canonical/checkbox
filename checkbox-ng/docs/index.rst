@@ -66,6 +66,7 @@ Table of contents
    nested-test-plan.rst
    snappy.rst
    testing-snappy.rst
+   custom-app.rst
 
 Indices and tables
 ==================

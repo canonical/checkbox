@@ -635,8 +635,8 @@ class LXDTest(object):
             cmd = 'lxc image copy {}{} local: --alias {}'.format(
                         self.default_remote, self.os_version, self.image_alias)
             if not self.run_command(cmd):
-                loggging.error('Error encountered while attempting to '
-                               'import images from default remote.')
+                logging.error('Error encountered while attempting to '
+                              'import images from default remote.')
                 result = False
 
         return result

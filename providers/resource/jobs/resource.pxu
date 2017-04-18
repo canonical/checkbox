@@ -160,7 +160,6 @@ id: dmi
 estimated_duration: 0.59
 plugin: resource
 user: root
-requires: package.name == "dmidecode"
 command: dmi_resource
 _summary: Collect information about hardware devices (DMI)
 

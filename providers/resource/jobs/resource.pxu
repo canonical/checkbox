@@ -61,6 +61,11 @@ unit: packaging meta-data
 os-id: debian
 Depends: usbutils
 
+# This is for snapd_resource
+unit: packaging meta-data
+os-id: debian
+Depends: python3-requests-unixsocket
+
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
@@ -332,3 +337,48 @@ _description: Generate an entry for each MIR integration tests
 command:
  for test in `mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: integration"; echo "name: $test"; echo ""; done
  for test in `mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: acceptance"; echo "name: $test"; echo ""; done
+
+id: snap
+estimated_duration: 1.1
+plugin: resource
+command:
+    unset PYTHONUSERBASE
+    snapd_resource snaps
+_description: Generates a list of snap packages
+_summary: Collect information about installed snap packages
+
+id: interface
+estimated_duration: 1.1
+plugin: resource
+command:
+    unset PYTHONUSERBASE
+    snapd_resource interfaces endpoints
+_description: Generates a list of interface declarations on the device
+_summary: Collect information about interfaces
+
+id: connections
+estimated_duration: 1.1
+plugin: resource
+command:
+    unset PYTHONUSERBASE
+    snapd_resource interfaces connections
+_description: Generates a list of plug and slot connections on the device
+_summary: Collect information about connections
+
+id: model_assertion
+_summary: Collect model assertions on the device
+_description:
+ Queries the snapd REST API for model assertions present on the device.
+plugin: resource
+estimated_duration: 2.0
+command:
+  snapd_resource assertions model
+
+id: serial_assertion
+_summary: Collect serial assertions on the device
+_description:
+ Queries the snapd REST API for serial assertions present on the device.
+plugin: resource
+estimated_duration: 2.0
+command:
+  snapd_resource assertions serial

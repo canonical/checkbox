@@ -85,7 +85,6 @@ id: dpkg
 estimated_duration: 0.19
 plugin: resource
 command: dpkg_resource
-requires: package.name == "dpkg"
 _summary: Collect information about dpkg version
 _description: Gets info on the version of dpkg installed
 
@@ -140,7 +139,6 @@ id: device
 estimated_duration: 0.48
 plugin: resource
 command: udev_resource
-requires: package.name == "udev"
 _description: Creates resource info from udev
 _summary: Collect information about hardware devices (udev)
 
@@ -148,7 +146,6 @@ id: staging/udev
 estimated_duration: 1.1
 plugin: resource
 shell: /bin/sh
-requires: package.name == "udev"
 command: udevadm info --export-db | udev2resource
 _summary: Collect unfiltered udev data
 _description:

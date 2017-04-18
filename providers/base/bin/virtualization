@@ -126,7 +126,7 @@ QEMU_ARCH_CONFIG = {
         'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
         'qemu_extra_args': [
             '-enable-kvm',
-            '-machine', 's390-ccw-virtio-2.5',
+            '-machine', 's390-ccw-virtio',
         ],
     },
 }

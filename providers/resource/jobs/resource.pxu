@@ -325,6 +325,17 @@ command:
  for test in `mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: integration"; echo "name: $test"; echo ""; done
  for test in `mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: acceptance"; echo "name: $test"; echo ""; done
 
+id: wifi_interface_mode
+estimated_duration: 0.1
+plugin: resource
+command:
+ for i in `iw dev | grep -oP 'Interface\s+\K\w+'`;
+ do iw phy phy$(iw dev $i info | grep -oP 'wiphy\s+\K\d+') info |
+ grep -Pzo '(?s)Supported interface modes:\n\K(\s+\*\s.*?\n)+' |
+ sed "s/.*\* \(.*\)/"$i"_\1: supported/" | tr -d '\000';
+ done
+_description: Create resource info for supported wifi interface modes
+
 id: snap
 estimated_duration: 1.1
 plugin: resource

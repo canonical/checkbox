@@ -85,7 +85,6 @@ id: dpkg
 estimated_duration: 0.19
 plugin: resource
 command: dpkg_resource
-requires: package.name == "dpkg"
 _summary: Collect information about dpkg version
 _description: Gets info on the version of dpkg installed
 
@@ -101,7 +100,6 @@ id: lsb
 estimated_duration: 1.63
 plugin: resource
 command: lsb_resource
-requires: package.name == "lsb-release"
 _description: Generates release info based on /etc/lsb-release
 _summary: Collect information about installed system (lsb-release)
 
@@ -141,7 +139,6 @@ id: device
 estimated_duration: 0.48
 plugin: resource
 command: udev_resource
-requires: package.name == "udev"
 _description: Creates resource info from udev
 _summary: Collect information about hardware devices (udev)
 
@@ -149,7 +146,6 @@ id: staging/udev
 estimated_duration: 1.1
 plugin: resource
 shell: /bin/sh
-requires: package.name == "udev"
 command: udevadm info --export-db | udev2resource
 _summary: Collect unfiltered udev data
 _description:
@@ -161,7 +157,6 @@ id: dmi
 estimated_duration: 0.59
 plugin: resource
 user: root
-requires: package.name == "dmidecode"
 command: dmi_resource
 _summary: Collect information about hardware devices (DMI)
 
@@ -312,14 +307,6 @@ plugin: resource
 _description:
  Generate an entry for each graphics card present in the system.
 command: graphics_card_resource
-
-id: __resource__
-plugin: local
-_description: Resources to gather system information
-_summary: Resources
-command:
-  shopt -s extglob
-  cat $PLAINBOX_PROVIDER_DATA/../jobs/resource.pxu
 
 id: fwts
 estimated_duration: 0.5

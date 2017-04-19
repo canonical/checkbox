@@ -17,29 +17,33 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
+import re
 import sys
 
 from subprocess import Popen, PIPE
 
 
-# Command to retrieve lsb release information.
-COMMAND = "lsb_release -a 2>/dev/null"
-
-
 def get_lsb_release():
     lsb_release_map = {
-        "Distributor ID": "distributor_id",
-        "Description": "description",
-        "Release": "release",
-        "Codename": "codename"}
+        "DISTRIB_ID": "distributor_id",
+        "DISTRIB_DESCRIPTION": "description",
+        "DISTRIB_RELEASE": "release",
+        "DISTRIB_CODENAME": "codename"}
 
-    lsb_release = {}
-    output = Popen(COMMAND, stdout=PIPE, shell=True).communicate()[0]
-    for line in [l for l in output.decode("ascii").split("\n") if l]:
-        (key, value) = line.split(":\t", 1)
-        if key in lsb_release_map:
-            key = lsb_release_map[key]
-            lsb_release[key] = value
+    # Create a default lsb_release() dict in case something goes wrong
+    lsb_release = dict((k, 'unknown') for k in lsb_release_map.values())
+
+    try:
+        with open('/etc/lsb-release', 'r') as lsb:
+            for line in lsb.readlines():
+                (key, value) = line.split("=", 1)
+                if key in lsb_release_map:
+                    key = lsb_release_map[key]
+                    # Strip out quotes and newlines
+                    lsb_release[key] = re.sub('["\n]', '', value)
+    except:
+        # Missing file or permissions? Return the default lsb_release
+        pass
 
     return lsb_release
 

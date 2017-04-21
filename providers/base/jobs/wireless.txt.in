@@ -27,7 +27,7 @@ id: wireless/info_automated
 requires:
  package.name == 'network-manager'
  device.category == 'WIRELESS'
-command: udev_resource | filter_templates -w "category=WIRELESS" | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
+command: udev_resource -f WIRELESS | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
 estimated_duration: 1.2
 _description:
  This is an automated test to gather some info on the current state of your wireless devices. If no devices are found, the test will exit with an error.

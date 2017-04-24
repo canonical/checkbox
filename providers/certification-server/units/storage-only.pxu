@@ -35,6 +35,7 @@ mandatory_include:
     info/disk_partitions
     kernel_cmdline_attachment
 include:
+    cpu/purely_id                              certification-status-non-blocker
     info/hdparm_.*.txt                         certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
     benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker

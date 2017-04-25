@@ -5,10 +5,7 @@ requires: device.category == 'CDROM'
 estimated_duration: 1.2
 _summary: Displays discovered optical drives
 _description: Detects optical drives (CD/DVD) attached to the system.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"' | sed '/^$/d'
- $vendor $product
- EOF
+command: udev_resource -l CDROM
 
 unit: template
 template-resource: device

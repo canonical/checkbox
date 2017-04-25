@@ -23,7 +23,7 @@ id: ethernet/info_automated
 requires:
  executable.name == 'ip'
  device.category == 'NETWORK'
-command: udev_resource | filter_templates -w "category=NETWORK" | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
+command: udev_resource -f NETWORK | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
 estimated_duration: 30.0
 _summary:
  Gather info on current state of network devices

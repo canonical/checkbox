@@ -349,7 +349,6 @@ include:
     cpu/clocktest
     disk/stats_.*
     disk/read_performance_.*                               certification-status=blocker
-    disk/smart_.*                                          certification-status=blocker
     disk/storage_device_.*                                 certification-status=blocker
     memory/info                                            certification-status=blocker
     memory/check                                           certification-status=blocker

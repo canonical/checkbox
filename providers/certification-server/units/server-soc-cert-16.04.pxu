@@ -39,7 +39,8 @@ include:
     info/hdparm_.*.txt                         certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*
     benchmarks/disk/hdparm-cache-read_.*
-     cpu/clocktest                              certification-status=blocker
+    cpu/purely_id                              certification-status=non-blocker
+    cpu/clocktest                              certification-status=blocker
     cpu/scaling_test                           certification-status=blocker
     cpu/scaling_test-log-attach                certification-status=non-blocker
     cpu/maxfreq_test                           certification-status=blocker

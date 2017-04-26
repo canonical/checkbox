@@ -30,6 +30,35 @@ function run_bonnie() {
     fi
 }
 
+# Find the largest logical volume in an LVM partition.
+# Output:
+#   $largest_part -- Device filename of largest qualifying partition
+#   $largest_size -- Size of largest qualifying partition
+#   $largest_fs -- Filesystem (ext4, etc.) used on largest qualifying partition
+# Note: Above variables are initialized in find_largest_partition(), which
+# calls this function.
+# Caveat: If LVM is used, there can be no guarantee that a specific disk
+# device is actually being tested. Thus, an LVM configuration should span
+# just one disk device. LVM may be used on one disk, but subsequent disks
+# should use "raw" partitions.
+find_largest_lv() {
+    local partonly=$(echo $partition | cut -f 3 -d "/")
+        for syslv in $(ls -d /sys/block/dm-*/slaves/$partonly) ; do
+            lv=$(echo "$syslv" | cut -f 4 -d "/")
+            size=$(cat /sys/block/$lv/size)
+            sector_size=$(cat /sys/block/$lv/queue/hw_sector_size)
+            let size=$size*$sector_size
+            local blkid_info=$(blkid -s TYPE /dev/$lv | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)
+            if [ "$size" -gt "$largest_size" ] && [ -n "$blkid_info" ] ; then
+                local blkid_info=$(blkid -s TYPE /dev/$lv)
+                largest_size=$size
+                largest_part="/dev/$lv"
+                largest_fs=$(blkid -s TYPE "/dev/$lv" | cut -d "=" -f 2)
+            fi
+        done
+} # find_largest_lv()
+
+
 # Find the largest partition that holds a supported filesystem on $disk_device.
 # This code is adapted from a similar function in `disk_stress_ng`.
 # Output:
@@ -40,25 +69,52 @@ function run_bonnie() {
 find_largest_partition() {
     largest_part=""
     largest_size=0
-    partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk | grep part | tr -s " ")
+    mapper_string="dm-"
+    if [ "${disk_device#*$mapper_string}" != "$disk_device" ]; then
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
+    else
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+    fi
     unsupported_fs=""
     for partition in $(echo "$partitions" | cut -d " " -f 1) ; do
         part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
-        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)
-        if [ "$part_size" -gt "$largest_size" ] && [ -n "$blkid_info" ]  ; then
-            largest_size=$part_size
-            largest_part="/dev/$partition"
-            largest_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+        if [ -b "/dev/$partition" ]; then
+            part_location="/dev/$partition"
+        elif [ -b "/dev/mapper/$partition" ]; then
+            part_location="/dev/mapper/$partition"
+        else
+            echo "$partition not found!"
+            echo "Aborting test"
+            exit 1
         fi
-        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ntfs\|vfat\|hfs)
-        if [ -n "$blkid_info" ]  ; then
-            # If there's an NTFS, HFS+, or FAT filesystem on the disk make note of it....
-            unsupported_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+        local blkid_info=$(blkid -s TYPE $part_location | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs\|LVM2_member)
+        if [ "$part_size" > "$largest_size" ] && [ -n "$blkid_info" ]  ; then
+            if [[ "$blkid_info" =~ .*LVM2_member.* ]] ; then
+                find_largest_lv
+            else
+                largest_size=$part_size
+                largest_part="$part_location"
+                largest_fs=$(blkid -s TYPE "$part_location" | cut -d "=" -f 2)
+            fi
         fi
-    done
+        local blkid_info=$(blkid -s TYPE $part_location | grep -E ntfs\|vfat\|hfs)
+	if [ -n "$blkid_info" ]  ; then
+	    # If there's an NTFS, HFS+, or FAT filesystem on the disk make note of it....
+	    unsupported_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+	fi
+     done
 } # find_largest_partition()
 
-disk=/dev/$1
+
+if [[ "$1}" =~ dm-.* ]]; then
+    # assume lvm or multipath and look for the dev/mapper device
+    disk=/dev/mapper/`ls -l /dev/mapper/ | grep $1 | awk '{print $9}'`
+    echo 'first choice'
+else
+    # if the disk doesn't look like dm-0
+    disk=/dev/$1
+fi
+echo "set disk to $disk"
 scripted_mount=0
 
 if [ -b $disk ]

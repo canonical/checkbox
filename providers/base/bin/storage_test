@@ -70,10 +70,10 @@ find_largest_partition() {
     largest_part=""
     largest_size=0
     mapper_string="dm-"
-    if [ "${disk_device#*$mapper_string}" != "$disk_device" ]; then
-        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
-    else
+    if [ "${disk_device#*$mapper_string}" = "$disk_device" ]; then
         partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+    else
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
     fi
     unsupported_fs=""
     for partition in $(echo "$partitions" | cut -d " " -f 1) ; do
@@ -109,12 +109,11 @@ find_largest_partition() {
 if [[ "$1}" =~ dm-.* ]]; then
     # assume lvm or multipath and look for the dev/mapper device
     disk=/dev/mapper/`ls -l /dev/mapper/ | grep $1 | awk '{print $9}'`
-    echo 'first choice'
 else
     # if the disk doesn't look like dm-0
     disk=/dev/$1
 fi
-echo "set disk to $disk"
+echo "Set disk to $disk"
 scripted_mount=0
 
 if [ -b $disk ]

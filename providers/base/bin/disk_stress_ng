@@ -102,17 +102,18 @@ find_largest_partition() {
     largest_part=""
     largest_size=0
     mapper_string="dm-"
-    if [ "${disk_device#*$mapper_string}" != "$disk_device" ]; then
-        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
-    else
+    if [ "${disk_device#*$mapper_string}" = "$disk_device" ]; then
         partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+    else
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
     fi
     unsupported_fs=""
     for partition in $(echo "$partitions" | cut -d " " -f 1) ; do
-        part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
         if [ -b "/dev/$partition" ]; then
+            part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
             part_location="/dev/$partition"
         elif [ -b "/dev/mapper/$partition" ]; then
+            part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 3)
             part_location="/dev/mapper/$partition"
         else
             echo "$partition not found!"

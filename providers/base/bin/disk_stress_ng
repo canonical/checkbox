@@ -101,21 +101,36 @@ find_largest_lv() {
 find_largest_partition() {
     largest_part=""
     largest_size=0
-    partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+    mapper_string="dm-"
+    if [ "${disk_device#*$mapper_string}" = "$disk_device" ]; then
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+    else
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
+    fi
     unsupported_fs=""
     for partition in $(echo "$partitions" | cut -d " " -f 1) ; do
-        part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
-        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs\|LVM2_member)
-        if [ "$part_size" -gt "$largest_size" ] && [ -n "$blkid_info" ]  ; then
+        if [ -b "/dev/$partition" ]; then
+            part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
+            part_location="/dev/$partition"
+        elif [ -b "/dev/mapper/$partition" ]; then
+            part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 3)
+            part_location="/dev/mapper/$partition"
+        else
+            echo "$partition not found!"
+            echo "Aborting test"
+            exit 1
+        fi
+        local blkid_info=$(blkid -s TYPE $part_location | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs\|LVM2_member)
+        if [ "$part_size" > "$largest_size" ] && [ -n "$blkid_info" ]  ; then
             if [[ "$blkid_info" =~ .*LVM2_member.* ]] ; then
                 find_largest_lv
             else
                 largest_size=$part_size
-                largest_part="/dev/$partition"
-                largest_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)
+                largest_part="$part_location"
+                largest_fs=$(blkid -s TYPE "$part_location" | cut -d "=" -f 2)
             fi
         fi
-        local blkid_info=$(blkid -s TYPE /dev/$partition | grep -E ntfs\|vfat\|hfs)
+        local blkid_info=$(blkid -s TYPE $part_location | grep -E ntfs\|vfat\|hfs)
         if [ -n "$blkid_info" ]  ; then
             # If there's an NTFS, HFS+, or FAT filesystem on the disk make note of it....
             unsupported_fs=$(blkid -s TYPE "/dev/$partition" | cut -d "=" -f 2)

@@ -5,9 +5,12 @@
 # Written by:
 #    Authors: Jonathan Cave <jonathan.cave@canonical.com>
 
+import json
 import io
 import logging
+import os
 import sys
+import time
 
 from guacamole import Command
 import requests
@@ -31,6 +34,14 @@ class SnapdQuery(Command):
                           r.status_code, path))
             sys.exit(1)
         return r
+
+    def post(self, path, data=None):
+        res = self._session.post(SNAPD_BASE_URL + path, data=data)
+        if not res.ok:
+            logging.error("Got error %i attempting to access %s",
+                          res.status_code, path)
+            sys.exit(1)
+        return res.json()
 
 
 class AssertionQuery(SnapdQuery):
@@ -146,6 +157,7 @@ Connection = namedtuple(
     'Connection',
     ['target_snap', 'target_slot', 'plug_snap', 'plug_plug'])
 
+
 class Connections(InterfacesQuery):
 
     def invoked(self, ctx):
@@ -153,7 +165,6 @@ class Connections(InterfacesQuery):
             print('slot: {}:{}'.format(conn.target_snap, conn.target_slot))
             print('plug: {}:{}'.format(conn.plug_snap, conn.plug_plug))
             print()
-        data = self.get(self.prefix).json()
 
     def get_connections(self):
         data = self.get('/v2/interfaces').json()['result']
@@ -168,6 +179,56 @@ class Connections(InterfacesQuery):
         return connections
 
 
+class Connect(Connections):
+    """
+    Connect 'current snap' to other snaps.
+
+    The syntax of the command is A:B:C, where:
+        A - plug to be connected
+        B - target snap (snap the plug will connect to)
+        C - target slot (slot to connect to)
+
+        Note that originating snap is implied. $SNAP_NAME is used.
+
+    Example:
+
+        $ sudo snapd_resource interfaces connect \
+        udisks2:udisks2:service
+
+    Note that the program needs sudo to connect plugs.
+    """
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'connection', nargs='+', default=[],
+            metavar='plug:target_snap:target_slot')
+
+    def invoked(self, ctx):
+        for conn in [spec.split(':') for spec in ctx.args.connection]:
+            if len(conn) != 3:
+                raise SystemExit("Bad connection description")
+            assert os.environ['SNAP_NAME']
+            snap = os.environ['SNAP_NAME']
+            existing_connections = self.get_connections()
+            new_connection = Connection(
+                target_snap=conn[1], target_slot=conn[2],
+                plug_snap=snap, plug_plug=conn[0])
+            if new_connection not in existing_connections:
+                self.connect(new_connection)
+
+    def connect(self, con):
+        json_data = json.dumps({
+            'action': 'connect',
+            'slots': [{'snap': con.target_snap, 'slot': con.target_slot}],
+            'plugs': [{'snap': con.plug_snap, 'plug': con.plug_plug}]
+        })
+        res = self.post('/v2/interfaces', json_data)
+        ready = False
+        while not ready:
+            # busy wait until snapd reports connection job as finised
+            time.sleep(0.5)
+            con_res = self.get('/v2/changes/{}'.format(res['change']))
+            ready = con_res.json()['result']['ready']
 
 
 class Interfaces(Command):
@@ -175,6 +236,7 @@ class Interfaces(Command):
     sub_commands = (
         ('endpoints', Endpoints),
         ('connections', Connections),
+        ('connect', Connect),
     )
 
 

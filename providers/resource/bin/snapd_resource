@@ -13,6 +13,8 @@ from guacamole import Command
 import requests
 import requests_unixsocket
 
+from collections import namedtuple
+
 
 SNAPD_BASE_URL = 'http+unix://%2Frun%2Fsnapd.socket'
 
@@ -140,19 +142,32 @@ class Endpoints(InterfacesQuery):
             print('name: {}'.format(slot['slot']))
             print()
 
+Connection = namedtuple(
+    'Connection',
+    ['target_snap', 'target_slot', 'plug_snap', 'plug_plug'])
 
 class Connections(InterfacesQuery):
 
     def invoked(self, ctx):
+        for conn in self.get_connections():
+            print('slot: {}:{}'.format(conn.target_snap, conn.target_slot))
+            print('plug: {}:{}'.format(conn.plug_snap, conn.plug_plug))
+            print()
         data = self.get(self.prefix).json()
 
-        if data['result']['plugs'] is not None:
-            for plug in data['result']['plugs']:
+    def get_connections(self):
+        data = self.get('/v2/interfaces').json()['result']
+        connections = []
+        if data['plugs'] is not None:
+            for plug in data['plugs']:
                 if 'connections' in plug:
                     for con in plug['connections']:
-                        print('slot: {}:{}'.format(con['snap'], con['slot']))
-                        print('plug: {}:{}'.format(plug['snap'], plug['plug']))
-                        print()
+                        connections.append(Connection(
+                            con['snap'], con['slot'],
+                            plug['snap'], plug['plug']))
+        return connections
+
+
 
 
 class Interfaces(Command):

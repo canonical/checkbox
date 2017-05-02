@@ -55,6 +55,8 @@ from plainbox.impl.session import InhibitionCause
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
+from plainbox.impl.testing_utils import make_job
+from plainbox.impl.unit.template import TemplateUnit
 from plainbox.vendor import extcmd
 from plainbox.vendor import mock
 
@@ -425,6 +427,25 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertIs(session_state.job_state_map[job_b.id].result, result_b)
         # Ensure that job A is now via-connected to job B
         self.assertIs(session_state.job_state_map[job_a.id].via_job, job_b)
+
+    @mock.patch('plainbox.impl.ctrl.logger')
+    def test_observe_result__missing_resource_key(self, mock_logger):
+        job = make_job("R", plugin="resource")
+        template = TemplateUnit({
+            'template-resource': job.id,
+            'id': 'foo-{missing}',
+            'plugin': 'shell'})
+        result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_PASS)
+        result.get_io_log.return_value = [
+            (0, 'stdout', b'attr: value1\n'),
+            (0, 'stdout', b'\n'),
+            (0, 'stdout', b'attr: value2\n')]
+        session_state = SessionState([template, job])
+        self.ctrl.observe_result(session_state, job, result)
+        # Ensure that a warning was logged
+        mock_logger.warning.assert_called_with(
+            "Ignoring generated job with missing template parameter %s",
+            "missing")
 
 
 class FunctionTests(TestCase):

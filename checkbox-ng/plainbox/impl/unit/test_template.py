@@ -32,6 +32,7 @@ from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.test_unit import UnitFieldValidationTests
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem
@@ -277,6 +278,26 @@ class TemplateUnitTests(TestCase):
         self.assertEqual(job.partial_id, 'check-device-sda1')
         self.assertEqual(job.summary, 'Test some device (/sys/something)')
         self.assertEqual(job.plugin, 'shell')
+
+    def test_instantiate_missing_parameter(self):
+        """
+        Ensure that a MissingParam exeception is raised when attempting to
+        instantiate a template unit that contains a paremeter not present in
+        the associated resource.
+        """
+        template = TemplateUnit({
+            'template-resource': 'resource',
+            'id': 'check-device-{missing}',
+            'plugin': 'shell',
+        })
+        job = template.instantiate_one(Resource({
+            'dev_name': 'sda1',
+            'name': 'some device',
+            'sys_path': '/sys/something',
+        }))
+        self.assertIsInstance(job, JobDefinition)
+        with self.assertRaises(MissingParam):
+            self.assertEqual(job.partial_id, 'check-device-sda1')
 
     def test_should_instantiate__filter(self):
         template = TemplateUnit({

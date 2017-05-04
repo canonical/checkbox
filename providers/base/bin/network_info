@@ -51,11 +51,22 @@ def get_mac_address(interface):
 
     address = ''
     try:
-        address = _read_file(address_file)
+        address = _read_file(address_file).strip()
     except IOError:
         pass
 
     return address
+
+def get_speed(interface):
+    speed_file = os.path.join(SYS_PATH, interface, 'speed')
+
+    speed = ''
+    try:
+        speed = _read_file(speed_file).strip()
+    except IOError:
+        pass
+
+    return speed
 
 
 def main(args):
@@ -74,6 +85,7 @@ def main(args):
         except:
             print("IPv6: n/a")
         print("MAC: %s\n" % get_mac_address(interface))
+        print("Connect Speed: %s" % get_speed(interface))
 
     return 0
 

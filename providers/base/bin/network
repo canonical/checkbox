@@ -107,8 +107,8 @@ class IPerfPerformanceTest(object):
                 self.timeout, self.executable, self.target, self.data_size)
 
         logging.debug("Executing command {}".format(cmd))
-        logging.info("Starting iperf against {}, this could take a while...".
-                     format(self.target))
+        logging.debug("Starting iperf against {}, this could take a while...".
+                      format(self.target))
         try:
             iperf_return = check_output(
                 shlex.split(cmd), universal_newlines=True)
@@ -124,7 +124,7 @@ class IPerfPerformanceTest(object):
                 # "pass through" whatever output iperf did manage to produce.
                 # When confronted with SIGTERM iperf should stop and output
                 # a partial (but usable) result.
-                logging.info("iperf timed out - this should be OK")
+                logging.warning("iperf timed out - this should be OK")
                 iperf_return = iperf_exception.output
 
         logging.debug(iperf_return)
@@ -147,40 +147,39 @@ class IPerfPerformanceTest(object):
                 percent = 0
                 invalid_speed = True
 
-            logging.info("Min Transfer speed: {} Mb/s".format(min(speeds)))
-            logging.info("Max Transfer speed: {} Mb/s".format(max(speeds)))
+            logging.debug("Min Transfer speed: {} Mb/s".format(min(speeds)))
+            logging.debug("Max Transfer speed: {} Mb/s".format(max(speeds)))
             logging.info("Avg Transfer speed: {} Mb/s".format(throughput))
             if invalid_speed:
                 # If we have no link_speed (e.g. wireless interfaces don't
                 # report this), then we shouldn't penalize them because
                 # the transfer may have been reasonable. So in this case,
                 # we'll exit with a pass-warning.
-                logging.info("Unable to obtain maximum speed.")
-                logging.info("Considering the test as passed.")
+                logging.warning("Unable to obtain maximum speed.")
+                logging.warning("Considering the test as passed.")
                 return 0
             # Below is guaranteed to not throw an exception because we'll
             # have exited above if it did.
             logging.info("{:03.2f}% of theoretical max {} Mb/s".
                          format(percent, int(self.iface.max_speed)))
             if cpu:
-                logging.info("")
                 logging.info("CPU utilization: {}%".format(cpu[0]))
                 cpu_load = float(cpu[0])
             else:
                 cpu_load = 0.0
             if percent < self.fail_threshold or \
                     cpu_load > self.cpu_load_fail_threshold:
-                logging.warn("Poor network performance detected against {}".
-                             format(self.target))
+                logging.warning("Poor network performance detected against {}".
+                                format(self.target))
                 if percent < self.fail_threshold:
-                    logging.warn("  Transfer speed: {} Mb/s".
-                                 format(throughput))
-                    logging.warn("  {:03.2f}% of theoretical max {} Mb/s\n".
-                                 format(percent, int(self.iface.max_speed)))
+                    logging.warning("  Transfer speed: {} Mb/s".
+                                    format(throughput))
+                    logging.warning("  {:03.2f}% of theoretical max {} Mb/s\n".
+                                    format(percent, int(self.iface.max_speed)))
                 if cpu_load > self.cpu_load_fail_threshold:
-                    logging.warn("  CPU load: {}%".format(cpu_load))
-                    logging.warn("  CPU load is above {}% maximum\n".
-                                 format(self.cpu_load_fail_threshold))
+                    logging.warning("  CPU load: {}%".format(cpu_load))
+                    logging.warning("  CPU load is above {}% maximum\n".
+                                    format(self.cpu_load_fail_threshold))
                 return 30
 
             logging.debug("Passed benchmark against {}".format(self.target))
@@ -250,7 +249,7 @@ class Interface(socket.socket):
         try:
             return open(os.path.join(self.dev_path, type)).read().strip()
         except OSError:
-            logging.info("%s: Attribute not found", type)
+            logging.warning("%s: Attribute not found", type)
 
     @property
     def ipaddress(self):
@@ -404,9 +403,10 @@ def run_test(args, test_target):
             iperf_benchmark.run_time = args.runtime
         run_num = 0
         while not error_number and run_num < args.num_runs:
-            error_number = iperf_benchmark.run()
             run_num += 1
-            logging.info(" Finished run number %s ".center(60, "-"), run_num)
+            logging.info(" Test Run Number %s ".center(60, "-"), run_num)
+            error_number = iperf_benchmark.run()
+            logging.info('')
     elif args.test_type.lower() == "stress":
         stress_benchmark = StressPerformanceTest(args.interface,
                                                  test_target, args.iperf3)
@@ -483,16 +483,16 @@ def interface_test(args):
     if not test_targets_list or "example.com" in test_targets:
         # Default values found in config file
         logging.error("Valid target server has not been supplied.")
-        logging.info("Configuration settings can be configured 3 different "
-                     "ways:")
-        logging.info("1- If calling the script directly, pass the --target "
-                     "option")
-        logging.info("2- Define the TEST_TARGET_IPERF environment variable")
-        logging.info("3- (If running the test via checkbox/plainbox, define "
-                     "the ")
-        logging.info("target in /etc/xdg/canonical-certification.conf)")
-        logging.info("Please run this script with -h to see more details on "
-                     "how to configure")
+        logging.error("Configuration settings can be configured 3 different "
+                      "ways:")
+        logging.error("1- If calling the script directly, pass the --target "
+                      "option")
+        logging.error("2- Define the TEST_TARGET_IPERF environment variable")
+        logging.error("3- (If running the test via checkbox/plainbox, define "
+                      "the ")
+        logging.error("target in /etc/xdg/canonical-certification.conf)")
+        logging.error("Please run this script with -h to see more details on "
+                      "how to configure")
         sys.exit(1)
 
     # Testing begins here!
@@ -539,8 +539,8 @@ def interface_test(args):
                     not error_number:
                 break
             if not test_targets_list:
-                logging.info(" Exhausted test target list; trying again "
-                             .center(60, "="))
+                logging.warning(" Exhausted test target list; trying again "
+                                .center(60, "="))
                 test_targets_list = make_target_list(args.interface,
                                                      test_targets,
                                                      False)

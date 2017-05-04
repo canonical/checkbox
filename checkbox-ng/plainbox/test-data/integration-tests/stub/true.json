@@ -1,11 +1,17 @@
 {
     "profile": "default",
     "job_name": "2013.com.canonical.plainbox::stub/true",
-    "result": {
-        "result_map": {
-            "2013.com.canonical.plainbox::stub/true": {
-                "outcome": "passed"
-            }
+    "results": [
+        {
+            "id": "2013.com.canonical.plainbox::stub/true",
+            "name": "Passing shell job",
+            "certification_status": "unspecified",
+            "category": "2013.com.canonical.plainbox::plugin-representative",
+            "status": "pass",
+            "comments": null,
+            "io_log": "oops\n",
+            "type": "test",
+            "project": "certification"
         }
-    }
+    ]
 }

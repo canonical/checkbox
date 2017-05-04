@@ -54,6 +54,28 @@ __all__ = ['Unit', 'UnitValidator']
 logger = logging.getLogger("plainbox.unit")
 
 
+class MissingParam(Exception):
+    """
+    Indicaiton of a missing parameter required for template instantiation.
+
+    When a resource is parametric and the template engine attempts to generate
+    the final value it is possible that a KeyError will be raised. This could
+    happen when a particular key is expected to be present in a resource, but
+    is unexpectedly missing. This exception represents this event and provides
+    the name of the missing parameter.
+    """
+
+    def __init__(self, parameter):
+        self.parameter = parameter
+
+    def __str__(self):
+        return _("failed to find value for paramter {}").format(self.parameter)
+
+    def __repr__(self):
+        return "<{} paramter:{}>".format(self.__class__.__name__,
+                                         self.parameter)
+
+
 class UnitValidator:
     """
     Validator class for basic :class:`Unit` type
@@ -589,7 +611,11 @@ class Unit(metaclass=UnitType):
                 tmp_params.update({'__system_env__': os.environ})
                 value = Template(value).render(tmp_params)
             else:
-                value = string.Formatter().vformat(value, (), self.parameters)
+                try:
+                    value = string.Formatter().vformat(value, (),
+                                                       self.parameters)
+                except KeyError as e:
+                    raise MissingParam(e.args[0])
         return value
 
     def get_raw_record_value(self, name, default=None):

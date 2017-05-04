@@ -27,6 +27,7 @@ from unittest import TestCase
 
 from plainbox.abc import IProvider1
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 from plainbox.vendor import mock
@@ -138,7 +139,7 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(unit1.get_record_value('key'), 'value')
         self.assertEqual(unit2.get_record_value('key'), 'value')
         self.assertEqual(unit3.get_record_value('key'), 'value')
-        with self.assertRaises(KeyError):
+        with self.assertRaises(MissingParam):
             unit4.get_record_value('key')
         self.assertEqual(unit5.get_record_value('key'), None)
         self.assertEqual(unit5.get_record_value('key', 'default'), 'default')

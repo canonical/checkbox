@@ -72,6 +72,7 @@ from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.validation import Severity
 from plainbox.vendor import morris
 from plainbox.vendor import extcmd
@@ -311,7 +312,12 @@ class CheckBoxSessionStateController(ISessionStateController):
                 logger.info(_("Instantiating unit: %s"), unit)
                 for new_unit in unit.instantiate_all(
                         session_state.resource_map[job.id]):
-                    check_result = new_unit.check()
+                    try:
+                        check_result = new_unit.check()
+                    except MissingParam as m:
+                        logger.warning(_("Ignoring generated job with missing "
+                                         "template parameter %s"), m.parameter)
+                        continue
                     # Only ignore jobs for which check() returns an error
                     if [c for c in check_result
                             if c.severity == Severity.error]:

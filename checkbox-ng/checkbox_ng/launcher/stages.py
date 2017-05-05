@@ -219,9 +219,6 @@ class MainLoopStage(metaclass=abc.ABCMeta):
                 job, self._get_ui_for_job(job))
             result = builder.get_result()
             self.sa.use_job_result(job_id, result)
-            if (result.outcome == IJobResult.OUTCOME_FAIL and
-                self.launcher.auto_retry):
-                self.sa._context._state._job_state_map[job.id].attempts -= 1
             if (job.estimated_duration is not None and
                     estimated_time is not None):
                 estimated_time -= job.estimated_duration

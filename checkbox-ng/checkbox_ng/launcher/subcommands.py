@@ -577,10 +577,10 @@ class Launcher(Command, MainLoopStage):
                 options = ""
             if self.launcher.transports[transport].get('staging', False):
                 url = ('https://submission.staging.canonical.com/'
-                       '1.0/submission/hardware/{}'.format(secure_id))
+                       'v1/submission/hardware/{}'.format(secure_id))
             else:
                 url = ('https://submission.canonical.com/'
-                       '1.0/submission/hardware/{}'.format(secure_id))
+                       'v1/submission/hardware/{}'.format(secure_id))
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):
@@ -616,6 +616,8 @@ class Launcher(Command, MainLoopStage):
                         exporter_id, transport)
                     if result and 'url' in result:
                         print(result['url'])
+                    elif result and 'status_url' in result:
+                        print(result['status_url'])
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting %s report: %s"),

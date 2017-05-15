@@ -1,7 +1,7 @@
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/basic
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -16,7 +16,7 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/horizontal
 requires:
-  dmi.product in ['Notebook','Laptop','Portable']
+  dmi.product in ['Notebook','Laptop','Portable','Convertible']
   'Button Horiz Wheel Left' in xinput.button_labels and 'Button Horiz Wheel Right' in xinput.button_labels
 command: touchpad_test right left --edge-scroll
 estimated_duration: 120.0
@@ -33,7 +33,7 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/vertical
 requires:
-  dmi.product in ['Notebook','Laptop','Portable']
+  dmi.product in ['Notebook','Laptop','Portable','Convertible']
   'Button Wheel Up' in xinput.button_labels and 'Button Wheel Down' in xinput.button_labels
 command: touchpad_test up down --edge-scroll
 estimated_duration: 120.0
@@ -50,7 +50,7 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/singletouch-automated
 requires:
-  dmi.product in ['Notebook','Laptop','Portable']
+  dmi.product in ['Notebook','Laptop','Portable','Convertible']
   xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
 command: true
 estimated_duration: 1.2
@@ -62,7 +62,7 @@ category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/multitouch-automated
 estimated_duration: 1.2
 requires:
-  dmi.product in ['Notebook','Laptop','Portable']
+  dmi.product in ['Notebook','Laptop','Portable','Convertible']
   xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'dependent'
 command: true
 _description:
@@ -71,7 +71,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/multitouch-manual
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/singletouch-automated
 estimated_duration: 120.0
 _description:
@@ -85,7 +85,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/singletouch-corner
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -100,7 +100,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/singletouch-selection
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -114,7 +114,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/multitouch-rightclick
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _description:
@@ -130,7 +130,7 @@ _description:
 plugin: user-interact
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/multitouch-horizontal
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: touchpad_test right left
 estimated_duration: 120.0
 _description:
@@ -145,7 +145,7 @@ _description:
 plugin: user-interact
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/multitouch-vertical
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: touchpad_test up down
 estimated_duration: 120.0
 _description:
@@ -160,7 +160,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/drag-and-drop
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -175,7 +175,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/multitouch-zoom
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check touchpad pinch-to-zoom gesture
@@ -192,7 +192,7 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/multitouch-dash
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check 4-finger tap gesture
@@ -207,7 +207,7 @@ _description:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/detected-as-mouse
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 1.2
 command:
     info=`touchpad_driver_info`
@@ -223,7 +223,7 @@ _description:
 plugin: user-interact
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/continuous-move
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 12
 command: qmlscene -qt5 --fullscreen $PLAINBOX_PROVIDER_DATA/touch_continuous_move_test.qml 2>&1 | grep -o PASS
 _description:
@@ -238,7 +238,7 @@ _description:
 plugin: qml
 category_id: 2013.com.canonical.plainbox::touchpad
 id: touchpad/palm-rejection
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 20
 _description:
  This test checks if touchpad ignores palm touches

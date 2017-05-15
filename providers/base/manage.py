@@ -30,7 +30,7 @@ class InstallPyModules(InstallCommand):
 setup(
     name='plainbox-provider-checkbox',
     namespace='2013.com.canonical.certification',
-    version="0.36.0rc1",
+    version="0.36.0rc2",
     description=N_("Checkbox provider"),
     gettext_domain='plainbox-provider-checkbox',
     strict=False, deprecated=False,

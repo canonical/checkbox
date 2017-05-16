@@ -119,8 +119,8 @@ _description: Attaches the FWTS desktop diagnosis results log to the submission
 plugin: shell
 category_id: 2013.com.canonical.plainbox::cpu
 estimated_duration: 0.5
-id: cpu/purely_id
+id: cpu/purley_id
 command:
- egrep -q avx512 /proc/cpuinfo && echo "This is a Purely CPU" || echo "CPU is NOT Purely"
-_description: Identifies Purely Platform CPUs
+ egrep -q avx512 /proc/cpuinfo && echo "This is a Purley CPU" || echo "CPU is NOT Purley"
+_description: Identifies Purley Platform CPUs
 

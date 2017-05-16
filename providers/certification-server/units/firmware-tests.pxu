@@ -38,7 +38,7 @@ mandatory_include:
     info/disk_partitions
     kernel_cmdline_attachment
 include:
-    cpu/purely_id
+    cpu/purley_id
     miscellanea/ipmi_test
     miscellanea/bmc_info
     miscellanea/fwupdate                       certification-status=non-blocker

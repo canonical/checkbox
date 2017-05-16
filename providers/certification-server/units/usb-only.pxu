@@ -35,7 +35,7 @@ mandatory_include:
     info/disk_partitions
     kernel_cmdline_attachment
 include:
-    cpu/purely_id                              certification-status=non-blocker
+    cpu/purley_id                              certification-status=non-blocker
     info/hdparm_.*.txt
     usb/detect
     usb/storage-preinserted

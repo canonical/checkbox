@@ -99,11 +99,15 @@ class TARSessionStateExporter(SessionStateExporterBase):
                     continue
                 for stdstream in ('stdout', 'stderr'):
                     filename = recordname.replace('record.gz', stdstream)
+                    folder = 'test_output'
+                    if job_state.job.plugin == 'attachment':
+                        folder = 'attachment_files'
                     if os.path.exists(filename) and os.path.getsize(filename):
                         arcname = os.path.basename(filename)
                         if stdstream == 'stdout':
                             arcname = os.path.splitext(arcname)[0]
-                        tar.add(filename, arcname, recursive=False)
+                        tar.add(filename, os.path.join(folder, arcname),
+                                recursive=False)
 
     def dump(self, session, stream):
         pass

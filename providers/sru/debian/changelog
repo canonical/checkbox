@@ -1,10 +1,14 @@
-plainbox-provider-sru (1.6.0-1) UNRELEASED; urgency=medium
+plainbox-provider-sru (1.7.0-1) UNRELEASED; urgency=medium
 
+  [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
   * "new upstream version"
   * "new upstream version"
 
- -- Pierre Equoy <pierre.equoy@canonical.com>  Tue, 13 Dec 2016 11:07:00 +0800
+  [ Sylvain Pineau ]
+  * "new upstream version"
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 22 May 2017 19:18:24 +0200
 
 plainbox-provider-sru (1.5) unstable; urgency=medium
 

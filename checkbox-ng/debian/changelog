@@ -1,4 +1,4 @@
-checkbox-ng (0.33.0~rc2-1) UNRELEASED; urgency=medium
+checkbox-ng (0.33.0-1) UNRELEASED; urgency=medium
 
   [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
@@ -14,8 +14,9 @@ checkbox-ng (0.33.0~rc2-1) UNRELEASED; urgency=medium
   [ Sylvain Pineau ]
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 05 May 2017 09:53:30 +0200
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 22 May 2017 19:17:54 +0200
 
 checkbox-ng (0.29-1) UNRELEASED; urgency=medium
 

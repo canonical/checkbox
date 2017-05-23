@@ -121,6 +121,7 @@ class UdevadmDevice(object):
         "_environment",
         "_name",
         "_lsblk",
+        "_list_partitions",
         "_bits",
         "_stack",
         "_bus",
@@ -135,10 +136,12 @@ class UdevadmDevice(object):
         "_subvendor_id",
         "_vendor_slug",)
 
-    def __init__(self, environment, name, lsblk=None, bits=None, stack=[]):
+    def __init__(self, environment, name, lsblk=None, list_partitions=False,
+                 bits=None, stack=[]):
         self._environment = environment
         self._name = name
         self._lsblk = lsblk
+        self._list_partitions = list_partitions
         self._bits = bits
         self._stack = stack
         self._bus = None
@@ -177,6 +180,15 @@ class UdevadmDevice(object):
         # Change the bus from 'block' to parent
         if self._environment.get("DEVTYPE") == "disk" and self._stack:
             return self._stack[-1]._environment.get("SUBSYSTEM")
+
+        if (
+            self._list_partitions and
+            self._environment.get("DEVTYPE") == "partition" and self._stack
+        ):
+            if any(d.bus == 'usb' for d in self._stack):
+                return 'usb'
+            else:
+                return self._stack[-2]._environment.get("SUBSYSTEM")
 
         bus = self._environment.get("SUBSYSTEM")
         if bus == "pnp":
@@ -461,6 +473,11 @@ class UdevadmDevice(object):
                     return "SCANNER"
                 if type == 12:
                     return "RAID"
+            if self._list_partitions and devtype == "partition":
+                if self._stack:
+                    parent = self._stack[-1]
+                    if parent.category != 'DISK':
+                        return "PARTITION"
 
         if "DRIVER" in self._environment:
             if self._environment["DRIVER"] == "floppy":
@@ -711,7 +728,13 @@ class UdevadmDevice(object):
                 return self.name
         elif (
             self._environment.get("DEVTYPE") == "disk" and
-            self.driver == 'virtio_blk' and self.bus == 'virtio'):
+            self.driver == 'virtio_blk' and self.bus == 'virtio'
+        ):
+            return self.name
+        elif (
+            self._list_partitions and
+            self._environment.get("DEVTYPE") == "partition"
+        ):
             return self.name
         elif self.major == "94":
             # See http://pad.lv/1559189
@@ -892,9 +915,11 @@ class UdevadmParser(object):
 
     device_factory = UdevadmDevice
 
-    def __init__(self, stream_or_string, lsblk=None, bits=None):
+    def __init__(self, stream_or_string, lsblk=None, list_partitions=False,
+                 bits=None):
         self.stream_or_string = stream_or_string
         self.lsblk = lsblk
+        self.list_partitions = list_partitions
         self.bits = bits
         self.devices = OrderedDict()
 
@@ -1039,7 +1064,8 @@ class UdevadmParser(object):
             environment.setdefault("DEVPATH", path)
 
             device = self.device_factory(
-                environment, name, self.lsblk, self.bits, list(stack))
+                environment, name, self.lsblk, self.list_partitions, self.bits,
+                list(stack))
             if not self._ignoreDevice(device):
                 if device._raw_path in self.devices:
                     if self.devices[device._raw_path].category == 'CARDREADER':
@@ -1153,7 +1179,7 @@ class UdevResult(object):
         self.devices.append(device)
 
 
-def parse_udevadm_output(output, lsblk=None, bits=None):
+def parse_udevadm_output(output, lsblk=None, list_partitions=False, bits=None):
     """
     Parse output of `LANG=C udevadm info --export-db`
 
@@ -1167,7 +1193,7 @@ def parse_udevadm_output(output, lsblk=None, bits=None):
                 universal_newlines=True)
         except CalledProcessError as exc:
             lsblk = ''
-    udev = UdevadmParser(output, lsblk, bits)
+    udev = UdevadmParser(output, lsblk, list_partitions, bits)
     result = UdevResult()
     udev.run(result)
     return result.devices

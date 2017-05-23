@@ -28,7 +28,8 @@ from checkbox_support.parsers.udevadm import UdevadmParser
 
 categories = ("ACCELEROMETER", "AUDIO", "BLUETOOTH", "CAPTURE", "CARDREADER",
               "CDROM", "DISK", "KEYBOARD", "MOUSE", "NETWORK", "OTHER",
-              "TOUCHPAD", "TOUCHSCREEN", "USB", "VIDEO", "WIRELESS", "WWAN")
+              "PARTITION", "TOUCHPAD", "TOUCHSCREEN", "USB", "VIDEO",
+              "WIRELESS", "WWAN")
 
 attributes = ("path", "name", "bus", "category", "driver", "product_id",
               "vendor_id", "subproduct_id", "subvendor_id", "product",
@@ -93,13 +94,13 @@ def main():
                         help="""Command to execute to get lsblk information.
                               Only change it if you know what you're doing.""")
     parser.add_argument('-l', '--list', nargs='+', choices=categories,
-                        metavar=("CATEGORY"),
+                        metavar=("CATEGORY"), default=(),
                         help="""List devices found under the requested
                         categories.
                         Acceptable categories to list are: 
                         {}""".format(', '.join(categories)))
     parser.add_argument('-f', '--filter', nargs='+', choices=categories,
-                        metavar=("CATEGORY"),
+                        metavar=("CATEGORY"), default=(),
                         help="""Filter devices found under the requested
                         categories.
                         Acceptable categories to list are: 
@@ -114,12 +115,15 @@ def main():
     # resource to properly match udev properties
     output = output.decode("UTF-8", errors='ignore')
     lsblk = lsblk.decode("UTF-8", errors='ignore')
-    udev = UdevadmParser(output, lsblk=lsblk)
+    list_partitions = False
+    if 'PARTITION' in args.list or 'PARTITION' in args.filter:
+        list_partitions = True
+    udev = UdevadmParser(output, lsblk=lsblk, list_partitions=list_partitions)
     if args.list:
         result = UdevResultLister(args.list)
         udev.run(result)
         return result.display()
-    if args.filter:
+    elif args.filter:
         result = UdevResultLister(args.filter)
         udev.run(result)
         return result.filter()

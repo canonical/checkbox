@@ -1,6 +1,6 @@
 unit: packaging meta-data
 os-id: debian
-Depends: ntpdate
+Depends: ntpdate, net-tools
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::networking

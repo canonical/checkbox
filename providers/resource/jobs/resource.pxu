@@ -142,6 +142,13 @@ command: udev_resource
 _description: Creates resource info from udev
 _summary: Collect information about hardware devices (udev)
 
+id: removable_partition
+estimated_duration: 0.48
+plugin: resource
+command: udev_resource -f PARTITION || true
+_description: Creates removable partitions info from udev
+_summary: Collect removable partitions info from udev
+
 id: staging/udev
 estimated_duration: 1.1
 plugin: resource

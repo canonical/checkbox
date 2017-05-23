@@ -989,7 +989,7 @@ class SubmissionResult(object):
         self.dispatcher.publishEvent("test_run", test_run)
 
     def setUdevadm(self, udevadm, lsblk, bits, udevadm_result):
-        parser = UdevadmParser(udevadm, lsblk, bits)
+        parser = UdevadmParser(udevadm, lsblk, False, bits)
         parser.run(udevadm_result)
 
 

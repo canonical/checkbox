@@ -22,7 +22,7 @@
 # _summary: Attach the screenshot captured for the automatically validated screenshot test
 
 id: sru-ubuntucore
-_name: All SRU Tests
+_name: All SRU Tests (Ubuntu Core)
 unit: test plan
 _description:
     This test plan contains tests that are useful for validating a Stable

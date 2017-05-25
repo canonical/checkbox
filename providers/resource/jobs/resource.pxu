@@ -163,6 +163,8 @@ _description:
 id: dmi
 estimated_duration: 0.59
 plugin: resource
+requires:
+  cpuinfo.platform in ("i386", "x86_64")
 user: root
 command: dmi_resource
 _summary: Collect information about hardware devices (DMI)

@@ -54,7 +54,7 @@ if [[ "$@" == *"--platform"* ]]; then
     AtypeList="$AtypeList p"
 fi
 
-rm -f createprimary.error.log ctx.cpri.*
+rm -f /home/$USER/createprimary.error.log /home/$USER/ctx.cpri.*
 
 for gAlg in $gAlgList
     do 
@@ -62,10 +62,10 @@ for gAlg in $gAlgList
             do 
                 for Atype in $AtypeList
                     do 
-                    tpm2_createprimary -A $Atype -g $gAlg -G $GAlg -C ctx.cpri."$Atype".g"$gAlg".G"$GAlg"
+                    tpm2_createprimary -A $Atype -g $gAlg -G $GAlg -C /home/$USER/ctx.cpri."$Atype".g"$gAlg".G"$GAlg"
                     if [ $? != 0 ];then 
                     echo "tpm2_createprimary error: Atype=$Atype gAlg=$gAlg GAlg=$GAlg"
-                    echo "tpm2_createprimary error: Atype=$Atype gAlg=$gAlg GAlg=$GAlg" >> createprimary.error.log
+                    echo "tpm2_createprimary error: Atype=$Atype gAlg=$gAlg GAlg=$GAlg" >> /home/$USER/createprimary.error.log
                     STATUS=1
                     fi
                 done

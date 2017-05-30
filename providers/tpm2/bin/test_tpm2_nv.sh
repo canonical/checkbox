@@ -55,10 +55,10 @@ fi
 
 
 if [ ! -f nv.test_w ];then
-echo "please123abc" >nv.test_w
+echo "please123abc" >/home/$USER/nv.test_w
 fi
 
-tpm2_nvwrite -x $nv_test_index -a $nv_auth_handle  -f nv.test_w 
+tpm2_nvwrite -x $nv_test_index -a $nv_auth_handle  -f /home/$USER/nv.test_w
 if [ $? != 0 ];then 
 echo "nvwrite fail!"
 exit 1

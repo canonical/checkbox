@@ -35,12 +35,12 @@ alg_primary_key=0x0001
 alg_create_obj=0x000B
 alg_create_key=0x0008
 
-file_primary_key_ctx=context.p_"$alg_primary_obj"_"$alg_primary_key"
-file_readpub_key_pub=opu_"$alg_create_obj"_"$alg_create_key"
-file_readpub_key_priv=opr_"$alg_create_obj"_"$alg_create_key"
-file_readpub_key_name=name.load_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
-file_readpub_key_ctx=ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
-file_readpub_output=readpub_"$file_readpub_key_ctx"
+file_primary_key_ctx=/home/$USER/context.p_"$alg_primary_obj"_"$alg_primary_key"
+file_readpub_key_pub=/home/$USER/opu_"$alg_create_obj"_"$alg_create_key"
+file_readpub_key_priv=/home/$USER/opr_"$alg_create_obj"_"$alg_create_key"
+file_readpub_key_name=/home/$USER/name.load_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_readpub_key_ctx=/home/$USER/ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_readpub_output=/home/$USER/readpub_ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
 
 Handle_readpub=0x81010014
 
@@ -51,7 +51,7 @@ fail()
 }
 Pass()
 {
-	    echo ""$1" pass" >>test_getpubak_pass.log
+	    echo ""$1" pass" >>/home/$USER/test_getpubak_pass.log
 }
 
 rm $file_primary_key_ctx $file_readpub_key_pub $file_readpub_key_priv $file_readpub_key_name $file_readpub_key_ctx  $file_readpub_output  -rf

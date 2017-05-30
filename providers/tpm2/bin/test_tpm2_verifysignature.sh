@@ -30,17 +30,17 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
 #!/bin/bash
-file_primary_key_ctx=context.p_B1
-file_signing_key_pub=opuB1_B8
-file_signing_key_priv=oprB1_B8
-file_signing_key_ctx=context_load_out_B1_B8
-file_signing_key_name=name.load.B1_B8
-file_input_data=secret.data
-file_output_data=sig.4
-file_verify_tk_data=tickt_verify_sig.4 
+file_primary_key_ctx=/home/$USER/context.p_B1
+file_signing_key_pub=/home/$USER/opuB1_B8
+file_signing_key_priv=/home/$USER/oprB1_B8
+file_signing_key_ctx=/home/$USER/context_load_out_B1_B8
+file_signing_key_name=/home/$USER/name.load.B1_B8
+file_input_data=/home/$USER/secret.data
+file_output_data=/home/$USER/sig.4
+file_verify_tk_data=/home/$USER/tickt_verify_sig.4
 
-file_input_data_hash=secret_hash.data
-file_input_data_hash_tk=secret_hash_tk.data
+file_input_data_hash=/home/$USER/secret_hash.data
+file_input_data_hash_tk=/home/$USER/secret_hash_tk.data
 
 handle_signing_key=0x81010005
 
@@ -55,7 +55,7 @@ fail()
 }
 Pass()
 {
-	    echo ""$1" pass" >>test_getpubak_pass.log
+	    echo ""$1" pass" >>/home/$USER/test_getpubak_pass.log
 }
 
 

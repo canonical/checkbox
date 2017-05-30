@@ -36,9 +36,9 @@ ek_alg=0x001
 ak_alg=0x0001
 digestAlg=0x000B 
 signAlg=0x0014
-output_ek_pub=ek_pub.out
-output_ak_pub=ak_pub.out
-output_ak_pub_name=ak_name_pub.out
+output_ek_pub=/home/$USER/ek_pub.out
+output_ak_pub=/home/$USER/ak_pub.out
+output_ak_pub_name=/home/$USER/ak_name_pub.out
 
 rm $output_ek_pub $output_ak_pub $output_ak_pub_name -rf 
 

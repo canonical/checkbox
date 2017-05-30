@@ -39,9 +39,9 @@ GAlg=
 gAlgList="0x04 0x0B"
 STATUS=0
 
-rm -f create.error.log opr* opu*
+rm -f /home/$USER/create.error.log /home/$USER/opr* /home/$USER/opu*
 
-ctx_count=`ls | grep -c ^ctx.cpri`
+ctx_count=`ls /home/$USER/ | grep -c ^ctx.cpri`
 if [ $ctx_count -le 1 ];then
 	echo "we should execute test_tpm2_createprimary_all.sh first!"
     test_tpm2_createprimary_all.sh
@@ -59,16 +59,16 @@ if [[ "$@" == *"--sm3256"* ]]; then
     gAlgList="$gAlgList 0x12"
 fi
 
-for pCtx in `ls ctx.cpri*`
+for pCtx in `ls /home/$USER/ctx.cpri*`
     do
     for gAlg in $gAlgList
         do 
         for GAlg in 0x01 0x08 0x23 0x25
             do 
-            tpm2_create -c $pCtx -g $gAlg -G $GAlg -o opu."$pCtx".g"$gAlg".G"$GAlg" -O opr."$pCtx".g"$gAlg".G"$GAlg"
+            tpm2_create -c $pCtx -g $gAlg -G $GAlg -o /home/$USER/opu."$pCtx".g"$gAlg".G"$GAlg" -O /home/$USER/opr."$pCtx".g"$gAlg".G"$GAlg"
             if [ $? != 0 ];then 
             echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg"
-            echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg" >> create.error.log             
+            echo "tpm2_create error: pCtx=$pCtx gAlg=$gAlg GAlg=$GAlg" >> /home/$USER/create.error.log
             STATUS=1
             fi
         done

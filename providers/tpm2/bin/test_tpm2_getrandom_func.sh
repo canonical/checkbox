@@ -32,7 +32,7 @@
 #!/bin/sh
 #this script for tpm2_getrandom verification 
 
-LOG_FILE=random_pass_count.log
+LOG_FILE=/home/$USER/random_pass_count.log
  if [ -e "$LOG_FILE" ];then
   rm -f "$LOG_FILE"
  fi
@@ -40,7 +40,7 @@ i=
 
 #for((i=1;i<=10;i++)); do
 for i in `seq 100`; do
-	tpm2_getrandom -s 32  -o random_"$i".out 
+	tpm2_getrandom -s 32  -o /home/$USER/random_"$i".out
 	 if  [ $? != 0 ];then
 	  echo " create random_"$i".out fail, please check the environment or parameters!"
 	  exit 2

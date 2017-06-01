@@ -32,7 +32,7 @@
 #!/bin/bash
 handle_ek=0x81010005
 ek_alg=0x001
-output_ek_pub=ek_pub.out
+output_ek_pub=/home/$USER/ek_pub.out
 
 rm -f $output_ek_pub
 

@@ -77,13 +77,6 @@ class IPerfPerformanceTest(object):
         if self.iface.max_speed == 0:
             logging.warning("No max speed detected, assuming Wireless device "
                             "and continuing with test.")
-        # Otherwise, no sense in running if we're not running at full speed.
-        elif self.iface.max_speed > self.iface.link_speed:
-            logging.error("Detected link speed (%s) is lower than "
-                          "detected max speed (%s)" %
-                          (self.iface.link_speed, self.iface.max_speed))
-            logging.error("Check your device configuration and try again")
-            return 1
 
         # Set the correct binary to run
         if (self.iperf3):
@@ -504,6 +497,19 @@ def interface_test(args):
         logging.error("Failed to use %s:%s", args.interface, interface_failure)
         return 1
 
+    # Check for an underspeed link and abort if found, UNLESS --underspeed-ok
+    # option was used or max_speed is 0 (which indicates a probable WiFi link)
+    iface=Interface(args.interface)
+    if iface.link_speed < iface.max_speed and iface.max_speed != 0 and \
+            args.underspeed_ok == False:
+        logging.error("Detected link speed ({}) is lower than detected max "
+                      "speed ({})".format(iface.link_speed, iface.max_speed))
+        logging.error("Check your device configuration and try again.")
+        logging.error("If you want to override and test despite this "
+                      "under-speed link, use")
+        logging.error ("the --underspeed-ok option.")
+        sys.exit(1)
+
     # Back up routing table, since network down/up process
     # tends to trash it....
     temp = tempfile.TemporaryFile()
@@ -700,6 +706,9 @@ TEST_TARGET_IPERF = iperf-server.example.com
     test_parser.add_argument(
         '--debug', default=False, action="store_true",
         help="Turn on verbose output")
+    test_parser.add_argument(
+        '--underspeed-ok', default=False, action="store_true",
+        help="Run test even if an underspeed 1ink is detected")
 
     # Sub info options
     info_parser.add_argument(

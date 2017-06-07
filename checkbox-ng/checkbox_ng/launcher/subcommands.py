@@ -114,10 +114,6 @@ class Launcher(Command, MainLoopStage):
             print(_("Launcher seems valid."))
             return
         self.launcher = ctx.cmd_toplevel.launcher
-        if not self.launcher.launcher_version:
-            # it's a legacy launcher, use legacy way of running commands
-            from checkbox_ng.tools import CheckboxLauncherTool
-            raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
         logging_level = {
             'normal': logging.WARNING,
             'verbose': logging.INFO,

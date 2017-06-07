@@ -40,13 +40,13 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 
 from checkbox_ng.launcher.subcommands import (
-    Launcher, List, Run, StartProvider, ListBootstrapped
+    CheckConfig, Launcher, List, Run, StartProvider, Submit, ListBootstrapped
 )
 
 
 _ = gettext.gettext
 
-_logger = logging.getLogger("checkbox-launcher")
+_logger = logging.getLogger("checkbox-cli")
 
 
 class DisplayIngredient(Ingredient):
@@ -139,10 +139,12 @@ class CheckboxCommand(CanonicalCommand):
     bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"
 
     sub_commands = (
+        ('check-config', CheckConfig),
         ('launcher', Launcher),
         ('list', List),
         ('run', Run),
         ('startprovider', StartProvider),
+        ('submit', Submit),
         ('list-bootstrapped', ListBootstrapped),
     )
 

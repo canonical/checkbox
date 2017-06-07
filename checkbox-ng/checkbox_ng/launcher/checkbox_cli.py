@@ -179,6 +179,7 @@ def main():
     # $ checkbox-cli launcher my-launcher ->  same as ^
     # to achieve that the following code 'injects launcher subcommand to argv
     known_cmds = [x[0] for x in CheckboxCommand.sub_commands]
+    known_cmds += ['-h', '--help']
     if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
     CheckboxCommand().main()

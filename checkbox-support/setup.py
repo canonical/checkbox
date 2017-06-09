@@ -82,6 +82,8 @@ setup(
                 "checkbox_support.scripts.fwts_test:main"),
             ("checkbox-support-network="
                 "checkbox_support.scripts.network:main"),
+            ("checkbox-support-usb_read_write="
+                "checkbox_support.scripts.usb_read_write:run_read_write_test"),
         ],
     },
 )

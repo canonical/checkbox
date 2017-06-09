@@ -39,6 +39,7 @@ estimated_duration: 1s
 flags: preserve-locale
 
 id: docker/info
+user: root
 category_id: docker
 requires: snap.name == 'docker'
 command: docker info
@@ -49,6 +50,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/hello-world_{arch}
+user: root
 category_id: docker
 requires:
  snap.name == 'docker'
@@ -61,6 +63,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/ubuntu_{arch}
+user: root
 category_id: docker
 requires:
  snap.name == 'docker'
@@ -73,6 +76,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/ubuntu-interative_{arch}
+user: root
 category_id: docker
 requires:
  snap.name == 'docker'
@@ -85,6 +89,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/ubuntu-kill_{arch}
+user: root
 category_id: docker
 requires:
  snap.name == 'docker'
@@ -101,29 +106,106 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/compose-single_{arch}
+id: docker/start-stop_{arch}
+user: root
 category_id: docker
 requires:
  snap.name == 'docker'
  docker_resource.arch_supported == 'yes'
 command:
  set -e
- yml=$(cat <<EOF
- test:
-   image: {image_prefix}ubuntu
-   command: bash
-   tty: true
+ container=test_2
+ docker run -d --name $container {image_prefix}redis
+ docker ps | grep $container | grep 'Up'
+ docker stop $container
+ docker ps -a | grep $container | grep 'Exited'
+ docker start $container
+ docker rm -f $container
+_summary: Start and stop a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/build-single_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ image_name=test_3
+ dockerfile=$(cat <<EOF
+   FROM {image_prefix}alpine
+   CMD echo "hello-world"
  EOF
  )
- echo "$yml" | {compose_command} -f - up -d
+ echo "$dockerfile" | docker build -t "$image_name" -
+ docker run --rm -it "$image_name"
+ docker ps -a | grep "$image_name" || exit 0
+ echo "The container is still available"
+ exit 1
+_summary: Test docker build with a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/compose-single_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ #A readable&writable path for docker snap
+ compose_file=/var/snap/docker/common/docker-compose.yaml
+ echo "test:
+   image: {image_prefix}ubuntu
+   command: bash
+   tty: true" > $compose_file
+ {compose_command} -f $compose_file up -d
  docker ps | grep '_test_1' | grep 'Up'
- echo "$yml" | {compose_command} -f - kill
+ {compose_command} -f $compose_file kill
  docker ps -a | grep '_test_1' | grep 'Exited (137)'
- echo "$yml" | {compose_command} -f - rm -v -f -a
+ {compose_command} -f $compose_file rm -v -f
  docker ps -a | grep '_test_1' || exit 0
  echo "The container is still available"
  exit 1
 _summary: Test docker compose with a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/deploy-registry_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ #A readable&writable path for docker snap
+ auth_folder=/var/snap/docker/common/auth
+ mkdir -p $auth_folder
+ docker run --entrypoint htpasswd registry:2 -Bbn user passwd > $auth_folder/htpasswd
+ docker run -d -p 5000:5000 --restart=always --name registry \
+   -v $auth_folder:/auth \
+   -e "REGISTRY_AUTH=htpasswd" \
+   -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+   -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+    registry:2
+ docker pull {image_prefix}ubuntu
+ docker tag ubuntu localhost:5000/{image_prefix}ubuntu
+ docker login --username user --password passwd localhost:5000
+ docker push localhost:5000/{image_prefix}ubuntu
+ docker pull localhost:5000/{image_prefix}ubuntu
+ docker stop registry
+ docker rm -v registry
+_summary: Deploy a registry server and run it on localhost
 flags: simple preserve-cwd
 
 id: docker-full
@@ -139,5 +221,8 @@ include:
     docker/ubuntu-interative_.*
     docker/ubuntu-kill_.*
     docker/compose-single_.*
+    docker/build-single_.*
+    docker/start-stop_.*
+    docker/deploy-registry_.*
 bootstrap_include:
     docker_resource

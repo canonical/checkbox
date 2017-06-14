@@ -810,7 +810,8 @@ class SessionAssistant:
         self._manager.test_plans = (test_plan, )
         self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
-            self.bootstrap: "to run the bootstrap process"
+            self.bootstrap: "to run the bootstrap process",
+            self.get_bootstrap_todo_list: "to get bootstrapping jobs",
         }
 
     @raises(UnexpectedMethodCall)
@@ -858,6 +859,61 @@ class SessionAssistant:
                 "to run bootstrapping job")
             rb = self.run_job(job.id, 'silent', False)
             self.use_job_result(job.id, rb.get_result())
+        # Perform initial selection -- we want to run everything that is
+        # described by the test plan that was selected earlier.
+        desired_job_list = select_jobs(
+            self._context.state.job_list,
+            [plan.get_qualifier() for plan in self._manager.test_plans])
+        self._context.state.update_desired_job_list(desired_job_list)
+        # Set subsequent usage expectations i.e. all of the runtime parts are
+        # available now.
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state())
+        self._metadata.flags = {'incomplete'}
+        self._manager.checkpoint()
+
+    @raises(UnexpectedMethodCall)
+    def get_bootstrap_todo_list(self):
+        """
+        Get a list of ids that should be run in while bootstrapping)
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        This method, together with :meth:`run_job`, can be used instead of
+        :meth:`boostrap` to have control over when bootstrapping jobs are run.
+        E.g. to inform the user about the progress
+        """
+        UsageExpectation.of(self).enforce()
+        desired_job_list = select_jobs(
+            self._context.state.job_list,
+            [plan.get_bootstrap_qualifier() for plan in (
+                self._manager.test_plans)])
+        self._context.state.update_desired_job_list(
+            desired_job_list, include_mandatory=False)
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state())
+        return [job.id for job in self._context.state.run_list]
+
+    @raises(UnexpectedMethodCall)
+    def finish_bootstrap(self):
+        """
+        Prepare the final list of jobs to be run
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        If the application controls individual bootstrapping jobs' execution
+        then it should call this method after all bootstrapping is done.
+        XXX: this could be automated by adding some state information to
+        SessionAssistant class, but if the app wants fine control, ilet's let
+        it have it.
+        """
+        UsageExpectation.of(self).enforce()
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
         desired_job_list = select_jobs(
@@ -1589,6 +1645,7 @@ class SessionAssistant:
             self.get_session_id: "to get the id of currently running session",
             self.get_session_dir: ("to get the path where current session is"
                                    "stored"),
+            self.finish_bootstrap: "to finish bootstrapping",
         }
 
     def _init_runner(self):

@@ -9,6 +9,7 @@ import json
 import io
 import logging
 import os
+import string
 import sys
 import time
 
@@ -124,6 +125,13 @@ class InterfacesQuery(SnapdQuery):
     prefix = '/v2/interfaces'
 
 
+def slugify(_string):
+    """Transform string to one that can be used as the key in a resource job"""
+    valid_chars = frozenset(
+        "_{}{}".format(string.ascii_letters, string.digits))
+    return ''.join(c if c in valid_chars else '_' for c in _string)
+
+
 class Endpoints(InterfacesQuery):
 
     def invoked(self, ctx):
@@ -139,6 +147,9 @@ class Endpoints(InterfacesQuery):
                 print_field(f)
             print('type: plug')
             print('name: {}'.format(plug['plug']))
+            if 'attrs' in plug:
+                for attr, val in plug['attrs'].items():
+                    print('attr_{}: {}'.format(slugify(attr), val))
             print()
 
         for slot in data['result']['slots']:
@@ -151,7 +162,11 @@ class Endpoints(InterfacesQuery):
                 print_field(f)
             print('type: slot')
             print('name: {}'.format(slot['slot']))
+            if 'attrs' in slot:
+                for attr, val in slot['attrs'].items():
+                    print('attr_{}: {}'.format(slugify(attr), val))
             print()
+
 
 Connection = namedtuple(
     'Connection',

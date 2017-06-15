@@ -121,7 +121,7 @@ id: package
 estimated_duration: 1.16
 plugin: resource
 command:
-    dpkg-query -W -f='name: ${Package}\nversion: ${Version}\nmodalias: ${Modaliases}\n\n' |\
+    dpkg-query -W -f='name: ${Package}\nversion: ${Version}\nmodalias: ${Modaliases}\n\n' || echo name: plainbox |\
     awk 'BEGIN {RS = ""; FS = "\n"}{print $1; print $2; if ($3 ~ /^modalias: .+$/) {print $3}; print "" }'
 _description: Generates a list of packages
 _summary: Collect information about installed software packages

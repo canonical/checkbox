@@ -132,7 +132,8 @@ def standard_tests(args, stream, dmi_data):
                                'Type:',
                                ['notebook', 'portable', 'laptop', 'desktop',
                                 'lunch box', 'space-saving', 'tower',
-                                'all in one', 'hand held'], False):
+                                'all in one', 'hand held',
+                                'convertible'], False):
             dmi_data['Chassis Information']['Type'] += \
                     " *** Incorrect or unknown desktop chassis type!"
             retval += 1

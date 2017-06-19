@@ -540,14 +540,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             result_map[job].get('summary', "")), self.format15)
                 if level:
                     self.worksheet3.set_row(
-                        self._lineno, 13, None, {'level': level})
+                        self._lineno, 13, None, {'level': level, 'collapsed': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 13, None, {'level': level})
+                            self._lineno, 13, None, {'level': level, 'collapsed': True})
                 else:
-                    self.worksheet3.set_row(self._lineno, 13)
+                    self.worksheet3.set_row(self._lineno, 13, None, {'collapsed': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
-                        self.worksheet4.set_row(self._lineno, 13)
+                        self.worksheet4.set_row(self._lineno, 13, None, {'collapsed': True})
                 self._write_job(children, result_map, max_level, level + 1)
             else:
                 self.worksheet3.write(
@@ -616,16 +616,16 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 if level:
                     self.worksheet3.set_row(
                         self._lineno, 12 + 10.5 * io_lines,
-                        None, {'level': level})
+                        None, {'level': level, "collapsed": True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
                             self._lineno, 12 + 10.5 * desc_lines,
-                            None, {'level': level})
+                            None, {'level': level, "collapsed": True})
                 else:
-                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines)
+                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines, None, {"collapsed": True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 12 + 10.5 * desc_lines)
+                            self._lineno, 12 + 10.5 * desc_lines, None, {"collapsed": True})
 
     def write_results(self, data):
         if self.OPTION_WITH_UNIT_CATEGORIES in self._option_list:

@@ -309,6 +309,12 @@ Following fields may be used by the job unit:
         this temp folder). Sometimes needed on snappy
         (See http://pad.lv/1618197)
 
+.. _job_flag_fail_on_resource:
+
+    ``fail-on-resource``:
+        This flag makes plainbox fail the job if one of the resource
+        requirements evaluates to False.
+
 .. _job_flag_also_after_suspend:
 
     ``also-after-suspend``: See ``siblings`` below.

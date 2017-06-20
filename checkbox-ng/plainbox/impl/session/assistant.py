@@ -1238,7 +1238,13 @@ class SessionAssistant:
             # that outcome. This makes 'skip' stronger than 'not-supported'
             outcome = IJobResult.OUTCOME_NOT_SUPPORTED
             for inhibitor in job_state.readiness_inhibitor_list:
-                if inhibitor.cause != InhibitionCause.FAILED_DEP:
+                if (
+                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE and
+                    'fail-on-resource' in job.get_flag_set()
+                ):
+                    outcome = IJobResult.OUTCOME_FAIL
+                    break
+                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
                     continue
                 related_job_state = self._context.state.job_state_map[
                     inhibitor.related_job.id]

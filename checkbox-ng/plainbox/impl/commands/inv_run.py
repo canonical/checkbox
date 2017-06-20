@@ -53,6 +53,7 @@ from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
 from plainbox.impl.session import SessionStorageRepository
+from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import TransportError
 
@@ -781,8 +782,26 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.manager.checkpoint()
             ui.finished_running(job, job_state, job_result)
         else:
+            # Set the outcome of jobs that cannot start to
+            # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
+            # a job with an OUTCOME_SKIP outcome, if that is the case mirror
+            # that outcome. This makes 'skip' stronger than 'not-supported'
+            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if (
+                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE and
+                    'fail-on-resource' in job.get_flag_set()
+                ):
+                    outcome = IJobResult.OUTCOME_FAIL
+                    break
+                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
+                    continue
+                related_job_state = self._context.state.job_state_map[
+                    inhibitor.related_job.id]
+                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
+                    outcome = IJobResult.OUTCOME_SKIP
             result_builder = JobResultBuilder(
-                outcome=IJobResult.OUTCOME_NOT_SUPPORTED,
+                outcome=outcome,
                 comments=job_state.get_readiness_description(),
                 execution_duration=time.time() - job_start_time)
             job_result = result_builder.get_result()

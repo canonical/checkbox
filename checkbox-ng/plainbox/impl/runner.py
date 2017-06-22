@@ -43,6 +43,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
+from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.vendor import extcmd
 from plainbox.vendor import morris
 
@@ -337,6 +338,7 @@ class JobRunner(IJobRunner):
         self._dry_run = dry_run
         self._execution_ctrl_list = execution_ctrl_list
         self._log_leftovers = True
+        self._resource_cache = ResourceJobCache()
 
     @property
     def log_leftovers(self):
@@ -508,7 +510,14 @@ class JobRunner(IJobRunner):
         if job.plugin != "resource":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, job_state, config).get_result()
+        if 'cachable' in job.get_flag_set():
+            result = self._resource_cache.get(
+                job.checksum, lambda: self._just_run_command(
+                    job, job_state, config).get_result())
+        else:
+            result  = self._just_run_command(
+                job, job_state, config).get_result()
+        return result
 
     def run_local_job(self, job, job_state, config):
         """

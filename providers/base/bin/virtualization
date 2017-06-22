@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+#/usr/bin/env python3
 
 """
 Script to test virtualization functionality
@@ -229,14 +230,14 @@ class KVMTest(object):
         def _construct_filename(alt_pattern=None, initial_url=None):
             if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
                 cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
-                            self.release, self.qemu_config['cloudimg_arch'])
+                    self.release, self.qemu_config['cloudimg_arch'])
             elif alt_pattern is "modern":
                 # LP 1635345 - yakkety and beyond have a new naming scheme
                 cloud_iso = "%s-server-cloudimg-%s.img" % (
-                            self.release, self.qemu_config['cloudimg_arch'])
+                    self.release, self.qemu_config['cloudimg_arch'])
             elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
                 cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
-                            self.release, self.qemu_config['cloudimg_arch'])
+                    self.release, self.qemu_config['cloudimg_arch'])
             elif initial_url:
                 # LP 1662580 - if we pass a full URL, assume the last piece is
                 # the filname and return that.
@@ -388,7 +389,7 @@ class KVMTest(object):
         logging.debug("Using params:{}".format(" ".join(params)))
 
         logging.info("Storing VM console output in {}".format(
-                     os.path.realpath(self.debug_file)))
+            os.path.realpath(self.debug_file)))
         # Open VM STDERR/STDOUT log file for writing
         try:
             file = open(self.debug_file, 'w')
@@ -440,7 +441,7 @@ final_message: CERTIFICATION BOOT COMPLETE
         except CalledProcessError as exception:
             logging.exception("Cloud data disk creation failed")
 
-    def log_check(self,stream):
+    def log_check(self, stream):
         if "CERTIFICATION BOOT COMPLETE" in stream:
             return 0
         else:
@@ -496,7 +497,7 @@ final_message: CERTIFICATION BOOT COMPLETE
                 if sys.stdout.isatty():
                     call('reset')
                 # Check to be sure VM boot was successful
-                self.elapsed_time=0
+                self.elapsed_time = 0
                 status = 1
                 while self.elapsed_time <= self.timeout:
                     # Check log every 30 seconds to see if the VM boots
@@ -572,7 +573,7 @@ class LXDTest(object):
         task = RunCommand(cmd)
         if task.returncode != 0:
             logging.error('Command {} returnd a code of {}'.format(
-                          task.cmd, task.returncode))
+                task.cmd, task.returncode))
             logging.error(' STDOUT: {}'.format(task.stdout))
             logging.error(' STDERR: {}'.format(task.stderr))
             return False
@@ -623,7 +624,7 @@ class LXDTest(object):
                                                            filename)
                 if not self.rootfs_tarball:
                     logging.error("Unable to download {} from{}".format(
-                              self.rootfs_tarball, self.rootfs_url))
+                        self.rootfs_tarball, self.rootfs_url))
                     logging.error("Aborting")
                     result = False
             else:
@@ -632,11 +633,11 @@ class LXDTest(object):
                 self.rootfs_tarball = filename
 
         # Insert images
-        if self.template_url is not None and  self.rootfs_url is not None:
+        if self.template_url is not None and self.rootfs_url is not None:
             logging.debug("Importing images into LXD")
             cmd = 'lxc image import {} rootfs {} --alias {}'.format(
-                        self.template_tarball, self.rootfs_tarball,
-                        self.image_alias)
+                self.template_tarball, self.rootfs_tarball,
+                self.image_alias)
             if not self.run_command(cmd):
                 logging.error('Error encountered while attempting to '
                               'import images into LXD')
@@ -645,7 +646,7 @@ class LXDTest(object):
             logging.debug("No local image available, attempting to "
                           "import from default remote.")
             cmd = 'lxc image copy {}{} local: --alias {}'.format(
-                        self.default_remote, self.os_version, self.image_alias)
+                self.default_remote, self.os_version, self.image_alias)
             if not self.run_command(cmd):
                 logging.error('Error encountered while attempting to '
                               'import images from default remote.')

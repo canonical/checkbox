@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2017 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -15,14 +15,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-import logging
 
 from plainbox.vendor.enum import Enum, unique
 
 
 __all__ = ['WordScanner']
-
-_logger = logging.getLogger("plainbox.xscanners")
 
 
 class ScannerBase:
@@ -45,44 +42,26 @@ class ScannerBase:
         """
         Get the next pair (token, lexeme)
         """
-        _logger.debug("inner: get_token()")
         state = self.STATE_START
         lexeme = ""
         stack = [self.STATE_BAD]
         while state is not self.STATE_ERROR:
-            _logger.debug("inner: ------ (next loop)")
-            _logger.debug("inner: text:   %r", self._text)
-            _logger.debug("                %s^ (pos: %d of %d)",
-                          '-' * self._pos, self._pos, self._text_len)
             char = self._next_char()
-            _logger.debug("inner: char:   %r", char)
-            _logger.debug("inner: state:  %s", state)
-            _logger.debug("inner: stack:  %s", stack)
-            _logger.debug("inner: lexeme: %r", lexeme)
             lexeme += char
             if state.is_accepting:
                 stack[:] = ()
-                _logger.debug("inner: rollback stack cleared")
             stack.append(state)
             state = self._next_state_for(state, char)
-            _logger.debug("inner: state becomes %s", state)
         if state is self.STATE_ERROR:
-            _logger.debug("inner/rollback: REACHED ERROR STATE, ROLLING BACK")
             while (not state.is_accepting and state is not self.STATE_BAD):
                 state = stack.pop()
-                _logger.debug("inner/rollback: popped new state %s", state)
                 lexeme = lexeme[:-1]
-                _logger.debug("inner/rollback: lexeme trimmed to: %r", lexeme)
                 self._rollback()
-            _logger.debug("inner/rollback: DONE")
         lexeme = lexeme.rstrip("\0")
         lexeme = state.modify_lexeme(lexeme)
         if state.is_accepting:
-            _logger.debug(
-                "inner: accepting/returning: %r, %r", state.token, lexeme)
             return state.token, lexeme
         else:
-            _logger.debug("inner: not accepting: %r", state)
             return state.token, None
 
     def _rollback(self):
@@ -252,9 +231,7 @@ class WordScanner(ScannerBase):
     def get_token(self, ignore_irrelevant=True):
         while True:
             token, lexeme = super().get_token()
-            _logger.debug("outer: GOT %r %r", token, lexeme)
             if ignore_irrelevant and token.is_irrelevant:
-                _logger.debug("outer: CONTINUING (irrelevant token found)")
                 continue
             break
         return token, lexeme

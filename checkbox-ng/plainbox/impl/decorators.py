@@ -27,6 +27,44 @@ __all__ = ['raises']
 _bug_logger = logging.getLogger("plainbox.bug")
 
 
+def instance_method_lru_cache(*cache_args, **cache_kwargs):
+    '''
+    Just like functools.lru_cache, but a new cache is created for each instance
+    of the class that owns the method this is applied to.
+    See https://gist.github.com/z0u/9df24dda2b1fe0613a85e7349d5f7d62
+    '''
+    def cache_decorator(func):
+        @functools.wraps(func)
+        def cache_factory(self, *args, **kwargs):
+            # Wrap the function in a cache by calling the decorator
+            instance_cache = functools.lru_cache(*cache_args, **cache_kwargs)(func)
+            # Bind the decorated function to the instance to make it a method
+            instance_cache = instance_cache.__get__(self, self.__class__)
+            setattr(self, func.__name__, instance_cache)
+            # Call the instance cache now. Next time the method is called, the
+            # call will go directly to the instance cache and not via this
+            # decorator.
+            return instance_cache(*args, **kwargs)
+        return cache_factory
+    return cache_decorator
+
+
+class cached_property(object):
+    """
+    Decorator that converts a method with a single self argument into a
+    property cached on the instance.
+    See https://goo.gl/QgJYks (django cached_property)
+    """
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, instance, type=None):
+        if instance is None:
+            return self
+        res = instance.__dict__[self.func.__name__] = self.func(instance)
+        return res
+
+
 class UndocumentedException(TypeError):
     """
     Exception raised when an exception declared in ``@raises()`` is

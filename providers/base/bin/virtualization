@@ -229,14 +229,14 @@ class KVMTest(object):
         def _construct_filename(alt_pattern=None, initial_url=None):
             if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
                 cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
-                            self.release, self.qemu_config['cloudimg_arch'])
+                    self.release, self.qemu_config['cloudimg_arch'])
             elif alt_pattern is "modern":
                 # LP 1635345 - yakkety and beyond have a new naming scheme
                 cloud_iso = "%s-server-cloudimg-%s.img" % (
-                            self.release, self.qemu_config['cloudimg_arch'])
+                    self.release, self.qemu_config['cloudimg_arch'])
             elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
                 cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
-                            self.release, self.qemu_config['cloudimg_arch'])
+                    self.release, self.qemu_config['cloudimg_arch'])
             elif initial_url:
                 # LP 1662580 - if we pass a full URL, assume the last piece is
                 # the filname and return that.
@@ -388,7 +388,7 @@ class KVMTest(object):
         logging.debug("Using params:{}".format(" ".join(params)))
 
         logging.info("Storing VM console output in {}".format(
-                     os.path.realpath(self.debug_file)))
+            os.path.realpath(self.debug_file)))
         # Open VM STDERR/STDOUT log file for writing
         try:
             file = open(self.debug_file, 'w')
@@ -440,6 +440,12 @@ final_message: CERTIFICATION BOOT COMPLETE
         except CalledProcessError as exception:
             logging.exception("Cloud data disk creation failed")
 
+    def log_check(self, stream):
+        if "CERTIFICATION BOOT COMPLETE" in stream:
+            return 0
+        else:
+            return 1
+
     def start(self):
         if self.arch == 'arm64':
             # lp:1548539 - For arm64, we need to make sure we're using qemu
@@ -485,36 +491,42 @@ final_message: CERTIFICATION BOOT COMPLETE
                 # Boot Virtual Machine
                 instance = self.boot_image(self.image)
 
-                time.sleep(self.timeout)
                 # If running in console, reset console window to regain
                 # control from VM Serial I/0
                 if sys.stdout.isatty():
                     call('reset')
                 # Check to be sure VM boot was successful
-                with open(self.debug_file, 'r') as debug_file:
-                    file_contents = debug_file.read()
-                    if "CERTIFICATION BOOT COMPLETE" in file_contents:
-                        if "END SSH HOST KEY KEYS" in file_contents:
-                            print("Booted successfully", file=sys.stderr)
+                self.elapsed_time = 0
+                status = 1
+                while self.elapsed_time <= self.timeout:
+                    # Check log every 30 seconds to see if the VM boots
+                    with open(self.debug_file, 'r') as debug_file:
+                        status = self.log_check(debug_file.read())
+                        if status == 0:
+                            logging.info("Booted successfully.")
+                            break
                         else:
-                            print("Booted successfully (Previously "
-                                  "initalized VM)", file=sys.stderr)
-                        status = 0
-                    else:
-                        print("E: KVM instance failed to boot",
-                              file=sys.stderr)
-                        print("Console output".center(72, "="),
-                              file=sys.stderr)
-                        with open(self.debug_file, 'r') as console_log:
-                            print(console_log.read(), file=sys.stderr)
-                        print("E: KVM instance failed to boot",
-                              file=sys.stderr)
+                            # Sleep 30 seconds and log check again
+                            time.sleep(30)
+                            self.elapsed_time += 30
+                else:
+                    # Finally, if we didn't get the Success message by now try
+                    # one more time and return 1 if we still haven't booted
+                    if status != 0:
+                        with open(self.debug_file, 'r') as debug_file:
+                            stream = debug_file.read()
+                            status = self.log_check(stream)
+                            if status == 0:
+                                logging.info("Booted successfully.")
+                            else:
+                                logging.error("KVM instance failed to boot.")
+                                logging.error("Console output".center(72, "="))
+                                logging.error(stream)
                 self.process.terminate()
             elif not self.image:
-                print("Could not find downloaded image")
+                logging.error("Could not find downloaded image")
             else:
-                print("Could not find: {}".format(self.image),
-                      file=sys.stderr)
+                logging.error("Could not find: {}".format(self.image))
 
         return status
 
@@ -560,7 +572,7 @@ class LXDTest(object):
         task = RunCommand(cmd)
         if task.returncode != 0:
             logging.error('Command {} returnd a code of {}'.format(
-                          task.cmd, task.returncode))
+                task.cmd, task.returncode))
             logging.error(' STDOUT: {}'.format(task.stdout))
             logging.error(' STDERR: {}'.format(task.stderr))
             return False
@@ -611,7 +623,7 @@ class LXDTest(object):
                                                            filename)
                 if not self.rootfs_tarball:
                     logging.error("Unable to download {} from{}".format(
-                              self.rootfs_tarball, self.rootfs_url))
+                        self.rootfs_tarball, self.rootfs_url))
                     logging.error("Aborting")
                     result = False
             else:
@@ -620,11 +632,11 @@ class LXDTest(object):
                 self.rootfs_tarball = filename
 
         # Insert images
-        if self.template_url is not None and  self.rootfs_url is not None:
+        if self.template_url is not None and self.rootfs_url is not None:
             logging.debug("Importing images into LXD")
             cmd = 'lxc image import {} rootfs {} --alias {}'.format(
-                        self.template_tarball, self.rootfs_tarball,
-                        self.image_alias)
+                self.template_tarball, self.rootfs_tarball,
+                self.image_alias)
             if not self.run_command(cmd):
                 logging.error('Error encountered while attempting to '
                               'import images into LXD')
@@ -633,7 +645,7 @@ class LXDTest(object):
             logging.debug("No local image available, attempting to "
                           "import from default remote.")
             cmd = 'lxc image copy {}{} local: --alias {}'.format(
-                        self.default_remote, self.os_version, self.image_alias)
+                self.default_remote, self.os_version, self.image_alias)
             if not self.run_command(cmd):
                 logging.error('Error encountered while attempting to '
                               'import images from default remote.')
@@ -735,7 +747,7 @@ def test_lxd(args):
 
 
 def test_kvm(args):
-    print("Executing KVM Test", file=sys.stderr)
+    logging.debug("Executing KVM Test")
 
     image = ""
     timeout = ""
@@ -809,6 +821,7 @@ def main():
 
     # silence normal output from requests module
     logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     # Verify args
     try:

@@ -33,6 +33,8 @@ import string
 from jinja2 import Template
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.decorators import cached_property
+from plainbox.impl.decorators import instance_method_lru_cache
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.symbol import Symbol
@@ -443,7 +445,7 @@ class Unit(metaclass=UnitType):
             self._hash_cache = int(self.checksum, 16)
         return self._hash_cache
 
-    @property
+    @cached_property
     def unit(self):
         """
         the value of the unit field
@@ -453,6 +455,7 @@ class Unit(metaclass=UnitType):
         """
         return self.get_record_value('unit')
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_unit(self):
         """
         Translated (optionally) value of the unit field (overridden)
@@ -461,14 +464,14 @@ class Unit(metaclass=UnitType):
         """
         return _(self.Meta.name)
 
-    @property
+    @cached_property
     def origin(self):
         """
         The Origin object associated with this Unit
         """
         return self._origin
 
-    @property
+    @cached_property
     def field_offset_map(self):
         """
         The field-to-line-number-offset mapping.
@@ -480,14 +483,14 @@ class Unit(metaclass=UnitType):
         """
         return self._field_offset_map
 
-    @property
+    @cached_property
     def provider(self):
         """
         The provider object associated with this Unit
         """
         return self._provider
 
-    @property
+    @cached_property
     def parameters(self):
         """
         The mapping of parameters supplied to this Unit
@@ -499,7 +502,7 @@ class Unit(metaclass=UnitType):
         """
         return self._parameters
 
-    @property
+    @cached_property
     def template_engine(self):
         """
         value of the 'template-engine' field.
@@ -509,7 +512,7 @@ class Unit(metaclass=UnitType):
         """
         return self._data.get('template-engine', 'default')
 
-    @property
+    @cached_property
     def virtual(self):
         """
         Flag indicating if this unit is a virtual unit
@@ -519,7 +522,7 @@ class Unit(metaclass=UnitType):
         """
         return self._virtual
 
-    @property
+    @cached_property
     def is_parametric(self):
         """
         If true, then this unit is parametric
@@ -585,6 +588,7 @@ class Unit(metaclass=UnitType):
                    raw_data=changed_raw_data, provider=provider,
                    field_offset_map=record.field_offset_map)
 
+    @instance_method_lru_cache(maxsize=None)
     def get_record_value(self, name, default=None):
         """
         Obtain the normalized value of the specified record attribute
@@ -618,6 +622,7 @@ class Unit(metaclass=UnitType):
                     raise MissingParam(e.args[0])
         return value
 
+    @instance_method_lru_cache(maxsize=None)
     def get_raw_record_value(self, name, default=None):
         """
         Obtain the raw value of the specified record attribute
@@ -644,6 +649,7 @@ class Unit(metaclass=UnitType):
                 value = string.Formatter().vformat(value, (), self.parameters)
         return value
 
+    @instance_method_lru_cache(maxsize=None)
     def get_translated_record_value(self, name, default=None):
         """
         Obtain the translated value of the specified record attribute
@@ -702,6 +708,7 @@ class Unit(metaclass=UnitType):
         # If we have nothing better let's just return the default value
         return default
 
+    @instance_method_lru_cache(maxsize=None)
     def is_translatable_field(self, name):
         """
         Check if a field is marked as translatable

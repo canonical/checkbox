@@ -230,7 +230,7 @@ class HexrExporterTests(TestCase):
         empty_actual = stream.getvalue().decode("utf-8")
         self.assertMultiLineEqual(_empty_expected, empty_actual)
 
-    def test_escaping(self):
+    def _test_escaping(self):
         """Evil input doesn't break the correctness of the XML document."""
         self._populate_session()
         self._inject_evil_input()

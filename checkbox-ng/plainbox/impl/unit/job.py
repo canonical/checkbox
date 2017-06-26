@@ -31,6 +31,8 @@ import os
 from plainbox.abc import IJobDefinition
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.decorators import cached_property
+from plainbox.impl.decorators import instance_method_lru_cache
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import JobOutputTextSource
@@ -255,11 +257,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return 'job'
 
-    @property
+    @cached_property
     def name(self):
         return self.get_record_value('name')
 
-    @property
+    @cached_property
     def partial_id(self):
         """
         Identifier of this job, without the provider name
@@ -275,11 +277,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
             plugin = 'shell'
         return plugin
 
-    @property
+    @cached_property
     def summary(self):
         return self.get_record_value('summary', self.partial_id)
 
-    @property
+    @cached_property
     def description(self):
         # since version 0.17 description field should be replaced with
         # purpose/steps/verification fields. To keep backwards compability
@@ -299,51 +301,51 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 description = None
         return description
 
-    @property
+    @cached_property
     def purpose(self):
         return self.get_record_value('purpose')
 
-    @property
+    @cached_property
     def steps(self):
         return self.get_record_value('steps')
 
-    @property
+    @cached_property
     def verification(self):
         return self.get_record_value('verification')
 
-    @property
+    @cached_property
     def requires(self):
         return self.get_record_value('requires')
 
-    @property
+    @cached_property
     def depends(self):
         return self.get_record_value('depends')
 
-    @property
+    @cached_property
     def after(self):
         return self.get_record_value('after')
 
-    @property
+    @cached_property
     def command(self):
         return self.get_record_value('command')
 
-    @property
+    @cached_property
     def environ(self):
         return self.get_record_value('environ')
 
-    @property
+    @cached_property
     def user(self):
         return self.get_record_value('user')
 
-    @property
+    @cached_property
     def flags(self):
         return self.get_record_value('flags')
 
-    @property
+    @cached_property
     def siblings(self):
         return self.get_record_value('siblings')
 
-    @property
+    @cached_property
     def shell(self):
         """
         Shell that is used to interpret the command
@@ -352,11 +354,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.get_record_value('shell', 'bash')
 
-    @property
+    @cached_property
     def imports(self):
         return self.get_record_value('imports')
 
-    @property
+    @cached_property
     def category_id(self):
         """
         fully qualified identifier of the category unit this job belongs to
@@ -374,7 +376,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             self.get_record_value(
                 'category_id', '2013.com.canonical.plainbox::uncategorised'))
 
-    @property
+    @cached_property
     def qml_file(self):
         """
         path to a QML file that implements tests UI for this job
@@ -420,7 +422,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.get_record_value('certification-status', 'unspecified')
 
-    @property
+    @cached_property
     def estimated_duration(self):
         """
         estimated duration of this job in seconds.
@@ -462,19 +464,21 @@ class JobDefinition(UnitWithId, IJobDefinition):
             except ValueError:
                 pass
 
-    @property
+    @cached_property
     def controller(self):
         """
         The controller object associated with this JobDefinition
         """
         return self._controller
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_summary(self):
         """
         Get the translated version of :meth:`summary`
         """
         return self.get_translated_record_value('summary', self.partial_id)
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_description(self):
         """
         Get the translated version of :meth:`description`
@@ -499,30 +503,35 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 tr_description = None
         return tr_description
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_purpose(self):
         """
         Get the translated version of :meth:`purpose`
         """
         return self.get_translated_record_value('purpose')
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_steps(self):
         """
         Get the translated version of :meth:`steps`
         """
         return self.get_translated_record_value('steps')
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_verification(self):
         """
         Get the translated version of :meth:`verification`
         """
         return self.get_translated_record_value('verification')
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_siblings(self):
         """
         Get the translated version of :meth:`siblings`
         """
         return self.get_translated_record_value('siblings')
 
+    @instance_method_lru_cache(maxsize=None)
     def get_environ_settings(self):
         """
         Return a set of requested environment variables
@@ -532,6 +541,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         else:
             return set()
 
+    @instance_method_lru_cache(maxsize=None)
     def get_flag_set(self):
         """
         Return a set of flags associated with this job
@@ -557,7 +567,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         imports = self.imports or ""
         return parse_imports_stmt(imports)
 
-    @property
+    @cached_property
     def automated(self):
         """
         Whether the job is fully automated and runs without any
@@ -566,7 +576,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.plugin in ['shell', 'resource',
                                'attachment', 'local']
 
-    @property
+    @cached_property
     def startup_user_interaction_required(self):
         """
         The job needs to be started explicitly by the test operator. This is
@@ -667,6 +677,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         else:
             return set()
 
+    @instance_method_lru_cache(maxsize=None)
     def get_category_id(self):
         """
         Get the fully-qualified category id that this job belongs to

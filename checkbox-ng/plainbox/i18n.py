@@ -25,6 +25,7 @@ This module provides public APIs for plainbox translation system.
 
 from abc import ABCMeta, abstractmethod
 import collections
+from functools import lru_cache
 import gettext as gettext_module
 import logging
 import os
@@ -408,12 +409,15 @@ class GettextTranslator(ITranslator):
         GETTEXT_CONTEXT_GLUE = "\004"
         return ctx + GETTEXT_CONTEXT_GLUE + msg
 
+    @lru_cache(maxsize=None)
     def gettext(self, msgid):
         return self._get_translation(self._domain).gettext(msgid)
 
+    @lru_cache(maxsize=None)
     def ngettext(self, msgid1, msgid2, n):
         return self._get_translation(self._domain).ngettext(msgid1, msgid2, n)
 
+    @lru_cache(maxsize=None)
     def pgettext(self, msgctxt, msgid):
         effective_msgid = self._contextualize(msgctxt, msgid)
         msgstr = self.gettext(effective_msgid)
@@ -424,6 +428,7 @@ class GettextTranslator(ITranslator):
         else:
             return msgstr
 
+    @lru_cache(maxsize=None)
     def pngettext(self, msgctxt, msgid1, msgid2, n):
         effective_msgid1 = self._contextualize(msgctxt, msgid1)
         effective_msgid2 = self._contextualize(msgctxt, msgid2)
@@ -437,12 +442,15 @@ class GettextTranslator(ITranslator):
         else:
             return msgstr
 
+    @lru_cache(maxsize=None)
     def dgettext(self, domain, msgid):
         return self._get_translation(domain).gettext(msgid)
 
+    @lru_cache(maxsize=None)
     def dngettext(self, domain, msgid1, msgid2, n):
         return self._get_translation(domain).ngettext(msgid1, msgid2, n)
 
+    @lru_cache(maxsize=None)
     def pdgettext(self, msgctxt, domain, msgid):
         effective_msgid = self._contextualize(msgctxt, msgid)
         msgstr = self._get_translation(domain).gettext(effective_msgid)
@@ -453,6 +461,7 @@ class GettextTranslator(ITranslator):
         else:
             return msgstr
 
+    @lru_cache(maxsize=None)
     def pdngettext(self, msgctxt, domain, msgid1, msgid2, n):
         effective_msgid1 = self._contextualize(msgctxt, msgid1)
         effective_msgid2 = self._contextualize(msgctxt, msgid2)
@@ -467,6 +476,7 @@ class GettextTranslator(ITranslator):
         else:
             return msgstr
 
+    @lru_cache(maxsize=None)
     def textdomain(self, domain):
         """
         Set global gettext domain
@@ -484,6 +494,7 @@ class GettextTranslator(ITranslator):
         self._domain = domain
         gettext_module.textdomain(domain)
 
+    @lru_cache(maxsize=None)
     def bindtextdomain(self, domain, localedir=None):
         """
         Set set directory for gettext messages for a specific domain

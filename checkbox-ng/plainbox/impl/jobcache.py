@@ -43,6 +43,17 @@ class ResourceJobCache:
         Load existing entries from the filesystem
         """
         self._cache = {}
+
+    def clear(self):
+        logger.debug("Clearing cache")
+        for root, subdirs, files in os.walk(self._get_cache_path()):
+            for subdir in subdirs:
+                try:
+                    shutil.rmtree(os.path.join(root, subdir))
+                except Exception as exc:
+                    logger.warning("Failed to clear the cache. %s" % exc)
+
+    def load(self):
         for root, subdirs, files in os.walk(self._get_cache_path()):
             for subdir in subdirs:
                 self._try_load_cache_entry(os.path.join(root, subdir))

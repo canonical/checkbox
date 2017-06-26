@@ -339,6 +339,7 @@ class JobRunner(IJobRunner):
         self._execution_ctrl_list = execution_ctrl_list
         self._log_leftovers = True
         self._resource_cache = ResourceJobCache()
+        self._resource_cache.load()
 
     @property
     def log_leftovers(self):

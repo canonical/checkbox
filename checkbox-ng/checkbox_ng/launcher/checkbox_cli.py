@@ -38,16 +38,15 @@ from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
-from plainbox.vendor.textland import get_display
 
 from checkbox_ng.launcher.subcommands import (
-    Launcher, List, Run, StartProvider, ListBootstrapped
+    CheckConfig, Launcher, List, Run, StartProvider, Submit, ListBootstrapped
 )
 
 
 _ = gettext.gettext
 
-_logger = logging.getLogger("checkbox-launcher")
+_logger = logging.getLogger("checkbox-cli")
 
 
 class DisplayIngredient(Ingredient):
@@ -125,7 +124,6 @@ class CheckboxCommandRecipe(CommandRecipe):
             LauncherIngredient(),
             SessionAssistantIngredient(),
             RenderingContextIngredient(),
-            DisplayIngredient(),
         ]
 
 
@@ -141,10 +139,12 @@ class CheckboxCommand(CanonicalCommand):
     bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"
 
     sub_commands = (
+        ('check-config', CheckConfig),
         ('launcher', Launcher),
         ('list', List),
         ('run', Run),
         ('startprovider', StartProvider),
+        ('submit', Submit),
         ('list-bootstrapped', ListBootstrapped),
     )
 
@@ -179,6 +179,7 @@ def main():
     # $ checkbox-cli launcher my-launcher ->  same as ^
     # to achieve that the following code 'injects launcher subcommand to argv
     known_cmds = [x[0] for x in CheckboxCommand.sub_commands]
+    known_cmds += ['-h', '--help']
     if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
     CheckboxCommand().main()

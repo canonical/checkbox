@@ -1,19 +1,13 @@
 [encoding: UTF-8]
+./docs/conf.py
 ./checkbox_ng/__init__.py
 ./checkbox_ng/certification.py
-./checkbox_ng/commands/__init__.py
-./checkbox_ng/commands/cli.py
-./checkbox_ng/commands/launcher.py
-./checkbox_ng/commands/newcli.py
-./checkbox_ng/commands/sru.py
-./checkbox_ng/commands/submit.py
-./checkbox_ng/commands/test_sru.py
 ./checkbox_ng/config.py
-./checkbox_ng/launchpad.py
-./checkbox_ng/main.py
+./checkbox_ng/launcher/__init__.py
+./checkbox_ng/launcher/checkbox_cli.py
+./checkbox_ng/launcher/stages.py
+./checkbox_ng/launcher/subcommands.py
 ./checkbox_ng/test_certification.py
-./checkbox_ng/test_config.py
-./checkbox_ng/test_main.py
-./checkbox_ng/test_misc.py
 ./checkbox_ng/tests.py
-./checkbox_ng/ui.py
+./checkbox_ng/urwid_ui.py
+./setup.py

@@ -37,6 +37,7 @@ from guacamole import Command
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
 from plainbox.impl.color import Colorizer
+from plainbox.impl.commands.inv_check_config import CheckConfigInvocation
 from plainbox.impl.commands.inv_run import Action
 from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
@@ -55,8 +56,10 @@ from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
+from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.public import get_providers
 
+from checkbox_ng.config import CheckBoxConfig
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
@@ -65,6 +68,73 @@ from checkbox_ng.urwid_ui import test_plan_browser
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
+
+
+class CheckConfig(Command):
+    def invoked(self, ctx):
+        return CheckConfigInvocation(lambda: CheckBoxConfig.get()).run()
+
+
+class Submit(Command):
+    def register_arguments(self, parser):
+        def secureid(secure_id):
+            if not re.match(SECURE_ID_PATTERN, secure_id):
+                raise ArgumentTypeError(
+                    _("must be 15-character (or more) alphanumeric string"))
+            return secure_id
+        parser.add_argument(
+            'secure_id', metavar=_("SECURE-ID"),
+            type=secureid,
+            help=_("associate submission with a machine using this SECURE-ID"))
+        parser.add_argument(
+            "submission", metavar=_("SUBMISSION"),
+            help=_("The path to the results file"))
+        parser.add_argument(
+            "-s", "--staging", action="store_true",
+            help=_("Use staging environment"))
+
+    def invoked(self, ctx):
+        transport_cls = None
+        enc = None
+        mode = 'rb'
+        options_string = "secure_id={0}".format(ctx.args.secure_id)
+        url = ('https://submission.canonical.com/'
+               'v1/submission/hardware/{}'.format(ctx.args.secure_id))
+        if ctx.args.staging:
+            url = ('https://submission.staging.canonical.com/'
+                   'v1/submission/hardware/{}'.format(ctx.args.secure_id))
+        if ctx.args.submission.endswith('xml'):
+            from checkbox_ng.certification import CertificationTransport
+            transport_cls = CertificationTransport
+            mode = 'r'
+            enc = 'utf-8'
+            url = ('https://certification.canonical.com/'
+                   'submissions/submit/')
+            if ctx.args.staging:
+                url = ('https://certification.staging.canonical.com/'
+                       'submissions/submit/')
+        else:
+            from checkbox_ng.certification import SubmissionServiceTransport
+            transport_cls = SubmissionServiceTransport
+        transport = transport_cls(url, options_string)
+        try:
+            with open(ctx.args.submission, mode, encoding=enc) as subm_file:
+                result = transport.send(subm_file)
+        except (TransportError, OSError) as exc:
+            raise SystemExit(exc)
+        else:
+            if result and 'url' in result:
+                # TRANSLATORS: Do not translate the {} format marker.
+                print(_("Successfully sent, submission status"
+                        " at {0}").format(result['url']))
+            elif result and 'status_url' in result:
+                # TRANSLATORS: Do not translate the {} format marker.
+                print(_("Successfully sent, submission status"
+                        " at {0}").format(result['status_url']))
+            else:
+                # TRANSLATORS: Do not translate the {} format marker.
+                print(_("Successfully sent, server response"
+                        ": {0}").format(result))
 
 
 class StartProvider(Command):
@@ -114,10 +184,6 @@ class Launcher(Command, MainLoopStage):
             print(_("Launcher seems valid."))
             return
         self.launcher = ctx.cmd_toplevel.launcher
-        if not self.launcher.launcher_version:
-            # it's a legacy launcher, use legacy way of running commands
-            from checkbox_ng.tools import CheckboxLauncherTool
-            raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
         logging_level = {
             'normal': logging.WARNING,
             'verbose': logging.INFO,
@@ -896,6 +962,7 @@ class List(Command):
         elif ctx.args.format:
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
         print_objs(ctx.args.GROUP, ctx.args.attrs)
+
 
 class ListBootstrapped(Command):
     name = 'list-bootstrapped'

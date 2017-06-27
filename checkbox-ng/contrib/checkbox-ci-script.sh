@@ -10,9 +10,9 @@ notification() {
     # for some systems, their ethernet ports are not ready when this service is launched so
     # will not notify yantok as expected.
     sleep 60
-    if [ -f $CHECKBOX_SERVER_CONF ]; then
+    if [ -f "$CHECKBOX_SERVER_CONF" ]; then
         curl -F mini_ci_notification_installed="CheckBox NG CI testing run has installed on $RELEASE server $HOST $IP" $SUBMIT_CGI
-    elif [ -f $CHECKBOX_DESKTOP_XDG ]; then
+    elif [ -f "$CHECKBOX_DESKTOP_XDG" ]; then
         curl -F mini_ci_notification_installed="CheckBox NG CI testing run has installed on $RELEASE desktop $HOST $IP" $SUBMIT_CGI
     else
         curl -F mini_ci_notification_installed="CheckBox NG CI testing run installation has something wrong on $RELEASE $HOST $IP" $SUBMIT_CGI
@@ -20,13 +20,13 @@ notification() {
 }
 
 mailer() {
-    if [ -f $CHECKBOX_UPSTART_LOG ]; then
+    if [ -f "$CHECKBOX_UPSTART_LOG" ]; then
         MESSAGE=$CHECKBOX_UPSTART_LOG
         # workaround for 14.04.1 and 14.04.2 will get tag 14.04.3
         # because the package base-files update its information
         RELEASE=$(awk {'print $2'} /var/log/installer/media-info)
         SUBJECT="CheckBox NG CI testing run for $RELEASE server"
-    elif [ -f $CHECKBOX_DESKTOP_LOG ]; then
+    elif [ -f "$CHECKBOX_DESKTOP_LOG" ]; then
         MESSAGE=$CHECKBOX_DESKTOP_LOG
         SUBJECT="CheckBox NG CI testing run for $RELEASE desktop"
     else
@@ -38,11 +38,11 @@ mailer() {
     SUBJECT="$SUBJECT - $HOST $IP"
     if [ -f "$MESSAGE" ] ; then
         dpkg --list "*checkbox*" "*plainbox*" >> $MESSAGE
-        if run_chc >> $MESSAGE ; then
-            SUBJECT="$SUBJECT and canonical-hw-collection(Tested); "
-        else
-            SUBJECT="$SUBJECT and canonical-hw-collection(Failed); "  
-        fi
+        #if run_chc >> $MESSAGE ; then
+        #    SUBJECT="$SUBJECT and canonical-hw-collection(Tested); "
+        #else
+        #    SUBJECT="$SUBJECT and canonical-hw-collection(Failed); "
+        #fi
         curl -F subject="$SUBJECT" -F plainbox_output=@$MESSAGE $SUBMIT_CGI
     else
         curl -F subject="$SUBJECT" -F plainbox_output="$MESSAGE" $SUBMIT_CGI

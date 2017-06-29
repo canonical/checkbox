@@ -3,9 +3,8 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3 (>= 3.2)
 
-# This is for bin/efi_resource, bin/cpuinfo_resource, bin/gconf_resource,
-# bin/gconf_resource, bin/meminfo_resource, bin/udev_resource
-# and bin/xinput_resource
+# This is for bin/efi_resource, bin/cpuinfo_resource, bin/meminfo_resource,
+# bin/udev_resource and bin/xinput_resource
 unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
@@ -26,13 +25,6 @@ Depends: dmidecode [!arm64 !armel !mips !mipsel !powerpc !ppc64el !s390x !alpha 
 unit: packaging meta-data
 os-id: debian
 Depends: dpkg (>= 1.13)
-
-# This is for bin/gconf_resource
-unit: packaging meta-data
-os-id: debian
-# NOTE: This is not a hard dependency so that
-# plainbox-provider-resource-generic has minimalistic dependencies.
-Suggests: gconf2
 
 # This is for bin/lsb_resource
 unit: packaging meta-data
@@ -87,14 +79,6 @@ plugin: resource
 command: dpkg_resource
 _summary: Collect information about dpkg version
 _description: Gets info on the version of dpkg installed
-
-id: gconf
-estimated_duration: 0.42
-plugin: resource
-command: gconf_resource | filter_templates -w 'name=.*proxy.*'
-requires: package.name == "gconf2"
-_description: Generates resource info from gconf settings
-_summary: Collect information about software configuration (gconf)
 
 id: lsb
 estimated_duration: 1.63

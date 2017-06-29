@@ -203,7 +203,11 @@ _summary: Collect information about supported types of USB
 command: 
  for version in 2 3; do 
      echo -n "usb$version: "
-     lsusb |grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
+     if [[ -v SNAP ]]; then
+         lsusb.py -f $SNAP/var/lib/usbutils/usb.ids | grep -q "Linux Foundation ${version}.00 root hub" && echo "supported" || echo "unsupported"
+     else
+         lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
+     fi
  done
 
 id: xinput

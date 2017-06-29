@@ -188,12 +188,4 @@
 ./plainbox/vendor/sphinxarg/__init__.py
 ./plainbox/vendor/sphinxarg/ext.py
 ./plainbox/vendor/sphinxarg/parser.py
-./plainbox/vendor/textland/__init__.py
-./plainbox/vendor/textland/abc.py
-./plainbox/vendor/textland/bits.py
-./plainbox/vendor/textland/display.py
-./plainbox/vendor/textland/drawing.py
-./plainbox/vendor/textland/events.py
-./plainbox/vendor/textland/image.py
-./plainbox/vendor/textland/keys.py
 ./setup.py

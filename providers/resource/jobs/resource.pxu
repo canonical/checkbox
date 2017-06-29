@@ -3,9 +3,8 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3 (>= 3.2)
 
-# This is for bin/efi_resource, bin/cpuinfo_resource, bin/gconf_resource,
-# bin/gconf_resource, bin/meminfo_resource, bin/udev_resource
-# and bin/xinput_resource
+# This is for bin/efi_resource, bin/cpuinfo_resource, bin/meminfo_resource,
+# bin/udev_resource and bin/xinput_resource
 unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
@@ -26,13 +25,6 @@ Depends: dmidecode [!arm64 !armel !mips !mipsel !powerpc !ppc64el !s390x !alpha 
 unit: packaging meta-data
 os-id: debian
 Depends: dpkg (>= 1.13)
-
-# This is for bin/gconf_resource
-unit: packaging meta-data
-os-id: debian
-# NOTE: This is not a hard dependency so that
-# plainbox-provider-resource-generic has minimalistic dependencies.
-Suggests: gconf2
 
 # This is for bin/lsb_resource
 unit: packaging meta-data
@@ -88,14 +80,6 @@ command: dpkg_resource
 _summary: Collect information about dpkg version
 _description: Gets info on the version of dpkg installed
 
-id: gconf
-estimated_duration: 0.42
-plugin: resource
-command: gconf_resource | filter_templates -w 'name=.*proxy.*'
-requires: package.name == "gconf2"
-_description: Generates resource info from gconf settings
-_summary: Collect information about software configuration (gconf)
-
 id: lsb
 estimated_duration: 1.63
 plugin: resource
@@ -121,7 +105,8 @@ id: package
 estimated_duration: 1.16
 plugin: resource
 command:
-    dpkg-query -W -f='name: ${Package}\nversion: ${Version}\nmodalias: ${Modaliases}\n\n' || echo name: plainbox |\
+    dpkg-query -W -f='name: ${Package}\nversion: ${Version}\nmodalias: ${Modaliases}\n\n' || \
+    echo -e 'name: plainbox\nversion: 0.1\nmodalias:  \n\n' |\
     awk 'BEGIN {RS = ""; FS = "\n"}{print $1; print $2; if ($3 ~ /^modalias: .+$/) {print $3}; print "" }'
 _description: Generates a list of packages
 _summary: Collect information about installed software packages
@@ -132,8 +117,7 @@ plugin: resource
 _summary: Enumerate available system executables
 _description: Generates a resource for all available executables
 command:
-    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-    find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -type f -executable -printf "name: %f\n\n"
+    find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -type f -executable -printf "name: %f\nlocation: %h\n\n"
 
 id: device
 estimated_duration: 0.48
@@ -219,7 +203,11 @@ _summary: Collect information about supported types of USB
 command: 
  for version in 2 3; do 
      echo -n "usb$version: "
-     lsusb |grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
+     if [[ -v SNAP ]]; then
+         lsusb.py -f $SNAP/var/lib/usbutils/usb.ids | grep -q "Linux Foundation ${version}.00 root hub" && echo "supported" || echo "unsupported"
+     else
+         lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
+     fi
  done
 
 id: xinput

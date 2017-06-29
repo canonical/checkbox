@@ -22,7 +22,6 @@ import sys
 
 from argparse import ArgumentParser
 
-from checkbox_support.lib.template import Template
 from checkbox_support.parsers.xinput import (
     IXinputResult,
     XinputParser,
@@ -64,8 +63,16 @@ def main():
     result = XinputResult()
     xinput.run(result)
 
-    template = Template()
-    template.dump_file(result.elements, sys.stdout)
+    for element in result.elements:
+        for key, value in element.items():
+            if isinstance(value, (list, tuple)):
+                print("%s:" % key)
+                for v in value:
+                    print(" %s" % v)
+            else:
+                print("%s: %s" % (key, value))
+
+        print()
 
     return 0
 

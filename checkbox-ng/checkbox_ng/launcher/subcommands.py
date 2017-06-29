@@ -368,7 +368,9 @@ class Launcher(Command, MainLoopStage):
         self.ctx.sa.select_test_plan(tp_id)
         self.ctx.sa.update_app_blob(json.dumps(
             {'testplan_id': tp_id, }).encode("UTF-8"))
-        self.ctx.sa.bootstrap()
+        bs_jobs = self.ctx.sa.get_bootstrap_todo_list()
+        self._run_bootstrap_jobs(bs_jobs)
+        self.ctx.sa.finish_bootstrap()
 
     def _delete_old_sessions(self, ids):
         completed_ids = [s[0] for s in self.ctx.sa.get_old_sessions()]

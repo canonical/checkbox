@@ -19,7 +19,6 @@ include:
     dpkg
     efi
     environment
-    gconf
     lsb
     meminfo
     mobilebroadband
@@ -322,7 +321,6 @@ include:
     miscellanea/dmitest_client
     benchmarks/disk/hdparm-read_.*
     benchmarks/disk/hdparm-cache-read_.*
-    benchmarks/graphics/gtkperf
     cpu/scaling_test                                       certification-status=blocker
     cpu/scaling_test-log-attach
     cpu/maxfreq_test                                       certification-status=blocker

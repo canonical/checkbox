@@ -12,7 +12,6 @@ include:
     dpkg
     efi
     environment
-    gconf
     lsb
     meminfo
     mobilebroadband

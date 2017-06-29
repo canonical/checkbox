@@ -45,7 +45,6 @@ include plainbox/data/plainbox-qml-modules/Plainbox/qmldir
 include plainbox/data/plainbox-qml-modules/Plainbox/QmlJob.qml
 
 recursive-exclude daily-package-testing *
-recursive-exclude plainbox/vendor/textland-project COPYING README.md
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf
 recursive-include plainbox/data *.rng

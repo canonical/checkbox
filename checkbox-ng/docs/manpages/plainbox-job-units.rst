@@ -325,6 +325,15 @@ Following fields may be used by the job unit:
 
     Additional flags may be present in job definition; they are ignored.
 
+.. _job_flag_cachable:
+
+    ``cachable``:
+        Saves the output of a resource job in the system, so the next time
+        the session is started recorded output is used making the session
+        bootstrap faster.
+
+    This flag has no effect on jobs other than resource.
+
 ``siblings``:
     (optional) This field creates copies of the current job definition
     but using a dictionary of overridden fields. The intend is to reduce the

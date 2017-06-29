@@ -26,6 +26,7 @@ import logging
 
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.decorators import cached_property
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit import Unit
@@ -77,14 +78,14 @@ class UnitWithId(Unit):
     the namespace part.
     """
 
-    @property
+    @cached_property
     def partial_id(self):
         """
         Identifier of this unit, without the provider namespace
         """
         return self.get_record_value('id')
 
-    @property
+    @cached_property
     def id(self):
         """
         Identifier of this unit, with the provider namespace.

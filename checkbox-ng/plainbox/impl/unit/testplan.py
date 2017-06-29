@@ -25,9 +25,10 @@ import collections
 import logging
 import operator
 import re
-from functools import lru_cache
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.decorators import cached_property
+from plainbox.impl.decorators import instance_method_lru_cache
 from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
@@ -198,7 +199,7 @@ class TestPlanUnit(UnitWithId):
     def __repr__(self):
         return "<TestPlanUnit id:{!r} name:{!r}>".format(self.id, self.name)
 
-    @property
+    @cached_property
     def name(self):
         """
         name of this test plan
@@ -209,7 +210,7 @@ class TestPlanUnit(UnitWithId):
         """
         return self.get_record_value('name')
 
-    @property
+    @cached_property
     def description(self):
         """
         description of this test plan
@@ -220,35 +221,35 @@ class TestPlanUnit(UnitWithId):
         """
         return self.get_record_value('description')
 
-    @property
+    @cached_property
     def include(self):
         return self.get_record_value('include')
 
-    @property
+    @cached_property
     def mandatory_include(self):
         return self.get_record_value('mandatory_include')
 
-    @property
+    @cached_property
     def bootstrap_include(self):
         return self.get_record_value('bootstrap_include')
 
-    @property
+    @cached_property
     def exclude(self):
         return self.get_record_value('exclude')
 
-    @property
+    @cached_property
     def nested_part(self):
         return self.get_record_value('nested_part')
 
-    @property
+    @cached_property
     def icon(self):
         return self.get_record_value('icon')
 
-    @property
+    @cached_property
     def category_overrides(self):
         return self.get_record_value('category_overrides')
 
-    @property
+    @cached_property
     def certification_status_overrides(self):
         return self.get_record_value('certification_status_overrides')
 
@@ -265,7 +266,7 @@ class TestPlanUnit(UnitWithId):
     def provider_list(self, value):
         self._provider_list = value
 
-    @property
+    @cached_property
     def estimated_duration(self):
         """
         estimated duration of this test plan in seconds.
@@ -301,18 +302,21 @@ class TestPlanUnit(UnitWithId):
         else:
             return float(value)
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_name(self):
         """
         Get the translated version of :meth:`summary`
         """
         return self.get_translated_record_value('name')
 
+    @instance_method_lru_cache(maxsize=None)
     def tr_description(self):
         """
         Get the translated version of :meth:`description`
         """
         return self.get_translated_record_value('description')
 
+    @instance_method_lru_cache(maxsize=None)
     def get_bootstrap_job_ids(self):
         """Compute and return a set of job ids from bootstrap_include field."""
         job_ids = set()
@@ -332,7 +336,7 @@ class TestPlanUnit(UnitWithId):
             job_ids |= tp_unit.get_bootstrap_job_ids()
         return job_ids
 
-    @lru_cache(maxsize=None)
+    @instance_method_lru_cache(maxsize=None)
     def get_nested_part(self):
         """Compute and return a set of test plan ids from nested_part field."""
         nested_parts = []
@@ -360,7 +364,7 @@ class TestPlanUnit(UnitWithId):
                             "unable to find nested part: %s"), tp_id)
         return nested_parts
 
-    @lru_cache(maxsize=None)
+    @instance_method_lru_cache(maxsize=None)
     def get_qualifier(self):
         """
         Convert this test plan to an equivalent qualifier for job selection
@@ -377,7 +381,7 @@ class TestPlanUnit(UnitWithId):
             qual_list.extend([tp_unit.get_qualifier()])
         return CompositeQualifier(qual_list)
 
-    @lru_cache(maxsize=None)
+    @instance_method_lru_cache(maxsize=None)
     def get_mandatory_qualifier(self):
         """
         Convert this test plan to an equivalent qualifier for job selection
@@ -393,7 +397,7 @@ class TestPlanUnit(UnitWithId):
             qual_list.extend([tp_unit.get_mandatory_qualifier()])
         return CompositeQualifier(qual_list)
 
-    @lru_cache(maxsize=None)
+    @instance_method_lru_cache(maxsize=None)
     def get_bootstrap_qualifier(self, excluding=False):
         """
         Convert this test plan to an equivalent qualifier for job selection
@@ -498,6 +502,7 @@ class TestPlanUnit(UnitWithId):
         visitor.visit(IncludeStmtList.parse(text, 0, 0))
         return visitor.results
 
+    @instance_method_lru_cache(maxsize=None)
     def parse_category_overrides(self, text):
         """
         Parse the specified text as a list of category overrides.
@@ -559,6 +564,7 @@ class TestPlanUnit(UnitWithId):
                         effective_map[job.id] = category_id
         return effective_map
 
+    @instance_method_lru_cache(maxsize=None)
     def get_effective_category(self, job):
         """
         Compute the effective category association for a single job

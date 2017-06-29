@@ -34,7 +34,7 @@ id: cpu/maxfreq_test
 estimated_duration: 0.6
 requires:
  package.name == 'fwts' or executable.name == 'fwts'
- cpuinfo.platform in ("i386", "x86_64", "aarch64")
+ cpuinfo.platform in ("i386", "x86_64")
 user: root
 environ: LD_LIBRARY_PATH SNAP
 command:

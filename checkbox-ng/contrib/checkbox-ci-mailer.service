@@ -15,7 +15,7 @@ Description=CheckBox SRU mini CI mailer
 Type=oneshot
 #Type=simple # It does not work with this
 Environment=CHECKBOX_UPSTART_LOG=/tmp/checkbox-server.log
-Environment=CHECKBOX_DESKTOP_LOG=/tmp/checkbox.log
+Environment=CHECKBOX_DESKTOP_LOG=/tmp/checkbox-desktop-sru.log
 ExecStartPre=/bin/sh -ec '[ -f /etc/default/plainbox-ci-mailer ] || exit 1'
 ExecStartPre=/bin/sh -ec '[ -x /usr/bin/curl ] || exit 1'
 ExecStart=/bin/rm -f /etc/xdg/autostart/checkbox-sru.desktop

@@ -152,6 +152,68 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
+id: docker/export-and-import_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
+ docker ps --no-trunc | grep $ID
+ #A readable&writable path for docker snap
+ tarball_file=/var/snap/docker/common/ubuntu.tar
+ docker export $ID > $tarball_file
+ cat $tarball_file | sudo docker import - plainbox/ubuntu:v1.0
+ docker images -a | grep 'plainbox/ubuntu'
+ docker rm -f test
+ docker rmi plainbox/ubuntu:v1.0
+_summary: Test docker import and export a docker container.
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/commit_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ ID=$(docker run -dit --name test {image_prefix}ubuntu mkdir /home/test)
+ docker commit $ID ubuntu-plainbox
+ docker images | grep 'ubuntu-plainbox'
+ docker run ubuntu [ -d /home/test ] && exit 1 || echo 'Directory not found'
+ docker run ubuntu-plainbox [ -d /home/test ] && echo 'Directory found' || exit 1
+ docker rm -f $(docker ps -q -a)
+ docker rmi ubuntu-plainbox
+_summary: Test docker commit a change to a single container.
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/save-and-load_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ docker pull {image_prefix}ubuntu
+ docker save {image_prefix}ubuntu > /var/snap/docker/common/ubuntu.tar
+ docker load < /var/snap/docker/common/ubuntu.tar
+ docker images -a | grep ubuntu
+_summary: Test docker save and load a docker image.
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
 id: docker/compose-single_{arch}
 user: root
 category_id: docker
@@ -175,6 +237,38 @@ command:
  echo "The container is still available"
  exit 1
 _summary: Test docker compose with a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/compose-and-basic_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ #read content from stdin
+ echo "test:
+   image: ubuntu
+   command: bash
+   tty: true" | {compose_command} -f - pull
+ {compose_command} create
+ {compose_command} start
+ docker ps | grep '_test_1' | grep 'Up'
+ {compose_command} stop
+ docker ps -a | grep '_test_1' | grep 'Exited'
+ {compose_command} scale test=3
+ docker ps | grep 'test' | grep -c 'Up'
+ ret=$(docker ps -a | grep 'test' | grep -c 'Up')
+ [ $ret != 3 ] && exit 1
+ {compose_command} scale test=0
+ docker ps -a | grep '_test_1' || exit 0
+ echo "The container is still available"
+ exit 1
+_summary: Test docker compose and basic command
 flags: simple preserve-cwd
 
 unit: template
@@ -224,5 +318,9 @@ include:
     docker/build-single_.*
     docker/start-stop_.*
     docker/deploy-registry_.*
+    docker/compose-and-basic_.*
+    docker/export-and-import_.*
+    docker/save-and-load_.*
+    docker/commit_.*
 bootstrap_include:
     docker_resource

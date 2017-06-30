@@ -35,6 +35,9 @@ command:
  else
      echo 'compose_command: docker.compose'
  fi
+ #avoid escape '{}' in docker inspect
+ echo 'path: {{.Path}}'
+ echo 'config_image: {{.Config.Image}}'
 estimated_duration: 1s
 flags: preserve-locale
 
@@ -62,7 +65,7 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/ubuntu_{arch}
+id: docker/ubuntu-run_{arch}
 user: root
 category_id: docker
 requires:
@@ -88,6 +91,68 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
+id: docker/ubuntu-diff_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ ID=$(docker run -dit --name test {image_prefix}ubuntu mkdir /home/test)
+ docker diff $ID | grep 'A /home/test'
+ docker rm -f test
+_summary: Test changes to files in Ubuntu container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/ubuntu-cp_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ ID=$(docker run -dit --name test {image_prefix}ubuntu touch /home/file)
+ docker diff $ID | grep 'A /home/file'
+ #A readable&writable path for docker snap
+ file_path=/var/snap/docker/common/
+ docker cp $ID:/home/file $file_path
+ docker cp $file_path/file $ID:/home/
+ docker diff $ID | grep 'A /home/file'
+ docker rm -f test
+_summary: Test copy a file bwtween a container and local filesystem
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/ubuntu-inspect_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
+ echo $ID
+ path=$(docker inspect --format={path} $ID)
+ echo $path
+ image=$(docker inspect --format={config_image} $ID)
+ echo $image
+ [ $path = "bash" ] || exit 1
+ [ $image = "ubuntu" ] || exit 1
+ docker rm -f test
+_summary: Test query low-level information on a docker object
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
 id: docker/ubuntu-kill_{arch}
 user: root
 category_id: docker
@@ -99,7 +164,7 @@ command:
  ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
  docker ps --no-trunc | grep $ID
  docker kill test
- docker rm test
+ docker rm -f test
 _summary: Test killing containers
 flags: simple preserve-cwd
 
@@ -115,9 +180,11 @@ requires:
 command:
  set -e
  container=test_2
- docker run -d --name $container {image_prefix}redis
+ ID=$(docker run -d --name $container {image_prefix}redis)
  docker ps | grep $container | grep 'Up'
  docker stop $container
+ ret=$(docker wait $ID)
+ [ $ret != 0 ] && exit 1
  docker ps -a | grep $container | grep 'Exited'
  docker start $container
  docker rm -f $container
@@ -169,7 +236,7 @@ command:
  docker images -a | grep 'plainbox/ubuntu'
  docker rm -f test
  docker rmi plainbox/ubuntu:v1.0
-_summary: Test docker import and export a docker container.
+_summary: Test docker import and export a docker container
 flags: simple preserve-cwd
 
 unit: template
@@ -190,7 +257,7 @@ command:
  docker run ubuntu-plainbox [ -d /home/test ] && echo 'Directory found' || exit 1
  docker rm -f $(docker ps -q -a)
  docker rmi ubuntu-plainbox
-_summary: Test docker commit a change to a single container.
+_summary: Test docker commit a change to a single container
 flags: simple preserve-cwd
 
 unit: template
@@ -208,7 +275,7 @@ command:
  docker save {image_prefix}ubuntu > /var/snap/docker/common/ubuntu.tar
  docker load < /var/snap/docker/common/ubuntu.tar
  docker images -a | grep ubuntu
-_summary: Test docker save and load a docker image.
+_summary: Test docker save and load a docker image
 flags: simple preserve-cwd
 
 unit: template
@@ -260,12 +327,15 @@ command:
  docker ps | grep '_test_1' | grep 'Up'
  {compose_command} stop
  docker ps -a | grep '_test_1' | grep 'Exited'
- {compose_command} scale test=3
+ {compose_command} up -d --scale test=3
  docker ps | grep 'test' | grep -c 'Up'
  ret=$(docker ps -a | grep 'test' | grep -c 'Up')
  [ $ret != 3 ] && exit 1
- {compose_command} scale test=0
- docker ps -a | grep '_test_1' || exit 0
+ {compose_command} up -d --scale test=1
+ ret=$(docker ps -a | grep 'test' | grep -c 'Up')
+ [ $ret != 1 ] && exit 1
+ {compose_command} down
+ docker ps -a | grep '_test' || exit 0
  echo "The container is still available"
  exit 1
 _summary: Test docker compose and basic command
@@ -311,8 +381,11 @@ estimated_duration: 120
 include:
     docker/info
     docker/hello-world_.*
-    docker/ubuntu_.*
+    docker/ubuntu-run_.*
     docker/ubuntu-interative_.*
+    docker/ubuntu-diff_.*
+    docker/ubuntu-cp_.*
+    docker/ubuntu-inspect_.*
     docker/ubuntu-kill_.*
     docker/compose-single_.*
     docker/build-single_.*

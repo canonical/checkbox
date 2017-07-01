@@ -540,14 +540,16 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             result_map[job].get('summary', "")), self.format15)
                 if level:
                     self.worksheet3.set_row(
-                        self._lineno, 13, None, {'level': level, 'collapsed': True})
+                        self._lineno, 13, None, {'level': level})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 13, None, {'level': level, 'collapsed': True})
+                            self._lineno, 13, None, {'level': level})
                 else:
-                    self.worksheet3.set_row(self._lineno, 13, None, {'collapsed': True})
+                    self.worksheet3.set_row(self._lineno, 13, None,
+                        {'collapsed': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
-                        self.worksheet4.set_row(self._lineno, 13, None, {'collapsed': True})
+                        self.worksheet4.set_row(self._lineno, 13, None,
+                            {'collapsed': True})
                 self._write_job(children, result_map, max_level, level + 1)
             else:
                 self.worksheet3.write(
@@ -616,16 +618,18 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 if level:
                     self.worksheet3.set_row(
                         self._lineno, 12 + 10.5 * io_lines,
-                        None, {'level': level, "collapsed": True})
+                        None, {'level': level, 'hidden': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
                             self._lineno, 12 + 10.5 * desc_lines,
-                            None, {'level': level, "collapsed": True})
+                            None, {'level': level, 'hidden': True})
                 else:
-                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines, None, {"collapsed": True})
+                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines,
+                    None, {'hidden': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 12 + 10.5 * desc_lines, None, {"collapsed": True})
+                            self._lineno, 12 + 10.5 * desc_lines, None,
+                            {'hidden': True})
 
     def write_results(self, data):
         if self.OPTION_WITH_UNIT_CATEGORIES in self._option_list:
@@ -661,6 +665,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             )
         self._lineno = 5
         self._write_job(tree, data['result_map'], max_level)
+        self.worksheet3.set_row(
+            self._lineno + 1, None, None, {'collapsed': True})
+        if self.OPTION_WITH_DESCRIPTION in self._option_list:
+            self.worksheet4.set_row(
+                self._lineno + 1, None, None, {'collapsed': True})
         self.worksheet3.autofilter(5, max_level, self._lineno, max_level + 3)
 
     def write_attachments(self, data):

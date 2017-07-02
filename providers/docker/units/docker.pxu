@@ -37,9 +37,21 @@ command:
  fi
  #avoid escape '{}' in docker inspect
  echo 'path: {{.Path}}'
- echo 'config_image: {{.Config.Image}}'
+ echo 'image: {{.Config.Image}}'
+ echo 'status: {{.State.Status}}'
+ echo 'restartPolicy: {{.HostConfig.RestartPolicy.Name}}'
+ echo 'maximumRetryCount: {{.HostConfig.RestartPolicy.MaximumRetryCount}}'
+ echo 'restartCount: {{.RestartCount}}'
 estimated_duration: 1s
 flags: preserve-locale
+
+id: docker/version
+user: root
+category_id: docker
+requires: snap.name == 'docker'
+command: docker version
+_summary: Display docker version information
+flags: simple preserve-cwd
 
 id: docker/info
 user: root
@@ -65,20 +77,20 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/ubuntu-run_{arch}
+id: docker/run_{arch}
 user: root
 category_id: docker
 requires:
  snap.name == 'docker'
  docker_resource.arch_supported == 'yes'
 command: docker run --rm {image_prefix}ubuntu echo 'Hello world'
-_summary: Download and run Ubuntu container
+_summary: Download and run ubuntu container
 flags: simple preserve-cwd
 
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/ubuntu-interative_{arch}
+id: docker/interative_{arch}
 user: root
 category_id: docker
 requires:
@@ -91,7 +103,7 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/ubuntu-diff_{arch}
+id: docker/diff_{arch}
 user: root
 category_id: docker
 requires:
@@ -108,7 +120,7 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/ubuntu-cp_{arch}
+id: docker/copy_{arch}
 user: root
 category_id: docker
 requires:
@@ -121,8 +133,8 @@ command:
  #A readable&writable path for docker snap
  file_path=/var/snap/docker/common/
  docker cp $ID:/home/file $file_path
- docker cp $file_path/file $ID:/home/
- docker diff $ID | grep 'A /home/file'
+ docker cp $file_path/file $ID:/home/new_file
+ docker diff $ID | grep 'A /home/new_file'
  docker rm -f test
 _summary: Test copy a file bwtween a container and local filesystem
 flags: simple preserve-cwd
@@ -130,7 +142,7 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/ubuntu-inspect_{arch}
+id: docker/inspect_{arch}
 user: root
 category_id: docker
 requires:
@@ -139,11 +151,8 @@ requires:
 command:
  set -e
  ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
- echo $ID
- path=$(docker inspect --format={path} $ID)
- echo $path
- image=$(docker inspect --format={config_image} $ID)
- echo $image
+ path=$(docker inspect -f {path} $ID)
+ image=$(docker inspect -f {image} $ID)
  [ $path = "bash" ] || exit 1
  [ $image = "ubuntu" ] || exit 1
  docker rm -f test
@@ -153,7 +162,7 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/ubuntu-kill_{arch}
+id: docker/kill_{arch}
 user: root
 category_id: docker
 requires:
@@ -163,8 +172,9 @@ command:
  set -e
  ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
  docker ps --no-trunc | grep $ID
- docker kill test
- docker rm -f test
+ docker rename $ID test_2
+ docker kill test_2
+ docker rm -f test_2
 _summary: Test killing containers
 flags: simple preserve-cwd
 
@@ -179,15 +189,14 @@ requires:
  docker_resource.arch_supported == 'yes'
 command:
  set -e
- container=test_2
- ID=$(docker run -d --name $container {image_prefix}redis)
- docker ps | grep $container | grep 'Up'
- docker stop $container
+ ID=$(docker run -d --name test {image_prefix}redis)
+ docker ps | grep test | grep 'Up'
+ docker stop test
  ret=$(docker wait $ID)
  [ $ret != 0 ] && exit 1
- docker ps -a | grep $container | grep 'Exited'
- docker start $container
- docker rm -f $container
+ docker ps -a | grep test | grep 'Exited'
+ docker start test
+ docker rm -f test
 _summary: Start and stop a single container
 flags: simple preserve-cwd
 
@@ -202,15 +211,14 @@ requires:
  docker_resource.arch_supported == 'yes'
 command:
  set -e
- image_name=test_3
  dockerfile=$(cat <<EOF
    FROM {image_prefix}alpine
    CMD echo "hello-world"
  EOF
  )
- echo "$dockerfile" | docker build -t "$image_name" -
- docker run --rm -it "$image_name"
- docker ps -a | grep "$image_name" || exit 0
+ echo "$dockerfile" | docker build -t test -
+ docker run --rm -it test
+ docker ps -a | grep 'test' || exit 0
  echo "The container is still available"
  exit 1
 _summary: Test docker build with a single container
@@ -318,23 +326,27 @@ requires:
 command:
  set -e
  #read content from stdin
- echo "test:
+ yml=$(cat <<EOF
+ test:
    image: ubuntu
    command: bash
-   tty: true" | {compose_command} -f - pull
- {compose_command} create
- {compose_command} start
+   tty: true
+ EOF
+ )
+ echo "$yml" | {compose_command} -f - pull
+ echo "$yml" | {compose_command} -f - create
+ echo "$yml" | {compose_command} -f - start
  docker ps | grep '_test_1' | grep 'Up'
- {compose_command} stop
+ echo "$yml" | {compose_command} -f - stop
  docker ps -a | grep '_test_1' | grep 'Exited'
- {compose_command} up -d --scale test=3
+ echo "$yml" | {compose_command} -f - up -d --scale test=3
  docker ps | grep 'test' | grep -c 'Up'
  ret=$(docker ps -a | grep 'test' | grep -c 'Up')
  [ $ret != 3 ] && exit 1
- {compose_command} up -d --scale test=1
+ echo "$yml" | {compose_command} -f - up -d --scale test=1
  ret=$(docker ps -a | grep 'test' | grep -c 'Up')
  [ $ret != 1 ] && exit 1
- {compose_command} down
+ echo "$yml" | {compose_command} -f - down
  docker ps -a | grep '_test' || exit 0
  echo "The container is still available"
  exit 1
@@ -372,6 +384,109 @@ command:
 _summary: Deploy a registry server and run it on localhost
 flags: simple preserve-cwd
 
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/restart-on-failure_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ dockerfile=$(cat <<EOF
+   FROM {image_prefix}ubuntu
+   CMD sleep 1; exit 1
+ EOF
+ )
+ echo "$dockerfile" | docker build -t test-image -
+ ID=$(docker run --restart on-failure:3 -dit test-image)
+ restartPolicy=$(docker inspect  -f {restartPolicy} $ID)
+ [ $restartPolicy = on-failure ] || exit 1
+ maximumRetryCount=$(docker inspect  -f {maximumRetryCount} $ID)
+ [ $maximumRetryCount = 3 ] || exit 1
+ sleep 5
+ restartCount=$(docker inspect -f {restartCount} $ID)
+ [ $restartCount = 3 ] || exit 1
+_summary: Test container restart policy with on_failure applied
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/restart-always_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ dockerfile=$(cat <<EOF
+   FROM {image_prefix}ubuntu
+   CMD sleep 1
+ EOF
+ )
+ echo "$dockerfile" | docker build -t test-image -
+ ID=$(docker run --restart always -dit --name test test-image)
+ restartPolicy=$(docker inspect  -f {restartPolicy} $ID)
+ [ $restartPolicy = always ] || exit 1
+ sleep 5
+ restartCount=$(docker inspect -f {restartCount} $ID)
+ [ $restartCount -gt 1 ] || exit 1
+ docker rm -f test
+_summary: Test container restart policy with always applied
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/update_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ ID=$(docker run --restart always -dit --name test {image_prefix}ubuntu bash)
+ restartPolicy=$(docker inspect -f {restartPolicy} $ID)
+ [ $restartPolicy = always ] || exit 1
+ docker update --restart=no $ID
+ restartPolicy=$(docker inspect -f {restartPolicy} $ID)
+ [ $restartPolicy = no ] || exit 1
+ docker rm -f test
+_summary: Test update configuration of one container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/compose-restart_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+ set -e
+ #A readable&writable path for docker snap
+ compose_file=/var/snap/docker/common/docker-compose.yaml
+ echo "test:
+   image: {image_prefix}ubuntu
+   command: sleep 1
+   restart: always" > $compose_file
+ {compose_command} -f $compose_file up -d
+ ID=$({compose_command} -f $compose_file ps -q test)
+ restartPolicy=$(docker inspect -f {restartPolicy} $ID)
+ [ $restartPolicy = always ] || exit 1
+ sleep 5
+ restartCount=$(docker inspect -f {restartCount} $ID)
+ [ $restartCount -gt 1 ] || exit 1
+_summary: Test compose a container with restart policy applied
+flags: simple preserve-cwd
+
 id: docker-full
 unit: test plan
 _name: Fully automated QA tests for Docker containers
@@ -380,20 +495,25 @@ _description:
 estimated_duration: 120
 include:
     docker/info
+    docker/version
     docker/hello-world_.*
-    docker/ubuntu-run_.*
-    docker/ubuntu-interative_.*
-    docker/ubuntu-diff_.*
-    docker/ubuntu-cp_.*
-    docker/ubuntu-inspect_.*
-    docker/ubuntu-kill_.*
-    docker/compose-single_.*
+    docker/run_.*
+    docker/interative_.*
+    docker/diff_.*
+    docker/copy_.*
+    docker/inspect_.*
+    docker/kill_.*
     docker/build-single_.*
     docker/start-stop_.*
     docker/deploy-registry_.*
-    docker/compose-and-basic_.*
     docker/export-and-import_.*
     docker/save-and-load_.*
     docker/commit_.*
+    docker/update_.*
+    docker/restart-on-failure_.*
+    docker/restart-always_.*
+    docker/compose-single_.*
+    docker/compose-and-basic_.*
+    docker/compose-restart_.*
 bootstrap_include:
     docker_resource

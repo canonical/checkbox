@@ -39,6 +39,7 @@ command:
  echo 'path: {{.Path}}'
  echo 'image: {{.Config.Image}}'
  echo 'status: {{.State.Status}}'
+ echo 'exitcode: {{.State.ExitCode}}'
  echo 'restartPolicy: {{.HostConfig.RestartPolicy.Name}}'
  echo 'maximumRetryCount: {{.HostConfig.RestartPolicy.MaximumRetryCount}}'
  echo 'restartCount: {{.RestartCount}}'
@@ -190,11 +191,10 @@ requires:
 command:
  set -e
  ID=$(docker run -d --name test {image_prefix}redis)
- docker ps | grep test | grep 'Up'
+ [ `docker inspect -f {status} $ID` != running ] && exit 1
  docker stop test
- ret=$(docker wait $ID)
- [ $ret != 0 ] && exit 1
- docker ps -a | grep test | grep 'Exited'
+ [ `docker wait $ID` != 0 ] && exit 1
+ [ `docker inspect -f {status} $ID` != exited ] && exit 1
  docker start test
  docker rm -f test
 _summary: Start and stop a single container
@@ -217,10 +217,9 @@ command:
  EOF
  )
  echo "$dockerfile" | docker build -t test -
- docker run --rm -it test
- docker ps -a | grep 'test' || exit 0
- echo "The container is still available"
- exit 1
+ ID=$(docker run -dit test)
+ [ `docker inspect -f {status} $ID` != exited ] && exit 1
+ docker rm -f $ID
 _summary: Test docker build with a single container
 flags: simple preserve-cwd
 
@@ -236,7 +235,6 @@ requires:
 command:
  set -e
  ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
- docker ps --no-trunc | grep $ID
  #A readable&writable path for docker snap
  tarball_file=/var/snap/docker/common/ubuntu.tar
  docker export $ID > $tarball_file
@@ -304,13 +302,11 @@ command:
    command: bash
    tty: true" > $compose_file
  {compose_command} -f $compose_file up -d
- docker ps | grep '_test_1' | grep 'Up'
+ ID=$({compose_command} -f $compose_file ps -q test)
+ [ `docker inspect -f {status} $ID` != running ] && exit 1
  {compose_command} -f $compose_file kill
- docker ps -a | grep '_test_1' | grep 'Exited (137)'
+ [ `docker inspect -f {exitcode} $ID` != 137 ] && exit 1
  {compose_command} -f $compose_file rm -v -f
- docker ps -a | grep '_test_1' || exit 0
- echo "The container is still available"
- exit 1
 _summary: Test docker compose with a single container
 flags: simple preserve-cwd
 
@@ -336,9 +332,10 @@ command:
  echo "$yml" | {compose_command} -f - pull
  echo "$yml" | {compose_command} -f - create
  echo "$yml" | {compose_command} -f - start
- docker ps | grep '_test_1' | grep 'Up'
+ ID=$(echo "$yml" | {compose_command} -f - ps -q test)
+ [ `docker inspect -f {status} $ID` != running ] && exit 1
  echo "$yml" | {compose_command} -f - stop
- docker ps -a | grep '_test_1' | grep 'Exited'
+ [ `docker inspect -f {status} $ID` != exited ] && exit 1
  echo "$yml" | {compose_command} -f - up -d --scale test=3
  docker ps | grep 'test' | grep -c 'Up'
  ret=$(docker ps -a | grep 'test' | grep -c 'Up')
@@ -347,7 +344,7 @@ command:
  ret=$(docker ps -a | grep 'test' | grep -c 'Up')
  [ $ret != 1 ] && exit 1
  echo "$yml" | {compose_command} -f - down
- docker ps -a | grep '_test' || exit 0
+ docker ps -a | grep 'test' || exit 0
  echo "The container is still available"
  exit 1
 _summary: Test docker compose and basic command

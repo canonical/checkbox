@@ -2,14 +2,22 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/mmc-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
+user: root
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
      detect the insertion of a Multimedia Card (MMC) media
  STEPS:
-     1. Click "Test" and then insert an MMC card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert an MMC card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -23,6 +31,8 @@ estimated_duration: 30.0
 depends: mediacard/mmc-insert
 user: root
 command: removable_storage_test -s 67120000 --memorycard sdio usb scsi --auto-reduce-size
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/mmc-insert
  test is run. It tests reading and writing to the MMC card.
@@ -32,13 +42,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/mmc-remove
 estimated_duration: 30.0
 depends: mediacard/mmc-insert
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of the MMC card from the systems card reader.
  STEPS:
-     1. Click "Test" and then remove the MMC card from the reader.
+     1. Commence the test and then remove the MMC card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -48,14 +64,22 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
+user: root
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
      detect the insertion of an UNLOCKED Secure Digital (SD) media card
  STEPS:
-     1. Click "Test" and then insert an UNLOCKED SD card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert an UNLOCKED SD card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -69,6 +93,8 @@ estimated_duration: 30.0
 depends: mediacard/sd-insert
 user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/sd-insert
  test is run. It tests reading and writing to the SD card.
@@ -78,13 +104,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-remove
 estimated_duration: 30.0
 depends: mediacard/sd-insert
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of an SD card from the systems card reader.
  STEPS:
-     1. Click "Test" and then remove the SD card from the reader.
+     1. Commence the test and then remove the SD card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -95,8 +127,11 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-preinserted
 estimated_duration: 30.0
 user: root
-requires: device.category == 'CARDREADER'
 command: removable_storage_test -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+ device.category == 'CARDREADER'
 _description:
  This is a fully automated version of mediacard/sd-automated and assumes that the
  system under test has a memory card device plugged in prior to checkbox execution.
@@ -106,15 +141,23 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdhc-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
+user: root
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
-     detect the insertion of a UNLOCKED Secure Digital High-Capacity 
+     detect the insertion of a UNLOCKED Secure Digital High-Capacity
      (SDHC) media card
  STEPS:
-     1. Click "Test" and then insert an UNLOCKED SDHC card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert an UNLOCKED SDHC card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -128,6 +171,8 @@ estimated_duration: 30.0
 depends: mediacard/sdhc-insert
 user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/sdhc-insert
  test is run. It tests reading and writing to the SDHC card.
@@ -137,13 +182,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdhc-remove
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of an SDHC card from the systems card reader.
  STEPS:
-     1. Click "Test" and then remove the SDHC card from the reader.
+     1. Commence the test and then remove the SDHC card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -153,14 +204,22 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/cf-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
+user: root
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
      detect the insertion of a Compact Flash (CF) media card
  STEPS:
-     1. Click "Test" and then insert a CF card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert a CF card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -174,6 +233,8 @@ estimated_duration: 30.0
 depends: mediacard/cf-insert
 user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/cf-insert
  test is run. It tests reading and writing to the CF card.
@@ -183,13 +244,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/cf-remove
 depends: mediacard/cf-storage
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of a CF card from the systems card reader.
  STEPS:
-     1. Click "Test" and then remove the CF card from the reader.
+     1. Commence the test and then remove the CF card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -199,14 +266,22 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdxc-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
+user: root
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
      detect the insertion of a Secure Digital Extended Capacity (SDXC) media card
  STEPS:
-     1. Click "Test" and then insert an UNLOCKED SDXC card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert an UNLOCKED SDXC card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -220,6 +295,8 @@ estimated_duration: 30.0
 depends: mediacard/sdxc-insert
 user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/sdxc-insert
  test is run. It tests reading and writing to the SDXC card.
@@ -229,13 +306,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdxc-remove
 estimated_duration: 30.0
 depends: mediacard/sdxc-insert
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of a SDXC card from the systems card reader.
  STEPS:
-     1. Click "Test" and then remove the SDXC card from the reader.
+     1. Commence the test and then remove the SDXC card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -245,14 +328,22 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/ms-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
+user: root
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
      detect the insertion of a Memory Stick (MS) media card
  STEPS:
-     1. Click "Test" and then insert a MS card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert a MS card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -266,6 +357,8 @@ estimated_duration: 30.0
 depends: mediacard/ms-insert
 user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/ms-insert
  test is run. It tests reading and writing to the MS card.
@@ -275,13 +368,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/ms-remove
 estimated_duration: 30.0
 depends: mediacard/ms-insert
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of a MS card from the systems card reader.
  STEPS:
-     1. Click "Test" and then remove the MS card from the reader.
+     1. Commence the test and then remove the MS card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -291,14 +390,22 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/msp-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+user: root
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
      detect the insertion of a Memory Stick Pro (MSP) media card
  STEPS:
-     1. Click "Test" and then insert a MSP card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert a MSP card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -312,6 +419,8 @@ estimated_duration: 30.0
 depends: mediacard/msp-insert
 user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/msp-insert
  test is run. It tests reading and writing to the MSP card.
@@ -321,13 +430,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/msp-remove
 estimated_duration: 30.0
 depends: mediacard/msp-insert
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of a MSP card from the systems card reader.
  STEPS:
-     1. Click "Test" and remove the MSP card from the reader.
+     1. Commence the test and remove the MSP card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -337,14 +452,22 @@ plugin: user-interact
 category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/xd-insert
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kadd.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard insert sdio usb scsi
+ fi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ device.category == 'CARDREADER'
+user: root
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
      detect the insertion of a Extreme Digital (xD) media card
  STEPS:
-     1. Click "Test" and then insert a xD card into the reader.
-        If a file browser opens up, you can safely close it.
+     1. Commence the test and then insert a xD card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
  VERIFICATION:
@@ -358,6 +481,8 @@ estimated_duration: 30.0
 depends: mediacard/xd-insert
 user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _description:
  This test is automated and executes after the mediacard/xd-insert
  test is run. It tests reading and writing to the xD card.
@@ -367,13 +492,19 @@ category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/xd-remove
 estimated_duration: 30.0
 depends: mediacard/xd-insert
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command:
+ if [[ -v SNAP ]]; then
+     timeout 20s bash -c 'grep -m 1 -oP "\Kremove.*?mmc.*?\s" <( exec journalctl -u snap.udisks2.udisksd -f -q -S -1s ); kill $!'
+ else
+     removable_storage_watcher --memorycard remove sdio usb scsi
+ fi
+user: root
 _description:
  PURPOSE:
-     This test will check that the system correctly detects 
+     This test will check that the system correctly detects
      the removal of a xD card from the systems card reader.
  STEPS:
-     1. Click "Test" and then remove the xD card from the reader.
+     1. Commence the test and then remove the xD card from the reader.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -385,7 +516,10 @@ id: mediacard/sd-performance-manual
 depends: mediacard/sd-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'SD Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
@@ -401,7 +535,10 @@ id: mediacard/sdhc-performance-manual
 depends: mediacard/sdhc-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'SDHC Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
@@ -417,7 +554,10 @@ id: mediacard/mmc-performance-manual
 depends: mediacard/mmc-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'MMC Card Performance'
+command: removable_storage_test -s 209715200 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
@@ -433,7 +573,10 @@ id: mediacard/cf-performance-manual
 depends: mediacard/cf-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'CF Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
@@ -449,7 +592,10 @@ id: mediacard/sdxc-performance-manual
 depends: mediacard/sdxc-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'SDXC Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
@@ -465,7 +611,10 @@ id: mediacard/ms-performance-manual
 depends: mediacard/ms-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'MS Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
@@ -481,7 +630,10 @@ id: mediacard/msp-performance-manual
 depends: mediacard/msp-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'MSP Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
@@ -497,7 +649,10 @@ id: mediacard/xd-performance-manual
 depends: mediacard/xd-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'xD Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and decide on the outcome")
+requires:
+ package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.

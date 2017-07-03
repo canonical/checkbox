@@ -80,7 +80,7 @@ estimated_duration: 1.0
 depends: miscellanea/efi_boot_mode
 requires:
   cpuinfo.platform in ("i386", "x86_64", "aarch64", "armhf")
-  package.name == 'fwupdate'
+  package.name == 'fwupdate' or executable.name == 'fwupdate'
 _description:
  Determine if EFI firmware supports update from OS.
 _summary:
@@ -111,7 +111,7 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/ipmi_test
 requires: 
- package.name == 'ipmitool'
+ package.name == 'ipmitool' or executable.name == 'impitool'
  cpuinfo.platform != 's390x'
 user: root
 command: ipmi_test
@@ -163,7 +163,7 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
 requires: 
- package.name == 'ipmitool'
+ package.name == 'ipmitool' or executable.name == 'impitool'
  cpuinfo.platform != 's390x'
 estimated_duration: 0.5
 user: root
@@ -177,7 +177,9 @@ _summary:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/cpus_are_not_samples
-requires: package.name == 'dmidecode'
+requires:
+  package.name == 'dmidecode' or executable.name == 'dmidecode'
+  cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 0.5
 user: root
 command: dmitest cpu-check
@@ -189,7 +191,9 @@ _summary:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/dmitest_server
-requires: package.name == 'dmidecode'
+requires:
+  package.name == 'dmidecode' or executable.name == 'dmidecode'
+  cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 0.5
 user: root
 command: dmitest --test_versions server

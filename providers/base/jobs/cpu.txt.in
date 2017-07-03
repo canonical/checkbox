@@ -6,7 +6,8 @@ requires:
  package.name == 'fwts'
 user: root
 environ: PLAINBOX_SESSION_SHARE
-command: fwts_test -t cpufreq -l ${PLAINBOX_SESSION_SHARE}/scaling_test.log
+command:
+ checkbox-support-fwts_test -t cpufreq -l ${PLAINBOX_SESSION_SHARE}/scaling_test.log
 _summary:
  Test CPU frequency scaling
 _description:
@@ -29,7 +30,8 @@ requires:
  package.name == 'fwts'
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 user: root
-command: fwts_test -t maxfreq -l $PLAINBOX_SESSION_SHARE/maxfreq_test.log
+command:
+ checkbox-support-fwts_test -t maxfreq -l $PLAINBOX_SESSION_SHARE/maxfreq_test.log
 _summary:
  Test that CPUs run at max frequency
 _description:
@@ -106,7 +108,7 @@ _description:
  Run Firmware Test Suite (fwts) cstates tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_cstates_results.log -t cstates
+ checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_cstates_results.log -t cstates
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::cpu

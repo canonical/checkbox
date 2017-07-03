@@ -6,7 +6,7 @@ id: firmware/fwts_{name}
 estimated_duration: 1.2
 requires: package.name == 'fwts'
 user: root
-command: fwts_test -t {name} -l $PLAINBOX_SESSION_SHARE/fwts_{name}.log
+command: checkbox-support-fwts_test -t {name} -l $PLAINBOX_SESSION_SHARE/fwts_{name}.log
 _description: Run {name} test from Firmware Test Suite.
 _summary: Run {name} test from Firmware Test Suite.
 
@@ -34,7 +34,7 @@ _description:
 _summary: Run FWTS QA-concerned desktop-specific diagnosis tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- fwts_test --qa -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
+ checkbox-support-fwts_test --qa -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
 
 plugin:shell
 category_id: 2013.com.canonical.plainbox::firmware
@@ -48,7 +48,7 @@ _description:
 _summary: Run FWTS HWE-concerned desktop-specific diagnosis tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- fwts_test --hwe -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log
+ checkbox-support-fwts_test --hwe -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::firmware

@@ -20,8 +20,8 @@ estimated_duration: 25.0
 user: root
 _description: Test ACPI Wakealarm (fwts wakealarm)
 requires:
- package.name == 'fwts'
-command: fwts_test -f aborted -t wakealarm -l $PLAINBOX_SESSION_SHARE/fwts-wakealarm.log
+ package.name == 'fwts' or executable.name == 'fwts'
+command: checkbox-support-fwts_test -f aborted -t wakealarm -l $PLAINBOX_SESSION_SHARE/fwts-wakealarm.log
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::power-management
@@ -29,9 +29,7 @@ id: power-management/fwts_wakealarm-log-attach
 depends: power-management/fwts_wakealarm
 estimated_duration: 2.0
 _description: Attach log from fwts wakealarm test
-requires:
- package.name == 'fwts'
-command: [ -e ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log | base64
+command: [ -e ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::power-management

@@ -71,7 +71,7 @@ _description:
  Run Firmware Test Suite (fwts) automated tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_results.log
+ checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_results.log
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -290,7 +290,7 @@ _description:
  Run Firmware Test Suite (fwts) oops tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results.log -t oops
+ checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results.log -t oops
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::miscellanea

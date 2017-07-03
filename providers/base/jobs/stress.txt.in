@@ -21,7 +21,7 @@ category_id: 2013.com.canonical.plainbox::stress
 id: stress/cpu_stress_ng_test
 estimated_duration: 7200.0
 requires:
- package.name == 'stress-ng'
+ package.name == 'stress-ng' or executable.name == 'stress-ng'
 user: root
 command: cpu_stress --runtime 7200
 _summary:

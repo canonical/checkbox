@@ -63,19 +63,18 @@ Sole Developers
 ^^^^^^^^^^^^^^^
 
 If you are a sole developer you need to own at least one domain name at least
-once. Assuming you owned example.com in 2014 you can create arbitrary many
-name-spaces starting with ``2014.example.com``. It is advisable to use at least
-one sub-domain if you know up front that the tests you are working on are for a
-particular, well-defined task. For example, you could use
-``2014.example.com.project1``.
+once. You can create arbitrary many name-spaces starting with ``example.com``.
+It is advisable to use at least one sub-domain if you know up front that the
+tests you are working on are for a particular, well-defined task. For example,
+you could use ``example.com.project1``.
 
 Within that name-space you can create arbitrary many test providers (typically
 to organize your dependencies so that not everything needs to be installed at
 once). An example provider could be called
-``2014.example.com.project1:acceptance-tests``. If you have two jobs inside
+``example.com.project1:acceptance-tests``. If you have two jobs inside
 that provider, say ``test-1`` and ``test-2`` they would be called (**surprise**)
-``2014.example.com.project1::test-1`` and
-``2014.example.com.project1::test-2``.
+``example.com.project1::test-1`` and
+``example.com.project1::test-2``.
 
 Organizations and Companies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -83,7 +82,7 @@ Organizations and Companies
 If you are working as a part of an organization you should coordinate within
 that organization and use the same rules as the sole developer above. The
 primary difference is that you should really always use a sub-domain (so for
-example, ``2014.example.com.department``) to differentiate your tests from
+example, ``example.com.department``) to differentiate your tests from
 tests that may be independently developed by other people within the same
 company. It is recommended that managers of particular organizational units
 decide on the particular name-space to use.
@@ -100,16 +99,6 @@ There are two important notes that apply to everyone:
     way to organize tests together for dependencies. Namespaces are a way to
     organize tests regardless of dependencies.
 
-.. warning::
-
-    If you are reading this in 2015 and beyond, don't bump the year component.
-    Unless you are the new owner of ``example.com`` and you want to
-    differentiate your tests from whoever used to own *example.com* in 2014 you
-    should **keep using the same year forever**. If you bump the year all the
-    time you will create lots of small namespaces and you will most likely
-    break other people that may run your tests with a fixed identifier
-    hardcoded in a package name or script. 
-
 Technical Details
 =================
 
@@ -118,14 +107,14 @@ Implicit Provider Name-Space
 
 As mentioned above, the provider name-space is derived from the provider name::
 
-    2014.com.example.project:acceptance
-    ^----------------------^
-               |
-       provider namespace
+    com.example.project:acceptance
+    ^-----------------^
+             |
+      provider namespace
 
-    ^---------------------------------^
-                     |
-               provider name
+    ^----------------------------^
+                   |
+             provider name
 
 The part of the provide name before the colon is used as the name-space. The
 colon is *not* a part of the name-space.
@@ -139,24 +128,24 @@ Using Explicit Name-Spaces
 Explicit name-spaces need to be used in two situations:
 
 1. When running a single job by name, e.g.: ``plainbox run -i
-   2013.com.canonical.plainbox::stub/true``.
+   com.canonical.plainbox::stub/true``.
    
    This is required as any partial ID may silently change the job it resolves
    to and we didn't want to introduce that ambiguity.
 
 2. When including a job from another name-space inside a whitelist, e.g.::
 
-        ~/2014.com.example.some:provider$ cat whitelists/cross.whitelist
+        ~/com.example.some:provider$ cat whitelists/cross.whitelist
         job-a
         job-b
-        2014\.com\.example\.other::job-a
-        ~/2014.com.example.some:provider$
+        com\.example\.other::job-a
+        ~com.example.some:provider$
 
    Here the whitelist names three jobs:
 
-   * 2014.com.example.some::job-a
-   * 2014.com.example.some::job-b
-   * 2014.com.example.other::job-a
+   * com.example.some::job-a
+   * com.example.some::job-b
+   * com.example.other::job-a
 
    Note that the dots are escaped with ``\`` to prevent them from matching
    arbitrary character.

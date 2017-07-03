@@ -159,7 +159,7 @@ category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/rtc
 requires:
   rtc.state == 'supported'
-  package.name == 'util-linux'
+  executable.name == 'hwclock'
   cpuinfo.other != 'emulated by qemu'
 user: root
 command: hwclock -r

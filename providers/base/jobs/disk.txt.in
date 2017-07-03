@@ -6,26 +6,37 @@ Depends: nvme-cli
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk
 id: disk/detect
-requires: package.name == 'util-linux'
-estimated_duration: 0.25
+requires:
+  package.name == 'util-linux' or executable.name == 'lsblk'
+_summary: Gathers information about each disk detected
+_description:
+ Uses lsblk to gather information about each disk detected on the system
+ under test.
 command: disk_info
-_summary:
- Display info about each detected disk device
-_description: 
- Displays information about each disk detected on the system under test.
+estimated_duration: 0.25
 
 unit: template
 template-resource: device
-template-filter: device.category == 'DISK'
+template-filter: device.category == 'DISK' and device.name != ''
+template-unit: job
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk
 id: disk/stats_{name}
 flags: deprecated
-requires:
- block_device.state != 'removable' and block_device.name == '{name}'
 user: root
+estimated_duration: 10.0
 command: disk_stats_test {name}
-_description: This test checks {name} disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
+_summary: Disk statistics for {product}
+_description:
+ This test checks disk stats, generates some activity and rechecks stats to
+ verify they've changed. It also verifies that disks appear in the various
+ files they're supposed to.
+ .
+ This test will inspect the following disk:
+ .
+     product name: {product}
+     sysfs path: {path}
+     device node path: /dev/{name}
 
 unit: template
 template-resource: device
@@ -35,7 +46,7 @@ category_id: 2013.com.canonical.plainbox::disk
 id: disk/smart_{name}
 estimated_duration: 180.0
 requires:
- package.name == 'smartmontools'
+ package.name == 'smartmontools' or executable.name == 'smartctl'
  block_device.smart == 'True'  and block_device.name == '{name}'
 _summary:
  Test SMART capabilities for {product}
@@ -52,9 +63,8 @@ category_id: 2013.com.canonical.plainbox::disk
 id: disk/read_performance_{name}
 estimated_duration: 65.0
 requires:
- block_device.state != 'removable' and block_device.name == '{name}'
 _summary: Disk performance test for {product}
-_description: Disk performance test for {product}
+_description: Verify that disk storage performs at or above baseline performance
 user: root
 command: disk_read_performance_test {name}
 
@@ -67,9 +77,8 @@ id: disk/storage_device_{name}
 estimated_duration: 375.0
 user: root
 requires:
- block_device.state != 'removable' and block_device.name == '{name}'
 _summary: Disk I/O stress test for {product}
-_description: Disk I/O stress test for {product}
+_description: Take the path of the storage device and test is it a block device
 command: storage_test {name}
 
 # The stress/disk_stress_ng_test job requires uuid-runtime package
@@ -86,8 +95,7 @@ id: disk/disk_stress_ng_{name}
 estimated_duration: 4560.0
 user: root
 requires:
- package.name == 'stress-ng'
- block_device.state != 'removable' and block_device.name == '{name}'
+ package.name == 'stress-ng' or executable.name == 'stress-ng'
 _summary: Disk stress_ng test for {product}
 _description: Disk stress_ng test for {product}
 command: disk_stress_ng {name} --base-time 240 --really-run

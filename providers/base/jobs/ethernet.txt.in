@@ -5,15 +5,12 @@ Depends: kmod
 plugin: shell
 category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/detect
-requires:
- device.category == 'NETWORK' or device.category == 'WIRELESS'
- package.name == 'kmod' or package.name == 'module-init-tools'
- package.name == 'pciutils'
+flags: also-after-suspend
 command: network_device_info
-estimated_duration: 1.2
+estimated_duration: 2.0
 _summary:
  Report info about available network devices
-_description: 
+_description:
  Test to detect and return information about available network controllers on
  the system under test.
 
@@ -55,9 +52,9 @@ id: ethernet/multi_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
- package.name == 'iperf'
- package.name == 'ethtool'
- package.name == 'nmap'
+ package.name == 'iperf' or executable.name == 'iperf'
+ package.name == 'ethtool' or executable.name == 'ethtool'
+ package.name == 'nmap' or executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
 command: network test -i {interface} -t iperf --scan-timeout 3600 --fail-threshold 80 --runtime 900 --num_runs 4
@@ -74,9 +71,9 @@ id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
- package.name == 'iperf3'
- package.name == 'ethtool'
- package.name == 'nmap'
+ package.name == 'iperf3' or executable.name == 'iperf3'
+ package.name == 'ethtool' or executable.name == 'ethtool'
+ package.name == 'nmap' or executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
 command: network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
@@ -93,7 +90,7 @@ id: ethernet/ethertool_check_device{__index__}_{interface}
 _summary: ethtool check for NIC {interface}
 estimated_duration: 330.0
 requires:
- package.name == 'ethtool'
+ package.name == 'ethtool' or executable.name == 'ethtool'
 user: root
 command: ethtool {interface}
 _description:

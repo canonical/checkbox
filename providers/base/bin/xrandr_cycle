@@ -100,7 +100,14 @@ except OSError as excp:
                      "required directories: {}".format(excp))
 
 try:
-    shutil.copy(shutter_xml_template, profile_path)
+    if os.path.exists(profile_path) and os.path.isfile(profile_path):
+        try:
+            os.remove(profile_path)
+        except PermissionError as exc:
+            print("Warning: could not remove {}. {}".format(
+                profile_path, exc))
+    else:
+        shutil.copy(shutter_xml_template, profile_path)
 except (IOError, OSError) as excp:
     print("ERROR: Unable to copy {} to {}: {}".format(shutter_xml_template,
                                                       profile_path,

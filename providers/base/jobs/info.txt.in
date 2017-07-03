@@ -16,7 +16,6 @@ Depends: util-linux
 id: codecs_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-requires: device.driver == 'snd_hda_intel'
 command: cat /proc/asound/card*/codec#*
 estimated_duration: 0.023
 _description: Attaches a report of installed codecs for Intel HDA
@@ -44,11 +43,15 @@ command: [ -d /sys/class/dmi/id/ ] && (grep -r . /sys/class/dmi/id/ 2>/dev/null 
 estimated_duration: 0.044
 _description: Attaches info on DMI
 _summary: Attach a copy of /sys/class/dmi/id/*
+requires:
+  cpuinfo.platform in ("i386", "x86_64")
 
 id: dmidecode_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-requires: package.name == 'dmidecode'
+requires:
+  package.name == 'dmidecode' or executable.name == 'dmidecode'
+  cpuinfo.platform in ("i386", "x86_64")
 user: root
 command: dmidecode | iconv -t 'utf-8' -c
 estimated_duration: 0.030
@@ -58,7 +61,7 @@ _summary: Attach output of dmidecode
 id: lshw_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-requires: package.name == 'lshw'
+requires: package.name == 'lshw' or executable.name == 'lshw'
 user: root
 command: lshw | iconv -t 'utf-8' -c
 _summary: Attach lshw output
@@ -76,7 +79,12 @@ _description: Attaches the firmware version
 id: lspci_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-command: lspci -vvnn | iconv -t 'utf-8' -c
+command:
+ if [[ -v SNAP ]]; then
+     lspci -i $SNAP/usr/share/misc/pci.ids -vvnn
+ else
+     lspci -vvnn | iconv -t 'utf-8' -c
+ fi
 estimated_duration: 0.042
 _description: Attaches very verbose lspci output.
 _summary: Attach a list of PCI devices
@@ -101,10 +109,15 @@ _description:
 id: lsusb_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-requires: package.name == 'usbutils'
 user: root
-command: lsusb -vv | iconv -t 'utf-8' -c
+command:
+ if [[ -v SNAP ]]; then
+     lsusb.py -f $SNAP/var/lib/usbutils/usb.ids
+ else
+     lsusb -vv | iconv -t 'utf-8' -c
+ fi
 estimated_duration: 0.700
+flags: also-after-suspend
 _summary: Attach output of lsusb
 _description: Attaches a list of detected USB devices.
 
@@ -166,6 +179,8 @@ command:
  done
 estimated_duration: 6.344
 _summary: Attach detailed sysfs property output from udev
+requires:
+  model_assertion.model != "dragonboard"
 
 id: udev_attachment
 plugin: attachment
@@ -186,7 +201,8 @@ id: lsblk_attachment
 estimated_duration: 0.1
 plugin: attachment
 command: lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT
-requires: package.name == "util-linux"
+requires:
+ package.name == "util-linux" or executable.name == 'lsblk'
 _description: Attaches disk block devices mount points
 _summary: Attach info block devices and their mount points
 
@@ -209,6 +225,8 @@ _summary: Attach a list of currently running kernel modules
 id: dkms_info_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
+requires:
+  package.name == 'dkms'
 command: dkms_info  --format json
 _description: Attaches json dumps of installed dkms package information.
 _summary: Attaches json dumps of installed dkms package information.
@@ -238,7 +256,7 @@ category_id: 2013.com.canonical.plainbox::info
 id: info/hdparm_{name}.txt
 estimated_duration: 1.0
 requires:
- package.name == 'hdparm'
+ package.name == 'hdparm' or executable.name == 'hdparm'
  block_device.state != 'removable' and block_device.name == '{name}'
 user: root
 command: hdparm -I /dev/{name}
@@ -301,10 +319,6 @@ _description: Lists the device driver and version for all audio devices.
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
 id: info/network_devices
-requires:
- device.category == 'NETWORK' or device.category == 'WIRELESS'
- package.name == 'kmod' or package.name == 'module-init-tools'
- package.name == 'pciutils'
 command: network_device_info
 estimated_duration: 0.550
 _description: Provides information about network devices

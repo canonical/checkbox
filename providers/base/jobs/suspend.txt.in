@@ -304,6 +304,7 @@ _description:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-check
+depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/suspend_single.log
 _description:
@@ -312,6 +313,7 @@ _description:
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-attach
+depends: suspend/suspend_advanced_auto
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && xz -c $PLAINBOX_SESSION_SHARE/suspend_single.log | base64
 _description:
  Attaches the log from the single suspend/resume test to the results

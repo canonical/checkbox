@@ -278,7 +278,7 @@ def main(args):
             ).format(ping_summary['pct_loss'], args.threshold))
             return 0
     else:
-        print(_("Internet connection fully established"))
+        print(_("Connection to test host fully established"))
         return 0
 
 

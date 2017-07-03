@@ -23,7 +23,7 @@
 import sys
 import time
 
-import bt_helper
+import checkbox_support.bt_helper
 
 from argparse import ArgumentParser
 

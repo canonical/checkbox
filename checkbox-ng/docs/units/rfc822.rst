@@ -32,7 +32,7 @@ Quirk 1 -- the magic dot
 ------------------------
 
 Due to the way the multi-line VALUE syntax is defined, it would be impossible
-(or possible but dependant only on whitespace, which is not friendly) to
+(or possible but dependent only on whitespace, which is not friendly) to
 include two consecutive newlines. For that reason a line consisting of a single
 space, followed by a single dot is translated to an empty line.
 

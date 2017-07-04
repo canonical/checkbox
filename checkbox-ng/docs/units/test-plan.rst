@@ -112,7 +112,7 @@ copy such constructs when working on a new test plan from scratch
 
     This optional field can be used to specify the jobs that should always run.
     This is particularly useful for specifying jobs that gather vital
-    info about the tested system, as it renders imposible to generate a report
+    info about the tested system, as it renders impossible to generate a report
     with no information about system under test.
 
     For example, session results meant to be sent to the Ubuntu certification
@@ -124,7 +124,7 @@ copy such constructs when working on a new test plan from scratch
             miscellanea/submission-resources
 
     Note that mandatory jobs will always be run first (along with their
-    dependant jobs)
+    dependent jobs)
 
 ``bootstrap_include``:
     A multi-line list of job identifiers that should be run first, before the

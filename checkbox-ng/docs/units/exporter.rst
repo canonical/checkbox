@@ -3,7 +3,7 @@ Exporter Unit
 =============
 
 The purpose of exporter units is to provide an easy way to customize the
-plainbox reports by delagating the customization bits to providers.
+plainbox reports by delegating the customization bits to providers.
 
 Each exporter unit expresses a binding between code (the entry point) and data.
 Data can be new options, different Jinja2 templates and/or new paths to load
@@ -112,7 +112,7 @@ The provider shipping such unit can be as follow::
         └── exporters.pxu
 
 Note that exporters.pxu is not strictly needed to store the exporter units, but
-keeping them in a dedidated file is a good practice.
+keeping them in a dedicated file is a good practice.
 
 How to use exporter units?
 --------------------------

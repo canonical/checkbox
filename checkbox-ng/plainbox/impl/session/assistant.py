@@ -390,7 +390,7 @@ class SessionAssistant:
 
             The names may include the ``*`` character (asterisk) to indicate
             "any". This includes both the namespace part and the provider name
-            part, e.g. ``2013.com.canonical.certification::*`` will load all of
+            part, e.g. ``com.canonical.certification::*`` will load all of
             providers made by the Canonical certification team.  To load
             everything just pass ``*``.
         :param additional_providers:
@@ -435,7 +435,7 @@ class SessionAssistant:
         # way they get loaded unconditionally, regardless of what patterns are
         # passed to the function (including not passing *any* patterns).
         for provider in provider_list[:]:
-            if provider.namespace == "2013.com.canonical.plainbox":
+            if provider.namespace == "com.canonical.plainbox":
                 provider_list.remove(provider)
                 self._selected_providers.append(provider)
                 self.provider_selected(provider, auto=True)
@@ -1442,7 +1442,7 @@ class SessionAssistant:
         :param exporter_id:
             The identifier of the exporter unit to use. This must have been
             loaded into the session from an existing provider. Many users will
-            want to load the ``2013.com.canonical.palainbox:exporter`` provider
+            want to load the ``com.canonical.palainbox:exporter`` provider
             (via :meth:`load_providers()`.
         :param transport:
             A pre-created transport object such as the `CertificationTransport`
@@ -1484,7 +1484,7 @@ class SessionAssistant:
         :param exporter_id:
             The identifier of the exporter unit to use. This must have been
             loaded into the session from an existing provider. Many users will
-            want to load the ``2013.com.canonical.palainbox:exporter`` provider
+            want to load the ``com.canonical.palainbox:exporter`` provider
             (via :meth:`load_providers()`.
         :param option_list:
             List of options customary to the exporter that is being created.
@@ -1523,7 +1523,7 @@ class SessionAssistant:
         :param exporter_id:
             The identifier of the exporter unit to use. This must have been
             loaded into the session from an existing provider. Many users will
-            want to load the ``2013.com.canonical.palainbox:exporter`` provider
+            want to load the ``com.canonical.palainbox:exporter`` provider
             (via :meth:`load_providers()`.
         :param option_list:
             List of options customary to the exporter that is being created.

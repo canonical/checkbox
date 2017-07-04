@@ -243,7 +243,7 @@ class SessionStateExporterBase(ISessionStateExporter):
             }
             # Inject the special, built-in 'uncategorized' category, if any
             # job needs it
-            UNCATEGORISED = '2013.com.canonical.plainbox::uncategorised'
+            UNCATEGORISED = 'com.canonical.plainbox::uncategorised'
             if UNCATEGORISED in wanted_category_ids:
                 data['category_map'][UNCATEGORISED] = _("Uncategorised")
         for job_id, job_state in session.job_state_map.items():

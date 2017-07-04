@@ -64,7 +64,7 @@ class TARSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS
         ]
         exporter_unit = self._get_all_exporter_units()[
-            '2013.com.canonical.plainbox::json']
+            'com.canonical.plainbox::json']
         json_exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
         json_exporter.dump_from_session_manager(manager, json_stream)
         json_tarinfo = tarfile.TarInfo(name="submission.json")

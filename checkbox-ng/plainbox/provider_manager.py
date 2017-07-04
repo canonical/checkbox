@@ -1479,9 +1479,9 @@ def setup(**kwargs):
 
         name:
             name of the provider (IQN compatible). Typically something like
-            ``2013.org.example:some-name`` where the ``some-name`` is a simple
+            ``org.example:some-name`` where the ``some-name`` is a simple
             identifier and a private namespace for whoever owned
-            ``org.example`` in ``2013``
+            ``org.example``
 
         version:
             version string, required

@@ -127,7 +127,7 @@ hard drive available on the system::
    template-resource: device
    template-filter: device.category == 'DISK'
    plugin: shell
-   category_id: 2013.com.canonical.plainbox::disk
+   category_id: com.canonical.plainbox::disk
    id: disk/stats_{name}
    requires:
     device.path == "{path}"

@@ -28,7 +28,7 @@ want to include, as follow:
 ::
 
     nested_part:
-        2013.com.canonical.certification::my_base_test_plan
+        com.canonical.certification::my_base_test_plan
 
 The test plan order will then be test plan ``include`` + all nested test plan 
 ``include``, in that order.
@@ -60,9 +60,9 @@ need to develop the 3 providers and run one of the demo launchers:
 How to use a base test plan?
 ----------------------------
 
-Let's use two providers, both belonging to the same namespace, ``2016.com.ubuntu``:
+Let's use two providers, both belonging to the same namespace, ``com.ubuntu``:
 
-``2016.com.ubuntu:foo`` and ``2016.com.ubuntu:baz``
+``com.ubuntu:foo`` and ``com.ubuntu:baz``
 
 Baz provider contains the following units, 4 jobs and a test plan (our base 
 test plan):
@@ -215,7 +215,7 @@ Let's update the previous use case:
     certification_status_overrides:
         apply non-blocker to hello
     category_overrides:
-        apply 2013.com.canonical.plainbox::audio to hello
+        apply com.canonical.plainbox::audio to hello
 
 To check that overrides worked as expected, you can open the json exporter 
 report:
@@ -223,9 +223,9 @@ report:
 ::
 
     "result_map": {
-        "2016.com.ubuntu::hello": {
+        "com.ubuntu::hello": {
             "summary": "hello",
-            "category_id": "2013.com.canonical.plainbox::audio",
+            "category_id": "com.canonical.plainbox::audio",
             "certification_status": "non-blocker"
     [...]
 
@@ -235,7 +235,7 @@ How to include a nested part from another namespace?
 You can include a nested part from another namespace, just prefix the test plan
 identifier with the provider namespace.
 
-Let's use a third provider (Bar, under the ``2013.com.ubuntu`` namespace) as an 
+Let's use a third provider (Bar, under the ``com.ubuntu`` namespace) as an
 example:
 
 ::
@@ -273,7 +273,7 @@ like this:
         always-fail
     nested_part:
         baz_tp
-        2013.com.ubuntu::bar_tp
+        com.ubuntu::bar_tp
 
 The jobs execution order is:
 
@@ -308,7 +308,7 @@ Let's add a new test plan to provider Baz:
     bootstrap_include:
         bootstrap
     nested_part:
-        2013.com.ubuntu::bar_tp
+        com.ubuntu::bar_tp
 
 As you can see this test plan includes a part from provider Bar (the same used 
 in the previous example). In provider Foo, we can create a new test plan 

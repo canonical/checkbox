@@ -132,7 +132,7 @@ Example of a launcher using custom exporter unit::
     path = /tmp/submission.html
 
     [exporter:my_html]
-    unit = 2013.com.foo.bar::my_html
+    unit = com.foo.bar::my_html
 
     [report:local_html]
     transport = local_file

@@ -115,7 +115,7 @@ Next let's define a Job that uses that resource.
 ::
 
     plugin: shell
-    category_id: 2013.com.canonical.plainbox::power-management
+    category_id: com.canonical.plainbox::power-management
     id: power-management/rtc
     requires:
       rtc.state == 'supported'

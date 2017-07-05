@@ -68,7 +68,7 @@ Create a device/project specific provider
 
 .. code-block:: bash
 
-    $ plainbox startprovider --empty 2016.com.canonical.qa.myproject:
+    $ plainbox startprovider --empty com.canonical.qa.myproject:
     plainbox-provider-myproject
 
 The directory name for the provider is quite a mouthful, let's change it to
@@ -76,7 +76,7 @@ something more manageable.
 
 .. code-block:: bash
 
-    $ mv 2016.com.canonical.qa.myproject:plainbox-provider-myproject
+    $ mv com.canonical.qa.myproject:plainbox-provider-myproject
     plainbox-provider-myproject
 
 This new provider has to also be included as a part of the snap
@@ -164,8 +164,8 @@ include both reused disk tests and the new custom ones.
         This test plan includes some disk tests from plainbox-provider-snappy
         and the my-first-job test.
     include:
-        2013.com.canonical.certification::disk/detect
-        2013.com.canonical.certification::disk/stats_.*
+        com.canonical.certification::disk/detect
+        com.canonical.certification::disk/stats_.*
         my-first-job
 
 You can also include the whole *external* test plan. Let's reuse the CPU
@@ -183,11 +183,11 @@ testing suite from plainbox-provider-snappy.
         This test plan includes some disk tests from plainbox-provider-snappy
         and the my-first-job test.
     include:
-        2013.com.canonical.certification::disk/detect
-        2013.com.canonical.certification::disk/stats_.*
+        com.canonical.certification::disk/detect
+        com.canonical.certification::disk/stats_.*
         my-first-job
     nested_part:
-        2013.com.canonical.certification::cpu-full
+        com.canonical.certification::cpu-full
 
 Create Checkbox Launchers configurations
 ========================================
@@ -209,7 +209,7 @@ and write the first launcher
 
     #!/usr/bin/env checkbox-cli-wrapper
     [launcher]
-    app_id = 2016.com.canonical.qa.myproject:checkbox
+    app_id = com.canonical.qa.myproject:checkbox
     launcher_version = 1
     stock_reports = text, submission_files
 

@@ -82,7 +82,7 @@ Version of the launcher language syntax and semantics to use.
 ``api_flags``
 
 API flags variable determines optional feature set.
-List of API flags that this launcher requires. Items should be seperated by
+List of API flags that this launcher requires. Items should be separated by
 spaces or commas. The default value is an empty list.
 
 ``api_version``
@@ -106,10 +106,10 @@ may use:
     * ``certification-staging`` - send results to staging version of
       certification site
 
-This field is a list; use commas or spaces to seperate stock reports. The
+This field is a list; use commas or spaces to separate stock reports. The
 default value: ``text, certification, submission_files``.
 
-When using ``certification`` stock report, ``secure_id`` might be overriden by
+When using ``certification`` stock report, ``secure_id`` might be overridden by
 the launcher. To do this define ``secure_id`` in a ``transport:c3`` section
 (this is the transport that's used by the ``certification`` stock reports).
 
@@ -122,7 +122,7 @@ Launcher section example:
     launcher_version = 1
     stock_reports = text
 
-Launcher using all defaults with overriden secure_id:
+Launcher using all defaults with overridden secure_id:
 
 ::
 
@@ -279,7 +279,7 @@ same job. Default value: ``1``.
     When ``auto_retry`` is set to ``yes``, **every** failing jobs will be retried.
     This can be a problem, for instance, for jobs that take a really long time
     to run. To avoid this, you can use the ``auto-retry=no`` inline override
-    in the test plan to explicitely mark each job you do not wish to see
+    in the test plan to explicitly mark each job you do not wish to see
     retried.
 
     For example::
@@ -350,7 +350,7 @@ run ``$ plainbox dev list exporter``.
 
 ``options``
 
-A list of options that will be supplied to the exporter. Items should be seperated by
+A list of options that will be supplied to the exporter. Items should be separated by
 spaces or commas.
 
 Example:

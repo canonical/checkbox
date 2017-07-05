@@ -317,7 +317,7 @@ For other information regarding plainbox job units see:
 http://plainbox.readthedocs.org/en/latest/manpages/plainbox-job-units.html
 
 To add this job to the plainbox provider with other qml jobs, paste the job
-defintion to:
+definition to:
 ``checkbox/providers/2015.com.canonical.certification:qml-tests/units/qml-tests.pxu``
 
 Testing qml job in Checkbox Touch on Ubuntu device
@@ -338,8 +338,8 @@ Confined Qml jobs
 
 Sometimes there is a need to run a job with a different set of policies.
 Checkbox makes this possible by embedding such jobs into the resulting click
-package as seperate apps. Each of those apps have their own apparmor
-declaration, so each one have its own, seperate entry in the Trust database.
+package as separate apps. Each of those apps have their own apparmor
+declaration, so each one have its own, separate entry in the Trust database.
 
 To request Checkbox to run a qml job as confined, add 'confined' flag to its
 definition.
@@ -349,9 +349,9 @@ E.g.::
     id: confined-job
     category_id: confinement-tests
     plugin: qml
-    _summary: Job that runs as a seperate app
+    _summary: Job that runs as a separate app
     _description:
-     Checkbox should run this job with a seperate set of policies.
+     Checkbox should run this job with a separate set of policies.
     qml_file: simple.qml
     flags: confined
     estimated_duration: 5

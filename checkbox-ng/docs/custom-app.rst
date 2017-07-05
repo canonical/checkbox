@@ -72,7 +72,7 @@ Create a device/project specific provider
     plainbox-provider-myproject
 
 The directory name for the provider is quite a mouthful, let's change it to
-something more managable.
+something more manageable.
 
 .. code-block:: bash
 

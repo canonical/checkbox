@@ -25,7 +25,7 @@ There are four fields that are specific to the template unit:
 
 ``template-resource``:
     Name of the resource job (if it is a compatible resource identifier) to use
-    to parametrize the template. This must either be a name of a resource job
+    to parameterize the template. This must either be a name of a resource job
     available in the namespace the template unit belongs to *or* a valid
     resource identifier matching the definition in the ``template-imports``
     field.

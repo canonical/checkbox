@@ -199,7 +199,7 @@ Following fields may be used by the job unit:
 
     ``simple``:
         This flag makes plainbox disable certain validation advice and have
-        some sesible defaults for automated test cases.  This simiplification
+        some sensible defaults for automated test cases.  This simplification
         is meant to cut the boiler plate on jobs that are closer to unit tests
         than elaborate manual interactions.
 

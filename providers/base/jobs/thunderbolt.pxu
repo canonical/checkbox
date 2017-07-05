@@ -9,9 +9,9 @@ _name: Thunderbolt 3 Support
 value-type: bool
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt/insert
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 20.0
 command: removable_storage_watcher insert --timeout 40 scsi
@@ -29,10 +29,10 @@ _description:
      selected result
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt/storage-test
 user: root
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert
 estimated_duration: 45.0
@@ -43,9 +43,9 @@ _description:
  Thunderbolt HDD
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt/remove
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert
 estimated_duration: 10.0
@@ -63,9 +63,9 @@ _description:
      selected result
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt/daisy-chain
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 45.0
 command: removable_storage_test -s 268400000 scsi
@@ -85,9 +85,9 @@ _description:
      2. Was the desktop displayed correctly on the Thunderbolt-connected screen?
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt3/insert
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 20.0
 command: removable_storage_watcher insert --timeout 40 scsi
@@ -105,10 +105,10 @@ _description:
      selected result
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt3/storage-test
 user: root
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 45.0
@@ -119,9 +119,9 @@ _description:
  Thunderbolt HDD
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt3/remove
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 10.0
@@ -139,9 +139,9 @@ _description:
      selected result
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: thunderbolt3/daisy-chain
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 45.0
 command: removable_storage_test -s 268400000 scsi

@@ -4,7 +4,7 @@ os-id: debian
 Depends: nvme-cli
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/detect
 requires:
   package.name == 'util-linux' or executable.name == 'lsblk'
@@ -20,7 +20,7 @@ template-resource: device
 template-filter: device.category == 'DISK' and device.name != ''
 template-unit: job
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/stats_{name}
 flags: deprecated
 user: root
@@ -42,7 +42,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/smart_{name}
 estimated_duration: 180.0
 requires:
@@ -59,7 +59,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/read_performance_{name}
 estimated_duration: 65.0
 requires:
@@ -72,7 +72,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/storage_device_{name}
 estimated_duration: 375.0
 user: root
@@ -90,7 +90,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/disk_stress_ng_{name}
 estimated_duration: 4560.0
 user: root
@@ -104,7 +104,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/disk_cpu_load_{name}
 estimated_duration: 15
 user: root
@@ -115,7 +115,7 @@ _description: Check to ensure CPU load of {product} is not too high
 command: disk_cpu_load {name}
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/spindown
 estimated_duration: 875.0
 requires:
@@ -127,7 +127,7 @@ _description:
  Some new hard drives include a feature that parks the drive heads after a short period of inactivity. This is a power-saving feature, but it can have a bad interaction with the operating system that results in the drive constantly parked then activated. This produces excess wear on the drive, potentially leading to early failures.
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/hdd-parking
 estimated_duration: 60.0
 requires:
@@ -150,7 +150,7 @@ unit: template
 template-resource: device
 template-filter: device.driver == 'nvme' and device.category == 'OTHER'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::disk
+category_id: com.canonical.plainbox::disk
 id: disk/apste_support_on_{name}
 estimated_duration: 1.0
 user: root

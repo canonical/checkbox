@@ -1,7 +1,7 @@
 unit: template
 template-resource: fwts
 plugin: shell
-category_id: 2013.com.canonical.plainbox::firmware
+category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_{name}
 estimated_duration: 1.2
 requires: package.name == 'fwts'
@@ -13,7 +13,7 @@ _summary: Run {name} test from Firmware Test Suite.
 unit: template
 template-resource: fwts
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::firmware
+category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_{name}.log
 estimated_duration: 1.2
 requires: package.name == 'fwts'
@@ -23,7 +23,7 @@ _description: Attach log for FWTS {name} test.
 _summary: Attach log for FWTS {name} test.
 
 plugin:shell
-category_id: 2013.com.canonical.plainbox::firmware
+category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_desktop_diagnosis
 estimated_duration: 10.0
 requires:
@@ -37,7 +37,7 @@ command:
  checkbox-support-fwts_test --qa -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
 
 plugin:shell
-category_id: 2013.com.canonical.plainbox::firmware
+category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_desktop_diagnosis_hwe
 estimated_duration: 5.0
 requires:
@@ -51,7 +51,7 @@ command:
  checkbox-support-fwts_test --hwe -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::firmware
+category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results.log.gz
 command:
@@ -60,7 +60,7 @@ _description: Attaches the FWTS desktop diagnosis results log to the submission
 _summary: Attach FWTS desktop diagnosis log to submission
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::firmware
+category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results_hwe.log.gz
 command:
@@ -69,7 +69,7 @@ _description: Attaches the FWTS desktop diagnosis results log to the submission 
 _summary: Attach FWTS desktop diagnosis log to submission (to HWE)
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::firmware
+category_id: com.canonical.plainbox::firmware
 id: firmware/no_ACPI_REV_interface
 _summary: No _REV interface in ACPI [DS]SDT tables
 user: root

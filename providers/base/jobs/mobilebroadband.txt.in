@@ -1,5 +1,5 @@
 plugin: shell
-category_id: 2013.com.canonical.plainbox::mobilebroadband
+category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/gsm_connection
 estimated_duration: 20.0
 requires:
@@ -29,7 +29,7 @@ command:
 _description: Creates a mobile broadband connection for a GSM based modem and checks the connection to ensure it's working. 
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::mobilebroadband
+category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/cdma_connection
 estimated_duration: 20.0
 requires:
@@ -61,7 +61,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::mobilebroadband
+category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/maximum_bandwidth_gsm_device{__index__}_{interface}
 depends: mobilebroadband/gsm_connection
 estimated_duration: 330.0
@@ -85,7 +85,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::mobilebroadband
+category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/maximum_bandwidth_cdma_device{__index__}_{interface}
 depends: mobilebroadband/cdma_connection
 estimated_duration: 330.0

@@ -1,5 +1,5 @@
 plugin: manual
-category_id: 2013.com.canonical.plainbox::peripheral
+category_id: com.canonical.plainbox::peripheral
 id: peripheral/printer
 _description:
  PURPOSE:
@@ -14,7 +14,7 @@ _description:
     Were you able to print a test page to the network printer?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::peripheral
+category_id: com.canonical.plainbox::peripheral
 id: peripheral/external-usb-modem
 command: network_check
 _description:
@@ -33,7 +33,7 @@ _description:
     Was the connection correctly established?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::peripheral
+category_id: com.canonical.plainbox::peripheral
 id: peripheral/external-usb-modem-http
 depends: peripheral/external-usb-modem
 command: wget -SO /dev/null http://$TRANSFER_SERVER

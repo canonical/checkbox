@@ -1,5 +1,5 @@
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_scanning
 requires:
   package.name == 'network-manager'
@@ -22,7 +22,7 @@ estimated_duration: 0.645
 _description: Wireless scanning test. It scans and reports on discovered APs.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/info_automated
 requires:
  package.name == 'network-manager'
@@ -33,7 +33,7 @@ _description:
  This is an automated test to gather some info on the current state of your wireless devices. If no devices are found, the test will exit with an error.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection
 command: network_check
 estimated_duration: 120.0
@@ -49,7 +49,7 @@ _description:
      Did a notification show and was the connection correctly established?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_wpa_bg
 requires:
  device.category == 'WIRELESS'
@@ -79,7 +79,7 @@ _description:
  security and the 802.11b/g protocols.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_bg
 requires:
  device.category == 'WIRELESS'
@@ -109,7 +109,7 @@ _description:
  security and the 802.11b/g protocols.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_wpa_n
 requires:
  device.category == 'WIRELESS'
@@ -139,7 +139,7 @@ _description:
  security and the 802.11n protocol.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_n
 requires:
  device.category == 'WIRELESS'
@@ -169,7 +169,7 @@ _description:
  security and the 802.11n protocol.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_wpa_ac
 requires:
  device.category == 'WIRELESS'
@@ -200,7 +200,7 @@ _description:
  security and the 802.11ac protocol.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_ac
 requires:
  device.category == 'WIRELESS'
@@ -231,7 +231,7 @@ _description:
  security and the 802.11ac protocol.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_wpa_bg_manual
 requires:
  device.category == 'WIRELESS'
@@ -270,7 +270,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_bg_manual
 requires:
  device.category == 'WIRELESS'
@@ -309,7 +309,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_wpa_n_manual
 requires:
  device.category == 'WIRELESS'
@@ -349,7 +349,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_n_manual
 requires:
  device.category == 'WIRELESS'
@@ -389,7 +389,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_wpa_ac_manual
 requires:
  device.category == 'WIRELESS'
@@ -429,7 +429,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_ac_manual
 requires:
  device.category == 'WIRELESS'
@@ -469,7 +469,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/monitor_wireless_connection
 requires:
  package.name == 'iperf'
@@ -498,7 +498,7 @@ _description:
  Tests the performance of a system's wireless connection through the iperf tool.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/monitor_wireless_connection_udp
 requires:
  package.name == 'iperf'
@@ -527,7 +527,7 @@ _description:
  Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_a
 requires:
  device.category == 'WIRELESS'
@@ -558,7 +558,7 @@ _description:
   respond to requests on the 802.11a protocol.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_b
 requires:
  device.category == 'WIRELESS'
@@ -592,7 +592,7 @@ template-resource: device
 template-filter:
  device.category == 'WIRELESS'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/stress_performance_device{__index__}_{interface}
 estimated_duration: 330.0
 requires:
@@ -604,7 +604,7 @@ _description:
  This test executes iperf to generate a load on the network device {__index__} ({interface}) and then performs a ping test to watch for dropped packets and very large latency periods.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_open_g
 requires:
  device.category == 'WIRELESS'
@@ -634,7 +634,7 @@ _description:
   respond to requests on the 802.11g protocol.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_extension
 requires: device.category == 'WIRELESS'
 command: wireless_ext
@@ -646,7 +646,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/iwconfig_check_device{__index__}_{interface}
 estimated_duration: 1.2
 command: iwconfig {interface}
@@ -654,7 +654,7 @@ _description:
  This test executes iwconfig requests against wireless device {__index__} ({interface}).
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_rfkill
 command: rfkill list | zenity --text-info --title rfkill-Info
 estimated_duration: 120.0
@@ -673,7 +673,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::wireless
+category_id: com.canonical.plainbox::wireless
 id: wireless/maximum_bandwidth_device{__index__}_{interface}
 estimated_duration: 120.0
 requires:

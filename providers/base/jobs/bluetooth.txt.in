@@ -4,7 +4,7 @@ _name: Bluetooth Smart (4.0 or later) Support
 value-type: bool
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output
 estimated_duration: 1.2
 requires:
@@ -29,7 +29,7 @@ _description:
  Automated test to store bluetooth device information in checkbox report
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/browse-files
 depends: bluetooth/detect-output
 estimated_duration: 120.0
@@ -50,7 +50,7 @@ _description:
      Did all the steps work?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/file-transfer
 depends: bluetooth/detect-output
 estimated_duration: 120.0
@@ -65,7 +65,7 @@ _description:
      Were all files copied correctly?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio-a2dp
 depends: bluetooth/detect-output
 estimated_duration: 120.0
@@ -91,7 +91,7 @@ _description:
      Did you hear the tone?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio
 depends: bluetooth/detect-output
 estimated_duration: 120.0
@@ -113,7 +113,7 @@ _description:
      Did you hear the sound you recorded in the bluetooth with a slight intended delay?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/HID
 depends: bluetooth/detect-output
 estimated_duration: 120.0
@@ -132,7 +132,7 @@ _description:
      Did the device work as expected?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/file_transfer_stress
 estimated_duration: 300.0
 requires:
@@ -163,10 +163,10 @@ _description:
  transfer didn't corrupt the file.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-mouse
 depends: bluetooth/detect-output
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
  package.name == 'bluez' and package.version >= '5.37'
@@ -182,10 +182,10 @@ _verification:
      Did the Bluetooth Smart mouse work as expected?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::bluetooth
+category_id: com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-keyboard
 depends: bluetooth/detect-output
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
  package.name == 'bluez' and package.version >= '5.37'

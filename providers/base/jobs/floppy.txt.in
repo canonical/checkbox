@@ -2,7 +2,7 @@ unit: template
 template-resource: device
 template-filter: device.driver == 'floppy'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::floppy
+category_id: com.canonical.plainbox::floppy
 id: floppy/check_{name}
 _description: Floppy test for {product}
 user: root

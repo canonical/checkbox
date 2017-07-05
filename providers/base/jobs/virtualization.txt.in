@@ -1,5 +1,5 @@
 plugin: shell
-category_id: 2013.com.canonical.plainbox::virtualization
+category_id: com.canonical.plainbox::virtualization
 id: virtualization/kvm_check_vm
 user: root
 environ: KVM_TIMEOUT KVM_IMAGE http_proxy https_proxy
@@ -16,7 +16,7 @@ _summary:
  Verify KVM guest boots
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::virtualization
+category_id: com.canonical.plainbox::virtualization
 id: virtualization/verify_lxd
 user: root
 environ: LXD_TEMPLATE LXD_ROOTFS

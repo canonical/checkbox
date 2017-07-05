@@ -2,7 +2,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::input
+category_id: com.canonical.plainbox::input
 id: input/pointing_{product_slug}_{category}_{__index__}
 estimated_duration: 30.0
 _summary: Check pointing functionality for {product}
@@ -14,7 +14,7 @@ _verification:
     Did the cursor move?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::input
+category_id: com.canonical.plainbox::input
 id: input/mouse
 estimated_duration: 30.0
 _description:
@@ -27,7 +27,7 @@ _description:
      Did the pointing device work as expected?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::input
+category_id: com.canonical.plainbox::input
 id: input/keyboard
 estimated_duration: 30.0
 command: keyboard_test
@@ -42,7 +42,7 @@ _description:
      Is your keyboard working properly?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::input
+category_id: com.canonical.plainbox::input
 id: input/accelerometer_verify
 estimated_duration: 30.0
 _description:
@@ -54,7 +54,7 @@ _description:
      Is this system supposed to have an accelerometer?
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::input
+category_id: com.canonical.plainbox::input
 id: input/accelerometer
 estimated_duration: 60.0
 user: root
@@ -74,7 +74,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::input
+category_id: com.canonical.plainbox::input
 id: input/clicking_{product_slug}_{category}_{__index__}
 estimated_duration: 30.0
 _summary: Check button functionality for {product}

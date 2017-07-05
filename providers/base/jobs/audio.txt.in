@@ -1,5 +1,5 @@
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/list_devices
 estimated_duration: 1.0
 requires:
@@ -9,7 +9,7 @@ command: cat /proc/asound/cards
 _description: Test to detect audio devices
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/playback_auto
 estimated_duration: 5.0
 depends: audio/list_devices
@@ -40,7 +40,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_hdmi_{product_slug}
 estimated_duration: 30.0
 requires:
@@ -68,7 +68,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_displayport_{product_slug}
 estimated_duration: 30.0
 requires:
@@ -96,9 +96,9 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_thunderbolt_{product_slug}
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
  manifest.has_thunderbolt == 'True'
@@ -125,9 +125,9 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_thunderbolt3_{product_slug}
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
  manifest.has_thunderbolt3 == 'True'
@@ -154,9 +154,9 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_type-c_displayport_{product_slug}
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
  manifest.has_usb_type_c == 'True'
@@ -181,7 +181,7 @@ _verification:
     Did you hear the sound from the DisplayPort device?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/playback_headphones
 estimated_duration: 20.0
 depends: audio/list_devices
@@ -207,7 +207,7 @@ _description:
      Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_internal
 estimated_duration: 20.0
 depends: audio/playback_auto
@@ -234,7 +234,7 @@ _description:
      Did you hear your speech played back?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_external
 estimated_duration: 20.0
 depends: audio/playback_headphones
@@ -261,7 +261,7 @@ _description:
      Did you hear your speech played back?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_usb
 estimated_duration: 120.0
 requires:
@@ -287,7 +287,7 @@ _description:
      Did you hear your speech played back through the USB headphones?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_automated
 estimated_duration: 10.0
 requires:
@@ -304,7 +304,7 @@ _description:
  default input.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/alsa_info_collect
 estimated_duration: 2.0
 command: alsa_info --no-dialog --no-upload --output ${PLAINBOX_SESSION_SHARE}/alsa_info.log
@@ -314,7 +314,7 @@ _description:
  under a controlled environment.
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/alsa_info_attachment
 depends: audio/alsa_info_collect
 estimated_duration: 1.0
@@ -323,7 +323,7 @@ _description:
  Attaches the audio hardware data collection log to the results.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/channels
 estimated_duration:  20.0
 command: speaker-test -c 2 -l 1 -t wav
@@ -336,7 +336,7 @@ _description:
      You should clearly hear a voice from the different audio channels
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/check_volume
 estimated_duration: 1.0
 requires:
@@ -352,7 +352,7 @@ _description:
  volume or mute before running this test.
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/external-lineout
 estimated_duration: 30.0
 _description:
@@ -367,7 +367,7 @@ _description:
       2. Do you hear the sound coming out on the corresponding channel?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/external-linein
 estimated_duration: 120.0
 requires:
@@ -393,7 +393,7 @@ _description:
      Did you hear your recording?
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/speaker-headphone-plug-detection
 estimated_duration: 60.0
 requires:
@@ -414,7 +414,7 @@ _description:
      The test times out after 30 seconds (and fails in that case).
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/microphone-plug-detection
 estimated_duration: 60.0
 requires:
@@ -436,7 +436,7 @@ _description:
      The test times out after 30 seconds (and fails in that case).
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/balance_internal_speaker
 estimated_duration: 20.0
 depends: audio/playback_auto
@@ -464,7 +464,7 @@ _description:
      Does the slider move smoothly, as well as being followed by the setting by the actual audio output?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/balance_headphones
 depends: audio/playback_headphones
 estimated_duration: 30.0
@@ -492,7 +492,7 @@ _description:
      Does the slider move smoothly, as well as being followed by the setting by the actual audio output?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/list_devices_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
@@ -503,7 +503,7 @@ command: cat /proc/asound/cards
 _description: Test to detect audio devices after suspending 30 times.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/playback_auto_after_suspend_30_cycles
 estimated_duration: 5.0
 depends: audio/list_devices power-management/suspend_30_cycles
@@ -531,7 +531,7 @@ _description:
      Did you hear a tone?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_automated_after_suspend_30_cycles
 estimated_duration: 10.0
 depends: power-management/suspend_30_cycles
@@ -549,7 +549,7 @@ _description:
  default input, after suspending 30 times.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/check_volume_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
@@ -566,7 +566,7 @@ _description:
  volume or mute before running this test.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::audio
+category_id: com.canonical.plainbox::audio
 id: audio/audio_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles

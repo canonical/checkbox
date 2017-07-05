@@ -36,8 +36,8 @@ import time
 PATH="org.compiz.core:/org/compiz/profiles/unity/plugins/core/"
 KEY="active-plugins"
 
-gettext.textdomain("2013.com.canonical.certification.checkbox")
-gettext.bindtextdomain("2013.com.canonical.certification.checkbox",
+gettext.textdomain("com.canonical.certification.checkbox")
+gettext.bindtextdomain("com.canonical.certification.checkbox",
                        os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None))
 
 plugins = eval(subprocess.check_output(["gsettings", "get", PATH, KEY]))

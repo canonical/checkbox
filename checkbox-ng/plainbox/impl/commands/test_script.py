@@ -88,12 +88,12 @@ class TestScriptCommand(TestCase):
 
 
 class ScriptInvocationTests(TestCase):
-    JOB_ID = '2013.com.canonical.plainbox::foo'
+    JOB_ID = 'com.canonical.plainbox::foo'
     JOB_PARTIAL_ID = 'foo'
 
     def setUp(self):
         self.provider = mock.Mock(spec_set=IProvider1, name='provider')
-        self.provider.namespace = "2013.com.canonical.plainbox"
+        self.provider.namespace = "com.canonical.plainbox"
         self.provider.job_list = []
         self.provider.units_dir = None
         self.provider.jobs_dir = None

@@ -387,13 +387,13 @@ Following fields may be used by the job unit:
 
         id: after-suspend-foo
         _summary: bar after suspend (S3)
-        depends: 2013.com.canonical.certification::suspend/suspend_advanced_auto
+        depends: com.canonical.certification::suspend/suspend_advanced_auto
 
     ``also-after-suspend-manual`` is a shortcut to create the following job::
 
         id: after-suspend-manual-foo
         _summary: bar after suspend (S3)
-        depends: 2013.com.canonical.certification::suspend/suspend_advanced
+        depends: com.canonical.certification::suspend/suspend_advanced
 
 .. warning::
     The curly braces used in this field have to be escaped when used in a
@@ -414,10 +414,10 @@ Following fields may be used by the job unit:
     other characters that would make them invalid as identifiers and give them
     a correct identifier name. E.g.::
 
-        imports: from 2013.com.canonical.certification import cpuinfo
+        imports: from com.canonical.certification import cpuinfo
         requires: 'armhf' in cpuinfo.platform
 
-        imports: from 2013.com.canonical.certification import cpu-01-info as cpu01
+        imports: from com.canonical.certification import cpu-01-info as cpu01
         requires: 'avx2' in cpu01.other
 
     The syntax of each imports line is::

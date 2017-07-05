@@ -316,7 +316,7 @@ http://plainbox.readthedocs.org/en/latest/manpages/plainbox-job-units.html
 
 To add this job to the plainbox provider with other qml jobs, paste the job
 defintion to:
-``checkbox/providers/2015.com.canonical.certification:qml-tests/units/qml-tests.pxu``
+``checkbox/providers/com.canonical.certification:qml-tests/units/qml-tests.pxu``
 
 Testing qml job in Checkbox Touch on Ubuntu device
 ``````````````````````````````````````````````````
@@ -326,7 +326,7 @@ directory we can build and install checkbox click package.
 In ``checkbox/checkbox-touch`` run::
 
     ./get-libs
-    ./build-me --provider ../providers/2015.com.canonical.certification\:qml-tests/ \
+    ./build-me --provider ../providers/com.canonical.certification\:qml-tests/ \
     --install
 
 Launch the "Checkbox" app on the device and your test should be live.

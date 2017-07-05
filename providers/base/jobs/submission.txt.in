@@ -1,6 +1,8 @@
 id: dkms_info_json
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
+requires:
+ package.name == 'dkms'
 command:
  dkms_info  --format json | plainbox dev parse dkms-info | \
  jq --indent 4 '.dkms_info'
@@ -24,7 +26,9 @@ Depends: plainbox
 id: raw_devices_dmi_json
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
-requires: package.name == 'dmidecode'
+requires:
+ package.name == 'dmidecode' or executable.name == 'dmidecode'
+ cpuinfo.platform in ("i386", "x86_64")
 user: root
 command:
  dmidecode -t bios -t system | plainbox dev parse dmidecode | \

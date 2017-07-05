@@ -411,7 +411,7 @@ class UDisks2StorageDeviceListener:
     UDISKS2_DRIVE_PROPERTY_CONNECTION_BUS = "ConnectionBus"
 
     def __init__(self, system_bus, loop, action, devices, minimum_speed,
-                 memorycard):
+                 memorycard, unmounted = False):
         # Store the desired minimum speed of the device in Mbit/s. The argument
         # is passed as the number of bits per second so let's fix that.
         self._desired_minimum_speed = minimum_speed / 10 ** 6
@@ -421,6 +421,9 @@ class UDisks2StorageDeviceListener:
             map_udisks1_connection_bus(device) for device in devices])
         # Check if we are explicitly looking for memory cards
         self._desired_memory_card = memorycard
+        # Store information whether we also want detected, but unmounted
+        # devices too
+        self._allow_unmounted = unmounted
         # Store the desired "delta" direction depending on
         # whether we test for insertion or removal
         if action == "insert":
@@ -561,7 +564,10 @@ class UDisks2StorageDeviceListener:
             # Skip objects we already ignored and complained about before
             if object_path in self._ignored_objects:
                 continue
-            needs = set(('block-fs', 'partition', 'non-empty', 'mounted'))
+            needs = set(('block-fs', 'partition', 'non-empty'))
+            if not self._allow_unmounted:
+                needs.add('mounted')
+
             # As a special exception when the ConnectionBus is allowed to be
             # empty, as is the case with eSATA devices, do not require the
             # filesystem to be mounted as gvfs may choose not to mount it
@@ -851,6 +857,8 @@ def main():
                         dest='logging_level', help="Enable verbose output")
     parser.add_argument('--debug', action='store_const', const=logging.DEBUG,
                         dest='logging_level', help="Enable debugging")
+    parser.add_argument('--unmounted', action='store_true',
+                        help="Don't require drive being automounted")
     parser.set_defaults(logging_level=logging.WARNING)
     args = parser.parse_args()
 
@@ -873,7 +881,8 @@ def main():
         logging.debug("Using UDisks2 interface")
         listener = UDisks2StorageDeviceListener(
             system_bus, loop,
-            args.action, args.device, args.minimum_speed, args.memorycard)
+            args.action, args.device, args.minimum_speed, args.memorycard,
+            args.unmounted)
     else:
         # Construct the listener with all of the arguments provided on the
         # command line and the explicit system_bus, loop objects.

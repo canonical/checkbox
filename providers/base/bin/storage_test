@@ -116,7 +116,7 @@ fi
 echo "Set disk to $disk"
 scripted_mount=0
 
-if [ -b $disk ]
+if [ -b "$disk" ]
 then
     echo "$disk is a block device"
     
@@ -133,7 +133,7 @@ then
     # Regex changed to better handle when $disk appears more than once
     # in parted output (such as in warning messages or not caught in the
     # check above)
-    size=`parted -l -s |grep "Disk.*${disk}" |awk '{print $3}'`
+    size=`parted -l -s 2>&1 | grep "Disk .*${disk}:" | awk '{print $3}'`
 
     if [ -n "$size" ]
     then
@@ -163,15 +163,15 @@ then
         fi
 
 
-        if [ $size_range == "KB" ]
+        if [ "$size_range" == "KB" ]
         then
             echo "$disk size reported in KB, seems to be too small for testing."
             exit 1
-        elif [ $size_range == "MB" ]
+        elif [ "$size_range" == "MB" ]
         then
             size_int=${size::${#size}-2}
 
-            if [ $size_int -gt 10 ]
+            if [ "$size_int" -gt 10 ]
             then
                 run_bonnie $disk
                 if [[ $scripted_mount == 1 ]]

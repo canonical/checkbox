@@ -177,11 +177,120 @@ class DiskTest():
         Indirectly sets:
             self.rem_disks{,_nm,_memory_cards,_memory_cards_nm,_speed}
         """
-        bus, loop = connect_to_system_bus()
-        if is_udisks2_supported(bus):
-            self._probe_disks_udisks2(bus)
+        if "SNAP" in os.environ:
+            self._probe_disks_udisks2_cli()
         else:
-            self._probe_disks_udisks1(bus)
+            bus, loop = connect_to_system_bus()
+            if is_udisks2_supported(bus):
+                self._probe_disks_udisks2(bus)
+            else:
+                self._probe_disks_udisks1(bus)
+
+    def _probe_disks_udisks2_cli(self):
+        # First we will build up a db of udisks info by scraping the output
+        # of the dump command
+        # TODO: remove the snap prefix when the alias becomes available
+        proc = subprocess.Popen(['udisks2.udisksctl', 'dump'],
+                                stdout=subprocess.PIPE)
+        udisks_devices = {}
+        current_bd = None
+        current_interface = None
+        while True:
+            line = proc.stdout.readline().decode(sys.stdout.encoding)
+            if line == '':
+                break
+            if line == '\n':
+                current_bd = None
+                current_interface = None
+            if line.startswith('/org/freedesktop/UDisks2/'):
+                path = line.strip()
+                current_bd = os.path.basename(path).rstrip(':')
+                udisks_devices[current_bd] = {}
+                continue
+            if current_bd is None:
+                continue
+            if line.startswith('  org.freedesktop'):
+                current_interface = line.strip().rstrip(':')
+                udisks_devices[current_bd][current_interface] = {}
+                continue
+            if current_interface is None:
+                continue
+            entry = ''.join(c for c in line if c not in '\n\t\' ')
+            wanted_keys = ('Device:', 'Drive:', 'MountPoints:', 'Vendor:',
+                           'ConnectionBus:', 'Model:', 'Media:',)
+            for key in wanted_keys:
+                if entry.startswith(key):
+                    udisks_devices[current_bd][current_interface][key] = (
+                        entry[len(key):])
+
+        # Now use the populated udisks structure to fill out the API used by
+        # other _probe disks functions
+        for device, interfaces in udisks_devices.items():
+            # iterate over udisks objects that have both filesystem and
+            # block device interfaces
+            if (UDISKS2_FILESYSTEM_INTERFACE in interfaces and
+                    UDISKS2_BLOCK_INTERFACE in interfaces):
+                # To be an IO candidate there must be a drive object
+                drive = interfaces[UDISKS2_BLOCK_INTERFACE].get('Drive:')
+                if drive is None or drive is '/':
+                    continue
+                drive_object = udisks_devices[os.path.basename(drive)]
+
+                # Get the connection bus property from the drive interface of
+                # the drive object. This is required to filter out the devices
+                # we don't want to look at now.
+                connection_bus = (
+                    drive_object[UDISKS2_DRIVE_INTERFACE]['ConnectionBus:'])
+                desired_connection_buses = set([
+                    map_udisks1_connection_bus(device)
+                    for device in self.device])
+                # Skip devices that are attached to undesired connection buses
+                if connection_bus not in desired_connection_buses:
+                    continue
+
+                dev_file = (
+                    interfaces[UDISKS2_BLOCK_INTERFACE].get('Device:'))
+
+                parent = self._find_parent(dev_file.replace('/dev/', ''))
+                if (parent and
+                        find_pkname_is_root_mountpoint(parent, self.lsblk)):
+                    continue
+
+                # XXX: we actually only scrape the first one currently
+                mount_point = (
+                    interfaces[UDISKS2_FILESYSTEM_INTERFACE].get(
+                        'MountPoints:'))
+                if mount_point == '':
+                    mount_point = None
+
+                # We need to skip-non memory cards if we look for memory cards
+                # and vice-versa so let's inspect the drive and use heuristics
+                # to detect memory cards (a memory card reader actually) now.
+                if self.memorycard != is_memory_card(
+                        drive_object[UDISKS2_DRIVE_INTERFACE]['Vendor:'],
+                        drive_object[UDISKS2_DRIVE_INTERFACE]['Model:'],
+                        drive_object[UDISKS2_DRIVE_INTERFACE]['Media:']):
+                    continue
+
+                if mount_point is None:
+                    self.rem_disks_memory_cards_nm[dev_file] = None
+                    self.rem_disks_nm[dev_file] = None
+                else:
+                    self.rem_disks_memory_cards[dev_file] = mount_point
+                    self.rem_disks[dev_file] = mount_point
+
+                # Get the speed of the interconnect that is associated with the
+                # block device we're looking at. This is purely informational
+                # but it is a part of the required API
+                udev_devices = get_udev_block_devices(GUdev.Client())
+                for udev_device in udev_devices:
+                    if udev_device.get_device_file() == dev_file:
+                        interconnect_speed = get_interconnect_speed(udev_device)
+                        if interconnect_speed:
+                            self.rem_disks_speed[dev_file] = (
+                                interconnect_speed * 10 ** 6)
+                        else:
+                            self.rem_disks_speed[dev_file] = None
 
     def _probe_disks_udisks2(self, bus):
         """

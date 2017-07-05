@@ -126,12 +126,9 @@ class NetworkingDevice():
         try:
             stream = check_output(cmd, stderr=STDOUT, universal_newlines=True)
         except CalledProcessError as err:
-            print("Error running %s:" % ' '.join(cmd), file=sys.stderr)
-            print(err.output, file=sys.stderr)
             return None
 
         if not stream:
-            print("Error: modinfo returned nothing", file=sys.stderr)
             return None
         else:
             parser = ModinfoParser(stream)
@@ -193,7 +190,11 @@ def match_counts(nm_devices, udev_devices, devtype):
     """
     # now check that the count (by type) matches
     nm_type_devices = [dev for dev in nm_devices if dev.gettype() in devtype]
-    udevtype = 'WIRELESS' if devtype == 'WiFi' else 'NETWORK'
+    udevtype = 'NETWORK'
+    if devtype == 'WiFi':
+        udevtype = 'WIRELESS'
+    elif devtype == 'Modem':
+        udevtype = 'WWAN'
     udev_type_devices = [
         udev
         for udev in udev_devices
@@ -262,7 +263,9 @@ def main(args):
 
     if not match_counts(nm_devices, udev_devices, "WiFi"):
         return 1
-    elif not match_counts(nm_devices, udev_devices, ("Ethernet", "Modem")):
+    elif not match_counts(nm_devices, udev_devices, "Ethernet"):
+        return 1
+    elif not match_counts(nm_devices, udev_devices, "Modem"):
         return 1
     else:
         return 0

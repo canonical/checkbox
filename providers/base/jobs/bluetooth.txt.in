@@ -8,7 +8,7 @@ category_id: 2013.com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output
 estimated_duration: 1.2
 requires:
- package.name == 'bluez'
+ package.name == 'bluez' or snap.name == 'bluez'
  device.category == 'BLUETOOTH'
 command:
  if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then

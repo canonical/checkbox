@@ -1,27 +1,27 @@
-plugin: manual
-category_id: 2013.com.canonical.plainbox::led
 id: led/power
-estimated_duration: 15.0
-_description:
- PURPOSE:
-     Power LED verification
- STEPS:
-     1. Power LED should be on while device is switched on
- VERIFICATION:
-     Does the power LED light as expected?
-
+_summary: Power LED behavior when powered
+_purpose:
+ Check power led is on when system is powered on
+_steps:
+ 1. Check power led when system is powered on
+_verification:
+ Power led is on when system is powered on
 plugin: manual
 category_id: 2013.com.canonical.plainbox::led
+estimated_duration: 15.0
+
 id: led/power-blink-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced
-_description:
- PURPOSE:
-     Power LED verification
- STEPS:
-     1. The Power LED should blink or change color while the system is suspended
- VERIFICATION:
-     Did the Power LED blink or change color while the system was suspended for the previous suspend test?
+_summary: Power LED behavior when suspended
+_purpose:
+ Check power led is blinking when system is in suspend
+_steps:
+ 1. Suspend the system
+ 2. Check power led when system is in suspend
+_verification:
+ Power led is blinking when system is in suspend
+plugin: manual
+category_id: 2013.com.canonical.plainbox::led
+estimated_duration: 180
 
 plugin: manual
 category_id: 2013.com.canonical.plainbox::led
@@ -151,21 +151,25 @@ _description:
  VERIFICATION:
      Did the WLAN LED turn off or change color as expected?
 
+id: led/bluetooth
+_summary: Bluetooth LED behavior
+_purpose:
+ Check bluetooth LED behavior is correct
+_steps:
+ 1. Run following command to start bluetoothctl console:
+  sudo bluetoothctl -a
+ ***Following steps are run in bluetoothctl console***
+ 2. Power on the device:
+  power on
+ 3. Power off the device:
+  power off
+ 4. Quit bluetoothctl console
+  quit
+_verification:
+ Bluetooth LED is turned on in step 2, and turned off in step 3.
 plugin: manual
 category_id: 2013.com.canonical.plainbox::led
-id: led/bluetooth
-estimated_duration: 60.0
-depends: bluetooth/detect-output
-_description:
- PURPOSE:
-     Validate that the Bluetooth LED turns on and off when BT is enabled/disabled
- STEPS:
-     1. Switch bluetooth off from a hardware switch (if present)
-     2. Switch bluetooth back on
-     3. Switch bluetooth off from the panel applet
-     4. Switch bluetooth back on
- VERIFICATION:
-     Did the bluetooth LED turn off and on twice?
+estimated_duration: 180
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::led

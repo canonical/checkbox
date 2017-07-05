@@ -161,7 +161,7 @@ class Launcher(Command, MainLoopStage):
 
     name = 'launcher'
 
-    app_id = '2016.com.canonical:checkbox-cli'
+    app_id = 'com.canonical:checkbox-cli'
 
     @property
     def sa(self):
@@ -545,7 +545,7 @@ class Launcher(Command, MainLoopStage):
             self.launcher.reports = dict()
         if report == 'text':
             self.launcher.exporters['text'] = {
-                'unit': '2013.com.canonical.plainbox::text'}
+                'unit': 'com.canonical.plainbox::text'}
             self.launcher.transports['stdout'] = {
                 'type': 'stream', 'stream': 'stdout'}
             # '1_' prefix ensures ordering amongst other stock reports. This
@@ -554,7 +554,7 @@ class Launcher(Command, MainLoopStage):
                 'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
         elif report == 'certification':
             self.launcher.exporters['hexr'] = {
-                'unit': '2013.com.canonical.plainbox::hexr'}
+                'unit': 'com.canonical.plainbox::hexr'}
             self.launcher.transports['c3'] = {
                 'type': 'certification',
                 'secure_id': self.launcher.transports.get('c3', {}).get(
@@ -563,7 +563,7 @@ class Launcher(Command, MainLoopStage):
                 'transport': 'c3', 'exporter': 'hexr'}
         elif report == 'certification-staging':
             self.launcher.exporters['hexr'] = {
-                'unit': '2013.com.canonical.plainbox::hexr'}
+                'unit': 'com.canonical.plainbox::hexr'}
             self.launcher.transports['c3-staging'] = {
                 'type': 'certification',
                 'secure_id': self.launcher.transports.get('c3', {}).get(
@@ -588,7 +588,7 @@ class Launcher(Command, MainLoopStage):
                     'path': path}
                 if exporter not in self.launcher.exporters:
                     self.launcher.exporters[exporter] = {
-                        'unit': '2013.com.canonical.plainbox::{}'.format(
+                        'unit': 'com.canonical.plainbox::{}'.format(
                             exporter)}
                 self.launcher.reports['2_{}_file'.format(exporter)] = {
                     'transport': '{}_file'.format(exporter),
@@ -778,7 +778,7 @@ class Run(Command, MainLoopStage):
             help=_("skip tests that require interactivity"))
         parser.add_argument(
             '-f', '--output-format',
-            default='2013.com.canonical.plainbox::text',
+            default='com.canonical.plainbox::text',
             metavar=_('FORMAT'),
             help=_('save test results in the specified FORMAT'
                    ' (pass ? for a list of choices)'))

@@ -93,7 +93,7 @@ Example
 An example provider definition file looks like this::
 
     [Plainbox Provider]
-    name = 2013.com.canonical:myprovider
+    name = com.canonical:myprovider
     version = 1.0 
     description = My Plainbox test provider
-    location = /opt/2013.com.canonical.myprovider/
+    location = /opt/com.canonical.myprovider/

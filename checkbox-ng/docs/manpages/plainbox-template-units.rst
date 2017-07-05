@@ -177,7 +177,7 @@ that generates a job for each hard drive available on the system::
    command:
     cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
     plugin: shell
-    category_id: 2013.com.canonical.plainbox::disk
+    category_id: com.canonical.plainbox::disk
     id: disk/stats_`ls /sys$path/block`
     flags: deprecated
     requires:
@@ -194,7 +194,7 @@ After migration to a template unit job, it looks like this::
    template-resource: device
    template-filter: device.category == 'DISK'
    plugin: shell
-   category_id: 2013.com.canonical.plainbox::disk
+   category_id: com.canonical.plainbox::disk
    id: disk/stats_{name}
    requires:
     device.path == "{path}"
@@ -219,7 +219,7 @@ First here is the previous disk stats example converted to jinja2::
     template-filter: device.category == 'DISK'
     template-engine: jinja2
     plugin: shell
-    category_id: 2013.com.canonical.plainbox::disk
+    category_id: com.canonical.plainbox::disk
     id: disk/stats_{{ name }}
     requires:
     device.path == "{{ path }}"

@@ -91,7 +91,7 @@ plainbox-run (1)
     and the partial identifier components. For example, this is a valid, fully
     quallified whitelist::
 
-        2013.com.canonical.plainbox::stub/.*
+        com.canonical.plainbox::stub/.*
 
     It will unambiguously select some of the jobs from the special, internal
     StubBox provider that is built into Plainbox. It can be saved under any

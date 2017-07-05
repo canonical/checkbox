@@ -306,7 +306,7 @@ to some of its own definitions::
         - Multipath I/O Tests
         - Degraded Array Recovery Tests
     include:
-        2013.com.canonical.certification:disk/.*
+        com.canonical.certification:disk/.*
         multipath-io
         degrade-array-recovery
 

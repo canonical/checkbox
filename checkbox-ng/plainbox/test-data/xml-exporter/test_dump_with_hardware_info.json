@@ -1,10 +1,10 @@
 {
   "resource_map": {},
   "attachment_map": {
-    "2013.com.canonical.certification::dmi_attachment": "RmVhciBpcyB0aGUgbWluZC1raWxsZXI=",
-    "2013.com.canonical.certification::meminfo_attachment": "SSBtdXN0IG5vdCBmZWFy",
-    "2013.com.canonical.certification::sysfs_attachment": "RmVhciBpcyB0aGUgbGl0dGxlLWRlYXRoIHRoYXQgYnJpbmdzIHRvdGFsIG9ibGl0ZXJhdGlvbg==",
-    "2013.com.canonical.certification::udev_attachment": "SSB3aWxsIGZhY2UgbXkgZmVhcgo="
+    "com.canonical.certification::dmi_attachment": "RmVhciBpcyB0aGUgbWluZC1raWxsZXI=",
+    "com.canonical.certification::meminfo_attachment": "SSBtdXN0IG5vdCBmZWFy",
+    "com.canonical.certification::sysfs_attachment": "RmVhciBpcyB0aGUgbGl0dGxlLWRlYXRoIHRoYXQgYnJpbmdzIHRvdGFsIG9ibGl0ZXJhdGlvbg==",
+    "com.canonical.certification::udev_attachment": "SSB3aWxsIGZhY2UgbXkgZmVhcgo="
   },
   "result_map": {}
 }

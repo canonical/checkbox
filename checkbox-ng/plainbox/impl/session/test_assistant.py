@@ -60,16 +60,16 @@ class SessionAssistantTests(morris.SignalTestCase):
         # Create a few mocked providers that tests can use.
         # The all-important plainbox provider
         self.p1 = mock.Mock(spec_set=Provider1, name='p1')
-        self.p1.namespace = '2013.com.canonical.plainbox'
-        self.p1.name = '2013.com.canonical.plainbox:special'
+        self.p1.namespace = 'com.canonical.plainbox'
+        self.p1.name = 'com.canonical.plainbox:special'
         # An example 3rd party provider
         self.p2 = mock.Mock(spec_set=Provider1, name='p2')
-        self.p2.namespace = '2015.pl.zygoon'
-        self.p2.name = '2015.pl.zygoon:example'
+        self.p2.namespace = 'pl.zygoon'
+        self.p2.name = 'pl.zygoon:example'
         # A Canonical certification provider
         self.p3 = mock.Mock(spec_set=Provider1, name='p3')
-        self.p3.namespace = '2013.com.canonical.certification'
-        self.p3.name = '2013.com.canonical.certification:stuff'
+        self.p3.namespace = 'com.canonical.certification'
+        self.p3.name = 'com.canonical.certification:stuff'
         # The stubbox provider, non-mocked, with lots of useful jobs
         self.stubbox = get_stubbox()
 

@@ -1,5 +1,5 @@
 plugin: shell
-category_id: 2013.com.canonical.plainbox::graphics
+category_id: com.canonical.plainbox::graphics
 id: graphics/screenshot_opencv_validation
 requires: package.name == 'python-opencv'
 environ: EXTERNAL_WEBCAM_DEVICE
@@ -14,7 +14,7 @@ _description:
  Check that the screenshot matches the original file using OpenCV ORB detection.
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::graphics
+category_id: com.canonical.plainbox::graphics
 id: screenshot_opencv_validation.jpg
 after: graphics/screenshot_opencv_validation
 command: [ -f ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg ] && base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg

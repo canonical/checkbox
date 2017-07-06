@@ -18,5 +18,5 @@ msgstr ""
 "X-Generator: Launchpad (build 18217)\n"
 
 #: ../manage.py:20
-msgid "The 2013.com.canonical.certification:sru provider"
-msgstr "2013.com.canonical.certification:sru 供應包"
+msgid "The com.canonical.certification:sru provider"
+msgstr "com.canonical.certification:sru 供應包"

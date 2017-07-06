@@ -1,15 +1,18 @@
 #!/bin/bash
 
 function finish {
-  rm -rf ./plainbox-provider-snappy
+  rm -rf ./plainbox-provider-resource
+  rm -rf ./plainbox-provider-checkbox
 }
 trap finish EXIT
 
 set -e
 
-git clone git://git.launchpad.net/plainbox-provider-snappy
-python3 ./plainbox-provider-snappy/plainbox-provider-snappy-resource/manage.py develop --force
-python3 ./plainbox-provider-snappy/plainbox-provider-snappy/manage.py develop --force
+git clone git://git.launchpad.net/plainbox-provider-resource
+python3 ./plainbox-provider-resource/manage.py develop --force
+
+git clone git://git.launchpad.net/plainbox-provider-checkbox
+python3 ./plainbox-provider-checkbox/manage.py develop --force
 
 ./plainbox-provider-ipdt/manage.py validate
 ./plainbox-provider-ipdt-gpu/manage.py validate

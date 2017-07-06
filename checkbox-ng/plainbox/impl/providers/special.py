@@ -42,7 +42,7 @@ def get_stubbox_def():
     Get a Provider1Definition for stubbox
     """
     stubbox_def = Provider1Definition()
-    stubbox_def.name = "2013.com.canonical.plainbox:stubbox"
+    stubbox_def.name = "com.canonical.plainbox:stubbox"
     stubbox_def.version = "1.0"
     stubbox_def.description = N_("StubBox (dummy data for development)")
     stubbox_def.secure = False
@@ -61,7 +61,7 @@ def get_categories_def():
     Get a Provider1Definition for the provider that knows all the categories
     """
     categories_def = Provider1Definition()
-    categories_def.name = "2013.com.canonical.plainbox:categories"
+    categories_def.name = "com.canonical.plainbox:categories"
     categories_def.version = "1.0"
     categories_def.description = N_("Common test category definitions")
     categories_def.secure = False
@@ -81,7 +81,7 @@ def get_manifest_def():
     machinery.
     """
     manifest_def = Provider1Definition()
-    manifest_def.name = "2013.com.canonical.plainbox:manifest"
+    manifest_def.name = "com.canonical.plainbox:manifest"
     manifest_def.version = "1.0"
     manifest_def.description = N_("Hardware Manifest Provider")
     manifest_def.secure = False
@@ -100,7 +100,7 @@ def get_exporters_def():
     machinery.
     """
     exporters_def = Provider1Definition()
-    exporters_def.name = "2013.com.canonical.plainbox:exporters"
+    exporters_def.name = "com.canonical.plainbox:exporters"
     exporters_def.version = "1.0"
     exporters_def.description = N_("Exporters Provider")
     exporters_def.secure = False

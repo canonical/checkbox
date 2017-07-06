@@ -293,22 +293,22 @@ class TestSpecial(TestCase):
                 stubbox_main(['dev', 'special', '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
-            "2013.com.canonical.plainbox::stub/false", io.stdout.splitlines())
+            "com.canonical.plainbox::stub/false", io.stdout.splitlines())
         self.assertIn(
-            "2013.com.canonical.plainbox::stub/true", io.stdout.splitlines())
+            "com.canonical.plainbox::stub/true", io.stdout.splitlines())
 
     def test_run_list_jobs_with_filtering(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
                 stubbox_main(['dev', 'special',
                              ('--include-pattern='
-                              '2013.com.canonical.plainbox::stub/false'),
+                              'com.canonical.plainbox::stub/false'),
                              '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
-            "2013.com.canonical.plainbox::stub/false", io.stdout.splitlines())
+            "com.canonical.plainbox::stub/false", io.stdout.splitlines())
         self.assertNotIn(
-            "2013.com.canonical.plainbox::stub/true", io.stdout.splitlines())
+            "com.canonical.plainbox::stub/true", io.stdout.splitlines())
 
     def test_run_list_expressions(self):
         with TestIO() as io:
@@ -324,7 +324,7 @@ class TestSpecial(TestCase):
                 stubbox_main(['dev', 'special', '--dot'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
-            '\t"2013.com.canonical.plainbox::stub/true" [];',
+            '\t"com.canonical.plainbox::stub/true" [];',
             io.stdout.splitlines())
         # Do basic graph checks
         self._check_digraph_sanity(io)
@@ -335,11 +335,11 @@ class TestSpecial(TestCase):
                 stubbox_main(['dev', 'special', '--dot', '--dot-resources'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
-            '\t"2013.com.canonical.plainbox::stub/true" [];',
+            '\t"com.canonical.plainbox::stub/true" [];',
             io.stdout.splitlines())
         self.assertIn(
-            ('\t"2013.com.canonical.plainbox::stub/requirement/good" -> '
-             '"2013.com.canonical.plainbox::stub_package" [style=dashed, label'
+            ('\t"com.canonical.plainbox::stub/requirement/good" -> '
+             '"com.canonical.plainbox::stub_package" [style=dashed, label'
              '="stub_package.name == \'checkbox\'"];'),
             io.stdout.splitlines())
         # Do basic graph checks

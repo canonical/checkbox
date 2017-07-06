@@ -173,7 +173,7 @@ def execute_job(job_id):
             try:
                 stubbox_main([
                     'run', '-i', job_id,
-                    '--output-format=2013.com.canonical.plainbox::json',
+                    '--output-format=com.canonical.plainbox::json',
                     '-o', pathname])
             except SystemExit as exc:
                 # Capture SystemExit that is always raised by stubbox_main()

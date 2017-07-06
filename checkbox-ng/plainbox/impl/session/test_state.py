@@ -279,7 +279,7 @@ class SessionStateAPITests(TestCase):
         self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
         self.assertEqual(
             session.job_list[1].depends,
-            ('A 2013.com.canonical.certification::suspend/'
+            ('A com.canonical.certification::suspend/'
             'suspend_advanced_auto'))
         sibling = session.job_list[1]
         self.assertNotIn('also-after-suspend', sibling.get_flag_set())
@@ -314,7 +314,7 @@ class SessionStateAPITests(TestCase):
         self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
         self.assertEqual(
             session.job_list[1].depends,
-            '2013.com.canonical.certification::suspend/suspend_advanced')
+            'com.canonical.certification::suspend/suspend_advanced')
         sibling = session.job_list[1]
         self.assertNotIn('also-after-suspend-manual', sibling.get_flag_set())
         # Both jobs got added to job state map

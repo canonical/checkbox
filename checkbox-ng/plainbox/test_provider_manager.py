@@ -98,19 +98,19 @@ class ProviderManagerToolTests(TestCase):
     def assert_common_flat_install(self, prefix="/foo"):
         filename = self.tmpdir + os.path.join(
             prefix, "share", "plainbox-providers-1",
-            "2014.com.example.test.provider")
+            "com.example.test.provider")
         content = (
             "[PlainBox Provider]\n"
             "description = description\n"
             "gettext_domain = domain\n"
-            "location = {prefix}/lib/plainbox-providers-1/2014.com.example:test\n"
-            "name = 2014.com.example:test\n"
+            "location = {prefix}/lib/plainbox-providers-1/com.example:test\n"
+            "name = com.example:test\n"
             "version = 1.0\n"
             "\n".format(prefix=prefix))
         self.assertFileContent(filename, content)
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
+                prefix, "lib", "plainbox-providers-1", "com.example:test",
                 "units", "testplans.pxu"
             ), (
                 "unit: test plan\n"
@@ -121,12 +121,12 @@ class ProviderManagerToolTests(TestCase):
                 "include: dummy\n"))
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
+                prefix, "lib", "plainbox-providers-1", "com.example:test",
                 "data", "test.dat"),
             "data\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
+                prefix, "lib", "plainbox-providers-1", "com.example:test",
                 "bin", "test.sh"),
             "#!/bin/sh\n:\n")
 
@@ -139,7 +139,7 @@ class ProviderManagerToolTests(TestCase):
         self.assert_common_flat_install()
         self.assertFileContent(
             self.tmpdir + os.path.join("/foo", "lib", "plainbox-providers-1",
-                                       "2014.com.example:test", "jobs",
+                                       "com.example:test", "jobs",
                                        "jobs.pxu"),
             "id: dummy\n"
             "plugin: shell\n"
@@ -159,28 +159,28 @@ class ProviderManagerToolTests(TestCase):
         self.assert_common_flat_install()
         self.assertFalse(
             os.path.exists(self.tmpdir + os.path.join(
-                "/foo", "lib", "plainbox-providers-1", "2014.com.example:test",
+                "/foo", "lib", "plainbox-providers-1", "com.example:test",
                 "jobs", "jobs.pxu")))
 
     def assert_common_unix_install(self, prefix="/foo"):
         filename = self.tmpdir + os.path.join(
             prefix, "share", "plainbox-providers-1",
-            "2014.com.example.test.provider")
+            "com.example.test.provider")
         content = (
             "[PlainBox Provider]\n"
-            "bin_dir = {prefix}/lib/2014.com.example:test/bin\n"
-            "data_dir = {prefix}/share/2014.com.example:test/data\n"
+            "bin_dir = {prefix}/lib/com.example:test/bin\n"
+            "data_dir = {prefix}/share/com.example:test/data\n"
             "description = description\n"
             "gettext_domain = domain\n"
-            "jobs_dir = {prefix}/share/2014.com.example:test/jobs\n"
-            "name = 2014.com.example:test\n"
-            "units_dir = {prefix}/share/2014.com.example:test/units\n"
+            "jobs_dir = {prefix}/share/com.example:test/jobs\n"
+            "name = com.example:test\n"
+            "units_dir = {prefix}/share/com.example:test/units\n"
             "version = 1.0\n"
             "\n".format(prefix=prefix))
         self.assertFileContent(filename, content)
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "share", "2014.com.example:test", "jobs", "jobs.pxu"),
+                prefix, "share", "com.example:test", "jobs", "jobs.pxu"),
             "id: dummy\n"
             "plugin: shell\n"
             "command: true\n"
@@ -189,7 +189,7 @@ class ProviderManagerToolTests(TestCase):
             "_description: This job is dummy\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "share",  "2014.com.example:test", "units",
+                prefix, "share",  "com.example:test", "units",
                 "testplans.pxu"
             ), (
                 "unit: test plan\n"
@@ -200,11 +200,11 @@ class ProviderManagerToolTests(TestCase):
                 "include: dummy\n"))
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "share", "2014.com.example:test", "data", "test.dat"),
+                prefix, "share", "com.example:test", "data", "test.dat"),
             "data\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "lib", "2014.com.example:test", "bin", "test.sh"),
+                prefix, "lib", "com.example:test", "bin", "test.sh"),
             "#!/bin/sh\n:\n")
 
     def test_install__unix(self):
@@ -218,7 +218,7 @@ class ProviderManagerToolTests(TestCase):
 
     def assert_common_sdist(self, tarball):
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/units/testplans.pxu", (
+            tarball, "com.example.test-1.0/units/testplans.pxu", (
                 "unit: test plan\n"
                 "id: test\n"
                 "_name: Dummy Tests\n"
@@ -226,12 +226,12 @@ class ProviderManagerToolTests(TestCase):
                 "estimated_duration: 10\n"
                 "include: dummy\n"))
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/data/test.dat", "data\n")
+            tarball, "com.example.test-1.0/data/test.dat", "data\n")
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/bin/test.sh",
+            tarball, "com.example.test-1.0/bin/test.sh",
             "#!/bin/sh\n:\n")
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/src/hello.c",
+            tarball, "com.example.test-1.0/src/hello.c",
             "int main() { return 0; }\n")
 
     def test_sdist(self):
@@ -240,9 +240,9 @@ class ProviderManagerToolTests(TestCase):
         """
         self.tool.main(["sdist"])
         tarball = os.path.join(
-            self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
+            self.tmpdir, "dist", "com.example.test-1.0.tar.gz")
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/jobs/jobs.pxu",
+            tarball, "com.example.test-1.0/jobs/jobs.pxu",
             "id: dummy\n"
             "plugin: shell\n"
             "command: true\n"
@@ -260,9 +260,9 @@ class ProviderManagerToolTests(TestCase):
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
         self.tool.main(["sdist"])
         tarball = os.path.join(
-            self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
+            self.tmpdir, "dist", "com.example.test-1.0.tar.gz")
         self.assertNoTarballContent(
-            tarball, "2014.com.example.test-1.0/jobs/jobs.pxu")
+            tarball, "com.example.test-1.0/jobs/jobs.pxu")
         self.assert_common_sdist(tarball)
 
     def test_develop(self):
@@ -271,13 +271,13 @@ class ProviderManagerToolTests(TestCase):
         """
         xdg_data_home = os.path.join(self.tmpdir, "xdg-data-home")
         filename = os.path.join(xdg_data_home, "plainbox-providers-1",
-                                "2014.com.example.test.provider")
+                                "com.example.test.provider")
         content = (
             "[PlainBox Provider]\n"
             "description = description\n"
             "gettext_domain = domain\n"
             "location = {}\n"
-            "name = 2014.com.example:test\n"
+            "name = com.example:test\n"
             "version = 1.0\n"
             "\n").format(self.tmpdir)
         with mock.patch.dict('os.environ', clear=True,
@@ -292,13 +292,13 @@ class ProviderManagerToolTests(TestCase):
         """
         xdg_data_home = os.path.join(self.tmpdir, "xdg-data-home")
         filename = os.path.join(xdg_data_home, "plainbox-providers-1",
-                                "2014.com.example.test.provider")
+                                "com.example.test.provider")
         content = (
             "[PlainBox Provider]\n"
             "description = description\n"
             "gettext_domain = domain\n"
             "location = {}\n"
-            "name = 2014.com.example:test\n"
+            "name = com.example:test\n"
             "version = 1.0\n"
             "\n").format(self.tmpdir)
         os.makedirs(os.path.dirname(filename))
@@ -315,7 +315,7 @@ class ProviderManagerToolTests(TestCase):
         """
         xdg_data_home = os.path.join(self.tmpdir, "xdg-data-home")
         filename = os.path.join(xdg_data_home, "plainbox-providers-1",
-                                "2014.com.example.test.provider")
+                                "com.example.test.provider")
         os.makedirs(os.path.dirname(filename))
         with open(filename, "wt") as stream:
             stream.write("should have been removed")
@@ -350,7 +350,7 @@ class ProviderManagerToolTests(TestCase):
             error: jobs/broken.pxu:1-2: job 'broken', field 'command', command is mandatory for non-manual jobs
             advice: jobs/broken.pxu:1-2: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
             advice: jobs/broken.pxu:1-2: job 'broken', field 'estimated_duration', required field missing
-            Validation of provider 2014.com.example:test has failed
+            Validation of provider com.example:test has failed
             """))
 
     def test_validate__broken_wrong_field(self):
@@ -370,7 +370,7 @@ class ProviderManagerToolTests(TestCase):
             advice: jobs/broken.pxu:1-2: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
             advice: jobs/broken.pxu:1-2: job 'broken', field 'estimated_duration', required field missing
             error: jobs/broken.pxu:2: job 'broken', field 'plugin', valid values are: attachment, local, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
-            Validation of provider 2014.com.example:test has failed
+            Validation of provider com.example:test has failed
             """))
 
     def test_validate__broken_useless_field(self):
@@ -395,7 +395,7 @@ class ProviderManagerToolTests(TestCase):
             advice: jobs/broken.pxu:1-4: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             advice: jobs/broken.pxu:1-4: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             advice: jobs/broken.pxu:1-4: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            Validation of provider 2014.com.example:test has failed
+            Validation of provider com.example:test has failed
             """))
 
     def test_validate__broken_deprecated_field(self):
@@ -420,7 +420,7 @@ class ProviderManagerToolTests(TestCase):
             advice: jobs/broken.pxu:1-4: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             advice: jobs/broken.pxu:1-4: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             advice: jobs/broken.pxu:1-4: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            Validation of provider 2014.com.example:test has failed
+            Validation of provider com.example:test has failed
             """))
 
     def test_info(self):
@@ -431,15 +431,15 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["info"])
         self.assertEqual(test_io.stdout, (
             "[Provider MetaData]\n"
-            "\tname: 2014.com.example:test\n"
-            "\tnamespace: 2014.com.example (derived from name)\n"
+            "\tname: com.example:test\n"
+            "\tnamespace: com.example (derived from name)\n"
             "\tdescription: description\n"
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"
-            "\tjob 2014.com.example::dummy, from jobs/jobs.pxu:1-6\n"
+            "\tjob com.example::dummy, from jobs/jobs.pxu:1-6\n"
             "[Test Plans]\n"
-            "\ttest plan 2014.com.example::test, from units/testplans.pxu:1-6\n"
+            "\ttest plan com.example::test, from units/testplans.pxu:1-6\n"
             "[Test Plans] (legacy)\n"
             "\ttest from units/testplans.pxu:1-6\n"
             "[Other Units]\n"
@@ -492,7 +492,7 @@ class ProviderManagerToolTests(TestCase):
             print("int main() { return 0; }", file=stream)
         definition = Provider1Definition()
         definition.location = tmpdir
-        definition.name = "2014.com.example:test"
+        definition.name = "com.example:test"
         definition.version = "1.0"
         definition.description = "description"
         definition.gettext_domain = "domain"

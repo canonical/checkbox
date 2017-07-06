@@ -366,7 +366,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         .. note::
             Jobs that don't have an explicit category association, also known
             as the natural category, automatically get assigned to the special,
-            built-in 2013.com.canonical.plainbox::uncategorised category.
+            built-in com.canonical.plainbox::uncategorised category.
 
             Note that to get the definition of that special category unit
             applications need to include one of the special providers exposed
@@ -374,7 +374,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.qualify_id(
             self.get_record_value(
-                'category_id', '2013.com.canonical.plainbox::uncategorised'))
+                'category_id', 'com.canonical.plainbox::uncategorised'))
 
     @cached_property
     def qml_file(self):

@@ -290,29 +290,29 @@ class ResourceExpressionTests(TestCase):
 
     def test_namespace_support(self):
         text = "package.name == 'fwts'"
-        expr = ResourceExpression(text, "2014.com.canonical")
+        expr = ResourceExpression(text, "com.canonical")
         self.assertEqual(expr.text, text)
         self.assertEqual(expr.resource_id_list,
-                         ["2014.com.canonical::package"])
-        self.assertEqual(expr.implicit_namespace, "2014.com.canonical")
+                         ["com.canonical::package"])
+        self.assertEqual(expr.implicit_namespace, "com.canonical")
 
     def test_imports_support(self):
         text = "package.name == 'fwts'"
-        expr1 = ResourceExpression(text, "2014.com.example")
+        expr1 = ResourceExpression(text, "com.example")
         self.assertEqual(expr1.text, text)
-        self.assertEqual(expr1.resource_id_list, ["2014.com.example::package"])
-        self.assertEqual(expr1.implicit_namespace, "2014.com.example")
-        expr2 = ResourceExpression(text, "2014.com.example", imports=())
+        self.assertEqual(expr1.resource_id_list, ["com.example::package"])
+        self.assertEqual(expr1.implicit_namespace, "com.example")
+        expr2 = ResourceExpression(text, "com.example", imports=())
         self.assertEqual(expr2.text, text)
-        self.assertEqual(expr2.resource_id_list, ["2014.com.example::package"])
-        self.assertEqual(expr2.implicit_namespace, "2014.com.example")
+        self.assertEqual(expr2.resource_id_list, ["com.example::package"])
+        self.assertEqual(expr2.implicit_namespace, "com.example")
         expr3 = ResourceExpression(
-            text, "2014.com.example", imports=[
-                ('2014.com.canonical::package', 'package')])
+            text, "com.example", imports=[
+                ('com.canonical::package', 'package')])
         self.assertEqual(expr3.text, text)
         self.assertEqual(expr3.resource_id_list,
-                         ["2014.com.canonical::package"])
-        self.assertEqual(expr3.implicit_namespace, "2014.com.example")
+                         ["com.canonical::package"])
+        self.assertEqual(expr3.implicit_namespace, "com.example")
 
     def test_smoke_bad(self):
         self.assertRaises(ResourceSyntaxError, ResourceExpression, "barf'")
@@ -420,7 +420,7 @@ class ResourceProgramTests(TestCase):
         prog = ResourceProgram(
             "package.name == 'fwts'\n"
             "platform.arch in ('i386', 'amd64')",
-            implicit_namespace="2014.com.canonical")
+            implicit_namespace="com.canonical")
         self.assertEqual(
             prog.required_resources,
-            {'2014.com.canonical::package', '2014.com.canonical::platform'})
+            {'com.canonical::package', 'com.canonical::platform'})

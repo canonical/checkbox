@@ -162,7 +162,7 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.shell, 'bash')
         self.assertEqual(job.flags, None)
         self.assertEqual(job.category_id,
-                         '2013.com.canonical.plainbox::uncategorised')
+                         'com.canonical.plainbox::uncategorised')
         self.assertEqual(job.qml_file, None)
 
     def test_checksum_smoke(self):
@@ -1146,29 +1146,29 @@ class TestJobDefinition(TestCase):
         job1 = JobDefinition({})
         self.assertEqual(list(job1.get_imported_jobs()), [])
         job2 = JobDefinition({
-            'imports': 'from 2013.com.canonical.certification import package'
+            'imports': 'from com.canonical.certification import package'
         })
         self.assertEqual(list(job2.get_imported_jobs()), [
-            ('2013.com.canonical.certification::package', 'package')
+            ('com.canonical.certification::package', 'package')
         ])
         job3 = JobDefinition({
-            'imports': ('from 2013.com.canonical.certification'
+            'imports': ('from com.canonical.certification'
                         ' import package as pkg')
         })
         self.assertEqual(list(job3.get_imported_jobs()), [
-            ('2013.com.canonical.certification::package', 'pkg')
+            ('com.canonical.certification::package', 'pkg')
         ])
 
     def test_get_resource_program_using_imports(self):
         job = JobDefinition({
-            'imports': ('from 2013.com.canonical.certification'
+            'imports': ('from com.canonical.certification'
                         ' import package as pkg'),
             'requires': 'pkg.name == "checkbox"',
         })
         prog = job.get_resource_program()
         self.assertEqual(
             prog.required_resources,
-            {'2013.com.canonical.certification::package'})
+            {'com.canonical.certification::package'})
 
 
 class TestJobDefinitionStartup(TestCaseWithParameters):
@@ -1260,14 +1260,14 @@ class RegressionTests(TestCase):
     def test_1444242(self):
         """ Regression test for http://pad.lv/1444242/. """
         provider = mock.Mock(spec_set=Provider1, name='provider')
-        provider.namespace = '2013.com.canonical.certification'
+        provider.namespace = 'com.canonical.certification'
         job = JobDefinition({
             'id': 'audio/playback_thunderbolt',
-            'imports': 'from 2013.com.canonical.plainbox import manifest',
+            'imports': 'from com.canonical.plainbox import manifest',
             'requires': (
                 "device.category == 'AUDIO'\n"
                 "manifest.has_thunderbolt == 'True'\n"),
         }, provider=provider)
         prog = job.get_resource_program()
         self.assertEqual(prog.expression_list[-1].resource_id_list,
-                         ['2013.com.canonical.plainbox::manifest'])
+                         ['com.canonical.plainbox::manifest'])

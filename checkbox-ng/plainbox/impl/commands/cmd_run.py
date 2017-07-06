@@ -63,7 +63,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group = parser.add_argument_group(_("output options"))
         group.add_argument(
             '-f', '--output-format',
-            default='2013.com.canonical.plainbox::text',
+            default='com.canonical.plainbox::text',
             metavar=_('FORMAT'),
             help=_('save test results in the specified FORMAT'
                    ' (pass ? for a list of choices)'))

@@ -45,11 +45,11 @@ class HTMLExporterTests(TestCase):
 
     def setUp(self):
         self.exporter_unit = self._get_all_exporter_units()[
-            '2013.com.canonical.plainbox::html']
+            'com.canonical.plainbox::html']
         self.resource_map = {
-            '2013.com.canonical.certification::lsb': [
+            'com.canonical.certification::lsb': [
                 Resource({'description': 'Ubuntu 14.04 LTS'})],
-            '2013.com.canonical.certification::package': [
+            'com.canonical.certification::package': [
                 Resource({'name': 'plainbox', 'version': '1.0'}),
                 Resource({'name': 'fwts', 'version': '0.15.2'})],
         }

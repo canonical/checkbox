@@ -295,6 +295,9 @@ class CheckBoxSessionStateController(ISessionStateController):
             logger.info(
                 _("Storing resource record %r: %s"), job.id, resource)
             new_resource_list.append(resource)
+        # Create an empty resource object to properly fail __getattr__ calls
+        if not new_resource_list:
+            new_resource_list = [Resource({})]
         # Replace any old resources with the new resource list
         session_state.set_resource_list(job.id, new_resource_list)
 

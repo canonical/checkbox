@@ -110,8 +110,8 @@ _summary: Attach FWTS log to submission (to HWE)
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/ipmi_test
-requires: 
- package.name == 'ipmitool' or executable.name == 'impitool'
+requires:
+ package.name == 'ipmitool' or executable.name == 'ipmitool'
  cpuinfo.platform != 's390x'
 user: root
 command: ipmi_test
@@ -129,7 +129,7 @@ id: miscellanea/efi_boot_mode
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: Test that system booted in EFI mode
-_description: 
+_description:
  Test to verify that the system booted in EFI mode with Secure Boot active.
 command: boot_mode_test efi
 
@@ -141,7 +141,7 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 depends: miscellanea/efi_boot_mode
 _summary: Test that system booted with Secure Boot active
-_description: 
+_description:
  Test to verify that the system booted in Secure Boot active.
 command: boot_mode_test secureboot
 
@@ -154,7 +154,7 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 depends: miscellanea/efi_boot_mode
 _summary: Test that system booted from the network
-_description: 
+_description:
  Test to verify that the system booted from the network.
  Works only on EFI-based systems.
 command: efi-pxeboot
@@ -162,8 +162,8 @@ command: efi-pxeboot
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
-requires: 
- package.name == 'ipmitool' or executable.name == 'impitool'
+requires:
+ package.name == 'ipmitool' or executable.name == 'ipmitool'
  cpuinfo.platform != 's390x'
 estimated_duration: 0.5
 user: root

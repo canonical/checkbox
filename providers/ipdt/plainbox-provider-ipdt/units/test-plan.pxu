@@ -10,18 +10,18 @@ estimated_duration: 1h
 include:
     ipdt/.*
 mandatory_include:
-    2013.com.canonical.plainbox::manifest
-    2013.com.canonical.certification::package
-    2013.com.canonical.certification::snap
-    2013.com.canonical.certification::uname
-    2013.com.canonical.certification::lsb
-    2013.com.canonical.certification::dpkg
-    2013.com.canonical.certification::dmi_attachment
-    2013.com.canonical.certification::sysfs_attachment
-    2013.com.canonical.certification::udev_attachment
-    2013.com.canonical.certification::lspci_attachment
-    2013.com.canonical.certification::lsusb_attachment
-    2013.com.canonical.certification::dmi
-    2013.com.canonical.certification::meminfo
+    com.canonical.plainbox::manifest
+    com.canonical.certification::package
+    com.canonical.certification::snap
+    com.canonical.certification::uname
+    com.canonical.certification::lsb
+    com.canonical.certification::dpkg
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::dmi
+    com.canonical.certification::meminfo
 bootstrap_include:
-    2013.com.canonical.certification::cpuinfo
+    com.canonical.certification::cpuinfo

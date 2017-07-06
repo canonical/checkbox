@@ -3,7 +3,7 @@ id: ipdt
 _name: IPDT
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -27,7 +27,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -51,7 +51,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -76,7 +76,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -100,7 +100,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -125,7 +125,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -149,7 +149,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -173,7 +173,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -197,7 +197,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -221,7 +221,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -245,7 +245,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job
@@ -270,7 +270,7 @@ _purpose:
 flags: preserve-locale suppress-output
 
 unit: template
-template-imports: from 2013.com.canonical.certification import cpuinfo
+template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
 template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
 template-unit: job

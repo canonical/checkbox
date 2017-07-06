@@ -101,7 +101,7 @@ bootstrap_include:
     device
     graphics_card
 mandatory_include:
-    2013.com.canonical.plainbox::collect-manifest
+    com.canonical.plainbox::collect-manifest
     # A meta-job that includes the resources needed for a valid submission.
     # Please do not remove without good reason.
     miscellanea/submission-resources

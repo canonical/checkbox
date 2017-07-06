@@ -149,14 +149,14 @@ class TestRun(TestCase):
             self.assertEqual(call.exception.args, (0,))
         expected = """
         Each format may support a different set of options
-        com.canonical.plainbox::hexr:
-        com.canonical.plainbox::html:
-        com.canonical.plainbox::json:
+        com.canonical.plainbox::hexr: 
+        com.canonical.plainbox::html: 
+        com.canonical.plainbox::json: 
         com.canonical.plainbox::rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
         com.canonical.plainbox::text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
-        com.canonical.plainbox::tar:
+        com.canonical.plainbox::tar: 
         com.canonical.plainbox::xlsx: with-sys-info, with-summary, with-job-description, with-text-attachments, with-unit-categories
-        com.canonical.plainbox::global:
+        com.canonical.plainbox::global: 
         """
         self.assertIn(cleandoc(expected) + "\n", io.combined)
 

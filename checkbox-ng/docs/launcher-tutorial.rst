@@ -69,7 +69,7 @@ This fields helps to differentiate between checkbox front-ends. This way
 sessions started with launcher with one ``app_id`` won't interfere with
 sessions started with a different launcher (provided it has ``app_id`` set to
 other value).  The app_id should be in a IQN form. Default value:
-``2016.com.canonical:checkbox-cli``
+``com.canonical:checkbox-cli``
 
 ``app_version``
 
@@ -118,7 +118,7 @@ Launcher section example:
 ::
 
     [launcher]
-    app_id = 2016.com.foobar:system-testing
+    app_id = com.foobar:system-testing
     launcher_version = 1
     stock_reports = text
 
@@ -358,7 +358,7 @@ Example:
 ::
 
     [exporter:html]
-    unit = 2013.com.canonical.plainbox::html
+    unit = com.canonical.plainbox::html
 
 Transport
 ---------
@@ -435,7 +435,7 @@ Example of all three sections working to produce a report:
 ::
 
     [exporter:text]
-    unit = 2013.com.canonical.plainbox::text
+    unit = com.canonical.plainbox::text
 
     [transport:out]
     type = stream
@@ -451,7 +451,7 @@ Launcher examples
 =================
 
 1) Fully automatic run of all tests from
-'2013.com.canonical.certification::smoke' test plan concluded by producing text
+'com.canonical.certification::smoke' test plan concluded by producing text
 report to standard output.
 
 ::
@@ -460,11 +460,11 @@ report to standard output.
 
     [launcher]
     launcher_version = 1
-    app_id = 2016.com.canonical.certification:smoke-test
+    app_id = com.canonical.certification:smoke-test
     stock_reports = text
 
     [test plan]
-    unit = 2013.com.canonical.certification::smoke
+    unit = com.canonical.certification::smoke
     forced = yes
 
     [test selection]
@@ -478,7 +478,7 @@ report to standard output.
     stream = stdout
 
     [exporter:text]
-    unit = 2013.com.canonical.plainbox::text
+    unit = com.canonical.plainbox::text
 
     [report:screen]
     transport = outfile
@@ -493,13 +493,13 @@ staging version of certification site and saved to /tmp/submission.xml
 
     [launcher]
     launcher_version = 1
-    app_id = 2016.com.foobar:system-testing
+    app_id = com.foobar:system-testing
 
     [providers]
-    use = 2016.com.megacorp.foo::bar*
+    use = com.megacorp.foo::bar*
 
     [test plan]
-    unit = 2016.com.megacorp.foo::bar-generic
+    unit = com.megacorp.foo::bar-generic
 
     [ui]
     type = silent
@@ -515,7 +515,7 @@ staging version of certification site and saved to /tmp/submission.xml
     path = /tmp/submission.xml
 
     [exporter:xml]
-    unit = 2013.com.canonical.plainbox::hexr
+    unit = com.canonical.plainbox::hexr
 
     [report:c3-staging]
     transport = outfile

@@ -10,11 +10,11 @@ Plainbox Providers are bundles containing information how to run tests.
 
 To create an empty provider run::
 
-   $ plainbox startprovider --empty 2016.com.example:myprovider
+   $ plainbox startprovider --empty com.example:myprovider
 
 ``plainbox`` is the internal tool of checkbox. It's used on rare occasions,
 like creating a new provider.  ``--empty`` informs plainbox that you want to
-start from scratch. ``2016.com.example:myprovider`` is the name of the provider.
+start from scratch. ``com.example:myprovider`` is the name of the provider.
 Providers use IQN naming, it helps in tracking down ownership of the provider.
 
 Plainbox Jobs are the things that describe how tests are run. Those Jobs are
@@ -22,7 +22,7 @@ defined in .pxu files, in 'units' directory of the provider.
 
 The provider we've just created doesn't have that directory, let's create it::
 
-    $ cd 2016.com.example\:myprovider
+    $ cd com.example\:myprovider
     $ mkdir units
 
 Adding a simple job to a provider
@@ -88,7 +88,7 @@ This change won't be available just yet, as we still have an old version of the
 provider installed in the system. Let's remove the previous version, and
 install the new one.::
 
-    $ sudo rm -rf /usr/local/lib/plainbox-providers-1/2016.com.example\:myprovider/
+    $ sudo rm -rf /usr/local/lib/plainbox-providers-1/com.example\:myprovider/
     $ sudo ./manage.py install
 
 This sudo operations (hopefully) look dangerous to you. See next part to see

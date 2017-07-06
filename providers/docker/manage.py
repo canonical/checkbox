@@ -15,7 +15,7 @@ from plainbox.provider_manager import setup, N_
 
 setup(
     name='plainbox-provider-docker',
-    namespace='2013.com.canonical.certification',
+    namespace='com.canonical.certification',
     version="1.0",
     description=N_("Plainbox Provider for the Docker snap"),
     gettext_domain="plainbox-provider-docker",

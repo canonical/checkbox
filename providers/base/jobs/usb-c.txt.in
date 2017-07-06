@@ -11,8 +11,8 @@ _verification:
      Did the device work as expected?
 plugin: manual
 flags: also-after-suspend
-category_id: 2013.com.canonical.plainbox::usb
-imports: from 2013.com.canonical.plainbox import manifest
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'
 estimated_duration: 60
 
@@ -38,8 +38,8 @@ command:
  else
      removable_storage_watcher -m 500000000 insert usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
-imports: from 2013.com.canonical.plainbox import manifest
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -58,8 +58,8 @@ command:
  else
      removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
  fi
-category_id: 2013.com.canonical.plainbox::usb
-imports: from 2013.com.canonical.plainbox import manifest
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_usb_type_c == 'True'
 depends: usb-c/c-to-a-adapter/insert
@@ -86,9 +86,9 @@ command:
  else
      removable_storage_watcher -m 500000000 remove usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 depends: usb-c/c-to-a-adapter/insert
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_usb_type_c == 'True'
 estimated_duration: 30
@@ -106,8 +106,8 @@ _verification:
      Did the device work as expected?
 plugin: manual
 flags: also-after-suspend
-category_id: 2013.com.canonical.plainbox::usb
-imports: from 2013.com.canonical.plainbox import manifest
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'
 estimated_duration: 60
 
@@ -132,8 +132,8 @@ command:
  else
      removable_storage_watcher -m 500000000 insert usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
-imports: from 2013.com.canonical.plainbox import manifest
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -153,8 +153,8 @@ command:
  else
      removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
  fi
-category_id: 2013.com.canonical.plainbox::usb
-imports: from 2013.com.canonical.plainbox import manifest
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_usb_type_c == 'True'
 depends: usb-c/insert
@@ -180,9 +180,9 @@ command:
  else
      removable_storage_watcher -m 500000000 remove usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 depends: usb-c/insert
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_usb_type_c == 'True'
 estimated_duration: 30

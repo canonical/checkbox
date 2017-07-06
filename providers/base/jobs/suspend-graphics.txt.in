@@ -2,7 +2,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}_xenial
 after: graphics/{index}_switch_card_{product_slug}_xenial
 estimated_duration: 1.2
@@ -15,7 +15,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 requires:
  sleep.mem == 'supported'
@@ -50,7 +50,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_after_suspend_{product_slug}_xenial
 estimated_duration: 1.2
 depends: suspend/{index}_resolution_before_suspend_{product_slug}_xenial
@@ -63,7 +63,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_display_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 _summary: Test display function after suspend for {vendor} {product}
@@ -79,7 +79,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_xenial
 requires: package.name == 'xorg'
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
@@ -99,7 +99,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_xenial
 depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_xenial
 command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
@@ -109,7 +109,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_compiz_check_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 requires: package.name == 'nux-tools'
@@ -123,7 +123,7 @@ _summary: Test Compiz support for {product} after suspend
 unit: template
 template-resource: graphics_card
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_glxgears_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 requires: package.name == 'mesa-utils'
@@ -147,7 +147,7 @@ template-resource: graphics_card
 id: suspend/{index}_video_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -167,7 +167,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_driver_version_after_suspend_{product_slug}_xenial
 after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 command:
@@ -181,7 +181,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}_xenial
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
@@ -192,7 +192,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
+category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-time-check_{product_slug}_xenial
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 estimated_duration: 1.2

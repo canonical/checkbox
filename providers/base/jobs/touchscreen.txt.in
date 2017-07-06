@@ -4,7 +4,7 @@ _name: Touchscreen
 value-type: bool
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/nontouch-automated
 requires:
   xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'direct'
@@ -14,7 +14,7 @@ _description:
  Determine whether the screen is detected as a non-touch device automatically.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/multitouch-automated
 requires:
   xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'direct'
@@ -24,7 +24,7 @@ _description:
  Determine whether the screen is detected as a multitouch device automatically.
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/multitouch-manual
 depends: touchscreen/nontouch-automated
 estimated_duration: 120.0
@@ -37,9 +37,9 @@ _description:
      Your screen was detected as a non touch screen. Select PASS if this is correct.
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/tap-detect
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
 _description:
@@ -51,9 +51,9 @@ _description:
      Does tap recognition work?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/drag-n-drop
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
 _description:
@@ -66,10 +66,10 @@ _description:
      Does drag and drop work?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/multitouch-zoom
 _summary: Check touchscreen pinch gesture for zoom
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 command: qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_zoom_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
@@ -83,10 +83,10 @@ _description:
      Did the blue square change size following the gesture?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/multitouch-rotate
 _summary: Check touchscreen pinch gesture for rotate
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 command: qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_rotate_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
@@ -100,9 +100,9 @@ _description:
      Did the blue square rotate following the gesture?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/multitouch-window-move
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
 _description:
@@ -115,9 +115,9 @@ _description:
      Did the window move along with the drag?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/multitouch-dash
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
 _description:
@@ -129,9 +129,9 @@ _description:
      Did the tap open the Dash?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/3-touch-tap
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 15.0
 _description:
@@ -152,9 +152,9 @@ command:
     exit $EXIT
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::touchscreen
+category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/4-touch-tap
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 15.0
 _description:

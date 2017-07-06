@@ -1,5 +1,5 @@
 plugin: shell
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/detect
 requires: device.category == 'CDROM'
 estimated_duration: 1.2
@@ -11,7 +11,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/read_{name}
 estimated_duration: 120.0
 user: root
@@ -30,7 +30,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/read-automated_{name}
 estimated_duration: 120.0
 user: root
@@ -44,7 +44,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/cdrom-write_{name}
 estimated_duration: 120.0
 requires:
@@ -66,7 +66,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/cdrom-write-automated_{name}
 estimated_duration: 120.0
 requires:
@@ -80,7 +80,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/cdrom-audio-playback_{name}
 depends: optical/read_{name}
 estimated_duration: 120.0
@@ -104,7 +104,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/dvd-write_{name}
 requires:
  optical_drive_{name}.dvd_write == 'supported'
@@ -126,7 +126,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/dvd-write-automated_{name}
 estimated_duration: 120.0
 requires:
@@ -137,7 +137,7 @@ _description:
  This is an automated version of optical/dvd-write. It assumes you have already inserted a data DVD into your {product} optical drive prior to running Checkbox.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/dvd_playback
 command: totem /media/cdrom
 estimated_duration: 120.0
@@ -157,7 +157,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/bluray-read_{name}
 estimated_duration: 120.0
 requires:
@@ -178,7 +178,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::optical
+category_id: com.canonical.plainbox::optical
 id: optical/bluray-write_{name}
 requires:
  optical_drive_{name}.bd_write == "supported"

@@ -1,5 +1,5 @@
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::hibernate
+category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate_advanced
 requires:
   sleep.disk == 'supported'
@@ -27,7 +27,7 @@ _description:
      Did the system successfully hibernate and did it work properly after waking up?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::hibernate
+category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate_advanced_auto
 requires:
   sleep.disk == 'supported'
@@ -46,7 +46,7 @@ requires:
  sleep.disk == 'supported'
  rtc.state == 'supported'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::hibernate
+category_id: com.canonical.plainbox::hibernate
 id: power-management/{index}_hibernate_advanced_{vendor_slug}_{product_slug}
 user: root
 environ: PLAINBOX_SESSION_SHARE
@@ -70,14 +70,14 @@ _verification:
     Did the system successfully hibernate and did it work properly after waking up?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::hibernate
+category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-check
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && sleep_test_log_check -v s4 $PLAINBOX_SESSION_SHARE/hibernate-single.log
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::hibernate
+category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-attach
 depends: power-management/hibernate_advanced
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate-single.log
@@ -88,7 +88,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::hibernate
+category_id: com.canonical.plainbox::hibernate
 id: power-management/{index}_hibernate-single-log-attach_{product_slug}
 depends: power-management/{index}_hibernate_advanced_{vendor_slug}_{product_slug}
 estimated_duration: 0.5

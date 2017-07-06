@@ -3,7 +3,7 @@ os-id: debian
 Depends: kmod
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/detect
 flags: also-after-suspend
 command: network_device_info
@@ -15,7 +15,7 @@ _description:
  the system under test.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/info_automated
 requires:
  executable.name == 'ip'
@@ -29,7 +29,7 @@ _description:
  are found, the test will exit with an error.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/wired_connection
 command: network_check
 estimated_duration: 1.2
@@ -47,7 +47,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf stress testing for NIC {interface}
 estimated_duration: 7400.0
@@ -66,7 +66,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
@@ -85,7 +85,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/ethertool_check_device{__index__}_{interface}
 _summary: ethtool check for NIC {interface}
 estimated_duration: 330.0
@@ -100,7 +100,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/maximum_bandwidth_device{__index__}_{interface}
 _summary: Maximum bandwidth test of device {__index__} ({interface})
 estimated_duration: 330.0
@@ -124,7 +124,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
-category_id: 2013.com.canonical.plainbox::ethernet
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/stress_performance_device{__index__}_{interface}
 _summary: Stress and performance test of ethernet device {__index__} ({interface})
 estimated_duration: 330.0

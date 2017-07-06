@@ -1,5 +1,5 @@
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/submission-resources
 depends:
  cpuinfo
@@ -31,7 +31,7 @@ _description:
  and may be rejected.
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/tester-info
 _description:
  PURPOSE:
@@ -46,7 +46,7 @@ _description:
      Nothing to verify for this test
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/chvt
 requires:
  package.name == 'kbd'
@@ -61,7 +61,7 @@ _description:
      Did your screen change temporarily to a text console and then switch back to your current session?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/fwts_test
 estimated_duration: 1.2
 requires:
@@ -74,7 +74,7 @@ command:
  checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_results.log
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/fwupdate
 estimated_duration: 1.0
 depends: miscellanea/efi_boot_mode
@@ -88,7 +88,7 @@ _summary:
 command: fwupdate -s
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/fwts_results.log
 requires:
   package.name == 'fwts'
@@ -97,7 +97,7 @@ command:
 _description: Attaches the miscellanes/fwts_test results log to the submission.
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/fwts_results_hwe.log.gz
 requires:
@@ -108,7 +108,7 @@ _description: Attaches the FWTS results log to the submission (to HWE)
 _summary: Attach FWTS log to submission (to HWE)
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/ipmi_test
 requires:
  package.name == 'ipmitool' or executable.name == 'ipmitool'
@@ -123,7 +123,7 @@ _description:
  control.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/efi_boot_mode
 requires:
@@ -134,7 +134,7 @@ _description:
 command: boot_mode_test efi
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/secure_boot_mode
 requires:
@@ -146,7 +146,7 @@ _description:
 command: boot_mode_test secureboot
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 user: root
 id: miscellanea/efi_pxeboot
@@ -160,7 +160,7 @@ _description:
 command: efi-pxeboot
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
 requires:
  package.name == 'ipmitool' or executable.name == 'ipmitool'
@@ -175,7 +175,7 @@ _summary:
  Gather BMC identification info
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/cpus_are_not_samples
 requires:
   package.name == 'dmidecode' or executable.name == 'dmidecode'
@@ -189,7 +189,7 @@ _summary:
  Test DMI data for CPUs
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dmitest_server
 requires:
   package.name == 'dmidecode' or executable.name == 'dmidecode'
@@ -203,7 +203,7 @@ _summary:
  Test DMI identification data (servers)
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dmitest_client
 requires: package.name == 'dmidecode'
 estimated_duration: 0.5
@@ -215,7 +215,7 @@ _summary:
  DMI ID sanity check (desktops/laptops)
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/is_laptop
 user: root
 _description:
@@ -223,7 +223,7 @@ _description:
 command: check_is_laptop
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/apport-directory
 requires: package.name == 'apport'
 command: if [ -d /var/crash ]; then if [ $(find /var/crash -type f | grep -v .lock | wc -l) -eq 0 ]; then echo "/var/crash is empty"; else echo `ls /var/crash`; false; fi; else echo "/var/crash does not exist"; fi
@@ -231,7 +231,7 @@ _description:
  Test that the /var/crash directory doesn't contain anything. Lists the files contained within if it does, or echoes the status of the directory (doesn't exist/is empty)
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/sources-list
 command: sources_test $SOURCES_LIST "$REPOSITORIES"
 _description: Checks that a specified sources list file contains the requested repositories
@@ -240,7 +240,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/pxe_boot_device{__index__}_{interface}
 _summary: PXE verification test of device {__index__} ({interface})
 estimated_duration: 30.0
@@ -258,7 +258,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/remote_shared_ipmi_device{__index__}_{interface}
 _summary: Remote Shared IPMI verification test for device {__index__} ({interface})
 estimated_duration: 30.0
@@ -272,7 +272,7 @@ _verification:
  3. Select No if you attempted to use IPMI to remotely power off/on this system via {interface} and it failed for some reason.
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/remote_dedicated_ipmi
 _description:
  PURPOSE:
@@ -297,7 +297,7 @@ command:
  checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results.log -t oops
 
 plugin: attachment
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/oops_results.log
 command:
@@ -305,7 +305,7 @@ command:
 _description: Attaches the FWTS oops results log to the submission
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.1
 id: miscellanea/get_maas_version
 command: maas-version-check
@@ -313,7 +313,7 @@ _description: If system was installed via MAAS from a cert server, the MAAS vers
 _summary: Verify MAAS version used to deploy the SUT
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 30.0
 id: miscellanea/get_make_and_model
 user: root
@@ -322,7 +322,7 @@ _description: Retrieve the computer's make and model for easier access than digg
 _summary: Gather info on the SUT's make and model
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::miscellanea
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 5.0
 id: miscellanea/device_check
 command: udev_resource -l VIDEO NETWORK WIRELESS DISK | tee >([[ $DISPLAY ]] && zenity --text-info --title="Device report")

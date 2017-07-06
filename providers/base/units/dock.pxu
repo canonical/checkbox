@@ -640,7 +640,7 @@ _description:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/c-to-a-adapter/insert
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -662,7 +662,7 @@ _verification:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/insert
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -683,7 +683,7 @@ _verification:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/c-to-a-adapter/remove
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/c-to-a-adapter/insert
 requires:
  usb.usb3 == 'supported'
@@ -704,7 +704,7 @@ _verification:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/remove
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/insert
 requires:
  usb.usb3 == 'supported'
@@ -724,7 +724,7 @@ _verification:
 plugin: shell
 category_id: dock-usb
 id: dock/usb-c/c-to-a-adapter/storage-automated
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -739,7 +739,7 @@ _description:
 plugin: shell
 category_id: dock-usb
 id: dock/usb-c/storage-automated
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -755,7 +755,7 @@ plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/c-to-a-adapter/insert-after-suspend
 depends: suspend/suspend_advanced
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -778,7 +778,7 @@ plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/insert-after-suspend
 depends: suspend/suspend_advanced
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -799,7 +799,7 @@ _verification:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/c-to-a-adapter/remove-after-suspend
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/c-to-a-adapter/insert-after-suspend
 requires:
  usb.usb3 == 'supported'
@@ -820,7 +820,7 @@ _verification:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/remove-after-suspend
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/insert-after-suspend
 requires:
  usb.usb3 == 'supported'
@@ -840,7 +840,7 @@ _verification:
 plugin: shell
 category_id: dock-usb
 id: dock/usb-c/c-to-a-adapter/storage-automated-after-suspend
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
@@ -855,7 +855,7 @@ _description:
 plugin: shell
 category_id: dock-usb
 id: dock/usb-c/storage-automated-after-suspend
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'

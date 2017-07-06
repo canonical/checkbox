@@ -3,7 +3,7 @@ template-resource: mir
 template-filter: mir.category == 'integration'
 estimated_duration: 0.5
 plugin: shell
-category_id: 2013.com.canonical.plainbox::mir
+category_id: com.canonical.plainbox::mir
 id: mir/integration/{name}
 requires: package.name == 'mir-test-tools'
 command: mir_integration_tests --gtest_filter={name}*
@@ -15,7 +15,7 @@ template-resource: mir
 template-filter: mir.category == 'acceptance'
 estimated_duration: 0.5
 plugin: shell
-category_id: 2013.com.canonical.plainbox::mir
+category_id: com.canonical.plainbox::mir
 id: mir/acceptance/{name}
 requires: package.name == 'mir-test-tools'
 command: mir_acceptance_tests --gtest_filter={name}*

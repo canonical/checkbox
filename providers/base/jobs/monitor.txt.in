@@ -4,7 +4,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_vga_{product_slug}
 requires: display.vga == 'supported' or display.dp == 'supported'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your VGA port.
 _steps:
@@ -19,7 +19,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dvi_{product_slug}
 requires: display.dvi == 'supported'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your DVI port.
 _steps:
@@ -34,7 +34,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_displayport_{product_slug}
 requires: display.dp == 'supported'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _purpose:
      This test will check your DisplayPort port.
 _steps:
@@ -49,7 +49,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_hdmi_{product_slug}
 requires: display.hdmi == 'supported'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your HDMI port.
 _steps:
@@ -64,7 +64,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_svideo_{product_slug}
 requires: display.svideo == 'supported'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your S-VIDEO port.
 _steps:
@@ -79,7 +79,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_rca_{product_slug}
 requires: display.rca == 'supported'
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your RCA port.
 _steps:
@@ -94,7 +94,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_multi-head_{product_slug}
 requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _purpose:
     This test verifies that multi-monitor output works on your desktop system. This is NOT the same test as the external monitor tests you would run on your laptop.  You will need two monitors to perform this test.
 _steps:
@@ -111,7 +111,7 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_powersaving_{product_slug}
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 command: xset dpms force off
 _purpose:
     This test will check your monitor power saving capabilities
@@ -127,7 +127,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dim_brightness_{product_slug}
 requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 user: root
 command: brightness_test
 _purpose:
@@ -143,11 +143,11 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_thunderbolt_{product_slug}
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 15.0
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _summary: Display connected via Thunderbolt for {vendor} {product}
 _purpose:
     This test will check your Thunderbolt port as a monitor interconnect for {vendor} {product}.
@@ -164,11 +164,11 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_thunderbolt3_{product_slug}
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 15.0
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _summary: Display connected via Thunderbolt 3 for {vendor} {product}
 _purpose:
     This test will check your Thunderbolt 3 port as a monitor interconnect for {vendor} {product}.
@@ -185,11 +185,11 @@ unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_displayport_{product_slug}
 template-filter: graphics_card.prime_gpu_offload == 'Off'
-imports: from 2013.com.canonical.plainbox import manifest
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'
 estimated_duration: 15.0
 plugin: manual
-category_id: 2013.com.canonical.plainbox::monitor
+category_id: com.canonical.plainbox::monitor
 _summary: Display connected via DisplayPort using an USB Type-C port for {vendor} {product}
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to DisplayPort" adapter for {vendor} {product}.

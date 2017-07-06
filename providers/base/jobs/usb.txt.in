@@ -4,7 +4,7 @@ _name: USB Type-C Support
 value-type: bool
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb/detect
 estimated_duration: 1.0
 command:
@@ -18,7 +18,7 @@ _summary: Display USB devices attached to SUT
 _description: Detects and shows USB devices attached to this system.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb/disk_detect
 depends: usb/detect
 estimated_duration: 1.0
@@ -33,7 +33,7 @@ _description:
      Were the drives detected?
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb/HID
 depends: usb/detect
 estimated_duration: 1.0
@@ -67,7 +67,7 @@ command:
  else
      removable_storage_watcher insert usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/insert
@@ -90,7 +90,7 @@ command:
  else
      removable_storage_watcher -m 500000000 insert usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb/remove
@@ -113,7 +113,7 @@ command:
  else
      removable_storage_watcher remove usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/remove
@@ -136,11 +136,11 @@ command:
  else
      removable_storage_watcher -m 500000000 remove usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb/storage-transfer
 depends: usb/insert
 user: root
@@ -158,7 +158,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb3/storage-transfer
 requires:
  usb.usb3 == 'supported'
@@ -195,7 +195,7 @@ command:
  else
      removable_storage_test -s 268400000 usb
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 estimated_duration: 300
 
 id: usb3/storage-automated
@@ -216,11 +216,11 @@ command:
  else
      removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
  fi
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 estimated_duration: 300
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb/storage-preinserted
 user: root
 estimated_duration: 45.0
@@ -237,7 +237,7 @@ _description:
  available USB port before running the certification suite.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb3/storage-preinserted
 user: root
 flags: also-after-suspend
@@ -256,7 +256,7 @@ _description:
  will only work with USB sticks and ports rated for USB 3.0 speeds or faster.
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb/panels
 _description:
  PURPOSE:
@@ -271,7 +271,7 @@ _description:
      Do all USB slots work with the device?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::usb
+category_id: com.canonical.plainbox::usb
 id: usb/performance
 depends: usb/insert
 user: root

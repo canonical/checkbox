@@ -1,5 +1,5 @@
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/basic
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
@@ -13,7 +13,7 @@ _description:
      Did the cursor move?
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/horizontal
 requires:
   dmi.product in ['Notebook','Laptop','Portable','Convertible']
@@ -30,7 +30,7 @@ _description:
      Could you scroll right and left?
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/vertical
 requires:
   dmi.product in ['Notebook','Laptop','Portable','Convertible']
@@ -47,7 +47,7 @@ _description:
      Could you scroll up and down?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/singletouch-automated
 requires:
   dmi.product in ['Notebook','Laptop','Portable','Convertible']
@@ -58,7 +58,7 @@ _description:
  Determine whether the touchpad is detected as a singletouch device automatically.
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-automated
 estimated_duration: 1.2
 requires:
@@ -69,7 +69,7 @@ _description:
  Determine whether the touchpad is detected as a multitouch device automatically.
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-manual
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/singletouch-automated
@@ -83,7 +83,7 @@ _description:
      Is the touchpad supposed to be multitouch?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/singletouch-corner
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
@@ -98,7 +98,7 @@ _description:
      Did the tap trigger a new tab to be opened?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/singletouch-selection
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
@@ -112,7 +112,7 @@ _description:
      Did a selection window open and were several files selected?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-rightclick
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
@@ -128,7 +128,7 @@ _description:
      Did the right click pop up menu appear?
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-horizontal
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: touchpad_test right left
@@ -143,7 +143,7 @@ _description:
      Could you scroll right and left?
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-vertical
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: touchpad_test up down
@@ -158,7 +158,7 @@ _description:
      Could you scroll up and down?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/drag-and-drop
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
@@ -173,7 +173,7 @@ _description:
      Did a selected folder move to the desktop?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-zoom
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
@@ -190,7 +190,7 @@ _description:
      Does the image zoom in and out?
 
 plugin: manual
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-dash
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
@@ -205,7 +205,7 @@ _description:
      Did the tap open the Dash?
 
 plugin: shell
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/detected-as-mouse
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 1.2
@@ -221,7 +221,7 @@ _description:
  This test will check if your touchpad was detected as a mouse.
 
 plugin: user-interact
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/continuous-move
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 12
@@ -236,7 +236,7 @@ _description:
      Did the mouse cursor move without interruption?
 
 plugin: qml
-category_id: 2013.com.canonical.plainbox::touchpad
+category_id: com.canonical.plainbox::touchpad
 id: touchpad/palm-rejection
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 20

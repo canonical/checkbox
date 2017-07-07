@@ -380,6 +380,8 @@ class UdevadmDevice(object):
                     return "CARDREADER"
             if self.driver == "rts_pstor":
                 return "CARDREADER"
+            if self.driver == "smo8800":
+                return "ACCELEROMETER"
             # See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702145
             if self.driver.startswith("rtsx"):
                 return "CARDREADER"

@@ -375,6 +375,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "ACCELEROMETER"), 1)
 
     def test_TOSHIBA_NVME(self):
         devices = self.parse("TOSHIBA_NVME")
@@ -390,6 +391,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "WIRELESS"), 2)
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "ACCELEROMETER"), 1)
 
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")

@@ -200,8 +200,8 @@ estimated_duration: 0.33
 plugin: resource
 _description: Creates resource info for supported USB versions
 _summary: Collect information about supported types of USB
-command: 
- for version in 2 3; do 
+command:
+ for version in 2 3; do
      echo -n "usb$version: "
      if [[ -v SNAP ]]; then
          lsusb.py -f $SNAP/var/lib/usbutils/usb.ids | grep -q "Linux Foundation ${version}.00 root hub" && echo "supported" || echo "unsupported"
@@ -236,7 +236,8 @@ command: mobilebroadband_resource
 id: virtualization
 estimated_duration: 0.13
 plugin: resource
-requires: package.name == "cpu-checker"
+requires:
+  package.name == "cpu-checker" or executable.name == 'kvm-ok'
 _description: Resource for hardware virtualization
 command:
  if kvm-ok > /dev/null
@@ -255,7 +256,7 @@ _description: Creates resource info for wifi supported protocols/interfaces
 id: rtc
 estimated_duration: 0.02
 plugin: resource
-command: 
+command:
   if [ -e /sys/class/rtc ]
   then
       echo "state: supported"

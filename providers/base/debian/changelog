@@ -1,4 +1,4 @@
-plainbox-provider-checkbox (0.36.0-1) UNRELEASED; urgency=medium
+plainbox-provider-checkbox (0.37.0~rc1-1) UNRELEASED; urgency=medium
 
   [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
@@ -20,8 +20,9 @@ plainbox-provider-checkbox (0.36.0-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 22 May 2017 19:18:09 +0200
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 07 Jul 2017 15:49:39 +0200
 
 plainbox-provider-checkbox (0.31) unstable; urgency=medium
 

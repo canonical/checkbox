@@ -325,7 +325,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 5.0
 id: miscellanea/device_check
-command: udev_resource -l VIDEO NETWORK WIRELESS DISK | tee >([[ $DISPLAY ]] && zenity --text-info --title="Device report")
+command: udev_resource -l VIDEO NETWORK WIRELESS DISK ACCELEROMETER | tee >([[ $DISPLAY ]] && zenity --text-info --title="Device report")
 _summary: Device Check
 _purpose:
     Device check

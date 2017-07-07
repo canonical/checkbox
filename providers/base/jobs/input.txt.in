@@ -41,24 +41,12 @@ _description:
  VERIFICATION:
      Is your keyboard working properly?
 
-plugin: manual
-category_id: com.canonical.plainbox::input
-id: input/accelerometer_verify
-estimated_duration: 30.0
-_description:
- PURPOSE:
-     Manual detection of accelerometer.
- STEPS:
-     1. Look at the specifications for your system.
- VERIFICATION:
-     Is this system supposed to have an accelerometer?
-
 plugin: user-interact
 category_id: com.canonical.plainbox::input
 id: input/accelerometer
 estimated_duration: 60.0
 user: root
-depends: input/accelerometer_verify
+requires: device.category == 'ACCELEROMETER'
 command: accelerometer_test -m
 _description:
  PURPOSE:

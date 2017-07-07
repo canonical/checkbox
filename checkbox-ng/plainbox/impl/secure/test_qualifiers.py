@@ -702,18 +702,18 @@ class WhiteListTests(TestCase):
         """
         whitelist = WhiteList.from_string(
             "foo\n"
-            "2014\\.example\\.org::bar\n",
-            implicit_namespace="2014.other.example.org")
+            "example\\.org::bar\n",
+            implicit_namespace="other.example.org")
         # verify that the implicit namespace was recorded
         self.assertEqual(
-            whitelist.implicit_namespace, "2014.other.example.org")
+            whitelist.implicit_namespace, "other.example.org")
         # verify that the patterns are okay
         self.assertEqual(
             whitelist.qualifier_list[0].pattern_text,
-            "^2014\\.other\\.example\\.org::foo$")
+            "^other\\.example\\.org::foo$")
         self.assertEqual(
             whitelist.qualifier_list[1].pattern_text,
-            "^2014\\.example\\.org::bar$")
+            "^example\\.org::bar$")
 
 
 class FunctionTests(TestCase):

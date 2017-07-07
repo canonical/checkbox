@@ -52,11 +52,14 @@ class IQNValidatorTests(TestCase):
         self.variable = None
 
     def test_good_values_work(self):
-        name = "2013.com.canonical:certification-resources-server"
+        name = "com.canonical:certification-resources-server"
         self.assertEqual(self.validator(self.variable, name), None)
 
+    def test_yearless_namespace_work(self):
+        name = "com.canonical:certification"
+
     def test_must_match_whole_string(self):
-        name = "2013.com.canonical:certification-resources-server BOGUS"
+        name = "com.canonical:certification-resources-server BOGUS"
         self.assertNotEqual(self.validator(self.variable, name), None)
 
     def test_bad_values_dont(self):
@@ -147,7 +150,7 @@ class Provider1DefinitionTests(TestCase):
             mock_isdir.return_value = True
             def_.read_string(
                 "[PlainBox Provider]\n"
-                "name = 2013.org.example:smoke-test\n"
+                "name = org.example:smoke-test\n"
                 "version = 1.0\n"
                 "description = a description\n"
                 "gettext_domain = domain\n"
@@ -158,7 +161,7 @@ class Provider1DefinitionTests(TestCase):
                 "bin_dir = /some/directory/bin\n"
                 "locale_dir = /some/directory/locale\n"
             )
-        self.assertEqual(def_.name, "2013.org.example:smoke-test")
+        self.assertEqual(def_.name, "org.example:smoke-test")
         self.assertEqual(def_.version, "1.0")
         self.assertEqual(def_.description, "a description")
         self.assertEqual(def_.gettext_domain, "domain")
@@ -176,10 +179,10 @@ class Provider1DefinitionTests(TestCase):
         is computed correctly
         """
         def_ = Provider1Definition()
-        def_.name = "2013.org.example:smoke-test"
-        self.assertEqual(def_.name, "2013.org.example:smoke-test")
+        def_.name = "org.example:smoke-test"
+        self.assertEqual(def_.name, "org.example:smoke-test")
         self.assertEqual(
-            def_.name_without_colon, "2013.org.example.smoke-test")
+            def_.name_without_colon, "org.example.smoke-test")
 
     def test_definition_with_location(self):
         """
@@ -195,13 +198,13 @@ class Provider1DefinitionTests(TestCase):
             mock_isdir.return_value = True
             def_.read_string(
                 "[PlainBox Provider]\n"
-                "name = 2013.org.example:smoke-test\n"
+                "name = org.example:smoke-test\n"
                 "version = 1.0\n"
                 "description = a description\n"
                 "gettext_domain = domain\n"
                 "location = /some/directory"
             )
-        self.assertEqual(def_.name, "2013.org.example:smoke-test")
+        self.assertEqual(def_.name, "org.example:smoke-test")
         self.assertEqual(def_.version, "1.0")
         self.assertEqual(def_.description, "a description")
         self.assertEqual(def_.gettext_domain, "domain")
@@ -286,8 +289,8 @@ class Provider1DefinitionTests(TestCase):
         verify that Provider1Definition allows typical values for 'name' field
         """
         def_ = Provider1Definition()
-        for name in ('2013.org.example:tests',
-                     '2013.com.canonical.certification:usb-testing'):
+        for name in ('org.example:tests',
+                     'com.canonical.certification:usb-testing'):
             def_.name = name
             self.assertEqual(def_.name, name)
 
@@ -421,7 +424,7 @@ class Provider1PlugInTests(TestCase):
 
     DEF_TEXT = (
         "[PlainBox Provider]\n"
-        "name = 2013.org.example:smoke-test\n"
+        "name = org.example:smoke-test\n"
         "version = 1.0\n"
         "description = a description\n"
         "gettext_domain = domain\n"
@@ -461,7 +464,7 @@ class Provider1PlugInTests(TestCase):
 
     def test_plugin_name(self):
         self.assertEqual(
-            self.plugin.plugin_name, "2013.org.example:smoke-test")
+            self.plugin.plugin_name, "org.example:smoke-test")
 
     def test_plugin_object(self):
         self.assertIsInstance(self.plugin.plugin_object, Provider1)
@@ -471,7 +474,7 @@ class Provider1PlugInTests(TestCase):
 
     def test_provider_metadata(self):
         provider = self.plugin.plugin_object
-        self.assertEqual(provider.name, "2013.org.example:smoke-test")
+        self.assertEqual(provider.name, "org.example:smoke-test")
         self.assertEqual(provider.version, "1.0")
         self.assertEqual(provider.description, "a description")
         self.assertEqual(provider.gettext_domain, "domain")
@@ -612,7 +615,7 @@ class UnitPlugInTests(TestCase):
         self.provider = mock.Mock(name="provider", spec=Provider1)
         self.provider.classify.return_value = (
             mock.Mock("role"), mock.Mock("base"), mock.Mock("plugin_cls"))
-        self.provider.namespace = "2013.com.canonical.plainbox"
+        self.provider.namespace = "com.canonical.plainbox"
         self.plugin = UnitPlugIn(
             "/path/to/jobs.txt", (
                 "id: test/job\n"
@@ -645,7 +648,7 @@ class UnitPlugInTests(TestCase):
         """
         job = self.plugin.plugin_object[0]
         self.assertEqual(job.partial_id, "test/job")
-        self.assertEqual(job.id, "2013.com.canonical.plainbox::test/job")
+        self.assertEqual(job.id, "com.canonical.plainbox::test/job")
         self.assertEqual(job.plugin, "shell")
         self.assertEqual(job.command, "true")
         self.assertEqual(
@@ -676,7 +679,7 @@ class UnitPlugInTests(TestCase):
 class Provider1Tests(TestCase):
 
     NAME = "name"
-    NAMESPACE = "2013.org.example"
+    NAMESPACE = "org.example"
     VERSION = "1.0"
     DESCRIPTION = "description"
     SECURE = True

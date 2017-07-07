@@ -1143,7 +1143,7 @@ class SessionState:
             data['id'] = "after-suspend-{}".format(new_job.partial_id)
             data['_summary'] = "{} after suspend (S3)".format(
                 new_job.summary)
-            provider_id = "2013.com.canonical.certification"
+            provider_id = "com.canonical.certification"
             suspend_test_id = "suspend/suspend_advanced_auto"
             if new_job.depends:
                 data['depends'] += " {}::{}".format(provider_id,
@@ -1171,7 +1171,7 @@ class SessionState:
             data['id'] = "after-suspend-manual-{}".format(new_job.partial_id)
             data['_summary'] = "{} after suspend (S3)".format(
                 new_job.summary)
-            provider_id = "2013.com.canonical.certification"
+            provider_id = "com.canonical.certification"
             suspend_test_id = "suspend/suspend_advanced"
             if new_job.depends:
                 data['depends'] += " {}::{}".format(provider_id,

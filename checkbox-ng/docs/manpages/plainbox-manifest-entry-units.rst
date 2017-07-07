@@ -92,22 +92,22 @@ Manifest data can be used to decide if a given test is applicable for a given
 device under test or not. When used as a resource they behave in a standard
 way, like all other resources. The only special thing is the unique name-space
 of the resource job as it is provided by plainbox itself. The name of the
-resource job is: ``2013.com.canonical.plainbox``. In practice a simple job that
+resource job is: ``com.canonical.plainbox``. In practice a simple job that
 depends on data from the manifest can look like this::
 
     unit: job
     id: ...
     plugin: ...
     requires:
-     manifest.has_thunderbolt == 'True' and manifest.ns == '2013.com.canonical.checkbox'
-    imports: from 2013.com.canonical.plainbox import manifest
+     manifest.has_thunderbolt == 'True' and manifest.ns == 'com.canonical.checkbox'
+    imports: from com.canonical.plainbox import manifest
 
 Note that the job uses the ``manifest`` job from the
-``2013.com.canonical.plainbox`` name-space. It has to be imported using the
+``com.canonical.plainbox`` name-space. It has to be imported using the
 ``imports:`` field as it is in a different name-space than the one the example
 unit is defined in (which is arbitrary). Having that resource it can then check
 for the ``has_thunderbolt`` field manifest entry in the
-``2013.com.canonical.checkbox`` name-space. Note that the name-space of the
+``com.canonical.checkbox`` name-space. Note that the name-space of the
 ``manifest`` job is not related to the ``manifest.ns`` value. Since any
 provider can ship additional manifest entries and then all share the flat
 name-space of resource attributes looking at the ``.ns`` attribute is a way to
@@ -118,7 +118,7 @@ Collecting Manifest Data
 
 To interactively collect manifest data from a user please include this job
 somewhere early in your test plan:
-``2013.com.canonical.plainbox::collect-manifest``.
+``com.canonical.plainbox::collect-manifest``.
 
 Supplying External Manifest
 ---------------------------

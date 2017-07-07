@@ -46,7 +46,7 @@ class FilterTests(TestCase):
     def test_do_strip_ns__defaults(self):
         env = mock.Mock()
         self.assertEqual(
-            do_strip_ns(env, "2013.com.canonical.certification::id"), "id")
+            do_strip_ns(env, "com.canonical.certification::id"), "id")
 
 
 class HexrExporterTests(TestCase):
@@ -58,7 +58,7 @@ class HexrExporterTests(TestCase):
     def setUp(self):
         """Common initialization."""
         exporter_unit = self._get_all_exporter_units()[
-            '2013.com.canonical.plainbox::hexr']
+            'com.canonical.plainbox::hexr']
         self.exporter = Jinja2SessionStateExporter(
             system_id='SYSTEM_ID', timestamp='TIMESTAMP',
             client_version='CLIENT_VERSION', client_name='CLIENT_NAME',
@@ -263,7 +263,7 @@ _smoke_expected = """\
 <?xml version="1.0"?>
 <system version="1.0">
   <context>
-    <info command="2013.com.canonical.plainbox::representative/plugin/attachment">IO-LOG-STDOUT
+    <info command="com.canonical.plainbox::representative/plugin/attachment">IO-LOG-STDOUT
 </info>
   </context>
   <hardware>
@@ -287,7 +287,7 @@ _smoke_expected = """\
     </processors>
   </hardware>
   <questions>
-    <question name="2013.com.canonical.plainbox::representative/plugin/manual">
+    <question name="com.canonical.plainbox::representative/plugin/manual">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -299,7 +299,7 @@ _smoke_expected = """\
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/qml">
+    <question name="com.canonical.plainbox::representative/plugin/qml">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -311,7 +311,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/shell">
+    <question name="com.canonical.plainbox::representative/plugin/shell">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -323,7 +323,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/user-interact">
+    <question name="com.canonical.plainbox::representative/plugin/user-interact">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -335,7 +335,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/user-interact-verify">
+    <question name="com.canonical.plainbox::representative/plugin/user-interact-verify">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -347,7 +347,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/user-verify">
+    <question name="com.canonical.plainbox::representative/plugin/user-verify">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -433,7 +433,7 @@ _evil_expected = """\
 <?xml version="1.0"?>
 <system version="1.0">
   <context>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-3-attachment">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-3-attachment">&#34;&#39;&lt;&amp;&gt;</info>
   </context>
   <hardware>
     <dmi>&#34;&#39;&lt;&amp;&gt;</dmi>
@@ -453,7 +453,7 @@ _evil_expected = """\
     </processors>
   </hardware>
   <questions>
-    <question name="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-10-user-interact-verify">
+    <question name="com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-10-user-interact-verify">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -463,7 +463,7 @@ _evil_expected = """\
       </answer_choices>
       <comment>&#34;&#39;&lt;&amp;&gt;</comment>
     </question>
-    <question name="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-11-user-verify">
+    <question name="com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-11-user-verify">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -473,7 +473,7 @@ _evil_expected = """\
       </answer_choices>
       <comment>&#34;&#39;&lt;&amp;&gt;</comment>
     </question>
-    <question name="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-5-manual">
+    <question name="com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-5-manual">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -483,7 +483,7 @@ _evil_expected = """\
       </answer_choices>
       <comment>&#34;&#39;&lt;&amp;&gt;</comment>
     </question>
-    <question name="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-6-qml">
+    <question name="com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-6-qml">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -493,7 +493,7 @@ _evil_expected = """\
       </answer_choices>
       <comment>&#34;&#39;&lt;&amp;&gt;</comment>
     </question>
-    <question name="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-8-shell">
+    <question name="com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-8-shell">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -503,7 +503,7 @@ _evil_expected = """\
       </answer_choices>
       <comment>&#34;&#39;&lt;&amp;&gt;</comment>
     </question>
-    <question name="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-9-user-interact">
+    <question name="com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-9-user-interact">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -556,7 +556,7 @@ _empty_resources_expected = """\
 <?xml version="1.0"?>
 <system version="1.0">
   <context>
-    <info command="2013.com.canonical.plainbox::representative/plugin/attachment">IO-LOG-STDOUT
+    <info command="com.canonical.plainbox::representative/plugin/attachment">IO-LOG-STDOUT
 </info>
   </context>
   <hardware>
@@ -569,7 +569,7 @@ _empty_resources_expected = """\
     <!-- cpuinfo resource is not available, not producing the <processors> section -->
   </hardware>
   <questions>
-    <question name="2013.com.canonical.plainbox::representative/plugin/manual">
+    <question name="com.canonical.plainbox::representative/plugin/manual">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -581,7 +581,7 @@ _empty_resources_expected = """\
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/qml">
+    <question name="com.canonical.plainbox::representative/plugin/qml">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -593,7 +593,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/shell">
+    <question name="com.canonical.plainbox::representative/plugin/shell">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -605,7 +605,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/user-interact">
+    <question name="com.canonical.plainbox::representative/plugin/user-interact">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -617,7 +617,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/user-interact-verify">
+    <question name="com.canonical.plainbox::representative/plugin/user-interact-verify">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>
@@ -629,7 +629,7 @@ IO-LOG-STDERR
 IO-LOG-STDERR
 </comment>
     </question>
-    <question name="2013.com.canonical.plainbox::representative/plugin/user-verify">
+    <question name="com.canonical.plainbox::representative/plugin/user-verify">
       <answer type="multiple_choice">pass</answer>
       <answer_choices>
         <value type="str">none</value>

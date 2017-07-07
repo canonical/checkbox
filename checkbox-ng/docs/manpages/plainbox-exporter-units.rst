@@ -137,7 +137,7 @@ Example of a gui launcher:
     text = "bar"
 
     [exporter]
-    HTML = "2013.com.foo.bar::my_html"
+    HTML = "com.foo.bar::my_html"
 
 Example of a cli launcher:
 
@@ -150,6 +150,6 @@ Example of a cli launcher:
     whitelist_selection = ^default$
 
     [exporter]
-    2013.com.foo.bar::my_html
-    2013.com.foo.bar::my_json
-    2015.com.foo.baz::my_html
+    com.foo.bar::my_html
+    com.foo.bar::my_json
+    com.foo.baz::my_html

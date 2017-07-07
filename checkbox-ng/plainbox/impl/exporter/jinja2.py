@@ -42,7 +42,7 @@ from plainbox.impl.result import OUTCOME_METADATA_MAP
 
 
 #: Name-space prefix for Canonical Certification
-CERTIFICATION_NS = '2013.com.canonical.certification::'
+CERTIFICATION_NS = 'com.canonical.certification::'
 
 
 @environmentfilter

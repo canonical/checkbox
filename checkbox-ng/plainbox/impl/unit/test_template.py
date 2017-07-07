@@ -134,9 +134,9 @@ class TemplateUnitTests(TestCase):
         """
         self.assertEqual(TemplateUnit({
             'template-imports': (
-                'from 2014.com.example import resource/name as rc'),
+                'from com.example import resource/name as rc'),
             'template-resource': 'rc'
-        }).resource_id, '2014.com.example::resource/name')
+        }).resource_id, 'com.example::resource/name')
 
     def test_resource_id__template_imports_and_provider_ns(self):
         """
@@ -150,9 +150,9 @@ class TemplateUnitTests(TestCase):
         provider.namespace = 'namespace'
         self.assertEqual(TemplateUnit({
             'template-imports': (
-                'from 2014.com.example import resource/name as rc'),
+                'from com.example import resource/name as rc'),
             'template-resource': 'rc'
-        }, provider=provider).resource_id, '2014.com.example::resource/name')
+        }, provider=provider).resource_id, 'com.example::resource/name')
 
     def test_resource_id__template_and_provider_ns(self):
         """

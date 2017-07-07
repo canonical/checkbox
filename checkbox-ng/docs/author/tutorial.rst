@@ -15,11 +15,10 @@ started with development <../dev/intro>`. There is also a Launchpad PPA with
 the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
 
 #. To get started we create an initial template for our provider by running
-   ``plainbox startprovider 2014.com.example:myprovider``.
+   ``plainbox startprovider com.example:myprovider``.
 
-#. This will create a directory called ``2014.com.example:myprovider``
-   where this year is of course the current year (2014 is when this document
-   was written). Change to this directory and you will see that it contains::
+#. This will create a directory called ``com.example:myprovider``.
+   Change to this directory and you will see that it contains::
 
     /bin
     /data
@@ -55,7 +54,7 @@ the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
    output should be something like::
 
     [Provider MetaData]
-	name: 2014.com.example:myprovider
+	name: com.example:myprovider
 	version: 1.0
     [Job Definitions]
 	'myjobs/builtin_command', from jobs/myjobs.txt:1-5
@@ -105,7 +104,7 @@ the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
    ``./manage.py info`` command again. The output should be like::
 
     [Provider MetaData]
-	name: 2014.com.example:myprovider
+	name: com.example:myprovider
 	version: 1.0
     [Job Definitions]
 	'myjobs/builtin_command', from jobs/myjobs.txt:1-5

@@ -101,7 +101,6 @@ include:
     monitor/2_svideo_.*
     monitor/2_vga_.*
     monitor/2_multi-head_.*
-    input/accelerometer_verify
     input/accelerometer
     input/pointing_.*
     input/clicking_.*

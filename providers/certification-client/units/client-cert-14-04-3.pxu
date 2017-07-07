@@ -113,7 +113,6 @@ include:
     monitor/2_svideo_.*                                    certification-status=blocker
     monitor/2_vga_.*                                       certification-status=blocker
     monitor/2_multi-head_.*                                certification-status=blocker
-    input/accelerometer_verify                             certification-status=non-blocker
     input/accelerometer                                    certification-status=non-blocker
     input/pointing_.*                                      certification-status=blocker
     input/clicking_.*                                      certification-status=blocker

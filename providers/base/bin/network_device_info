@@ -58,7 +58,7 @@ nm_devices = []
 
 class UdevResult:
     def addDevice(self, device):
-        if device.interface:
+        if device.category == 'NETWORK':
             udev_devices.append(device)
 
 
@@ -177,8 +177,8 @@ def get_nm_devices():
         except KeyError:
             devtype = "Unknown"
 
-        # only return WiFi, Ethernet and Modem devices
-        if devtype in ("WiFi", "Ethernet", "Modem"):
+        # only return Ethernet devices
+        if devtype == "Ethernet":
             devices.append(NetworkingDevice(devtype, props, dev_proxy, bus))
     return devices
 
@@ -191,10 +191,6 @@ def match_counts(nm_devices, udev_devices, devtype):
     # now check that the count (by type) matches
     nm_type_devices = [dev for dev in nm_devices if dev.gettype() in devtype]
     udevtype = 'NETWORK'
-    if devtype == 'WiFi':
-        udevtype = 'WIRELESS'
-    elif devtype == 'Modem':
-        udevtype = 'WWAN'
     udev_type_devices = [
         udev
         for udev in udev_devices
@@ -261,11 +257,7 @@ def main(args):
     for nm_dev in nm_devices:
         print(nm_dev)
 
-    if not match_counts(nm_devices, udev_devices, "WiFi"):
-        return 1
-    elif not match_counts(nm_devices, udev_devices, "Ethernet"):
-        return 1
-    elif not match_counts(nm_devices, udev_devices, "Modem"):
+    if not match_counts(nm_devices, udev_devices, "Ethernet"):
         return 1
     else:
         return 0

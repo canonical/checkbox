@@ -30,6 +30,7 @@ id: mediacard/mmc-storage
 estimated_duration: 30.0
 depends: mediacard/mmc-insert
 user: root
+flags: preserve-cwd
 command: removable_storage_test -s 67120000 --memorycard sdio usb scsi --auto-reduce-size
 requires:
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
@@ -92,6 +93,7 @@ id: mediacard/sd-storage
 estimated_duration: 30.0
 depends: mediacard/sd-insert
 user: root
+flags: preserve-cwd
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
 requires:
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
@@ -127,6 +129,7 @@ category_id: com.canonical.plainbox::mediacard
 id: mediacard/sd-preinserted
 estimated_duration: 30.0
 user: root
+flags: preserve-cwd
 command: removable_storage_test -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test --memorycard sdio usb scsi
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -170,6 +173,7 @@ id: mediacard/sdhc-storage
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
 user: root
+flags: preserve-cwd
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
 requires:
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)

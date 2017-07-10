@@ -225,7 +225,7 @@ id: usb/storage-preinserted
 user: root
 estimated_duration: 45.0
 command: removable_storage_test -l usb && removable_storage_test -s 268400000 usb
-flags: also-after-suspend
+flags: also-after-suspend preserve-cwd
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)

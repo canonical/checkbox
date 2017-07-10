@@ -6,6 +6,8 @@ value-type: bool
 plugin: shell
 category_id: com.canonical.plainbox::usb
 id: usb/detect
+requires:
+ cpuinfo.platform != 's390x'
 estimated_duration: 1.0
 command:
  set -o pipefail
@@ -227,6 +229,7 @@ estimated_duration: 45.0
 command: removable_storage_test -l usb && removable_storage_test -s 268400000 usb
 flags: also-after-suspend preserve-cwd
 requires:
+ cpuinfo.platform != 's390x'
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 _summary:
@@ -242,6 +245,7 @@ id: usb3/storage-preinserted
 user: root
 flags: also-after-suspend
 requires:
+ cpuinfo.platform != 's390x'
  usb.usb3 == 'supported'
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)

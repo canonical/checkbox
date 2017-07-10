@@ -58,7 +58,6 @@ include:
     esata/insert                                           certification-status=blocker
     esata/storage-test                                     certification-status=blocker
     esata/remove                                           certification-status=blocker
-    expresscard/verification                               certification-status=blocker
     firewire/insert                                        certification-status=blocker
     firewire/storage-test                                  certification-status=blocker
     firewire/remove                                        certification-status=blocker
@@ -141,7 +140,6 @@ include:
     keys/video-out                                         certification-status=blocker
     keys/wireless                                          certification-status=blocker
     keys/keyboard-backlight                                certification-status=blocker
-    keys/keyboard-overhead-light                           certification-status=blocker
     keys/microphone-mute                                   certification-status=blocker
     led/bluetooth                                          certification-status=non-blocker
     led/camera                                             certification-status=blocker
@@ -159,9 +157,6 @@ include:
     # led/wireless
     led/wlan                                               certification-status=non-blocker
     led/wlan-disabled
-    mediacard/mmc-insert                                   certification-status=non-blocker
-    mediacard/mmc-storage                                  certification-status=non-blocker
-    mediacard/mmc-remove                                   certification-status=non-blocker
     mediacard/sd-insert                                    certification-status=blocker
     mediacard/sd-storage                                   certification-status=blocker
     mediacard/sd-remove                                    certification-status=blocker
@@ -290,9 +285,6 @@ include:
     camera/still_after_suspend                             certification-status=blocker
     suspend/pointing-after-suspend_.*                      certification-status=blocker
     suspend/clicking-after-suspend_.*                      certification-status=blocker
-    suspend/mmc-insert-after-suspend                       certification-status=non-blocker
-    suspend/mmc-storage-after-suspend                      certification-status=non-blocker
-    suspend/mmc-remove-after-suspend                       certification-status=non-blocker
     suspend/sd-insert-after-suspend                        certification-status=blocker
     suspend/sd-storage-after-suspend                       certification-status=blocker
     suspend/sd-remove-after-suspend                        certification-status=blocker

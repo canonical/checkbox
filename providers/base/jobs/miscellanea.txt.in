@@ -340,6 +340,7 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 20.0
 id: miscellanea/sosreport
 user: root
+requires: package.name == 'sosreport'
 command: sosreport --batch --tmp-dir $PLAINBOX_SESSION_SHARE
 _summary: Generate baseline sosreport
 _description: Generates a baseline sosreport of logs and system data

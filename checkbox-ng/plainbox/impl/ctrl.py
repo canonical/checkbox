@@ -1486,7 +1486,7 @@ class RootViaSudoExecutionController(
         of the environment variables that we require.
         """
         # Run env(1) as the required user
-        cmd = ['sudo', '-u', job.user, 'env']
+        cmd = ['sudo', '-S', '-u', job.user, 'env']
         # Append all environment data
         env = self.get_differential_execution_environment(
             job, job_state, config, session_dir, nest_dir)

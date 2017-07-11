@@ -1257,6 +1257,10 @@ class SessionAssistant:
                 raise ValueError("unknown user interface: {!r}".format(ui))
         else:
             raise TypeError("incorrect UI type")
+        warm_up_list = self._runner.get_warm_up_sequence(self._context.state.run_list)
+        if warm_up_list:
+            for warm_up_func in warm_up_list:
+                warm_up_func()
         # XXX: job_state_map is a bit low level, can we avoid that?
         start_time = time.time()
         job_state = self._context.state.job_state_map[job_id]

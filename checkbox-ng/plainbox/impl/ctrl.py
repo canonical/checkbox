@@ -1457,6 +1457,8 @@ class RootViaSudoExecutionController(
             in_sudoers_d = os.path.exists(
                 '/etc/sudoers.d/create-user-{}'.format(os.getenv('USER')))
         self.user_can_sudo = in_sudo_group or in_admin_group or in_sudoers_d
+        self.warm_up_func = lambda: extcmd.ExternalCommand().call(
+            ['sudo', '-S', 'true'])
 
     def get_execution_command(self, job, job_state, config, session_dir,
                               nest_dir):
@@ -1484,7 +1486,7 @@ class RootViaSudoExecutionController(
         of the environment variables that we require.
         """
         # Run env(1) as the required user
-        cmd = ['sudo', '-u', job.user, 'env']
+        cmd = ['sudo', '-S', '-u', job.user, 'env']
         # Append all environment data
         env = self.get_differential_execution_environment(
             job, job_state, config, session_dir, nest_dir)
@@ -1510,3 +1512,12 @@ class RootViaSudoExecutionController(
             return 2
         else:
             return -1
+
+    def get_warm_up_for_job(self, job):
+        """
+        Get a warm-up function that should be called before running this job.
+
+        :returns:
+            A callable to do the warm-up
+        """
+        return self.warm_up_func

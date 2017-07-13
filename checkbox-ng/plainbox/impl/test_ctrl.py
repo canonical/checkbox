@@ -1103,7 +1103,7 @@ class RootViaSudoExecutionControllerTests(
             self.ctrl.get_execution_command(
                 self.job, self.job_state, self.config, self.SESSION_DIR,
                 self.NEST_DIR),
-            ['sudo', '-u', self.job.user, 'env',
+            ['sudo', '-S', '-u', self.job.user, 'env',
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE',
              'LANG=C.UTF-8',

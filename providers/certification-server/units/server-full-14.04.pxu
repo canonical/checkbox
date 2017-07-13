@@ -75,6 +75,8 @@ include:
     usb3/storage-preinserted                   certification-status=blocker
     virtualization/kvm_check_vm                certification-status=non-blocker
     info/kvm_output                            certification-status=non-blocker
+    miscellanea/sosreport                      certification-status=non-blocker
+    miscellanea/sosreport_attachment           certification-status=non-blocker
 bootstrap_include:
     device
     fwts

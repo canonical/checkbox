@@ -560,7 +560,7 @@ class CheckBoxExecutionController(IExecutionController):
                 job, job_state, config, session_dir, nest_dir)
             with self.temporary_cwd(job, config) as cwd_dir:
                 # run the command
-                if 'preserve-cwd' in job.get_flag_set():
+                if 'preserve-cwd' in job.get_flag_set() or os.getenv("SNAP"):
                     logger.debug(_("job[%s] executing %r with env %r"),
                                  job.id, cmd, env)
                     return_code = extcmd_popen.call(cmd, env=env)

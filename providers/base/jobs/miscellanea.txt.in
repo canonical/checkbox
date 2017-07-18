@@ -334,3 +334,23 @@ _steps:
     2. Compare items on System Manifest to the devices known to udev
 _verification:
     Do the devices reported by udev match the devices on the Manifest?
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 20.0
+id: miscellanea/sosreport
+user: root
+requires: executable.name == 'sosreport'
+command: sosreport --batch --tmp-dir $PLAINBOX_SESSION_SHARE
+_summary: Generate baseline sosreport
+_description: Generates a baseline sosreport of logs and system data
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 5.0
+id: miscellanea/sosreport_attachment
+depends: miscellanea/sosreport
+user: root
+command:
+ SOSFILE=`ls -t $PLAINBOX_SESSION_SHARE/sosreport*xz | head -1`; [ -e ${SOSFILE} ] && base64 $SOSFILE
+_summary: Attach the baseline sosreport file

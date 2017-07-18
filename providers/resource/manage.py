@@ -44,7 +44,7 @@ class SourceDistributionCommandExt(SourceDistributionCommand):
 setup(
     name='plainbox-provider-resource-generic',
     namespace='com.canonical.certification',
-    version="0.33.0rc5",
+    version="0.33.0",
     description=N_("PlainBox resources provider"),
     gettext_domain='plainbox-provider-resource-generic',
     deprecated=False, strict=False,

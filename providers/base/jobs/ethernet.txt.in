@@ -64,7 +64,7 @@ _description:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK'
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
@@ -83,7 +83,7 @@ _description:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK'
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/ethertool_check_device{__index__}_{interface}
@@ -98,7 +98,7 @@ _description:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK'
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/maximum_bandwidth_device{__index__}_{interface}
@@ -122,7 +122,7 @@ _verification:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK'
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/stress_performance_device{__index__}_{interface}

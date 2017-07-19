@@ -1,3 +1,8 @@
+unit: manifest entry
+id: has_card_reader
+_name: Card Reader
+value-type: bool
+
 plugin: user-interact
 category_id: com.canonical.plainbox::mediacard
 id: mediacard/mmc-insert
@@ -8,9 +13,10 @@ command:
  else
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 user: root
 _description:
  PURPOSE:
@@ -71,9 +77,10 @@ command:
  else
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 user: root
 _description:
  PURPOSE:
@@ -131,10 +138,11 @@ estimated_duration: 30.0
 user: root
 flags: preserve-cwd
 command: removable_storage_test -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test --memorycard sdio usb scsi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 _description:
  This is a fully automated version of mediacard/sd-automated and assumes that the
  system under test has a memory card device plugged in prior to checkbox execution.
@@ -150,9 +158,10 @@ command:
  else
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 user: root
 _description:
  PURPOSE:
@@ -214,9 +223,10 @@ command:
  else
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 user: root
 _description:
  PURPOSE:
@@ -276,9 +286,10 @@ command:
  else
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 user: root
 _description:
  PURPOSE:
@@ -338,9 +349,10 @@ command:
  else
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 user: root
 _description:
  PURPOSE:
@@ -401,9 +413,10 @@ command:
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
 user: root
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -462,9 +475,10 @@ command:
  else
      removable_storage_watcher --memorycard insert sdio usb scsi
  fi
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 user: root
 _description:
  PURPOSE:

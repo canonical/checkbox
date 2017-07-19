@@ -2223,9 +2223,10 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/mmc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
@@ -2273,9 +2274,10 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/sd-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
@@ -2325,9 +2327,10 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/sdhc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
@@ -2376,9 +2379,10 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/cf-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
@@ -2426,9 +2430,10 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
@@ -2476,9 +2481,10 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/ms-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
@@ -2526,9 +2532,10 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/msp-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
@@ -2576,9 +2583,10 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/xd-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
- device.category == 'CARDREADER'
+ manifest.has_card_reader == 'True'
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
  PURPOSE:

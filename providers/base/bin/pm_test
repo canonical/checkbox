@@ -711,9 +711,9 @@ class LoggingConfiguration(object):
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
 
-        # Log to sys.stderr using log level passed through command line
+        # Log to sys.stdout using log level passed through command line
         if log_level != logging.NOTSET:
-            log_handler = logging.StreamHandler()
+            log_handler = logging.StreamHandler(sys.stdout)
             formatter = logging.Formatter('%(levelname)-8s %(message)s')
             log_handler.setFormatter(formatter)
             log_handler.setLevel(log_level)

@@ -137,16 +137,18 @@ class PowerManagementOperation(object):
         """Run suspend and resume cycles."""
         if cycles_count < 1:
             return
+        script_path = ''
         if fwts:
-            script_name = 'fwts_test'
-            command_tpl = '{} -s s3 --s3-device-check --s3-sleep-delay=30 --s3-multiple={}'
+            script_path = 'checkbox-support-fwts_test'
+            command_tpl = '-s s3 --s3-device-check --s3-sleep-delay=30 --s3-multiple={}'
             if self.args.log_dir:
-                command_tpl += ' --log={}/fwts.log'.format(self.args.log_dir)
+                command_tpl = '--log={}/fwts.log '.format(self.args.log_dir) + command_tpl
+            command_tpl = '{} ' + command_tpl
         else:
             script_name = 'sleep_test'
             command_tpl = '{} -s mem -p -i {} -w 10'
-        script_path = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), script_name)
+            script_path = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), script_name)
         command_str = command_tpl.format(script_path, cycles_count)
         logging.info('Running suspend/resume cycles')
         logging.debug('Executing: {0!r}...'.format(command_str))
@@ -157,7 +159,7 @@ class PowerManagementOperation(object):
                 universal_newlines=True, shell=True))
         except subprocess.CalledProcessError as e:
             logging.error('Error while running {0}:'.format(e.cmd))
-            logging.exception(e.output)
+            logging.error(e.output)
 
     def summary(self):
         """
@@ -709,9 +711,9 @@ class LoggingConfiguration(object):
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
 
-        # Log to sys.stderr using log level passed through command line
+        # Log to sys.stdout using log level passed through command line
         if log_level != logging.NOTSET:
-            log_handler = logging.StreamHandler()
+            log_handler = logging.StreamHandler(sys.stdout)
             formatter = logging.Formatter('%(levelname)-8s %(message)s')
             log_handler.setFormatter(formatter)
             log_handler.setLevel(log_level)

@@ -283,13 +283,15 @@ class Launcher(Command, MainLoopStage):
         else:
             strategy = detect_restart_strategy()
         if strategy:
+            # gluing the command with pluses b/c the middle part
+            # (launcher path) is optional
+            respawn_cmd = sys.argv[0] # entry-point to checkbox
+            respawn_cmd += " launcher "
+            if ctx.args.launcher:
+                respawn_cmd += os.path.abspath(ctx.args.launcher) + ' '
+            respawn_cmd += '--resume {}' # interpolate with session_id
             ctx.sa.configure_application_restart(
-                lambda session_id: [
-                    ' '.join([
-                        os.path.abspath(__file__),
-                        os.path.abspath(ctx.args.launcher),
-                        "--resume", session_id])
-                ])
+                lambda session_id: [ respawn_cmd.format(session_id)])
 
     def _maybe_resume_session(self):
         resume_candidates = list(self.ctx.sa.get_resumable_sessions())

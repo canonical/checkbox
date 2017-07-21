@@ -423,6 +423,16 @@ class Launcher(Command, MainLoopStage):
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:
             return
+        if self.ctx.args.session_id:
+            # session_id is present only if auto-resume is used
+            print(_("Auto resuming session. Marking previous job as passed"))
+            result = MemoryJobResult({
+                'outcome': IJobResult.OUTCOME_PASS,
+                'comments': _("Passed after resuming execution")
+            })
+            self.ctx.sa.use_job_result(last_job, result)
+            return
+
         print(_("Previous session run tried to execute job: {}").format(
             last_job))
         cmd = self._pick_action_cmd([

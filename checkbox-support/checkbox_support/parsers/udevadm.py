@@ -186,7 +186,12 @@ class UdevadmDevice(object):
             self._environment.get("DEVTYPE") == "partition" and self._stack
         ):
             if any(d.bus == 'usb' for d in self._stack):
-                return 'usb'
+                for d in self._stack:
+                    # Report the current usb hub version
+                    if d._environment.get("ID_MODEL_ID") == '0003':
+                        return 'usb3'
+                else:
+                    return 'usb'
             else:
                 return self._stack[-2]._environment.get("SUBSYSTEM")
 

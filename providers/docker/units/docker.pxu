@@ -218,6 +218,7 @@ command:
  )
  echo "$dockerfile" | docker build -t test -
  ID=$(docker run -dit test)
+ sleep 1
  [ `docker inspect -f {status} $ID` != exited ] && exit 1
  docker rm -f $ID
 _summary: Test docker build with a single container

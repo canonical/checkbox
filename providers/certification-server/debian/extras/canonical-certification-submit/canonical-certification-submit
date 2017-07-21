@@ -18,6 +18,5 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 # This script simply invokes checkbox submit with a hardcoded URL of the
 # Canonical certifiation website.
-exec checkbox submit \
-    --url=https://certification.canonical.com/submissions/submit/ \
-    "$@"
+
+exec checkbox-cli submit "$@"

@@ -96,8 +96,7 @@ class IPerfPerformanceTest(object):
         else:
             threads = self.num_threads
 
-        if threads != 1:
-            logging.info("Using {} threads.".format(threads))
+        logging.debug("Using {} threads.".format(threads))
 
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
@@ -111,8 +110,9 @@ class IPerfPerformanceTest(object):
             # time without timeout to catch devices that slow down, and also
             # not prematurely end iperf on low-bandwidth devices.
             self.timeout = 1080*int(self.data_size)
-            cmd = "timeout {} {} -c {} -n {}G -i 1 -f -m".format(
-                self.timeout, self.executable, self.target, self.data_size)
+            cmd = "timeout {} {} -c {} -n {}G -i 1 -f -m -P {}".format(
+                self.timeout, self.executable, self.target, self.data_size,
+                threads)
 
         logging.debug("Executing command {}".format(cmd))
         logging.debug("Starting iperf against {}, this could take a while...".

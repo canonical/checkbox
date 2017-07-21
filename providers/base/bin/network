@@ -28,6 +28,7 @@ import datetime
 import fcntl
 import ipaddress
 import logging
+import math
 import os
 import re
 import shlex
@@ -57,6 +58,7 @@ class IPerfPerformanceTest(object):
             fail_threshold,
             cpu_load_fail_threshold,
             iperf3,
+            num_threads,
             protocol="tcp",
             data_size="1",
             run_time=None,
@@ -68,6 +70,7 @@ class IPerfPerformanceTest(object):
         self.fail_threshold = fail_threshold
         self.cpu_load_fail_threshold = cpu_load_fail_threshold
         self.iperf3 = iperf3
+        self.num_threads = num_threads
         self.data_size = data_size
         self.run_time = run_time
         self.scan_timeout = scan_timeout
@@ -84,10 +87,21 @@ class IPerfPerformanceTest(object):
         else:
             self.executable = "iperf"
 
+        # Determine number of parallel threads
+        if self.num_threads == -1:
+            # Below is a really crude guesstimate based on our
+            # initial testing. It's likely possible to improve
+            # this method of setting the number of threads.
+            threads = math.ceil(self.iface.link_speed / 10000)
+        else:
+            threads = self.num_threads
+
+        logging.debug("Using {} threads.".format(threads))
+
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
-            cmd = "{} -c {} -t {} -i 1 -f m".format(
-                self.executable, self.target, self.run_time)
+            cmd = "{} -c {} -t {} -i 1 -f m -P {}".format(
+                self.executable, self.target, self.run_time, threads)
         else:
             # Because we can vary the data size, we need to vary the timeout as
             # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
@@ -96,8 +110,9 @@ class IPerfPerformanceTest(object):
             # time without timeout to catch devices that slow down, and also
             # not prematurely end iperf on low-bandwidth devices.
             self.timeout = 1080*int(self.data_size)
-            cmd = "timeout {} {} -c {} -n {}G -i 1 -f -m".format(
-                self.timeout, self.executable, self.target, self.data_size)
+            cmd = "timeout {} {} -c {} -n {}G -i 1 -f -m -P {}".format(
+                self.timeout, self.executable, self.target, self.data_size,
+                threads)
 
         logging.debug("Executing command {}".format(cmd))
         logging.debug("Starting iperf against {}, this could take a while...".
@@ -389,7 +404,7 @@ def run_test(args, test_target):
         iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
                                                args.fail_threshold,
                                                args.cpu_load_fail_threshold,
-                                               args.iperf3)
+                                               args.iperf3, args.num_threads)
         if args.datasize:
             iperf_benchmark.data_size = args.datasize
         if args.runtime:
@@ -709,6 +724,10 @@ TEST_TARGET_IPERF = iperf-server.example.com
     test_parser.add_argument(
         '--underspeed-ok', default=False, action="store_true",
         help="Run test even if an underspeed 1ink is detected")
+    test_parser.add_argument(
+        '--num-threads', type=int, default=-1,
+        help=("Number of threads to use in the test. "
+              "(Default is computed based on network speed.)"))
 
     # Sub info options
     info_parser.add_argument(

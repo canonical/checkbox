@@ -179,6 +179,9 @@ Following fields may be used by the job unit:
         plainbox session in unwanted/undefined state).
         Attach this flag to jobs that cause killing of plainbox process during
         their operation. E.g. run shutdown, reboot, etc.
+        This flag also makes Checkbox to leave a ``__checkbox_respawn`` file
+        in the ``$PLAINBOX_SESSION_SHARE`` directory which can be used by the
+        test to automatically resume session. (For instance after a reboot).
 
 .. _job_flag_explicit_fail:
 

@@ -144,11 +144,24 @@ _description:
  transformations applied are basic changes to make the format compatible with
  RFC822 syntax required by PlainBox.
 
+id: dmi_present
+estimated_duration: 0.02
+plugin: resource
+user: root
+command:
+  if [ -d /sys/devices/virtual/dmi ]
+  then
+      echo "state: supported"
+  else
+      echo "state: unsupported"
+  fi
+_summary: Resource to detect if dmi data is present
+
 id: dmi
 estimated_duration: 0.59
 plugin: resource
 requires:
-  cpuinfo.platform in ("i386", "x86_64")
+  dmi_present.state == 'supported'
 user: root
 command: dmi_resource
 _summary: Collect information about hardware devices (DMI)

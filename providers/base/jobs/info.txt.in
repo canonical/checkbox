@@ -44,14 +44,14 @@ estimated_duration: 0.044
 _description: Attaches info on DMI
 _summary: Attach a copy of /sys/class/dmi/id/*
 requires:
-  cpuinfo.platform in ("i386", "x86_64")
+  dmi_present.state == 'supported'
 
 id: dmidecode_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
 requires:
   package.name == 'dmidecode' or executable.name == 'dmidecode'
-  cpuinfo.platform in ("i386", "x86_64")
+  dmi_present.state == 'supported'
 user: root
 command: dmidecode | iconv -t 'utf-8' -c
 estimated_duration: 0.030

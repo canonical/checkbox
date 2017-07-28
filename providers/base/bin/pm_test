@@ -200,6 +200,10 @@ class PowerManagementOperation(object):
         else:
             title = '{0} test'.format(self.args.pm_operation.capitalize())
             MessageDialog(title, message).run()
+        if self.args.checkbox_respawn_cmd:
+            subprocess.run(
+                r'DISPLAY=:0 gnome-terminal -e "bash -c \"source {}\""'.format(
+                    self.args.checkbox_respawn_cmd), shell=True)
 
     def teardown(self):
         """
@@ -633,7 +637,7 @@ class AutoStartFile(object):
 [Desktop Entry]
 Name={pm_operation} test
 Comment=Verify {pm_operation} works properly
-Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} {fwts} {pm_operation}
+Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} --checkbox-respawn-cmd={checkbox_respawn} {fwts} {pm_operation}
 Type=Application
 X-GNOME-Autostart-enabled=true
 Hidden=false
@@ -686,7 +690,8 @@ Hidden=false
                             log_dir=self.args.log_dir,
                             fwts='--fwts' if self.args.fwts else '',
                             suspend_cycles=self.args.suspends_before_reboot,
-                            pm_operation=self.args.pm_operation))
+                            pm_operation=self.args.pm_operation,
+                            checkbox_respawn=self.args.checkbox_respawn_cmd))
         logging.debug(contents)
 
         with open(self.desktop_filename, 'w') as f:
@@ -824,6 +829,9 @@ class MyArgumentParser(object):
         # use fwts for suspend tests
         parser.add_argument('--fwts', action='store_true', help=('Use fwts '
                             'when doing the suspend tests'))
+        parser.add_argument('--checkbox-respawn-cmd', type=str, help=(
+            'path to a file telling how to return to checkbox after the'
+            ' test is done'), default='')
         self.parser = parser
 
     def parse(self):

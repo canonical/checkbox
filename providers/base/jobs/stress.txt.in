@@ -79,7 +79,7 @@ depends:
  suspend/suspend_advanced
 user: root
 command:
- pm_test reboot --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3
+ pm_test reboot --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3 --silent
 _description:
  This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one reboot' 3 times.
 
@@ -227,7 +227,7 @@ estimated_duration: 4500.0
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
-command: pm_test -r 100 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
+command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn
 user: root
 environ: PLAINBOX_SESSION_SHARE
@@ -249,7 +249,7 @@ id: stress/reboot_30
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
-command: pm_test -r 30 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
+command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 30 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn
 estimated_duration: 2700
 user: root

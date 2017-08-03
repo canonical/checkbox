@@ -110,6 +110,7 @@ estimated_duration: 15
 user: root
 requires:
  block_device.state != 'removable' and block_device.name == '{name}'
+ package.name == 'bc' or executable.name == 'bc'
 _summary: Check of CPU load imposed by {product}
 _description: Check to ensure CPU load of {product} is not too high
 command: disk_cpu_load {name}

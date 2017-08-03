@@ -96,6 +96,7 @@ estimated_duration: 4560.0
 user: root
 requires:
  package.name == 'stress-ng' or executable.name == 'stress-ng'
+ package.name == 'uuid-runtime' or executable.name == 'uuidgen'
 _summary: Disk stress_ng test for {product}
 _description: Disk stress_ng test for {product}
 command: disk_stress_ng {name} --base-time 240 --really-run

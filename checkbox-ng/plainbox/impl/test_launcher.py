@@ -98,7 +98,7 @@ class LauncherDefinition1Tests(TestCase):
         l.read_string(empty_launcher)
         self.assertEqual(l.api_version, '0.99')
         self.assertEqual(l.app_id, 'checkbox-cli')
-        self.assertEqual(l.api_flags, [])
+        self.assertEqual(l.api_flags, ['restartable'])
         self.assertEqual(l.providers, ['*'])
         self.assertEqual(l.test_plan_filters, ['*'])
         self.assertEqual(l.test_plan_default_selection, Unset)

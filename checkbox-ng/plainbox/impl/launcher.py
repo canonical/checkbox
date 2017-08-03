@@ -27,6 +27,7 @@ import logging
 
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.secure import config
+from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.assistant import get_all_sa_flags
 from plainbox.impl.session.assistant import get_known_sa_api_versions
 from plainbox.impl.transport import get_all_transports
@@ -186,7 +187,7 @@ class LauncherDefinition1(LauncherDefinition):
     api_flags = config.Variable(
         section='launcher',
         kind=list,
-        default=[],
+        default=[SA_RESTARTABLE],
         validator_list=[config.SubsetValidator(get_all_sa_flags())],
         help_text=_('List of feature-flags the application requires'))
 

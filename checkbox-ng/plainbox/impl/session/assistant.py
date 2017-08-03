@@ -1280,6 +1280,19 @@ class SessionAssistant:
                 self._restart_strategy.prime_application_restart(
                     self._app_id, self._manager.storage.id, restart_cmd)
             ui.started_running(job, job_state)
+            if 'noreturn' in job.get_flag_set():
+                # 'share' the information how to respawn the application
+                # once all the test actions are performed.
+                # tests can read this from $PLAINBOX_PROVIDER_SHARE envvar
+                checkbox_data_dir = os.path.join(
+                    self.get_session_dir(), 'CHECKBOX_DATA')
+                if not os.path.exists(checkbox_data_dir):
+                    os.mkdir(checkbox_data_dir)
+                respawn_cmd_file = os.path.join(checkbox_data_dir,
+                    '__respawn_checkbox')
+                with open(respawn_cmd_file, 'wt') as f:
+                    f.writelines(self._restart_cmd_callback(
+                        self.get_session_id()))
             if not native:
                 builder = self._runner.run_job(
                     job, job_state, self._config, ui

@@ -1747,11 +1747,14 @@ def get_secure_PROVIDERPATH_list():
     """
     snap_app_path = os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")
     if snap_app_path:
-        return [os.path.join(snap_app_path, "providers", provider) for provider
-                in os.listdir(os.path.join(snap_app_path, "providers"))]
+        snap_providers_path = os.path.join(snap_app_path, "providers")
+        if snap_app_path and os.path.exists(snap_providers_path):
+            return [os.path.join(snap_providers_path, provider) for provider
+                    in os.listdir(snap_providers_path)]
     else:
         return ["/usr/local/share/plainbox-providers-1",
                 "/usr/share/plainbox-providers-1"]
+    return []
 
 
 class SecureProvider1PlugInCollection(FsPlugInCollection):

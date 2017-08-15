@@ -28,7 +28,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 requires:
  package.name == 'dmidecode' or executable.name == 'dmidecode'
- cpuinfo.platform in ("i386", "x86_64")
+ dmi_present.state == 'supported'
 user: root
 command:
  dmidecode -t bios -t system | plainbox dev parse dmidecode | \

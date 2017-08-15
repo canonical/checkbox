@@ -179,7 +179,7 @@ category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/cpus_are_not_samples
 requires:
   package.name == 'dmidecode' or executable.name == 'dmidecode'
-  cpuinfo.platform in ("i386", "x86_64")
+  dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
 command: dmitest cpu-check
@@ -193,7 +193,7 @@ category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dmitest_server
 requires:
   package.name == 'dmidecode' or executable.name == 'dmidecode'
-  cpuinfo.platform in ("i386", "x86_64")
+  dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
 command: dmitest --test_versions server
@@ -205,7 +205,9 @@ _summary:
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dmitest_client
-requires: package.name == 'dmidecode'
+requires: 
+  package.name == 'dmidecode'
+  dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
 command: dmitest --test_versions --test_serials desktop
@@ -318,6 +320,8 @@ estimated_duration: 30.0
 id: miscellanea/get_make_and_model
 user: root
 command: get_make_and_model
+requires:
+  dmi_present.state == 'supported'
 _description: Retrieve the computer's make and model for easier access than digging through the dmidecode output.
 _summary: Gather info on the SUT's make and model
 

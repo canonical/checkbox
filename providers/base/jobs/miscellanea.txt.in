@@ -358,3 +358,11 @@ user: root
 command:
  SOSFILE=`ls -t $PLAINBOX_SESSION_SHARE/sosreport*xz | head -1`; [ -e ${SOSFILE} ] && base64 $SOSFILE
 _summary: Attach the baseline sosreport file
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+id: miscellanea/call-trace-check
+command: if [ -n "$(grep "Call Trace:" /var/log/syslog)" ]; then echo "Call Trace detected in syslog"; false; else true; fi
+_summary: Check syslog for call traces
+_description: Checks syslog for call traces after testing is complete.

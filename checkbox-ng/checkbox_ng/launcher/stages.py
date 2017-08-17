@@ -67,20 +67,19 @@ class MainLoopStage(metaclass=abc.ABCMeta):
         while True:
             if job.plugin in ('user-interact', 'user-interact-verify',
                               'user-verify', 'manual'):
-                # FIXME: get rid of pulling sa's internals
-                jsm = self.sa._context._state._job_state_map
-                if jsm[job.id].can_start():
+                job_state = self.sa.get_job_state(job.id)
+                if job_state.can_start():
                     ui.notify_about_purpose(job)
                 if (self.is_interactive and
                         job.plugin in ('user-interact',
                                        'user-interact-verify',
                                        'manual')):
-                    if jsm[job.id].can_start():
+                    if job_state.can_start():
                         ui.notify_about_steps(job)
                     if job.plugin == 'manual':
                         cmd = 'run'
                     else:
-                        if jsm[job.id].can_start():
+                        if job_state.can_start():
                             cmd = ui.wait_for_interaction_prompt(job)
                         else:
                             # 'running' the job will make it marked as skipped

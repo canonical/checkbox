@@ -42,14 +42,9 @@ from plainbox.impl.commands.inv_run import Action
 from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
-from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
-from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.qualifiers import select_jobs
-from plainbox.impl.secure.qualifiers import FieldQualifier
-from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
@@ -849,7 +844,9 @@ class Run(Command, MainLoopStage):
         if len(selection) == 1 and selection[0] in tps:
             self.just_run_test_plan(selection[0])
         else:
-            self.run_matching_jobs(selection)
+            self.sa.hand_pick_jobs(selection)
+            print(self.C.header(_("Running Selected Jobs")))
+            self._run_jobs(self.sa.get_dynamic_todo_list())
         self.sa.finalize_session()
         self._print_results()
         return 0 if self.sa.get_summary()['fail'] == 0 else 1
@@ -858,21 +855,6 @@ class Run(Command, MainLoopStage):
         self.sa.select_test_plan(tp_id)
         self.sa.bootstrap()
         print(self.C.header(_("Running Selected Test Plan")))
-        self._run_jobs(self.sa.get_dynamic_todo_list())
-
-    def run_matching_jobs(self, patterns):
-        # XXX: SessionAssistant doesn't allow running hand-picked list of jobs
-        # this is why this method touches SA's internal to manipulate state, so
-        # those jobs may be run
-        qualifiers = []
-        for pattern in patterns:
-            qualifiers.append(FieldQualifier('id', PatternMatcher(
-                '^{}$'.format(pattern)), Origin('args')))
-        jobs = select_jobs(self.sa._context.state.job_list, qualifiers)
-        self.sa._context.state.update_desired_job_list(jobs)
-        UsageExpectation.of(self.sa).allowed_calls = (
-            self.sa._get_allowed_calls_in_normal_state())
-        print(self.C.header(_("Running Selected Jobs")))
         self._run_jobs(self.sa.get_dynamic_todo_list())
 
     def _configure_report(self):

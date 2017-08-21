@@ -353,8 +353,8 @@ class SessionAssistant:
 
         :param ctrl_setup_list:
             An iterable with tuples, where each tuple represents a class of
-            controller to instantiate, together with \*args and \*\*kwargs to use
-            when calling its __init__.
+            controller to instantiate, together with \*args and \*\*kwargs to
+            use when calling its __init__.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -1290,7 +1290,8 @@ class SessionAssistant:
                 raise ValueError("unknown user interface: {!r}".format(ui))
         else:
             raise TypeError("incorrect UI type")
-        warm_up_list = self._runner.get_warm_up_sequence(self._context.state.run_list)
+        warm_up_list = self._runner.get_warm_up_sequence(
+            self._context.state.run_list)
         if warm_up_list:
             for warm_up_func in warm_up_list:
                 warm_up_func()
@@ -1321,8 +1322,8 @@ class SessionAssistant:
                     self.get_session_dir(), 'CHECKBOX_DATA')
                 if not os.path.exists(checkbox_data_dir):
                     os.mkdir(checkbox_data_dir)
-                respawn_cmd_file = os.path.join(checkbox_data_dir,
-                    '__respawn_checkbox')
+                respawn_cmd_file = os.path.join(
+                    checkbox_data_dir, '__respawn_checkbox')
                 if self._restart_cmd_callback:
                     with open(respawn_cmd_file, 'wt') as f:
                         f.writelines(self._restart_cmd_callback(

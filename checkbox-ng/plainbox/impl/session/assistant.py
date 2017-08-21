@@ -1290,9 +1290,10 @@ class SessionAssistant:
                     os.mkdir(checkbox_data_dir)
                 respawn_cmd_file = os.path.join(checkbox_data_dir,
                     '__respawn_checkbox')
-                with open(respawn_cmd_file, 'wt') as f:
-                    f.writelines(self._restart_cmd_callback(
-                        self.get_session_id()))
+                if self._restart_cmd_callback:
+                    with open(respawn_cmd_file, 'wt') as f:
+                        f.writelines(self._restart_cmd_callback(
+                            self.get_session_id()))
             if not native:
                 builder = self._runner.run_job(
                     job, job_state, self._config, ui

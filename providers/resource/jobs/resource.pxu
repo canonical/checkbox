@@ -118,6 +118,7 @@ _summary: Enumerate available system executables
 _description: Generates a resource for all available executables
 command:
     find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -xtype f -executable -printf "name: %f\nlocation: %h\n\n"
+    true
 
 id: device
 estimated_duration: 0.48

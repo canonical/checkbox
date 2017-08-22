@@ -45,7 +45,10 @@ from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import JobRunnerUIDelegate
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import FieldQualifier
+from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
@@ -350,8 +353,8 @@ class SessionAssistant:
 
         :param ctrl_setup_list:
             An iterable with tuples, where each tuple represents a class of
-            controller to instantiate, together with \*args and \*\*kwargs to use
-            when calling its __init__.
+            controller to instantiate, together with \*args and \*\*kwargs to
+            use when calling its __init__.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -588,6 +591,7 @@ class SessionAssistant:
             self.get_session_id: "to get the id of currently running session",
             self.get_session_dir: ("to get the path where current session is"
                                    "stored"),
+            self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
         }
 
     @raises(KeyError, UnexpectedMethodCall)
@@ -874,6 +878,35 @@ class SessionAssistant:
             self._get_allowed_calls_in_normal_state())
         self._metadata.flags = {'incomplete'}
         self._manager.checkpoint()
+
+    @raises(UnexpectedMethodCall)
+    def hand_pick_jobs(self, id_patterns: 'Iterable[str]'):
+        """
+        Select jobs to run. Don't use test plans.
+
+        :param id_patterns:
+            List of regex patterns that jobs' id must match in order to be
+            selected.
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        Use this method if you want to run particular jobs from all of the
+        loaded providers. They don't have to be included in any test plan.
+        There is no bootstrapping done, so templates are not intantiated, thus
+        selection is done only among explicit jobs.
+        """
+        UsageExpectation.of(self).enforce()
+        qualifiers = []
+        for pattern in id_patterns:
+            qualifiers.append(FieldQualifier('id', PatternMatcher(
+                '^{}$'.format(pattern)), Origin('hand-pick')))
+        jobs = select_jobs(self._context.state.job_list, qualifiers)
+        self._context.state.update_desired_job_list(jobs)
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state())
 
     @raises(UnexpectedMethodCall)
     def get_bootstrap_todo_list(self):
@@ -1257,7 +1290,8 @@ class SessionAssistant:
                 raise ValueError("unknown user interface: {!r}".format(ui))
         else:
             raise TypeError("incorrect UI type")
-        warm_up_list = self._runner.get_warm_up_sequence(self._context.state.run_list)
+        warm_up_list = self._runner.get_warm_up_sequence(
+            self._context.state.run_list)
         if warm_up_list:
             for warm_up_func in warm_up_list:
                 warm_up_func()
@@ -1288,8 +1322,8 @@ class SessionAssistant:
                     self.get_session_dir(), 'CHECKBOX_DATA')
                 if not os.path.exists(checkbox_data_dir):
                     os.mkdir(checkbox_data_dir)
-                respawn_cmd_file = os.path.join(checkbox_data_dir,
-                    '__respawn_checkbox')
+                respawn_cmd_file = os.path.join(
+                    checkbox_data_dir, '__respawn_checkbox')
                 if self._restart_cmd_callback:
                     with open(respawn_cmd_file, 'wt') as f:
                         f.writelines(self._restart_cmd_callback(

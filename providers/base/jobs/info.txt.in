@@ -31,10 +31,16 @@ _summary: Attach a copy of /proc/cpuinfo
 id: dmesg_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: cat /var/log/dmesg | ansi_parser
+user: root
+command:
+ if [ -e /var/log/dmesg ]; then
+  cat /var/log/dmesg | ansi_parser
+ else
+  dmesg | ansi_parser
+ fi
 estimated_duration: 0.640
-_description: Attaches a copy of /var/log/dmesg to the test results
-_summary: Attach a copy of /var/log/dmesg
+_description: Attaches a copy of /var/log/dmesg or the current dmesg buffer to the test results
+_summary: Attach a copy of dmesg
 
 id: dmi_attachment
 plugin: attachment

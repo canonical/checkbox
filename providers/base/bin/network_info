@@ -84,8 +84,8 @@ def main(args):
             print("IPv6: n/a")
         except:
             print("IPv6: n/a")
-        print("MAC: %s\n" % get_mac_address(interface))
-        print("Connect Speed: %s" % get_speed(interface))
+        print("MAC: %s" % get_mac_address(interface))
+        print("Connect Speed: %s\n" % get_speed(interface))
 
     return 0
 

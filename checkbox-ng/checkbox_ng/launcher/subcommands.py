@@ -836,6 +836,13 @@ class Run(Command, MainLoopStage):
     def invoked(self, ctx):
         self._C = Colorizer()
         self.ctx = ctx
+        ctx.sa = SessionAssistant(
+            "com.canonical:checkbox-cli",
+            self.get_cmd_version(),
+            "0.99",
+            ["restartable"],
+        )
+        self._configure_restart()
         self.sa.select_providers('*')
         self.sa.start_new_session('checkbox-run')
         tps = self.sa.get_test_plans()
@@ -905,6 +912,13 @@ class Run(Command, MainLoopStage):
             print(_("Sending results to {}").format(self.transport_where))
         self.sa.export_to_transport(
             self.exporter, transport, self.exporter_opts)
+
+    def _configure_restart(self):
+        strategy = detect_restart_strategy()
+        respawn_cmd = sys.argv[0] # entry-point to checkbox
+        respawn_cmd += ' --resume {}' # interpolate with session_id
+        self.sa.configure_application_restart(
+            lambda session_id: [ respawn_cmd.format(session_id)])
 
 
 class List(Command):

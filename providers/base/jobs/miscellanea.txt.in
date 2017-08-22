@@ -362,3 +362,13 @@ id: miscellanea/call-trace-check
 command: if [ -n "$(grep "Call Trace:" /var/log/syslog)" ]; then echo "Call Trace detected in syslog"; false; else true; fi
 _summary: Check syslog for call traces
 _description: Checks syslog for call traces after testing is complete.
+flags: preserve-locale
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+id: miscellanea/attach-syslog
+command: if [ -n "$(grep "Call Trace:" /var/log/syslog)" ]; then cat /var/log/syslog; fi
+_summary: Attach syslog if Call Trace appears
+_description: Attaches a copy of syslog if call traces are present after testing is complete.
+flags: preserve-locale

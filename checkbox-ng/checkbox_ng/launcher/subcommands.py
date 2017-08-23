@@ -332,11 +332,12 @@ class Launcher(Command, MainLoopStage):
 
     def _resume_session(self, session):
         metadata = self.ctx.sa.resume_session(session.id)
-        app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
-        test_plan_id = app_blob['testplan_id']
+        if 'testplanless' not in metadata.flags:
+            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+            test_plan_id = app_blob['testplan_id']
+            self.ctx.sa.select_test_plan(test_plan_id)
+            self.ctx.sa.bootstrap()
         last_job = metadata.running_job_name
-        self.ctx.sa.select_test_plan(test_plan_id)
-        self.ctx.sa.bootstrap()
         # If we resumed maybe not rerun the same, probably broken job
         self._handle_last_job_after_resume(last_job)
 

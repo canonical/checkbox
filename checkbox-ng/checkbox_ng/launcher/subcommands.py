@@ -855,6 +855,13 @@ class Run(Command, MainLoopStage):
             self.sa.hand_pick_jobs(selection)
             print(self.C.header(_("Running Selected Jobs")))
             self._run_jobs(self.sa.get_dynamic_todo_list())
+            # there might have been new jobs instantiated
+            while True:
+                self.sa.hand_pick_jobs(ctx.args.PATTERN)
+                todos = self.sa.get_dynamic_todo_list()
+                if not todos:
+                    break
+                self._run_jobs(self.sa.get_dynamic_todo_list())
         self.sa.finalize_session()
         self._print_results()
         return 0 if self.sa.get_summary()['fail'] == 0 else 1

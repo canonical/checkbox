@@ -70,6 +70,10 @@ class SessionMetaData:
     # once the testing begin
     FLAG_BOOTSTRAPPING = "bootstrapping"
 
+    # Flag indicating that session is using hand-picked list of jobs
+    # and is not following any test plan
+    FLAG_TESTPLANLESS = "testplanless"
+
     def __init__(self, title=None, flags=None, running_job_name=None,
                  app_blob=None, app_id=None):
         """Initialize a new session state meta-data object."""

@@ -905,6 +905,7 @@ class SessionAssistant:
                 '^{}$'.format(pattern)), Origin('hand-pick')))
         jobs = select_jobs(self._context.state.job_list, qualifiers)
         self._context.state.update_desired_job_list(jobs)
+        self._metadata.flags = {'incomplete', 'testplanless'}
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state())
 

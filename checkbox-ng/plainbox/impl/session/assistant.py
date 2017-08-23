@@ -1701,6 +1701,7 @@ class SessionAssistant:
             self.get_dynamic_todo_list: "to see what is yet to be executed",
             self.run_job: "to run a given job",
             self.use_alternate_selection: "to change the selection",
+            self.hand_pick_jobs: "to generate new selection and use it",
             self.use_job_result: "to feed job result back to the session",
             # XXX: should this be available right off the bat or should we wait
             # until all of the mandatory jobs have been executed.

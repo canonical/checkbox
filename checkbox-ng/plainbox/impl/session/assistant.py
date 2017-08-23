@@ -643,9 +643,12 @@ class SessionAssistant:
             self._restart_strategy.diffuse_application_restart(self._app_id)
         self.session_available(self._manager.storage.id)
         _logger.debug("Session resumed: %s", session_id)
-        UsageExpectation.of(self).allowed_calls = {
-            self.select_test_plan: "to save test plan selection",
-        }
+        if SessionMetaData.FLAG_TESTPLANLESS in self._metadata.flags:
+            UsageExpectation.of(self).allowed_calls = self._get_allowed_calls_in_normal_state()
+        else:
+            UsageExpectation.of(self).allowed_calls = {
+                self.select_test_plan: "to save test plan selection",
+            }
         return self._metadata
 
     @raises(UnexpectedMethodCall)

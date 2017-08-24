@@ -101,6 +101,7 @@ include:
     graphics/1_cycle_resolution_.*                         certification-status=non-blocker
     graphics/2_switch_card_.*_xenial                       certification-status=blocker
     graphics/2_maximum_resolution_.*                       certification-status=blocker
+    graphics/2_valid_opengl_renderer_.*                    certification-status=blocker
     graphics/2_glxgears_.*                                 certification-status=blocker
     graphics/2_driver_version_.*                           certification-status=blocker
     graphics/2_compiz_check_.*                             certification-status=blocker

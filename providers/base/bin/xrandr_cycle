@@ -10,6 +10,9 @@ import sys
 import tarfile
 import time
 
+from fractions import Fraction
+from collections import OrderedDict
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyword', default='',
                     help=('A keyword to distinguish the screenshots '
@@ -23,6 +26,7 @@ args = parser.parse_args()
 
 device_context = ''    # track what device's modes we are looking at
 modes = []             # keep track of all the devices and modes discovered
+highest_modes = []     # list of highest-res modes for each aspect ratio
 current_modes = []     # remember the user's current settings for cleanup later
 failures = 0           # count the number of failed modesets
 failure_messages = []  # remember which modes failed
@@ -65,6 +69,26 @@ for line in output:
             # we found them at the end:
             if foo[1].find('*') != -1:
                 current_modes.append((device_context, foo[0]))
+# let's create a dict of aspect_ratio:largest_width for each display
+# (width, because it's easier to compare simple ints when looking for the
+# highest value).
+top_res_per_aspect = OrderedDict()
+for adapter, mode in modes:
+    try:
+        width, height = [int(x) for x in mode.split('x')]
+        aspect = Fraction(width, height)
+        if adapter not in top_res_per_aspect:
+            top_res_per_aspect[adapter] = OrderedDict()
+        cur_max = top_res_per_aspect[adapter].get(aspect, 0)
+        top_res_per_aspect[adapter][aspect] = max(cur_max, width)
+    except Exception as exc:
+        print("Error parsing %s: %s" % (mode, exc))
+
+highest_modes = []
+for adapter, params in top_res_per_aspect.items():
+    for aspect, width in params.items():
+        mode = '{}x{}'.format(width, width/aspect)
+        highest_modes.append((adapter, mode))
 
 # Now we have a list of the modes we need to test.  So let's do just that.
 profile_path = os.environ['HOME'] + '/.shutter/profiles/'
@@ -131,7 +155,7 @@ except:
     raise SystemExit("ERROR: While updating folder name "
                      "in shutter profile: {}".format(sys.exc_info()))
 
-for mode in modes:
+for mode in highest_modes:
     cmd = 'xrandr --output ' + mode[0] + ' --mode ' + mode[1]
     retval = subprocess.call(cmd, shell=True)
     if retval != 0:

@@ -77,6 +77,7 @@ estimated_duration: 5400.0
 depends:
  power-management/rtc
  suspend/suspend_advanced
+flags: noreturn autorestart
 user: root
 command:
  pm_test reboot --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3 --silent
@@ -228,7 +229,7 @@ requires:
  package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn
+flags: noreturn autorestart
 user: root
 environ: PLAINBOX_SESSION_SHARE
 _description:
@@ -250,7 +251,7 @@ requires:
  package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 30 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn
+flags: noreturn autorestart
 estimated_duration: 2700
 user: root
 environ: PLAINBOX_SESSION_SHARE

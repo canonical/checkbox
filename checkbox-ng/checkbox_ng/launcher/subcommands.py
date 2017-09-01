@@ -332,11 +332,12 @@ class Launcher(Command, MainLoopStage):
 
     def _resume_session(self, session):
         metadata = self.ctx.sa.resume_session(session.id)
-        app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
-        test_plan_id = app_blob['testplan_id']
+        if 'testplanless' not in metadata.flags:
+            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+            test_plan_id = app_blob['testplan_id']
+            self.ctx.sa.select_test_plan(test_plan_id)
+            self.ctx.sa.bootstrap()
         last_job = metadata.running_job_name
-        self.ctx.sa.select_test_plan(test_plan_id)
-        self.ctx.sa.bootstrap()
         # If we resumed maybe not rerun the same, probably broken job
         self._handle_last_job_after_resume(last_job)
 
@@ -836,6 +837,13 @@ class Run(Command, MainLoopStage):
     def invoked(self, ctx):
         self._C = Colorizer()
         self.ctx = ctx
+        ctx.sa = SessionAssistant(
+            "com.canonical:checkbox-cli",
+            self.get_cmd_version(),
+            "0.99",
+            ["restartable"],
+        )
+        self._configure_restart()
         self.sa.select_providers('*')
         self.sa.start_new_session('checkbox-run')
         tps = self.sa.get_test_plans()
@@ -847,6 +855,13 @@ class Run(Command, MainLoopStage):
             self.sa.hand_pick_jobs(selection)
             print(self.C.header(_("Running Selected Jobs")))
             self._run_jobs(self.sa.get_dynamic_todo_list())
+            # there might have been new jobs instantiated
+            while True:
+                self.sa.hand_pick_jobs(ctx.args.PATTERN)
+                todos = self.sa.get_dynamic_todo_list()
+                if not todos:
+                    break
+                self._run_jobs(self.sa.get_dynamic_todo_list())
         self.sa.finalize_session()
         self._print_results()
         return 0 if self.sa.get_summary()['fail'] == 0 else 1
@@ -905,6 +920,13 @@ class Run(Command, MainLoopStage):
             print(_("Sending results to {}").format(self.transport_where))
         self.sa.export_to_transport(
             self.exporter, transport, self.exporter_opts)
+
+    def _configure_restart(self):
+        strategy = detect_restart_strategy()
+        respawn_cmd = sys.argv[0] # entry-point to checkbox
+        respawn_cmd += ' --resume {}' # interpolate with session_id
+        self.sa.configure_application_restart(
+            lambda session_id: [ respawn_cmd.format(session_id)])
 
 
 class List(Command):

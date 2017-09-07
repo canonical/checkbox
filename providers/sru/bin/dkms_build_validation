@@ -26,7 +26,11 @@ scan_log="/var/log/apt/term.log"
 
 # kernel_ver_max should be the same as kernel_ver_current
 if [ "$kernel_ver_current" != "$kernel_ver_max" ]; then
-    echo "No DKMS module was built for kernel version $kernel_ver_current"
+    echo "Current using kernel version does not match the latest built DKMS module."
+    echo "Your running kernel: $kernel_ver_current"
+    echo "Latest DKMS module built on kernel: $kernel_ver_max"
+    echo "Maybe the target DKMS was not built,"
+    echo "or you are not running the latest available kernel."
     echo
     echo "=== DKMS status ==="
     dkms status

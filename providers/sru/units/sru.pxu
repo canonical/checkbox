@@ -1,4 +1,16 @@
 plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/dkms_build_validation
+requires: package.name == 'dkms'
+command:
+ dkms_build_validation
+_summary: Validate the build status of DKMS modules, automatically
+_description:
+ Firstly, check the built number of DKMS modules.
+ Secondly, scan APT system update log to see any build error messages.
+ This test is mainly used for pre-installed images which use DKMS modules.
+
+plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/screenshot_opencv_validation
 requires: package.name == 'python-opencv'
@@ -86,6 +98,7 @@ include:
     memory/check
     ethernet/detect
     ethernet/info_automated
+    miscellanea/dkms_build_validation
     networking/http
     networking/gateway_ping
     power-management/tickless_idle

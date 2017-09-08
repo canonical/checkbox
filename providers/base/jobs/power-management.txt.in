@@ -31,7 +31,7 @@ estimated_duration: 2.0
 _description: Attach log from fwts wakealarm test
 command: [ -e ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log
 
-plugin: user-interact-verify
+plugin: shell
 category_id: com.canonical.plainbox::power-management
 id: power-management/poweroff
 estimated_duration: 120.0
@@ -41,20 +41,10 @@ environ: PLAINBOX_SESSION_SHARE
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
-command: pm_test poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn
+command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
+flags: noreturn autorestart
 _description:
- PURPOSE:
   This test will check the system's ability to power-off and boot.
- STEPS:
-  1. Press "Enter" to begin.
-  2. The machine will shut down.
-  3. Power the machine back on.
-  4. After rebooting, wait for the test prompts to inform you that the test is complete.
-  5. Once the test has completed, restart checkbox and select 'Re-run' when prompted.
- VERIFICATION:
-  If the machine successfully shuts down and boots, select Pass, otherwise,
-  select Fail.
 
 plugin: attachment
 category_id: com.canonical.plainbox::power-management
@@ -66,7 +56,7 @@ command:
 _description:
  This will attach any logs from the power-management/poweroff test to the results.
 
-plugin: user-interact-verify
+plugin: shell
 category_id: com.canonical.plainbox::power-management
 id: power-management/reboot
 estimated_duration: 120.0
@@ -75,19 +65,10 @@ environ: PLAINBOX_SESSION_SHARE
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
-command: pm_test reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn
+command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
+flags: noreturn autorestart
 _description:
- PURPOSE:
   This test will check the system's ability to reboot cleanly.
- STEPS:
-  1. Press "Enter" to begin.
-  2. The machine will reboot.
-  3. After rebooting, wait for the test prompts to inform you that the test is complete.
-  4. Once the test has completed, restart checkbox and select Re-Run when prompted.
- VERIFICATION:
-  If the machine successfully reboots, select Pass, otherwise,
-  select Fail.
 
 plugin: attachment
 category_id: com.canonical.plainbox::power-management

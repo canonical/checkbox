@@ -151,7 +151,7 @@ int test_clock_direction()
     }
     printf("clock direction test: sleeptime %u sec per iteration, failed iterations: %d\n",
             sleeptime, failures);
-    return (failures > 0);
+    return (failures > 2);
 }
 
 int main()

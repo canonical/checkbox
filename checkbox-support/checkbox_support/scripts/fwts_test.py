@@ -151,7 +151,7 @@ def main():
                               'of the log file.\n'
                               '[Default: %(default)s]'))
     parser.add_argument('-f', '--fail-level',
-                        default='high',
+                        default='critical',
                         choices=['critical', 'high', 'medium',
                                  'low', 'none', 'aborted'],
                         help=('Specify the FWTS failure level that will '

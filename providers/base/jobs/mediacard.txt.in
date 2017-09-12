@@ -1,6 +1,6 @@
 unit: manifest entry
 id: has_card_reader
-_name: Card Reader
+_name: Media Card Reader
 value-type: bool
 
 plugin: user-interact

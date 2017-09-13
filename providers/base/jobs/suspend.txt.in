@@ -242,7 +242,7 @@ id: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
-depends: graphics/{index}_switch_card_{product_slug}
+depends: suspend/suspend_advanced graphics/{index}_switch_card_{product_slug}
 user: root
 environ: PLAINBOX_SESSION_SHARE
 command:

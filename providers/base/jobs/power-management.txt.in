@@ -39,7 +39,6 @@ depends: power-management/fwts_wakealarm
 user: root
 environ: PLAINBOX_SESSION_SHARE
 requires:
- package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
@@ -63,7 +62,6 @@ estimated_duration: 120.0
 user: root
 environ: PLAINBOX_SESSION_SHARE
 requires:
- package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart

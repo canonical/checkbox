@@ -53,7 +53,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_after_suspend_{product_slug}_xenial
 estimated_duration: 1.2
-depends: suspend/{index}_resolution_before_suspend_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial suspend/{index}_resolution_before_suspend_{product_slug}_xenial
 _description: Test to see that we have the same resolution after resuming as before.
 command:
  source graphics_env {driver} {index}
@@ -65,7 +65,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_display_after_suspend_{product_slug}_xenial
-after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 _summary: Test display function after suspend for {vendor} {product}
 _description:
  PURPOSE:
@@ -82,7 +82,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_xenial
 requires: package.name == 'xorg'
-after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 estimated_duration: 120.0
 command:
  source graphics_env {driver} {index}
@@ -111,7 +111,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_compiz_check_after_suspend_{product_slug}_xenial
-after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 requires: package.name == 'nux-tools'
 command:
  source graphics_env {driver} {index}
@@ -125,7 +125,7 @@ template-resource: graphics_card
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_glxgears_after_suspend_{product_slug}_xenial
-after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 requires: package.name == 'mesa-utils'
 command:
  source graphics_env {driver} {index}
@@ -145,7 +145,7 @@ _description:
 unit: template
 template-resource: graphics_card
 id: suspend/{index}_video_after_suspend_{product_slug}_xenial
-after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 requires:
@@ -169,7 +169,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_driver_version_after_suspend_{product_slug}_xenial
-after: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 command:
  source graphics_env {driver} {index}
  graphics_driver

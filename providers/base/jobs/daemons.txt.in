@@ -29,7 +29,6 @@ _description: Test if the getty daemon is running when the package is installed.
 plugin: shell
 category_id: com.canonical.plainbox::daemons
 id: daemons/init
-requires: package.name == 'upstart'
 command: pgrep -f '/sbin/init' >/dev/null
 _description: Test if the init daemon is running when the package is installed.
 

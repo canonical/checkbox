@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_bt_smart
+_name: Bluetooth Smart (4.0 or later) Support
+value-type: bool

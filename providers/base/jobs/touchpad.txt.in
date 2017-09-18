@@ -3,14 +3,16 @@ category_id: com.canonical.plainbox::touchpad
 id: touchpad/basic
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
-_description:
- PURPOSE:
-     Touchpad manual verification
- STEPS:
-     1. Make sure that touchpad is enabled.
-     2. Move cursor using the touchpad.
- VERIFICATION:
-     Did the cursor move?
+_purpose:
+    Touchpad manual verification
+_steps:
+    1. Make sure that touchpad is enabled.
+    2. Move cursor using the touchpad.
+_verification:
+    Did the cursor move?
+_siblings:
+    [{ "id": "touchpad/basic-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/basic" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -20,14 +22,16 @@ requires:
   'Button Horiz Wheel Left' in xinput.button_labels and 'Button Horiz Wheel Right' in xinput.button_labels
 command: touchpad_test right left --edge-scroll
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Touchpad horizontal scroll verification
- STEPS:
-     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
-     2. Verify that you can move the horizontal slider by moving your finger right and left in the lower part of the touchpad.
- VERIFICATION:
+_steps:
+    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that you can move the horizontal slider by moving your finger right and left in the lower part of the touchpad.
+_verification:
      Could you scroll right and left?
+_siblings:
+    [{ "id": "touchpad/horizontal-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/horizontal" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -37,14 +41,16 @@ requires:
   'Button Wheel Up' in xinput.button_labels and 'Button Wheel Down' in xinput.button_labels
 command: touchpad_test up down --edge-scroll
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Touchpad vertical scroll verification
- STEPS:
-     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
-     2. Verify that you can move the vertical slider by moving your finger up and down in the right part of the touchpad.
- VERIFICATION:
+_steps:
+    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that you can move the vertical slider by moving your finger up and down in the right part of the touchpad.
+_verification:
      Could you scroll up and down?
+_siblings:
+    [{ "id": "touchpad/vertical-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/vertical" }]
 
 plugin: shell
 category_id: com.canonical.plainbox::touchpad
@@ -54,7 +60,7 @@ requires:
   xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
 command: true
 estimated_duration: 1.2
-_description:
+_purpose:
  Determine whether the touchpad is detected as a singletouch device automatically.
 
 plugin: shell
@@ -65,7 +71,7 @@ requires:
   dmi.product in ['Notebook','Laptop','Portable','Convertible']
   xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'dependent'
 command: true
-_description:
+_purpose:
  Determine whether the touchpad is detected as a multitouch device automatically.
 
 plugin: manual
@@ -74,27 +80,28 @@ id: touchpad/multitouch-manual
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/singletouch-automated
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Touchpad manual detection of multitouch.
- STEPS:
-     1. Look at the specifications for your system.
- VERIFICATION:
+_steps:
+    1. Look at the specifications for your system.
+_verification:
      Is the touchpad supposed to be multitouch?
+_siblings:
+    [{ "id": "touchpad/multitouch-manual-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-manual" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/singletouch-corner
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Determine that the hot corner feature is working as expected
- STEPS:
-     1. Launch a browser.
-     2. Go to a website, and hover the cursor over a link.
-     3. Tap the upper right corner on the touchpad.
- VERIFICATION:
+_steps:
+    1. Launch a browser.
+    2. Go to a website, and hover the cursor over a link.
+    3. Tap the upper right corner on the touchpad.
+_verification:
      Did the tap trigger a new tab to be opened?
 
 plugin: manual
@@ -102,14 +109,16 @@ category_id: com.canonical.plainbox::touchpad
 id: touchpad/singletouch-selection
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Determine that the selection window function is working as expected.
- STEPS:
-     1. Open a file folder
-     2. Double tap and drag the cursor across several file.
- VERIFICATION:
+_steps:
+    1. Open a file folder
+    2. Double tap and drag the cursor across several file.
+_verification:
      Did a selection window open and were several files selected?
+_siblings:
+    [{ "id": "touchpad/singletouch-selection-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/singletouch-selection" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -117,15 +126,17 @@ id: touchpad/multitouch-rightclick
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Determine that the right click function is working as expected.
- STEPS:
-     1. Open a file folder
-     2. Hover cursor over file in folder
-     3. 2-touch tap.
- VERIFICATION:
+_steps:
+    1. Open a file folder
+    2. Hover cursor over file in folder
+    3. 2-touch tap.
+_verification:
      Did the right click pop up menu appear?
+_siblings:
+    [{ "id": "touchpad/multitouch-rightclick-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-rightclick" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -133,14 +144,16 @@ id: touchpad/multitouch-horizontal
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: touchpad_test right left
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Touchpad 2-touch horizontal scroll verification
- STEPS:
-     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
-     2. Verify that you can move the horizontal slider by moving 2 fingers right and left along the touchpad.
- VERIFICATION:
+_steps:
+    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that you can move the horizontal slider by moving 2 fingers right and left along the touchpad.
+_verification:
      Could you scroll right and left?
+_siblings:
+    [{ "id": "touchpad/multitouch-horizontal-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-horizontal" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -148,29 +161,33 @@ id: touchpad/multitouch-vertical
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: touchpad_test up down
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Touchpad 2-touch vertical scroll verification
- STEPS:
-     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
-     2. Verify that you can move the vertical slider by moving 2 fingers up and down along the touchpad.
- VERIFICATION:
+_steps:
+    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that you can move the vertical slider by moving 2 fingers up and down along the touchpad.
+_verification:
      Could you scroll up and down?
+_siblings:
+    [{ "id": "touchpad/multitouch-vertical-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-vertical" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/drag-and-drop
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
-_description:
- PURPOSE:
+_purpose:
      Determine that the drag and drop function is working as expected.
- STEPS:
-     1. Browse to the examples folder in the current user's home directory
-     2. Double tap and hold to select the "Ubuntu_Free_Culture_Showcase" folder
-     2. Drag the selected folder to the desktop and remove finger from touchpad.
- VERIFICATION:
+_steps:
+    1. Browse to the examples folder in the current user's home directory
+    2. Double tap and hold to select the "Ubuntu_Free_Culture_Showcase" folder
+    3. Drag the selected folder to the desktop and remove finger from touchpad.
+_verification:
      Did a selected folder move to the desktop?
+_siblings:
+    [{ "id": "touchpad/drag-and-drop-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/drag-and-drop" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -179,14 +196,13 @@ requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check touchpad pinch-to-zoom gesture
-_description:
- PURPOSE:
+_purpose:
      Check touchpad pinch gesture for zoom
- STEPS:
-     1. Open gallery-app with an image
-     2. Place two fingers on the touchpad and pinch them together
-     3. Place two fingers on the touchpad and move them apart
- VERIFICATION:
+_steps:
+    1. Open gallery-app with an image
+    2. Place two fingers on the touchpad and pinch them together
+    3. Place two fingers on the touchpad and move them apart
+_verification:
      Does the image zoom in and out?
 
 plugin: manual
@@ -196,13 +212,16 @@ requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check 4-finger tap gesture
-_description:
- PURPOSE:
+_purpose:
      Validate that 4-touch tap is operating as expected
- STEPS:
-     1. 4-touch tap (tap with 4 fingers) anywhere on the touchpad
- VERIFICATION:
+_steps:
+    1. 4-touch tap (tap with 4 fingers) anywhere on the touchpad
+_verification:
      Did the tap open the Dash?
+_siblings:
+    [{ "id": "touchpad/multitouch-dash-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-dash",
+       "_summary": "Check 4-finger tap gesture after suspend (S3)" }]
 
 plugin: shell
 category_id: com.canonical.plainbox::touchpad
@@ -217,8 +236,11 @@ command:
         echo "$info"
         exit 1
     fi 
-_description:
+_purpose:
  This test will check if your touchpad was detected as a mouse.
+_siblings:
+    [{ "id": "touchpad/detected-as-mouse-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/detected-as-mouse" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -226,20 +248,25 @@ id: touchpad/continuous-move
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 12
 command: qmlscene -qt5 --fullscreen $PLAINBOX_PROVIDER_DATA/touch_continuous_move_test.qml 2>&1 | grep -o PASS
-_description:
- PURPOSE:
+_purpose:
      Touchpad continuous move verification
- STEPS:
-     1. Select "Test" when ready and continuously move your cursor within the borders of the displayed test window.
-     You'll need to keep moving your finger on the touchpad for 10 seconds.
- VERIFICATION:
+_steps:
+    1. Select "Test" when ready and continuously move your cursor within the borders of the displayed test window.
+    You'll need to keep moving your finger on the touchpad for 10 seconds.
+_verification:
      Did the mouse cursor move without interruption?
+_siblings:
+    [{ "id": "touchpad/continuous-move-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/continuous-move" }]
 
 plugin: qml
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/palm-rejection
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 20
-_description:
+_purpose:
  This test checks if touchpad ignores palm touches
 qml_file: palm_rejection.qml
+_siblings:
+    [{ "id": "touchpad/palm-rejection-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/palm-rejection" }]

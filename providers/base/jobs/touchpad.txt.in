@@ -11,6 +11,9 @@ _description:
      2. Move cursor using the touchpad.
  VERIFICATION:
      Did the cursor move?
+_siblings:
+    [{ "id": "touchpad/basic-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/basic" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -28,6 +31,9 @@ _description:
      2. Verify that you can move the horizontal slider by moving your finger right and left in the lower part of the touchpad.
  VERIFICATION:
      Could you scroll right and left?
+_siblings:
+    [{ "id": "touchpad/horizontal-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/horizontal" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -45,6 +51,9 @@ _description:
      2. Verify that you can move the vertical slider by moving your finger up and down in the right part of the touchpad.
  VERIFICATION:
      Could you scroll up and down?
+_siblings:
+    [{ "id": "touchpad/vertical-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/vertical" }]
 
 plugin: shell
 category_id: com.canonical.plainbox::touchpad
@@ -110,6 +119,9 @@ _description:
      2. Double tap and drag the cursor across several file.
  VERIFICATION:
      Did a selection window open and were several files selected?
+_siblings:
+    [{ "id": "touchpad/singletouch-selection-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/singletouch-selection" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -126,6 +138,9 @@ _description:
      3. 2-touch tap.
  VERIFICATION:
      Did the right click pop up menu appear?
+_siblings:
+    [{ "id": "touchpad/multitouch-rightclick-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-rightclick" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -141,6 +156,9 @@ _description:
      2. Verify that you can move the horizontal slider by moving 2 fingers right and left along the touchpad.
  VERIFICATION:
      Could you scroll right and left?
+_siblings:
+    [{ "id": "touchpad/multitouch-horizontal-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-horizontal" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -156,6 +174,9 @@ _description:
      2. Verify that you can move the vertical slider by moving 2 fingers up and down along the touchpad.
  VERIFICATION:
      Could you scroll up and down?
+_siblings:
+    [{ "id": "touchpad/multitouch-vertical-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-vertical" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -171,6 +192,9 @@ _description:
      2. Drag the selected folder to the desktop and remove finger from touchpad.
  VERIFICATION:
      Did a selected folder move to the desktop?
+_siblings:
+    [{ "id": "touchpad/drag-and-drop-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/drag-and-drop" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -203,6 +227,10 @@ _description:
      1. 4-touch tap (tap with 4 fingers) anywhere on the touchpad
  VERIFICATION:
      Did the tap open the Dash?
+_siblings:
+    [{ "id": "touchpad/multitouch-dash-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/multitouch-dash",
+       "_summary": "Check 4-finger tap gesture after suspend (S3)" }]
 
 plugin: shell
 category_id: com.canonical.plainbox::touchpad
@@ -219,6 +247,9 @@ command:
     fi 
 _description:
  This test will check if your touchpad was detected as a mouse.
+_siblings:
+    [{ "id": "touchpad/detected-as-mouse-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/detected-as-mouse" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -234,6 +265,9 @@ _description:
      You'll need to keep moving your finger on the touchpad for 10 seconds.
  VERIFICATION:
      Did the mouse cursor move without interruption?
+_siblings:
+    [{ "id": "touchpad/continuous-move-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/continuous-move" }]
 
 plugin: qml
 category_id: com.canonical.plainbox::touchpad
@@ -243,3 +277,6 @@ estimated_duration: 20
 _description:
  This test checks if touchpad ignores palm touches
 qml_file: palm_rejection.qml
+_siblings:
+    [{ "id": "touchpad/palm-rejection-after-suspend",
+       "depends": "suspend/suspend_advanced touchpad/palm-rejection" }]

@@ -2,8 +2,8 @@ plugin: user-interact
 category_id: com.canonical.plainbox::keys
 id: keys/lock-screen
 estimated_duration: 30.0
-requires:
- device.category == 'KEYBOARD'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 command: lock_screen_watcher
 _description:
  PURPOSE:
@@ -21,7 +21,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/brightness
 estimated_duration: 30.0
-requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      This test will test the brightness key
@@ -34,8 +35,8 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::keys
 id: keys/volume
 estimated_duration: 30.0
-requires:
- device.category == 'KEYBOARD'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 user: root
 command: key_test -s '0xe02e,0xe0ae:Volume Down' '0xe030,0xe0b0:Volume Up'
 _description:
@@ -52,8 +53,8 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::keys
 id: keys/mute
 estimated_duration: 30.0
-requires:
- device.category == 'KEYBOARD'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 user: root
 command: key_test -s '0xe020,0xe0a0:Mute'
 _description:
@@ -69,8 +70,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/sleep
 estimated_duration: 90.0
-requires:
- device.category == 'KEYBOARD'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      This test will test the sleep key
@@ -84,7 +85,8 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::keys
 id: keys/battery-info
 estimated_duration: 30.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 user: root
 command: key_test -s '0xe071,0xef1:Battery Info'
 _description:
@@ -102,7 +104,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/wireless
 estimated_duration: 90.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      This test will test the wireless key
@@ -122,8 +125,8 @@ plugin: user-interact
 category_id: com.canonical.plainbox::keys
 id: keys/media-control
 estimated_duration: 30.0
-requires:
- device.category == 'KEYBOARD'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 user: root
 command: key_test -s 0xe010,0xe090:Previous 0xe024,0xe0a4:Stop 0xe019,0xe099:Next 0xe022,0xe0a2:Play
 _description:
@@ -140,8 +143,8 @@ plugin: user-interact
 category_id: com.canonical.plainbox::keys
 id: keys/super
 estimated_duration: 30.0
-requires:
- device.category == 'KEYBOARD'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 user: root
 command: key_test -s '0xe05b,0xe0db:Left Super Key'
 _description:
@@ -157,7 +160,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/video-out
 estimated_duration: 120.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      Validate that the External Video hot key is working as expected
@@ -171,7 +175,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/touchpad
 estimated_duration: 30.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      Verify touchpad hotkey toggles touchpad functionality on and off
@@ -186,7 +191,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/keyboard-backlight
 estimated_duration: 30.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      Verify that the keyboard backlight toggle key works properly
@@ -202,9 +208,10 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::keys
 id: keys/microphone-mute
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_special_keys == 'True'
  device.category == 'AUDIO'
- device.category == 'KEYBOARD'
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -229,7 +236,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/hibernate
 estimated_duration: 120.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      This test will test the hibernate key
@@ -244,7 +252,8 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/keyboard-overhead-light
 estimated_duration: 30.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
 _description:
  PURPOSE:
      This test will test the keyboard overhead light key or switch

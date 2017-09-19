@@ -292,7 +292,8 @@ class KVMTest(object):
             if (
                     url.path.endswith('/') or
                     url.path == '' or
-                    not url.path.endswith(".img")
+                    not (url.path.endswith(".img") or
+                         url.path.endswith(".tar.gz"))
                     ):
                 # If we have a relative URL (local copies of official images)
                 # http://192.168.0.1/ or http://192.168.0.1/images/

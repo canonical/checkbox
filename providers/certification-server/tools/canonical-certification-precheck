@@ -296,78 +296,85 @@ KVM_Image_Check(){
 name="KVM Image Check"
 echoname
 if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
-	kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
-	/usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
-	if [ $? = "0" ]; then
- 		echo -e " $kvmurl is a valid image.\n Continuing to use this image"
- 		pass
-		return 0
-	else
-		echo -e " $kvmurl is not a valid image.\n Would you like to reconfigure it now? [Y/n]"
-         	read -s -N1 a
-         	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
-               		read -e -p " Enter the path of your KVM Image: " kvm 
-               		sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
-	 		kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
-			/usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
-			if [ $? = "0" ]; then
- 				echo -e " $kvmurl is a valid image.\n Continuing to use this image"
- 				pass
-				return 0
-			else
- 				echo -e " We cannot get our image from $kvmurl.\n Marking as failed."
-				fail
-				return 0
-			fi
-		else
-			echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-			sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
-		fi
-	fi
+    kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+    if [[ "$kvmurl" =~ .*\.img$ ]] ; then
+        /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+        if [ $? = "0" ]; then
+            echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+            pass
+            return 0
+        else
+            echo -e " $kvmurl is not a valid image.\n Would you like to reconfigure it now? [Y/n]"
+            read -s -N1 a
+            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                read -e -p " Enter the path of your KVM Image: " kvm
+                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
+                kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+                if [ $? = "0" ]; then
+                    echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+                    pass
+                    return 0
+                else
+                    echo -e " We cannot get our image from $kvmurl.\n Marking as failed."
+                    fail
+                    return 0
+                fi
+            else
+                echo -e " Leaving configuration but commenting out.\n Trying cloud image."
+                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+            fi
+        fi
+    else # URL does not end in ".img". No way to test, so pass it and hope for the best....
+        echo -e " $kvmurl is not a\n .img file, so its validity can't be tested."
+        warn
+        eval info${i}=\"Unable to test\"
+        return 0
+    fi
 
 else
-	echo -e " KVM_IMAGE is not configured.\n Note: If left unconfigured, we will pull our image from cloud-images.ubuntu.com.\n Would you like to configure it now? [Y/n]"
-       	read -s -N1 a
-       	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
-       		read -e -p " Enter the path of your KVM Image: " kvm 
-       		sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
-		kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
-		/usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
-		if [ $? = "0" ]; then
- 			echo -e " $kvmurl is a valid image.\n Continuing to use this image"
- 			pass
-			return 0
-		else
-			echo -e "\n $kvmurl is not a valid image.\n Would you like to reconfigure it now? [Y/n]"
-         		read -s -N1 a
-         		if [[ $a == "Y" || $a == "y" || -z $a ]]; then
-               			read -e -p " Enter the path of your KVM Image: " kvm 
-               			sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
-	 			kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
-				/usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
-				if [ $? = "0" ]; then
- 					echo -e " $kvmurl is a valid image.\n Continuing to use this image"
- 					pass
-					return 0
-				else
-					echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-					sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
-				fi
-			else
-				echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-				sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
-			fi
-		fi
-	fi
+    echo -e " KVM_IMAGE is not configured.\n Note: If left unconfigured, we will pull our image from\n cloud-images.ubuntu.com.\n Would you like to configure it now? [Y/n]"
+    read -s -N1 a
+    if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+        read -e -p " Enter the path of your KVM Image: " kvm
+        sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
+        kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+        /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+        if [ $? = "0" ]; then
+            echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+            pass
+            return 0
+        else
+            echo -e "\n $kvmurl is not a valid image.\n Would you like to reconfigure it now? [Y/n]"
+            read -s -N1 a
+            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                read -e -p " Enter the path of your KVM Image: " kvm
+                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
+                kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+                if [ $? = "0" ]; then
+                    echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+                    pass
+                    return 0
+                else
+                    echo -e " Leaving configuration but commenting out.\n Trying cloud image."
+                    sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+                fi
+            else
+                echo -e " Leaving configuration but commenting out.\n Trying cloud image."
+                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+            fi
+        fi
+    fi
 fi
 kvmurl="http://cloud-images.ubuntu.com/$codename/current/$codename-server-cloudimg-$arch-disk1.img"
 if curl --output /dev/null --silent --head -fail "$kvmurl"; then
- 	echo -e " We can get our image from $kvmurl.\n Continuing to use this image"
-		pass
-	else
-		echo -e " We cannot get our image from $kvmurl.\n Marking as failed"
-		fail
-	fi
+    echo -e " We can get our image from $kvmurl.\n Continuing to use this image"
+    pass
+else
+    echo -e " We cannot get our image from $kvmurl.\n Marking as failed"
+    fail
+fi
 }
 
 # Check local availability of LXD images or pull from Internet, which tends to be slow

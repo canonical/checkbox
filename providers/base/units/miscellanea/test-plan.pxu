@@ -1,0 +1,19 @@
+id: misc-client-cert-full
+unit: test plan
+_name: Miscellaneous client tests
+_description: Miscellaneous client tests (fwts, dmi, oops)
+include:
+    install/apt-get-gets-updates
+    memory/info                                    certification-status=blocker
+    firmware/fwts_desktop_diagnosis
+    firmware/fwts_desktop_diagnosis_hwe
+    firmware/fwts_desktop_diagnosis_results.log.gz
+    firmware/fwts_desktop_diagnosis_results_hwe.log.gz
+    firmware/fwts_wakealarm.*                      certification-status=blocker
+    firmware/fwts_uefirtvariable.*                 certification-status=blocker
+    firmware/no_ACPI_REV_interface
+    miscellanea/oops                               certification-status=blocker
+    miscellanea/oops_results.log
+    miscellanea/dmitest_client
+bootstrap_include:
+    fwts

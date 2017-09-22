@@ -1,0 +1,11 @@
+id: touchscreen-cert-full
+unit: test plan
+_name: Touchscreen tests
+_description: Touchscreen tests
+include:
+    touchscreen/drag-n-drop                    certification-status=blocker
+    touchscreen/multitouch-zoom                certification-status=blocker
+    touchscreen/multitouch-rotate
+    touchscreen/3-touch-tap                    certification-status=blocker
+    touchscreen/4-touch-tap                    certification-status=blocker
+    touchscreen/multitouch-dash                certification-status=non-blocker

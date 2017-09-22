@@ -1,0 +1,17 @@
+id: camera-cert-full
+unit: test plan
+_name: Camera tests
+_description: Camera tests
+include:
+    camera/detect                                  certification-status=blocker
+    camera/still                                   certification-status=blocker
+    camera/display                                 certification-status=blocker
+    camera/multiple-resolution-images              certification-status=blocker
+
+id: after-suspend-camera-cert-full
+unit: test plan
+_name: Camera tests (after suspend)
+_description: Camera tests (after suspend)
+include:
+    camera/display_after_suspend                   certification-status=blocker
+    camera/still_after_suspend                     certification-status=blocker

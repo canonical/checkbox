@@ -1,0 +1,12 @@
+id: bluetooth-cert-full
+unit: test plan
+_name: Bluetooth tests
+_description: Bluetooth tests
+include:
+    bluetooth/detect-output
+    bluetooth/audio-a2dp
+    bluetooth/browse-files
+    bluetooth/file-transfer
+    bluetooth/HID
+    bluetooth4/HOGP-mouse                          certification-status=blocker
+    bluetooth4/HOGP-keyboard                       certification-status=blocker

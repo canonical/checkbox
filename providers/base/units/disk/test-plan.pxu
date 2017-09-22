@@ -1,0 +1,20 @@
+id: disk-cert-manual
+unit: test plan
+_name: Disk tests (manual)
+_description: Disk tests (manual)
+include:
+    disk/detect                                certification-status=blocker
+    disk/hdd-parking                           certification-status=non-blocker
+
+id: disk-cert-automated
+unit: test plan
+_name: Disk tests (automated)
+_description: Disk tests (automated)
+include:
+    disk/detect                                certification-status=blocker
+    disk/stats_.*
+    disk/read_performance_.*                   certification-status=blocker
+    disk/storage_device_.*                     certification-status=blocker
+    benchmarks/disk/hdparm-read_.*
+    benchmarks/disk/hdparm-cache-read_.*
+    disk/apste_support_on_.*

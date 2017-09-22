@@ -1,0 +1,8 @@
+id: esata-cert-full
+unit: test plan
+_name: eSATA tests
+_description: eSATA tests
+include:
+    esata/insert                                   certification-status=blocker
+    esata/storage-test                             certification-status=blocker
+    esata/remove                                   certification-status=blocker

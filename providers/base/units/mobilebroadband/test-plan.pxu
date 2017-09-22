@@ -1,0 +1,7 @@
+id: mobilebroadband-cert-full
+unit: test plan
+_name: Mobile broadband tests
+_description: Mobile broadband tests
+include:
+    mobilebroadband/gsm_connection             certification-status=non-blocker
+    mobilebroadband/cdma_connection            certification-status=non-blocker

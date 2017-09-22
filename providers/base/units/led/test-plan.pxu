@@ -1,0 +1,42 @@
+id: led-cert-full
+unit: test plan
+_name: LED tests
+_description:
+    LED tests
+    Notes: - led/power-blink-suspend and led/suspend are used later in the
+             power management testplan just after a number of suspend tests.
+           - led/wireless is redundant given that we have led/wlan and
+             led/bluetooth already.
+include:
+    led/battery-charged
+    led/battery-charging
+    led/battery-low
+    led/bluetooth
+    led/camera
+    led/caps-lock
+    led/hdd
+    led/mute
+    led/microphone-mute
+    led/numeric-keypad
+    led/power
+    led/touchpad
+    led/wlan
+    led/wlan-disabled
+
+id: after-suspend-led-cert-full
+unit: test plan
+_name: LED tests (after suspend)
+_description: LED tests (after suspend)
+include:
+    suspend/led_after_suspend/battery-charged
+    suspend/led_after_suspend/battery-charging
+    suspend/led_after_suspend/battery-low
+    suspend/led_after_suspend/bluetooth
+    suspend/led_after_suspend/camera
+    suspend/led_after_suspend/caps-lock
+    suspend/led_after_suspend/hdd
+    suspend/led_after_suspend/numeric-keypad
+    suspend/led_after_suspend/power
+    suspend/led_after_suspend/touchpad
+    suspend/led_after_suspend/wlan
+    suspend/led_after_suspend/wlan-disabled

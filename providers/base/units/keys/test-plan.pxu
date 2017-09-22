@@ -1,0 +1,17 @@
+id: keys-cert-full
+unit: test plan
+_name: Special keys tests
+_description:
+ Special keys tests (w/o sleep/hibernate keys, see Power Management test plans)
+include:
+    keys/lock-screen                               certification-status=blocker
+    keys/super                                     certification-status=blocker
+    keys/battery-info                              certification-status=blocker
+    keys/brightness                                certification-status=blocker
+    keys/media-control                             certification-status=blocker
+    keys/mute                                      certification-status=blocker
+    keys/volume                                    certification-status=blocker
+    keys/video-out                                 certification-status=blocker
+    keys/wireless                                  certification-status=blocker
+    keys/keyboard-backlight                        certification-status=blocker
+    keys/microphone-mute                           certification-status=blocker

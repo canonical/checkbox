@@ -1,0 +1,11 @@
+id: thunderbolt-cert-full
+unit: test plan
+_name: Thunderbolt tests
+_description: Thunderbolt tests
+include:
+    thunderbolt/insert                         certification-status=blocker
+    thunderbolt/storage-test                   certification-status=blocker
+    thunderbolt/remove                         certification-status=blocker
+    thunderbolt3/insert                        certification-status=non-blocker
+    thunderbolt3/storage-test                  certification-status=non-blocker
+    thunderbolt3/remove                        certification-status=non-blocker

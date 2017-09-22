@@ -1,0 +1,10 @@
+id: submission-cert-full
+unit: test plan
+_name: Submission resources
+_description: Submission resources
+include:
+mandatory_include:
+    com.canonical.plainbox::collect-manifest
+    miscellanea/device_check
+    # Meta-job to include required resources, don't remove.
+    miscellanea/submission-resources

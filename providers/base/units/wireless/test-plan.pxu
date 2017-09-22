@@ -1,0 +1,24 @@
+id: wireless-cert-full
+unit: test plan
+_name: Wireless tests
+_description: Wireless connection tests
+include:
+    wireless/wireless_scanning                     certification-status=blocker
+    wireless/wireless_connection_wpa_bg            certification-status=blocker
+    wireless/wireless_connection_open_bg           certification-status=blocker
+    wireless/wireless_connection_wpa_n             certification-status=blocker
+    wireless/wireless_connection_open_n            certification-status=blocker
+    wireless/wireless_connection_wpa_ac            certification-status=blocker
+    wireless/wireless_connection_open_ac           certification-status=blocker
+
+id: after-suspend-wireless-cert-full
+unit: test plan
+_name: Wireless tests (after suspend)
+_description: Wireless connection tests (after suspend)
+include:
+    suspend/wireless_connection_after_suspend_wpa_bg       certification-status=blocker
+    suspend/wireless_connection_after_suspend_open_bg      certification-status=blocker
+    suspend/wireless_connection_after_suspend_wpa_n        certification-status=blocker
+    suspend/wireless_connection_after_suspend_open_n       certification-status=blocker
+    suspend/wireless_connection_after_suspend_wpa_ac       certification-status=blocker
+    suspend/wireless_connection_after_suspend_open_ac      certification-status=blocker

@@ -1,0 +1,29 @@
+id: audio-cert-full
+unit: test plan
+_name: Audio tests
+_description:
+ Audio tests
+ See Monitor / Graphic test plans for hybrid-graphic monitor audio tests
+include:
+    audio/alsa_info_collect
+    audio/alsa_info_attachment
+    audio/list_devices
+    audio/speaker-headphone-plug-detection                 certification-status=blocker
+    audio/microphone-plug-detection                        certification-status=blocker
+    audio/playback_headphones                              certification-status=blocker
+    audio/alsa_record_playback_external                    certification-status=blocker
+    audio/playback_auto                                    certification-status=blocker
+    audio/alsa_record_playback_internal                    certification-status=blocker
+    audio/channels
+    audio/external-linein
+    audio/external-lineout
+
+id: after-suspend-audio-cert-full
+unit: test plan
+_name: Audio tests (after suspend)
+_description: Audio tests (after suspend)
+include:
+    suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
+    suspend/microphone-plug-detection-after-suspend        certification-status=blocker
+    suspend/playback_headphones-after-suspend              certification-status=blocker
+    suspend/alsa_record_playback_external-after-suspend    certification-status=blocker

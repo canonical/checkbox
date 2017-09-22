@@ -1,0 +1,31 @@
+unit: category
+id: dock
+_name: Docking station tests
+
+unit: category
+id: dock-display
+_name: Docking station display tests
+
+unit: category
+id: dock-audio
+_name: Docking station audio tests
+
+unit: category
+id: dock-network
+_name: Docking station network tests
+
+unit: category
+id: dock-usb
+_name: Docking station usb tests
+
+unit: category
+id: dock-hotplug
+_name: Docking station hotplug tests
+
+unit: category
+id: suspend-undock-resume
+_name: Docking station functional tests after suspend, undocked, resume.
+
+unit: category
+id: suspend-dock-resume
+_name: Docking station functional tests after suspend, undocked, docked, resume.

@@ -1,0 +1,23 @@
+id: mediacard-cert-full
+unit: test plan
+_name: Mediacard tests
+_description: Mediacard tests
+include:
+    mediacard/sd-insert                            certification-status=blocker
+    mediacard/sd-storage                           certification-status=blocker
+    mediacard/sd-remove                            certification-status=blocker
+    mediacard/sdhc-insert                          certification-status=blocker
+    mediacard/sdhc-storage                         certification-status=blocker
+    mediacard/sdhc-remove                          certification-status=blocker
+
+id: after-suspend-mediacard-cert-full
+unit: test plan
+_name: Mediacard tests (after suspend)
+_description: Mediacard tests (after suspend)
+include:
+    suspend/sd-insert-after-suspend                certification-status=blocker
+    suspend/sd-storage-after-suspend               certification-status=blocker
+    suspend/sd-remove-after-suspend                certification-status=blocker
+    suspend/sdhc-insert-after-suspend              certification-status=blocker
+    suspend/sdhc-storage-after-suspend             certification-status=blocker
+    suspend/sdhc-remove-after-suspend              certification-status=blocker

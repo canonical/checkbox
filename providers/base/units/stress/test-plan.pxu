@@ -1,0 +1,11 @@
+id: stress-cert-full
+unit: test plan
+_name: Stress tests
+_description: Stress tests
+include:
+    power-management/suspend_30_cycles               certification-status=blocker
+    power-management/suspend-30-cycle-log-attach
+    power-management/suspend-30-cycles-time-check    certification-status=non-blocker
+    power-management/hibernate_30_cycles             certification-status=non-blocker
+    power-management/hibernate-30-cycle-log-attach
+    stress/cpu_stress_test                           certification-status=blocker

@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_thunderbolt 
+_name: Thunderbolt Support 
+value-type: bool
+
+unit: manifest entry
+id: has_thunderbolt3 
+_name: Thunderbolt 3 Support 
+value-type: bool

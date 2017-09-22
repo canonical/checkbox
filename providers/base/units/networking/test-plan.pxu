@@ -1,0 +1,9 @@
+id: networking-cert-full
+unit: test plan
+_name: Networking tests
+_description: Networking tests
+include:
+    ethernet/detect                                certification-status=blocker
+    networking/gateway_ping                        certification-status=blocker
+    networking/info.*                              certification-status=blocker
+    networking/ntp                                 certification-status=blocker

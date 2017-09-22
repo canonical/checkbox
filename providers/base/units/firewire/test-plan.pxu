@@ -1,0 +1,8 @@
+id: firewire-cert-full
+unit: test plan
+_name: Firewire tests
+_description: Firewire tests
+include:
+    firewire/insert                                certification-status=blocker
+    firewire/storage-test                          certification-status=blocker
+    firewire/remove                                certification-status=blocker

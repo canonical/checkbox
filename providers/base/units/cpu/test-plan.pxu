@@ -1,0 +1,14 @@
+id: cpu-cert-full
+unit: test plan
+_name: CPU tests
+_description: CPU tests
+include:
+    cpu/cstates                                    certification-status=blocker
+    cpu/cstates_results.log                        
+    cpu/scaling_test                               certification-status=blocker
+    cpu/scaling_test-log-attach                    
+    cpu/maxfreq_test                               certification-status=blocker
+    cpu/maxfreq_test-log-attach                    
+    cpu/offlining_test                             certification-status=blocker
+    cpu/topology                                   certification-status=blocker
+    cpu/clocktest

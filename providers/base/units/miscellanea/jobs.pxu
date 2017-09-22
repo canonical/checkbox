@@ -2,10 +2,15 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/submission-resources
 depends:
+ cdimage
  cpuinfo
  dmi
  dpkg
+ efi
+ environment
  lsb
+ meminfo
+ module
  package
  snap
  requirements

@@ -6,3 +6,12 @@ include:
     firewire/insert                                certification-status=blocker
     firewire/storage-test                          certification-status=blocker
     firewire/remove                                certification-status=blocker
+
+id: firewire-cert-blockers
+unit: test plan
+_name: Firewire tests (certification blockers only)
+_description: Firewire tests (certification blockers only)
+include:
+    firewire/insert                                certification-status=blocker
+    firewire/storage-test                          certification-status=blocker
+    firewire/remove                                certification-status=blocker

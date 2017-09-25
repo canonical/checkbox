@@ -6,3 +6,12 @@ include:
     esata/insert                                   certification-status=blocker
     esata/storage-test                             certification-status=blocker
     esata/remove                                   certification-status=blocker
+
+id: esata-cert-blockers
+unit: test plan
+_name: eSATA tests (certification blockers only)
+_description: eSATA tests (certification blockers only)
+include:
+    esata/insert                                   certification-status=blocker
+    esata/storage-test                             certification-status=blocker
+    esata/remove                                   certification-status=blocker

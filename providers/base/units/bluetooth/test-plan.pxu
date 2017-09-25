@@ -10,3 +10,18 @@ include:
     bluetooth/HID
     bluetooth4/HOGP-mouse                          certification-status=blocker
     bluetooth4/HOGP-keyboard                       certification-status=blocker
+
+id: bluetooth-cert-automated
+unit: test plan
+_name: Bluetooth tests (automated)
+_description: Bluetooth tests (automated)
+include:
+    bluetooth/detect-output
+
+id: bluetooth-cert-blockers
+unit: test plan
+_name: Bluetooth tests (certification blockers only)
+_description: Bluetooth tests (certification blockers only)
+include:
+    bluetooth4/HOGP-mouse                          certification-status=blocker
+    bluetooth4/HOGP-keyboard                       certification-status=blocker

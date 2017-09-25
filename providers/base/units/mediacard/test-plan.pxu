@@ -21,3 +21,27 @@ include:
     suspend/sdhc-insert-after-suspend              certification-status=blocker
     suspend/sdhc-storage-after-suspend             certification-status=blocker
     suspend/sdhc-remove-after-suspend              certification-status=blocker
+
+id: mediacard-cert-blockers
+unit: test plan
+_name: Mediacard tests (certification blockers only)
+_description: Mediacard tests (certification blockers only)
+include:
+    mediacard/sd-insert                            certification-status=blocker
+    mediacard/sd-storage                           certification-status=blocker
+    mediacard/sd-remove                            certification-status=blocker
+    mediacard/sdhc-insert                          certification-status=blocker
+    mediacard/sdhc-storage                         certification-status=blocker
+    mediacard/sdhc-remove                          certification-status=blocker
+
+id: after-suspend-mediacard-cert-blockers
+unit: test plan
+_name: Mediacard tests (after suspend, certification blockers only)
+_description: Mediacard tests (after suspend, certification blockers only)
+include:
+    suspend/sd-insert-after-suspend                certification-status=blocker
+    suspend/sd-storage-after-suspend               certification-status=blocker
+    suspend/sd-remove-after-suspend                certification-status=blocker
+    suspend/sdhc-insert-after-suspend              certification-status=blocker
+    suspend/sdhc-storage-after-suspend             certification-status=blocker
+    suspend/sdhc-remove-after-suspend              certification-status=blocker

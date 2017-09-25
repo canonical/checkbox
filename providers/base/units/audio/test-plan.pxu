@@ -27,3 +27,40 @@ include:
     suspend/microphone-plug-detection-after-suspend        certification-status=blocker
     suspend/playback_headphones-after-suspend              certification-status=blocker
     suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+
+id: audio-cert-automated
+unit: test plan
+_name: Audio tests (automated)
+_description:
+ Audio tests (automated)
+include:
+    audio/alsa_info_collect
+    audio/alsa_info_attachment
+    audio/list_devices
+
+id: audio-cert-blockers
+unit: test plan
+_name: Audio tests (certification blockers only)
+_description:
+ Audio tests (certification blockers only)
+ See Monitor / Graphic test plans for hybrid-graphic monitor audio tests
+include:
+    audio/alsa_info_collect
+    audio/alsa_info_attachment
+    audio/list_devices
+    audio/speaker-headphone-plug-detection                 certification-status=blocker
+    audio/microphone-plug-detection                        certification-status=blocker
+    audio/playback_headphones                              certification-status=blocker
+    audio/alsa_record_playback_external                    certification-status=blocker
+    audio/playback_auto                                    certification-status=blocker
+    audio/alsa_record_playback_internal                    certification-status=blocker
+
+id: after-suspend-audio-cert-blockers
+unit: test plan
+_name: Audio tests (after suspend, certification blockers only)
+_description: Audio tests (after suspend, certification blockers only)
+include:
+    suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
+    suspend/microphone-plug-detection-after-suspend        certification-status=blocker
+    suspend/playback_headphones-after-suspend              certification-status=blocker
+    suspend/alsa_record_playback_external-after-suspend    certification-status=blocker

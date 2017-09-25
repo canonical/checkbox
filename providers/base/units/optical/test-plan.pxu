@@ -11,3 +11,17 @@ include:
     optical/bluray-write_.*                        certification-status=blocker
 bootstrap_include:
     device
+
+id: optical-cert-blockers
+unit: test plan
+_name: Optical drive tests (certification blockers only)
+_description: Optical drive tests (certification blockers only)
+include:
+    optical/detect                                 certification-status=blocker
+    optical/read_.*                                certification-status=blocker
+    optical/cdrom-write_.*                         certification-status=blocker
+    optical/dvd-write_.*                           certification-status=blocker
+    optical/bluray-read_.*                         certification-status=blocker
+    optical/bluray-write_.*                        certification-status=blocker
+bootstrap_include:
+    device

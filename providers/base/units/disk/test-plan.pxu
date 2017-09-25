@@ -18,3 +18,12 @@ include:
     benchmarks/disk/hdparm-read_.*
     benchmarks/disk/hdparm-cache-read_.*
     disk/apste_support_on_.*
+
+id: disk-cert-blockers
+unit: test plan
+_name: Disk tests (certification blockers only)
+_description: Disk tests (certification blockers only)
+include:
+    disk/detect                                certification-status=blocker
+    disk/read_performance_.*                   certification-status=blocker
+    disk/storage_device_.*                     certification-status=blocker

@@ -45,3 +45,42 @@ include:
     monitor/2_multi-head_.*                    certification-status=blocker
 bootstrap_include:
     graphics_card
+
+id: monitor-integrated-gpu-cert-blockers
+unit: test plan
+_name: Monitor tests (integrated GPU, certification blockers only)
+_description: Monitor tests (integrated GPU, certification blockers only)
+include:
+    monitor/1_powersaving_.*                   certification-status=blocker
+    monitor/1_dim_brightness_.*                certification-status=blocker
+    monitor/1_displayport_.*                   certification-status=blocker
+    audio/1_playback_displayport_.*            certification-status=blocker
+    monitor/1_dvi_.*                           certification-status=blocker
+    monitor/1_hdmi_.*                          certification-status=blocker
+    audio/1_playback_hdmi_.*                   certification-status=blocker
+    monitor/1_thunderbolt_.*                   certification-status=blocker
+    audio/1_playback_thunderbolt_.*            certification-status=blocker
+    thunderbolt/daisy-chain                    certification-status=blocker
+    monitor/1_vga_.*                           certification-status=blocker
+    monitor/1_multi-head_.*                    certification-status=blocker
+bootstrap_include:
+    graphics_card
+
+id: monitor-discrete-gpu-cert-blockers
+unit: test plan
+_name: Monitor tests (discrete GPU, certification blockers only)
+_description: Monitor tests (discrete GPU, certification blockers only)
+include:
+    monitor/2_powersaving_.*                   certification-status=blocker
+    monitor/2_dim_brightness_.*                certification-status=blocker
+    monitor/2_displayport_.*                   certification-status=blocker
+    audio/2_playback_displayport_.*            certification-status=blocker
+    monitor/2_dvi_.*                           certification-status=blocker
+    monitor/2_hdmi_.*                          certification-status=blocker
+    audio/2_playback_hdmi_.*                   certification-status=blocker
+    monitor/2_thunderbolt_.*                   certification-status=blocker
+    audio/2_playback_thunderbolt_.*            certification-status=blocker
+    monitor/2_vga_.*                           certification-status=blocker
+    monitor/2_multi-head_.*                    certification-status=blocker
+bootstrap_include:
+    graphics_card

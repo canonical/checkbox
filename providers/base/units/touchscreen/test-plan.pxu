@@ -9,3 +9,13 @@ include:
     touchscreen/3-touch-tap                    certification-status=blocker
     touchscreen/4-touch-tap                    certification-status=blocker
     touchscreen/multitouch-dash                certification-status=non-blocker
+
+id: touchscreen-cert-blockers
+unit: test plan
+_name: Touchscreen tests (certification blockers only)
+_description: Touchscreen tests (certification blockers only)
+include:
+    touchscreen/drag-n-drop                    certification-status=blocker
+    touchscreen/multitouch-zoom                certification-status=blocker
+    touchscreen/3-touch-tap                    certification-status=blocker
+    touchscreen/4-touch-tap                    certification-status=blocker

@@ -76,3 +76,69 @@ include:
     suspend/2_video_after_suspend_.*_xenial                certification-status=blocker
     suspend/2_cycle_resolutions_after_suspend_.*_xenial    certification-status=non-blocker
     suspend/2_xrandr_screens_after_suspend_.*.tar.gz_xenial
+
+id: graphics-integrated-gpu-cert-blockers
+unit: test plan
+_name: Graphics tests (integrated GPU, certification blockers only)
+_description: Graphics tests (integrated GPU, certification blockers only)
+include:
+    graphics/xorg-version                      certification-status=blocker
+    graphics/xorg-failsafe                     certification-status=blocker
+    graphics/xorg-process                      certification-status=blocker
+    graphics/VESA_drivers_not_in_use           certification-status=blocker
+    graphics/1_maximum_resolution_.*           certification-status=blocker
+    graphics/1_glxgears_.*                     certification-status=blocker
+    graphics/1_driver_version_.*               certification-status=blocker
+    graphics/1_compiz_check_.*                 certification-status=blocker
+    graphics/1_rotation_.*                     certification-status=blocker
+    graphics/1_video_.*                        certification-status=blocker
+bootstrap_include:
+    graphics_card
+
+id: graphics-discrete-gpu-cert-blockers
+unit: test plan
+_name: Graphics tests (discrete GPU, certification blockers only)
+_description: Graphics tests (discrete GPU, certification blockers only)
+include:
+    graphics/2_switch_card_.*_xenial           certification-status=blocker
+    graphics/2_maximum_resolution_.*           certification-status=blocker
+    graphics/2_valid_opengl_renderer_.*        certification-status=blocker
+    graphics/2_glxgears_.*                     certification-status=blocker
+    graphics/2_driver_version_.*               certification-status=blocker
+    graphics/2_compiz_check_.*                 certification-status=blocker
+    graphics/2_rotation_.*                     certification-status=blocker
+    graphics/2_video_.*                        certification-status=blocker
+bootstrap_include:
+    graphics_card
+
+id: after-suspend-graphics-integrated-gpu-cert-blockers
+unit: test plan
+_name: After suspend tests (integrated GPU, certification blockers only)
+_description: After suspend tests (integrated GPU, certification blockers only)
+include:
+    graphics/1_switch_card_.*_xenial                       certification-status=blocker
+    suspend/1_resolution_before_suspend_.*_xenial          certification-status=blocker
+    suspend/suspend_advanced                               certification-status=blocker
+    power-management/lid                                   certification-status=blocker
+    power-management/lid_close                             certification-status=blocker
+    power-management/lid_open                              certification-status=blocker
+    suspend/1_compiz_check_after_suspend_.*_xenial         certification-status=blocker
+    suspend/1_driver_version_after_suspend_.*_xenial       certification-status=blocker
+    suspend/1_resolution_after_suspend_.*_xenial           certification-status=blocker
+    suspend/1_display_after_suspend_.*_xenial              certification-status=blocker
+    suspend/1_glxgears_after_suspend_.*_xenial             certification-status=blocker
+    suspend/1_video_after_suspend_.*_xenial                certification-status=blocker
+
+id: after-suspend-graphics-discrete-gpu-cert-blockers
+unit: test plan
+_name: After suspend tests (discrete GPU, certification blockers only)
+_description: After suspend tests (discrete GPU, certification blockers only)
+include:
+    suspend/2_resolution_before_suspend_.*_xenial          certification-status=blocker
+    suspend/2_suspend_after_switch_to_card_.*_xenial       certification-status=blocker
+    suspend/2_compiz_check_after_suspend_.*_xenial         certification-status=blocker
+    suspend/2_driver_version_after_suspend_.*_xenial       certification-status=blocker
+    suspend/2_resolution_after_suspend_.*_xenial           certification-status=blocker
+    suspend/2_display_after_suspend_.*_xenial              certification-status=blocker
+    suspend/2_glxgears_after_suspend_.*_xenial             certification-status=blocker
+    suspend/2_video_after_suspend_.*_xenial                certification-status=blocker

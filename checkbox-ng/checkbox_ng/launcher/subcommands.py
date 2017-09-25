@@ -94,10 +94,10 @@ class Submit(Command):
         mode = 'rb'
         options_string = "secure_id={0}".format(ctx.args.secure_id)
         url = ('https://certification.canonical.com/'
-               'api/v1/submissions/{}/'.format(ctx.args.secure_id))
+               'api/v1/submission/{}/'.format(ctx.args.secure_id))
         if ctx.args.staging:
             url = ('https://certification.staging.canonical.com/'
-                   'api/v1/submissions/{}/'.format(ctx.args.secure_id))
+                   'api/v1/submission/{}/'.format(ctx.args.secure_id))
         if ctx.args.submission.endswith('xml'):
             from checkbox_ng.certification import CertificationTransport
             transport_cls = CertificationTransport
@@ -679,10 +679,10 @@ class Launcher(Command, MainLoopStage):
                 options = ""
             if self.launcher.transports[transport].get('staging', False):
                 url = ('https://certification.staging.canonical.com/'
-                       'api/v1/submissions/{}/'.format(secure_id))
+                       'api/v1/submission/{}/'.format(secure_id))
             else:
                 url = ('https://certification.canonical.com/'
-                       'api/v1/submissions/{}/'.format(secure_id))
+                       'api/v1/submission/{}/'.format(secure_id))
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):

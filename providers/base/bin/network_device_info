@@ -58,7 +58,7 @@ nm_devices = []
 
 class UdevResult:
     def addDevice(self, device):
-        if device.category == 'NETWORK':
+        if device.category == 'NETWORK' and device.interface != "UNKNOWN":
             udev_devices.append(device)
 
 

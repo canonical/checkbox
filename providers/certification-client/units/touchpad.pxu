@@ -5,84 +5,8 @@ _description:
  This test plan is used for customers and independent hardware vendors (IHV)
  to test and verify the behavior of touchpads on tested devices.
 include:
-    # Resource Jobs (Not used by templates jobs)
-    block_device
-    cdimage
-    cpuinfo
-    dmi
-    dpkg
-    efi
-    environment
-    lsb
-    meminfo
-    module
-    package
-    rtc
-    sleep
-    uname
-    usb
-    xinput
-    # END Resource Jobs
-    touchpad/basic                                         certification-status=blocker
-    touchpad/detected-as-mouse                             certification-status=blocker
-    touchpad/palm-rejection                                certification-status=non-blocker
-    touchpad/continuous-move                               certification-status=blocker
-    touchpad/horizontal                                    certification-status=blocker
-    touchpad/vertical                                      certification-status=blocker
-    touchpad/singletouch-automated                         certification-status=blocker
-    touchpad/singletouch-selection                         certification-status=blocker
-    touchpad/drag-and-drop                                 certification-status=blocker
-    touchpad/multitouch-automated                          certification-status=blocker
-    touchpad/multitouch-manual                             certification-status=blocker
-    touchpad/multitouch-rightclick                         certification-status=blocker
-    touchpad/multitouch-horizontal                         certification-status=blocker
-    touchpad/multitouch-vertical                           certification-status=blocker
-    touchpad/multitouch-dash                               certification-status=non-blocker
-    # Touchpad tests after suspend
-    touchpad/basic-after-suspend                           certification-status=blocker
-    touchpad/detected-as-mouse-after-suspend               certification-status=blocker
-    touchpad/palm-rejection-after-suspend                  certification-status=non-blocker
-    touchpad/continuous-move-after-suspend                 certification-status=blocker
-    touchpad/horizontal-after-suspend                      certification-status=blocker
-    touchpad/vertical-after-suspend                        certification-status=blocker
-    touchpad/singletouch-automated-after-suspend           certification-status=blocker
-    touchpad/singletouch-selection-after-suspend           certification-status=blocker
-    touchpad/drag-and-drop-after-suspend                   certification-status=blocker
-    touchpad/multitouch-automated-after-suspend            certification-status=blocker
-    touchpad/multitouch-manual-after-suspend               certification-status=blocker
-    touchpad/multitouch-rightclick-after-suspend           certification-status=blocker
-    touchpad/multitouch-horizontal-after-suspend           certification-status=blocker
-    touchpad/multitouch-vertical-after-suspend             certification-status=blocker
-    touchpad/multitouch-dash-after-suspend                 certification-status=non-blocker
-    #Info attachment jobs
-    codecs_attachment
-    cpuinfo_attachment
-    dmesg_attachment
-    dmi_attachment
-    dmidecode_attachment
-    efi_attachment
-    lspci_attachment
-    lspci_standard_config_attachment
-    lsusb_attachment
-    kernel_cmdline_attachment
-    meminfo_attachment
-    modinfo_attachment
-    modprobe_attachment
-    modules_attachment
-    sysctl_attachment
-    sysfs_attachment
-    udev_attachment
-    recovery_info_attachment
-    dell_bto_xml_attachment
-    lsmod_attachment
-    dkms_info_attachment
-    acpi_sleep_attachment
-    info/hdparm_.*.txt
-    installer_debug.gz
-    info/touchpad_driver
-    info/disk_partitions
-bootstrap_include:
-    device
-mandatory_include:
-    # Meta-job to include required resources, don't remove.
-    miscellanea/submission-resources
+nested_part:
+    submission-cert-full
+    touchpad-cert-full
+    after-suspend-touchpad-cert-full
+    info-attachment-cert-full

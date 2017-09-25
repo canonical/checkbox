@@ -13,5 +13,3 @@ include:
     keys/volume                                    certification-status=blocker
     keys/video-out                                 certification-status=blocker
     keys/wireless                                  certification-status=blocker
-    keys/keyboard-backlight                        certification-status=blocker
-    keys/microphone-mute                           certification-status=blocker

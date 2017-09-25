@@ -104,7 +104,6 @@ include:
     wireless/wireless_connection_open_bg_nm_.*
     wireless/wireless_connection_wpa_n_nm_.*
     wireless/wireless_connection_open_n_nm_.*
-    wireless/monitor_wireless_connection_udp_.*
 #     suspend/audio_before_suspend
 #     suspend/bluetooth_obex_send_before_suspend
 #     suspend/bluetooth_obex_browse_before_suspend

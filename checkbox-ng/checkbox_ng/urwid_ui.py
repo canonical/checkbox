@@ -208,7 +208,10 @@ class CategoryWidget(FlagUnitWidget):
         if node.get_depth() == 0:
             return _("Categories")
         else:
-            return node.get_value().get_category(node.get_key()).tr_name()
+            cat_names = dict()
+            for test in test_info_list:
+                cat_names[test["category_id"]] = test["category_name"]
+            return cat_names[node.get_key()]
 
 
 class JobNode(urwid.TreeNode):
@@ -226,9 +229,10 @@ class CategoryNode(urwid.ParentNode):
 
     def load_child_keys(self):
         if self.get_depth() == 0:
-            return sorted(
-                self.get_value().get_participating_categories(),
-                key=lambda c: self.get_value().get_category(c).tr_name())
+            cat_names = dict()
+            for test in test_info_list:
+                cat_names[test["category_id"]] = test["category_name"]
+            return sorted(cat_names.keys(), key=lambda x: cat_names[x])
         else:
             return sorted([
                 job['id'] for job in test_info_list
@@ -325,19 +329,11 @@ class CategoryBrowser:
         urwid.Text("Expand/Collapse          Left-click on +/-"),
         urwid.Text("Select/Deselect          Left-click on [X]")]))
 
-    def __init__(self, title, sa):
-        self.session_assitant = sa
-        job_units = [sa.get_job(job_id) for job_id in
-                     sa.get_static_todo_list()]
+    def __init__(self, title, tests):
         global test_info_list
-        test_info_list = tuple(({
-            "id": job.id,
-            "partial_id": job.partial_id,
-            "name": job.tr_summary(),
-            "category_id": sa.get_job_state(job.id).effective_category_id,
-        } for job in job_units))
+        test_info_list = tests
         self.header = urwid.Padding(urwid.Text(title), left=1)
-        root_node = CategoryNode(sa)
+        root_node = CategoryNode(tests)
         root_node.get_widget().set_descendants_state(True)
         self.listbox = CategoryListBox(CategoryWalker(root_node))
         self.listbox.offset_rows = 1
@@ -385,27 +381,22 @@ class CategoryBrowser:
                 self.loop.widget = self.view
 
     def _job_detail_view(self, node):
-        job_id = node.get_key()
-        job = self.session_assitant.get_job(job_id)
-        summary_txt = job.tr_summary() or _('No summary provided for this job')
-        user_txt = (_('This job is fully automated') if job.automated
-                    else _('This job requires some manual interaction'))
-        duration_txt = _('No estimated duration provided for this job')
-        if job.estimated_duration is not None:
-            duration_txt = '{} {}'.format(job.estimated_duration, _('seconds'))
-        desc_txt = (job.tr_description() or
-                    _('No description provided for this job'))
+        job = None
+        for test_info in test_info_list:
+            if test_info["id"] == node.get_key():
+                job = test_info
+                break
         contents = [urwid.Text(('focus', ' Job Details '), 'center'),
                     urwid.Divider()]
 
         def add_section(title, body):
             contents.extend([urwid.Text(title), urwid.Text(body),
                             urwid.Divider()])
-        add_section(_('Job Identifier:'), job_id)
-        add_section(_('Summary:'), summary_txt)
-        add_section(_('User input:'), user_txt)
-        add_section(_('Estimated duration:'), duration_txt)
-        add_section(_('Description:'), desc_txt)
+        add_section(_('Job Identifier:'), job["id"])
+        add_section(_('Summary:'), job["name"])
+        add_section(_('User input:'), job["automated"])
+        add_section(_('Estimated duration:'), job["duration"])
+        add_section(_('Description:'), job["description"])
         detail_text = urwid.ListBox(urwid.SimpleListWalker(contents))
         detail_w = urwid.AttrWrap(urwid.LineBox(detail_text), 'body')
         job_detail_view = urwid.Overlay(
@@ -475,19 +466,11 @@ class ReRunBrowser(CategoryBrowser):
     footer_text = [('Press ('), ('rerun', 'R'), (') to Rerun selection, ('),
                    ('start', 'F'), (') to Finish')]
 
-    def __init__(self, title, sa, rerun_candidates):
+    def __init__(self, title, tests, rerun_candidates):
         global test_info_list
-        self.session_assitant = sa
-        test_info_list = tuple(({
-            "id": job.id,
-            "partial_id": job.partial_id,
-            "name": job.tr_summary(),
-            "category_name": sa.get_category(
-                sa.get_job_state(job.id).effective_category_id).tr_name(),
-            "outcome": sa.get_job_state(job.id).result.outcome,
-        } for job in rerun_candidates))
+        test_info_list = tests
         self.header = urwid.Padding(urwid.Text(title), left=1)
-        self.root_node = RerunNode(sa)
+        self.root_node = RerunNode(tests)
         root_node_widget = self.root_node.get_widget()
         root_node_widget.flagged = False
         root_node_widget.update_w()

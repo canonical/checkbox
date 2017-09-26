@@ -93,11 +93,11 @@ class Submit(Command):
         enc = None
         mode = 'rb'
         options_string = "secure_id={0}".format(ctx.args.secure_id)
-        url = ('https://submission.canonical.com/'
-               'v1/submission/hardware/{}'.format(ctx.args.secure_id))
+        url = ('https://certification.canonical.com/'
+               'api/v1/submissions/{}/'.format(ctx.args.secure_id))
         if ctx.args.staging:
-            url = ('https://submission.staging.canonical.com/'
-                   'v1/submission/hardware/{}'.format(ctx.args.secure_id))
+            url = ('https://certification.staging.canonical.com/'
+                   'api/v1/submissions/{}/'.format(ctx.args.secure_id))
         if ctx.args.submission.endswith('xml'):
             from checkbox_ng.certification import CertificationTransport
             transport_cls = CertificationTransport
@@ -407,14 +407,39 @@ class Launcher(Command, MainLoopStage):
             return
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
+        test_info_list = self._generate_job_infos(job_list)
         wanted_set = CategoryBrowser(
-            _("Choose tests to run on your system:"), self.ctx.sa).run()
+            _("Choose tests to run on your system:"), test_info_list).run()
         # NOTE: tree.selection is correct but ordered badly. To retain
         # the original ordering we should just treat it as a mask and
         # use it to filter jobs from get_static_todo_list.
         job_id_list = [job_id for job_id in self.ctx.sa.get_static_todo_list()
                        if job_id in wanted_set]
         self.ctx.sa.use_alternate_selection(job_id_list)
+
+    def _generate_job_infos(self, job_list):
+        test_info_list = tuple()
+        for job in job_list:
+            cat_id = self.ctx.sa.get_job_state(job.id).effective_category_id
+            duration_txt = _('No estimated duration provided for this job')
+            if job.estimated_duration is not None:
+                duration_txt = '{} {}'.format(job.estimated_duration, _(
+                    'seconds'))
+            test_info = {
+                "id": job.id,
+                "partial_id": job.partial_id,
+                "name": job.tr_summary(),
+                "category_id": cat_id,
+                "category_name": self.ctx.sa.get_category(cat_id).tr_name(),
+                "automated": (_('this job is fully automated') if job.automated
+                    else _('this job requires some manual interaction')),
+                "duration": duration_txt,
+                "description": (job.tr_description() or
+                    _('No description provided for this job')),
+                "outcome": self.ctx.sa.get_job_state(job.id).result.outcome,
+            }
+            test_info_list = (*test_info_list, test_info)
+        return test_info_list
 
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:
@@ -507,8 +532,9 @@ class Launcher(Command, MainLoopStage):
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
+        test_info_list = self._generate_job_infos(rerun_candidates)
         wanted_set = ReRunBrowser(
-            _("Select jobs to re-run"), self.ctx.sa, rerun_candidates).run()
+            _("Select jobs to re-run"), test_info_list, rerun_candidates).run()
         if not wanted_set:
             # nothing selected - nothing to run
             return False
@@ -652,11 +678,11 @@ class Launcher(Command, MainLoopStage):
             else:
                 options = ""
             if self.launcher.transports[transport].get('staging', False):
-                url = ('https://submission.staging.canonical.com/'
-                       'v1/submission/hardware/{}'.format(secure_id))
+                url = ('https://certification.staging.canonical.com/'
+                       'api/v1/submissions/{}/'.format(secure_id))
             else:
-                url = ('https://submission.canonical.com/'
-                       'v1/submission/hardware/{}'.format(secure_id))
+                url = ('https://certification.canonical.com/'
+                       'api/v1/submissions/{}/'.format(secure_id))
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):

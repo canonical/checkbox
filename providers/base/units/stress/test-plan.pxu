@@ -3,9 +3,53 @@ unit: test plan
 _name: Stress tests
 _description: Stress tests
 include:
-    power-management/suspend_30_cycles               certification-status=blocker
+nested_part:
+    stress-cert-automated
+
+id: stress-cert-automated
+unit: test plan
+_name: Stress tests (automated)
+_description: Stress tests (automated)
+include:
+    power-management/suspend_30_cycles             certification-status=blocker
     power-management/suspend-30-cycle-log-attach
-    power-management/suspend-30-cycles-time-check    certification-status=non-blocker
-    power-management/hibernate_30_cycles             certification-status=non-blocker
-    power-management/hibernate-30-cycle-log-attach
-    stress/cpu_stress_test                           certification-status=blocker
+    power-management/suspend-30-cycles-time-check  certification-status=non-blocker
+    stress/cpu_stress_ng_test                      certification-status=blocker
+
+id: stress-cert-blockers
+unit: test plan
+_name: Stress tests (certification blockers only)
+_description: Stress tests (certification blockers only)
+include:
+    power-management/suspend_30_cycles             certification-status=blocker
+    power-management/suspend-30-cycle-log-attach
+    stress/cpu_stress_ng_test                      certification-status=blocker
+
+id: stress-suspend-30-cycles-with-reboots-automated
+unit: test plan
+_name: Suspend stress tests (with reboots)
+_description: Suspend stress tests (with reboots)
+include:
+    power-management/suspend_30_cycles_with_reboots
+    power-management/suspend-30-cycles-log-check-with-reboots
+    power-management/suspend-30-cycle-log-attach-with-reboots
+    power-management/suspend-30-cycles-time-check-with-reboots
+
+id: stress-30-reboot-poweroff-automated
+unit: test plan
+_name: Power Management reboot and power off stress tests (automated)
+_description: Power Management reboot and power off stress tests (automated)
+include:
+    stress/reboot_30
+    stress/reboot_30_log
+    stress/poweroff_30
+    stress/poweroff_30_log
+
+id: stress-ng-cert-automated
+unit: test plan
+_name: Stress NG tests (automated)
+_description: Stress NG tests (automated)
+include:
+    stress/cpu_stress_ng_test                      certification-status=blocker
+    memory/memory_stress_ng                        certification-status=blocker
+

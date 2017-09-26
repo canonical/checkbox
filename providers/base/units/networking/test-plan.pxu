@@ -3,6 +3,31 @@ unit: test plan
 _name: Networking tests
 _description: Networking tests
 include:
+nested_part:
+    networking-cert-automated
+    networking-cert-manual
+
+id: networking-cert-manual
+unit: test plan
+_name: Networking tests (manual)
+_description: Networking tests (manual)
+include:
+    networking/info.*                              certification-status=blocker
+
+id: networking-cert-automated
+unit: test plan
+_name: Networking tests (automated)
+_description: Networking tests (automated)
+include:
+    ethernet/detect                                certification-status=blocker
+    networking/gateway_ping                        certification-status=blocker
+    networking/ntp                                 certification-status=blocker
+
+id: networking-cert-blockers
+unit: test plan
+_name: Networking tests (certification blockers only)
+_description: Networking tests (certification blockers only)
+include:
     ethernet/detect                                certification-status=blocker
     networking/gateway_ping                        certification-status=blocker
     networking/info.*                              certification-status=blocker

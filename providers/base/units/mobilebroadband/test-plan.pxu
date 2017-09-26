@@ -3,5 +3,13 @@ unit: test plan
 _name: Mobile broadband tests
 _description: Mobile broadband tests
 include:
+nested_part:
+    mobilebroadband-cert-automated
+
+id: mobilebroadband-cert-automated
+unit: test plan
+_name: Mobile broadband tests (automated)
+_description: Mobile broadband tests (automated)
+include:
     mobilebroadband/gsm_connection             certification-status=non-blocker
     mobilebroadband/cdma_connection            certification-status=non-blocker

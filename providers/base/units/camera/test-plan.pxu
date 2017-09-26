@@ -15,3 +15,29 @@ _description: Camera tests (after suspend)
 include:
     camera/display_after_suspend                   certification-status=blocker
     camera/still_after_suspend                     certification-status=blocker
+
+id: camera-cert-automated
+unit: test plan
+_name: Camera tests (automated)
+_description: Camera tests (automated)
+include:
+    camera/detect                                  certification-status=blocker
+    camera/multiple-resolution-images              certification-status=blocker
+
+id: camera-cert-blockers
+unit: test plan
+_name: Camera tests (certification blockers only)
+_description: Camera tests (certification blockers only)
+include:
+    camera/detect                                  certification-status=blocker
+    camera/still                                   certification-status=blocker
+    camera/display                                 certification-status=blocker
+    camera/multiple-resolution-images              certification-status=blocker
+
+id: after-suspend-camera-cert-blockers
+unit: test plan
+_name: Camera tests (after suspend, certification blockers only)
+_description: Camera tests (after suspend, certification blockers only)
+include:
+    camera/display_after_suspend                   certification-status=blocker
+    camera/still_after_suspend                     certification-status=blocker

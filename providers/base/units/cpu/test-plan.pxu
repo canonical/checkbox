@@ -3,12 +3,34 @@ unit: test plan
 _name: CPU tests
 _description: CPU tests
 include:
+nested_part:
+    cpu-cert-automated
+
+id: cpu-cert-automated
+unit: test plan
+_name: CPU tests (automated)
+_description: CPU tests (automated)
+include:
     cpu/cstates                                    certification-status=blocker
-    cpu/cstates_results.log                        
+    cpu/cstates_results.log
     cpu/scaling_test                               certification-status=blocker
-    cpu/scaling_test-log-attach                    
+    cpu/scaling_test-log-attach
     cpu/maxfreq_test                               certification-status=blocker
-    cpu/maxfreq_test-log-attach                    
+    cpu/maxfreq_test-log-attach
     cpu/offlining_test                             certification-status=blocker
     cpu/topology                                   certification-status=blocker
     cpu/clocktest
+
+id: cpu-cert-blockers
+unit: test plan
+_name: CPU tests (certification blockers only)
+_description: CPU tests (certification blockers only)
+include:
+    cpu/cstates                                    certification-status=blocker
+    cpu/cstates_results.log
+    cpu/scaling_test                               certification-status=blocker
+    cpu/scaling_test-log-attach
+    cpu/maxfreq_test                               certification-status=blocker
+    cpu/maxfreq_test-log-attach
+    cpu/offlining_test                             certification-status=blocker
+    cpu/topology                                   certification-status=blocker

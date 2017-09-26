@@ -3,6 +3,16 @@ unit: test plan
 _name: Miscellaneous client tests
 _description: Miscellaneous client tests (fwts, dmi, oops)
 include:
+nested_part:
+    misc-client-cert-automated
+
+id: misc-client-cert-automated
+unit: test plan
+_name: Miscellaneous client tests (automated)
+_description:
+ Miscellaneous client tests (fwts, dmi, oops)
+ (automated)
+include:
     install/apt-get-gets-updates
     memory/info                                    certification-status=blocker
     firmware/fwts_desktop_diagnosis
@@ -15,5 +25,20 @@ include:
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
     miscellanea/dmitest_client
+bootstrap_include:
+    fwts
+
+id: misc-client-cert-blockers
+unit: test plan
+_name: Miscellaneous client tests (certification blockers only)
+_description:
+ Miscellaneous client tests (fwts, dmi, oops)
+ (certification blockers only)
+include:
+    memory/info                                    certification-status=blocker
+    firmware/fwts_wakealarm.*                      certification-status=blocker
+    firmware/fwts_uefirtvariable.*                 certification-status=blocker
+    miscellanea/oops                               certification-status=blocker
+    miscellanea/oops_results.log
 bootstrap_include:
     fwts

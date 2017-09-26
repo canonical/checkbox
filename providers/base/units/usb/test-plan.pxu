@@ -49,3 +49,41 @@ include:
     suspend/usb3_insert_after_suspend                      certification-status=blocker
     suspend/usb3_storage_automated_after_suspend           certification-status=blocker
     suspend/usb3_remove_after_suspend                      certification-status=blocker
+
+id: usb-cert-blockers
+unit: test plan
+_name: USB tests (certification blockers only)
+_description: USB tests (certification blockers only)
+include:
+    usb/detect                                 certification-status=blocker
+    usb/HID                                    certification-status=blocker
+    usb/insert                                 certification-status=blocker
+    usb/storage-automated                      certification-status=blocker
+    usb/remove                                 certification-status=blocker
+
+id: usb3-cert-blockers
+unit: test plan
+_name: USB3 tests (certification blockers only)
+_description: USB3 tests (certification blockers only)
+include:
+    usb3/insert                                certification-status=blocker
+    usb3/storage-automated                     certification-status=blocker
+    usb3/remove                                certification-status=blocker
+
+id: after-suspend-usb-cert-blockers
+unit: test plan
+_name: USB tests (after suspend, certification blockers only)
+_description: USB tests (after suspend, certification blockers only)
+include:
+    suspend/usb_insert_after_suspend                       certification-status=blocker
+    suspend/usb_storage_automated_after_suspend            certification-status=blocker
+    suspend/usb_remove_after_suspend                       certification-status=blocker
+
+id: after-suspend-usb3-cert-blockers
+unit: test plan
+_name: USB3 tests (after suspend, certification blockers only)
+_description: USB3 tests (after suspend, certification blockers only)
+include:
+    suspend/usb3_insert_after_suspend                      certification-status=blocker
+    suspend/usb3_storage_automated_after_suspend           certification-status=blocker
+    suspend/usb3_remove_after_suspend                      certification-status=blocker

@@ -6,7 +6,7 @@
 {%- if ns ~ 'package' in state.resource_map %}
     "packages": [
     {%- set package_resource_list = state.resource_map[ns ~ 'package'] %}
-    {%- for package_resource in package_resource_list %}
+    {%- for package_resource in package_resource_list if package_resource.name %}
         {
             "name": "{{ package_resource.name }}",
             "version": "{{ package_resource.version }}"
@@ -17,7 +17,7 @@
 {%- if ns ~ 'snap' in state.resource_map %}
     "snap-packages": [
     {%- set snap_package_resource_list = state.resource_map[ns ~ 'snap'] %}
-    {%- for snap_package_resource in snap_package_resource_list %}
+    {%- for snap_package_resource in snap_package_resource_list if snap_package_resource.name %}
         {
             "name": "{{ snap_package_resource.name }}",
             {%- for key in snap_package_resource|reject('is_name')|sort %}

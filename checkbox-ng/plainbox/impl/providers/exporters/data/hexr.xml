@@ -91,7 +91,7 @@
     {%- if ns ~ 'package' in state.resource_map %}
     {%- set package_resource_list = state.resource_map[ns ~ 'package'] %}
     <packages>
-      {%- for package_resource in package_resource_list %}
+      {%- for package_resource in package_resource_list if package_resource.name %}
       <package id="{{ loop.index0 }}" name="{{ package_resource.name }}">
         {%- for key in package_resource|reject('is_name')|sort %}
         <property name="{{ key }}" type="str">{{ package_resource[key] }}</property>
@@ -105,7 +105,7 @@
     {%- if ns ~ 'snap' in state.resource_map %}
     {%- set snap_package_resource_list = state.resource_map[ns ~ 'snap'] %}
     <snap_packages>
-      {%- for snap_package_resource in snap_package_resource_list %}
+      {%- for snap_package_resource in snap_package_resource_list if snap_package_resource.name %}
       <snap_package id="{{ loop.index0 }}" name="{{ snap_package_resource.name }}">
         {%- for key in snap_package_resource|reject('is_name')|sort %}
         <property name="{{ key }}" type="str">{{ snap_package_resource[key] }}</property>

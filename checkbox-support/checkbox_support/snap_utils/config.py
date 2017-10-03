@@ -5,6 +5,7 @@
 #    Authors: Jonathan Cave <jonathan.cave@canonical.com>
 #    Maciej Kisielewski <maciej.kisielewski@canonical.com>
 
+import configparser
 import json
 import os
 import re
@@ -100,3 +101,19 @@ def get_configuration_set():
             # silently ignore missing config_vars
             pass
     return config_set
+
+def write_checkbox_conf(configuration):
+    """Write checkbox.conf in $SNAP_DATA dir."""
+    config = configparser.ConfigParser()
+    config.optionxform = str
+    config.add_section('environment')
+    for key in sorted(configuration.keys()):
+        val = configuration[key]
+        # unmangle the key
+        key = key.replace('-', '_').upper()
+        config.set('environment', key, val)
+
+    checkbox_conf_path = os.path.expandvars("$SNAP_DATA/checkbox.conf")
+    os.makedirs(os.path.dirname(checkbox_conf_path), exist_ok=True)
+    with open(checkbox_conf_path, 'wt') as stream:
+        config.write(stream)

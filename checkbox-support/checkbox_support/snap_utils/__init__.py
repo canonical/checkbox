@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+
 """
 :mod:`checkbox_support.snap_utils`
-=============================================
+==================================
 
 This module provides tools for testing aspects of systems running snapd.
 """

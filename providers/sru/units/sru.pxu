@@ -113,9 +113,7 @@ include:
     wireless/wireless_connection_wpa_n
     wireless/wireless_connection_open_n
     suspend/audio_before_suspend
-    suspend/bluetooth_obex_send_before_suspend
     suspend/bluetooth_obex_browse_before_suspend
-    suspend/bluetooth_obex_get_before_suspend
     suspend/cpu_before_suspend
     suspend/network_before_suspend
     suspend/memory_before_suspend

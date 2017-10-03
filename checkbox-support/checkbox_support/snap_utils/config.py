@@ -1,11 +1,15 @@
-#!/usr/bin/env python3
 # Copyright 2017 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #    Authors: Jonathan Cave <jonathan.cave@canonical.com>
+#    Maciej Kisielewski <maciej.kisielewski@canonical.com>
 
 import json
+import os
+import re
+import subprocess
+import sys
 
 import requests
 import requests_unixsocket
@@ -52,3 +56,15 @@ def set_configuration(snap, key, value):
     json_data = json.dumps({key: value})
     query = SnapdQuery()
     return query.put(path, json_data)['status']
+
+
+def get_snapctl_config(keys):
+    """Query snapctl for given keys."""
+    if len(keys) == 0:
+        return dict()
+    out = subprocess.check_output(['snapctl', 'get'] + keys).decode(
+        sys.stdout.encoding)
+    if len(keys) == 1:
+        # snapctl returns bare string with a value when quering for one only
+        return {keys[0]: out.strip()}
+    return json.loads(out)

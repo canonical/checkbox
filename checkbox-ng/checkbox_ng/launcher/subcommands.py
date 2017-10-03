@@ -438,7 +438,7 @@ class Launcher(Command, MainLoopStage):
                     _('No description provided for this job')),
                 "outcome": self.ctx.sa.get_job_state(job.id).result.outcome,
             }
-            test_info_list = (*test_info_list, test_info)
+            test_info_list = test_info_list + ((test_info, ))
         return test_info_list
 
     def _handle_last_job_after_resume(self, last_job):

@@ -9,8 +9,7 @@ import argparse
 import sys
 
 from checkbox_support.snap_utils.config import (get_configuration,
-                                                set_configuration,
-                                                test_configuration)
+                                                set_configuration)
 
 
 def main():
@@ -38,11 +37,18 @@ def main():
 
     args = parser.parse_args()
     if args.action == 'get':
-        return get_configuration(args.snap, args.key)
+        value = get_configuration(args.snap, args.key)
+        print(value)
     if args.action == 'set':
-        return set_configuration(args.snap, args.key, args.value)
+        result = set_configuration(args.snap, args.key, args.value)
+        print(result)
     if args.action == 'test':
-        return test_configuration(args.snap, args.key, args.expected_value)
+        print('Expected value: {}'.format(args.expected_value))
+        value = get_configuration(args.snap, args.key)
+        print('Value found on the {} snap: {}'.format(args.snap, value))
+        if args.expected_value != value:
+            return 1
+    return 0
 
 
 if __name__ == '__main__':

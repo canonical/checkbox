@@ -68,3 +68,35 @@ def get_snapctl_config(keys):
         # snapctl returns bare string with a value when quering for one only
         return {keys[0]: out.strip()}
     return json.loads(out)
+
+
+def get_configuration_set():
+    """
+    Get names and their default values declared in Snap's config_vars.
+
+    config_vars should list all the configuration variables in a `key=value`
+    syntax. The line can list variable name only, if the variable should not
+    have a default value. All keys should comprise of CAPS, numbers and
+    undescores (_).
+
+    The returned keys are lowercase, as required by snapctl.
+    """
+    config_set_path = os.path.expandvars("$SNAP/config_vars")
+    config_set = dict()
+    key_re = re.compile(r"^(?:[A-Z0-9]+_?)*[A-Z](?:_?[A-Z0-9])*$")
+    try:
+        for line in open(config_set_path, 'rt').readlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            k, _, v = line.partition('=')
+            if not key_re.match(k):
+                raise SystemExit("%s is not a valid configuration key" % k)
+            # snapd accepts lowercase and dashes only for config names
+            # so let's "mangle" the names to match the requirement
+            k = k.replace('_', '-').lower()
+            config_set[k] = v
+    except FileNotFoundError:
+            # silently ignore missing config_vars
+            pass
+    return config_set

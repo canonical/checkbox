@@ -2,7 +2,7 @@
 # All rights reserved.
 #
 # Written by:
-#    Authors: Jonathan Cave <jonathan.cave@canonical.com>
+#    Jonathan Cave <jonathan.cave@canonical.com>
 #    Maciej Kisielewski <maciej.kisielewski@canonical.com>
 
 import configparser

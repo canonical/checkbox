@@ -1,11 +1,16 @@
-#!/usr/bin/env python3
 # Copyright 2017 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
-#    Authors: Jonathan Cave <jonathan.cave@canonical.com>
+#    Jonathan Cave <jonathan.cave@canonical.com>
+#    Maciej Kisielewski <maciej.kisielewski@canonical.com>
 
+import configparser
 import json
+import os
+import re
+import subprocess
+import sys
 
 import requests
 import requests_unixsocket
@@ -52,3 +57,63 @@ def set_configuration(snap, key, value):
     json_data = json.dumps({key: value})
     query = SnapdQuery()
     return query.put(path, json_data)['status']
+
+
+def get_snapctl_config(keys):
+    """Query snapctl for given keys."""
+    if len(keys) == 0:
+        return dict()
+    out = subprocess.check_output(['snapctl', 'get'] + keys).decode(
+        sys.stdout.encoding)
+    if len(keys) == 1:
+        # snapctl returns bare string with a value when quering for one only
+        return {keys[0]: out.strip()}
+    return json.loads(out)
+
+
+def get_configuration_set():
+    """
+    Get names and their default values declared in Snap's config_vars.
+
+    config_vars should list all the configuration variables in a `key=value`
+    syntax. The line can list variable name only, if the variable should not
+    have a default value. All keys should comprise of CAPS, numbers and
+    undescores (_).
+
+    The returned keys are lowercase, as required by snapctl.
+    """
+    config_set_path = os.path.expandvars("$SNAP/config_vars")
+    config_set = dict()
+    key_re = re.compile(r"^(?:[A-Z0-9]+_?)*[A-Z](?:_?[A-Z0-9])*$")
+    try:
+        for line in open(config_set_path, 'rt').readlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            k, _, v = line.partition('=')
+            if not key_re.match(k):
+                raise SystemExit("%s is not a valid configuration key" % k)
+            # snapd accepts lowercase and dashes only for config names
+            # so let's "mangle" the names to match the requirement
+            k = k.replace('_', '-').lower()
+            config_set[k] = v
+    except FileNotFoundError:
+            # silently ignore missing config_vars
+            pass
+    return config_set
+
+def write_checkbox_conf(configuration):
+    """Write checkbox.conf in $SNAP_DATA dir."""
+    config = configparser.ConfigParser()
+    config.optionxform = str
+    config.add_section('environment')
+    for key in sorted(configuration.keys()):
+        val = configuration[key]
+        # unmangle the key
+        key = key.replace('-', '_').upper()
+        config.set('environment', key, val)
+
+    checkbox_conf_path = os.path.expandvars("$SNAP_DATA/checkbox.conf")
+    os.makedirs(os.path.dirname(checkbox_conf_path), exist_ok=True)
+    with open(checkbox_conf_path, 'wt') as stream:
+        config.write(stream)

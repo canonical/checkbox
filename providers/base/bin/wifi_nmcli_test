@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+# Copyright 2017 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Jonathan Cave <jonathan.cave@canonical.com>
+#
+# wireless connection tests using nmcli
+
+
+import argparse
+import functools
+import subprocess as sp
+import sys
+
+
+print = functools.partial(print, flush=True)
+
+
+def print_head(txt):
+    print("##", txt)
+
+
+def print_cmd(cmd):
+    print("+", cmd)
+
+
+def cleanup_nm_connections():
+    print_head("Cleaning up NM connections")
+    cmd = "nmcli -t -f TYPE,UUID,NAME c"
+    print_cmd(cmd)
+    output = sp.check_output(cmd, shell=True)
+    for line in output.decode(sys.stdout.encoding).splitlines():
+        type, uuid, name = line.strip().split(':')
+        if type == '802-11-wireless':
+            print("Deleting connection", name)
+            cmd = "nmcli c delete {}".format(uuid)
+            print_cmd(cmd)
+            sp.call(cmd, shell=True)
+    print()
+
+
+def device_rescan():
+    print_head("Calling a rescan")
+    cmd = "nmcli d wifi rescan"
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+    print()
+
+
+def list_aps(args):
+    print_head("List APs")
+    count = 0
+    cmd = "nmcli -t -f SSID,CHAN,FREQ d wifi list ifname {}".format(
+        args.device)
+    print_cmd(cmd)
+    output = sp.check_output(cmd, shell=True)
+    for line in output.decode(sys.stdout.encoding).splitlines():
+        ssid, channel, frequency = line.strip().split(':')
+        print("SSID: {} Chan: {} Freq: {}".format(ssid, channel, frequency))
+        if hasattr(args, 'essid'):
+            if ssid == args.essid:
+                count += 1
+        else:
+            count += 1
+    print()
+    return count
+
+
+def open_connection(args):
+    print_head("Connection attempt")
+    cmd = "nmcli d wifi connect {} ifname {} name TEST_CON".format(
+        args.essid, args.device)
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+    cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
+    print_cmd(cmd)
+    output = sp.check_output(cmd, shell=True)
+    state = output.decode(sys.stdout.encoding).strip()
+    print(state)
+    rc = 1
+    if state.startswith('100'):
+        rc = 0
+    print()
+    return rc
+
+
+def secured_connection(args):
+    print_head("Connection attempt")
+    cmd = "nmcli d wifi connect {} password {} ifname {} name TEST_CON".format(
+        args.essid, args.psk, args.device)
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+    cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
+    print_cmd(cmd)
+    output = sp.check_output(cmd, shell=True)
+    state = output.decode(sys.stdout.encoding).strip()
+    print(state)
+    rc = 1
+    if state.startswith('100'):
+        rc = 0
+    print()
+    return rc
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='WiFi connection test using mmcli')
+
+    subparsers = parser.add_subparsers(dest='test_type')
+    subparsers.required = True
+
+    parser_scan = subparsers.add_parser(
+        'scan', help='Test can scan for networks only')
+    parser_scan.add_argument(
+        'device', type=str, help='Device name e.g. wlan0')
+
+    parser_open = subparsers.add_parser(
+        'open', help='Test connection to an open access point')
+    parser_open.add_argument(
+        'device', type=str, help='Device name e.g. wlan0')
+    parser_open.add_argument('essid', type=str, help='ESSID')
+    parser_open.set_defaults(func=open_connection)
+
+    parser_secured = subparsers.add_parser(
+        'secured', help='Test connection to a secured access point')
+    parser_secured.add_argument(
+        'device', type=str, help='Device name e.g. wlan0')
+    parser_secured.add_argument('essid', type=str, help='ESSID')
+    parser_secured.add_argument('psk', type=str, help='Pre-Shared Key')
+    parser_secured.set_defaults(func=secured_connection)
+    args = parser.parse_args()
+
+    cleanup_nm_connections()
+    device_rescan()
+    count = list_aps(args)
+
+    if args.test_type == 'scan':
+        if count == 0:
+            print("Failed to find any APs")
+            sys.exit(1)
+        else:
+            print("Found {} access points".format(count))
+            sys.exit(0)
+
+    if args.func:
+        try:
+            sys.exit(args.func(args))
+        finally:
+            cleanup_nm_connections()

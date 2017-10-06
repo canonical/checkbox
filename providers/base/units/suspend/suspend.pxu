@@ -49,17 +49,6 @@ _description:
  Dumps memory info to a file for comparison after suspend test has been run
 command: meminfo_resource > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
 
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_before_suspend
-depends: wireless/wireless_connection
-requires: device.category == 'WIRELESS'
-command: nmcli -t -f UUID con status > $PLAINBOX_SESSION_SHARE/connections && connect_wireless && gateway_ping_test --interface=`(nmcli dev list 2>/dev/null || nmcli dev show) | grep -B 1 -e 'wireless' -e 'wifi' | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
-estimated_duration: 20.0
-_description:
- This test disconnects all connections and then connects to the wireless
- interface. It then checks the connection to confirm it's working as expected.
-
 unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
@@ -76,22 +65,6 @@ command: network -i {interface} -t iperf
 _description:
  This test executes iperf connection performance/stability against device {__index__} ({interface}) before suspend.
 
-unit: template
-template-resource: device
-template-filter: device.category == 'WIRELESS'
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/iperf_before_suspend_wifi_auto_device{__index__}_{interface}
-depends: wireless/wireless_connection
-estimated_duration: 20.0
-requires:
- package.name == 'iperf'
-user: root
-environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command: network -i {interface} -t iperf
-_description:
- This test executes iperf connection performance/stability against device {__index__} ({interface}) before suspend.
-
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_before_suspend_mobilebroadband_gsm_auto
@@ -99,7 +72,7 @@ depends: mobilebroadband/gsm_connection
 estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command:   
+command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
@@ -113,7 +86,7 @@ depends: mobilebroadband/cdma_connection
 estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command:   
+command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
@@ -630,395 +603,6 @@ _description:
  VERIFICATION:
      Does the display work normally after resuming from suspend using the {vendor} {product} graphics card?
 
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_after_suspend
-depends: suspend/suspend_advanced suspend/wireless_before_suspend
-requires:
- device.category == 'WIRELESS'
-command: connect_wireless && gateway_ping_test --interface=`(nmcli dev list 2>/dev/null || nmcli dev show) | grep -B 1 -e wireless -e wifi | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
-estimated_duration: 20.0
-_description:
- This test checks that the wireless interface is working after suspending the system. It
- disconnects all interfaces and then connects to the wireless interface and checks that the
- connection is working as expected.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_wpa_bg
-depends: suspend/suspend_advanced
-estimated_duration: 20.0
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: WPA_BG_SSID WPA_BG_PSK
-command:
-    trap "nmcli con delete id $WPA_BG_SSID" EXIT
-    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11b/g protocols after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_open_bg
-depends: suspend/suspend_advanced
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: OPEN_BG_SSID
-command:
-    trap "nmcli con delete id $OPEN_BG_SSID" EXIT
-    if create_connection wifi $OPEN_BG_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
- security and the 802.11b/g protocols after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_wpa_n
-depends: suspend/suspend_advanced
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: WPA_N_SSID WPA_N_PSK
-command:
-    trap "nmcli con delete id $WPA_N_SSID" EXIT
-    if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11n protocol after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_open_n
-depends: suspend/suspend_advanced
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: OPEN_N_SSID
-command:
-    trap "nmcli con delete id $OPEN_N_SSID" EXIT
-    if create_connection wifi $OPEN_N_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
- security and the 802.11n protocol after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_wpa_ac
-depends: suspend/suspend_advanced
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
- IEEE_80211.ac == 'supported'
-user: root
-environ: WPA_AC_SSID WPA_AC_PSK
-command:
-    trap "nmcli con delete id $WPA_AC_SSID" EXIT
-    if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11ac protocol after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_open_ac
-depends: suspend/suspend_advanced
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
- IEEE_80211.ac == 'supported'
-user: root
-environ: OPEN_AC_SSID
-command:
-    trap "nmcli con delete id $OPEN_AC_SSID" EXIT
-    if create_connection wifi $OPEN_AC_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
- security and the 802.11ac protocol after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_wpa_bg_auto
-depends: suspend/suspend_advanced_auto
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: WPA_BG_SSID WPA_BG_PSK
-command:
-    trap "nmcli con delete id $WPA_BG_SSID" EXIT
-    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11b/g protocols after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_open_bg_auto
-depends: suspend/suspend_advanced_auto
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: OPEN_BG_SSID
-command:
-    trap "nmcli con delete id $OPEN_BG_SSID" EXIT
-    if create_connection wifi $OPEN_BG_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
- security and the 802.11b/g protocols after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_wpa_n_auto
-depends: suspend/suspend_advanced_auto
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: WPA_N_SSID WPA_N_PSK
-command:
-    trap "nmcli con delete id $WPA_N_SSID" EXIT
-    if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11n protocol after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_open_n_auto
-depends: suspend/suspend_advanced_auto
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
-user: root
-environ: OPEN_N_SSID
-command:
-    trap "nmcli con delete id $OPEN_N_SSID" EXIT
-    if create_connection wifi $OPEN_N_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
- security and the 802.11n protocol after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_wpa_ac_auto
-depends: suspend/suspend_advanced_auto
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
- IEEE_80211.ac == 'supported'
-user: root
-environ: WPA_AC_SSID WPA_AC_PSK
-command:
-    trap "nmcli con delete id $WPA_AC_SSID" EXIT
-    if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11ac protocol after the system has been suspended.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/wireless_connection_after_suspend_open_ac_auto
-depends: suspend/suspend_advanced_auto
-estimated_duration: 1.2
-requires:
- device.category == 'WIRELESS'
- environment.ROUTERS == 'multiple'
- IEEE_80211.ac == 'supported'
-user: root
-environ: OPEN_AC_SSID
-command:
-    trap "nmcli con delete id $OPEN_AC_SSID" EXIT
-    if create_connection wifi $OPEN_AC_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
- security and the 802.11ac protocol after the system has been suspended.
-
 unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
@@ -1058,7 +642,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command:   
+command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
@@ -1072,7 +656,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command:   
+command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
@@ -2895,4 +2479,3 @@ estimated_duration: 0.5
 command:
  [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log | base64
 _description: Attaches the FWTS oops results log to the submission after suspend
-

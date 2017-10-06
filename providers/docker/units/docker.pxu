@@ -407,6 +407,7 @@ command:
  sleep 5
  restartCount=$(docker inspect -f {restartCount} $ID)
  [ $restartCount = 3 ] || exit 1
+ docker rm -f $ID
 _summary: Test container restart policy with on_failure applied
 flags: simple preserve-cwd
 
@@ -482,6 +483,7 @@ command:
  sleep 5
  restartCount=$(docker inspect -f {restartCount} $ID)
  [ $restartCount -gt 1 ] || exit 1
+ {compose_command} -f $compose_file down
 _summary: Test compose a container with restart policy applied
 flags: simple preserve-cwd
 

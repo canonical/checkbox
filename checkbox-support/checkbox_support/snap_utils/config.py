@@ -63,11 +63,8 @@ def get_snapctl_config(keys):
     """Query snapctl for given keys."""
     if len(keys) == 0:
         return dict()
-    out = subprocess.check_output(['snapctl', 'get'] + keys).decode(
+    out = subprocess.check_output(['snapctl', 'get', '-d'] + keys).decode(
         sys.stdout.encoding)
-    if len(keys) == 1:
-        # snapctl returns bare string with a value when quering for one only
-        return {keys[0]: out.strip()}
     return json.loads(out)
 
 

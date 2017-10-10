@@ -3,10 +3,10 @@ unit: test plan
 _name: Bluetooth tests
 _description: Bluetooth tests
 include:
-    bluetooth/detect-output
-    bluetooth/audio-a2dp
-    bluetooth/browse-files
-    bluetooth/file-transfer
+    bluetooth/detect-output                        certification-status=blocker
+    bluetooth/audio-a2dp                           certification-status=blocker
+    bluetooth/browse-files                         certification-status=blocker
+    bluetooth/file-transfer                        certification-status=blocker
     bluetooth/HID
     bluetooth4/HOGP-mouse                          certification-status=blocker
     bluetooth4/HOGP-keyboard                       certification-status=blocker
@@ -16,12 +16,16 @@ unit: test plan
 _name: Bluetooth tests (automated)
 _description: Bluetooth tests (automated)
 include:
-    bluetooth/detect-output
+    bluetooth/detect-output                        certification-status=blocker
 
 id: bluetooth-cert-blockers
 unit: test plan
 _name: Bluetooth tests (certification blockers only)
 _description: Bluetooth tests (certification blockers only)
 include:
+    bluetooth/detect-output                        certification-status=blocker
+    bluetooth/audio-a2dp                           certification-status=blocker
+    bluetooth/browse-files                         certification-status=blocker
+    bluetooth/file-transfer                        certification-status=blocker
     bluetooth4/HOGP-mouse                          certification-status=blocker
     bluetooth4/HOGP-keyboard                       certification-status=blocker

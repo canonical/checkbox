@@ -34,9 +34,9 @@ include:
     suspend/audio_before_suspend                   certification-status=blocker
     suspend/cpu_before_suspend                     certification-status=blocker
     suspend/memory_before_suspend                  certification-status=blocker
-    suspend/bluetooth_obex_send_before_suspend
-    suspend/bluetooth_obex_browse_before_suspend
-    suspend/bluetooth_obex_get_before_suspend
+    suspend/bluetooth_obex_send_before_suspend     certification-status=blocker
+    suspend/bluetooth_obex_browse_before_suspend   certification-status=blocker
+    suspend/bluetooth_obex_get_before_suspend      certification-status=blocker
 
 id: after-suspend-reference-cert-automated
 unit: test plan
@@ -48,9 +48,9 @@ include:
     suspend/cpu_after_suspend                      certification-status=blocker
     suspend/memory_after_suspend                   certification-status=blocker
     suspend/bluetooth_detect_after_suspend         certification-status=blocker
-    suspend/bluetooth_obex_send_after_suspend
-    suspend/bluetooth_obex_browse_after_suspend
-    suspend/bluetooth_obex_get_after_suspend
+    suspend/bluetooth_obex_send_after_suspend      certification-status=blocker
+    suspend/bluetooth_obex_browse_after_suspend    certification-status=blocker
+    suspend/bluetooth_obex_get_after_suspend       certification-status=blocker
 
 id: before-suspend-reference-cert-blockers
 unit: test plan
@@ -61,6 +61,9 @@ include:
     suspend/audio_before_suspend                   certification-status=blocker
     suspend/cpu_before_suspend                     certification-status=blocker
     suspend/memory_before_suspend                  certification-status=blocker
+    suspend/bluetooth_obex_send_before_suspend     certification-status=blocker
+    suspend/bluetooth_obex_browse_before_suspend   certification-status=blocker
+    suspend/bluetooth_obex_get_before_suspend      certification-status=blocker
 
 id: after-suspend-reference-cert-blockers
 unit: test plan
@@ -72,6 +75,9 @@ include:
     suspend/cpu_after_suspend                      certification-status=blocker
     suspend/memory_after_suspend                   certification-status=blocker
     suspend/bluetooth_detect_after_suspend         certification-status=blocker
+    suspend/bluetooth_obex_send_after_suspend      certification-status=blocker
+    suspend/bluetooth_obex_browse_after_suspend    certification-status=blocker
+    suspend/bluetooth_obex_get_after_suspend       certification-status=blocker
 
 id: suspend-key-led-oops-check-cert-blockers
 unit: test plan

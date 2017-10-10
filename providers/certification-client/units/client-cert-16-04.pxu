@@ -40,6 +40,9 @@ nested_part:
     # Test discrete card first, if present, since it's the one we will be using
     # after coming back from suspend if the system has hybrid graphics.
     after-suspend-graphics-discrete-gpu-cert-full
+    hibernate-discrete-gpu-cert-full
+    # Now we ask to switch to the integrated graphics card. This requires a
+    # restart of checkbox.
     after-suspend-graphics-integrated-gpu-cert-full
     suspend-key-led-oops-check-cert
     after-suspend-reference-cert-full
@@ -52,6 +55,7 @@ nested_part:
     after-suspend-usb-cert-full
     after-suspend-usb3-cert-full
     after-suspend-wireless-cert-full
+    hibernate-integrated-gpu-cert-full
     # The following tests should run BEFORE the automated tests. The reboot and
     # power off tests will also give us a clean system to start the stress run
     # with.

@@ -340,9 +340,14 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/buildstamp
 estimated_duration: 0.1
-_description: Attaches the buildstamp identifier for the preinstalled OS
-_summary: Attach /etc/buildstamp
-command: [ -s /etc/buildstamp ] && cat /etc/buildstamp
+_description: Attaches the buildstamp identifier for the OS
+_summary: Attaches the buildstamp identifier for the OS
+command:
+    if [ -s /etc/buildstamp ]; then
+      cat /etc/buildstamp
+    elif [ -e /var/lib/snapd/seed/seed.yaml ]; then
+      echo && date -r /var/lib/snapd/seed/seed.yaml -R
+    fi
 
 plugin: shell
 category_id: com.canonical.plainbox::info

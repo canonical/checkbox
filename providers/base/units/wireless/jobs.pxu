@@ -526,67 +526,6 @@ estimated_duration: 330.0
 _description:
  Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
 
-plugin: shell
-category_id: com.canonical.plainbox::wireless
-id: wireless/wireless_connection_open_a
-requires:
- device.category == 'WIRELESS'
- IEEE_80211.band_5GHz == 'supported'
-user: root
-environ: OPEN_A_SSID
-command:
-    trap "nmcli con delete id $OPEN_A_SSID" EXIT
-    if create_connection wifi $OPEN_A_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-estimated_duration: 30.0
-_description:
-  Test that the system's wireless hardware can connect to a router using the
-  802.11a protocol. This requires that you have a router pre-configured to only
-  respond to requests on the 802.11a protocol.
-
-plugin: shell
-category_id: com.canonical.plainbox::wireless
-id: wireless/wireless_connection_open_b
-requires:
- device.category == 'WIRELESS'
-user: root
-environ: OPEN_B_SSID
-command:
-    trap "nmcli con delete id $OPEN_B_SSID" EXIT
-    if create_connection wifi $OPEN_B_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-estimated_duration: 30.0
-_description:
-  Test that the system's wireless hardware can connect to a router using the
-  802.11b protocol. This requires that you have a router pre-configured to only
-  respond to requests on the 802.11b protocol.
-
 unit: template
 template-resource: device
 template-filter:
@@ -602,36 +541,6 @@ user: root
 command: network test -i {interface} -t stress
 _description:
  This test executes iperf to generate a load on the network device {__index__} ({interface}) and then performs a ping test to watch for dropped packets and very large latency periods.
-
-plugin: shell
-category_id: com.canonical.plainbox::wireless
-id: wireless/wireless_connection_open_g
-requires:
- device.category == 'WIRELESS'
-user: root
-environ: OPEN_G_SSID
-command:
-    trap "nmcli con delete id $OPEN_G_SSID" EXIT
-    if create_connection wifi $OPEN_G_SSID; then
-        connect_wireless # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
-        STATUS=$?
-        # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
-        fi
-        exit $STATUS
-    else
-        exit 1
-    fi
-estimated_duration: 30.0
-_description:
-  Test that the system's wireless hardware can connect to a router using the
-  802.11g protocol. This requires that you have a router pre-configured to only
-  respond to requests on the 802.11g protocol.
 
 plugin: shell
 category_id: com.canonical.plainbox::wireless

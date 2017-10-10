@@ -14,6 +14,8 @@ include:
     power-management/suspend_30_cycles             certification-status=blocker
     power-management/suspend-30-cycle-log-attach
     power-management/suspend-30-cycles-time-check  certification-status=non-blocker
+    power-management/hibernate_30_cycles           certification-status=non-blocker
+    power-management/hibernate-30-cycle-log-attach
     stress/cpu_stress_ng_test                      certification-status=blocker
 
 id: stress-cert-blockers
@@ -34,6 +36,15 @@ include:
     power-management/suspend-30-cycles-log-check-with-reboots
     power-management/suspend-30-cycle-log-attach-with-reboots
     power-management/suspend-30-cycles-time-check-with-reboots
+
+id: stress-hibernate-30-cycles-automated
+unit: test plan
+_name: Hibernate stress tests
+_description: Hibernate stress tests
+include:
+    power-management/hibernate_30_cycles           certification-status=non-blocker
+    power-management/hibernate-30-cycles-log-check
+    power-management/hibernate-30-cycle-log-attach
 
 id: stress-30-reboot-poweroff-automated
 unit: test plan

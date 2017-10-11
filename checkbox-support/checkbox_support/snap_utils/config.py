@@ -92,7 +92,7 @@ def get_configuration_set():
                 continue
             k, _, v = line.partition('=')
             if not key_re.match(k):
-                raise SystemExit("%s is not a valid configuration key" % k)
+                raise ValueError("%s is not a valid configuration key" % k)
             # snapd accepts lowercase and dashes only for config names
             # so let's "mangle" the names to match the requirement
             k = k.replace('_', '-').lower()

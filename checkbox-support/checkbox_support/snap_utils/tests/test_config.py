@@ -12,6 +12,7 @@ from unittest.mock import mock_open, patch
 
 from checkbox_support.snap_utils.config import get_configuration_set
 from checkbox_support.snap_utils.config import get_snapctl_config
+from checkbox_support.snap_utils.config import refresh_configuration
 from checkbox_support.snap_utils.config import write_checkbox_conf
 
 

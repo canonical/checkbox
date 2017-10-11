@@ -102,6 +102,7 @@ def get_configuration_set():
             pass
     return config_set
 
+
 def write_checkbox_conf(configuration):
     """Write checkbox.conf in $SNAP_DATA dir."""
     config = configparser.ConfigParser()

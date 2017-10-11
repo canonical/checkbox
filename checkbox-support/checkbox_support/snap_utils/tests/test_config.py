@@ -121,3 +121,98 @@ class TestWriteCheckboxConf(unittest.TestCase):
         m().write.called_once_with('[environ]\n')
         m().write.called_once_with('\n')
         self.assertEqual(m().write.call_count, 2)
+
+
+class ConfigIntegrationTests(unittest.TestCase):
+    """
+        Integration tests for configuration manipulation.
+
+        The test have following structure:
+            establish values in config_vars
+            establish values in snapd database
+            expect calls to `snapctl set`
+            expect checkbox.conf to be written
+    """
+    @patch('checkbox_support.snap_utils.config.get_configuration_set')
+    @patch('checkbox_support.snap_utils.config.write_checkbox_conf')
+    @patch('subprocess.run')
+    def test_empty_on_missing(self, mock_run, mock_write, mock_conf_set):
+        """ nothing in config_vars,
+            nothing in snapd db,
+            so checkbox.conf should not be written
+            and no calls to snapctl should be made
+        """
+        mock_conf_set.return_value = {}
+        refresh_configuration()
+        self.assertTrue(mock_conf_set.called)
+        self.assertFalse(mock_write.called)
+        self.assertFalse(mock_run.called)
+
+    @patch('checkbox_support.snap_utils.config.get_configuration_set')
+    @patch('subprocess.check_output', return_value=b'\n')
+    @patch('subprocess.run')
+    def test_one_value(self, mock_run, mock_subproc, mock_conf_set):
+        """ FOO=bar in config_vars,
+            nothing in snapd db,
+            so checkbox.conf should be written with:
+            "FOO=bar"
+            and snapctl should be called with:
+            foo=bar
+        """
+        mock_conf_set.return_value = {'foo': 'bar'}
+        m = mock_open()
+        with patch('builtins.open', m):
+            refresh_configuration()
+        m().write.called_once_with('[environ]\n')
+        m().write.called_once_with('FOO = bar\n')
+        m().write.called_once_with('\n')
+        self.assertTrue(mock_conf_set.called)
+        mock_run.assert_called_once_with(['snapctl', 'set', 'foo=bar'])
+
+    @patch('checkbox_support.snap_utils.config.get_configuration_set')
+    @patch('subprocess.check_output')
+    @patch('subprocess.run')
+    def test_one_value_overriden_by_config(
+            self, mock_run, mock_subproc, mock_conf_set):
+        """
+            FOO=default in config_vars,
+            and snapd db has foo=bar,
+            so checkbox.conf should be written with:
+            "FOO=bar"
+        """
+        mock_conf_set.return_value = {'foo': 'default'}
+        mock_subproc.return_value = b'bar\n'
+        m = mock_open()
+        with patch('builtins.open', m):
+            refresh_configuration()
+        m().write.called_once_with('[environ]\n')
+        m().write.called_once_with('FOO = bar\n')
+        m().write.called_once_with('\n')
+        mock_run.assert_called_once_with(['snapctl', 'set', 'foo=bar'])
+
+    @patch('checkbox_support.snap_utils.config.get_configuration_set')
+    @patch('subprocess.check_output')
+    @patch('subprocess.run')
+    def test_one_new_one_existing(
+            self, mock_run, mock_subproc, mock_conf_set):
+        """
+            FOO=bar BIZ=baz in config_vars,
+            and snapd db has foo=old,
+            so checkbox.conf should be written with:
+            "FOO=old and BIZ=baz"
+        """
+        mock_conf_set.return_value = {'foo': 'bar', 'biz': 'baz'}
+        mock_subproc.return_value = dedent("""
+        {
+        \t"foo": "old"
+        }
+        """).lstrip().encode(sys.stdout.encoding)
+        m = mock_open()
+        with patch('builtins.open', m):
+            refresh_configuration()
+        m().write.called_once_with('[environ]\n')
+        m().write.called_once_with('FOO = old\n')
+        m().write.called_once_with('BIZ = baz\n')
+        m().write.called_once_with('\n')
+        mock_run.assert_called_once_with(
+            ['snapctl', 'set', 'biz=baz', 'foo=old'])

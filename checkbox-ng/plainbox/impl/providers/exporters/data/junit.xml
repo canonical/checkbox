@@ -9,7 +9,7 @@
   <testsuites failures="{{ fails }}" name="" tests="{{ passes }}" skipped="{{ skips }}" errors="{{ errors }}">
     {%- for job_id in job_state_map|sort %}
     {%- set job_state = job_state_map[job_id] %}
-    {%- if job_state.job.plugin not in ("resource", "local", "attachment") and job_state.result.outcome %}
+    {%- if job_state.result.outcome %}
     <testcase classname="{{ job_state.job.id }}" name="{{ job_state.job.id }}" time="{{ job_state.result.execution_duration }}">
     {%- if job_state.result.outcome == 'skip' or job_state.result.outcome == 'not-supported' -%}
       <skipped />

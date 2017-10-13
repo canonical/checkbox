@@ -92,7 +92,7 @@ def get_configuration_set():
                 continue
             k, _, v = line.partition('=')
             if not key_re.match(k):
-                raise SystemExit("%s is not a valid configuration key" % k)
+                raise ValueError("%s is not a valid configuration key" % k)
             # snapd accepts lowercase and dashes only for config names
             # so let's "mangle" the names to match the requirement
             k = k.replace('_', '-').lower()
@@ -101,6 +101,7 @@ def get_configuration_set():
             # silently ignore missing config_vars
             pass
     return config_set
+
 
 def write_checkbox_conf(configuration):
     """Write checkbox.conf in $SNAP_DATA dir."""
@@ -117,3 +118,36 @@ def write_checkbox_conf(configuration):
     os.makedirs(os.path.dirname(checkbox_conf_path), exist_ok=True)
     with open(checkbox_conf_path, 'wt') as stream:
         config.write(stream)
+
+
+def refresh_configuration():
+    """
+    Read config_vars, write the ones missing in snapd
+    and call update configuration in both, snapd and checkbox.conf.
+    """
+    conf_set = get_configuration_set()
+    if conf_set:
+        current = get_snapctl_config(list(conf_set.keys()))
+        for key in conf_set.keys():
+            if key not in current.keys() or not current[key]:
+                current[key] = conf_set[key]
+        update_configuration(current)
+
+
+def update_configuration(updated_entries):
+    """
+    Update snapd configuration and write checkbox.conf file
+
+    :param updated_entries:
+        A dict containing the configuration to set.
+        Keys should contain lowercase letters, dashes and number only.
+    """
+    vars_to_set = []
+    key_re = re.compile(r"^(?:[a-z0-9]+-?)*[a-z](?:-?[a-z0-9])*$")
+    for k, v in updated_entries.items():
+        if not key_re.match(k):
+            raise ValueError("'%s' is not a valid key" % k)
+        vars_to_set.append('{}={}'.format(k.replace('_', '-').lower(), v))
+    subprocess.run(['snapctl', 'set'] + sorted(vars_to_set))
+    write_checkbox_conf(
+        get_snapctl_config(list(get_configuration_set().keys())))

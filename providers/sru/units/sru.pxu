@@ -125,9 +125,7 @@ include:
     suspend/wifi_resume_time_auto
     suspend/usb_storage_preinserted_after_suspend
     suspend/record_playback_after_suspend_auto
-    suspend/bluetooth_obex_send_after_suspend_auto
     suspend/bluetooth_obex_browse_after_suspend_auto
-    suspend/bluetooth_obex_get_after_suspend_auto
     suspend/cpu_after_suspend_auto
     suspend/memory_after_suspend_auto
     suspend/wireless_connection_after_suspend_wpa_bg_auto

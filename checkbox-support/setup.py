@@ -51,6 +51,8 @@ setup(
     install_requires=[
         'lxml >= 2.3',
         'pyparsing >= 2.0.0',
+        'requests >= 1.0',
+        'requests_unixsocket >= 0.1.2',
     ] + (['configparser'] if sys.version_info.major == 2 else []),
     include_package_data=True,
     entry_points={

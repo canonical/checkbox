@@ -51,13 +51,17 @@ def device_rescan():
 def list_aps(args):
     print_head("List APs")
     count = 0
-    cmd = "nmcli -t -f SSID,CHAN,FREQ d wifi list ifname {}".format(
+    cmd = "nmcli -t -f SSID,CHAN,FREQ,SIGNAL d wifi list ifname {}".format(
         args.device)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
-        ssid, channel, frequency = line.strip().split(':')
-        print("SSID: {} Chan: {} Freq: {}".format(ssid, channel, frequency))
+        # lp bug #1723372 - extra line in output on zesty
+        if line.strip() == args.device:
+            continue
+        ssid, channel, frequency, signal = line.strip().split(':')
+        print("SSID: {} Chan: {} Freq: {} Signal: {}".format(
+            ssid, channel, frequency, signal))
         if hasattr(args, 'essid'):
             if ssid == args.essid:
                 count += 1

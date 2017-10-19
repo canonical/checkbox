@@ -42,6 +42,7 @@ from plainbox.impl.launcher import LauncherDefinition
 from checkbox_ng.launcher.subcommands import (
     CheckConfig, Launcher, List, Run, StartProvider, Submit, ListBootstrapped
 )
+from checkbox_ng.launcher.remote import RemoteService, RemoteControl
 
 
 _ = gettext.gettext
@@ -153,6 +154,8 @@ class CheckboxCommand(CanonicalCommand):
         ('startprovider', StartProvider),
         ('submit', Submit),
         ('list-bootstrapped', ListBootstrapped),
+        ('remote-service', RemoteService),
+        ('remote-control', RemoteControl),
     )
 
     def register_arguments(self, parser):

@@ -544,7 +544,8 @@ def test_plan_browser(title, test_plan_list, selection=None):
     listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
     frame = urwid.Frame(urwid.AttrWrap(urwid.LineBox(listbox), 'body'),
                         header=header, footer=footer)
-    del frame._command_map["enter"]
+    if frame._command_map["enter"]:
+        del frame._command_map["enter"]
 
     def unhandled(key):
         if key == "enter":

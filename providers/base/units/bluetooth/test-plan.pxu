@@ -5,8 +5,6 @@ _description: Bluetooth tests
 include:
     bluetooth/detect-output                        certification-status=blocker
     bluetooth/audio-a2dp                           certification-status=blocker
-    bluetooth/browse-files                         certification-status=blocker
-    bluetooth/file-transfer                        certification-status=blocker
     bluetooth/HID
     bluetooth4/HOGP-mouse                          certification-status=non-blocker
     bluetooth4/HOGP-keyboard                       certification-status=non-blocker
@@ -25,5 +23,3 @@ _description: Bluetooth tests (certification blockers only)
 include:
     bluetooth/detect-output                        certification-status=blocker
     bluetooth/audio-a2dp                           certification-status=blocker
-    bluetooth/browse-files                         certification-status=blocker
-    bluetooth/file-transfer                        certification-status=blocker

@@ -14,11 +14,8 @@ _description:
  (automated)
 include:
     install/apt-get-gets-updates
-    memory/info                                    certification-status=blocker
     firmware/fwts_desktop_diagnosis
-    firmware/fwts_desktop_diagnosis_hwe
     firmware/fwts_desktop_diagnosis_results.log.gz
-    firmware/fwts_desktop_diagnosis_results_hwe.log.gz
     firmware/fwts_wakealarm.*                      certification-status=blocker
     firmware/fwts_uefirtvariable.*                 certification-status=blocker
     firmware/no_ACPI_REV_interface
@@ -35,7 +32,6 @@ _description:
  Miscellaneous client tests (fwts, dmi, oops)
  (certification blockers only)
 include:
-    memory/info                                    certification-status=blocker
     firmware/fwts_wakealarm.*                      certification-status=blocker
     firmware/fwts_uefirtvariable.*                 certification-status=blocker
     miscellanea/oops                               certification-status=blocker

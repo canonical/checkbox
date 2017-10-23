@@ -13,6 +13,26 @@ include:
     keys/volume                                    certification-status=blocker
     keys/video-out                                 certification-status=blocker
     keys/wireless                                  certification-status=blocker
+    keys/keyboard-backlight                        certification-status=blocker
+    keys/microphone-mute                           certification-status=blocker
+
+id: after-suspend-keys-cert-full
+unit: test plan
+_name: Special keys tests (after suspend)
+_description:
+ Special keys tests (after suspend)
+include:
+    after-suspend-keys/lock-screen                 certification-status=blocker
+    after-suspend-keys/super                       certification-status=blocker
+    after-suspend-keys/battery-info                certification-status=blocker
+    after-suspend-keys/brightness                  certification-status=blocker
+    after-suspend-keys/media-control               certification-status=blocker
+    after-suspend-keys/mute                        certification-status=blocker
+    after-suspend-keys/volume                      certification-status=blocker
+    after-suspend-keys/video-out                   certification-status=blocker
+    after-suspend-keys/wireless                    certification-status=blocker
+    after-suspend-keys/keyboard-backlight          certification-status=blocker
+    after-suspend-keys/microphone-mute             certification-status=blocker
 
 id: keys-cert-blockers
 unit: test plan
@@ -30,3 +50,23 @@ include:
     keys/volume                                    certification-status=blocker
     keys/video-out                                 certification-status=blocker
     keys/wireless                                  certification-status=blocker
+    keys/keyboard-backlight                        certification-status=blocker
+    keys/microphone-mute                           certification-status=blocker
+
+id: after-suspend-keys-cert-blockers
+unit: test plan
+_name: Special keys tests (certification blockers only, after suspend)
+_description:
+ Special keys tests (certification blockers only, after suspend)
+include:
+    after-suspend-keys/lock-screen                 certification-status=blocker
+    after-suspend-keys/super                       certification-status=blocker
+    after-suspend-keys/battery-info                certification-status=blocker
+    after-suspend-keys/brightness                  certification-status=blocker
+    after-suspend-keys/media-control               certification-status=blocker
+    after-suspend-keys/mute                        certification-status=blocker
+    after-suspend-keys/volume                      certification-status=blocker
+    after-suspend-keys/video-out                   certification-status=blocker
+    after-suspend-keys/wireless                    certification-status=blocker
+    after-suspend-keys/keyboard-backlight          certification-status=blocker
+    after-suspend-keys/microphone-mute             certification-status=blocker

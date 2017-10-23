@@ -246,7 +246,15 @@ class RecoveryVersion(Command):
             fname = "{}/bto.xml".format(mntdir)
             if os.path.isfile(fname):
                 o = minidom.parse("{}/bto.xml".format(mntdir))
-                bto_version = o.getElementsByTagName("iso")[0].firstChild.data
+                bto_platform = o.getElementsByTagName("platform")
+                bto_revision = o.getElementsByTagName("revision")
+                if bto_platform and bto_revision:
+                    bto_platform = bto_platform[0].firstChild.data
+                    bto_revision = bto_revision[0].firstChild.data
+                    bto_version = bto_platform + " " + bto_revision
+                else:
+                    bto_iso = o.getElementsByTagName("iso")
+                    bto_version = bto_iso[0].firstChild.data
                 print("bto_version: {}".format(bto_version))
 
 

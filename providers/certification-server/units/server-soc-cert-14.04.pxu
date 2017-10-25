@@ -46,7 +46,6 @@ include:
     cpu/scaling_test-log-attach                certification-status=non-blocker
     cpu/maxfreq_test                           certification-status=blocker
     cpu/maxfreq_test-log-attach                certification-status=non-blocker
-    cpu/offlining_test                         certification-status=blocker
     cpu/topology                               certification-status=blocker
     disk/detect                                certification-status=blocker
     disk/stats_.*                              certification-status=blocker

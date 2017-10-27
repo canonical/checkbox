@@ -1150,11 +1150,10 @@ class SessionState:
             provider_id = "com.canonical.certification"
             suspend_test_id = "suspend/suspend_advanced_auto"
             if new_job.depends:
-                data['depends'] += " {}::{}".format(provider_id,
-                                                    suspend_test_id)
+                data['depends'] += " {}".format(new_job.id)
             else:
-                data['depends'] = "{}::{}".format(provider_id,
-                                                  suspend_test_id)
+                data['depends'] = "{}".format(new_job.id)
+            data['depends'] += " {}::{}".format(provider_id, suspend_test_id)
             self._add_job_unit(
                 JobDefinition(
                     data,
@@ -1178,11 +1177,10 @@ class SessionState:
             provider_id = "com.canonical.certification"
             suspend_test_id = "suspend/suspend_advanced"
             if new_job.depends:
-                data['depends'] += " {}::{}".format(provider_id,
-                                                    suspend_test_id)
+                data['depends'] += " {}".format(new_job.id)
             else:
-                data['depends'] = "{}::{}".format(provider_id,
-                                                  suspend_test_id)
+                data['depends'] = "{}".format(new_job.id)
+            data['depends'] += " {}::{}".format(provider_id, suspend_test_id)
             self._add_job_unit(
                 JobDefinition(
                     data,

@@ -266,8 +266,7 @@ class SessionStateAPITests(TestCase):
 
     def test_also_after_suspend_flag(self):
         # Define a job
-        job = make_job("A", summary="foo", flags='also-after-suspend',
-                       depends="A")
+        job = make_job("A", summary="foo", flags='also-after-suspend')
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
@@ -314,7 +313,7 @@ class SessionStateAPITests(TestCase):
         self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
         self.assertEqual(
             session.job_list[1].depends,
-            'com.canonical.certification::suspend/suspend_advanced')
+            'A com.canonical.certification::suspend/suspend_advanced')
         sibling = session.job_list[1]
         self.assertNotIn('also-after-suspend-manual', sibling.get_flag_set())
         # Both jobs got added to job state map

@@ -644,7 +644,9 @@ class Unit(metaclass=UnitType):
             value = self._raw_data.get('{}'.format(name), default)
         if value is not None and self.is_parametric:
             if self.template_engine == 'jinja2':
-                value = Template(value).render(self.parameters)
+                tmp_params = self.parameters.copy()
+                tmp_params.update({'__system_env__': os.environ})
+                value = Template(value).render(tmp_params)
             else:
                 value = string.Formatter().vformat(value, (), self.parameters)
         return value
@@ -687,7 +689,9 @@ class Unit(metaclass=UnitType):
                 # handle exceptions here and hint that this might be the cause
                 # of the problem?
                 if self.template_engine == 'jinja2':
-                    msgstr = Template(msgstr).render(self.parameters)
+                    tmp_params = self.parameters.copy()
+                    tmp_params.update({'__system_env__': os.environ})
+                    msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(
                         msgstr, (), self.parameters)
@@ -700,7 +704,9 @@ class Unit(metaclass=UnitType):
             # the non-raw value here.
             if self.is_parametric:
                 if self.template_engine == 'jinja2':
-                    msgstr = Template(msgstr).render(self.parameters)
+                    tmp_params = self.parameters.copy()
+                    tmp_params.update({'__system_env__': os.environ})
+                    msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(
                         msgstr, (), self.parameters)

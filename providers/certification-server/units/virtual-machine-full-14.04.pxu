@@ -60,6 +60,8 @@ include:
     memory/check                               certification-status=blocker
     power-management/rtc                       certification-status=blocker
     stress/cpu_stress_test                     certification-status=blocker
+    miscellanea/call-trace-check               certification-status=non-blocker
+    miscellanea/attach-syslog                  certification-status=non-blocker
 bootstrap_include:
     device
     fwts

@@ -30,9 +30,9 @@ mandatory_include:
     udev-summary_attachment
     lsmod_attachment
     miscellanea/get_make_and_model
-    miscellanea/get_maas_version               certification-status=blocker
-    miscellanea/efi_boot_mode                  certification-status=blocker
-    miscellanea/secure_boot_mode               certification-status=non-blocker
+    miscellanea/get_maas_version            certification-status=blocker
+    miscellanea/efi_boot_mode               certification-status=blocker
+    miscellanea/secure_boot_mode            certification-status=non-blocker
     miscellanea/cpus_are_not_samples
     miscellanea/dmitest_server
     info/disk_partitions
@@ -41,10 +41,12 @@ include:
     cpu/purley_id
     miscellanea/ipmi_test
     miscellanea/bmc_info
-    miscellanea/fwupdate                       certification-status=non-blocker
+    miscellanea/fwupdate                    certification-status=non-blocker
     miscellanea/fwts_test
     miscellanea/fwts_results.log
     memory/info
+    miscellanea/call-trace-check            certification-status=non-blocker
+    miscellanea/attach-syslog               certification-status=non-blocker
 bootstrap_include:
     device
     fwts

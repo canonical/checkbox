@@ -638,20 +638,24 @@ class LXDTest(object):
             cmd = 'lxc image import {} rootfs {} --alias {}'.format(
                 self.template_tarball, self.rootfs_tarball,
                 self.image_alias)
-            if not self.run_command(cmd):
+            result = self.run_command(cmd)
+            if not result:
                 logging.error('Error encountered while attempting to '
                               'import images into LXD')
                 result = False
         else:
             logging.debug("No local image available, attempting to "
                           "import from default remote.")
+            retry = 2
             cmd = 'lxc image copy {}{} local: --alias {}'.format(
                 self.default_remote, self.os_version, self.image_alias)
-            if not self.run_command(cmd):
+            result = self.run_command(cmd)
+            while not result and retry > 0:
                 logging.error('Error encountered while attempting to '
                               'import images from default remote.')
-                result = False
-
+                logging.error('Retrying up to {} times.'.format(retry))
+                result = self.run_command(cmd)
+                retry -= 1
         return result
 
     def download_images(self, url, filename):
@@ -695,7 +699,8 @@ class LXDTest(object):
         """
         result = self.setup()
         if not result:
-            logging.warn("One or more setup stages failed.")
+            logging.error("One or more setup stages failed.")
+            return False
 
         # Create container
         logging.debug("Launching container")

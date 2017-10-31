@@ -49,7 +49,6 @@ setup(
     long_description=long_description,
     package_data={"checkbox_support": ["parsers/cputable"]},
     install_requires=[
-        'lxml >= 2.3',
         'pyparsing >= 2.0.0',
         'requests >= 1.0',
     ] + (['configparser'] if sys.version_info.major == 2 else []) + (
@@ -59,8 +58,6 @@ setup(
     entry_points={
         'plainbox.parsers': [
             "pactl-list=checkbox_support.parsers.pactl:parse_pactl_output",
-            ("submission=checkbox_support.parsers.submission:parse_submission"
-             "_text"),
             "udevadm=checkbox_support.parsers.udevadm:parse_udevadm_output",
             ("modprobe=checkbox_support.parsers.modprobe:parse_modprobe_d"
              "_output"),

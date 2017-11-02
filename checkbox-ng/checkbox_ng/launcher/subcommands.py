@@ -547,7 +547,7 @@ class Launcher(Command, MainLoopStage):
         def rerun_predicate(job_state):
             return job_state.result.outcome in (
                 IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-                IJobResult.OUTCOME_SKIP)
+                IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
         rerun_candidates = []
         todo_list = self.ctx.sa.get_static_todo_list()
         job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id

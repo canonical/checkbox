@@ -411,6 +411,7 @@ class RerunWidget(CategoryWidget):
         IJobResult.OUTCOME_FAIL: _("Failed Jobs"),
         IJobResult.OUTCOME_SKIP: _("Skipped Jobs"),
         IJobResult.OUTCOME_CRASH: _("Crashed Jobs"),
+        IJobResult.OUTCOME_NOT_SUPPORTED: _("Jobs with failed dependencies"),
     }
 
     def __init__(self, node):

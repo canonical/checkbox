@@ -632,12 +632,8 @@ class Config(metaclass=ConfigMeta):
         # Reset filename list and problem list
         self._filename_list = []
         self._problem_list = []
-        # Try loading all of the config files
-        try:
-            logger.info(_("Loading configuration from %s"), filename_list)
-            self._filename_list = parser.read(filename_list)
-        except configparser.Error as exc:
-            self._problem_list.append(exc)
+        logger.info(_("Loading configuration from %s"), filename_list)
+        self._filename_list = parser.read(filename_list)
         # Try to validate everything
         try:
             self._read_commit(parser)

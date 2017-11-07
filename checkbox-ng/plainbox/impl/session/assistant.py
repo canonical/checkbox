@@ -57,7 +57,6 @@ from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.restart import IRestartStrategy
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import SessionStorageRepository
-from plainbox.impl.transport import CertificationTransport
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
 from plainbox.public import get_providers
@@ -190,10 +189,6 @@ class SessionAssistant:
                 "use an alternate execution controllers"),
             self.select_providers: (
                 "select the providers to work with"),
-            self.get_canonical_certification_transport: (
-                "create a transport for the C3 system"),
-            self.get_canonical_hexr_transport: (
-                "create a transport for the HEXR system"),
             self.get_old_sessions: (
                 "get previously created sessions"),
             self.delete_sessions: (
@@ -1475,10 +1470,6 @@ class SessionAssistant:
             self.export_to_stream: "to export the results to a stream",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
-            self.get_canonical_certification_transport: (
-                "create a transport for the C3 system"),
-            self.get_canonical_hexr_transport: (
-                "create a transport for the HEXR system"),
             self.get_old_sessions: (
                 "get previously created sessions"),
             self.delete_sessions: (
@@ -1503,7 +1494,7 @@ class SessionAssistant:
         :param transport:
             A pre-created transport object such as the `CertificationTransport`
             that is useful for sending data to the Canonical Certification
-            Website and HEXR. This can also be any object conforming to the
+            Website. This can also be any object conforming to the
             appropriate API.
         :param options:
             (optional) List of options customary to the exporter that is being
@@ -1598,71 +1589,6 @@ class SessionAssistant:
         if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
             self._metadata.flags.add(SessionMetaData.FLAG_SUBMITTED)
             self._manager.checkpoint()
-
-    @raises(ValueError, UnexpectedMethodCall)
-    def get_canonical_certification_transport(
-        self, secure_id: str, *, staging: bool=False
-    ) -> "ISesssionStateTransport":
-        """
-        Get a transport for the Canonical Certification website.
-
-        :param secure_id:
-            The *secure identifier* of the machine. This is an identifier
-            issued by Canonical. It is only applicable to machines that are
-            tested by the Hardware Certification team.
-        :param staging:
-            Flag indicating if the staging server should be used.
-        :returns:
-            A ISessionStateTransport instance with appropriate configuration.
-            In practice the transport object should be passed to
-            :meth:`export_to_transport()` and not handled in any other way.
-        :raises ValueError:
-            if the ``secure_id`` is malformed.
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
-
-        This transport, same as the hexr transport, expects the data created by
-        the ``"hexr"`` exporter.
-        """
-        UsageExpectation.of(self).enforce()
-        if staging:
-            url = ('https://certification.staging.canonical.com/'
-                   'submissions/submit/')
-        else:
-            url = 'https://certification.canonical.com/submissions/submit/'
-        options = "secure_id={}".format(secure_id)
-        return CertificationTransport(url, options)
-
-    @raises(UnexpectedMethodCall)
-    def get_canonical_hexr_transport(
-        self, *, staging: bool=False
-    ) -> "ISesssionStateTransport":
-        """
-        Get a transport for the Canonical HEXR website.
-
-        :param staging:
-            Flag indicating if the staging server should be used.
-        :returns:
-            A ISessionStateTransport instance with appropriate configuration.
-            In practice the transport object should be passed to
-            :meth:`export_to_transport()` and not handled in any other way.
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
-
-        This transport, same as the certification transport, expects the data
-        created by the ``"hexr"`` exporter.
-        """
-        UsageExpectation.of(self).enforce()
-        if staging:
-            url = 'https://hexr.staging.canonical.com/checkbox/submit/'
-        else:
-            url = 'https://hexr.canonical.com/checkbox/submit/'
-        options = "submit_to_hexr=1"
-        return CertificationTransport(url, options)
 
     @raises(UnexpectedMethodCall, KeyError)
     def get_ubuntu_sso_oauth_transport(

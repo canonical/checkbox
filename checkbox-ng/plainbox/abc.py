@@ -1064,7 +1064,7 @@ class ISessionStateTransport(metaclass=ABCMeta):
     Interface for transports that send test data somewhere.
 
     They handle just the transmission portion of data sending; exporters are
-    expected to produce data in the proper format (e.g. json, xml).
+    expected to produce data in the proper format (e.g. json, tar.xz).
 
     Each transport can have specific parameters that are required for the
     other end to properly process received information (like system

@@ -80,7 +80,6 @@ class LauncherDefinitionLegacyTests(TestCase):
         self.assertEqual(l.skip_test_selection, False)
         self.assertEqual(l.input_type, Unset)
         self.assertEqual(l.ok_btn_text, Unset)
-        self.assertEqual(l.submit_to_hexr, Unset)
         self.assertEqual(l.submit_to, Unset)
         self.assertEqual(l.submit_url, Unset)
         self.assertEqual(l.secure_id, Unset)

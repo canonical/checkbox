@@ -54,8 +54,7 @@ logger = logging.getLogger("plainbox.result")
 # U+007F..U+009F. Also known as control characters."
 #
 # NOTE: we don't want to match certain control characters (newlines, carriage
-# returns, tabs or vertical tabs as those are allowed by lxml and it would be
-# silly to strip them.
+# returns, tabs or vertical tabs).
 CONTROL_CODE_RE_STR = re.compile(
     "(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
 
@@ -105,24 +104,11 @@ IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 #   for graphical applications in the same way as color_ansi is useful for
 #   console applications.
 #
-#   hexr_xml_mapping - a string that needs to be used in the XML report for the
-#   Canonical HEXR application (also for the Canonical Certification web
-#   application). Those values must be in sync with a piece of code in
-#   checkbox_support that handles parsing of the XML report, for as long as the
-#   report is to be maintained.
-#
-#   hexr_xml_allowed - a boolean indicating that this outcome may appear
-#   in the XML document generated for the Canonical HEXR application. In
-#   theory it can go away as we can now easily control both "sides"
-#   (client and server) but it does exist today.
-#
-#   hexr_xml_order - an (optional) integer used for ordering allowed values.
-#   This is used so that the XML output can have a fixed ordering regardless of
-#   the actual order of entries in the dictionary.
+#   hexr_mapping - a string that needs to be used in the XML report for the
+#   Canonical Certification web application.
 OutcomeMetadata = namedtuple(
     "OutcomeMetadata", ("value unicode_sigil tr_outcome tr_label color_ansi"
-                        " color_hex hexr_xml_mapping hexr_xml_allowed"
-                        " hexr_xml_order"))
+                        " color_hex hexr_mapping"))
 
 OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_NONE: OutcomeMetadata(
@@ -132,9 +118,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "not started"),
         color_ansi="",
         color_hex="#000000",
-        hexr_xml_mapping="none",
-        hexr_xml_allowed=True,
-        hexr_xml_order=0,
+        hexr_mapping="none",
     ),
     IJobResult.OUTCOME_PASS: OutcomeMetadata(
         value=IJobResult.OUTCOME_PASS,
@@ -143,9 +127,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "passed"),
         color_ansi="\033[32;1m",
         color_hex="#6AA84F",
-        hexr_xml_mapping="pass",
-        hexr_xml_allowed=True,
-        hexr_xml_order=1,
+        hexr_mapping="pass",
     ),
     IJobResult.OUTCOME_FAIL: OutcomeMetadata(
         value=IJobResult.OUTCOME_FAIL,
@@ -154,9 +136,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "failed"),
         color_ansi="\033[31;1m",
         color_hex="#DC3912",
-        hexr_xml_mapping="fail",
-        hexr_xml_allowed=True,
-        hexr_xml_order=2,
+        hexr_mapping="fail",
     ),
     IJobResult.OUTCOME_SKIP: OutcomeMetadata(
         value=IJobResult.OUTCOME_SKIP,
@@ -165,9 +145,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "skipped"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
-        hexr_xml_mapping="skip",
-        hexr_xml_allowed=True,
-        hexr_xml_order=3,
+        hexr_mapping="skip",
     ),
     IJobResult.OUTCOME_NOT_SUPPORTED: OutcomeMetadata(
         value=IJobResult.OUTCOME_NOT_SUPPORTED,
@@ -176,9 +154,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "not supported"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
-        hexr_xml_mapping="skip",
-        hexr_xml_allowed=False,
-        hexr_xml_order=None,
+        hexr_mapping="skip",
     ),
     IJobResult.OUTCOME_NOT_IMPLEMENTED: OutcomeMetadata(
         value=IJobResult.OUTCOME_NOT_IMPLEMENTED,
@@ -187,9 +163,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "not implemented"),
         color_ansi="\033[31;1m",
         color_hex="#DC3912",
-        hexr_xml_mapping="skip",
-        hexr_xml_allowed=False,
-        hexr_xml_order=None,
+        hexr_mapping="skip",
     ),
     IJobResult.OUTCOME_UNDECIDED: OutcomeMetadata(
         value=IJobResult.OUTCOME_UNDECIDED,
@@ -198,9 +172,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "undecided"),
         color_ansi="\033[35;1m",
         color_hex="#FF00FF",
-        hexr_xml_mapping="skip",
-        hexr_xml_allowed=False,
-        hexr_xml_order=None,
+        hexr_mapping="skip",
     ),
     IJobResult.OUTCOME_CRASH: OutcomeMetadata(
         value=IJobResult.OUTCOME_CRASH,
@@ -209,9 +181,7 @@ OUTCOME_METADATA_MAP = {
         tr_label=C_("chart label", "crashed"),
         color_ansi="\033[41;37;1m",
         color_hex="#FF0000",
-        hexr_xml_mapping="fail",
-        hexr_xml_allowed=False,
-        hexr_xml_order=None,
+        hexr_mapping="fail",
     ),
 }
 

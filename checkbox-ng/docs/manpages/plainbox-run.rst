@@ -191,10 +191,10 @@ plainbox-run (1)
 
     Some formats are more useful than others in that they are capable of
     transferring more of the internal state. Depending on your application you
-    may wish to choose the most generic format (json) and process it further
+    may wish to choose the most generic format (tar.xz) and process it further
     with additional tools, choose the most basic format (text) just to get a
     simple summary of the results or lastly choose one of the two specialized
-    formats (xml and html) that are specific to the Checkbox workflow.
+    formats (xlsx and html) that are specific to the Checkbox workflow.
 
     Out of the box the following exporters are supported:
 
@@ -230,24 +230,13 @@ plainbox-run (1)
     xlsx
     ----
 
-    This exporter creates a standalone .xlsx (XML format for Microsoft Excel)
+    This exporter creates a standalone .xlsx (OOXML format for Microsoft Excel)
     file that contains a human-readable test report. It is quit similar to the
     HTML report but it is easier to edit. It is useful for communicating with
     other humans and since it is entirely standalone and off-line it can be
     sent by email or archived.
 
     It depends on python3-xlsxwriter package
-
-    hexr
-    ----
-
-    This exporter creates a rather confusingly named XML document only
-    applicable for internal Canonical Hardware Certification Team workflow.
-
-    It is not a generic XML representation of test results and instead it
-    carries quite a few legacy constructs that are only retained for
-    compatibility with other internal tools. If you want generic processing
-    look for JSON instead.
 
     Selecting Exporter Options
     ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -361,15 +350,6 @@ plainbox-run (1)
     with-text-attachments:
         Exported spreadsheet will include text attachments on a separate sheet
 
-    xml
-    ---
-
-    client-name:
-        This option allows clients to override the name of the application
-        generating the XML document. By default that name is `plainbox`.  To
-        use this option pass ``--output-options client-name=other-name``
-        command-line option.
-
     TRANSPORTING RESULTS
     ====================
 
@@ -388,22 +368,11 @@ plainbox-run (1)
 
     Plainbox comes equipped with the following transports:
 
-    launchpad
-    ^^^^^^^^^
-
-    This transport can send the results exported using ``xml`` exporter to the
-    Launchpad Hardware Database. This is a little-known feature offered by the
-    https://launchpad.net/ website.
-
     certification
     ^^^^^^^^^^^^^
 
-    This transport can send the results exported using the ``xml`` exporter to
+    This transport can send the results exported using the ``tar`` exporter to
     the Canonical Certification Website (https://certification.canonical.com).
-
-    This transport is of little use to anyone but the Canonical Hardware
-    Certification Team that also maintains Plainbox and Checkbox but it is
-    mentioned here for completeness.
 
 See Also
 ========

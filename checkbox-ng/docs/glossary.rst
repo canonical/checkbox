@@ -96,7 +96,7 @@ Glossary
     attachment
         
         Attachments are a special type of a Job that can creates an attachment
-        record in the submission.xml file. They are commonly used to include
+        record in the submission reports. They are commonly used to include
         basic system information files and output of certain commands which can
         aid in system certification.
 

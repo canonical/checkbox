@@ -42,7 +42,7 @@
             "name": "{{ job_state.job.tr_summary() }}",
             "certification_status": "{{ job_state.effective_certification_status }}",
             "category": "{{ job_state.effective_category_id }}",
-            "status": "{{ job_state.result.outcome_meta().hexr_xml_mapping }}",
+            "status": "{{ job_state.result.outcome_meta().hexr_mapping }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
             "type": "test",

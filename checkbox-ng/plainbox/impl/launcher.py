@@ -133,12 +133,6 @@ class LauncherDefinitionLegacy(LauncherDefinition):
         section="submission",
         help_text=_("Label on the 'send' button"))
 
-    submit_to_hexr = config.Variable(
-        section="submission",
-        kind=bool,
-        # TODO: default?
-        help_text=_("If enabled then test results will be also sent to HEXR"))
-
     submit_to = config.Variable(
         section="transport",
         validator_list=[config.ChoiceValidator(get_all_transports().keys())],

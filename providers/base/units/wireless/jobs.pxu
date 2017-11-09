@@ -13,7 +13,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 6
 _description:
  Check system can find a wireless network AP nearby
-flags: preserve-locale also-after-suspend
+flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  {%- if "SNAP_NAME" in __system_env__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -34,7 +34,7 @@ command:
   wifi_nmcli_test secured {{ interface }} "$WPA_BG_SSID" "$WPA_BG_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
+flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  {%- if "SNAP_NAME" in __system_env__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -55,7 +55,7 @@ command:
   wifi_nmcli_test open {{ interface }} "$OPEN_BG_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
+flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  {%- if "SNAP_NAME" in __system_env__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -76,7 +76,7 @@ command:
   wifi_nmcli_test secured {{ interface }} "$WPA_N_SSID" "$WPA_N_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
+flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_n == 'supported'
  {%- if "SNAP_NAME" in __system_env__ %}
@@ -98,7 +98,7 @@ command:
   wifi_nmcli_test open {{ interface }} "$OPEN_N_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
+flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_n == 'supported'
  {%- if "SNAP_NAME" in __system_env__ %}
@@ -120,7 +120,7 @@ command:
   wifi_nmcli_test secured {{ interface }} "$WPA_AC_SSID" "$WPA_AC_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
+flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  {%- if "SNAP_NAME" in __system_env__ %}
@@ -142,7 +142,7 @@ command:
   wifi_nmcli_test open {{ interface }} "$OPEN_AC_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
+flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  {%- if "SNAP_NAME" in __system_env__ %}

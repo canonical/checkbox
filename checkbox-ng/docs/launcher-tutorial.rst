@@ -99,7 +99,7 @@ number of the stock ones. In launchers version 1 there are 4 stock reports you
 may use:
 
     * ``text`` - print results as text on standard output
-    * ``submission_files`` - write ``html``, ``xlsx``, ``json`` and ``xml``
+    * ``submission_files`` - write ``html``, ``xlsx``, ``json`` and ``tar.xz``
       files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
       ``$XDG_DATA_HOME`` is not defined.
     * ``certification`` - send results to certification site
@@ -485,7 +485,7 @@ report to standard output.
     exporter = text
 
 2) Interactive testing of FooBar project. Report should be uploaded to the
-staging version of certification site and saved to /tmp/submission.xml
+staging version of certification site and saved to /tmp/submission.tar.xz
 
 ::
 
@@ -512,15 +512,12 @@ staging version of certification site and saved to /tmp/submission.xml
 
     [transport:local_file]
     type = file
-    path = /tmp/submission.xml
-
-    [exporter:xml]
-    unit = com.canonical.plainbox::hexr
+    path = /tmp/submission.tar.xz
 
     [report:c3-staging]
-    transport = outfile
-    exporter = xml
+    transport = certification
+    exporter = tar
 
     [report:file]
     transport = local_file
-    exporter = xml
+    exporter = tar

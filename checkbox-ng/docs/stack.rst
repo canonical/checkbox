@@ -71,11 +71,9 @@ Component Descriptions
 | Checkbox (CLI)         | - The python command-line interface   | Application |
 |                        |                                       |             |
 |                        |   - the text user interface           |             |
-|                        |   - the SRU testing command           |             |
 |                        |                                       |             |
 |                        | - Additional certification APIs       |             |
 |                        |                                       |             |
-|                        |   - sending data to Launchpad         |             |
 |                        |   - sending data to HEXR              |             |
 +------------------------+---------------------------------------+-------------+
 | Client Certification   | - canonical-certification-client      | Provider    |
@@ -107,7 +105,7 @@ Component Descriptions
 |                        |   - Trusted launcher                  |             |
 |                        |   - Dependency resolver               |             |
 |                        |   - Command line handling             |             |
-|                        |   - The XML, HTML and XSLX exporters  |             |
+|                        |   - The HTML and XSLX exporters       |             |
 |                        |   - and more...                       |             |
 |                        |                                       |             |
 |                        | - Provider development toolkit        |             |

@@ -1,9 +1,10 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013 Canonical Ltd.
+# Copyright 2012, 2017 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Daniel Manrique <roadmr@ubuntu.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -37,10 +38,10 @@ from plainbox.vendor.mock import MagicMock
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 import requests
 
-from checkbox_ng.certification import CertificationTransport
+from checkbox_ng.certification import SubmissionServiceTransport
 
 
-class CertificationTransportTests(TestCase):
+class SubmissionServiceTransportTests(TestCase):
 
     # URL are just here to exemplify, since we mock away all network access,
     # they're not really used.
@@ -51,39 +52,34 @@ class CertificationTransportTests(TestCase):
     valid_option_string = "secure_id={}".format(valid_secure_id)
 
     def setUp(self):
-        self.sample_xml = BytesIO(resource_string(
-            "plainbox", "test-data/xml-exporter/example-data.xml"
+        self.sample_archive = BytesIO(resource_string(
+            "plainbox", "test-data/tar-exporter/example-data.tar.xz"
         ))
         self.patcher = mock.patch('requests.post')
         self.mock_requests = self.patcher.start()
 
     def test_parameter_parsing(self):
         # Makes sense since I'm overriding the base class's constructor.
-        transport = CertificationTransport(
+        transport = SubmissionServiceTransport(
             self.valid_url, self.valid_option_string)
         self.assertEqual(self.valid_url, transport.url)
         self.assertEqual(self.valid_secure_id,
                          transport.options['secure_id'])
-
-    def test_submit_to_hexr_interpretation(self):
-        transport = CertificationTransport(
-            self.valid_url, "submit_to_hexr=1")
-        self.assertTrue(transport._submit_to_hexr is True)
 
     def test_invalid_length_secure_id_are_rejected(self):
         length = 14
         dummy_id = "a" * length
         option_string = "secure_id={}".format(dummy_id)
         with self.assertRaises(InvalidSecureIDError):
-            CertificationTransport(self.valid_url, option_string)
+            SubmissionServiceTransport(self.valid_url, option_string)
 
     def test_invalid_characters_in_secure_id_are_rejected(self):
         option_string = "secure_id=aA0#"
         with self.assertRaises(InvalidSecureIDError):
-            CertificationTransport(self.valid_url, option_string)
+            SubmissionServiceTransport(self.valid_url, option_string)
 
     def test_invalid_url(self):
-        transport = CertificationTransport(
+        transport = SubmissionServiceTransport(
             self.invalid_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = InvalidSchema
@@ -92,12 +88,11 @@ class CertificationTransportTests(TestCase):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
         requests.post.assert_called_with(
-            self.invalid_url, files={'data': dummy_data},
-            headers={'X_HARDWARE_ID': self.valid_secure_id}, proxies=None)
+            self.invalid_url, data=dummy_data, proxies=None)
 
     @mock.patch('checkbox_ng.certification.logger')
     def test_valid_url_cant_connect(self, mock_logger):
-        transport = CertificationTransport(
+        transport = SubmissionServiceTransport(
             self.unreachable_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = ConnectionError
@@ -105,37 +100,20 @@ class CertificationTransportTests(TestCase):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
         requests.post.assert_called_with(self.unreachable_url,
-                                         files={'data': dummy_data},
-                                         headers={'X_HARDWARE_ID':
-                                                  self.valid_secure_id},
-                                         proxies=None)
-
-    @mock.patch('checkbox_ng.certification.logger')
-    def test_share_with_hexr_header_sent(self, mock_logger):
-        transport = CertificationTransport(
-            self.valid_url, self.valid_option_string+",submit_to_hexr=1")
-        dummy_data = BytesIO(b"some data to send")
-        result = transport.send(dummy_data)
-        self.assertIsNotNone(result)
-        requests.post.assert_called_with(self.valid_url,
-                                         files={'data': dummy_data},
-                                         headers={'X_HARDWARE_ID':
-                                                  self.valid_secure_id,
-                                                  'X-Share-With-HEXR':
-                                                  True},
+                                         data=dummy_data,
                                          proxies=None)
 
     def test_send_success(self):
-        transport = CertificationTransport(
+        transport = SubmissionServiceTransport(
             self.valid_url, self.valid_option_string)
         requests.post.return_value = MagicMock(name='response')
         requests.post.return_value.status_code = 200
         requests.post.return_value.text = '{"id": 768}'
-        result = transport.send(self.sample_xml)
+        result = transport.send(self.sample_archive)
         self.assertTrue(result)
 
     def test_send_failure(self):
-        transport = CertificationTransport(
+        transport = SubmissionServiceTransport(
             self.valid_url, self.valid_option_string)
         requests.post.return_value = MagicMock(name='response')
         requests.post.return_value.status_code = 412
@@ -145,7 +123,7 @@ class CertificationTransportTests(TestCase):
         requests.post.return_value.raise_for_status = MagicMock(
             side_effect=HTTPError)
         with self.assertRaises(TransportError):
-            transport.send(self.sample_xml)
+            transport.send(self.sample_archive)
 
     def proxy_test(self, environment, proxies):
         test_environment = environment
@@ -153,7 +131,7 @@ class CertificationTransportTests(TestCase):
         test_config = PlainBoxConfig()
         test_config.environment = test_environment
 
-        transport = CertificationTransport(
+        transport = SubmissionServiceTransport(
             self.valid_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")
 
@@ -163,8 +141,7 @@ class CertificationTransportTests(TestCase):
         result = transport.send(dummy_data, config=test_config)
         self.assertTrue(result)
         requests.post.assert_called_with(
-            self.valid_url, files={'data': dummy_data},
-            headers={'X_HARDWARE_ID': self.valid_secure_id},
+            self.valid_url, data=dummy_data,
             proxies=test_proxies)
 
     def test_set_only_one_proxy(self):

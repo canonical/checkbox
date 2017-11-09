@@ -56,7 +56,7 @@ include:
     ethernet/info_automated                    certification-status=non-blocker
     ethernet/ethtool_info                      certification-status=non-blocker
     ethernet/ethertool_check_.*                certification-status=non-blocker
-    ethernet/multi_iperf3_nic_.*                      certification-status=blocker
+    ethernet/multi_iperf3_nic_.*               certification-status=blocker
     mediacard/sd-preinserted                   certification-status=blocker
     memory/info                                certification-status=blocker
     memory/memory_stress_ng                    certification-status=blocker
@@ -68,6 +68,8 @@ include:
     virtualization/verify_lxd                  certification-status=non-blocker
     virtualization/kvm_check_vm                certification-status=blocker
     info/kvm_output                            certification-status=non-blocker
+    miscellanea/call-trace-check               certification-status=non-blocker
+    miscellanea/attach-syslog                  certification-status=non-blocker
 bootstrap_include:
     device
     fwts

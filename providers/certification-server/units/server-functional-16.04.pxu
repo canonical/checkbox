@@ -75,6 +75,8 @@ include:
     virtualization/verify_lxd                  certification-status=non-blocker
     virtualization/kvm_check_vm                certification-status=blocker
     info/kvm_output                            certification-status=non-blocker
+    miscellanea/call-trace-check               certification-status=non-blocker
+    miscellanea/attach-syslog                  certification-status=non-blocker
 bootstrap_include:
     device
     fwts

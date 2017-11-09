@@ -536,7 +536,7 @@ class Launcher(Command, MainLoopStage):
                 if inhibitor.cause == InhibitionCause.FAILED_DEP:
                     resources_to_rerun.append(inhibitor.related_job.id)
         # reset outcome of jobs that are selected for re-running
-        for job_id in list(wanted_set) + resources_to_rerun:
+        for job_id in resources_to_rerun + list(wanted_set):
             self.ctx.sa.get_job_state(job_id).result = MemoryJobResult({})
             rerun_candidates.append(job_id)
         self._run_jobs(rerun_candidates)
@@ -547,7 +547,7 @@ class Launcher(Command, MainLoopStage):
         def rerun_predicate(job_state):
             return job_state.result.outcome in (
                 IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-                IJobResult.OUTCOME_SKIP)
+                IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
         rerun_candidates = []
         todo_list = self.ctx.sa.get_static_todo_list()
         job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id

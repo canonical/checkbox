@@ -46,21 +46,6 @@ CERTIFICATION_NS = 'com.canonical.certification::'
 
 
 @environmentfilter
-def do_sorted_xmlattr(_environment, d, autospace=True):
-    """A version of xmlattr filter that sorts attributes."""
-    rv = ' '.join(
-        '%s="%s"' % (escape(key), escape(value))
-        for key, value in sorted(d.items())
-        if value is not None and not isinstance(value, Undefined)
-    )
-    if autospace and rv:
-        rv = ' ' + rv
-    if _environment.autoescape:
-        rv = Markup(rv)
-    return rv
-
-
-@environmentfilter
 def do_strip_ns(_environment, unit_id, ns=CERTIFICATION_NS):
     """Remove the namespace part of the identifier."""
     if unit_id.startswith(ns):
@@ -138,10 +123,9 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         return self._unit
 
     def customize_environment(self, env):
-        """Register filters and tests custom to the HEXR exporter."""
+        """Register filters and tests custom to the JSON exporter."""
         env.autoescape = True
         env.filters['jsonify'] = json.dumps
-        env.filters['sorted_xmlattr'] = do_sorted_xmlattr
         env.filters['strip_ns'] = do_strip_ns
         env.tests['is_name'] = do_is_name
 

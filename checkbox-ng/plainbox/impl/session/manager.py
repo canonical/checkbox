@@ -477,7 +477,6 @@ class SessionManager(pod.POD):
         # Patch exporter map to expose short names
         legacy_mapping = {
             'com.canonical.plainbox::global': 'global',
-            'com.canonical.plainbox::hexr': 'xml',
             'com.canonical.plainbox::html': 'html',
             'com.canonical.plainbox::json': 'json',
             'com.canonical.plainbox::junit': 'junit',
@@ -499,7 +498,7 @@ class SessionManager(pod.POD):
             Identifier of the exporter unit (which must have been loaded
             into the session device context of the first device). For
             backwards compatibility this can also be any of the legacy
-            identifiers ``xml``, ``html``, ``json``, ``rfc822``, ``text`` or
+            identifiers ``tar``, ``html``, ``json``, ``rfc822``, ``text`` or
             ``xlsx``.
         :param option_list:
             (optional) A list of options to pass to the exporter. Each option

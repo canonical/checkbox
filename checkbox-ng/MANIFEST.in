@@ -48,4 +48,4 @@ recursive-exclude daily-package-testing *
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf
 recursive-include plainbox/data *.rng
-recursive-include plainbox/test-data *.json *.xml *.html
+recursive-include plainbox/test-data *.json *.html *.tar.xz

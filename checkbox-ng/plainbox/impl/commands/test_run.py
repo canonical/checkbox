@@ -131,7 +131,6 @@ class TestRun(TestCase):
             self.assertEqual(call.exception.args, (0,))
         expected = """
         Available output formats:
-        com.canonical.plainbox::hexr - Generate XML (for certification)
         com.canonical.plainbox::html - Generate a standalone HTML
         com.canonical.plainbox::json - Generate JSON output
         com.canonical.plainbox::rfc822 - Generate RCF822 output
@@ -149,7 +148,6 @@ class TestRun(TestCase):
             self.assertEqual(call.exception.args, (0,))
         expected = """
         Each format may support a different set of options
-        com.canonical.plainbox::hexr: 
         com.canonical.plainbox::html: 
         com.canonical.plainbox::json: 
         com.canonical.plainbox::rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status

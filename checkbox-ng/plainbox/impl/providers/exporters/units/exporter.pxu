@@ -1,11 +1,4 @@
 unit: exporter
-id: hexr
-_summary: Generate XML (for certification)
-entry_point: jinja2
-file_extension: xml
-data: {"template": "hexr.xml"}
-
-unit: exporter
 id: html
 _summary: Generate a standalone HTML
 entry_point: jinja2

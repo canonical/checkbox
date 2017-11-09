@@ -76,7 +76,10 @@ class LauncherIngredient(Ingredient):
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
             launcher = DefaultLauncherDefinition()
-            configs = [launcher.config_filename]
+            configs = [
+                '/etc/xdg/{}'.format(launcher.config_filename),
+                os.path.expanduser(
+                    '~/.config/{}'.format(launcher.config_filename))]
         else:
             configs = [context.args.launcher]
             try:

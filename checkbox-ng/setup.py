@@ -70,8 +70,6 @@ setup(
             'checkbox-cli=checkbox_ng.launcher.checkbox_cli:main',
         ],
         'plainbox.transport': [
-            'certification='
-            'checkbox_ng.certification:CertificationTransport',
             'submission-service='
             'checkbox_ng.certification:SubmissionServiceTransport',
         ],

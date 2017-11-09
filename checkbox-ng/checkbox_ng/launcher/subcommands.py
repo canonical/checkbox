@@ -98,19 +98,8 @@ class Submit(Command):
         if ctx.args.staging:
             url = ('https://certification.staging.canonical.com/'
                    'api/v1/submission/{}/'.format(ctx.args.secure_id))
-        if ctx.args.submission.endswith('xml'):
-            from checkbox_ng.certification import CertificationTransport
-            transport_cls = CertificationTransport
-            mode = 'r'
-            enc = 'utf-8'
-            url = ('https://certification.canonical.com/'
-                   'submissions/submit/')
-            if ctx.args.staging:
-                url = ('https://certification.staging.canonical.com/'
-                       'submissions/submit/')
-        else:
-            from checkbox_ng.certification import SubmissionServiceTransport
-            transport_cls = SubmissionServiceTransport
+        from checkbox_ng.certification import SubmissionServiceTransport
+        transport_cls = SubmissionServiceTransport
         transport = transport_cls(url, options_string)
         try:
             with open(ctx.args.submission, mode, encoding=enc) as subm_file:
@@ -587,24 +576,24 @@ class Launcher(Command, MainLoopStage):
             self.launcher.reports['1_text_to_screen'] = {
                 'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
         elif report == 'certification':
-            self.launcher.exporters['hexr'] = {
-                'unit': 'com.canonical.plainbox::hexr'}
+            self.launcher.exporters['tar'] = {
+                'unit': 'com.canonical.plainbox::tar'}
             self.launcher.transports['c3'] = {
-                'type': 'certification',
+                'type': 'submission-service',
                 'secure_id': self.launcher.transports.get('c3', {}).get(
                     'secure_id', None)}
             self.launcher.reports['upload to certification'] = {
-                'transport': 'c3', 'exporter': 'hexr'}
+                'transport': 'c3', 'exporter': 'tar'}
         elif report == 'certification-staging':
-            self.launcher.exporters['hexr'] = {
-                'unit': 'com.canonical.plainbox::hexr'}
+            self.launcher.exporters['tar'] = {
+                'unit': 'com.canonical.plainbox::tar'}
             self.launcher.transports['c3-staging'] = {
-                'type': 'certification',
+                'type': 'submission-service',
                 'secure_id': self.launcher.transports.get('c3', {}).get(
                     'secure_id', None),
                 'staging': 'yes'}
             self.launcher.reports['upload to certification-staging'] = {
-                'transport': 'c3-staging', 'exporter': 'hexr'}
+                'transport': 'c3-staging', 'exporter': 'tar'}
         elif report == 'submission_files':
             # LP:1585326 maintain isoformat but removing ':' chars that cause
             # issues when copying files.
@@ -612,7 +601,7 @@ class Launcher(Command, MainLoopStage):
             timestamp = datetime.datetime.utcnow().strftime(isoformat)
             if not os.path.exists(self.base_dir):
                 os.makedirs(self.base_dir)
-            for exporter, file_ext in [('hexr', '.xml'), ('html', '.html'),
+            for exporter, file_ext in [('html', '.html'),
                                        ('junit', '.junit.xml'),
                                        ('xlsx', '.xlsx'), ('tar', '.tar.xz')]:
                 path = os.path.join(self.base_dir, ''.join(
@@ -652,22 +641,6 @@ class Launcher(Command, MainLoopStage):
         elif tr_type == 'stream':
             self.transports[transport] = cls(
                 self.launcher.transports[transport]['stream'])
-        elif tr_type == 'certification':
-            if self.launcher.transports[transport].get('staging', False):
-                url = ('https://certification.staging.canonical.com/'
-                       'submissions/submit/')
-            else:
-                url = ('https://certification.canonical.com/'
-                       'submissions/submit/')
-            secure_id = self.launcher.transports[transport].get(
-                'secure_id', None)
-            if not secure_id and self.is_interactive:
-                secure_id = input(self.C.BLUE(_('Enter secure-id:')))
-            if secure_id:
-                options = "secure_id={}".format(secure_id)
-            else:
-                options = ""
-            self.transports[transport] = cls(url, options)
         elif tr_type == 'submission-service':
             secure_id = self.launcher.transports[transport].get(
                 'secure_id', None)

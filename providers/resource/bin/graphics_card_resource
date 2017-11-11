@@ -19,7 +19,6 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import collections
 import subprocess
 import shlex
 import string
@@ -122,22 +121,18 @@ def main():
                                if r.get("category", "") == 'VIDEO')
     video_devices.sort(key=lambda r: bus_ordering(r))
 
-    # commands needed to switch to and from particular GPU.
-    # Keyed by the driver name defaults to 'false'/'false' commands
-    switch_cmds = collections.defaultdict(lambda: ('false', 'false'))
-    switch_cmds['nvidia'] = ('prime-select nvidia', 'prime-select intel')
-    switch_cmds['amdgpu-pro'] = (
-        '/opt/amdgpu-pro/bin/amdgpu-pro-px --mode performance',
-        '/opt/amdgpu-pro/bin/amdgpu-pro-px --mode powersaving')
-
     # Lazily add index to each video device
     try:
         for index, record in enumerate(video_devices, 1):
             record['index'] = index
-            if not subprocess.call(['dpkg-query', '-W', 'vulkan-amdgpu-pro'],
-                                   stderr=subprocess.STDOUT,
-                                   stdout=subprocess.DEVNULL):
-                record['driver'] = 'amdgpu-pro'
+            if record['vendor_id'] == '4098':  # vendor == amd/ati
+                if subprocess.call(
+                        ['dpkg-query', '-W', 'vulkan-amdgpu-pro'],
+                        stderr=subprocess.STDOUT,
+                        stdout=subprocess.DEVNULL) == 0:
+                    # dpkg-query did not report error, so
+                    # vulkan-amdgpu-pro is installed
+                    record['driver'] = 'amdgpu-pro'
             if 'product' not in record:
                 # Fake a product name with the product_id
                 try:
@@ -164,8 +159,6 @@ def main():
                 record['prime_gpu_offload'] = 'On'
             else:
                 record['prime_gpu_offload'] = 'Off'
-            record['switch_to_cmd'] = switch_cmds[record['driver']][0]
-            record['switch_from_cmd'] = switch_cmds[record['driver']][1]
             # Finally, print the record
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]

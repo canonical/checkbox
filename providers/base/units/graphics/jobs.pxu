@@ -503,3 +503,18 @@ estimated_duration: 1.0
 command: [ -f $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png ] && base64 $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
 _description: Attaches the simple screen capture file of {vendor} {product}
 
+unit: template
+template-resource: graphics_card
+category_id: com.canonical.plainbox::graphics
+id: graphics/{index}_auto_switch_card_{product_slug}
+requires:
+ graphics_card.driver in ['nvidia', 'amdgpu-pro']
+_summary: Switch GPU to {vendor} {product} and reboot
+_purpose:
+ Switch GPU to {vendor} {product} and reboot the machine
+plugin: shell
+user: root
+command:
+ {switch_to_cmd}
+ pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
+flags: noreturn preserve-locale

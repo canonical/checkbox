@@ -203,6 +203,8 @@ class Launcher(Command, MainLoopStage):
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()
+            if not self.ctx.sa.get_static_todo_list():
+                return 0
             self.base_dir = os.path.join(
                 os.getenv(
                     'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
@@ -397,6 +399,9 @@ class Launcher(Command, MainLoopStage):
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
         test_info_list = self._generate_job_infos(job_list)
+        if not job_list:
+            print(self.C.RED(_("There were no tests to select from!")))
+            return
         wanted_set = CategoryBrowser(
             _("Choose tests to run on your system:"), test_info_list).run()
         # NOTE: tree.selection is correct but ordered badly. To retain

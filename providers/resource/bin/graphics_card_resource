@@ -19,6 +19,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import collections
 import subprocess
 import shlex
 import string
@@ -121,6 +122,17 @@ def main():
                                if r.get("category", "") == 'VIDEO')
     video_devices.sort(key=lambda r: bus_ordering(r))
 
+    # commands needed to switch to and from particular GPU,
+    # keyed by the driver name. Defaults to 'false'/'false' commands.
+    switch_cmds = collections.defaultdict(lambda: ('false', 'false'))
+    switch_cmds['nvidia'] = ('prime-select nvidia', 'prime-select intel')
+    # nvidia uses 'pcieport' driver when the dGPU is disabled
+    switch_cmds['pcieport'] = ('prime-select nvidia', 'prime-select intel')
+
+    switch_cmds['amdgpu-pro'] = (
+        '/opt/amdgpu-pro/bin/amdgpu-pro-px --mode performance',
+        '/opt/amdgpu-pro/bin/amdgpu-pro-px --mode powersaving')
+
     # Lazily add index to each video device
     try:
         for index, record in enumerate(video_devices, 1):
@@ -159,7 +171,14 @@ def main():
                 record['prime_gpu_offload'] = 'On'
             else:
                 record['prime_gpu_offload'] = 'Off'
-            # Finally, print the record
+            record['switch_to_cmd'] = switch_cmds[record['driver']][0]
+            if index == 2 and len(video_devices) == 2:
+                # we're at GPU number 2 and there are two, so here we assume
+                # that video_devices[0] is the built-in one
+                video_devices[0]['switch_to_cmd'] = (
+                    switch_cmds[record['driver']][1])
+        # Finally, print the records
+        for record in video_devices:
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]
             print("\n".join(items))

@@ -2,8 +2,9 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2017 Canonical Ltd.
 #    Authors: Daniel Manrique <daniel.manrique@canonical.com>
+#    Authors: Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -124,10 +125,14 @@ def main():
     try:
         for index, record in enumerate(video_devices, 1):
             record['index'] = index
-            if not subprocess.call(['dpkg-query', '-W', 'vulkan-amdgpu-pro'],
-                                   stderr=subprocess.STDOUT,
-                                   stdout=subprocess.DEVNULL):
-                record['driver'] = 'amdgpu-pro'
+            if record['vendor_id'] == '4098':  # vendor == amd/ati
+                if subprocess.call(
+                        ['dpkg-query', '-W', 'vulkan-amdgpu-pro'],
+                        stderr=subprocess.STDOUT,
+                        stdout=subprocess.DEVNULL) == 0:
+                    # dpkg-query did not report error, so
+                    # vulkan-amdgpu-pro is installed
+                    record['driver'] = 'amdgpu-pro'
             if 'product' not in record:
                 # Fake a product name with the product_id
                 try:

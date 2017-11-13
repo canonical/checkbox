@@ -198,3 +198,27 @@ depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+id: power-management/{index}_suspend_30_times_on_{product_slug}
+plugin: shell
+category_id: com.canonical.plainbox::stress
+estimated_duration: 5400.0
+depends:
+ power-management/rtc
+ suspend/suspend_advanced
+ graphics/{index}_auto_switch_card_{product_slug}
+flags: noreturn autorestart
+user: root
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+ else
+  echo "Calling sleep_test"
+  set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+ fi
+_purpose:
+ Suspend SUT 30 times while using {product_slug} graphics card

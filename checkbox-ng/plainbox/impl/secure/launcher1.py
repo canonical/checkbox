@@ -35,6 +35,7 @@ from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import all_providers
 from plainbox.impl.secure.rfc822 import load_rfc822_records, RFC822SyntaxError
+from plainbox.impl.session import SessionManager
 
 
 class TrustedLauncher:
@@ -273,6 +274,10 @@ def main(argv=None):
             launcher.add_job_list(generated_job_list)
         except LookupError as exc:
             raise SystemExit(str(exc))
+    # Add siblings jobs
+    with SessionManager.get_throwaway_manager(
+         all_providers.get_all_plugin_objects()) as m:
+        launcher.add_job_list(m.state.job_list)
     # Run the target job and return the result code
     try:
         return launcher.run_shell_from_job(ns.target, ns.target_env)

@@ -18,7 +18,6 @@ _summary:
 plugin: shell
 category_id: com.canonical.plainbox::virtualization
 id: virtualization/verify_lxd
-user: root
 environ: LXD_TEMPLATE LXD_ROOTFS
 estimated_duration: 30.0
 requires:

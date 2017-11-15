@@ -395,38 +395,38 @@ Type of a transport to use. Allowed values are: ``stream``, ``file``, and
 Depending on the type of transport there might be additional fields.
 
 
-+-------------------+---------------+----------------+----------------------+
-| transport type    |  variables    | meaning        | example              |
-+===================+===============+================+======================+
-| ``stream``        | ``stream``    | which stream to| ``[transport:out]``  |
-|                   |               | use ``stdout`` |                      |
-|                   |               | or ``stderr``  | ``type = stream``    |
-|                   |               |                |                      |
-|                   |               |                | ``stream = stdout``  |
-+-------------------+---------------+----------------+----------------------+
-| ``file``          | ``path``      | where to save  | ``[transport:f1]``   |
-|                   |               | the file       |                      |
-|                   |               |                | ``type = file``      |
-|                   |               |                |                      |
-|                   |               |                | ``path = ~/report``  |
-+-------------------+---------------+----------------+----------------------+
++------------------------+---------------+----------------+----------------------+
+| transport type         |  variables    | meaning        | example              |
++========================+===============+================+======================+
+| ``stream``             | ``stream``    | which stream to| ``[transport:out]``  |
+|                        |               | use ``stdout`` |                      |
+|                        |               | or ``stderr``  | ``type = stream``    |
+|                        |               |                |                      |
+|                        |               |                | ``stream = stdout``  |
++------------------------+---------------+----------------+----------------------+
+| ``file``               | ``path``      | where to save  | ``[transport:f1]``   |
+|                        |               | the file       |                      |
+|                        |               |                | ``type = file``      |
+|                        |               |                |                      |
+|                        |               |                | ``path = ~/report``  |
++------------------------+---------------+----------------+----------------------+
 | ``submission-service`` | ``secure-id`` | secure-id to   | ``[transport:c3]``   |
-|                   |               | use when       |                      |
-|                   |               | uploading to   | ``secure_id = 01``\  |
-|                   |               | certification  | ``23456789ABCD``     |
-|                   |               | sites          |                      |
-|                   |               |                | ``staging = yes``    |
-|                   |               |                |                      |
-|                   +---------------+----------------+                      |
-|                   | ``staging``   | determines if  |                      |
-|                   |               | staging site   |                      |
-|                   |               | should be used |                      |
-|                   |               | Default:       |                      |
-|                   |               | ``no``         |                      |
-|                   |               |                |                      |
-|                   |               |                |                      |
-|                   |               |                |                      |
-+-------------------+---------------+----------------+----------------------+
+|                        |               | use when       |                      |
+|                        |               | uploading to   | ``secure_id = 01``\  |
+|                        |               | certification  | ``23456789ABCD``     |
+|                        |               | sites          |                      |
+|                        |               |                | ``staging = yes``    |
+|                        |               |                |                      |
+|                        +---------------+----------------+                      |
+|                        | ``staging``   | determines if  |                      |
+|                        |               | staging site   |                      |
+|                        |               | should be used |                      |
+|                        |               | Default:       |                      |
+|                        |               | ``no``         |                      |
+|                        |               |                |                      |
+|                        |               |                |                      |
+|                        |               |                |                      |
++------------------------+---------------+----------------+----------------------+
 
 
 Report

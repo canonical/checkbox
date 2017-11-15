@@ -410,7 +410,7 @@ Depending on the type of transport there might be additional fields.
 |                   |               |                |                      |
 |                   |               |                | ``path = ~/report``  |
 +-------------------+---------------+----------------+----------------------+
-| ``certification`` | ``secure-id`` | secure-id to   | ``[transport:c3]``   |
+| ``submission-service`` | ``secure-id`` | secure-id to   | ``[transport:c3]``   |
 |                   |               | use when       |                      |
 |                   |               | uploading to   | ``secure_id = 01``\  |
 |                   |               | certification  | ``23456789ABCD``     |
@@ -541,3 +541,78 @@ staging version of certification site and saved to /tmp/submission.tar.xz
     [report:file]
     transport = local_file
     exporter = tar
+
+3) A typical launcher to run a desktop SRU test plan automatically.
+The launcher will automatically retry the failed test jobs. Besides,
+this launcher include another launcher ``launcher.conf`` as its
+customized environment configuration.
+
+The launcher
+
+::
+
+    #!/usr/bin/env checkbox-cli
+    [launcher]
+    launcher_version = 1
+    stock_reports = text
+
+    [config]
+    config_filename = $HOME/launcher.conf
+
+    [test plan]
+    unit = com.canonical.certification::sru
+    forced = yes
+
+    [test selection]
+    forced = yes
+
+    [ui]
+    type = silent
+    auto_retry = yes
+    max_attempts = 5
+    delay_before_retry = 90
+
+
+The launcher configuration ``laucher.conf``
+
+::
+
+    #!/usr/bin/env checkbox-cli
+    [launcher]
+    launcher_version = 1
+    stock_reports = text, submission_files
+
+    [transport:example_c3]
+    type = submission-service
+    secure_id = <your secure ID>
+
+    [transport:example_local_file]
+    type = file
+    path = /home/ubuntu/c3-local-submission.tar.xz
+
+    [exporter:example_tar]
+    unit = com.canonical.plainbox::tar
+
+    [report:report_example_c3]
+    transport = example_c3
+    exporter = example_tar
+    forced = yes
+
+    [report:report_example_file]
+    transport = example_local_file
+    exporter = example_tar
+    forced = yes
+
+    [environment]
+    ROUTERS = multiple
+    WPA_BG_SSID = foo-bar-bg-wpa
+    WPA_BG_PSK = foo-bar
+    WPA_N_SSID = foo-bar-n-wpa
+    WPA_N_PSK = foobar
+    WPA_AC_SSID = foo-bar-ac-wpa
+    WPA_AC_PSK = foobar
+    OPEN_BG_SSID = foo-bar-bg-open
+    OPEN_N_SSID = foo-bar-n-open
+    OPEN_AC_SSID = foo-bar-ac-open
+    BTDEVADDR = ff:oo:oo:bb:aa:rr
+    TRANSFER_SERVER = cdimage.ubuntu.com

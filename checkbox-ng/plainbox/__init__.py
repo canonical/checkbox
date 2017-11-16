@@ -33,4 +33,4 @@ if sys.version_info[0:2] < (3, 2):
 # PEP440 compliant version declaration.
 #
 # This is used by @public decorator to enforce our public API guarantees.
-__version__ = '0.38.0'
+__version__ = '0.39.0.dev0'

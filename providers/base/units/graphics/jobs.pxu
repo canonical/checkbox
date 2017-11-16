@@ -508,7 +508,7 @@ template-resource: graphics_card
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_auto_switch_card_{product_slug}
 requires:
- graphics_card.driver in ['nvidia', 'amdgpu-pro']
+ graphics_card.driver in ['nvidia', 'amdgpu-pro', 'pcieport']
 _summary: Switch GPU to {vendor} {product} and reboot
 _purpose:
  Switch GPU to {vendor} {product} and reboot the machine

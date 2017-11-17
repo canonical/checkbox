@@ -109,7 +109,7 @@ def write_checkbox_conf(configuration):
     config.optionxform = str
     config.add_section('environment')
     for key in sorted(configuration.keys()):
-        val = configuration[key]
+        val = str(configuration[key])
         # unmangle the key
         key = key.replace('-', '_').upper()
         config.set('environment', key, val)

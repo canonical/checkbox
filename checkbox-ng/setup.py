@@ -75,6 +75,7 @@ setup(
         'guacamole >= 0.9',
         'padme >= 1.1.1',
         'requests >= 1.0',
+        'pycrypto >= 2.6.1',
     ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',

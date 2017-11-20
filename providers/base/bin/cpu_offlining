@@ -21,7 +21,7 @@ def is_cpu_online(cpu_name):
     # use the same heuristic as original `cpu_offlining` test used which is to
     # check if cpu is mentioned in /proc/interrupts
     with open('/proc/interrupts', 'rt') as f:
-        header = f.readline().lower()
+        header = f.readline().lower().split()
         return cpu_name in header
 
 

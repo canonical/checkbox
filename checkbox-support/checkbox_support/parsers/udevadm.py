@@ -232,6 +232,22 @@ class UdevadmDevice(object):
                      self._environment["INTERFACE"].startswith('wlan')
                      )):
                     return "WIRELESS"
+            if self._stack:
+                parent = self._stack[-1]
+                if "PCI_CLASS" in parent._environment:
+                    pci_class_string = parent._environment["PCI_CLASS"]
+                    pci_class = int(pci_class_string, 16)
+
+                    # Strip prog_if if defined
+                    if pci_class > 0xFFFF:
+                        pci_class >>= 8
+
+                    subclass_id = pci_class & 0xFF
+                    class_id = (pci_class >> 8) & 0xFF
+
+                    if class_id == Pci.BASE_CLASS_NETWORK:
+                        if subclass_id == Pci.CLASS_NETWORK_INFINIBAND:
+                            return "INFINIBAND"
             return "NETWORK"
 
         if self.bus == "bluetooth":
@@ -881,7 +897,7 @@ class UdevadmDevice(object):
     def interface(self):
         if self._interface is not None:
             return self._interface
-        if self.category in ("NETWORK", "WIRELESS", "WWAN"):
+        if self.category in ("INFINIBAND", "NETWORK", "WIRELESS", "WWAN"):
             if "INTERFACE" in self._environment:
                 return self._environment["INTERFACE"]
             else:
@@ -892,7 +908,7 @@ class UdevadmDevice(object):
     def mac(self):
         if self._mac is not None:
             return self._mac
-        if self.category in ("NETWORK", "WIRELESS", "WWAN"):
+        if self.category in ("INFINIBAND", "NETWORK", "WIRELESS", "WWAN"):
             if "ID_NET_NAME_MAC" in self._environment:
                 mac = self._environment["ID_NET_NAME_MAC"][3:]
                 return ':'.join([mac[i:i+2] for i in range(0, len(mac), 2)])
@@ -1125,10 +1141,12 @@ class UdevadmParser(object):
                         dev_mapper_devices.append(d)
 
         for device in list(self.devices.values()):
-            if device.category in ("NETWORK", "WIRELESS", "WWAN", "OTHER"):
+            if device.category in ("INFINIBAND", "NETWORK",
+                                   "WIRELESS", "WWAN", "OTHER"):
                 dev_interface = [
                     d for d in self.devices.values()
-                    if d.category in ("NETWORK", "WIRELESS", "WWAN") and
+                    if d.category in ("INFINIBAND", "NETWORK",
+                                      "WIRELESS", "WWAN") and
                     device._raw_path != d._raw_path and
                     device._raw_path + '/' in d._raw_path
                 ]

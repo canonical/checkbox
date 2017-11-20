@@ -27,8 +27,8 @@ from subprocess import check_output, CalledProcessError
 from checkbox_support.parsers.udevadm import UdevadmParser
 
 categories = ("ACCELEROMETER", "AUDIO", "BLUETOOTH", "CAPTURE", "CARDREADER",
-              "CDROM", "DISK", "KEYBOARD", "MOUSE", "NETWORK", "OTHER",
-              "PARTITION", "TOUCHPAD", "TOUCHSCREEN", "USB", "VIDEO",
+              "CDROM", "DISK", "KEYBOARD", "INFINIBAND", "MOUSE", "NETWORK",
+              "OTHER", "PARTITION", "TOUCHPAD", "TOUCHSCREEN", "USB", "VIDEO",
               "WIRELESS", "WWAN")
 
 attributes = ("path", "name", "bus", "category", "driver", "product_id",

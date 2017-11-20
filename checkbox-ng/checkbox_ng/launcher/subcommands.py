@@ -540,8 +540,11 @@ class Launcher(Command, MainLoopStage):
             for inhibitor in job_state.readiness_inhibitor_list:
                 if inhibitor.cause == InhibitionCause.FAILED_DEP:
                     resources_to_rerun.append(inhibitor.related_job.id)
+        # some resource jobs may have been selected in the UI and also added
+        # automatically, let's only add the missing ones
+        wanted_jobs = [j for j in wanted_set if j not in resources_to_rerun]
         # reset outcome of jobs that are selected for re-running
-        for job_id in resources_to_rerun + list(wanted_set):
+        for job_id in resources_to_rerun + wanted_jobs:
             self.ctx.sa.get_job_state(job_id).result = MemoryJobResult({})
             rerun_candidates.append(job_id)
         self._run_jobs(rerun_candidates)

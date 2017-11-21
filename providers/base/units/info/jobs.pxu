@@ -275,14 +275,14 @@ command:
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: installer_bootchart.tgz
-command: [ -f /var/log/installer/bootchart.tgz ] && base64 /var/log/installer/bootchart.tgz
+command: [ -f /var/log/installer/bootchart.tgz ] && cat /var/log/installer/bootchart.tgz
 _description: Attach the installer bootchart tarball if it exists.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: installer_debug.gz
 user: root
-command: [ -f /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug | base64
+command: [ -f /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug
 estimated_duration: 0.1
 _description: Attaches the installer debug log if it exists.
 
@@ -408,7 +408,7 @@ id: info/kvm_output
 estimated_duration: 0.1
 _summary:
  Attaches console log from the kvm_check_vm test
-_description: 
+_description:
  Attaches the debug log from the virtualization/kvm_check_vm test
  to the results submission.
 command: [ -f $PLAINBOX_SESSION_SHARE/virt_debug ] && cat $PLAINBOX_SESSION_SHARE/virt_debug

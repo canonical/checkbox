@@ -102,7 +102,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_xenial
 depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_xenial
-command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
+command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 unit: template
@@ -198,4 +198,3 @@ depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
-

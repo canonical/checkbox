@@ -176,7 +176,7 @@ requires:
 id: udev_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: udevadm info --export-db | xml_sanitize
+command: udevadm info --export-db
 estimated_duration: 1.465
 _description: Attaches a dump of the udev database showing system hardware information.
 _summary: Attach dump of udev database

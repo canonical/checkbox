@@ -126,7 +126,7 @@ category_id: com.canonical.plainbox::graphics
 requires:
  device.category == 'VIDEO'
  package.name == 'zenity'
-command: 
+command:
    source graphics_env {driver} {index}
    maxi="$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{{print $1}}')"
    now="$(python3 -c 'from gi.repository import Gdk; screen=Gdk.Screen.get_default(); geo = screen.get_monitor_geometry(screen.get_primary_monitor()); print(geo.width, "x", geo.height, sep="")')"
@@ -403,7 +403,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screenshot_{product_slug}.jpg
 depends: graphics/{index}_screenshot_{product_slug}
-command: base64 $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg
+command: cat $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg
 _description: Attaches the screenshot captured in graphics/screenshot for the {vendor} {product} graphics card.
 _summary: Attach results of screenshot test for {vendor} {product}
 
@@ -480,7 +480,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screenshot_fullscreen_video_{product_slug}.jpg
 depends: graphics/{index}_screenshot_fullscreen_video_{product_slug}
-command: base64 $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg
+command: cat $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg
 _summary: Attach results of FSV screenshot test for {vendor} {product}
 _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video for the {vendor} {product} graphics card
 
@@ -499,7 +499,7 @@ id: screen-capture-internal.png
 _summary: Attaches a simple screen capture
 estimated_duration: 1.0
 depends: graphics/screen-capture-internal
-command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && base64 ${PLAINBOX_SESSION_SHARE}/screen-capture.png
+command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && cat ${PLAINBOX_SESSION_SHARE}/screen-capture.png
 _description: Attaches the simple screen capture file
 
 unit: template
@@ -521,7 +521,7 @@ id: graphics/{index}_screen-capture-internal_{product_slug}.png
 depends: graphics/{index}_screen-capture-internal_{product_slug}
 _summary: Attaches a simple screen capture of {vendor} {product}
 estimated_duration: 1.0
-command: [ -f $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png ] && base64 $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
+command: [ -f $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png ] && cat $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
 _description: Attaches the simple screen capture file of {vendor} {product}
 
 unit: template

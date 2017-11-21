@@ -96,7 +96,7 @@ id: miscellanea/fwts_results.log
 requires:
   package.name == 'fwts'
 command:
- [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_results.log ]] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_results.log | base64
+ [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_results.log ]] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_results.log
 _description: Attaches the miscellanes/fwts_test results log to the submission.
 
 plugin: attachment
@@ -106,7 +106,7 @@ id: miscellanea/fwts_results_hwe.log.gz
 requires:
   package.name == 'fwts'
 command:
- [ -f $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log | base64
+ [ -f $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log
 _description: Attaches the FWTS results log to the submission (to HWE)
 _summary: Attach FWTS log to submission (to HWE)
 
@@ -208,7 +208,7 @@ _summary:
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dmitest_client
-requires: 
+requires:
   package.name == 'dmidecode'
   dmi_present.state == 'supported'
 estimated_duration: 0.5
@@ -306,7 +306,7 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/oops_results.log
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log | base64
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log
 _description: Attaches the FWTS oops results log to the submission
 
 plugin: shell
@@ -359,7 +359,7 @@ id: miscellanea/sosreport_attachment
 depends: miscellanea/sosreport
 user: root
 command:
- SOSFILE=`ls -t $PLAINBOX_SESSION_SHARE/sosreport*xz | head -1`; [ -e ${SOSFILE} ] && base64 $SOSFILE
+ SOSFILE=`ls -t $PLAINBOX_SESSION_SHARE/sosreport*xz | head -1`; [ -e ${SOSFILE} ] && cat $SOSFILE
 _summary: Attach the baseline sosreport file
 
 plugin: shell

@@ -65,6 +65,12 @@ class SimpleUI():
         print(SimpleUI.C.CYAN(text))
         print()
 
+    def header(header):
+        print(SimpleUI.C.header(header, fill='-'))
+
+    def green_text(text, end='\n'):
+        print(SimpleUI.C.GREEN(text), end)
+
 
 class SessionAssistantService(rpyc.Service):
 

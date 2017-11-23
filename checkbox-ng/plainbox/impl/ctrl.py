@@ -44,10 +44,6 @@ import itertools
 import json
 import logging
 import os
-try:
-    import posix
-except ImportError:
-    posix = None
 import tempfile
 import subprocess
 import sys
@@ -1445,11 +1441,11 @@ class RootViaSudoExecutionController(
         #
         # Shamelessly stolen from command-not-found
         try:
-            in_sudo_group = grp.getgrnam("sudo").gr_gid in posix.getgroups()
+            in_sudo_group = grp.getgrnam("sudo").gr_gid in os.getgroups()
         except KeyError:
             in_sudo_group = False
         try:
-            in_admin_group = grp.getgrnam("admin").gr_gid in posix.getgroups()
+            in_admin_group = grp.getgrnam("admin").gr_gid in os.getgroups()
         except KeyError:
             in_admin_group = False
         # On snappy, the group check does not work. Let's verify if snap
@@ -1554,11 +1550,11 @@ class RootViaSudoWithPassExecutionController(
         """
         super().__init__(provider_list)
         try:
-            in_sudo_group = grp.getgrnam("sudo").gr_gid in posix.getgroups()
+            in_sudo_group = grp.getgrnam("sudo").gr_gid in os.getgroups()
         except KeyError:
             in_sudo_group = False
         try:
-            in_admin_group = grp.getgrnam("admin").gr_gid in posix.getgroups()
+            in_admin_group = grp.getgrnam("admin").gr_gid in os.getgroups()
         except KeyError:
             in_admin_group = False
         self.user_can_sudo = in_sudo_group or in_admin_group

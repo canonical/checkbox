@@ -162,14 +162,7 @@ class RemoteControl(Command):
         # wanted_set may have bad order, let's use it as a filter to the
         # original list
         todo_list = [job for job in jobs if job in wanted_set]
-        for job in todo_list:
-            for interaction in self.sa.run_job(job):
-                if interaction.kind == 'sudo_input':
-                    self.sa.save_password(
-                        self._sudo_provider.encrypted_password)
-                if interaction.kind == 'purpose':
-                    SimpleUI.description(_('Purpose:'), interaction.message)
-            self.run_jobs()
+        self.run_jobs(todo_list)
         return False
 
     def register_arguments(self, parser):
@@ -192,22 +185,34 @@ class RemoteControl(Command):
         progress = self.sa.whats_up()[1]
         print("rejoined session. Running job ({}/{}): {}".format(
             progress[0], progress[1], progress[2]))
-        self.run_jobs()
+        self.wait_for_job()
         self.continue_session()
 
     def continue_session(self):
         todo = self.sa.get_session_progress()["todo"]
-        for job in todo:
-            self.sa.run_job(job)
-            self.run_jobs()
+        self.run_jobs(todo)
         self.finish_session()
 
-    def run_jobs(self):
+    def run_jobs(self, jobs):
+        jobs_repr = self.sa.get_jobs_repr(jobs)
+        for job in jobs_repr:
+            SimpleUI.header(job['name'])
+            print(_("ID: {0}").format(job['id']))
+            print(_("Category: {0}").format(job['category_name']))
+            for interaction in self.sa.run_job(job['id']):
+                if interaction.kind == 'sudo_input':
+                    self.sa.save_password(
+                        self._sudo_provider.encrypted_password)
+                if interaction.kind == 'purpose':
+                    SimpleUI.description(_('Purpose:'), interaction.message)
+            self.wait_for_job()
+
+    def wait_for_job(self):
         while True:
             state, payload = self.sa.monitor_job()
             if state == 'running':
                 if payload:
-                    print(payload, end='')
+                    SimpleUI.green_text(payload, end='')
                 time.sleep(0.5)
             else:
                 self.sa.finish_job()

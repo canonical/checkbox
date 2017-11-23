@@ -186,7 +186,7 @@ class SessionAssistant2():
         job = self._sa.get_job(job_id)
         if job.plugin in [
                 'manual', 'user-interact-verify', 'user-interact']:
-            self._current_interaction = Interaction('purpose', job.tr_purpose)
+            self._current_interaction = Interaction('purpose', job.tr_purpose())
             yield self._current_interaction
         if job.user and not self._sudo_password:
             self._ephemeral_key = EphemeralKey()

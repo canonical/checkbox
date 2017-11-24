@@ -84,7 +84,7 @@ estimated_duration: 10
 _summary: Test maximum supported resolution
 _description:
  PURPOSE:
-     This test will verify the display is operating at its maximum supported resolution 
+     This test will verify the display is operating at its maximum supported resolution
  STEPS:
      1. Consult the system's specifications and locate the screen's maximum supported resolution.
      2. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
@@ -97,7 +97,7 @@ category_id: com.canonical.plainbox::graphics
 command: graphics_modes_info
 estimated_duration: 0.250
 _description: Collect info on graphics modes (screen resolution and refresh rate)
-_summary: Collect info on graphics modes 
+_summary: Collect info on graphics modes
 
 id: graphics/color_depth
 plugin: shell
@@ -228,7 +228,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/screenshot
 requires: package.name == 'fswebcam'
 command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser
-_summary: Test grabbing a screenshot 
+_summary: Test grabbing a screenshot
 _description:
  PURPOSE:
      Take a screengrab of the current screen (logged on Unity desktop)
@@ -241,9 +241,9 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: screenshot.jpg
 depends: graphics/screenshot
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot.jpg
+command: cat ${PLAINBOX_SESSION_SHARE}/screenshot.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
-_summary: Attach results of screenshot test 
+_summary: Attach results of screenshot test
 
 plugin: shell
 category_id: com.canonical.plainbox::graphics
@@ -271,6 +271,6 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: screenshot_fullscreen_video.jpg
 depends: graphics/screenshot_fullscreen_video
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg
+command: cat ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video.
 _summary: Attach results of FSV screenshot test

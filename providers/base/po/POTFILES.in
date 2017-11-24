@@ -141,7 +141,6 @@ bin/tomcat_test
 [type: gettext/python] bin/window_test
 bin/wireless_ext
 bin/xen_test
-[type: gettext/python] bin/xml_sanitize
 [type: gettext/python] bin/xrandr_cycle
 [type: gettext/python] manage.py
 src/clocktest.c

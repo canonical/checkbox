@@ -18,7 +18,7 @@ id: firmware/fwts_{name}.log
 estimated_duration: 1.2
 requires: package.name == 'fwts'
 user: root
-command: [[ -e $PLAINBOX_SESSION_SHARE/fwts_{name}.log ]] && xz -c $PLAINBOX_SESSION_SHARE/fwts_{name}.log | base64
+command: [[ -e $PLAINBOX_SESSION_SHARE/fwts_{name}.log ]] && xz -c $PLAINBOX_SESSION_SHARE/fwts_{name}.log
 _description: Attach log for FWTS {name} test.
 _summary: Attach log for FWTS {name} test.
 
@@ -55,7 +55,7 @@ category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results.log.gz
 command:
- [ -f $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log | base64
+ [ -f $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
 _description: Attaches the FWTS desktop diagnosis results log to the submission
 _summary: Attach FWTS desktop diagnosis log to submission
 
@@ -64,7 +64,7 @@ category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results_hwe.log.gz
 command:
- [ -f $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log | base64
+ [ -f $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log
 _description: Attaches the FWTS desktop diagnosis results log to the submission (to HWE)
 _summary: Attach FWTS desktop diagnosis log to submission (to HWE)
 

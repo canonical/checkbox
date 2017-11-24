@@ -300,7 +300,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-attach
 depends: suspend/suspend_advanced_auto
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && xz -c $PLAINBOX_SESSION_SHARE/suspend_single.log | base64
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -311,7 +311,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && xz -c $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log | base64
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -332,7 +332,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
 depends: suspend/{index}_hybrid_sleep_{product_slug}
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && xz -c $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log | base64
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
 _description:
  Attaches the log from the single hybrid sleep/resume test to the results
 
@@ -1151,7 +1151,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/xrandr_screens_after_suspend.tar.gz
 depends: suspend/cycle_resolutions_after_suspend
-command: [ -f $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
+command: [ -f $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 unit: template
@@ -1161,7 +1161,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
 depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
-command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
+command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 plugin: shell
@@ -1201,7 +1201,7 @@ _description:
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-auto-single-log-attach
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_auto_single_log ] && xz -c $PLAINBOX_SESSION_SHARE/suspend_auto_single_log | base64
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_auto_single_log ] && cat $PLAINBOX_SESSION_SHARE/suspend_auto_single_log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -1224,7 +1224,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: screenshot_after_suspend.jpg
 depends: suspend/screenshot_after_suspend
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg
+command: cat ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 
 plugin: shell
@@ -2308,5 +2308,5 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 estimated_duration: 0.5
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log | base64
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log
 _description: Attaches the FWTS oops results log to the submission after suspend

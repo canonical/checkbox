@@ -43,6 +43,8 @@ from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
 from plainbox.impl.highlevel import Explorer
+from plainbox.impl.providers.embedded_providers import (
+    EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
@@ -196,10 +198,22 @@ class Launcher(Command, MainLoopStage):
                 self.get_sa_api_version(),
                 self.get_sa_api_flags(),
             )
+            # side-load providers local-providers
+            side_load_path = os.path.expandvars(os.path.join(
+                '/home', '$USER', 'providers'))
+            additional_providers = ()
+            if os.path.exists(side_load_path):
+                print(self._C.RED(_(
+                    "WARNING: using side-loded providers")))
+                os.environ['PROVIDERPATH'] = ''
+                embedded_providers = EmbeddedProvider1PlugInCollection(
+                        side_load_path)
+                additional_providers = embedded_providers.get_all_plugin_objects()
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)
-            ctx.sa.select_providers(*self.launcher.providers)
+            ctx.sa.select_providers(
+                *self.launcher.providers, additional_providers=additional_providers)
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()

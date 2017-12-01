@@ -90,8 +90,6 @@ include:
     1_screenshot_.*.jpg
     graphics/1_screenshot_fullscreen_video_.*
     1_screenshot_fullscreen_video_.*.jpg
-    graphics/screenshot_opencv_validation
-    screenshot_opencv_validation.jpg
     install/apt-get-gets-updates
     mediacard/sd-preinserted
     memory/info

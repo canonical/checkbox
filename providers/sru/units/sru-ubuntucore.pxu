@@ -17,7 +17,7 @@
 # category_id: com.canonical.plainbox::graphics
 # id: screenshot_opencv_validation.jpg
 # after: graphics/screenshot_opencv_validation
-# command: [ -f ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg ] && base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
+# command: [ -f ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg ] && cat ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 # _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
 # _summary: Attach the screenshot captured for the automatically validated screenshot test
 

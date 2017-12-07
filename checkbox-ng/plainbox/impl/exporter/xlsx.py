@@ -598,6 +598,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             result_map[job]['io_log'].encode()
                         ).decode('UTF-8').rstrip()
                 io_lines = len(io_log.splitlines()) - 1
+                if io_lines > 2:
+                    io_log = '\n'.join(io_log.splitlines()[:3]) + '\n[...]'
+                    io_lines = len(io_log.splitlines()) - 1
                 desc_lines = len(result_map[job].get('description',
                                                      "").splitlines())
                 desc_lines -= 1

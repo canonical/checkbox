@@ -101,3 +101,31 @@ include:
     suspend/usb3_insert_after_suspend                      certification-status=blocker
     suspend/usb3_storage_automated_after_suspend           certification-status=blocker
     suspend/usb3_remove_after_suspend                      certification-status=blocker
+
+id: usb-preinserted
+unit: test plan
+_name: Automated USB write/read/compare tests on storage devices
+_description: Automated USB write/read/compare tests on storage devices
+include:
+    usb/storage-preinserted
+
+id: after-suspend-usb-preinserted
+unit: test plan
+_name: After suspend automated USB write/read/compare tests on storage devices
+_description: After suspend automated USB write/read/compare tests on storage devices
+include:
+    after-suspend-usb/storage-preinserted
+
+id: usb3-preinserted
+unit: test plan
+_name: Automated USB 3 write/read/compare tests on storage devices
+_description: Automated USB 3 write/read/compare tests on storage devices
+include:
+    usb3/storage-preinserted
+
+id: after-suspend-usb3-preinserted
+unit: test plan
+_name: After suspend automated USB 3 write/read/compare tests on storage devices
+_description: After suspend automated USB 3 write/read/compare tests on storage devices
+include:
+    after-suspend-usb3/storage-preinserted

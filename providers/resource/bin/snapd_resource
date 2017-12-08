@@ -12,6 +12,7 @@ import os
 import string
 import sys
 import time
+import traceback
 
 from guacamole import Command
 import requests
@@ -29,7 +30,14 @@ class SnapdQuery(Command):
         self._session = requests_unixsocket.Session()
 
     def get(self, path):
-        r = self._session.get(SNAPD_BASE_URL + path)
+        try:
+            r = self._session.get(SNAPD_BASE_URL + path)
+        except requests.exceptions.RequestException as e:
+            # snapd might not be installed, silently exit 0
+            if 'FileNotFoundError' in traceback.format_exc():
+                sys.exit(0)
+            else:
+                raise
         if r.status_code != requests.codes.ok:
             logging.error("Got error {} attempting to access {}".format(
                           r.status_code, path))
@@ -37,7 +45,14 @@ class SnapdQuery(Command):
         return r
 
     def post(self, path, data=None):
-        res = self._session.post(SNAPD_BASE_URL + path, data=data)
+        try:
+            res = self._session.post(SNAPD_BASE_URL + path, data=data)
+        except requests.exceptions.RequestException as e:
+            # snapd might not be installed, silently exit 0
+            if 'FileNotFoundError' in traceback.format_exc():
+                sys.exit(0)
+            else:
+                raise
         if not res.ok:
             logging.error("Got error %i attempting to access %s",
                           res.status_code, path)

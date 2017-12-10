@@ -33,9 +33,12 @@ class SnapdQuery(Command):
         try:
             r = self._session.get(SNAPD_BASE_URL + path)
         except requests.exceptions.RequestException as e:
-            # snapd might not be installed, silently exit 0
+            # snapd might not be installed, silently return an empty Response
             if 'FileNotFoundError' in traceback.format_exc():
-                sys.exit(0)
+                r = requests.Response()
+                r.status_code = 200
+                r._content = b'{"result":""}'
+                r.headers['X-Ubuntu-Assertions-Count'] = 0
             else:
                 raise
         if r.status_code != requests.codes.ok:
@@ -48,9 +51,12 @@ class SnapdQuery(Command):
         try:
             res = self._session.post(SNAPD_BASE_URL + path, data=data)
         except requests.exceptions.RequestException as e:
-            # snapd might not be installed, silently exit 0
+            # snapd might not be installed, silently return an empty Response
             if 'FileNotFoundError' in traceback.format_exc():
-                sys.exit(0)
+                r = requests.Response()
+                r.status_code = 200
+                r._content = b'{"result":""}'
+                r.headers['X-Ubuntu-Assertions-Count'] = 0
             else:
                 raise
         if not res.ok:

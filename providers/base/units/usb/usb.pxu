@@ -62,7 +62,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher insertion usb2
  else
-     removable_storage_watcher insert usb
+     removable_storage_watcher --unmounted insert usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -85,7 +85,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher insertion usb3
  else
-     removable_storage_watcher -m 500000000 insert usb
+     removable_storage_watcher --unmounted -m 500000000 insert usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -108,7 +108,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher removal usb2
  else
-     removable_storage_watcher remove usb
+     removable_storage_watcher --unmounted remove usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -131,7 +131,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher removal usb3
  else
-     removable_storage_watcher -m 500000000 remove usb
+     removable_storage_watcher --unmounted -m 500000000 remove usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120

@@ -892,6 +892,7 @@ def main():
             args.action, args.device, args.minimum_speed, args.memorycard)
     # Run the actual listener and wait till it either times out of discovers
     # the appropriate media changes
+    print("\n\n{} NOW\n\n".format(args.action.upper()), flush=True)
     try:
         return listener.check(args.timeout)
     except KeyboardInterrupt:

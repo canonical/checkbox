@@ -51,7 +51,8 @@ _purpose:
  Check system can detect USB 2.0 storage when inserted
 _steps:
  1. Press continue
- 2. Connect USB 2.0 storage device
+ 2. Wait until the message "INSERT NOW" is printed on the screen
+ 3. Connect USB 2.0 storage device
 _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
@@ -62,7 +63,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher insertion usb2
  else
-     removable_storage_watcher insert usb
+     removable_storage_watcher --unmounted insert usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -75,7 +76,8 @@ _purpose:
  Check system can detect insertion of a USB 3.0 storage device
 _steps:
  1. Press continue
- 2. Connect USB 3.0 storage device
+ 2. Wait until the message "INSERT NOW" is printed on the screen
+ 3. Connect USB 3.0 storage device
 _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
@@ -85,7 +87,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher insertion usb3
  else
-     removable_storage_watcher -m 500000000 insert usb
+     removable_storage_watcher --unmounted -m 500000000 insert usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -96,7 +98,8 @@ _purpose:
  Check system can detect removal of a USB 2.0 storage device
 _steps:
  1. Press continue
- 2. Disconnect USB 2.0 storage device
+ 2. Wait until the message "REMOVE NOW" is printed on the screen
+ 3. Disconnect USB 2.0 storage device
 _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
@@ -108,7 +111,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher removal usb2
  else
-     removable_storage_watcher remove usb
+     removable_storage_watcher --unmounted remove usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -119,7 +122,8 @@ _purpose:
  Check system can detect removal of a USB 3.0 storage device
 _steps:
  1. Press continue
- 2. Disconnect USB 3.0 storage device
+ 2. Wait until the message "REMOVE NOW" is printed on the screen
+ 3. Disconnect USB 3.0 storage device
 _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
@@ -131,7 +135,7 @@ command:
  if [[ -v SNAP ]]; then
      checkbox-support-run_watcher removal usb3
  else
-     removable_storage_watcher -m 500000000 remove usb
+     removable_storage_watcher --unmounted -m 500000000 remove usb
  fi
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120

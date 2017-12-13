@@ -628,7 +628,7 @@ class UDisks2StorageDeviceListener:
             logging.debug("Finished analyzing %s, found: %s, needs: %s"
                           " drive_object_path: %s", object_path, found, needs,
                           drive_object_path)
-            if needs != found or drive_object_path is None:
+            if not needs.issubset(found) or drive_object_path is None:
                 continue
             # We've found our candidate, let's look at the drive it belongs
             # to. We need to do this as some properties are associated with
@@ -892,6 +892,7 @@ def main():
             args.action, args.device, args.minimum_speed, args.memorycard)
     # Run the actual listener and wait till it either times out of discovers
     # the appropriate media changes
+    print("\n\n{} NOW\n\n".format(args.action.upper()), flush=True)
     try:
         return listener.check(args.timeout)
     except KeyboardInterrupt:

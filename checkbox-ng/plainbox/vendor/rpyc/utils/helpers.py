@@ -3,10 +3,10 @@ Helpers and wrappers for common RPyC tasks
 """
 import time
 import threading
-from rpyc.lib.colls import WeakValueDict
-from rpyc.lib.compat import callable
-from rpyc.core.consts import HANDLE_BUFFITER, HANDLE_CALL
-from rpyc.core.netref import syncreq, asyncreq
+from plainbox.vendor.rpyc.lib.colls import WeakValueDict
+from plainbox.vendor.rpyc.lib.compat import callable
+from plainbox.vendor.rpyc.core.consts import HANDLE_BUFFITER, HANDLE_CALL
+from plainbox.vendor.rpyc.core.netref import syncreq, asyncreq
 
 
 def buffiter(obj, chunk = 10, max_chunk = 1000, factor = 2):

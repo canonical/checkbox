@@ -5,8 +5,8 @@ of *magic*, so beware.
 import sys
 import inspect
 import types
-from rpyc.lib.compat import pickle, is_py3k, maxint
-from rpyc.core import consts
+from plainbox.vendor.rpyc.lib.compat import pickle, is_py3k, maxint
+from plainbox.vendor.rpyc.core import consts
 
 
 _local_netref_attrs = frozenset([

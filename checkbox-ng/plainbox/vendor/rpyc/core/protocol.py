@@ -9,10 +9,10 @@ import time
 import gc
 
 from threading import Lock, RLock, Event, Thread
-from rpyc.lib.compat import pickle, next, is_py3k, maxint, select_error
-from rpyc.lib.colls import WeakValueDict, RefCountingColl
-from rpyc.core import consts, brine, vinegar, netref
-from rpyc.core.async import AsyncResult
+from plainbox.vendor.rpyc.lib.compat import pickle, next, is_py3k, maxint, select_error
+from plainbox.vendor.rpyc.lib.colls import WeakValueDict, RefCountingColl
+from plainbox.vendor.rpyc.core import consts, brine, vinegar, netref
+from plainbox.vendor.rpyc.core.async import AsyncResult
 
 class PingError(Exception):
     """The exception raised should :func:`Connection.ping` fail"""

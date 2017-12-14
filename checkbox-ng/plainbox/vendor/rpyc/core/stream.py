@@ -7,8 +7,8 @@ import os
 import socket
 import time
 import errno
-from rpyc.lib import safe_import
-from rpyc.lib.compat import poll, select_error, BYTES_LITERAL, get_exc_errno, maxint
+from plainbox.vendor.rpyc.lib import safe_import
+from plainbox.vendor.rpyc.lib.compat import poll, select_error, BYTES_LITERAL, get_exc_errno, maxint
 win32file = safe_import("win32file")
 win32pipe = safe_import("win32pipe")
 msvcrt = safe_import("msvcrt")

@@ -19,9 +19,9 @@ try:
 except ImportError:
     ClassType = type
 
-from rpyc.core import brine
-from rpyc.core import consts
-from rpyc.lib.compat import is_py3k
+from plainbox.vendor.rpyc.core import brine
+from plainbox.vendor.rpyc.core import consts
+from plainbox.vendor.rpyc.lib.compat import is_py3k
 
 
 try:

@@ -7,9 +7,9 @@ from __future__ import with_statement
 import sys
 import rpyc
 import socket
-from rpyc.lib.compat import BYTES_LITERAL
-from rpyc.core.service import VoidService
-from rpyc.core.stream import SocketStream
+from plainbox.vendor.rpyc.lib.compat import BYTES_LITERAL
+from plainbox.vendor.rpyc.core.service import VoidService
+from plainbox.vendor.rpyc.core.stream import SocketStream
 try:
     from plumbum import local, ProcessExecutionError, CommandNotFound
     from plumbum.path import copy
@@ -46,7 +46,7 @@ except Exception:
 
 sys.path.insert(0, here)
 from $MODULE$ import $SERVER$ as ServerCls
-from rpyc import SlaveService
+from plainbox.vendor.rpyc import SlaveService
 
 logger = None
 $EXTRA_SETUP$

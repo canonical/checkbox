@@ -2,7 +2,7 @@ import socket
 import random
 import time
 from Queue import Queue, Empty as QueueEmpty
-from rpyc.core.stream import Stream, TunneledSocketStream, ClosedFile
+from plainbox.vendor.rpyc.core.stream import Stream, TunneledSocketStream, ClosedFile
 
 
 COOKIE_LENGTH = 8

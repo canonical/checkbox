@@ -15,7 +15,7 @@ import sys
 import socket
 import time
 import logging
-from rpyc.core import brine
+from plainbox.vendor.rpyc.core import brine
 
 
 DEFAULT_PRUNING_TIMEOUT = 4 * 60

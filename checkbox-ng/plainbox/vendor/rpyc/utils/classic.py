@@ -2,10 +2,10 @@ from __future__ import with_statement
 import sys
 import os
 import inspect
-from rpyc.lib.compat import pickle, execute, is_py3k
-from rpyc import SlaveService
-from rpyc.utils import factory
-from rpyc.core.service import ModuleNamespace
+from plainbox.vendor.rpyc.lib.compat import pickle, execute, is_py3k
+from plainbox.vendor.rpyc import SlaveService
+from plainbox.vendor.rpyc.utils import factory
+from plainbox.vendor.rpyc.core.service import ModuleNamespace
 from contextlib import contextmanager
 
 

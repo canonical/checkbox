@@ -4,9 +4,9 @@ try:
     import __builtin__
 except ImportError:
     import builtins as __builtin__
-from rpyc.lib.compat import is_py3k
+from plainbox.vendor.rpyc.lib.compat import is_py3k
 from types import CodeType, FunctionType
-from rpyc.core import brine
+from plainbox.vendor.rpyc.core import brine
 
 CODEOBJ_MAGIC = "MAg1c J0hNNzo0hn ZqhuBP17LQk8"
 

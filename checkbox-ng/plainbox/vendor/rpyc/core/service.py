@@ -6,7 +6,7 @@ Note that the services by both parties need not be symmetric, e.g., one side may
 exposed *service A*, while the other may expose *service B*. As long as the two
 can interoperate, you're good to go.
 """
-from rpyc.lib.compat import execute, is_py3k
+from plainbox.vendor.rpyc.lib.compat import execute, is_py3k
 
 
 class Service(object):

@@ -12,11 +12,11 @@ try:
     import Queue
 except ImportError:
     import queue as Queue
-from rpyc.core import SocketStream, Channel, Connection
-from rpyc.utils.registry import UDPRegistryClient
-from rpyc.utils.authenticators import AuthenticationError
-from rpyc.lib import safe_import
-from rpyc.lib.compat import poll, get_exc_errno
+from plainbox.vendor.rpyc.core import SocketStream, Channel, Connection
+from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient
+from plainbox.vendor.rpyc.utils.authenticators import AuthenticationError
+from plainbox.vendor.rpyc.lib import safe_import
+from plainbox.vendor.rpyc.lib.compat import poll, get_exc_errno
 signal = safe_import("signal")
 
 

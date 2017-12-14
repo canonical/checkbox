@@ -24,7 +24,7 @@ validate an incoming connection. Using them is pretty trivial ::
     s.start()
 """
 import sys
-from rpyc.lib import safe_import
+from plainbox.vendor.rpyc.lib import safe_import
 ssl = safe_import("ssl")
 
 class AuthenticationError(Exception):

@@ -41,15 +41,15 @@ Classic-style usage::
     ...
 
 """
-from rpyc.core import (SocketStream, TunneledSocketStream, PipeStream, Channel,
+from plainbox.vendor.rpyc.core import (SocketStream, TunneledSocketStream, PipeStream, Channel,
     Connection, Service, BaseNetref, AsyncResult, GenericException,
     AsyncResultTimeout, VoidService, SlaveService)
-from rpyc.utils.factory import (connect_stream, connect_channel, connect_pipes,
+from plainbox.vendor.rpyc.utils.factory import (connect_stream, connect_channel, connect_pipes,
     connect_stdpipes, connect, ssl_connect, discover, connect_by_service, connect_subproc,
     connect_thread, ssh_connect)
-from rpyc.utils.helpers import async, timed, buffiter, BgServingThread, restricted
-from rpyc.utils import classic
-from rpyc.version import version as __version__
+from plainbox.vendor.rpyc.utils.helpers import async, timed, buffiter, BgServingThread, restricted
+from plainbox.vendor.rpyc.utils import classic
+from plainbox.vendor.rpyc.version import version as __version__
 
 __author__ = "Tomer Filiba (tomerfiliba@gmail.com)"
 

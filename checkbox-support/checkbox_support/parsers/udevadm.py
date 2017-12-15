@@ -507,7 +507,8 @@ class UdevadmDevice(object):
                 return "FLOPPY"
 
         if "DEVLINKS" in self._environment:
-            if "canbus" in self._environment["DEVLINKS"]:
+            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                    if i in self._environment["DEVLINKS"]]:
                 return "CANBUS"
 
         # Some audio and serial devices have a product but no vendor
@@ -620,7 +621,8 @@ class UdevadmDevice(object):
             return parent.product_id
         # canbus
         if "DEVLINKS" in self._environment:
-            if "canbus" in self._environment["DEVLINKS"]:
+            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                    if i in self._environment["DEVLINKS"]]:
                 if "ID_MODEL_ID" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ID"])
         return None
@@ -660,7 +662,8 @@ class UdevadmDevice(object):
             return parent.vendor_id
         # canbus
         if "DEVLINKS" in self._environment:
-            if "canbus" in self._environment["DEVLINKS"]:
+            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                    if i in self._environment["DEVLINKS"]]:
                 if "ID_VENDOR_ID" in self._environment:
                     return decode_id(self._environment["ID_VENDOR_ID"])
         return None
@@ -816,7 +819,8 @@ class UdevadmDevice(object):
                 return self._environment[element].strip('"')
 
         if "DEVLINKS" in self._environment:
-            if "canbus" in self._environment["DEVLINKS"]:
+            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                    if i in self._environment["DEVLINKS"]]:
                 if "ID_MODEL_ENC" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ENC"])
             if "/dev/mapper" in self._environment["DEVLINKS"]:
@@ -883,7 +887,8 @@ class UdevadmDevice(object):
                 return decode_id(self._environment["ID_VENDOR_ENC"])
 
         if "DEVLINKS" in self._environment:
-            if "canbus" in self._environment["DEVLINKS"]:
+            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                    if i in self._environment["DEVLINKS"]]:
                 if "ID_VENDOR_ENC" in self._environment:
                     return decode_id(self._environment["ID_VENDOR_ENC"])
 

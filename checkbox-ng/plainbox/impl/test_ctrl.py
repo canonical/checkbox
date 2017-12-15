@@ -1127,39 +1127,48 @@ class RootViaSudoExecutionControllerTests(
         else:
             raise ValueError("unexpected group name")
 
+    @mock.patch('os.getgroups')
     @mock.patch('grp.getgrnam')
     @mock.patch('posix.getgroups')
-    def test_user_can_sudo__sudo_group(self, mock_getgroups, mock_getgrnam):
+    def test_user_can_sudo__sudo_group(
+            self, mock_getgroups, mock_getgrnam, mock_os_getgroups):
         # Mock gid's for 'sudo' and 'admin'
         mock_getgrnam.side_effect = self.fake_getgrnam
         # Mock that the current user is a member of group 1 ('sudo')
         mock_getgroups.return_value = [self.SUDO]
+        mock_os_getgroups.return_value = [self.SUDO]
         # Create a fresh execution controller
         ctrl = self.CLS(self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertTrue(ctrl.user_can_sudo)
 
+    @mock.patch('os.getgroups')
     @mock.patch('grp.getgrnam')
     @mock.patch('posix.getgroups')
-    def test_user_can_sudo__admin_group(self, mock_getgroups, mock_getgrnam):
+    def test_user_can_sudo__admin_group(
+            self, mock_getgroups, mock_getgrnam, mock_os_getgroups):
         sudo, admin = range(2)
         # Mock gid's for 'sudo' and 'admin'
         mock_getgrnam.side_effect = self.fake_getgrnam
         # Mock that the current user is a member of group 1 ('admin')
         mock_getgroups.return_value = [self.ADMIN]
+        mock_os_getgroups.return_value = [self.ADMIN]
         # Create a fresh execution controller
         ctrl = self.CLS(self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertTrue(ctrl.user_can_sudo)
 
+    @mock.patch('os.getgroups')
     @mock.patch('grp.getgrnam')
     @mock.patch('posix.getgroups')
-    def test_user_can_sudo__no_groups(self, mock_getgroups, mock_getgrnam):
+    def test_user_can_sudo__no_groups(
+            self, mock_getgroups, mock_getgrnam, mock_os_getgroups):
         sudo, admin = range(2)
         # Mock gid's for 'sudo' and 'admin'
         mock_getgrnam.side_effect = self.fake_getgrnam
         # Mock that the current user not a member of any group
         mock_getgroups.return_value = []
+        mock_os_getgroups.return_value = []
         # Create a fresh execution controller
         ctrl = self.CLS(self.PROVIDER_LIST)
         # Ensure that the user can use sudo

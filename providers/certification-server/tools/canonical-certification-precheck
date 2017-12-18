@@ -389,8 +389,8 @@ if grep "^LXD_TEMPLATE =" /etc/xdg/canonical-certification.conf >/dev/null; then
         echo -e " $templateurl is a valid url.\n Continuing to use this template file"
         pass
     else
-        echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
-        echo -e "       https://, or file://"
+        echo -e " NOTE: For the following, YOU MUST PROVIDE A VALID URL beginning with http://,"
+        echo -e "       https://, or file://. A filesystem PATH is NOT valid here:"
 	    echo -e " $templateurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
         read -s -N1 a
         if [[ $a == "Y" || $a == "y" || -z $a ]]; then
@@ -400,11 +400,9 @@ if grep "^LXD_TEMPLATE =" /etc/xdg/canonical-certification.conf >/dev/null; then
             if curl --output /dev/null --silent --head -fail "$templateurl"; then
                 echo -e " $templateurl is a valid url.\n Continuing to use this template file"
                 pass
-                return 0
             else
 	            echo -e " We cannot get the LXD template image from $templateurl.\n Marking as failed"
 	            fail
-                return 0
             fi
         else
 		    echo -e " Leaving configuration but commenting out."
@@ -433,11 +431,9 @@ else
                 if curl --output /dev/null --silent --head -fail "$templateurl"; then
                     echo -e " $templateurl is a valid url.\n Continuing to use this template file"
                     pass
-                    return 0
                 else
 	                echo -e " We cannot get the LXD template image from $templateurl.\n Marking as failed"
 	                fail
-                    return 0
                 fi
             else
 		        echo -e " Leaving configuration but commenting out."
@@ -467,11 +463,9 @@ if grep "^LXD_ROOTFS =" /etc/xdg/canonical-certification.conf >/dev/null; then
             if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
                 echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
                 pass
-                return 0
             else
 	            echo -e " We cannot get the rootfs file from $rootfsurl.\n Marking as failed"
 	            fail
-                return 0
             fi
         else
 		    echo -e " Leaving configuration but commenting out."
@@ -501,11 +495,9 @@ else
                 if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
                     echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
                     pass
-                    return 0
                 else
 	                echo -e " We cannot get the rootfs image from $rootfsurl.\n Marking as failed"
 	                fail
-                    return 0
                 fi
             else
 		        echo -e " Leaving configuration but commenting out."

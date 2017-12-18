@@ -29,6 +29,7 @@ import json
 import logging
 import os
 import string
+from functools import lru_cache
 
 from jinja2 import Template
 
@@ -54,6 +55,21 @@ __all__ = ['Unit', 'UnitValidator']
 
 
 logger = logging.getLogger("plainbox.unit")
+
+
+@lru_cache(maxsize=None)
+def on_ubuntucore():
+    """
+    Check if running from on ubuntu core
+    """
+    snap = os.getenv("SNAP")
+    if snap:
+        with open(os.path.join(snap, 'meta/snap.yaml')) as f:
+            for l in f.readlines():
+                if l == "confinement: classic\n":
+                    return False
+        return True
+    return False
 
 
 class MissingParam(Exception):
@@ -613,6 +629,7 @@ class Unit(metaclass=UnitType):
                 # checkpoints
                 tmp_params = self.parameters.copy()
                 tmp_params.update({'__system_env__': os.environ})
+                tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                 value = Template(value).render(tmp_params)
             else:
                 try:
@@ -646,6 +663,7 @@ class Unit(metaclass=UnitType):
             if self.template_engine == 'jinja2':
                 tmp_params = self.parameters.copy()
                 tmp_params.update({'__system_env__': os.environ})
+                tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                 value = Template(value).render(tmp_params)
             else:
                 value = string.Formatter().vformat(value, (), self.parameters)
@@ -691,6 +709,7 @@ class Unit(metaclass=UnitType):
                 if self.template_engine == 'jinja2':
                     tmp_params = self.parameters.copy()
                     tmp_params.update({'__system_env__': os.environ})
+                    tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(
@@ -706,6 +725,7 @@ class Unit(metaclass=UnitType):
                 if self.template_engine == 'jinja2':
                     tmp_params = self.parameters.copy()
                     tmp_params.update({'__system_env__': os.environ})
+                    tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(

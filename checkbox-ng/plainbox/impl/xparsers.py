@@ -65,7 +65,6 @@ import sys
 
 from plainbox.i18n import gettext as _
 from plainbox.impl import pod
-from plainbox.impl.censoREd import PatternProxy
 from plainbox.impl.xscanners import WordScanner
 
 __all__ = [
@@ -249,11 +248,8 @@ class Re(Node):
             else:
                 # NOTE: we might save time by calling some internal function to
                 # convert pyre_ast to the pattern object.
-                #
-                # XXX: The actual compiled pattern is wrapped in PatternProxy
-                # to ensure that it can be repr()'ed sensibly on Python 3.2
                 return RePattern(
-                    lineno, col_offset, text, PatternProxy(re.compile(text)))
+                    lineno, col_offset, text, re.compile(text))
 
 
 class ReOk(Re):

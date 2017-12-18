@@ -15,7 +15,7 @@ _description:
  Check system can find a wireless network AP nearby
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
- {%- if "SNAP_NAME" in __system_env__ %}
+ {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
 
@@ -36,7 +36,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
- {%- if "SNAP_NAME" in __system_env__ %}
+ {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
 
@@ -57,7 +57,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
- {%- if "SNAP_NAME" in __system_env__ %}
+ {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
 
@@ -79,7 +79,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_n == 'supported'
- {%- if "SNAP_NAME" in __system_env__ %}
+ {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
 
@@ -101,7 +101,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_n == 'supported'
- {%- if "SNAP_NAME" in __system_env__ %}
+ {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
 
@@ -123,7 +123,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
- {%- if "SNAP_NAME" in __system_env__ %}
+ {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
 
@@ -145,7 +145,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
- {%- if "SNAP_NAME" in __system_env__ %}
+ {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
 

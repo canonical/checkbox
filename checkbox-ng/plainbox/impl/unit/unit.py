@@ -637,6 +637,13 @@ class Unit(metaclass=UnitType):
                                                        self.parameters)
                 except KeyError as e:
                     raise MissingParam(e.args[0])
+        elif (value is not None and self.template_engine == 'jinja2'
+                                and not self.is_parametric):
+            tmp_params = {
+                '__system_env__': os.environ,
+                '__on_ubuntucore__': on_ubuntucore()
+                }
+            value = Template(value).render(tmp_params)
         return value
 
     @instance_method_lru_cache(maxsize=None)
@@ -667,6 +674,13 @@ class Unit(metaclass=UnitType):
                 value = Template(value).render(tmp_params)
             else:
                 value = string.Formatter().vformat(value, (), self.parameters)
+        elif (value is not None and self.template_engine == 'jinja2'
+                                and not self.is_parametric):
+            tmp_params = {
+                '__system_env__': os.environ,
+                '__on_ubuntucore__': on_ubuntucore()
+                }
+            value = Template(value).render(tmp_params)
         return value
 
     @instance_method_lru_cache(maxsize=None)
@@ -714,6 +728,12 @@ class Unit(metaclass=UnitType):
                 else:
                     msgstr = string.Formatter().vformat(
                         msgstr, (), self.parameters)
+            elif self.template_engine == 'jinja2':
+                tmp_params = {
+                    '__system_env__': os.environ,
+                    '__on_ubuntucore__': on_ubuntucore()
+                    }
+                msgstr = Template(msgstr).render(tmp_params)
             return msgstr
         # If there was no marked-for-translation value then let's just return
         # the normal (untranslatable) version.
@@ -730,6 +750,12 @@ class Unit(metaclass=UnitType):
                 else:
                     msgstr = string.Formatter().vformat(
                         msgstr, (), self.parameters)
+            elif self.template_engine == 'jinja2':
+                tmp_params = {
+                    '__system_env__': os.environ,
+                    '__on_ubuntucore__': on_ubuntucore()
+                    }
+                msgstr = Template(msgstr).render(tmp_params)
             return msgstr
         # If we have nothing better let's just return the default value
         return default

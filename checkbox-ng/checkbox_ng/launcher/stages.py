@@ -236,7 +236,7 @@ class MainLoopStage(metaclass=abc.ABCMeta):
                 _('Bootstrap {} ({}/{})').format(
                     job.id, job_no, len(jobs_to_run), fill='-')))
             job = self.sa.get_job(job_id)
-            result_builder = self.sa.run_job(job.id, 'silent', False)
+            result_builder = self.sa.run_job(job.id, 'piano', False)
             self.sa.use_job_result(job_id, result_builder.get_result())
             if (job.estimated_duration is not None and
                     estimated_time is not None):

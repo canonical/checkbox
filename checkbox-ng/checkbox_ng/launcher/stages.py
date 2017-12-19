@@ -233,11 +233,8 @@ class MainLoopStage(metaclass=abc.ABCMeta):
                 estimated_time = None
         for job_no, job_id in enumerate(jobs_to_run, start=1):
             print(self.C.header(
-                _('Running bootstrapping job {} / {}. Estimated time left: {}').format(
-                    job_no, len(jobs_to_run),
-                    seconds_to_human_duration(max(0, estimated_time))
-                    if estimated_time is not None else _("unknown")),
-                fill='-'))
+                _('Bootstrap {} ({}/{})').format(
+                    job.id, job_no, len(jobs_to_run), fill='-')))
             job = self.sa.get_job(job_id)
             result_builder = self.sa.run_job(job.id, 'silent', False)
             self.sa.use_job_result(job_id, result_builder.get_result())

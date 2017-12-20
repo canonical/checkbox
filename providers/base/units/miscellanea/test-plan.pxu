@@ -18,7 +18,7 @@ include:
     firmware/fwts_desktop_diagnosis_results.log.gz
     firmware/fwts_wakealarm.*                      certification-status=blocker
     firmware/fwts_uefirtvariable.*                 certification-status=blocker
-    firmware/no_ACPI_REV_interface
+    firmware/no_ACPI_REV_interface                 certification-status=blocker
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
     miscellanea/dmitest_client
@@ -32,8 +32,11 @@ _description:
  Miscellaneous client tests (fwts, dmi, oops)
  (certification blockers only)
 include:
+    firmware/fwts_desktop_diagnosis
+    firmware/fwts_desktop_diagnosis_results.log.gz
     firmware/fwts_wakealarm.*                      certification-status=blocker
     firmware/fwts_uefirtvariable.*                 certification-status=blocker
+    firmware/no_ACPI_REV_interface                 certification-status=blocker
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
 bootstrap_include:

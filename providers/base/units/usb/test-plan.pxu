@@ -50,6 +50,20 @@ include:
     suspend/usb3_storage_automated_after_suspend           certification-status=blocker
     suspend/usb3_remove_after_suspend                      certification-status=blocker
 
+id: after-suspend-usb-c-cert-full
+unit: test plan
+_name: USB Type-C tests (after suspend)
+_description: USB Type-C tests (after suspend)
+include:
+    after-suspend-manual-usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    after-suspend-manual-usb-c/c-to-a-adapter/insert                certification-status=blocker
+    after-suspend-manual-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    after-suspend-manual-usb-c/c-to-a-adapter/remove                certification-status=blocker
+    after-suspend-manual-usb-c/hid                                  certification-status=blocker
+    after-suspend-manual-usb-c/insert                               certification-status=blocker
+    after-suspend-manual-usb-c/storage-automated                    certification-status=blocker
+    after-suspend-manual-usb-c/remove                               certification-status=blocker
+
 id: usb-cert-blockers
 unit: test plan
 _name: USB tests (certification blockers only)
@@ -101,6 +115,20 @@ include:
     suspend/usb3_insert_after_suspend                      certification-status=blocker
     suspend/usb3_storage_automated_after_suspend           certification-status=blocker
     suspend/usb3_remove_after_suspend                      certification-status=blocker
+
+id: after-suspend-usb-c-cert-blockers
+unit: test plan
+_name: USB Type-C tests (after suspend, certification blockers only)
+_description: USB Type-C tests (after suspend, certification blockers only)
+include:
+    after-suspend-manual-usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    after-suspend-manual-usb-c/c-to-a-adapter/insert                certification-status=blocker
+    after-suspend-manual-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    after-suspend-manual-usb-c/c-to-a-adapter/remove                certification-status=blocker
+    after-suspend-manual-usb-c/hid                                  certification-status=blocker
+    after-suspend-manual-usb-c/insert                               certification-status=blocker
+    after-suspend-manual-usb-c/storage-automated                    certification-status=blocker
+    after-suspend-manual-usb-c/remove                               certification-status=blocker
 
 id: usb-preinserted
 unit: test plan

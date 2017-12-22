@@ -37,6 +37,7 @@ import time
 from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
 from plainbox.abc import ISessionStateTransport
+from plainbox.i18n import gettext as _
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.decorators import raises
 from plainbox.impl.developer import UnexpectedMethodCall
@@ -1285,6 +1286,8 @@ class SessionAssistant:
         elif isinstance(ui, str):
             if ui == 'silent':
                 ui = _SilentUI()
+            elif ui == 'piano':
+                ui = _PianoUI()
             else:
                 raise ValueError("unknown user interface: {!r}".format(ui))
         else:
@@ -1709,3 +1712,11 @@ class _SilentUI(IJobRunnerUI):
 
     def noreturn_job(self):
         pass
+
+
+class _PianoUI(_SilentUI):
+    """A near silent UI that just prints the outcome when a job fails"""
+
+    def finished(self, job, job_state, job_result):
+        if job_result.outcome == IJobResult.OUTCOME_FAIL:
+            print(_("Outcome: job failed"))

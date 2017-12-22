@@ -316,8 +316,10 @@ class CheckBoxSessionStateController(ISessionStateController):
                     try:
                         check_result = new_unit.check()
                     except MissingParam as m:
-                        logger.warning(_("Ignoring generated job with missing "
-                                         "template parameter %s"), m.parameter)
+                        logger.warning(_("Ignoring %s with missing "
+                                         "template parameter %s"),
+                                         new_unit._raw_data.get('id'),
+                                         m.parameter)
                         continue
                     # Only ignore jobs for which check() returns an error
                     if [c for c in check_result

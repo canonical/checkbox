@@ -223,24 +223,12 @@ class MainLoopStage(metaclass=abc.ABCMeta):
                 estimated_time -= job.estimated_duration
 
     def _run_bootstrap_jobs(self, jobs_to_run):
-        estimated_time = 0
-        for job_id in jobs_to_run:
-            job = self.sa.get_job(job_id)
-            if (job.estimated_duration is not None and
-                    estimated_time is not None):
-                estimated_time += job.estimated_duration
-            else:
-                estimated_time = None
         for job_no, job_id in enumerate(jobs_to_run, start=1):
             print(self.C.header(
                 _('Bootstrap {} ({}/{})').format(
-                    job.id, job_no, len(jobs_to_run), fill='-')))
-            job = self.sa.get_job(job_id)
-            result_builder = self.sa.run_job(job.id, 'piano', False)
+                    job_id, job_no, len(jobs_to_run), fill='-')))
+            result_builder = self.sa.run_job(job_id, 'piano', False)
             self.sa.use_job_result(job_id, result_builder.get_result())
-            if (job.estimated_duration is not None and
-                    estimated_time is not None):
-                estimated_time -= job.estimated_duration
 
     def _pick_action_cmd(self, action_list, prompt=None):
         return ActionUI(action_list, prompt).run()

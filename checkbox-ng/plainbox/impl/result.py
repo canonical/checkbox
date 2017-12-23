@@ -461,30 +461,6 @@ class MemoryJobResult(_JobResultBase):
                     " or special the IOLogRecord tuple")
 
 
-class GzipFile(gzip.GzipFile):
-
-    """
-    Subclass of GzipFile that works around missing read1() on python3.2.
-
-    See: http://bugs.python.org/issue10791
-    """
-
-    def _read_gzip_header(self):
-        """
-        Ignore the non-compressed garbage at the end of the file
-
-        See: https://bugs.python.org/issue24301
-        """
-
-        try:
-            return super()._read_gzip_header()
-        except OSError:
-            return False
-
-    def read1(self, n):
-        return self.read(n)
-
-
 class DiskJobResult(_JobResultBase):
 
     """
@@ -505,7 +481,7 @@ class DiskJobResult(_JobResultBase):
     def get_io_log(self):
         record_path = self.io_log_filename
         if record_path:
-            with GzipFile(record_path, mode='rb') as gzip_stream, \
+            with gzip.GzipFile(record_path, mode='rb') as gzip_stream, \
                     io.TextIOWrapper(gzip_stream, encoding='UTF-8') as stream:
                 for record in IOLogRecordReader(stream):
                     yield record

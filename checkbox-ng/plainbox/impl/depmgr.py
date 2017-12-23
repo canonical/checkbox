@@ -31,9 +31,9 @@ Job Dependency Solver.
 from abc import ABCMeta
 from abc import abstractproperty
 from logging import getLogger
+import enum
 
 from plainbox.i18n import gettext as _
-from plainbox.vendor import enum
 
 
 logger = getLogger("plainbox.depmgr")

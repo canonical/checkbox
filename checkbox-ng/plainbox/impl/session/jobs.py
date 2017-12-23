@@ -27,6 +27,7 @@ particular session. The :class:`JobState` class holds references to a
 that prevent the job from being runnable in a particular session.
 """
 
+from enum import IntEnum
 import logging
 
 from plainbox.abc import IJobResult
@@ -35,7 +36,6 @@ from plainbox.impl import pod
 from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.vendor.enum import IntEnum
 
 logger = logging.getLogger("plainbox.session.jobs")
 

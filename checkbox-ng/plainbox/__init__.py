@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2018 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -19,16 +19,10 @@
 :mod:`plainbox` -- main package
 ===============================
 
-Simple checkbox redesign, without the complex message passing
+Simple checkbox (2008 version) redesign, without the complex message passing
 
-All public API is in :mod:`plainbox.public`.
 All abstract base classes are in :mod:`plainbox.abc`.
 """
-
-import sys
-
-if sys.version_info[0:2] < (3, 2):
-    raise ImportError("plainbox requires python 3.2")  # pragma: no cover
 
 # PEP440 compliant version declaration.
 #

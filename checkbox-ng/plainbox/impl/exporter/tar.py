@@ -33,8 +33,8 @@ import time
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.exporter.xlsx import XLSXSessionStateExporter
+from plainbox.impl.providers import get_providers
 from plainbox.impl.unit.exporter import ExporterUnitSupport
-from plainbox.public import get_providers
 
 
 class TARSessionStateExporter(SessionStateExporterBase):

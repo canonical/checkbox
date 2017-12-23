@@ -44,6 +44,7 @@ from plainbox.impl.developer import UnexpectedMethodCall
 from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.result import JobResultBuilder
+from plainbox.impl.providers import get_providers
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
@@ -60,7 +61,6 @@ from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
-from plainbox.public import get_providers
 from plainbox.vendor import morris
 
 _logger = logging.getLogger("plainbox.session.assistant")

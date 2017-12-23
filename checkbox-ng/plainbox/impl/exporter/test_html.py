@@ -31,12 +31,12 @@ import io
 from plainbox.abc import IJobResult
 from plainbox.testing_utils import resource_string
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
+from plainbox.impl.providers import get_providers
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import SessionManager
 from plainbox.impl.unit.exporter import ExporterUnitSupport
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.public import get_providers
 
 
 class HTMLExporterTests(TestCase):

@@ -39,6 +39,7 @@ import tempfile
 
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl import pod
+from plainbox.impl.providers import get_providers
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionState
@@ -47,7 +48,6 @@ from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.session.suspend import SessionSuspendHelper
 from plainbox.impl.unit.testplan import TestPlanUnit
-from plainbox.public import get_providers
 from plainbox.vendor import morris
 
 logger = logging.getLogger("plainbox.session.manager")

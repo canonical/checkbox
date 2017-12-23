@@ -318,19 +318,14 @@ plainbox-run (1)
         whitespace). This option is best to be used if the result is not
         intended to be read by humans as it saves some space.
 
-    rfc822
+    text
     ------
 
     All of the options have the same meaning as for the `json` exporter:
     `with-io-log`, `squash-io-log`, `flatten-io-log`, `with-run-list`,
     `with-job-list`, `with-resource-map`, `with-job-defs`, `with-attachments`,
-    `with-comments`, `with-job-via`, `with-job-hash`.  The only exception is
-    the `machine-json` option which doesn't exist for this exporter.
-
-    text
-    ----
-
-    Same as with rfc822.
+    `with-comments`, `with-job-hash`.  The only exception is the `machine-json`
+    option which doesn't exist for this exporter.
 
     xlsx
     ----

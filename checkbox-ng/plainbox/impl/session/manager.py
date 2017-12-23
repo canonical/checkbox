@@ -461,7 +461,6 @@ class SessionManager(pod.POD):
             'com.canonical.plainbox::html': 'html',
             'com.canonical.plainbox::json': 'json',
             'com.canonical.plainbox::junit': 'junit',
-            'com.canonical.plainbox::rfc822': 'rfc822',
             'com.canonical.plainbox::tar': 'tar',
             'com.canonical.plainbox::text': 'text',
             'com.canonical.plainbox::xlsx': 'xlsx'
@@ -479,8 +478,7 @@ class SessionManager(pod.POD):
             Identifier of the exporter unit (which must have been loaded
             into the session device context of the first device). For
             backwards compatibility this can also be any of the legacy
-            identifiers ``tar``, ``html``, ``json``, ``rfc822``, ``text`` or
-            ``xlsx``.
+            identifiers ``tar``, ``html``, ``json``, ``text`` or ``xlsx``.
         :param option_list:
             (optional) A list of options to pass to the exporter. Each option
             is a string. Some strings may be of form 'key=value' but those are

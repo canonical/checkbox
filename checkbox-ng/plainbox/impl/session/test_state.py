@@ -102,11 +102,11 @@ class RegressionTests(TestCase):
         # This checks if a DependencyError can cause crash
         # update_desired_job_list() with a ValueError, in certain conditions.
         A = make_job('A', depends='X')
-        L = make_job('L', plugin='local')
+        L = make_job('L', plugin='shell')
         session = SessionState([A, L])
         problems = session.update_desired_job_list([A, L])
         # We should get exactly one DependencyMissingError related to job A and
-        # the undefined job X (that is presumably defined by the local job L)
+        # the undefined job X
         self.assertEqual(len(problems), 1)
         self.assertIsInstance(problems[0], DependencyMissingError)
         self.assertIs(problems[0].affected_job, A)
@@ -115,8 +115,6 @@ class RegressionTests(TestCase):
         A = make_job("A")
         second_A = make_job("A")
         third_A = make_job("A")
-        # Identical jobs are folded for backwards compatibility with some local
-        # jobs that re-added existing jobs
         session = SessionState([A, second_A, third_A])
         # But we don't really store both, just the first one
         self.assertEqual(session.job_list, [A])
@@ -483,40 +481,6 @@ class SessionStateTrimTests(TestCase):
                 "cannot remove jobs that are on the run list: a")
 
 
-class SessionStateSpecialTests(TestCase):
-
-    # NOTE: those tests are essential. They allow testing the behavior of
-    # complex stuff like resource jobs and local jobs in total isolation from
-    # the actual job runner with relative simplicity.
-    #
-    # There are many scenarios that need to be tested that I can think of right
-    # now. All the failure conditions are interesting as they are less likely
-    # to occur during typical correct operation. A few of those from the top of
-    # my head:
-    #
-    # *) resource job output altering the resource map
-    # *) resource changes altering the readiness state of jobs
-    # *) test results being remembered (those should be renamed to job results)
-    # *) local job output altering job list
-    # *) attachment job output altering yet unimplemented attachment store
-    #
-    # Local jobs are of super consideration as they can trigger various
-    # interesting error conditions (all of which are reported by the dependency
-    # solver as DependencyError objects. One interesting aspect of job
-    # generation is how an error that resulted by adding a job is resolved. Are
-    # we removing the newly-added job or some other job that was affected by
-    # the introduction of a new job? How are we handling duplicates? In all
-    # such cases it is important to properly track job origin to provide
-    # informative and correct error messages both at the UI level (hopefully
-    # our data won't cause such errors on a daily basis) but more importantly
-    # at the developer-console level where developers are actively spending
-    # most of their time adding (changing) jobs in an ever-growing pile that
-    # they don't necessarily fully know, comprehend or remember.
-
-    def test_resource_job_affects_resources(self):
-        pass
-
-
 class SessionStateReactionToJobResultTests(TestCase):
     # This test checks how a simple session with a few typical job reacts to
     # job results of various kinds. It checks most of the resource presentation
@@ -536,9 +500,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_R = make_job("R", plugin="resource")
         self.job_X = make_job("X", depends='Y')
         self.job_Y = make_job("Y")
-        self.job_L = make_job("L", plugin="local")
         self.job_list = [
-            self.job_A, self.job_R, self.job_X, self.job_Y, self.job_L]
+            self.job_A, self.job_R, self.job_X, self.job_Y]
         self.session = SessionState(self.job_list)
 
     def job_state(self, id):
@@ -776,39 +739,15 @@ class SessionStateReactionToJobResultTests(TestCase):
         expected_after = {'R': [Resource({'attr': 'new value'})]}
         self.assertEqual(self.session._resource_map, expected_after)
 
-    def test_local_job_creates_jobs(self):
-        # Create a result for the local job L
-        result_L = MemoryJobResult({
-            'io_log': [
-                (0, 'stdout', b'id: foo\n'),
-                (1, 'stdout', b'plugin: manual\n'),
-                (2, 'stdout', b'description: yada yada\n'),
-            ],
-        })
-        # Show this result to the session
-        self.session.update_job_result(self.job_L, result_L)
-        # A job should be generated
-        self.assertTrue("foo" in self.session.job_state_map)
-        job_foo = self.session.job_state_map['foo'].job
-        self.assertTrue(job_foo.id, "foo")
-        self.assertTrue(job_foo.plugin, "manual")
-        # It should be linked to the job L via the via_job state attribute
-        self.assertIs(
-            self.session.job_state_map[job_foo.id].via_job, self.job_L)
-
     def test_get_outcome_stats(self):
         result_A = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
-        result_L = MemoryJobResult(
-            {'outcome': IJobResult.OUTCOME_NOT_SUPPORTED})
         result_R = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
         result_Y = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
         self.session.update_job_result(self.job_A, result_A)
-        self.session.update_job_result(self.job_L, result_L)
         self.session.update_job_result(self.job_R, result_R)
         self.session.update_job_result(self.job_Y, result_Y)
         self.assertEqual(self.session.get_outcome_stats(),
                          {IJobResult.OUTCOME_PASS: 1,
-                          IJobResult.OUTCOME_NOT_SUPPORTED: 1,
                           IJobResult.OUTCOME_FAIL: 2})
 
     def test_get_certification_status_map(self):

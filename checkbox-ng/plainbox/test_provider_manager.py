@@ -369,7 +369,7 @@ class ProviderManagerToolTests(TestCase):
             error: jobs/broken.pxu:1-2: job 'broken', field 'command', command is mandatory for non-manual jobs
             advice: jobs/broken.pxu:1-2: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
             advice: jobs/broken.pxu:1-2: job 'broken', field 'estimated_duration', required field missing
-            error: jobs/broken.pxu:2: job 'broken', field 'plugin', valid values are: attachment, local, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
+            error: jobs/broken.pxu:2: job 'broken', field 'plugin', valid values are: attachment, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
             Validation of provider com.example:test has failed
             """))
 

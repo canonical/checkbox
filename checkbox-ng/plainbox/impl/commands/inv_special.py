@@ -95,9 +95,6 @@ class SpecialInvocation(CheckBoxInvocationMixIn):
                 print('\t"{}" [shape=ellipse,color=blue];'.format(job.id))
             elif job.plugin == "attachment":
                 print('\t"{}" [color=green];'.format(job.id))
-            elif job.plugin == "local":
-                print('\t"{}" [shape=invtriangle,color=red];'.format(
-                    job.id))
             elif job.plugin == "shell":
                 print('\t"{}" [];'.format(job.id))
             elif job.plugin in ("manual", "user-verify", "user-interact"):

@@ -78,7 +78,6 @@ class TARSessionStateExporter(SessionStateExporterBase):
             XLSXSessionStateExporter.OPTION_WITH_SUMMARY,
             XLSXSessionStateExporter.OPTION_WITH_DESCRIPTION,
             XLSXSessionStateExporter.OPTION_WITH_TEXT_ATTACHMENTS,
-            XLSXSessionStateExporter.OPTION_WITH_UNIT_CATEGORIES
         ]
         xlsx_exporter = XLSXSessionStateExporter(options_list)
         xlsx_exporter.dump_from_session_manager(manager, xlsx_stream)

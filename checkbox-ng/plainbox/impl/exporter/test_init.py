@@ -219,7 +219,6 @@ class SessionStateExporterBaseTests(TestCase):
                                      'uncategorised')),
                     ('outcome', 'pass'),
                     ('comments', None),
-                    ('via', None),
                     ('hash', '2def0c995e1b6d934c5a91286ba164'
                              '18845da26d057bc992a2b5dfeae2e2fe91'),
                     ('plugin', 'shell'),
@@ -234,7 +233,6 @@ class SessionStateExporterBaseTests(TestCase):
                                      'uncategorised')),
                     ('outcome', 'pass'),
                     ('comments', 'foo'),
-                    ('via', None),
                     ('hash', 'ed19ba54624864a7c622ff7d1e8ed5'
                              '96b1a0fddc4b78c8fb780fe41e55250e6f'),
                     ('plugin', 'resource'),

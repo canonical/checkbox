@@ -121,11 +121,7 @@ class TrustedLauncher:
             logging.error(
                 _("Syntax error in record generated from %s: %s"), job, exc)
         else:
-            if job.plugin == 'local':
-                for record in record_list:
-                    job = JobDefinition.from_rfc822_record(record)
-                    job_list.append(job)
-            elif job.plugin == 'resource':
+            if job.plugin == 'resource':
                 resource_list = []
                 for record in record_list:
                     resource = Resource(record.data)
@@ -209,9 +205,9 @@ def get_parser_for_sphinx():
     group.add_argument(
         '-g', '--generator',
         metavar=_('CHECKSUM'),
-        # TRANSLATORS: don't translate 'local' in the sentence below. It
-        # denotes a special type of job, not its location.
-        help=_('also run a job with this checksum (assuming it is a local'
+        # TRANSLATORS: don't translate 'resource' in the sentence below. It
+        # denotes a special type of job.
+        help=_('also run a job with this checksum (assuming it is a resource'
                ' job)'))
     group.add_argument(
         '-G', '--generator-environment',
@@ -266,7 +262,7 @@ def main(argv=None):
     all_providers.load()
     for plugin in all_providers.get_all_plugins():
         launcher.add_job_list(plugin.plugin_object.job_list)
-    # Run the local job and feed the result back to the launcher
+    # Run the generator job and feed the result back to the launcher
     if ns.generator:
         try:
             generated_job_list = launcher.run_generator_job(

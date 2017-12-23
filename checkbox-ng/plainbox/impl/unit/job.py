@@ -103,7 +103,6 @@ class _PluginValues(SymbolDef):
     Symbols for each value of the JobDefinition.plugin field
     """
     attachment = 'attachment'
-    local = 'local'
     resource = 'resource'
     manual = 'manual'
     user_verify = "user-verify"
@@ -573,8 +572,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Whether the job is fully automated and runs without any
         intervention from the user
         """
-        return self.plugin in ['shell', 'resource',
-                               'attachment', 'local']
+        return self.plugin in ['shell', 'resource', 'attachment']
 
     @cached_property
     def startup_user_interaction_required(self):
@@ -703,22 +701,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
             for key, value in record.raw_data.items()
         }, field_offset_map=record.field_offset_map)
 
-    def create_child_job_from_record(self, record):
-        """
-        Create a new JobDefinition from RFC822 record.
-
-        This method should only be used to create additional jobs from local
-        jobs (plugin local). This ensures that the child job shares the
-        embedded provider reference.
-        """
-        if not isinstance(record.origin.source, JobOutputTextSource):
-            # TRANSLATORS: don't translate record.origin or JobOutputTextSource
-            raise ValueError(_("record.origin must be a JobOutputTextSource"))
-        if record.origin.source.job is not self:
-            # TRANSLATORS: don't translate record.origin.source.job
-            raise ValueError(_("record.origin.source.job must be this job"))
-        return self.from_rfc822_record(record, self.provider)
-
     class Meta:
 
         name = N_('job')
@@ -770,7 +752,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateInvariant,
                 concrete_validators.present,
                 MemberOfFieldValidator(_PluginValues.get_all_symbols()),
-                concrete_validators.localDeprecated,
                 CorrectFieldValueValidator(
                     lambda plugin: plugin != 'user-verify',
                     Problem.deprecated, Severity.advice,
@@ -998,7 +979,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         not ('explicit-fail' in unit.get_flag_set() and
                              unit.plugin in {
                                  'shell', 'user-interact', 'attachment',
-                                 'local', 'resource'})),
+                                 'resource'})),
                     Problem.useless, Severity.advice,
                     message=_('explicit-fail makes no sense for job which '
                               'outcome is automatically determined.')

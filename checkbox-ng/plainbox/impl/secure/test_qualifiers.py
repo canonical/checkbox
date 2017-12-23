@@ -39,7 +39,6 @@ from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import IMatcher
 from plainbox.impl.secure.qualifiers import JobIdQualifier
-from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
 from plainbox.impl.secure.qualifiers import NonPrimitiveQualifierOrigin
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import PatternMatcher
@@ -376,56 +375,6 @@ class JobIdQualifierTests(TestCase):
             JobIdQualifier('.*', self.origin).designates(make_job('name')))
         self.assertFalse(
             JobIdQualifier('*', self.origin).designates(make_job('name')))
-
-
-class NonLocalJobQualifierTests(TestCase):
-    """
-    Test cases for NonLocalJobQualifier class
-    """
-
-    def setUp(self):
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
-        self.qualifier = NonLocalJobQualifier(self.origin)
-
-    def test_init(self):
-        """
-        verify that init assigns stuff to properties correctly
-        """
-        self.assertEqual(self.qualifier.origin, self.origin)
-
-    def test_is_primitive(self):
-        """
-        verify that LocalJobQualifier.is_primitive is True
-        """
-        self.assertTrue(self.qualifier.is_primitive)
-
-    def test_repr(self):
-        """
-        verify that NonLocalJobQualifier.__repr__() works as expected
-        """
-        self.assertEqual(
-            repr(self.qualifier), "NonLocalJobQualifier(inclusive=True)")
-
-    def test_get_vote(self):
-        """
-        verify that NonLocalJobQualifier.get_vote() works as expected
-        """
-        self.assertEqual(
-            NonLocalJobQualifier(self.origin).get_vote(
-                JobDefinition({'name': 'foo', 'plugin': 'shell'})),
-            IJobQualifier.VOTE_INCLUDE)
-        self.assertEqual(
-            NonLocalJobQualifier(self.origin, inclusive=False).get_vote(
-                JobDefinition({'name': 'foo', 'plugin': 'shell'})),
-            IJobQualifier.VOTE_EXCLUDE)
-        self.assertEqual(
-            NonLocalJobQualifier(self.origin).get_vote(
-                JobDefinition({'name': 'bar', 'plugin': 'local'})),
-            IJobQualifier.VOTE_IGNORE)
-        self.assertEqual(
-            NonLocalJobQualifier(self.origin, inclusive=False).get_vote(
-                JobDefinition({'name': 'bar', 'plugin': 'local'})),
-            IJobQualifier.VOTE_IGNORE)
 
 
 class CompositeQualifierTests(TestCase):

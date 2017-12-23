@@ -29,15 +29,6 @@ command:
 estimated_duration: 0.1
 category_id: plugin-representative
 
-id: representative/plugin/local
-_summary: Job with plugin=local
-_description: Job with plugin=local
-plugin: local
-flags: preserve-locale
-command: :
-estimated_duration: 0.1
-category_id: plugin-representative
-
 id: representative/plugin/attachment
 _summary: Job with plugin=attachment
 _description: Job with plugin=attachment

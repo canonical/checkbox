@@ -56,9 +56,6 @@ Following fields may be used by the job unit:
         test's outcome. This is essentially a manual job with a command.
      :attachment: jobs whose command output will be attached to the
          test report or submission.
-     :local: a job whose command output needs to be in Checkbox job
-         format. Jobs output by a local job will be added to the set of
-         available jobs to be run.
      :resource: A job whose command output results in a set of rfc822
           records, containing key/value pairs, and that can be used in other
           jobs' ``requires`` expressions.

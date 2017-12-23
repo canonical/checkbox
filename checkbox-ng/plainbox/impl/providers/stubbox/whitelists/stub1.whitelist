@@ -1,7 +1,0 @@
-stub/true
-stub/dependency/bad
-# stub_package
-stub/requirement/good
-stub/requirement/bad
-stub/multilevel
-stub/multilevel.*

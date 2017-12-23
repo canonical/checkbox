@@ -53,17 +53,6 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         parser = subparsers.add_parser(
             "analyze", help=_("analyze how selected jobs would be executed"),
             prog="plainbox dev analyze")
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument(
-            '-l', '--run-local',
-            action='store_true', dest='run_local',
-            help=_('run all selected local jobs, required to see true data'))
-        group.add_argument(
-            '-L', '--skip-local',
-            action='store_false', dest='run_local',
-            # TRANSLATORS: please keep the word 'local' untranslated.
-            # It designates special type of jobs, not their location.
-            help=_('do not run local jobs'))
         group = parser.add_argument_group("reports")
         group.add_argument(
             '-s', '--print-stats', action='store_true',

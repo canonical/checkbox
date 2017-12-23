@@ -79,7 +79,6 @@ class SessionStateExporterBase(ISessionStateExporter):
     OPTION_WITH_JOB_DEFS = 'with-job-defs'
     OPTION_WITH_ATTACHMENTS = 'with-attachments'
     OPTION_WITH_COMMENTS = 'with-comments'
-    OPTION_WITH_JOB_VIA = 'with-job-via'
     OPTION_WITH_JOB_HASH = 'with-job-hash'
     OPTION_WITH_CATEGORY_MAP = 'with-category-map'
     OPTION_WITH_CERTIFICATION_STATUS = 'with-certification-status'
@@ -94,7 +93,6 @@ class SessionStateExporterBase(ISessionStateExporter):
         OPTION_WITH_JOB_DEFS,
         OPTION_WITH_ATTACHMENTS,
         OPTION_WITH_COMMENTS,
-        OPTION_WITH_JOB_VIA,
         OPTION_WITH_JOB_HASH,
         OPTION_WITH_CATEGORY_MAP,
         OPTION_WITH_CERTIFICATION_STATUS,
@@ -260,13 +258,6 @@ class SessionStateExporterBase(ISessionStateExporter):
             if self.OPTION_WITH_COMMENTS in self._option_list:
                 data['result_map'][job_id]['comments'] = \
                     job_state.result.comments
-
-            # Add Parent hash if requested
-            if self.OPTION_WITH_JOB_VIA in self._option_list:
-                data['result_map'][job_id]['via'] = (
-                    job_state.via_job.checksum
-                    if job_state.via_job is not None else None
-                )
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:

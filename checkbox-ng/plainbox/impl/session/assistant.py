@@ -837,9 +837,8 @@ class SessionAssistant:
 
         During the bootstrap phase resource jobs that are associated with job
         templates may generate new jobs according to the information specified
-        in the template. In addition, local jobs can generate arbitrary
-        (unrestricted) units. Both of those mechanism are subject to the
-        validation system (invalid units are discarded).
+        in the template. This mechanism is subject to the validation system
+        (invalid units are discarded).
 
         When this method returns (which can take a while) the session is now
         ready for running any jobs.
@@ -850,8 +849,8 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         # NOTE: there is next-to-none UI here as bootstrap jobs are limited to
-        # just resource and local jobs (including their dependencies) so there
-        # should be very little UI required.
+        # just resource jobs (including their dependencies) so there should be
+        # very little UI required.
         desired_job_list = select_jobs(
             self._context.state.job_list,
             [plan.get_bootstrap_qualifier() for plan in (

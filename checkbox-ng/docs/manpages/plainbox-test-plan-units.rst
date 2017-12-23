@@ -99,11 +99,10 @@ copy such constructs when working on a new test plan from scratch
        common and most test plans used by Checkbox actually look like that.
 
      - You can use regular expressions to select many tests at the same time.
-       This is the only way to select generated jobs (created either by
-       template units or by job definitions using the legacy 'local' plugin
-       type). Please remember that the dot character has a special meaning
-       so unless you actually want to match *any character* escape the dot
-       with the backslash character (\\).
+       This is the only way to select generated jobs (created by template
+       units). Please remember that the dot character has a special meaning so
+       unless you actually want to match *any character* escape the dot with
+       the backslash character (\\).
 
     Regardless of if you use patterns or literal job identifiers you can use
     their fully qualified name (the one that includes the namespace they reside
@@ -149,7 +148,7 @@ copy such constructs when working on a new test plan from scratch
 
     Note that each entry in the bootstrap_include section must be a valid job
     identifier and cannot be a regular expression pattern.
-    Also note that only local and resource jobs are allowed in this section.
+    Also note that only resource jobs are allowed in this section.
 
 ``exclude``:
     A multi-line list of job identifiers or patterns matching such identifiers

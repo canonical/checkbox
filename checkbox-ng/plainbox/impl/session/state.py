@@ -645,10 +645,6 @@ class SessionState:
         Not all the jobs from this list are going to be executed (or selected
         for execution) by the user.
 
-        It may change at runtime because of local jobs. Note that in upcoming
-        changes this will start out empty and will be changeable dynamically.
-        It can still change due to local jobs but there is no API yes.
-
         This list cannot have any duplicates, if that is the case a
         :class:`DependencyDuplicateError` is raised. This has to be handled
         externally and is a sign that the job database is corrupted or has
@@ -660,8 +656,7 @@ class SessionState:
         This list contains all the known units, including all the know job
         definitions (and in the future, all test plans).
 
-        It may change at runtime because of local jobs and template
-        instantiations.
+        It may change at runtime because of template instantiations.
 
     :ivar dict job_state_map: mapping that tracks the state of each job
 
@@ -971,7 +966,7 @@ class SessionState:
             if job.automated and estimate_automated is not None:
                 if job.estimated_duration is not None:
                     estimate_automated += job.estimated_duration
-                elif job.plugin != 'local':
+                else:
                     estimate_automated = None
             elif not job.automated and estimate_manual is not None:
                 # We add a fixed extra amount of seconds to the run time
@@ -993,8 +988,8 @@ class SessionState:
         Results also change the ready map (jobs that can run) because of
         dependency relations.
 
-        Some results have deeper meaning, those are results for local and
-        resource jobs. They are discussed in detail below:
+        Some results have deeper meaning, those are results for resource jobs.
+        They are discussed in detail below:
 
         Resource jobs produce resource records which are used as data to run
         requirement expressions against. Each time a result for a resource job
@@ -1002,11 +997,6 @@ class SessionState:
         records. A new entry is created in the resource map (entirely replacing
         any old entries), with a list of the resources that were parsed from
         the IO log.
-
-        Local jobs produce more jobs. Like with resource jobs, their IO log is
-        parsed and interpreted as additional jobs. Unlike in resource jobs
-        local jobs don't replace anything. They cannot replace an existing job
-        with the same id.
         """
         job.controller.observe_result(self, job, result)
         self._recompute_job_readiness()
@@ -1108,8 +1098,7 @@ class SessionState:
             return new_job
         else:
             # If there is a clash report DependencyDuplicateError only when the
-            # hashes are different. This prevents a common "problem" where
-            # "__foo__" local jobs just load all jobs from the "foo" category.
+            # hashes are different.
             if new_job != existing_job:
                 raise DependencyDuplicateError(existing_job, new_job)
             self._add_job_siblings_unit(new_job, recompute)

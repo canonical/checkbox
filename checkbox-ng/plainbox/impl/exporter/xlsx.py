@@ -63,14 +63,12 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     OPTION_WITH_SUMMARY = 'with-summary'
     OPTION_WITH_DESCRIPTION = 'with-job-description'
     OPTION_WITH_TEXT_ATTACHMENTS = 'with-text-attachments'
-    OPTION_WITH_UNIT_CATEGORIES = 'with-unit-categories'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_SYSTEM_INFO,
         OPTION_WITH_SUMMARY,
         OPTION_WITH_DESCRIPTION,
         OPTION_WITH_TEXT_ATTACHMENTS,
-        OPTION_WITH_UNIT_CATEGORIES,
     )
 
     def __init__(self, option_list=None, exporter_unit=None):
@@ -96,8 +94,6 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
             SessionStateExporterBase.OPTION_WITH_COMMENTS,
             SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
-            SessionStateExporterBase.OPTION_WITH_JOB_VIA,
-            SessionStateExporterBase.OPTION_WITH_JOB_HASH,
             SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
             SessionStateExporterBase.OPTION_WITH_ATTACHMENTS,
             SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP,
@@ -443,30 +439,6 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             'x_offset': 0, 'y_offset': 10, 'x_scale': 0.50, 'y_scale': 0.50
         })
 
-    def _set_category_status(self, result_map, via, child):
-        for parent in [j for j in result_map if result_map[j]['hash'] == via]:
-            if 'category_status' not in result_map[parent]:
-                result_map[parent]['category_status'] = None
-            child_status = result_map[child]['outcome']
-            if 'category_status' in result_map[child]:
-                child_status = result_map[child]['category_status']
-            # Ignore categories without any child
-            elif result_map[child]['plugin'] == 'local':
-                continue
-            if child_status == IJobResult.OUTCOME_FAIL:
-                result_map[parent]['category_status'] = IJobResult.OUTCOME_FAIL
-            elif (
-                child_status == IJobResult.OUTCOME_PASS and
-                result_map[parent]['category_status'] !=
-                    IJobResult.OUTCOME_FAIL
-            ):
-                result_map[parent]['category_status'] = IJobResult.OUTCOME_PASS
-            elif (
-                result_map[parent]['category_status'] not in
-                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
-            ):
-                result_map[parent]['category_status'] = IJobResult.OUTCOME_SKIP
-
     def _tree(self, result_map, category_map):
         res = {}
         tmp_result_map = {}
@@ -499,21 +471,6 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     IJobResult.OUTCOME_SKIP
         result_map.update(tmp_result_map)
         return res, 2
-
-    def _legacy_tree(self, result_map, via=None, level=0, max_level=0):
-        res = {}
-        for job_name in [j for j in result_map if result_map[j]['via'] == via]:
-            level += 1
-            # Find the maximum depth of the test tree
-            if level > max_level:
-                max_level = level
-            res[job_name], max_level = self._legacy_tree(
-                result_map, result_map[job_name]['hash'], level, max_level)
-            # Generate parent categories status
-            if via is not None:
-                self._set_category_status(result_map, via, job_name)
-            level -= 1
-        return res, max_level
 
     def _write_job(self, tree, result_map, max_level, level=0):
         for job, children in OrderedDict(
@@ -635,11 +592,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             {'hidden': True})
 
     def write_results(self, data):
-        if self.OPTION_WITH_UNIT_CATEGORIES in self._option_list:
-            tree, max_level = self._tree(
-                data['result_map'], data['category_map'])
-        else:
-            tree, max_level = self._legacy_tree(data['result_map'])
+        tree, max_level = self._tree(
+            data['result_map'], data['category_map'])
         self.worksheet3.write(3, 1, _('Tests Performed'), self.format03)
         self.worksheet3.freeze_panes(6, 0)
         self.worksheet3.set_tab_color('#DC4C00')  # Orange

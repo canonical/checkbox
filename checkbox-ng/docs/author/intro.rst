@@ -140,10 +140,6 @@ types include (but are not limited to):
  * ``shell`` -- An automated test that requires no user interaction; the
    test is passed or failed on the basis of the return value of the script
    or command.
- * ``local`` -- This type of job is similar to a ``shell`` test, but it
-   supports creating multiple tests from a single definition (say, to test
-   all the Ethernet ports on a computer). Jobs using the ``local`` plugin
-   are run when Plainbox is initialized.
  * ``user-interact`` -- A test that asks the user to perform some action
    *before* the test is performed. The test then passes or fails
    automatically based on the output of the test. An example is
@@ -161,49 +157,6 @@ types include (but are not limited to):
    failed.  An example of this is the graphics maximum resolution test
    which probes the system to determine the maximum supported resolution
    and then asks the user to confirm that the resolution is correct.
-
-A fairly complex example definition is::
-
- plugin: local
- _summary: Automated test to walk multiple network cards and test each one in sequence.
- id: ethernet/multi_nic
- requires:
-  device.category == 'NETWORK'
- _description: Automated test to walk multiple network cards and test each one in sequence.
- command:
-  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \``ls /sys\$0/net 2>/dev/null\``; do echo \$0 \$i; done"'
-  plugin: shell
-  id: ethernet/multi_nic_$2
-  requires:
-   package.name == 'ethtool'
-   package.name == 'nmap'
-   device.path == "$1"
-  user: root
-  environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-  command: network test -i $2 -t iperf --fail-threshold 80
-  estimated_duration: 330.0
-  description:
-   Testing for NIC $2
-  EOF
-
-Key points to note include:
-
- * If a field name begins with an underscore, its value can be localized.
- * The values of fields can appear on the same line as their field names,
-   as in ``plugin: local``; or they can appear on a subsequent line, which
-   is indented, as in the preceding example's ``requires: device.category
-   == 'NETWORK'``.
- * The ``requires`` field can be used to specify dependencies; if the
-   specified condition is not met, the test does not run.
- * The ``command`` field specifies the command that's used to run the test.
-   This can be a standard Linux command (or even a set of commands) or a
-   Checkbox test script. In this example's ``local`` test definition, the
-   first ``command`` line generates a list of network devices that is fed
-   to an embedded test, which is defined beginning with the second
-   ``plugin`` line immediately following the first ``command`` line.
- * In this example, the line that reads ``EOF`` ends the
-   ``ethernet/ethtool_multi_nic_$2`` test's command; it's matched to the
-   ``EOF`` that's part of ``cat << 'EOF'`` near the start of that command.
 
 Each provider has a ``bin`` directory and all binaries there are available
 in the path.

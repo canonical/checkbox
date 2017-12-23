@@ -77,13 +77,8 @@ The following environment variables *DO NOT* affect ``plainbox-trusted-launcher-
 Bugs
 ====
 
-Currently it is impossible to use ``plainbox-trusted-launcher-1`` with a
-``local`` job needs to run as root, that generates another ``local`` job that
-needs to run as root, to generate any additional jobs that also need to run as
-root. In other words, only one-level job generation is supported.
-
 The launcher is somewhat inefficient, in that it has to re-run all of the
-dependencies of the ``local`` job over and over. Ideally those would be cached,
+dependencies of the generator job over and over. Ideally those would be cached,
 per-session, but that would significantly increase the complexity of the code
 running as root.
 

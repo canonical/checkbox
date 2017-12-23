@@ -15,13 +15,6 @@ plainbox-dev-analyze (1)
     and the command prints nothing at all) to inspect certain aspects of the
     hypothetical session
 
-    The only exception to the rule above is the ``--run-local`` option. With that
-    option all local jobs and their dependencies *are* started. This is
-    technically required to correctly emulate the behavior of ``plainbox run``
-    that does so unconditionally. Still, local jobs can cause harm so don't run
-    untrusted code this way (the author of this man page recalls one local job
-    that ran ``sudo reboot`` to measure bootchart data)
-
     Report Types
     ============
 
@@ -74,11 +67,11 @@ plainbox-dev-analyze (1)
     always includes additional jobs (such as resource jobs and other
     dependencies)
 
-    The run list is of great importance. Most of the time the test operator will
-    see tests in precisely this order. The only exception is that some test
-    applications choose to pre-run local jobs. Still, if your job ordering is
-    wrong in any way, inspecting the run list is the best way to debug the
-    problem.
+    The run list is of great importance. Most of the time the test operator
+    will see tests in precisely this order. The only exception is that some
+    test applications choose to pre-run generator jobs (resources). Still, if
+    your job ordering is wrong in any way, inspecting the run list is the best
+    way to debug the problem.
 
 See Also
 ========

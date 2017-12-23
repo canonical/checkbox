@@ -741,7 +741,7 @@ class JobRunner(IJobRunner):
         delegate, io_log_gen = self._prepare_io_handling(job, config)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
-        delegate_cls = self._get_delegate_cls(config)
+        delegate_cls = extcmd.ExternalCommandWithDelegate
         extcmd_popen = delegate_cls(delegate)
         # Stream all IOLogRecord entries to disk
         record_path = self.get_record_path_for_job(job)
@@ -892,7 +892,7 @@ class JobRunner(IJobRunner):
         delegate, io_log_gen = self._prepare_io_handling(job, config)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
-        delegate_cls = self._get_delegate_cls(config)
+        delegate_cls = extcmd.ExternalCommandWithDelegate
         flags = 0
         # Use chunked IO for jobs that explicitly request this
         if 'use-chunked-io' in job.get_flag_set():
@@ -996,14 +996,3 @@ class JobRunner(IJobRunner):
             logger.warning(
                 _("Please store desired files in $PLAINBOX_SESSION_SHARE and"
                   " use regular temporary files for everything else"))
-
-    def _get_delegate_cls(self, config):
-        if (sys.version_info[0:2] >= (3, 4) and sys.platform == 'linux'
-                and config.extcmd == "glibc"):
-            logger.debug("Using glibc-based command runner")
-            from plainbox.vendor.extcmd.glibc import (
-                GlibcExternalCommandWithDelegate)
-            return GlibcExternalCommandWithDelegate
-        else:
-            logger.debug("Using classic thread-based command runner")
-            return extcmd.ExternalCommandWithDelegate

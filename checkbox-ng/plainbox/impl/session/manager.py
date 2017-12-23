@@ -187,7 +187,7 @@ class SessionManager(pod.POD):
             return self.default_device_context.state
 
     @classmethod
-    def create(cls, repo=None, legacy_mode=False, prefix='pbox-'):
+    def create(cls, repo=None, prefix='pbox-'):
         """
         Create an empty session manager.
 
@@ -205,24 +205,18 @@ class SessionManager(pod.POD):
             constructed with the default location.
         :ptype repo:
             :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
-        :param legacy_mode:
-            Propagated to
-            :meth:`~plainbox.impl.session.storage.SessionStorage.create()` to
-            ensure that legacy (single session) mode is used.
-        :ptype legacy_mode:
-            bool
         :return:
             fresh :class:`SessionManager` instance
         """
         logger.debug("SessionManager.create()")
         if repo is None:
             repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, legacy_mode, prefix)
+        storage = SessionStorage.create(repo.location, prefix)
         WellKnownDirsHelper(storage).populate()
         return cls([], storage)
 
     @classmethod
-    def create_with_state(cls, state, repo=None, legacy_mode=False):
+    def create_with_state(cls, state, repo=None):
         """
         Create a session manager by wrapping existing session state.
 
@@ -237,26 +231,19 @@ class SessionManager(pod.POD):
             constructed with the default location.
         :ptype repo:
             :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
-        :param legacy_mode:
-            Propagated to
-            :meth:`~plainbox.impl.session.storage.SessionStorage.create()`
-            to ensure that legacy (single session) mode is used.
-        :ptype legacy_mode:
-            bool
         :return:
             fresh :class:`SessionManager` instance
         """
         logger.debug("SessionManager.create_with_state()")
         if repo is None:
             repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, legacy_mode)
+        storage = SessionStorage.create(repo.location)
         WellKnownDirsHelper(storage).populate()
         context = SessionDeviceContext(state)
         return cls([context], storage)
 
     @classmethod
-    def create_with_unit_list(cls, unit_list=None, repo=None,
-                              legacy_mode=False):
+    def create_with_unit_list(cls, unit_list=None, repo=None):
         """
         Create a session manager with a fresh session.
 
@@ -272,12 +259,6 @@ class SessionManager(pod.POD):
             constructed with the default location.
         :ptype repo:
             :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
-        :param legacy_mode:
-            Propagated to
-            :meth:`~plainbox.impl.session.storage.SessionStorage.create()`
-            to ensure that legacy (single session) mode is used.
-        :ptype legacy_mode:
-            bool
         :return:
             fresh :class:`SessionManager` instance
         """
@@ -287,7 +268,7 @@ class SessionManager(pod.POD):
         state = SessionState(unit_list)
         if repo is None:
             repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, legacy_mode)
+        storage = SessionStorage.create(repo.location)
         context = SessionDeviceContext(state)
         WellKnownDirsHelper(storage).populate()
         return cls([context], storage)

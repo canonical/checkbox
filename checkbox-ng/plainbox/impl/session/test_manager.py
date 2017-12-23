@@ -149,7 +149,7 @@ class SessionManagerTests(SignalTestCase):
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
         mocks['SessionStorage'].create.assert_called_with(
-            repo.location, False, 'pbox-')
+            repo.location, 'pbox-')
         storage = mocks['SessionStorage'].create()
         # Ensure that a default directories were created
         mocks['WellKnownDirsHelper'].assert_called_with(storage)
@@ -184,7 +184,7 @@ class SessionManagerTests(SignalTestCase):
         repo = mocks['SessionStorageRepository']()
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with(repo.location, False)
+        mocks['SessionStorage'].create.assert_called_with(repo.location)
         storage = mocks['SessionStorage'].create()
         # Ensure that a default directories were created
         mocks['WellKnownDirsHelper'].assert_called_with(storage)
@@ -217,7 +217,7 @@ class SessionManagerTests(SignalTestCase):
         repo = mocks['SessionStorageRepository']()
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with(repo.location, False)
+        mocks['SessionStorage'].create.assert_called_with(repo.location)
         storage = mocks['SessionStorage'].create()
         # Ensure that a default directories were created
         mocks['WellKnownDirsHelper'].assert_called_with(storage)

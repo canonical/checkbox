@@ -54,8 +54,6 @@ class SessionStorageRepository:
     :meth:SessionStorage.remove()`)
     """
 
-    _LAST_SESSION_SYMLINK = "last-session"
-
     def __init__(self, location=None):
         """
         Initialize new repository at the specified location.
@@ -74,35 +72,6 @@ class SessionStorageRepository:
         pathname of the repository
         """
         return self._location
-
-    def get_last_storage(self):
-        """
-        Find the last session storage object created in this repository.
-
-        :returns:
-            SessionStorage object associated with the last session created in
-            this repository using legacy mode.
-
-        .. note::
-            This will only return storage objects that were created using
-            legacy mode. Nonlegacy storage objects will not be returned this
-            way.
-        """
-        pathname = os.path.join(self.location, self._LAST_SESSION_SYMLINK)
-        try:
-            last_storage = os.readlink(pathname)
-        except OSError:
-            # The symlink can be gone or not be a real symlink
-            # in that case just ignore it and return None
-            return None
-        else:
-            # The link may be relative so let's ensure we know the full
-            # pathname for the subsequent check (which may be performed
-            # from another directory)
-            last_storage = os.path.join(self._location, last_storage)
-        # If the link points to a directory, assume it's okay
-        if os.path.isdir(last_storage):
-            return SessionStorage(last_storage)
 
     def get_storage_list(self):
         """
@@ -251,7 +220,7 @@ class SessionStorage:
         return os.path.join(self._location, self._SESSION_FILE)
 
     @classmethod
-    def create(cls, base_dir, legacy_mode=False, prefix='pbox-'):
+    def create(cls, base_dir, prefix='pbox-'):
         """
         Create a new :class:`SessionStorage` in a random subdirectory
         of the specified base directory. The base directory is also
@@ -262,25 +231,9 @@ class SessionStorage:
             Typically the base directory should be obtained from
             :meth:`SessionStorageRepository.get_default_location()`
 
-        :param legacy_mode:
-            If False (defaults to True) then the caller is expected to
-            handle multiple sessions by itself.
-
         :param prefix:
             String which should prefix all session filenames. The prefix is
             sluggified before use.
-
-        .. note::
-            Legacy mode is where applications using PlainBox API can only
-            handle one session. Creating another session replaces whatever was
-            stored before. In non-legacy mode applications can enumerate
-            sessions, create arbitrary number of sessions at the same time
-            and remove sessions once they are no longer necessary.
-
-            Legacy mode is implemented with a symbolic link called
-            'last-session' that keeps track of the last session created using
-            ``legacy_mode=True``. When a new legacy-mode session is created
-            the target of that symlink is read and recursively removed.
         """
         if not os.path.exists(base_dir):
             os.makedirs(base_dir)
@@ -298,56 +251,7 @@ class SessionStorage:
         os.mkdir(location)
         logger.debug(_("Created new storage in %r"), location)
         self = cls(location)
-        if legacy_mode:
-            self._replace_legacy_session(base_dir)
         return self
-
-    def _replace_legacy_session(self, base_dir):
-        """
-        Remove the previous legacy session and update the 'last-session'
-        symlink so that it points to this session storage directory.
-        """
-        symlink_pathname = os.path.join(
-            base_dir, SessionStorageRepository._LAST_SESSION_SYMLINK)
-        # Try to read and remove the storage referenced to by last-session
-        # symlink. This can fail if the link file is gone (which is harmless)
-        # or when it is not an actual symlink (which means that the
-        # repository is corrupted).
-        try:
-            symlink_target = os.readlink(symlink_pathname)
-        except OSError as exc:
-            if exc.errno == errno.ENOENT:
-                pass
-            elif exc.errno == errno.EINVAL:
-                logger.warning(
-                    _("%r is not a symlink, repository %r must be corrupted"),
-                    symlink_pathname, base_dir)
-            else:
-                logger.warning(
-                    _("Unable to read symlink target from %r: %r"),
-                    symlink_pathname, exc)
-        else:
-            logger.debug(
-                _("Removing storage associated with last session %r"),
-                symlink_target)
-            # Remove the old session, note that the symlink may be broken so
-            # let's ignore any errors here
-            shutil.rmtree(symlink_target, ignore_errors=True)
-            # Remove the last-session symlink itself
-            logger.debug(
-                _("Removing symlink associated with last session: %r"),
-                symlink_pathname)
-            os.unlink(symlink_pathname)
-        finally:
-            # Finally put the last-session synlink that points to this storage
-            logger.debug(
-                _("Linking storage %r to last session"), self.location)
-            try:
-                os.symlink(self.location, symlink_pathname)
-            except OSError as exc:
-                logger.error(
-                    _("Cannot link %r as %r: %r"),
-                    self.location, symlink_pathname, exc)
 
     def remove(self):
         """

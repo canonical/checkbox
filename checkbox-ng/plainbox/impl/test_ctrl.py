@@ -27,6 +27,7 @@ Test definitions for plainbox.impl.ctrl module
 from subprocess import CalledProcessError
 from unittest import TestCase
 import os
+import shutil
 
 from plainbox.abc import IJobResult
 from plainbox.abc import IProvider1
@@ -699,6 +700,9 @@ class CheckBoxExecutionControllerTestsMixIn:
                 self.job, self.job_state, self.config, self.SESSION_DIR,
                 self.extcmd_popen)
             self.ctrl._halt.assert_called_once_with()
+
+    def tearDown(self):
+        shutil.rmtree(self.SESSION_DIR, ignore_errors=True)
 
 
 class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,

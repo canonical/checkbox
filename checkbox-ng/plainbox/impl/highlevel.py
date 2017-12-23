@@ -123,9 +123,6 @@ class PlainBoxObject:
         return self._attrs
 
 
-# NOTE: This should merge with the service object below but I didn't want
-# to do it right away as that would have to alter Service.__init__() and
-# I want to get Explorer API right first.
 class Explorer:
     """
     Class simplifying discovery of various PlainBox objects.

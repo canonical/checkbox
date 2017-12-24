@@ -440,8 +440,6 @@ class ProviderManagerToolTests(TestCase):
             "\tjob com.example::dummy, from jobs/jobs.pxu:1-6\n"
             "[Test Plans]\n"
             "\ttest plan com.example::test, from units/testplans.pxu:1-6\n"
-            "[Test Plans] (legacy)\n"
-            "\ttest from units/testplans.pxu:1-6\n"
             "[Other Units]\n"
             "\tfile bin/test.sh, role script\n"
             "\tfile data/test.dat, role data\n"

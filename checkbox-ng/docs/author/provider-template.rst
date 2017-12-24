@@ -23,17 +23,14 @@ The following files and directories are generated::
     ├── data
     │   ├── example.dat
     │   └── README.md
-    ├── jobs
-    │   ├── examples-intermediate.txt
-    │   ├── examples-normal.txt
-    │   └── examples-trivial.txt
     ├── manage.py
     ├── po
     │   └── POTFILES.in
     ├── README.md
-    └── whitelists
-        ├── normal.whitelist
-        └── trivial.whitelist
+    └── units
+        ├── examples-intermediate.txt
+        ├── examples-normal.txt
+        └── examples-trivial.txt
 
 Generated Content
 =================
@@ -59,10 +56,8 @@ README.md
     Plainbox parlance, is the smallest piece of executable test code. Each
     job has a name and a number of other attributes.
 
-    Jobs can be arranged in lists, test plans if you will that are known
-    as "whitelists". Those are defined in the ``whitelists/`` directory,
-    this time one per file. You can create as many whitelists as you need,
-    referring to arbitrary subsets of your jobs.
+    Jobs can be arranged in lists, test plans if you will. You can create as
+    many test plans as you need, referring to arbitrary subsets of your jobs.
 
     Then there are the ``bin/`` and ``data/`` directories. Those are
     entirely for custom content you may need. You can put arbitrary
@@ -340,7 +335,7 @@ jobs/examples-intermediate.txt
     estimated_duration: 30
 
 
-po/PORFILES.in
+po/POTFILES.in
 --------------
 
 ::
@@ -350,20 +345,3 @@ po/PORFILES.in
     [type: gettext/rfc822deb] jobs/examples-normal.txt
     [type: gettext/rfc822deb] jobs/examples-intermediate.txt
     manage.py
-
-whitelists/trivial.whitelist
-----------------------------
-
-::
-
-    # select two trivial jobs by directly selecting their names
-    examples/trivial/always-pass
-    examples/trivial/always-fail
-
-whitelists/normal.whitelist
----------------------------
-
-::
-
-    # use regular expression to select all normal jobs
-    examples/normal/.*

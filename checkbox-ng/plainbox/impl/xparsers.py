@@ -48,13 +48,6 @@ base class :class:`ReOk`) can be used to do text matching. Since other parts of
 the code already contain optimizations for regular expressions that are just a
 plain string comparison there is a special class to highlight that fact
 (``ReFixed``)
-
-White Lists
------------
-White lists are a poor man's test plan which describes a list of regular
-expressions with optional comments. The root class is :class:`WhiteList` who's
-:attr:`WhiteList.entries` attribute contains a sequence of either
-:class:`Comment` or a subclass of :class:`Re`.
 """
 import abc
 import itertools
@@ -76,7 +69,6 @@ __all__ = [
     'ReOk',
     'RePattern',
     'Visitor',
-    'WhiteList',
 ]
 
 Pattern = type(re.compile(""))
@@ -301,96 +293,6 @@ class ReErr(Re):
 class Comment(Node):
     """ node representing single comment """
     comment = F("comment text, including any comment markers", str)
-
-
-class WhiteList(Node):
-    """ node representing a whole plainbox whitelist """
-
-    entries = pod.Field("a list of comments and patterns", list,
-                        initial_fn=list, assign_filter_list=[
-                            pod.typed, pod.typed.sequence(Node), pod.const])
-
-    @staticmethod
-    def parse(text: str, lineno: int=1, col_offset: int=0) -> "WhiteList":
-        """
-        Parse a plainbox *whitelist*
-
-        Empty string is still a valid (though empty) whitelist
-
-        >>> WhiteList.parse("")
-        WhiteList(entries=[])
-
-        White space is irrelevant and gets ignored if it's not of any
-        semantic value. Since whitespace was never a part of the de-facto
-        allowed pattern syntax one cannot create a job with " ".
-
-        >>> WhiteList.parse("   ")
-        WhiteList(entries=[])
-
-        As soon as there's something interesting though, it starts to have
-        meaning. Note that we differentiate the raw text ' a ' from the
-        pattern object is represents '^namespace::a$' but at this time,
-        when we parse the text this contextual, semantic information is not
-        available and is not a part of the AST.
-
-        >>> WhiteList.parse(" data ")
-        WhiteList(entries=[ReFixed(text=' data ')])
-
-        Data gets separated into line-based records.  Any number of lines
-        may exist in a single whitelist.
-
-        >>> WhiteList.parse("line")
-        WhiteList(entries=[ReFixed(text='line')])
-
-        >>> WhiteList.parse("line 1\\nline 2\\n")
-        WhiteList(entries=[ReFixed(text='line 1'), ReFixed(text='line 2')])
-
-        Empty lines are just ignored. You can re-create them by observing lack
-        of continuity in the values of the ``lineno`` field.
-
-        >>> WhiteList.parse("line 1\\n\\nline 3\\n")
-        WhiteList(entries=[ReFixed(text='line 1'), ReFixed(text='line 3')])
-
-        Data can be mixed with comments. Note that col_offset is finally
-        non-zero here as the comments starts on the fourth character into the
-        line:
-
-        >>> WhiteList.parse("foo # pick foo")
-        ... # doctest: +NORMALIZE_WHITESPACE
-        WhiteList(entries=[ReFixed(text='foo '),
-                           Comment(comment='# pick foo')])
-
-        Comments can also exist without any data:
-
-        >>> WhiteList.parse("# this is a comment")
-        WhiteList(entries=[Comment(comment='# this is a comment')])
-
-        Lastly, there are no *exceptions* at this stage, broken patterns are
-        represented as such but no exceptions are ever raised:
-
-        >>> WhiteList.parse("[]")
-        ... # doctest: +ELLIPSIS
-        WhiteList(entries=[ReErr(text='[]', exc=error('un...',))])
-        """
-        entries = []
-        initial_lineno = lineno
-        # NOTE: lineno is consciously shadowed below
-        for lineno, line in enumerate(text.splitlines(), lineno):
-            if '#' in line:
-                cindex = line.index('#')
-                comment = line[cindex:]
-                data = line[:cindex]
-            else:
-                cindex = None
-                comment = None
-                data = line
-            if not data.strip():
-                data = None
-            if data:
-                entries.append(Re.parse(data, lineno, col_offset))
-            if comment:
-                entries.append(Comment(lineno, col_offset + cindex, comment))
-        return WhiteList(initial_lineno, col_offset, entries)
 
 
 class Error(Node):

@@ -49,7 +49,6 @@ class FileRole(SymbolDef):
     exhaustive and new roles will be added in the futurte.
     """
     unit_source = 'unit-source'
-    legacy_whitelist = 'legacy-whitelist'
     script = 'script'  # architecture independent executable
     binary = 'binary'  # architecture dependent executable
     data = 'data'  # data file

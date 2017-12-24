@@ -21,7 +21,7 @@
 :mod:`plainbox.impl.ctrl` -- Controller Classes
 ===============================================
 
-Session controller classes implement the glue between models (jobs, whitelists,
+Session controller classes implement the glue between models (jobs, test plans,
 session state) and the rest of the application. They encapsulate knowledge that
 used to be special-cased and sprinkled around various parts of both plainbox
 and particular plainbox-using applications.

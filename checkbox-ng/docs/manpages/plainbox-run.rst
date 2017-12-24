@@ -74,44 +74,6 @@ plainbox-run (1)
 
         plainbox run -i '.*::foo' -i '.*::bar'
 
-    Selecting jobs with whitelists
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-    The second mechanism is the ``--whitelist WHITELIST`` command-line option.
-    WhiteLists (or test plans, which is somewhat easier to relate to).
-    Whitelists are simple text files composed of a list of regular expressions,
-    identical to those that may be passed with the ``-i`` option.
-
-    Unlike the ``-i`` option though, there are two kinds of whitelists.
-    Standalone whitelists are not associated with any Plainbox Provider.  Such
-    whitelists can be distributed entirely separately from any other component
-    and thus have no association with any namespace.
-
-    Therefore, be fully qualified, each pattern must include both the namespace
-    and the partial identifier components. For example, this is a valid, fully
-    quallified whitelist::
-
-        com.canonical.plainbox::stub/.*
-
-    It will unambiguously select some of the jobs from the special, internal
-    StubBox provider that is built into Plainbox. It can be saved under any
-    filename and stored in any directory and it will always select the same set
-    of jobs.
-
-    In contrast, whitelists that are associated with a particular provider, by
-    being stored in the per-provider ``whitelists/`` directory, carry an
-    implicit namespace. Such whitelists are typically written without
-    mentioning the namespace component.
-
-    For example, the same "stub/.*" pattern can be abbreviated to::
-
-        stub/.*
-
-    Typically this syntax is used in all whitelists specific to a particular
-    provider unless the provider maintainer explicitly wants to include a job
-    from another namespace (for example, one of the well-known Checkbox job
-    definitions).
-
     GENERATED JOBS
     ==============
 

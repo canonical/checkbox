@@ -120,36 +120,4 @@ The provider shipping such unit can be as follow::
         └── exporters.pxu
 
 Note that exporters.pxu is not strictly needed to store the exporter units, but
-keeping them in a dedidated file is a good practice.
-
-How to use exporter units?
---------------------------
-
-In order to call an exporter unit from provider foo, you just need to add the
-unit id to the cli or the gui launcher in the exporter section:
-
-Example of a gui launcher:
-
-    #!/usr/bin/checkbox-gui
-
-    [welcome]
-    title = "Foo"
-    text = "bar"
-
-    [exporter]
-    HTML = "com.foo.bar::my_html"
-
-Example of a cli launcher:
-
-    #!/usr/bin/env checkbox-launcher
-    [welcome]
-    text = Foo
-
-    [suite]
-    whitelist_filter = ^.*$
-    whitelist_selection = ^default$
-
-    [exporter]
-    com.foo.bar::my_html
-    com.foo.bar::my_json
-    com.foo.baz::my_html
+keeping them in a dedicated file is a good practice.

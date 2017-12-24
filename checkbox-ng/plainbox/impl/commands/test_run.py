@@ -62,7 +62,7 @@ class TestRun(TestCase):
         usage: plainbox run [-h] [--non-interactive] [-n] [--dont-suppress-output]
                             [-f FORMAT] [-p OPTIONS] [-o FILE] [-t TRANSPORT]
                             [--transport-where WHERE] [--transport-options OPTIONS]
-                            [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                            [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -99,8 +99,6 @@ class TestRun(TestCase):
                                 include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN
                                 exclude jobs matching the given regular expression
-          -w WHITELIST, --whitelist WHITELIST
-                                load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 

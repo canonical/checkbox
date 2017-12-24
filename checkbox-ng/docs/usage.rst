@@ -47,17 +47,6 @@ To list all known jobs run:
 
     plainbox dev special --list-jobs
 
-Running a white list
-^^^^^^^^^^^^^^^^^^^^
-
-To run a :term:`whitelist` pass the ``--whitelist`` or ``-w`` option.
-
-For example, to run the default white list run:
-
-.. code-block:: bash
-
-    $ plainbox run -w /path/to/some/file.whitelist
-
 Saving test results
 ^^^^^^^^^^^^^^^^^^^
 
@@ -72,7 +61,7 @@ To generate a JSON file with all of the internally available data (for storage,
 processing or other automation) you will need to pass three additional
 arguments to ``plainbox run``:
 
-#. ``--output-format=com.canonical.plainbox::json``
+#. ``--output-format=com.canonical.com.canonical.plainbox::json``
 #. ``--output-options=OPTION1,OPTION2`` where *OPTIONx* are option names.
 #. ``--output-file=NAME`` where *NAME* is a file name.
 
@@ -81,7 +70,7 @@ exporter options can be specified, separated with commas.
 
 .. code-block:: bash
 
-    $ plainbox run --whitelist=/path/to/some/file.whitelist --output-format=com.canonical.plainbox::json --output-file=results.json
+    $ plainbox run -i com.canonical.certification::foo --output-format=com.canonical.plainbox::json --output-file=results.json
 
 Other Exporters
 ---------------

@@ -336,7 +336,10 @@ def main():
                         progress_string).encode('utf-8'))
                     progress_indicator.stdin.write("{}\n".format(
                         progress_pct).encode('utf-8'))
-                    progress_indicator.stdin.flush()
+                    if progress_indicator.poll() is None:
+                        # LP: #1741217 process may have already terminated
+                        # flushing its stdin would yield broken pipe
+                        progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
                     progress_indicator.stdin.write("XXX\n".encode('utf-8'))
                     progress_indicator.stdin.write(
@@ -347,7 +350,8 @@ def main():
                         progress_string.encode('utf-8'))
                     progress_indicator.stdin.write(
                         "\nXXX\n".encode('utf-8'))
-                    progress_indicator.stdin.flush()
+                    if progress_indicator.poll() is None:
+                        progress_indicator.stdin.flush()
                 else:
                     print(progress_string)
         if detect_progress_indicator():

@@ -659,7 +659,7 @@ class Launcher(Command, MainLoopStage):
         cls = self._available_transports[tr_type]
         if tr_type == 'file':
             self.transports[transport] = cls(
-                self.launcher.transports[transport]['path'])
+                os.path.expanduser(self.launcher.transports[transport]['path']))
         elif tr_type == 'stream':
             self.transports[transport] = cls(
                 self.launcher.transports[transport]['stream'])

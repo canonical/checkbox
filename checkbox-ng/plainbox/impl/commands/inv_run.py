@@ -403,16 +403,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
             self.manager.checkpoint()
             # Select all the jobs that we are likely to run. This is the
-            # initial selection as we haven't started any jobs yet. Local jobs
-            # will cause that to happen again.
+            # initial selection as we haven't started any jobs yet.
             self.do_initial_job_selection()
         # Print out our estimates
         self.print_estimated_duration()
-        # Maybe ask the secure launcher to prompt for the password now. This is
-        # imperfect as we are going to run local jobs and we cannot see if they
-        # might need root or not. This cannot be fixed before template jobs are
-        # added and local jobs deprecated and removed (at least not being a
-        # part of the session we want to execute).
+        # Maybe ask the secure launcher to prompt for the password now.
         self.maybe_warm_up_authentication()
         # Iterate through the run list and run jobs if possible. This function
         # also implements backtrack to run new jobs that were added (and
@@ -731,7 +726,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             estimated_time = 0
             # gather jobs that we want to run and skip the jobs that already
             # have result, this is only needed when we run over the list of
-            # jobs again, after discovering new jobs via the local job output
+            # jobs again
             for job in self.state.run_list:
                 job_state = self.state.job_state_map[job.id]
                 if job_state.result.outcome is None:
@@ -758,7 +753,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def get_ui_for_job(self, job):
         if self.ns.dont_suppress_output is False and (job.plugin in (
-                'local', 'resource', 'attachment') or
+                'resource', 'attachment') or
                 'suppress-output' in job.get_flag_set()):
             return NormalUI(self.C.c, show_cmd_output=False)
         else:

@@ -36,9 +36,6 @@ There are two fields that are used by the file unit:
     'unit-source':
         The file is a source of unit definitions. Currently this is the only
         actually implemented value.
-
-    'legacy-whitelist':
-        This file is a legacy whitelist.
     
     'script':
         This file is an architecture independent executable.

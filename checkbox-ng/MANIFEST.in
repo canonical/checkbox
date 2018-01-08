@@ -35,7 +35,6 @@ include plainbox/impl/providers/stubbox/po/*.pot
 include plainbox/impl/providers/stubbox/po/POTFILES.in
 include plainbox/impl/providers/stubbox/units/jobs/*.pxu
 include plainbox/impl/providers/stubbox/units/testplans/*.pxu
-include plainbox/impl/providers/stubbox/whitelists/*.whitelist
 
 include plainbox/vendor/argparse/py*-argparse.py
 

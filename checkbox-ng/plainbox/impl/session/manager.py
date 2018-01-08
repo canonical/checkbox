@@ -39,6 +39,7 @@ import tempfile
 
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl import pod
+from plainbox.impl.providers import get_providers
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionState
@@ -47,7 +48,6 @@ from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.session.suspend import SessionSuspendHelper
 from plainbox.impl.unit.testplan import TestPlanUnit
-from plainbox.public import get_providers
 from plainbox.vendor import morris
 
 logger = logging.getLogger("plainbox.session.manager")
@@ -187,7 +187,7 @@ class SessionManager(pod.POD):
             return self.default_device_context.state
 
     @classmethod
-    def create(cls, repo=None, legacy_mode=False, prefix='pbox-'):
+    def create(cls, repo=None, prefix='pbox-'):
         """
         Create an empty session manager.
 
@@ -205,24 +205,18 @@ class SessionManager(pod.POD):
             constructed with the default location.
         :ptype repo:
             :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
-        :param legacy_mode:
-            Propagated to
-            :meth:`~plainbox.impl.session.storage.SessionStorage.create()` to
-            ensure that legacy (single session) mode is used.
-        :ptype legacy_mode:
-            bool
         :return:
             fresh :class:`SessionManager` instance
         """
         logger.debug("SessionManager.create()")
         if repo is None:
             repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, legacy_mode, prefix)
+        storage = SessionStorage.create(repo.location, prefix)
         WellKnownDirsHelper(storage).populate()
         return cls([], storage)
 
     @classmethod
-    def create_with_state(cls, state, repo=None, legacy_mode=False):
+    def create_with_state(cls, state, repo=None):
         """
         Create a session manager by wrapping existing session state.
 
@@ -237,26 +231,19 @@ class SessionManager(pod.POD):
             constructed with the default location.
         :ptype repo:
             :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
-        :param legacy_mode:
-            Propagated to
-            :meth:`~plainbox.impl.session.storage.SessionStorage.create()`
-            to ensure that legacy (single session) mode is used.
-        :ptype legacy_mode:
-            bool
         :return:
             fresh :class:`SessionManager` instance
         """
         logger.debug("SessionManager.create_with_state()")
         if repo is None:
             repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, legacy_mode)
+        storage = SessionStorage.create(repo.location)
         WellKnownDirsHelper(storage).populate()
         context = SessionDeviceContext(state)
         return cls([context], storage)
 
     @classmethod
-    def create_with_unit_list(cls, unit_list=None, repo=None,
-                              legacy_mode=False):
+    def create_with_unit_list(cls, unit_list=None, repo=None):
         """
         Create a session manager with a fresh session.
 
@@ -272,12 +259,6 @@ class SessionManager(pod.POD):
             constructed with the default location.
         :ptype repo:
             :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
-        :param legacy_mode:
-            Propagated to
-            :meth:`~plainbox.impl.session.storage.SessionStorage.create()`
-            to ensure that legacy (single session) mode is used.
-        :ptype legacy_mode:
-            bool
         :return:
             fresh :class:`SessionManager` instance
         """
@@ -287,7 +268,7 @@ class SessionManager(pod.POD):
         state = SessionState(unit_list)
         if repo is None:
             repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, legacy_mode)
+        storage = SessionStorage.create(repo.location)
         context = SessionDeviceContext(state)
         WellKnownDirsHelper(storage).populate()
         return cls([context], storage)
@@ -480,7 +461,6 @@ class SessionManager(pod.POD):
             'com.canonical.plainbox::html': 'html',
             'com.canonical.plainbox::json': 'json',
             'com.canonical.plainbox::junit': 'junit',
-            'com.canonical.plainbox::rfc822': 'rfc822',
             'com.canonical.plainbox::tar': 'tar',
             'com.canonical.plainbox::text': 'text',
             'com.canonical.plainbox::xlsx': 'xlsx'
@@ -498,8 +478,7 @@ class SessionManager(pod.POD):
             Identifier of the exporter unit (which must have been loaded
             into the session device context of the first device). For
             backwards compatibility this can also be any of the legacy
-            identifiers ``tar``, ``html``, ``json``, ``rfc822``, ``text`` or
-            ``xlsx``.
+            identifiers ``tar``, ``html``, ``json``, ``text`` or ``xlsx``.
         :param option_list:
             (optional) A list of options to pass to the exporter. Each option
             is a string. Some strings may be of form 'key=value' but those are

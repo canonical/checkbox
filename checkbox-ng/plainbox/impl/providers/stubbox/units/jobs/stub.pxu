@@ -328,30 +328,6 @@ command: false
 estimated_duration: 25
 category_id: split-field-representative
 
-id: __local__
-_summary: A job generating one more job
-_description:
-    This job generates the stub/local/true job
-plugin: local
-flags: preserve-locale
-command:
-  shopt -s extglob
-  cat $PLAINBOX_PROVIDER_UNITS/jobs/local.pxu
-estimated_duration: 0.1
-category_id: plugin-representative
-
-id: __multilevel__
-_summary: A job generating more generator jobs
-_description:
-    This job generates stub/multilevel which in turn can
-    generate stub/multilevel_1 and stub/multilevel_2
-plugin: local
-flags: preserve-locale
-command:
-  shopt -s extglob
-  cat $PLAINBOX_PROVIDER_UNITS/jobs/multilevel.pxu
-estimated_duration: 0.1
-
 id: stub/root
 _summary: A job that runs as root
 _description:

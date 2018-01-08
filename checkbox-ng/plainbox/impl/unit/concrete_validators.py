@@ -41,11 +41,6 @@ templateInvariant = TemplateInvariantFieldValidator()
 untranslatable = UntranslatableFieldValidator()
 present = PresentFieldValidator()
 
-localDeprecated = CorrectFieldValueValidator(
-    lambda plugin: plugin != 'local', Problem.deprecated, Severity.advice,
-    message=_("please migrate to job templates, see plainbox-template-unit(7)"
-              " for details"))
-
 oneLine = CorrectFieldValueValidator(
     lambda field: field is not None and field.count("\n") == 0,
     Problem.wrong, Severity.warning,

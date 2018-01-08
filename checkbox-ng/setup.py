@@ -61,8 +61,6 @@ setup(
         'Natural Language :: Polish',
         'Operating System :: POSIX',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Quality Assurance',
@@ -81,7 +79,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'plainbox=plainbox.public:main',
+            'plainbox=plainbox.impl.box:main',
             'stubbox=plainbox.impl.box:stubbox_main',
             ('plainbox-trusted-launcher-1='
              'plainbox.impl.secure.launcher1:main'),
@@ -89,7 +87,6 @@ setup(
         ],
         'plainbox.exporter': [
             'text=plainbox.impl.exporter.text:TextSessionStateExporter',
-            'rfc822=plainbox.impl.exporter.rfc822:RFC822SessionStateExporter',
             'tar=plainbox.impl.exporter.tar:TARSessionStateExporter [XLSX]',
             'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
             'jinja2=plainbox.impl.exporter.jinja2:Jinja2SessionStateExporter',
@@ -113,7 +110,6 @@ setup(
         'plainbox.parsers': [
             'pxu=plainbox.impl.secure.rfc822:load_rfc822_records',
             'regex=plainbox.impl.xparsers:Re.parse',
-            'whitelist=plainbox.impl.xparsers:WhiteList.parse',
             'pxu-override=plainbox.impl.xparsers:FieldOverride.parse',
         ],
         'plainbox.transport': [

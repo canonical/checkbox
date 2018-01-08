@@ -21,7 +21,7 @@
 :mod:`plainbox.impl.ctrl` -- Controller Classes
 ===============================================
 
-Session controller classes implement the glue between models (jobs, whitelists,
+Session controller classes implement the glue between models (jobs, test plans,
 session state) and the rest of the application. They encapsulate knowledge that
 used to be special-cased and sprinkled around various parts of both plainbox
 and particular plainbox-using applications.
@@ -102,9 +102,6 @@ class CheckBoxSessionStateController(ISessionStateController):
           true. This is expressed via the 'requires' attribute. A job will
           become inhibited if any of the requirement programs evaluates to
           value other than True.
-        * A job may have the attribute 'plugin' equal to "local" which will
-          cause the controller to interpret the stdout of the command as a set
-          of job definitions.
         * A job may have the attribute 'plugin' equal to "resource" which will
           cause the controller to interpret the stdout of the command as a set
           of resource definitions.
@@ -243,8 +240,8 @@ class CheckBoxSessionStateController(ISessionStateController):
         Results also change the ready map (jobs that can run) because of
         dependency relations.
 
-        Some results have deeper meaning, those are results for local and
-        resource jobs. They are discussed in detail below:
+        Some results have deeper meaning, those are results for resource jobs.
+        They are discussed in detail below:
 
         Resource jobs produce resource records which are used as data to run
         requirement expressions against. Each time a result for a resource job
@@ -252,11 +249,6 @@ class CheckBoxSessionStateController(ISessionStateController):
         records. A new entry is created in the resource map (entirely replacing
         any old entries), with a list of the resources that were parsed from
         the IO log.
-
-        Local jobs produce more jobs. Like with resource jobs, their IO log is
-        parsed and interpreted as additional jobs. Unlike in resource jobs
-        local jobs don't replace anything. They cannot replace an existing job
-        with the same id.
         """
         # Store the result in job_state_map
         session_state.job_state_map[job.id].result = result
@@ -265,8 +257,6 @@ class CheckBoxSessionStateController(ISessionStateController):
         # Treat some jobs specially and interpret their output
         if job.plugin == "resource":
             self._process_resource_result(session_state, job, result)
-        elif job.plugin == "local":
-            self._process_local_result(session_state, job, result)
 
     def _process_resource_result(self, session_state, job, result):
         """
@@ -332,108 +322,6 @@ class CheckBoxSessionStateController(ISessionStateController):
                             job_state = session_state.job_state_map[
                                 new_unit.id]
                             job_state.via_job = job
-
-    def _process_local_result(self, session_state, job, result):
-        """
-        Analyze a result of a CheckBox "local" job and generate
-        additional job definitions
-        """
-        # First parse all records and create a list of new jobs (confusing
-        # name, not a new list of jobs)
-        new_job_list = []
-        for record in gen_rfc822_records_from_io_log(job, result):
-            # Skip non-job units as the code below is wired to work with jobs
-            # Fixes: https://bugs.launchpad.net/plainbox/+bug/1443228
-            if record.data.get('unit', 'job') != 'job':
-                continue
-            new_job = job.create_child_job_from_record(record)
-            check_result = new_job.check()
-            # Only ignore jobs for which check() returns an error
-            if [c for c in check_result if c.severity == Severity.error]:
-                logger.error(_("Ignoring invalid generated job %s"),
-                             new_job.id)
-            else:
-                new_job_list.append(new_job)
-        # Then for each new job, add it to the job_list, unless it collides
-        # with another job with the same id.
-        for new_job in new_job_list:
-            try:
-                added_unit = session_state.add_unit(new_job, recompute=False)
-            except DependencyDuplicateError as exc:
-                # XXX: there should be a channel where such errors could be
-                # reported back to the UI layer. Perhaps update_job_result()
-                # could simply return a list of problems in a similar manner
-                # how update_desired_job_list() does.
-                logger.warning(
-                    # TRANSLATORS: keep the word "local" untranslated. It is a
-                    # special type of job that needs to be distinguished.
-                    _("Local job %s produced job %s that collides with"
-                      " an existing job %s (from %s), the new job was"
-                      " discarded"),
-                    job.id, exc.duplicate_job.id, exc.job.id, exc.job.origin)
-            else:
-                # Set the via_job attribute of the newly added job to point to
-                # the generator job. This way it can be traced back to the old
-                # __category__-style local jobs or to their corresponding
-                # generator job in general.
-                #
-                # NOTE: this is the only place where we assign via_job so as
-                # long as that holds true, we can detect and break via cycles.
-                #
-                # Via cycles occur whenever a job can reach itself again
-                # through via associations. Note that the chain may be longer
-                # than one link (A->A) and can include other jobs in the list
-                # (A->B->C->A)
-                #
-                # To detect a cycle we must iterate back the via chain (and we
-                # must do it here because we have access to job_state_map that
-                # allows this iteration to happen) and break the cycle if we
-                # see the job being added.
-                job_state_map = session_state.job_state_map
-                job_state_map[added_unit.id].via_job = job
-                via_cycle = get_via_cycle(job_state_map, added_unit)
-                if via_cycle:
-                    logger.warning(_("Automatically breaking via-cycle: %s"),
-                                   ' -> '.join(str(cycle_job)
-                                               for cycle_job in via_cycle))
-                    job_state_map[added_unit.id].via_job = None
-
-
-def get_via_cycle(job_state_map, job):
-    """
-    Find a possible cycle including via_job.
-
-    :param job_state_map:
-        A dictionary mapping job.id to a JobState object.
-    :param via_job:
-        Any job, start of a hypothetical via job cycle.
-    :raises KeyError:
-        If any of the encountered jobs are not present in job_state_map.
-    :return:
-        A list of jobs that represent the cycle or an empty tuple if no cycle
-        is present. The list has the property that item[0] is item[-1]
-
-    A via cycle occurs if *job* is reachable through the *via_job* by
-    recursively following via_job connection until via_job becomes None.
-    """
-    cycle = []
-    seen = set()
-    while job is not None:
-        cycle.append(job)
-        seen.add(job)
-        next_job = job_state_map[job.id].via_job
-        if next_job in seen:
-            break
-        job = next_job
-    else:
-        return ()
-    # Discard all the jobs leading to the cycle.
-    # cycle = cycle[cycle.index(next_job):]
-    # This is just to hold the promise of the return value so
-    # that processing is easier for the caller.
-    cycle.append(next_job)
-    # assert cycle[0] is cycle[-1]
-    return cycle
 
 
 def gen_rfc822_records_from_io_log(job, result):

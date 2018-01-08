@@ -36,7 +36,7 @@
     },
 {%- endif %}
     "results": [
-    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "local", "attachment") %}
+    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "attachment") %}
         {
             "id": "{{ job_id|strip_ns }}",
             "name": "{{ job_state.job.tr_summary() }}",

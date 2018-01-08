@@ -34,7 +34,6 @@ from inspect import cleandoc
 from unittest import TestCase
 
 from plainbox.impl.box import main
-from plainbox.impl.exporter.rfc822 import RFC822SessionStateExporter
 from plainbox.impl.exporter.text import TextSessionStateExporter
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor.mock import patch, Mock
@@ -63,7 +62,7 @@ class TestRun(TestCase):
         usage: plainbox run [-h] [--non-interactive] [-n] [--dont-suppress-output]
                             [-f FORMAT] [-p OPTIONS] [-o FILE] [-t TRANSPORT]
                             [--transport-where WHERE] [--transport-options OPTIONS]
-                            [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                            [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -100,8 +99,6 @@ class TestRun(TestCase):
                                 include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN
                                 exclude jobs matching the given regular expression
-          -w WHITELIST, --whitelist WHITELIST
-                                load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -133,7 +130,6 @@ class TestRun(TestCase):
         Available output formats:
         com.canonical.plainbox::html - Generate a standalone HTML
         com.canonical.plainbox::json - Generate JSON output
-        com.canonical.plainbox::rfc822 - Generate RCF822 output
         com.canonical.plainbox::text - Generate plain text output
         com.canonical.plainbox::tar - Generate a tar.xz archive
         com.canonical.plainbox::xlsx - Generate an Excel 2007+ XLSX document
@@ -150,10 +146,9 @@ class TestRun(TestCase):
         Each format may support a different set of options
         com.canonical.plainbox::html: 
         com.canonical.plainbox::json: 
-        com.canonical.plainbox::rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
-        com.canonical.plainbox::text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
+        com.canonical.plainbox::text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-hash, with-category-map, with-certification-status
         com.canonical.plainbox::tar: 
-        com.canonical.plainbox::xlsx: with-sys-info, with-summary, with-job-description, with-text-attachments, with-unit-categories
+        com.canonical.plainbox::xlsx: with-sys-info, with-summary, with-job-description, with-text-attachments
         com.canonical.plainbox::global: 
         """
         self.assertIn(cleandoc(expected) + "\n", io.combined)

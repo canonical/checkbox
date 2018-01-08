@@ -298,11 +298,11 @@ class IJobQualifier(metaclass=ABCMeta):
     can simply check if a qualifier designates a particular job (if it selects
     it and marks for subsequent execution). This API works fine for certain
     tasks but it was found that it is insufficient to implement so-called
-    whitelist ordering, where the order of jobs in a whitelist is preserved
-    when selecting that whitelist for execution. This spawned the second,
+    test plan ordering, where the order of jobs in a test plan is preserved
+    when selecting that test plan for execution. This spawned the second,
     lower-level API, that gives portable visibility into composite qualifiers
-    (such as a whitelist) and distinct select, deselect vote so that full range
-    of current expressiveness can be preserved.
+    and distinct select, deselect vote so that full range of current
+    expressiveness can be preserved.
 
     :attr VOTE_EXCLUDE:
         (0) vote indicating that a job should *not* be included for
@@ -642,12 +642,6 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
     @abstractproperty
-    def whitelists_dir(self):
-        """
-        Return an absolute path of the whitelist directory
-        """
-
-    @abstractproperty
     def data_dir(self):
         """
         absolute path of the data directory
@@ -755,18 +749,6 @@ class IProvider1(IProviderBackend1):
     def executable_list(self):
         """
         List of all the executables
-        """
-
-    @abstractproperty
-    def whitelist_list(self):
-        """
-        List of loaded whitelists.
-
-        .. warning::
-            :class:`WhiteList` is currently deprecated. You should never need
-            to access them in any new code.  They are entirely replaced by
-            :class:`TestPlan`. This property is provided for completeness and
-            it will be **removed** once whitelists classes are no longer used.
         """
 
     @abstractproperty

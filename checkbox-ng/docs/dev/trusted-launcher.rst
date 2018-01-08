@@ -145,7 +145,7 @@ Usage
 .. code-block:: text
 
     plainbox-trusted-launcher-1 [-h] (--hash HASH | --warmup)
-                              [--via LOCAL-JOB-HASH]
+                              [--via GENERATOR-JOB-HASH]
                               [NAME=VALUE [NAME=VALUE ...]]
 
     positional arguments:
@@ -156,7 +156,7 @@ Usage
       --hash HASH           job hash to match
       --warmup              Return immediately, only useful when used with
                             pkexec(1)
-      --via LOCAL-JOB-HASH  Local job hash to use to match the generated job
+      --via GENERATOR-JOB-HASH  Generator job hash to use to match the generated job
 
 .. note::
 
@@ -185,15 +185,11 @@ thanks to the installed policy file the authentication will be kept.
 Special case of jobs using the Checkbox local plugin
 ----------------------------------------------------
 
-For jobs generated from :ref:`local <local>` jobs (e.g.
+For jobs generated from resources jobs (e.g.
 disk/read_performance.*) the trusted launcher is started with ``--via`` meaning
-that we have to first eval a local job to find a hash match. Once a match is
+that we have to first eval a generator job to find a hash match. Once a match is
 found, the job command is executed.
 
 .. code-block:: bash
 
-    $ pkexec plainbox-trusted-launcher-1 --hash JOB-HASH --via LOCAL-JOB-HASH
-
-.. note::
-
-    it will obviously fail if any local job can ever generate another local job.
+    $ pkexec plainbox-trusted-launcher-1 --hash JOB-HASH --via GENERATOR-JOB-HASH

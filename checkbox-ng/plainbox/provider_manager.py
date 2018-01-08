@@ -186,8 +186,6 @@ class InstallCommand(ManageCommand):
             'units': os.path.join(
                 '{prefix}', 'share', '{provider.name}', 'units'),
             'po': None,
-            'whitelists': os.path.join(
-                '{prefix}', 'share', '{provider.name}', 'whitelists'),
             'provider': os.path.join(
                 '{prefix}', 'share', 'plainbox-providers-1',
                 '{provider.name_without_colon}.provider'),
@@ -209,9 +207,6 @@ class InstallCommand(ManageCommand):
                 '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
                 'units'),
             'po': None,
-            'whitelists': os.path.join(
-                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
-                'whitelists'),
             'provider': os.path.join(
                 '{prefix}', 'share', 'plainbox-providers-1',
                 '{provider.name_without_colon}.provider'),
@@ -223,7 +218,6 @@ class InstallCommand(ManageCommand):
             'jobs': os.path.join('{prefix}', 'jobs'),
             'units': os.path.join('{prefix}', 'units'),
             'po': None,
-            'whitelists': os.path.join('{prefix}', 'whitelists'),
             'provider': os.path.join(
                 '{prefix}', '{provider.name_without_colon}.provider'),
         },
@@ -235,8 +229,7 @@ class InstallCommand(ManageCommand):
         'build/mo': 'locale_dir',
         'data': 'data_dir',
         'jobs': 'jobs_dir',
-        'units': 'units_dir',
-        'whitelists': 'whitelists_dir'
+        'units': 'units_dir'
     }
 
     def get_command_epilog(self):
@@ -418,7 +411,6 @@ class InstallCommand(ManageCommand):
     - the manage.py script itself
     - the README.md file
     - the jobs directory, and everything in it
-    - the whitelists directory, and everything in it
     - the bin directory, and everything in it
     - the src directory, and everything in it
     - the data directory, and everything in it
@@ -430,8 +422,8 @@ class SourceDistributionCommand(ManageCommand):
 
     name = "sdist"
 
-    _INCLUDED_ITEMS = ['manage.py', 'README.md', 'units', 'jobs', 'whitelists',
-                       'COPYING', 'bin', 'src', 'data', 'po']
+    _INCLUDED_ITEMS = ['manage.py', 'README.md', 'units', 'jobs', 'COPYING',
+                       'bin', 'src', 'data', 'po']
 
     def register_parser(self, subparsers):
         """
@@ -831,7 +823,7 @@ class CleanCommand(ManageCommand):
 
     This command displays various essential facts about the provider associated
     with the ``manage.py`` script. Displayed data includes provider name and
-    other meta-data, all of the jobs and whitelist, with their precise
+    other meta-data, all of the jobs and test plans, with their precise
     locations.
     """))
 class InfoCommand(ManageCommand):
@@ -875,12 +867,6 @@ class InfoCommand(ManageCommand):
         print(_("[Test Plans]"))
         self._display_units((
             unit for unit in unit_list if unit.Meta.name == 'test plan'))
-        print(_("[Test Plans] (legacy)"))
-        # TRANSLATORS: {} is the name of the test provider
-        for whitelist in provider.whitelist_list:
-            print("\t" + _("{0} from {1}").format(
-                whitelist.name,
-                whitelist.origin.relative_to(self.definition.location)))
         print(_("[Other Units]"))
         self._display_units((
             unit for unit in unit_list
@@ -1359,7 +1345,7 @@ class ProviderManagerTool(ToolBase):
     `manage.py info`:
         This command loads and validates the provider at a basic level.
         It displays the essential meta-data followed by a list of all the
-        jobs and whitelists.
+        jobs and test plans.
 
     `manage.py validate`:
         This command loads the provider and performs basic job validation,

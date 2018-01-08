@@ -33,7 +33,6 @@ from plainbox.impl.secure.origin import CommandLineTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import select_jobs
-from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 
 logger = getLogger("plainbox.commands.checkbox")
@@ -66,51 +65,6 @@ class CheckBoxInvocationMixIn:
         return list(
             itertools.chain(*[p.job_list for p in self.provider_list]))
 
-    def get_whitelist_from_file(self, filename, stream=None):
-        """
-        Load a whitelist from a file, with special behavior.
-
-        :param filename:
-            name of the file to load
-        :param stream:
-            (optional) pre-opened stream pointing at the whitelist
-        :returns:
-            The loaded whitelist or None if loading fails for any reason
-
-        This function implements special loading behavior for whitelists that
-        makes them inherit the implicit namespace of the provider they may be a
-        part of. Before loading the whitelist directly from the file, all known
-        providers are interrogated to see if any of them has a whitelist that
-        was loaded from the same file (as indicated by os.path.realpath())
-
-        The stream argument can be provided if the caller already has an open
-        file object, which is typically the case when working with argparse.
-        """
-        # Look up a whitelist with the same name in any of the providers
-        wanted_realpath = os.path.realpath(filename)
-        for provider in self.provider_list:
-            for whitelist in provider.whitelist_list:
-                if (whitelist.origin is not None
-                        and whitelist.origin.source is not None
-                        and isinstance(whitelist.origin.source,
-                                       FileTextSource)
-                        and os.path.realpath(
-                            whitelist.origin.source.filename) ==
-                        wanted_realpath):
-                    logger.debug(
-                        _("Using whitelist %r obtained from provider %r"),
-                        whitelist.name, provider)
-                    return whitelist
-        # Or load it directly
-        try:
-            if stream is not None:
-                return WhiteList.from_string(stream.read(), filename=filename)
-            else:
-                return WhiteList.from_file(filename)
-        except Exception as exc:
-            logger.warning(
-                _("Unable to load whitelist %r: %s"), filename, exc)
-
     def _get_matching_job_list(self, ns, job_list):
         logger.debug("_get_matching_job_list(%r, %r)", ns, job_list)
         qualifier_list = []
@@ -126,12 +80,6 @@ class CheckBoxInvocationMixIn:
                         break
             else:
                 logger.debug(_("There is no test plan: %s"), ns.test_plan)
-        # Add whitelists
-        for whitelist_file in ns.whitelist:
-            qualifier = self.get_whitelist_from_file(
-                whitelist_file.name, whitelist_file)
-            if qualifier is not None:
-                qualifier_list.append(qualifier)
         # Add all the --include jobs
         for pattern in ns.include_pattern_list:
             origin = Origin(CommandLineTextSource('-i', pattern), None, None)

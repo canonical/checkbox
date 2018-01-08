@@ -62,12 +62,3 @@ class CheckBoxCommandMixIn:
             metavar=_("PATTERN"), default=[], dest='exclude_pattern_list',
             # TRANSLATORS: this is in imperative form
             help=_("exclude jobs matching the given regular expression"))
-        # TODO: Find a way to handle the encoding of the file
-        group.add_argument(
-            '-w', '--whitelist',
-            action="append",
-            metavar=_("WHITELIST"),
-            default=[],
-            type=FileType("rt"),
-            # TRANSLATORS: this is in imperative form
-            help=_("load whitelist containing run patterns"))

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from plainbox.vendor.enum import Enum, unique
+from enum import Enum, unique
 
 
 __all__ = ['WordScanner']

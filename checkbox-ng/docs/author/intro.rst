@@ -49,7 +49,7 @@ Terminology
 In developing or using Plainbox, you'll run into several unfamiliar terms.
 Check the :doc:`../glossary` to learn what they mean. In fact, you should
 probably check it now. Pay particular attention to the terms *Checkbox*,
-*Plainbox*, *job*, *provider*, and *whitelist*.
+*Plainbox*, *job* and *provider*.
 
 Getting Started
 ---------------
@@ -73,7 +73,7 @@ tests. First up is a welcome screen:
        select tests.
 
 When you press the Enter key, ``checkbox-cli`` lets you select which
-whitelist to use:
+test plan to use:
 
 .. image:: cc2.png
  :height: 343
@@ -81,7 +81,7 @@ whitelist to use:
  :scale: 100
  :alt: checkbox-cli enables you to select which test suite to run.
 
-With a whitelist selected, you can choose the individual tests to run:
+With a test plan selected, you can choose the individual tests to run:
 
 .. image:: cc3.png
  :height: 600
@@ -117,7 +117,7 @@ A provider is described in a configuration file (stored in
 ``/usr/share/plainbox-providers-1``). This file describes where to find all
 the files from the provider. This file is usually managed automatically
 (more on this later). A provider can ship jobs, binaries, data and
-whitelists.
+test plans.
 
 A **job** or **test** is the smallest unit or description that Plainbox
 knows about. It describes a single test (historically they're called
@@ -140,10 +140,6 @@ types include (but are not limited to):
  * ``shell`` -- An automated test that requires no user interaction; the
    test is passed or failed on the basis of the return value of the script
    or command.
- * ``local`` -- This type of job is similar to a ``shell`` test, but it
-   supports creating multiple tests from a single definition (say, to test
-   all the Ethernet ports on a computer). Jobs using the ``local`` plugin
-   are run when Plainbox is initialized.
  * ``user-interact`` -- A test that asks the user to perform some action
    *before* the test is performed. The test then passes or fails
    automatically based on the output of the test. An example is
@@ -162,169 +158,8 @@ types include (but are not limited to):
    which probes the system to determine the maximum supported resolution
    and then asks the user to confirm that the resolution is correct.
 
-A fairly complex example definition is::
-
- plugin: local
- _summary: Automated test to walk multiple network cards and test each one in sequence.
- id: ethernet/multi_nic
- requires:
-  device.category == 'NETWORK'
- _description: Automated test to walk multiple network cards and test each one in sequence.
- command:
-  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \``ls /sys\$0/net 2>/dev/null\``; do echo \$0 \$i; done"'
-  plugin: shell
-  id: ethernet/multi_nic_$2
-  requires:
-   package.name == 'ethtool'
-   package.name == 'nmap'
-   device.path == "$1"
-  user: root
-  environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-  command: network test -i $2 -t iperf --fail-threshold 80
-  estimated_duration: 330.0
-  description:
-   Testing for NIC $2
-  EOF
-
-Key points to note include:
-
- * If a field name begins with an underscore, its value can be localized.
- * The values of fields can appear on the same line as their field names,
-   as in ``plugin: local``; or they can appear on a subsequent line, which
-   is indented, as in the preceding example's ``requires: device.category
-   == 'NETWORK'``.
- * The ``requires`` field can be used to specify dependencies; if the
-   specified condition is not met, the test does not run.
- * The ``command`` field specifies the command that's used to run the test.
-   This can be a standard Linux command (or even a set of commands) or a
-   Checkbox test script. In this example's ``local`` test definition, the
-   first ``command`` line generates a list of network devices that is fed
-   to an embedded test, which is defined beginning with the second
-   ``plugin`` line immediately following the first ``command`` line.
- * In this example, the line that reads ``EOF`` ends the
-   ``ethernet/ethtool_multi_nic_$2`` test's command; it's matched to the
-   ``EOF`` that's part of ``cat << 'EOF'`` near the start of that command.
-
 Each provider has a ``bin`` directory and all binaries there are available
 in the path.
-
-Whitelists
-``````````
-
-In the job files we have a "universe" of known jobs. We don't normally want
-to run them all; rather we want to select a subset depending on what we're
-testing, and maybe give the user a way to fine-tune that selection. Also,
-we need a way to determine the order in which they will run, beyond what
-dependencies may provide. This is where the whitelist comes in; think of it
-as a mask or selection filter from the universe of jobs. Whitelists support
-regular expressions, and Plainbox will attempt to run tests in the order
-shown in the whitelist. Again, providers ship whitelists in a specific
-directory, and you can use ``plainbox`` to run a specific whitelist with
-the ``-w`` option.
-
-You can also use ``plainbox`` to run a test with the ``-i`` syntax. This is
-good for quickly running a job and ensuring it works well.
-
-Let's look at ``checkbox-cli`` for a moment. This is a "launcher"; it
-specifies a set of configuration options for a specific testing purpose.
-This enables us to create mini-clients for each testing purpose, without
-changing the core utility (``checkbox-launcher``). For instance, let's look
-at the launcher for ``canonical-certification-server``, which appears in
-``./providers/plainbox-provider-certification-server/launcher/canonical-certification-server``
-in the Checkbox source tree::
-
- #!/usr/bin/env checkbox-launcher
- [welcome]
- text = Welcome to System Certification!
-     This application will gather information from your system. Then you will be
-     asked manual tests to confirm that the system is working properly. Finally,
-     you will be asked for the Secure ID of the computer to submit the
-     information to the certification.canonical.com database.
-     To learn how to create or locate the Secure ID, please see here:
-     https://certification.canonical.com/
-
- [suite]
- # Whitelist(s) displayed in the suite selection screen
- whitelist_filter = ^((network|storage|usb|virtualization)-only)|(server-(full|functional)-14.04)$
- # Whitelist(s) pre-selected in the suite selection screen, default whitelist(s)
- whitelist_selection = ^server-full-14.04$
-
- [transport]
- submit_to = certification
-
- [config]
- config_filename = canonical-certification.conf
-
-A launcher such as this sets up an environment that includes introductory
-text to be shown to users, a filter to determine what whitelists to present
-as options, information on where to (optionally) submit results, and a
-configuration filename. This allows each provider to ship a launcher or
-binary with which to launch its relevant tests.
-
-Developing Tests
-````````````````
-
-One way to deliver tests via Plainbox is to start your own provider. To
-learn how to do that, see the :ref:`tutorial`.
-
-In other cases you want to add tests to the main Checkbox repository (which
-is also what we recommend to keep tests centralized, unless they're so
-purpose-specific that this makes no sense).
-
-This is a bit easier because the provider in question already exists. So
-let's get started by branching a copy of ``lp:checkbox``. In brief, you
-should change to your software development directory and type ``bzr branch
-lp:checkbox my-branch`` to create a copy of the ``checkbox`` Launchpad
-project in the ``my-branch`` subdirectory. You can then edit the files in
-that subdirectory, upload the results to your own Launchpad account, and
-request a merge.
-
-To begin, consider the files and subdirectories in the main Checkbox
-development directory (``my-branch`` if you used the preceding ``bzr``
-command without change):
-
- * ``checkbox-gui`` -- Checkbox GUI components, used in desktop/laptop
-   testing
- * ``checkbox-ng`` -- The Plainbox-based version of Checkbox
- * ``checkbox-support`` -- Support code for many providers
- * ``checkbox-touch`` -- A Checkbox frontend optimized for touch/tablet
-   devices
- * ``mk-venv`` -- A symbolic link to a script used to set up an environment
-   for testing Checkbox
- * ``plainbox`` -- A Python3 library and development tools at the heart of
-   Plainbox
- * ``plainbox-client`` -- Unfinished Python3 interface for Checkbox
- * ``providers`` -- Provider definitions, including test scripts
- * ``README.md`` -- A file describing the contents of the subdirectory in
-   greater detail
- * ``setup.py`` -- A setup script
- * ``support`` -- Support code that's not released
- * ``tarmac-verify`` -- A support script
- * ``test-in-lxc.sh`` -- A support script for testing in an LXC
- * ``test-in-vagrant.sh`` -- A support script for testing with Vagrant
- * ``test-with-coverage`` -- A link to a support script for testing with
-   coverage
- * ``Vagrantfile`` -- A Vagrant configuration file
-
-Let's say I want to write a test to ensure that the ubuntu user exists in
-``/etc/passwd``. You need to remove any existing Checkbox provider
-packages, lest they interfere with your new or modified tests. The
-``setup.py`` script will set up a Plainbox development environment for you.
-
-We can write a simple job here, then add a requirement, perhaps a
-dependency, then a script in the directory. Note that scripts can be
-anything that's executable, we usually prefer either shell or Python but
-anything goes.
-
-Plainbox will supply two environment variables, ``PLAINBOX_PROVIDER_DATA``
-and ``SHARE``, we usually try to use them in the job description only, not
-in the scripts, to keep the scripts Plainbox-agnostic if possible.
-
-Once the test is running correctly, we can create a whitelist with a few
-tests and name it.
-
-Once we get everything running correctly we can prepare and propose a merge
-request using ``bzr`` as usual.
 
 Other Questions
 ---------------

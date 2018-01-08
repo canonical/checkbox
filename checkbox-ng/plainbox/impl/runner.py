@@ -275,7 +275,7 @@ class JobRunner(IJobRunner):
     """
 
     # List of plugins that are still executed
-    _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
+    _DRY_RUN_PLUGINS = ('resource', 'attachment')
 
     def __init__(self, session_dir, provider_list, jobs_io_log_dir,
                  command_io_delegate=None, dry_run=False,
@@ -520,32 +520,6 @@ class JobRunner(IJobRunner):
                 job, job_state, config).get_result()
         return result
 
-    def run_local_job(self, job, job_state, config):
-        """
-        Method called to run a job with plugin field equal to 'local'.
-
-        The 'local' job implements the following scenario:
-
-        * Maybe display the description to the user
-        * The API states that :meth:`JobRunner.run_job()` should only be
-          called at this time.
-        * Run the command and wait for it to finish
-        * Decide on the outcome based on the return code
-        * The method ends here
-
-        .. note::
-            Local jobs are similar to resource jobs, in that the output matters
-            more than the return code. Unlike resource jobs and attachment
-            jobs, the output is expected to be a job definition in the
-            canonical RFC822 format. Local jobs are discouraged (due to some
-            complexities they introduce) but only supported way of generating
-            additional jobs at runtime.
-        """
-        if job.plugin != "local":
-            # TRANSLATORS: please keep 'plugin' untranslated
-            raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, job_state, config).get_result()
-
     def run_manual_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'manual'.
@@ -741,7 +715,7 @@ class JobRunner(IJobRunner):
         delegate, io_log_gen = self._prepare_io_handling(job, config)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
-        delegate_cls = self._get_delegate_cls(config)
+        delegate_cls = extcmd.ExternalCommandWithDelegate
         extcmd_popen = delegate_cls(delegate)
         # Stream all IOLogRecord entries to disk
         record_path = self.get_record_path_for_job(job)
@@ -892,7 +866,7 @@ class JobRunner(IJobRunner):
         delegate, io_log_gen = self._prepare_io_handling(job, config)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
-        delegate_cls = self._get_delegate_cls(config)
+        delegate_cls = extcmd.ExternalCommandWithDelegate
         flags = 0
         # Use chunked IO for jobs that explicitly request this
         if 'use-chunked-io' in job.get_flag_set():
@@ -996,14 +970,3 @@ class JobRunner(IJobRunner):
             logger.warning(
                 _("Please store desired files in $PLAINBOX_SESSION_SHARE and"
                   " use regular temporary files for everything else"))
-
-    def _get_delegate_cls(self, config):
-        if (sys.version_info[0:2] >= (3, 4) and sys.platform == 'linux'
-                and config.extcmd == "glibc"):
-            logger.debug("Using glibc-based command runner")
-            from plainbox.vendor.extcmd.glibc import (
-                GlibcExternalCommandWithDelegate)
-            return GlibcExternalCommandWithDelegate
-        else:
-            logger.debug("Using classic thread-based command runner")
-            return extcmd.ExternalCommandWithDelegate

@@ -46,12 +46,11 @@ Glossary
            necessary for end-user work. ``plainbox`` is usually installed
            explicitly if needed.
 
-    whitelist
+    test plan
 
-        Whitelists are text files used by Checkbox to select jobs for
-        execution.  They can include simple regular expressions to match and
-        pick many similar jobs at once. For more information see
-        :doc:`Checkbox Whitelist Files <author/whitelists>`
+        Test plans are text files used by Checkbox to select jobs for
+        execution. They can include simple regular expressions to match and
+        pick many similar jobs at once.
 
     job
 
@@ -63,7 +62,7 @@ Glossary
 
     provider
 
-        A container for jobs, whitelists, private executables and data.
+        A container for jobs, test plans, private executables and data.
         Providers are the foundation of Plainbox as they *provide* all of the
         content. Providers can be created and managed by any entity, separately
         from the Checkbox project.

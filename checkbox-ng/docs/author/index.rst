@@ -8,10 +8,8 @@ core.
 
 .. toctree::
    intro.rst
-   tutorial.rst
    qml-job-tutorial.rst
    providers.rst
-   whitelists.rst
    rfc822.rst
    faq.rst
 

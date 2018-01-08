@@ -29,7 +29,6 @@ from textwrap import dedent
 from plainbox.impl.secure.config import Unset
 
 from plainbox.impl.launcher import LauncherDefinition
-from plainbox.impl.launcher import LauncherDefinitionLegacy
 from plainbox.impl.launcher import LauncherDefinition1
 
 
@@ -49,8 +48,8 @@ class LauncherDefinitionTests(TestCase):
     def test_get_concrete_launcher_legacy(self):
         l = LauncherDefinition()
         l.read_string(self.launcher_version_legacy)
-        cls = l.get_concrete_launcher().__class__
-        self.assertIs(cls, LauncherDefinitionLegacy)
+        with self.assertRaises(KeyError):
+            l.get_concrete_launcher()
 
     def test_get_concrete_launcher_launcher1(self):
         l = LauncherDefinition()
@@ -63,27 +62,6 @@ class LauncherDefinitionTests(TestCase):
         l.read_string(self.launcher_version_future)
         with self.assertRaises(KeyError):
             l.get_concrete_launcher()
-
-
-class LauncherDefinitionLegacyTests(TestCase):
-    def test_defaults(self):
-        empty_launcher = ''
-        l = LauncherDefinitionLegacy()
-        l.read_string(empty_launcher)
-        self.assertEqual(l.title, Unset)
-        self.assertEqual(l.api_flags, [])
-        self.assertEqual(l.api_version, '0.99')
-        self.assertEqual(l.text, Unset)
-        self.assertEqual(l.whitelist_filter, Unset)
-        self.assertEqual(l.whitelist_selection, Unset)
-        self.assertEqual(l.skip_whitelist_selection, False)
-        self.assertEqual(l.skip_test_selection, False)
-        self.assertEqual(l.input_type, Unset)
-        self.assertEqual(l.ok_btn_text, Unset)
-        self.assertEqual(l.submit_to, Unset)
-        self.assertEqual(l.submit_url, Unset)
-        self.assertEqual(l.secure_id, Unset)
-        self.assertEqual(l.exporter, Unset)
 
 
 class LauncherDefinition1Tests(TestCase):

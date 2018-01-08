@@ -47,25 +47,6 @@ def tearDownModule():
     warnings.resetwarnings()
 
 
-def mock_whitelist(name, text, filename):
-    """
-    Create a mocked whitelist for
-    CheckBoxInvocationMixIn._get_matching_job_list(). Specifically
-    for ``ns.whitelists`` as passed to that function.
-
-    :param name:
-        Name of the mocked object, helps in debugging
-    :param text:
-        Full text of the whitelist
-    :param filename:
-        Filename of the whitelist file
-    """
-    whitelist = Mock(spec=TextIOWrapper, name=name)
-    whitelist.name = filename
-    whitelist.read.return_value = text
-    return whitelist
-
-
 class MiscTests(TestCase):
 
     def setUp(self):
@@ -73,7 +54,6 @@ class MiscTests(TestCase):
         self.job_foo = MockJobDefinition(id='foo', provider=self.provider1)
         self.job_bar = MockJobDefinition(id='bar', provider=self.provider1)
         self.job_baz = MockJobDefinition(id='baz', provider=self.provider1)
-        self.provider1.whitelist_list = []
         self.provider1.id_map = defaultdict(
             list, foo=[self.job_foo], bar=[self.job_bar], baz=[self.job_baz])
         self.provider1.unit_list = [self.job_foo, self.job_bar, self.job_baz]
@@ -84,7 +64,6 @@ class MiscTests(TestCase):
     def test_matching_job_list(self):
         # Nothing gets selected automatically
         ns = Mock(name="ns")
-        ns.whitelist = []
         ns.include_pattern_list = []
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -94,7 +73,6 @@ class MiscTests(TestCase):
     def test_matching_job_list_including(self):
         # Including jobs with glob pattern works
         ns = Mock(name="ns")
-        ns.whitelist = []
         ns.include_pattern_list = ['f.+']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -104,54 +82,15 @@ class MiscTests(TestCase):
     def test_matching_job_list_excluding(self):
         # Excluding jobs with glob pattern works
         ns = Mock(name="ns")
-        ns.whitelist = []
         ns.include_pattern_list = ['.+']
         ns.exclude_pattern_list = ['f.+']
         observed = self.obj._get_matching_job_list(ns, [
             self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_bar])
 
-    def test_matching_job_list_whitelist(self):
-        # whitelists contain list of include patterns
-        # that are read and interpreted as usual
-        ns = Mock(name="ns")
-        ns.whitelist = [
-            mock_whitelist("foo_whitelist", "foo", "foo.whitelist")]
-        ns.include_pattern_list = []
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_foo])
-
-    def test_matching_job_list_multiple_whitelists(self):
-        ns = Mock(name="ns")
-        ns.whitelist = [
-            mock_whitelist("whitelist_a", "foo", "a.whitelist"),
-            mock_whitelist("whitelist_b", "baz", "b.whitelist"),
-        ]
-        ns.include_pattern_list = []
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar, self.job_baz])
-        self.assertEqual(observed, [self.job_foo, self.job_baz])
-
-    def test_no_prefix_matching_including(self):
-        # Include patterns should only match whole job name
-        ns = Mock(name="ns")
-        ns.whitelist = [
-            mock_whitelist("whitelist_a", "fo", "a.whitelist"),
-            mock_whitelist("whitelist_b", "ba.+", "b.whitelist"),
-        ]
-        ns.include_pattern_list = ['fo', 'ba.+']
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [self.job_foo,
-                                                        self.job_bar])
-        self.assertEqual(observed, [self.job_bar])
-
     def test_no_prefix_matching_excluding(self):
         # Exclude patterns should only match whole job name
         ns = Mock(name="ns")
-        ns.whitelist = []
         ns.include_pattern_list = ['.+']
         ns.exclude_pattern_list = ['fo', 'ba.+']
         observed = self.obj._get_matching_job_list(
@@ -160,7 +99,6 @@ class MiscTests(TestCase):
 
     def test_invalid_pattern_including(self):
         ns = Mock(name="ns")
-        ns.whitelist = []
         ns.include_pattern_list = ['\?']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(
@@ -169,7 +107,6 @@ class MiscTests(TestCase):
 
     def test_invalid_pattern_excluding(self):
         ns = Mock(name="ns")
-        ns.whitelist = []
         ns.include_pattern_list = ['fo.*']
         ns.exclude_pattern_list = ['\[bar']
         observed = self.obj._get_matching_job_list(
@@ -250,7 +187,6 @@ class TestSpecial(TestCase):
         expected = """
         usage: plainbox dev special [-h] (-j | -J | -e | -d) [--dot-resources]
                                     [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
-                                    [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -269,8 +205,6 @@ class TestSpecial(TestCase):
                                 include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN
                                 exclude jobs matching the given regular expression
-          -w WHITELIST, --whitelist WHITELIST
-                                load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -282,7 +216,6 @@ class TestSpecial(TestCase):
         expected = """
         usage: plainbox dev special [-h] (-j | -J | -e | -d) [--dot-resources]
                                     [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
-                                    [-w WHITELIST]
         plainbox dev special: error: one of the arguments -j/--list-jobs -J/--list-job-hashes -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

@@ -123,9 +123,6 @@ class PlainBoxObject:
         return self._attrs
 
 
-# NOTE: This should merge with the service object below but I didn't want
-# to do it right away as that would have to alter Service.__init__() and
-# I want to get Explorer API right first.
 class Explorer:
     """
     Class simplifying discovery of various PlainBox objects.
@@ -164,7 +161,6 @@ class Explorer:
             the explorer itself
                 - all providers
                     - all jobs
-                    - all whitelists
                     - all executables
                 - all repositories
                     - all storages
@@ -173,7 +169,7 @@ class Explorer:
             self,
             name='service object',
             group="service")
-        # Milk each provider for jobs and whitelists
+        # Milk each provider for jobs and test plans
         for provider in self.provider_list:
             provider_obj = PlainBoxObject(
                 provider,
@@ -189,7 +185,6 @@ class Explorer:
                     ('tr_description', provider.tr_description()),
                     ('jobs_dir', provider.jobs_dir),
                     ('units_dir', provider.units_dir),
-                    ('whitelists_dir', provider.whitelists_dir),
                     ('data_dir', provider.data_dir),
                     ('locale_dir', provider.locale_dir),
                     ('gettext_domain', provider.gettext_domain),

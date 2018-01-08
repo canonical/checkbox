@@ -646,9 +646,9 @@ class TestPlanUnit(UnitWithId):
                             message=_("the referenced unit is not a job")),
                         ReferenceConstraint(
                             lambda referrer, referee: (
-                                referee.plugin in ['local', 'resource']),
-                            message=_("only local and resource jobs are "
-                                      "allowed in bootstrapping_include"))])
+                                referee.plugin == 'resource'),
+                            message=_("only resource jobs are allowed "
+                                      "in bootstrapping_include"))])
             ],
             fields.exclude: [
                 NonEmptyPatternIntersectionValidator(),

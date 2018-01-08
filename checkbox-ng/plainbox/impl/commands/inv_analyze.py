@@ -56,12 +56,6 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             self.desired_job_list)
 
     def run(self):
-        if self.ns.run_local:
-            if self.ns.print_desired_job_list:
-                self._print_desired_job_list()
-            if self.ns.print_run_list:
-                self._print_run_list()
-            self._run_local_jobs()
         if self.ns.print_stats:
             self._print_general_stats()
         if self.ns.print_dependency_report:
@@ -88,46 +82,6 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         print(_("[Run List]").center(80, '='))
         for job in self.session.run_list:
             print("{}".format(job.id))
-
-    def _run_local_jobs(self):
-        print(_("[Running Local Jobs]").center(80, '='))
-        manager = SessionManager.create_with_state(self.session)
-        try:
-            manager.state.metadata.title = "plainbox dev analyze session"
-            manager.state.metadata.flags = [SessionMetaData.FLAG_INCOMPLETE]
-            manager.checkpoint()
-            runner = JobRunner(
-                manager.storage.location, self.provider_list,
-                os.path.join(manager.storage.location, 'io-logs'),
-                command_io_delegate=self)
-            again = True
-            while again:
-                for job in self.session.run_list:
-                    if job.plugin == 'local':
-                        job_state = self.session.job_state_map[job.id]
-                        if job_state.result.outcome is None:
-                            self._run_local_job(manager, runner, job, job_state)
-                            break
-                else:
-                    again = False
-            manager.state.metadata.flags = []
-            manager.checkpoint()
-        finally:
-            manager.destroy()
-
-    def _run_local_job(self, manager, runner, job, job_state):
-        print("{job}".format(job=job.id))
-        manager.state.metadata.running_job_name = job.id
-        manager.checkpoint()
-        result = runner.run_job(job, job_state, self.config)
-        self.session.update_job_result(job, result)
-        new_desired_job_list = self._get_matching_job_list(
-            self.ns, self.session.job_list)
-        new_problem_list = self.session.update_desired_job_list(
-            new_desired_job_list)
-        if new_problem_list:
-            print(_("Problem list"), new_problem_list)
-            self.problem_list.extend(new_problem_list)
 
     def _print_general_stats(self):
         print(_("[General Statistics]").center(80, '='))

@@ -120,7 +120,7 @@ The part of the provide name before the colon is used as the name-space. The
 colon is *not* a part of the name-space.
 
 The implicit name-space is used to construct non-partial job definition names
-as well as to implicitly prefix each pattern inside :term:`whitelists <whitelist>`. 
+as well as to implicitly prefix each pattern inside test plans. 
 
 Using Explicit Name-Spaces
 --------------------------
@@ -133,15 +133,15 @@ Explicit name-spaces need to be used in two situations:
    This is required as any partial ID may silently change the job it resolves
    to and we didn't want to introduce that ambiguity.
 
-2. When including a job from another name-space inside a whitelist, e.g.::
+2. When including a job from another name-space inside a test plan, e.g.::
 
-        ~/com.example.some:provider$ cat whitelists/cross.whitelist
+        ~/com.example.some:provider$ cat units/test-plan.pxu
         job-a
         job-b
         com\.example\.other::job-a
         ~com.example.some:provider$
 
-   Here the whitelist names three jobs:
+   Here the test plan names three jobs:
 
    * com.example.some::job-a
    * com.example.some::job-b

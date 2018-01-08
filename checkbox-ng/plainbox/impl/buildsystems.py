@@ -29,13 +29,6 @@ from plainbox.abc import IBuildSystem
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 
 
-# python3.2 doesn't have shlex.quote
-# so let's use the bundled copy here
-if not hasattr(shlex, 'quote'):
-    from ._shlex import quote
-    shlex.quote = quote
-
-
 class MakefileBuildSystem(IBuildSystem):
     """
     A build system for projects using classic makefiles

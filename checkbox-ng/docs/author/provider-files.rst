@@ -53,11 +53,6 @@ jobs_dir
     Absolute pathname to a directory with :term:`job definitions <job>`
     as individual ``.txt`` files using the :doc:`job file format <jobs>`.
 
-whitelists_dir
-    Absolute pathname to a directory with :term:`whitelists <whitelist>`
-    as individual ``.whitelist`` files using the
-    :doc:`whitelist format <whitelists>`.
-
 bin_dir
     Absolute pathname to a directory with additional executables required by
     any of the job definitions.
@@ -80,7 +75,6 @@ location
         Variable          Default Value
     ================  =====================
     jobs_dir          $location/jobs
-    whitelists_dir    $location/whitelists
     bin_dir           $location/bin
     data_dir          $location/data
     locale_dir        $location/locale

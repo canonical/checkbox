@@ -316,20 +316,11 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         issue_list = self.unit_cls({
             'plugin': 'foo'
         }, provider=self.provider).check()
-        message = ("field 'plugin', valid values are: attachment, local,"
+        message = ("field 'plugin', valid values are: attachment,"
                    " manual, qml, resource, shell, user-interact,"
                    " user-interact-verify, user-verify")
         self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
                               Problem.wrong, Severity.error, message)
-
-    def test_plugin__not_local(self):
-        issue_list = self.unit_cls({
-            'plugin': 'local'
-        }, provider=self.provider).check()
-        message = ("field 'plugin', please migrate to job templates, "
-                   "see plainbox-template-unit(7) for details")
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
-                              Problem.deprecated, Severity.advice, message)
 
     def test_plugin__not_user_verify(self):
         issue_list = self.unit_cls({
@@ -1184,7 +1175,6 @@ class TestJobDefinitionStartup(TestCaseWithParameters):
         ('shell',),
         ('attachment',),
         ('resource',),
-        ('local',),
         ('manual',),
         ('user-interact',),
         ('user-verify',),
@@ -1194,7 +1184,6 @@ class TestJobDefinitionStartup(TestCaseWithParameters):
         'shell': False,
         'attachment': False,
         'resource': False,
-        'local': False,
         'manual': True,
         'user-interact': True,
         'user-verify': False,

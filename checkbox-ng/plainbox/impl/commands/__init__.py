@@ -28,7 +28,7 @@ import logging
 
 from plainbox.impl.clitools import CommandBase
 from plainbox.impl.clitools import ToolBase
-from plainbox.public import get_providers
+from plainbox.impl.providers import get_providers
 
 
 logger = logging.getLogger("plainbox.commands")

@@ -13,12 +13,6 @@ file_extension: json
 data: {"template": "checkbox.json"}
 
 unit: exporter
-id: rfc822
-_summary: Generate RCF822 output
-entry_point: rfc822
-file_extension: rfc822
-
-unit: exporter
 id: text
 _summary: Generate plain text output
 entry_point: text
@@ -36,7 +30,7 @@ _summary: Generate an Excel 2007+ XLSX document
 entry_point: xlsx
 file_extension: xlsx
 options:
- with-sys-info, with-summary, with-job-description, with-text-attachments, with-unit-categories
+ with-sys-info, with-summary, with-job-description, with-text-attachments
 
 unit: exporter
 id: global

@@ -43,6 +43,7 @@ from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
 from plainbox.impl.highlevel import Explorer
+from plainbox.impl.providers import get_providers
 from plainbox.impl.providers.embedded_providers import (
     EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import MemoryJobResult
@@ -54,7 +55,6 @@ from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
-from plainbox.public import get_providers
 
 from checkbox_ng.config import CheckBoxConfig
 from checkbox_ng.launcher.stages import MainLoopStage

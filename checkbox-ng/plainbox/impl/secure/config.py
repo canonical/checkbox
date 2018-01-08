@@ -834,6 +834,28 @@ class SubsetValidator(IValidator):
             return False
 
 
+class OneOrTheOtherValidator(IValidator):
+    """
+    A validator ensuring that values only from one or the other set are used.
+    """
+    def __init__(self, a_set, b_set):
+        # the sets have to be disjoint
+        assert(not a_set & b_set)
+        self.a_set = set(a_set)
+        self.b_set = set(b_set)
+
+    def __call__(self, variable, values):
+        has_common_with_a = bool(self.a_set & set(values))
+        has_common_with_b = bool(self.b_set & set(values))
+        if has_common_with_a and has_common_with_b:
+            return _('{} can only use values from {} or from {}'.format(
+                variable.name, self.a_set, self.b_set))
+
+    def __eq__(self, other):
+        if isinstance(other, OneOrTheOtherValidator):
+            return self.a_set == other.a_set and self.b_set == other.b_set
+
+
 @understands_Unset
 class NotUnsetValidator(IValidator):
     """

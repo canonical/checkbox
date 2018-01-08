@@ -32,6 +32,7 @@ from plainbox.impl.secure.config import ConfigMetaData
 from plainbox.impl.secure.config import KindValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
+from plainbox.impl.secure.config import OneOrTheOtherValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import ParametricSection
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
@@ -565,3 +566,43 @@ class NotEmptyValidatorTests(TestCase):
         self.assertTrue(NotEmptyValidator("?") == NotEmptyValidator("?"))
         self.assertTrue(NotEmptyValidator() != NotEmptyValidator("?"))
         self.assertTrue(NotEmptyValidator() != object())
+
+
+class OneOrTheOtherValidatorTests(TestCase):
+
+    class _Config(Config):
+        var = Variable("The Name", kind=list)
+
+    def test_pass_validation(self):
+        validator = OneOrTheOtherValidator({'foo'}, {'bar'})
+        value = ['foo']
+        self.assertIsNone(validator(self._Config.var, value))
+        value = ['bar']
+        self.assertIsNone(validator(self._Config.var, value))
+
+    def test_fail_validation(self):
+        validator = OneOrTheOtherValidator({'foo'}, {'bar'})
+        value = ['foo', 'bar']
+        self.assertEquals(
+            validator(self._Config.var, value),
+            "The Name can only use values from {'foo'} or from {'bar'}")
+
+    def test_pass_empty(self):
+        validator = OneOrTheOtherValidator({'foo'}, {'bar'})
+        value = []
+        self.assertIsNone(validator(self._Config.var, value))
+
+    def test_comparison_works(self):
+        self.assertEqual(
+            OneOrTheOtherValidator({'foo'}, {'bar'}),
+            OneOrTheOtherValidator({'foo'}, {'bar'})
+        )
+        self.assertEqual(
+            OneOrTheOtherValidator({1, 2}, {3, 4}),
+            OneOrTheOtherValidator({2, 1}, {4, 3})
+        )
+        self.assertNotEqual(
+            OneOrTheOtherValidator({1}, {2}),
+            OneOrTheOtherValidator({1}, {'foo'})
+        )
+        self.assertNotEqual(OneOrTheOtherValidator({1}, {2}), object())

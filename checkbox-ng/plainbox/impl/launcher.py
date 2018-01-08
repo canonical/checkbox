@@ -109,9 +109,14 @@ class LauncherDefinition1(LauncherDefinition):
     stock_reports = config.Variable(
         section='launcher',
         kind=list,
-        validator_list=[config.SubsetValidator({
-            'text', 'certification', 'certification-staging',
-            'submission_files'})],
+        validator_list=[
+            config.SubsetValidator({
+                'text', 'certification', 'certification-staging',
+                'submission_files', 'none'}),
+            config.OneOrTheOtherValidator(
+                {'none'}, {'text', 'certification', 'certification-staging',
+                           'submission_files'}),
+            ],
         default=['text', 'certification', 'submission_files'],
         help_text=_('List of stock reports to use'))
 

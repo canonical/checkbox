@@ -197,7 +197,7 @@ class LauncherDefinition1(LauncherDefinition):
         kind=list,
         validator_list=[config.SubsetValidator({
             'text', 'certification', 'certification-staging',
-            'submission_files'})],
+            'submission_files', 'none'})],
         default=['text', 'certification', 'submission_files'],
         help_text=_('List of stock reports to use'))
 

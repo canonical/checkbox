@@ -337,7 +337,7 @@ plugin: resource
 requires: package.name == "fwts"
 _description: Generate an entry for each FWTS test available
 command:
- for test in `fwts_test --list`; do echo "name: $test"; echo ""; done
+ for test in `checkbox-support-fwts_test --list`; do echo "name: $test"; echo ""; done
 
 id: mir
 estimated_duration: 0.5

@@ -32,6 +32,7 @@ from plainbox.impl.secure.config import ConfigMetaData
 from plainbox.impl.secure.config import KindValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
+from plainbox.impl.secure.config import OneOrTheOtherValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import ParametricSection
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config

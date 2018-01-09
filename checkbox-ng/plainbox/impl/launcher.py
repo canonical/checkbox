@@ -166,7 +166,8 @@ class LauncherDefinition1(LauncherDefinition):
         section='ui',
         default='show',
         validator_list=[config.ChoiceValidator(
-            ['show', 'hide', 'hide-resource-and-attachment'])],
+            ['show', 'hide', 'hide-resource-and-attachment',
+             'hide-automated'])],
         help_text=_('Silence or restrict command output'))
 
     dont_suppress_output = config.Variable(

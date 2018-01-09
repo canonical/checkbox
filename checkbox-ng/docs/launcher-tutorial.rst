@@ -106,6 +106,9 @@ may use:
     * ``certification-staging`` - send results to staging version of
       certification site
 
+If you don't want to have any stock report automatically generated use
+``none`` as the value.
+
 This field is a list; use commas or spaces to separate stock reports. The
 default value: ``text, certification, submission_files``.
 
@@ -128,6 +131,15 @@ Launcher using all defaults with overridden secure_id:
 
     [transport:c3]
     secure_id = 001122334455667788
+
+Launcher that disables all stock reports:
+
+::
+
+    [launcher]
+    app_id = com.foobar:system-testing
+    launcher_version = 1
+    stock_reports = none
 
 Providers section
 =================

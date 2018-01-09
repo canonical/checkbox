@@ -473,7 +473,7 @@ report to standard output.
     [ui]
     type = silent
 
-    [transport:out]
+    [transport:outfile]
     type = stream
     stream = stdout
 

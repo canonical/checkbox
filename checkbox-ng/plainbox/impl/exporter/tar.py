@@ -53,6 +53,25 @@ class TARSessionStateExporter(SessionStateExporterBase):
             Byte stream to write to.
 
         """
+        html_stream = io.BytesIO()
+        options_list = [
+            SessionStateExporterBase.OPTION_WITH_COMMENTS,
+            SessionStateExporterBase.OPTION_WITH_IO_LOG,
+            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
+            SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
+            SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
+            SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP,
+            SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS
+        ]
+        exporter_unit = self._get_all_exporter_units()[
+            'com.canonical.plainbox::html']
+        html_exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
+        html_exporter.dump_from_session_manager(manager, html_stream)
+        html_tarinfo = tarfile.TarInfo(name="submission.html")
+        html_tarinfo.size = html_stream.tell()
+        html_tarinfo.mtime = time.time()
+        html_stream.seek(0)  # Need to rewind the file, puagh
+
         json_stream = io.BytesIO()
         options_list = [
             SessionStateExporterBase.OPTION_WITH_COMMENTS,
@@ -88,6 +107,7 @@ class TARSessionStateExporter(SessionStateExporterBase):
 
         job_state_map = manager.default_device_context.state.job_state_map
         with tarfile.TarFile.open(None, 'w|xz', stream) as tar:
+            tar.addfile(html_tarinfo, html_stream)
             tar.addfile(json_tarinfo, json_stream)
             tar.addfile(xlsx_tarinfo, xlsx_stream)
             for job_id in manager.default_device_context.state.job_state_map:

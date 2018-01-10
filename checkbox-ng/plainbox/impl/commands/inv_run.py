@@ -791,7 +791,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     break
                 elif inhibitor.cause != InhibitionCause.FAILED_DEP:
                     continue
-                related_job_state = self._context.state.job_state_map[
+                related_job_state = self.state.job_state_map[
                     inhibitor.related_job.id]
                 if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
                     outcome = IJobResult.OUTCOME_SKIP

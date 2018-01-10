@@ -36,8 +36,6 @@ include plainbox/impl/providers/stubbox/po/POTFILES.in
 include plainbox/impl/providers/stubbox/units/jobs/*.pxu
 include plainbox/impl/providers/stubbox/units/testplans/*.pxu
 
-include plainbox/vendor/argparse/py*-argparse.py
-
 include plainbox/qml_shell/qml_shell.qml
 
 include plainbox/data/plainbox-qml-modules/Plainbox/qmldir

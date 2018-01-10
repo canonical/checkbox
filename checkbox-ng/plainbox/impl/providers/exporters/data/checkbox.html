@@ -2,317 +2,287 @@
 {%- set state = manager.default_device_context.state -%}
 {%- set resource_map = state.resource_map -%}
 {%- set job_state_map = state.job_state_map -%}
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+{%- set category_map = state.category_map -%}
+{%- set category_outcome_map = state.category_outcome_map -%}
+{%- set resource_global_outcome = state.resource_global_outcome -%}
+{%- set attachment_global_outcome = state.attachment_global_outcome -%}
+<!DOCTYPE html>
 <html>
-<head>
-    <title>System Testing Report</title>
-    <style type="text/css">
-      body {
-        font-family: "Ubuntu Beta", "Bitstream Vera Sans", DejaVu Sans, Tahoma, sans-serif;
-        color: #333;
-        background: white;
-        font-size: 12px;
-        line-height: 14px;
-        margin: 0px;
-        padding: 0px;
-      }
-      #container {
-        background: #f7f6f5;
-        margin: 0px auto 20px;
-        padding: 0px;
-        width: 976px;
-      }
-      #container-inner {
-        background-color: #dfdcd9;
-      }
-      #container-inner {
-        border-radius: 0px 0px 5px 5px;
-        box-shadow: #bbb 0px 0px 5px;
-      }
-      #title {
-        padding: 28px 24px;
-      }
-      #content {
-        padding: 32px 240px 32px 60px;
-        margin: 0 16px 16px;
-        width: 644px;
-        background-color: #fff;
-        border-radius: 4px;
-      }
-      h1, h2, h3, h4, h5 {
-        padding: 0;
-        margin: 0;
-        font-weight: normal;
-      }
-      h1 {
-        font-size: 36px;
-        line-height: 40px;
-        color: #dd4814;
-      }
-      h2 {
-        font-size: 24px;
-        line-height: 28px;
-        margin-bottom: 8px;
-      }
-      h3 {
-        font-size: 16px;
-        line-height: 20px;
-        margin-bottom: 8px;
-      }
-      h4 {
-        font-size: 12px;
-        line-height: 14px;
-      }
-      h5 {
-        color: #333;
-        font-size: 10px;
-        line-height: 14px;
-      }
-      h1 span.grey, h2 span.grey, h1 span, h2 span{
-        color: #aea79f;
-      }
-      p {
-        font-size: 12px;
-        line-height: 14px;
-        margin-bottom: 8px;
-      }
-      a {
-        color: #333;
-        text-decoration: none;
-      }
-      a:hover {
-        color: #dd4814;
-        text-decoration: underline;
-      }
-      div#content:hover a {
-        color: #dd4814;
-        text-decoration: none;
-      }
-      div#content:hover a:hover {
-        color: #dd4814;
-        text-decoration: underline;
-      }
-      ul {
-        margin-bottom: 16px;
-      }
-      ul li {
-        margin-bottom: 8px;
-        line-height: 14px;
-      }
-      ul li:last-child {
-        margin-bottom: 0px;
-      }
-      /* Clearing floats without extra markup
-      Based on How To Clear Floats Without Structural Markup by PiE
-      [http://www.positioniseverything.net/easyclearing.html] */
-      .clearfix:after {
-        content: ".";
-        display: block;
-        height: 0;
-        clear: both;
-        visibility: hidden;
-      }
-      .clearfix {
-        border-radius: 5px 5px 5px 5px;
-        box-shadow: #bbb 0px 0px 5px;
-        display: inline-block;
-      }  /* for IE/Mac */
-      th {
-        text-align: left;
-      }
-      td {
-        margin: 0;
-        padding-bottom: 3px;
-        border-bottom: 1px dotted #aea79f;
-        font-size: 10px;
-        line-height: 14px;
-      }
-      tr.historic-run td:first-child {
-        padding-left: 2em;
-      }
-      .data {
-        display:    none;
-      }
-    </style>
-    <script type="text/javascript">
-      function showHide(what) {
-        var heading = document.getElementById(what);
-        var contents = document.getElementById(what + "-contents");
-        var headingcontents = heading.innerHTML;
-        var newcontents;
-
-        if (contents.style.display != "block") {
-          newcontents = headingcontents.replace(/[^\x00-\x80]/g, "&#9660;");
-          contents.style.display = "block";
-        } else {
-          newcontents = headingcontents.replace(/[^\x00-\x80]/g, "&#9654;");
-          contents.style.display = "none";
-        }
-
-        heading.innerHTML = newcontents;
-      }
-    </script>
-</head>
-<body>
-    <div id="container">
-        <div id="container-inner">
-            <div id="title">
-                <h1>System Testing<span class="grey"> Report</span></h1>
-            </div>
-            <div id="content" class="clearfix">
-                This report was created using {{ client_name }} {{ client_version }} on {{ timestamp }}
-            </div>
-            {%- if ns ~ "lsb" in resource_map and resource_map[ns ~ "lsb"][0] %}
-            <div id="content" class="clearfix">
+    <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <title>System Testing Report</title>
+        <style type="text/css">
+            {%- include "jquery.mobile.min.css" -%}
+        </style>
+        <style type="text/css">
+            {%- include "checkbox.css" -%}
+        </style>
+        <script type="text/javascript">
+            {%- include "jquery.min.js" -%}
+        </script>
+        <script type="text/javascript">
+            {%- include "jquery-mobile.min.js" -%}
+        </script>
+        <script type="text/javascript">
+            {{ include_file("Chart.min.js") }}
+        </script>
+        <script id="popup-outside-page-script">
+            /* Instantiate the popup on DOMReady, and enhance its contents */
+            $(function(){
+                $( "#popup-outside-page" ).enhanceWithin().popup();
+            });
+        </script>
+    </head>
+    <body>
+        <div data-url="demo-intro" data-role="page" class="jqm-demos ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active">
+                <div data-role="header" class="jqm-header">
+                    <h1>System Testing Report</h1>
+                </div><!-- /header -->
+            <div role="main" class="ui-content jqm-content">
+                {%- if ns ~ "lsb" in resource_map %}
                 <h2>Software Information</h2>
                 <p>{{ resource_map[ns ~ "lsb"][0]["description"] }}</p>
-            </div>
-            {%- endif %}
-            {%- set cert_blockers = manager.state.get_certification_status_map() %}
-            {%- if cert_blockers %}
-            <div id="content" class="clearfix">
-            <h2 id="questions">Certification Status - Blockers</h2>
-                <table style="width: 700px">
-                <thead>
-                    <tr>
-                        <th>Test ID</th>
-                        <th>Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for job_id, job_state in cert_blockers|dictsort %}
-                    <tr>
-                        <td>{{ job_state.job.tr_summary() }}</td>
-                        <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            </div>
-            {%- endif %}
-            {%- set cert_non_blockers = manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
-            {%- if cert_non_blockers %}
-            <div id="content" class="clearfix">
-            <h2 id="questions">Certification Status - Non Blockers</h2>
-                <table style="width: 700px">
-                <thead>
-                    <tr>
-                        <th>Test ID</th>
-                        <th>Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {%- for job_id, job_state in cert_non_blockers|dictsort %}
-                    <tr>
-                        <td>{{ job_state.job.tr_summary() }}</td>
-                        <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
-                    </tr>
-                {%- endfor %}
-                </tbody>
-            </table>
-            </div>
-            {%- endif %}
-            <div id="content" class="clearfix">
-            <h2 id="questions">Tests Performed</h2>
-                <table style="width: 824px">
-                <thead>
-                    <tr>
-                        <th>Test ID</th>
-                        <th>Result</th>
-                        <th>Certification status</th>
-                        <th>Run</th>
-                        <th>Comment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "attachment") %}
-                    <tr>
-                        <td>{{ job_state.job.tr_summary() }}</td>
-                        <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
-                        <td>{{ job_state.effective_certification_status }}</td>
-                        <td>{{ job_state.result_history|length }}</td>
-                        {%- if job_state.result.comments != None %}
-                        <td>{{ job_state.result.comments }}</td>
-                        {%- else %}
-                        {%- if job_state.result.io_log_as_flat_text != "" %}
-                        <td><div style="vertical-align: middle; width: 420px; overflow: auto;">
-                                <pre>{{ job_state.result.io_log_as_flat_text }}</pre>
-                            </div>
-                        </td>
-                        {%- else %}
-                        <td>&nbsp;</td>
-                        {%- endif %}
-                        {%- endif %}
-                    </tr>
-                    {%- for result in job_state.result_history[:-1] %}
-                    <tr class='historic-run'>
-                        <td>{{ job_state.job.tr_summary() }}</td>
-                        <td style='font-weight: bold; color: {{ result.outcome_meta().color_hex }}'>{{ result.outcome_meta().tr_label }}</td>
-                        <td></td>
-                        <td>{{ loop.revindex }}</td>
-                        {%- if result.comments != None %}
-                        <td>{{ result.comments }}</td>
-                        {%- else %}
-                        {%- if result.io_log_as_flat_text != "" %}
-                        <td><div style="vertical-align: middle; width: 420px; overflow: auto;">
-                                <pre>{{ result.io_log_as_flat_text }}</pre>
-                            </div>
-                        </td>
-                        {%- else %}
-                        <td>&nbsp;</td>
-                        {%- endif %}
-                        {%- endif %}
-                    </tr>
-                    {%- endfor %}
-                {%- endfor %}
-                </tbody>
-            </table>
-            </div>
-            {%- if ns ~ "requirements" in manager.state.resource_map %}
-            <div id="content" class="clearfix">
-                <h2>Requirements documents</h2>
-                <ul>
-                {%- for doc in manager.state.resource_map[ns ~ "requirements"] %}
-                    <li><a href="{{ doc["link"] }}">{{ doc["name"] }}</a></li>
-                {%- endfor %}
-                </ul>
-            </div>
-            {%- endif %}
-            <div id="content" class="clearfix">
-                <h2>Log Files and Environment Information</h2>
-                <div id="packages-contents">
-                    {%- if ns ~ "package" in resource_map %}
-                    <span onClick="showHide('package');"><h3><span id="package" style="color: #dd4814;">&#9654;</span>
-                        packages installed</h3></span>
-                    <div class="data" id="package-contents" style="overflow: auto;">
-                        <table>
+                {%- endif %}
+                <h2>Tests Results</h2>
+                    {%- if manager.test_plans %}
+                    <p>Test plan: {{ manager.test_plans[0] }}</p>
+                    {%- endif %}
+                    <table><tbody><tr>
+                    <td><canvas id="chart-area" width="140" height="140" />
+                    <td id="legendDiv" class="ui-content jqm-content" style="padding:1em"></td>
+                    </tr></tbody></table>
+                    <script>
+                        var pieData = [
+                            {%- for outcome, total in state.get_outcome_stats()|dictsort %}
+                            {
+                                value: {{ total }},
+                                color: "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",
+                                label: "{{ OUTCOME_METADATA_MAP[outcome].tr_label }}"
+                            },
+                            {%- endfor %}
+                        ];
+
+                        var pieOptions = {
+                            {% raw %}
+                            legendTemplate : 
+                                '<table data-role="table" id="table0" class="ui-body-d ui-responsive">'
+                                +'<tbody>'
+                                +"<% for (var i=0; i<segments.length; i++){%>"
+                                +"<tr><td><%=segments[i].value%></td>"
+                                +"<td style=\"font-weight: bold; color:<%=segments[i].fillColor%>\">"
+                                +"<%if(segments[i].label){%><%=segments[i].label%><%}%></td></tr><%}%>"
+                                +"</tbody>"
+                                +"</table>"
+                            {% endraw %}
+                        }
+
+                        window.onload = function(){
+                            var ctx = document.getElementById("chart-area").getContext("2d");
+                            window.myPie = new Chart(ctx).Pie(pieData, pieOptions);
+                            document.getElementById("legendDiv").innerHTML = window.myPie.generateLegend();
+                        };
+                        $(function(){
+                            $('#expanseAll').on('click', function() {
+                                $( ".openMe" ).collapsible( "expand" );
+                            });
+                            $('#collapseAll').on('click', function() {
+                                $( ".openMe" ).collapsible( "collapse" );
+                            });
+                        });
+                    </script>
+                    <fieldset class="ui-grid-a">
+                        <div class="ui-block-a">
+                            <input id="expanseAll" data-mini="true" data-inline="true" value="Expand All" type="button">
+                            <input id="collapseAll" data-mini="true" data-inline="true" value="Collapse All" type="button">
+                        </div>
+                        <div class="ui-block-b"><input id="filterTable-input1" data-type="search"></div>
+                    </fieldset>
+                    {%- for cat_id, cat_name in category_map|dictsort(false, 'value') %}
+                    {% set mainloop = loop %}
+                    <div data-role="collapsible" data-filter="true" data-input="#filterTable-input1" class="openMe" style="margin: 0;" data-content-theme="false">
+                    <h3>{{ cat_name }}<span class="ui-li-count {{ OUTCOME_METADATA_MAP[category_outcome_map[cat_id]].tr_label }}Count">{{ OUTCOME_METADATA_MAP[category_outcome_map[cat_id]].tr_label }}</span></h3>
+                        <table data-role="table" id="{{ cat_id }}" data-filter="true" data-input="#filterTable-input1" class="ui-body-d ui-shadow table-stroke ui-responsive">
                             <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Version</th>
+                                <tr class="ui-bar-d">
                                 </tr>
                             </thead>
                             <tbody>
-                            {%- for package in resource_map[ns ~ "package"] %}
+                            {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
                                 <tr>
-                                    <td>{{ package["name"] }}</td>
-                                    <td>{{ package["version"] }}</td>
+                                    <td data-filtertext="{{ job_state.job.partial_id }}" style='width:35%'>{{ job_state.job.partial_id }}</td>
+                                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    {%- if job_state.result.io_log_as_flat_text != "" %}
+                                    <td style='width:10%'><a href="#{{ mainloop.index }}-{{ loop.index }}-log">I/O log</a></td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
                                 </tr>
+                            {%- endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {%- endfor %}
+                    {%- if resource_map %}
+                    <div data-role="collapsible" data-filter="true" data-input="#filterTable-input1" class="openMe" data-content-theme="false">
+                    <h3>Resources<span class="ui-li-count {{ OUTCOME_METADATA_MAP[resource_global_outcome].tr_label }}Count">{{ OUTCOME_METADATA_MAP[resource_global_outcome].tr_label }}</span></h3>
+                        <table data-role="table" id="resource" data-filter="true" data-input="#filterTable-input1" class="ui-body-d ui-shadow table-stroke ui-responsive">
+                            <thead>
+                                <tr class="ui-bar-d">
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "resource" %}
+                                {%- if job_state.job.partial_id == "package" %}
+                                <tr>
+                                    <td data-filtertext="{{ job_state.job.partial_id }}" style='width:35%'>{{ job_state.job.partial_id }}</td>
+                                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    {%- if job_state.result.io_log_as_flat_text != "" %}
+                                    <td style='width:10%'><a href="#package-log">View</a></td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                                </tr>
+                                {%- else %}
+                                <tr>
+                                    <td data-filtertext="{{ job_state.job.partial_id }}" style='width:35%'>{{ job_state.job.partial_id }}</td>
+                                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    {%- if job_state.result.io_log_as_flat_text != "" %}
+                                    <td style='width:10%'><a href="#resource-{{ loop.index }}-log">I/O log</a></td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                                </tr>
+                                {%- endif %}
                             {%- endfor %}
                             </tbody>
                         </table>
                     </div>
                     {%- endif %}
                     {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
-                    <span onClick="showHide('att{{ loop.index }}');"><h3><span id="att{{ loop.index }}" style="color: #dd4814;">&#9654;</span>
-                        {{ job_state.job.partial_id|replace("_attachment", "") }}</h3></span>
-                    <div class="data" id="att{{ loop.index }}-contents" style="overflow: auto;">
-                        <pre>{{ job_state.result.io_log_as_text_attachment }}</pre>
+                    {%- if loop.first %}
+                    <div data-role="collapsible" data-filter="true" data-input="#filterTable-input1" class="openMe" data-content-theme="false">
+                    <h3>Attachments<span class="ui-li-count {{ OUTCOME_METADATA_MAP[attachment_global_outcome].tr_label }}Count">{{ OUTCOME_METADATA_MAP[attachment_global_outcome].tr_label }}</span></h3>
+                        <table data-role="table" id="resource" data-filter="true" data-input="#filterTable-input1" class="ui-body-d ui-shadow table-stroke ui-responsive">
+                            <thead>
+                                <tr class="ui-bar-d">
+                                </tr>
+                            </thead>
+                            <tbody>
+                    {%- endif %}
+                                <tr>
+                                    <td data-filtertext="{{ job_state.job.partial_id }}" style='width:35%'>{{ job_state.job.partial_id }}</td>
+                                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    {%- if job_state.result.io_log_as_text_attachment != "" %}
+                                    <td style='width:10%'><a href="#attachment-{{ loop.index }}-log">View</a></td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                                </tr>
+                    {%- if loop.last %}
+                            </tbody>
+                        </table>
                     </div>
+                    {%- endif %}
                     {%- endfor %}
-                </div>
+            </div><!-- /content -->
+            <div data-role="footer" data-position="fixed" data-tap-toggle="false" class="jqm-footer">
+                <p>This report was created using Checkbox {{ client_version }} on {{ timestamp }}</p>
+                <p>Copyright {{timestamp.split("-")[0]}} Canonical Ltd.</p>
+            </div><!-- /footer -->
+        </div><!-- /page -->
+        {%- if ns ~ "package" in resource_map %}
+        <div class="jqm-demos ui-page" tabindex="0" data-url="package" id="package-log" data-role="page">
+            <div data-role="header" class="jqm-header">
+                <h1>Debian Packages</h1>
+            </div>
+            <div role="main" class="ui-content">
+                <form>
+                    <input id="filterTable-input2" data-type="search">
+                </form>
+                <table data-role="table" id="table2" data-filter="true" data-input="#filterTable-input2" class="ui-body-d ui-shadow table-stripe ui-responsive">
+                    <thead>
+                        <tr class="ui-bar-d">
+                            <th>Name</th>
+                            <th>Version</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {%- for package in resource_map[ns ~ "package"] %}
+                        <tr>
+                            <td>{{ package["name"] }}</td>
+                            <td>{{ package["version"] }}</td>
+                        </tr>
+                    {%- endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
+        {%- endif %}
+    {%- for cat_id, cat_name in category_map|dictsort(false, 'value') %}
+        {% set mainloop = loop %}
+        {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
+        {%- if job_state.result.io_log_as_flat_text != "" %}
+        <div class="jqm-demos ui-page" tabindex="0" data-url="{{ mainloop.index }}-{{ loop.index }}" id="{{ mainloop.index }}-{{ loop.index }}-log" data-role="page">
+            <div data-role="header" class="jqm-header">
+                <h1>{{ job_state.job.tr_summary() }}</h1>
+            </div>
+            <div role="main" class="ui-content">
+                <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ job_state.result.io_log_as_flat_text }}</pre>
+            </div>
+        </div>
+        {%- endif %}
+        {%- endfor %}
+    {%- endfor %}
+    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "resource" %}
+    {%- if job_state.result.io_log_as_flat_text != "" and job_state.job.partial_id != "package" %}
+    <div class="jqm-demos ui-page" tabindex="0" data-url="resource-{{ loop.index }}" id="resource-{{ loop.index }}-log" data-role="page">
+        <div data-role="header" class="jqm-header">
+            <h1>{{ job_state.job.tr_summary() }}</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ job_state.result.io_log_as_flat_text }}</pre>
+        </div>
     </div>
-</body>
+    {%- endif %}
+    {%- endfor %}
+    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
+    {%- if job_state.result.io_log_as_text_attachment != "" %}
+    <div class="jqm-demos ui-page" tabindex="0" data-url="attachment-{{ loop.index }}" id="attachment-{{ loop.index }}-log" data-role="page">
+        <div data-role="header" class="jqm-header">
+            <h1>{{ job_state.job.tr_summary() }}</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ job_state.result.io_log_as_text_attachment }}</pre>
+        </div>
+    </div>
+    {%- endif %}
+    {%- endfor %}
+    </body>
 </html>
+

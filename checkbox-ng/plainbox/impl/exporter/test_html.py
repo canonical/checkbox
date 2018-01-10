@@ -32,6 +32,7 @@ from plainbox.abc import IJobResult
 from plainbox.testing_utils import resource_string
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.providers import get_providers
+from plainbox.impl.providers.special import get_categories
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import SessionManager
@@ -56,6 +57,10 @@ class HTMLExporterTests(TestCase):
         self.job1 = JobDefinition({'id': 'job_id1', '_summary': 'job 1'})
         self.job2 = JobDefinition({'id': 'job_id2', '_summary': 'job 2'})
         self.job3 = JobDefinition({'id': 'job_id3', '_summary': 'job 3'})
+        self.res1 = JobDefinition({'id': 'lsb', 'plugin': 'resource',
+                                   '_summary': 'lsb'})
+        self.res2 = JobDefinition({'id': 'package', 'plugin': 'resource',
+                                   '_summary': 'package'})
         self.result_fail = MemoryJobResult({
             'outcome': IJobResult.OUTCOME_FAIL, 'return_code': 1,
             'io_log': [(0, 'stderr', b'FATAL ERROR\n')],
@@ -77,6 +82,22 @@ class HTMLExporterTests(TestCase):
             'io_log': [(0, 'stdout', b'bar\n')],
             'return_code': 0
         })
+        self.res1_result = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
+            'io_log': [(0, 'stdout', b'description: Ubuntu 14.04 LTS\n')],
+            'return_code': 0
+        })
+        self.res2_result = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
+            'io_log': [
+                (0, 'stdout', b"name: plainbox\n"),
+                (1, 'stdout', b"version: 1.0\n"),
+                (2, 'stdout', b"\n"),
+                (3, 'stdout', b"name: fwts\n"),
+                (4, 'stdout', b"version: 0.15.2\n"),
+            ],
+            'return_code': 0
+        })
         self.session_manager = SessionManager.create()
         self.session_manager.add_local_device_context()
         self.session_state = self.session_manager.default_device_context.state
@@ -84,10 +105,16 @@ class HTMLExporterTests(TestCase):
         session_state.add_unit(self.job1)
         session_state.add_unit(self.job2)
         session_state.add_unit(self.job3)
+        session_state.add_unit(self.res1)
+        session_state.add_unit(self.res2)
         session_state.add_unit(self.attachment)
+        for unit in get_categories().unit_list:
+            session_state.add_unit(unit)
         session_state.update_job_result(self.job1, self.result_fail)
         session_state.update_job_result(self.job2, self.result_pass)
         session_state.update_job_result(self.job3, self.result_skip)
+        session_state.update_job_result(self.res1, self.res1_result)
+        session_state.update_job_result(self.res2, self.res2_result)
         session_state.update_job_result(
             self.attachment, self.attachment_result)
         for resource_id, resource_list in self.resource_map.items():

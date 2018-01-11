@@ -1297,6 +1297,109 @@ class SessionState:
             stats[job_state.result.outcome] += 1
         return stats
 
+    @property
+    def category_map(self):
+        """Map from category id to their corresponding translated names."""
+        wanted_category_ids = frozenset({
+                job_state.effective_category_id
+                for job_state in self.job_state_map.values()
+                if job_state.result.outcome != None and
+                job_state.job.plugin not in ("resource", "attachment")
+            })
+        return {
+            unit.id: unit.tr_name()
+            for unit in self.unit_list
+            if unit.Meta.name == 'category'
+            and unit.id in wanted_category_ids
+        }
+
+    @property
+    def category_outcome_map(self):
+        """Map from category id to their corresponding global outcome."""
+        wanted_category_ids = frozenset({
+                job_state.effective_category_id
+                for job_state in self.job_state_map.values()
+                if job_state.result.outcome != None
+            })
+        tmp_result_map = {}
+        for job_state in self.job_state_map.values():
+            category = job_state.effective_category_id
+            if category not in wanted_category_ids:
+                continue
+            # Generate categories status
+            child_status = job_state.result.outcome
+            if category not in tmp_result_map:
+                tmp_result_map[category] = IJobResult.OUTCOME_SKIP
+            if child_status in (
+                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH
+            ):
+                tmp_result_map[category] = IJobResult.OUTCOME_FAIL
+            elif (
+                child_status == IJobResult.OUTCOME_PASS and
+                tmp_result_map[category] != IJobResult.OUTCOME_FAIL
+            ):
+                tmp_result_map[category] = IJobResult.OUTCOME_PASS
+            elif (
+                tmp_result_map[category] not in
+                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
+            ):
+                tmp_result_map[category] = IJobResult.OUTCOME_SKIP
+        return tmp_result_map
+
+    @property
+    def resource_global_outcome(self):
+        global_outcome = IJobResult.OUTCOME_SKIP
+        for job_state in self.job_state_map.values():
+            if (
+                job_state.job.plugin != "resource" or
+                not job_state.result.outcome
+            ):
+                continue
+            # Generate categories status
+            child_status = job_state.result.outcome
+            if child_status in (
+                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH
+            ):
+                global_outcome = IJobResult.OUTCOME_FAIL
+            elif (
+                child_status == IJobResult.OUTCOME_PASS and
+                global_outcome != IJobResult.OUTCOME_FAIL
+            ):
+                global_outcome = IJobResult.OUTCOME_PASS
+            elif (
+                global_outcome not in
+                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
+            ):
+                global_outcome = IJobResult.OUTCOME_SKIP
+        return global_outcome
+
+    @property
+    def attachment_global_outcome(self):
+        global_outcome = IJobResult.OUTCOME_SKIP
+        for job_state in self.job_state_map.values():
+            if (
+                job_state.job.plugin != "attachment" or
+                not job_state.result.outcome
+            ):
+                continue
+            # Generate categories status
+            child_status = job_state.result.outcome
+            if child_status in (
+                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH
+            ):
+                global_outcome = IJobResult.OUTCOME_FAIL
+            elif (
+                child_status == IJobResult.OUTCOME_PASS and
+                global_outcome != IJobResult.OUTCOME_FAIL
+            ):
+                global_outcome = IJobResult.OUTCOME_PASS
+            elif (
+                global_outcome not in
+                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
+            ):
+                global_outcome = IJobResult.OUTCOME_SKIP
+        return global_outcome
+
     def get_certification_status_map(
             self, outcome_filter=(IJobResult.OUTCOME_FAIL,),
             certification_status_filter=('blocker',)

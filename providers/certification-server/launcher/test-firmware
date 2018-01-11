@@ -1,0 +1,19 @@
+#!/usr/bin/env checkbox-cli
+
+[launcher]
+app_id = com.canonical.certification:certification-server
+launcher_version = 1
+stock_reports = submission_files, certification
+
+[test plan]
+unit = com.canonical.certification::firmware-tests
+forced = yes
+
+[test selection]
+forced = yes
+
+[ui]
+output = hide-resource-and-attachment
+
+[config]
+config_filename = canonical-certification.conf

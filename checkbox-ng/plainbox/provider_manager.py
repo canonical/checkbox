@@ -44,7 +44,7 @@ from plainbox.i18n import ngettext
 from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.logging import setup_logging
+from plainbox.impl.logging import setup_logging, LoggingHelper
 from plainbox.impl.providers.special import get_categories
 from plainbox.impl.providers.special import get_manifest
 from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
@@ -1478,7 +1478,9 @@ def setup(**kwargs):
         gettext_domain:
             gettext translation domain for job definition strings, optional
     """
-    setup_logging()
+    config = LoggingHelper().DEFAULT_CONFIG.copy()
+    config['silence_eperm_on_logdir_warning'] = True
+    setup_logging(config)
     manage_py = inspect.stack()[1][0].f_globals['__file__']
     location = os.path.dirname(os.path.abspath(manage_py))
     definition = Provider1Definition()

@@ -84,20 +84,23 @@ class LoggingHelper:
     Helper class that manages logging subsystem
     """
 
-    def setup_logging(self):
-        config_dict = self.DEFAULT_CONFIG
+    def setup_logging(self, config_dict = dict()):
         # Ensure that the logging directory exists. This is important
         # because we're about to open some files there. If it can't be created
         # we fall back to a console-only config.
+        if not config_dict:
+            config_dict = self.DEFAULT_CONFIG
         if not os.path.exists(self.log_dir):
             # It seems that exists_ok is flaky
             try:
                 os.makedirs(self.log_dir, exist_ok=True)
             except OSError as error:
-                logger.warning(
-                    _("Unable to create log directory: %s"), self.log_dir)
-                logger.warning(_("Reason: %s. All logs will go to "
-                                 "console instead."), error)
+                if not config_dict.get(
+                        'silence_eperm_on_logdir_warning', False):
+                    logger.warning(
+                        _("Unable to create log directory: %s"), self.log_dir)
+                    logger.warning(_("Reason: %s. All logs will go to "
+                                    "console instead."), error)
                 config_dict = self.DEFAULT_CONSOLE_ONLY_CONFIG
         # Apply the selected configuration. This overrides anything currently
         # defined for all of the logging subsystem in this python runtime
@@ -403,6 +406,7 @@ class LoggingHelper:
             },
             "incremental": False,
             "disable_existing_loggers": True,
+            "silence_eperm_on_logdir_warning": False,
         }
 
     @property

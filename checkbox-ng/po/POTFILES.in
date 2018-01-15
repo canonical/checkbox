@@ -1,7 +1,6 @@
 [encoding: UTF-8]
 ./docs/conf.py
 ./plainbox/__init__.py
-./plainbox/__main__.py
 ./plainbox/abc.py
 ./plainbox/i18n.py
 ./plainbox/impl/__init__.py
@@ -61,10 +60,8 @@
 ./plainbox/impl/depmgr.py
 ./plainbox/impl/device.py
 ./plainbox/impl/exporter/__init__.py
-./plainbox/impl/exporter/rfc822.py
 ./plainbox/impl/exporter/test_html.py
 ./plainbox/impl/exporter/test_init.py
-./plainbox/impl/exporter/test_rfc822.py
 ./plainbox/impl/exporter/test_text.py
 ./plainbox/impl/exporter/text.py
 ./plainbox/impl/exporter/xlsx.py
@@ -152,12 +149,10 @@
 ./plainbox/impl/validation.py
 ./plainbox/impl/xparsers.py
 ./plainbox/provider_manager.py
-./plainbox/public.py
 ./plainbox/qml_shell/qml_shell.py
 ./plainbox/test_abc.py
 ./plainbox/test_i18n.py
 ./plainbox/test_provider_manager.py
-./plainbox/test_public.py
 ./plainbox/testing_utils/__init__.py
 ./plainbox/testing_utils/cwd.py
 ./plainbox/testing_utils/io.py
@@ -168,23 +163,9 @@
 ./plainbox/testing_utils/testcases.py
 ./plainbox/tests.py
 ./plainbox/vendor/__init__.py
-./plainbox/vendor/argparse/py32-argparse.py
-./plainbox/vendor/argparse/py33-argparse.py
-./plainbox/vendor/argparse/py34-argparse.py
 ./plainbox/vendor/extcmd/__init__.py
 ./plainbox/vendor/extcmd/test.py
-./plainbox/vendor/funcsigs/__init__.py
-./plainbox/vendor/glibc.py
 ./plainbox/vendor/mock.py
-./plainbox/vendor/phablet.py
-./plainbox/vendor/pyglibc/__init__.py
-./plainbox/vendor/pyglibc/_abc.py
-./plainbox/vendor/pyglibc/_pipe.py
-./plainbox/vendor/pyglibc/_pthread_sigmask.py
-./plainbox/vendor/pyglibc/_signalfd.py
-./plainbox/vendor/pyglibc/_subreaper.py
-./plainbox/vendor/pyglibc/select.py
-./plainbox/vendor/pyglibc/selectors.py
 ./plainbox/vendor/sphinxarg/__init__.py
 ./plainbox/vendor/sphinxarg/ext.py
 ./plainbox/vendor/sphinxarg/parser.py

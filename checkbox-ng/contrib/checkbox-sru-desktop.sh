@@ -1,21 +1,22 @@
 #!/bin/bash
 
 function run_test {
-    log_file="/var/log/checkbox-`date +%y%m%d-%H%M%S`.log"
-    checkbox-cli /usr/bin/checkbox-sru-launcher > $log_file 2>&1
-    # The log in temp dir could be a status flag used for CI
-    cp $log_file /tmp/checkbox-desktop-sru.log
+    log_file="$HOME/checkbox-`date +%y%m%d-%H%M%S`.log"
+    log_file_tmp="/tmp/checkbox-sru-desktop.log"
+    checkbox-cli /usr/bin/checkbox-sru-launcher > $log_file_tmp 2>&1
+    # Lets reserve the log so we could use it to review our tests
+    cp $log_file_tmp $log_file
 }
 
 
 if [ `pidof systemd` ]; then
     # trigger the action if the init process is systemd-based
-    systemctl start checkbox-ci-installed-notifier.service
+    sudo systemctl start checkbox-ci-installed-notifier.service
     run_test
-    systemctl start checkbox-ci-mailer.service
+    sudo systemctl start checkbox-ci-mailer.service
 else
     # trigger the action if the init process is upstart-based (ealier Ubuntu)
-    initctl emit checkbox-sru-started
+    sudo initctl emit checkbox-sru-started
     run_test
-    initctl emit checkbox-sru-finished
+    sudo initctl emit checkbox-sru-finished
 fi

@@ -28,3 +28,21 @@ include:
     suspend/led_after_suspend/caps-lock
     suspend/led_after_suspend/power
     suspend/led_after_suspend/touchpad
+
+id: led-full
+unit: test plan
+_name: Led tests
+_description: QA LED tests for IoT devices
+include:
+nested_part:
+    led-manual
+
+id: led-manual
+unit: test plan
+_name: Manual LED tests
+_description: Manual LED tests for IoT devices
+include:
+    led/power
+    led/power-blink-suspend
+    led/bluetooth
+    led/serial

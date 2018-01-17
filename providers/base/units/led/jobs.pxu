@@ -247,3 +247,17 @@ _description:
      determine if it either turned off and on or changed colors.
  VERIFICATION:
      Did the Microphone Mute LED turn on and off or change color as expected?
+
+id: led/serial
+_summary: Serial ports LED behavior
+_purpose:
+ Check serial ports LED behavior is correct
+_steps:
+ 1. Start the test to send data to all serial ports (/dev/ttyS*)
+_verification:
+ All serial ports LED are on for a few seconds (3-4s)
+plugin: user-interact-verify
+command: echo {0..1024} | tee /dev/ttyS{0..100} &> /dev/null
+user: root
+category_id: led
+estimated_duration: 15

@@ -117,6 +117,16 @@ def write_checkbox_conf(configuration):
         config.write(stream)
 
 
+def print_checkbox_conf():
+    """Print the current checkbox.conf in $SNAP_DATA."""
+    checkbox_conf_path = os.path.expandvars("$SNAP_DATA/checkbox.conf")
+    config = configparser.ConfigParser()
+    config.optionxform = str
+    config.read(checkbox_conf_path)
+    for key in config['environment']:
+        print('{}={}'.format(key, config['environment'][key]))
+
+
 def refresh_configuration():
     """
     Read config_vars, write the ones missing in snapd

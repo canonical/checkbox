@@ -3,7 +3,7 @@
 [launcher]
 app_id = com.canonical.certification:certification-server
 launcher_version = 1
-stock_reports = text, submission_files, certification
+stock_reports = submission_files, certification
 
 [test plan]
 unit = com.canonical.certification::virtualization-only

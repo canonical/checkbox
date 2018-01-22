@@ -124,7 +124,7 @@ class ExporterUnit(UnitWithId):
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda entry_point: pkg_resources.load_entry_point(
-                        'plainbox', 'plainbox.exporter', entry_point),
+                        'checkbox-ng', 'plainbox.exporter', entry_point),
                     Problem.wrong, Severity.error),
             ],
             fields.file_extension: [
@@ -209,4 +209,4 @@ class ExporterUnitSupport():
     def _get_exporter_cls(self, exporter):
         """Return the exporter class."""
         return pkg_resources.load_entry_point(
-            'plainbox', 'plainbox.exporter', exporter.entry_point)
+            'checkbox-ng', 'plainbox.exporter', exporter.entry_point)

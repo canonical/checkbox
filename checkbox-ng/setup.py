@@ -52,7 +52,7 @@ if not on_rtd:
 
 setup(
     name="checkbox-ng",
-    version="0.36.0.dev0",
+    version="1.0.0.dev0",
     url="https://launchpad.net/checkbox-ng/",
     packages=find_packages(),
     author="Zygmunt Krynicki",

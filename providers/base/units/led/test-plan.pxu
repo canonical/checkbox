@@ -31,7 +31,7 @@ include:
 
 id: led-full
 unit: test plan
-_name: Led tests
+_name: LED tests
 _description: QA LED tests for IoT devices
 include:
 nested_part:

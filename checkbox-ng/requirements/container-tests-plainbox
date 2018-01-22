@@ -1,4 +1,0 @@
-#!/bin/sh -e
-python3 setup.py test
-python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /'
-plainbox self-test --unit-tests

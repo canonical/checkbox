@@ -30,7 +30,7 @@ SYNOPSIS
     test-network-16.04
     test-network-14.04
     test-storage
-    test-virtualziation
+    test-virtualization
     test-firmware
     test-usb
 

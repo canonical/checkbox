@@ -1,0 +1,9 @@
+id: stub/win32
+_summary: A windows specific job
+_description:
+ Check success result from win32 shell
+plugin: shell
+flags: preserve-locale win32
+command: echo "Windows!"
+estimated_duration: 0.1
+category_id: plugin-representative

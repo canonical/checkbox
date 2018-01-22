@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2015 Canonical Ltd.
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+""" Tool for printing a resource from the current manifest. """
+
+import argparse
+import gettext
+import json
+import os
+
+from plainbox.impl.providers.v1 import all_providers
+
+_ = gettext.gettext
+
+
+def main():
+    """ Main function. """
+    gettext.textdomain('plainbox-provider-manifest')
+    gettext.bindtextdomain('plainbox-provider-manifest',
+                           os.getenv('PLAINBOX_PROVIDER_LOCALE_DIR'))
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-m', '--manifest', metavar='PATH',
+        default=os.path.expanduser(
+            '~/.local/share/plainbox/machine-manifest.json'),
+        help=_('Path to alternate machine manifest'))
+    args = parser.parse_args()
+    if os.path.isfile(args.manifest):
+        with open(args.manifest, 'rt', encoding='UTF-8') as stream:
+            manifest = json.load(stream)
+    else:
+        manifest = {}
+    all_providers.load()
+    provider_list = all_providers.get_all_plugin_objects()
+    for provider in provider_list:
+        print("ns: {}".format(provider.namespace))
+        for unit in provider.unit_list:
+            if unit.Meta.name != 'manifest entry':
+                continue
+            print("{}: {}".format(
+                unit.resource_key, manifest.get(unit.id, '')))
+        print()
+
+
+if __name__ == '__main__':
+    main()

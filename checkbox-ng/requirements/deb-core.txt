@@ -1,1 +1,6 @@
+policykit-1
 python3-guacamole
+python3-jinja2
+python3-padme
+python3-xlsxwriter
+

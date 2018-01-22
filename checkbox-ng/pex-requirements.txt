@@ -1,0 +1,4 @@
+.
+Jinja2 >= 2.7
+XlsxWriter >= 0.3
+guacamole >= 0.9

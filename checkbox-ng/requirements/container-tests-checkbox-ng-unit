@@ -1,14 +1,3 @@
 #!/bin/bash
 
-function finish {
-  rm -rf ./plainbox
-}
-trap finish EXIT
-
-set -e
-
-git clone git://git.launchpad.net/plainbox
-echo "I: running 'develop' on plainbox"
-( cd ./plainbox/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
-
 python3 setup.py test

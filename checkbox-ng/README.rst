@@ -1,14 +1,22 @@
-CheckBoxNG
-==========
+Checkbox-ng
+===========
 
-:term:`CheckBoxNG` is a hardware testing tool useful for certifying laptops,
-desktops and servers with Ubuntu. It is a new version of :term:`CheckBox` that
-is built directly on top of :term:`PlainBox`
-
-CheckBoxNG *replaces* CheckBox, where applicable. 
+:term:`Checkbox-ng` is a hardware testing tool useful for certifying laptops,
+desktops, servers and IOT devices with Ubuntu.
 
 Installation
 ============
 
-CheckBoxNG is pre-installed on Ubuntu 14.04. It is also available in Debian (as
-checkbox-ng) Testing.
+$ sudo add-apt-repository ppa:checkbox-dev/ppa
+$ sudo apt-get update
+$ sudo apt-get install checkbox-ng
+
+Documentation
+=============
+
+* `Using Checkbox <http://checkbox.readthedocs.io/en/latest/>`_
+
+Known Issues
+============
+
+https://bugs.launchpad.net/checkbox-project

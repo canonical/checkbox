@@ -1,1 +1,15 @@
 usr/bin/canonical-certification-server
+usr/bin/certify-16.04
+usr/bin/certify-soc-16.04
+usr/bin/certify-vm-16.04
+usr/bin/test-functional-14.04
+usr/bin/test-network-14.04
+usr/bin/test-storage
+usr/bin/test-virtualziation
+usr/bin/certify-14.04
+usr/bin/certify-soc-14.04
+usr/bin/certify-vm-14.04
+usr/bin/test-firmware
+usr/bin/test-functional-16.04
+usr/bin/test-network-16.04
+usr/bin/test-usb

@@ -2,3 +2,18 @@
 canonical-certification-server: new-package-should-close-itp-bug
 # Those are the desired (custom) interpreters
 canonical-certification-server: unusual-interpreter usr/bin/canonical-certification-server #!checkbox-launcher
+canonical-certification-server: unusual-interpreter usr/bin/canonical-certification-server #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/certify-14.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/certify-16.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/certify-soc-14.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/certify-soc-16.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/certify-vm-14.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/certify-vm-16.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-firmware #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-functional-14.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-functional-16.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-network-14.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-network-16.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-storage #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-usb #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-virtualziation #!checkbox-cli

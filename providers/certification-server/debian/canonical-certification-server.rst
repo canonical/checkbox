@@ -27,8 +27,8 @@ SYNOPSIS
     test-functional-14.04
 
   Retest commands for running retests on a specific subsystem:
-    test-network-14.04
     test-network-16.04
+    test-network-14.04
     test-storage
     test-virtualziation
     test-firmware

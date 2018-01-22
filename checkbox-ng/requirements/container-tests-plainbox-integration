@@ -1,4 +1,0 @@
-#!/bin/sh
-# Run plainbox integration test suite (that tests checkbox scripts)
-plainbox self-test --verbose --fail-fast --integration-tests
-

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-# Copyright 2017 Canonical Ltd.
+# Copyright 2017-2018 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
+#   Taihsiang Ho <taihsiang.ho@canonical.com>
 #
 # wireless connection tests using nmcli
 
@@ -12,6 +13,8 @@ import argparse
 import functools
 import subprocess as sp
 import sys
+
+from distutils.version import LooseVersion
 
 
 print = functools.partial(print, flush=True)
@@ -25,6 +28,17 @@ def print_cmd(cmd):
     print("+", cmd)
 
 
+def legacy_nmcli():
+    cmd = "nmcli -v"
+    output = sp.check_output(cmd, shell=True)
+    version = LooseVersion(output.strip().split()[-1].decode())
+    # check if using an earlier nmcli version with different api
+    # nmcli in trusty is 0.9.8.8
+    if version < LooseVersion("0.9.9"):
+        return True
+    return False
+
+
 def cleanup_nm_connections():
     print_head("Cleaning up NM connections")
     cmd = "nmcli -t -f TYPE,UUID,NAME c"
@@ -34,7 +48,10 @@ def cleanup_nm_connections():
         type, uuid, name = line.strip().split(':')
         if type == '802-11-wireless':
             print("Deleting connection", name)
-            cmd = "nmcli c delete {}".format(uuid)
+            if legacy_nmcli():
+                cmd = "nmcli c delete uuid {}".format(uuid)
+            else:
+                cmd = "nmcli c delete {}".format(uuid)
             print_cmd(cmd)
             sp.call(cmd, shell=True)
     print()
@@ -51,17 +68,26 @@ def device_rescan():
 def list_aps(args):
     print_head("List APs")
     count = 0
-    cmd = "nmcli -t -f SSID,CHAN,FREQ,SIGNAL d wifi list ifname {}".format(
-        args.device)
+    if legacy_nmcli():
+        fields = "SSID,FREQ,SIGNAL"
+        cmd = "nmcli -t -f {} d wifi list iface {}".format(fields, args.device)
+    else:
+        fields = "SSID,CHAN,FREQ,SIGNAL"
+        cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, args.device)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
         # lp bug #1723372 - extra line in output on zesty
         if line.strip() == args.device:
             continue
-        ssid, channel, frequency, signal = line.strip().split(':')
-        print("SSID: {} Chan: {} Freq: {} Signal: {}".format(
-            ssid, channel, frequency, signal))
+        if legacy_nmcli():
+            ssid, frequency, signal = line.strip().split(':')
+            print("SSID: {} Freq: {} Signal: {}".format(
+                ssid, frequency, signal))
+        else:
+            ssid, channel, frequency, signal = line.strip().split(':')
+            print("SSID: {} Chan: {} Freq: {} Signal: {}".format(
+                ssid, channel, frequency, signal))
         if hasattr(args, 'essid'):
             if ssid == args.essid:
                 count += 1
@@ -73,11 +99,19 @@ def list_aps(args):
 
 def open_connection(args):
     print_head("Connection attempt")
-    cmd = "nmcli d wifi connect {} ifname {} name TEST_CON".format(
-        args.essid, args.device)
+    if legacy_nmcli():
+        cmd = "nmcli d wifi connect {} iface {} name TEST_CON".format(
+            args.essid, args.device)
+    else:
+        cmd = "nmcli d wifi connect {} ifname {} name TEST_CON".format(
+            args.essid, args.device)
     print_cmd(cmd)
     sp.call(cmd, shell=True)
-    cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
+    if legacy_nmcli():
+        cmd_part = "nmcli -m tabular -t -f GENERAL d list | "
+        cmd = cmd_part + "grep {} | awk -F: '{{print $15}}'".format(args.device)
+    else:
+        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     state = output.decode(sys.stdout.encoding).strip()
@@ -91,11 +125,19 @@ def open_connection(args):
 
 def secured_connection(args):
     print_head("Connection attempt")
-    cmd = "nmcli d wifi connect {} password {} ifname {} name TEST_CON".format(
-        args.essid, args.psk, args.device)
+    if legacy_nmcli():
+        cmd = "nmcli d wifi connect {} password {} iface {} name TEST_CON".format(
+            args.essid, args.psk, args.device)
+    else:
+        cmd = "nmcli d wifi connect {} password {} ifname {} name TEST_CON".format(
+            args.essid, args.psk, args.device)
     print_cmd(cmd)
     sp.call(cmd, shell=True)
-    cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
+    if legacy_nmcli():
+        cmd_part = "nmcli -m tabular -t -f GENERAL d list | "
+        cmd = cmd_part + "grep {} | awk -F: '{{print $15}}'".format(args.device)
+    else:
+        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     state = output.decode(sys.stdout.encoding).strip()
@@ -136,7 +178,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     cleanup_nm_connections()
-    device_rescan()
+    if not legacy_nmcli():
+        device_rescan()
     count = list_aps(args)
 
     if args.test_type == 'scan':

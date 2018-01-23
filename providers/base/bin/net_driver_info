@@ -29,6 +29,7 @@ for user_driver in sys.argv[1:]:
             driver_list.append(("unknown", user_driver))
     else:
         print("Requested driver {} not loaded\n".format(user_driver))
+
 # Produce the output
 for interface, driver in driver_list:
     print("Interface {} using module {}".format(interface, driver))

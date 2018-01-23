@@ -88,6 +88,7 @@ class TemplateUnitTests(TestCase):
         namespace.
         """
         provider = mock.Mock(spec=IProvider1)
+        provider.namespace = 'namespace'
         self.assertEqual(TemplateUnit({
             'template-resource': 'resource'
         }, provider=provider).resource_namespace, provider.namespace)

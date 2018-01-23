@@ -823,6 +823,10 @@ class Unit(metaclass=UnitType):
             if isinstance(obj, Symbol):
                 return str(obj)
             raise TypeError
+        # add a namespace iformation to the data, so same units located
+        # in different providers won't clash
+        if self._provider and self._provider.namespace:
+            sorted_data['namespace'] = self._provider.namespace
         # Compute the canonical form which is arbitrarily defined as sorted
         # json text with default indent and separator settings.
         canonical_form = json.dumps(

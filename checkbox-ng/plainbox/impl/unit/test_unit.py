@@ -248,8 +248,7 @@ class TestUnitDefinition(TestCase):
         # Ensure that units with equal data but different provider are still
         # equal
         self.assertEqual(
-            Unit({}, provider=mock.Mock()),
-            Unit({}, provider=mock.Mock()))
+            Unit({}, provider=None), Unit({}, provider=None))
         # Ensure that units with equal data but different raw data are still
         # equal
         self.assertEqual(

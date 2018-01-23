@@ -141,6 +141,7 @@ class TestJobDefinitionDefinition(TestCase):
         """
         mock_provider = mock.Mock()
         type(mock_provider).data_dir = mock.PropertyMock(return_value='data')
+        type(mock_provider).namespace = mock.PropertyMock(return_value='namespace')
         job = JobDefinition({
             'qml_file': 'qml_file-value'
         }, raw_data={

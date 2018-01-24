@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-# Copyright 2017 Canonical Ltd.
+# Copyright 2017-2018 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
+#   Taihsiang Ho <taihsiang.ho@canonical.com>
 #
 # Print info about drivers we can identify automatically and also those we
 # identify in the special interest list!
@@ -37,5 +38,8 @@ for interface, driver in driver_list:
         print("  Parameters:")
         for path in Path(sysfs_path).iterdir():
             if path.is_file():
-                print("    {}: {}".format(path.name, path.read_text().strip()))
+                # Path.read_text is new in python 3.5 but we want to support
+                # trusty as well, which uses python 3.4 by default.
+                with open(str(path), 'r') as f:
+                    print("    {}: {}".format(path.name, f.read().strip()))
     print()

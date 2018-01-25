@@ -19,9 +19,11 @@ if [[ $DRIVER == "amdgpu" || $DRIVER == "radeon" ]]; then
             if [ $INDEX -gt 1 ]; then
                 # See https://wiki.archlinux.org/index.php/PRIME
                 echo "Setting up PRIME GPU offloading for AMD discrete GPU"
-                PROVIDER_ID=`xrandr --listproviders | grep "Sink Output" | awk {'print $4'} | tail -1`
-                SINK_ID=`xrandr --listproviders | grep "Source Output" | awk {'print $4'} | tail -1`
-                xrandr --setprovideroffloadsink ${PROVIDER_ID} ${SINK_ID}
+                if ! grep -q DRI3 /var/log/Xorg.0.log; then
+                    PROVIDER_ID=`xrandr --listproviders | grep "Sink Output" | awk {'print $4'} | tail -1`
+                    SINK_ID=`xrandr --listproviders | grep "Source Output" | awk {'print $4'} | tail -1`
+                    xrandr --setprovideroffloadsink ${PROVIDER_ID} ${SINK_ID}
+                fi
                 export DRI_PRIME=1
             else
                 export DRI_PRIME=

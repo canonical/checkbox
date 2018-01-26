@@ -5,7 +5,7 @@ Resource Job Units
 Resources
 =========
 
-Resources are a mechanism that allows to constrain certain :term:`job` to
+Resources are a mechanism that allows to constrain certain job to
 execute only on devices with appropriate hardware or software dependencies.
 This mechanism allows some types of jobs to publish resource objects to an
 abstract namespace and to a way to evaluate a resource program to determine if

@@ -237,7 +237,7 @@ test selection and test plan selection.
     their output printed to the screen.
 
 Setting this field to ``yes`` disables hiding of command output for jobs of
-type ``local``, ``resource`` and ``attachment``. Default value: ``no``.
+type ``resource`` and ``attachment``. Default value: ``no``.
 
 ``output``
 

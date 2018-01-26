@@ -62,10 +62,6 @@ intersphinx_mapping.update(
         'python', 'http://docs.python.org/',
         '/usr/share/doc/python{}/html/objects.inv'.format(
             '.'.join([str(x) for x in sys.version_info[0:2]]))))
-intersphinx_mapping.update(
-    check_object_path(
-        'plainbox', 'http://plainbox.readthedocs.org/en/latest/',
-        '/usr/share/doc/python3-plainbox-doc/html/objects.inv'))
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

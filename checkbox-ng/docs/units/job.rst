@@ -53,7 +53,6 @@ Following fields may be used by the job unit:
      :resource: A job whose command output results in a set of rfc822
           records, containing key/value pairs, and that can be used in other
           jobs' ``requires`` expressions.
-     :qml: A test with GUI defined in a QML file.
 
 ``requires``:
     (optional). If specified, the job will only run if the conditions
@@ -227,15 +226,30 @@ Following fields may be used by the job unit:
         this temp folder). Sometimes needed on snappy
         (See http://pad.lv/1618197)
 
+.. _job_flag_fail_on_resource:
+
+    ``fail-on-resource``:
+        This flag makes plainbox fail the job if one of the resource
+        requirements evaluates to False.
+
 .. _job_flag_also_after_suspend:
 
     ``also-after-suspend``: See ``siblings`` below.
 
-.. _job_flag_also_after_suspend_auto:
+.. _job_flag_also_after_suspend_manual:
 
-    ``also-after-suspend-auto``: See ``siblings`` below.
+    ``also-after-suspend-manual``: See ``siblings`` below.
 
     Additional flags may be present in job definition; they are ignored.
+
+.. _job_flag_cachable:
+
+    ``cachable``:
+        Saves the output of a resource job in the system, so the next time
+        the session is started recorded output is used making the session
+        bootstrap faster.
+
+    This flag has no effect on jobs other than resource.
 
 ``siblings``:
     (optional) This field creates copies of the current job definition
@@ -276,27 +290,27 @@ Following fields may be used by the job unit:
         ]
 
     For convenience two flags can be set (``also-after-suspend`` and
-    ``also-after-suspend-auto``) to create siblings with predefined settings to
-    add "after suspend" jobs.
+    ``also-after-suspend-manual``) to create siblings with predefined settings
+    to add "after suspend" jobs.
 
     Given the base job::
 
         id:foo
         _summary: bar
-        flags: also-after-suspend also-after-suspend-auto
+        flags: also-after-suspend also-after-suspend-manual
         [...]
 
     The ``also-after-suspend`` flag is a shortcut to create the following job::
 
         id: after-suspend-foo
         _summary: bar after suspend (S3)
-        depends: com.canonical.certification::suspend/suspend_advanced
-
-    ``also-after-suspend-auto`` is a shortcut to create the following job::
-
-        id: after-suspend-auto-foo
-        _summary: bar after suspend (S3)
         depends: com.canonical.certification::suspend/suspend_advanced_auto
+
+    ``also-after-suspend-manual`` is a shortcut to create the following job::
+
+        id: after-suspend-manual-foo
+        _summary: bar after suspend (S3)
+        depends: com.canonical.certification::suspend/suspend_advanced
 
 .. warning::
     The curly braces used in this field have to be escaped when used in a

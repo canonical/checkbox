@@ -230,8 +230,3 @@ types include (but are not limited to):
    failed.  An example of this is the graphics maximum resolution test
    which probes the system to determine the maximum supported resolution
    and then asks the user to confirm that the resolution is correct.
- * ``qml`` -- A test with GUI defined in a QML file. 
-   See :ref:`qml-job-tutorial`
-
-
-

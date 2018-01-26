@@ -25,7 +25,7 @@ There are four fields that are specific to the template unit:
 
 ``template-resource``:
     Name of the resource job (if it is a compatible resource identifier) to use
-    to parameterize the template. This must either be a name of a resource job
+    to parametrize the template. This must either be a name of a resource job
     available in the namespace the template unit belongs to *or* a valid
     resource identifier matching the definition in the ``template-imports``
     field.
@@ -62,14 +62,20 @@ There are four fields that are specific to the template unit:
 
     This field is optional.
 
+``template-engine``:
+    Name of the template engine to use, default is python string formatting
+    (See PEP 3101). Currently the only other supported engine is jinja2.
+
+    This field is optional.
+
 Instantiation
 -------------
 
 When a template is instantiated, a single record object is used to fill in the
 parametric values to all the applicable fields. Each field is formatted using
-the python formatting language. Within each field the record is exposed as the
-variable named by the ``template_resource`` field. Record data is exposed as
-attributes of that object.
+the template-engine (default is python formatting language. Within each field
+the record is exposed as the variable named by the ``template_resource`` field.
+Record data is exposed as attributes of that object.
 
 The special parameter ``__index__`` can be used to iterate over the devices
 matching the ``template-filter`` field.
@@ -140,3 +146,37 @@ The ``template-resource`` used here (``device``) refers to a resource job using
 the ``udev_resource`` script to get information about the system. The
 ``udev_resource`` script returns a list of items with attributes such as
 ``path`` and ``name``, so we can use these directly in our template.
+
+Simple Jinja templates example
+------------------------------
+
+Jinja2 can be used as the templating engine instead of python string formatting. This allows the author to access some powerful templating features including expressions.
+
+First here is the previous disk stats example converted to jinja2::
+
+    unit: template
+    template-resource: device
+    template-filter: device.category == 'DISK'
+    template-engine: jinja2
+    plugin: shell
+    category_id: com.canonical.plainbox::disk
+    id: disk/stats_{{ name }}
+    requires:
+    device.path == "{{ path }}"
+    block_device.{{ name }}_state != 'removable'
+    user: root
+    command: disk_stats_test {{ name }}
+    _description: This test checks {{ name }} disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
+
+Template engine additional features
+-----------------------------------
+
+Plainbox populates the template parameter dictionary with some extra keys to aid the author.
+
+``__index__``:
+    If a template unit can result in N content jobs then this variable is equal to how many jobs have been created so far.
+
+``__system_env__``:
+    When the plainbox encounters a template to render it will populate this variable with the executing shell's enviroment variables as ``os.environ``
+
+    Available for ``template-engine``: ``jinja2``

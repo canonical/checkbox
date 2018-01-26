@@ -11,6 +11,7 @@
 ./checkbox_ng/tests.py
 ./checkbox_ng/urwid_ui.py
 ./plainbox/__init__.py
+./plainbox/__main__.py
 ./plainbox/abc.py
 ./plainbox/i18n.py
 ./plainbox/impl/__init__.py

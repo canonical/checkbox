@@ -1,14 +1,14 @@
 #!/bin/bash
 
 function finish {
-  rm -rf ./plainbox
+  rm -rf ./checkbox-ng
 }
 trap finish EXIT
 
 set -e
 
-git clone git://git.launchpad.net/plainbox
-echo "I: running 'develop' on plainbox"
-( cd ./plainbox/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
+git clone git://git.launchpad.net/checkbox-ng
+echo "I: running 'develop' on checkbox-ng"
+( cd ./checkbox-ng/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
 
 ./manage.py validate

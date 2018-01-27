@@ -1,0 +1,1 @@
+contrib/policykit_yes/org.freedesktop.policykit.pkexec.run-plainbox-job.policy usr/share/polkit-1/actions/

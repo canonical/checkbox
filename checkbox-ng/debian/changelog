@@ -1,29 +1,9 @@
-checkbox-ng (0.35.0-1) UNRELEASED; urgency=medium
-
-  [ Pierre Equoy ]
-  * Open for development (remove this message before releasing)
+checkbox-ng (1.0.0.dev0-1) UNRELEASED; urgency=medium
 
   [ Sylvain Pineau ]
-  * "new upstream version"
-  * new upstream version
+  * Major version: Plainbox integration in checkbox-ng.
 
-  [ Pierre Equoy ]
-  * "new upstream version"
-  * "new upstream version"
-
-  [ Sylvain Pineau ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 24 Oct 2017 13:28:57 +0200
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 22 Jan 2018 12:33:10 +0100
 
 checkbox-ng (0.29-1) UNRELEASED; urgency=medium
 

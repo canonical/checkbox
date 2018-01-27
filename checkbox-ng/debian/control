@@ -8,12 +8,18 @@ Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
 Build-Depends: debhelper (>= 9),
                dh-python,
                python3-all,
+               python3-crypto,
+               python3-distutils-extra,
                python3-docutils,
                python3-guacamole (>= 0.9),
-               python3-plainbox (>= 0.27),
+               python3-jinja2,
+               python3-padme,
+               python3-pkg-resources,
                python3-requests (>= 1.0),
+               python3-requests-oauthlib,
                python3-setuptools,
                python3-sphinx,
+               python3-tk,
                python3-urwid,
                python3-xlsxwriter
 Standards-Version: 3.9.6
@@ -27,9 +33,9 @@ Architecture: all
 Depends: python3-checkbox-ng (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends}
-Replaces: checkbox (<< 0.17.6-0ubuntu1), python3-checkbox-ng (<< 0.23-1)
-Breaks: checkbox (<< 0.17.6-0ubuntu1), python3-checkbox-ng (<< 0.23-1)
-Description: PlainBox based test runner
+Conflicts: plainbox
+Replaces: plainbox
+Description: CheckBoxNG test runner
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built
  directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
@@ -38,14 +44,22 @@ Description: PlainBox based test runner
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: python3-guacamole (>= 0.9),
-         python3-plainbox (>= 0.27),
+Depends: plainbox-secure-policy (= ${binary:Version}) | plainbox-insecure-policy (= ${binary:Version}),
+         policykit-1,
+         python3-crypto,
+         python3-guacamole (>= 0.9),
+         python3-jinja2,
+         python3-padme,
+         python3-pkg-resources,
          python3-requests (>= 1.0),
+         python3-requests-oauthlib,
          python3-urwid,
          python3-xlsxwriter,
          ${misc:Depends},
          ${python3:Depends}
-Description: PlainBox based test runner (Python 3 library)
+Conflicts: python3-plainbox
+Replaces: python3-plainbox
+Description: CheckBoxNG test runner (Python 3 library)
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built
  directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
@@ -57,9 +71,41 @@ Architecture: all
 Section: doc
 Priority: extra
 Depends: ${misc:Depends}, ${sphinxdoc:Depends}
-Description: PlainBox based test runner (documentation)
+Description: CheckBoxNG test runner (documentation)
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built
  directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
  .
  This package contains the documentation for the checkbox-ng Python 3 library
+
+Package: plainbox-secure-policy
+Architecture: all
+Depends: ${misc:Depends}
+Conflicts: plainbox-insecure-policy
+Replaces: plainbox-insecure-policy
+Description: policykit policy required to use CheckBoxNG (secure version)
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
+ This package contains a PolicyKit .policy file that allows CheckBoxNG to run
+ plainbox-trusted-launcher-1 as root and ask for the user password only once
+ per session.
+
+Package: plainbox-insecure-policy
+Architecture: all
+Priority: extra
+Depends: ${misc:Depends}
+Conflicts: plainbox-secure-policy
+Replaces: plainbox-secure-policy
+Description: policykit policy required to use CheckBoxNG (insecure version)
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
+ Note that installing this package will allow *any* local user to execute any
+ of the CheckBoxNG jobs (test definitions), also installed on the same machine
+ (in system-wide locations), without any confirmation. You should only install
+ this package on machines where that is not a security problem. Typically this
+ package is installed on test machines inside automatically deployed test
+ farms.

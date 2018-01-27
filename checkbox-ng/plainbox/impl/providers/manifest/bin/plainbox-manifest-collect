@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2015 Canonical Ltd.
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+""" Tool for completing system manifest. """
+
+import argparse
+import json
+import os
+import subprocess
+import gettext
+
+from plainbox.impl.providers.v1 import all_providers
+
+_ = gettext.gettext
+
+
+def collect_console(manifest, provider_list):
+    """ Collect missing manifest data with a crude console interaction. """
+    changes = False
+    for provider in provider_list:
+        for unit in provider.unit_list:
+            if unit.Meta.name != 'manifest entry':
+                continue
+            if unit.id in manifest:
+                continue
+            again = True
+            while again:
+                if unit.value_type == 'bool':
+                    print(_("Does this machine have this piece of hardware?"))
+                    print(" - {}".format(unit.tr_name()))
+                    answer = input(_("(yes/y, no/n) "))
+                    if answer == _('y') or answer == _('yes'):
+                        answer = True
+                        again = False
+                    elif answer == _('n') or answer == _('no'):
+                        answer = False
+                        again = False
+                    else:
+                        print(_("Please enter either y or n"))
+                        continue
+                elif unit.value_type == 'natural':
+                    print(_("Please enter the requested data"))
+                    print(unit.tr_name())
+                    answer = input(_("(natural number) "))
+                    try:
+                        answer = int(answer, 10)
+                    except ValueError:
+                        print(_("Please input a number"))
+                        continue
+                    if answer < 0:
+                        print(_("Please input a natural number"))
+                        continue
+                    again = False
+                else:
+                    print(_("Unsupported value-type:"), unit.value_type)
+            manifest[unit.id] = answer
+            changes = True
+    return changes
+
+
+def collect_zenity(manifest, provider_list):
+    """ Collect missing manifest data using zenity. """
+    changes = False
+    for provider in provider_list:
+        for unit in provider.unit_list:
+            if unit.Meta.name != 'manifest entry':
+                continue
+            if unit.id in manifest:
+                continue
+            if unit.value_type == 'bool':
+                retval = subprocess.call([
+                    'zenity', '--title={}'.format(
+                        _("Plainbox Hardware Manifest")),
+                    '--text={}\n\n{}\n'.format(
+                        _("Does this machine have this piece of hardware?"),
+                        unit.tr_name()),
+                    '--question',
+                ])
+                if retval == 0:
+                    answer = True
+                else:
+                    answer = False
+            elif unit.value_type == 'natural':
+                again = True
+                while again:
+                    try:
+                        answer = subprocess.check_output([
+                            'zenity', '--title={}'.format(
+                                _("Plainbox Hardware Manifest")),
+                            '--text={}\n\n{}\n'.format(
+                                _("Please enter the requested data"),
+                                unit.tr_name()),
+                            '--entry',
+                        ])
+                    except subprocess.CalledProcessError:
+                        continue
+                try:
+                    answer = int(answer, 10)
+                except ValueError:
+                    continue
+                if answer < 0:
+                    continue
+            else:
+                print(_("Unsupported value-type:"), unit.value_type)
+            manifest[unit.id] = answer
+            changes = True
+    return changes
+
+
+def main():
+    """ Main function. """
+    gettext.textdomain('plainbox-provider-manifest')
+    gettext.bindtextdomain('plainbox-provider-manifest',
+                           os.getenv('PLAINBOX_PROVIDER_LOCALE_DIR'))
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-m', '--manifest', metavar='PATH',
+        default=os.path.expanduser(
+            '~/.local/share/plainbox/machine-manifest.json'),
+        help=_('Path to alternate machine manifest'))
+    args = parser.parse_args()
+    if os.path.isfile(args.manifest):
+        print(_("Loading existing manifest from {}").format(args.manifest))
+        with open(args.manifest, 'rt', encoding='UTF-8') as stream:
+            manifest = json.load(stream)
+    else:
+        manifest = {}
+    all_providers.load()
+    provider_list = all_providers.get_all_plugin_objects()
+    if os.getenv('DISPLAY') and os.path.exists('/usr/bin/zenity'):
+        changes = collect_zenity(manifest, provider_list)
+    else:
+        changes = collect_console(manifest, provider_list)
+    if changes:
+        print(_("Saving manifest to {}").format(args.manifest))
+        os.makedirs(os.path.dirname(args.manifest), exist_ok=True)
+        with open(args.manifest, 'wt', encoding='UTF-8') as stream:
+            json.dump(manifest, stream, sort_keys=True)
+    else:
+        print(_("No changes to the manifest are required"))
+
+
+if __name__ == '__main__':
+    main()

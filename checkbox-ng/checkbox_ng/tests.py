@@ -22,11 +22,10 @@
 ==================================================================
 """
 
-import inspect
 import os
-import unittest
+from unittest.loader import defaultTestLoader
 
-import checkbox_ng
+from plainbox.impl import get_plainbox_dir
 
 
 def load_unit_tests():
@@ -35,9 +34,8 @@ def load_unit_tests():
     """
     # Discover all unit tests. By simple convention those are kept in
     # python modules that start with the word 'test_' .
-    return unittest.defaultTestLoader.discover(
-        os.path.dirname(
-            inspect.getabsfile(checkbox_ng)))
+    start_dir = os.path.normpath(os.path.join(get_plainbox_dir(), '..'))
+    return defaultTestLoader.discover(start_dir)
 
 
 def test_suite():

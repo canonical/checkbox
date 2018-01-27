@@ -43,7 +43,6 @@ Table of contents
    bugs.rst
    stack.rst
    launcher-tutorial.rst
-   qml-job-tutorial.rst
    configs.rst
    nested-test-plan.rst
    snappy.rst

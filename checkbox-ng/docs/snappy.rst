@@ -137,7 +137,7 @@ An overview of the fields in this example test:
 +-----------+-----------------------------------------------------------------+
 
 Further reading:
-http://plainbox.readthedocs.org/en/latest/manpages/plainbox-job-units.html
+http://checkbox.readthedocs.io/en/latest/units/job.html
 
 Test plans
 ``````````
@@ -176,7 +176,7 @@ abbreviated::
 +-----------+-----------------------------------------------------------------+
 
 Further reading:
-http://plainbox.readthedocs.org/en/latest/manpages/plainbox-test-plan-units.html
+http://checkbox.readthedocs.io/en/latest/units/test-plan.html
 
 
 Creating a test in five easy steps

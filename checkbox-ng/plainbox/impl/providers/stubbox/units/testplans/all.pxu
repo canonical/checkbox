@@ -1,0 +1,83 @@
+id: category-override-test
+_name: Category Override Test
+_description:
+ This test plan can be used to verify that category overrides are working
+ correctly. It is assigning the "overridden" category to all the stubbox
+ jobs starting with stub/.
+ .
+ This test plan selects the stub/multilevel job to ensure that generated jobs
+ are classified corractly. It also selects the stub/true job to check regular
+ jobs (known in advance).
+unit: test plan
+include:
+ stub/multilevel
+ stub/multilevel_[12]
+ stub/true
+category-overrides:
+ apply overridden to stub/.*
+
+unit: test plan
+id: cert-status-override/plan
+_name: Certification Status Override Tests
+_description:
+ This test plan can be used to verify that certification status overrides are
+ working correctly. This plan selects all of the
+ cert-status-override/(pass|fail)/-* jobs and assings all of the possible
+ override values to them. The results can be obtained quickly. Given the right
+ output format, the desired data should be visible.
+include:
+ cert-status-override/values  # NOTE: needed because it cannot be inferred yet
+ cert-status-override/pass/unspecified                  certification-status=unspecified
+ cert-status-override/pass/not-part-of-certification    certification-status=not-part-of-certification
+ cert-status-override/pass/non-blocker                  certification-status=non-blocker
+ cert-status-override/pass/blocker                      certification-status=blocker
+ cert-status-override/fail/unspecified                  certification-status=unspecified
+ cert-status-override/fail/not-part-of-certification    certification-status=not-part-of-certification
+ cert-status-override/fail/non-blocker                  certification-status=non-blocker
+ cert-status-override/fail/blocker                      certification-status=blocker
+
+unit: template
+template-resource: cert-status-override/values
+template-unit: job
+id: cert-status-override/pass/{status}
+_summary: A job that always succeeds (unique for {status})
+_description:
+ This test always passes. This test is expected to have the overriden
+ certification-status value of "{status}"
+plugin: shell
+command: : # {status}
+flags: preserve-locale
+estimated_duration: 0.1
+
+unit: template
+template-resource: cert-status-override/values
+template-unit: job
+id: cert-status-override/fail/{status}
+_summary: A job that always fails (unique for {status})
+_description:
+ This test always fails. This test is expected to have the overriden
+ certification-status value of "{status}"
+plugin: shell
+command: ! : # {status}
+flags: preserve-locale
+estimated_duration: 0.1
+
+id: cert-status-override/values
+_summary: A constant resource that enumerates all certification-status values
+_description:
+ This resource simply enumerates all of the values of the certification-status
+ attribute as subsequent records containing the "status" key mapping to the
+ actual values..
+unit: job
+plugin: resource
+command:
+ echo 'status: unspecified'
+ echo ''
+ echo 'status: not-part-of-certification'
+ echo ''
+ echo 'status: non-blocker'
+ echo ''
+ echo 'status: blocker'
+ echo ''
+flags: preserve-locale
+estimated_duration: 0.1

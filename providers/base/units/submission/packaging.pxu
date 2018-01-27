@@ -1,7 +1,3 @@
 unit: packaging meta-data
 os-id: debian
 Depends: jq
-
-unit: packaging meta-data
-os-id: debian
-Depends: plainbox

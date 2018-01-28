@@ -41,7 +41,9 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 # When building on readthedocs.org, skip all real dependencies as those are
 # mocked away in 'plainbox/docs/conf.py'. This speeds up the build process.
 # and makes it independent on any packages that are hard to get in a virtualenv
-if not on_rtd:
+if on_rtd:
+    install_requires = []
+else:
     install_requires = [
         'guacamole >= 0.9',
         'requests >= 1.0',

@@ -1,9 +1,10 @@
-checkbox-ng (1.0.0.dev0-1) UNRELEASED; urgency=medium
+checkbox-ng (1.0.0~rc1-1) UNRELEASED; urgency=medium
 
   [ Sylvain Pineau ]
   * Major version: Plainbox integration in checkbox-ng.
+  * "new upstream version"
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 22 Jan 2018 12:33:10 +0100
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 30 Jan 2018 13:25:28 +0100
 
 checkbox-ng (0.29-1) UNRELEASED; urgency=medium
 

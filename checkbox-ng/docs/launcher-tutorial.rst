@@ -554,7 +554,6 @@ The launcher
     #!/usr/bin/env checkbox-cli
     [launcher]
     launcher_version = 1
-    stock_reports = text
 
     [config]
     config_filename = $HOME/launcher.conf
@@ -569,8 +568,8 @@ The launcher
     [ui]
     type = silent
     auto_retry = yes
-    max_attempts = 5
-    delay_before_retry = 90
+    max_attempts = 3
+    delay_before_retry = 15
 
 
 The launcher configuration ``laucher.conf``
@@ -580,27 +579,21 @@ The launcher configuration ``laucher.conf``
     #!/usr/bin/env checkbox-cli
     [launcher]
     launcher_version = 1
-    stock_reports = text, submission_files
+    stock_reports = text, submission_files, certification
 
-    [transport:example_c3]
-    type = submission-service
+    [transport:c3]
     secure_id = <your secure ID>
 
-    [transport:example_local_file]
+    [transport:local_file]
     type = file
     path = /home/ubuntu/c3-local-submission.tar.xz
 
     [exporter:example_tar]
     unit = com.canonical.plainbox::tar
 
-    [report:report_example_c3]
-    transport = example_c3
-    exporter = example_tar
-    forced = yes
-
-    [report:report_example_file]
-    transport = example_local_file
-    exporter = example_tar
+    [report:file]
+    transport = local_file
+    exporter = tar
     forced = yes
 
     [environment]

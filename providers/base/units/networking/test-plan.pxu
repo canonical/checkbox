@@ -12,7 +12,7 @@ unit: test plan
 _name: Networking tests (manual)
 _description: Networking tests (manual)
 include:
-    networking/info.*                              certification-status=blocker
+    networking/info_device.*                       certification-status=blocker
 
 id: networking-cert-automated
 unit: test plan
@@ -30,5 +30,5 @@ _description: Networking tests (certification blockers only)
 include:
     ethernet/detect                                certification-status=blocker
     networking/gateway_ping                        certification-status=blocker
-    networking/info.*                              certification-status=blocker
+    networking/info_device.*                       certification-status=blocker
     networking/ntp                                 certification-status=blocker

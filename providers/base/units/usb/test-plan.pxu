@@ -1,13 +1,32 @@
 id: usb-cert-full
 unit: test plan
 _name: USB tests
-_description: USB tests
+_description:
+ USB tests
 include:
-    usb/detect                                 certification-status=blocker
-    usb/HID                                    certification-status=blocker
-    usb/insert                                 certification-status=blocker
-    usb/storage-automated                      certification-status=blocker
-    usb/remove                                 certification-status=blocker
+nested_part:
+ com.canonical.certification::usb-cert-manual
+ com.canonical.certification::usb-cert-automated
+
+id: usb-cert-manual
+unit: test plan
+_name: USB tests (Manual)
+_description:
+ USB tests (Manual)
+include:
+ usb/HID                                    certification-status=blocker
+ usb/insert                                 certification-status=blocker
+ usb/storage-automated                      certification-status=blocker
+ usb/remove                                 certification-status=blocker
+
+id: usb-cert-automated
+unit: test plan
+_name: USB tests (Automated)
+_description:
+ USB tests (Automated)
+include:
+ usb/detect                                 certification-status=blocker
+
 
 id: usb3-cert-full
 unit: test plan

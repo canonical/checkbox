@@ -1,14 +1,33 @@
 id: mediacard-cert-full
 unit: test plan
 _name: Mediacard tests
-_description: Mediacard tests
+_description:
+ Mediacard tests
 include:
-    mediacard/sd-insert                            certification-status=blocker
-    mediacard/sd-storage                           certification-status=blocker
-    mediacard/sd-remove                            certification-status=blocker
-    mediacard/sdhc-insert                          certification-status=blocker
-    mediacard/sdhc-storage                         certification-status=blocker
-    mediacard/sdhc-remove                          certification-status=blocker
+nested_part:
+ com.canonical.certification::mediacard-cert-manual
+ com.canonical.certification::mediacard-cert-automated
+
+id: mediacard-cert-manual
+unit: test plan
+_name: Mediacard tests (Manual)
+_description:
+ Mediacard tests (Manual)
+include:
+ mediacard/sd-insert                            certification-status=blocker
+ mediacard/sd-storage                           certification-status=blocker
+ mediacard/sd-remove                            certification-status=blocker
+ mediacard/sdhc-insert                          certification-status=blocker
+ mediacard/sdhc-storage                         certification-status=blocker
+ mediacard/sdhc-remove                          certification-status=blocker
+
+id: mediacard-cert-automated
+unit: test plan
+_name: Mediacard tests (Automated)
+_description:
+ Mediacard tests (Automated)
+include:
+
 
 id: after-suspend-mediacard-cert-full
 unit: test plan

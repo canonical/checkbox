@@ -45,20 +45,43 @@ bootstrap_include:
 id: graphics-discrete-gpu-cert-full
 unit: test plan
 _name: Graphics tests (discrete GPU)
-_description: Graphics tests (discrete GPU)
+_description:
+ Graphics tests (discrete GPU)
 include:
-    graphics/2_switch_card_.*_xenial           certification-status=blocker
-    graphics/2_maximum_resolution_.*           certification-status=blocker
-    graphics/2_valid_opengl_renderer_.*        certification-status=blocker
-    graphics/2_glxgears_.*                     certification-status=blocker
-    graphics/2_driver_version_.*               certification-status=blocker
-    graphics/2_compiz_check_.*                 certification-status=blocker
-    graphics/2_rotation_.*                     certification-status=blocker
-    graphics/2_video_.*                        certification-status=blocker
-    graphics/2_minimum_resolution_.*
-    graphics/2_cycle_resolution_.*             certification-status=non-blocker
+bootstrap_include:
+ graphics_card
+nested_part:
+ com.canonical.certification::graphics-discrete-gpu-cert-manual
+ com.canonical.certification::graphics-discrete-gpu-cert-automated
+
+id: graphics-discrete-gpu-cert-manual
+unit: test plan
+_name: Graphics tests (discrete GPU) (Manual)
+_description:
+ Graphics tests (discrete GPU) (Manual)
+include:
+ graphics/2_switch_card_.*_xenial           certification-status=blocker
+ graphics/2_maximum_resolution_.*           certification-status=blocker
+ graphics/2_glxgears_.*                     certification-status=blocker
+ graphics/2_rotation_.*                     certification-status=blocker
+ graphics/2_video_.*                        certification-status=blocker
+ graphics/2_cycle_resolution_.*             certification-status=non-blocker
 bootstrap_include:
     graphics_card
+
+id: graphics-discrete-gpu-cert-automated
+unit: test plan
+_name: Graphics tests (discrete GPU) (Automated)
+_description:
+ Graphics tests (discrete GPU) (Automated)
+include:
+ graphics/2_valid_opengl_renderer_.*        certification-status=blocker
+ graphics/2_driver_version_.*               certification-status=blocker
+ graphics/2_compiz_check_.*                 certification-status=blocker
+ graphics/2_minimum_resolution_.*
+bootstrap_include:
+    graphics_card
+
 
 id: after-suspend-graphics-integrated-gpu-cert-full
 unit: test plan

@@ -1,10 +1,22 @@
 id: cpu-cert-full
 unit: test plan
 _name: CPU tests
-_description: CPU tests
+_description:
+ CPU tests
+include:
+nested_part:
+ com.canonical.certification::cpu-cert-manual
+ com.canonical.certification::cpu-cert-automated
+
+id: cpu-cert-manual
+unit: test plan
+_name: CPU tests (Manual)
+_description:
+ CPU tests (Manual)
 include:
 nested_part:
     cpu-cert-automated
+
 
 id: cpu-cert-automated
 unit: test plan

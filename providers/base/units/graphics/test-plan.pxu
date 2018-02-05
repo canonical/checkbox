@@ -1,23 +1,46 @@
 id: graphics-integrated-gpu-cert-full
 unit: test plan
 _name: Graphics tests (integrated GPU)
-_description: Graphics tests (integrated GPU)
+_description:
+ Graphics tests (integrated GPU)
 include:
-    miscellanea/chvt
-    graphics/xorg-version                      certification-status=blocker
-    graphics/xorg-failsafe                     certification-status=blocker
-    graphics/xorg-process                      certification-status=blocker
-    graphics/VESA_drivers_not_in_use           certification-status=blocker
-    graphics/1_maximum_resolution_.*           certification-status=blocker
-    graphics/1_glxgears_.*                     certification-status=blocker
-    graphics/1_driver_version_.*               certification-status=blocker
-    graphics/1_compiz_check_.*                 certification-status=blocker
-    graphics/1_rotation_.*                     certification-status=blocker
-    graphics/1_video_.*                        certification-status=blocker
-    graphics/1_minimum_resolution_.*
-    graphics/1_cycle_resolution_.*             certification-status=non-blocker
+bootstrap_include:
+ graphics_card
+nested_part:
+ com.canonical.certification::graphics-integrated-gpu-cert-manual
+ com.canonical.certification::graphics-integrated-gpu-cert-automated
+
+id: graphics-integrated-gpu-cert-manual
+unit: test plan
+_name: Graphics tests (integrated GPU) (Manual)
+_description:
+ Graphics tests (integrated GPU) (Manual)
+include:
+ miscellanea/chvt
+ graphics/1_maximum_resolution_.*           certification-status=blocker
+ graphics/1_glxgears_.*                     certification-status=blocker
+ graphics/1_rotation_.*                     certification-status=blocker
+ graphics/1_video_.*                        certification-status=blocker
+ graphics/1_cycle_resolution_.*             certification-status=non-blocker
 bootstrap_include:
     graphics_card
+
+id: graphics-integrated-gpu-cert-automated
+unit: test plan
+_name: Graphics tests (integrated GPU) (Automated)
+_description:
+ Graphics tests (integrated GPU) (Automated)
+include:
+ graphics/xorg-version                      certification-status=blocker
+ graphics/xorg-failsafe                     certification-status=blocker
+ graphics/xorg-process                      certification-status=blocker
+ graphics/VESA_drivers_not_in_use           certification-status=blocker
+ graphics/1_driver_version_.*               certification-status=blocker
+ graphics/1_compiz_check_.*                 certification-status=blocker
+ graphics/1_minimum_resolution_.*
+bootstrap_include:
+    graphics_card
+
 
 id: graphics-discrete-gpu-cert-full
 unit: test plan

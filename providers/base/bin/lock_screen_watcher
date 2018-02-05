@@ -1,116 +1,49 @@
 #!/usr/bin/env python3
-import argparse
-import sys
-import subprocess
-import lsb_release
+# This file is part of Checkbox.
+#
+# Copyright 2018 Canonical Ltd.
+# Written by: Sylvain Pineau <sylvain.pineau@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import dbus
+from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GObject
-
-from checkbox_support.dbus import connect_to_system_bus
-
-import threading
-import time
-
-GObject.threads_init()
-
-class SceenSaverStatusHelper(threading.Thread):
-
-    def __init__(self, loop):
-        super(SceenSaverStatusHelper, self).__init__()
-        self._loop = loop
-        self.quit = False
-
-    def query(self):
-        if (lsb_release.get_distro_information()["ID"] == "Ubuntu"):
-            if (lsb_release.get_distro_information()["CODENAME"] == "trusty"):
-                # trusty uses login screen as screen saver
-                process_ps = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
-                process_grep = subprocess.Popen(["grep",
-                                                 "/usr/lib/unity/unity-panel-service --lockscreen-mode"],
-                                                 stdin=process_ps.stdout,
-                                                 stdout=subprocess.PIPE,
-                                                 stderr=subprocess.STDOUT)
-                process_ps.stdout.close()
-                stdout = process_grep.communicate()[0]
-                if (len(stdout.decode().split("\n")) == 3):
-                    print("the screensaver is active")
-                    self._loop.quit()
-            p = subprocess.Popen(["gnome-screensaver-command", "-q"], stdout=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-            # parse the stdout string from the command "gnome-screensaver-command -q"
-            # the result should be "active" or "inactive"
-            if "active" == stdout.decode().split(" ")[-1].rstrip() :
-                print("the screensaver is active")
-                self._loop.quit()
-
-    def run(self):
-        while not self.quit:
-            GObject.idle_add(self.query)
-            time.sleep(1)
+from gi.repository import GLib
 
 
-class HotkeyFunctionListener:
+def filter_cb(bus, message):
+    if message.get_member() == "EventEmitted":
+        args = message.get_args_list()
+        if args[0] == "desktop-lock":
+            print("Lock Screen detected")
+            mainloop.quit()
+    elif message.get_member() == "ActiveChanged":
+        args = message.get_args_list()
+        if args[0] == True:  # noqa: E712
+            print("Lock Screen detected")
+            mainloop.quit()
 
-    def __init__(self, system_bus, loop):
-        self._bus = system_bus
-        self._loop = loop
-        # Assume the test passes, this is changed when timeout expires
-        self._error = False
 
-    def _on_timeout_expired(self):
-        """
-        Internal function called when the timer expires.
+def on_timeout_expired():
+    print("You have failed to perform the required manipulation in time")
+    raise SystemExit(1)
 
-        Basically it's just here to tell the user the test failed or that the
-        user was unable to pressed the hot key during the allowed time.
-        """
-        print("You have failed to perform the required manipulation in time")
-        # Fail the test when the timeout was reached
-        self._error = True
-        # Stop the loop now
-        self._loop.quit()
-
-    def check(self, timeout):
-        """
-        Run the configured test and return the result
-
-        The result is False if the test has failed.  The timeout, when
-        non-zero, will make the test fail after the specified seconds have
-        elapsed without conclusive result.
-        """
-        # Setup a timeout if requested
-        if timeout > 0:
-            GObject.timeout_add_seconds(timeout, self._on_timeout_expired)
-
-        # helper to listen the functionality is triggered or not
-        query_thread = SceenSaverStatusHelper(self._loop)
-        query_thread.start()
-
-        self._loop.run()
-        query_thread.quit = True
-        # Return the outcome of the test
-        return self._error        
-
-def main():
-    description = "Wait for the specified hotkey to be pressed."
-    parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('--timeout', type=int, default=30)
-
-    args = parser.parse_args()
-
-    # Connect to the system bus, we also get the event
-    # loop as we need it to start listening for signals.
-    system_bus, loop = connect_to_system_bus()
-
-    listener = HotkeyFunctionListener(system_bus, loop)
-
-    # Run the actual listener and wait till it either times out or discovers
-    # the specific hot key pressed.
-    try:
-        return listener.check(args.timeout)
-    except KeyboardInterrupt:
-        return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
-
+DBusGMainLoop(set_as_default=True)
+bus = dbus.SessionBus()
+bus.add_match_string("type='signal',interface='com.ubuntu.Upstart0_6'")
+bus.add_match_string("type='signal',interface='org.gnome.ScreenSaver'")
+bus.add_message_filter(filter_cb)
+mainloop = GLib.MainLoop()
+GObject.timeout_add_seconds(30, on_timeout_expired)
+mainloop.run()

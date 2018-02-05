@@ -1,14 +1,33 @@
 id: touchscreen-cert-full
 unit: test plan
 _name: Touchscreen tests
-_description: Touchscreen tests
+_description:
+ Touchscreen tests
 include:
-    touchscreen/drag-n-drop                    certification-status=blocker
-    touchscreen/multitouch-zoom                certification-status=blocker
-    touchscreen/multitouch-rotate
-    touchscreen/3-touch-tap                    certification-status=blocker
-    touchscreen/4-touch-tap                    certification-status=blocker
-    touchscreen/multitouch-dash                certification-status=non-blocker
+nested_part:
+ com.canonical.certification::touchscreen-cert-manual
+ com.canonical.certification::touchscreen-cert-automated
+
+id: touchscreen-cert-manual
+unit: test plan
+_name: Touchscreen tests (Manual)
+_description:
+ Touchscreen tests (Manual)
+include:
+ touchscreen/drag-n-drop                    certification-status=blocker
+ touchscreen/multitouch-zoom                certification-status=blocker
+ touchscreen/multitouch-rotate
+ touchscreen/3-touch-tap                    certification-status=blocker
+ touchscreen/4-touch-tap                    certification-status=blocker
+ touchscreen/multitouch-dash                certification-status=non-blocker
+
+id: touchscreen-cert-automated
+unit: test plan
+_name: Touchscreen tests (Automated)
+_description:
+ Touchscreen tests (Automated)
+include:
+
 
 id: touchscreen-cert-blockers
 unit: test plan

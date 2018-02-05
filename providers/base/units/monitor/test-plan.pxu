@@ -49,25 +49,48 @@ bootstrap_include:
 id: monitor-discrete-gpu-cert-full
 unit: test plan
 _name: Monitor tests (discrete GPU)
-_description: Monitor tests (discrete GPU)
+_description:
+ Monitor tests (discrete GPU)
 include:
-    monitor/2_powersaving_.*                   certification-status=blocker
-    monitor/2_dim_brightness_.*                certification-status=blocker
-    monitor/2_displayport_.*                   certification-status=blocker
-    monitor/2_type-c_displayport_.*            certification-status=non-blocker
-    audio/2_playback_displayport_.*            certification-status=blocker
-    audio/2_playback_type-c_displayport_.*     certification-status=non-blocker
-    monitor/2_dvi_.*                           certification-status=blocker
-    monitor/2_hdmi_.*                          certification-status=blocker
-    audio/2_playback_hdmi_.*                   certification-status=blocker
-    monitor/2_thunderbolt_.*                   certification-status=blocker
-    monitor/2_thunderbolt3_.*                  certification-status=non-blocker
-    audio/2_playback_thunderbolt_.*            certification-status=blocker
-    audio/2_playback_thunderbolt3_.*           certification-status=non-blocker
-    monitor/2_vga_.*                           certification-status=blocker
-    monitor/2_multi-head_.*                    certification-status=blocker
+bootstrap_include:
+ graphics_card
+nested_part:
+ com.canonical.certification::monitor-discrete-gpu-cert-manual
+ com.canonical.certification::monitor-discrete-gpu-cert-automated
+
+id: monitor-discrete-gpu-cert-manual
+unit: test plan
+_name: Monitor tests (discrete GPU) (Manual)
+_description:
+ Monitor tests (discrete GPU) (Manual)
+include:
+ monitor/2_powersaving_.*                   certification-status=blocker
+ monitor/2_dim_brightness_.*                certification-status=blocker
+ monitor/2_displayport_.*                   certification-status=blocker
+ monitor/2_type-c_displayport_.*            certification-status=non-blocker
+ audio/2_playback_displayport_.*            certification-status=blocker
+ audio/2_playback_type-c_displayport_.*     certification-status=non-blocker
+ monitor/2_dvi_.*                           certification-status=blocker
+ monitor/2_hdmi_.*                          certification-status=blocker
+ audio/2_playback_hdmi_.*                   certification-status=blocker
+ monitor/2_thunderbolt_.*                   certification-status=blocker
+ monitor/2_thunderbolt3_.*                  certification-status=non-blocker
+ audio/2_playback_thunderbolt_.*            certification-status=blocker
+ audio/2_playback_thunderbolt3_.*           certification-status=non-blocker
+ monitor/2_vga_.*                           certification-status=blocker
+ monitor/2_multi-head_.*                    certification-status=blocker
 bootstrap_include:
     graphics_card
+
+id: monitor-discrete-gpu-cert-automated
+unit: test plan
+_name: Monitor tests (discrete GPU) (Automated)
+_description:
+ Monitor tests (discrete GPU) (Automated)
+include:
+bootstrap_include:
+    graphics_card
+
 
 id: monitor-integrated-gpu-cert-blockers
 unit: test plan

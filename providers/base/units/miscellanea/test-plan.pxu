@@ -1,10 +1,22 @@
 id: misc-client-cert-full
 unit: test plan
 _name: Miscellaneous client tests
-_description: Miscellaneous client tests (fwts, dmi, oops)
+_description:
+ Miscellaneous client tests (fwts, dmi, oops)
+include:
+nested_part:
+ com.canonical.certification::misc-client-cert-manual
+ com.canonical.certification::misc-client-cert-automated
+
+id: misc-client-cert-manual
+unit: test plan
+_name: Miscellaneous client tests (Manual)
+_description:
+ Miscellaneous client tests (fwts, dmi, oops) (Manual)
 include:
 nested_part:
     misc-client-cert-automated
+
 
 id: misc-client-cert-automated
 unit: test plan

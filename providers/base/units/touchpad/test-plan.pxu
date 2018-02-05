@@ -1,23 +1,42 @@
 id: touchpad-cert-full
 unit: test plan
 _name: Touchpad tests
-_description: Touchpad tests
+_description:
+ Touchpad tests
 include:
-    touchpad/basic                                 certification-status=blocker
-    touchpad/detected-as-mouse                     certification-status=blocker
-    touchpad/palm-rejection                        certification-status=non-blocker
-    touchpad/continuous-move                       certification-status=blocker
-    touchpad/horizontal                            certification-status=blocker
-    touchpad/vertical                              certification-status=blocker
-    touchpad/singletouch-automated                 certification-status=blocker
-    touchpad/singletouch-selection                 certification-status=blocker
-    touchpad/drag-and-drop                         certification-status=blocker
-    touchpad/multitouch-automated                  certification-status=blocker
-    touchpad/multitouch-manual                     certification-status=blocker
-    touchpad/multitouch-rightclick                 certification-status=blocker
-    touchpad/multitouch-horizontal                 certification-status=blocker
-    touchpad/multitouch-vertical                   certification-status=blocker
-    touchpad/multitouch-dash                       certification-status=non-blocker
+nested_part:
+ com.canonical.certification::touchpad-cert-manual
+ com.canonical.certification::touchpad-cert-automated
+
+id: touchpad-cert-manual
+unit: test plan
+_name: Touchpad tests (Manual)
+_description:
+ Touchpad tests (Manual)
+include:
+ touchpad/basic                                 certification-status=blocker
+ touchpad/palm-rejection                        certification-status=non-blocker
+ touchpad/continuous-move                       certification-status=blocker
+ touchpad/horizontal                            certification-status=blocker
+ touchpad/vertical                              certification-status=blocker
+ touchpad/singletouch-selection                 certification-status=blocker
+ touchpad/drag-and-drop                         certification-status=blocker
+ touchpad/multitouch-manual                     certification-status=blocker
+ touchpad/multitouch-rightclick                 certification-status=blocker
+ touchpad/multitouch-horizontal                 certification-status=blocker
+ touchpad/multitouch-vertical                   certification-status=blocker
+ touchpad/multitouch-dash                       certification-status=non-blocker
+
+id: touchpad-cert-automated
+unit: test plan
+_name: Touchpad tests (Automated)
+_description:
+ Touchpad tests (Automated)
+include:
+ touchpad/detected-as-mouse                     certification-status=blocker
+ touchpad/singletouch-automated                 certification-status=blocker
+ touchpad/multitouch-automated                  certification-status=blocker
+
 
 id: after-suspend-touchpad-cert-full
 unit: test plan

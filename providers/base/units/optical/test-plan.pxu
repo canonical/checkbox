@@ -1,13 +1,36 @@
 id: optical-cert-full
 unit: test plan
 _name: Optical drive tests
-_description: Optical drive tests
+_description:
+ Optical drive tests
 include:
-    optical/detect                                 certification-status=blocker
-    optical/read_.*                                certification-status=blocker
-    optical/bluray-read_.*                         certification-status=blocker
+bootstrap_include:
+ device
+nested_part:
+ com.canonical.certification::optical-cert-manual
+ com.canonical.certification::optical-cert-automated
+
+id: optical-cert-manual
+unit: test plan
+_name: Optical drive tests (Manual)
+_description:
+ Optical drive tests (Manual)
+include:
+ optical/read_.*                                certification-status=blocker
+ optical/bluray-read_.*                         certification-status=blocker
 bootstrap_include:
     device
+
+id: optical-cert-automated
+unit: test plan
+_name: Optical drive tests (Automated)
+_description:
+ Optical drive tests (Automated)
+include:
+ optical/detect                                 certification-status=blocker
+bootstrap_include:
+    device
+
 
 id: optical-cert-blockers
 unit: test plan

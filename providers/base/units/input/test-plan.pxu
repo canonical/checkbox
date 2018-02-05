@@ -1,12 +1,29 @@
 id: input-cert-full
 unit: test plan
 _name: Input tests
-_description: Input tests
+_description:
+ Input tests
 include:
-    input/accelerometer                        certification-status=non-blocker
-    input/pointing_.*                          certification-status=blocker
-    input/clicking_.*                          certification-status=blocker
-    input/keyboard                             certification-status=blocker
+nested_part:
+ com.canonical.certification::input-cert-manual
+ com.canonical.certification::input-cert-automated
+
+id: input-cert-manual
+unit: test plan
+_name: Input tests (Manual)
+_description:
+ Input tests (Manual)
+include:
+ input/accelerometer                        certification-status=non-blocker
+ input/keyboard                             certification-status=blocker
+
+id: input-cert-automated
+unit: test plan
+_name: Input tests (Automated)
+_description:
+ Input tests (Automated)
+include:
+
 
 id: after-suspend-input-cert-full
 unit: test plan

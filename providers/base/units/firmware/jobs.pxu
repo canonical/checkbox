@@ -4,7 +4,7 @@ plugin: shell
 category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_{name}
 estimated_duration: 1.2
-requires: package.name == 'fwts'
+requires: executable.name == 'fwts'
 user: root
 command: checkbox-support-fwts_test -t {name} -l $PLAINBOX_SESSION_SHARE/fwts_{name}.log
 _description: Run {name} test from Firmware Test Suite.
@@ -16,7 +16,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_{name}.log
 estimated_duration: 1.2
-requires: package.name == 'fwts'
+requires: executable.name == 'fwts'
 user: root
 command: [[ -e $PLAINBOX_SESSION_SHARE/fwts_{name}.log ]] && xz -c $PLAINBOX_SESSION_SHARE/fwts_{name}.log
 _description: Attach log for FWTS {name} test.
@@ -26,8 +26,7 @@ plugin:shell
 category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_desktop_diagnosis
 estimated_duration: 10.0
-requires:
-  package.name == 'fwts'
+requires: executable.name == 'fwts'
 user: root
 _description:
  Run Firmware Test Suite (fwts) QA-concerned desktop-specific diagnosis tests.
@@ -40,8 +39,7 @@ plugin:shell
 category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_desktop_diagnosis_hwe
 estimated_duration: 5.0
-requires:
-  package.name == 'fwts'
+requires: executable.name == 'fwts'
 user: root
 _description:
  Run Firmware Test Suite (fwts) HWE-concerned desktop-specific diagnosis tests.

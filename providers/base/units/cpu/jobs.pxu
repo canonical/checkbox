@@ -2,8 +2,7 @@ plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/scaling_test
 estimated_duration: 150.0
-requires:
- package.name == 'fwts' or executable.name == 'fwts'
+requires: executable.name == 'fwts'
 user: root
 environ: PLAINBOX_SESSION_SHARE LD_LIBRARY_PATH SNAP
 command:
@@ -32,8 +31,7 @@ plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/maxfreq_test
 estimated_duration: 0.6
-requires:
- package.name == 'fwts' or executable.name == 'fwts'
+requires: executable.name == 'fwts'
  cpuinfo.platform in ("i386", "x86_64")
 user: root
 environ: LD_LIBRARY_PATH SNAP
@@ -117,8 +115,7 @@ _description:
 plugin:shell
 id: cpu/cstates
 estimated_duration: 10.0
-requires:
- package.name == 'fwts' or executable.name == 'fwts'
+requires: executable.name == 'fwts'
 user: root
 _summary:
  Run C-States tests

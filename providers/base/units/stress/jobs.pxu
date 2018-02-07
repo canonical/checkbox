@@ -222,8 +222,7 @@ plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/reboot
 estimated_duration: 4500.0
-requires:
- package.name == 'fwts'
+requires: executable.name == 'fwts'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
 user: root
@@ -243,8 +242,7 @@ command:
 plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_30
-requires:
- package.name == 'fwts'
+requires: executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 30 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
@@ -267,7 +265,7 @@ category_id: com.canonical.plainbox::stress
 id: stress/poweroff
 estimated_duration: 4500.0
 requires:
- package.name == 'fwts'
+ executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --r 100 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
@@ -289,7 +287,7 @@ plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_30
 requires:
- package.name == 'fwts'
+ executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --r 30 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart

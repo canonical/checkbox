@@ -1,10 +1,26 @@
 id: stress-cert-full
 unit: test plan
 _name: Stress tests
-_description: Stress tests
+_description:
+ Stress tests
 include:
 nested_part:
+ com.canonical.certification::stress-cert-manual
+ com.canonical.certification::stress-cert-automated
+
+id: stress-cert-manual
+unit: test plan
+_name: Stress tests (Manual)
+_description:
+ Stress tests (Manual)
+include:
+ power-management/suspend_30_cycles             certification-status=blocker
+ power-management/suspend-30-cycle-log-attach
+ power-management/suspend-30-cycles-time-check  certification-status=non-blocker
+ power-management/hibernate_30_cycles           certification-status=non-blocker
+nested_part:
     stress-cert-automated
+
 
 id: stress-cert-automated
 unit: test plan

@@ -1,10 +1,22 @@
 id: mobilebroadband-cert-full
 unit: test plan
 _name: Mobile broadband tests
-_description: Mobile broadband tests
+_description:
+ Mobile broadband tests
+include:
+nested_part:
+ com.canonical.certification::mobilebroadband-cert-manual
+ com.canonical.certification::mobilebroadband-cert-automated
+
+id: mobilebroadband-cert-manual
+unit: test plan
+_name: Mobile broadband tests (Manual)
+_description:
+ Mobile broadband tests (Manual)
 include:
 nested_part:
     mobilebroadband-cert-automated
+
 
 id: mobilebroadband-cert-automated
 unit: test plan

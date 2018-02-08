@@ -1,22 +1,60 @@
 id: usb-cert-full
 unit: test plan
 _name: USB tests
-_description: USB tests
+_description:
+ USB tests
 include:
-    usb/detect                                 certification-status=blocker
-    usb/HID                                    certification-status=blocker
-    usb/insert                                 certification-status=blocker
-    usb/storage-automated                      certification-status=blocker
-    usb/remove                                 certification-status=blocker
+nested_part:
+ com.canonical.certification::usb-cert-manual
+ com.canonical.certification::usb-cert-automated
+
+id: usb-cert-manual
+unit: test plan
+_name: USB tests (Manual)
+_description:
+ USB tests (Manual)
+include:
+ usb/HID                                    certification-status=blocker
+ usb/insert                                 certification-status=blocker
+ usb/storage-automated                      certification-status=blocker
+ usb/remove                                 certification-status=blocker
+
+id: usb-cert-automated
+unit: test plan
+_name: USB tests (Automated)
+_description:
+ USB tests (Automated)
+include:
+ usb/detect                                 certification-status=blocker
+
 
 id: usb3-cert-full
 unit: test plan
 _name: USB3 tests
-_description: USB3 tests
+_description:
+ USB3 tests
 include:
-    usb3/insert                                certification-status=blocker
-    usb3/storage-automated                     certification-status=blocker
-    usb3/remove                                certification-status=blocker
+nested_part:
+ com.canonical.certification::usb3-cert-manual
+ com.canonical.certification::usb3-cert-automated
+
+id: usb3-cert-manual
+unit: test plan
+_name: USB3 tests (Manual)
+_description:
+ USB3 tests (Manual)
+include:
+ usb3/insert                                certification-status=blocker
+ usb3/storage-automated                     certification-status=blocker
+ usb3/remove                                certification-status=blocker
+
+id: usb3-cert-automated
+unit: test plan
+_name: USB3 tests (Automated)
+_description:
+ USB3 tests (Automated)
+include:
+
 
 id: usb-c-cert-full
 unit: test plan

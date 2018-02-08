@@ -2,19 +2,45 @@ id: led-cert-full
 unit: test plan
 _name: LED tests
 _description:
+ LED tests
+ Notes: - led/power-blink-suspend and led/suspend are used later in the
+          power management testplan just after a number of suspend tests.
+        - led/wireless is redundant given that we have led/wlan and
+          led/bluetooth already.
+include:
+nested_part:
+ com.canonical.certification::led-cert-manual
+ com.canonical.certification::led-cert-automated
+
+id: led-cert-manual
+unit: test plan
+_name: LED tests (Manual)
+_description:
     LED tests
     Notes: - led/power-blink-suspend and led/suspend are used later in the
              power management testplan just after a number of suspend tests.
            - led/wireless is redundant given that we have led/wlan and
-             led/bluetooth already.
+             led/bluetooth already. (Manual)
 include:
-    led/battery-charged
-    led/battery-charging
-    led/battery-low
-    led/camera
-    led/caps-lock
-    led/power
-    led/touchpad
+ led/battery-charged
+ led/battery-charging
+ led/battery-low
+ led/camera
+ led/caps-lock
+ led/power
+ led/touchpad
+
+id: led-cert-automated
+unit: test plan
+_name: LED tests (Automated)
+_description:
+    LED tests
+    Notes: - led/power-blink-suspend and led/suspend are used later in the
+             power management testplan just after a number of suspend tests.
+           - led/wireless is redundant given that we have led/wlan and
+             led/bluetooth already. (Automated)
+include:
+
 
 id: after-suspend-led-cert-full
 unit: test plan

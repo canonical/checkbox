@@ -19,8 +19,7 @@ environ: PLAINBOX_SESSION_SHARE
 estimated_duration: 25.0
 user: root
 _description: Test ACPI Wakealarm (fwts wakealarm)
-requires:
- package.name == 'fwts' or executable.name == 'fwts'
+requires: executable.name == 'fwts'
 command: checkbox-support-fwts_test -f aborted -t wakealarm -l $PLAINBOX_SESSION_SHARE/fwts-wakealarm.log
 
 plugin: attachment
@@ -38,8 +37,7 @@ estimated_duration: 120.0
 depends: power-management/fwts_wakealarm
 user: root
 environ: PLAINBOX_SESSION_SHARE
-requires:
- package.name == 'fwts'
+requires: executable.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
 _description:
@@ -61,8 +59,7 @@ id: power-management/reboot
 estimated_duration: 120.0
 user: root
 environ: PLAINBOX_SESSION_SHARE
-requires:
- package.name == 'fwts'
+requires: executable.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
 _description:
@@ -196,7 +193,7 @@ estimated_duration: 140.0
 user: root
 requires:
  package.name == 'upower'
- package.name == 'fwts'
+ executable.name == 'fwts'
 depends: power-management/unplug_ac
 _description: Checks the battery drain during suspend. Reports time and capacity until empty.
 command:

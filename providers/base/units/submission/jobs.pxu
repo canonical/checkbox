@@ -1,8 +1,6 @@
 id: dkms_info_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
-requires:
- package.name == 'dkms'
 command:
  dkms_info  --format json | python3 -m plainbox dev parse dkms-info | \
  jq '.dkms_info'

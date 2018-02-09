@@ -27,4 +27,4 @@ All abstract base classes are in :mod:`plainbox.abc`.
 # PEP440 compliant version declaration.
 #
 # This is used by @public decorator to enforce our public API guarantees.
-__version__ = '1.0.0rc1'
+__version__ = '1.0.0'

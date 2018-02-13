@@ -31,27 +31,27 @@
     'suggestedOutcome': if outcome is 'undecided', than this suggestion will be
     presented to the user, letting them decide the final outcome of a test.
 */
-import QtQuick 2.0
-import Ubuntu.Components 1.2
+import QtQuick 2.5
+import QtQuick.Window 2.2
 import io.thp.pyotherside 1.2
 
-MainView {
+Window {
     id: mainView
-    width: units.gu(100)
-    height: units.gu(75)
+    width: 800
+    height: 600
 
     Python {
         id: py
         Component.onCompleted: {
             addImportPath(Qt.resolvedUrl('.'));
             py.importModule('pipe_handler', function() {
-                py.readAndClose(args.values['fd-in'], function(testingShellData) {
+                py.readAndClose(Qt.application.arguments[8], function(testingShellData) {
                     var new_data = JSON.parse(testingShellData);
                     for (var attrname in new_data) { testingShell[attrname] = new_data[attrname]; }
                     testingShell.getTest = function() {
                         return testingShell['job_repr'];
                     }
-                    loader.setSource(args.values.job,
+                    loader.setSource(Qt.application.arguments[4],
                                      {'testingShell': testingShell});
                 });
             });
@@ -71,30 +71,7 @@ MainView {
     // information and functionality passed to qml job component
     property var testingShell: {
         "name": "Plainbox qml shell",
-        "pageStack": pageStack,
         "python": py
-    }
-
-    Arguments {
-        id: args
-        Argument {
-            name: "job"
-            help: "QML-native job to run"
-            required: true
-            valueNames: ["PATH"]
-        }
-        Argument {
-            name: "fd-out"
-            help: "Descriptor number of pipe to write to"
-            required: false
-            valueNames: ["N"]
-        }
-        Argument {
-            name: "fd-in"
-            help: "Descriptor number of pipe to read from"
-            required: false
-            valueNames: ["N"]
-        }
     }
 
     Loader {
@@ -110,10 +87,6 @@ MainView {
 
     function testDone(res) {
         var json_str = JSON.stringify(res) || ""
-        py.writeAndClose(json_str, args.values['fd-out'], Qt.quit);
+        py.writeAndClose(json_str, Qt.application.arguments[6], Qt.quit);
     }
-    PageStack {
-        id: pageStack
-    }
-
 }

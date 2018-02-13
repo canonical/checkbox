@@ -1,7 +1,7 @@
 #
 # This file is part of Checkbox
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright 2018 Canonical Ltd.
 #
 # Authors:
 # - Maciej Kisielewski <maciej.kisielewski@canonical.com>
@@ -20,4 +20,4 @@
 #
 module Plainbox
 
-QmlJob 0.1 QmlJob.qml
+QmlJob 1.0 QmlJob.qml

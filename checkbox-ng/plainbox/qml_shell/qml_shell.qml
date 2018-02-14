@@ -31,31 +31,21 @@
     'suggestedOutcome': if outcome is 'undecided', than this suggestion will be
     presented to the user, letting them decide the final outcome of a test.
 */
-import QtQuick 2.0
-import Ubuntu.Components 1.3
+import QtQuick 2.5
+import QtQuick.Window 2.2
 import io.thp.pyotherside 1.4
 
-MainView {
+Window {
     id: mainView
-    width: units.gu(100)
-    height: units.gu(75)
+    width: 800
+    height: 600
 
     // information and functionality passed to qml job component
     property var testingShell: {
         "name": "Standalone testing shell",
-        "pageStack": pageStack,
         "python": py
     }
 
-    Arguments {
-        id: args
-        Argument {
-            name: "job"
-            help: "QML-native job to run"
-            required: true
-            valueNames: ["PATH"]
-        }
-    }
     Python {
         id: py
     }
@@ -70,10 +60,6 @@ MainView {
                 grimReaper.start();
             }
         }
-    }
-
-    PageStack {
-        id: pageStack
     }
 
     Timer {
@@ -91,6 +77,6 @@ MainView {
     }
 
     Component.onCompleted: {
-        loader.setSource(args.values.job, {'testingShell': testingShell});
+        loader.setSource(Qt.application.arguments[4], {'testingShell': testingShell});
     }
 }

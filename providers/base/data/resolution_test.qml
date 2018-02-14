@@ -19,20 +19,26 @@
  * along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import QtQuick.Window 2.0
+import QtQuick 2.5
+import QtQuick.Window 2.2
 
-Rectangle {
-    border.color: "lime"
-    border.width: 15
+Window {
     color: "transparent"
-    Text {
-        anchors.centerIn: parent
-        text: Screen.width + " x " + Screen.height
-        font.bold: true
-        font.pointSize: 80
-        color: "lime"
-        smooth: true
+    visible: true
+    visibility: Window.FullScreen
+    Rectangle {
+        border.color: "lime"
+        border.width: 15
+        color: "transparent"
+        anchors.fill: parent
+        Text {
+            anchors.centerIn: parent
+            text: Screen.width + " x " + Screen.height
+            font.bold: true
+            font.pointSize: 80
+            color: "lime"
+            smooth: true
+        }
     }
     Timer {
         interval: 5000
@@ -40,4 +46,3 @@ Rectangle {
         onTriggered: Qt.quit()
     }
 }
-

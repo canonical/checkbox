@@ -1,4 +1,3 @@
-import Ubuntu.Components 0.1
 import QtQuick 2.0
 
 Rectangle {
@@ -9,23 +8,12 @@ Rectangle {
     focus:true
     Keys.onEscapePressed: {Qt.quit()}
 
-    Arguments {
-        id: args
-
-        Argument {
-            name: "touchpoints"
-            help: "minimum TouchPoints"
-            required: true
-            valueNames: ["TouchPoints"]
-        }
-    }
-
     Text {
         id: text
         color: "white"
-        font.pointSize: units.gu(1.5)
+        font.pointSize: 15
         property var timeout: 15
-        text: "<p>Touch the screen with "+args.values.touchpoints+" fingers at the same time</p>" +
+        text: "<p>Touch the screen with "+Qt.application.arguments[2]+" fingers at the same time</p>" +
         "<p>Press ESC to cancel the test at any time.</p>" +
         "<p><b>Test will exit automatically in " +
         timeout + " seconds </b></p>"
@@ -84,7 +72,7 @@ Rectangle {
         enabled: true
         anchors.fill: parent
 
-        minimumTouchPoints: args.values.touchpoints
+        minimumTouchPoints: Qt.application.arguments[2]
         maximumTouchPoints: minimumTouchPoints
 
         onReleased: {

@@ -267,7 +267,7 @@ estimated_duration: 4500.0
 requires:
  executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
-command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --r 100 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
+command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
 user: root
 environ: PLAINBOX_SESSION_SHARE
@@ -289,7 +289,7 @@ id: stress/poweroff_30
 requires:
  executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
-command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --r 30 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
+command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 30 --wakeup 150 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn autorestart
 estimated_duration: 3600
 user: root

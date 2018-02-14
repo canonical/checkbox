@@ -1,7 +1,7 @@
 /*
  * This file is part of Checkbox.
  *
- * Copyright 2016 Canonical Ltd.
+ * Copyright 2018 Canonical Ltd.
  * Written by:
  *   Maciej Kisielewski <maciej.kisielewski@canonical.com>
  *
@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
  */
-import Ubuntu.Components 1.2
-import QtQuick 2.0
-import QtQuick.Layouts 1.1
-import Plainbox 0.1
+import QtQuick 2.5
+import QtQuick.Layouts 1.2
+import QtQuick.Controls 1.4
+import Plainbox 1.0
 
 QmlJob {
     property var steps: [
@@ -38,8 +38,8 @@ QmlJob {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: units.gu(1)
-        spacing: units.gu(1)
+        anchors.margins: 10
+        spacing: 30
         Image {
             source: steps[currentStep][0]
             fillMode: Image.PreserveAspectFit
@@ -47,34 +47,30 @@ QmlJob {
             Layout.fillWidth: true
         }
         Label {
-            text: i18n.tr("The cursor <b>SHOULD NOT</b> move with the palm movement?")
-            fontSize: 'large'
+            text: "The cursor <b>SHOULD NOT</b> move with the palm movement?"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            Layout.minimumHeight: units.gu(10)
+            Layout.minimumHeight: 30
             Layout.fillHeight: true
             Layout.fillWidth: true
         }
         RowLayout {
-            Layout.minimumHeight: units.gu(10)
+            Layout.minimumHeight: 10
             Layout.fillWidth: true
             Button {
-                text: i18n.tr('Pass')
-                color: UbuntuColors.green
+                text: 'Pass'
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 onClicked: testDone({'outcome': 'pass'})
             }
             Button {
-                text: i18n.tr('Skip')
-                color: "#FF9900"
+                text: 'Skip'
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 onClicked: testDone({'outcome': 'skip'})
             }
             Button {
-                text: i18n.tr('Fail')
-                color: UbuntuColors.red
+                text: 'Fail'
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 onClicked: testDone({'outcome': 'fail'})

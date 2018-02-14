@@ -46,6 +46,7 @@ _description:
      Did the device work as expected?
 
 id: usb/insert
+template-engine: jinja2
 _summary: USB 2.0 storage device insertion detected
 _purpose:
  Check system can detect USB 2.0 storage when inserted
@@ -60,15 +61,16 @@ plugin: user-interact
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
+ {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion usb2
- else
+ {%- else %}
      removable_storage_watcher --unmounted insert usb
- fi
+ {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/insert
+template-engine: jinja2
 requires:
  usb.usb3 == 'supported'
 _summary: USB 3.0 storage device insertion detected
@@ -84,15 +86,16 @@ _verification:
 plugin: user-interact
 user: root
 command:
- if [[ -v SNAP ]]; then
+ {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion usb3
- else
+ {%- else %}
      removable_storage_watcher --unmounted -m 500000000 insert usb
- fi
+ {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb/remove
+template-engine: jinja2
 _summary: USB 2.0 storage device removal detected
 _purpose:
  Check system can detect removal of a USB 2.0 storage device
@@ -108,15 +111,16 @@ depends: usb/insert
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
+ {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal usb2
- else
+ {%- else %}
      removable_storage_watcher --unmounted remove usb
- fi
+ {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/remove
+template-engine: jinja2
 _summary: USB 3.0 storage device removal detected
 _purpose:
  Check system can detect removal of a USB 3.0 storage device
@@ -132,11 +136,11 @@ flags: also-after-suspend
 depends: usb3/insert
 user: root
 command:
- if [[ -v SNAP ]]; then
+ {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal usb3
- else
+ {%- else %}
      removable_storage_watcher --unmounted -m 500000000 remove usb
- fi
+ {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
@@ -179,6 +183,7 @@ _description:
      automatically selected result.
 
 id: usb/storage-automated
+template-engine: jinja2
 _summary: USB 2.0 storage device read & write works
 _purpose:
  Check system can read/write to USB 2.0 storage correctly
@@ -191,15 +196,16 @@ depends: usb/insert
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
+ {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
- else
+ {%- else %}
      removable_storage_test -s 268400000 usb
- fi
+ {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 300
 
 id: usb3/storage-automated
+template-engine: jinja2
 _summary: USB 3.0 storage device read & write works
 _purpose:
  Check system can read/write to USB 3.0 storage devices correctly
@@ -212,11 +218,11 @@ depends: usb3/insert
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
+ {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
- else
+ {%- else %}
      removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
- fi
+ {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 300
 

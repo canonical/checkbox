@@ -126,7 +126,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_glxgears_after_suspend_{product_slug}_xenial
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
-requires: package.name == 'mesa-utils'
+requires: executable.name == 'glxgears'
 command:
  source graphics_env {driver} {index}
  glxgears

@@ -1232,8 +1232,8 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/gpu_lockup_after_suspend
 estimated_duration: 10.0
 requires:
- package.name == 'wmctrl'
- package.name == 'mesa-utils'
+ executable.name == 'wmctrl'
+ executable.name == 'glxgears'
  package.name == 'firefox'
  package.name == 'unity'
 depends: suspend/suspend_advanced_auto
@@ -2197,7 +2197,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_glxgears_after_suspend_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
-requires: package.name == 'mesa-utils'
+requires: executable.name == 'glxgears'
 command: glxgears; true
 _summary: Test that glxgears works for {vendor} {product} after suspend
 _description:
@@ -2215,7 +2215,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/glxgears_after_suspend
 depends: suspend/suspend_advanced
 requires:
- package.name == 'mesa-utils'
+ executable.name == 'glxgears'
  device.category == 'VIDEO'
 command: glxgears; true
 _summary: Test that glxgears works after suspend

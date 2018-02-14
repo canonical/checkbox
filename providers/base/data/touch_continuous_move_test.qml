@@ -17,8 +17,7 @@
  along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.0
-import Ubuntu.Components 0.1
+import QtQuick 2.5
 
 Rectangle {
     width: 500
@@ -36,14 +35,14 @@ Rectangle {
     }
 
     Column {
-        spacing: units.gu(5)
+        spacing: 10
         anchors.centerIn: parent
         Text {
             id: legend
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Continuously move your mouse cursor"
             font.bold: true
-            font.pointSize: 30
+            font.pointSize: 12
         }
         Text {
             id: countdown

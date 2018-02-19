@@ -27,12 +27,12 @@ Session Assistant.
 import collections
 import datetime
 import fnmatch
-import io
 import itertools
 import logging
 import os
 import shlex
 import time
+from tempfile import SpooledTemporaryFile
 
 from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
@@ -1514,7 +1514,7 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         exporter = self._manager.create_exporter(exporter_id, options)
-        exported_stream = io.BytesIO()
+        exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
         exporter.dump_from_session_manager(self._manager, exported_stream)
         exported_stream.seek(0)
         result = transport.send(exported_stream)

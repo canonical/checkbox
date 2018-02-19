@@ -688,7 +688,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         """
         Public method to dump the XLSX report to a stream
         """
-        self.workbook = Workbook(stream)
+        self.workbook = Workbook(stream, {'constant_memory': True})
         self._set_formats()
         if self.OPTION_WITH_SYSTEM_INFO in self._option_list:
             self.worksheet1 = self.workbook.add_worksheet(_('System Info'))

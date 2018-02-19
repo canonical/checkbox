@@ -1,6 +1,6 @@
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_scanning_{{ interface }}
@@ -21,7 +21,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_bg_nm_{{ interface }}
@@ -42,7 +42,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_bg_nm_{{ interface }}
@@ -63,7 +63,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_n_nm_{{ interface }}
@@ -85,7 +85,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_n_nm_{{ interface }}
@@ -107,7 +107,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ac_nm_{{ interface }}
@@ -129,7 +129,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ac_nm_{{ interface }}

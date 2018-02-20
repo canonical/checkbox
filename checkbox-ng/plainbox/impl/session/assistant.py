@@ -61,6 +61,7 @@ from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
+from plainbox.impl.unit.unit import Unit
 from plainbox.vendor import morris
 
 _logger = logging.getLogger("plainbox.session.assistant")
@@ -168,6 +169,7 @@ class SessionAssistant:
         self._api_flags = api_flags
         self._repo = SessionStorageRepository()
         self._config = PlainBoxConfig().get()
+        Unit.config = self._config
         self._execution_ctrl_list = None  # None is "default"
         self._ctrl_setup_list = []
         # List of providers that were selected. This is buffered until a
@@ -335,6 +337,7 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         self._config = config
+        Unit.config = config
         # NOTE: We expect applications to call this at most once.
         del UsageExpectation.of(self).allowed_calls[
             self.use_alternate_configuration]

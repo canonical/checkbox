@@ -36,6 +36,7 @@ from jinja2 import Template
 from plainbox.i18n import gettext as _
 from plainbox.impl.decorators import cached_property
 from plainbox.impl.decorators import instance_method_lru_cache
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.symbol import Symbol
@@ -380,6 +381,8 @@ class Unit(metaclass=UnitType):
         class.
     """
 
+    config = None
+
     def __init__(self, data, raw_data=None, origin=None, provider=None,
                  parameters=None, field_offset_map=None, virtual=False):
         """
@@ -605,6 +608,13 @@ class Unit(metaclass=UnitType):
                    field_offset_map=record.field_offset_map)
 
     @instance_method_lru_cache(maxsize=None)
+    def _checkbox_env(self):
+        if self.config is not None and self.config.environment is not Unset:
+            return self.config.environment
+        else:
+            return {}
+
+    @instance_method_lru_cache(maxsize=None)
     def get_record_value(self, name, default=None):
         """
         Obtain the normalized value of the specified record attribute
@@ -628,6 +638,7 @@ class Unit(metaclass=UnitType):
                 # template instantiation we avoid problems with creation of
                 # checkpoints
                 tmp_params = self.parameters.copy()
+                tmp_params.update({'__checkbox_env__': self._checkbox_env()})
                 tmp_params.update({'__system_env__': os.environ})
                 tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                 value = Template(value).render(tmp_params)
@@ -640,6 +651,7 @@ class Unit(metaclass=UnitType):
         elif (value is not None and self.template_engine == 'jinja2'
                                 and not self.is_parametric):
             tmp_params = {
+                '__checkbox_env__': self._checkbox_env(),
                 '__system_env__': os.environ,
                 '__on_ubuntucore__': on_ubuntucore()
                 }
@@ -669,6 +681,7 @@ class Unit(metaclass=UnitType):
         if value is not None and self.is_parametric:
             if self.template_engine == 'jinja2':
                 tmp_params = self.parameters.copy()
+                tmp_params.update({'__checkbox_env__': self._checkbox_env()})
                 tmp_params.update({'__system_env__': os.environ})
                 tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                 value = Template(value).render(tmp_params)
@@ -677,6 +690,7 @@ class Unit(metaclass=UnitType):
         elif (value is not None and self.template_engine == 'jinja2'
                                 and not self.is_parametric):
             tmp_params = {
+                '__checkbox_env__': self._checkbox_env(),
                 '__system_env__': os.environ,
                 '__on_ubuntucore__': on_ubuntucore()
                 }
@@ -722,6 +736,7 @@ class Unit(metaclass=UnitType):
                 # of the problem?
                 if self.template_engine == 'jinja2':
                     tmp_params = self.parameters.copy()
+                    tmp_params.update({'__checkbox_env__': self._checkbox_env()})
                     tmp_params.update({'__system_env__': os.environ})
                     tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
@@ -730,6 +745,7 @@ class Unit(metaclass=UnitType):
                         msgstr, (), self.parameters)
             elif self.template_engine == 'jinja2':
                 tmp_params = {
+                    '__checkbox_env__': self._checkbox_env(),
                     '__system_env__': os.environ,
                     '__on_ubuntucore__': on_ubuntucore()
                     }
@@ -744,6 +760,7 @@ class Unit(metaclass=UnitType):
             if self.is_parametric:
                 if self.template_engine == 'jinja2':
                     tmp_params = self.parameters.copy()
+                    tmp_params.update({'__checkbox_env__': self._checkbox_env()})
                     tmp_params.update({'__system_env__': os.environ})
                     tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
@@ -752,6 +769,7 @@ class Unit(metaclass=UnitType):
                         msgstr, (), self.parameters)
             elif self.template_engine == 'jinja2':
                 tmp_params = {
+                    '__checkbox_env__': self._checkbox_env(),
                     '__system_env__': os.environ,
                     '__on_ubuntucore__': on_ubuntucore()
                     }

@@ -25,10 +25,10 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-import io
 import os
 import tarfile
 import time
+from tempfile import SpooledTemporaryFile
 
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
@@ -53,63 +53,39 @@ class TARSessionStateExporter(SessionStateExporterBase):
             Byte stream to write to.
 
         """
-        html_stream = io.BytesIO()
-        options_list = [
-            SessionStateExporterBase.OPTION_WITH_COMMENTS,
-            SessionStateExporterBase.OPTION_WITH_IO_LOG,
-            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
-            SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
-            SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
-            SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP,
-            SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS
-        ]
-        exporter_unit = self._get_all_exporter_units()[
-            'com.canonical.plainbox::html']
-        html_exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
-        html_exporter.dump_from_session_manager(manager, html_stream)
-        html_tarinfo = tarfile.TarInfo(name="submission.html")
-        html_tarinfo.size = html_stream.tell()
-        html_tarinfo.mtime = time.time()
-        html_stream.seek(0)  # Need to rewind the file, puagh
-
-        json_stream = io.BytesIO()
-        options_list = [
-            SessionStateExporterBase.OPTION_WITH_COMMENTS,
-            SessionStateExporterBase.OPTION_WITH_IO_LOG,
-            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
-            SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
-            SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
-            SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP,
-            SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS
-        ]
-        exporter_unit = self._get_all_exporter_units()[
-            'com.canonical.plainbox::json']
-        json_exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
-        json_exporter.dump_from_session_manager(manager, json_stream)
-        json_tarinfo = tarfile.TarInfo(name="submission.json")
-        json_tarinfo.size = json_stream.tell()
-        json_tarinfo.mtime = time.time()
-        json_stream.seek(0)  # Need to rewind the file, puagh
-
-        xlsx_stream = io.BytesIO()
-        options_list = [
-            XLSXSessionStateExporter.OPTION_WITH_SYSTEM_INFO,
-            XLSXSessionStateExporter.OPTION_WITH_SUMMARY,
-            XLSXSessionStateExporter.OPTION_WITH_DESCRIPTION,
-            XLSXSessionStateExporter.OPTION_WITH_TEXT_ATTACHMENTS,
-        ]
-        xlsx_exporter = XLSXSessionStateExporter(options_list)
-        xlsx_exporter.dump_from_session_manager(manager, xlsx_stream)
-        xlsx_tarinfo = tarfile.TarInfo(name="submission.xlsx")
-        xlsx_tarinfo.size = xlsx_stream.tell()
-        xlsx_tarinfo.mtime = time.time()
-        xlsx_stream.seek(0)  # Need to rewind the file, puagh
+        preset = None
+        mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+        mem_mib = mem_bytes/(1024.**2)
+        # On systems with less than 1GiB of RAM, create the submission tarball
+        # without any compression level (i.e preset=0).
+        # See https://docs.python.org/3/library/lzma.html
+        # With preset 9 for example, the overhead for an LZMACompressor object
+        # can be as high as 800 MiB.
+        if mem_mib < 1200:
+            preset = 0
 
         job_state_map = manager.default_device_context.state.job_state_map
-        with tarfile.TarFile.open(None, 'w|xz', stream) as tar:
-            tar.addfile(html_tarinfo, html_stream)
-            tar.addfile(json_tarinfo, json_stream)
-            tar.addfile(xlsx_tarinfo, xlsx_stream)
+        with tarfile.TarFile.open(None, 'w:xz', stream, preset=preset) as tar:
+            for fmt in ('html', 'json', 'xlsx'):
+                if fmt == 'xlsx':
+                    options_list = [
+                        XLSXSessionStateExporter.OPTION_WITH_SYSTEM_INFO,
+                        XLSXSessionStateExporter.OPTION_WITH_SUMMARY,
+                        XLSXSessionStateExporter.OPTION_WITH_DESCRIPTION,
+                        XLSXSessionStateExporter.OPTION_WITH_TEXT_ATTACHMENTS,
+                    ]
+                    exporter = XLSXSessionStateExporter(options_list)
+                else:
+                    unit = self._get_all_exporter_units()[
+                        'com.canonical.plainbox::{}'.format(fmt)]
+                    exporter = Jinja2SessionStateExporter(exporter_unit=unit)
+                with SpooledTemporaryFile(max_size=102400, mode='w+b') as _s:
+                    exporter.dump_from_session_manager(manager, _s)
+                    tarinfo = tarfile.TarInfo(name="submission.{}".format(fmt))
+                    tarinfo.size = _s.tell()
+                    tarinfo.mtime = time.time()
+                    _s.seek(0)  # Need to rewind the file, puagh
+                    tar.addfile(tarinfo, _s)
             for job_id in manager.default_device_context.state.job_state_map:
                 job_state = job_state_map[job_id]
                 try:

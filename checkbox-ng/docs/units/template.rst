@@ -176,7 +176,13 @@ Plainbox populates the template parameter dictionary with some extra keys to aid
 ``__index__``:
     If a template unit can result in N content jobs then this variable is equal to how many jobs have been created so far.
 
-``__system_env__``:
-    When the plainbox encounters a template to render it will populate this variable with the executing shell's enviroment variables as ``os.environ``
+Following parameters are only available for ``template-engine``: ``jinja2``:
 
-    Available for ``template-engine``: ``jinja2``
+``__system_env__``:
+    When checkbox encounters a template to render it will populate this variable with the executing shell's enviroment variables as ``os.environ``
+
+``__on_ubuntucore__``:
+    Helper function (boolean) checking if checkbox runs from on ubuntu core
+
+``__checkbox_env__``:
+    Dictionary containing the checkbox config environment section

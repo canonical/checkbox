@@ -285,7 +285,14 @@ class Launcher(Command, MainLoopStage):
         if strategy:
             # gluing the command with pluses b/c the middle part
             # (launcher path) is optional
-            respawn_cmd = sys.argv[0] # entry-point to checkbox
+            snap_name = os.getenv('SNAP_NAME')
+            if snap_name:
+                # NOTE: This implies that any snap wishing to include a
+                # Checkbox snap to be autostarted creates a snapcraft
+                # app called "checkbox-cli"
+                respawn_cmd = '/snap/bin/{}.checkbox-cli'.format(snap_name)
+            else:
+                respawn_cmd = sys.argv[0] # entry-point to checkbox
             respawn_cmd += " launcher "
             if ctx.args.launcher:
                 respawn_cmd += os.path.abspath(ctx.args.launcher) + ' '
@@ -945,7 +952,14 @@ class Run(Command, MainLoopStage):
 
     def _configure_restart(self):
         strategy = detect_restart_strategy()
-        respawn_cmd = sys.argv[0] # entry-point to checkbox
+        snap_name = os.getenv('SNAP_NAME')
+        if snap_name:
+            # NOTE: This implies that any snap wishing to include a
+            # Checkbox snap to be autostarted creates a snapcraft
+            # app called "checkbox-cli"
+            respawn_cmd = '/snap/bin/{}.checkbox-cli'.format(snap_name)
+        else:
+            respawn_cmd = sys.argv[0] # entry-point to checkbox
         respawn_cmd += ' --resume {}' # interpolate with session_id
         self.sa.configure_application_restart(
             lambda session_id: [ respawn_cmd.format(session_id)])

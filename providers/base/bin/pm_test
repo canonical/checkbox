@@ -637,7 +637,7 @@ class AutoStartFile(object):
 [Desktop Entry]
 Name={pm_operation} test
 Comment=Verify {pm_operation} works properly
-Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} --checkbox-respawn-cmd={checkbox_respawn} {fwts} {pm_operation}
+Exec=sudo {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} --checkbox-respawn-cmd={checkbox_respawn} {fwts} {pm_operation}
 Type=Application
 X-GNOME-Autostart-enabled=true
 Hidden=false
@@ -673,9 +673,13 @@ Hidden=false
         """
         logging.debug('Writing desktop file ({0!r})...'
                       .format(self.desktop_filename))
-
+        snap_name = os.getenv('SNAP_NAME')
+        if snap_name:
+            script = '/snap/bin/{}.pm-test'.format(snap_name)
+        else:
+            script = '/usr/bin/python3 {}'.format(os.path.realpath(__file__))
         contents = (self.TEMPLATE
-                    .format(script=os.path.realpath(__file__),
+                    .format(script=script,
                             repetitions=self.args.repetitions - 1,
                             wakeup=self.args.wakeup,
                             hardware_delay=self.args.hardware_delay,

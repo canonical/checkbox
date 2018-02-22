@@ -5,9 +5,11 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012-2018 Canonical Ltd.
 #
-# Authors: Alberto Milone <alberto.milone@canonical.com>
+# Authors:
+#   Alberto Milone <alberto.milone@canonical.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -33,7 +35,7 @@ from glob import glob
 class Brightness(object):
     def __init__(self, path='/sys/class/backlight'):
         self.sysfs_path = path
-        self._interfaces = self._get_interfaces_from_path()
+        self.interfaces = self._get_interfaces_from_path()
 
     def read_value(self, path):
         '''Read the value from a file'''
@@ -94,36 +96,6 @@ class Brightness(object):
 
         return interfaces
 
-    def get_best_interface(self):
-        '''Get the best acpi interface'''
-        # Follow the heuristic in https://www.kernel.org/doc/Documentation/
-        #ABI/stable/sysfs-class-backlight
-        if len(self._interfaces) == 0:
-            return None
-        else:
-            interfaces = {}
-            for interface in self._interfaces:
-                try:
-                    with open(interface + '/type') as type_file:
-                        iface_type = type_file.read().strip()
-                except IOError:
-                    continue
-                interfaces[iface_type] = interface
-
-            if interfaces.get('firmware'):
-                return interfaces.get('firmware')
-            elif interfaces.get('platform'):
-                return interfaces.get('platform')
-            elif interfaces.get('raw'):
-                return interfaces.get('raw')
-            else:
-                fallback_type = sorted(interfaces.keys())[0]
-                print("WARNING: no interface of type firmware/platform/raw "
-                      "found. Using {} of type {}".format(
-                      interfaces[fallback_type],
-                      fallback_type))
-                return interfaces[fallback_type]
-
     def was_brightness_applied(self, interface):
         '''See if the selected brightness was applied
 
@@ -132,9 +104,9 @@ class Brightness(object):
         '''
         if (abs(self.get_actual_brightness(interface) -
             self.get_last_set_brightness(interface)) > 1):
-            return False
+            return 1
         else:
-            return True
+            return 0
 
 
 def main():
@@ -146,33 +118,35 @@ def main():
               file=sys.stderr)
         exit(1)
 
-    interface = brightness.get_best_interface()
     # If no backlight interface can be found
-    if not interface:
+    if len(brightness.interfaces) == 0:
         exit(1)
 
-    # Get the current brightness which we can restore later
-    current_brightness = brightness.get_actual_brightness(interface)
+    exit_status = 0
+    for interface in brightness.interfaces:
 
-    # Get the maximum value for brightness
-    max_brightness = brightness.get_max_brightness(interface)
+        # Get the current brightness which we can restore later
+        current_brightness = brightness.get_actual_brightness(interface)
 
-    # Set the brightness to half the max value
-    brightness.write_value(max_brightness / 2,
-                           os.path.join(interface,
-                           'brightness'))
+        # Get the maximum value for brightness
+        max_brightness = brightness.get_max_brightness(interface)
 
-    # Check that "actual_brightness" reports the same value we
-    # set "brightness" to
-    exit_status = not brightness.was_brightness_applied(interface)
+        # Set the brightness to half the max value
+        brightness.write_value(max_brightness / 2,
+                               os.path.join(interface,
+                               'brightness'))
 
-    # Wait a little bit before going back to the original value
-    time.sleep(2)
+        # Check that "actual_brightness" reports the same value we
+        # set "brightness" to
+        exit_status += brightness.was_brightness_applied(interface)
 
-    # Set the brightness back to its original value
-    brightness.write_value(current_brightness,
-                           os.path.join(interface,
-                           'brightness'))
+        # Wait a little bit before going back to the original value
+        time.sleep(2)
+
+        # Set the brightness back to its original value
+        brightness.write_value(current_brightness,
+                               os.path.join(interface,
+                               'brightness'))
 
     exit(exit_status)
 

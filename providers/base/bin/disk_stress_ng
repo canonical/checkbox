@@ -121,7 +121,7 @@ find_largest_partition() {
             exit 1
         fi
         local blkid_info=$(blkid -s TYPE $part_location | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs\|LVM2_member)
-        if [ "$part_size" > "$largest_size" ] && [ -n "$blkid_info" ]  ; then
+        if [ "$part_size" -gt "$largest_size" ] && [ -n "$blkid_info" ]  ; then
             if [[ "$blkid_info" =~ .*LVM2_member.* ]] ; then
                 find_largest_lv
             else

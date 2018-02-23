@@ -212,8 +212,13 @@ class Launcher(Command, MainLoopStage):
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)
-            ctx.sa.select_providers(
-                *self.launcher.providers, additional_providers=additional_providers)
+            try:
+                ctx.sa.select_providers(
+                    *self.launcher.providers,
+                    additional_providers=additional_providers)
+            except ValueError:
+                print(self._C.RED(_("No providers found")))
+                return 1
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()

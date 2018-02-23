@@ -74,7 +74,7 @@ depends:
  suspend/suspend_advanced
 requires:
  executable.name == 'x-terminal-emulator'
-flags: noreturn autorestart
+flags: noreturn
 user: root
 command:
  pm_test reboot --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3 --silent
@@ -224,7 +224,7 @@ id: stress/reboot
 estimated_duration: 4500.0
 requires: executable.name == 'fwts'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn autorestart
+flags: noreturn
 user: root
 environ: PLAINBOX_SESSION_SHARE
 _description:
@@ -245,7 +245,7 @@ id: stress/reboot_30
 requires: executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 30 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn autorestart
+flags: noreturn
 estimated_duration: 2700
 user: root
 environ: PLAINBOX_SESSION_SHARE
@@ -268,7 +268,7 @@ requires:
  executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn autorestart
+flags: noreturn
 user: root
 environ: PLAINBOX_SESSION_SHARE
 _description:
@@ -290,7 +290,7 @@ requires:
  executable.name == 'fwts'
  executable.name == 'x-terminal-emulator'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 30 --wakeup 150 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn autorestart
+flags: noreturn
 estimated_duration: 3600
 user: root
 environ: PLAINBOX_SESSION_SHARE

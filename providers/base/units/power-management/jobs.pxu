@@ -39,7 +39,7 @@ user: root
 environ: PLAINBOX_SESSION_SHARE
 requires: executable.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn autorestart
+flags: noreturn
 _description:
   This test will check the system's ability to power-off and boot.
 
@@ -61,7 +61,7 @@ user: root
 environ: PLAINBOX_SESSION_SHARE
 requires: executable.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn autorestart
+flags: noreturn
 _description:
   This test will check the system's ability to reboot cleanly.
 

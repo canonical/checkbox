@@ -99,6 +99,20 @@ def md5_hash_file(path):
         return md5.hexdigest()
 
 
+def on_ubuntucore():
+    """
+    Check if running from on ubuntu core
+    """
+    snap = os.getenv("SNAP")
+    if snap:
+        with open(os.path.join(snap, 'meta/snap.yaml')) as f:
+            for l in f.readlines():
+                if l == "confinement: classic\n":
+                    return False
+        return True
+    return False
+
+
 class DiskTest():
     ''' Class to contain various methods for testing removable disks '''
 
@@ -177,7 +191,7 @@ class DiskTest():
         Indirectly sets:
             self.rem_disks{,_nm,_memory_cards,_memory_cards_nm,_speed}
         """
-        if "SNAP" in os.environ:
+        if on_ubuntucore():
             self._probe_disks_udisks2_cli()
         else:
             bus, loop = connect_to_system_bus()

@@ -206,6 +206,8 @@ class RemoteControl(Command):
                 if interaction.kind == 'purpose':
                     SimpleUI.description(_('Purpose:'), interaction.message)
             self.wait_for_job()
+        self.finish_session()
+
 
     def wait_for_job(self):
         while True:

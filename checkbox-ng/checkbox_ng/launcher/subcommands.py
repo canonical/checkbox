@@ -217,7 +217,10 @@ class Launcher(Command, MainLoopStage):
                     *self.launcher.providers,
                     additional_providers=additional_providers)
             except ValueError:
+                from plainbox.impl.providers.v1 import all_providers
                 print(self._C.RED(_("No providers found")))
+                print("Paths searched:")
+                print("\n".join(all_providers.provider_search_paths))
                 return 1
             if not self._maybe_resume_session():
                 self._start_new_session()

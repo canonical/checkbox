@@ -27,6 +27,7 @@ RemoteControl implements the part that presents UI to the operator and steers
 the session.
 """
 import gettext
+import os
 import socket
 import time
 import sys
@@ -35,6 +36,7 @@ from functools import partial
 
 from guacamole import Command
 from plainbox.impl.color import Colorizer
+from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.assistant2 import SessionAssistant2
 from plainbox.vendor import rpyc
@@ -113,6 +115,16 @@ class RemoteControl(Command):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config['sync_request_timeout'] = 1
         config['allow_all_attrs'] = True
+        if ctx.args.launcher:
+            expanded_path = os.path.expanduser(ctx.args.launcher)
+            if not os.path.exists(expanded_path):
+                raise SystemExit(_("{} launcher file was not found!").format(
+                    expanded_path))
+            with open(expanded_path, 'rt') as f:
+                self._launcher_text = f.read()
+            # let's create an actual launcher instance to check its validity
+            self._launcher = DefaultLauncherDefinition()
+            self._launcher.read_string(self._launcher_text)
         keep_running = False
         while True:
             try:
@@ -148,25 +160,40 @@ class RemoteControl(Command):
                 break
 
     def new_session(self):
-        tps = self.sa.start_session(dict())
-        self.select_tp(tps)
+        configuration = dict()
+        configuration['launcher'] = self._launcher_text
+        
+        tps = self.sa.start_session(configuration)
+        if self._launcher.test_plan_forced:
+            self.jobs = self.sa.bootstrap(
+                self._launcher.test_plan_default_selection)
+        else:
+            self.select_tp(tps)
+        self.select_jobs()
 
     def select_tp(self, tps):
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
-        jobs = self.sa.bootstrap(tps[selected_index][0])
-        reprs = self.sa.get_jobs_repr(jobs)
-        wanted_set = CategoryBrowser(
-            "Choose tests to run on your system:", reprs).run()
-        # wanted_set may have bad order, let's use it as a filter to the
-        # original list
-        todo_list = [job for job in jobs if job in wanted_set]
-        self.run_jobs(todo_list)
+        self.jobs = self.sa.bootstrap(tps[selected_index][0])
+
+    def select_jobs(self):
+        if self._launcher.test_selection_forced:
+            self.run_jobs(self.jobs)
+        else:
+            reprs = self.sa.get_jobs_repr(self.jobs)
+            wanted_set = CategoryBrowser(
+                "Choose tests to run on your system:", reprs).run()
+            # wanted_set may have bad order, let's use it as a filter to the
+            # original list
+            todo_list = [job for job in self.jobs if job in wanted_set]
+            self.run_jobs(todo_list)
         return False
 
     def register_arguments(self, parser):
         parser.add_argument('host', help=_("target host"))
+        parser.add_argument('launcher', nargs='?', help=_(
+            "launcher definition file to use"))
 
     def _handle_interrupt(self):
         # TODO: ask whether user wants to disconnect the client or

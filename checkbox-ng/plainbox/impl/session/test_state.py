@@ -802,7 +802,7 @@ class SessionMetadataTests(TestCase):
 
     def test_app_blob_default_value(self):
         metadata = SessionMetaData()
-        self.assertIs(metadata.app_blob, None)
+        self.assertIs(metadata.app_blob, b'')
 
     def test_app_blob_assignment(self):
         metadata = SessionMetaData()

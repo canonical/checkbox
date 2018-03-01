@@ -3,6 +3,11 @@
 {%- set resource_map = state.resource_map -%}
 {%- set job_state_map = state.job_state_map -%}
 {
+{%- if "description" in app_blob %}
+{%- if app_blob['description'] %}
+    "description": {{ app_blob['description'] | jsonify | safe }},
+{%- endif %}
+{%- endif %}
 {%- if ns ~ 'package' in state.resource_map %}
     "packages": [
     {%- set package_resource_list = state.resource_map[ns ~ 'package'] %}

@@ -18,8 +18,10 @@
 """
 Definition of sub-command classes for checkbox-cli
 """
+from argparse import ArgumentTypeError
 from argparse import SUPPRESS
 from collections import defaultdict
+from tempfile import TemporaryDirectory
 import copy
 import datetime
 import fnmatch
@@ -30,6 +32,7 @@ import operator
 import os
 import re
 import sys
+import tarfile
 import time
 
 from guacamole import Command
@@ -89,22 +92,39 @@ class Submit(Command):
         parser.add_argument(
             "-s", "--staging", action="store_true",
             help=_("Use staging environment"))
+        parser.add_argument(
+            "-m", "--message",
+            help=_("Submission description"))
 
     def invoked(self, ctx):
         transport_cls = None
-        enc = None
         mode = 'rb'
         options_string = "secure_id={0}".format(ctx.args.secure_id)
         url = ('https://certification.canonical.com/'
                'api/v1/submission/{}/'.format(ctx.args.secure_id))
+        submission_file = ctx.args.submission
         if ctx.args.staging:
             url = ('https://certification.staging.canonical.com/'
                    'api/v1/submission/{}/'.format(ctx.args.secure_id))
         from checkbox_ng.certification import SubmissionServiceTransport
         transport_cls = SubmissionServiceTransport
         transport = transport_cls(url, options_string)
+        if ctx.args.message:
+            tmpdir = TemporaryDirectory()
+            with tarfile.open(ctx.args.submission) as tar:
+                tar.extractall(tmpdir.name)
+            with open(os.path.join(tmpdir.name, 'submission.json')) as f:
+                json_payload = json.load(f)
+            with open(os.path.join(tmpdir.name, 'submission.json'), 'w') as f:
+                json_payload['description'] = ctx.args.message
+                json.dump(json_payload, f, sort_keys=True, indent=4)
+            new_subm_file = os.path.join(
+                tmpdir.name, os.path.basename(ctx.args.submission))
+            with tarfile.open(new_subm_file, mode='w:xz') as tar:
+                tar.add(tmpdir.name, arcname='')
+            submission_file = new_subm_file
         try:
-            with open(ctx.args.submission, mode, encoding=enc) as subm_file:
+            with open(submission_file, mode) as subm_file:
                 result = transport.send(subm_file)
         except (TransportError, OSError) as exc:
             raise SystemExit(exc)
@@ -377,7 +397,8 @@ class Launcher(Command, MainLoopStage):
                 raise SystemExit(_("No test plan selected."))
         self.ctx.sa.select_test_plan(tp_id)
         self.ctx.sa.update_app_blob(json.dumps(
-            {'testplan_id': tp_id, }).encode("UTF-8"))
+            {'testplan_id': tp_id,
+             'description': self.ctx.args.message, }).encode("UTF-8"))
         bs_jobs = self.ctx.sa.get_bootstrap_todo_list()
         self._run_bootstrap_jobs(bs_jobs)
         self.ctx.sa.finish_bootstrap()
@@ -784,6 +805,9 @@ class Launcher(Command, MainLoopStage):
         parser.add_argument(
             '--title', action='store', metavar='SESSION_NAME',
             help=_('title of the session to use'))
+        parser.add_argument(
+            "-m", "--message",
+            help=_("submission description"))
         parser.add_argument(
             '--dont-suppress-output', action='store_true', default=False,
             help=_('Absolutely always show command output'))

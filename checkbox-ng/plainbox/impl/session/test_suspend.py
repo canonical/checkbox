@@ -367,7 +367,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
             'title': None,
             'flags': [],
             'running_job_name': None,
-            'app_blob': None
+            'app_blob': ''
         })
 
     def test_repr_SessionMetaData_typical_metadata(self):
@@ -403,7 +403,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
                 'title': None,
                 'flags': [],
                 'running_job_name': None,
-                'app_blob': None,
+                'app_blob': '',
             },
         })
 
@@ -427,7 +427,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         self.assertEqual(gzip.decompress(data), (
             b'{"session":{"desired_job_list":[],"jobs":{},'
             b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
+            b'{"app_blob":"","flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":2}'))
 
 
@@ -458,7 +458,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
             'title': None,
             'flags': [],
             'running_job_name': None,
-            'app_blob': None,
+            'app_blob': '',
             'app_id': None
         })
 
@@ -497,7 +497,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
                 'title': None,
                 'flags': [],
                 'running_job_name': None,
-                'app_blob': None,
+                'app_blob': '',
                 'app_id': None,
             },
         })
@@ -521,7 +521,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         self.assertEqual(gzip.decompress(data), (
             b'{"session":{"desired_job_list":[],"jobs":{},'
             b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'{"app_blob":"","app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":3}'))
 
@@ -590,7 +590,7 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
                 'title': None,
                 'flags': [],
                 'running_job_name': None,
-                'app_blob': None,
+                'app_blob': '',
                 'app_id': None,
             },
         })
@@ -614,7 +614,7 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
         self.assertEqual(gzip.decompress(data), (
             b'{"session":{"desired_job_list":[],"jobs":{},'
             b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'{"app_blob":"","app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":4}'))
 
@@ -654,7 +654,7 @@ class SessionSuspendHelper5Tests(SessionSuspendHelper4Tests):
         self.assertEqual(gzip.decompress(data), (
             b'{"session":{"desired_job_list":[],"jobs":{},'
             b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'{"app_blob":"","app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":5}'))
 
@@ -694,7 +694,7 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         self.assertEqual(gzip.decompress(data), (
             b'{"session":{"desired_job_list":[],"jobs":{},'
             b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'{"app_blob":"","app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":6}'))
 
@@ -746,7 +746,7 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
                 'title': None,
                 'flags': [],
                 'running_job_name': None,
-                'app_blob': None,
+                'app_blob': '',
                 'app_id': None,
             },
         })
@@ -766,7 +766,7 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
                 'title': None,
                 'flags': [],
                 'running_job_name': None,
-                'app_blob': None,
+                'app_blob': '',
                 'app_id': None,
             },
         })

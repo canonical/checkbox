@@ -152,11 +152,18 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
             Byte stream to write to.
 
         """
+        try:
+            state = session_manager.state
+            app_blob = state.metadata.app_blob
+            app_blob_data = json.loads(app_blob.decode("UTF-8"))
+        except ValueError:
+            app_blob_data = {}
         data = {
             'OUTCOME_METADATA_MAP': OUTCOME_METADATA_MAP,
             'client_name': self._client_name,
             'client_version': self._client_version,
             'manager': session_manager,
+            'app_blob': app_blob_data,
             'options': self.option_list,
             'system_id': self._system_id,
             'timestamp': self._timestamp,

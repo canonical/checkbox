@@ -75,7 +75,7 @@ class SessionMetaData:
     FLAG_TESTPLANLESS = "testplanless"
 
     def __init__(self, title=None, flags=None, running_job_name=None,
-                 app_blob=None, app_id=None):
+                 app_blob=b'', app_id=None):
         """Initialize a new session state meta-data object."""
         if flags is None:
             flags = []

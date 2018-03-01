@@ -31,6 +31,7 @@ import os
 
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.unit.exporter import ExporterUnitSupport
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.vendor import mock
@@ -47,6 +48,7 @@ class Jinja2SessionStateExporterTests(TestCase):
         job = mock.Mock(spec_set=JobDefinition, id='job_id')
         job.tr_summary.return_value = 'job name'
         self.manager_single_job = mock.Mock(state=mock.Mock(
+            metadata=SessionMetaData(),
             run_list=[job],
             job_state_map={
                 job.id: mock.Mock(result=result, job=job)

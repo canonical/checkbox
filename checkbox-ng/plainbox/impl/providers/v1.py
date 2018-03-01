@@ -82,13 +82,18 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
     """
 
     def __init__(self, **kwargs):
+        super().__init__(
+            self.provider_search_paths, '.provider',
+            wrapper=Provider1PlugIn, **kwargs)
+
+    @property
+    def provider_search_paths(self):
         PROVIDERPATH = os.getenv("PROVIDERPATH")
         if PROVIDERPATH is None:
             dir_list = get_insecure_PROVIDERPATH_list()
         else:
             dir_list = PROVIDERPATH.split(os.path.pathsep)
-        super().__init__(
-            dir_list, '.provider', wrapper=Provider1PlugIn, **kwargs)
+        return dir_list
 
 
 # Collection of all providers

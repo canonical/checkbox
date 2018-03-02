@@ -219,10 +219,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                 self._pick_jobs_to_run()
             if not self.ctx.sa.get_static_todo_list():
                 return 0
-            self.base_dir = os.path.join(
-                os.getenv(
-                    'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
-                "checkbox-ng")
             if 'submission_files' in self.launcher.stock_reports:
                 print("Reports will be saved to: {}".format(self.base_dir))
             # we initialize the nb of attempts for all the selected jobs...

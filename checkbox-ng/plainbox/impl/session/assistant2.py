@@ -327,3 +327,7 @@ class SessionAssistant2():
     def finalize_session(self):
         self._sa.finalize_session()
         self._state = Idle
+
+    @property
+    def manager(self):
+        return self._sa._manager

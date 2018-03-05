@@ -246,6 +246,14 @@ class MainLoopStage(CheckboxUiStage):
 
 
 class ReportsStage(CheckboxUiStage):
+
+    def __init__(self):
+        super().__init__()
+        self._export_fn = None
+
+    def _override_exporting(self, export_fn):
+        self._export_fn = export_fn
+
     def _prepare_stock_report(self, report):
         # this is purposefully not using pythonic dict-keying for better
         # readability
@@ -382,8 +390,11 @@ class ReportsStage(CheckboxUiStage):
                 try:
                     self._create_transport(params['transport'])
                     transport = self.transports[params['transport']]
-                    result = self.ctx.sa.export_to_transport(
-                        exporter_id, transport)
+                    if self._export_fn:
+                        result = self._export_fn(exporter_id, transport)
+                    else:
+                        result = self.sa.export_to_transport(
+                            exporter_id, transport)
                     if result and 'url' in result:
                         print(result['url'])
                     elif result and 'status_url' in result:

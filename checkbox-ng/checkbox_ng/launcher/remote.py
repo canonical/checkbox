@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2017 Canonical Ltd.
+# Copyright 2017-2018 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -33,6 +33,7 @@ import time
 import sys
 
 from functools import partial
+from tempfile import SpooledTemporaryFile
 
 from guacamole import Command
 from plainbox.impl.color import Colorizer
@@ -43,6 +44,7 @@ from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.launcher.stages import ReportsStage
 
 _ = gettext.gettext
 
@@ -108,10 +110,26 @@ class RemoteService(Command):
             "resume last session"))
 
 
-class RemoteControl(Command):
+class RemoteControl(Command, ReportsStage):
     name = 'remote-control'
 
+    @property
+    def is_interactive(self):
+        return (self.launcher.ui_type == 'interactive' and
+            sys.stdin.isatty() and sys.stdout.isatty())
+
+    @property
+    def C(self):
+        return self._C
+
+    @property
+    def sa(self):
+        return self._sa
+
+
     def invoked(self, ctx):
+        self._C = Colorizer()
+        self._override_exporting(self.local_export)
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config['sync_request_timeout'] = 1
         config['allow_all_attrs'] = True
@@ -123,14 +141,14 @@ class RemoteControl(Command):
             with open(expanded_path, 'rt') as f:
                 self._launcher_text = f.read()
             # let's create an actual launcher instance to check its validity
-            self._launcher = DefaultLauncherDefinition()
-            self._launcher.read_string(self._launcher_text)
+            self.launcher = DefaultLauncherDefinition()
+            self.launcher.read_string(self._launcher_text)
         keep_running = False
         while True:
             try:
                 conn = rpyc.connect(ctx.args.host, 18871, config=config)
                 keep_running = True
-                self.sa = conn.root.get_sa()
+                self._sa = conn.root.get_sa()
                 self.sa.conn = conn
                 self._sudo_provider = SudoProvider(
                     self.sa.get_master_public_key())
@@ -162,11 +180,13 @@ class RemoteControl(Command):
     def new_session(self):
         configuration = dict()
         configuration['launcher'] = self._launcher_text
+        if self.launcher.local_submission:
+            self._prepare_transports()
         
         tps = self.sa.start_session(configuration)
-        if self._launcher.test_plan_forced:
+        if self.launcher.test_plan_forced:
             self.jobs = self.sa.bootstrap(
-                self._launcher.test_plan_default_selection)
+                self.launcher.test_plan_default_selection)
         else:
             self.select_tp(tps)
         self.select_jobs()
@@ -178,7 +198,7 @@ class RemoteControl(Command):
         self.jobs = self.sa.bootstrap(tps[selected_index][0])
 
     def select_jobs(self):
-        if self._launcher.test_selection_forced:
+        if self.launcher.test_selection_forced:
             self.run_jobs(self.jobs)
         else:
             reprs = self.sa.get_jobs_repr(self.jobs)
@@ -202,8 +222,8 @@ class RemoteControl(Command):
             time.sleep(1)
 
     def finish_session(self):
-        # TODO: nicer UI
-        print('session over')
+        if self.launcher.local_submission:
+            self._export_results()
         self.sa.finalize_session()
         return False
 
@@ -249,3 +269,11 @@ class RemoteControl(Command):
 
     def abandon(self):
         self.sa.finalize_session()
+
+    def local_export(self, exporter_id, transport, options=()):
+        exporter = self._sa.manager.create_exporter(exporter_id, options)
+        exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
+        exporter.dump_from_session_manager(self._sa.manager, exported_stream)
+        exported_stream.seek(0)
+        result = transport.send(exported_stream)
+        return result

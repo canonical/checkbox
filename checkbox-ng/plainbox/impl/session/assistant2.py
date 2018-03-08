@@ -26,6 +26,7 @@ from threading import Thread, Lock
 
 from plainbox.impl.ctrl import RootViaSudoWithPassExecutionController
 from plainbox.impl.ctrl import UserJobExecutionController
+from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.secure.sudo_broker import SudoBroker, EphemeralKey
@@ -125,7 +126,6 @@ class SessionAssistant2():
             ),
             (UserJobExecutionController, [], {}),
         ])
-        self._sa.select_providers('*')
         self._session_change_lock = Lock()
         self._operator_lock = Lock()
         self._be = None
@@ -153,6 +153,10 @@ class SessionAssistant2():
     @allowed_when(Idle)
     def start_session(self, configuration):
         _logger.debug("start_session: %r", configuration)
+        self._launcher = DefaultLauncherDefinition()
+        self._launcher.read_string(configuration['launcher'])
+        self._sa.use_alternate_configuration(self._launcher)
+        self._sa.select_providers(*self._launcher.providers)
         self._sa.start_new_session('checkbox-service')
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
@@ -323,3 +327,7 @@ class SessionAssistant2():
     def finalize_session(self):
         self._sa.finalize_session()
         self._state = Idle
+
+    @property
+    def manager(self):
+        return self._sa._manager

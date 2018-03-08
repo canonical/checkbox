@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2017 Canonical Ltd.
+# Copyright 2017-2018 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -27,20 +27,24 @@ RemoteControl implements the part that presents UI to the operator and steers
 the session.
 """
 import gettext
+import os
 import socket
 import time
 import sys
 
 from functools import partial
+from tempfile import SpooledTemporaryFile
 
 from guacamole import Command
 from plainbox.impl.color import Colorizer
+from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.assistant2 import SessionAssistant2
 from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.launcher.stages import ReportsStage
 
 _ = gettext.gettext
 
@@ -106,19 +110,45 @@ class RemoteService(Command):
             "resume last session"))
 
 
-class RemoteControl(Command):
+class RemoteControl(Command, ReportsStage):
     name = 'remote-control'
 
+    @property
+    def is_interactive(self):
+        return (self.launcher.ui_type == 'interactive' and
+            sys.stdin.isatty() and sys.stdout.isatty())
+
+    @property
+    def C(self):
+        return self._C
+
+    @property
+    def sa(self):
+        return self._sa
+
+
     def invoked(self, ctx):
+        self._C = Colorizer()
+        self._override_exporting(self.local_export)
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config['sync_request_timeout'] = 1
         config['allow_all_attrs'] = True
+        if ctx.args.launcher:
+            expanded_path = os.path.expanduser(ctx.args.launcher)
+            if not os.path.exists(expanded_path):
+                raise SystemExit(_("{} launcher file was not found!").format(
+                    expanded_path))
+            with open(expanded_path, 'rt') as f:
+                self._launcher_text = f.read()
+            # let's create an actual launcher instance to check its validity
+            self.launcher = DefaultLauncherDefinition()
+            self.launcher.read_string(self._launcher_text)
         keep_running = False
         while True:
             try:
                 conn = rpyc.connect(ctx.args.host, 18871, config=config)
                 keep_running = True
-                self.sa = conn.root.get_sa()
+                self._sa = conn.root.get_sa()
                 self.sa.conn = conn
                 self._sudo_provider = SudoProvider(
                     self.sa.get_master_public_key())
@@ -148,25 +178,42 @@ class RemoteControl(Command):
                 break
 
     def new_session(self):
-        tps = self.sa.start_session(dict())
-        self.select_tp(tps)
+        configuration = dict()
+        configuration['launcher'] = self._launcher_text
+        if self.launcher.local_submission:
+            self._prepare_transports()
+        
+        tps = self.sa.start_session(configuration)
+        if self.launcher.test_plan_forced:
+            self.jobs = self.sa.bootstrap(
+                self.launcher.test_plan_default_selection)
+        else:
+            self.select_tp(tps)
+        self.select_jobs()
 
     def select_tp(self, tps):
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
-        jobs = self.sa.bootstrap(tps[selected_index][0])
-        reprs = self.sa.get_jobs_repr(jobs)
-        wanted_set = CategoryBrowser(
-            "Choose tests to run on your system:", reprs).run()
-        # wanted_set may have bad order, let's use it as a filter to the
-        # original list
-        todo_list = [job for job in jobs if job in wanted_set]
-        self.run_jobs(todo_list)
+        self.jobs = self.sa.bootstrap(tps[selected_index][0])
+
+    def select_jobs(self):
+        if self.launcher.test_selection_forced:
+            self.run_jobs(self.jobs)
+        else:
+            reprs = self.sa.get_jobs_repr(self.jobs)
+            wanted_set = CategoryBrowser(
+                "Choose tests to run on your system:", reprs).run()
+            # wanted_set may have bad order, let's use it as a filter to the
+            # original list
+            todo_list = [job for job in self.jobs if job in wanted_set]
+            self.run_jobs(todo_list)
         return False
 
     def register_arguments(self, parser):
         parser.add_argument('host', help=_("target host"))
+        parser.add_argument('launcher', nargs='?', help=_(
+            "launcher definition file to use"))
 
     def _handle_interrupt(self):
         # TODO: ask whether user wants to disconnect the client or
@@ -175,8 +222,8 @@ class RemoteControl(Command):
             time.sleep(1)
 
     def finish_session(self):
-        # TODO: nicer UI
-        print('session over')
+        if self.launcher.local_submission:
+            self._export_results()
         self.sa.finalize_session()
         return False
 
@@ -206,6 +253,8 @@ class RemoteControl(Command):
                 if interaction.kind == 'purpose':
                     SimpleUI.description(_('Purpose:'), interaction.message)
             self.wait_for_job()
+        self.finish_session()
+
 
     def wait_for_job(self):
         while True:
@@ -220,3 +269,11 @@ class RemoteControl(Command):
 
     def abandon(self):
         self.sa.finalize_session()
+
+    def local_export(self, exporter_id, transport, options=()):
+        exporter = self._sa.manager.create_exporter(exporter_id, options)
+        exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
+        exporter.dump_from_session_manager(self._sa.manager, exported_stream)
+        exported_stream.seek(0)
+        result = transport.send(exported_stream)
+        return result

@@ -60,7 +60,7 @@ from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
 
 from checkbox_ng.config import CheckBoxConfig
-from checkbox_ng.launcher.stages import MainLoopStage
+from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import test_plan_browser
@@ -163,7 +163,7 @@ class StartProvider(Command):
             gettext_domain=re.sub("[.:]", "_", ctx.args.name))
 
 
-class Launcher(Command, MainLoopStage):
+class Launcher(Command, MainLoopStage, ReportsStage):
 
     name = 'launcher'
 
@@ -247,10 +247,6 @@ class Launcher(Command, MainLoopStage):
                 self._pick_jobs_to_run()
             if not self.ctx.sa.get_static_todo_list():
                 return 0
-            self.base_dir = os.path.join(
-                os.getenv(
-                    'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
-                "checkbox-ng")
             if 'submission_files' in self.launcher.stock_reports:
                 print("Reports will be saved to: {}".format(self.base_dir))
             # we initialize the nb of attempts for all the selected jobs...
@@ -615,171 +611,6 @@ class Launcher(Command, MainLoopStage):
                 rerun_candidates.append(self.ctx.sa.get_job(job_id))
         return rerun_candidates
 
-    def _prepare_stock_report(self, report):
-        # this is purposefully not using pythonic dict-keying for better
-        # readability
-        if not self.launcher.transports:
-            self.launcher.transports = dict()
-        if not self.launcher.exporters:
-            self.launcher.exporters = dict()
-        if not self.launcher.reports:
-            self.launcher.reports = dict()
-        if report == 'text':
-            self.launcher.exporters['text'] = {
-                'unit': 'com.canonical.plainbox::text'}
-            self.launcher.transports['stdout'] = {
-                'type': 'stream', 'stream': 'stdout'}
-            # '1_' prefix ensures ordering amongst other stock reports. This
-            # report name does not appear anywhere (because of forced: yes)
-            self.launcher.reports['1_text_to_screen'] = {
-                'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
-        elif report == 'certification':
-            self.launcher.exporters['tar'] = {
-                'unit': 'com.canonical.plainbox::tar'}
-            self.launcher.transports['c3'] = {
-                'type': 'submission-service',
-                'secure_id': self.launcher.transports.get('c3', {}).get(
-                    'secure_id', None)}
-            self.launcher.reports['upload to certification'] = {
-                'transport': 'c3', 'exporter': 'tar'}
-        elif report == 'certification-staging':
-            self.launcher.exporters['tar'] = {
-                'unit': 'com.canonical.plainbox::tar'}
-            self.launcher.transports['c3-staging'] = {
-                'type': 'submission-service',
-                'secure_id': self.launcher.transports.get('c3', {}).get(
-                    'secure_id', None),
-                'staging': 'yes'}
-            self.launcher.reports['upload to certification-staging'] = {
-                'transport': 'c3-staging', 'exporter': 'tar'}
-        elif report == 'submission_files':
-            # LP:1585326 maintain isoformat but removing ':' chars that cause
-            # issues when copying files.
-            isoformat = "%Y-%m-%dT%H.%M.%S.%f"
-            timestamp = datetime.datetime.utcnow().strftime(isoformat)
-            if not os.path.exists(self.base_dir):
-                os.makedirs(self.base_dir)
-            for exporter, file_ext in [('html', '.html'),
-                                       ('junit', '.junit.xml'),
-                                       ('xlsx', '.xlsx'), ('tar', '.tar.xz')]:
-                path = os.path.join(self.base_dir, ''.join(
-                    ['submission_', timestamp, file_ext]))
-                self.launcher.transports['{}_file'.format(exporter)] = {
-                    'type': 'file',
-                    'path': path}
-                if exporter not in self.launcher.exporters:
-                    self.launcher.exporters[exporter] = {
-                        'unit': 'com.canonical.plainbox::{}'.format(
-                            exporter)}
-                self.launcher.reports['2_{}_file'.format(exporter)] = {
-                    'transport': '{}_file'.format(exporter),
-                    'exporter': '{}'.format(exporter),
-                    'forced': 'yes'
-                }
-
-    def _prepare_transports(self):
-        self._available_transports = get_all_transports()
-        self.transports = dict()
-
-    def _create_transport(self, transport):
-        if transport in self.transports:
-            return
-        # depending on the type of transport we need to pick variable that
-        # serves as the 'where' param for the transport. In case of
-        # certification site the URL is supplied here
-        tr_type = self.launcher.transports[transport]['type']
-        if tr_type not in self._available_transports:
-            _logger.error(_("Unrecognized type '%s' of transport '%s'"),
-                          tr_type, transport)
-            raise SystemExit(1)
-        cls = self._available_transports[tr_type]
-        if tr_type == 'file':
-            self.transports[transport] = cls(
-                os.path.expanduser(self.launcher.transports[transport]['path']))
-        elif tr_type == 'stream':
-            self.transports[transport] = cls(
-                self.launcher.transports[transport]['stream'])
-        elif tr_type == 'submission-service':
-            secure_id = self.launcher.transports[transport].get(
-                'secure_id', None)
-            if not secure_id and self.is_interactive:
-                secure_id = input(self.C.BLUE(_('Enter secure-id:')))
-            if secure_id:
-                options = "secure_id={}".format(secure_id)
-            else:
-                options = ""
-            if self.launcher.transports[transport].get('staging', False):
-                url = ('https://certification.staging.canonical.com/'
-                       'api/v1/submission/{}/'.format(secure_id))
-            else:
-                url = ('https://certification.canonical.com/'
-                       'api/v1/submission/{}/'.format(secure_id))
-            self.transports[transport] = cls(url, options)
-
-    def _export_results(self):
-        if 'none' not in self.launcher.stock_reports:
-            for report in self.launcher.stock_reports:
-                # skip stock c3 report if secure_id is not given from config files
-                # or launchers, and the UI is non-interactive (silent)
-                if (report in ['certification', 'certification-staging'] and
-                        'c3' not in self.launcher.transports and
-                        self.is_interactive == False):
-                    continue
-                self._prepare_stock_report(report)
-        # reports are stored in an ordinary dict(), so sorting them ensures
-        # the same order of submitting them between runs, and if they
-        # share common prefix, they are next to each other
-        for name, params in sorted(self.launcher.reports.items()):
-            if self.is_interactive and not params.get('forced', False):
-                message = _("Do you want to submit '{}' report?").format(name)
-                cmd = self._pick_action_cmd([
-                    Action('y', _("yes"), 'y'),
-                    Action('n', _("no"), 'n')
-                ], message)
-            else:
-                cmd = 'y'
-            if cmd == 'n':
-                continue
-            exporter_id = self.launcher.exporters[params['exporter']]['unit']
-            done_sending = False
-            while not done_sending:
-                try:
-                    self._create_transport(params['transport'])
-                    transport = self.transports[params['transport']]
-                    result = self.ctx.sa.export_to_transport(
-                        exporter_id, transport)
-                    if result and 'url' in result:
-                        print(result['url'])
-                    elif result and 'status_url' in result:
-                        print(result['status_url'])
-                except TransportError as exc:
-                    _logger.warning(
-                        _("Problem occured when submitting %s report: %s"),
-                        name, exc)
-                    if self._retry_dialog():
-                        # let's remove current transport, so in next
-                        # iteration it will be "rebuilt", so if some parts
-                        # were user-provided, checkbox will ask for them
-                        # again
-                        self.transports.pop(params['transport'])
-                        continue
-                except InvalidSecureIDError:
-                    _logger.warning(_("Invalid secure_id"))
-                    if self._retry_dialog():
-                        self.launcher.transports['c3'].pop('secure_id')
-                        continue
-                done_sending = True
-
-    def _retry_dialog(self):
-        if self.is_interactive:
-            message = _("Do you want to retry?")
-            cmd = self._pick_action_cmd([
-                Action('y', _("yes"), 'y'),
-                Action('n', _("no"), 'n')
-            ], message)
-            if cmd == 'y':
-                return True
-        return False
 
     def _get_ui_for_job(self, job):
         class CheckboxUI(NormalUI):
@@ -826,6 +657,42 @@ class Launcher(Command, MainLoopStage):
             'print more logging from checkbox'))
         parser.add_argument('--debug', action='store_true', help=_(
             'print debug messages from checkbox'))
+
+    def _configure_report(self):
+        """Configure transport and exporter."""
+        if self.ctx.args.output_format == '?':
+            print_objs('exporter')
+            raise SystemExit(0)
+        if self.ctx.args.transport == '?':
+            print(', '.join(get_all_transports()))
+            raise SystemExit(0)
+        if not self.ctx.args.transport:
+            if self.ctx.args.transport_where:
+                _logger.error(_(
+                    "--transport-where is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.transport_options:
+                _logger.error(_(
+                    "--transport-options is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.output_file != '-':
+                self.transport = 'file'
+                self.transport_where = self.ctx.args.output_file
+                self.transport_options = ''
+            else:
+                self.transport = 'stream'
+                self.transport_where = 'stdout'
+                self.transport_options = ''
+        else:
+            if self.ctx.args.transport not in get_all_transports():
+                _logger.error("The selected transport %r is not available",
+                             self.ctx.args.transport)
+                raise SystemExit(1)
+            self.transport = self.ctx.args.transport
+            self.transport_where = self.ctx.args.transport_where
+            self.transport_options = self.ctx.args.transport_options
+        self.exporter = self.ctx.args.output_format
+        self.exporter_opts = self.ctx.args.output_options
 
 
 
@@ -932,43 +799,6 @@ class Run(Command, MainLoopStage):
         self.sa.bootstrap()
         print(self.C.header(_("Running Selected Test Plan")))
         self._run_jobs(self.sa.get_dynamic_todo_list())
-
-    def _configure_report(self):
-        """Configure transport and exporter."""
-        if self.ctx.args.output_format == '?':
-            print_objs('exporter')
-            raise SystemExit(0)
-        if self.ctx.args.transport == '?':
-            print(', '.join(get_all_transports()))
-            raise SystemExit(0)
-        if not self.ctx.args.transport:
-            if self.ctx.args.transport_where:
-                _logger.error(_(
-                    "--transport-where is useless without --transport"))
-                raise SystemExit(1)
-            if self.ctx.args.transport_options:
-                _logger.error(_(
-                    "--transport-options is useless without --transport"))
-                raise SystemExit(1)
-            if self.ctx.args.output_file != '-':
-                self.transport = 'file'
-                self.transport_where = self.ctx.args.output_file
-                self.transport_options = ''
-            else:
-                self.transport = 'stream'
-                self.transport_where = 'stdout'
-                self.transport_options = ''
-        else:
-            if self.ctx.args.transport not in get_all_transports():
-                _logger.error("The selected transport %r is not available",
-                             self.ctx.args.transport)
-                raise SystemExit(1)
-            self.transport = self.ctx.args.transport
-            self.transport_where = self.ctx.args.transport_where
-            self.transport_options = self.ctx.args.transport_options
-        self.exporter = self.ctx.args.output_format
-        self.exporter_opts = self.ctx.args.output_options
-
 
     def _print_results(self):
         all_transports = get_all_transports()

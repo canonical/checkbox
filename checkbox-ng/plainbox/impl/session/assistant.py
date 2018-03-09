@@ -51,6 +51,7 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import PatternMatcher
+from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
@@ -178,6 +179,7 @@ class SessionAssistant:
         # All the key state for the active session. Technically just the
         # manager matters, the context and metadata are just shortcuts to stuff
         # available on the manager.
+        self._exclude_qualifiers = []
         self._manager = None
         self._context = None
         self._metadata = None
@@ -337,6 +339,10 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         self._config = config
+        self._exclude_qualifiers = []
+        for pattern in self._config.test_exclude:
+            self._exclude_qualifiers.append(
+                RegExpJobQualifier(pattern, None, False))
         Unit.config = config
         # NOTE: We expect applications to call this at most once.
         del UsageExpectation.of(self).allowed_calls[
@@ -857,7 +863,7 @@ class SessionAssistant:
         desired_job_list = select_jobs(
             self._context.state.job_list,
             [plan.get_bootstrap_qualifier() for plan in (
-                self._manager.test_plans)])
+                self._manager.test_plans)] + self._exclude_qualifiers)
         self._context.state.update_desired_job_list(
             desired_job_list, include_mandatory=False)
         for job in self._context.state.run_list:
@@ -871,7 +877,8 @@ class SessionAssistant:
         # described by the test plan that was selected earlier.
         desired_job_list = select_jobs(
             self._context.state.job_list,
-            [plan.get_qualifier() for plan in self._manager.test_plans])
+            [plan.get_qualifier() for plan in self._manager.test_plans] +
+                self._exclude_qualifiers)
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
@@ -928,7 +935,7 @@ class SessionAssistant:
         desired_job_list = select_jobs(
             self._context.state.job_list,
             [plan.get_bootstrap_qualifier() for plan in (
-                self._manager.test_plans)])
+                self._manager.test_plans)] + self._exclude_qualifiers)
         self._context.state.update_desired_job_list(
             desired_job_list, include_mandatory=False)
         UsageExpectation.of(self).allowed_calls = (
@@ -956,7 +963,8 @@ class SessionAssistant:
         # described by the test plan that was selected earlier.
         desired_job_list = select_jobs(
             self._context.state.job_list,
-            [plan.get_qualifier() for plan in self._manager.test_plans])
+            [plan.get_qualifier() for plan in self._manager.test_plans] +
+                self._exclude_qualifiers)
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.

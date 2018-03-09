@@ -202,6 +202,42 @@ Beginning of the test selection section
 If set to ``yes``, test selection screen will be skipped and all test specified
 in the test plan will be selected. Default value: ``no``
 
+``exclude``
+
+List of regex patterns that job ids will be matched against. The matched jobs
+will be excluded from running in both stages of the session: bootstrapping and
+normal stage. Note that if you specify a pattern that matches a resource job
+that is used to instantiate template units those units won't get generated. The
+patterns should be separated with whitespace. Examples:
+
+Exclude all jobs containing 'bluetooth' in their id:
+
+::
+
+    [test selection]
+    exclude = .*bluetooth.*
+
+
+Exclude all jobs containing ``bluetooth`` in their id, or having ids starting
+with ``com.canonical.certification::dock/wireless``:
+
+::
+
+    [test selection]
+    exclude = .*bluetooth.* com.canonical.certification::dock/wireless.*
+
+Note: Exclude field set in launcher can be overriden in a config, following
+Checkbox values resolution order. see :doc:`configs</configs>` for more info.
+
+Note: To clear the exclude list use...
+
+::
+
+    exclude =
+
+...in your 'last' config.
+
+
 User Interface section
 ======================
 

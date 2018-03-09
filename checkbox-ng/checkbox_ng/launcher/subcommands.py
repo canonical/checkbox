@@ -658,42 +658,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         parser.add_argument('--debug', action='store_true', help=_(
             'print debug messages from checkbox'))
 
-    def _configure_report(self):
-        """Configure transport and exporter."""
-        if self.ctx.args.output_format == '?':
-            print_objs('exporter')
-            raise SystemExit(0)
-        if self.ctx.args.transport == '?':
-            print(', '.join(get_all_transports()))
-            raise SystemExit(0)
-        if not self.ctx.args.transport:
-            if self.ctx.args.transport_where:
-                _logger.error(_(
-                    "--transport-where is useless without --transport"))
-                raise SystemExit(1)
-            if self.ctx.args.transport_options:
-                _logger.error(_(
-                    "--transport-options is useless without --transport"))
-                raise SystemExit(1)
-            if self.ctx.args.output_file != '-':
-                self.transport = 'file'
-                self.transport_where = self.ctx.args.output_file
-                self.transport_options = ''
-            else:
-                self.transport = 'stream'
-                self.transport_where = 'stdout'
-                self.transport_options = ''
-        else:
-            if self.ctx.args.transport not in get_all_transports():
-                _logger.error("The selected transport %r is not available",
-                             self.ctx.args.transport)
-                raise SystemExit(1)
-            self.transport = self.ctx.args.transport
-            self.transport_where = self.ctx.args.transport_where
-            self.transport_options = self.ctx.args.transport_options
-        self.exporter = self.ctx.args.output_format
-        self.exporter_opts = self.ctx.args.output_options
-
 
 
 class CheckboxUI(NormalUI):
@@ -799,6 +763,42 @@ class Run(Command, MainLoopStage):
         self.sa.bootstrap()
         print(self.C.header(_("Running Selected Test Plan")))
         self._run_jobs(self.sa.get_dynamic_todo_list())
+
+    def _configure_report(self):
+        """Configure transport and exporter."""
+        if self.ctx.args.output_format == '?':
+            print_objs('exporter')
+            raise SystemExit(0)
+        if self.ctx.args.transport == '?':
+            print(', '.join(get_all_transports()))
+            raise SystemExit(0)
+        if not self.ctx.args.transport:
+            if self.ctx.args.transport_where:
+                _logger.error(_(
+                    "--transport-where is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.transport_options:
+                _logger.error(_(
+                    "--transport-options is useless without --transport"))
+                raise SystemExit(1)
+            if self.ctx.args.output_file != '-':
+                self.transport = 'file'
+                self.transport_where = self.ctx.args.output_file
+                self.transport_options = ''
+            else:
+                self.transport = 'stream'
+                self.transport_where = 'stdout'
+                self.transport_options = ''
+        else:
+            if self.ctx.args.transport not in get_all_transports():
+                _logger.error("The selected transport %r is not available",
+                             self.ctx.args.transport)
+                raise SystemExit(1)
+            self.transport = self.ctx.args.transport
+            self.transport_where = self.ctx.args.transport_where
+            self.transport_options = self.ctx.args.transport_options
+        self.exporter = self.ctx.args.output_format
+        self.exporter_opts = self.ctx.args.output_options
 
     def _print_results(self):
         all_transports = get_all_transports()

@@ -228,4 +228,12 @@ def main():
     watcher = LogWatcher("/var/log", callback, logfile="syslog")
     signal.signal(signal.SIGALRM, no_usb_timeout)
     signal.alarm(USB_INSERT_TIMEOUT)
+    if ARGS.testcase == "insertion":
+        print("\n\nINSERT NOW\n\n", flush=True)
+    elif ARGS.testcase == "removal":
+        print("\n\nREMOVE NOW\n\n", flush=True)
     watcher.loop()
+
+
+if __name__ == "__main__":
+    main()

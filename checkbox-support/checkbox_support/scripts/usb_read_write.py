@@ -36,12 +36,20 @@ PLAINBOX_SESSION_SHARE = os.environ.get('PLAINBOX_SESSION_SHARE', '')
 FOLDER_TO_MOUNT = tempfile.mkdtemp()
 REPETITION_NUM = 5  # number to repeat the read/write test units.
 # Prepare a random file which size is RANDOM_FILE_SIZE.
-# Default 1048576 = 1MB  to perform writing test
-RANDOM_FILE_SIZE = 104857600
+RANDOM_FILE_SIZE = 104857600 # 100 MiB
+mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+mem_mib = mem_bytes/(1024.**2)
+# On systems with less than 1 GiB of RAM, only generate a 20 MiB file
+if mem_mib < 1200:
+    RANDOM_FILE_SIZE = 20971520
 USB_INSERT_INFO = "usb_insert_info"
 
 log_path = os.path.join(PLAINBOX_SESSION_SHARE, 'usb-rw.log')
 logging.basicConfig(level=logging.DEBUG, filename=log_path)
+ch = logging.StreamHandler(sys.stdout)
+ch.setFormatter(logging.Formatter("%(levelname)s:%(message)s"))
+log = logging.getLogger('')
+log.addHandler(ch)
 
 
 class RandomData():
@@ -88,6 +96,7 @@ class RandomData():
         data = self._generate_test_data()
         while os.path.getsize(self.tfile.name) < size:
             self.tfile.write(next(data).encode('UTF-8'))
+        self.tfile.close()
         return self
 
 
@@ -120,7 +129,6 @@ def get_partition_info():
     else:
         logging.error("has no idea which partition to mount or not found")
         sys.exit(1)
-
     return partition
 
 
@@ -160,7 +168,6 @@ def mount_usb_storage(partition):
         # use pipe so I could hide message like
         # "umount: /tmp/tmpjzwb6lys: not mounted"
         subprocess.call(['umount', FOLDER_TO_MOUNT], stderr=subprocess.PIPE)
-
         # mount the target device/partition
         # if the return code of the shell command is non-zero,
         # means something wrong.
@@ -173,7 +180,6 @@ def mount_usb_storage(partition):
             logging.debug("mount %s on %s successfully."
                           % (device_to_mount, FOLDER_TO_MOUNT))
         yield
-
     finally:
         logging.info("context manager exit: unmount USB storage")
         if subprocess.call(['umount', FOLDER_TO_MOUNT]):
@@ -187,7 +193,6 @@ def read_test(random_file):
     logging.debug("===================")
     logging.debug("reading test begins")
     logging.debug("===================")
-
     read_test_list = []
     for idx in range(REPETITION_NUM):
         read_test_list.append(read_test_unit(random_file, str(idx)))
@@ -213,14 +218,11 @@ def read_test_unit(random_source_file, idx=""):
     process = subprocess.Popen(['md5sum', random_source_file.tfile.name],
                                stdout=subprocess.PIPE)
     source_md5sum = process.communicate()[0].decode().split(" ")[0]
-
     logging.debug("%s %s (verified)" % (tfile_md5sum, path_random_file))
     logging.debug("%s %s (source)"
                   % (source_md5sum, random_source_file.tfile.name))
-
     # Clean the target file
     os.remove(path_random_file)
-
     # verify the md5sum
     if tfile_md5sum == source_md5sum:
         print("PASS: READING TEST: %s passes md5sum comparison."
@@ -238,7 +240,6 @@ def write_test(random_file):
     logging.debug("===================")
     logging.debug("writing test begins")
     logging.debug("===================")
-
     write_speed_list = []
     for idx in range(REPETITION_NUM):
         write_speed_list.append(write_test_unit(random_file, str(idx)))
@@ -253,13 +254,14 @@ def write_test_unit(random_file, idx=""):
     """
     perform the writing test.
 
-    :param random_file: a RndomData object created to be written
+    :param random_file: a RandomData object created to be written
     :return: a float in MB/s to denote writing speed
     """
     target_file = os.path.join(
         FOLDER_TO_MOUNT, os.path.basename(random_file.tfile.name)) + idx
     process = subprocess.Popen([
-        'dd', 'if=' + random_file.tfile.name, 'of=' + target_file],
+        'dd', 'if=' + random_file.tfile.name, 'of=' + target_file, 'bs=1M',
+        'oflag=sync'],
         stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     logging.debug("Apply command: %s" % process.args)
     # will get something like
@@ -267,8 +269,6 @@ def write_test_unit(random_file, idx=""):
     # '1049076 bytes (1.0 MB) copied, 0.00473357 s, 222 MB/s', '']
     list_dd_message = process.communicate()[0].decode().split("\n")
     logging.debug(list_dd_message)
-    logging.debug(get_md5sum(target_file))
-
     try:
         dd_speed = float(list_dd_message[2].split(" ")[-2])
         print("PASS: WRITING TEST: %s" % target_file)
@@ -279,7 +279,6 @@ def write_test_unit(random_file, idx=""):
         # (20 MB) copied, 99.647 s, 200 kB/s', '']
         print("ERROR: {}".format(list_dd_message))
         sys.exit(1)
-
     return dd_speed
 
 
@@ -291,18 +290,9 @@ def gen_random_file():
     :return: a RandomData object
     """
     logging.debug("generating a random file")
-
     try:
-        # 1048576 = 1024 * 1024
-        # we are going to generate a 1M file
         random_file = RandomData(RANDOM_FILE_SIZE)
-        # flush the remaining data in the memory buffer
-        # otherwise the md5sum will be different if you
-        # check it manually from your shell command md5sum
-        random_file.tfile.file.flush()
-
         yield random_file
-
     finally:
         logging.info("Remove temporary folders and files.")
         # delete the mount folder
@@ -330,16 +320,14 @@ def get_md5sum(file_to_check):
         # (b'07bc8f96b7c7dba2c1f3eb2f7dd50541  /tmp/tmp9jnuv329\n', None)
         # will be returned by communicate() in this case
         md5sum = process.communicate()[0].decode().split(" ")[0]
-
         if md5sum:
-            logging.debug("MD5SUM: of %s \t\t\t\t\t%s"
+            logging.debug("MD5SUM of %s: %s"
                           % (file_to_check, md5sum))
             return md5sum
         else:
             logging.error("Could not found file to check its MD5SUM. \
                            Check the folder permission?")
             sys.exit(1)
-
     except OSError as e:
         if e.errno == errno.ENOENT:
             logging.error("%s info file was not found. \

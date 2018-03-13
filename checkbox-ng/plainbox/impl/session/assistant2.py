@@ -154,7 +154,8 @@ class SessionAssistant2():
     def start_session(self, configuration):
         _logger.debug("start_session: %r", configuration)
         self._launcher = DefaultLauncherDefinition()
-        self._launcher.read_string(configuration['launcher'])
+        if configuration['launcher']:
+            self._launcher.read_string(configuration['launcher'])
         self._sa.use_alternate_configuration(self._launcher)
         self._sa.select_providers(*self._launcher.providers)
         self._sa.start_new_session('checkbox-service')

@@ -130,9 +130,8 @@ class RemoteControl(Command, ReportsStage):
     def invoked(self, ctx):
         self._C = Colorizer()
         self._override_exporting(self.local_export)
-        config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
-        config['sync_request_timeout'] = 1
-        config['allow_all_attrs'] = True
+        self._launcher_text = ''
+        self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
             if not os.path.exists(expanded_path):
@@ -140,13 +139,31 @@ class RemoteControl(Command, ReportsStage):
                     expanded_path))
             with open(expanded_path, 'rt') as f:
                 self._launcher_text = f.read()
-            # let's create an actual launcher instance to check its validity
-            self.launcher = DefaultLauncherDefinition()
             self.launcher.read_string(self._launcher_text)
+        timeout = 30
+        deadline = time.time() + timeout
+        port = 18871
+        print(_("Connecting to {}:{}. Timeout: {}s").format(
+            ctx.args.host, port, timeout))
+        while time.time() < deadline:
+            try:
+                self.connect_and_run(ctx.args.host, port)
+                break
+            except (ConnectionRefusedError, socket.timeout, OSError):
+                print('.', end='', flush=True)
+                time.sleep(1)
+        else:
+            print(_("\nConnection timed out."))
+
+
+    def connect_and_run(self, host, port=18871):
+        config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
+        config['sync_request_timeout'] = 1
+        config['allow_all_attrs'] = True
         keep_running = False
         while True:
             try:
-                conn = rpyc.connect(ctx.args.host, 18871, config=config)
+                conn = rpyc.connect(host, port, config=config)
                 keep_running = True
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn

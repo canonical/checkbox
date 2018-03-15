@@ -113,11 +113,18 @@ class SessionAssistant2():
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
-        self._state = Idle
-        self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
-        self._sa.configure_application_restart(cmd_callback)
+        self._cmd_callback = cmd_callback
         self._sudo_broker = SudoBroker()
         self._sudo_password = None
+        self._session_change_lock = Lock()
+        self._operator_lock = Lock()
+        self.buffered_ui = BufferedUI()
+        self._reset_sa()
+
+    def _reset_sa(self):
+        self._state = Idle
+        self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
+        self._sa.configure_application_restart(self._cmd_callback)
         self._sa.use_alternate_execution_controllers([
             (
                 RootViaSudoWithPassExecutionController,
@@ -126,14 +133,11 @@ class SessionAssistant2():
             ),
             (UserJobExecutionController, [], {}),
         ])
-        self._session_change_lock = Lock()
-        self._operator_lock = Lock()
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
         self._job_index = 0
         self._currently_running_job = None  # XXX: yuck!
-        self.buffered_ui = BufferedUI()
         self._last_response = None
 
     @property
@@ -327,7 +331,7 @@ class SessionAssistant2():
 
     def finalize_session(self):
         self._sa.finalize_session()
-        self._state = Idle
+        self._reset_sa()
 
     @property
     def manager(self):

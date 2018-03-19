@@ -931,6 +931,14 @@ E: UDEV_LOG=3
         devices = self.parse("MELLANOX_40GBPS")
         self.assertEqual(self.count(devices, "NETWORK"), 8)
 
+    def test_VESTA_300(self):
+        devices = self.parse("VESTA_300")
+        self.assertEqual(len(devices), 14)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 5)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

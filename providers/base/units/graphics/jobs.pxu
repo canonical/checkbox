@@ -240,7 +240,7 @@ id: graphics/{index}_rotation_{product_slug}
 depends: graphics/xorg-version
 command:
  source graphics_env {driver} {index}
- rotation_test_using_dbus
+ rotation_test
 estimated_duration: 20.000
 _summary: Test rotation for {vendor} {product}
 _description:

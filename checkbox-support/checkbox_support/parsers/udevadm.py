@@ -473,6 +473,8 @@ class UdevadmDevice(object):
                             return "DISK"
                     else:
                         return "DISK"
+                if self.bus == 'mtd':
+                    return "DISK"
                 if self.driver == 'dasd-eckd':
                     # IBM s390x DASD device types
                     return "DISK"
@@ -990,6 +992,10 @@ class UdevadmParser(object):
         if ("DEVTYPE" in device._environment and
            device.bus == "virtio" and
            device.driver == "virtio_blk"):
+            return False
+        # Do not ignore MTD disks
+        if device.category == "DISK" and device.bus == "mtd":
+            device.product = device.name
             return False
         # Do not ignore Bluetooth devices w/o product & vendor ID.
         # These can be virtual devices, yet still constitute valid devices.

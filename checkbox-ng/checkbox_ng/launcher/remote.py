@@ -175,7 +175,7 @@ class RemoteControl(Command, ReportsStage):
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
                     'bootstrapped': self.continue_session,
-                    'started': partial(self.select_tp, tps=payload),
+                    'started': partial(self.interactively_choose_tp, tps=payload),
                 }[state]()
             except EOFError:
                 print("Connection lost!")
@@ -202,21 +202,20 @@ class RemoteControl(Command, ReportsStage):
         
         tps = self.sa.start_session(configuration)
         if self.launcher.test_plan_forced:
-            pass_required = self.sa.prepare_bootstrapping(
-                self.launcher.test_plan_default_selection)
-            if pass_required:
-                self.sa.save_password(
-                    self._sudo_provider.encrypted_password)
-            self.jobs = self.sa.bootstrap()
+            self.select_tp(self.launcher.test_plan_default_selection)
         else:
-            self.select_tp(tps)
+            self.interactively_choose_tp(tps)
         self.select_jobs()
 
-    def select_tp(self, tps):
+    def interactively_choose_tp(self, tps):
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
-        pass_required = self.sa.prepare_bootstrapping(tps[selected_index][0])
+        self.select_tp(tps[selected_index][0])
+
+
+    def select_tp(self, tp):
+        pass_required = self.sa.prepare_bootstrapping(tp)
         if pass_required:
             self.sa.save_password(
                 self._sudo_provider.encrypted_password)

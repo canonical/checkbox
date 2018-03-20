@@ -264,6 +264,10 @@ class RemoteControl(Command, ReportsStage):
 
     def run_jobs(self, jobs):
         jobs_repr = self.sa.get_jobs_repr(jobs)
+        if any([x['user'] is not None for x in jobs_repr]):
+            self.sa.save_password(
+                self._sudo_provider.encrypted_password)
+
         for job in jobs_repr:
             SimpleUI.header(job['name'])
             print(_("ID: {0}").format(job['id']))

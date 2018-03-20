@@ -172,11 +172,26 @@ class SessionAssistant2():
         return self._available_testplans
 
     @allowed_when(Started)
-    def bootstrap(self, test_plan_id):
-        _logger.debug("bootstrap: %r", test_plan_id)
+    def prepare_bootstrapping(self, test_plan_id):
+        """
+        Go through the list of bootstrapping jobs, and return True
+        if sudo password will be needed for any bootstrapping job.
+        """
+        _logger.debug("prepare_bootstrapping: %r", test_plan_id)
         self._sa.update_app_blob(json.dumps(
             {'testplan_id': test_plan_id, }).encode("UTF-8"))
         self._sa.select_test_plan(test_plan_id)
+        for job_id in self._sa.get_bootstrap_todo_list():
+            job = self._sa.get_job(job_id)
+            if job.user is not None:
+                # job requires sudo controller
+                return True
+        return False
+
+
+    @allowed_when(Started)
+    def bootstrap(self):
+        _logger.debug("bootstrap")
         self._sa.bootstrap()
         self._jobs_count = len(self._sa.get_static_todo_list())
         self._state = Bootstrapped

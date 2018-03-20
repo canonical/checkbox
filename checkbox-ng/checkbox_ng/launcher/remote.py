@@ -202,8 +202,12 @@ class RemoteControl(Command, ReportsStage):
         
         tps = self.sa.start_session(configuration)
         if self.launcher.test_plan_forced:
-            self.jobs = self.sa.bootstrap(
+            pass_required = self.sa.prepare_bootstrapping(
                 self.launcher.test_plan_default_selection)
+            if pass_required:
+                self.sa.save_password(
+                    self._sudo_provider.encrypted_password)
+            self.jobs = self.sa.bootstrap()
         else:
             self.select_tp(tps)
         self.select_jobs()
@@ -212,7 +216,11 @@ class RemoteControl(Command, ReportsStage):
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
-        self.jobs = self.sa.bootstrap(tps[selected_index][0])
+        pass_required = self.sa.prepare_bootstrapping(tps[selected_index][0])
+        if pass_required:
+            self.sa.save_password(
+                self._sudo_provider.encrypted_password)
+        self.jobs = self.sa.bootstrap()
 
     def select_jobs(self):
         if self.launcher.test_selection_forced:

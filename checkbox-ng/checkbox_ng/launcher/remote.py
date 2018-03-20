@@ -161,6 +161,7 @@ class RemoteControl(Command, ReportsStage):
         config['sync_request_timeout'] = 1
         config['allow_all_attrs'] = True
         keep_running = False
+        self._prepare_transports()
         while True:
             try:
                 conn = rpyc.connect(host, port, config=config)
@@ -197,8 +198,6 @@ class RemoteControl(Command, ReportsStage):
     def new_session(self):
         configuration = dict()
         configuration['launcher'] = self._launcher_text
-        if self.launcher.local_submission:
-            self._prepare_transports()
         
         tps = self.sa.start_session(configuration)
         if self.launcher.test_plan_forced:

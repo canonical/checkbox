@@ -261,7 +261,6 @@ class RemoteControl(Command, ReportsStage):
     def continue_session(self):
         todo = self.sa.get_session_progress()["todo"]
         self.run_jobs(todo)
-        self.finish_session()
 
     def run_jobs(self, jobs):
         jobs_repr = self.sa.get_jobs_repr(jobs)

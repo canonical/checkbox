@@ -102,6 +102,7 @@ _summary: Collect information about system memory (/proc/meminfo)
 id: module
 estimated_duration: 0.13
 plugin: resource
+user: root
 command: module_resource
 _description: Generates resources info on running kernel modules
 _summary: Collect information about kernel modules

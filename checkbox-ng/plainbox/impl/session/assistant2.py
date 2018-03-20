@@ -321,6 +321,7 @@ class SessionAssistant2():
                 "description": (job.tr_description() or
                                 _('No description provided for this job')),
                 "outcome": self._sa.get_job_state(job.id).result.outcome,
+                "user": job.user,
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list

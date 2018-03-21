@@ -82,6 +82,12 @@ def main():
                 # (for both signal format and connector type).
                 supported_connections['hdmi'] = 'supported'
 
+    # HDMI ports are often reported as DP due to drivers/firmwares
+    # Let's assume both are present
+    # See https://bugs.launchpad.net/plainbox-provider-resource/+bug/1757359
+    if supported_connections['dp'] == 'supported':
+        supported_connections['hdmi'] = 'supported'
+
     for connector in supported_connections.items():
         print("{}: {}".format(connector[0], connector[1]))
 

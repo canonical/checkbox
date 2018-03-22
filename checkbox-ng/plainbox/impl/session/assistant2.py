@@ -144,12 +144,12 @@ class SessionAssistant2():
     def session_change_lock(self):
         return self._session_change_lock
 
-    def allowed_when(state):
+    def allowed_when(*states):
         def wrap(f):
             def fun(self, *args):
-                if self._state != state:
+                if self._state not in states:
                     raise AssertionError(
-                        "expected %s, is %s" % (self._state, state))
+                        "expected %s, is %s" % (states, self._state))
                 return f(self, *args)
             return fun
         return wrap

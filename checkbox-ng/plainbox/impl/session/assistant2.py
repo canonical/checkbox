@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2017 Canonical Ltd.
+# Copyright 2018 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -188,14 +188,18 @@ class SessionAssistant2():
                 return True
         return False
 
-
     @allowed_when(Started)
-    def bootstrap(self):
-        _logger.debug("bootstrap")
-        self._sa.bootstrap()
+    def get_bootstrapping_todo_list(self):
+        return self._sa.get_bootstrap_todo_list()
+
+    def finish_bootstrap(self):
+        self._sa.finish_bootstrap()
         self._jobs_count = len(self._sa.get_static_todo_list())
         self._state = Bootstrapped
         return self._sa.get_static_todo_list()
+
+
+
 
     @allowed_when(Bootstrapped)
     def run_job(self, job_id):
@@ -221,7 +225,15 @@ class SessionAssistant2():
         self._state = Running
         self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
 
-    @allowed_when(Running)
+    @allowed_when(Started, Bootstrapping)
+    def run_bootstrapping_job(self, job_id):
+        self._currently_running_job = job_id
+        self._state = Bootstrapping
+        self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
+
+
+
+    @allowed_when(Running, Bootstrapping)
     def monitor_job(self):
         """
         Check the state of the currently running job.
@@ -283,10 +295,11 @@ class SessionAssistant2():
         self._sa.use_job_result(
             self._currently_running_job, self._be.wait().get_result())
         self._session_change_lock.release()
-        if not self._sa.get_dynamic_todo_list():
-            self._state = Idle
-        else:
-            self._state = Bootstrapped
+        if self._state != Bootstrapping:
+            if not self._sa.get_dynamic_todo_list():
+                self._state = Idle
+            else:
+                self._state = Bootstrapped
 
     def get_jobs_repr(self, job_ids):
         """

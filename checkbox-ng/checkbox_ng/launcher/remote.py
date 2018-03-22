@@ -218,7 +218,17 @@ class RemoteControl(Command, ReportsStage):
         if pass_required:
             self.sa.save_password(
                 self._sudo_provider.encrypted_password)
-        self.jobs = self.sa.bootstrap()
+
+        bs_todo = self.sa.get_bootstrapping_todo_list()
+        for job_no, job_id in enumerate(bs_todo, start=1):
+            print(self.C.header(
+                _('Bootstrap {} ({}/{})').format(
+                    job_id, job_no, len(bs_todo), fill='-')))
+            self.sa.run_bootstrapping_job(job_id)
+            self.wait_for_job()
+        self.jobs = self.sa.finish_bootstrap()
+
+
 
     def select_jobs(self):
         if self.launcher.test_selection_forced:

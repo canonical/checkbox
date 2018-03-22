@@ -295,9 +295,9 @@ class RemoteControl(Command, ReportsStage):
     def wait_for_job(self):
         while True:
             state, payload = self.sa.monitor_job()
+            if payload:
+                SimpleUI.green_text(payload, end='')
             if state == 'running':
-                if payload:
-                    SimpleUI.green_text(payload, end='')
                 time.sleep(0.5)
             else:
                 self.sa.finish_job()

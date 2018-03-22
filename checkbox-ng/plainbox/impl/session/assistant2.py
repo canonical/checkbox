@@ -249,7 +249,7 @@ class SessionAssistant2():
         if self._be.is_alive():
             return ('running', self.buffered_ui.get_output())
         else:
-            return ('done', self._be.outcome())
+            return ('done', self.buffered_ui.get_output())
         return 'running' if self._be.is_alive() else 'done'
 
     def whats_up(self):

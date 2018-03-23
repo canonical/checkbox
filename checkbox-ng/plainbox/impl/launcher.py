@@ -161,6 +161,13 @@ class LauncherDefinition1(LauncherDefinition):
         default=False,
         help_text=_("Don't allow the user to alter test selection."))
 
+    test_exclude = config.Variable(
+        section='test selection',
+        name='exclude',
+        default=[],
+        kind=list,
+        help_text=_("Exclude test matching the patterns from running"))
+
     ui_type = config.Variable(
         section='ui',
         name='type',

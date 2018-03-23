@@ -938,7 +938,7 @@ class SessionAssistant:
                 self._manager.test_plans)] + self._exclude_qualifiers)
         self._context.state.update_desired_job_list(
             desired_job_list, include_mandatory=False)
-        UsageExpectation.of(self).allowed_calls = (
+        UsageExpectation.of(self).allowed_calls.update(
             self._get_allowed_calls_in_normal_state())
         return [job.id for job in self._context.state.run_list]
 

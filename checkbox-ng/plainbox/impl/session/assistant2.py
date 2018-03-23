@@ -113,11 +113,18 @@ class SessionAssistant2():
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
-        self._state = Idle
-        self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
-        self._sa.configure_application_restart(cmd_callback)
+        self._cmd_callback = cmd_callback
         self._sudo_broker = SudoBroker()
         self._sudo_password = None
+        self._session_change_lock = Lock()
+        self._operator_lock = Lock()
+        self.buffered_ui = BufferedUI()
+        self._reset_sa()
+
+    def _reset_sa(self):
+        self._state = Idle
+        self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
+        self._sa.configure_application_restart(self._cmd_callback)
         self._sa.use_alternate_execution_controllers([
             (
                 RootViaSudoWithPassExecutionController,
@@ -126,14 +133,11 @@ class SessionAssistant2():
             ),
             (UserJobExecutionController, [], {}),
         ])
-        self._session_change_lock = Lock()
-        self._operator_lock = Lock()
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
         self._job_index = 0
         self._currently_running_job = None  # XXX: yuck!
-        self.buffered_ui = BufferedUI()
         self._last_response = None
 
     @property
@@ -154,7 +158,8 @@ class SessionAssistant2():
     def start_session(self, configuration):
         _logger.debug("start_session: %r", configuration)
         self._launcher = DefaultLauncherDefinition()
-        self._launcher.read_string(configuration['launcher'])
+        if configuration['launcher']:
+            self._launcher.read_string(configuration['launcher'])
         self._sa.use_alternate_configuration(self._launcher)
         self._sa.select_providers(*self._launcher.providers)
         self._sa.start_new_session('checkbox-service')
@@ -167,11 +172,26 @@ class SessionAssistant2():
         return self._available_testplans
 
     @allowed_when(Started)
-    def bootstrap(self, test_plan_id):
-        _logger.debug("bootstrap: %r", test_plan_id)
+    def prepare_bootstrapping(self, test_plan_id):
+        """
+        Go through the list of bootstrapping jobs, and return True
+        if sudo password will be needed for any bootstrapping job.
+        """
+        _logger.debug("prepare_bootstrapping: %r", test_plan_id)
         self._sa.update_app_blob(json.dumps(
             {'testplan_id': test_plan_id, }).encode("UTF-8"))
         self._sa.select_test_plan(test_plan_id)
+        for job_id in self._sa.get_bootstrap_todo_list():
+            job = self._sa.get_job(job_id)
+            if job.user is not None:
+                # job requires sudo controller
+                return True
+        return False
+
+
+    @allowed_when(Started)
+    def bootstrap(self):
+        _logger.debug("bootstrap")
         self._sa.bootstrap()
         self._jobs_count = len(self._sa.get_static_todo_list())
         self._state = Bootstrapped
@@ -301,6 +321,7 @@ class SessionAssistant2():
                 "description": (job.tr_description() or
                                 _('No description provided for this job')),
                 "outcome": self._sa.get_job_state(job.id).result.outcome,
+                "user": job.user,
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list
@@ -326,7 +347,7 @@ class SessionAssistant2():
 
     def finalize_session(self):
         self._sa.finalize_session()
-        self._state = Idle
+        self._reset_sa()
 
     @property
     def manager(self):

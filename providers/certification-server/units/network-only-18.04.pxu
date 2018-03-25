@@ -1,0 +1,49 @@
+id: 18.04-network-only
+_name: 18.04 Network Only Test Plan (Only tests network devices)
+unit: test plan
+_description:
+    This test plan is intended to be used for retesting of network devices
+    only.  It does not provide any testing of other hardware and should only be
+    run at the direction of the Cert Team when re-testing of network devices is
+    requried.
+mandatory_include:
+    # Meta-job to include required resources, please don't remove
+    miscellanea/submission-resources
+    config_file_attachment
+    cpuinfo_attachment
+    dkms_info_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    lshw_attachment
+    lsusb_attachment
+    lsblk_attachment
+    meminfo_attachment
+    modprobe_attachment
+    modinfo_attachment
+    modules_attachment
+    sysctl_attachment
+    sysfs_attachment
+    udev_attachment
+    udev-summary_attachment
+    lsmod_attachment
+    miscellanea/get_make_and_model
+    miscellanea/get_maas_version               certification-status=blocker
+    miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/secure_boot_mode               certification-status=non-blocker
+    info/network_devices
+    kernel_cmdline_attachment
+include:
+    cpu/purley_id
+    ethernet/detect
+    ethernet/info_automated
+    ethernet/ethtool_info
+    ethernet/ethertool_check_.*
+    ethernet/multi_iperf3_nic_.*
+    miscellanea/call-trace-check               certification-status=non-blocker
+    miscellanea/attach-syslog                  certification-status=non-blocker
+bootstrap_include:
+    device
+    fwts

@@ -365,10 +365,10 @@ _summary: Attach the baseline sosreport file
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
-id: miscellanea/call-trace-check
-command: if [ -n "$(grep "Call Trace:" /var/log/syslog)" ]; then echo "Call Trace detected in syslog"; false; else true; fi
-_summary: Check syslog for call traces
-_description: Checks syslog for call traces after testing is complete.
+id: miscellanea/oops-check
+command: oops_check.sh
+_summary: Check syslog for oopses
+_description: Checks syslog for oopses after testing is complete.
 flags: preserve-locale
 
 plugin: attachment

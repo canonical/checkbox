@@ -42,8 +42,8 @@ include:
     ethernet/ethtool_info
     ethernet/ethertool_check_.*
     ethernet/multi_nic_.*
-    miscellanea/call-trace-check               certification-status=non-blocker
-    miscellanea/attach-syslog                  certification-status=non-blocker
+    miscellanea/oops                        certification-status=non-blocker
+    miscellanea/oops_results.log            certification-status=non-blocker
 bootstrap_include:
     device
     fwts

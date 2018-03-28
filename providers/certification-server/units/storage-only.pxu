@@ -47,8 +47,8 @@ include:
     disk/disk_stress_ng_.*                     certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=non-blocker
     mediacard/sd-preinserted                   certification-status=blocker
-    miscellanea/call-trace-check               certification-status=non-blocker
-    miscellanea/attach-syslog                  certification-status=non-blocker
+    miscellanea/oops                        certification-status=non-blocker
+    miscellanea/oops_results.log            certification-status=non-blocker
 bootstrap_include:
     device
     fwts

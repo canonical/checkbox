@@ -224,7 +224,7 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             additional_providers = ()
             if os.path.exists(side_load_path):
                 print(self._C.RED(_(
-                    "WARNING: using side-loded providers")))
+                    "WARNING: using side-loaded providers")))
                 os.environ['PROVIDERPATH'] = ''
                 embedded_providers = EmbeddedProvider1PlugInCollection(
                         side_load_path)

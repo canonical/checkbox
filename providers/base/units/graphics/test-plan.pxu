@@ -104,6 +104,7 @@ include:
     suspend/1_video_after_suspend_.*_xenial                certification-status=blocker
     suspend/1_cycle_resolutions_after_suspend_.*_xenial    certification-status=non-blocker
     suspend/1_xrandr_screens_after_suspend.tar.gz_xenial
+    after-suspend-manual-monitor/1_dim_brightness_.*       certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-full
 unit: test plan
@@ -122,6 +123,7 @@ include:
     suspend/2_video_after_suspend_.*_xenial                certification-status=blocker
     suspend/2_cycle_resolutions_after_suspend_.*_xenial    certification-status=non-blocker
     suspend/2_xrandr_screens_after_suspend_.*.tar.gz_xenial
+    after-suspend-manual-monitor/2_dim_brightness_.*       certification-status=blocker
 
 id: graphics-integrated-gpu-cert-blockers
 unit: test plan
@@ -174,6 +176,7 @@ include:
     suspend/1_display_after_suspend_.*_xenial              certification-status=blocker
     suspend/1_glxgears_after_suspend_.*_xenial             certification-status=blocker
     suspend/1_video_after_suspend_.*_xenial                certification-status=blocker
+    after-suspend-manual-monitor/1_dim_brightness_.*       certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-blockers
 unit: test plan
@@ -188,3 +191,4 @@ include:
     suspend/2_display_after_suspend_.*_xenial              certification-status=blocker
     suspend/2_glxgears_after_suspend_.*_xenial             certification-status=blocker
     suspend/2_video_after_suspend_.*_xenial                certification-status=blocker
+    after-suspend-manual-monitor/2_dim_brightness_.*       certification-status=blocker

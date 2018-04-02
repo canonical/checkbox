@@ -129,6 +129,7 @@ requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-On
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::monitor
 user: root
+flags: also-after-suspend-manual
 command: brightness_test
 _purpose:
     This test will test changes to screen brightness

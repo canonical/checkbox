@@ -5,15 +5,16 @@ import os
 import pwd
 import re
 import shutil
+import signal
 import subprocess
 import sys
-import signal
-
 from argparse import ArgumentParser, SUPPRESS
 from calendar import timegm
+from configparser import ConfigParser
 from datetime import datetime, timedelta
-from gi.repository import Gtk, GObject
-from time import time, localtime
+from time import localtime, time
+
+from gi.repository import GObject, Gtk
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
                          'permissions to run correctly\n')
         sys.exit(1)
 
-    #Obtain name of the invoking user.
+    # Obtain name of the invoking user.
     uid = os.getenv('SUDO_UID') or os.getenv('PKEXEC_UID')
     if not uid:
         sys.stderr.write('Unable to determine invoking user\n')
@@ -60,7 +61,7 @@ def main():
     return 0
 
 
-class PowerManagementOperation(object):
+class PowerManagementOperation():
     SLEEP_TIME = 5
 
     def __init__(self, args, extra_args, user=None):
@@ -140,9 +141,11 @@ class PowerManagementOperation(object):
         script_path = ''
         if fwts:
             script_path = 'checkbox-support-fwts_test'
-            command_tpl = '-s s3 --s3-device-check --s3-sleep-delay=30 --s3-multiple={}'
+            command_tpl = '-s s3 --s3-device-check ' \
+                          '--s3-sleep-delay=30 --s3-multiple={}'
             if self.args.log_dir:
-                command_tpl = '--log={}/fwts.log '.format(self.args.log_dir) + command_tpl
+                command_tpl = '--log={}/fwts.log '.format(
+                    self.args.log_dir) + command_tpl
             command_tpl = '{} ' + command_tpl
         else:
             script_name = 'sleep_test'
@@ -154,9 +157,10 @@ class PowerManagementOperation(object):
         logging.debug('Executing: {0!r}...'.format(command_str))
         try:
             # We call sleep_test or fwts_test script and log its output as it
-            # contains average times we need to compute global average times later.
-            logging.info(subprocess.check_output(command_str,
-                universal_newlines=True, shell=True))
+            # contains average times we need to compute global average times
+            # later.
+            logging.info(subprocess.check_output(
+                command_str, universal_newlines=True, shell=True))
         except subprocess.CalledProcessError as e:
             logging.error('Error while running {0}:'.format(e.cmd))
             logging.error(e.output)
@@ -183,9 +187,9 @@ class PowerManagementOperation(object):
         else:
             sleep_time = timedelta(seconds=self.args.wakeup)
 
-        wait_time = timedelta(seconds=(self.args.pm_delay
-                                       + (self.args.hardware_delay)
-                                       * self.args.total))
+        wait_time = timedelta(seconds=(self.args.pm_delay +
+                                       self.args.hardware_delay *
+                                       self.args.total))
         average = (end - start - wait_time) / self.args.total - sleep_time
         time_message = ('Total elapsed time: {total}\n'
                         'Average recovery time: {average}'
@@ -202,7 +206,8 @@ class PowerManagementOperation(object):
             MessageDialog(title, message).run()
         if self.args.checkbox_respawn_cmd:
             subprocess.run(
-                r'DISPLAY=:0 x-terminal-emulator -e "sudo -u {} bash -c \"source {}; exec bash\""'.format(
+                'DISPLAY=:0 x-terminal-emulator -e "sudo -u '
+                '{} bash -c \"source {}; exec bash\""'.format(
                     self.user, self.args.checkbox_respawn_cmd), shell=True)
 
     def teardown(self):
@@ -228,7 +233,7 @@ class TestFailed(Exception):
     MESSAGE = '{0} test failed'
 
 
-class WakeUpAlarm(object):
+class WakeUpAlarm():
     ALARM_FILENAME = '/sys/class/rtc/rtc0/wakealarm'
     RTC_FILENAME = '/proc/driver/rtc'
 
@@ -271,8 +276,10 @@ class WakeUpAlarm(object):
                 logging.error(e)
                 sys.exit(1)
 
-            if ((abs(wakeup_time_utc - wakeup_time_stored) > 1) and
-                (abs(wakeup_time_local - wakeup_time_stored) > 1)):
+            if (
+                (abs(wakeup_time_utc - wakeup_time_stored) > 1) and
+                (abs(wakeup_time_local - wakeup_time_stored) > 1)
+            ):
                 logging.error('Wakeup time not stored correctly')
                 sys.exit(1)
 
@@ -297,7 +304,7 @@ class WakeUpAlarm(object):
                 sys.exit(1)
 
 
-class Command(object):
+class Command():
     """
     Simple subprocess.Popen wrapper to run shell commands
     and log their output
@@ -392,8 +399,8 @@ class CountdownDialog(Gtk.Dialog):
             # In last iteration, wait before gathering hardware information
             # and perform pm-operation
             self.events = [operation_event,
-                          hardware_info_event,
-                          system_info_event]
+                           hardware_info_event,
+                           system_info_event]
         else:
             # In last iteration, wait before gathering hardware information
             # and finish the test
@@ -502,15 +509,15 @@ class CountdownDialog(Gtk.Dialog):
         logging.info('Gathering system information...')
         # FIXME: Commented out as it created huge log files
         # during stress tests.
-        #logging.debug('--- beginning of dmesg ---')
-        #logging.debug(Command('dmesg').run().stdout)
-        #logging.debug('--- end of dmesg ---')
-        #logging.debug('--- beginning of syslog ---')
-        #logging.debug(Command('cat /var/log/syslog').run().stdout)
-        #logging.debug('--- end of syslog ---')
+        # logging.debug('--- beginning of dmesg ---')
+        # logging.debug(Command('dmesg').run().stdout)
+        # logging.debug('--- end of dmesg ---')
+        # logging.debug('--- beginning of syslog ---')
+        # logging.debug(Command('cat /var/log/syslog').run().stdout)
+        # logging.debug('--- end of syslog ---')
 
 
-class MessageDialog(object):
+class MessageDialog():
     """
     Simple wrapper aroung Gtk.MessageDialog
     """
@@ -529,37 +536,47 @@ class MessageDialog(object):
         dialog.destroy()
 
 
-class AutoLoginConfigurator(object):
+class AutoLoginConfigurator():
     """
     Enable/disable autologin configuration
     to make sure that reboot test will work properly
     """
-    CONFIG_FILENAME = '/etc/lightdm/lightdm.conf'
-    TEMPLATE = """
+    def __init__(self, user=None):
+        self.user = user
+        self.config_filename = '/etc/lightdm/lightdm.conf'
+        self.template = """
 [SeatDefaults]
 greeter-session=unity-greeter
 user-session=ubuntu
 autologin-user={username}
 autologin-user-timeout=0
 """
-
-    def __init__(self, user=None):
-        self.user = user
+        if os.path.exists('/etc/gdm3/custom.conf'):
+            self.config_filename = '/etc/gdm3/custom.conf'
+            self.parser = ConfigParser()
+            self.parser.optionxform = str
+            self.parser.read(self.config_filename)
+            self.parser.set('daemon', 'AutomaticLoginEnable', 'True')
+            if self.user:
+                self.parser.set('daemon', 'AutomaticLogin', self.user)
 
     def enable(self):
         """
         Make sure user will autologin in next reboot
         """
         logging.debug('Enabling autologin for this user...')
-        if os.path.exists(self.CONFIG_FILENAME):
+        if os.path.exists(self.config_filename):
             for backup_filename in self.generate_backup_filename():
                 if not os.path.exists(backup_filename):
-                    shutil.copyfile(self.CONFIG_FILENAME, backup_filename)
-                    shutil.copystat(self.CONFIG_FILENAME, backup_filename)
+                    shutil.copyfile(self.config_filename, backup_filename)
+                    shutil.copystat(self.config_filename, backup_filename)
                     break
 
-        with open(self.CONFIG_FILENAME, 'w') as f:
-            f.write(self.TEMPLATE.format(username=self.user))
+            with open(self.config_filename, 'w') as f:
+                if self.config_filename == '/etc/lightdm/lightdm.conf':
+                    f.write(self.template.format(username=self.user))
+                elif self.config_filename == '/etc/gdm3/custom.conf':
+                    self.parser.write(f)
 
     def disable(self):
         """
@@ -575,24 +592,24 @@ autologin-user-timeout=0
             backup_filename = filename
 
         if backup_filename:
-            shutil.copy(backup_filename, self.CONFIG_FILENAME)
+            shutil.copy(backup_filename, self.config_filename)
             os.remove(backup_filename)
         else:
-            os.remove(self.CONFIG_FILENAME)
+            os.remove(self.config_filename)
 
     def generate_backup_filename(self):
-        backup_filename = self.CONFIG_FILENAME + '.bak'
+        backup_filename = self.config_filename + '.bak'
         yield backup_filename
 
         index = 0
         while True:
             index += 1
-            backup_filename = (self.CONFIG_FILENAME
-                               + '.bak.{0}'.format(index))
+            backup_filename = (self.config_filename +
+                               '.bak.{0}'.format(index))
             yield backup_filename
 
 
-class SudoersConfigurator(object):
+class SudoersConfigurator():
     """
     Enable/disable reboot test to be executed as root
     to make sure that reboot test works properly
@@ -629,7 +646,7 @@ class SudoersConfigurator(object):
         Command(command, verbose=False).run()
 
 
-class AutoStartFile(object):
+class AutoStartFile():
     """
     Generate autostart file contents and write it to proper location
     """
@@ -711,7 +728,7 @@ Hidden=false
             os.remove(self.desktop_filename)
 
 
-class LoggingConfiguration(object):
+class LoggingConfiguration():
     @classmethod
     def set(cls, log_level, log_filename, append):
         """
@@ -744,7 +761,7 @@ class LoggingConfiguration(object):
             log_handler.doRollover()
 
 
-class MyArgumentParser(object):
+class MyArgumentParser():
     """
     Command-line argument parser
     """
@@ -828,7 +845,7 @@ class MyArgumentParser(object):
         # suspend cycles before reboot
         parser.add_argument('--suspends-before-reboot', type=int, default=0,
                             help=('How many cycles of suspend/resume to run'
-                                 'before each reboot or poweroff'))
+                                  'before each reboot or poweroff'))
 
         # use fwts for suspend tests
         parser.add_argument('--fwts', action='store_true', help=('Use fwts '

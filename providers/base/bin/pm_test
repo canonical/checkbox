@@ -10,6 +10,7 @@ import subprocess
 import sys
 from argparse import ArgumentParser, SUPPRESS
 from calendar import timegm
+from configparser import ConfigParser
 from datetime import datetime, timedelta
 from time import localtime, time
 
@@ -540,32 +541,42 @@ class AutoLoginConfigurator():
     Enable/disable autologin configuration
     to make sure that reboot test will work properly
     """
-    CONFIG_FILENAME = '/etc/lightdm/lightdm.conf'
-    TEMPLATE = """
+    def __init__(self, user=None):
+        self.user = user
+        self.config_filename = '/etc/lightdm/lightdm.conf'
+        self.template = """
 [SeatDefaults]
 greeter-session=unity-greeter
 user-session=ubuntu
 autologin-user={username}
 autologin-user-timeout=0
 """
-
-    def __init__(self, user=None):
-        self.user = user
+        if os.path.exists('/etc/gdm3/custom.conf'):
+            self.config_filename = '/etc/gdm3/custom.conf'
+            self.parser = ConfigParser()
+            self.parser.optionxform = str
+            self.parser.read(self.config_filename)
+            self.parser.set('daemon', 'AutomaticLoginEnable', 'True')
+            if self.user:
+                self.parser.set('daemon', 'AutomaticLogin', self.user)
 
     def enable(self):
         """
         Make sure user will autologin in next reboot
         """
         logging.debug('Enabling autologin for this user...')
-        if os.path.exists(self.CONFIG_FILENAME):
+        if os.path.exists(self.config_filename):
             for backup_filename in self.generate_backup_filename():
                 if not os.path.exists(backup_filename):
-                    shutil.copyfile(self.CONFIG_FILENAME, backup_filename)
-                    shutil.copystat(self.CONFIG_FILENAME, backup_filename)
+                    shutil.copyfile(self.config_filename, backup_filename)
+                    shutil.copystat(self.config_filename, backup_filename)
                     break
 
-        with open(self.CONFIG_FILENAME, 'w') as f:
-            f.write(self.TEMPLATE.format(username=self.user))
+            with open(self.config_filename, 'w') as f:
+                if self.config_filename == '/etc/lightdm/lightdm.conf':
+                    f.write(self.template.format(username=self.user))
+                elif self.config_filename == '/etc/gdm3/custom.conf':
+                    self.parser.write(f)
 
     def disable(self):
         """
@@ -581,20 +592,20 @@ autologin-user-timeout=0
             backup_filename = filename
 
         if backup_filename:
-            shutil.copy(backup_filename, self.CONFIG_FILENAME)
+            shutil.copy(backup_filename, self.config_filename)
             os.remove(backup_filename)
         else:
-            os.remove(self.CONFIG_FILENAME)
+            os.remove(self.config_filename)
 
     def generate_backup_filename(self):
-        backup_filename = self.CONFIG_FILENAME + '.bak'
+        backup_filename = self.config_filename + '.bak'
         yield backup_filename
 
         index = 0
         while True:
             index += 1
-            backup_filename = (self.CONFIG_FILENAME
-                               + '.bak.{0}'.format(index))
+            backup_filename = (self.config_filename +
+                               '.bak.{0}'.format(index))
             yield backup_filename
 
 

@@ -29,33 +29,11 @@ _description:
     Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
     recommended for, nor will it be accepted for self-testing purposes.
 include:
-    IEEE_80211
-    block_device
-#     cdimage
-    cpuinfo
-    snap
-    interface
-    connections
-    model_assertion
-    serial_assertion
-    dmi
-    dpkg
-    efi
-    environment
-#     gconf
-    lsb
-    meminfo
-    module
-    package
-    rtc
-    sleep
-    uname
-#     xinput
+    miscellanea/submission-resources
     acpi_sleep_attachment
     codecs_attachment
     cpuinfo_attachment
     dmesg_attachment
-    dmi_attachment
     dmidecode_attachment
     efi_attachment
     lspci_attachment
@@ -63,8 +41,6 @@ include:
     modprobe_attachment
     modules_attachment
     sysctl_attachment
-    sysfs_attachment
-    udev_attachment
     lsmod_attachment
     audio/alsa-loopback-automated
     bluetooth/detect-output

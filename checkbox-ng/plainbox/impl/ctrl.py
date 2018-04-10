@@ -1345,8 +1345,8 @@ class RootViaSudoExecutionController(
         # username by replacing with %2E
         # https://github.com/snapcore/snapd/blob/master/osutil/user.go#L84
         # Hence doing the same here:
-        user_mod = os.getenv('USER').replace('.', '%2E')
-        if (os.getenv("SNAP")):
+        if (os.getenv("SNAP") and os.getenv('USER')):
+            user_mod = os.getenv('USER').replace('.', '%2E')
             in_sudoers_d = os.path.exists(
                 '/etc/sudoers.d/create-user-{}'.format(user_mod))
         self.user_can_sudo = in_sudo_group or in_admin_group or in_sudoers_d

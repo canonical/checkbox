@@ -148,7 +148,8 @@ class SnappyRestartStrategy(IRestartStrategy):
         section = 'Service'
         config.add_section(section)
         config.set(section, 'Type', 'oneshot')
-        config.set(section, 'User', os.getenv('USER'))
+        if os.getenv('USER'):
+            config.set(section, 'User', os.getenv('USER'))
 
         section = 'Install'
         config.add_section(section)

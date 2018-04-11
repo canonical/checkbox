@@ -55,23 +55,23 @@
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ]
-{%- if ns ~ 'dkms_info_json' in state.job_state_map and state.job_state_map[ns ~ 'dkms_info_json'].result.outcome %},
+{%- if ns ~ 'dkms_info_json' in state.job_state_map and state.job_state_map[ns ~ 'dkms_info_json'].result.outcome == 'pass' %},
 {%- set dkms_info_json = state.job_state_map[ns ~ 'dkms_info_json'].result.io_log_as_text_attachment %}
     "dkms_info": {{ dkms_info_json | indent(4, false) | safe }}
 {%- endif %}
-{%- if ns ~ 'udev_json' in state.job_state_map and state.job_state_map[ns ~ 'udev_json'].result.outcome %},
+{%- if ns ~ 'udev_json' in state.job_state_map and state.job_state_map[ns ~ 'udev_json'].result.outcome == 'pass' %},
 {%- set udev_json = state.job_state_map[ns ~ 'udev_json'].result.io_log_as_text_attachment %}
     "devices": {{ udev_json | indent(4, false) | safe }}
 {%- endif %}
-{%- if ns ~ 'raw_devices_dmi_json' in state.job_state_map and state.job_state_map[ns ~ 'raw_devices_dmi_json'].result.outcome %},
+{%- if ns ~ 'raw_devices_dmi_json' in state.job_state_map and state.job_state_map[ns ~ 'raw_devices_dmi_json'].result.outcome == 'pass' %},
 {%- set raw_devices_dmi_json = state.job_state_map[ns ~ 'raw_devices_dmi_json'].result.io_log_as_text_attachment %}
     "raw-devices-dmi": {{ raw_devices_dmi_json | indent(4, false) | safe }}
 {%- endif %}
-{%- if ns ~ 'modprobe_json' in state.job_state_map and state.job_state_map[ns ~ 'modprobe_json'].result.outcome %},
+{%- if ns ~ 'modprobe_json' in state.job_state_map and state.job_state_map[ns ~ 'modprobe_json'].result.outcome == 'pass' %},
 {%- set modprobe_json = state.job_state_map[ns ~ 'modprobe_json'].result.io_log_as_text_attachment %}
     "modprobe-info": {{ modprobe_json | indent(4, false) | safe }}
 {%- endif %}
-{%- if ns ~ 'lspci_standard_config_json' in state.job_state_map and state.job_state_map[ns ~ 'lspci_standard_config_json'].result.outcome %},
+{%- if ns ~ 'lspci_standard_config_json' in state.job_state_map and state.job_state_map[ns ~ 'lspci_standard_config_json'].result.outcome == 'pass' %},
 {%- set lspci_standard_config_json = state.job_state_map[ns ~ 'lspci_standard_config_json'].result.io_log_as_text_attachment %}
     "pci_subsystem_id": {{ lspci_standard_config_json | indent(4, false) | safe }}
 {%- endif %}
@@ -98,7 +98,7 @@
     {%- endfor %}
     }
 {%- endif %}
-{%- if ns ~ 'kernel_cmdline_attachment' in state.job_state_map and state.job_state_map[ns ~ 'kernel_cmdline_attachment'].result.outcome %},
+{%- if ns ~ 'kernel_cmdline_attachment' in state.job_state_map and state.job_state_map[ns ~ 'kernel_cmdline_attachment'].result.outcome == 'pass' %},
 {%- set kernel_cmdline = state.job_state_map[ns ~ 'kernel_cmdline_attachment'].result.io_log_as_text_attachment %}
     "kernel-cmdline": {{ kernel_cmdline.strip() | jsonify | safe }}
 {%- endif %}
@@ -110,7 +110,7 @@
 {%- set recovery = state.job_state_map[ns ~ 'recovery_info_attachment_json'].result.io_log_as_text_attachment %}
     "image-version": {{ recovery | indent(8, false) | safe }}
 {%- endif %}
-{%- if ns ~ 'info/buildstamp' in state.job_state_map and state.job_state_map[ns ~ 'info/buildstamp'].result.outcome %},
+{%- if ns ~ 'info/buildstamp' in state.job_state_map and state.job_state_map[ns ~ 'info/buildstamp'].result.outcome == 'pass' %},
 {%- set buildstamp = state.job_state_map[ns ~ 'info/buildstamp'].result.io_log_as_text_attachment.rstrip().splitlines() %}
 {%- if buildstamp|length == 2 %}
     "buildstamp": {{ buildstamp[1] | jsonify | safe }}

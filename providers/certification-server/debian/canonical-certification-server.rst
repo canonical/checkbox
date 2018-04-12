@@ -13,22 +13,19 @@ SYNOPSIS
 ========
   For certifying bare metal servers, and most certification test scenaros:
     certify-16.04 
-    certify-14.04
+    certify-18.04
 
   For certifying Systems on Chip:
     certify-soc-16.04
-    certify-soc-14.04
+    certify-soc-18.04
   
   For certifying Ubuntu as a Guest on a Hypervisor:
     certify-vm-16.04
-    certify-vm-14.04
-
-  Abbreviated functional test that does not include lengthy stress tests:
-    test-functional-14.04
+    certify-vm-18.04
 
   Retest commands for running retests on a specific subsystem:
     test-network-16.04
-    test-network-14.04
+    test-network-18.04
     test-storage
     test-virtualization
     test-firmware
@@ -36,7 +33,7 @@ SYNOPSIS
 
   Runs functional testing only, no stress test cases are executed:
     test-functional-16.04
-    test-functional-14.04
+    test-functional-18.04
 
   Runs checkbox-cli with full list of test plans and cases to select:
     canonical-certification-server

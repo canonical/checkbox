@@ -103,7 +103,7 @@ find_largest_partition() {
     largest_size=0
     mapper_string="dm-"
     if [ "${disk_device#*$mapper_string}" = "$disk_device" ]; then
-        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep -E 'part|lvm' | tr -s " ")
     else
         partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
     fi
@@ -113,7 +113,7 @@ find_largest_partition() {
             part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
             part_location="/dev/$partition"
         elif [ -b "/dev/mapper/$partition" ]; then
-            part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 3)
+	    part_size=$(echo "$partitions" | grep "$partition " | cut -d " " -f 2)
             part_location="/dev/mapper/$partition"
         else
             echo "$partition not found!"

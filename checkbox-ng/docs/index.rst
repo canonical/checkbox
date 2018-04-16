@@ -33,6 +33,7 @@ Table of contents
    :maxdepth: 3
 
    using.rst
+   understanding.rst
    tutorials.rst
    units/index.rst
    bugs.rst

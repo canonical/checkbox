@@ -37,7 +37,7 @@ Table of contents
 .. toctree::
    :maxdepth: 3
 
-   intro.rst
+   using.rst
    tutorials.rst
    units/index.rst
    bugs.rst

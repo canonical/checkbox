@@ -13,11 +13,6 @@ You can use checkbox without any modification to check if your system is
 behaving correctly or you can develop your own set of tests to check your
 needs. See :ref:`tutorials` for details.
 
-.. warning::
-
-    Documentation is under development. Some things are wrong, inaccurate or
-    describe development goals rather than current state.
-
 .. _installation:
 
 Installation

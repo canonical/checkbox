@@ -139,6 +139,8 @@ See :ref:`launcher-tutorial` for more details.
 
         $ checkbox-cli launcher my-launcher
 
+.. _run_subcmd:
+
 checkbox-cli run
 ````````````````
 

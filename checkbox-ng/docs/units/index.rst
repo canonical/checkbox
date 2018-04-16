@@ -1,3 +1,5 @@
+.. _units:
+
 Checkbox Unit Types
 ===================
 

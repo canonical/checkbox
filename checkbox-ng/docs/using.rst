@@ -1,4 +1,4 @@
-Introduction to Checkbox
+Using Checkbox
 ========================
 
 .. contents::
@@ -138,6 +138,8 @@ See :ref:`launcher-tutorial` for more details.
     is equivalent to::
 
         $ checkbox-cli launcher my-launcher
+
+.. _run_subcmd:
 
 checkbox-cli run
 ````````````````

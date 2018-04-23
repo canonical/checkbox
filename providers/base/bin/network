@@ -62,7 +62,8 @@ class IPerfPerformanceTest(object):
             protocol="tcp",
             data_size="1",
             run_time=None,
-            scan_timeout=3600):
+            scan_timeout=3600,
+            iface_timeout=120):
 
         self.iface = Interface(interface)
         self.target = target
@@ -74,6 +75,7 @@ class IPerfPerformanceTest(object):
         self.data_size = data_size
         self.run_time = run_time
         self.scan_timeout = scan_timeout
+        self.iface_timeout = 120
 
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
@@ -474,6 +476,30 @@ def make_target_list(iface, test_targets, log_warnings):
     return return_list
 
 
+# Wait until the specified interface comes up, or until iface_timeout.
+def wait_for_iface_up(iface, timeout):
+    isup = False
+    timed_out = False
+    start_time = datetime.datetime.now()
+    while (not timed_out) and (not isup):
+        try:
+            link_status = check_output(["ip", "link", "show", "dev",
+                                        iface]).decode("utf-8")
+        except CalledProcessError as interface_failure:
+            logging.error("Failed to check %s:%s", iface, interface_failure)
+            return 1
+        if ((datetime.datetime.now() - start_time).seconds > timeout):
+            timed_out = True
+        if ("state UP" in link_status):
+            logging.debug("Interface {} is up!".format(iface))
+            isup = True
+        else:
+            logging.debug("Interface {} not yet up; waiting....".format(iface))
+        # Sleep whether or not interface is up because sometimes the IP
+        # address gets assigned after "ip" claims it's up.
+        time.sleep(5)
+
+
 def interface_test(args):
     if not ("test_type" in vars(args)):
         return
@@ -514,15 +540,15 @@ def interface_test(args):
 
     # Check for an underspeed link and abort if found, UNLESS --underspeed-ok
     # option was used or max_speed is 0 (which indicates a probable WiFi link)
-    iface=Interface(args.interface)
+    iface = Interface(args.interface)
     if iface.link_speed < iface.max_speed and iface.max_speed != 0 and \
-            args.underspeed_ok == False:
+            args.underspeed_ok is False:
         logging.error("Detected link speed ({}) is lower than detected max "
                       "speed ({})".format(iface.link_speed, iface.max_speed))
         logging.error("Check your device configuration and try again.")
         logging.error("If you want to override and test despite this "
                       "under-speed link, use")
-        logging.error ("the --underspeed-ok option.")
+        logging.error("the --underspeed-ok option.")
         sys.exit(1)
 
     # Back up routing table, since network down/up process
@@ -572,6 +598,7 @@ def interface_test(args):
         logging.debug("Restoring interface:%s", iface)
         try:
             check_call(["ip", "link", "set", "dev", iface, "up"])
+            wait_for_iface_up(iface, args.iface_timeout)
         except CalledProcessError as interface_failure:
             logging.error("Failed to restore %s:%s", iface, interface_failure)
             error_number = 3
@@ -698,6 +725,11 @@ TEST_TARGET_IPERF = iperf-server.example.com
         default=60,
         help=("Sets the maximum time, in seconds, the test will scan for "
               "iperf servers before giving up."))
+    test_parser.add_argument(
+        '--iface-timeout', type=int,
+        default=120,
+        help=("Sets the maximum time, in seconds, the test will wait for "
+              "an interface to come up after a test before giving up."))
     test_parser.add_argument(
         '--config', type=str,
         default="/etc/checkbox.d/network.cfg",

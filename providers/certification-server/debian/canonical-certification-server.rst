@@ -63,7 +63,7 @@ be directed to run one of the retest commands by the Certification Team.
 TEST PLAN SELECTION
 ===================
 
-The command 'certify-advanced' will allow you to select test any
-test plan. The other commands will launch certification without the ability to 
-alter selections and these are the commands that should be used for 
-certification testing unless otherwise instructed.
+The command 'certify-advanced' will allow you to select any test plan. The
+other commands will launch certification without the ability to alter
+selections and these are the commands that should be used for certification
+testing unless otherwise instructed.

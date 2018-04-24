@@ -122,6 +122,7 @@ class SessionAssistant2():
         self._operator_lock = Lock()
         self.buffered_ui = BufferedUI()
         self._reset_sa()
+        self._passwordless_sudo = is_passwordless_sudo()
 
     def _reset_sa(self):
         self._state = Idle
@@ -218,11 +219,15 @@ class SessionAssistant2():
                 'manual', 'user-interact-verify', 'user-interact']:
             self._current_interaction = Interaction('purpose', job.tr_purpose())
             yield self._current_interaction
-        if job.user and not self._sudo_password:
+        if job.user and not self._passwordless_sudo and not self._sudo_password:
             self._ephemeral_key = EphemeralKey()
             self._current_interaction = Interaction(
                 'sudo_input', self._ephemeral_key.public_key)
-            yield self._current_interaction
+            pass_is_correct = False
+            while not pass_is_correct:
+                yield self._current_interaction
+                pass_is_correct = validate_pass(
+                    self._sudo_broker.decrypt_password(self._sudo_password))
             assert(self._sudo_password is not None)
         self._state = Running
         self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
@@ -285,7 +290,12 @@ class SessionAssistant2():
 
     def save_password(self, cyphertext):
         """Store encrypted password"""
-        self._sudo_password = cyphertext
+        if validate_pass(self._sudo_broker.decrypt_password(cyphertext)):
+            self._sudo_password = cyphertext
+            return True
+        return False
+
+
 
     def get_decrypted_password(self):
         """Return decrypted password"""
@@ -367,6 +377,12 @@ class SessionAssistant2():
     @property
     def manager(self):
         return self._sa._manager
+
+    @property
+    def passwordless_sudo(self):
+        return self._passwordless_sudo
+
+
 def is_passwordless_sudo():
     """
     Check if system can run sudo without pass.

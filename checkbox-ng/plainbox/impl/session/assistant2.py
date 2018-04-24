@@ -18,11 +18,13 @@
 import json
 import gettext
 import logging
+import os
 import queue
 import time
 import sys
 from collections import namedtuple
 from threading import Thread, Lock
+from subprocess import DEVNULL, CalledProcessError, check_call
 
 from plainbox.impl.ctrl import RootViaSudoWithPassExecutionController
 from plainbox.impl.ctrl import UserJobExecutionController
@@ -365,3 +367,30 @@ class SessionAssistant2():
     @property
     def manager(self):
         return self._sa._manager
+def is_passwordless_sudo():
+    """
+    Check if system can run sudo without pass.
+    """
+    # running sudo with -A will try using ASKPASS envvar that should specify
+    # the program to use when asking for password
+    # If the system is configured to not ask for password, this will silently
+    # succeed. If the pass is required, it'll return 1 and not ask for pass,
+    # as the askpass program is not provided
+    try:
+        check_call(['sudo', '-A', 'true'], stdout=DEVNULL, stderr=DEVNULL)
+    except CalledProcessError:
+        return False
+    return True
+
+
+def validate_pass(password):
+    cmd = ['sudo', '--prompt=', '--reset-timestamp', '--stdin',
+           '--user', 'root', 'true']
+    r, w = os.pipe()
+    os.write(w, (password + "\n").encode('utf-8'))
+    os.close(w)
+    try:
+        check_call(cmd, stdin=r, stdout=DEVNULL, stderr=DEVNULL)
+        return True
+    except CalledProcessError:
+        return False

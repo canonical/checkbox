@@ -75,7 +75,7 @@ class IPerfPerformanceTest(object):
         self.data_size = data_size
         self.run_time = run_time
         self.scan_timeout = scan_timeout
-        self.iface_timeout = 120
+        self.iface_timeout = iface_timeout
 
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
@@ -478,21 +478,18 @@ def make_target_list(iface, test_targets, log_warnings):
 
 # Wait until the specified interface comes up, or until iface_timeout.
 def wait_for_iface_up(iface, timeout):
-    isup = False
-    timed_out = False
-    start_time = datetime.datetime.now()
-    while (not timed_out) and (not isup):
+    isdown = True
+    deadline = time.time() + timeout;
+    while (time.time() < deadline) and isdown:
         try:
             link_status = check_output(["ip", "link", "show", "dev",
                                         iface]).decode("utf-8")
         except CalledProcessError as interface_failure:
             logging.error("Failed to check %s:%s", iface, interface_failure)
             return 1
-        if ((datetime.datetime.now() - start_time).seconds > timeout):
-            timed_out = True
         if ("state UP" in link_status):
             logging.debug("Interface {} is up!".format(iface))
-            isup = True
+            isdown = False
         else:
             logging.debug("Interface {} not yet up; waiting....".format(iface))
         # Sleep whether or not interface is up because sometimes the IP
@@ -542,7 +539,7 @@ def interface_test(args):
     # option was used or max_speed is 0 (which indicates a probable WiFi link)
     iface = Interface(args.interface)
     if iface.link_speed < iface.max_speed and iface.max_speed != 0 and \
-            args.underspeed_ok is False:
+            not args.underspeed_ok:
         logging.error("Detected link speed ({}) is lower than detected max "
                       "speed ({})".format(iface.link_speed, iface.max_speed))
         logging.error("Check your device configuration and try again.")

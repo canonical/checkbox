@@ -131,6 +131,7 @@ class RemoteControl(Command, ReportsStage):
         self._C = Colorizer()
         self._override_exporting(self.local_export)
         self._launcher_text = ''
+        self._password_entered = False
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -212,12 +213,22 @@ class RemoteControl(Command, ReportsStage):
             "Select test plan", tp_names, 0)
         self.select_tp(tps[selected_index][0])
 
+    def password_query(self):
+        if not self._password_entered and not self.sa.passwordless_sudo:
+            wrong_pass = True
+            while wrong_pass:
+                if not self.sa.save_password(
+                        self._sudo_provider.encrypted_password):
+                    self._sudo_provider.clear_password()
+                    print(_("Sorry, try again"))
+                else:
+                    wrong_pass = False
+
 
     def select_tp(self, tp):
         pass_required = self.sa.prepare_bootstrapping(tp)
         if pass_required:
-            self.sa.save_password(
-                self._sudo_provider.encrypted_password)
+            self.password_query()
 
         bs_todo = self.sa.get_bootstrapping_todo_list()
         for job_no, job_id in enumerate(bs_todo, start=1):
@@ -275,8 +286,7 @@ class RemoteControl(Command, ReportsStage):
     def run_jobs(self, jobs):
         jobs_repr = self.sa.get_jobs_repr(jobs)
         if any([x['user'] is not None for x in jobs_repr]):
-            self.sa.save_password(
-                self._sudo_provider.encrypted_password)
+            self.password_query()
 
         for job in jobs_repr:
             SimpleUI.header(job['name'])

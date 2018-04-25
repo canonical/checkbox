@@ -38,10 +38,10 @@ include:
     cpu/purley_id                              certification-status=non-blocker
     info/hdparm_.*.txt
     usb/detect
-    usb/storage-preinserted
-    usb3/storage-preinserted
-    miscellanea/oops                        certification-status=non-blocker
-    miscellanea/oops_results.log            certification-status=non-blocker
+    usb/storage-preinserted                    certification-status=blocker
+    usb3/storage-preinserted                   certification-status=blocker
+    miscellanea/oops                           certification-status=non-blocker
+    miscellanea/oops_results.log               certification-status=non-blocker
 bootstrap_include:
     device
     fwts

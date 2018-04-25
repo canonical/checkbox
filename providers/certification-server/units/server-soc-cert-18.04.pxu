@@ -65,11 +65,11 @@ include:
     usb/detect                                 certification-status=non-blocker
     usb/storage-preinserted                    certification-status=blocker
     usb3/storage-preinserted                   certification-status=blocker
-    virtualization/verify_lxd                  certification-status=non-blocker
+    virtualization/verify_lxd                  certification-status=blocker
     virtualization/kvm_check_vm                certification-status=blocker
     info/kvm_output                            certification-status=non-blocker
-    miscellanea/oops                        certification-status=non-blocker
-    miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/oops                           certification-status=non-blocker
+    miscellanea/oops_results.log               certification-status=non-blocker
 bootstrap_include:
     device
     fwts

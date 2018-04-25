@@ -37,11 +37,11 @@ mandatory_include:
     kernel_cmdline_attachment
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker
-    virtualization/verify_lxd                  certification-status=non-blocker
+    virtualization/verify_lxd                  certification-status=blocker
     virtualization/kvm_check_vm                certification-status=blocker
     info/kvm_output                            certification-status=non-blocker
-    miscellanea/oops                        certification-status=non-blocker
-    miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/oops                           certification-status=non-blocker
+    miscellanea/oops_results.log               certification-status=non-blocker
 bootstrap_include:
     device
     fwts

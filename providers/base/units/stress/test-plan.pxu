@@ -67,9 +67,9 @@ unit: test plan
 _name: Power Management reboot and power off stress tests (automated)
 _description: Power Management reboot and power off stress tests (automated)
 include:
-    stress/reboot_30
+    stress/reboot_30        certification-status=blocker
     stress/reboot_30_log
-    stress/poweroff_30
+    stress/poweroff_30      certification-status=blocker
     stress/poweroff_30_log
 
 id: stress-ng-cert-automated

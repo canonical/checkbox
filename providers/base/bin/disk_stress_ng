@@ -103,7 +103,7 @@ find_largest_partition() {
     largest_size=0
     mapper_string="dm-"
     if [ "${disk_device#*$mapper_string}" = "$disk_device" ]; then
-        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep -E 'part|lvm' | tr -s " ")
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep -E 'part|lvm|raid' | tr -s " ")
     else
         partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
     fi

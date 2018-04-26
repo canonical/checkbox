@@ -1,15 +1,13 @@
 {%- set state = manager.default_device_context.state -%}
 {%- set job_state_map = state.job_state_map -%}
-{%- set passes = manager.state.get_outcome_stats()["pass"] -%}
-{%- set fails = manager.state.get_outcome_stats()["fail"] -%}
-{%- set skips = manager.state.get_outcome_stats()["skip"] + 
-                manager.state.get_outcome_stats()["not-supported"] -%} 
-{%- set errors = manager.state.get_outcome_stats()["crash"] -%}
+{%- set passes = manager.state.get_test_outcome_stats()["pass"] -%}
+{%- set fails = manager.state.get_test_outcome_stats()["fail"] -%}
+{%- set skips = manager.state.get_test_outcome_stats()["skip"] + 
+                manager.state.get_test_outcome_stats()["not-supported"] -%} 
+{%- set errors = manager.state.get_test_outcome_stats()["crash"] -%}
 <?xml version="1.0" encoding="UTF-8"?>
-  <testsuites failures="{{ fails }}" name="" tests="{{ passes }}" skipped="{{ skips }}" errors="{{ errors }}">
-    {%- for job_id in job_state_map|sort %}
-    {%- set job_state = job_state_map[job_id] %}
-    {%- if job_state.result.outcome %}
+  <testsuites failures="{{ fails }}" name="" tests="{{ passes+fails+skips+errors }}" skipped="{{ skips }}" errors="{{ errors }}">
+    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "attachment") %}
     <testcase classname="{{ job_state.job.id }}" name="{{ job_state.job.id }}" time="{{ job_state.result.execution_duration }}">
     {%- if job_state.result.outcome == 'skip' or job_state.result.outcome == 'not-supported' -%}
       <skipped />
@@ -23,6 +21,5 @@
       </error>
     {%- endif %}
     </testcase>
-    {%- endif -%}
     {%- endfor %}
   </testsuites>

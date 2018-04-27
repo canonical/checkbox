@@ -12,7 +12,7 @@ usage () {
     echo "certify-16.04: launches the 16.04 certification suite"
     echo
     echo "Additionally there are other commands for running the smaller test"
-    echo "test plans for targeted testing of Network, Storage, USB, and others"
+    echo "plans for targeted testing of Network, Storage, USB, and other"
     echo "areas."
     echo 
     echo "Please refer to the current Self-Test Guide for more information:"

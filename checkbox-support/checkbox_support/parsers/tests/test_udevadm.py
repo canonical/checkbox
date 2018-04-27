@@ -939,6 +939,13 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "CARDREADER"), 0)
         self.assertEqual(self.count(devices, "DISK"), 5)
 
+    def test_NVIDIA_DGX_STATION(self):
+        devices = self.parse("NVIDIA_DGX_STATION")
+        self.assertEqual(len(devices), 230)
+        self.assertEqual(self.count(devices, "NETWORK"), 2)
+        self.assertEqual(self.count(devices, "VIDEO"), 4)
+        self.assertEqual(self.count(devices, "DISK"), 2)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

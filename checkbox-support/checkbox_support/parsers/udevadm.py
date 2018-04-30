@@ -86,6 +86,7 @@ CARD_READER_RE = re.compile(r"SD|MMC|CF|MS(?!ata)|SM|xD|Card", re.I)
 GENERIC_RE = re.compile(r"Generic", re.I)
 FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
+MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
 
 
 def slugify(_string):
@@ -473,6 +474,8 @@ class UdevadmDevice(object):
                             return "DISK"
                     else:
                         return "DISK"
+                if '/dev/md' in self._environment.get('DEVNAME', ''):
+                    return "DISK"
                 if self.bus == 'mtd':
                     return "DISK"
                 if self.driver == 'dasd-eckd':
@@ -764,6 +767,9 @@ class UdevadmDevice(object):
             self._environment.get("DEVTYPE") == "partition"
         ):
             return self.name
+        elif '/dev/md' in self._environment.get('DEVNAME', ''):
+             if "MD_NAME" in self._environment:
+                return self._environment.get("MD_NAME")
         elif self.major == "94":
             # See http://pad.lv/1559189
             return "IBM s390 Virtual Disk"
@@ -866,6 +872,9 @@ class UdevadmDevice(object):
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
             parent = self._stack[-2]
             return parent.vendor
+        elif '/dev/md' in self._environment.get('DEVNAME', ''):
+             if "MD_LEVEL" in self._environment:
+                return self._environment.get("MD_LEVEL")
 
         # bluetooth (if USB base class is vendor specific)
         if self.bus == 'bluetooth':
@@ -967,6 +976,10 @@ class UdevadmParser(object):
             if "ID_FS_TYPE" in device._environment:
                 if device._environment["ID_FS_TYPE"] == 'swap':
                     return True
+            return False
+
+        # Keep /dev/md* devices (Multiple Disks aka Software RAID)
+        if '/dev/md' in device._environment.get('DEVNAME', ''):
             return False
 
         # Ignore devices without bus information
@@ -1151,6 +1164,13 @@ class UdevadmParser(object):
                     else:
                         dev_mapper_devices.append(d)
 
+        md_devices = []
+        for d in self.devices.values():
+            if '/dev/md' in d._environment.get('DEVNAME', ''):
+                md_devices.extend(
+                    [v.replace('/dev/', '') for k, v in d._environment.items()
+                     if MD_DEVICE_RE.match(k)])
+
         for device in list(self.devices.values()):
             if device.category in ("INFINIBAND", "NETWORK",
                                    "WIRELESS", "WWAN", "OTHER"):
@@ -1175,6 +1195,11 @@ class UdevadmParser(object):
             # other block devices
             if dev_mapper_devices and device.category == 'DISK':
                 if device not in dev_mapper_devices:
+                    self.devices.pop(device._raw_path, None)
+            # Remove DISK devices participating in RAID arrays created by
+            # mdstat
+            if md_devices and device.category == 'DISK':
+                if device.name in md_devices:
                     self.devices.pop(device._raw_path, None)
 
         [result.addDevice(device) for device in self.devices.values()]

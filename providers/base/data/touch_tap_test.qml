@@ -13,7 +13,7 @@ Rectangle {
         color: "white"
         font.pointSize: 15
         property var timeout: 15
-        text: "<p>Touch the screen with "+Qt.application.arguments[2]+" fingers at the same time</p>" +
+        text: "<p>Touch the screen with "+Qt.application.arguments[1]+" fingers at the same time</p>" +
         "<p>Press ESC to cancel the test at any time.</p>" +
         "<p><b>Test will exit automatically in " +
         timeout + " seconds </b></p>"
@@ -72,7 +72,7 @@ Rectangle {
         enabled: true
         anchors.fill: parent
 
-        minimumTouchPoints: Qt.application.arguments[2]
+        minimumTouchPoints: Qt.application.arguments[1]
         maximumTouchPoints: minimumTouchPoints
 
         onReleased: {

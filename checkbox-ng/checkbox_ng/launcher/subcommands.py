@@ -184,6 +184,10 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         return self.launcher.api_flags
 
     def invoked(self, ctx):
+        if ctx.args.version:
+            from checkbox_ng import __version__
+            print(__version__)
+            return
         if ctx.args.verify:
             # validation is always run, so if there were any errors the program
             # exited by now, so validation passed
@@ -655,6 +659,8 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             'print debug messages from checkbox'))
         parser.add_argument('--clear-cache', action='store_true', help=_(
             'remove cached results from the system'))
+        parser.add_argument('--version', action='store_true', help=_(
+            "show program's version information and exit"))
 
 
 

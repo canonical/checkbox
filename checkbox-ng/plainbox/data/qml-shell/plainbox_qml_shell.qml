@@ -45,13 +45,13 @@ Window {
         Component.onCompleted: {
             addImportPath(Qt.resolvedUrl('.'));
             py.importModule('pipe_handler', function() {
-                py.readAndClose(Qt.application.arguments[8], function(testingShellData) {
+                py.readAndClose(Qt.application.arguments[5], function(testingShellData) {
                     var new_data = JSON.parse(testingShellData);
                     for (var attrname in new_data) { testingShell[attrname] = new_data[attrname]; }
                     testingShell.getTest = function() {
                         return testingShell['job_repr'];
                     }
-                    loader.setSource(Qt.application.arguments[4],
+                    loader.setSource(Qt.application.arguments[3],
                                      {'testingShell': testingShell});
                 });
             });
@@ -87,6 +87,6 @@ Window {
 
     function testDone(res) {
         var json_str = JSON.stringify(res) || ""
-        py.writeAndClose(json_str, Qt.application.arguments[6], Qt.quit);
+        py.writeAndClose(json_str, Qt.application.arguments[4], Qt.quit);
     }
 }

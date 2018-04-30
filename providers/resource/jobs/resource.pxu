@@ -403,3 +403,17 @@ plugin: resource
 estimated_duration: 2.0
 command:
   snapd_resource assertions serial
+
+id: serial_ports_static
+_summary: Generates a serial port resource based on user supplied configuration
+_description:
+ A serial port resource that instead of automatically detecting the hardware
+ relies on the user specifying the ports. This is to allow template jobs to
+ then be instantiated.
+plugin: resource
+estimated_duration: 1.0
+command:
+  for i in $SERIAL_PORTS_STATIC; do
+    echo "dev: $i"
+    echo ""
+  done

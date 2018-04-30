@@ -124,6 +124,7 @@ _description:
      Did the tap open the Dash?
 
 plugin: user-interact-verify
+template-engine: jinja2
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/3-touch-tap
 imports: from com.canonical.plainbox import manifest
@@ -139,14 +140,19 @@ _description:
  VERIFICATION:
      Did you see the green circles around the three fingers?
 command:
+    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
     manage_compiz_plugin unityshell disable
-    qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 3 2>&1 | grep -o PASS
+    {% endif %}
+    qmlscene -qt5 3 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
+    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
     manage_compiz_plugin unityshell enable
+    {% endif %}
     exit $EXIT
 
 plugin: user-interact-verify
+template-engine: jinja2
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/4-touch-tap
 imports: from com.canonical.plainbox import manifest
@@ -162,9 +168,13 @@ _description:
  VERIFICATION:
      Did you see the green circles around the four fingers?
 command:
+    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
     manage_compiz_plugin unityshell disable
-    qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 4 2>&1 | grep -o PASS
+    {% endif %}
+    qmlscene -qt5 4 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
+    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
     manage_compiz_plugin unityshell enable
+    {% endif %}
     exit $EXIT

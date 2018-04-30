@@ -22,20 +22,22 @@ Architecture: all
 Depends: plainbox-provider-checkbox (>= 0.27~),
          plainbox-provider-resource-generic (>= 0.25~),
          plainbox-provider-tpm2,
+         pyotherside,
          python3-checkbox-ng,
+         qml-module-qtquick-controls,
+         qml-module-qtquick-layouts,
+         qmlscene,
          ${misc:Depends}
 Recommends: ethtool,
             fswebcam,
             fwts (>= 16.02.00-0ubuntu1~),
             glmark2,
-            gtkperf,
             hdapsd,
             hdparm,
             imagemagick,
             iw,
             mesa-utils,
             obexftp,
-            qmlscene,
             render-bench,
             shutter,
             stress,
@@ -51,8 +53,7 @@ Description: Client Certification provider for Plainbox
 
 Package: canonical-certification-client
 Architecture: all
-Depends: checkbox-converged (>= 1.2),
-         checkbox-ng (>= 0.25~),
+Depends: checkbox-ng (>= 0.25~),
          plainbox-provider-certification-client (= ${source:Version}),
          ${misc:Depends}
 Description: Client Certification Launcher

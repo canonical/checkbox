@@ -850,9 +850,8 @@ class QmlJobExecutionController(CheckBoxExecutionController):
             List of command arguments
 
         """
-        cmd = ['qmlscene', '-I', self.QML_MODULES_PATH, '--job', job.qml_file,
-               '--fd-out', shell_out_fd, '--fd-in', shell_in_fd,
-               self.QML_SHELL_PATH]
+        cmd = ['qmlscene', '-I', self.QML_MODULES_PATH, job.qml_file,
+               shell_out_fd, shell_in_fd, self.QML_SHELL_PATH]
         return cmd
 
     def get_checkbox_score(self, job):

@@ -2,6 +2,8 @@
 
 venv_path=${1:-venv}
 
+venv_path=$(realpath $venv_path)
+
 if [ -d $venv_path ]; then
     echo "$venv_path already exists"
     exit 1

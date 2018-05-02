@@ -132,6 +132,7 @@ class RemoteControl(Command, ReportsStage):
         self._override_exporting(self.local_export)
         self._launcher_text = ''
         self._password_entered = False
+        self._is_booststrapping = False
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -230,6 +231,7 @@ class RemoteControl(Command, ReportsStage):
         if pass_required:
             self.password_query()
 
+        self._is_bootstrapping = True
         bs_todo = self.sa.get_bootstrapping_todo_list()
         for job_no, job_id in enumerate(bs_todo, start=1):
             print(self.C.header(
@@ -237,6 +239,7 @@ class RemoteControl(Command, ReportsStage):
                     job_id, job_no, len(bs_todo), fill='-')))
             self.sa.run_bootstrapping_job(job_id)
             self.wait_for_job()
+        self._is_bootstrapping = False
         self.jobs = self.sa.finish_bootstrap()
 
 
@@ -305,7 +308,7 @@ class RemoteControl(Command, ReportsStage):
     def wait_for_job(self):
         while True:
             state, payload = self.sa.monitor_job()
-            if payload:
+            if payload and not self._is_bootstrapping:
                 SimpleUI.green_text(payload, end='')
             if state == 'running':
                 time.sleep(0.5)

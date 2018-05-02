@@ -206,8 +206,8 @@ class PowerManagementOperation():
             MessageDialog(title, message).run()
         if self.args.checkbox_respawn_cmd:
             subprocess.run(
-                'DISPLAY=:0 x-terminal-emulator -e "sudo -u '
-                '{} bash -c \"source {}; exec bash\""'.format(
+                r'DISPLAY=:0 x-terminal-emulator -e "sudo -u '
+                r'{} bash -c \"source {}; exec bash\""'.format(
                     self.user, self.args.checkbox_respawn_cmd), shell=True)
 
     def teardown(self):

@@ -139,6 +139,9 @@ class SudoProvider():
             self.ask_for_password()
         return self._encrypted_pass
 
+    def clear_password(self):
+        self._encrypted_pass = None
+
     def get_master_passphrase(self, temp_key):
         """
         Get passphrase to decrypt the master key.

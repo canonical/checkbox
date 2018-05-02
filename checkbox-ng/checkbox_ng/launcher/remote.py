@@ -131,6 +131,8 @@ class RemoteControl(Command, ReportsStage):
         self._C = Colorizer()
         self._override_exporting(self.local_export)
         self._launcher_text = ''
+        self._password_entered = False
+        self._is_booststrapping = False
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -212,13 +214,35 @@ class RemoteControl(Command, ReportsStage):
             "Select test plan", tp_names, 0)
         self.select_tp(tps[selected_index][0])
 
+    def password_query(self):
+        if not self._password_entered and not self.sa.passwordless_sudo:
+            wrong_pass = True
+            while wrong_pass:
+                if not self.sa.save_password(
+                        self._sudo_provider.encrypted_password):
+                    self._sudo_provider.clear_password()
+                    print(_("Sorry, try again"))
+                else:
+                    wrong_pass = False
+
 
     def select_tp(self, tp):
         pass_required = self.sa.prepare_bootstrapping(tp)
         if pass_required:
-            self.sa.save_password(
-                self._sudo_provider.encrypted_password)
-        self.jobs = self.sa.bootstrap()
+            self.password_query()
+
+        self._is_bootstrapping = True
+        bs_todo = self.sa.get_bootstrapping_todo_list()
+        for job_no, job_id in enumerate(bs_todo, start=1):
+            print(self.C.header(
+                _('Bootstrap {} ({}/{})').format(
+                    job_id, job_no, len(bs_todo), fill='-')))
+            self.sa.run_bootstrapping_job(job_id)
+            self.wait_for_job()
+        self._is_bootstrapping = False
+        self.jobs = self.sa.finish_bootstrap()
+
+
 
     def select_jobs(self):
         if self.launcher.test_selection_forced:
@@ -265,8 +289,7 @@ class RemoteControl(Command, ReportsStage):
     def run_jobs(self, jobs):
         jobs_repr = self.sa.get_jobs_repr(jobs)
         if any([x['user'] is not None for x in jobs_repr]):
-            self.sa.save_password(
-                self._sudo_provider.encrypted_password)
+            self.password_query()
 
         for job in jobs_repr:
             SimpleUI.header(job['name'])
@@ -285,9 +308,9 @@ class RemoteControl(Command, ReportsStage):
     def wait_for_job(self):
         while True:
             state, payload = self.sa.monitor_job()
+            if payload and not self._is_bootstrapping:
+                SimpleUI.green_text(payload, end='')
             if state == 'running':
-                if payload:
-                    SimpleUI.green_text(payload, end='')
                 time.sleep(0.5)
             else:
                 self.sa.finish_job()

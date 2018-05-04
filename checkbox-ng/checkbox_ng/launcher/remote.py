@@ -30,6 +30,7 @@ import gettext
 import os
 import socket
 import time
+import signal
 import sys
 
 from functools import partial
@@ -270,7 +271,10 @@ class RemoteControl(Command, ReportsStage):
 
     def finish_session(self):
         if self.launcher.local_submission:
+            # Disable SIGINT while we save local results
+            tmp_sig = signal.signal(signal.SIGINT, signal.SIG_IGN)
             self._export_results()
+            signal.signal(signal.SIGINT, tmp_sig)
         self.sa.finalize_session()
         return False
 

@@ -45,6 +45,7 @@ from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.urwid_ui import interrupt_dialog
 from checkbox_ng.launcher.stages import ReportsStage
 
 _ = gettext.gettext
@@ -96,15 +97,18 @@ class RemoteService(Command):
                 SessionAssistantService.session_assistant.resume_last()
             except StopIteration:
                 print("Couldn't resume the session")
-        rpyc.utils.server.ThreadedServer(
+        self._server = rpyc.utils.server.ThreadedServer(
             SessionAssistantService,
             port=18871,
             protocol_config={
                 "allow_all_attrs": True,
                 "allow_setattr": True,
                 "sync_request_timeout": 1,
+                "propagate_SystemExit_locally": True
                 },
-        ).start()
+        )
+        SessionAssistantService.session_assistant.terminate_cb = self._server.close
+        self._server.start()
 
     def register_arguments(self, parser):
         parser.add_argument('--resume', action='store_true', help=_(
@@ -133,6 +137,7 @@ class RemoteControl(Command, ReportsStage):
         self._launcher_text = ''
         self._password_entered = False
         self._is_bootstrapping = False
+        self._target_host = ctx.args.host
         self._sudo_provider = None
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
@@ -164,8 +169,17 @@ class RemoteControl(Command, ReportsStage):
         config['allow_all_attrs'] = True
         keep_running = False
         self._prepare_transports()
+        interrupted = False
         while True:
             try:
+                if interrupted:
+                    interrupted = False #  we are handling the interruption ATM
+                    # next line can raise exception due to connection being lost
+                    # so let's set the default behavior to quitting
+                    keep_running = False
+                    keep_running = self._handle_interrupt()
+                    if not keep_running:
+                        break
                 conn = rpyc.connect(host, port, config=config)
                 keep_running = True
                 self._sa = conn.root.get_sa()
@@ -192,9 +206,7 @@ class RemoteControl(Command, ReportsStage):
                 print('Reconnecting...')
                 time.sleep(0.5)
             except KeyboardInterrupt:
-                self._handle_interrupt()
-                # TODO: handle action properly, like:
-                # action = self._handle_interrupt()
+                interrupted =  True
 
             if not keep_running:
                 break
@@ -262,10 +274,21 @@ class RemoteControl(Command, ReportsStage):
             "launcher definition file to use"))
 
     def _handle_interrupt(self):
-        # TODO: ask whether user wants to disconnect the client or
-        #      abandon the session
-        while True:
-            time.sleep(1)
+        """
+        Returns True if the controller should keep running.
+        And False if it should quit.
+        """
+        if self.launcher.ui_type == 'silent':
+            self._sa.terminate()
+            return False
+        response = interrupt_dialog(self._target_host)
+        if response == 'cancel':
+            return True
+        elif response == 'kill-controller':
+            return False
+        elif response == 'kill-service':
+            self._sa.terminate()
+            return False
 
     def finish_session(self):
         if self.launcher.local_submission:

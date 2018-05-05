@@ -132,7 +132,7 @@ class RemoteControl(Command, ReportsStage):
         self._override_exporting(self.local_export)
         self._launcher_text = ''
         self._password_entered = False
-        self._is_booststrapping = False
+        self._is_bootstrapping = False
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)

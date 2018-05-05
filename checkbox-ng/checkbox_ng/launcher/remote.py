@@ -133,6 +133,7 @@ class RemoteControl(Command, ReportsStage):
         self._launcher_text = ''
         self._password_entered = False
         self._is_bootstrapping = False
+        self._sudo_provider = None
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -169,8 +170,9 @@ class RemoteControl(Command, ReportsStage):
                 keep_running = True
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
-                self._sudo_provider = SudoProvider(
-                    self.sa.get_master_public_key())
+                if not self._sudo_provider:
+                    self._sudo_provider = SudoProvider(
+                        self.sa.get_master_public_key())
                 state, payload = self.sa.whats_up()
                 keep_running = {
                     'idle': self.new_session,

@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-This module contains implemementation of both ends of the remote execution
+This module contains implementation of both ends of the remote execution
 functionality.
 
-RemoteService implements functionality for the half that's actually running the
-tests - the one that was summoned using `checkbox-cli remote-service`. This part
-should be run on system-under-test.
+RemoteService implements functionality for the half that's actually running
+the tests - the one that was summoned using `checkbox-cli remote-service`.
+This part should be run on system-under-test.
 
 RemoteControl implements the part that presents UI to the operator and steers
 the session.
@@ -30,6 +30,7 @@ import gettext
 import os
 import socket
 import time
+import signal
 import sys
 
 from functools import partial
@@ -41,7 +42,6 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.assistant2 import SessionAssistant2
 from plainbox.vendor import rpyc
-from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.launcher.stages import ReportsStage
@@ -54,7 +54,7 @@ class SimpleUI():
     Simplified version of the NormalUI from plainbox.impl.commands.inv_run.
 
     The simplification is mainly about just dealing with text that is to be
-    displayed, instead of plainbox' abstractions like job, job state, etc.
+    displayed, instead of the plainbox abstractions like job, job state, etc.
 
     It's a class just for namespacing purposes.
     """
@@ -116,7 +116,7 @@ class RemoteControl(Command, ReportsStage):
     @property
     def is_interactive(self):
         return (self.launcher.ui_type == 'interactive' and
-            sys.stdin.isatty() and sys.stdout.isatty())
+                sys.stdin.isatty() and sys.stdout.isatty())
 
     @property
     def C(self):
@@ -125,7 +125,6 @@ class RemoteControl(Command, ReportsStage):
     @property
     def sa(self):
         return self._sa
-
 
     def invoked(self, ctx):
         self._C = Colorizer()
@@ -157,7 +156,6 @@ class RemoteControl(Command, ReportsStage):
         else:
             print(_("\nConnection timed out."))
 
-
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config['sync_request_timeout'] = 1
@@ -178,7 +176,8 @@ class RemoteControl(Command, ReportsStage):
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
                     'bootstrapped': self.continue_session,
-                    'started': partial(self.interactively_choose_tp, tps=payload),
+                    'started': partial(
+                        self.interactively_choose_tp, tps=payload),
                 }[state]()
             except EOFError:
                 print("Connection lost!")
@@ -200,7 +199,7 @@ class RemoteControl(Command, ReportsStage):
     def new_session(self):
         configuration = dict()
         configuration['launcher'] = self._launcher_text
-        
+
         tps = self.sa.start_session(configuration)
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
@@ -225,7 +224,6 @@ class RemoteControl(Command, ReportsStage):
                 else:
                     wrong_pass = False
 
-
     def select_tp(self, tp):
         pass_required = self.sa.prepare_bootstrapping(tp)
         if pass_required:
@@ -241,8 +239,6 @@ class RemoteControl(Command, ReportsStage):
             self.wait_for_job()
         self._is_bootstrapping = False
         self.jobs = self.sa.finish_bootstrap()
-
-
 
     def select_jobs(self):
         if self.launcher.test_selection_forced:
@@ -270,7 +266,10 @@ class RemoteControl(Command, ReportsStage):
 
     def finish_session(self):
         if self.launcher.local_submission:
+            # Disable SIGINT while we save local results
+            tmp_sig = signal.signal(signal.SIGINT, signal.SIG_IGN)
             self._export_results()
+            signal.signal(signal.SIGINT, tmp_sig)
         self.sa.finalize_session()
         return False
 
@@ -303,7 +302,6 @@ class RemoteControl(Command, ReportsStage):
                     SimpleUI.description(_('Purpose:'), interaction.message)
             self.wait_for_job()
         self.finish_session()
-
 
     def wait_for_job(self):
         while True:

@@ -123,7 +123,7 @@ class LauncherDefinition1(LauncherDefinition):
     local_submission = config.Variable(
         section='launcher',
         kind=bool,
-        default=False,
+        default=True,
         help_text=_("Send/generate submission report locally when using "
                     "checkbox remote"))
 

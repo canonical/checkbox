@@ -24,4 +24,4 @@
 CheckBoxNG is a new version of CheckBox built on top of PlainBox
 """
 
-__version__ = '1.1.0'
+__version__ = '1.2.0.dev0'

@@ -894,6 +894,10 @@ class ListBootstrapped(Command):
         parser.add_argument(
             '--partial', default=False, action="store_true",
             help=_("print only partial id"))
+        parser.add_argument(
+            '-f', '--format', type=str,
+            help=_(("output format, as passed to print function. "
+                "Use '?' to list possible values")))
 
     def invoked(self, ctx):
         self.ctx = ctx
@@ -904,11 +908,29 @@ class ListBootstrapped(Command):
             raise SystemExit('Test plan not found')
         self.sa.select_test_plan(ctx.args.TEST_PLAN)
         self.sa.bootstrap()
-        for job_id in self.sa.get_static_todo_list():
-            if ctx.args.partial:
-                print(self.sa.get_job(job_id).partial_id)
-            else:
-                print(job_id)
+        jobs = [self.sa.get_job(job_id)._raw_data for job_id in
+                self.sa.get_static_todo_list()]
+        if ctx.args.format == '?':
+            all_keys = set()
+            for job in jobs:
+                all_keys.update(job.keys())
+            print(list(all_keys))
+            return
+        if ctx.args.format:
+            for job in jobs:
+                unescaped = ctx.args.format.replace(
+                    '\\n', '\n').replace('\\t', '\t')
+
+                class DefaultKeyedDict(defaultdict):
+                    def __missing__(self, key):
+                        return _('<missing {}>').format(key)
+                print(unescaped.format(**DefaultKeyedDict(None, job)), end='')
+        else:
+            for job_id in jobs:
+                if ctx.args.partial:
+                    print(self.sa.get_job(job_id).partial_id)
+                else:
+                    print(job_id)
 
 
 def get_all_jobs():

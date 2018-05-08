@@ -932,6 +932,21 @@ class ListBootstrapped(Command):
                 else:
                     print(job_id)
 
+def try_selecting_providers(sa, *args, **kwargs):
+    """
+    Try selecting proivders via SessionAssistant.
+
+    If no providers were loaded gracefully exit the program.
+    """
+    try:
+        sa.select_providers(*args, **kwargs)
+    except ValueError:
+        from plainbox.impl.providers.v1 import all_providers
+        message = '\n'.join([
+                _("No providers found! Paths searched:"),
+            ] + all_providers.provider_search_paths)
+        raise SystemExit(message)
+
 
 def get_all_jobs():
     root = Explorer(get_providers()).get_object_tree()

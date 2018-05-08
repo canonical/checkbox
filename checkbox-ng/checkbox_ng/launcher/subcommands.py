@@ -232,16 +232,10 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)
-            try:
-                ctx.sa.select_providers(
-                    *self.launcher.providers,
-                    additional_providers=additional_providers)
-            except ValueError:
-                from plainbox.impl.providers.v1 import all_providers
-                print(self._C.RED(_("No providers found")))
-                print("Paths searched:")
-                print("\n".join(all_providers.provider_search_paths))
-                return 1
+            try_selecting_providers(
+                ctx.sa,
+                *self.launcher.providers,
+                additional_providers=additional_providers)
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()
@@ -736,7 +730,7 @@ class Run(Command, MainLoopStage):
             ["restartable"],
         )
         self._configure_restart()
-        self.sa.select_providers('*')
+        try_selecting_providers(self.sa, '*')
         self.sa.start_new_session('checkbox-run')
         tps = self.sa.get_test_plans()
         self._configure_report()
@@ -901,7 +895,7 @@ class ListBootstrapped(Command):
 
     def invoked(self, ctx):
         self.ctx = ctx
-        self.sa.select_providers('*')
+        try_selecting_providers(self.sa, '*')
         self.sa.start_new_session('checkbox-listing-ephemeral')
         tps = self.sa.get_test_plans()
         if ctx.args.TEST_PLAN not in tps:

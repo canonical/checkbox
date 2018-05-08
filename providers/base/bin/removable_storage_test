@@ -841,20 +841,10 @@ def main():
                             # This will raise KeyError for no
                             # associated disk device was found.
                             xhci_disks = test.get_disks_xhci()
-                            # pep8 style suggest to limit the try clause
-                            # to the absolute minimum amount of code necessary
-                            try:
-                                disk_xhci_flag = xhci_disks[disk]
-                            except KeyError:
-                                print("\t\tDisk does not use xhci_hci.")
-                                return 1
-                            else:
-                                if('xhci' == disk_xhci_flag):
-                                    print("\t\tDriver Detected: xhci_hcd")
-                                else:
-                                    print("\t\tDisk does not use xhci_hci.")
-                                    logging.debug("disk_xhci_flag is not xhci")
-                                    return 1
+                            if test.get_disks_xhci().get(disk, '') != 'xhci':
+                                raise SystemExit(
+                                    "\t\tDisk does not use xhci_hcd.")
+                            print("\t\tDriver Detected: xhci_hcd")
                         else:
                             # Give it a hint for the detection failure.
                             # LP: #1362902

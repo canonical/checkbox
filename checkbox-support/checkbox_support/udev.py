@@ -91,7 +91,8 @@ def get_udev_block_devices(udev_client):
     # devices deemed virtual by the heuristic.
     devices = [
         device for device in enumerator.execute()
-        if not is_virtual_device(device.get_device_file())]
+        if device.get_device_file() is not None and
+        not is_virtual_device(device.get_device_file())]
     # Sort the list, this is not needed but makes various debugging dumps
     # look better.
     devices.sort(key=lambda device: device.get_device_file())
@@ -108,7 +109,8 @@ def get_udev_xhci_devices(udev_client):
     enumerator.add_match_subsystem('pci')
     devices = [
         device for device in enumerator.execute()
-        if (device.get_driver() == 'xhci_hcd')]
+        if device.get_device_file() is not None and
+        (device.get_driver() == 'xhci_hcd')]
     # Sort the list, this is not needed but makes various debugging dumps
     # look better.
     devices.sort(key=lambda device: device.get_property('PCI_SLOT_NAME'))

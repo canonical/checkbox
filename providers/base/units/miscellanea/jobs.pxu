@@ -196,7 +196,7 @@ requires:
   dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
-command: dmitest --test_versions server
+command: dmitest server
 _description:
  Sanity check of DMI system identification data (for servers)
 _summary:

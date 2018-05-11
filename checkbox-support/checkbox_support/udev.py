@@ -91,7 +91,8 @@ def get_udev_block_devices(udev_client):
     # devices deemed virtual by the heuristic.
     devices = [
         device for device in enumerator.execute()
-        if not is_virtual_device(device.get_device_file())]
+        if device.get_device_file() is not None and
+        not is_virtual_device(device.get_device_file())]
     # Sort the list, this is not needed but makes various debugging dumps
     # look better.
     devices.sort(key=lambda device: device.get_device_file())

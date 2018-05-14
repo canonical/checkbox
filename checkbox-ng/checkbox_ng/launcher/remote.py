@@ -42,6 +42,7 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.assistant2 import SessionAssistant2
 from plainbox.vendor import rpyc
+from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.launcher.stages import ReportsStage

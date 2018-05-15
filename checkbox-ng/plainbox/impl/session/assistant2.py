@@ -123,6 +123,7 @@ class SessionAssistant2():
         self.buffered_ui = BufferedUI()
         self._reset_sa()
         self._passwordless_sudo = is_passwordless_sudo()
+        self.terminate_cb = None
 
     def _reset_sa(self):
         self._state = Idle
@@ -274,6 +275,10 @@ class SessionAssistant2():
         if self._state == Started:
             payload = self._available_testplans
         return self._state, payload
+
+    def terminate(self):
+        if self.terminate_cb:
+            self.terminate_cb()
 
     def get_session_progress(self):
         """Return list of completed and not completed jobs in a dict."""

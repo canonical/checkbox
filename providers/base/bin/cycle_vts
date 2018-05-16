@@ -12,14 +12,14 @@ then
     exit 1
 fi
 
-if [ "$CURRENT_VT" -ne "1" ]
+if [ "$CURRENT_VT" == "7" ]
 then
     chvt 1
 else
-    chvt 2
+    chvt 3
 fi
 
-sleep 2
+sleep 5
 chvt "$CURRENT_VT"
 sleep 2
 

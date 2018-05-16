@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import gi
 import os
 import sys
 
@@ -27,6 +28,7 @@ import struct
 import termios
 
 from gettext import gettext as _
+
 from gi.repository import GObject
 from optparse import OptionParser
 
@@ -221,6 +223,8 @@ class GtkReporter(Reporter):
     def __init__(self, *args, **kwargs):
         super(GtkReporter, self).__init__(*args, **kwargs)
 
+        gi.require_version('Gdk', '3.0')
+        gi.require_version("Gtk", "3.0")
         from gi.repository import Gdk, Gtk
 
         # Initialize GTK constants

@@ -625,6 +625,12 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         )[0]
         self.assertEqual(len(document.record_list), 34)
 
+    def test_pactl_list_clients_bionic(self):
+        document = self.assertParses(
+            pactl.Document.Syntax, self.get_text("desktop-bionic-t480s")
+        )[0]
+        self.assertEqual(len(document.record_list), 55)
+
     def test_pactl_list(self):
         document = self.assertParses(
             pactl.Document.Syntax, self.get_text("desktop-precise")

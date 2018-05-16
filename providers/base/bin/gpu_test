@@ -23,11 +23,13 @@ lockups.
 Inspired by the workload directory of the xdiagnose package.
 """
 
+import gi
 import os
 import re
 import subprocess
 import sys
 import time
+gi.require_version('Gio', '2.0')
 from gi.repository import Gio
 from math import cos, sin
 from threading import Thread

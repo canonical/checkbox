@@ -24,13 +24,17 @@ accelerometer, and check to be sure that the x, y, z axis respond
 to physical movement of hardware.
 '''
 from argparse import ArgumentParser
-from gi.repository import Gdk, GLib, Gtk
+import gi
 import logging
 import os
 import re
 import sys
 import threading
 import time
+gi.require_version('Gdk', '3.0')
+gi.require_version('GLib', '2.0')
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gdk, GLib, Gtk
 from subprocess import Popen, PIPE, check_output, STDOUT, CalledProcessError
 from checkbox_support.parsers.modinfo import ModinfoParser
 

@@ -146,7 +146,14 @@ class Property(Node):
     __syntax__ = (
         p.Word(p.alphanums + "-_.").setResultsName("property-name")
         + p.Suppress('=')
-        + p.QuotedString('"').setResultsName("property-value")
+        + p.Or([
+            p.Suppress('"')
+            + p.Empty().setParseAction(
+                lambda t: " "
+            ).setResultsName("property-value")
+            + p.Suppress('"'),
+            p.QuotedString('"').setResultsName("property-value")
+        ])
     ).setResultsName('property')
 
 

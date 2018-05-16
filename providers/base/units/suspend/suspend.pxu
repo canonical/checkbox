@@ -99,7 +99,7 @@ id: suspend/bluetooth_obex_send_before_suspend
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -127,7 +127,7 @@ id: suspend/bluetooth_obex_browse_before_suspend
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -155,7 +155,7 @@ id: suspend/bluetooth_obex_get_before_suspend
 estimated_duration: 20.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -936,7 +936,7 @@ depends: suspend/suspend_advanced
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -965,7 +965,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -994,7 +994,7 @@ depends: suspend/suspend_advanced
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -1023,7 +1023,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -1052,7 +1052,7 @@ estimated_duration: 20.0
 depends: suspend/suspend_advanced
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -1081,7 +1081,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]

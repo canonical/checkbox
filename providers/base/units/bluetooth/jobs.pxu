@@ -132,7 +132,7 @@ id: bluetooth/file_transfer_stress
 estimated_duration: 300.0
 requires:
  package.name == 'bluez'
- package.name == 'obexftp'
+ executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]

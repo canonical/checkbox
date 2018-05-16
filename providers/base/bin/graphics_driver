@@ -361,7 +361,10 @@ def hybrid_graphics_check(xlog):
 
 
 def main():
-    xlog = XorgLog("/var/log/Xorg.0.log")
+    if os.path.isfile("/var/log/Xorg.0.log"):
+        xlog = XorgLog("/var/log/Xorg.0.log")
+    else:
+        xlog = XorgLog(os.path.expanduser("~/.local/share/xorg/Xorg.0.log"))
     results = []
 
     results.append(get_driver_info(xlog))

@@ -334,7 +334,7 @@ command: graphics_card_resource
 id: fwts
 estimated_duration: 0.5
 plugin: resource
-requires: package.name == "fwts"
+requires: executable.name == "fwts"
 _description: Generate an entry for each FWTS test available
 command:
  for test in `checkbox-support-fwts_test --list`; do echo "name: $test"; echo ""; done

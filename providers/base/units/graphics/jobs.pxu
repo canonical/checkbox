@@ -8,7 +8,7 @@ command:
  source graphics_env {driver} {index}
  graphics_driver
 estimated_duration: 0.5
-_description: Parses Xorg.0.Log and discovers the running X driver and version for the {vendor} {product} graphics card
+_description: Parses Xorg.0.log and discovers the running X driver and version for the {vendor} {product} graphics card
 _summary: Test X driver/version for {vendor} {product}
 
 plugin: shell
@@ -205,7 +205,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/VESA_drivers_not_in_use
-command: cat /var/log/Xorg.0.log | perl -e '$a=0;while(<>){$a++ if /Loading.*vesa_drv\.so/;$a-- if /Unloading.*vesa/&&$a}exit 1 if $a'
+command: cat /var/log/Xorg.0.log ~/.local/share/xorg/Xorg.0.log 2>&1 | perl -e '$a=0;while(<>){$a++ if /Loading.*vesa_drv\.so/;$a-- if /Unloading.*vesa/&&$a}exit 1 if $a'
 estimated_duration: 0.011
 _description: Check that VESA drivers are not in use
 _summary: Test that VESA drivers are not in use

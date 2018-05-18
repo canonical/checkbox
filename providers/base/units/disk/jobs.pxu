@@ -21,7 +21,7 @@ flags: deprecated
 user: root
 estimated_duration: 10.0
 command: disk_stats_test {name}
-_summary: Disk statistics for {product}
+_summary: Disk statistics for {product_slug}
 _description:
  This test checks disk stats, generates some activity and rechecks stats to
  verify they've changed. It also verifies that disks appear in the various
@@ -29,7 +29,7 @@ _description:
  .
  This test will inspect the following disk:
  .
-     product name: {product}
+     product name: {product_slug}
      sysfs path: {path}
      device node path: /dev/{name}
 
@@ -44,9 +44,9 @@ requires:
  package.name == 'smartmontools' or executable.name == 'smartctl'
  block_device.smart == 'True'  and block_device.name == '{name}'
 _summary:
- Test SMART capabilities for {product}
+ Test SMART capabilities for {product_slug}
 _description:
- This tests the SMART capabilities for {product} (Note that this test may not work against hardware RAID)
+ This tests the SMART capabilities for {product_slug} (Note that this test may not work against hardware RAID)
 user: root
 command: disk_smart -b /dev/{name} -s 130 -t 530
 
@@ -58,7 +58,7 @@ category_id: com.canonical.plainbox::disk
 id: disk/read_performance_{name}
 estimated_duration: 65.0
 requires:
-_summary: Disk performance test for {product}
+_summary: Disk performance test for {product_slug}
 _description: Verify that disk storage performs at or above baseline performance
 user: root
 command: disk_read_performance_test {name}
@@ -72,7 +72,7 @@ id: disk/storage_device_{name}
 estimated_duration: 375.0
 user: root
 requires:
-_summary: Disk I/O stress test for {product}
+_summary: Disk I/O stress test for {product_slug}
 _description: Take the path of the storage device and test is it a block device
 command: storage_test {name}
 
@@ -87,8 +87,8 @@ user: root
 requires:
  package.name == 'stress-ng' or executable.name == 'stress-ng'
  package.name == 'uuid-runtime' or executable.name == 'uuidgen'
-_summary: Disk stress_ng test for {product}
-_description: Disk stress_ng test for {product}
+_summary: Disk stress_ng test for {product_slug}
+_description: Disk stress_ng test for {product_slug}
 command: disk_stress_ng {name} --base-time 240 --really-run
 
 unit: template
@@ -102,8 +102,8 @@ user: root
 requires:
  block_device.state != 'removable' and block_device.name == '{name}'
  package.name == 'bc' or executable.name == 'bc'
-_summary: Check of CPU load imposed by {product}
-_description: Check to ensure CPU load of {product} is not too high
+_summary: Check of CPU load imposed by {product_slug}
+_description: Check to ensure CPU load of {product_slug} is not too high
 command: disk_cpu_load {name}
 
 plugin: shell

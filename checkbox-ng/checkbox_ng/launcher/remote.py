@@ -220,13 +220,13 @@ class RemoteControl(Command, ReportsStage):
             self.select_tp(self.launcher.test_plan_default_selection)
         else:
             self.interactively_choose_tp(tps)
-        self.select_jobs()
 
     def interactively_choose_tp(self, tps):
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
         self.select_tp(tps[selected_index][0])
+        self.select_jobs()
 
     def password_query(self):
         if not self._password_entered and not self.sa.passwordless_sudo:

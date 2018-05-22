@@ -53,7 +53,7 @@ def main():
     disks = 0
     for line in lsblk.splitlines():
         m = pattern.match(line)
-        if not m or m.group('TYPE') != 'disk':
+        if not m or m.group('TYPE') not in ('disk', 'crypt'):
             continue
         # Only consider MMC block devices if one of their mounted partitions is
         # root (/)

@@ -389,7 +389,7 @@ plugin: shell
 category_id: com.canonical.plainbox::wireless
 id: wireless/monitor_wireless_connection
 requires:
- package.name == 'iperf'
+ executable.name == 'iperf'
  device.category == 'WIRELESS'
 user: root
 environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF
@@ -418,7 +418,7 @@ plugin: shell
 category_id: com.canonical.plainbox::wireless
 id: wireless/monitor_wireless_connection_udp
 requires:
- package.name == 'iperf'
+ executable.name == 'iperf'
  device.category == 'WIRELESS'
 user: root
 environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF

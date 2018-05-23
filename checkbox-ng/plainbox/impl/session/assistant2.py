@@ -33,6 +33,7 @@ from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.secure.sudo_broker import SudoBroker, EphemeralKey
 from plainbox.impl.commands.inv_run import SilentUI
+from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.abc import IJobResult
 
@@ -40,13 +41,19 @@ _ = gettext.gettext
 
 _logger = logging.getLogger("plainbox.session.assistant2")
 
-Interaction = namedtuple('Interaction', ['kind', 'message'])
+Interaction = namedtuple('Interaction', ['kind', 'message', 'extra'])
+
+class Interaction(namedtuple('Interaction', ['kind', 'message', 'extra'])):
+    __slots__ = ()
+    def __new__(cls, kind, message="", extra=None):
+        return super(Interaction, cls).__new__(cls, kind, message, extra)
 
 Idle = 'idle'
 Started = 'started'
 Bootstrapping = 'bootstrapping'
 Bootstrapped = 'bootstrapped'
 Running = 'running'
+Interacting = 'interacting'
 Finalizing = 'finalizing'
 
 
@@ -142,6 +149,7 @@ class SessionAssistant2():
         self._jobs_count = 0
         self._job_index = 0
         self._currently_running_job = None  # XXX: yuck!
+        self._current_comments = ""
         self._last_response = None
 
     @property
@@ -157,6 +165,23 @@ class SessionAssistant2():
                 return f(self, *args)
             return fun
         return wrap
+
+    def interact(self, interaction):
+        self._state = Interacting
+        self._current_interaction = interaction
+        yield self._current_interaction
+
+    @allowed_when(Interacting)
+    def remember_users_response(self, response):
+        if response == 'rollback':
+            self._currently_running_job = None
+            if not self.session_change_lock.acquire(blocking=False):
+                self.session_change_lock.release()
+            self._current_comments = ""
+            self._state = Bootstrapped
+            return
+        self._last_response = response
+        self._state = Running
 
     @allowed_when(Idle)
     def start_session(self, configuration):
@@ -215,23 +240,58 @@ class SessionAssistant2():
         self._job_index = self._jobs_count - len(
             self._sa.get_dynamic_todo_list()) + 1
         self._currently_running_job = job_id
+        self._current_comments = ""
         job = self._sa.get_job(job_id)
         if job.plugin in [
                 'manual', 'user-interact-verify', 'user-interact']:
-            self._current_interaction = Interaction('purpose', job.tr_purpose())
-            yield self._current_interaction
-        if job.user and not self._passwordless_sudo and not self._sudo_password:
-            self._ephemeral_key = EphemeralKey()
-            self._current_interaction = Interaction(
-                'sudo_input', self._ephemeral_key.public_key)
-            pass_is_correct = False
-            while not pass_is_correct:
-                yield self._current_interaction
-                pass_is_correct = validate_pass(
-                    self._sudo_broker.decrypt_password(self._sudo_password))
-            assert(self._sudo_password is not None)
-        self._state = Running
-        self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
+            may_comment = True
+            while may_comment:
+                may_comment = False
+                yield from self.interact(Interaction('purpose', job.tr_purpose()))
+                yield from self.interact(Interaction('steps', job.tr_steps()))
+                if self._last_response == 'comment':
+                    yield from self.interact(Interaction('comment'))
+                    if self._last_response:
+                        self._current_comments += self._last_response
+                    may_comment = True
+                    continue
+            if self._last_response == 'skip':
+                result_builder = JobResultBuilder(
+                    outcome=IJobResult.OUTCOME_SKIP,
+                    comments = _("Explicitly skipped before" " execution"))
+                if self._current_comments != "":
+                    result_builder.comments = self._current_comments
+                self.finish_job(result_builder.get_result())
+                return
+        if job.command:
+            if job.user and not self._passwordless_sudo and not self._sudo_password:
+                self._ephemeral_key = EphemeralKey()
+                self._current_interaction = Interaction(
+                    'sudo_input', self._ephemeral_key.public_key)
+                pass_is_correct = False
+                while not pass_is_correct:
+                    self.state = Interacting
+                    yield self._current_interaction
+                    pass_is_correct = validate_pass(
+                        self._sudo_broker.decrypt_password(self._sudo_password))
+                assert(self._sudo_password is not None)
+            self._state = Running
+            self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
+        else:
+            def undecided_builder(*args, **kwargs):
+                return JobResultBuilder(outcome=IJobResult.OUTCOME_UNDECIDED)
+            self._be = BackgroundExecutor(self, job_id, undecided_builder)
+        if self._sa.get_job(self._currently_running_job).plugin in [
+                'manual', 'user-interact-verify']:
+            rb = self._be.wait()
+            # by this point the ui will handle adding comments via
+            # ResultBuilder.add_comment method that adds \n in front
+            # of the addition, let's rstrip it
+            rb.comments = self._current_comments.rstrip()
+            yield from self.interact(
+                Interaction('verification', job.verification, rb))
+            self.finish_job(rb.get_result())
+
 
     @allowed_when(Started, Bootstrapping)
     def run_bootstrapping_job(self, job_id):
@@ -241,7 +301,7 @@ class SessionAssistant2():
 
 
 
-    @allowed_when(Running, Bootstrapping)
+    @allowed_when(Running, Bootstrapping, Interacting)
     def monitor_job(self):
         """
         Check the state of the currently running job.
@@ -254,7 +314,7 @@ class SessionAssistant2():
         _logger.debug("monitor_job()")
         # either return [done, running, awaiting response]
         # TODO: handle awaiting_response (reading from stdin by the job)
-        if self._be.is_alive():
+        if self._be and self._be.is_alive():
             return ('running', self.buffered_ui.get_output())
         else:
             return ('done', self.buffered_ui.get_output())
@@ -272,8 +332,10 @@ class SessionAssistant2():
             payload = (
                 self._job_index, self._jobs_count, self._currently_running_job
             )
-        if self._state == Started:
+        elif self._state == Started:
             payload = self._available_testplans
+        elif self._state == Interacting:
+            payload = (self._current_interaction)
         return self._state, payload
 
     def terminate(self):
@@ -307,11 +369,18 @@ class SessionAssistant2():
         assert(self._sudo_password)
         return self._sudo_broker.decrypt_password(self._sudo_password)
 
-    def finish_job(self):
+    def finish_job(self, result=None):
         # assert the thread completed
-        self._sa.use_job_result(
-            self._currently_running_job, self._be.wait().get_result())
-        self._session_change_lock.release()
+        if not self.session_change_lock.acquire(blocking=False):
+            self._session_change_lock.release()
+        if self._sa.get_job(self._currently_running_job).plugin in [
+                'manual', 'user-interact-verify'] and not result:
+            # for manually verified jobs we don't set the outcome here
+            # it is already determined
+            return
+        if not result:
+            result = self._be.wait().get_result()
+        self._sa.use_job_result(self._currently_running_job, result)
         if self._state != Bootstrapping:
             if not self._sa.get_dynamic_todo_list():
                 self._state = Idle
@@ -352,6 +421,7 @@ class SessionAssistant2():
                                 _('No description provided for this job')),
                 "outcome": self._sa.get_job_state(job.id).result.outcome,
                 "user": job.user,
+                "command": job.command,
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list

@@ -33,11 +33,13 @@ import time
 import signal
 import sys
 
+from collections import namedtuple
 from functools import partial
 from tempfile import SpooledTemporaryFile
 
 from guacamole import Command
 from plainbox.impl.color import Colorizer
+from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.assistant2 import SessionAssistant2
@@ -46,12 +48,13 @@ from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
+from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
 
 _ = gettext.gettext
 
 
-class SimpleUI():
+class SimpleUI(NormalUI, MainLoopStage):
     """
     Simplified version of the NormalUI from plainbox.impl.commands.inv_run.
 
@@ -76,6 +79,14 @@ class SimpleUI():
 
     def green_text(text, end='\n'):
         print(SimpleUI.C.GREEN(text), end)
+
+    @property
+    def is_interactive(self):
+        return True
+
+    @property
+    def sa(self):
+        None
 
 
 class SessionAssistantService(rpyc.Service):
@@ -115,7 +126,7 @@ class RemoteService(Command):
             "resume last session"))
 
 
-class RemoteControl(Command, ReportsStage):
+class RemoteControl(Command, ReportsStage, MainLoopStage):
     name = 'remote-control'
 
     @property
@@ -195,6 +206,8 @@ class RemoteControl(Command, ReportsStage):
                     'bootstrapped': self.continue_session,
                     'started': partial(
                         self.interactively_choose_tp, tps=payload),
+                    'interacting': partial(
+                        self.resume_interacting, interaction=payload),
                 }[state]()
             except EOFError:
                 print("Connection lost!")
@@ -320,14 +333,40 @@ class RemoteControl(Command, ReportsStage):
             SimpleUI.header(job['name'])
             print(_("ID: {0}").format(job['id']))
             print(_("Category: {0}").format(job['category_name']))
+            next_job = False
             for interaction in self.sa.run_job(job['id']):
                 if interaction.kind == 'sudo_input':
                     self.sa.save_password(
                         self._sudo_provider.encrypted_password)
                 if interaction.kind == 'purpose':
                     SimpleUI.description(_('Purpose:'), interaction.message)
+                elif interaction.kind == 'steps':
+                    SimpleUI.description(_('Steps:'), interaction.message)
+                    cmd = SimpleUI(None).wait_for_interaction_prompt(None)
+                    if cmd == 'skip':
+                        next_job = True
+                    self.sa.remember_users_response(cmd)
+                elif interaction.kind == 'verification':
+                    self.wait_for_job()
+                    JobAdapter = namedtuple('job_adapter', ['command'])
+                    job = JobAdapter(job['command'])
+                    cmd = SimpleUI(None)._interaction_callback(
+                        job, interaction.extra)
+                    self.sa.remember_users_response(cmd)
+                    self.sa.finish_job(interaction.extra.get_result())
+                    next_job = True
+                elif interaction.kind == 'comment':
+                    new_comment = input(SimpleUI.C.BLUE(
+                        _('Please enter your comments:') + '\n'))
+                    self.sa.remember_users_response(new_comment + '\n')
+            if next_job:
+                continue
             self.wait_for_job()
         self.finish_session()
+
+    def resume_interacting(self, interaction):
+        self.sa.remember_users_response('rollback')
+        self.continue_session()
 
     def wait_for_job(self):
         while True:

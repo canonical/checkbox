@@ -241,6 +241,10 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
+        if selected_index is None:
+            print(_("Nothing selected"))
+            raise SystemExit(0)
+
         self.select_tp(tps[selected_index][0])
         self.select_jobs(self.jobs)
 

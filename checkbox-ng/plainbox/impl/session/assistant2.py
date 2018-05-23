@@ -175,8 +175,8 @@ class SessionAssistant2():
     def remember_users_response(self, response):
         if response == 'rollback':
             self._currently_running_job = None
-            if not self.session_change_lock.acquire(blocking=False):
-                self.session_change_lock.release()
+            self.session_change_lock.acquire(blocking=False)
+            self.session_change_lock.release()
             self._current_comments = ""
             self._state = Bootstrapped
             return
@@ -371,8 +371,8 @@ class SessionAssistant2():
 
     def finish_job(self, result=None):
         # assert the thread completed
-        if not self.session_change_lock.acquire(blocking=False):
-            self._session_change_lock.release()
+        self.session_change_lock.acquire(blocking=False)
+        self._session_change_lock.release()
         if self._sa.get_job(self._currently_running_job).plugin in [
                 'manual', 'user-interact-verify'] and not result:
             # for manually verified jobs we don't set the outcome here

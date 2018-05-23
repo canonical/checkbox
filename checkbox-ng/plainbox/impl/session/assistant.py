@@ -1382,7 +1382,7 @@ class SessionAssistant:
         # called in pairs and applications cannot just forget and call
         # run_job() all the time.
         allowed_calls = UsageExpectation.of(self).allowed_calls
-        #del allowed_calls[self.run_job]
+        del allowed_calls[self.run_job]
         allowed_calls[self.use_job_result] = "remember the result of last job"
         return builder
 

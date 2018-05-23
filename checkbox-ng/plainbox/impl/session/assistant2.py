@@ -225,8 +225,12 @@ class SessionAssistant2():
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
         self._jobs_count = len(self._sa.get_static_todo_list())
-        self._state = TestsSelected
+        self._state = Bootstrapped
         return self._sa.get_static_todo_list()
+
+    def save_todo_list(self, chosen_jobs):
+        self._sa.use_alternate_selection(chosen_jobs)
+        self._state = TestsSelected
 
 
 
@@ -336,7 +340,9 @@ class SessionAssistant2():
         elif self._state == Started:
             payload = self._available_testplans
         elif self._state == Interacting:
-            payload = (self._current_interaction)
+            payload = self._current_interaction
+        elif self._state == Bootstrapped:
+            payload = self._sa.get_static_todo_list()
         return self._state, payload
 
     def terminate(self):

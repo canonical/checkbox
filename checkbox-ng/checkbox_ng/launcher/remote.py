@@ -204,6 +204,8 @@ class RemoteControl(Command, ReportsStage, MainLoopStage):
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
                     'testsselected': self.continue_session,
+                    'bootstrapped': partial(
+                        self.select_jobs, all_jobs=payload),
                     'started': partial(
                         self.interactively_choose_tp, tps=payload),
                     'interacting': partial(
@@ -239,7 +241,7 @@ class RemoteControl(Command, ReportsStage, MainLoopStage):
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
         self.select_tp(tps[selected_index][0])
-        self.select_jobs()
+        self.select_jobs(self.jobs)
 
     def password_query(self):
         if not self._password_entered and not self.sa.passwordless_sudo:
@@ -268,16 +270,17 @@ class RemoteControl(Command, ReportsStage, MainLoopStage):
         self._is_bootstrapping = False
         self.jobs = self.sa.finish_bootstrap()
 
-    def select_jobs(self):
+    def select_jobs(self, all_jobs):
         if self.launcher.test_selection_forced:
-            self.run_jobs(self.jobs)
+            self.run_jobs(all_jobs)
         else:
-            reprs = self.sa.get_jobs_repr(self.jobs)
+            reprs = self.sa.get_jobs_repr(all_jobs)
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs).run()
             # wanted_set may have bad order, let's use it as a filter to the
             # original list
-            todo_list = [job for job in self.jobs if job in wanted_set]
+            todo_list = [job for job in all_jobs if job in wanted_set]
+            self.sa.save_todo_list(todo_list)
             self.run_jobs(todo_list)
         return False
 

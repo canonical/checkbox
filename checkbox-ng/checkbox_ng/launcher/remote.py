@@ -19,11 +19,11 @@
 This module contains implementation of both ends of the remote execution
 functionality.
 
-RemoteService implements functionality for the half that's actually running
-the tests - the one that was summoned using `checkbox-cli remote-service`.
+RemoteSlave implements functionality for the half that's actually running
+the tests - the one that was summoned using `checkbox-cli slave`.
 This part should be run on system-under-test.
 
-RemoteControl implements the part that presents UI to the operator and steers
+RemoteMaster implements the part that presents UI to the operator and steers
 the session.
 """
 import gettext
@@ -89,27 +89,27 @@ class SimpleUI(NormalUI, MainLoopStage):
         None
 
 
-class SessionAssistantService(rpyc.Service):
+class SessionAssistantSlave(rpyc.Service):
 
     session_assistant = None
 
     def exposed_get_sa(*args):
-        return SessionAssistantService.session_assistant
+        return SessionAssistantSlave.session_assistant
 
 
-class RemoteService(Command):
+class RemoteSlave(Command):
     name = 'remote-service'
 
     def invoked(self, ctx):
-        SessionAssistantService.session_assistant = SessionAssistant2(
+        SessionAssistantSlave.session_assistant = SessionAssistant2(
             lambda s: [sys.argv[0] + ' remote-service --resume'])
         if ctx.args.resume:
             try:
-                SessionAssistantService.session_assistant.resume_last()
+                SessionAssistantSlave.session_assistant.resume_last()
             except StopIteration:
                 print("Couldn't resume the session")
         self._server = rpyc.utils.server.ThreadedServer(
-            SessionAssistantService,
+            SessionAssistantSlave,
             port=18871,
             protocol_config={
                 "allow_all_attrs": True,
@@ -118,7 +118,7 @@ class RemoteService(Command):
                 "propagate_SystemExit_locally": True
                 },
         )
-        SessionAssistantService.session_assistant.terminate_cb = self._server.close
+        SessionAssistantSlave.session_assistant.terminate_cb = self._server.close
         self._server.start()
 
     def register_arguments(self, parser):
@@ -126,7 +126,7 @@ class RemoteService(Command):
             "resume last session"))
 
 
-class RemoteControl(Command, ReportsStage, MainLoopStage):
+class RemoteMaster(Command, ReportsStage, MainLoopStage):
     name = 'remote-control'
 
     @property
@@ -291,7 +291,7 @@ class RemoteControl(Command, ReportsStage, MainLoopStage):
 
     def _handle_interrupt(self):
         """
-        Returns True if the controller should keep running.
+        Returns True if the master should keep running.
         And False if it should quit.
         """
         if self.launcher.ui_type == 'silent':
@@ -300,7 +300,7 @@ class RemoteControl(Command, ReportsStage, MainLoopStage):
         response = interrupt_dialog(self._target_host)
         if response == 'cancel':
             return True
-        elif response == 'kill-controller':
+        elif response == 'kill-master':
             return False
         elif response == 'kill-service':
             self._sa.terminate()

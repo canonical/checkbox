@@ -203,7 +203,7 @@ class RemoteControl(Command, ReportsStage, MainLoopStage):
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
-                    'bootstrapped': self.continue_session,
+                    'testsselected': self.continue_session,
                     'started': partial(
                         self.interactively_choose_tp, tps=payload),
                     'interacting': partial(

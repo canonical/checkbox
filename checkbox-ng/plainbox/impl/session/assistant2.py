@@ -52,6 +52,7 @@ Idle = 'idle'
 Started = 'started'
 Bootstrapping = 'bootstrapping'
 Bootstrapped = 'bootstrapped'
+TestsSelected = 'testsselected'
 Running = 'running'
 Interacting = 'interacting'
 Finalizing = 'finalizing'
@@ -178,7 +179,7 @@ class SessionAssistant2():
             self.session_change_lock.acquire(blocking=False)
             self.session_change_lock.release()
             self._current_comments = ""
-            self._state = Bootstrapped
+            self._state = TestsSelected
             return
         self._last_response = response
         self._state = Running
@@ -224,13 +225,13 @@ class SessionAssistant2():
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
         self._jobs_count = len(self._sa.get_static_todo_list())
-        self._state = Bootstrapped
+        self._state = TestsSelected
         return self._sa.get_static_todo_list()
 
 
 
 
-    @allowed_when(Bootstrapped)
+    @allowed_when(TestsSelected)
     def run_job(self, job_id):
         """
         Depending on the type of the job, run_job can yield different number
@@ -385,7 +386,7 @@ class SessionAssistant2():
             if not self._sa.get_dynamic_todo_list():
                 self._state = Idle
             else:
-                self._state = Bootstrapped
+                self._state = TestsSelected
 
     def get_jobs_repr(self, job_ids):
         """
@@ -443,7 +444,7 @@ class SessionAssistant2():
                 self._sa.use_job_result(last_job, result)
             except KeyError:
                 raise SystemExit(last_job)
-        self._state = Bootstrapped
+        self._state = TestsSelected
 
     def finalize_session(self):
         self._sa.finalize_session()

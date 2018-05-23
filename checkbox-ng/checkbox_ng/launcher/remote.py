@@ -344,7 +344,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                         self._sudo_provider.encrypted_password)
                 if interaction.kind == 'purpose':
                     SimpleUI.description(_('Purpose:'), interaction.message)
-                elif interaction.kind == 'steps':
+                elif interaction.kind in ['description', 'steps']:
                     SimpleUI.description(_('Steps:'), interaction.message)
                     cmd = SimpleUI(None).wait_for_interaction_prompt(None)
                     if cmd == 'skip':

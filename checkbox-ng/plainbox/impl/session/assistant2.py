@@ -251,9 +251,14 @@ class SessionAssistant2():
             may_comment = True
             while may_comment:
                 may_comment = False
-                yield from self.interact(
-                    Interaction('purpose', job.tr_purpose()))
-                yield from self.interact(Interaction('steps', job.tr_steps()))
+                if job.tr_description() and not job.tr_purpose():
+                    yield from self.interact(
+                        Interaction('description', job.tr_description()))
+                if job.tr_purpose():
+                    yield from self.interact(
+                        Interaction('purpose', job.tr_purpose()))
+                if job.tr_steps():
+                    yield from self.interact(Interaction('steps', job.tr_steps()))
                 if self._last_response == 'comment':
                     yield from self.interact(Interaction('comment'))
                     if self._last_response:

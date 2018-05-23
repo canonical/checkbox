@@ -19,11 +19,11 @@
 This module contains implementation of both ends of the remote execution
 functionality.
 
-RemoteService implements functionality for the half that's actually running
-the tests - the one that was summoned using `checkbox-cli remote-service`.
+RemoteSlave implements functionality for the half that's actually running
+the tests - the one that was summoned using `checkbox-cli slave`.
 This part should be run on system-under-test.
 
-RemoteControl implements the part that presents UI to the operator and steers
+RemoteMaster implements the part that presents UI to the operator and steers
 the session.
 """
 import gettext
@@ -33,11 +33,13 @@ import time
 import signal
 import sys
 
+from collections import namedtuple
 from functools import partial
 from tempfile import SpooledTemporaryFile
 
 from guacamole import Command
 from plainbox.impl.color import Colorizer
+from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.assistant2 import SessionAssistant2
@@ -46,12 +48,13 @@ from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
+from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
 
 _ = gettext.gettext
 
 
-class SimpleUI():
+class SimpleUI(NormalUI, MainLoopStage):
     """
     Simplified version of the NormalUI from plainbox.impl.commands.inv_run.
 
@@ -77,28 +80,36 @@ class SimpleUI():
     def green_text(text, end='\n'):
         print(SimpleUI.C.GREEN(text), end)
 
+    @property
+    def is_interactive(self):
+        return True
 
-class SessionAssistantService(rpyc.Service):
+    @property
+    def sa(self):
+        None
+
+
+class SessionAssistantSlave(rpyc.Service):
 
     session_assistant = None
 
     def exposed_get_sa(*args):
-        return SessionAssistantService.session_assistant
+        return SessionAssistantSlave.session_assistant
 
 
-class RemoteService(Command):
+class RemoteSlave(Command):
     name = 'remote-service'
 
     def invoked(self, ctx):
-        SessionAssistantService.session_assistant = SessionAssistant2(
+        SessionAssistantSlave.session_assistant = SessionAssistant2(
             lambda s: [sys.argv[0] + ' remote-service --resume'])
         if ctx.args.resume:
             try:
-                SessionAssistantService.session_assistant.resume_last()
+                SessionAssistantSlave.session_assistant.resume_last()
             except StopIteration:
                 print("Couldn't resume the session")
         self._server = rpyc.utils.server.ThreadedServer(
-            SessionAssistantService,
+            SessionAssistantSlave,
             port=18871,
             protocol_config={
                 "allow_all_attrs": True,
@@ -107,7 +118,8 @@ class RemoteService(Command):
                 "propagate_SystemExit_locally": True
                 },
         )
-        SessionAssistantService.session_assistant.terminate_cb = self._server.close
+        SessionAssistantSlave.session_assistant.terminate_cb = (
+            self._server.close)
         self._server.start()
 
     def register_arguments(self, parser):
@@ -115,7 +127,7 @@ class RemoteService(Command):
             "resume last session"))
 
 
-class RemoteControl(Command, ReportsStage):
+class RemoteMaster(Command, ReportsStage, MainLoopStage):
     name = 'remote-control'
 
     @property
@@ -173,9 +185,9 @@ class RemoteControl(Command, ReportsStage):
         while True:
             try:
                 if interrupted:
-                    interrupted = False #  we are handling the interruption ATM
-                    # next line can raise exception due to connection being lost
-                    # so let's set the default behavior to quitting
+                    interrupted = False  # we are handling the interruption ATM
+                    # next line can raise exception due to connection being
+                    # lost so let's set the default behavior to quitting
                     keep_running = False
                     keep_running = self._handle_interrupt()
                     if not keep_running:
@@ -192,9 +204,13 @@ class RemoteControl(Command, ReportsStage):
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
-                    'bootstrapped': self.continue_session,
+                    'testsselected': self.continue_session,
+                    'bootstrapped': partial(
+                        self.select_jobs, all_jobs=payload),
                     'started': partial(
                         self.interactively_choose_tp, tps=payload),
+                    'interacting': partial(
+                        self.resume_interacting, interaction=payload),
                 }[state]()
             except EOFError:
                 print("Connection lost!")
@@ -206,7 +222,7 @@ class RemoteControl(Command, ReportsStage):
                 print('Reconnecting...')
                 time.sleep(0.5)
             except KeyboardInterrupt:
-                interrupted =  True
+                interrupted = True
 
             if not keep_running:
                 break
@@ -220,13 +236,17 @@ class RemoteControl(Command, ReportsStage):
             self.select_tp(self.launcher.test_plan_default_selection)
         else:
             self.interactively_choose_tp(tps)
-        self.select_jobs()
 
     def interactively_choose_tp(self, tps):
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
+        if selected_index is None:
+            print(_("Nothing selected"))
+            raise SystemExit(0)
+
         self.select_tp(tps[selected_index][0])
+        self.select_jobs(self.jobs)
 
     def password_query(self):
         if not self._password_entered and not self.sa.passwordless_sudo:
@@ -255,16 +275,17 @@ class RemoteControl(Command, ReportsStage):
         self._is_bootstrapping = False
         self.jobs = self.sa.finish_bootstrap()
 
-    def select_jobs(self):
+    def select_jobs(self, all_jobs):
         if self.launcher.test_selection_forced:
-            self.run_jobs(self.jobs)
+            self.run_jobs(all_jobs)
         else:
-            reprs = self.sa.get_jobs_repr(self.jobs)
+            reprs = self.sa.get_jobs_repr(all_jobs)
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs).run()
             # wanted_set may have bad order, let's use it as a filter to the
             # original list
-            todo_list = [job for job in self.jobs if job in wanted_set]
+            todo_list = [job for job in all_jobs if job in wanted_set]
+            self.sa.save_todo_list(todo_list)
             self.run_jobs(todo_list)
         return False
 
@@ -275,7 +296,7 @@ class RemoteControl(Command, ReportsStage):
 
     def _handle_interrupt(self):
         """
-        Returns True if the controller should keep running.
+        Returns True if the master should keep running.
         And False if it should quit.
         """
         if self.launcher.ui_type == 'silent':
@@ -284,7 +305,7 @@ class RemoteControl(Command, ReportsStage):
         response = interrupt_dialog(self._target_host)
         if response == 'cancel':
             return True
-        elif response == 'kill-controller':
+        elif response == 'kill-master':
             return False
         elif response == 'kill-service':
             self._sa.terminate()
@@ -320,14 +341,40 @@ class RemoteControl(Command, ReportsStage):
             SimpleUI.header(job['name'])
             print(_("ID: {0}").format(job['id']))
             print(_("Category: {0}").format(job['category_name']))
+            next_job = False
             for interaction in self.sa.run_job(job['id']):
                 if interaction.kind == 'sudo_input':
                     self.sa.save_password(
                         self._sudo_provider.encrypted_password)
                 if interaction.kind == 'purpose':
                     SimpleUI.description(_('Purpose:'), interaction.message)
+                elif interaction.kind in ['description', 'steps']:
+                    SimpleUI.description(_('Steps:'), interaction.message)
+                    cmd = SimpleUI(None).wait_for_interaction_prompt(None)
+                    if cmd == 'skip':
+                        next_job = True
+                    self.sa.remember_users_response(cmd)
+                elif interaction.kind == 'verification':
+                    self.wait_for_job()
+                    JobAdapter = namedtuple('job_adapter', ['command'])
+                    job = JobAdapter(job['command'])
+                    cmd = SimpleUI(None)._interaction_callback(
+                        job, interaction.extra)
+                    self.sa.remember_users_response(cmd)
+                    self.sa.finish_job(interaction.extra.get_result())
+                    next_job = True
+                elif interaction.kind == 'comment':
+                    new_comment = input(SimpleUI.C.BLUE(
+                        _('Please enter your comments:') + '\n'))
+                    self.sa.remember_users_response(new_comment + '\n')
+            if next_job:
+                continue
             self.wait_for_job()
         self.finish_session()
+
+    def resume_interacting(self, interaction):
+        self.sa.remember_users_response('rollback')
+        self.continue_session()
 
     def wait_for_job(self):
         while True:

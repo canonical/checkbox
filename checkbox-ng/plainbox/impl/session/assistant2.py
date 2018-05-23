@@ -43,8 +43,10 @@ _logger = logging.getLogger("plainbox.session.assistant2")
 
 Interaction = namedtuple('Interaction', ['kind', 'message', 'extra'])
 
+
 class Interaction(namedtuple('Interaction', ['kind', 'message', 'extra'])):
     __slots__ = ()
+
     def __new__(cls, kind, message="", extra=None):
         return super(Interaction, cls).__new__(cls, kind, message, extra)
 
@@ -232,9 +234,6 @@ class SessionAssistant2():
         self._sa.use_alternate_selection(chosen_jobs)
         self._state = TestsSelected
 
-
-
-
     @allowed_when(TestsSelected)
     def run_job(self, job_id):
         """
@@ -252,7 +251,8 @@ class SessionAssistant2():
             may_comment = True
             while may_comment:
                 may_comment = False
-                yield from self.interact(Interaction('purpose', job.tr_purpose()))
+                yield from self.interact(
+                    Interaction('purpose', job.tr_purpose()))
                 yield from self.interact(Interaction('steps', job.tr_steps()))
                 if self._last_response == 'comment':
                     yield from self.interact(Interaction('comment'))
@@ -263,13 +263,14 @@ class SessionAssistant2():
             if self._last_response == 'skip':
                 result_builder = JobResultBuilder(
                     outcome=IJobResult.OUTCOME_SKIP,
-                    comments = _("Explicitly skipped before" " execution"))
+                    comments=_("Explicitly skipped before" " execution"))
                 if self._current_comments != "":
                     result_builder.comments = self._current_comments
                 self.finish_job(result_builder.get_result())
                 return
         if job.command:
-            if job.user and not self._passwordless_sudo and not self._sudo_password:
+            if (job.user and not self._passwordless_sudo
+                    and not self._sudo_password):
                 self._ephemeral_key = EphemeralKey()
                 self._current_interaction = Interaction(
                     'sudo_input', self._ephemeral_key.public_key)
@@ -278,7 +279,8 @@ class SessionAssistant2():
                     self.state = Interacting
                     yield self._current_interaction
                     pass_is_correct = validate_pass(
-                        self._sudo_broker.decrypt_password(self._sudo_password))
+                        self._sudo_broker.decrypt_password(
+                            self._sudo_password))
                 assert(self._sudo_password is not None)
             self._state = Running
             self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
@@ -297,14 +299,11 @@ class SessionAssistant2():
                 Interaction('verification', job.verification, rb))
             self.finish_job(rb.get_result())
 
-
     @allowed_when(Started, Bootstrapping)
     def run_bootstrapping_job(self, job_id):
         self._currently_running_job = job_id
         self._state = Bootstrapping
         self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
-
-
 
     @allowed_when(Running, Bootstrapping, Interacting)
     def monitor_job(self):
@@ -368,8 +367,6 @@ class SessionAssistant2():
             self._sudo_password = cyphertext
             return True
         return False
-
-
 
     def get_decrypted_password(self):
         """Return decrypted password"""

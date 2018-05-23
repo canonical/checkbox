@@ -118,7 +118,8 @@ class RemoteSlave(Command):
                 "propagate_SystemExit_locally": True
                 },
         )
-        SessionAssistantSlave.session_assistant.terminate_cb = self._server.close
+        SessionAssistantSlave.session_assistant.terminate_cb = (
+            self._server.close)
         self._server.start()
 
     def register_arguments(self, parser):
@@ -184,9 +185,9 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         while True:
             try:
                 if interrupted:
-                    interrupted = False #  we are handling the interruption ATM
-                    # next line can raise exception due to connection being lost
-                    # so let's set the default behavior to quitting
+                    interrupted = False  # we are handling the interruption ATM
+                    # next line can raise exception due to connection being
+                    # lost so let's set the default behavior to quitting
                     keep_running = False
                     keep_running = self._handle_interrupt()
                     if not keep_running:
@@ -221,7 +222,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                 print('Reconnecting...')
                 time.sleep(0.5)
             except KeyboardInterrupt:
-                interrupted =  True
+                interrupted = True
 
             if not keep_running:
                 break

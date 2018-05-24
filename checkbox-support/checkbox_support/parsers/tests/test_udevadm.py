@@ -921,7 +921,7 @@ E: UDEV_LOG=3
     def test_CARA_T_SOCKETCAN(self):
         # A Snappy system with a SocketCAN device
         devices = self.parse("CARA_T_SOCKETCAN")
-        self.assertEqual(len(devices), 79)
+        self.assertEqual(len(devices), 78)
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)

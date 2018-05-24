@@ -1,7 +1,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2011-2016 Canonical Ltd.
+# Copyright 2011-2018 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -233,6 +233,8 @@ class UdevadmDevice(object):
                      self._environment["INTERFACE"].startswith('wlan')
                      )):
                     return "WIRELESS"
+                if (self._environment["INTERFACE"].startswith('can')):
+                    return "SOCKETCAN"
             if self._stack:
                 parent = self._stack[-1]
                 if "PCI_CLASS" in parent._environment:
@@ -913,7 +915,8 @@ class UdevadmDevice(object):
     def interface(self):
         if self._interface is not None:
             return self._interface
-        if self.category in ("INFINIBAND", "NETWORK", "WIRELESS", "WWAN"):
+        if self.category in ("INFINIBAND", "NETWORK", "SOCKETCAN", "WIRELESS",
+                             "WWAN"):
             if "INTERFACE" in self._environment:
                 return self._environment["INTERFACE"]
             else:
@@ -1172,11 +1175,11 @@ class UdevadmParser(object):
                      if MD_DEVICE_RE.match(k)])
 
         for device in list(self.devices.values()):
-            if device.category in ("INFINIBAND", "NETWORK",
+            if device.category in ("INFINIBAND", "NETWORK", "SOCKETCAN",
                                    "WIRELESS", "WWAN", "OTHER"):
                 dev_interface = [
                     d for d in self.devices.values()
-                    if d.category in ("INFINIBAND", "NETWORK",
+                    if d.category in ("INFINIBAND", "NETWORK", "SOCKETCAN",
                                       "WIRELESS", "WWAN") and
                     device._raw_path != d._raw_path and
                     device._raw_path + '/' in d._raw_path

@@ -917,7 +917,26 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "CANBUS"), 1)
-    
+
+    def test_CARA_T_SOCKETCAN(self):
+        # A Snappy system with a SocketCAN device
+        devices = self.parse("CARA_T_SOCKETCAN")
+        self.assertEqual(len(devices), 78)
+        self.assertEqual(self.count(devices, "VIDEO"), 0)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 2)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "CANBUS"), 0)
+        self.assertEqual(self.count(devices, "SOCKETCAN"), 1)
+
     def test_IBM_s390x_DASD(self):
         devices = self.parse("IBM_s390x_DASD")
         self.assertEqual(len(devices), 8)

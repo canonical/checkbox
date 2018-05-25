@@ -375,6 +375,8 @@ class SessionAssistant2():
 
     def get_decrypted_password(self):
         """Return decrypted password"""
+        if self._passwordless_sudo:
+            return ''
         assert(self._sudo_password)
         return self._sudo_broker.decrypt_password(self._sudo_password)
 

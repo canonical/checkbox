@@ -28,6 +28,7 @@ import subprocess
 import tempfile
 
 from plainbox.impl.secure.config import PlainBoxConfigParser
+from plainbox.impl.unit.unit import on_ubuntucore
 
 
 class IRestartStrategy(metaclass=abc.ABCMeta):
@@ -207,7 +208,7 @@ def detect_restart_strategy() -> IRestartStrategy:
     """
     # If we are running as a confined Snappy app this variable will have been
     # set by the launcher script
-    if(os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
+    if on_ubuntucore():
         return SnappyRestartStrategy()
         
     if os.path.isdir('/etc/xdg/autostart'):

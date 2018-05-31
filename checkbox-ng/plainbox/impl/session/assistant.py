@@ -198,6 +198,7 @@ class SessionAssistant:
                 "get previously created sessions"),
             self.delete_sessions: (
                 "delete previously created sessions"),
+            self.finalize_session: "to finalize session",
         }
         # Restart support
         self._restart_cmd_callback = None
@@ -597,6 +598,7 @@ class SessionAssistant:
             self.get_session_dir: ("to get the path where current session is"
                                    "stored"),
             self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
+            self.finalize_session: "to finalize session",
         }
 
     @raises(KeyError, UnexpectedMethodCall)

@@ -40,3 +40,29 @@ include:
     tpm2.0/.*
 mandatory_include:
     com.canonical.plainbox::manifest
+
+unit: test plan
+id: tpm2.0_3.0.4
+_name: Run all TPM 2.0 (Trusted Platform Module) integration tests (3.0.4)
+_description:
+ This test plan contains all integrations tests available from
+ https://github.com/01org/tpm2.0-tools/tree/master/test
+estimated_duration: 10m
+include:
+    tpm2.0_3.0.4/.*
+mandatory_include:
+    com.canonical.plainbox::collect-manifest
+    com.canonical.plainbox::manifest
+
+unit: test plan
+id: tpm2.0_3.0.4-automated
+_name:
+ Run only automatic TPM 2.0 (Trusted Platform Module) integration tests (3.0.4)
+_description:
+ This test plan includes all the upstream tests, but does not attempt to collect
+ manifest information from the user.
+estimated_duration: 10m
+include:
+    tpm2.0_3.0.4/.*
+mandatory_include:
+    com.canonical.plainbox::manifest

@@ -169,6 +169,8 @@ class CheckboxCommand(CanonicalCommand):
             'print debug messages from checkbox'))
         parser.add_argument('--clear-cache', action='store_true', help=_(
             'remove cached results from the system'))
+        parser.add_argument('--version', action='store_true', help=_(
+            "show program's version information and exit"))
 
     def invoked(self, ctx):
         if ctx.args.verbose:

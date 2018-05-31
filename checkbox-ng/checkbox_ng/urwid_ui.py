@@ -570,8 +570,8 @@ def interrupt_dialog(host):
         ]
     choices = [
         _("Cancel the interruption and resume the session (ESC)"),
-        _("Disconnect the controller (Same as CTRL+C)"),
-        _("Stop the checkbox remote-service @{}".format(host)),
+        _("Disconnect the master (Same as CTRL+C)"),
+        _("Stop the checkbox slave @{}".format(host)),
     ]
     footer_text = [
         ('Press '), ('start', '<Enter>'), (' or '),

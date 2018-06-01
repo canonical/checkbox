@@ -246,6 +246,10 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             raise SystemExit(0)
 
         self.select_tp(tps[selected_index][0])
+        if not self.jobs:
+            print(self.C.RED(_("There were no tests to select from!")))
+            self.sa.finalize_session()
+            return
         self.select_jobs(self.jobs)
 
     def password_query(self):

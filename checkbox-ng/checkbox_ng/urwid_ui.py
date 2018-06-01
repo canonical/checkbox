@@ -570,8 +570,9 @@ def interrupt_dialog(host):
         ]
     choices = [
         _("Cancel the interruption and resume the session (ESC)"),
-        _("Disconnect the controller (Same as CTRL+C)"),
-        _("Stop the checkbox remote-service @{}".format(host)),
+        _("Disconnect the master (Same as CTRL+C)"),
+        _("Stop the checkbox slave @{}".format(host)),
+        _("Abandon the session on the slave @{}".format(host)),
     ]
     footer_text = [
         ('Press '), ('start', '<Enter>'), (' or '),
@@ -612,7 +613,7 @@ def interrupt_dialog(host):
     try:
         index = next(
             radio_button_group.index(i) for i in radio_button_group if i.state)
-        return ['cancel', 'kill-controller', 'kill-service'][index]
+        return ['cancel', 'kill-controller', 'kill-service', 'abandon'][index]
     except StopIteration:
         return None
 

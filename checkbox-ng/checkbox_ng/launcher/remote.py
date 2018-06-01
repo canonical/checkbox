@@ -310,6 +310,9 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         elif response == 'kill-service':
             self._sa.terminate()
             return False
+        elif response == 'abandon':
+            self._sa.finalize_session()
+            return True
 
     def finish_session(self):
         if self.launcher.local_submission:

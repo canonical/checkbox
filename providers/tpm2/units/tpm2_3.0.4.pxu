@@ -1,0 +1,476 @@
+# This file is part of Checkbox.
+#
+# Copyright 2018 Canonical Ltd.
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+id: tpm2.0_3.0.4/tpm2_takeownership
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_tpm2_chip == 'True'
+ tpm2_resource.kernel_rm == 'supported'
+estimated_duration: 2
+_summary: tpm2_takeownership
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_takeownership.sh
+
+id: tpm2.0_3.0.4/tpm2_activecredential
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_activecredential
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_activecredential.sh
+
+id: tpm2.0_3.0.4/tpm2_certify
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_certify
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_certify.sh
+
+id: tpm2.0_3.0.4/tpm2_createpolicy
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_createpolicy
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_createpolicy.sh
+
+id: tpm2.0_3.0.4/tpm2_createprimary
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_createprimary
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_createprimary.sh
+
+id: tpm2.0_3.0.4/tpm2_create
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_create
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_create.sh
+
+id: tpm2.0_3.0.4/tpm2_dictionarylockout
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_dictionarylockout
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_dictionarylockout.sh
+
+id: tpm2.0_3.0.4/tpm2_encryptdecrypt
+category_id: tpm2
+plugin: shell
+requires:
+ tpm2_resource.kernel_rm == 'supported'
+ tpm2_resource.encryptdecrypt == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_encryptdecrypt
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_encryptdecrypt.sh
+
+id: tpm2.0_3.0.4/tpm2_evictcontrol
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_evictcontrol
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_evictcontrol.sh
+
+id: tpm2.0_3.0.4/tpm2_getcap
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_getcap
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_getcap.sh
+
+id: tpm2.0_3.0.4/tpm2_getmanufec
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_getmanufec
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_getmanufec.sh
+
+id: tpm2.0_3.0.4/tpm2_getpubak
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_getpubak
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_getpubak.sh
+
+id: tpm2.0_3.0.4/tpm2_getpubek
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_getpubek
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_getpubek.sh
+
+id: tpm2.0_3.0.4/tpm2_getrandom
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_getrandom
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_getrandom.sh
+
+id: tpm2.0_3.0.4/tpm2_hash
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_hash
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_hash.sh
+
+id: tpm2.0_3.0.4/tpm2_hmac
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_hmac
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_hmac.sh
+
+id: tpm2.0_3.0.4/tpm2_listpersistent
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_listpersistent
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_listpersistent.sh
+
+id: tpm2.0_3.0.4/tpm2_loadexternal
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_loadexternal
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_loadexternal.sh
+
+id: tpm2.0_3.0.4/tpm2_load
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_load
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_load.sh
+
+id: tpm2.0_3.0.4/tpm2_makecredential
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_makecredential
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_makecredential.sh
+
+id: tpm2.0_3.0.4/tpm2_nv
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_nv
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_nv.sh
+
+id: tpm2.0_3.0.4/tpm2_pcrevent
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_pcrevent
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_pcrevent.sh
+
+id: tpm2.0_3.0.4/tpm2_pcrextend
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_pcrextend
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_pcrextend.sh
+
+id: tpm2.0_3.0.4/tpm2_pcrlist
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_pcrlist
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_pcrlist.sh
+
+id: tpm2.0_3.0.4/tpm2_quote
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_quote
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_quote.sh
+
+id: tpm2.0_3.0.4/tpm2_rc_decode
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_rc_decode
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_rc_decode.sh
+
+id: tpm2.0_3.0.4/tpm2_readpublic
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_readpublic
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_readpublic.sh
+
+id: tpm2.0_3.0.4/tpm2_rsadecrypt
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_rsadecrypt
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_rsadecrypt.sh
+
+id: tpm2.0_3.0.4/tpm2_rsaencrypt
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_rsaencrypt
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_rsaencrypt.sh
+
+id: tpm2.0_3.0.4/tpm2_send
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_send
+user: root
+command:
+ export SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_send.sh
+
+id: tpm2.0_3.0.4/tpm2_sign
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_sign
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_sign.sh
+
+id: tpm2.0_3.0.4/tpm2_startup
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_startup
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_startup.sh
+
+id: tpm2.0_3.0.4/tpm2_unseal
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_unseal
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_unseal.sh
+
+id: tpm2.0_3.0.4/tpm2_verifysignature
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: tpm2_verifysignature
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_tpm2_verifysignature.sh
+
+id: tpm2.0_3.0.4/output_formats
+category_id: tpm2
+plugin: shell
+requires: tpm2_resource.kernel_rm == 'supported'
+depends: tpm2.0_3.0.4/tpm2_takeownership
+estimated_duration: 2
+_summary: output_formats
+user: root
+command:
+ SYSTEM_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-3.0.4/test/system
+ export PATH=$SYSTEM_TEST_PATH:$PATH
+ TPM2TOOLS_TCTI_NAME=device TPM2TOOLS_DEVICE_FILE=/dev/tpmrm0 test.sh $SYSTEM_TEST_PATH/test_output_formats.sh

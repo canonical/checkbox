@@ -43,8 +43,6 @@ def check_kernel_status():
     """
     kernel_release = platform.release()
 
-    print("**** Checking kernel status....")
-    print("* Kernel release is {}".format(kernel_release))
     retval = False
     command = "apt-cache show linux-image-{}".format(kernel_release)
     aptinfo = []
@@ -58,7 +56,6 @@ def check_kernel_status():
     pre-release kernels. Thus, we return a True value only if this
     line is present and shows a 5-year support period."""
     if any("Supported: 5y" in s for s in aptinfo):
-        print("* Kernel is supported for 5 years.")
         retval = True
     if any("Supported: 9m" in s for s in aptinfo):
         print("* Kernel is supported for 9 months; it is an interim release!")
@@ -81,9 +78,8 @@ def check_kernel_status():
         print("* Kernel is a low-latency kernel!")
         retval = False
 
-    if (retval):
-        print("* Kernel is eligible for certification.")
-    else:
+    if (not retval):
+        print("* Kernel release is {}".format(kernel_release))
         print("* Kernel is ineligible for certification!")
 
     return retval
@@ -97,7 +93,6 @@ def check_os_status():
     :returns:
         True if OK, False if not
     """
-    print("\n**** Checking OS status....")
     retval = True
     command = "lsb_release -s -d"
     lsbinfo = []
@@ -105,16 +100,14 @@ def check_os_status():
                      .communicate()[0])
     lsbinfo = (lsbinfo_bytes.decode(encoding="utf-8", errors="ignore")
                .rstrip())
-    print("* 'lsb_release -s -d' result is '{}'".format(lsbinfo))
 
     """OS information include '(development branch)' on pre-release
     installations. Such installations should fail this test."""
     if "(development branch)" in lsbinfo:
+        print("* 'lsb_release -s -d' result is '{}'".format(lsbinfo))
         print("* OS is reported as a development branch:")
         print("* {}".format(lsbinfo))
         retval = False
-    else:
-        print("* OS is a production release.")
     print("")
 
     return retval

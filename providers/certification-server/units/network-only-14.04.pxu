@@ -33,6 +33,7 @@ mandatory_include:
     miscellanea/get_maas_version               certification-status=blocker
     miscellanea/efi_boot_mode                  certification-status=non-blocker
     miscellanea/secure_boot_mode               certification-status=non-blocker
+    miscellanea/check_prerelease            certification-status=non-blocker
     info/network_devices
     kernel_cmdline_attachment
 include:

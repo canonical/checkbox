@@ -34,6 +34,7 @@ mandatory_include:
     miscellanea/efi_boot_mode                  certification-status=blocker
     miscellanea/secure_boot_mode               certification-status=non-blocker
     miscellanea/efi_pxeboot                    certification-status=non-blocker
+    miscellanea/check_prerelease               certification-status=non-blocker
     miscellanea/cpus_are_not_samples
     miscellanea/dmitest_server
     info/disk_partitions

@@ -32,6 +32,7 @@ mandatory_include:
     miscellanea/get_make_and_model
     miscellanea/get_maas_version               certification-status=blocker
     miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/check_prerelease               certification-status=non-blocker
     info/disk_partitions
     kernel_cmdline_attachment
 include:

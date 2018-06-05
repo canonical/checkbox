@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+
+"""
+Script to test that the system is NOT running prerelease software
+
+Copyright (c) 2018 Canonical Ltd.
+
+Authors
+   Rod Smith <rod.smith@canonical.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+The purpose of this script is to identify whether an EFI-based
+system booted from the network (test passes) or from a local disk
+(test fails).
+
+Usage:
+   check-prerelease
+"""
+
+import platform
+import shlex
+import sys
+
+from subprocess import Popen, PIPE
+
+
+def check_kernel_status():
+    """Check kernel to see if it's supported for certification
+
+    :returns:
+        True if OK, False if not
+    """
+    kernel_release = platform.release()
+
+    print("**** Checking kernel status....")
+    print("* Kernel release is {}".format(kernel_release))
+    retval = False
+    command = "apt-cache show linux-image-{}".format(kernel_release)
+    aptinfo = []
+    aptinfo_bytes = (Popen(shlex.split(command), stdout=PIPE)
+                     .communicate()[0])
+    aptinfo = (aptinfo_bytes.decode(encoding="utf-8", errors="ignore")
+               .splitlines())
+
+    """Kernel apt-cache info includes a 'Supported:' line on release
+    kernels to identify the period of support. This line is missing on
+    pre-release kernels. Thus, we return a True value only if this
+    line is present and shows a 5-year support period."""
+    if any("Supported: 5y" in s for s in aptinfo):
+        print("* Kernel is supported for 5 years.")
+        retval = True
+    if any("Supported: 9m" in s for s in aptinfo):
+        print("* Kernel is supported for 9 months; it is an interim release!")
+    if not any("Supported:" in s for s in aptinfo):
+        print("* Could not find a kernel support period; "
+              "may be a pre-release kernel!")
+
+    """We also want to exclude 'edge' kernels, which are identified via
+    the 'Source:' line in the apt-cache output...."""
+    if any("Source: linux-signed-hwe-edge" in s for s in aptinfo):
+        print("* Kernel is an 'edge' kernel!")
+        retval = False
+    if any("Source: linux-hwe-edge" in s for s in aptinfo):
+        print("* Kernel is an 'edge' kernel!")
+        retval = False
+
+    """We also want to exclude low-latency kernels, which are identified
+    via the kernel name string itself...."""
+    if "lowlatency" in kernel_release:
+        print("* Kernel is a low-latency kernel!")
+        retval = False
+
+    if (retval):
+        print("* Kernel is eligible for certification.")
+    else:
+        print("* Kernel is ineligible for certification!")
+
+    return retval
+
+
+def check_os_status():
+    """Check OS to see if it's supported for certification. Note that this
+    passes any release version (even a non-LTS version), but not pre-release
+    versions.
+
+    :returns:
+        True if OK, False if not
+    """
+    print("\n**** Checking OS status....")
+    retval = True
+    command = "lsb_release -s -d"
+    lsbinfo = []
+    lsbinfo_bytes = (Popen(shlex.split(command), stdout=PIPE)
+                     .communicate()[0])
+    lsbinfo = (lsbinfo_bytes.decode(encoding="utf-8", errors="ignore")
+               .rstrip())
+    print("* 'lsb_release -s -d' result is '{}'".format(lsbinfo))
+
+    """OS information include '(development branch)' on pre-release
+    installations. Such installations should fail this test."""
+    if "(development branch)" in lsbinfo:
+        print("* OS is reported as a development branch:")
+        print("* {}".format(lsbinfo))
+        retval = False
+    else:
+        print("* OS is a production release.")
+    print("")
+
+    return retval
+
+
+def main():
+    """Check to see if the machine is running pre-release kernel or OS."""
+
+    retval = 0
+    if (not check_kernel_status()):
+        retval = 1
+    if (not check_os_status()):
+        retval += 2
+    if (retval == 0):
+        print("** All OK; production kernel and OS.")
+    elif (retval == 1):
+        print("** Test FAILS; running ineligible kernel!")
+    elif (retval == 2):
+        print("** Test FAILS; running pre-release OS!")
+    else:
+        print("** Test FAILS; running pre-release OS with ineligible kernel!")
+
+    return(retval)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -161,6 +161,16 @@ command: efi-pxeboot
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+id: miscellanea/check_prerelease
+_summary: Test that system is not a pre-release version
+_description:
+ Test to verify that the system uses production, rather
+ than pre-release, versions of the kernel and the OS.
+command: check-prerelease
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
 requires:
  package.name == 'ipmitool' or executable.name == 'ipmitool'

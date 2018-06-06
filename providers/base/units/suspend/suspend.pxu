@@ -645,7 +645,7 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network test test -i $INTERFACE -t iperf
+ network test -i $INTERFACE -t iperf
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 

@@ -29,6 +29,7 @@ mandatory_include:
     miscellanea/get_make_and_model
     miscellanea/get_maas_version               certification-status=blocker
     miscellanea/efi_boot_mode                  certification-status=non-blocker
+    miscellanea/check_prerelease               certification-status=non-blocker
     miscellanea/cpus_are_not_samples
     miscellanea/dmitest_server
     info/disk_partitions

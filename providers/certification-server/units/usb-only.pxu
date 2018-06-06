@@ -31,6 +31,7 @@ mandatory_include:
     lsmod_attachment
     miscellanea/get_make_and_model
     miscellanea/get_maas_version               certification-status=blocker
+    miscellanea/check_prerelease               certification-status=non-blocker
     miscellanea/boot_mode
     info/disk_partitions
     kernel_cmdline_attachment

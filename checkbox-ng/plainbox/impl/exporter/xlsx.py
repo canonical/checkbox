@@ -34,6 +34,7 @@ import re
 from xlsxwriter.workbook import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
+from plainbox import get_version_string
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl.exporter import SessionStateExporterBase
@@ -319,8 +320,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet1.set_column(0, 0, 4)
         self.worksheet1.set_column(1, 1, 34)
         self.worksheet1.set_column(2, 3, 58)
+        row = 3
+        self.worksheet1.write(row, 1, _('Report created using'), self.format03)
+        self.worksheet1.write(row, 2, get_version_string(), self.format03)
         hw_info = self._hw_collection(data)
-        row = 5
+        row += 2
         self.worksheet1.write(row, 1, _('Platform Name'), self.format03)
         self.worksheet1.write(row, 2, hw_info['platform'], self.format03)
         row += 2

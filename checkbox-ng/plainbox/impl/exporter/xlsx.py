@@ -354,7 +354,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet1.write(row, 1, _('NIC'), self.format04)
         self.worksheet1.write(row, 2, hw_info['nic'], self.format06)
         row += 1
-        # TRANSLTORS: Wireless as in wireless network cards
+        # TRANSLATORS: Wireless as in wireless network cards
         self.worksheet1.write(row, 1, _('Wireless'), self.format04)
         self.worksheet1.write(row, 2, hw_info['wireless'], self.format05)
         row += 1

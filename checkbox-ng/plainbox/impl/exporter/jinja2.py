@@ -76,13 +76,10 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         self._unit = exporter_unit
         self._system_id = system_id
         # Generate a time-stamp if needed
-        if timestamp is None:
-            timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
-        self._timestamp = timestamp
+        self._timestamp = (
+            timestamp or datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"))
         # Use current version unless told otherwise
-        if client_version is None:
-            client_version = get_version_string()
-        self._client_version = client_version
+        self._client_version = client_version or get_version_string()
         # Remember client name
         self._client_name = client_name
 

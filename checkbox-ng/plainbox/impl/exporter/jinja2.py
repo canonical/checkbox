@@ -26,6 +26,7 @@
 """
 
 import json
+import os
 from datetime import datetime
 
 from jinja2 import Environment
@@ -35,7 +36,7 @@ from jinja2 import Undefined
 from jinja2 import environmentfilter
 from jinja2 import escape
 
-from plainbox import __version__ as version
+from plainbox import get_version_string
 from plainbox.abc import ISessionStateExporter
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import OUTCOME_METADATA_MAP
@@ -83,7 +84,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         self._timestamp = timestamp
         # Use current version unless told otherwise
         if client_version is None:
-            client_version = version
+            client_version = get_version_string()
         self._client_version = client_version
         # Remember client name
         self._client_name = client_name

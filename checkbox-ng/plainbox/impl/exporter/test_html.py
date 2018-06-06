@@ -167,7 +167,7 @@ class HTMLExporterTests(TestCase):
         exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
+            client_version="Checkbox 1.0",
             exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
@@ -188,7 +188,7 @@ class HTMLExporterTests(TestCase):
         exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
+            client_version="Checkbox 1.0",
             exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
@@ -209,7 +209,7 @@ class HTMLExporterTests(TestCase):
         exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
+            client_version="Checkbox 1.0",
             exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
@@ -230,7 +230,7 @@ class HTMLExporterTests(TestCase):
         exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
+            client_version="Checkbox 1.0",
             exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(

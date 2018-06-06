@@ -28,3 +28,16 @@ All abstract base classes are in :mod:`plainbox.abc`.
 #
 # This is used by @public decorator to enforce our public API guarantees.
 __version__ = '1.2.0.dev0'
+
+def get_version_string():
+    import os
+    version_string = ''
+    if os.environ.get('SNAP_NAME'):
+        version_string = '{} {} ({})'.format(
+            os.environ['SNAP_NAME'],
+            os.environ.get('SNAP_VERSION', 'unknown_version'),
+            os.environ.get('SNAP_REVISION', 'unknown_revision')
+        )
+    else:
+        version_string = '{} {}'.format('Checkbox', __version__)
+    return version_string

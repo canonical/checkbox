@@ -129,3 +129,275 @@ requires:
 command: network test -i {interface} -t stress
 _description:
  Automated test that tests performance of ethernet device {__index__} ({interface}).
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+id: ethernet/ping_{interface}
+_summary: Can ping another machine over Ethernet port {interface}
+_description: Check Ethernet works by pinging another machine
+plugin: shell
+command:
+  gateway_ping_test -v --interface {interface}
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 4.0
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
+id: ethernet/wol_S5_{interface}
+_summary: Wake on LAN (WOL) test from S5 - {interface}
+_purpose:
+ Check that another system can wake up from S5 the SUT using ethernet port {interface} WOL function.
+_steps:
+ 1. Ensure there is an ethernet cable attached to port {interface}.
+ 2. Press Enter for S5 (Soft Off).
+ 3. From another computer on the same network run the following command:
+    $ wakeonlan {mac}
+    If wakeonlan tool is not installed run:
+    $ sudo apt install wakeonlan
+ 4. Resume Checkbox
+_verification:
+  Did the SUT wake up from S5?
+plugin: user-interact-verify
+command: poweroff
+user: root
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
+id: ethernet/wol_S4_{interface}
+_summary: Wake on LAN (WOL) test from S4 - {interface}
+_purpose:
+ Check that another system can wake up from S4 the SUT using ethernet port {interface} WOL function.
+_steps:
+ 1. Ensure there is an ethernet cable attached to port {interface}.
+ 2. Press Enter to hibernate the system.
+ 3. From another computer on the same network run the following command:
+    $ wakeonlan {mac}
+    If wakeonlan tool is not installed run:
+    $ sudo apt install wakeonlan
+_verification:
+  Did the SUT wake up from S4?
+plugin: user-interact-verify
+requires:
+  sleep.disk == 'supported'
+command: systemctl hibernate
+user: root
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN' and device.interface != 'UNKNOWN'
+id: ethernet/wol_S3_{interface}
+_summary: Wake on LAN (WOL) test from S3 - {interface}
+_purpose:
+ Check that another system can wake up from S3 the SUT using ethernet port {interface} WOL function.
+_steps:
+ 1. Ensure there is an ethernet cable attached to port {interface}.
+ 2. Press Enter to suspend the system.
+ 3. From another computer on the same network run the following command:
+    $ wakeonlan {mac}
+    If wakeonlan tool is not installed run:
+    $ sudo apt install wakeonlan
+_verification:
+  Did the SUT wake up from S3?
+plugin: user-interact-verify
+requires:
+  sleep.mem == 'supported'
+command: systemctl suspend
+user: root
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+id: ethernet/hotplug-{{ interface }}-check-disconnected
+_summary: Ensure ethernet port {{ interface }} is physically disconnected
+_purpose:
+ Check that ethernet port {{ interface }} is detected as being in the correct state
+ to begin a hotplug connection test.
+_steps:
+ 1. Ensure there is no ethernet cable attached to port {{ interface }}.
+ 2. Begin test.
+plugin: user-interact
+command:
+  if [ $(cat /sys/class/net/{{ interface }}/carrier) -ne 0 ]; then
+    # carrier indicating cable present
+    exit 1
+  fi
+  exit 0
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 1.0
+flags: preserve-locale
+after:
+ {%- if __index__ > 1 %}ethernet/hotplug-{{ __index__ - 1 }}-end-cycle{%- endif %}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+id: ethernet/hotplug-{interface}-connect
+_summary: Ethernet port {interface} hotplug detection test
+_purpose:
+ Check ethernet port {interface} connects when cable inserted. Assumes an IP
+ address will be assigned by DHCP. Connection asserted by pinging the network
+ defined gateway.
+_steps:
+ 1. Begin the test.
+ 2. Insert the ethernet cable in to ethernet port {interface}.
+ 3. This test will timeout and fail if the insertion and connection
+    establishment has not been detected (10 second timeout for each check).
+plugin: user-interact
+command:
+ LOOP=0
+ CABLE_DETECT=0
+ while [ $LOOP -lt 10 ] && [ $CABLE_DETECT -eq 0 ]
+ do
+  sleep 1
+  CABLE_DETECT=$(cat /sys/class/net/{interface}/carrier)
+  LOOP=$((LOOP=LOOP+1))
+ done
+ if [ $CABLE_DETECT -eq 0 ]; then
+  echo "Didn't detect a cable insertion"
+  exit 1
+ fi
+ echo "Detected a cable insertion"
+ LOOP=0
+ OPSTATE="unknown"
+ while [ $LOOP -lt 10 ] && [ "$OPSTATE" != "up" ]
+ do
+  sleep 1
+  OPSTATE=$(cat /sys/class/net/{interface}/operstate)
+  LOOP=$((LOOP=LOOP+1))
+ done
+ if [ "$OPSTATE" != "up" ]; then
+  echo "Interface did not up"
+  exit 1
+ fi
+ echo "Interface up"
+ gateway_ping_test -v --interface {interface}
+ PING_TEST=$?
+ if [ $PING_TEST -ne 0 ]; then
+  echo "Ping test failed"
+  exit 1
+ fi
+ exit 0
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 60.0
+depends: ethernet/hotplug-{interface}-check-disconnected
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+id: ethernet/hotplug-{interface}-disconnect
+_summary: Ethernet port {interface} hotplug disconnect step
+_purpose:
+ Check that when cable removed from ethernet port {interface} the system
+ detects this correctly.
+_steps:
+ 1. Depends on previous hotplug connection test passing. We will now test
+  cable disconnection.
+ 2. Begin the test.
+ 3. Remove the ethernet cable from ethernet port {interface}.
+ 4. This test will timeout and fail if the removal has not been detected and
+  interface marked as down (10 second timeout for each check).
+plugin: user-interact
+command:
+ LOOP=0
+ CABLE_DETECT=1
+ while [ $LOOP -lt 10 ] && [ $CABLE_DETECT -ne 0 ]
+ do
+  sleep 1
+  CABLE_DETECT=$(cat /sys/class/net/{interface}/carrier)
+  LOOP=$((LOOP=LOOP+1))
+ done
+ if [ $CABLE_DETECT -ne 0 ]; then
+  echo "Didn't detect a cable removal"
+  exit 1
+ fi
+ echo "Detected a cable removal"
+ LOOP=0
+ OPSTATE="up"
+ while [ $LOOP -lt 10 ] && [ "$OPSTATE" == "up" ]
+ do
+  sleep 1
+  OPSTATE=$(cat /sys/class/net/{interface}/operstate)
+  LOOP=$((LOOP=LOOP+1))
+ done
+ if [ "$OPSTATE" == "up" ]; then
+  echo "Interface did not go down"
+  exit 1
+ fi
+ echo "Interface went down"
+ exit 0
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 20.0
+depends: ethernet/hotplug-{interface}-connect
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+id: ethernet/hotplug-{__index__}-end-cycle
+after: ethernet/hotplug-{interface}-disconnect
+command: true
+flags: simple
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-unit: job
+id: ethernet/iperf3_{interface}
+plugin: shell
+_summary: Iperf3 stress testing for {interface}
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 740.0
+user: root
+environ:
+ TEST_TARGET_IPERF
+ LD_LIBRARY_PATH
+command: checkbox-support-network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4
+_description:
+ This test uses iperf3 to ensure network devices pass data at an acceptable
+ minimum percentage of advertized speed.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: ethernet/check-{{ interface }}-static-configuration
+_summary: Check that {{ interface }} has a static configuration
+_description:
+ This job is intended to be used on particular devices where an interface has
+ been identified for configuration with a static IP address. As such, this is
+ not suitable for inclusion in the ethernet nested test plans, but should be
+ specifically included where required.
+category_id: com.canonical.plainbox::ethernet
+plugin: shell
+estimated_duration: 2s
+command: check_static {{ interface }}
+requires:
+  snap.name == 'network-manager'
+  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+
+plugin: shell
+category_id: com.canonical.plainbox::ethernet
+id: after-suspend-ethernet/network_resume_time_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+   device.category == 'NETWORK'
+command: network_reconnect_resume_test -t 10 -d wired
+_summary: Network reconnect resume test (wired)
+_description:
+ Checks the length of time it takes to reconnect an existing wired connection
+ after a suspend/resume cycle.

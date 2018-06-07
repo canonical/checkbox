@@ -34,6 +34,7 @@ import re
 from xlsxwriter.workbook import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
+from plainbox import get_version_string
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl.exporter import SessionStateExporterBase
@@ -319,56 +320,75 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet1.set_column(0, 0, 4)
         self.worksheet1.set_column(1, 1, 34)
         self.worksheet1.set_column(2, 3, 58)
+        row = 3
+        self.worksheet1.write(row, 1, _('Report created using'), self.format03)
+        self.worksheet1.write(row, 2, get_version_string(), self.format03)
         hw_info = self._hw_collection(data)
-        self.worksheet1.write(5, 1, _('Platform Name'), self.format03)
-        self.worksheet1.write(5, 2, hw_info['platform'], self.format03)
-        self.worksheet1.write(7, 1, _('BIOS'), self.format04)
-        self.worksheet1.write(7, 2, hw_info['bios'], self.format06)
-        self.worksheet1.write(8, 1, _('Processors'), self.format04)
-        self.worksheet1.write(8, 2, hw_info['processors'], self.format05)
-        self.worksheet1.write(9, 1, _('Chipset'), self.format04)
-        self.worksheet1.write(9, 2, hw_info['chipset'], self.format06)
-        self.worksheet1.write(10, 1, _('Memory'), self.format04)
-        self.worksheet1.write(10, 2, hw_info['memory'], self.format05)
+        row += 2
+        self.worksheet1.write(row, 1, _('Platform Name'), self.format03)
+        self.worksheet1.write(row, 2, hw_info['platform'], self.format03)
+        row += 2
+        self.worksheet1.write(row, 1, _('BIOS'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['bios'], self.format06)
+        row += 1
+        self.worksheet1.write(row, 1, _('Processors'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['processors'], self.format05)
+        row += 1
+        self.worksheet1.write(row, 1, _('Chipset'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['chipset'], self.format06)
+        row += 1
+        self.worksheet1.write(row, 1, _('Memory'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['memory'], self.format05)
+        row += 1
         # TRANSLATORS: on board as in 'built in card'
-        self.worksheet1.write(11, 1, _('Video (on board)'), self.format04)
-        self.worksheet1.write(11, 2, hw_info['video1'], self.format06)
+        self.worksheet1.write(row, 1, _('Video (on board)'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['video1'], self.format06)
+        row += 1
         # TRANSLATORS: add-on as in dedicated graphics card
-        self.worksheet1.write(12, 1, _('Video (add-on)'), self.format04)
-        self.worksheet1.write(12, 2, hw_info['video2'], self.format05)
-        self.worksheet1.write(13, 1, _('Video memory'), self.format04)
-        self.worksheet1.write(13, 2, hw_info['vram'], self.format06)
-        self.worksheet1.write(14, 1, _('Audio'), self.format04)
-        self.worksheet1.write(14, 2, hw_info['audio'], self.format05)
+        self.worksheet1.write(row, 1, _('Video (add-on)'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['video2'], self.format05)
+        row += 1
+        self.worksheet1.write(row, 1, _('Video memory'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['vram'], self.format06)
+        row += 1
+        self.worksheet1.write(row, 1, _('Audio'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['audio'], self.format05)
+        row += 1
         # TRANSLATORS: NIC is network interface card
-        self.worksheet1.write(15, 1, _('NIC'), self.format04)
-        self.worksheet1.write(15, 2, hw_info['nic'], self.format06)
-        # TRANSLTORS: Wireless as in wireless network cards
-        self.worksheet1.write(16, 1, _('Wireless'), self.format04)
-        self.worksheet1.write(16, 2, hw_info['wireless'], self.format05)
-        self.worksheet1.write(17, 1, _('Bluetooth'), self.format04)
-        self.worksheet1.write(17, 2, hw_info['bluetooth'], self.format06)
+        self.worksheet1.write(row, 1, _('NIC'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['nic'], self.format06)
+        row += 1
+        # TRANSLATORS: Wireless as in wireless network cards
+        self.worksheet1.write(row, 1, _('Wireless'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['wireless'], self.format05)
+        row += 1
+        self.worksheet1.write(row, 1, _('Bluetooth'), self.format04)
+        self.worksheet1.write(row, 2, hw_info['bluetooth'], self.format06)
+        row += 2
         resource = 'com.canonical.certification::package'
         if resource in data["resource_map"]:
             self.worksheet1.write(
-                19, 1, _('Packages Installed'), self.format03)
+                row, 1, _('Packages Installed'), self.format03)
+            row += 2
             self.worksheet1.write_row(
-                21, 1, [_('Name'), _('Version')], self.format07)
-            for i in range(20, 22):
+                row, 1, [_('Name'), _('Version')], self.format07)
+            row += 1
+            for i in range(row - 2, row):
                 self.worksheet1.set_row(
                     i, None, None, {'level': 1, 'hidden': True}
                 )
+            packages_starting_row = row
             for i, pkg in enumerate(data["resource_map"][resource]):
                 self.worksheet1.write_row(
-                    22 + i, 1,
+                    packages_starting_row + i, 1,
                     [pkg.get("name", ""), pkg.get("version", "")],
                     self.format08 if i % 2 else self.format09
                 )
                 self.worksheet1.set_row(
-                    22 + i, None, None, {'level': 1, 'hidden': True}
+                    packages_starting_row + i, None, None, {'level': 1, 'hidden': True}
                 )
             self.worksheet1.set_row(
-                22+len(data["resource_map"][resource]),
+                packages_starting_row+len(data["resource_map"][resource]),
                 None, None, {'collapsed': True}
             )
 

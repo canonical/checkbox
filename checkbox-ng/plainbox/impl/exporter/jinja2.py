@@ -31,13 +31,11 @@ from datetime import datetime
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from jinja2 import Markup
-from jinja2 import Undefined
 from jinja2 import environmentfilter
 from jinja2 import escape
 
-from plainbox import __version__ as version
+from plainbox import get_version_string
 from plainbox.abc import ISessionStateExporter
-from plainbox.i18n import gettext as _
 from plainbox.impl.result import OUTCOME_METADATA_MAP
 
 
@@ -78,20 +76,17 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         self._unit = exporter_unit
         self._system_id = system_id
         # Generate a time-stamp if needed
-        if timestamp is None:
-            timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
-        self._timestamp = timestamp
+        self._timestamp = (
+            timestamp or datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"))
         # Use current version unless told otherwise
-        if client_version is None:
-            client_version = version
-        self._client_version = client_version
+        self._client_version = client_version or get_version_string()
         # Remember client name
         self._client_name = client_name
-        
+
         self.option_list = None
         self.template = None
         self.data = dict()
-        paths=[]
+        paths = []
         if exporter_unit:
             self.data = exporter_unit.data
             # Add PROVIDER_DATA to the list of paths where to look for

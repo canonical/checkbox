@@ -35,6 +35,7 @@ Table of contents
    using.rst
    understanding.rst
    tutorials.rst
+   remote.rst
    units/index.rst
    bugs.rst
    stack.rst

@@ -28,13 +28,15 @@ done
 echo
 echo "Checking for chassis status"
 ipmitool chassis status && echo "Successfully got chassis status" && chassis=0 || chassis=1
-echo "Checking to see if we can get sensor data"
-ipmitool sdr list full && echo "Successfully got sensor data" && sensor=0 || sensor=1
+echo "Checking to see if we can get power status"
+ipmitool power status && echo "Successfully got power status" && power=0 || power=1
+echo "Checking to see if we can get user data"
+ipmitool user list && echo "Successfully got user data" && user=0 || user=1
 echo "Checking to see if we can get info on the BMC"
 ipmitool bmc info && echo "Successfully got BMC information" && bmc=0 || bmc=1
 
 # if everything passes, exit 0
-[ $chassis -eq 0 ] && [ $sensor -eq 0 ] && [ $bmc -eq 0 ] && exit 0 || echo "FAILURE: chassis: $chassis  sensor: $sensor  bmc: $bmc"
+[ $chassis -eq 0 ] && [ $power -eq 0 ] && [ $user -eq 0 ] && [ $bmc -eq 0 ] &&  exit 0 || echo "FAILURE: chassis: $chassis  power: $power  user: $user  bmc: $bmc"
 
 # otherwise exit 1
 exit 1

@@ -1,0 +1,166 @@
+
+id: socketcan/modprobe_vcan
+category_id: socketcan
+_summary: Create virtual CAN device
+_description:
+  Add a virtual CAN interface for testing kernel CAN support
+plugin: shell
+user: root
+estimated_duration: 2.0
+command:
+  BASH_XTRACEFD=1
+  set -ex
+  if lsmod | grep -v "vcan" &> /dev/null ; then
+    modprobe vcan
+  fi
+  if ! ip link show vcan0 &> /dev/null ; then
+    ip link add vcan0 type vcan
+  fi
+  ip link set vcan0 up
+
+
+id: socketcan/send_packet_local_sff_virtual
+depends: socketcan/modprobe_vcan
+_summary: Virtual CAN device support test (Raw, Local)
+_description:
+  Test that the kernel supports CAN networking by sending packets to a
+  virtual device using a raw socket, this is only a local test as
+  the broadcast packet is received on the same device
+category_id: socketcan
+plugin: shell
+estimated_duration: 2.0
+command:
+  socketcan_test.py vcan0 111
+
+
+id: socketcan/send_packet_local_eff_virtual
+depends: socketcan/modprobe_vcan
+_summary: Virtual CAN device support test (Raw, Local, EFF)
+_description:
+  Test that the kernel supports CAN networking by sending packets to a
+  virtual device using a raw socket, this is only a local test as
+  the broadcast packet is received on the same device
+category_id: socketcan
+plugin: shell
+estimated_duration: 2.0
+command:
+  socketcan_test.py vcan0 1F334455 --effid
+
+
+id: socketcan/send_packet_local_fd_virtual
+depends: socketcan/modprobe_vcan
+_summary: Virtual CAN device support test (Raw, Local, FD)
+_description:
+  Test that the kernel supports CAN networking by sending packets to a
+  virtual device using a raw socket, this is only a local test as
+  the broadcast packet is received on the same device
+category_id: socketcan
+plugin: shell
+estimated_duration: 2.0
+command:
+  socketcan_test.py vcan0 1A --fdmode
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'SOCKETCAN'
+id: socketcan/send_packet_local_sff_{interface}
+_summary: CAN device support test {interface} (Raw, Local)
+_description:
+  Test a CAN device by sending packets using a raw socket, this is only a
+  local test as the broadcast packet is received on the same device
+category_id: socketcan
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.socket_can_echo_server_running == 'False'
+command:
+  socketcan_test.py {interface} 111
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'SOCKETCAN'
+id: socketcan/send_packet_local_eff_{interface}
+_summary: CAN device support test {interface} (Raw, Local, EFF)
+_description:
+  Test a CAN device by sending packets using a raw socket, this is only a
+  local test as the broadcast packet is received on the same device
+category_id: socketcan
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.socket_can_echo_server_running == 'False'
+command:
+  socketcan_test.py {interface} FA123 --effid
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'SOCKETCAN'
+id: socketcan/send_packet_local_fd_{interface}
+_summary: CAN device support test {interface} (Raw, Local, FD)
+_description:
+  Test a CAN device by sending packets using a raw socket, this is only a
+  local test as the broadcast packet is received on the same device
+category_id: socketcan
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.socket_can_echo_server_running == 'False'
+command:
+  socketcan_test.py {interface} 1B --fdmode
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'SOCKETCAN'
+id: socketcan/send_packet_remote_sff_{interface}
+_summary: CAN device support test {interface} (Raw, Remote)
+_description:
+  Test a CAN device by sending packets using a raw socket to a remote device.
+  As a prerequisite the remote device should have can-echo-server installed so
+  as to return the predicted packet.
+category_id: socketcan
+plugin: shell
+estimated_duration: 5.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.socket_can_echo_server_running == 'True'
+command:
+  socketcan_test.py {interface} 111 --remote
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'SOCKETCAN'
+id: socketcan/send_packet_remote_eff_{interface}
+_summary: CAN device support test {interface} (Raw, Remote, EFF)
+_description:
+  Test a CAN device by sending packets using a raw socket to a remote device.
+  As a prerequisite the remote device should have can-echo-server installed so
+  as to return the predicted packet.
+category_id: socketcan
+plugin: shell
+estimated_duration: 5.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.socket_can_echo_server_running == 'True'
+command:
+  socketcan_test.py {interface} E407DB --remote --effid
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'SOCKETCAN'
+id: socketcan/send_packet_remote_fd_{interface}
+_summary: CAN device support test {interface} (Raw, Remote, FD)
+_description:
+  Test a CAN device by sending packets using a raw socket to a remote device.
+  As a prerequisite the remote device should have can-echo-server installed so
+  as to return the predicted packet.
+category_id: socketcan
+plugin: shell
+estimated_duration: 5.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.socket_can_echo_server_running == 'True'
+command:
+  socketcan_test.py {interface} 19F --remote --fdmode

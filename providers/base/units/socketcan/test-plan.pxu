@@ -1,0 +1,28 @@
+
+id: socketcan-auto-remote
+unit: test plan
+_name: SocketCAN Tests (Automated, Remote)
+_description:
+  SocketCAN Tests (Automated, Remote)
+include:
+  socketcan/send_packet_remote_.*
+
+
+id: socketcan-auto-local
+unit: test plan
+_name: SocketCAN Tests, (Automated, Local)
+_description:
+  SocketCAN Tests, (Automated, Local)
+include:
+  socketcan/send_packet_local_.*
+
+
+id: socketcan-full
+unit: test plan
+_name: SocketCAN Tests
+_description:
+  SocketCAN Tests
+include:
+nested_part:
+  socketcan-auto-remote
+  socketcan-auto-local

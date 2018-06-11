@@ -87,6 +87,13 @@ for adapter, mode in modes:
 highest_modes = []
 for adapter, params in top_res_per_aspect.items():
     for aspect, width in params.items():
+        # xrandr can list modes that are unsupported, unity-control-center
+        # defines minimum width and height, below which the resolution
+        # is not listed as a choice in display settings panel in UCC
+        # see should_show_resolution function in cc-display-panel.c
+        # from lp:unity-control-center
+        if width < 675 or width / aspect < 530:
+            continue
         mode = '{}x{}'.format(width, width/aspect)
         highest_modes.append((adapter, mode))
 

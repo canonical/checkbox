@@ -4,7 +4,7 @@
 #
 
 #Default to a lower bound of 15 MB/s
-DEFAULT_BUF_READ=15
+DEFAULT_BUF_READ=${DISK_READ_PERF:-15}
 
 for disk in $@; do
 

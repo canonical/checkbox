@@ -61,6 +61,7 @@ requires:
 _summary: Disk performance test for {product_slug}
 _description: Verify that disk storage performs at or above baseline performance
 user: root
+environ: DISK_READ_PERF
 command: disk_read_performance_test {name}
 
 unit: template

@@ -121,7 +121,8 @@ class BackgroundExecutor(Thread):
 
 class SessionAssistant2():
     """Remote execution enabling wrapper for the SessionAssistant"""
-    # TODO: the name?
+
+    REMOTE_API_VERSION = 1
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -328,6 +329,9 @@ class SessionAssistant2():
         else:
             return ('done', self.buffered_ui.get_output())
         return 'running' if self._be.is_alive() else 'done'
+
+    def get_remote_api_version(self):
+        return self.REMOTE_API_VERSION
 
     def whats_up(self):
         """

@@ -36,9 +36,9 @@ requires:
  executable.name == 'fswebcam'
  device.category == 'CAPTURE'
  {%- else %}
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'eog'
- package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
  device.category == 'CAPTURE'
  {% endif -%}
 command:
@@ -62,7 +62,7 @@ requires:
  executable.name == 'fswebcam'
  device.category == 'CAPTURE'
  {%- else %}
- package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
  device.category == 'CAPTURE'
  {% endif -%}
 command:

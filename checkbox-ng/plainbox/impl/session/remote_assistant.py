@@ -119,7 +119,7 @@ class BackgroundExecutor(Thread):
         return self._builder.outcome
 
 
-class SessionAssistant2():
+class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
     REMOTE_API_VERSION = 1

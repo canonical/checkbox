@@ -42,7 +42,7 @@ from plainbox.impl.color import Colorizer
 from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
-from plainbox.impl.session.assistant2 import SessionAssistant2
+from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
@@ -101,7 +101,7 @@ class RemoteSlave(Command):
     name = 'remote-service'
 
     def invoked(self, ctx):
-        SessionAssistantSlave.session_assistant = SessionAssistant2(
+        SessionAssistantSlave.session_assistant = RemoteSessionAssistant(
             lambda s: [sys.argv[0] + ' remote-service --resume'])
         if ctx.args.resume:
             try:
@@ -204,7 +204,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                 except AttributeError:
                     raise SystemExit(_("Slave doesn't declare Remote API"
                         " version. Update Checkbox on the Slave!"))
-                master_api_version = SessionAssistant2.REMOTE_API_VERSION
+                master_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
                 if slave_api_version != master_api_version:
                     raise SystemExit(_("Remote API version mismatch. "
                         "Slave uses: {}. Master uses: {}").format(

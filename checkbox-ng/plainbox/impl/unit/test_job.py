@@ -716,16 +716,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             issue_list, self.unit_cls.Meta.fields.category_id,
             Problem.bad_reference, Severity.error, message)
 
-    def test_flags__preserve_locale_is_set(self):
-        message = ("field 'flags', please ensure that the command supports"
-                   " non-C locale then set the preserve-locale flag")
-        issue_list = self.unit_cls({
-            'command': 'command'
-        }, provider=self.provider).check()
-        self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.flags,
-            Problem.expected_i18n, Severity.advice, message)
-
     def test_flags__usless_explicit_fail_on_shell_jobs(self):
         message = ("field 'flags', explicit-fail makes no sense for job which "
                    "outcome is automatically determined.")

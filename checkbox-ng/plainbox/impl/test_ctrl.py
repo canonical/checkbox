@@ -466,8 +466,7 @@ class CheckBoxExecutionControllerTestsMixIn:
                 CHECKBOX_SHARE='CHECKBOX_SHARE',
                 data_dir='data_dir', units_dir='units_dir'))
         self.job_state = mock.Mock(name='job_state', spec=JobState)
-        # Mock the default flags (empty set)
-        self.job.get_flag_set.return_value = frozenset()
+        self.job.get_flag_set.return_value = frozenset({'neuter-locale'})
         # Create mocked config.
         # Put an empty dictionary of environment overrides
         # that is expected by get_execution_environment()
@@ -750,8 +749,7 @@ class RootViaPTL1ExecutionControllerTests(
                 data_dir="data_dir-generator",
                 units_dir="units_dir-generator",
                 CHECKBOX_SHARE='CHECKBOX_SHARE-generator'))
-        # Mock the default flags (empty set)
-        self.job_state.via_job.get_flag_set.return_value = frozenset()
+        self.job_state.via_job.get_flag_set.return_value = frozenset({'neuter-locale'})
         PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])
         expected = [
             'pkexec', '--user', self.job.user,

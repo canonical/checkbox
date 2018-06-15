@@ -966,16 +966,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        'simple' in unit.get_flag_set() or
-                        'preserve-locale' in unit.get_flag_set()),
-                    Problem.expected_i18n, Severity.advice,
-                    message=_(
-                        'please ensure that the command supports'
-                        ' non-C locale then set the preserve-locale flag'
-                    ),
-                    onlyif=lambda unit: unit.command),
-                CorrectFieldValueValidator(
-                    lambda value, unit: (
                         not ('explicit-fail' in unit.get_flag_set() and
                              unit.plugin in {
                                  'shell', 'user-interact', 'attachment',

@@ -145,7 +145,6 @@ class ProviderManagerToolTests(TestCase):
             "plugin: shell\n"
             "command: true\n"
             "estimated_duration: 10\n"
-            "flags: preserve-locale\n"
             "_description: This job is dummy\n")
 
     def test_install__flat_partial(self):
@@ -185,7 +184,6 @@ class ProviderManagerToolTests(TestCase):
             "plugin: shell\n"
             "command: true\n"
             "estimated_duration: 10\n"
-            "flags: preserve-locale\n"
             "_description: This job is dummy\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
@@ -247,7 +245,6 @@ class ProviderManagerToolTests(TestCase):
             "plugin: shell\n"
             "command: true\n"
             "estimated_duration: 10\n"
-            "flags: preserve-locale\n"
             "_description: This job is dummy\n"
         )
         self.assert_common_sdist(tarball)
@@ -391,7 +388,6 @@ class ProviderManagerToolTests(TestCase):
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual or qml job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             advice: jobs/broken.pxu:1-4: job 'broken', field 'estimated_duration', required field missing
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             advice: jobs/broken.pxu:1-4: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             advice: jobs/broken.pxu:1-4: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             advice: jobs/broken.pxu:1-4: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
@@ -415,7 +411,6 @@ class ProviderManagerToolTests(TestCase):
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual or qml job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             advice: jobs/broken.pxu:1-4: job 'broken', field 'estimated_duration', required field missing
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             advice: jobs/broken.pxu:1: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
             advice: jobs/broken.pxu:1-4: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             advice: jobs/broken.pxu:1-4: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
@@ -437,7 +432,7 @@ class ProviderManagerToolTests(TestCase):
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"
-            "\tjob com.example::dummy, from jobs/jobs.pxu:1-6\n"
+            "\tjob com.example::dummy, from jobs/jobs.pxu:1-5\n"
             "[Test Plans]\n"
             "\ttest plan com.example::test, from units/testplans.pxu:1-6\n"
             "[Other Units]\n"
@@ -461,7 +456,6 @@ class ProviderManagerToolTests(TestCase):
             print("plugin: shell", file=stream)
             print("command: true", file=stream)
             print("estimated_duration: 10", file=stream)
-            print("flags: preserve-locale", file=stream)
             # NOTE: absence of summary is not reported? Bug?
             # print("_summary: A dummy job", file=stream)
             print("_description: This job is dummy", file=stream)

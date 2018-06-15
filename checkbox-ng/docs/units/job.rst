@@ -162,10 +162,8 @@ Following fields may be used by the job unit:
     commas that might induce plainbox to run the job in particular way.
     Currently, following flags are inspected by plainbox:
 
-    ``preserve-locale``:
-        This flag makes plainbox carry locale settings to the job's command. If
-        this flag is not set, plainbox will neuter locale settings.  Attach
-        this flag to all job definitions with commands that use translations .
+    ``neuter-locale``:
+        This flag makes Checkbox reset locale before running the job.
 
     ``win32``:
         This flag makes plainbox run jobs' commands in windows-specific manner.

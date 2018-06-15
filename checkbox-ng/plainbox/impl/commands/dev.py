@@ -28,7 +28,6 @@ from logging import getLogger
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.commands.cmd_analyze import AnalyzeCommand
 from plainbox.impl.commands.cmd_parse import ParseCommand
 
 
@@ -53,6 +52,4 @@ class DevCommand(PlainBoxCommand):
             prog="plainbox dev",
             usage=_("plainbox dev <subcommand> ..."))
         subdev = parser.add_subparsers()
-        AnalyzeCommand(self.provider_loader,
-                       self.config_loader).register_parser(subdev)
         ParseCommand().register_parser(subdev)

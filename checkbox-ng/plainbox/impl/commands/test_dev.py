@@ -60,11 +60,10 @@ class TestDevCommand(TestCase):
                 usage: plainbox dev <subcommand> ...
 
                 positional arguments:
-                  {analyze,parse}
-                    analyze        analyze how selected jobs would be executed
-                    parse          parse stdin with the specified parser
+                  {parse}
+                    parse     parse stdin with the specified parser
 
                 optional arguments:
-                  -h, --help       show this help message and exit
+                  -h, --help  show this help message and exit
                 """)
             + "\n")

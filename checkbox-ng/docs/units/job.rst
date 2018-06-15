@@ -162,7 +162,7 @@ Following fields may be used by the job unit:
     commas that might induce plainbox to run the job in particular way.
     Currently, following flags are inspected by plainbox:
 
-    ``neuter-locale``:
+    ``reset-locale``:
         This flag makes Checkbox reset locale before running the job.
 
     ``win32``:

@@ -60,8 +60,7 @@ class TestDevCommand(TestCase):
                 usage: plainbox dev <subcommand> ...
 
                 positional arguments:
-                  {special,analyze,parse,crash,logtest,list}
-                    special             special/internal commands
+                  {analyze,parse,crash,logtest,list}
                     analyze             analyze how selected jobs would be executed
                     parse               parse stdin with the specified parser
                     crash               crash the application

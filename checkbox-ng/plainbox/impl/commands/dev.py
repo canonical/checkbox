@@ -33,7 +33,6 @@ from plainbox.impl.commands.crash import CrashCommand
 from plainbox.impl.commands.cmd_list import ListCommand
 from plainbox.impl.commands.logtest import LogTestCommand
 from plainbox.impl.commands.cmd_parse import ParseCommand
-from plainbox.impl.commands.cmd_script import ScriptCommand
 from plainbox.impl.commands.cmd_special import SpecialCommand
 
 
@@ -58,8 +57,6 @@ class DevCommand(PlainBoxCommand):
             prog="plainbox dev",
             usage=_("plainbox dev <subcommand> ..."))
         subdev = parser.add_subparsers()
-        ScriptCommand(self.provider_loader,
-                      self.config_loader).register_parser(subdev)
         SpecialCommand(self.provider_loader,
                        self.config_loader).register_parser(subdev)
         AnalyzeCommand(self.provider_loader,

@@ -53,8 +53,6 @@ class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
                          self._load_providers)),
             ('device', (p + "cmd_device:DeviceCommand",)),
             ('self-test', (p + "cmd_selftest:PlainboxSelfTestCommand",)),
-            ('check-config', (p + "cmd_check_config:CheckConfigCommand",
-                              self._load_config,)),
             ('dev', (p + "dev:DevCommand", self._load_providers,
                      self._load_config)),
             ('startprovider', (p + "cmd_startprovider:StartProviderCommand",)),

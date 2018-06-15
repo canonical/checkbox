@@ -40,7 +40,6 @@ from guacamole import Command
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
 from plainbox.impl.color import Colorizer
-from plainbox.impl.commands.inv_check_config import CheckConfigInvocation
 from plainbox.impl.commands.inv_run import Action
 from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.commands.inv_startprovider import (
@@ -59,7 +58,6 @@ from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
 
-from checkbox_ng.config import CheckBoxConfig
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
@@ -68,11 +66,6 @@ from checkbox_ng.urwid_ui import test_plan_browser
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
-
-
-class CheckConfig(Command):
-    def invoked(self, ctx):
-        return CheckConfigInvocation(lambda: CheckBoxConfig.get()).run()
 
 
 class Submit(Command):

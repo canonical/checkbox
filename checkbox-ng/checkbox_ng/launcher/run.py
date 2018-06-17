@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2018 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -15,14 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-"""
-:mod:`plainbox.impl.commands.run` -- run sub-command
-====================================================
-
-.. warning::
-
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
-"""
 
 from shutil import copyfileobj
 import collections
@@ -58,7 +51,7 @@ from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import TransportError
 
 
-logger = logging.getLogger("plainbox.commands.run")
+logger = logging.getLogger("checkbox-ng.launcher.run")
 
 
 Action = collections.namedtuple("Action", "accel label cmd")

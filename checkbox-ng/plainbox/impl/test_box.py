@@ -137,8 +137,7 @@ class TestMain(TestCase):
         usage: plainbox [--help] [--version] | [options] <command> ...
 
         positional arguments:
-          {run,session,dev}
-            run                 run a test job
+          {session,dev}
             session             session management commands
             dev                 development commands
 

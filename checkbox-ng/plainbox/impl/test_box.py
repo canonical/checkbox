@@ -32,7 +32,6 @@ from plainbox.abc import IProvider1
 from plainbox.impl.box import main
 from plainbox.impl.box import stubbox_main
 from plainbox.impl.clitools import ToolBase
-from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor.mock import Mock
@@ -45,73 +44,6 @@ def setUpModule():
 
 def tearDownModule():
     warnings.resetwarnings()
-
-
-class MiscTests(TestCase):
-
-    def setUp(self):
-        self.provider1 = Mock(spec=IProvider1)
-        self.job_foo = MockJobDefinition(id='foo', provider=self.provider1)
-        self.job_bar = MockJobDefinition(id='bar', provider=self.provider1)
-        self.job_baz = MockJobDefinition(id='baz', provider=self.provider1)
-        self.provider1.id_map = defaultdict(
-            list, foo=[self.job_foo], bar=[self.job_bar], baz=[self.job_baz])
-        self.provider1.unit_list = [self.job_foo, self.job_bar, self.job_baz]
-        self.config = Mock(name='config')
-        self.provider_loader = lambda: [self.provider1]
-        self.obj = CheckBoxInvocationMixIn(self.provider_loader, self.config)
-
-    def test_matching_job_list(self):
-        # Nothing gets selected automatically
-        ns = Mock(name="ns")
-        ns.include_pattern_list = []
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar])
-        self.assertEqual(observed, [])
-
-    def test_matching_job_list_including(self):
-        # Including jobs with glob pattern works
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['f.+']
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_foo])
-
-    def test_matching_job_list_excluding(self):
-        # Excluding jobs with glob pattern works
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['.+']
-        ns.exclude_pattern_list = ['f.+']
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_bar])
-
-    def test_no_prefix_matching_excluding(self):
-        # Exclude patterns should only match whole job name
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['.+']
-        ns.exclude_pattern_list = ['fo', 'ba.+']
-        observed = self.obj._get_matching_job_list(
-            ns, [self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_foo])
-
-    def test_invalid_pattern_including(self):
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['\?']
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(
-            ns, [self.job_foo, self.job_bar])
-        self.assertEqual(observed, [])
-
-    def test_invalid_pattern_excluding(self):
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['fo.*']
-        ns.exclude_pattern_list = ['\[bar']
-        observed = self.obj._get_matching_job_list(
-            ns, [self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_foo])
 
 
 class TestMain(TestCase):

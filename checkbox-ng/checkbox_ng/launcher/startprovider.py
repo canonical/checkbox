@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2018 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -17,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.commands.inv_startprovider` -- startprovider sub-command
+:mod:`checkbox-ng.launcher.startprovider` -- startprovider sub-command
 ============================================================================
 """
 import inspect
@@ -28,7 +29,7 @@ import re
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.providers.v1 import IQNValidator
 
-logger = logging.getLogger("plainbox.commands.startprovider")
+logger = logging.getLogger("checkbox-ng.launcher.startprovider")
 
 
 class IQN(str):
@@ -516,17 +517,3 @@ class ProviderSkeleton(EmptyProviderSkeleton):
     things.append(File(".gitignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
 
     things.append(File(".bzrignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
-
-
-class StartProviderInvocation:
-
-    def __init__(self, ns):
-        self.ns = ns
-
-    def run(self):
-        try:
-            self.ns.skeleton(self.ns.name).instantiate(
-                '.', name=self.ns.name,
-                gettext_domain=re.sub("[.:]", "_", self.ns.name))
-        except SomethingInTheWay as exc:
-            raise SystemExit(exc)

@@ -137,11 +137,10 @@ class TestMain(TestCase):
         usage: plainbox [--help] [--version] | [options] <command> ...
 
         positional arguments:
-          {run,session,dev,startprovider}
+          {run,session,dev}
             run                 run a test job
             session             session management commands
             dev                 development commands
-            startprovider       create a new provider (directory)
 
         optional arguments:
           -h, --help            show this help message and exit

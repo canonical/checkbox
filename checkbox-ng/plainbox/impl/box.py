@@ -53,7 +53,6 @@ class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
                          self._load_providers)),
             ('dev', (p + "dev:DevCommand", self._load_providers,
                      self._load_config)),
-            ('startprovider', (p + "cmd_startprovider:StartProviderCommand",)),
         ]))
 
     @classmethod

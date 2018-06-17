@@ -52,7 +52,6 @@ class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
             ('session', (p + "cmd_session:SessionCommand",
                          self._load_providers)),
             ('device', (p + "cmd_device:DeviceCommand",)),
-            ('self-test', (p + "cmd_selftest:PlainboxSelfTestCommand",)),
             ('dev', (p + "dev:DevCommand", self._load_providers,
                      self._load_config)),
             ('startprovider', (p + "cmd_startprovider:StartProviderCommand",)),

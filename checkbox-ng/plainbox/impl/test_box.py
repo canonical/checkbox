@@ -32,7 +32,6 @@ from plainbox.abc import IProvider1
 from plainbox.impl.box import main
 from plainbox.impl.box import stubbox_main
 from plainbox.impl.clitools import ToolBase
-from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor.mock import Mock
@@ -45,73 +44,6 @@ def setUpModule():
 
 def tearDownModule():
     warnings.resetwarnings()
-
-
-class MiscTests(TestCase):
-
-    def setUp(self):
-        self.provider1 = Mock(spec=IProvider1)
-        self.job_foo = MockJobDefinition(id='foo', provider=self.provider1)
-        self.job_bar = MockJobDefinition(id='bar', provider=self.provider1)
-        self.job_baz = MockJobDefinition(id='baz', provider=self.provider1)
-        self.provider1.id_map = defaultdict(
-            list, foo=[self.job_foo], bar=[self.job_bar], baz=[self.job_baz])
-        self.provider1.unit_list = [self.job_foo, self.job_bar, self.job_baz]
-        self.config = Mock(name='config')
-        self.provider_loader = lambda: [self.provider1]
-        self.obj = CheckBoxInvocationMixIn(self.provider_loader, self.config)
-
-    def test_matching_job_list(self):
-        # Nothing gets selected automatically
-        ns = Mock(name="ns")
-        ns.include_pattern_list = []
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar])
-        self.assertEqual(observed, [])
-
-    def test_matching_job_list_including(self):
-        # Including jobs with glob pattern works
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['f.+']
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_foo])
-
-    def test_matching_job_list_excluding(self):
-        # Excluding jobs with glob pattern works
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['.+']
-        ns.exclude_pattern_list = ['f.+']
-        observed = self.obj._get_matching_job_list(ns, [
-            self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_bar])
-
-    def test_no_prefix_matching_excluding(self):
-        # Exclude patterns should only match whole job name
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['.+']
-        ns.exclude_pattern_list = ['fo', 'ba.+']
-        observed = self.obj._get_matching_job_list(
-            ns, [self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_foo])
-
-    def test_invalid_pattern_including(self):
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['\?']
-        ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(
-            ns, [self.job_foo, self.job_bar])
-        self.assertEqual(observed, [])
-
-    def test_invalid_pattern_excluding(self):
-        ns = Mock(name="ns")
-        ns.include_pattern_list = ['fo.*']
-        ns.exclude_pattern_list = ['\[bar']
-        observed = self.obj._get_matching_job_list(
-            ns, [self.job_foo, self.job_bar])
-        self.assertEqual(observed, [self.job_foo])
 
 
 class TestMain(TestCase):
@@ -137,14 +69,9 @@ class TestMain(TestCase):
         usage: plainbox [--help] [--version] | [options] <command> ...
 
         positional arguments:
-          {run,session,device,self-test,check-config,dev,startprovider}
-            run                 run a test job
+          {session,dev}
             session             session management commands
-            device              device management commands
-            self-test           run unit and integration tests
-            check-config        check and display plainbox configuration
             dev                 development commands
-            startprovider       create a new provider (directory)
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -174,116 +101,3 @@ class TestMain(TestCase):
         plainbox: error: too few arguments
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
-
-
-class TestSpecial(TestCase):
-
-    def test_help(self):
-        with TestIO(combined=True) as io:
-            with self.assertRaises(SystemExit) as call:
-                main(['dev', 'special', '--help'])
-            self.assertEqual(call.exception.args, (0,))
-        self.maxDiff = None
-        expected = """
-        usage: plainbox dev special [-h] (-j | -J | -e | -d) [--dot-resources]
-                                    [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
-
-        optional arguments:
-          -h, --help            show this help message and exit
-          -j, --list-jobs       list jobs instead of running them
-          -J, --list-job-hashes
-                                list jobs with cheksums instead of running them
-          -e, --list-expressions
-                                list all unique resource expressions
-          -d, --dot             print a graph of jobs instead of running them
-          --dot-resources       show resource relationships (for --dot)
-
-        test selection options:
-          -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
-                                load the specified test plan
-          -i PATTERN, --include-pattern PATTERN
-                                include jobs matching the given regular expression
-          -x PATTERN, --exclude-pattern PATTERN
-                                exclude jobs matching the given regular expression
-        """
-        self.assertEqual(io.combined, cleandoc(expected) + "\n")
-
-    def test_run_without_args(self):
-        with TestIO(combined=True) as io:
-            with self.assertRaises(SystemExit) as call:
-                main(['dev', 'special'])
-            self.assertEqual(call.exception.args, (2,))
-        expected = """
-        usage: plainbox dev special [-h] (-j | -J | -e | -d) [--dot-resources]
-                                    [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
-        plainbox dev special: error: one of the arguments -j/--list-jobs -J/--list-job-hashes -e/--list-expressions -d/--dot is required
-        """
-        self.assertEqual(io.combined, cleandoc(expected) + "\n")
-
-    def test_run_list_jobs(self):
-        with TestIO() as io:
-            with self.assertRaises(SystemExit) as call:
-                stubbox_main(['dev', 'special', '--list-jobs'])
-            self.assertEqual(call.exception.args, (0,))
-        self.assertIn(
-            "com.canonical.plainbox::stub/false", io.stdout.splitlines())
-        self.assertIn(
-            "com.canonical.plainbox::stub/true", io.stdout.splitlines())
-
-    def test_run_list_jobs_with_filtering(self):
-        with TestIO() as io:
-            with self.assertRaises(SystemExit) as call:
-                stubbox_main(['dev', 'special',
-                             ('--include-pattern='
-                              'com.canonical.plainbox::stub/false'),
-                             '--list-jobs'])
-            self.assertEqual(call.exception.args, (0,))
-        self.assertIn(
-            "com.canonical.plainbox::stub/false", io.stdout.splitlines())
-        self.assertNotIn(
-            "com.canonical.plainbox::stub/true", io.stdout.splitlines())
-
-    def test_run_list_expressions(self):
-        with TestIO() as io:
-            with self.assertRaises(SystemExit) as call:
-                stubbox_main(['dev', 'special', '--list-expressions'])
-            self.assertEqual(call.exception.args, (0,))
-        self.assertIn(
-            'stub_package.name == "checkbox"', io.stdout.splitlines())
-
-    def test_run_dot(self):
-        with TestIO() as io:
-            with self.assertRaises(SystemExit) as call:
-                stubbox_main(['dev', 'special', '--dot'])
-            self.assertEqual(call.exception.args, (0,))
-        self.assertIn(
-            '\t"com.canonical.plainbox::stub/true" [];',
-            io.stdout.splitlines())
-        # Do basic graph checks
-        self._check_digraph_sanity(io)
-
-    def test_run_dot_with_resources(self):
-        with TestIO() as io:
-            with self.assertRaises(SystemExit) as call:
-                stubbox_main(['dev', 'special', '--dot', '--dot-resources'])
-            self.assertEqual(call.exception.args, (0,))
-        self.assertIn(
-            '\t"com.canonical.plainbox::stub/true" [];',
-            io.stdout.splitlines())
-        self.assertIn(
-            ('\t"com.canonical.plainbox::stub/requirement/good" -> '
-             '"com.canonical.plainbox::stub_package" [style=dashed, label'
-             '="stub_package.name == \'checkbox\'"];'),
-            io.stdout.splitlines())
-        # Do basic graph checks
-        self._check_digraph_sanity(io)
-
-    def _check_digraph_sanity(self, io):
-        # Ensure that all lines inside the graph are terminated with a
-        # semicolon
-        for line in io.stdout.splitlines()[1:-2]:
-            self.assertTrue(line.endswith(';'))
-        # Ensure that graph header and footer are there
-        self.assertEqual("digraph dependency_graph {",
-                         io.stdout.splitlines()[0])
-        self.assertEqual("}", io.stdout.splitlines()[-1])

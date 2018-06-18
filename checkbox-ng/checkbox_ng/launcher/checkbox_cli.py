@@ -40,8 +40,9 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 
 from checkbox_ng.launcher.subcommands import (
-    CheckConfig, Launcher, List, Run, StartProvider, Submit, ListBootstrapped
+    Launcher, List, Run, StartProvider, Submit, ListBootstrapped
 )
+from checkbox_ng.launcher.check_config import CheckConfig
 from checkbox_ng.launcher.remote import RemoteSlave, RemoteMaster
 
 

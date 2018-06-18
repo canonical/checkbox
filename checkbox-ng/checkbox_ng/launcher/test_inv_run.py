@@ -25,7 +25,7 @@ Test definitions for plainbox.impl.commands.inv_run module
 
 from unittest import TestCase
 
-from plainbox.impl.commands.inv_run import seconds_to_human_duration
+from checkbox_ng.launcher.run import seconds_to_human_duration
 
 
 class SecondsToHumanDurationTests(TestCase):

@@ -47,17 +47,10 @@ class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
     def get_command_collection(self):
         p = "plainbox.impl.commands."
         return LazyPlugInCollection(collections.OrderedDict([
-            ('run', (p + "cmd_run:RunCommand", self._load_providers,
-                     self._load_config)),
             ('session', (p + "cmd_session:SessionCommand",
                          self._load_providers)),
-            ('device', (p + "cmd_device:DeviceCommand",)),
-            ('self-test', (p + "cmd_selftest:PlainboxSelfTestCommand",)),
-            ('check-config', (p + "cmd_check_config:CheckConfigCommand",
-                              self._load_config,)),
             ('dev', (p + "dev:DevCommand", self._load_providers,
                      self._load_config)),
-            ('startprovider', (p + "cmd_startprovider:StartProviderCommand",)),
         ]))
 
     @classmethod

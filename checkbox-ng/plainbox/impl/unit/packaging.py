@@ -119,7 +119,6 @@ import re
 import sys
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.device import get_os_release
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit import Unit
@@ -127,7 +126,7 @@ from plainbox.impl.unit.unit import Unit
 _logger = logging.getLogger("plainbox.unit.packaging")
 
 
-__all__ = ('PackagingMetaDataUnit', 'get_packaging_driver')
+__all__ = ('PackagingMetaDataUnit', 'get_packaging_driver', 'get_os_release')
 
 
 class PackagingMetaDataUnit(Unit):
@@ -466,3 +465,20 @@ def get_packaging_driver() -> IPackagingDriver:
             return DebianPackagingDriver(os_release)
     _logger.info(_("Using null packaging driver"))
     return NULL_DRIVER
+
+
+def get_os_release(path='/etc/os-release'):
+    """
+    Read and parse os-release(5) data
+
+    :param path:
+        (optional) alternate file to load and parse
+    :returns:
+        A dictionary with parsed data
+    """
+    with open(path, 'rt', encoding='UTF-8') as stream:
+        return {
+            key: value
+            for key, value in (
+                entry.split('=', 1) for entry in shlex.split(stream.read()))
+        }

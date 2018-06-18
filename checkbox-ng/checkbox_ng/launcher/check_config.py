@@ -1,8 +1,8 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2018 Canonical Ltd.
 # Written by:
-#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -15,26 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-"""
-:mod:`plainbox.impl.commands.inv_check_config` -- check-config sub-command
-==========================================================================
-"""
+from guacamole import Command
+
+from checkbox_ng.config import CheckBoxConfig
+
 from plainbox.impl.secure.config import ValidationError
 from plainbox.i18n import gettext as _
 
-
-class CheckConfigInvocation:
-    """
-    Helper class instantiated to perform a particular invocation of the sru
-    command. Unlike the SRU command itself, this class is instantiated each
-    time.
-    """
-
-    def __init__(self, config_loader):
-        self.config_loader = config_loader
-
-    def run(self):
-        self.config = self.config_loader()
+class CheckConfig(Command):
+    def invoked(self, ctx):
+        self.config = CheckBoxConfig.get()
         print(_("Configuration files:"))
         for filename in self.config.Meta.filename_list:
             if filename in self.config.filename_list:

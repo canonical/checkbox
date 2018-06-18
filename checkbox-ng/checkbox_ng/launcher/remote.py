@@ -39,7 +39,6 @@ from tempfile import SpooledTemporaryFile
 
 from guacamole import Command
 from plainbox.impl.color import Colorizer
-from plainbox.impl.commands.inv_run import NormalUI
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
@@ -48,6 +47,7 @@ from plainbox.vendor.rpyc.utils import server
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
+from checkbox_ng.launcher.run import NormalUI
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
 
@@ -56,7 +56,7 @@ _ = gettext.gettext
 
 class SimpleUI(NormalUI, MainLoopStage):
     """
-    Simplified version of the NormalUI from plainbox.impl.commands.inv_run.
+    Simplified version of the NormalUI from checkbox_ng.launcher.run.
 
     The simplification is mainly about just dealing with text that is to be
     displayed, instead of the plainbox abstractions like job, job state, etc.

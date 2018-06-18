@@ -32,10 +32,11 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.secure.sudo_broker import SudoBroker, EphemeralKey
-from plainbox.impl.commands.inv_run import SilentUI
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.abc import IJobResult
+
+from checkbox_ng.launcher.run import SilentUI
 
 _ = gettext.gettext
 

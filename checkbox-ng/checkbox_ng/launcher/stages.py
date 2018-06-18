@@ -27,16 +27,14 @@ import os
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
-from plainbox.impl.commands.inv_run import Action
-from plainbox.impl.commands.inv_run import ActionUI
-from plainbox.impl.commands.inv_run import NormalUI
-from plainbox.impl.commands.inv_run import ReRunJob
-from plainbox.impl.commands.inv_run import seconds_to_human_duration
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import tr_outcome
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
+
+from checkbox_ng.launcher.run import (
+        Action, ActionUI, NormalUI, ReRunJob, seconds_to_human_duration)
 
 _ = gettext.gettext
 

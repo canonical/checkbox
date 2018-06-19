@@ -31,6 +31,7 @@ import logging
 import operator
 import os
 import re
+import socket
 import sys
 import tarfile
 import time
@@ -66,6 +67,16 @@ from checkbox_ng.urwid_ui import test_plan_browser
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
+
+# Ugly hack to avoid a segfault when running from a classic snap where libc6
+# is newer than the 16.04 version.
+# The requests module is not calling the right glibc getaddrinfo() when
+# sending results to C3.
+# Doing such a call early ensures the right socket module is still loaded.
+try:
+    _res = socket.getaddrinfo('foo.bar.baz', 443)  # 443 for HTTPS
+except:
+    pass
 
 
 class Submit(Command):

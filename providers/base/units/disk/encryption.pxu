@@ -1,0 +1,21 @@
+
+id: disk/encryption/detect
+category_id: com.canonical.plainbox::disk
+plugin: shell
+template-engine: jinja2
+user: root
+requires:
+  executable.name == 'lsblk'
+  executable.name == 'dmsetup'
+  executable.name == 'cryptsetup'
+_summary: Test that Full Disk Encryption is in use
+_description:
+  Examine the system to detect if one of the standard full disk encryption
+  implementations is in use
+command:
+  {%- if __on_ubuntucore__ %}
+  fde_tests.py
+  {%- else %}
+  fde_tests.py desktop
+  {% endif -%}
+estimated_duration: 2.0

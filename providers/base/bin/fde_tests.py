@@ -21,10 +21,8 @@ import subprocess as sp
 import sys
 
 
-def main(argv):
-    on_desktop = False
-    if len(sys.argv) > 1 and sys.argv[1] == 'desktop':
-        on_desktop = True
+def main():
+    on_desktop = len(sys.argv) > 1 and sys.argv[1] == 'desktop'
 
     # the mountpoint corresponding to the on disk encrypted partition
     base_mount = '/' if on_desktop else '/writable'
@@ -100,4 +98,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()

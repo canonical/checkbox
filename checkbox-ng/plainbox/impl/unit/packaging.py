@@ -116,6 +116,7 @@ import abc
 import errno
 import logging
 import re
+import shlex
 import sys
 
 from plainbox.i18n import gettext as _

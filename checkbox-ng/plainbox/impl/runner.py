@@ -516,7 +516,7 @@ class JobRunner(IJobRunner):
                 job.checksum, lambda: self._just_run_command(
                     job, job_state, config).get_result())
         else:
-            result  = self._just_run_command(
+            result = self._just_run_command(
                 job, job_state, config).get_result()
         return result
 
@@ -708,7 +708,7 @@ class JobRunner(IJobRunner):
         except LookupError:
             return JobResultBuilder(
                 outcome=IJobResult.OUTCOME_NOT_SUPPORTED,
-                comments=_('No suitable execution controller is available)')
+                comments=_('No suitable execution controller is available')
             ).get_result()
         # Run the embedded command
         start_time = time.time()

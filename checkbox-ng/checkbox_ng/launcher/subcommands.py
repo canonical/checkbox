@@ -740,8 +740,12 @@ class Run(Command, MainLoopStage):
         self._configure_report()
         selection = ctx.args.PATTERN
         if len(selection) == 1 and selection[0] in tps:
+            self.ctx.sa.update_app_blob(json.dumps(
+                {'testplan_id': selection[0]}).encode("UTF-8"))
             self.just_run_test_plan(selection[0])
         else:
+            self.ctx.sa.update_app_blob(json.dumps(
+                {}).encode("UTF-8"))
             self.sa.hand_pick_jobs(selection)
             print(self.C.header(_("Running Selected Jobs")))
             self._run_jobs(self.sa.get_dynamic_todo_list())

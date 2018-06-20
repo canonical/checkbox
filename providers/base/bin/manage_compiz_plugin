@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2014-2015 Canonical Ltd.
+# Copyright 2014-2018 Canonical Ltd.
 # Written by:
 #   Daniel Manrique <roadmr@ubuntu.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
@@ -33,14 +33,13 @@ import sys
 import subprocess
 import time
 
-PATH="org.compiz.core:/org/compiz/profiles/unity/plugins/core/"
-KEY="active-plugins"
+KEY="/org/compiz/profiles/unity/plugins/core/active-plugins"
 
 gettext.textdomain("com.canonical.certification.checkbox")
 gettext.bindtextdomain("com.canonical.certification.checkbox",
                        os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None))
 
-plugins = eval(subprocess.check_output(["gsettings", "get", PATH, KEY]))
+plugins = eval(subprocess.check_output(["dconf", "read", KEY]))
 
 parser = argparse.ArgumentParser(description=_("enable/disable compiz plugins"),
                                  epilog=_("Available plugins: {}").format(plugins))
@@ -58,6 +57,6 @@ else:
     if args.plugin not in plugins:
         raise SystemExit(_("Plugin {} doesn't exist").format(args.plugin))
     plugins.remove(args.plugin)
-subprocess.call(["gsettings", "set", PATH, KEY, str(plugins)])
+subprocess.call(["dconf", "write", KEY, str(plugins)])
 
 time.sleep(3)

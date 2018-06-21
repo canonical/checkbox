@@ -1342,6 +1342,9 @@ class RootViaSudoExecutionController(
         # https://github.com/snapcore/snapd/blob/master/osutil/user.go#L84
         # Hence doing the same here:
         if (os.getenv("SNAP") and os.getenv('USER')):
+            if not os.access('/etc/sudoers.d', os.R_OK):
+                logger.warning(
+                    _("Can't access /etc/sudoers.d - unexpected permissions"))
             user_mod = os.getenv('USER').replace('.', '%2E')
             in_sudoers_d = os.path.exists(
                 '/etc/sudoers.d/create-user-{}'.format(user_mod))

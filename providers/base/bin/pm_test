@@ -575,11 +575,11 @@ autologin-user-timeout=0
                     shutil.copystat(self.config_filename, backup_filename)
                     break
 
-            with open(self.config_filename, 'w') as f:
-                if self.config_filename == '/etc/lightdm/lightdm.conf':
-                    f.write(self.template.format(username=self.user))
-                elif self.config_filename == '/etc/gdm3/custom.conf':
-                    self.parser.write(f)
+        with open(self.config_filename, 'w') as f:
+            if self.config_filename == '/etc/lightdm/lightdm.conf':
+                f.write(self.template.format(username=self.user))
+            elif self.config_filename == '/etc/gdm3/custom.conf':
+                self.parser.write(f)
 
     def disable(self):
         """

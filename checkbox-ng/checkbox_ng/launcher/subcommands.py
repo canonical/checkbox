@@ -21,6 +21,7 @@ Definition of sub-command classes for checkbox-cli
 from argparse import ArgumentTypeError
 from argparse import SUPPRESS
 from collections import defaultdict
+from string import Formatter
 from tempfile import TemporaryDirectory
 import copy
 import datetime
@@ -866,13 +867,14 @@ class List(Command):
                 all_keys = set()
                 for job in jobs:
                     all_keys.update(job.keys())
-                print(list(all_keys))
+                print(_('Available fields are:'))
+                print(', '.join(sorted(list(all_keys))))
                 return
             if not ctx.args.format:
                 # setting default in parser.add_argument would apply to all
                 # the list invocations. We want default to be present only for
                 # the 'all-jobs' group.
-                ctx.args.format = 'id: {id}\n{tr_summary}\n'
+                ctx.args.format = 'id: {full_id}\n{_summary}\n'
             for job in jobs:
                 unescaped = ctx.args.format.replace(
                     '\\n', '\n').replace('\\t', '\t')
@@ -886,7 +888,8 @@ class List(Command):
                     job['unit_type'] = 'template_job'
                 else:
                     job['unit_type'] = 'job'
-                print(unescaped.format(**DefaultKeyedDict(None, job)), end='')
+                print(Formatter().vformat(
+                    unescaped, (), DefaultKeyedDict(None, job)), end='')
             return
         elif ctx.args.format:
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
@@ -921,13 +924,18 @@ class ListBootstrapped(Command):
             raise SystemExit('Test plan not found')
         self.sa.select_test_plan(ctx.args.TEST_PLAN)
         self.sa.bootstrap()
-        jobs = [self.sa.get_job(job_id)._raw_data for job_id in
-                self.sa.get_static_todo_list()]
+        jobs = []
+        for job in self.sa.get_static_todo_list():
+            job_unit = self.sa.get_job(job)
+            attrs = job_unit._raw_data.copy()
+            attrs['full_id'] = job_unit.id
+            jobs.append(attrs)
         if ctx.args.format == '?':
             all_keys = set()
             for job in jobs:
                 all_keys.update(job.keys())
-            print(list(all_keys))
+            print(_('Available fields are:'))
+            print(', '.join(sorted(list(all_keys))))
             return
         if ctx.args.format:
             for job in jobs:
@@ -937,7 +945,8 @@ class ListBootstrapped(Command):
                 class DefaultKeyedDict(defaultdict):
                     def __missing__(self, key):
                         return _('<missing {}>').format(key)
-                print(unescaped.format(**DefaultKeyedDict(None, job)), end='')
+                print(Formatter().vformat(
+                    unescaped, (), DefaultKeyedDict(None, job)), end='')
         else:
             for job_id in jobs:
                 if ctx.args.partial:
@@ -965,14 +974,15 @@ def get_all_jobs():
     root = Explorer(get_providers()).get_object_tree()
     def get_jobs(obj):
         jobs = []
-        if obj.group == 'job':
-            jobs.append(obj.attrs)
-        elif obj.group == 'template' and obj.attrs['template_unit'] == 'job':
-            jobs.append(obj.attrs)
+        if obj.group == 'job' or (
+            obj.group == 'template' and obj.attrs['template_unit'] == 'job'):
+                attrs = dict(obj._impl._raw_data.copy())
+                attrs['full_id'] = obj.name
+                jobs.append(attrs)
         for child in obj.children:
             jobs += get_jobs(child)
         return jobs
-    return sorted(get_jobs(root),key=operator.itemgetter('id'))
+    return sorted(get_jobs(root),key=operator.itemgetter('full_id'))
 
 
 def print_objs(group, show_attrs=False, filter_fun=None):

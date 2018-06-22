@@ -36,7 +36,7 @@ id: power-management/poweroff
 estimated_duration: 120.0
 depends: power-management/fwts_wakealarm
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
 requires: executable.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn
@@ -58,7 +58,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/reboot
 estimated_duration: 120.0
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
 requires: executable.name == 'fwts'
 command: pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn

@@ -76,6 +76,7 @@ requires:
  executable.name == 'x-terminal-emulator'
 flags: noreturn
 user: root
+environ: PM_TEST_DRY_RUN
 command:
  pm_test reboot --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3 --silent
 _description:
@@ -226,7 +227,7 @@ requires: executable.name == 'fwts'
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
 _description:
  Stress reboot system (100 cycles)
 
@@ -248,7 +249,7 @@ command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkb
 flags: noreturn
 estimated_duration: 2700
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
 _description:
  Stress reboot system (30 cycles)
 
@@ -270,7 +271,7 @@ requires:
 command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox -r 100 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
 _description:
  Stress poweroff system (100 cycles)
 
@@ -293,7 +294,7 @@ command: pm_test --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkb
 flags: noreturn
 estimated_duration: 3600
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
 _description:
  Stress poweroff system (30 cycles)
 

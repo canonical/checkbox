@@ -492,11 +492,28 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             return
         if self.ctx.args.session_id:
             # session_id is present only if auto-resume is used
-            print(_("Auto resuming session. Marking previous job as passed"))
-            result = MemoryJobResult({
+            result_dict = {
                 'outcome': IJobResult.OUTCOME_PASS,
-                'comments': _("Passed after resuming execution")
-            })
+                'comments': _("Automatically passed after resuming execution"),
+            }
+            result_path = os.path.join(
+                self.ctx.sa.get_session_dir(), 'CHECKBOX_DATA', '__result')
+            if os.path.exists(result_path):
+                try:
+                    with open(result_path, 'rt') as f:
+                        result_dict = json.load(f)
+                        # the only really important field in the result is
+                        # 'outcome' so let's make sure it doesn't contain
+                        # anything stupid
+                        if result_dict.get('outcome') not in [
+                                'pass', 'fail', 'skip']:
+                            result_dict['outcome'] = IJobResult.OUTCOME_PASS
+                except json.JSONDecodeError as e:
+                    pass
+            print(_("Automatically resuming session. "
+                    "Outcome of the previous job: {}".format(
+                        result_dict['outcome'])))
+            result = MemoryJobResult(result_dict)
             self.ctx.sa.use_job_result(last_job, result)
             return
 

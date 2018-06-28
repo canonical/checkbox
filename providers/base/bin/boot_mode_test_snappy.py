@@ -18,9 +18,7 @@ def fitdumpimage(filename):
     buf = io.StringIO(out)
 
     # first line should identify FIT file
-    desc = buf.readline()
-    fit_re = re.compile(r'^FIT description')
-    if not fit_re.search(desc):
+    if not buf.readline().startswith('FIT description'):
         raise SystemExit('ERROR: expected FIT image description')
 
     # second line contains some metadata, skip it

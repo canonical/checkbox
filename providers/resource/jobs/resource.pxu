@@ -173,6 +173,7 @@ estimated_duration: 0.56
 plugin: resource
 user: root
 command: efi_resource
+_summary: Collect information about the EFI configuration
 
 id: uname
 estimated_duration: 0.09
@@ -185,7 +186,7 @@ id: sleep
 estimated_duration: 0.03
 plugin: resource
 command: for state in `cat /sys/power/state`; do echo "$state: supported"; done
-_description: Create resource info for supported sleep states
+_summary: Create resource info for supported sleep states
 
 unit: template
 template-resource: device
@@ -194,21 +195,21 @@ id: optical_drive_{name}
 plugin: resource
 command: optical_resource /dev/{name}
 estimated_duration: 0.5
-_description: Create resource info for supported optical actions ({name})
+_summary: Create resource info for supported optical actions ({name})
 
 id: block_device
 estimated_duration: 0.08
 plugin: resource
 user: root
 command: block_device_resource
-_description: Create resource info for removable block devices
+_summary: Create resource info for removable block devices
 
 id: display
 estimated_duration: 0.43
 plugin: resource
 command: display_resource
 requires: package.name == "x11-xserver-utils"
-_description: Creates display resource info from xrandr output
+_summary: Creates display resource info from xrandr output
 
 id: usb
 estimated_duration: 0.33
@@ -230,12 +231,12 @@ estimated_duration: 0.19
 plugin: resource
 command: xinput_resource
 requires: package.name == "xinput"
-_description: Creates resource info from xinput output.
+_summary: Creates resource info from xinput output.
 
 id: environment
 estimated_duration: 0.11
 plugin: resource
-_description: Create resource info for environment variables
+_summary: Create resource info for environment variables
 command:
  IFS=$'\n'
  for e in `env | sed 's/=/:/g'`; do
@@ -245,7 +246,7 @@ command:
 id: mobilebroadband
 estimated_duration: 0.38
 plugin: resource
-_description: Create resource for mobile broadband devices
+_summary: Create resource for mobile broadband devices
 command: mobilebroadband_resource
 
 id: virtualization
@@ -253,7 +254,7 @@ estimated_duration: 0.13
 plugin: resource
 requires:
   package.name == "cpu-checker" or executable.name == 'kvm-ok'
-_description: Resource for hardware virtualization
+_summary: Resource for hardware virtualization
 command:
  if kvm-ok > /dev/null
  then
@@ -266,7 +267,7 @@ id: IEEE_80211
 estimated_duration: 0.08
 plugin: resource
 command: 80211_resource
-_description: Creates resource info for wifi supported protocols/interfaces
+_summary: Creates resource info for wifi supported protocols/interfaces
 
 id: wireless_sta_protocol
 plugin: resource
@@ -288,7 +289,7 @@ command:
   else
       echo "state: unsupported"
   fi
-_description: Creates resource info for RTC
+_summary: Creates resource info for RTC
 
 id: requirements
 estimated_duration: 0.01
@@ -299,6 +300,7 @@ command:
  else
     true
  fi
+_summary: Provide links to requirements documents
 _description:
  Provide links to requirements documents.
  .
@@ -327,15 +329,14 @@ _description:
 id: graphics_card
 estimated_duration: 0.05
 plugin: resource
-_description:
- Generate an entry for each graphics card present in the system.
+_summary: Generate an entry for each graphics card present in the system.
 command: graphics_card_resource
 
 id: fwts
 estimated_duration: 0.5
 plugin: resource
 requires: executable.name == "fwts"
-_description: Generate an entry for each FWTS test available
+_summary: Generate an entry for each FWTS test available
 command:
  for test in `checkbox-support-fwts_test --list`; do echo "name: $test"; echo ""; done
 
@@ -343,7 +344,7 @@ id: mir
 estimated_duration: 0.5
 plugin: resource
 requires: package.name == "mir-test-tools"
-_description: Generate an entry for each MIR integration tests
+_summary: Generate an entry for each MIR integration tests
 command:
  for test in `mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: integration"; echo "name: $test"; echo ""; done
  for test in `mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: acceptance"; echo "name: $test"; echo ""; done
@@ -357,7 +358,7 @@ command:
  grep -Pzo '(?s)Supported interface modes:\n\K(\s+\*\s.*?\n)+' |
  sed "s/.*\* \(.*\)/"$i"_\1: supported/" | tr -d '\000';
  done
-_description: Create resource info for supported wifi interface modes
+_summary: Create resource info for supported wifi interface modes
 
 id: snap
 estimated_duration: 1.1

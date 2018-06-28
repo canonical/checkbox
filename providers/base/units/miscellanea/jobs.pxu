@@ -148,6 +148,22 @@ command: boot_mode_test secureboot
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
+unit: template
+template-resource: model_assertion
+template-unit: job
+requires:
+ executable.name == 'dumpimage'
+ executable.name == 'mokutil'
+id: miscellanea/secure_boot_mode_{gadget}
+_summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active
+_description:
+ Test to verify that the system booted with Secure Boot active.
+command:
+ boot_mode_test_snappy.py {gadget} {kernel}
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
 user: root
 id: miscellanea/efi_pxeboot
 requires:

@@ -4,6 +4,7 @@ If you're debugging this program, set PM_TEST_DRY_RUN in your environment.
 It will make the script not run actual S3, S4, reboot and poweroff commands.
 """
 import gi
+import json
 import logging
 import logging.handlers
 import os
@@ -222,6 +223,29 @@ class PowerManagementOperation():
 
         message = ('{0} test complete'
                    .format(self.args.pm_operation.capitalize()))
+        total_suspends_expected = (
+            self.args.suspends_before_reboot * self.args.total)
+        problems = ''
+        fwts_log_path = os.path.join(self.args.log_dir, 'fwts.log')
+        try:
+            with open(fwts_log_path, 'rt') as f:
+                magic_line = 'Completed S3 cycle(s) \n'
+                count = f.readlines().count(magic_line)
+                if count != total_suspends_expected:
+                    problems = (
+                        "Found {} occurrences of '{}'. Expected {}".format(
+                            count, magic_line.strip(),
+                            total_suspends_expected))
+        except FileNotFoundError:
+            problems = "Error opening {}".format(fwts_log_path)
+        if problems:
+            result = {
+                'outcome': 'fail' if problems else 'pass',
+                'comment': problems,
+            }
+            with open(os.path.join(self.args.log_dir, '__result'), 'wt') as f:
+                json.dump(result, f)
+
         if self.args.silent:
             logging.info(message)
         else:

@@ -26,7 +26,7 @@ def fitdumpimage(filename):
 
     # from then on should get blocks of text describing the objects that were
     # combined in to the FIT image e.g. kernel, ramdisk, device tree
-    image_re = re.compile(r'^\ Image')
+    image_re = re.compile(r'(?:^\ Image)\ \d+\ \((\S+)\)$')
     config_re = re.compile(r'^\ Default Configuration|^\ Configuration')
     objects = {}
     name = ''
@@ -36,8 +36,9 @@ def fitdumpimage(filename):
         if line == '':
             break
         # interested in storing image information
-        if image_re.search(line):
-            name = line[line.find("(")+1:line.find(")")]
+        match = image_re.search(line)
+        if match:
+            name = match.group(1)
             objects[name] = {}
             continue
         # not interested in configurations
@@ -88,8 +89,7 @@ def main():
             print('Checking object {}'.format(obj))
             if 'Sign value' not in attrs:
                 raise SystemExit('ERROR: no sign value found for object')
-            else:
-                print('Found "Sign value"')
+            print('Found "Sign value"')
             if len(attrs['Sign value']) != 512:
                 raise SystemExit('ERROR: unexpected sign value size')
             if all(s in attrs['Sign algo'] for s in ['sha256', 'rsa2048']):

@@ -372,20 +372,19 @@ class TestTestPlan(TestCase):
 
     def test_get_bootstrap_job_ids__empty(self):
         unit = TestPlanUnit({}, provider=None)
-        self.assertEqual(unit.get_bootstrap_job_ids(), set())
+        self.assertEqual(unit.get_bootstrap_job_ids(), list())
 
     def test_get_bootstrap_job_ids__normal(self):
         unit = TestPlanUnit({
             'bootstrap_include': 'Foo\nBar'
         }, provider=None)
-        self.assertEqual(unit.get_bootstrap_job_ids(), set(['Foo', 'Bar']))
+        self.assertEqual(unit.get_bootstrap_job_ids(), ['Foo', 'Bar'])
 
     def test_get_bootstrap_job_ids__qualified_ids(self):
         unit = TestPlanUnit({
             'bootstrap_include': 'Foo\nBar'
         }, provider=self.provider)
-        self.assertEqual(unit.get_bootstrap_job_ids(),
-                         set(['ns::Foo', 'ns::Bar']))
+        self.assertEqual(unit.get_bootstrap_job_ids(), ['ns::Foo', 'ns::Bar'])
 
 
 class TestNestedTestPlan(TestCase):

@@ -244,6 +244,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         tps = self.sa.start_session(configuration)
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
+            self.select_jobs(self.jobs)
         else:
             self.interactively_choose_tp(tps)
 
@@ -291,6 +292,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
 
     def select_jobs(self, all_jobs):
         if self.launcher.test_selection_forced:
+            self.sa.save_todo_list(all_jobs)
             self.run_jobs(all_jobs)
         else:
             reprs = self.sa.get_jobs_repr(all_jobs)

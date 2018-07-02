@@ -645,9 +645,8 @@ class TestPlanUnit(UnitWithId):
                             lambda referrer, referee: referee.unit == 'job',
                             message=_("the referenced unit is not a job")),
                         ReferenceConstraint(
-                            lambda referrer, referee: (
-                                referee.plugin == 'resource'),
-                            message=_("only resource jobs are allowed "
+                            lambda referrer, referee: referee.automated,
+                            message=_("only automated jobs are allowed "
                                       "in bootstrapping_include"))])
             ],
             fields.exclude: [

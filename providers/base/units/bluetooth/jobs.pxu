@@ -194,3 +194,23 @@ _steps:
      3. After it's paired and connected, enter some text with your keyboard and close the small input test tool.
 _verification:
      Did the Bluetooth Smart keyboard work as expected?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'BLUETOOTH'
+template-engine: jinja2
+template-unit: job
+id: bluetooth4/beacon_notification_{{ path }}
+_summary: Test system can get beacon notifications on the {{ path.split('/')[-1] }} adapter
+environ: ADV_SVC_UUID SVC_UUID MSRMT_UUID
+command:
+ gatt-notify-test.py {{ path.split('/')[-1] }} $ADV_SVC_UUID $SVC_UUID $MSRMT_UUID
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::bluetooth
+estimated_duration: 30
+requires:
+ package.name == 'bluez' or snap.name == 'bluez'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
+ {% endif -%}

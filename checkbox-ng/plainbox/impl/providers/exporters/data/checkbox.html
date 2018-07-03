@@ -55,7 +55,7 @@
                     </tr></tbody></table>
                     <script>
                         var pieData = [
-                            {%- for outcome, total in state.get_outcome_stats()|dictsort %}
+                            {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
                             {
                                 value: {{ total }},
                                 color: "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",

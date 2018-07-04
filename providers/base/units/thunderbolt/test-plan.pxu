@@ -14,12 +14,12 @@ _name: Thunderbolt tests (Manual)
 _description:
  Thunderbolt tests (Manual)
 include:
- thunderbolt/insert                         certification-status=blocker
- thunderbolt/storage-test                   certification-status=blocker
- thunderbolt/remove                         certification-status=blocker
- thunderbolt3/insert                        certification-status=non-blocker
- thunderbolt3/storage-test                  certification-status=non-blocker
- thunderbolt3/remove                        certification-status=non-blocker
+ thunderbolt/insert                         certification-status=non-blocker
+ thunderbolt/storage-test                   certification-status=non-blocker
+ thunderbolt/remove                         certification-status=non-blocker
+ thunderbolt3/insert                        certification-status=blocker
+ thunderbolt3/storage-test                  certification-status=blocker
+ thunderbolt3/remove                        certification-status=blocker
 
 id: thunderbolt-cert-automated
 unit: test plan
@@ -34,6 +34,6 @@ unit: test plan
 _name: Thunderbolt tests (certification blockers only)
 _description: Thunderbolt tests (certification blockers only)
 include:
-    thunderbolt/insert                         certification-status=blocker
-    thunderbolt/storage-test                   certification-status=blocker
-    thunderbolt/remove                         certification-status=blocker
+ thunderbolt3/insert                         certification-status=blocker
+ thunderbolt3/storage-test                   certification-status=blocker
+ thunderbolt3/remove                         certification-status=blocker

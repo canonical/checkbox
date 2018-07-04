@@ -81,7 +81,7 @@ id: miscellanea/fwupdate
 estimated_duration: 1.0
 depends: miscellanea/efi_boot_mode
 requires:
-  cpuinfo.platform in ("i386", "x86_64", "aarch64", "armhf")
+  cpuinfo.platform in ("i386", "x86_64", "aarch64", "armv7l")
   package.name == 'fwupdate' or executable.name == 'fwupdate'
 _description:
  Determine if EFI firmware supports update from OS.

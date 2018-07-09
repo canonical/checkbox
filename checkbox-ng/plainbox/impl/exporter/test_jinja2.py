@@ -32,6 +32,7 @@ import os
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.state import SessionMetaData
+from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.unit.exporter import ExporterUnitSupport
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.vendor import mock
@@ -66,7 +67,8 @@ class Jinja2SessionStateExporterTests(TestCase):
                 "manager.state.job_state_map[job].job.tr_summary()) }}\n"
                 "{% endfor %}")
             data = {"template": template_filename, "extra_paths": [tmp]}
-            exporter_unit = mock.Mock(spec_set=ExporterUnitSupport, data=data)
+            exporter_unit = mock.Mock(spec=ExporterUnitSupport, data=data)
+            exporter_unit.file_extension = 'html'
             exporter_unit.data_dir = tmp
             exporter_unit.template = template_filename
             with open(pathname, 'w') as f:
@@ -76,3 +78,55 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter.dump_from_session_manager(self.manager_single_job, stream)
             expected_bytes = '     fail      : job name\n'.encode('UTF-8')
             self.assertEqual(stream.getvalue(), expected_bytes)
+
+    def test_validation_chooses_json(self):
+        template_filename = 'template.json'
+        with TemporaryDirectory() as tmp:
+            tmpl = '{}'
+            pathname = os.path.join(tmp, template_filename)
+            with open(pathname, 'w') as f:
+                f.write(tmpl)
+            data = {"template": template_filename, "extra_paths": [tmp]}
+            exporter_unit = mock.Mock(spec=ExporterUnitSupport, data=data)
+            exporter_unit.file_extension = 'json'
+            exporter_unit.data_dir = tmp
+            exporter_unit.template = template_filename
+            exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
+            exporter.validate_json = mock.Mock(return_value=[])
+            stream = BytesIO()
+            exporter.validate(stream)
+            exporter.validate_json.assert_called_once()
+
+    def test_validation_json(self):
+        template_filename = 'template.json'
+        with TemporaryDirectory() as tmp:
+            tmpl = '{"valid": "json"}'
+            pathname = os.path.join(tmp, template_filename)
+            with open(pathname, 'w') as f:
+                f.write(tmpl)
+            data = {"template": template_filename, "extra_paths": [tmp]}
+            exporter_unit = mock.Mock(spec=ExporterUnitSupport, data=data)
+            exporter_unit.file_extension = 'json'
+            exporter_unit.data_dir = tmp
+            exporter_unit.template = template_filename
+            exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
+            stream = BytesIO()
+            exporter.dump_from_session_manager(self.manager_single_job, stream)
+
+    def test_validation_json_throws(self):
+        template_filename = 'template.json'
+        with TemporaryDirectory() as tmp:
+            tmpl = 'very {"invalid": json}'
+            pathname = os.path.join(tmp, template_filename)
+            with open(pathname, 'w') as f:
+                f.write(tmpl)
+            data = {"template": template_filename, "extra_paths": [tmp]}
+            exporter_unit = mock.Mock(spec=ExporterUnitSupport, data=data)
+            exporter_unit.file_extension = 'json'
+            exporter_unit.data_dir = tmp
+            exporter_unit.template = template_filename
+            exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
+            stream = BytesIO()
+            with self.assertRaises(ExporterError):
+                exporter.dump_from_session_manager(
+                    self.manager_single_job, stream)

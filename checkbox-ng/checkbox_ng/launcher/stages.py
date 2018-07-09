@@ -32,6 +32,7 @@ from plainbox.impl.result import tr_outcome
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
+from plainbox.impl.unit.exporter import ExporterError
 
 from checkbox_ng.launcher.run import (
         Action, ActionUI, NormalUI, ReRunJob, seconds_to_human_duration)
@@ -391,8 +392,13 @@ class ReportsStage(CheckboxUiStage):
                     if self._export_fn:
                         result = self._export_fn(exporter_id, transport)
                     else:
-                        result = self.sa.export_to_transport(
-                            exporter_id, transport)
+                        try:
+                            result = self.sa.export_to_transport(
+                                exporter_id, transport)
+                        except ExporterError as exc:
+                            _logger.warning(
+                                _("Problem occured when preparing %s report:"
+                                  "%s"), exporter_id, exc)
                     if result and 'url' in result:
                         print(result['url'])
                     elif result and 'status_url' in result:

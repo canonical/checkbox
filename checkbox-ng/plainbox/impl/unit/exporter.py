@@ -210,3 +210,9 @@ class ExporterUnitSupport():
         """Return the exporter class."""
         return pkg_resources.load_entry_point(
             'checkbox-ng', 'plainbox.exporter', exporter.entry_point)
+
+class ExporterError(Exception):
+    """
+    Exception raised by exporters when they detect problems.
+    """
+    pass

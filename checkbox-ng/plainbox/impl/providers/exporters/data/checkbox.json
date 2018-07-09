@@ -2,7 +2,9 @@
 {%- set state = manager.default_device_context.state -%}
 {%- set resource_map = state.resource_map -%}
 {%- set job_state_map = state.job_state_map -%}
+{%- set category_map = state.category_map -%}
 {
+    "title": {{ state.metadata.title | jsonify | safe }},
 {%- if "description" in app_blob %}
 {%- if app_blob['description'] %}
     "description": {{ app_blob['description'] | jsonify | safe }},
@@ -46,7 +48,7 @@
             "id": "{{ job_id|strip_ns }}",
             "name": "{{ job_state.job.tr_summary() }}",
             "certification_status": "{{ job_state.effective_certification_status }}",
-            "category": "{{ job_state.effective_category_id }}",
+            "category": "{{ category_map[job_state.effective_category_id] }}",
             "status": "{{ job_state.result.outcome_meta().hexr_mapping }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},

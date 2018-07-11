@@ -80,6 +80,7 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
 user: root
+_summary: Test that insertion of an SD card is detected (udisks2)
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -102,6 +103,7 @@ flags: preserve-cwd
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
 requires:
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+_summary: Test reading & writing to a SD Card (udisks2)
 _description:
  This test is automated and executes after the mediacard/sd-insert
  test is run. It tests reading and writing to the SD card.
@@ -119,6 +121,7 @@ command:
      removable_storage_watcher --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
+_summary: Test that removal of an SD card is detected
 _description:
  PURPOSE:
      This test will check that the system correctly detects
@@ -142,6 +145,7 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
  manifest.has_card_reader == 'True'
+_summary: Automated test of SD Card reading & writing (udisk2)
 _description:
  This is a fully automated version of mediacard/sd-automated and assumes that the
  system under test has a memory card device plugged in prior to checkbox execution.
@@ -163,6 +167,7 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
 user: root
+_summary: Test that insertion of an SDHC card is detected (udisks2)
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -186,6 +191,7 @@ flags: preserve-cwd
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
 requires:
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+_summary: Test that insertion of an SDHC card is detected (udisks2)
 _description:
  This test is automated and executes after the mediacard/sdhc-insert
  test is run. It tests reading and writing to the SDHC card.
@@ -203,6 +209,7 @@ command:
      removable_storage_watcher --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
+_summary: Test that removal of an SDHC card is detected
 _description:
  PURPOSE:
      This test will check that the system correctly detects
@@ -295,6 +302,7 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
 user: root
+_summary: Test that insertion of an SDXC card is detected (udisks2)
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -316,6 +324,7 @@ user: root
 command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
 requires:
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+_summary: Test reading & writing to a SDXC Card (udisks2)
 _description:
  This test is automated and executes after the mediacard/sdxc-insert
  test is run. It tests reading and writing to the SDXC card.
@@ -333,6 +342,7 @@ command:
      removable_storage_watcher --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
+_summary: Test that removal of an SDXC card is detected
 _description:
  PURPOSE:
      This test will check that the system correctly detects

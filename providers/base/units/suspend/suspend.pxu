@@ -3,14 +3,14 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/network_before_suspend
 depends: ethernet/detect
 estimated_duration: 1.2
-_description: Record the current network before suspending.
+_summary: Record the current network before suspending.
 command: set -o pipefail; gateway_ping_test | tee $PLAINBOX_SESSION_SHARE/network_before_suspend.txt
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/resolution_before_suspend
 estimated_duration: 1.2
-_description: Record the current resolution before suspending.
+_summary: Record the current resolution before suspending.
 command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt
 
 unit: template
@@ -21,7 +21,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}
 depends: graphics/{index}_switch_card_{product_slug}
 estimated_duration: 1.2
-_description: Record the current resolution before suspending.
+_summary: Record the current resolution before suspending.
 command: xrandr -q |grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
 
 plugin: shell
@@ -31,22 +31,21 @@ estimated_duration: 1.0
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
-_description: Record mixer settings before suspending.
+_summary: Record mixer settings before suspending.
 command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_before_suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cpu_before_suspend
 estimated_duration: 1.2
-_description: Verify that all the CPUs are online before suspending
+_summary: Verify that all the CPUs are online before suspending
 command: cpuinfo_resource > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/memory_before_suspend
 estimated_duration: 1.2
-_description:
- Dumps memory info to a file for comparison after suspend test has been run
+_summary: Dumps memory info to a file for comparison after suspend
 command: meminfo_resource > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
 
 unit: template
@@ -62,6 +61,7 @@ requires:
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command: network test -i {interface} -t iperf
+_summary: Before suspend iperf test ethernet {interface}
 _description:
  This test executes iperf connection performance/stability against device {__index__} ({interface}) before suspend.
 
@@ -76,6 +76,7 @@ command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
+_summary: Before suspend iperf test GSM mobilebroadband
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
@@ -90,6 +91,7 @@ command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
+_summary: Before suspend iperf test CDMA mobilebroadband
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
@@ -118,6 +120,7 @@ command:
     sleep 3
   fi
   set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+_summary: Bluetooth OBEX send before suspend
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -146,6 +149,7 @@ command:
     sleep 3
   fi
   set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+_summary: Bluetooth OBEX browse before suspend
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -174,6 +178,7 @@ command:
     sleep 3
   fi
   set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+_summary: Bluetooth OBEX get before suspend
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -197,6 +202,7 @@ command:
   set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/2_suspend_single_times.log
  fi
 estimated_duration: 90.0
+_summary: Manual test of suspend function
 _description:
  PURPOSE:
      This test will check suspend and resume
@@ -253,6 +259,7 @@ id: suspend/suspend_advanced_auto
 requires:
     sleep.mem == 'supported'
     rtc.state == 'supported'
+_summary: Automated test of suspend function
 _description:
  This is the automated version of suspend/suspend_advanced.
 user: root
@@ -276,6 +283,7 @@ command:
  fi
  set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single_times.log
 estimated_duration: 90.0
+_summary: This test will check hybrid sleep and resume
 _description:
  PURPOSE:
      This test will check hybrid sleep and resume
@@ -293,16 +301,14 @@ id: suspend/suspend-single-log-check
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/suspend_single.log
-_description:
- Automated check of the suspend log to look for errors reported by fwts
+_summary: Automated check of the suspend log for errors reported by fwts
 
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-attach
 depends: suspend/suspend_advanced_auto
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
-_description:
- Attaches the log from the single suspend/resume test to the results
+_summary: Attaches the log from the single suspend/resume test
 
 unit: template
 template-resource: graphics_card
@@ -312,8 +318,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
-_description:
- Attaches the log from the single suspend/resume test to the results
+_summary: Attaches the log from the single suspend/resume test
 
 unit: template
 template-resource: graphics_card
@@ -323,8 +328,7 @@ id: suspend/{index}_hybrid-sleep-single-log-check
 depends: suspend/{index}_hybrid_sleep_{product_slug}
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
-_description:
- Automated check of the hybrid sleep log to look for errors reported by fwts
+_summary: Automated check of the hybrid sleep log for errors reported by fwts
 
 unit: template
 template-resource: graphics_card
@@ -333,14 +337,14 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
 depends: suspend/{index}_hybrid_sleep_{product_slug}
 command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
-_description:
- Attaches the log from the single hybrid sleep/resume test to the results
+_summary: Attaches the log from the single hybrid sleep/resume test
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-time-check
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_single_times.log
+_summary: Ensure time to suspend/resume is under threshold
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
@@ -353,6 +357,7 @@ id: suspend/{index}_suspend-time-check_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+_summary: Ensure time to suspend/resume is under threshold
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: user-interact-verify

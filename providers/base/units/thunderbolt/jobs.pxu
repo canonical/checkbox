@@ -57,6 +57,7 @@ category_id: com.canonical.plainbox::disk
 id: thunderbolt/daisy-chain
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
+flags: also-after-suspend-manual
 estimated_duration: 45.0
 command: removable_storage_test -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt storage and display device
@@ -133,6 +134,7 @@ category_id: com.canonical.plainbox::disk
 id: thunderbolt3/daisy-chain
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
+flags: also-after-suspend-manual
 estimated_duration: 45.0
 command: removable_storage_test -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt 3 storage and display device

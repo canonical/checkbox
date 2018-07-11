@@ -49,6 +49,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
+flags: also-after-suspend-manual
 command:
  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings set --verbose --device=hdmi --volume=50
@@ -77,6 +78,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
+flags: also-after-suspend-manual
 command:
  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings set --verbose --device=hdmi --volume=50
@@ -106,6 +108,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
+flags: also-after-suspend-manual
 command:
  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings set --verbose --device=hdmi --volume=50
@@ -135,6 +138,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
+flags: also-after-suspend-manual
 command:
  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings set --verbose --device=hdmi --volume=50
@@ -165,6 +169,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
+flags: also-after-suspend-manual
 command:
  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings set --verbose --device=hdmi --volume=50

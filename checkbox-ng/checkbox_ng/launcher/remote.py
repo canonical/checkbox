@@ -43,7 +43,7 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
-from plainbox.vendor.rpyc.utils import server
+from plainbox.vendor.rpyc.utils.server import ThreadedServer
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
@@ -108,7 +108,7 @@ class RemoteSlave(Command):
                 SessionAssistantSlave.session_assistant.resume_last()
             except StopIteration:
                 print("Couldn't resume the session")
-        self._server = rpyc.utils.server.ThreadedServer(
+        self._server = ThreadedServer(
             SessionAssistantSlave,
             port=18871,
             protocol_config={

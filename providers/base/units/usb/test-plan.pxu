@@ -69,6 +69,7 @@ include:
     usb-c/insert                               certification-status=blocker
     usb-c/storage-automated                    certification-status=blocker
     usb-c/remove                               certification-status=blocker
+    usb-c/c-to-ethernet-adapter-insert
 
 id: after-suspend-usb-cert-full
 unit: test plan

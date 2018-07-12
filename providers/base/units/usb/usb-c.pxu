@@ -187,3 +187,19 @@ requires:
  manifest.has_usb_type_c == 'True'
 estimated_duration: 30
 
+id: usb-c/c-to-ethernet-adapter-insert
+plugin: user-interact
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usb_type_c == 'True'
+command:
+ net_if_watcher.py
+_summary: Check if USB Type-C to Ethernet adapter works
+_purpose:
+ This test will check if system detects network interface of the Type-C to
+ ethernet adapter.
+_steps:
+ 1. Prepare USB Type-C to Ethernet adapter
+ 2. Start the test
+ 3. When the message "INSERT NOW" is shown, plug in the adapter to Type-C port
+estimated_duration: 20

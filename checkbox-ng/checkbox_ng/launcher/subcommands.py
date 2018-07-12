@@ -237,7 +237,7 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                     "WARNING: using side-loaded providers")))
                 os.environ['PROVIDERPATH'] = ''
                 embedded_providers = EmbeddedProvider1PlugInCollection(
-                        side_load_path)
+                    side_load_path)
                 additional_providers = embedded_providers.get_all_plugin_objects()
             self._configure_restart(ctx)
             self._prepare_transports()
@@ -283,7 +283,7 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         We can then interact with the user when we encounter OUTCOME_UNDECIDED.
         """
         return (self.launcher.ui_type == 'interactive' and
-            sys.stdin.isatty() and sys.stdout.isatty())
+                sys.stdin.isatty() and sys.stdout.isatty())
 
     def _configure_restart(self, ctx):
         if SA_RESTARTABLE not in self.get_sa_api_flags():
@@ -322,13 +322,13 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                 # app called "checkbox-cli"
                 respawn_cmd = '/snap/bin/{}.checkbox-cli'.format(snap_name)
             else:
-                respawn_cmd = sys.argv[0] # entry-point to checkbox
+                respawn_cmd = sys.argv[0]  # entry-point to checkbox
             respawn_cmd += " launcher "
             if ctx.args.launcher:
                 respawn_cmd += os.path.abspath(ctx.args.launcher) + ' '
-            respawn_cmd += '--resume {}' # interpolate with session_id
+            respawn_cmd += '--resume {}'  # interpolate with session_id
             ctx.sa.configure_application_restart(
-                lambda session_id: [ respawn_cmd.format(session_id)])
+                lambda session_id: [respawn_cmd.format(session_id)])
 
     def _maybe_resume_session(self):
         resume_candidates = list(self.ctx.sa.get_resumable_sessions())
@@ -478,10 +478,10 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                 "category_id": cat_id,
                 "category_name": self.ctx.sa.get_category(cat_id).tr_name(),
                 "automated": (_('this job is fully automated') if job.automated
-                    else _('this job requires some manual interaction')),
+                              else _('this job requires some manual interaction')),
                 "duration": duration_txt,
                 "description": (job.tr_description() or
-                    _('No description provided for this job')),
+                                _('No description provided for this job')),
                 "outcome": self.ctx.sa.get_job_state(job.id).result.outcome,
             }
             test_info_list = test_info_list + ((test_info, ))
@@ -579,7 +579,7 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         """Get all the tests that might be selected for an automatic retry."""
         def retry_predicate(job_state):
             return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) \
-                   and job_state.effective_auto_retry != 'no'
+                and job_state.effective_auto_retry != 'no'
         retry_candidates = []
         todo_list = self.ctx.sa.get_static_todo_list()
         job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
@@ -634,7 +634,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                 rerun_candidates.append(self.ctx.sa.get_job(job_id))
         return rerun_candidates
 
-
     def _get_ui_for_job(self, job):
         class CheckboxUI(NormalUI):
             def considering_job(self, job, job_state):
@@ -686,7 +685,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             "show program's version information and exit"))
 
 
-
 class CheckboxUI(NormalUI):
 
     def considering_job(self, job, job_state):
@@ -716,13 +714,13 @@ class Run(Command, MainLoopStage):
                    ' (pass ? for a list of choices)'))
         parser.add_argument(
             '-o', '--output-file', default='-',
-            metavar=_('FILE'),# type=FileType("wb"),
+            metavar=_('FILE'),  # type=FileType("wb"),
             help=_('save test results to the specified FILE'
                    ' (or to stdout if FILE is -)'))
         parser.add_argument(
             '-t', '--transport',
             metavar=_('TRANSPORT'),
-                choices=[_('?')] + list(get_all_transports().keys()),
+            choices=[_('?')] + list(get_all_transports().keys()),
             help=_('use TRANSPORT to send results somewhere'
                    ' (pass ? for a list of choices)'))
         parser.add_argument(
@@ -823,7 +821,7 @@ class Run(Command, MainLoopStage):
         else:
             if self.ctx.args.transport not in get_all_transports():
                 _logger.error("The selected transport %r is not available",
-                             self.ctx.args.transport)
+                              self.ctx.args.transport)
                 raise SystemExit(1)
             self.transport = self.ctx.args.transport
             self.transport_where = self.ctx.args.transport_where
@@ -852,10 +850,10 @@ class Run(Command, MainLoopStage):
             # app called "checkbox-cli"
             respawn_cmd = '/snap/bin/{}.checkbox-cli'.format(snap_name)
         else:
-            respawn_cmd = sys.argv[0] # entry-point to checkbox
-        respawn_cmd += ' --resume {}' # interpolate with session_id
+            respawn_cmd = sys.argv[0]  # entry-point to checkbox
+        respawn_cmd += ' --resume {}'  # interpolate with session_id
         self.sa.configure_application_restart(
-            lambda session_id: [ respawn_cmd.format(session_id)])
+            lambda session_id: [respawn_cmd.format(session_id)])
 
 
 class List(Command):
@@ -871,13 +869,14 @@ class List(Command):
         parser.add_argument(
             '-f', '--format', type=str,
             help=_(("output format, as passed to print function. "
-                "Use '?' to list possible values")))
+                    "Use '?' to list possible values")))
 
     def invoked(self, ctx):
         if ctx.args.GROUP == 'all-jobs':
             if ctx.args.attrs:
                 print_objs('job', True)
-                filter_fun = lambda u: u.attrs['template_unit'] == 'job'
+
+                def filter_fun(u): return u.attrs['template_unit'] == 'job'
                 print_objs('template', True, filter_fun)
             jobs = get_all_jobs()
             if ctx.args.format == '?':
@@ -895,6 +894,7 @@ class List(Command):
             for job in jobs:
                 unescaped = ctx.args.format.replace(
                     '\\n', '\n').replace('\\t', '\t')
+
                 class DefaultKeyedDict(defaultdict):
                     def __missing__(self, key):
                         return _('<missing {}>').format(key)
@@ -930,7 +930,7 @@ class ListBootstrapped(Command):
         parser.add_argument(
             '-f', '--format', type=str,
             help=_(("output format, as passed to print function. "
-                "Use '?' to list possible values")))
+                    "Use '?' to list possible values")))
 
     def invoked(self, ctx):
         self.ctx = ctx
@@ -971,6 +971,7 @@ class ListBootstrapped(Command):
                 else:
                     print(job_id)
 
+
 def try_selecting_providers(sa, *args, **kwargs):
     """
     Try selecting proivders via SessionAssistant.
@@ -981,30 +982,30 @@ def try_selecting_providers(sa, *args, **kwargs):
         sa.select_providers(*args, **kwargs)
     except ValueError:
         from plainbox.impl.providers.v1 import all_providers
-        message = '\n'.join([
-                _("No providers found! Paths searched:"),
-            ] + all_providers.provider_search_paths)
+        message = '\n'.join([_("No providers found! Paths searched:"), ]
+                            + all_providers.provider_search_paths)
         raise SystemExit(message)
 
 
 def get_all_jobs():
     root = Explorer(get_providers()).get_object_tree()
+
     def get_jobs(obj):
         jobs = []
         if obj.group == 'job' or (
-            obj.group == 'template' and obj.attrs['template_unit'] == 'job'):
-                attrs = dict(obj._impl._raw_data.copy())
-                attrs['full_id'] = obj.name
-                jobs.append(attrs)
+                obj.group == 'template' and obj.attrs['template_unit'] == 'job'):
+            attrs = dict(obj._impl._raw_data.copy())
+            attrs['full_id'] = obj.name
+            jobs.append(attrs)
         for child in obj.children:
             jobs += get_jobs(child)
         return jobs
-    return sorted(get_jobs(root),key=operator.itemgetter('full_id'))
+    return sorted(get_jobs(root), key=operator.itemgetter('full_id'))
 
 
 def print_objs(group, show_attrs=False, filter_fun=None):
     obj = Explorer(get_providers()).get_object_tree()
-    indent = ""
+
     def _show(obj, indent):
         if group is None or obj.group == group:
             # object must satisfy filter_fun (if supplied) to be printed

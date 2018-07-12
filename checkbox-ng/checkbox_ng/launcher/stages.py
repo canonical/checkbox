@@ -34,7 +34,7 @@ from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 
 from checkbox_ng.launcher.run import (
-        Action, ActionUI, NormalUI, ReRunJob, seconds_to_human_duration)
+    Action, ActionUI, NormalUI, ReRunJob, seconds_to_human_duration)
 
 _ = gettext.gettext
 

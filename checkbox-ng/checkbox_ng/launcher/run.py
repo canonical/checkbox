@@ -38,6 +38,7 @@ class ActionUI:
     A simple user interface to display a list of actions and let the user to
     pick one
     """
+
     def __init__(self, action_list, prompt=None, color=None):
         """
         :param action_list:

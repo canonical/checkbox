@@ -116,7 +116,7 @@ class RemoteSlave(Command):
                 "allow_setattr": True,
                 "sync_request_timeout": 1,
                 "propagate_SystemExit_locally": True
-                },
+            },
         )
         SessionAssistantSlave.session_assistant.terminate_cb = (
             self._server.close)
@@ -203,12 +203,12 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     slave_api_version = self.sa.get_remote_api_version()
                 except AttributeError:
                     raise SystemExit(_("Slave doesn't declare Remote API"
-                        " version. Update Checkbox on the Slave!"))
+                                       " version. Update Checkbox on the Slave!"))
                 master_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
                 if slave_api_version != master_api_version:
                     raise SystemExit(_("Remote API version mismatch. "
-                        "Slave uses: {}. Master uses: {}").format(
-                            slave_api_version, master_api_version))
+                                       "Slave uses: {}. Master uses: {}").format(
+                        slave_api_version, master_api_version))
                 state, payload = self.sa.whats_up()
                 keep_running = {
                     'idle': self.new_session,

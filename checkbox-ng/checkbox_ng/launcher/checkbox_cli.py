@@ -62,6 +62,7 @@ class DisplayIngredient(Ingredient):
 
 class WarmupCommandsIngredient(Ingredient):
     """Ingredient that runs given commands at startup."""
+
     def late_init(self, context):
         # https://bugs.launchpad.net/checkbox-ng/+bug/1423949
         # MAAS-deployed server images need "tput reset" to keep ugliness
@@ -71,6 +72,7 @@ class WarmupCommandsIngredient(Ingredient):
 
 class LauncherIngredient(Ingredient):
     """Ingredient that adds Checkbox Launcher support to guacamole."""
+
     def late_init(self, context):
         if context.args.command1.get_cmd_name() != 'launcher':
             context.cmd_toplevel.launcher = DefaultLauncherDefinition()

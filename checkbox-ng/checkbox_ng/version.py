@@ -22,9 +22,6 @@ import os
 
 from collections import OrderedDict
 
-from plainbox import provider_manager
-
-from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.providers import get_providers
 
 import checkbox_ng
@@ -32,6 +29,7 @@ import checkbox_support
 
 _ = gettext.gettext
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
+
 
 def get_version_info():
     info = OrderedDict()

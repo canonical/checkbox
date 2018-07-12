@@ -22,6 +22,7 @@ from checkbox_ng.config import CheckBoxConfig
 from plainbox.impl.secure.config import ValidationError
 from plainbox.i18n import gettext as _
 
+
 class CheckConfig(Command):
     def invoked(self, ctx):
         self.config = CheckBoxConfig.get()

@@ -12,6 +12,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command: udevadm info --export-db | python3 -m plainbox dev parse udevadm
 _description: Attaches json dumps of udev_resource
+_summary: Attaches json dumps of udev_resource
 
 id: raw_devices_dmi_json
 plugin: attachment

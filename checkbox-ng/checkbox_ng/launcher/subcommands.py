@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2018 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -946,6 +946,7 @@ class ListBootstrapped(Command):
             job_unit = self.sa.get_job(job)
             attrs = job_unit._raw_data.copy()
             attrs['full_id'] = job_unit.id
+            attrs['id'] = job_unit.partial_id
             jobs.append(attrs)
         if ctx.args.format == '?':
             all_keys = set()

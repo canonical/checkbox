@@ -196,7 +196,10 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         # keeping it as a method to make it tidy and consistent with
         # any other possible validator that may use self
         try:
-            json.load(stream)
+            # manually reading the stream to ensure decoding
+            raw = stream.read()
+            s = raw.decode('utf-8') if type(raw) == bytes else raw
+            json.loads(s)
             return []
         except Exception as exc:
             return [str(exc)]

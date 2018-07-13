@@ -95,7 +95,7 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter.validate_json = mock.Mock(return_value=[])
             stream = BytesIO()
             exporter.validate(stream)
-            exporter.validate_json.assert_called_once()
+            exporter.validate_json.assert_called_once_with(stream)
 
     def test_validation_json(self):
         template_filename = 'template.json'

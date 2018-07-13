@@ -62,6 +62,7 @@ from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
+from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.unit.unit import Unit
 from plainbox.vendor import morris
 
@@ -1491,7 +1492,7 @@ class SessionAssistant:
                 "delete previously created sessions"),
         }
 
-    @raises(KeyError, TransportError, UnexpectedMethodCall)
+    @raises(KeyError, TransportError, UnexpectedMethodCall, ExporterError)
     def export_to_transport(
             self,
             exporter_id: str,
@@ -1524,6 +1525,8 @@ class SessionAssistant:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
             is the likely cause.
+        :raises ExporterError:
+            If the exporter unit reported an error.
         """
         UsageExpectation.of(self).enforce()
         exporter = self._manager.create_exporter(exporter_id, options)

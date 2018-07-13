@@ -37,6 +37,7 @@ from jinja2 import escape
 from plainbox import get_version_string
 from plainbox.abc import ISessionStateExporter
 from plainbox.impl.result import OUTCOME_METADATA_MAP
+from plainbox.impl.unit.exporter import ExporterError
 
 
 #: Name-space prefix for Canonical Certification
@@ -165,6 +166,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         }
         data.update(self.data)
         self.dump(data, stream)
+        self.validate(stream)
 
     def get_session_data_subset(self, session_manager):
         """Compute a subset of session data."""
@@ -172,3 +174,32 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
             'manager': session_manager,
             'options': self.option_list,
         }
+
+    def validate(self, stream):
+        # we need to validate the whole thing from the beginning
+        pos = stream.tell()
+        stream.seek(0)
+        validator_fun = {
+            'json': self.validate_json,
+        }.get(self.unit.file_extension, lambda *_: [])
+        problems = validator_fun(stream)
+        # XXX: in case of problems we don't really need to .seek() back
+        # but let's be safe
+        stream.seek(pos)
+        if problems:
+            raise ExporterError(problems)
+
+    def validate_json(self, stream):
+        """
+        Returns a list of things wrong that made the validation fail.
+        """
+        # keeping it as a method to make it tidy and consistent with
+        # any other possible validator that may use self
+        try:
+            # manually reading the stream to ensure decoding
+            raw = stream.read()
+            s = raw.decode('utf-8') if type(raw) == bytes else raw
+            json.loads(s)
+            return []
+        except Exception as exc:
+            return [str(exc)]

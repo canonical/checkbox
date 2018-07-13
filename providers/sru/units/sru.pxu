@@ -91,6 +91,8 @@ include:
     wireless/wireless_connection_open_bg_nm_.*
     wireless/wireless_connection_wpa_n_nm_.*
     wireless/wireless_connection_open_n_nm_.*
+    wireless/wireless_connection_wpa_ac_nm_.*
+    wireless/wireless_connection_open_ac_nm_.*
     suspend/audio_before_suspend
     suspend/bluetooth_obex_browse_before_suspend
     suspend/cpu_before_suspend
@@ -110,6 +112,8 @@ include:
     after-suspend-wireless/wireless_connection_open_bg_nm_.*
     after-suspend-wireless/wireless_connection_wpa_n_nm_.*
     after-suspend-wireless/wireless_connection_open_n_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*
     suspend/gpu_lockup_after_suspend
     suspend/screenshot_after_suspend
     screenshot_after_suspend.jpg

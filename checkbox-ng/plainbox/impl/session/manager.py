@@ -31,10 +31,12 @@ and :class:`~plainbox.impl.session.suspend.SessionResumeHelper`.
 """
 
 from collections import OrderedDict
+import atexit
 import contextlib
 import errno
 import logging
 import os
+import shutil
 import tempfile
 
 from plainbox.i18n import gettext as _, ngettext
@@ -136,6 +138,8 @@ class SessionManager(pod.POD):
         type=SessionStorage,
         initial=pod.MANDATORY,
         assign_filter_list=[pod.typed, pod.const])
+
+    _throwaway_managers = dict()
 
     def _on_test_plans_changed(self, old: "Any", new: "Any") -> None:
         self._propagate_test_plans()
@@ -526,16 +530,19 @@ class SessionManager(pod.POD):
         not really meant for running jobs but can be useful to access exporters
         and other objects stored in providers.
         """
-        with tempfile.TemporaryDirectory() as tmp:
+        key = hash(frozenset(provider_list)) if provider_list else ''
+        if not cls._throwaway_managers.get(key):
+            # for safety let's create more persistent tempdir than
+            # the TemporaryDirectory context_manager
+            tmp = tempfile.mkdtemp()
+            atexit.register(lambda: shutil.rmtree(tmp))
             repo = SessionStorageRepository(tmp)
             if provider_list is None:
                 provider_list = get_providers()
-            try:
-                manager = cls.create(repo=repo)
-                manager.add_local_device_context()
-                device_context = manager.default_device_context
-                for provider in provider_list:
-                    device_context.add_provider(provider)
-                yield manager
-            finally:
-                manager.destroy()
+            manager = cls.create(repo=repo)
+            manager.add_local_device_context()
+            device_context = manager.default_device_context
+            cls._throwaway_managers[key] = manager
+            for provider in provider_list:
+                device_context.add_provider(provider)
+        yield cls._throwaway_managers[key]

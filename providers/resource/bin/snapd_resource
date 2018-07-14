@@ -130,12 +130,16 @@ class Snaps(SnapdQuery):
 
         for snap in data['result']:
             def print_field(key):
-                val = snap[key]
+                try:
+                    val = snap[key]
+                except KeyError:
+                    val = ""
                 if val != "":
                     print("{}: {}".format(key, val))
             #  Whitelist of information that is of interest
             keys = ['name', 'type', 'channel', 'version', 'revision',
-                    'developer', 'install-date', 'confinement', 'devmode']
+                    'developer', 'install-date', 'confinement', 'devmode',
+                    'status']
             for f in keys:
                 print_field(f)
             print()

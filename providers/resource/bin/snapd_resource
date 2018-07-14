@@ -138,7 +138,8 @@ class Snaps(SnapdQuery):
                     print("{}: {}".format(key, val))
             #  Whitelist of information that is of interest
             keys = ['name', 'type', 'channel', 'version', 'revision',
-                    'developer', 'install-date', 'confinement', 'devmode']
+                    'developer', 'install-date', 'confinement', 'devmode',
+                    'status']
             for f in keys:
                 print_field(f)
             print()

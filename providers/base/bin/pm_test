@@ -66,8 +66,24 @@ def main():
             title = '{0} test'.format(args.pm_operation.capitalize())
             MessageDialog(title, message, Gtk.MessageType.ERROR).run()
         operation.teardown()
-
-        return exception.RETURN_CODE
+        result = {
+            'outcome': 'fail',
+            'comment': message,
+        }
+        with open(os.path.join(args.log_dir, '__result'), 'wt') as f:
+            json.dump(result, f)
+        env = os.environ.copy()
+        # remove following envvars
+        for key in ['LD_LIBRARY_PATH', 'PYTHONPATH', 'PYTHONHOME']:
+            if key in env.keys():
+                del env[key]
+        env['DISPLAY'] = ':0'
+        sudo_cmd = 'sudo -u {} bash -c "source {}; exec bash"'.format(
+            operation.user, args.checkbox_respawn_cmd)
+        args = ['x-terminal-emulator', '-e', sudo_cmd]
+        print("\nCheckbox will resume in another window.")
+        print("It's safe to close this one.", flush=True)
+        os.execvpe('x-terminal-emulator', args, env)
 
     return 0
 
@@ -80,11 +96,19 @@ class PowerManagementOperation():
         self.extra_args = extra_args
         self.user = user
         self.dry_run = dry_run
+        self.hw_list_start = os.path.join(
+            self.args.log_dir, 'hardware.at_start')
 
     def setup(self):
         """
         Enable configuration file
         """
+        if self.args.check_hardware_list:
+            if not os.path.exists(self.hw_list_start):
+                # create baseline list once per session
+                with open(self.hw_list_start, 'wt') as f:
+                    f.write(self.get_hw_list())
+
         # Enable autologin and sudo on first cycle
         if self.args.total == self.args.repetitions:
             AutoLoginConfigurator(user=self.user).enable()
@@ -110,7 +134,8 @@ class PowerManagementOperation():
         if self.args.repetitions > 0:
             self.run_suspend_cycles(self.args.suspends_before_reboot,
                                     self.args.fwts)
-            self.run_pm_command()
+            if self.args.check_hardware_list:
+                self.check_hw_list()
         else:
             self.summary()
 
@@ -270,6 +295,35 @@ class PowerManagementOperation():
         # Restore previous configuration
         SudoersConfigurator().disable()
         AutoLoginConfigurator().disable()
+
+    def get_hw_list(self):
+        try:
+            content = subprocess.check_output('lspci',
+                encoding=sys.stdout.encoding)
+            content += subprocess.check_output('lsusb',
+                encoding=sys.stdout.encoding)
+            return content
+        except subprocess.CalledProcessError as exc:
+            logging.warning("Problem running lspci or lsusb: %s", exc)
+            return ''
+    def check_hw_list(self):
+        with open(self.hw_list_start, 'rt') as f:
+            before = set(f.read().split('\n'))
+        a = self.get_hw_list().split('\n')
+        after = set(self.get_hw_list().split('\n'))
+        if after != before:
+            message = "Hardware changed!"
+            only_before = before - after
+            if only_before:
+                message += "\nHardware lost after pm  operation:"
+                for item in sorted(list(only_before)):
+                    message += '\n\t{}'.format(item)
+            only_after = after - before
+            if only_after:
+                message += "\nNew hardware found after pm operation:"
+                for item in sorted(list(only_after)):
+                    message += '\n\t{}'.format(item)
+            raise TestFailed(message)
 
 
 class TestCancelled(Exception):
@@ -703,7 +757,7 @@ class AutoStartFile():
 [Desktop Entry]
 Name={pm_operation} test
 Comment=Verify {pm_operation} works properly
-Exec=sudo {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} --checkbox-respawn-cmd={checkbox_respawn} {fwts} {pm_operation}
+Exec=sudo {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} --checkbox-respawn-cmd={checkbox_respawn} {check_hardware} {fwts} {pm_operation}
 Type=Application
 X-GNOME-Autostart-enabled=true
 Hidden=false
@@ -761,7 +815,11 @@ Hidden=false
                             fwts='--fwts' if self.args.fwts else '',
                             suspend_cycles=self.args.suspends_before_reboot,
                             pm_operation=self.args.pm_operation,
-                            checkbox_respawn=self.args.checkbox_respawn_cmd))
+                            checkbox_respawn=self.args.checkbox_respawn_cmd,
+                            check_hardware='--check-hardware-list' if
+                                self.args.check_hardware_list else '',
+                            )
+                    )
         logging.debug(contents)
 
         with open(self.desktop_filename, 'w') as f:
@@ -902,6 +960,9 @@ class MyArgumentParser():
         parser.add_argument('--checkbox-respawn-cmd', type=str, help=(
             'path to a file telling how to return to checkbox after the'
             ' test is done'), default='')
+        parser.add_argument('--check-hardware-list', action='store_true',
+                            help=('Look for changes in the list of devices '
+                                  'after each PM action'), default=False)
         self.parser = parser
 
     def parse(self):

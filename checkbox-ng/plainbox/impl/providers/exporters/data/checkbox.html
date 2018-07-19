@@ -55,7 +55,7 @@
                     </tr></tbody></table>
                     <script>
                         var pieData = [
-                            {%- for outcome, total in state.get_outcome_stats()|dictsort %}
+                            {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
                             {
                                 value: {{ total }},
                                 color: "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",
@@ -130,6 +130,8 @@
                         </table>
                     </div>
                     {%- endfor %}
+                    <p></p>
+                    <h2>Logs</h2>
                     {%- if resource_map %}
                     <div data-role="collapsible" data-filter="true" data-input="#filterTable-input1" class="openMe" data-content-theme="false">
                     <h3>Resources<span class="ui-li-count {{ OUTCOME_METADATA_MAP[resource_global_outcome].tr_label }}Count">{{ OUTCOME_METADATA_MAP[resource_global_outcome].tr_label }}</span></h3>

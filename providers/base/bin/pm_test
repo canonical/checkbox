@@ -134,6 +134,7 @@ class PowerManagementOperation():
         if self.args.repetitions > 0:
             self.run_suspend_cycles(self.args.suspends_before_reboot,
                                     self.args.fwts)
+            self.run_pm_command()
             if self.args.check_hardware_list:
                 self.check_hw_list()
         else:
@@ -298,24 +299,24 @@ class PowerManagementOperation():
 
     def get_hw_list(self):
         try:
-            content = subprocess.check_output('lspci',
-                encoding=sys.stdout.encoding)
-            content += subprocess.check_output('lsusb',
-                encoding=sys.stdout.encoding)
+            content = subprocess.check_output(
+                'lspci', encoding=sys.stdout.encoding)
+            content += subprocess.check_output(
+                'lsusb', encoding=sys.stdout.encoding)
             return content
         except subprocess.CalledProcessError as exc:
             logging.warning("Problem running lspci or lsusb: %s", exc)
             return ''
+
     def check_hw_list(self):
         with open(self.hw_list_start, 'rt') as f:
             before = set(f.read().split('\n'))
-        a = self.get_hw_list().split('\n')
         after = set(self.get_hw_list().split('\n'))
         if after != before:
             message = "Hardware changed!"
             only_before = before - after
             if only_before:
-                message += "\nHardware lost after pm  operation:"
+                message += "\nHardware lost after pm operation:"
                 for item in sorted(list(only_before)):
                     message += '\n\t{}'.format(item)
             only_after = after - before
@@ -817,7 +818,7 @@ Hidden=false
                             pm_operation=self.args.pm_operation,
                             checkbox_respawn=self.args.checkbox_respawn_cmd,
                             check_hardware='--check-hardware-list' if
-                                self.args.check_hardware_list else '',
+                            self.args.check_hardware_list else '',
                             )
                     )
         logging.debug(contents)

@@ -43,13 +43,17 @@ Classic-style usage::
 """
 from plainbox.vendor.rpyc.core import (SocketStream, TunneledSocketStream, PipeStream, Channel,
     Connection, Service, BaseNetref, AsyncResult, GenericException,
-    AsyncResultTimeout, VoidService, SlaveService)
+    AsyncResultTimeout, VoidService, SlaveService, MasterService, ClassicService)
 from plainbox.vendor.rpyc.utils.factory import (connect_stream, connect_channel, connect_pipes,
     connect_stdpipes, connect, ssl_connect, discover, connect_by_service, connect_subproc,
     connect_thread, ssh_connect)
-from plainbox.vendor.rpyc.utils.helpers import async, timed, buffiter, BgServingThread, restricted
+from plainbox.vendor.rpyc.utils.helpers import async_, timed, buffiter, BgServingThread, restricted
 from plainbox.vendor.rpyc.utils import classic
 from plainbox.vendor.rpyc.version import version as __version__
 
+from plainbox.vendor.rpyc.lib import setup_logger, spawn
+from plainbox.vendor.rpyc.utils.server import OneShotServer, ThreadedServer, ThreadPoolServer, ForkingServer
+
 __author__ = "Tomer Filiba (tomerfiliba@gmail.com)"
 
+globals()['async'] = async_     # backward compatibility

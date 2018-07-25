@@ -3,7 +3,7 @@ import sys
 import os
 import inspect
 from plainbox.vendor.rpyc.lib.compat import pickle, execute, is_py3k
-from plainbox.vendor.rpyc import SlaveService
+from plainbox.vendor.rpyc.core.service import ClassicService, Slave
 from plainbox.vendor.rpyc.utils import factory
 from plainbox.vendor.rpyc.core.service import ModuleNamespace
 from contextlib import contextmanager
@@ -12,6 +12,8 @@ from contextlib import contextmanager
 DEFAULT_SERVER_PORT = 18812
 DEFAULT_SERVER_SSL_PORT = 18821
 
+SlaveService = ClassicService   # avoid renaming SlaveService in this module
+                                # for now
 
 #===============================================================================
 # connecting
@@ -176,15 +178,13 @@ def upload(conn, localpath, remotepath, filter = None, ignore_invalid = False, c
             raise ValueError("cannot upload %r" % (localpath,))
 
 def upload_file(conn, localpath, remotepath, chunk_size = 16000):
-    lf = open(localpath, "rb")
-    rf = conn.builtin.open(remotepath, "wb")
-    while True:
-        buf = lf.read(chunk_size)
-        if not buf:
-            break
-        rf.write(buf)
-    lf.close()
-    rf.close()
+    with open(localpath, "rb") as lf:
+        with conn.builtin.open(remotepath, "wb") as rf:
+            while True:
+                buf = lf.read(chunk_size)
+                if not buf:
+                    break
+                rf.write(buf)
 
 def upload_dir(conn, localpath, remotepath, filter = None, chunk_size = 16000):
     if not conn.modules.os.path.isdir(remotepath):
@@ -214,15 +214,13 @@ def download(conn, remotepath, localpath, filter = None, ignore_invalid = False,
             raise ValueError("cannot download %r" % (remotepath,))
 
 def download_file(conn, remotepath, localpath, chunk_size = 16000):
-    rf = conn.builtin.open(remotepath, "rb")
-    lf = open(localpath, "wb")
-    while True:
-        buf = rf.read(chunk_size)
-        if not buf:
-            break
-        lf.write(buf)
-    lf.close()
-    rf.close()
+    with conn.builtin.open(remotepath, "rb") as rf:
+        with open(localpath, "wb") as lf:
+            while True:
+                buf = rf.read(chunk_size)
+                if not buf:
+                    break
+                lf.write(buf)
 
 def download_dir(conn, remotepath, localpath, filter = None, chunk_size = 16000):
     if not os.path.isdir(localpath):
@@ -286,7 +284,9 @@ def deliver(conn, localobj):
 
     :returns: a proxy to the remote object
     """
-    return conn.modules["rpyc.lib.compat"].pickle.loads(pickle.dumps(localobj))
+    # bytes-cast needed for IronPython-to-CPython communication, see #251:
+    return conn.modules["rpyc.lib.compat"].pickle.loads(
+        bytes(pickle.dumps(localobj)))
 
 @contextmanager
 def redirected_stdio(conn):
@@ -339,28 +339,12 @@ def interact(conn, namespace = None):
 
 class MockClassicConnection(object):
     """Mock classic RPyC connection object. Useful when you want the same code to run remotely or locally.
-
     """
     def __init__(self):
-        self._conn = None
-        self.namespace = {}
-        self.modules = ModuleNamespace(self.getmodule)
-        if is_py3k:
-            self.builtin = self.modules.builtins
-        else:
-            self.builtin = self.modules.__builtin__
-        self.builtins = self.builtin
+        self.root = Slave()
+        ClassicService._install(self, self.root)
 
-    def execute(self, text):
-        execute(text, self.namespace)
-    def eval(self, text):
-        return eval(text, self.namespace)
-    def getmodule(self, name):
-        return __import__(name, None, None, "*")
-    def getconn(self):
-        return None
-
-def teleport_function(conn, func):
+def teleport_function(conn, func, globals=None, def_=True):
     """
     "Teleports" a function (including nested functions/closures) over the RPyC connection.
     The function is passed in bytecode form and reconstructed on the other side.
@@ -377,10 +361,9 @@ def teleport_function(conn, func):
     :param conn: the RPyC connection
     :param func: the function object to be delivered to the other party
     """
+    if globals is None:
+        globals = conn.namespace
     from rpyc.utils.teleportation import export_function
     exported = export_function(func)
-    return conn.modules["rpyc.utils.teleportation"].import_function(exported)
-
-
-
-
+    return conn.modules["rpyc.utils.teleportation"].import_function(
+        exported, globals, def_)

@@ -5,11 +5,12 @@ Requires [plumbum](http://plumbum.readthedocs.org/)
 """
 from __future__ import with_statement
 import sys
-import rpyc
 import socket
 from plainbox.vendor.rpyc.lib.compat import BYTES_LITERAL
 from plainbox.vendor.rpyc.core.service import VoidService
 from plainbox.vendor.rpyc.core.stream import SocketStream
+import rpyc.utils.factory
+import rpyc.utils.classic
 try:
     from plumbum import local, ProcessExecutionError, CommandNotFound
     from plumbum.path import copy
@@ -27,7 +28,6 @@ import sys
 import os
 import atexit
 import shutil
-from threading import Thread
 
 here = os.path.dirname(__file__)
 os.chdir(here)
@@ -46,15 +46,13 @@ except Exception:
 
 sys.path.insert(0, here)
 from $MODULE$ import $SERVER$ as ServerCls
-from plainbox.vendor.rpyc import SlaveService
+from plainbox.vendor.rpyc.core.service import SlaveService
 
 logger = None
 $EXTRA_SETUP$
 
 t = ServerCls(SlaveService, hostname = "localhost", port = 0, reuse_addr = True, logger = logger)
-thd = Thread(target = t.start)
-thd.setDaemon(True)
-thd.start()
+thd = t._start_in_thread()
 
 sys.stdout.write("%s\n" % (t.port,))
 sys.stdout.flush()
@@ -135,10 +133,7 @@ class DeployedServer(object):
             # Paramiko: use connect_sock() instead of tunnels
             self.local_port = None
         else:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.bind(("localhost", 0))
-            self.local_port = s.getsockname()[1]
-            s.close()
+            self.local_port = rpyc.utils.factory._get_free_port()
             self.tun = remote_machine.tunnel(self.local_port, self.remote_port)
 
     def __del__(self):
@@ -168,25 +163,24 @@ class DeployedServer(object):
                 pass
             self._tmpdir_ctx = None
 
-    def connect(self, service = VoidService, config = {}):
-        """Same as :func:`connect <rpyc.utils.factory.connect>`, but with the ``host`` and ``port``
-        parameters fixed"""
+    def _connect_sock(self):
         if self.local_port is None:
             # ParamikoMachine
-            stream = SocketStream(self.remote_machine.connect_sock(self.remote_port))
-            return rpyc.connect_stream(stream, service = service, config = config)
+            return self.remote_machine.connect_sock(self.remote_port)
         else:
-            return rpyc.connect("localhost", self.local_port, service = service, config = config)
+            return SocketStream._connect("localhost", self.local_port)
+
+    def connect(self, service = VoidService, config = {}):
+        """Same as :func:`~rpyc.utils.factory.connect`, but with the ``host`` and ``port``
+        parameters fixed"""
+        return rpyc.utils.factory.connect_stream(
+            SocketStream(self._connect_sock()), service=service, config=config)
 
     def classic_connect(self):
         """Same as :func:`classic.connect <rpyc.utils.classic.connect>`, but with the ``host`` and
         ``port`` parameters fixed"""
-        if self.local_port is None:
-            # ParamikoMachine
-            stream = SocketStream(self.remote_machine.connect_sock(self.remote_port))
-            return rpyc.classic.connect_stream(stream)
-        else:
-            return rpyc.classic.connect("localhost", self.local_port)
+        return rpyc.utils.classic.connect_stream(
+            SocketStream(self._connect_sock()))
 
 
 class MultiServerDeployment(object):
@@ -223,6 +217,3 @@ class MultiServerDeployment(object):
     def classic_connect_all(self):
         """connects to all deployed servers using classic_connect; returns a list of connections (order guaranteed)"""
         return [s.classic_connect() for s in self.servers]
-
-
-

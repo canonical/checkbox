@@ -152,6 +152,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::cpu
 estimated_duration: 0.5
 id: cpu/cstates_results.log
+after: cpu/cstates
 command:
  [ -e ${PLAINBOX_SESSION_SHARE}/fwts_cstates_results.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_cstates_results.log
 _summary:

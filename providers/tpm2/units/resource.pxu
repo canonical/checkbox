@@ -26,7 +26,7 @@ command:
  if [[ -c `compgen -G /dev/tpmrm*` ]]; then
      echo 'kernel_rm: supported'
      echo tpmrm: `compgen -G /dev/tpmrm*`
-     if tpm2.getcap -c commands 2>&1 | grep -q 0x164; then
+     if tpm2_getcap -c commands 2>&1 | grep -q 0x164; then
          echo "encryptdecrypt: supported"
      else
          echo "encryptdecrypt: unsupported"

@@ -64,6 +64,8 @@ CONTROL_CODE_RE_STR = re.compile(
 # We use this to sanitize comments entered during testing
 ANSI_ESCAPE_SEQ_RE_STR = re.compile("(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
 
+ANSI_ESCAPE_SGR_RE_STR = re.compile(b"(\x9B|\x1B\[)[0-9;]*m")
+
 # Tuple representing entries in the JobResult.io_log
 # Each entry has three fields:
 #
@@ -484,6 +486,10 @@ class DiskJobResult(_JobResultBase):
             with gzip.GzipFile(record_path, mode='rb') as gzip_stream, \
                     io.TextIOWrapper(gzip_stream, encoding='UTF-8') as stream:
                 for record in IOLogRecordReader(stream):
+                    record = IOLogRecord(
+                        record[0],
+                        record[1],
+                        ANSI_ESCAPE_SGR_RE_STR.sub(b'', record.data))
                     yield record
 
     @property

@@ -53,7 +53,8 @@
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
             "type": "test",
-            "project": "certification"
+            "project": "certification",
+            "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}}
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ]

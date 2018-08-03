@@ -16,7 +16,6 @@ command:
   if ! ip link show vcan0 &> /dev/null ; then
     ip link add vcan0 type vcan
   fi
-  ip link set vcan0 up
 
 
 id: socketcan/send_packet_local_sff_virtual
@@ -28,8 +27,14 @@ _description:
   the broadcast packet is received on the same device
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 2.0
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set vcan0 down
+  ip link set dev vcan0 mtu 16
+  ip link set vcan0 up
   socketcan_test.py vcan0 111
 
 
@@ -42,8 +47,14 @@ _description:
   the broadcast packet is received on the same device
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 2.0
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set vcan0 down
+  ip link set dev vcan0 mtu 16
+  ip link set vcan0 up
   socketcan_test.py vcan0 1F334455 --effid
 
 
@@ -56,8 +67,14 @@ _description:
   the broadcast packet is received on the same device
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 2.0
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set vcan0 down
+  ip link set dev vcan0 mtu 72
+  ip link set vcan0 up
   socketcan_test.py vcan0 1A --fdmode
 
 
@@ -71,10 +88,16 @@ _description:
   local test as the broadcast packet is received on the same device
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 2.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'False'
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set {interface} down
+  ip link set dev {interface} mtu 16
+  ip link set {interface} up
   socketcan_test.py {interface} 111
 
 
@@ -88,10 +111,16 @@ _description:
   local test as the broadcast packet is received on the same device
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 2.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'False'
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set {interface} down
+  ip link set dev {interface} mtu 16
+  ip link set {interface} up
   socketcan_test.py {interface} FA123 --effid
 
 
@@ -105,10 +134,18 @@ _description:
   local test as the broadcast packet is received on the same device
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 2.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'False'
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set {interface} down
+  # Following command is only supported configuration method when using the
+  # IXXAT driver from HMS
+  ip link set {interface} type can bitrate 1000000 dbitrate 2000000 fd on
+  ip link set {interface} up
   socketcan_test.py {interface} 1B --fdmode
 
 
@@ -123,10 +160,16 @@ _description:
   as to return the predicted packet.
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 5.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'True'
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set {interface} down
+  ip link set dev {interface} mtu 16
+  ip link set {interface} up
   socketcan_test.py {interface} 111 --remote
 
 
@@ -141,10 +184,16 @@ _description:
   as to return the predicted packet.
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 5.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'True'
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set {interface} down
+  ip link set dev {interface} mtu 16
+  ip link set {interface} up
   socketcan_test.py {interface} E407DB --remote --effid
 
 
@@ -159,8 +208,16 @@ _description:
   as to return the predicted packet.
 category_id: socketcan
 plugin: shell
+user: root
 estimated_duration: 5.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'True'
 command:
+  BASH_XTRACEFD=1
+  set -ex
+  ip link set {interface} down
+  # Following command is only supported configuration method when using the
+  # IXXAT driver from HMS
+  ip link set {interface} type can bitrate 1000000 dbitrate 2000000 fd on
+  ip link set {interface} up
   socketcan_test.py {interface} 19F --remote --fdmode

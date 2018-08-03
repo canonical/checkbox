@@ -92,12 +92,12 @@ class CANSocket():
         self.sock.send(can_pkt)
 
     def recv(self):
-        if self._fdmode:
-            can_pkt = self.sock.recv(self.CANFD_MTU)
+        can_pkt = self.sock.recv(self.CANFD_MTU)
+        nbytes = len(can_pkt)
+        if nbytes == self.CANFD_MTU:
             can_id, length, fd_flags, data = struct.unpack(self.FD_FORMAT,
                                                            can_pkt)
         else:
-            can_pkt = self.sock.recv(self.CAN_MTU)
             can_id, length, data = struct.unpack(self.FORMAT, can_pkt)
         can_id &= socket.CAN_EFF_MASK
         return (can_id, data[:length])

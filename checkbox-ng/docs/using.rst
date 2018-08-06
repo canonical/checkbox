@@ -81,6 +81,11 @@ Example::
     For multi-word types like 'test plan' remember to escape the spaces in
     between, or enquote the type name.
 
+.. _output-formatting:
+
+Output Formatting
+.................
+
 For the 'all-jobs' group, the output may be formatted to suit your needs. Use
 ``--format`` option when listing ``all-jobs``. The string will be interpolated
 using properties of the listed jobs. Invoke
@@ -120,6 +125,10 @@ execute.
 Example::
 
     $ checkbox-cli list-bootstrapped com.canonical.certification::default
+
+Similarly to the ``checkbox-cli list all-jobs`` command, the output of
+``checkbox-cli list-bootstrapped`` can be formatted using the ``-f`` parameter.
+See ``checkbox-cli list`` :ref:`output-formatting` section for more information.
 
 
 checkbox-cli launcher

@@ -168,6 +168,9 @@ command:
   BASH_XTRACEFD=1
   set -ex
   ip link set {interface} down
+  # Following command is only supported configuration method when using the
+  # IXXAT driver from HMS
+  ip link set {interface} type can bitrate 1000000
   ip link set dev {interface} mtu 16
   ip link set {interface} up
   socketcan_test.py {interface} 111 --remote
@@ -192,6 +195,9 @@ command:
   BASH_XTRACEFD=1
   set -ex
   ip link set {interface} down
+  # Following command is only supported configuration method when using the
+  # IXXAT driver from HMS
+  ip link set {interface} type can bitrate 1000000
   ip link set dev {interface} mtu 16
   ip link set {interface} up
   socketcan_test.py {interface} E407DB --remote --effid

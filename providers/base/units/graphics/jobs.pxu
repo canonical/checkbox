@@ -456,7 +456,7 @@ plugin: manual
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}_xenial
 requires:
- graphics_card.driver in ['nouveau', 'nvidia', 'amdgpu-pro']
+ graphics_card.driver in ['nouveau', 'nvidia', 'amdgpu-pro', 'pcieport']
  lsb.codename == 'xenial'
 _summary: Test GPU switching for {vendor} {product}
 _description:

@@ -177,7 +177,6 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
 
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
-        config['sync_request_timeout'] = 1
         config['allow_all_attrs'] = True
         keep_running = False
         self._prepare_transports()
@@ -412,7 +411,9 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
     def local_export(self, exporter_id, transport, options=()):
         exporter = self._sa.manager.create_exporter(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
-        exporter.dump_from_session_manager(self._sa.manager, exported_stream)
+        async_dump = rpyc.async_(exporter.dump_from_session_manager)
+        res = async_dump(self._sa.manager, exported_stream)
+        res.wait()
         exported_stream.seek(0)
         result = transport.send(exported_stream)
         return result

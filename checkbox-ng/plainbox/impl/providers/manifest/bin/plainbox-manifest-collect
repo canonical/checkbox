@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2018 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -151,7 +151,7 @@ def main():
         print(_("Saving manifest to {}").format(args.manifest))
         os.makedirs(os.path.dirname(args.manifest), exist_ok=True)
         with open(args.manifest, 'wt', encoding='UTF-8') as stream:
-            json.dump(manifest, stream, sort_keys=True)
+            json.dump(manifest, stream, sort_keys=True, indent=2)
     else:
         print(_("No changes to the manifest are required"))
 

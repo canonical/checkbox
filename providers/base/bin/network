@@ -112,7 +112,7 @@ class IPerfPerformanceTest(object):
             # time without timeout to catch devices that slow down, and also
             # not prematurely end iperf on low-bandwidth devices.
             self.timeout = 1080*int(self.data_size)
-            cmd = "timeout {} {} -c {} -n {}G -i 1 -f -m -P {}".format(
+            cmd = "timeout -k 1 {} {} -c {} -n {}G -i 1 -f -m -P {}".format(
                 self.timeout, self.executable, self.target, self.data_size,
                 threads)
 
@@ -208,9 +208,9 @@ class StressPerformanceTest:
 
     def run(self):
         if self.iperf3:
-            iperf_cmd = 'timeout 320 iperf3 -c {} -t 300'.format(self.target)
+            iperf_cmd = 'timeout -k 1 320 iperf3 -c {} -t 300'.format(self.target)
         else:
-            iperf_cmd = 'timeout 320 iperf -c {} -t 300'.format(self.target)
+            iperf_cmd = 'timeout -k 1 320 iperf -c {} -t 300'.format(self.target)
         print("Running iperf...")
         iperf = subprocess.Popen(shlex.split(iperf_cmd))
 

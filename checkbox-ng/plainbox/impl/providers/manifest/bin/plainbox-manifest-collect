@@ -4,6 +4,7 @@
 # Copyright 2015-2018 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Jonathan Cave <jonathan.cave@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -22,7 +23,6 @@
 import argparse
 import json
 import os
-import subprocess
 import gettext
 
 from plainbox.impl.providers.v1 import all_providers
@@ -74,55 +74,6 @@ def collect_console(manifest, provider_list):
     return changes
 
 
-def collect_zenity(manifest, provider_list):
-    """ Collect missing manifest data using zenity. """
-    changes = False
-    for provider in provider_list:
-        for unit in provider.unit_list:
-            if unit.Meta.name != 'manifest entry':
-                continue
-            if unit.id in manifest:
-                continue
-            if unit.value_type == 'bool':
-                retval = subprocess.call([
-                    'zenity', '--title={}'.format(
-                        _("Plainbox Hardware Manifest")),
-                    '--text={}\n\n{}\n'.format(
-                        _("Does this machine have this piece of hardware?"),
-                        unit.tr_name()),
-                    '--question',
-                ])
-                if retval == 0:
-                    answer = True
-                else:
-                    answer = False
-            elif unit.value_type == 'natural':
-                again = True
-                while again:
-                    try:
-                        answer = subprocess.check_output([
-                            'zenity', '--title={}'.format(
-                                _("Plainbox Hardware Manifest")),
-                            '--text={}\n\n{}\n'.format(
-                                _("Please enter the requested data"),
-                                unit.tr_name()),
-                            '--entry',
-                        ])
-                    except subprocess.CalledProcessError:
-                        continue
-                try:
-                    answer = int(answer, 10)
-                except ValueError:
-                    continue
-                if answer < 0:
-                    continue
-            else:
-                print(_("Unsupported value-type:"), unit.value_type)
-            manifest[unit.id] = answer
-            changes = True
-    return changes
-
-
 def main():
     """ Main function. """
     gettext.textdomain('plainbox-provider-manifest')
@@ -143,10 +94,7 @@ def main():
         manifest = {}
     all_providers.load()
     provider_list = all_providers.get_all_plugin_objects()
-    if os.getenv('DISPLAY') and os.path.exists('/usr/bin/zenity'):
-        changes = collect_zenity(manifest, provider_list)
-    else:
-        changes = collect_console(manifest, provider_list)
+    changes = collect_console(manifest, provider_list)
     if changes:
         print(_("Saving manifest to {}").format(args.manifest))
         os.makedirs(os.path.dirname(args.manifest), exist_ok=True)

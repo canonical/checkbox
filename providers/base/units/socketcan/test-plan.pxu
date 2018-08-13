@@ -8,13 +8,31 @@ include:
   socketcan/send_packet_remote_.*
 
 
+id: after-suspend-socketcan-auto-remote
+unit: test plan
+_name: SocketCAN Tests (Automated, Remote, After Suspend)
+_description:
+  SocketCAN Tests (Automated, Remote, After Suspend)
+include:
+  after-suspend-socketcan/send_packet_remote_.*
+
+
 id: socketcan-auto-local
 unit: test plan
-_name: SocketCAN Tests, (Automated, Local)
+_name: SocketCAN Tests (Automated, Local)
 _description:
-  SocketCAN Tests, (Automated, Local)
+  SocketCAN Tests (Automated, Local)
 include:
   socketcan/send_packet_local_.*
+
+
+id: after-suspend-socketcan-auto-local
+unit: test plan
+_name: SocketCAN Tests (Automated, Local, After Suspend)
+_description:
+  SocketCAN Tests (Automated, Local, After Suspend)
+include:
+  after-suspend-socketcan/send_packet_local_.*
 
 
 id: socketcan-full
@@ -26,3 +44,14 @@ include:
 nested_part:
   socketcan-auto-remote
   socketcan-auto-local
+
+
+id: after-suspend-socketcan-full
+unit: test plan
+_name: SocketCAN Tests (After Suspend)
+_description:
+  SocketCAN Tests (After Suspend)
+include:
+nested_part:
+  after-suspend-socketcan-auto-remote
+  after-suspend-socketcan-auto-local

@@ -29,6 +29,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 2.0
+flags: also-after-suspend
 command:
   BASH_XTRACEFD=1
   set -ex
@@ -49,6 +50,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 2.0
+flags: also-after-suspend
 command:
   BASH_XTRACEFD=1
   set -ex
@@ -69,6 +71,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 2.0
+flags: also-after-suspend
 command:
   BASH_XTRACEFD=1
   set -ex
@@ -90,6 +93,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 2.0
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'False'
 command:
@@ -113,6 +117,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 2.0
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'False'
 command:
@@ -136,6 +141,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 2.0
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'False'
 command:
@@ -162,6 +168,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 5.0
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'True'
 command:
@@ -189,6 +196,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 5.0
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'True'
 command:
@@ -216,6 +224,7 @@ category_id: socketcan
 plugin: shell
 user: root
 estimated_duration: 5.0
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.socket_can_echo_server_running == 'True'
 command:

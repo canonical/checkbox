@@ -38,6 +38,7 @@ mandatory_include:
     kernel_cmdline_attachment
 include:
     cpu/purley_id
+    networking/predictable_names               certification-status=non-blocker
     ethernet/detect
     ethernet/info_automated
     ethernet/ethtool_info

@@ -64,7 +64,6 @@ include:
 #     install/apt-get-gets-updates
     mediacard/sd-preinserted
     memory/info
-    memory/check
     ethernet/detect
     ethernet/info_automated
     networking/http

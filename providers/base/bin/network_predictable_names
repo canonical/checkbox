@@ -35,7 +35,7 @@ failed=0
 
 for iface in /sys/class/net/*; do
     iface=${iface##*/}
-    
+
     if [ "${iface}" != "${iface#eth}" ]; then
 	echo "** Error: Network interface $iface is not a predictable name"
 	failed=1

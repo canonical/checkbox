@@ -22,6 +22,7 @@ associated with a particular stage of checkbox execution.
 import abc
 import datetime
 import gettext
+import json
 import logging
 import os
 
@@ -345,6 +346,15 @@ class ReportsStage(CheckboxUiStage):
         elif tr_type == 'submission-service':
             secure_id = self.launcher.transports[transport].get(
                 'secure_id', None)
+            if self.is_interactive:
+                new_description = input(self.C.BLUE(_(
+                    'Enter submission description (press Enter to skip): ')))
+                if new_description:
+                    self.ctx.sa.update_app_blob(json.dumps(
+                        {
+                            'description': new_description,
+
+                        }).encode("UTF-8"))
             if not secure_id and self.is_interactive:
                 secure_id = input(self.C.BLUE(_('Enter secure-id:')))
             if secure_id:

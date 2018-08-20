@@ -140,13 +140,13 @@ _description:
  VERIFICATION:
      Did you see the green circles around the three fingers?
 command:
-    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
+    {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
     manage_compiz_plugin unityshell disable
     {% endif %}
     qmlscene -qt5 3 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
-    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
+    {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
     manage_compiz_plugin unityshell enable
     {% endif %}
     exit $EXIT
@@ -168,13 +168,13 @@ _description:
  VERIFICATION:
      Did you see the green circles around the four fingers?
 command:
-    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
+    {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
     manage_compiz_plugin unityshell disable
     {% endif %}
     qmlscene -qt5 4 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
-    {%- if __system_env__["XDG_CURRENT_DESKTOP"] == 'Unity' %}
+    {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
     manage_compiz_plugin unityshell enable
     {% endif %}
     exit $EXIT

@@ -42,7 +42,10 @@ def collect_console(manifest, provider_list):
             again = True
             while again:
                 if unit.value_type == 'bool':
-                    print(_("Does this machine have this piece of hardware?"))
+                    if unit.prompt() is None:
+                        print(_("Does this machine have this piece of hardware?"))
+                    else:
+                        print(unit.tr_prompt())
                     print(" - {}".format(unit.tr_name()))
                     answer = input(_("(yes/y, no/n) "))
                     if answer == _('y') or answer == _('yes'):
@@ -55,7 +58,10 @@ def collect_console(manifest, provider_list):
                         print(_("Please enter either y or n"))
                         continue
                 elif unit.value_type == 'natural':
-                    print(_("Please enter the requested data"))
+                    if unit.prompt() is None:
+                        print(_("Please enter the requested data"))
+                    else:
+                        print(unit.tr_prompt())
                     print(unit.tr_name())
                     answer = input(_("(natural number) "))
                     try:

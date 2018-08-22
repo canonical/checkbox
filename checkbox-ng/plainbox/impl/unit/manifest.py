@@ -50,6 +50,14 @@ class ManifestEntryUnit(UnitWithId):
         """ Name of the entry (translated). """
         return self.get_translated_record_value('name')
 
+    def prompt(self):
+        """ Prompt presented when a human is asked for the value. """
+        return self.get_record_value('prompt')
+
+    def tr_prompt(self):
+        """ Prompt presented (translated). """
+        return self.get_translated_record_value('prompt')
+
     @property
     def value_type(self):
         """
@@ -87,9 +95,10 @@ class ManifestEntryUnit(UnitWithId):
 
         class fields(SymbolDef):
 
-            """ Symbols for each field that a TestPlan can have. """
+            """ Symbols for each field that a ManifestEntry can have. """
 
             name = 'name'
+            prompt = 'prompt'
             value_type = 'value-type'
             value_unit = 'value-unit'
             resource_key = 'resource-key'
@@ -99,6 +108,9 @@ class ManifestEntryUnit(UnitWithId):
                 concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 concrete_validators.present,
+            ],
+            fields.prompt: [
+                concrete_validators.translatable,
             ],
             fields.value_type: [
                 concrete_validators.untranslatable,

@@ -406,9 +406,13 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             if tp_id is None:
                 raise SystemExit(_("No test plan selected."))
         self.ctx.sa.select_test_plan(tp_id)
+        msg = None
+        if self.launcher.transports.get('c3'):
+            msg = self.launcher.transports['c3'].get('description', '')
+        submission_message = self.ctx.args.message or msg
         self.ctx.sa.update_app_blob(json.dumps(
             {'testplan_id': tp_id,
-             'description': self.ctx.args.message, }).encode("UTF-8"))
+             'description': submission_message, }).encode("UTF-8"))
         bs_jobs = self.ctx.sa.get_bootstrap_todo_list()
         self._run_bootstrap_jobs(bs_jobs)
         self.ctx.sa.finish_bootstrap()

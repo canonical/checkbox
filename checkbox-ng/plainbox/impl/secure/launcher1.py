@@ -169,7 +169,7 @@ class UpdateAction(argparse.Action):
         values for a given argument. Please refer to argparse source code for
         information on how it is used.
         """
-        items = copy.copy(argparse._ensure_value(namespace, self.dest, {}))
+        items = copy.copy(ensure_value(namespace, self.dest, {}))
         for value in values:
             try:
                 k, v = value.split('=', 1)
@@ -217,6 +217,12 @@ def get_parser_for_sphinx():
         action=UpdateAction,
         help=_('environment passed to the generator job'))
     return parser
+
+
+def ensure_value(namespace, name, value):
+    if getattr(namespace, name, None) is None:
+        setattr(namespace, name, value)
+    return getattr(namespace, name)
 
 
 def main(argv=None):

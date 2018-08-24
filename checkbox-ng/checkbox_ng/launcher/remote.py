@@ -356,6 +356,10 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             self.password_query()
 
         for job in jobs_repr:
+            SimpleUI.header(
+                _('Running job {} / {}').format(
+                    job['num'], job['total_num'],
+                    fill='-'))
             SimpleUI.header(job['name'])
             print(_("ID: {0}").format(job['id']))
             print(_("Category: {0}").format(job['category_name']))

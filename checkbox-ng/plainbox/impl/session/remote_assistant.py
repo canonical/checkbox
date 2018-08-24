@@ -123,7 +123,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 1
+    REMOTE_API_VERSION = 2
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -413,7 +413,8 @@ class RemoteSessionAssistant():
             list of dicts representing jobs
         """
         test_info_list = tuple()
-        for job_id in job_ids:
+        total_jobs = len(job_ids)
+        for job_no, job_id in enumerate(job_ids, start=1):
             job = self._sa.get_job(job_id)
             cat_id = self._sa.get_job_state(job.id).effective_category_id
             duration_txt = _('No estimated duration provided for this job')
@@ -438,6 +439,8 @@ class RemoteSessionAssistant():
                 "outcome": self._sa.get_job_state(job.id).result.outcome,
                 "user": job.user,
                 "command": job.command,
+                "num": job_no,
+                "total_num": total_jobs,
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list

@@ -317,11 +317,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                         logger.error(_("Ignoring invalid generated job %s"),
                                      new_unit.id)
                     else:
-                        session_state.add_unit(new_unit)
-                        if new_unit.Meta.name == 'job':
-                            job_state = session_state.job_state_map[
-                                new_unit.id]
-                            job_state.via_job = job
+                        session_state.add_unit(new_unit, via=job)
 
 
 def gen_rfc822_records_from_io_log(job, result):

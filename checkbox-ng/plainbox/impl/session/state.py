@@ -1035,7 +1035,7 @@ class SessionState:
         """
         return self.add_unit(new_job, recompute)
 
-    def add_unit(self, new_unit, recompute=True):
+    def add_unit(self, new_unit, recompute=True, via=None):
         """
         Add a new unit to the session.
 
@@ -1073,7 +1073,7 @@ class SessionState:
             only recompute at the last call.
         """
         if new_unit.Meta.name == 'job':
-            return self._add_job_unit(new_unit, recompute)
+            return self._add_job_unit(new_unit, recompute, via)
         else:
             return self._add_other_unit(new_unit)
 
@@ -1082,33 +1082,34 @@ class SessionState:
         self.on_unit_added(new_unit)
         return new_unit
 
-    def _add_job_unit(self, new_job, recompute):
+    def _add_job_unit(self, new_job, recompute, via):
         # See if we have a job with the same id already
         try:
             existing_job = self.job_state_map[new_job.id].job
         except KeyError:
             # Register the new job in our state
             self.job_state_map[new_job.id] = JobState(new_job)
+            self.job_state_map[new_job.id].via_job = via
             self.job_list.append(new_job)
             self.unit_list.append(new_job)
             self.on_job_state_map_changed()
             self.on_unit_added(new_job)
             self.on_job_added(new_job)
-            self._add_job_siblings_unit(new_job, recompute)
+            self._add_job_siblings_unit(new_job, recompute, via)
             return new_job
         else:
             # If there is a clash report DependencyDuplicateError only when the
             # hashes are different.
             if new_job != existing_job:
                 raise DependencyDuplicateError(existing_job, new_job)
-            self._add_job_siblings_unit(new_job, recompute)
+            self._add_job_siblings_unit(new_job, recompute, via)
             return existing_job
         finally:
             # Update all job readiness state
             if recompute:
                 self._recompute_job_readiness()
 
-    def _add_job_siblings_unit(self, new_job, recompute):
+    def _add_job_siblings_unit(self, new_job, recompute, via):
         if new_job.siblings:
             for overrides in json.loads(new_job.tr_siblings()):
                 data = {
@@ -1124,7 +1125,8 @@ class SessionState:
                         controller=new_job.controller,
                         parameters=new_job.parameters,
                         field_offset_map=new_job.field_offset_map),
-                    recompute)
+                    recompute,
+                    via)
         if 'also-after-suspend' in new_job.get_flag_set():
             data = {
                 key: value for key, value in new_job._data.items()
@@ -1151,7 +1153,8 @@ class SessionState:
                     controller=new_job.controller,
                     parameters=new_job.parameters,
                     field_offset_map=new_job.field_offset_map),
-                recompute)
+                recompute,
+                via)
         if 'also-after-suspend-manual' in new_job.get_flag_set():
             data = {
                 key: value for key, value in new_job._data.items()
@@ -1178,7 +1181,8 @@ class SessionState:
                     controller=new_job.controller,
                     parameters=new_job.parameters,
                     field_offset_map=new_job.field_offset_map),
-                recompute)
+                recompute,
+                via)
 
     def remove_unit(self, unit, *, recompute=True):
         """

@@ -64,12 +64,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     OPTION_WITH_SUMMARY = 'with-summary'
     OPTION_WITH_DESCRIPTION = 'with-job-description'
     OPTION_WITH_TEXT_ATTACHMENTS = 'with-text-attachments'
+    OPTION_TEST_PLAN_EXPORT = 'tp-export'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_SYSTEM_INFO,
         OPTION_WITH_SUMMARY,
         OPTION_WITH_DESCRIPTION,
         OPTION_WITH_TEXT_ATTACHMENTS,
+        OPTION_TEST_PLAN_EXPORT,
     )
 
     def __init__(self, option_list=None, exporter_unit=None):
@@ -134,6 +136,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.format06 = self.workbook.add_format({
             'align': 'left', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
             'border': 1, 'bg_color': '#E6E6E6',
+        })
+        self.format06_2 = self.workbook.add_format({
+            'align': 'left', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
+            'border': 1, 'bg_color': '#E6E6E6', 'bold': 1,
         })
         # Headlines (center)
         self.format07 = self.workbook.add_format({
@@ -385,7 +391,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     self.format08 if i % 2 else self.format09
                 )
                 self.worksheet1.set_row(
-                    packages_starting_row + i, None, None, {'level': 1, 'hidden': True}
+                    packages_starting_row + i, None, None,
+                    {'level': 1, 'hidden': True}
                 )
             self.worksheet1.set_row(
                 packages_starting_row+len(data["resource_map"][resource]),
@@ -522,11 +529,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self.worksheet4.set_row(
                             self._lineno, 13, None, {'level': level})
                 else:
-                    self.worksheet3.set_row(self._lineno, 13, None,
-                        {'collapsed': True})
+                    self.worksheet3.set_row(
+                        self._lineno, 13, None, {'collapsed': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
-                        self.worksheet4.set_row(self._lineno, 13, None,
-                            {'collapsed': True})
+                        self.worksheet4.set_row(
+                            self._lineno, 13, None, {'collapsed': True})
                 self._write_job(children, result_map, max_level, level + 1)
             else:
                 self.worksheet3.write(
@@ -604,8 +611,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             self._lineno, 12 + 10.5 * desc_lines,
                             None, {'level': level, 'hidden': True})
                 else:
-                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines,
-                    None, {'hidden': True})
+                    self.worksheet3.set_row(
+                        self._lineno, 12 + 10.5 * io_lines,
+                        None, {'hidden': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
                             self._lineno, 12 + 10.5 * desc_lines, None,
@@ -649,6 +657,63 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 self._lineno + 1, None, None, {'collapsed': True})
         self.worksheet3.autofilter(5, max_level, self._lineno, max_level + 3)
 
+    def write_tp_export(self, data):
+        def _category_map(state):
+            """Map from category id to their corresponding translated names."""
+            wanted_category_ids = frozenset({
+                    job_state.effective_category_id
+                    for job_state in state.job_state_map.values()
+                    if job_state.job in state.run_list and
+                    job_state.job.plugin not in ("resource", "attachment")
+                })
+            return {
+                unit.id: unit.tr_name()
+                for unit in state.unit_list
+                if unit.Meta.name == 'category'
+                and unit.id in wanted_category_ids
+            }
+        self.worksheet4.set_header(
+            '&C{}'.format(data['manager'].test_plans[0]))
+        self.worksheet4.set_footer('&CPage &P of &N')
+        self.worksheet4.set_margins(left=0.3, right=0.3, top=0.5, bottom=0.5)
+        self.worksheet4.set_column(0, 0, 40)
+        self.worksheet4.set_column(1, 1, 13)
+        self.worksheet4.set_column(2, 2, 55)
+        self.worksheet4.write_row(
+            0, 0,
+            ['Name', 'Certification status', 'Description'], self.format06_2
+        )
+        self.worksheet4.repeat_rows(0)
+        self._lineno = 0
+        state = data['manager'].default_device_context.state
+        cat_map = _category_map(state)
+        run_list_ids = [job.id for job in state.run_list]
+        for cat_id in sorted(cat_map, key=lambda x: cat_map[x].casefold()):
+            for job_id in sorted(state._job_state_map):
+                job_state = state._job_state_map[job_id]
+                if job_id not in run_list_ids:
+                    continue
+                if (
+                    job_state.effective_category_id == cat_id and
+                    job_state.job.plugin not in ("resource", "attachment")
+                ):
+                    self._lineno += 1
+                    certification_status = \
+                        job_state.effective_certification_status
+                    if certification_status == 'unspecified':
+                        certification_status = ''
+                    description = job_state.job.description
+                    if not description:
+                        description = job_state.job.summary
+                    self.worksheet4.write_row(
+                        self._lineno, 0,
+                        [job_state.job.partial_id,
+                         certification_status, description],
+                        self.format05)
+                    desc_lines = len(description.splitlines()) + 1
+                    self.worksheet4.set_row(self._lineno, 12 * desc_lines)
+            self._lineno += 1
+
     def write_attachments(self, data):
         self.worksheet5.set_column(0, 0, 5)
         self.worksheet5.set_column(1, 1, 120)
@@ -679,7 +744,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet6.set_column(0, 0, 5)
         self.worksheet6.set_column(1, 1, 120)
         i = 4
-        for name in [job_id for job_id in data['result_map'] if data['result_map'][job_id]['plugin'] == 'resource']:
+        for name in [job_id for job_id in data['result_map']
+                     if data['result_map'][job_id]['plugin'] == 'resource']:
             io_log = ' '
             try:
                 if data['result_map'][name]['io_log']:
@@ -704,6 +770,21 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             self.worksheet6.set_row(i + j, None, None, {'collapsed': True})
             i += j + 1  # Insert a newline between resources logs
 
+    def dump_from_session_manager(self, session_manager, stream):
+        """
+        Extract data from session_manager and dump it into the stream.
+
+        :param session_manager:
+            SessionManager instance that manages session to be exported by
+            this exporter
+        :param stream:
+            Byte stream to write to.
+
+        """
+        data = self.get_session_data_subset(session_manager)
+        data['manager'] = session_manager
+        self.dump(data, stream)
+
     def dump(self, data, stream):
         """
         Public method to dump the XLSX report to a stream
@@ -713,19 +794,27 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if self.OPTION_WITH_SYSTEM_INFO in self._option_list:
             self.worksheet1 = self.workbook.add_worksheet(_('System Info'))
             self.write_systeminfo(data)
-        self.worksheet3 = self.workbook.add_worksheet(_('Test Results'))
-        if self.OPTION_WITH_DESCRIPTION in self._option_list:
+        if not self.OPTION_TEST_PLAN_EXPORT:
+            self.worksheet3 = self.workbook.add_worksheet(_('Test Results'))
+        if (
+            self.OPTION_WITH_DESCRIPTION in self._option_list or
+            self.OPTION_TEST_PLAN_EXPORT in self._option_list
+        ):
             self.worksheet4 = self.workbook.add_worksheet(
                 _('Test Descriptions'))
-        self.write_results(data)
+        if self.OPTION_TEST_PLAN_EXPORT:
+            self.write_tp_export(data)
+        else:
+            self.write_results(data)
         if self.OPTION_WITH_SUMMARY in self._option_list:
             self.worksheet2 = self.workbook.add_worksheet(_('Summary'))
             self.write_summary(data)
         if self.OPTION_WITH_TEXT_ATTACHMENTS in self._option_list:
             self.worksheet5 = self.workbook.add_worksheet(_('Log Files'))
             self.write_attachments(data)
-        self.worksheet6 = self.workbook.add_worksheet(_('Resources Logs'))
-        self.write_resources(data)
+        if not self.OPTION_TEST_PLAN_EXPORT:
+            self.worksheet6 = self.workbook.add_worksheet(_('Resources Logs'))
+            self.write_resources(data)
         for worksheet in self.workbook.worksheets():
             worksheet.outline_settings(True, False, False, True)
             worksheet.hide_gridlines(2)

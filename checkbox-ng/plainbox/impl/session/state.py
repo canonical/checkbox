@@ -799,6 +799,7 @@ class SessionState:
         self._mandatory_job_list = []
         self._run_list = []
         self._resource_map = {}
+        self._fake_resources = False
         self._metadata = SessionMetaData()
         super(SessionState, self).__init__()
 
@@ -998,7 +999,8 @@ class SessionState:
         any old entries), with a list of the resources that were parsed from
         the IO log.
         """
-        job.controller.observe_result(self, job, result)
+        job.controller.observe_result(
+            self, job, result, fake_resources=self._fake_resources)
         self._recompute_job_readiness()
 
     @deprecated('0.9', 'use the add_unit() method instead')
@@ -1100,7 +1102,7 @@ class SessionState:
         else:
             # If there is a clash report DependencyDuplicateError only when the
             # hashes are different.
-            if new_job != existing_job:
+            if new_job != existing_job and not self._fake_resources:
                 raise DependencyDuplicateError(existing_job, new_job)
             self._add_job_siblings_unit(new_job, recompute, via)
             return existing_job

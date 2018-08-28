@@ -384,6 +384,13 @@ class TemplateUnit(Unit):
         # See https://bugs.launchpad.net/bugs/1561821
         parameters = {
             k: v for k, v in parameters.items() if k in accessed_parameters}
+        if self._fake_resources:
+            parameters = {k: k.upper() for k in accessed_parameters}
+            for k in parameters:
+                if k.endswith('_slug'):
+                    parameters[k] = k.replace('_slug', '').upper()
+            if 'index' in parameters:
+                parameters['index'] = index
         # Add the special __index__ to the resource namespace variables
         parameters['__index__'] = index
         # Instantiate the class using the instantiation API
@@ -405,6 +412,8 @@ class TemplateUnit(Unit):
         specified resource object would make the filter program evaluate to
         True.
         """
+        if self._fake_resources:
+            return True
         program = self.get_filter_program()
         if program is None:
             return True

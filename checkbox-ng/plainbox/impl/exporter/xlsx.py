@@ -385,7 +385,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     self.format08 if i % 2 else self.format09
                 )
                 self.worksheet1.set_row(
-                    packages_starting_row + i, None, None, {'level': 1, 'hidden': True}
+                    packages_starting_row + i, None, None,
+                    {'level': 1, 'hidden': True}
                 )
             self.worksheet1.set_row(
                 packages_starting_row+len(data["resource_map"][resource]),
@@ -522,11 +523,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self.worksheet4.set_row(
                             self._lineno, 13, None, {'level': level})
                 else:
-                    self.worksheet3.set_row(self._lineno, 13, None,
-                        {'collapsed': True})
+                    self.worksheet3.set_row(
+                        self._lineno, 13, None, {'collapsed': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
-                        self.worksheet4.set_row(self._lineno, 13, None,
-                            {'collapsed': True})
+                        self.worksheet4.set_row(
+                            self._lineno, 13, None, {'collapsed': True})
                 self._write_job(children, result_map, max_level, level + 1)
             else:
                 self.worksheet3.write(
@@ -604,8 +605,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             self._lineno, 12 + 10.5 * desc_lines,
                             None, {'level': level, 'hidden': True})
                 else:
-                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines,
-                    None, {'hidden': True})
+                    self.worksheet3.set_row(
+                        self._lineno, 12 + 10.5 * io_lines,
+                        None, {'hidden': True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
                             self._lineno, 12 + 10.5 * desc_lines, None,
@@ -679,7 +681,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet6.set_column(0, 0, 5)
         self.worksheet6.set_column(1, 1, 120)
         i = 4
-        for name in [job_id for job_id in data['result_map'] if data['result_map'][job_id]['plugin'] == 'resource']:
+        for name in [job_id for job_id in data['result_map']
+                     if data['result_map'][job_id]['plugin'] == 'resource']:
             io_log = ' '
             try:
                 if data['result_map'][name]['io_log']:

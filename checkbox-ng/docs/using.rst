@@ -131,6 +131,33 @@ Similarly to the ``checkbox-cli list all-jobs`` command, the output of
 See ``checkbox-cli list`` :ref:`output-formatting` section for more information.
 
 
+checkbox-cli tp-export
+``````````````````````
+
+``tp-export`` exports a test plan as a spreadsheet document. Tests are grouped
+by categories and ordered alphabetically with the full description (or the job
+summary if there's no description). I addition to the description, the
+certification status (blocker/non-blocker) is exported.
+
+The session is similar to ``list-bootstrapped`` but all resource jobs are
+returning fake objects and template-filters are disabled to ensure
+instantiation of template units. By default only one resource object is
+returned. The only exception is the graphics_card resource where two objects are
+used to simulate hybrid graphics.
+
+The command prints the full path to the document on exit/success.
+
+Example::
+
+    $ checkbox-cli tp-export com.canonical.certification::client-cert-18-04
+
+It can be used to automatically generate a test case guide using a pdf converter:
+
+Example::
+
+    $ checkbox-cli tp-export com.canonical.certification::client-cert-18-04 | xargs -d '\n' libreoffice --headless --invisible --convert-to pdf
+
+
 checkbox-cli launcher
 `````````````````````
 

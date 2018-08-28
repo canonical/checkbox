@@ -224,7 +224,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                 inhibitors.append(inhibitor)
         return inhibitors
 
-    def observe_result(self, session_state, job, result):
+    def observe_result(self, session_state, job, result,
+                       fake_resources=False):
         """
         Notice the specified test result and update readiness state.
 
@@ -234,6 +235,9 @@ class CheckBoxSessionStateController(ISessionStateController):
             A JobDefinition object
         :param result:
             A IJobResult object
+        :param fake_resources:
+            An optional parameter to trigger test plan export execution mode
+            using fake resourceobjects
 
         This function updates the internal result collection with the data from
         the specified test result. Results can safely override older results.
@@ -256,15 +260,18 @@ class CheckBoxSessionStateController(ISessionStateController):
         session_state.on_job_result_changed(job, result)
         # Treat some jobs specially and interpret their output
         if job.plugin == "resource":
-            self._process_resource_result(session_state, job, result)
+            self._process_resource_result(
+                session_state, job, result, fake_resources)
 
-    def _process_resource_result(self, session_state, job, result):
+    def _process_resource_result(self, session_state, job, result,
+                                 fake_resources=False):
         """
         Analyze a result of a CheckBox "resource" job and generate
         or replace resource records.
         """
         self._parse_and_store_resource(session_state, job, result)
-        self._instantiate_templates(session_state, job, result)
+        self._instantiate_templates(
+            session_state, job, result, fake_resources)
 
     def _parse_and_store_resource(self, session_state, job, result):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
@@ -289,7 +296,8 @@ class CheckBoxSessionStateController(ISessionStateController):
         # Replace any old resources with the new resource list
         session_state.set_resource_list(job.id, new_resource_list)
 
-    def _instantiate_templates(self, session_state, job, result):
+    def _instantiate_templates(self, session_state, job, result,
+                               fake_resources=False):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
         # If we are resuming from a session that had a resource job that
         # never ran, we will see an empty MemoryJobResult object.
@@ -302,7 +310,7 @@ class CheckBoxSessionStateController(ISessionStateController):
             if isinstance(unit, TemplateUnit) and unit.resource_id == job.id:
                 logger.info(_("Instantiating unit: %s"), unit)
                 for new_unit in unit.instantiate_all(
-                        session_state.resource_map[job.id]):
+                        session_state.resource_map[job.id], fake_resources):
                     try:
                         check_result = new_unit.check()
                     except MissingParam as m:

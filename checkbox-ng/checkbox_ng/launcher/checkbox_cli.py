@@ -40,7 +40,8 @@ from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 
 from checkbox_ng.launcher.subcommands import (
-    Launcher, List, Run, StartProvider, Submit, ListBootstrapped
+    Launcher, List, Run, StartProvider, Submit, ListBootstrapped,
+    TestPlanExport
 )
 from checkbox_ng.launcher.check_config import CheckConfig
 from checkbox_ng.launcher.remote import RemoteSlave, RemoteMaster
@@ -161,6 +162,7 @@ class CheckboxCommand(CanonicalCommand):
         ('startprovider', StartProvider),
         ('submit', Submit),
         ('list-bootstrapped', ListBootstrapped),
+        ('tp-export', TestPlanExport),
         ('slave', RemoteSlave),
         ('master', RemoteMaster),
     )

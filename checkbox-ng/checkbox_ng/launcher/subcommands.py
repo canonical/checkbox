@@ -973,6 +973,36 @@ class ListBootstrapped(Command):
                     print(job_id)
 
 
+class TestPlanExport(Command):
+    name = 'tp-export'
+
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'TEST_PLAN',
+            help=_("test-plan id to bootstrap"))
+
+    def invoked(self, ctx):
+        self.ctx = ctx
+        try_selecting_providers(self.sa, '*')
+        from plainbox.impl.runner import FakeJobRunner
+        self.sa.start_new_session('tp-export-ephemeral', FakeJobRunner)
+        self.sa._context.state._fake_resources = True
+        tps = self.sa.get_test_plans()
+        if ctx.args.TEST_PLAN not in tps:
+            raise SystemExit('Test plan not found')
+        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.bootstrap()
+        path = self.sa.export_to_file(
+            'com.canonical.plainbox::tp-export', [],
+            self.sa._manager.storage.location,
+            self.sa._manager.test_plans[0].name)
+        print(path)
+
+
 def try_selecting_providers(sa, *args, **kwargs):
     """
     Try selecting proivders via SessionAssistant.

@@ -518,6 +518,7 @@ class JobRunner(IJobRunner):
         else:
             result = self._just_run_command(
                 job, job_state, config).get_result()
+
         return result
 
     def run_manual_job(self, job, job_state, config):
@@ -970,3 +971,34 @@ class JobRunner(IJobRunner):
             logger.warning(
                 _("Please store desired files in $PLAINBOX_SESSION_SHARE and"
                   " use regular temporary files for everything else"))
+
+
+class FakeJobRunner(JobRunner):
+
+    """
+    Fake runner for jobs.
+
+    Special runner that creates fake resource objects.
+    """
+
+    def run_resource_job(self, job, job_state, config):
+        """
+        Method called to run a job with plugin field equal to 'resource'.
+
+        Only one resouce object is created from this runner.
+        Exception: 'graphics_card' resource job creates two objects to
+        simulate hybrid graphics.
+        """
+        if job.plugin != "resource":
+            # TRANSLATORS: please keep 'plugin' untranslated
+            raise ValueError(_("bad job plugin value"))
+        builder = JobResultBuilder()
+        if job.partial_id == 'graphics_card':
+            builder.io_log = [(0, 'stdout', b'a: b\n'),
+                              (1, 'stdout', b'\n'),
+                              (2, 'stdout', b'a: c\n')]
+        else:
+            builder.io_log = [(0, 'stdout', b'a: b\n')]
+        builder.outcome = 'pass'
+        builder.return_code = 0
+        return builder.get_result()

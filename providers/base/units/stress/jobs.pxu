@@ -78,7 +78,7 @@ flags: noreturn
 user: root
 environ: PM_TEST_DRY_RUN
 command:
- pm_test reboot --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3 --silent
+ pm_test reboot --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3 --silent --check-hardware-list
 _description:
  This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one reboot' 3 times.
 
@@ -94,7 +94,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  set -o pipefail; checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/suspend_30_cycles -f none -s s3 --s3-device-check --s3-device-check-delay=45 --s3-sleep-delay=30 --s3-multiple=30 | tee $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log
+  set -o pipefail; checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/suspend_30_cycles -f none -s s3 --s3-device-check --s3-device-check-delay=60 --s3-sleep-delay=60 --s3-multiple=30 | tee $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log
  else
   echo "Calling sleep_test"
   set -o pipefail; sleep_test -p -s mem -i 30 | tee $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log

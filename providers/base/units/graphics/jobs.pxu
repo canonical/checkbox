@@ -250,7 +250,7 @@ _description:
      1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
      2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
  VERIFICATION:
-     Did the display rotation take place without without permanent screen corruption?
+     Did the display rotation take place without permanent screen corruption?
 
 unit: template
 template-resource: graphics_card
@@ -456,7 +456,7 @@ plugin: manual
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}_xenial
 requires:
- graphics_card.driver in ['nouveau', 'nvidia', 'amdgpu-pro']
+ graphics_card.driver in ['nouveau', 'nvidia', 'amdgpu-pro', 'pcieport']
  lsb.codename == 'xenial'
 _summary: Test GPU switching for {vendor} {product}
 _description:

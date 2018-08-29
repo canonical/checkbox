@@ -77,3 +77,10 @@ requires: package.name == 'cups-client'
 command: network_printer_test -s $CHECKBOX_SERVER
 _description: Try to enable a remote printer on the network and print a test page.
 
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/predictable_names
+command: network_predictable_names
+_summary: Verify that all network interfaces have predictable names.
+_description: Verify that all network interfaces have predictable names.
+

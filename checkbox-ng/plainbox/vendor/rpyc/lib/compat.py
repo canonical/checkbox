@@ -147,3 +147,27 @@ else:
     poll = SelectingPoll
 
 
+# Simplified version from six.with_metaclass
+def with_metaclass(meta, *bases):
+    """Create a base class with a metaclass."""
+    # dummy metaclass that replaces itself with the actual metaclass after
+    # one level of class instanciation:
+    class metaclass(type):
+        def __new__(cls, name, this_bases, d):
+            return meta(name, bases, d)
+    return type.__new__(metaclass, 'temporary_class', (), {})
+
+if sys.version_info >= (3, 3):
+    TimeoutError = TimeoutError
+else:
+    class TimeoutError(Exception):
+        pass
+
+if sys.version_info >= (3, 2):
+    def acquire_lock(lock, blocking, timeout):
+        if blocking and timeout.finite:
+            return lock.acquire(blocking, timeout.timeleft())
+        return lock.acquire(blocking)
+else:
+    def acquire_lock(lock, blocking, timeout):
+        return lock.acquire(blocking)

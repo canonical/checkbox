@@ -139,6 +139,7 @@ class TemplateUnit(Unit):
         super().__init__(
             data, raw_data, origin, provider, parameters, field_offset_map)
         self._filter_program = None
+        self._fake_resources = False
 
     @classmethod
     def instantiate_template(cls, data, raw_data, origin, provider, parameters,
@@ -302,7 +303,7 @@ class TemplateUnit(Unit):
         all_units.load()
         return all_units.get_by_name(self.template_unit).plugin_object
 
-    def instantiate_all(self, resource_list):
+    def instantiate_all(self, resource_list, fake_resources=False):
         """
         Instantiate a list of job definitions.
 
@@ -311,12 +312,15 @@ class TemplateUnit(Unit):
         :param resource_list:
             A list of resource objects with the correct name
             (:meth:`template_resource`)
+        :param fake_resources:
+            An optional parameter to trigger test plan export execution mode
         :returns:
             A list of new Unit (or subclass) objects.
         """
         unit_cls = self.get_target_unit_cls()
         resources = []
         index = 0
+        self._fake_resources = fake_resources
         for resource in resource_list:
             if self.should_instantiate(resource):
                 index += 1
@@ -380,6 +384,13 @@ class TemplateUnit(Unit):
         # See https://bugs.launchpad.net/bugs/1561821
         parameters = {
             k: v for k, v in parameters.items() if k in accessed_parameters}
+        if self._fake_resources:
+            parameters = {k: k.upper() for k in accessed_parameters}
+            for k in parameters:
+                if k.endswith('_slug'):
+                    parameters[k] = k.replace('_slug', '').upper()
+            if 'index' in parameters:
+                parameters['index'] = index
         # Add the special __index__ to the resource namespace variables
         parameters['__index__'] = index
         # Instantiate the class using the instantiation API
@@ -401,6 +412,8 @@ class TemplateUnit(Unit):
         specified resource object would make the filter program evaluate to
         True.
         """
+        if self._fake_resources:
+            return True
         program = self.get_filter_program()
         if program is None:
             return True

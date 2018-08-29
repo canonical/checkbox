@@ -169,7 +169,7 @@ class UpdateAction(argparse.Action):
         values for a given argument. Please refer to argparse source code for
         information on how it is used.
         """
-        items = copy.copy(argparse._ensure_value(namespace, self.dest, {}))
+        items = copy.copy(ensure_value(namespace, self.dest, {}))
         for value in values:
             try:
                 k, v = value.split('=', 1)
@@ -219,6 +219,12 @@ def get_parser_for_sphinx():
     return parser
 
 
+def ensure_value(namespace, name, value):
+    if getattr(namespace, name, None) is None:
+        setattr(namespace, name, value)
+    return getattr(namespace, name)
+
+
 def main(argv=None):
     """
     Entry point for the plainbox-trusted-launcher-1
@@ -263,6 +269,7 @@ def main(argv=None):
     for plugin in all_providers.get_all_plugins():
         launcher.add_job_list(plugin.plugin_object.job_list)
     # Run the generator job and feed the result back to the launcher
+    generated_job_list = []
     if ns.generator:
         try:
             generated_job_list = launcher.run_generator_job(
@@ -273,6 +280,8 @@ def main(argv=None):
     # Add siblings jobs
     with SessionManager.get_throwaway_manager(
          all_providers.get_all_plugin_objects()) as m:
+        if ns.generator:
+            [m.state.add_unit(j) for j in generated_job_list]
         launcher.add_job_list(m.state.job_list)
     # Run the target job and return the result code
     try:

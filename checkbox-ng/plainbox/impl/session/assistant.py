@@ -551,7 +551,7 @@ class SessionAssistant:
                 storage.remove()
 
     @raises(UnexpectedMethodCall)
-    def start_new_session(self, title: str):
+    def start_new_session(self, title: str, runner_cls=JobRunner):
         """
         Create a new testing session.
 
@@ -588,7 +588,7 @@ class SessionAssistant:
         self._metadata.flags = {'bootstrapping'}
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._init_runner()
+        self._init_runner(runner_cls)
         self.session_available(self._manager.storage.id)
         _logger.debug("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
@@ -1541,7 +1541,8 @@ class SessionAssistant:
 
     @raises(KeyError, OSError)
     def export_to_file(
-        self, exporter_id: str, option_list: 'list[str]', dir_path: str
+        self, exporter_id: str, option_list: 'list[str]', dir_path: str,
+        filename: str=None
     ) -> str:
         """
         Export the session to file using given exporter ID.
@@ -1556,6 +1557,9 @@ class SessionAssistant:
         :param dir_path:
             Path to the directory where session file should be written to.
             Note that the file name is automatically generated, based on
+        :param filename:
+            Optional file name (without extension)
+            By default, the file name is automatically generated, based on
             creation time and type of exporter.
         :returns:
             Path to the written file.
@@ -1572,8 +1576,11 @@ class SessionAssistant:
         # issues when copying files.
         isoformat = "%Y-%m-%dT%H.%M.%S.%f"
         timestamp = datetime.datetime.utcnow().strftime(isoformat)
+        basename = 'submission_' + timestamp
+        if filename:
+            basename = filename
         path = os.path.join(dir_path, ''.join(
-            ['submission_', timestamp, '.', exporter.unit.file_extension]))
+            [basename, '.', exporter.unit.file_extension]))
         with open(path, 'wb') as stream:
             exporter.dump_from_session_manager(self._manager, stream)
         return path
@@ -1663,12 +1670,12 @@ class SessionAssistant:
             self.finish_bootstrap: "to finish bootstrapping",
         }
 
-    def _init_runner(self):
+    def _init_runner(self, runner_cls):
         self._execution_ctrl_list = []
         for ctrl_cls, args, kwargs in self._ctrl_setup_list:
             self._execution_ctrl_list.append(
                 ctrl_cls(self._context.provider_list, *args, **kwargs))
-        self._runner = JobRunner(
+        self._runner = runner_cls(
             self._manager.storage.location,
             self._context.provider_list,
             jobs_io_log_dir=os.path.join(

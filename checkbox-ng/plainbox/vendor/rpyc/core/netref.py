@@ -5,17 +5,23 @@ of *magic*, so beware.
 import sys
 import inspect
 import types
-from plainbox.vendor.rpyc.lib.compat import pickle, is_py3k, maxint
+from plainbox.vendor.rpyc.lib.compat import pickle, is_py3k, maxint, with_metaclass
 from plainbox.vendor.rpyc.core import consts
 
 
+# If these can be accessed, numpy will try to load the array from local memory,
+# resulting in exceptions and/or segfaults, see #236:
+_deleted_netref_attrs = frozenset([
+    '__array_struct__', '__array_interface__',
+])
+
 _local_netref_attrs = frozenset([
     '____conn__', '____oid__', '____refcount__', '__class__', '__cmp__', '__del__', '__delattr__',
-    '__dir__', '__doc__', '__getattr__', '__getattribute__', '__hash__',
+    '__dir__', '__doc__', '__getattr__', '__getattribute__', '__methods__',
     '__init__', '__metaclass__', '__module__', '__new__', '__reduce__',
     '__reduce_ex__', '__repr__', '__setattr__', '__slots__', '__str__',
-    '__weakref__', '__dict__', '__members__', '__methods__',
-])
+    '__weakref__', '__dict__', '__members__',  '__exit__',
+]) | _deleted_netref_attrs
 """the set of attributes that are local to the netref object"""
 
 _builtin_types = [
@@ -65,11 +71,8 @@ def syncreq(proxy, handler, *args):
     :raises: any exception raised by the operation will be raised
     :returns: the result of the operation
     """
-    conn = object.__getattribute__(proxy, "____conn__")()
-    if not conn:
-        raise ReferenceError('weakly-referenced object no longer exists')
-    oid = object.__getattribute__(proxy, "____oid__")
-    return conn.sync_request(handler, oid, *args)
+    conn = object.__getattribute__(proxy, "____conn__")
+    return conn.sync_request(handler, proxy, *args)
 
 def asyncreq(proxy, handler, *args):
     """Performs an asynchronous request on the given proxy object.
@@ -80,14 +83,11 @@ def asyncreq(proxy, handler, *args):
                     ``rpyc.protocol.consts``)
     :param args: arguments to the handler
 
-    :returns: an :class:`AsyncResult <rpyc.core.async.AsyncResult>` representing
+    :returns: an :class:`~rpyc.core.async_.AsyncResult` representing
               the operation
     """
-    conn = object.__getattribute__(proxy, "____conn__")()
-    if not conn:
-        raise ReferenceError('weakly-referenced object no longer exists')
-    oid = object.__getattribute__(proxy, "____oid__")
-    return conn.async_request(handler, oid, *args)
+    conn = object.__getattribute__(proxy, "____conn__")
+    return conn.async_request(handler, proxy, *args)
 
 class NetrefMetaclass(type):
     """A *metaclass* used to customize the ``__repr__`` of ``netref`` classes.
@@ -101,7 +101,7 @@ class NetrefMetaclass(type):
         else:
             return "<netref class '%s'>" % (self.__name__,)
 
-class BaseNetref(object):
+class BaseNetref(with_metaclass(NetrefMetaclass, object)):
     """The base netref class, from which all netref classes derive. Some netref
     classes are "pre-generated" and cached upon importing this module (those
     defined in the :data:`_builtin_types`), and they are shared between all
@@ -115,8 +115,6 @@ class BaseNetref(object):
     :param conn: the :class:`rpyc.core.protocol.Connection` instance
     :param oid: the unique object ID of the remote object
     """
-    # this is okay with py3k -- see below
-    __metaclass__ = NetrefMetaclass
     __slots__ = ["____conn__", "____oid__", "__weakref__", "____refcount__"]
     def __init__(self, conn, oid):
         self.____conn__ = conn
@@ -143,13 +141,21 @@ class BaseNetref(object):
                 return self.__getattr__("__doc__")
             elif name == "__members__":                       # for Python < 2.6
                 return self.__dir__()
+            elif name in _deleted_netref_attrs:
+                raise AttributeError()
             else:
                 return object.__getattribute__(self, name)
+        elif name == "__hash__":
+            return object.__getattribute__(self, "__hash__")
         elif name == "__call__":                          # IronPython issue #10
             return object.__getattribute__(self, "__call__")
+        elif name == "__array__":
+            return object.__getattribute__(self, "__array__")
         else:
             return syncreq(self, consts.HANDLE_GETATTR, name)
     def __getattr__(self, name):
+        if name in _deleted_netref_attrs:
+            raise AttributeError()
         return syncreq(self, consts.HANDLE_GETATTR, name)
     def __delattr__(self, name):
         if name in _local_netref_attrs:
@@ -173,17 +179,11 @@ class BaseNetref(object):
         return syncreq(self, consts.HANDLE_REPR)
     def __str__(self):
         return syncreq(self, consts.HANDLE_STR)
-
+    def __exit__(self, exc, typ, tb):
+        return syncreq(self, consts.HANDLE_CTXEXIT, exc)  # can't pass type nor traceback
     # support for pickling netrefs
     def __reduce_ex__(self, proto):
         return pickle.loads, (syncreq(self, consts.HANDLE_PICKLE, proto),)
-
-if not isinstance(BaseNetref, NetrefMetaclass):
-    # python 2 and 3 compatible metaclass...
-    ns = dict(BaseNetref.__dict__)
-    for slot in BaseNetref.__slots__:
-        ns.pop(slot)
-    BaseNetref = NetrefMetaclass(BaseNetref.__name__, BaseNetref.__bases__, ns)
 
 
 def _make_method(name, doc):
@@ -207,6 +207,13 @@ def _make_method(name, doc):
         method.__name__ = name
         method.__doc__ = doc
         return method
+    elif name == "__array__":
+        def __array__(self):
+            # Note that protocol=-1 will only work between python
+            # interpreters of the same version.
+            return pickle.loads(syncreq(self, consts.HANDLE_PICKLE, -1))
+        __array__.__doc__ = doc
+        return __array__
     else:
         def method(_self, *args, **kwargs):
             kwargs = tuple(kwargs.items())

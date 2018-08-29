@@ -8,23 +8,25 @@ import time
 import threading
 import errno
 import logging
+from contextlib import closing
 try:
     import Queue
 except ImportError:
     import queue as Queue
-from plainbox.vendor.rpyc.core import SocketStream, Channel, Connection
+from plainbox.vendor.rpyc.core import SocketStream, Channel
 from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient
 from plainbox.vendor.rpyc.utils.authenticators import AuthenticationError
-from plainbox.vendor.rpyc.lib import safe_import
+from plainbox.vendor.rpyc.lib import safe_import, spawn, spawn_waitready
 from plainbox.vendor.rpyc.lib.compat import poll, get_exc_errno
 signal = safe_import("signal")
+gevent = safe_import("gevent")
 
 
 
 class Server(object):
     """Base server implementation
 
-    :param service: the :class:`service <service.Service>` to expose
+    :param service: the :class:`~rpyc.core.service.Service` to expose
     :param hostname: the host to bind to. Default is IPADDR_ANY, but you may
                      want to restrict it only to ``localhost`` in some setups
     :param ipv6: whether to create an IPv6 or IPv4 socket. The default is IPv4
@@ -33,8 +35,8 @@ class Server(object):
     :param reuse_addr: whether or not to create the socket with the ``SO_REUSEADDR`` option set.
     :param authenticator: the :ref:`api-authenticators` to use. If ``None``, no authentication
                           is performed.
-    :param registrar: the :class:`registrar <rpyc.utils.registry.RegistryClient>` to use.
-                          If ``None``, a default :class:`rpyc.utils.registry.UDPRegistryClient`
+    :param registrar: the :class:`~rpyc.utils.registry.RegistryClient` to use.
+                          If ``None``, a default :class:`~rpyc.utils.registry.UDPRegistryClient`
                           will be used
     :param auto_register: whether or not to register using the *registrar*. By default, the
                           server will attempt to register only if a registrar was explicitly given.
@@ -80,8 +82,8 @@ class Server(object):
 
             if reuse_addr and sys.platform != "win32":
                 # warning: reuseaddr is not what you'd expect on windows!
-                # it allows you to bind an already bound port, resulting in "unexpected behavior"
-                # (quoting MSDN)
+                # it allows you to bind an already bound port, resulting in
+                # "unexpected behavior" (quoting MSDN)
                 self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
             self.listener.bind((hostname, port))
@@ -150,7 +152,7 @@ class Server(object):
             return
 
         sock.setblocking(True)
-        self.logger.info("accepted %s with fd %d", addrinfo, sock.fileno())
+        self.logger.info("accepted %s with fd %s", addrinfo, sock.fileno())
         self.clients.add(sock)
         self._accept_method(sock)
 
@@ -197,9 +199,7 @@ class Server(object):
         try:
             config = dict(self.protocol_config, credentials = credentials,
                 endpoints = (sock.getsockname(), addrinfo), logger = self.logger)
-            conn = Connection(self.service, Channel(SocketStream(sock)),
-                config = config, _lazy = True)
-            conn._init_service()
+            conn = self.service._connect(Channel(SocketStream(sock)), config)
             self._handle_connection(conn)
         finally:
             self.logger.info("goodbye %s", addrinfo)
@@ -236,8 +236,9 @@ class Server(object):
             if not self._closed:
                 self.logger.info("background auto-register thread finished")
 
-    def start(self):
-        """Starts the server (blocking). Use :meth:`close` to stop"""
+    def _listen(self):
+        if self.active:
+            return
         self.listener.listen(self.backlog)
         # On Jython, if binding to port 0, we can get the correct port only
         # once `listen()` was called, see #156:
@@ -247,10 +248,16 @@ class Server(object):
             self.port = self.listener.getsockname()[1]
         self.logger.info("server started on [%s]:%s", self.host, self.port)
         self.active = True
+
+    def _register(self):
         if self.auto_register:
-            t = threading.Thread(target = self._bg_register)
-            t.setDaemon(True)
-            t.start()
+            self.auto_register = False
+            spawn(self._bg_register)
+
+    def start(self):
+        """Starts the server (blocking). Use :meth:`close` to stop"""
+        self._listen()
+        self._register()
         try:
             while self.active:
                 self.accept()
@@ -263,6 +270,14 @@ class Server(object):
             self.logger.info("server has terminated")
             self.close()
 
+    def _start_in_thread(self):
+        """
+        Start the server in a thread, returns when when server is listening and
+        ready to accept incoming connections.
+
+        Used for testing, API could change anytime! Do not use!"""
+        return spawn_waitready(self._listen, self.start)[0]
+
 
 class OneShotServer(Server):
     """
@@ -271,10 +286,8 @@ class OneShotServer(Server):
     Parameters: see :class:`Server`
     """
     def _accept_method(self, sock):
-        try:
+        with closing(sock):
             self._authenticate_and_serve_client(sock)
-        finally:
-            self.close()
 
 class ThreadedServer(Server):
     """
@@ -284,9 +297,7 @@ class ThreadedServer(Server):
     Parameters: see :class:`Server`
     """
     def _accept_method(self, sock):
-        t = threading.Thread(target = self._authenticate_and_serve_client, args = (sock,))
-        t.setDaemon(True)
-        t.start()
+        spawn(self._authenticate_and_serve_client, sock)
 
 
 class ThreadPoolServer(Server):
@@ -324,20 +335,16 @@ class ThreadPoolServer(Server):
         # setup the thread pool for handling requests
         self.workers = []
         for i in range(nbthreads):
-            t = threading.Thread(target = self._serve_clients)
+            t = spawn(self._serve_clients)
             t.setName('Worker%i' % i)
-            t.daemon = True
-            t.start()
             self.workers.append(t)
         # a polling object to be used be the polling thread
         self.poll_object = poll()
         # a dictionary fd -> connection
         self.fd_to_conn = {}
         # setup a thread for polling inactive connections
-        self.polling_thread = threading.Thread(target = self._poll_inactive_clients)
+        self.polling_thread = spawn(self._poll_inactive_clients)
         self.polling_thread.setName('PollingThread')
-        self.polling_thread.setDaemon(True)
-        self.polling_thread.start()
 
     def close(self):
         '''closes a ThreadPoolServer. In particular, joins the thread pool.'''
@@ -477,7 +484,7 @@ class ThreadPoolServer(Server):
         h, p = sock.getpeername()
         config = dict(self.protocol_config, credentials=credentials, connid="%s:%d"%(h, p),
                       endpoints=(sock.getsockname(), (h, p)))
-        return Connection(self.service, Channel(SocketStream(sock)), config=config)
+        return self.service._connect(Channel(SocketStream(sock)), config)
 
     def _accept_method(self, sock):
         '''Implementation of the accept method : only pushes the work to the internal queue.
@@ -556,3 +563,15 @@ class ForkingServer(Server):
             # parent
             sock.close()
 
+
+class GeventServer(Server):
+
+    """gevent based Server. Requires using ``gevent.monkey.patch_all()``."""
+
+    def _register(self):
+        if self.auto_register:
+            self.auto_register = False
+            gevent.spawn(self._bg_register)
+
+    def _accept_method(self, sock):
+        gevent.spawn(self._authenticate_and_serve_client, sock)

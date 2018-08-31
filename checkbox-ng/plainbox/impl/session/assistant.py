@@ -603,7 +603,8 @@ class SessionAssistant:
         }
 
     @raises(KeyError, UnexpectedMethodCall)
-    def resume_session(self, session_id: str) -> 'SessionMetaData':
+    def resume_session(self, session_id: str,
+                       runner_cls=JobRunner) -> 'SessionMetaData':
         """
         Resume a session.
 
@@ -631,7 +632,7 @@ class SessionAssistant:
         self._context = self._manager.default_device_context
         self._metadata = self._context.state.metadata
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._init_runner()
+        self._init_runner(runner_cls)
         if self._metadata.running_job_name:
             job = self._context.get_unit(
                 self._metadata.running_job_name, 'job')

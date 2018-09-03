@@ -656,32 +656,6 @@ E: UDEV_LOG=3
         # data
         self.assertEqual(self.count(devices, "DISK"), 0)
 
-    def test_EMMC_AS_MAIN_DRIVE(self):
-        devices = self.parse("EMMC_AS_MAIN_DRIVE")
-        self.assertEqual(len(devices), 66)
-        # Check that the eMMC drive is reported as a DISK
-        self.assertEqual(self.count(devices, "VIDEO"), 1)
-        self.assertEqual(self.count(devices, "AUDIO"), 2)
-        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
-        self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
-        self.assertEqual(self.count(devices, "CARDREADER"), 0)
-        self.assertEqual(self.count(devices, "CDROM"), 0)
-        self.assertEqual(self.count(devices, "MOUSE"), 0)
-        self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
-        self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
-        self.assertEqual(self.count(devices, "WIRELESS"), 1)
-        self.assertEqual(self.count(devices, "NETWORK"), 0)
-        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
-        self.assertEqual(self.count(devices, "CAPTURE"), 1)
-        self.assertEqual(self.count(devices, "DISK"), 1)
-
-    def test_EMMC_NOT_AS_MAIN_DRIVE(self):
-        devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=False)
-        self.assertEqual(len(devices), 66)
-        # Check that the eMMC drive is not reported as a DISK without lsblk
-        # data
-        self.assertEqual(self.count(devices, "DISK"), 0)
-
     def test_SAMSUNG_N310(self):
         devices = self.parse("SAMSUNG_N310")
         self.assertEqual(len(devices), 57)

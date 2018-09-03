@@ -75,6 +75,13 @@ INPUT_RE = re.compile(
     r"p(?P<product_id>[%(hex)s]{4})"
     r"e(?P<version>[%(hex)s]{4})"
     % {"hex": string.hexdigits})
+HID_RE = re.compile(
+    r"^hid:"
+    r"b(?P<bus_type>[%(hex)s]{4})"
+    r"g(?P<group>[%(hex)s]{4})"
+    r"v(?P<vendor_id>[%(hex)s]{8})"
+    r"p(?P<product_id>[%(hex)s]{8})"
+    % {"hex": string.hexdigits})
 INPUT_SYSFS_ID = re.compile(
     r"/input/input\d+$")
 OPENFIRMWARE_RE = re.compile(
@@ -427,7 +434,7 @@ class UdevadmDevice(object):
                 if any(FLASH_RE.search(k) for k in self._environment.keys()):
                     return "CARDREADER"
             if any(d.bus == 'usb' for d in self._stack):
-                if (self.product is not None and
+                if (self.product is not None and self.bus != "hidraw" and
                         CARD_READER_RE.search(self.product)):
                     return "CARDREADER"
                 if (self.vendor is not None and
@@ -527,6 +534,10 @@ class UdevadmDevice(object):
         if self.bus == "tty":
             return "OTHER"
 
+        if "SUBSYSTEM" in self._environment:
+            if self._environment["SUBSYSTEM"] == "hidraw":
+                return "HIDRAW"
+
         # Any devices that have a product name and proper vendor and product
         # IDs, but had no other category, are lumped together in OTHER.
         # A few devices may have no self.product but carry PRODUCT data in
@@ -615,6 +626,10 @@ class UdevadmDevice(object):
             # Ignore interrupt controllers
             if product_id > 0x0100:
                 return product_id
+        # hid
+        match = HID_RE.match(self._environment.get("MODALIAS", ""))
+        if match:
+            return int(match.group("product_id"), 16)
         # input
         match = INPUT_RE.match(self._environment.get("MODALIAS", ""))
         if match:
@@ -632,6 +647,11 @@ class UdevadmDevice(object):
                     if i in self._environment["DEVLINKS"]]:
                 if "ID_MODEL_ID" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ID"])
+        # hidraw
+        if "SUBSYSTEM" in self._environment:
+            if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
+                parent = self._stack[-1]
+                return parent.product_id
         return None
 
     @product_id.setter
@@ -648,6 +668,10 @@ class UdevadmDevice(object):
             return int(match.group("vendor_id"), 16)
         # usb
         match = USB_RE.match(self._environment.get("MODALIAS", ""))
+        if match:
+            return int(match.group("vendor_id"), 16)
+        # hid
+        match = HID_RE.match(self._environment.get("MODALIAS", ""))
         if match:
             return int(match.group("vendor_id"), 16)
         # input
@@ -673,6 +697,11 @@ class UdevadmDevice(object):
                     if i in self._environment["DEVLINKS"]]:
                 if "ID_VENDOR_ID" in self._environment:
                     return decode_id(self._environment["ID_VENDOR_ID"])
+        # hidraw
+        if "SUBSYSTEM" in self._environment:
+            if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
+                parent = self._stack[-1]
+                return parent.vendor_id
         return None
 
     @vendor_id.setter
@@ -783,6 +812,13 @@ class UdevadmDevice(object):
         if "ID_MODEL_FROM_DATABASE" in self._environment:
             return self._environment["ID_MODEL_FROM_DATABASE"]
 
+        # hidraw
+        if "SUBSYSTEM" in self._environment:
+            if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
+                parent = self._stack[-1]
+                if "HID_NAME" in parent._environment:
+                    return parent._environment["HID_NAME"]
+
         # bluetooth (if USB base class is vendor specific)
         if self.bus == 'bluetooth':
             vendor_specific = False
@@ -877,6 +913,11 @@ class UdevadmDevice(object):
         elif '/dev/md' in self._environment.get('DEVNAME', ''):
              if "MD_LEVEL" in self._environment:
                 return self._environment.get("MD_LEVEL")
+        # hidraw
+        if "SUBSYSTEM" in self._environment:
+            if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
+                parent = self._stack[-1]
+                return parent.vendor
 
         # bluetooth (if USB base class is vendor specific)
         if self.bus == 'bluetooth':
@@ -1174,7 +1215,18 @@ class UdevadmParser(object):
                     [v.replace('/dev/', '') for k, v in d._environment.items()
                      if MD_DEVICE_RE.match(k)])
 
+        HID_devices_path_list = []
+        for d in self.devices.values():
+            if d._environment.get("SUBSYSTEM") == 'input':
+                if d._stack:
+                    parent = d._stack[-1]
+                    HID_devices_path_list.append(parent._raw_path)
+
         for device in list(self.devices.values()):
+            if device.category == 'HIDRAW' and device._stack:
+                for parent in (device._stack[-1], device._stack[-2]):
+                    if parent._raw_path in HID_devices_path_list:
+                        self.devices.pop(device._raw_path, None)
             if device.category in ("INFINIBAND", "NETWORK", "SOCKETCAN",
                                    "WIRELESS", "WWAN", "OTHER"):
                 dev_interface = [

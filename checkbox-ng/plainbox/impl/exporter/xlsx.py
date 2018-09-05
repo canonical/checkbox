@@ -794,7 +794,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if self.OPTION_WITH_SYSTEM_INFO in self._option_list:
             self.worksheet1 = self.workbook.add_worksheet(_('System Info'))
             self.write_systeminfo(data)
-        if not self.OPTION_TEST_PLAN_EXPORT:
+        if not self.OPTION_TEST_PLAN_EXPORT in self._option_list:
             self.worksheet3 = self.workbook.add_worksheet(_('Test Results'))
         if (
             self.OPTION_WITH_DESCRIPTION in self._option_list or
@@ -802,7 +802,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         ):
             self.worksheet4 = self.workbook.add_worksheet(
                 _('Test Descriptions'))
-        if self.OPTION_TEST_PLAN_EXPORT:
+        if self.OPTION_TEST_PLAN_EXPORT in self._option_list:
             self.write_tp_export(data)
         else:
             self.write_results(data)
@@ -812,7 +812,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if self.OPTION_WITH_TEXT_ATTACHMENTS in self._option_list:
             self.worksheet5 = self.workbook.add_worksheet(_('Log Files'))
             self.write_attachments(data)
-        if not self.OPTION_TEST_PLAN_EXPORT:
+        if not self.OPTION_TEST_PLAN_EXPORT in self._option_list:
             self.worksheet6 = self.workbook.add_worksheet(_('Resources Logs'))
             self.write_resources(data)
         for worksheet in self.workbook.worksheets():

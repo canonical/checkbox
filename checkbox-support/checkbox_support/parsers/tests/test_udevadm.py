@@ -142,10 +142,10 @@ E: UDEV_LOG=3
         Check devices category having the ID_INPUT_TOUCHSCREEN property
         """
         devices = self.parse("DELL_INSPIRON3521_TOUCHSCREEN")
-        self.assertEqual(len(devices), 62)
+        self.assertEqual(len(devices), 63)
         # Check the Accelerometer device category/product
-        self.assertEqual(devices[36].category, "TOUCHSCREEN")
-        self.assertEqual(devices[36].product, "ELAN Touchscreen")
+        self.assertEqual(devices[37].category, "TOUCHSCREEN")
+        self.assertEqual(devices[37].product, "ELAN Touchscreen")
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -207,7 +207,7 @@ E: UDEV_LOG=3
 
     def test_DELL_OPTIPLEX9020AIO(self):
         devices = self.parse("DELL_OPTIPLEX9020AIO")
-        self.assertEqual(len(devices), 61)
+        self.assertEqual(len(devices), 64)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 4)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -316,13 +316,14 @@ E: UDEV_LOG=3
         # The first video device is an NVIDIA GPU, which is too new
         # to have a  device name. The second one is the built-in Haswell
         # GPU.
-        self.assertEqual(len(devices), 59)
+        self.assertEqual(len(devices), 60)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.assertEqual(self.count(devices, "AUDIO"), 4)
         self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "HIDRAW"), 0)
         self.verify_devices(devices, expected_devices)
 
     def test_DELL_INSPIRON_3048_AMD(self):
@@ -337,7 +338,7 @@ E: UDEV_LOG=3
         # The first video device is an AMD GPU, which is too new
         # to have a  device name. The second one is the built-in Haswell
         # GPU.
-        self.assertEqual(len(devices), 63)
+        self.assertEqual(len(devices), 67)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
@@ -351,7 +352,7 @@ E: UDEV_LOG=3
         expected_devices = [("NetXtreme BCM5720 Gigabit Ethernet PCIe",
                              "NETWORK", "pci", 0x14E4, 0x165F, 4),
                             ]
-        self.assertEqual(len(devices), 252)
+        self.assertEqual(len(devices), 257)
         self.assertEqual(self.count(devices, "NETWORK"), 4)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
@@ -379,7 +380,7 @@ E: UDEV_LOG=3
 
     def test_TOSHIBA_NVME(self):
         devices = self.parse("TOSHIBA_NVME")
-        self.assertEqual(len(devices), 128)
+        self.assertEqual(len(devices), 129)
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -392,6 +393,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "ACCELEROMETER"), 1)
+        self.assertEqual(self.count(devices, "HIDRAW"), 1)
 
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")
@@ -440,7 +442,7 @@ E: UDEV_LOG=3
 
     def test_HP_400_G2(self):
         devices = self.parse("HP_400_G2")
-        self.assertEqual(len(devices), 69)
+        self.assertEqual(len(devices), 72)
         self.assertEqual(self.count(devices, "OTHER"), 28)
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.assertEqual(self.count(devices, "AUDIO"), 4)
@@ -570,17 +572,17 @@ E: UDEV_LOG=3
                             ("H5321 gw",
                              "WWAN", "usb", 0x0bdb, 0x1926)
                             ]
-        self.assertEqual(len(devices), 103)
+        self.assertEqual(len(devices), 108)
         # Check that the Thinkpad hotkeys are not a CAPTURE device
-        self.assertEqual(devices[102].product, "ThinkPad Extra Buttons")
-        self.assertEqual(devices[102].category, "OTHER")
+        self.assertEqual(devices[107].product, "ThinkPad Extra Buttons")
+        self.assertEqual(devices[107].category, "OTHER")
         # Check that the Ericsson MBM module is set as a NETWORK device with
         # proper vendor/product names
-        self.assertEqual(devices[54].product, "H5321 gw")
+        self.assertEqual(devices[59].product, "H5321 gw")
         self.assertEqual(
-            devices[54].vendor,
+            devices[59].vendor,
             "Ericsson Business Mobile Networks BV")
-        self.assertEqual(devices[54].category, "WWAN")
+        self.assertEqual(devices[59].category, "WWAN")
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 9)
         # Logitech Illuminated keyboard + T430S keyboard + KVM
@@ -603,7 +605,7 @@ E: UDEV_LOG=3
 
     def test_PANDABOARD(self):
         devices = self.parse("PANDABOARD")
-        self.assertEqual(len(devices), 14)
+        self.assertEqual(len(devices), 18)
         # Check that the wireless product name is extracted from the platform
         # modalias
         self.assertEqual(devices[3].product, "wl12xx")
@@ -626,7 +628,7 @@ E: UDEV_LOG=3
 
     def test_EMMC_AS_MAIN_DRIVE(self):
         devices = self.parse("EMMC_AS_MAIN_DRIVE")
-        self.assertEqual(len(devices), 66)
+        self.assertEqual(len(devices), 67)
         # Check that the eMMC drive is reported as a DISK
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
@@ -651,33 +653,7 @@ E: UDEV_LOG=3
 
     def test_EMMC_NOT_AS_MAIN_DRIVE(self):
         devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=False)
-        self.assertEqual(len(devices), 66)
-        # Check that the eMMC drive is not reported as a DISK without lsblk
-        # data
-        self.assertEqual(self.count(devices, "DISK"), 0)
-
-    def test_EMMC_AS_MAIN_DRIVE(self):
-        devices = self.parse("EMMC_AS_MAIN_DRIVE")
-        self.assertEqual(len(devices), 66)
-        # Check that the eMMC drive is reported as a DISK
-        self.assertEqual(self.count(devices, "VIDEO"), 1)
-        self.assertEqual(self.count(devices, "AUDIO"), 2)
-        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
-        self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
-        self.assertEqual(self.count(devices, "CARDREADER"), 0)
-        self.assertEqual(self.count(devices, "CDROM"), 0)
-        self.assertEqual(self.count(devices, "MOUSE"), 0)
-        self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
-        self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
-        self.assertEqual(self.count(devices, "WIRELESS"), 1)
-        self.assertEqual(self.count(devices, "NETWORK"), 0)
-        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
-        self.assertEqual(self.count(devices, "CAPTURE"), 1)
-        self.assertEqual(self.count(devices, "DISK"), 1)
-
-    def test_EMMC_NOT_AS_MAIN_DRIVE(self):
-        devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=False)
-        self.assertEqual(len(devices), 66)
+        self.assertEqual(len(devices), 67)
         # Check that the eMMC drive is not reported as a DISK without lsblk
         # data
         self.assertEqual(self.count(devices, "DISK"), 0)
@@ -814,7 +790,7 @@ E: UDEV_LOG=3
 
     def test_XEON(self):
         devices = self.parse("XEON")
-        self.assertEqual(len(devices), 71)
+        self.assertEqual(len(devices), 74)
         self.assertEqual(self.count(devices, "VIDEO"), 2)
 
     def test_QEMU_KVM(self):
@@ -851,14 +827,15 @@ E: UDEV_LOG=3
         # A system with only one BD drive but previously seen as two devices.
         # See https://bugs.launchpad.net/bugs/1328481
         devices = self.parse("ONE_CDROM_ONLY")
-        self.assertEqual(len(devices), 88)
+        self.assertEqual(len(devices), 94)
         self.assertEqual(self.count(devices, "CDROM"), 1)
+        self.assertEqual(self.count(devices, "HIDRAW"), 1)
 
     def test_DELL_IDRAC(self):
         # Ignore virtual devices created by Dell iDRAC manager
         # See https://bugs.launchpad.net/bugs/1308702
         devices = self.parse("DELL_IDRAC")
-        self.assertEqual(len(devices), 244)
+        self.assertEqual(len(devices), 246)
         self.assertEqual(self.count(devices, "CDROM"), 1)
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(self.count(devices, "FLOPPY"), 0)
@@ -889,7 +866,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
-        self.assertEqual(len(devices), 66)
+        self.assertEqual(len(devices), 68)
         # First card is an Intel Xeon E3-1200 v2/3rd Gen Core processor
         # Graphics Controller Second one is NVidia  GF119 [GeForce GT 620 OEM]
         expected_devices = [
@@ -964,6 +941,26 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "NETWORK"), 2)
         self.assertEqual(self.count(devices, "VIDEO"), 4)
         self.assertEqual(self.count(devices, "DISK"), 2)
+
+    def test_DELL_MICROCHIP_USB_TO_SPI(self):
+        # USB to SPI reported as HIDRAW
+        devices = self.parse("DELL_MICROCHIP_USB_TO_SPI")
+        self.assertEqual(len(devices), 92)
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "AUDIO"), 2)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 2)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 0)
+        self.assertEqual(self.count(devices, "NETWORK"), 4)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "CANBUS"), 0)
+        self.assertEqual(self.count(devices, "SOCKETCAN"), 0)
+        self.assertEqual(self.count(devices, "HIDRAW"), 1)
 
     def verify_devices(self, devices, expected_device_list):
         """

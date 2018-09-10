@@ -90,7 +90,10 @@ _description: After suspend tests (integrated GPU)
 include:
     graphics/1_switch_card_.*_xenial                       certification-status=blocker
     suspend/1_resolution_before_suspend_.*_xenial          certification-status=blocker
-    suspend/suspend_advanced                               certification-status=blocker
+    # The following after suspend jobs will automatically select the right suspend job
+    # depending on the amount of graphic cards available on the SUT:
+    # suspend/suspend_advanced (one GPU)
+    # or suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial (two GPUs)
     suspend/1_suspend-time-check_.*_xenial                 certification-status=non-blocker
     suspend/1_suspend-single-log-attach_.*_xenial
     power-management/lid                                   certification-status=blocker
@@ -104,7 +107,6 @@ include:
     suspend/1_video_after_suspend_.*_xenial                certification-status=blocker
     suspend/1_cycle_resolutions_after_suspend_.*_xenial    certification-status=non-blocker
     suspend/1_xrandr_screens_after_suspend.tar.gz_xenial
-    after-suspend-manual-monitor/1_dim_brightness_.*       certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-full
 unit: test plan

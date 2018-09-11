@@ -422,3 +422,10 @@ command: cat /proc/cmdline
 estimated_duration: 0.005
 _description: Attaches the kernel command line used to boot
 _summary: Attach a copy of /proc/cmdline
+
+plugin: shell
+category_id: com.canonical.plainbox::info
+id: info/systemd-analyze
+estimated_duration: 0.2
+_summary: System boot-up performance statistics
+command: systemd-analyze

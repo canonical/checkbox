@@ -9,7 +9,7 @@ estimated_duration: 1.2
 _description: Record the current resolution before suspending.
 command:
  source graphics_env {driver} {index}
- xrandr -q |grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
+ xrandr -q | grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
 
 unit: template
 template-resource: graphics_card
@@ -49,44 +49,63 @@ _description:
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_resolution_after_suspend_{product_slug}_xenial
+id: suspend/{{ index }}_resolution_after_suspend_{{ product_slug }}_xenial
 estimated_duration: 1.2
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial suspend/{index}_resolution_before_suspend_{product_slug}_xenial
+depends:
+ suspend/{{ index }}_resolution_before_suspend_{{ product_slug }}_xenial
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
 _description: Test to see that we have the same resolution after resuming as before.
 command:
- source graphics_env {driver} {index}
- xrandr -q |grep '*'| awk '{{print $1}}' | diff $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt -
+ source graphics_env {{ driver }} {{ index }}
+ xrandr -q | grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/{{ index }}_resolution_before_suspend.txt -
 
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
 plugin: manual
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_display_after_suspend_{product_slug}_xenial
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
-_summary: Test display function after suspend for {vendor} {product}
+id: suspend/{{ index }}_display_after_suspend_{{ product_slug }}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
+_summary: Test display function after suspend for {{ vendor }} {{ product }}
 _description:
  PURPOSE:
-     This test will check that the display is correct after suspend and resume on the {vendor} {product} graphics card.
+     This test will check that the display is correct after suspend and resume on the {{ vendor }} {{ product }} graphics card.
  STEPS:
      1. Check that your display does not show up visual artifacts after resuming.
  VERIFICATION:
-     Does the display work normally after resuming from suspend using the {vendor} {product} graphics card?
+     Does the display work normally after resuming from suspend using the {{ vendor }} {{ product }} graphics card?
 
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_xenial
+id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_xenial
 requires: package.name == 'xorg'
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
 estimated_duration: 120.0
 command:
- source graphics_env {driver} {index}
- xrandr_cycle --keyword={index}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+ source graphics_env {{ driver }} {{ index }}
+ xrandr_cycle --keyword={{ index }}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
      This test will cycle through the detected display modes
@@ -108,33 +127,45 @@ _description: This attaches screenshots from the suspend/cycle_resolutions_after
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_compiz_check_after_suspend_{product_slug}_xenial
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+id: suspend/{{ index }}_compiz_check_after_suspend_{{ product_slug }}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
 requires: package.name == 'nux-tools'
 command:
- source graphics_env {driver} {index}
+ source graphics_env {{ driver }} {{ index }}
  ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
-_description: Check that {product} hardware is able to run compiz after suspend
-_summary: Test Compiz support for {product} after suspend
+_description: Check that {{ product }} hardware is able to run compiz after suspend
+_summary: Test Compiz support for {{ product }} after suspend
 
 unit: template
 template-resource: graphics_card
+template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_glxgears_after_suspend_{product_slug}_xenial
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+id: suspend/{{ index }}_glxgears_after_suspend_{{ product_slug }}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
 requires: executable.name == 'glxgears'
 command:
- source graphics_env {driver} {index}
+ source graphics_env {{ driver }} {{ index }}
  glxgears
  true
-_summary: Test that glxgears works for {vendor} {product} after suspend
+_summary: Test that glxgears works for {{ vendor }} {{ product }} after suspend
 _description:
  PURPOSE:
-     This test tests the basic 3D capabilities of your {vendor} {product} video card after suspend
+     This test tests the basic 3D capabilities of your {{ vendor }} {{ product }} video card after suspend
  STEPS:
      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
      2. Verify that the animation is not jerky or slow.
@@ -144,17 +175,23 @@ _description:
 
 unit: template
 template-resource: graphics_card
-id: suspend/{index}_video_after_suspend_{product_slug}_xenial
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+template-engine: jinja2
+id: suspend/{{ index }}_video_after_suspend_{{ product_slug }}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command:
- source graphics_env {driver} {index}
+ source graphics_env {{ driver }} {{ index }}
  gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
-_summary: Test that video can be displayed after suspend with {vendor} {product}
+_summary: Test that video can be displayed after suspend with {{ vendor }} {{ product }}
 _description:
  PURPOSE:
      This test will test the default display after suspend with a sample video
@@ -166,37 +203,55 @@ _description:
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_driver_version_after_suspend_{product_slug}_xenial
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+id: suspend/{{ index }}_driver_version_after_suspend_{{ product_slug }}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
 command:
- source graphics_env {driver} {index}
+ source graphics_env {{ driver }} {{ index }}
  graphics_driver
 estimated_duration: 0.500
-_description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {vendor} {product} graphics card
-_summary: Test X driver/version after suspend for {vendor} {product}
+_description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {{ vendor }} {{ product }} graphics card
+_summary: Test X driver/version after suspend for {{ vendor }} {{ product }}
 
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_suspend-single-log-attach_{product_slug}_xenial
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
+id: suspend/{{ index }}_suspend-single-log-attach_{{ product_slug }}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
+command: [ -e $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single.log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_suspend-time-check_{product_slug}_xenial
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}_xenial
+id: suspend/{{ index }}_suspend-time-check_{{ product_slug }}_xenial
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_xenial
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 unit: template

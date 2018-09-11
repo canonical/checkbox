@@ -347,6 +347,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 id: ethernet/hotplug-{__index__}-end-cycle
+category_id: com.canonical.plainbox::ethernet
 after: ethernet/hotplug-{interface}-disconnect
 command: true
 flags: simple

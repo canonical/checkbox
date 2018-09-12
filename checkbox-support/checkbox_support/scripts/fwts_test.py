@@ -2,10 +2,8 @@
 
 import sys
 import re
-from time import time
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE, DEVNULL
-from syslog import syslog, LOG_INFO
 from shutil import which
 import os
 
@@ -48,42 +46,32 @@ HWE_TESTS = ['version',
              'oops']
 # By default, we launch all the tests
 TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
+SLEEP_TIME_RE = re.compile('(Suspend|Resume):\s+([\d\.]+)\s+seconds.')
 
 
-def get_sleep_times(start_marker, end_marker, sleep_time, resume_time):
-    logfile = '/var/log/syslog'
-    log_fh = open(logfile, 'r', encoding='UTF-8')
-    line = ''
-    run = 'FAIL'
-    sleep_start_time = 0.0
-    sleep_end_time = 0.0
-    resume_start_time = 0.0
-    resume_end_time = 0.0
-
-    while start_marker not in line:
-        try:
-            line = log_fh.readline()
-        except UnicodeDecodeError:
-            continue
-        if start_marker in line:
-            loglist = log_fh.readlines()
-
-    for idx in range(0, len(loglist)):
-        if 'PM: Syncing filesystems' in loglist[idx]:
-            sleep_start_time = re.split('[\[\]]', loglist[idx])[1].strip()
-        if 'ACPI: Low-level resume complete' in loglist[idx]:
-            sleep_end_time = re.split('[\[\]]', loglist[idx - 1])[1].strip()
-            resume_start_time = re.split('[\[\]]', loglist[idx])[1].strip()
-            idx += 1
-        if 'Restarting tasks' in loglist[idx]:
-            resume_end_time = re.split('[\[\]]', loglist[idx])[1].strip()
-        if end_marker in loglist[idx]:
-            run = 'PASS'
-            break
-
-    sleep_elapsed = float(sleep_end_time) - float(sleep_start_time)
-    resume_elapsed = float(resume_end_time) - float(resume_start_time)
-    return (run, sleep_elapsed, resume_elapsed)
+def get_sleep_times(log, start_marker):
+    suspend_time = ''
+    resume_time = ''
+    with open(log, 'r', encoding='UTF-8') as f:
+        line = ''
+        while start_marker not in line:
+            try:
+                line = f.readline()
+            except UnicodeDecodeError:
+                continue
+            if start_marker in line:
+                loglist = f.readlines()
+        for i, l in enumerate(loglist):
+            if 'Suspend/Resume Timings:' in l:
+                suspend_line = loglist[i+1]
+                resume_line = loglist[i+2]
+                match = SLEEP_TIME_RE.search(suspend_line)
+                if match:
+                    suspend_time = float(match.group(2))
+                match = SLEEP_TIME_RE.search(resume_line)
+                if match:
+                    resume_time = float(match.group(2))
+    return (suspend_time, resume_time)
 
 
 def average_times(runs):
@@ -92,8 +80,8 @@ def average_times(runs):
     run_count = 0
     for run in runs.keys():
         run_count += 1
-        sleep_total += runs[run][1]
-        resume_total += runs[run][2]
+        sleep_total += runs[run][0]
+        resume_total += runs[run][1]
     sleep_avg = sleep_total / run_count
     resume_avg = resume_total / run_count
     print('Average time to sleep: %0.5f' % sleep_avg)
@@ -163,25 +151,6 @@ def main():
                               'test as FAILED_CRITICAL. You will still be '
                               'notified of all FWTS test failures. '
                               '[Default level: %(default)s]'))
-    sleep_args = parser.add_argument_group('Sleep Options',
-                                           ('The following arguments are to '
-                                            'only be used with the '
-                                            '--sleep test option'))
-    sleep_args.add_argument('--sleep-time',
-                            dest='sleep_time',
-                            action='store',
-                            help=('The max time in seconds that a system '
-                                  'should take\nto completely enter sleep. '
-                                  'Anything more than this\ntime will cause '
-                                  'that test iteration to fail.\n'
-                                  '[Default: 10s]'))
-    sleep_args.add_argument('--resume-time',
-                            dest='resume_time',
-                            action='store',
-                            help=('Same as --sleep-time, except this applies '
-                                  'to the\ntime it takes a system to fully '
-                                  'wake from sleep.\n[Default: 3s]'))
-
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-t', '--test',
                        action='append',
@@ -242,10 +211,6 @@ def main():
                        'FAILED_ABORTED': -1}
         fail_priority = fail_levels[args.fail_level]
 
-    # Enforce only using sleep opts with --sleep
-    if args.sleep_time or args.resume_time and not args.sleep:
-        parser.error('--sleep-time and --resume-time only apply to the '
-                     '--sleep testing option.')
     if args.fwts_help:
         Popen('fwts -h', shell=True).communicate()[0]
         return 0
@@ -278,23 +243,6 @@ def main():
         if s4 in args.sleep:
             iterations = int(args.sleep.pop(args.sleep.index(s4) + 1))
             args.sleep.remove(s4)
-        # if we've passed our custom sleep arguments for resume or sleep
-        # time, we need to intercept those as well.
-        resume_time_arg = '--resume-time'
-        sleep_time_arg = '--sleep-time'
-        if resume_time_arg in args.sleep:
-            args.resume_time = int(args.sleep.pop(
-                                   args.sleep.index(resume_time_arg) + 1))
-            args.sleep.remove(resume_time_arg)
-        if sleep_time_arg in args.sleep:
-            args.sleep_time = int(args.sleep.pop(
-                                  args.sleep.index(sleep_time_arg) + 1))
-            args.sleep.remove(sleep_time_arg)
-        # if we still haven't set a sleep or resume time, use defauts.
-        if not args.sleep_time:
-            args.sleep_time = 10
-        if not args.resume_time:
-            args.resume_time = 3
         tests.extend(args.sleep)
     else:
         tests.extend(TESTS)
@@ -307,30 +255,21 @@ def main():
         if detect_progress_indicator():
             progress_indicator = Popen(detect_progress_indicator(),
                                        stdin=PIPE, stderr=DEVNULL)
-        for iteration in range(0, iterations):
-            timestamp = int(time())
-            start_marker = 'CHECKBOX SLEEP TEST START %s' % timestamp
-            end_marker = 'CHECKBOX SLEEP TEST STOP %s' % timestamp
-            syslog(LOG_INFO, '---' + start_marker + '---' + str(time()))
+        for iteration in range(1, iterations+1):
+            marker = '{:=^80}\n'.format(' Iteration {} '.format(iteration))
+            with open(args.log + '.log', 'a') as f:
+                f.write(marker)
             command = ('fwts -q --stdout-summary -r %s %s'
                        % (args.log, ' '.join(tests)))
             results['sleep'] = (Popen(command, stdout=PIPE, shell=True)
                                 .communicate()[0].strip()).decode()
-            syslog(LOG_INFO, '---' + end_marker + '---' + str(time()))
             if 's4' not in args.sleep:
-                sleep_times = get_sleep_times(start_marker,
-                                              end_marker,
-                                              args.sleep_time,
-                                              args.resume_time)
-                iteration_results[iteration] = sleep_times
-                progress_tuple = (iteration,
-                                  iteration_results[iteration][0],
-                                  iteration_results[iteration][1],
-                                  iteration_results[iteration][2])
-                progress_string = (' - Cycle %s: Status: %s  '
-                                   'Sleep Elapsed: %0.5f    '
-                                   'Resume Elapsed: '
-                                   ' %0.5f' % progress_tuple)
+                suspend_time, resume_time = get_sleep_times(args.log + '.log',
+                                                            marker)
+                iteration_results[iteration] = (suspend_time, resume_time)
+                progress_string = (
+                    'Cycle %s/%s - Suspend: %0.2f s - Resume: %0.2f s'
+                    % (iteration, iterations, suspend_time, resume_time))
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
                     progress_indicator.stdin.write("# {}\n".format(
@@ -357,12 +296,8 @@ def main():
                     print(progress_string, flush=True)
         if detect_progress_indicator():
             progress_indicator.terminate()
-
         if 's4' not in args.sleep:
             average_times(iteration_results)
-            for run in iteration_results.keys():
-                if 'FAIL' in iteration_results[run]:
-                    results['sleep'] = 'FAILED_CRITICAL'
     else:
         for test in tests:
             # ACPI tests can now be run with --acpitests (fwts >= 15.07.00)
@@ -450,6 +385,7 @@ def main():
                 return 1
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

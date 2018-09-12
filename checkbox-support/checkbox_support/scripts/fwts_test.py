@@ -354,7 +354,7 @@ def main():
                     if progress_indicator.poll() is None:
                         progress_indicator.stdin.flush()
                 else:
-                    print(progress_string)
+                    print(progress_string, flush=True)
         if detect_progress_indicator():
             progress_indicator.terminate()
 

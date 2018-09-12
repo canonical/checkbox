@@ -52,13 +52,10 @@ SLEEP_TIME_RE = re.compile('(Suspend|Resume):\s+([\d\.]+)\s+seconds.')
 def get_sleep_times(log, start_marker):
     suspend_time = ''
     resume_time = ''
-    with open(log, 'r', encoding='UTF-8') as f:
+    with open(log, 'r', encoding='UTF-8', errors = 'ignore') as f:
         line = ''
         while start_marker not in line:
-            try:
-                line = f.readline()
-            except UnicodeDecodeError:
-                continue
+            line = f.readline()
             if start_marker in line:
                 loglist = f.readlines()
         for i, l in enumerate(loglist):

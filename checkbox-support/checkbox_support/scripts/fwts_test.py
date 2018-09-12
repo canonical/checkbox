@@ -4,7 +4,7 @@ import sys
 import re
 from time import time
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, DEVNULL
 from syslog import syslog, LOG_INFO
 from shutil import which
 import os
@@ -306,7 +306,7 @@ def main():
         progress_indicator = None
         if detect_progress_indicator():
             progress_indicator = Popen(detect_progress_indicator(),
-                                       stdin=PIPE)
+                                       stdin=PIPE, stderr=DEVNULL)
         for iteration in range(0, iterations):
             timestamp = int(time())
             start_marker = 'CHECKBOX SLEEP TEST START %s' % timestamp

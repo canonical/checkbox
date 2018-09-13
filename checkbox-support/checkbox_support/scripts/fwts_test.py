@@ -75,14 +75,18 @@ def average_times(runs):
     sleep_total = 0.0
     resume_total = 0.0
     run_count = 0
-    for run in runs.keys():
-        run_count += 1
-        sleep_total += runs[run][0]
-        resume_total += runs[run][1]
-    sleep_avg = sleep_total / run_count
-    resume_avg = resume_total / run_count
-    print('Average time to sleep: %0.5f' % sleep_avg)
-    print('Average time to resume: %0.5f' % resume_avg)
+    try:
+        for run in runs.keys():
+            run_count += 1
+            sleep_total += runs[run][0]
+            resume_total += runs[run][1]
+        sleep_avg = sleep_total / run_count
+        resume_avg = resume_total / run_count
+        print('Average time to sleep: %0.5f' % sleep_avg)
+        print('Average time to resume: %0.5f' % resume_avg)
+    except TypeError:
+        print('Average time to sleep: N/A')
+        print('Average time to resume: N/A')
 
 
 def fix_sleep_args(args):
@@ -264,9 +268,14 @@ def main():
                 suspend_time, resume_time = get_sleep_times(args.log + '.log',
                                                             marker)
                 iteration_results[iteration] = (suspend_time, resume_time)
-                progress_string = (
-                    'Cycle %s/%s - Suspend: %0.2f s - Resume: %0.2f s'
-                    % (iteration, iterations, suspend_time, resume_time))
+                if not suspend_time or not resume_time:
+                    progress_string = (
+                        'Cycle %s/%s - Suspend: N/A s - Resume: N/A s'
+                        % (iteration, iterations))
+                else:
+                    progress_string = (
+                        'Cycle %s/%s - Suspend: %0.2f s - Resume: %0.2f s'
+                        % (iteration, iterations, suspend_time, resume_time))
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
                     progress_indicator.stdin.write("# {}\n".format(
@@ -322,7 +331,7 @@ def main():
         if 'ABORTED' in results[test]:
             aborted.append(test)
         else:
-            continue
+            return 1
 
     if critical_fails:
         print("Critical Failures: %d" % len(critical_fails))

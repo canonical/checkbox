@@ -320,15 +320,15 @@ def main():
     for test in results.keys():
         if 'FAILED_CRITICAL' in results[test]:
             critical_fails.append(test)
-        if 'FAILED_HIGH' in results[test]:
+        elif 'FAILED_HIGH' in results[test]:
             high_fails.append(test)
-        if 'FAILED_MEDIUM' in results[test]:
+        elif 'FAILED_MEDIUM' in results[test]:
             medium_fails.append(test)
-        if 'FAILED_LOW' in results[test]:
+        elif 'FAILED_LOW' in results[test]:
             low_fails.append(test)
-        if 'PASSED' in results[test]:
+        elif 'PASSED' in results[test]:
             passed.append(test)
-        if 'ABORTED' in results[test]:
+        elif 'ABORTED' in results[test]:
             aborted.append(test)
         else:
             return 1

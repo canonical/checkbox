@@ -52,7 +52,7 @@ SLEEP_TIME_RE = re.compile('(Suspend|Resume):\s+([\d\.]+)\s+seconds.')
 def get_sleep_times(log, start_marker):
     suspend_time = ''
     resume_time = ''
-    with open(log, 'r', encoding='UTF-8', errors = 'ignore') as f:
+    with open(log, 'r', encoding='UTF-8', errors='ignore') as f:
         line = ''
         while start_marker not in line:
             line = f.readline()
@@ -198,6 +198,8 @@ def main():
     low_fails = []
     passed = []
     aborted = []
+    skipped = []
+    warnings = []
 
     # Set correct fail level
     if args.fail_level is not 'none':
@@ -330,6 +332,10 @@ def main():
             passed.append(test)
         elif 'ABORTED' in results[test]:
             aborted.append(test)
+        elif 'WARNING' in results[test]:
+            warnings.append(test)
+        elif 'SKIPPED' in results[test]:
+            skipped.append(test)
         else:
             return 1
 
@@ -364,6 +370,19 @@ def main():
     if passed:
         print("Passed: %d" % len(passed))
         for test in passed:
+            print(" - " + test)
+    if skipped:
+        print("Skipped Tests: %d" % len(skipped))
+        print("WARNING: The following test cases were skipped by fwts\n"
+              "Please review the log at %s for more information."
+              % args.log)
+        for test in skipped:
+            print(" - " + test)
+    if warnings:
+        print("WARNINGS: %d" % len(warnings))
+        print("Please review the log at %s for more information."
+              % args.log)
+        for test in warnings:
             print(" - " + test)
     if aborted:
         print("Aborted Tests: %d" % len(aborted))

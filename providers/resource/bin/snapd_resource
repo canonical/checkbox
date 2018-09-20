@@ -162,35 +162,37 @@ class Endpoints(InterfacesQuery):
     def invoked(self, ctx):
         data = self.get(self.prefix).json()
 
-        for plug in data['result']['plugs']:
-            def print_field(key):
-                val = plug[key]
-                if val != '':
-                    print('{}: {}'.format(key, val))
-            keys = ['snap', 'interface']
-            for f in keys:
-                print_field(f)
-            print('type: plug')
-            print('name: {}'.format(plug['plug']))
-            if 'attrs' in plug:
-                for attr, val in plug['attrs'].items():
-                    print('attr_{}: {}'.format(slugify(attr), val))
-            print()
+        if 'plugs' in data['result']:
+            for plug in data['result']['plugs']:
+                def print_field(key):
+                    val = plug[key]
+                    if val != '':
+                        print('{}: {}'.format(key, val))
+                keys = ['snap', 'interface']
+                for f in keys:
+                    print_field(f)
+                print('type: plug')
+                print('name: {}'.format(plug['plug']))
+                if 'attrs' in plug:
+                    for attr, val in plug['attrs'].items():
+                        print('attr_{}: {}'.format(slugify(attr), val))
+                print()
 
-        for slot in data['result']['slots']:
-            def print_field(key):
-                val = slot[key]
-                if val != '':
-                    print('{}: {}'.format(key, val))
-            keys = ['snap', 'interface']
-            for f in keys:
-                print_field(f)
-            print('type: slot')
-            print('name: {}'.format(slot['slot']))
-            if 'attrs' in slot:
-                for attr, val in slot['attrs'].items():
-                    print('attr_{}: {}'.format(slugify(attr), val))
-            print()
+        if 'slots' in data['result']:
+            for slot in data['result']['slots']:
+                def print_field(key):
+                    val = slot[key]
+                    if val != '':
+                        print('{}: {}'.format(key, val))
+                keys = ['snap', 'interface']
+                for f in keys:
+                    print_field(f)
+                print('type: slot')
+                print('name: {}'.format(slot['slot']))
+                if 'attrs' in slot:
+                    for attr, val in slot['attrs'].items():
+                        print('attr_{}: {}'.format(slugify(attr), val))
+                print()
 
 
 Connection = namedtuple(
@@ -209,7 +211,7 @@ class Connections(InterfacesQuery):
     def get_connections(self):
         data = self.get('/v2/interfaces').json()['result']
         connections = []
-        if data['plugs'] is not None:
+        if 'plugs' in data:
             for plug in data['plugs']:
                 if 'connections' in plug:
                     for con in plug['connections']:

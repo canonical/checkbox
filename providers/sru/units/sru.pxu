@@ -76,7 +76,7 @@ include:
     audio/alsa_record_playback_automated
     bluetooth/detect-output
     camera/detect
-    camera/multiple-resolution-images
+    camera/multiple-resolution-images_.*
     cpu/scaling_test
     cpu/scaling_test-log-attach
     cpu/offlining_test

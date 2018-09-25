@@ -14,40 +14,49 @@ _name: Camera tests (Manual)
 _description:
  Camera tests (Manual)
 include:
- camera/still                                   certification-status=blocker
- camera/display                                 certification-status=blocker
-
+ camera/still_.*                                   certification-status=blocker
+ camera/display_.*                                 certification-status=blocker
+bootstrap_include:
+ device
 
 id: after-suspend-camera-cert-full
 unit: test plan
 _name: Camera tests (after suspend)
 _description: Camera tests (after suspend)
 include:
-    camera/display_after_suspend                   certification-status=blocker
-    camera/still_after_suspend                     certification-status=blocker
+ after-suspend-manual-camera/still_.*              certification-status=blocker
+ after-suspend-manual-camera/display_.*            certification-status=blocker
+bootstrap_include:
+ device
 
 id: camera-cert-automated
 unit: test plan
 _name: Camera tests (automated)
 _description: Camera tests (automated)
 include:
-    camera/detect                                  certification-status=blocker
-    camera/multiple-resolution-images              certification-status=blocker
+ camera/detect                                     certification-status=blocker
+ camera/multiple-resolution-images_.*              certification-status=blocker
+bootstrap_include:
+ device
 
 id: camera-cert-blockers
 unit: test plan
 _name: Camera tests (certification blockers only)
 _description: Camera tests (certification blockers only)
 include:
-    camera/detect                                  certification-status=blocker
-    camera/still                                   certification-status=blocker
-    camera/display                                 certification-status=blocker
-    camera/multiple-resolution-images              certification-status=blocker
+ camera/detect                                     certification-status=blocker
+ camera/still_.*                                   certification-status=blocker
+ camera/display_.*                                 certification-status=blocker
+ camera/multiple-resolution-images_.*              certification-status=blocker
+bootstrap_include:
+ device
 
 id: after-suspend-camera-cert-blockers
 unit: test plan
 _name: Camera tests (after suspend, certification blockers only)
 _description: Camera tests (after suspend, certification blockers only)
 include:
-    camera/display_after_suspend                   certification-status=blocker
-    camera/still_after_suspend                     certification-status=blocker
+ after-suspend-manual-camera/still_.*              certification-status=blocker
+ after-suspend-manual-camera/display_.*            certification-status=blocker
+bootstrap_include:
+ device

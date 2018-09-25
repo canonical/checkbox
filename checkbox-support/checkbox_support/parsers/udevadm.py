@@ -313,8 +313,6 @@ class UdevadmDevice(object):
                and subclass_id == Pci.CLASS_INPUT_SCANNER:
                 return "SCANNER"
             if class_id == Pci.BASE_CLASS_MULTIMEDIA:
-                if subclass_id == Pci.CLASS_MULTIMEDIA_VIDEO:
-                    return "CAPTURE"
                 if subclass_id == Pci.CLASS_MULTIMEDIA_AUDIO \
                    or subclass_id == Pci.CLASS_MULTIMEDIA_AUDIO_DEVICE:
                     return "AUDIO"
@@ -341,8 +339,6 @@ class UdevadmDevice(object):
                     return "FLOPPY"
                 if interface_subclass == Usb.CLASS_STORAGE_SCSI:
                     return "USB"
-            if interface_class == Usb.BASE_CLASS_VIDEO:
-                return "CAPTURE"
             if interface_class == Usb.BASE_CLASS_WIRELESS:
                 if interface_protocol == Usb.PROTOCOL_BLUETOOTH:
                     return "BLUETOOTH"
@@ -386,8 +382,6 @@ class UdevadmDevice(object):
                     # as a KVM hardware device ("keyboard, video and mouse")
                     if test_bit(Input.BTN_MOUSE, bitmask, self._bits):
                         return "KVM"
-                    else:
-                        return "CAPTURE"
         if 'ID_INPUT_MOUSE' in self._environment:
             return "MOUSE"
 
@@ -537,13 +531,16 @@ class UdevadmDevice(object):
         if "SUBSYSTEM" in self._environment:
             if self._environment["SUBSYSTEM"] == "hidraw":
                 return "HIDRAW"
+            if self._environment["SUBSYSTEM"] == "video4linux":
+                return "CAPTURE"
 
         # Any devices that have a product name and proper vendor and product
         # IDs, but had no other category, are lumped together in OTHER.
         # A few devices may have no self.product but carry PRODUCT data in
         # their environment.
         if ((self.product or self._environment.get("PRODUCT")) and
-                None not in (self.vendor_id, self.product_id)):
+                None not in (self.vendor_id, self.product_id) and
+                self.driver != 'uvcvideo'):
             return "OTHER"
 
         # Limbo of devices I couldn't otherwise categorize. In practice
@@ -647,11 +644,15 @@ class UdevadmDevice(object):
                     if i in self._environment["DEVLINKS"]]:
                 if "ID_MODEL_ID" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ID"])
-        # hidraw
         if "SUBSYSTEM" in self._environment:
+        # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
                 parent = self._stack[-1]
                 return parent.product_id
+        # video4linux
+            if self._environment["SUBSYSTEM"] == "video4linux":
+                if "ID_MODEL_ID" in self._environment:
+                    return decode_id(self._environment["ID_MODEL_ID"])
         return None
 
     @product_id.setter
@@ -697,11 +698,15 @@ class UdevadmDevice(object):
                     if i in self._environment["DEVLINKS"]]:
                 if "ID_VENDOR_ID" in self._environment:
                     return decode_id(self._environment["ID_VENDOR_ID"])
-        # hidraw
         if "SUBSYSTEM" in self._environment:
+        # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
                 parent = self._stack[-1]
                 return parent.vendor_id
+        # video4linux
+            if self._environment["SUBSYSTEM"] == "video4linux":
+                if "ID_VENDOR_ID" in self._environment:
+                    return decode_id(self._environment["ID_VENDOR_ID"])
         return None
 
     @vendor_id.setter
@@ -812,12 +817,16 @@ class UdevadmDevice(object):
         if "ID_MODEL_FROM_DATABASE" in self._environment:
             return self._environment["ID_MODEL_FROM_DATABASE"]
 
-        # hidraw
         if "SUBSYSTEM" in self._environment:
+            # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
                 parent = self._stack[-1]
                 if "HID_NAME" in parent._environment:
                     return parent._environment["HID_NAME"]
+            # video4linux
+            if self._environment["SUBSYSTEM"] == "video4linux":
+                if "ID_V4L_PRODUCT" in self._environment:
+                    return self._environment["ID_V4L_PRODUCT"]
 
         # bluetooth (if USB base class is vendor specific)
         if self.bus == 'bluetooth':
@@ -913,11 +922,15 @@ class UdevadmDevice(object):
         elif '/dev/md' in self._environment.get('DEVNAME', ''):
              if "MD_LEVEL" in self._environment:
                 return self._environment.get("MD_LEVEL")
-        # hidraw
         if "SUBSYSTEM" in self._environment:
+            # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
                 parent = self._stack[-1]
                 return parent.vendor
+            # video4linux
+            if self._environment["SUBSYSTEM"] == "video4linux":
+                if "ID_VENDOR_ENC" in self._environment:
+                    return decode_id(self._environment["ID_VENDOR_ENC"])
 
         # bluetooth (if USB base class is vendor specific)
         if self.bus == 'bluetooth':
@@ -1178,22 +1191,6 @@ class UdevadmParser(object):
                         usb_interface_path in d._raw_path
                     ]:
                         self.devices[device._raw_path] = device
-                elif device.category == 'CAPTURE':
-                    input_id = INPUT_SYSFS_ID.sub('', device._raw_path)
-                    if [
-                        d for d in self.devices.values()
-                        if d.category == 'CAPTURE' and input_id in d._raw_path
-                    ]:
-                        self.devices[input_id].product = device.product
-                    else:
-                        usb_interface_path = USB_SYSFS_CONFIG_RE.sub(
-                            '', device._raw_path)
-                        if not [
-                            d for d in self.devices.values()
-                            if d.category == 'CAPTURE' and
-                            usb_interface_path in d._raw_path
-                        ]:
-                            self.devices[device._raw_path] = device
                 else:
                     self.devices[device._raw_path] = device
             stack.append(device)

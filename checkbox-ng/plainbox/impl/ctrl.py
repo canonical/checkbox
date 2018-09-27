@@ -270,8 +270,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         or replace resource records.
         """
         self._parse_and_store_resource(session_state, job, result)
-        self._instantiate_templates(
-            session_state, job, result, fake_resources)
+        if session_state.resource_map[job.id] != [Resource({})]:
+            self._instantiate_templates(
+                session_state, job, result, fake_resources)
 
     def _parse_and_store_resource(self, session_state, job, result):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928

@@ -28,10 +28,27 @@ done
 echo
 echo "Checking for chassis status"
 ipmitool chassis status && echo "Successfully got chassis status" && chassis=0 || chassis=1
+
 echo "Checking to see if we can get power status"
 ipmitool power status && echo "Successfully got power status" && power=0 || power=1
+
 echo "Checking to see if we can get user data"
-ipmitool user list && echo "Successfully got user data" && user=0 || user=1
+# LP:1794926 Find the active channel. blindly calling user list sometimes
+# fails.
+channel=99
+for x in 0 1 2 3 4 5 6 7 8 9 10 11 14 15; do
+    if ipmitool channel getaccess $x 2>1 >/dev/null; then
+        channel=$x
+        echo "Channel in use appears to be $channel"
+        break
+    fi
+done
+if [ $channel -lt 99 ]; then
+    ipmitool user list $channel && echo "Successfully got user data" && user=0 || user=1
+else
+    user=1
+fi
+
 echo "Checking to see if we can get info on the BMC"
 ipmitool bmc info && echo "Successfully got BMC information" && bmc=0 || bmc=1
 

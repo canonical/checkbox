@@ -429,3 +429,12 @@ id: info/systemd-analyze
 estimated_duration: 0.2
 _summary: System boot-up performance statistics
 command: systemd-analyze
+
+id: lstopo_attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command: lstopo -v
+estimated_duration: 0.015
+requires: package.name == 'hwloc-nox' or executable.name == 'lstopo'
+_description: Attaches the system topology as presented by the lstopo command
+_summary: Attach the output of lstopo

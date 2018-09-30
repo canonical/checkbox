@@ -12,3 +12,8 @@ Depends: python3-guacamole (>= 0.9)
 unit: packaging meta-data
 os-id: debian
 Depends: util-linux
+
+# This is to install hwloc-nox for the lstopo attachment
+unit: packaing meta-data
+os-id: debian
+Depends: hwloc-nox

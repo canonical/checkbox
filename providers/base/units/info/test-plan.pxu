@@ -42,6 +42,7 @@ include:
  lsmod_attachment
  lspci_attachment
  lspci_standard_config_attachment
+ lstopo_attachment
  lsusb_attachment
  meminfo_attachment
  modinfo_attachment

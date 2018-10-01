@@ -55,3 +55,38 @@ include:
 bootstrap_include:
     device
 
+id: info-attachment-server-automated
+unit: test plan
+_name: Info attachment jobs for Server Cert (Automated)
+_description:
+ Info attachment jobs for Server Cert(Automated)
+include:
+ config_file_attachment
+ cpuinfo_attachment
+ dkms_info_attachment
+ dmesg_attachment
+ dmi_attachment
+ dmidecode_attachment
+ efi_attachment
+ info/disk_partitions
+ info/hdparm_.*.txt
+ installer_debug.gz
+ kernel_cmdline_attachment
+ lsblk_attachment
+ lshw_attachment
+ lsmod_attachment
+ lspci_attachment
+ lstopo_verbose_attachment
+ lstopo_visual_attachment
+ lsusb_attachment
+ meminfo_attachment
+ modinfo_attachment
+ modprobe_attachment
+ modules_attachment
+ sysctl_attachment
+ sysfs_attachment
+ udev_attachment
+ udev-summary_attachment
+bootstrap_include:
+    device
+    fwts

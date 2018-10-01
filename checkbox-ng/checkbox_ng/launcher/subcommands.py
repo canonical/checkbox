@@ -932,7 +932,7 @@ class ListBootstrapped(Command):
             '--partial', default=False, action="store_true",
             help=_("print only partial id"))
         parser.add_argument(
-            '-f', '--format', type=str,
+            '-f', '--format', type=str, default="{full_id}\n",
             help=_(("output format, as passed to print function. "
                     "Use '?' to list possible values")))
 

@@ -135,7 +135,9 @@ _description:
 plugin:shell
 id: cpu/cstates
 estimated_duration: 10.0
-requires: executable.name == 'fwts'
+requires:
+ executable.name == 'fwts'
+ cpuinfo.platform not in ("aarch64", "armv7l")
 user: root
 _summary:
  Run C-States tests

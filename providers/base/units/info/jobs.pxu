@@ -430,11 +430,23 @@ estimated_duration: 0.2
 _summary: System boot-up performance statistics
 command: systemd-analyze
 
-id: lstopo_attachment
+id: lstopo_verbose_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: lstopo -v
+command: lstopo -v 
 estimated_duration: 0.015
-requires: package.name == 'hwloc-nox' or executable.name == 'lstopo'
+requires: package.name == 'hwloc' or executable.name == 'lstopo'
 _description: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo
+
+id: lstopo_visual_attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+estimated_duration: 0.015
+requires: package.name == 'hwloc' or executable.name == 'lstopo'
+_description: Attaches the system topology as presented by the lstopo command
+_summary: Attach the output of lstopo
+command: lstopo $lstopo_visual.png
+ lstopo $PLAINBOX_SESSION_SHARE/lstopo_visual.png; \
+ [ -e "$PLAINBOX_SESSION_SHARE/lstopo_visual.png" ] && \
+ cat "$PLAINBOX_SESSION_SHARE/lstopo_visual.png"

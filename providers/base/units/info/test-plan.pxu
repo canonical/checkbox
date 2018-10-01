@@ -55,7 +55,7 @@ include:
 bootstrap_include:
     device
 
-id: info-attachment-server-automated
+id: server-info-attachment-automated
 unit: test plan
 _name: Info attachment jobs for Server Cert (Automated)
 _description:

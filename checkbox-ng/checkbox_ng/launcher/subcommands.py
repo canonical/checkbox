@@ -929,9 +929,6 @@ class ListBootstrapped(Command):
             'TEST_PLAN',
             help=_("test-plan id to bootstrap"))
         parser.add_argument(
-            '--partial', default=False, action="store_true",
-            help=_("print only partial id"))
-        parser.add_argument(
             '-f', '--format', type=str, default="{full_id}\n",
             help=_(("output format, as passed to print function. "
                     "Use '?' to list possible values")))
@@ -971,10 +968,7 @@ class ListBootstrapped(Command):
                     unescaped, (), DefaultKeyedDict(None, job)), end='')
         else:
             for job_id in jobs:
-                if ctx.args.partial:
-                    print(self.sa.get_job(job_id).partial_id)
-                else:
-                    print(job_id)
+                print(job_id)
 
 
 class TestPlanExport(Command):

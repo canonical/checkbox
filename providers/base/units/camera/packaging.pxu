@@ -1,3 +1,0 @@
-unit: packaging meta-data
-os-id: debian
-Depends: gir1.2-cheese-3.0

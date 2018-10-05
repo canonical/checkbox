@@ -2,7 +2,10 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2008-2012 Canonical Ltd.
+# Copyright 2008-2018 Canonical Ltd.
+# Written by:
+#   Matt Fischer <matt@mattfischer.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # The v4l2 ioctl code comes from the Python bindings for the v4l2
 # userspace api (http://pypi.python.org/pypi/v4l2):
@@ -15,7 +18,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -36,9 +38,7 @@ import os
 import re
 import struct
 import sys
-import time
 
-from gi.repository import GObject
 from glob import glob
 from subprocess import check_call, CalledProcessError, STDOUT
 from tempfile import NamedTemporaryFile
@@ -151,8 +151,10 @@ class v4l2_fmtdesc(ctypes.Structure):
         ('reserved', ctypes.c_uint32 * 4),
     ]
 
+
 V4L2_FMT_FLAG_COMPRESSED = 0x0001
 V4L2_FMT_FLAG_EMULATED = 0x0002
+
 
 # ioctl code for video devices
 VIDIOC_QUERYCAP = _IOR('V', 0, v4l2_capability)
@@ -168,6 +170,7 @@ class CameraTest:
         self.args = args
         self._width = 640
         self._height = 480
+        self._devices = []
 
     def detect(self):
         """
@@ -186,10 +189,10 @@ class CameraTest:
             print("%s: OK" % device)
             print("    name   : %s" % cp.card.decode('UTF-8'))
             print("    driver : %s" % cp.driver.decode('UTF-8'))
-            print("    version: %s.%s.%s"
-                  % (cp.version >> 16,
-                    (cp.version >> 8) & 0xff,
-                     cp.version & 0xff))
+            print(
+                "    version: %s.%s.%s"
+                % (cp.version >> 16, (cp.version >> 8) & 0xff,
+                   cp.version & 0xff))
             print("    flags  : 0x%x [" % cp.capabilities,
                   ' CAPTURE' if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE
                   else '',
@@ -212,51 +215,67 @@ class CameraTest:
                 cap_status = 0
         return dev_status | cap_status
 
+    def _stop(self):
+        self.camerabin.set_state(Gst.State.NULL)
+        Gtk.main_quit()
+
+    def _on_error(self, bus, msg):
+        Gtk.main_quit()
+
     def _on_destroy(self, *args):
         Clutter.main_quit()
 
-    def _take_photo(self, *args):
-        Cheese.Camera.take_photo(self.camera, self.filename)
+    def _take_photo(self, filename):
+        self.camerabin.set_property("location", filename)
+        self.camerabin.emit("start-capture")
+
+    def _setup(self, sink=None):
+        webcam = Gst.ElementFactory.make('v4l2src')
+        webcam.set_property('device', self.args.device)
+        wrappercamerabinsrc = Gst.ElementFactory.make('wrappercamerabinsrc')
+        wrappercamerabinsrc.set_property('video-source', webcam)
+        self.camerabin = Gst.ElementFactory.make("camerabin")
+        self.camerabin.set_property('camera-source', wrappercamerabinsrc)
+        if sink:
+            vf_sink = Gst.ElementFactory.make(sink)
+            self.camerabin.set_property('viewfinder-sink', vf_sink)
+        self.camerabin.set_state(Gst.State.PAUSED)
+        caps = self.camerabin.get_property('viewfinder-supported-caps')
+        supported_resolutions = {}
+        for i in range(caps.get_size()):
+            key = caps.get_structure(i).get_int('width').value
+            try:
+                supported_resolutions[key].add(
+                    caps.get_structure(i).get_int('height').value)
+            except KeyError:
+                supported_resolutions[key] = set()
+        width = min(supported_resolutions.keys(),
+                    key=lambda x: abs(x - self._width))
+        height = min(supported_resolutions[width],
+                     key=lambda y: abs(y - self._height))
+        vf_caps = Gst.Caps.from_string(
+            'video/x-raw, width={}, height={}'.format(width, height))
+        self.camerabin.set_property('viewfinder-caps', vf_caps)
+        bus = self.camerabin.get_bus()
+        bus.add_signal_watch()
+        bus.connect('message::error', self._on_error)
+        self.camerabin.set_state(Gst.State.PLAYING)
 
     def led(self):
         """
         Activate camera (switch on led), but don't display any output
         """
-        Clutter.threads_add_timeout(0, 3000, self._on_destroy, None, None)
-        video_texture = Clutter.Actor()
-        try:
-            camera = Cheese.Camera.new(
-                video_texture, self.args.device, self._width, self._height)
-        except TypeError: # libcheese < 3.18 still use Clutter.Texture
-            video_texture = Clutter.Texture()
-            camera = Cheese.Camera.new(
-                video_texture, self.args.device, self._width, self._height)
-        Cheese.Camera.setup(camera, None)
-        Cheese.Camera.play(camera)
-        Clutter.main()
+        self._setup(sink='fakesink')
+        GLib.timeout_add_seconds(3, self._stop)
+        Gtk.main()
 
     def display(self):
         """
         Displays the preview window
         """
-        stage = Clutter.Stage()
-        stage.set_title('Camera test')
-        stage.set_size(self._width, self._height)
-        stage.connect('destroy', self._on_destroy)
-        Clutter.threads_add_timeout(0, 10000, self._on_destroy, None, None)
-        video_texture = Clutter.Actor()
-        try:
-            camera = Cheese.Camera.new(
-                video_texture, self.args.device, self._width, self._height)
-        except TypeError: # libcheese < 3.18 still use Clutter.Texture
-            video_texture = Clutter.Texture()
-            camera = Cheese.Camera.new(
-                video_texture, self.args.device, self._width, self._height)
-        stage.add_actor(video_texture)
-        Cheese.Camera.setup(camera, None)
-        Cheese.Camera.play(camera)
-        stage.show()
-        Clutter.main()
+        self._setup()
+        GLib.timeout_add_seconds(10, self._stop)
+        Gtk.main()
 
     def still(self):
         """
@@ -280,7 +299,7 @@ class CameraTest:
                    "-d", self.args.device,
                    "-r", "%dx%d"
                    % (width, height), filename]
-        use_cheese = False
+        use_camerabin = False
         if pixelformat:
             if 'MJPG' == pixelformat:  # special tweak for fswebcam
                 pixelformat = 'MJPEG'
@@ -289,27 +308,12 @@ class CameraTest:
         try:
             check_call(command, stdout=open(os.devnull, 'w'), stderr=STDOUT)
         except (CalledProcessError, OSError):
-            use_cheese = True
-
-        if use_cheese:
-            stage = Clutter.Stage()
-            stage.connect('destroy', self._on_destroy)
-            video_texture = Clutter.Actor()
-            try:
-                self.camera = Cheese.Camera.new(
-                    video_texture, self.args.device, self._width, self._height)
-            except TypeError: # libcheese < 3.18 still use Clutter.Texture
-                video_texture = Clutter.Texture()
-                self.camera = Cheese.Camera.new(
-                    video_texture, self.args.device, self._width, self._height)
-            Cheese.Camera.setup(self.camera, None)
-            Cheese.Camera.play(self.camera)
-            self.filename = filename
-            Clutter.threads_add_timeout(0, 3000, self._take_photo , None, None)
-            Clutter.threads_add_timeout(0, 4000, self._on_destroy, None, None)
-            Clutter.main()
-            Cheese.Camera.stop(self.camera)
-
+            use_camerabin = True
+        if use_camerabin:
+            self._setup(sink='fakesink')
+            GLib.timeout_add_seconds(3, self._take_photo, filename)
+            GLib.timeout_add_seconds(4, self._stop)
+            Gtk.main()
         if not quiet:
             stage = Clutter.Stage()
             stage.set_title('Camera still picture test')
@@ -328,7 +332,7 @@ class CameraTest:
         ret = ""
         for resolution in supported_resolutions:
             ret += "Format: %s (%s)\n" % (resolution['pixelformat'],
-                   resolution['description'])
+                                          resolution['description'])
             ret += "Resolutions: "
             for res in resolution['resolutions']:
                 ret += "%sx%s," % (res[0], res[1])
@@ -568,20 +572,17 @@ if __name__ == "__main__":
 
     # Import Gst only for the test cases that will need it
     if args.test in ['display', 'still', 'led', 'resolutions']:
-        import contextlib
-        # Workaround to avoid "cluttervideosink missing"
-        # See https://bugzilla.gnome.org/show_bug.cgi?id=721277
-        with contextlib.suppress(FileNotFoundError):
-            gst_registry = '~/.cache/gstreamer-1.0/registry.x86_64.bin'
-            os.remove(os.path.expanduser(gst_registry))
         import gi
         gi.require_version('Gst', '1.0')
         from gi.repository import Gst
-        gi.require_version('Cheese', '3.0')
-        from gi.repository import Cheese
+        gi.require_version('GLib', '2.0')
+        from gi.repository import GLib
         gi.require_version('Clutter', '1.0')
         from gi.repository import Clutter
+        gi.require_version('Gtk', '3.0')
+        from gi.repository import Gtk
         Gst.init(None)
         Clutter.init()
+        Gtk.init([])
     camera = CameraTest(args)
     sys.exit(getattr(camera, args.test)())

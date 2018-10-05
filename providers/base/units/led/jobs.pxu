@@ -171,21 +171,6 @@ plugin: manual
 category_id: led
 estimated_duration: 180
 
-plugin: user-interact-verify
-category_id: led
-id: led/camera
-estimated_duration: 20.0
-depends: camera/detect
-command: camera_test led
-_description:
- PURPOSE:
-     Camera LED verification
- STEPS:
-     1. Select Test to activate camera
-     2. Camera LED should light for a few seconds
- VERIFICATION:
-     Did the camera LED light?
-
 plugin: manual
 category_id: led
 id: led/touchpad

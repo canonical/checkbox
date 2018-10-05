@@ -25,10 +25,12 @@ include:
  led/battery-charged
  led/battery-charging
  led/battery-low
- led/camera
+ camera/led_.*
  led/caps-lock
  led/power
  led/touchpad
+bootstrap_include:
+ device
 
 id: led-cert-automated
 unit: test plan
@@ -50,10 +52,12 @@ include:
     suspend/led_after_suspend/battery-charged
     suspend/led_after_suspend/battery-charging
     suspend/led_after_suspend/battery-low
-    suspend/led_after_suspend/camera
+    after-suspend-manual-camera/led_.*
     suspend/led_after_suspend/caps-lock
     suspend/led_after_suspend/power
     suspend/led_after_suspend/touchpad
+bootstrap_include:
+    device
 
 id: led-full
 unit: test plan

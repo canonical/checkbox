@@ -14,6 +14,6 @@ os-id: debian
 Depends: util-linux
 
 # This is to install hwloc for the lstopo attachment jobs
-unit: packaing meta-data
+unit: packaging meta-data
 os-id: debian
 Depends: hwloc

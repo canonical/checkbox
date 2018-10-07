@@ -90,6 +90,8 @@ setup(
                 "checkbox_support.scripts.nmea_test:main"),
             ("checkbox-support-snap_connect="
                 "checkbox_support.scripts.snap_connect:main"),
+            ("checkbox-support-eddystone_scanner="
+                "checkbox_support.scripts.eddystone_scanner:main"),
         ],
     },
 )

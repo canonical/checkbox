@@ -214,3 +214,17 @@ requires:
  {%- if __on_ubuntucore__ %}
  connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
  {% endif -%}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'BLUETOOTH'
+template-unit: job
+id: bluetooth4/beacon_eddystone_url_{interface}
+_summary: Test system can get beacon EddyStone URL advertisements on the {interface} adapter
+command:
+ checkbox-support-eddystone_scanner -D {interface}
+plugin: shell
+user: root
+flags: also-after-suspend also-after-suspend-manual
+category_id: com.canonical.plainbox::bluetooth
+estimated_duration: 10

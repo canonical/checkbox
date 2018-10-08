@@ -534,6 +534,14 @@ class UdevadmDevice(object):
             if self._environment["SUBSYSTEM"] == "video4linux":
                 return "CAPTURE"
 
+        if (
+           'RFKILL_TYPE' in self._environment and
+           'RFKILL_NAME' in self._environment
+        ):
+           if self._environment["RFKILL_TYPE"] == 'bluetooth':
+               if self._environment["RFKILL_NAME"].startswith('hci'):
+                   return 'BLUETOOTH'
+
         # Any devices that have a product name and proper vendor and product
         # IDs, but had no other category, are lumped together in OTHER.
         # A few devices may have no self.product but carry PRODUCT data in
@@ -975,6 +983,8 @@ class UdevadmDevice(object):
                 return self._environment["INTERFACE"]
             else:
                 return 'UNKNOWN'
+        if "RFKILL_NAME" in self._environment:
+            return self._environment["RFKILL_NAME"]
         return None
 
     @property
@@ -1224,7 +1234,7 @@ class UdevadmParser(object):
                 for parent in (device._stack[-1], device._stack[-2]):
                     if parent._raw_path in HID_devices_path_list:
                         self.devices.pop(device._raw_path, None)
-            if device.category in ("INFINIBAND", "NETWORK", "SOCKETCAN",
+            elif device.category in ("INFINIBAND", "NETWORK", "SOCKETCAN",
                                    "WIRELESS", "WWAN", "OTHER"):
                 dev_interface = [
                     d for d in self.devices.values()
@@ -1243,16 +1253,28 @@ class UdevadmParser(object):
                     dev_interface.subproduct_id = device.subproduct_id
                     dev_interface.subvendor_id = device.subvendor_id
                     self.devices.pop(device._raw_path, None)
-            # If dev/mapper list devices then they take precedence over the
-            # other block devices
-            if dev_mapper_devices and device.category == 'DISK':
-                if device not in dev_mapper_devices:
-                    self.devices.pop(device._raw_path, None)
-            # Remove DISK devices participating in RAID arrays created by
-            # mdstat
-            if md_devices and device.category == 'DISK':
-                if device.name in md_devices:
-                    self.devices.pop(device._raw_path, None)
+            elif device.category == 'BLUETOOTH':
+                dev_interface = [
+                    d for d in self.devices.values()
+                    if d.category == 'BLUETOOTH' and
+                    device._raw_path != d._raw_path and
+                    device._raw_path + '/' in d._raw_path
+                ]
+                if dev_interface:
+                    dev_interface = dev_interface.pop()
+                    device.interface = dev_interface.interface
+                    self.devices.pop(dev_interface._raw_path, None)
+            elif device.category == 'DISK':
+                # If dev/mapper list devices then they take precedence over the
+                # other block devices
+                if dev_mapper_devices:
+                    if device not in dev_mapper_devices:
+                        self.devices.pop(device._raw_path, None)
+                # Remove DISK devices participating in RAID arrays created by
+                # mdstat
+                if md_devices:
+                    if device.name in md_devices:
+                        self.devices.pop(device._raw_path, None)
 
         [result.addDevice(device) for device in self.devices.values()]
 

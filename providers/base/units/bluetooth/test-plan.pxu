@@ -25,7 +25,7 @@ unit: test plan
 _name: Bluetooth tests (automated)
 _description: Bluetooth tests (automated)
 include:
-    bluetooth/detect-output                        certification-status=blocker
+ bluetooth/detect-output                        certification-status=blocker
 
 id: bluetooth-cert-blockers
 unit: test plan

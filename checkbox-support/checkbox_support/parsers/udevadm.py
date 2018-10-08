@@ -645,11 +645,11 @@ class UdevadmDevice(object):
                 if "ID_MODEL_ID" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ID"])
         if "SUBSYSTEM" in self._environment:
-        # hidraw
+            # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
                 parent = self._stack[-1]
                 return parent.product_id
-        # video4linux
+            # video4linux
             if self._environment["SUBSYSTEM"] == "video4linux":
                 if "ID_MODEL_ID" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ID"])
@@ -699,11 +699,11 @@ class UdevadmDevice(object):
                 if "ID_VENDOR_ID" in self._environment:
                     return decode_id(self._environment["ID_VENDOR_ID"])
         if "SUBSYSTEM" in self._environment:
-        # hidraw
+            # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
                 parent = self._stack[-1]
                 return parent.vendor_id
-        # video4linux
+            # video4linux
             if self._environment["SUBSYSTEM"] == "video4linux":
                 if "ID_VENDOR_ID" in self._environment:
                     return decode_id(self._environment["ID_VENDOR_ID"])

@@ -20,6 +20,8 @@
 
 import argparse
 import asyncio
+import logging
+import sys
 
 from checkbox_support.vendor.aioblescan import create_bt_socket
 from checkbox_support.vendor.aioblescan import BLEScanRequester
@@ -29,21 +31,31 @@ from checkbox_support.vendor.aioblescan.eddystone import EddyStone
 
 
 def main():
+    logger = logging.getLogger(__file__)
+    logger.setLevel(logging.DEBUG)
+    h1 = logging.StreamHandler(sys.stdout)
+    h1.setLevel(logging.DEBUG)
+    h1.addFilter(lambda record: record.levelno <= logging.INFO)
+    h2 = logging.StreamHandler()
+    h2.setLevel(logging.WARNING)
+    logger.addHandler(h1)
+    logger.addHandler(h2)
     parser = argparse.ArgumentParser(
         description="Track BLE advertised packets")
     parser.add_argument("-D", "--device", default='hci0',
                         help="Select the hciX device to use "
                              "(default hci0).")
 
-    async def timeout():
-        await asyncio.sleep(10.0)
+    @asyncio.coroutine
+    def timeout():
+        yield from asyncio.sleep(10)
 
     def ble_process(data):
         ev = HCI_Event()
         ev.decode(data)
         advertisement = EddyStone().decode(ev)
         if advertisement:
-            print("EddyStone URL: {}".format(advertisement['url']))
+            logger.info("EddyStone URL: %s" % advertisement['url'])
             for task in asyncio.Task.all_tasks():
                 task.cancel()
 
@@ -57,7 +69,7 @@ def main():
     try:
         mysocket = create_bt_socket(int(opts.device.replace('hci', '')))
     except OSError as e:
-        print(e)
+        logger.error('%s' % e)
         return 1
     # Create a connection with the STREAM socket
     fac = event_loop._create_connection_transport(
@@ -70,6 +82,7 @@ def main():
     btctrl.send_scan_request()
     try:
         event_loop.run_until_complete(timeout())
+        logger.error('No EddyStone URL advertisement detected!')
         return 1
     except asyncio.CancelledError:
         return 0

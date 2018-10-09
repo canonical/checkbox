@@ -35,8 +35,9 @@ def main():
                         help="Select the hciX device to use "
                              "(default hci0).")
 
-    async def timeout():
-        await asyncio.sleep(10.0)
+    @asyncio.coroutine
+    def timeout():
+        yield from asyncio.sleep(10)
 
     def ble_process(data):
         ev = HCI_Event()

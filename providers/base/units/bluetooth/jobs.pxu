@@ -225,6 +225,7 @@ command:
  hciconfig {interface} up
  hciconfig
  checkbox-support-eddystone_scanner -D {interface}
+ hciconfig {interface} down
 plugin: shell
 user: root
 flags: also-after-suspend also-after-suspend-manual

@@ -222,6 +222,7 @@ template-unit: job
 id: bluetooth4/beacon_eddystone_url_{interface}
 _summary: Test system can get beacon EddyStone URL advertisements on the {interface} adapter
 command:
+ set -e
  hciconfig {interface} up
  hciconfig
  checkbox-support-eddystone_scanner -D {interface}

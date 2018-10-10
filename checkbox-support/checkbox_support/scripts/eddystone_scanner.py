@@ -22,7 +22,9 @@ import argparse
 import asyncio
 import logging
 import sys
+import time
 
+from checkbox_support.interactive_cmd import InteractiveCommand
 from checkbox_support.vendor.aioblescan import create_bt_socket
 from checkbox_support.vendor.aioblescan import BLEScanRequester
 from checkbox_support.vendor.aioblescan import HCI_Cmd_LE_Advertise
@@ -64,6 +66,11 @@ def main():
     except Exception as e:
         parser.error("Error: " + str(e))
         return 1
+    with InteractiveCommand('bluetoothctl') as btctl:
+        btctl.writeline('power on')
+        time.sleep(1)
+        btctl.writeline('exit')
+        btctl.kill()
     event_loop = asyncio.get_event_loop()
     # First create and configure a STREAM socket
     try:

@@ -92,8 +92,8 @@ include:
     wireless/wireless_connection_open_n_nm_.*
     wireless/wireless_connection_wpa_ac_nm_.*
     wireless/wireless_connection_open_ac_nm_.*
+    bluetooth4/beacon_eddystone_url_.*
     suspend/audio_before_suspend
-    suspend/bluetooth_obex_browse_before_suspend
     suspend/cpu_before_suspend
     suspend/network_before_suspend
     suspend/memory_before_suspend
@@ -104,7 +104,7 @@ include:
     suspend/wifi_resume_time_auto
     suspend/usb_storage_preinserted_after_suspend
     suspend/record_playback_after_suspend_auto
-    suspend/bluetooth_obex_browse_after_suspend_auto
+    after-suspend-bluetooth4/beacon_eddystone_url_.*
     suspend/cpu_after_suspend_auto
     suspend/memory_after_suspend_auto
     after-suspend-wireless/wireless_connection_wpa_bg_nm_.*

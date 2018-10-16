@@ -1,0 +1,50 @@
+id: ethernet-full
+unit: test plan
+_name: QA tests for ethernet
+_description: Ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+nested_part:
+    ethernet-manual
+    ethernet-automated
+
+id: ethernet-manual
+unit: test plan
+_name: Manual ethernet tests
+_description: Manual tests for ethernet connections
+include:
+    ethernet/wol_S5_.*
+    ethernet/wol_S4_.*
+    ethernet/wol_S3_.*
+    ethernet/hotplug-.*
+
+id: ethernet-automated
+unit: test plan
+_name: Automated ethernet tests
+_description: Automated ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+    ethernet/detect
+    ethernet/ping_.*
+bootstrap_include:
+    device
+
+id: after-suspend-ethernet-full
+unit: test plan
+_name: QA tests for ethernet (after suspend)
+_description: Ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+nested_part:
+    after-suspend-ethernet-automated
+
+id: after-suspend-ethernet-automated
+unit: test plan
+_name: Automated ethernet tests (after suspend)
+_description: Automated ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+    after-suspend-ethernet/detect
+    after-suspend-ethernet/ping_.*
+bootstrap_include:
+    device

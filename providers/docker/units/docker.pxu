@@ -1,8 +1,9 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2018 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Jonathan Cave <jonathan.cave@canonical.com>
 
 unit: category
 id: docker
@@ -487,33 +488,31 @@ command:
 _summary: Test compose a container with restart policy applied
 flags: simple preserve-cwd
 
-id: docker-full
-unit: test plan
-_name: Fully automated QA tests for Docker containers
-_description:
- QA test plan for Docker containers (docker and docker-compose)
-estimated_duration: 120
-include:
-    docker/info
-    docker/version
-    docker/hello-world_.*
-    docker/run_.*
-    docker/interative_.*
-    docker/diff_.*
-    docker/copy_.*
-    docker/inspect_.*
-    docker/kill_.*
-    docker/build-single_.*
-    docker/start-stop_.*
-    docker/deploy-registry_.*
-    docker/export-and-import_.*
-    docker/save-and-load_.*
-    docker/commit_.*
-    docker/update_.*
-    docker/restart-on-failure_.*
-    docker/restart-always_.*
-    docker/compose-single_.*
-    docker/compose-and-basic_.*
-    docker/compose-restart_.*
-bootstrap_include:
-    docker_resource
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/edgex_compose_{arch}
+user: root
+category_id: docker
+requires:
+ snap.name == 'docker'
+ docker_resource.arch_supported == 'yes'
+command:
+  set -ex
+  #A readable&writable path for docker snap
+  compose_file=/var/snap/docker/common/docker-compose-california-0.6.1.yml
+  wget https://raw.githubusercontent.com/edgexfoundry/developer-scripts/04c933f2c03bb9b212e1035505fed0a386f4d43e/compose-files/docker-compose-california-0.6.1.yml -O $compose_file
+  for svc in volume config-seed mongo logging notifications metadata data command scheduler export-client export-distro rulesengine device-virtual; do 
+    {compose_command} --file $compose_file up -d $svc
+    sleep 60
+  done
+  for svc in volume mongo logging notifications metadata data command scheduler export-client export-distro device-virtual; do 
+    status=$(docker inspect -f '{status}' $({compose_command} --file $compose_file ps -q $svc))
+    if [ "$status" != "running" ]; then
+        echo "service $svc is supposed to be running, but currently has status: $status"
+        exit 1
+    fi
+  done
+  {compose_command} --file $compose_file down
+_summary: Test creation of an EdgeX project container
+flags: simple preserve-cwd

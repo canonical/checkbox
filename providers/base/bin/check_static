@@ -1,0 +1,28 @@
+#!/bin/bash
+
+IFACE="$1"
+
+if [ "$IFACE" = "" ]; then
+ echo "No interface specified"
+ exit 1
+fi
+
+CARRIER=$(nmcli -t --fields WIRED-PROPERTIES.CARRIER d show $IFACE | cut -d ":" -f 2)
+if [ "$CARRIER" = "off" ]; then
+ echo "No cable present"
+ exit 1
+fi
+
+CONN_NAME=$(nmcli -t --fields GENERAL.CONNECTION d show $IFACE | cut -d ":" -f 2)
+if [ "$CONN_NAME" = "--" ]; then
+ echo "No connection active on $IFACE"
+ exit 1
+fi
+echo "Connection active on $IFACE is $CONN_NAME"
+
+CONN_METHOD=$(nmcli -t --fields ipv4.method c show  "$CONN_NAME" | cut -d ":" -f 2)
+if [ "$CONN_METHOD" = "auto" ]; then
+ echo "FAIL: $CONN_METHOD"
+ exit 1
+fi
+echo "PASS: $CONN_METHOD"

@@ -6,6 +6,13 @@ file_extension: html
 data: {"template": "checkbox.html"}
 
 unit: exporter
+id: html-multi-page
+_summary: Generate a multi-page standalone HTML
+entry_point: jinja2
+file_extension: html
+data: {"template": "multi-page.html"}
+
+unit: exporter
 id: json
 _summary: Generate JSON output
 entry_point: jinja2

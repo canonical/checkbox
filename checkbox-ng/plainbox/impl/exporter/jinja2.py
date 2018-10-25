@@ -168,6 +168,30 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         self.dump(data, stream)
         self.validate(stream)
 
+    def dump_from_session_manager_list(self, session_manager_list, stream):
+        """
+        Extract data from session_manager_list and dump them into the stream.
+
+        :param session_manager_list:
+            SessionManager instances that manages session to be exported by
+            this exporter
+        :param stream:
+            Byte stream to write to.
+
+        """
+        data = {
+            'OUTCOME_METADATA_MAP': OUTCOME_METADATA_MAP,
+            'client_name': self._client_name,
+            'client_version': self._client_version,
+            'manager_list': session_manager_list,
+            'app_blob': {},
+            'options': self.option_list,
+            'system_id': self._system_id,
+            'timestamp': self._timestamp,
+        }
+        data.update(self.data)
+        self.dump(data, stream)
+
     def get_session_data_subset(self, session_manager):
         """Compute a subset of session data."""
         return {

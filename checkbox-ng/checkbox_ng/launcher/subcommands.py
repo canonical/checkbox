@@ -736,6 +736,12 @@ class Run(Command, MainLoopStage):
             metavar=_('OPTIONS'),
             help=_('comma-separated list of key-value options (k=v) to '
                    'be passed to the transport'))
+        parser.add_argument(
+            '--title', action='store', metavar='SESSION_NAME',
+            help=_('title of the session to use'))
+        parser.add_argument(
+            "-m", "--message",
+            help=_("submission description"))
 
     @property
     def C(self):
@@ -767,17 +773,19 @@ class Run(Command, MainLoopStage):
             )
             self._configure_restart()
             try_selecting_providers(self.sa, '*')
-            self.sa.start_new_session('checkbox-run')
+            self.sa.start_new_session(self.ctx.args.title or 'checkbox-run')
             tps = self.sa.get_test_plans()
             self._configure_report()
             selection = ctx.args.PATTERN
+            submission_message = self.ctx.args.message
             if len(selection) == 1 and selection[0] in tps:
                 self.ctx.sa.update_app_blob(json.dumps(
-                    {'testplan_id': selection[0]}).encode("UTF-8"))
+                    {'testplan_id': selection[0],
+                     'description': submission_message}).encode("UTF-8"))
                 self.just_run_test_plan(selection[0])
             else:
                 self.ctx.sa.update_app_blob(json.dumps(
-                    {}).encode("UTF-8"))
+                    {'description': submission_message}).encode("UTF-8"))
                 self.sa.hand_pick_jobs(selection)
                 print(self.C.header(_("Running Selected Jobs")))
                 self._run_jobs(self.sa.get_dynamic_todo_list())

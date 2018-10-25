@@ -49,6 +49,7 @@
             "name": "{{ job_state.job.tr_summary() }}",
             "certification_status": "{{ job_state.effective_certification_status }}",
             "category": "{{ category_map[job_state.effective_category_id] }}",
+            "category_id": "{{ job_state.effective_category_id }}",
             "status": "{{ job_state.result.outcome_meta().hexr_mapping }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
@@ -73,7 +74,26 @@
             "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}}
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
-    ]
+    ],
+    "attachment-results": [
+    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
+        {
+            "id": "{{ job_id|strip_ns }}",
+            "name": "{{ job_state.job.tr_summary() }}",
+            "certification_status": "{{ job_state.effective_certification_status }}",
+            "category": "{{ category_map[job_state.effective_category_id] }}",
+            "status": "{{ job_state.result.outcome_meta().hexr_mapping }}",
+            "comments": {{ job_state.result.comments | jsonify | safe }},
+            "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
+            "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}}
+        }{%- if not loop.last -%},{%- endif %}
+    {%- endfor %}
+    ],
+    "category_map": {
+        {%- for cat_id, cat_name in category_map|dictsort %}
+        "{{ cat_id }}": "{{ cat_name }}"{%- if not loop.last -%},{%- endif %}
+        {%- endfor %}
+    }
 {%- if ns ~ 'dkms_info_json' in state.job_state_map and state.job_state_map[ns ~ 'dkms_info_json'].result.outcome == 'pass' %},
 {%- set dkms_info_json = state.job_state_map[ns ~ 'dkms_info_json'].result.io_log_as_text_attachment %}
     "dkms_info": {{ dkms_info_json | indent(4, false) | safe }}

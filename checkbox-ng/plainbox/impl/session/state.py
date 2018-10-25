@@ -1349,6 +1349,8 @@ class SessionState:
             })
         tmp_result_map = {}
         for job_state in self.job_state_map.values():
+            if job_state.job.plugin in ("resource", "attachment"):
+                continue
             category = job_state.effective_category_id
             if category not in wanted_category_ids:
                 continue

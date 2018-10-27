@@ -49,39 +49,80 @@
                     {%- if manager.test_plans %}
                     <p>Test plan: {{ manager.test_plans[0] }}</p>
                     {%- endif %}
-                    <table><tbody><tr>
-                    <td><canvas id="chart-area" width="140" height="140" />
-                    <td id="legendDiv" class="ui-content jqm-content" style="padding:1em"></td>
-                    </tr></tbody></table>
+                    <div id="canvas-holder" style="width:300px">
+                        <canvas id="chart-area"></canvas>
+                    </div>
                     <script>
-                        var pieData = [
-                            {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
-                            {
-                                value: {{ total }},
-                                color: "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",
-                                label: "{{ OUTCOME_METADATA_MAP[outcome].tr_label }}"
+                        var config = {
+                            type: 'pie',
+                            data: {
+                                datasets: [{
+                                    data: [
+                                        {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                        {{ total }},
+                                        {%- endfor %}
+                                    ],
+                                    backgroundColor: [
+                                        {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                        "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",
+                                        {%- endfor %}
+                                    ],
+                                }],
+                                labels: [
+                                    {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                    "{{ OUTCOME_METADATA_MAP[outcome].tr_label }}",
+                                    {%- endfor %}
+                                ]
                             },
-                            {%- endfor %}
-                        ];
+                            options: {
+                                responsive: true,
+                                legend: {
+                                    display: true,
+                                    onClick: function () {},
+                                    position: 'right',
+                                    labels: {
+                                        fontSize: 15,
+                                        fontStyle: 'normal',
+                                        generateLabels: function(chart) {
+                                            var data = chart.data;
+                                            if (data.labels.length && data.datasets.length) {
+                                                return data.labels.map(function(label, i) {
+                                                    var meta = chart.getDatasetMeta(0);
+                                                    var ds = data.datasets[0];
+                                                    var arc = meta.data[i];
+                                                    var custom = arc && arc.custom || {};
+                                                    var getValueAtIndexOrDefault = Chart.helpers.getValueAtIndexOrDefault;
+                                                    var arcOpts = chart.options.elements.arc;
+                                                    var fill = custom.backgroundColor ? custom.backgroundColor : getValueAtIndexOrDefault(ds.backgroundColor, i, arcOpts.backgroundColor);
+                                                    var stroke = custom.borderColor ? custom.borderColor : getValueAtIndexOrDefault(ds.borderColor, i, arcOpts.borderColor);
+                                                    var bw = custom.borderWidth ? custom.borderWidth : getValueAtIndexOrDefault(ds.borderWidth, i, arcOpts.borderWidth);
 
-                        var pieOptions = {
-                            {% raw %}
-                            legendTemplate : 
-                                '<table data-role="table" id="table0" class="ui-body-d ui-responsive">'
-                                +'<tbody>'
-                                +"<% for (var i=0; i<segments.length; i++){%>"
-                                +"<tr><td><%=segments[i].value%></td>"
-                                +"<td style=\"font-weight: bold; color:<%=segments[i].fillColor%>\">"
-                                +"<%if(segments[i].label){%><%=segments[i].label%><%}%></td></tr><%}%>"
-                                +"</tbody>"
-                                +"</table>"
-                            {% endraw %}
-                        }
+                                                    // We get the value of the current label
+                                                    var value = chart.config.data.datasets[arc._datasetIndex].data[arc._index];
+
+                                                    return {
+                                                        // Instead of `text: label,`
+                                                        // We add the value to the string
+                                                        text: label + " : " + value,
+                                                        fillStyle: fill,
+                                                        strokeStyle: stroke,
+                                                        lineWidth: bw,
+                                                        hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+                                                        index: i
+                                                    };
+                                                });
+                                            } else {
+                                                return [];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        };
 
                         window.onload = function(){
-                            var ctx = document.getElementById("chart-area").getContext("2d");
-                            window.myPie = new Chart(ctx).Pie(pieData, pieOptions);
-                            document.getElementById("legendDiv").innerHTML = window.myPie.generateLegend();
+                            var ctx = document.getElementById('chart-area').getContext('2d');
+                            window.myPie = new Chart(ctx, config);
                         };
                         $(function(){
                             $('#expanseAll').on('click', function() {
@@ -92,6 +133,7 @@
                             });
                         });
                     </script>
+                    <br>
                     <fieldset class="ui-grid-a">
                         <div class="ui-block-a">
                             <input id="expanseAll" data-mini="true" data-inline="true" value="Expand All" type="button">

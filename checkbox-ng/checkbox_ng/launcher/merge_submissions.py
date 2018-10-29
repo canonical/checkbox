@@ -20,24 +20,14 @@
 :mod:`checkbox-ng.launcher.merge_submissions` -- merge-submissions sub-command
 ==============================================================================
 """
-import json
-import os
 import tarfile
 from tempfile import TemporaryDirectory
 
-from guacamole import Command
-
-from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
-from plainbox.impl.providers.special import get_exporters
-from plainbox.impl.resource import Resource
-from plainbox.impl.result import IOLogRecord
-from plainbox.impl.result import MemoryJobResult
+from checkbox_ng.launcher.merge_reports import MergeReports
 from plainbox.impl.session import SessionManager
-from plainbox.impl.unit.category import CategoryUnit
-from plainbox.impl.unit.job import JobDefinition
 
 
-class MergeSubmissions(Command):
+class MergeSubmissions(MergeReports):
     name = 'merge-submissions'
 
     def register_arguments(self, parser):
@@ -53,77 +43,18 @@ class MergeSubmissions(Command):
 
     def invoked(self, ctx):
         tmpdir = TemporaryDirectory()
-        jobs = {}
-        categories = {}
+        self.job_dict = {}
+        self.category_dict = {}
         for submission in ctx.args.submission:
-            try:
-                with tarfile.open(submission) as tar:
-                    tar.extractall(tmpdir.name)
-                    with open(os.path.join(
-                              tmpdir.name, 'submission.json')) as f:
-                        data = json.load(f)
-                for result in data['results']:
-                    result['plugin'] = 'shell'  # Required so default to shell
-                    result['summary'] = result['name']
-                    jobs[result['id']] = JobDefinition(result)
-                for result in data['resource-results']:
-                    result['plugin'] = 'resource'
-                    result['summary'] = result['name']
-                    jobs[result['id']] = JobDefinition(result)
-                for result in data['attachment-results']:
-                    result['plugin'] = 'attachment'
-                    result['summary'] = result['name']
-                    jobs[result['id']] = JobDefinition(result)
-                for cat_id, cat_name in data['category_map'].items():
-                    categories[cat_id] = CategoryUnit(
-                        {'id': cat_id, 'name': cat_name})
-            except OSError as e:
-                print(e)
-                return 1
-            except KeyError as e:
-                print("Invalid JSON submission, missing key:", e)
-                return 1
+            session_title = self._parse_submission(
+                submission, tmpdir, mode='dict')
         manager = SessionManager.create_with_unit_list(
-            list(jobs.values()) + list(categories.values()))
-        manager.state.metadata.title = ctx.args.title or data['title']
-        for job in jobs.values():
-            io_log = [
-                IOLogRecord(count, 'stdout', line.encode('utf-8'))
-                for count, line in enumerate(
-                    job.get_record_value('io_log').splitlines(
-                        keepends=True))
-            ]
-            result = MemoryJobResult({
-                'outcome': job.get_record_value('status'),
-                'comments': job.get_record_value('comments'),
-                'execution_duration': job.get_record_value('duration'),
-                'io_log': io_log,
-            })
-            manager.state.update_job_result(job, result)
-            if job.plugin == 'resource':
-                new_resource_list = []
-                for record in gen_rfc822_records_from_io_log(job, result):
-                    resource = Resource(record.data)
-                    new_resource_list.append(resource)
-                if not new_resource_list:
-                    new_resource_list = [Resource({})]
-                manager.state.set_resource_list(
-                    "com.canonical.certification::" + job.id,
-                    new_resource_list)
-            job_state = manager.state.job_state_map[job.id]
-            job_state.effective_category_id = job.get_record_value(
-                'category_id', 'com.canonical.plainbox::uncategorised')
-        exporter_map = {}
-        exporter_units = get_exporters().unit_list
-        for unit in exporter_units:
-            if unit.Meta.name == 'exporter':
-                support = unit.support
-                if support:
-                    exporter_map[unit.id] = support
-        exporter_support = exporter_map[
-            'com.canonical.plainbox::tar']
-        exporter = exporter_support.exporter_cls(
-            [], exporter_unit=exporter_support)
+            list(self.job_dict.values()) + list(self.category_dict.values()))
+        manager.state.metadata.title = ctx.args.title or session_title
+        for job in self.job_dict.values():
+            self._populate_session_state(job, manager.state)
+        exporter = self._create_exporter(
+            'com.canonical.plainbox::tar')
         with open(ctx.args.output_file, 'wb') as stream:
             exporter.dump_from_session_manager(manager, stream)
         with tarfile.open(ctx.args.output_file) as tar:

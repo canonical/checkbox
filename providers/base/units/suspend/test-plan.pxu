@@ -37,6 +37,9 @@ include:
     suspend/bluetooth_obex_send_before_suspend     certification-status=blocker
     suspend/bluetooth_obex_browse_before_suspend   certification-status=blocker
     suspend/bluetooth_obex_get_before_suspend      certification-status=blocker
+    bluetooth4/beacon_eddystone_url_.*             certification-status=blocker
+bootstrap_include:
+    device
 
 id: after-suspend-reference-cert-automated
 unit: test plan
@@ -51,6 +54,9 @@ include:
     suspend/bluetooth_obex_send_after_suspend      certification-status=blocker
     suspend/bluetooth_obex_browse_after_suspend    certification-status=blocker
     suspend/bluetooth_obex_get_after_suspend       certification-status=blocker
+    after-suspend-manual-bluetooth4/beacon_eddystone_url_.*  certification-status=blocker
+bootstrap_include:
+    device
 
 id: before-suspend-reference-cert-blockers
 unit: test plan
@@ -64,6 +70,9 @@ include:
     suspend/bluetooth_obex_send_before_suspend     certification-status=blocker
     suspend/bluetooth_obex_browse_before_suspend   certification-status=blocker
     suspend/bluetooth_obex_get_before_suspend      certification-status=blocker
+    bluetooth4/beacon_eddystone_url_.*             certification-status=blocker
+bootstrap_include:
+    device
 
 id: after-suspend-reference-cert-blockers
 unit: test plan
@@ -78,6 +87,9 @@ include:
     suspend/bluetooth_obex_send_after_suspend      certification-status=blocker
     suspend/bluetooth_obex_browse_after_suspend    certification-status=blocker
     suspend/bluetooth_obex_get_after_suspend       certification-status=blocker
+    after-suspend-manual-bluetooth4/beacon_eddystone_url_.*  certification-status=blocker
+bootstrap_include:
+    device
 
 id: suspend-key-led-oops-check-cert-blockers
 unit: test plan

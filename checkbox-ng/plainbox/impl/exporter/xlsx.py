@@ -689,6 +689,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         cat_map = _category_map(state)
         run_list_ids = [job.id for job in state.run_list]
         for cat_id in sorted(cat_map, key=lambda x: cat_map[x].casefold()):
+            self._lineno += 1
+            self.worksheet4.write_row(self._lineno, 0, [cat_map[cat_id], '', ''], self.format15)
             for job_id in sorted(state._job_state_map):
                 job_state = state._job_state_map[job_id]
                 if job_id not in run_list_ids:

@@ -97,7 +97,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
             paths.extend(self.data["extra_paths"])
         self.option_list = exporter_unit.option_list
         loader = FileSystemLoader(paths)
-        env = Environment(loader=loader)
+        env = Environment(loader=loader, extensions=['jinja2.ext.autoescape'])
         self.customize_environment(env)
 
         def include_file(name):

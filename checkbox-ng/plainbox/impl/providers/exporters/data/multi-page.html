@@ -215,7 +215,7 @@
                     {%- else %}
                     <td style='width:10%'></td>
                     {%- endif %}
-                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                    <td style='width:35%'>{% autoescape false %}{{ job_state.result.comments if job_state.result.comments != None }}{% endautoescape %}</td>
                 </tr>
             {%- endfor %}
             </tbody>

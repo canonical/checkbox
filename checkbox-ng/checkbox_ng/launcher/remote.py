@@ -160,7 +160,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             with open(expanded_path, 'rt') as f:
                 self._launcher_text = f.read()
             self.launcher.read_string(self._launcher_text)
-        timeout = 30
+        timeout = 600
         deadline = time.time() + timeout
         port = 18871
         print(_("Connecting to {}:{}. Timeout: {}s").format(

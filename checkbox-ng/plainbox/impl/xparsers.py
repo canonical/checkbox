@@ -217,8 +217,11 @@ class Re(Node):
         RePattern(text='pa[tT]ern', re=re.compile('pa[tT]ern'))
 
         >>> from sre_constants import error
-        >>> Re.parse("+")
-        ReErr(text='+', exc=error('nothing to repeat',))
+        >>> res = Re.parse("+")
+        >>> res.exc.args
+        ('nothing to repeat',)
+        >>> res.text
+        '+'
         """
         try:
             pyre_ast = sre_parse.parse(text)

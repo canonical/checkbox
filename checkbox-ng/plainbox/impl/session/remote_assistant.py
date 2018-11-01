@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+import fnmatch
 import json
 import gettext
 import logging
@@ -50,6 +51,7 @@ class Interaction(namedtuple('Interaction', ['kind', 'message', 'extra'])):
 
     def __new__(cls, kind, message="", extra=None):
         return super(Interaction, cls).__new__(cls, kind, message, extra)
+
 
 Idle = 'idle'
 Started = 'started'
@@ -199,7 +201,12 @@ class RemoteSessionAssistant():
         self._sa.start_new_session('checkbox-service')
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
-        response = zip(tps, [self._sa.get_test_plan(tp).name for tp in tps])
+        filtered_tps = set()
+        for filter in self._launcher.test_plan_filters:
+            filtered_tps.update(fnmatch.filter(tps, filter))
+        filtered_tps = list(filtered_tps)
+        response = zip(filtered_tps, [self._sa.get_test_plan(
+            tp).name for tp in filtered_tps])
         self._state = Started
         self._available_testplans = sorted(
             response, key=lambda x: x[1])  # sorted by name

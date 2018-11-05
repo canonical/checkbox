@@ -174,12 +174,3 @@ _siblings: [
       "command": "cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -",
       "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}
  ]
-
-plugin: shell
-category_id: com.canonical.plainbox::cpu
-estimated_duration: 0.5
-id: cpu/purley_id
-command:
- egrep -q avx512 /proc/cpuinfo && echo "This is a Purley CPU" || echo "CPU is NOT Purley"
-_description: Identifies Purley Platform CPUs
-

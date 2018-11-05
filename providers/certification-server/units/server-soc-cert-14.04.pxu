@@ -41,7 +41,6 @@ include:
     miscellanea/fwts_results.log               certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
     benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
-    cpu/purley_id                              certification-status=non-blocker
     cpu/clocktest                              certification-status=blocker
     cpu/scaling_test                           certification-status=blocker
     cpu/scaling_test-log-attach                certification-status=non-blocker

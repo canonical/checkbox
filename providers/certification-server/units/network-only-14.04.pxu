@@ -37,7 +37,6 @@ mandatory_include:
     info/network_devices
     kernel_cmdline_attachment
 include:
-    cpu/purley_id
     ethernet/detect
     ethernet/info_automated
     ethernet/ethtool_info

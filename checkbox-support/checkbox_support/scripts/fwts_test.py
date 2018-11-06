@@ -44,6 +44,44 @@ HWE_TESTS = ['version',
              'apicedge',
              'klog',
              'oops']
+# THe following tests are re-introduced to the server suite at the request of
+# the hyperscale team
+# These are called when running the --uefitests shortcut
+UEFI_TESTS = ['esrt',
+              'uefirtauthvar',
+              'uefibootpath',
+              'securebootcert',
+              'uefirtmisc',
+              'uefirtvariable',
+              'uefirttime',
+              'csm']
+# These are called when running the --sbbr shortcut
+SBBR_TESTS = ['dmicheck',
+              'xsdt',
+              'spcr',
+              'rsdp_sbbr',
+              'method',
+              'madt',
+              'gtdt',
+              'fadt_sbbr',
+              'dbg2',
+              'acpi_sbbr',
+              'acpitables']
+# These are called when running the --acpitests shortcut
+ACPI_TESTS = ['acpiinfo', 'xenv', 'xsdt', 'wsmt', 'wpbt', 'wmi', 'wdat',
+              'waet', 'uefi', 'tpm2', 'tcpa', 'stao', 'srat', 'spmi', 'spcr',
+              'slit', 'slic', 'sdev', 'sdei', 'sbst', 'rsdt', 'rsdp', 'rasf',
+              'pptt', 'pmtt', 'pdtt', 'pcct', 'pcc', 'nfit', 'method', 'msdm',
+              'msct', 'mpst', 'mchi', 'mcfg', 'madt', 'lpit', 'iort', 'hmat',
+              'hpet', 'hest', 'gtdt', 'fpdt', 'fadt', 'facs', 'erst', 'einj',
+              'ecdt', 'drtm', 'dppt', 'dmar', 'acpi_wpc', 'acpi_time', 'acpi_als',
+              'acpi_lid', 'acpi_slpb', 'acpi_pwrb', 'acpi_ec', 'smart_battery',
+              'acpi_battery', 'acpi_ac', 'dbg2', 'dbgp', 'cstates', 'csrt',
+              'cpep', 'checksum', 'boot', 'bgrt', 'bert', 'aspt', 'asf',
+              'apicinstance', 'acpitables']
+# There are some overlaps there, this creates one master list removing
+# duplicates
+SERVER_TESTS = list(dict.fromkeys(ACPI_TESTS + SBBR_TESTS + UEFI_TESTS))
 # By default, we launch all the tests
 TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile('(Suspend|Resume):\s+([\d\.]+)\s+seconds.')
@@ -112,7 +150,6 @@ def detect_progress_indicator():
     # Return empty list if no progress indicator is to be used
     return []
 
-
 def main():
     description_text = 'Tests the system BIOS using the Firmware Test Suite'
     epilog_text = ('To perform sleep testing, you will need at least some of '
@@ -152,6 +189,10 @@ def main():
                               'test as FAILED_CRITICAL. You will still be '
                               'notified of all FWTS test failures. '
                               '[Default level: %(default)s]'))
+    parser.add_argument('-q', '--quiet',
+                        action='store_true',
+                        help='Suppress script output except for failures '
+                             'matching the fail-level set by -f')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-t', '--test',
                        action='append',
@@ -175,6 +216,9 @@ def main():
     group.add_argument('--qa',
                        action='store_true',
                        help='Run QA concerned tests in fwts')
+    group.add_argument('--server',
+                       action='store_true',
+                       help='Run Server Certification concerned tests in fwts')
     group.add_argument('--fwts-help',
                        dest='fwts_help',
                        action='store_true',
@@ -188,6 +232,9 @@ def main():
     group.add_argument('--list-qa',
                        action='store_true',
                        help='List all QA concerned tests in fwts')
+    group.add_argument('--list-server',
+                       action='store_true',
+                       help='List all Server Certification concerned tests in fwts')
     args = parser.parse_args()
 
     tests = []
@@ -226,12 +273,17 @@ def main():
     elif args.list_qa:
         print('\n'.join(QA_TESTS))
         return 0
+    elif args.list_server:
+        print('Server Certification Tests:')
+        print('  * ', '\n  * '.join(SERVER_TESTS))
     elif args.test:
         tests.extend(args.test)
     elif args.hwe:
         tests.extend(HWE_TESTS)
     elif args.qa:
         tests.extend(QA_TESTS)
+    elif args.server:
+        tests.extend(SERVER_TESTS)
     elif args.sleep:
         args.sleep = fix_sleep_args(args.sleep)
         iterations = 1
@@ -338,59 +390,66 @@ def main():
             skipped.append(test)
         else:
             return 1
-
     if critical_fails:
         print("Critical Failures: %d" % len(critical_fails))
-        print("WARNING: The following test cases were reported as critical\n"
-              "level failures by fwts. Please review the log at\n"
-              "%s for more information." % args.log)
-        for test in critical_fails:
-            print(" - " + test)
+        if not args.quiet:
+            print("WARNING: The following test cases were reported as critical\n"
+                  "level failures by fwts. Please review the log at\n"
+                  "%s for more information." % args.log)
+            for test in critical_fails:
+                print(" - " + test)
     if high_fails:
         print("High Failures: %d" % len(high_fails))
-        print("WARNING: The following test cases were reported as high\n"
-              "level failures by fwts. Please review the log at\n"
-              "%s for more information." % args.log)
-        for test in high_fails:
-            print(" - " + test)
+        if not args.quiet:
+            print("WARNING: The following test cases were reported as high\n"
+                  "level failures by fwts. Please review the log at\n"
+                  "%s for more information." % args.log)
+            for test in high_fails:
+                print(" - " + test)
     if medium_fails:
         print("Medium Failures: %d" % len(medium_fails))
-        print("WARNING: The following test cases were reported as medium\n"
-              "level failures by fwts. Please review the log at\n"
-              "%s for more information." % args.log)
-        for test in medium_fails:
-            print(" - " + test)
+        if not args.quiet:
+            print("WARNING: The following test cases were reported as medium\n"
+                  "level failures by fwts. Please review the log at\n"             
+                  "%s for more information." % args.log)
+            for test in medium_fails:
+                print(" - " + test)
     if low_fails:
         print("Low Failures: %d" % len(low_fails))
-        print("WARNING: The following test cases were reported as low\n"
-              "level failures by fwts. Please review the log at\n"
-              "%s for more information." % args.log)
-        for test in low_fails:
-            print(" - " + test)
+        if not args.quiet:
+            print("WARNING: The following test cases were reported as low\n"
+                  "level failures by fwts. Please review the log at\n"
+                  "%s for more information." % args.log)
+            for test in low_fails:
+                print(" - " + test)
     if passed:
         print("Passed: %d" % len(passed))
-        for test in passed:
-            print(" - " + test)
+        if not args.quiet:
+            for test in passed:
+                print(" - " + test)
     if skipped:
         print("Skipped Tests: %d" % len(skipped))
-        print("WARNING: The following test cases were skipped by fwts\n"
-              "Please review the log at %s for more information."
-              % args.log)
-        for test in skipped:
-            print(" - " + test)
+        if not args.quiet:
+            print("WARNING: The following test cases were skipped by fwts\n"
+                  "Please review the log at %s for more information."
+                  % args.log)
+            for test in skipped:
+                print(" - " + test)
     if warnings:
         print("WARNINGS: %d" % len(warnings))
-        print("Please review the log at %s for more information."
-              % args.log)
-        for test in warnings:
-            print(" - " + test)
+        if not args.quiet:
+            print("Please review the log at %s for more information."
+                  % args.log)
+            for test in warnings:
+                print(" - " + test)
     if aborted:
         print("Aborted Tests: %d" % len(aborted))
-        print("WARNING: The following test cases were aborted by fwts\n"
-              "Please review the log at %s for more information."
-              % args.log)
-        for test in aborted:
-            print(" - " + test)
+        if not args.quiet:
+            print("WARNING: The following test cases were aborted by fwts\n"
+                  "Please review the log at %s for more information."
+                  % args.log)
+            for test in aborted:
+                print(" - " + test)
 
     if args.fail_level is not 'none':
         if fail_priority == fail_levels['FAILED_CRITICAL']:

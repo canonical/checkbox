@@ -22,9 +22,6 @@
         {{ include_file("Chart.min.js") }}
     </script>
     <script>
-        $(function(){
-            $( "[data-role='header']" ).toolbar();
-        });
         {%- for manager in manager_list %}
         $(function(){
           // bind change event to select

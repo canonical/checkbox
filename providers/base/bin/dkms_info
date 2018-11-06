@@ -87,7 +87,12 @@ def get_system_modaliases():
             with io.open(os.path.join(root, name), 'rt',
                          encoding='UTF-8') as stream:
                 data = stream.read().strip()
-                (modalias_type, modalias_string) = data.split(":", 1)
+                pattern_array = data.split(":", 1)
+                if len(pattern_array) < 2:
+                    _logger.warning(
+                        "skip pattern {}, not a valid modalias".format(data))
+                    continue
+                (modalias_type, modalias_string) = pattern_array
 
                 if modalias_type not in result:
                     result[modalias_type] = []

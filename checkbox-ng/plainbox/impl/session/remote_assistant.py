@@ -235,12 +235,12 @@ class RemoteSessionAssistant():
 
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
-        self._jobs_count = len(self._sa.get_static_todo_list())
         self._state = Bootstrapped
         return self._sa.get_static_todo_list()
 
     def save_todo_list(self, chosen_jobs):
         self._sa.use_alternate_selection(chosen_jobs)
+        self._jobs_count = len(self._sa.get_dynamic_todo_list())
         self._state = TestsSelected
 
     @allowed_when(TestsSelected)
@@ -410,18 +410,20 @@ class RemoteSessionAssistant():
             else:
                 self._state = TestsSelected
 
-    def get_jobs_repr(self, job_ids):
+    def get_jobs_repr(self, job_ids, offset=0):
         """
         Translate jobs into a {'field': 'val'} representations.
 
         :param job_ids:
             list of job ids to get and translate
+        :param offset:
+            apply an offset to the job number if for instance the job list
+            is being requested part way through a session
         :returns:
             list of dicts representing jobs
         """
         test_info_list = tuple()
-        total_jobs = len(job_ids)
-        for job_no, job_id in enumerate(job_ids, start=1):
+        for job_no, job_id in enumerate(job_ids, start=offset + 1):
             job = self._sa.get_job(job_id)
             cat_id = self._sa.get_job_state(job.id).effective_category_id
             duration_txt = _('No estimated duration provided for this job')
@@ -447,7 +449,6 @@ class RemoteSessionAssistant():
                 "user": job.user,
                 "command": job.command,
                 "num": job_no,
-                "total_num": total_jobs,
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list

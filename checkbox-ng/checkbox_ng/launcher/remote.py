@@ -213,7 +213,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
-                    'testsselected': self.continue_session,
+                    'testsselected': self.run_jobs,
                     'bootstrapped': partial(
                         self.select_jobs, all_jobs=payload),
                     'started': partial(
@@ -292,7 +292,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
     def select_jobs(self, all_jobs):
         if self.launcher.test_selection_forced:
             self.sa.save_todo_list(all_jobs)
-            self.run_jobs(all_jobs)
+            self.run_jobs()
         else:
             reprs = self.sa.get_jobs_repr(all_jobs)
             wanted_set = CategoryBrowser(
@@ -301,7 +301,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             # original list
             todo_list = [job for job in all_jobs if job in wanted_set]
             self.sa.save_todo_list(todo_list)
-            self.run_jobs(todo_list)
+            self.run_jobs()
         return False
 
     def register_arguments(self, parser):
@@ -341,24 +341,24 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
     def wait_and_continue(self):
         # TODO: nicer UI
         progress = self.sa.whats_up()[1]
-        print("rejoined session. Running job ({}/{}): {}".format(
-            progress[0], progress[1], progress[2]))
+        print("Rejoined session.")
+        print("In progress: {} ({}/{})".format(
+            progress[2], progress[0], progress[1]))
         self.wait_for_job()
-        self.continue_session()
+        self.run_jobs()
 
-    def continue_session(self):
-        todo = self.sa.get_session_progress()["todo"]
-        self.run_jobs(todo)
+    def run_jobs(self):
+        jobs = self.sa.get_session_progress()
+        total_num = len(jobs['done']) + len(jobs['todo'])
 
-    def run_jobs(self, jobs):
-        jobs_repr = self.sa.get_jobs_repr(jobs)
+        jobs_repr = self.sa.get_jobs_repr(jobs['todo'], len(jobs['done']))
         if any([x['user'] is not None for x in jobs_repr]):
             self.password_query()
 
         for job in jobs_repr:
             SimpleUI.header(
                 _('Running job {} / {}').format(
-                    job['num'], job['total_num'],
+                    job['num'], total_num,
                     fill='-'))
             SimpleUI.header(job['name'])
             print(_("ID: {0}").format(job['id']))
@@ -396,7 +396,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
 
     def resume_interacting(self, interaction):
         self.sa.remember_users_response('rollback')
-        self.continue_session()
+        self.run_jobs()
 
     def wait_for_job(self):
         while True:

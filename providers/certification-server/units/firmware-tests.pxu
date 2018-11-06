@@ -6,6 +6,8 @@ _description:
     hardware.  It will run several checks of firmware and DMI data.  This
     whitelist is meant to provide the hardware vendor with information on
     their system firmware.
+nested_part:
+    com.canonical.certification::server-firmware
 mandatory_include:
     # Meta-job to include required resources, please don't remove
     miscellanea/submission-resources
@@ -42,8 +44,8 @@ include:
     miscellanea/ipmi_test
     miscellanea/bmc_info
     miscellanea/fwupdate                    certification-status=non-blocker
-    miscellanea/fwts_test
-    miscellanea/fwts_results.log
+    firmware/fwts_server
+    firmware/fwts_server_results.log.gz
     memory/info
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker

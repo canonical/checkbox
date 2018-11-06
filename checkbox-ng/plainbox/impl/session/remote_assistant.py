@@ -370,7 +370,7 @@ class RemoteSessionAssistant():
 
         _logger.debug("get_session_progress()")
         return {
-            "done": [],
+            "done": self._sa.get_dynamic_done_list(),
             "todo": self._sa.get_dynamic_todo_list(),
         }
 

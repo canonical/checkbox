@@ -5,9 +5,11 @@ _description:
     This whitelist is intended to be used for testing Server SoCs.  The tests
     contained here should work in any test lab envrionement. Please use this 
     whitelist for the Ubuntu Certification self-testing programme.
+nested_part:
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
 mandatory_include:
     # Meta-job to include required resources, please don't remove
-    miscellanea/submission-resources
     config_file_attachment
     cpuinfo_attachment
     dkms_info_attachment
@@ -26,12 +28,6 @@ mandatory_include:
     udev_attachment
     udev-summary_attachment
     lsmod_attachment
-    miscellanea/get_make_and_model
-    miscellanea/get_maas_version               certification-status=blocker
-    miscellanea/efi_boot_mode                  certification-status=non-blocker
-    miscellanea/check_prerelease               certification-status=non-blocker
-    miscellanea/cpus_are_not_samples
-    miscellanea/dmitest_server
     info/disk_partitions
     info/network_devices
     kernel_cmdline_attachment
@@ -68,6 +64,10 @@ include:
     info/kvm_output                            certification-status=non-blocker
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
 bootstrap_include:
     device
     fwts

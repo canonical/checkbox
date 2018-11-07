@@ -6,9 +6,11 @@ _description:
     The tests contained here should work in any test lab environment.
     This test plan runs all server certification tests except for the really
     demanding or lengthy ones.
+nested_part:
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
 mandatory_include:
     # Meta-job to include required resources, please don't remove
-    miscellanea/submission-resources
     config_file_attachment
     cpuinfo_attachment
     dkms_info_attachment
@@ -29,13 +31,6 @@ mandatory_include:
     udev_attachment
     udev-summary_attachment
     lsmod_attachment
-    miscellanea/get_make_and_model
-    miscellanea/get_maas_version               certification-status=blocker
-    miscellanea/efi_boot_mode                  certification-status=non-blocker
-    miscellanea/secure_boot_mode               certification-status=non-blocker
-    miscellanea/check_prerelease               certification-status=non-blocker
-    miscellanea/cpus_are_not_samples
-    miscellanea/dmitest_server
     info/disk_partitions
     info/network_devices
     kernel_cmdline_attachment
@@ -43,8 +38,6 @@ include:
     info/hdparm_.*.txt                         certification-status=non-blocker
     miscellanea/fwts_test                      certification-status=non-blocker
     miscellanea/fwts_results.log               certification-status=non-blocker
-    miscellanea/ipmi_test                      certification-status=blocker
-    miscellanea/bmc_info                       certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
     benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
     cpu/clocktest                              certification-status=blocker
@@ -75,6 +68,10 @@ include:
     info/kvm_output                            certification-status=non-blocker
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
 bootstrap_include:
     device
     fwts

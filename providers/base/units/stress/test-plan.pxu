@@ -18,8 +18,6 @@ include:
  power-management/suspend-30-cycle-log-attach
  power-management/suspend-30-cycles-time-check  certification-status=non-blocker
  power-management/hibernate_30_cycles           certification-status=non-blocker
-nested_part:
-    stress-cert-automated
 
 
 id: stress-cert-automated

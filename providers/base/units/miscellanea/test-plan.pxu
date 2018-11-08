@@ -74,5 +74,3 @@ mandatory_include:
     miscellanea/dmitest_server
     miscellanea/sosreport
     miscellanea/sosreport_attachment
-bootstrap_include:
-    fwts

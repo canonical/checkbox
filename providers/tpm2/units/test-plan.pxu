@@ -50,6 +50,8 @@ _description:
 estimated_duration: 10m
 include:
     tpm2.0_3.0.4/.*
+exclude:
+    tpm2.0_3.0.4/tpm2_encryptdecrypt
 mandatory_include:
     com.canonical.plainbox::collect-manifest
     com.canonical.plainbox::manifest
@@ -64,5 +66,7 @@ _description:
 estimated_duration: 10m
 include:
     tpm2.0_3.0.4/.*
+exclude:
+    tpm2.0_3.0.4/tpm2_encryptdecrypt
 mandatory_include:
     com.canonical.plainbox::manifest

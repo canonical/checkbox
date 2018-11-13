@@ -185,6 +185,8 @@ class SessionAssistant:
         self._context = None
         self._metadata = None
         self._runner = None
+        # Keep a record of jobs run during bootstrap phase
+        self._bootstrap_done_list = []
         # Expect that select_providers() be called
         UsageExpectation.of(self).allowed_calls = {
             self.use_alternate_repository: (
@@ -976,6 +978,10 @@ class SessionAssistant:
             self._get_allowed_calls_in_normal_state())
         self._metadata.flags = {'incomplete'}
         self._manager.checkpoint()
+        # No bootstrap is done update the cache of jobs that were run
+        # during bootstrap phase
+        self._bootstrap_done_list = self.get_dynamic_done_list()
+
 
     @raises(KeyError, UnexpectedMethodCall)
     def use_alternate_selection(self, selection: 'Iterable[str]'):
@@ -1211,6 +1217,25 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         return [job.id for job in self._context.state.run_list]
+
+    @raises(UnexpectedMethodCall)
+    def get_dynamic_done_list(self) -> 'List[str]':
+        """
+        Get the (dynamic) list of jobs with an outcome.
+
+        :returns:
+            A list of indentifiers of jobs that have run.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        jsm = self._context.state.job_state_map
+        return [
+            job_id for job_id, state in jsm.items()
+            if (state.result.outcome is not None and
+                job_id not in self._bootstrap_done_list)
+        ]
 
     @raises(UnexpectedMethodCall)
     def get_dynamic_todo_list(self) -> 'List[str]':

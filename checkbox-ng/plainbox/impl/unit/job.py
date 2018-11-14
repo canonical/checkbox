@@ -798,47 +798,15 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     ),
                 # Description or a set of purpose, steps and verification
                 # fields is recommended for all other jobs
-                PresentFieldValidator(
-                    severity=Severity.advice,
-                    message=_("all jobs should have a description field, or a "
-                              "set of purpose, steps and verification fields"),
-                    onlyif=lambda unit: (
-                        'simple' not in unit.get_flag_set() and
-                        unit.plugin != 'manual' and (
-                            unit.purpose is None and
-                            unit.steps is None and
-                            unit.verification is None))),
             ],
             fields.purpose: [
                 concrete_validators.translatable,
-                PresentFieldValidator(
-                    severity=Severity.advice,
-                    message=("please use purpose, steps, and verification"
-                             " fields. See http://plainbox.readthedocs.org"
-                             "/en/latest/author/faq.html#faq-2"),
-                    onlyif=lambda unit:
-                    unit.startup_user_interaction_required and
-                    unit.get_record_value('summary') is None),
             ],
             fields.steps: [
                 concrete_validators.translatable,
-                PresentFieldValidator(
-                    severity=Severity.advice,
-                    message=("please use purpose, steps, and verification"
-                             " fields. See http://plainbox.readthedocs.org"
-                             "/en/latest/author/faq.html#faq-2"),
-                    onlyif=lambda unit:
-                    unit.startup_user_interaction_required),
             ],
             fields.verification: [
                 concrete_validators.translatable,
-                PresentFieldValidator(
-                    severity=Severity.advice,
-                    message=("please use purpose, steps, and verification"
-                             " fields. See http://plainbox.readthedocs.org"
-                             "/en/latest/author/faq.html#faq-2"),
-                    onlyif=lambda unit: unit.plugin in (
-                        'manual', 'user-verify', 'user-interact-verify')),
             ],
             fields.user: [
                 concrete_validators.untranslatable,
@@ -863,10 +831,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.estimated_duration: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
-                PresentFieldValidator(
-                    severity=Severity.advice,
-                    onlyif=lambda unit: 'simple' not in unit.get_flag_set()
-                ),
                 CorrectFieldValueValidator(
                     lambda duration: float(duration) > 0,
                     message="value must be a positive number",
@@ -964,55 +928,12 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.flags: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
-                CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        not ('explicit-fail' in unit.get_flag_set() and
-                             unit.plugin in {
-                                 'shell', 'user-interact', 'attachment',
-                                 'resource'})),
-                    Problem.useless, Severity.advice,
-                    message=_('explicit-fail makes no sense for job which '
-                              'outcome is automatically determined.')
-                ),
-                # The has-leftovers flag is useless without a command
-                CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        'has-leftovers' not in unit.get_flag_set()),
-                    Problem.useless, Severity.advice,
-                    message=_(
-                        'has-leftovers makes no sense without a command'
-                    ),
-                    onlyif=lambda unit: unit.command is None),
-                # The preserve-cwd flag is useless without a command
-                CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        'preserve-cwd' not in unit.get_flag_set()),
-                    Problem.useless, Severity.advice,
-                    message=_(
-                        'preserve-cwd makes no sense without a command'
-                    ),
-                    onlyif=lambda unit: unit.command is None),
-                # The suppress-output flag is useless without a command
-                CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        'suppress-output' not in unit.get_flag_set()),
-                    Problem.useless, Severity.advice,
-                    message=_(
-                        'suppress-output makes no sense without a command'
-                    ),
-                    onlyif=lambda unit: unit.command is None),
             ],
             fields.qml_file: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     onlyif=lambda unit: unit.plugin == 'qml'),
-                CorrectFieldValueValidator(
-                    lambda value: value.endswith('.qml'),
-                    Problem.wrong, Severity.advice,
-                    message=_('use the .qml extension for all QML files'),
-                    onlyif=lambda unit: (unit.plugin == 'qml' and
-                                         unit.qml_file)),
                 CorrectFieldValueValidator(
                     lambda value, unit: os.path.isfile(unit.qml_file),
                     message=_('please point to an existing QML file'),

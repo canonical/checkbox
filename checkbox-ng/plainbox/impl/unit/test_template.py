@@ -383,13 +383,6 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
             issue_list, self.unit_cls.Meta.fields.template_unit,
             Problem.unexpected_i18n, Severity.warning)
 
-    def test_template_unit__present(self):
-        issue_list = self.unit_cls({
-        }, provider=self.provider).check()
-        self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.template_unit,
-            Problem.missing, Severity.advice)
-
     def test_template_resource__untranslatable(self):
         issue_list = self.unit_cls({
             '_template-resource': 'template_resource'

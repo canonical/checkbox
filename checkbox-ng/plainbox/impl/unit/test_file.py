@@ -35,18 +35,6 @@ class FileUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = FileUnit
 
-    def test_path__recommends_pxu(self):
-        issue_list = self.unit_cls({
-            'unit': self.unit_cls.Meta.name,
-            'path': 'foo.txt',
-            'role': FileRole.unit_source,
-        }, provider=self.provider).check()
-        message = ("please use .pxu as an extension for all files with "
-                   "plainbox units, see: http://plainbox.readthedocs.org"
-                   "/en/latest/author/faq.html#faq-1")
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.path,
-                              Problem.deprecated, Severity.advice, message)
-
     def test_unit__present(self):
         """
         overridden version of UnitFieldValidationTests.test_unit__present()

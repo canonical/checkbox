@@ -425,21 +425,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             issue_list, self.unit_cls.Meta.fields.description,
             Problem.constant, Severity.error)
 
-    def test_description__present__on_non_manual(self):
-        for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
-            if plugin == 'manual':
-                continue
-            message = ("field 'description', all jobs should have a"
-                       " description field, or a set of purpose, steps and"
-                       " verification fields")
-            # TODO: switch to subTest() once we depend on python3.4
-            issue_list = self.unit_cls({
-                'plugin': plugin
-            }, provider=self.provider).check()
-            self.assertIssueFound(
-                issue_list, self.unit_cls.Meta.fields.description,
-                Problem.missing, Severity.advice, message)
-
     def test_description__present__on_manual(self):
         message = ("field 'description', manual jobs must have a description"
                    " field, or a set of purpose, steps, and verification"
@@ -516,13 +501,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         self.assertIssueFound(
             issue_list, self.unit_cls.Meta.fields.estimated_duration,
             Problem.variable, Severity.error)
-
-    def test_estimated_duration__present(self):
-        issue_list = self.unit_cls({
-        }, provider=self.provider).check()
-        self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.estimated_duration,
-            Problem.missing, Severity.advice)
 
     def test_estimated_duration__positive(self):
         issue_list = self.unit_cls({
@@ -715,17 +693,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         self.assertIssueFound(
             issue_list, self.unit_cls.Meta.fields.category_id,
             Problem.bad_reference, Severity.error, message)
-
-    def test_flags__usless_explicit_fail_on_shell_jobs(self):
-        message = ("field 'flags', explicit-fail makes no sense for job which "
-                   "outcome is automatically determined.")
-        issue_list = self.unit_cls({
-            'plugin': 'shell',
-            'flags': 'explicit-fail'
-        }, provider=self.provider).check()
-        self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.flags,
-            Problem.useless, Severity.advice, message)
 
     def test_siblings__valid_json(self):
         issue_list = self.unit_cls({

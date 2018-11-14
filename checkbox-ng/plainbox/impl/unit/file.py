@@ -133,18 +133,5 @@ class FileUnit(Unit):
             base = 'base'
 
         field_validators = {
-            fields.path: [
-                CorrectFieldValueValidator(
-                    lambda value: os.path.splitext(value)[1] == '.pxu',
-                    Problem.deprecated, Severity.advice,
-                    onlyif=lambda unit: unit.role == FileRole.unit_source,
-                    message=_(
-                        "please use .pxu as an extension for all"
-                        " files with plainbox units, see: {}"
-                    ).format(
-                        'http://plainbox.readthedocs.org/en/latest/author/'
-                        'faq.html#faq-1'
-                    )),
-            ],
             fields.role: [MemberOfFieldValidator(FileRole.get_all_symbols())]
         }

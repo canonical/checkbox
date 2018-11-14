@@ -345,8 +345,6 @@ class ProviderManagerToolTests(TestCase):
         self.assertEqual(test_io.stdout, inline_output(
             """
             error: jobs/broken.pxu:1-2: job 'broken', field 'command', command is mandatory for non-manual jobs
-            advice: jobs/broken.pxu:1-2: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            advice: jobs/broken.pxu:1-2: job 'broken', field 'estimated_duration', required field missing
             Validation of provider com.example:test has failed
             """))
 
@@ -364,8 +362,6 @@ class ProviderManagerToolTests(TestCase):
         self.assertEqual(test_io.stdout, inline_output(
             """
             error: jobs/broken.pxu:1-2: job 'broken', field 'command', command is mandatory for non-manual jobs
-            advice: jobs/broken.pxu:1-2: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            advice: jobs/broken.pxu:1-2: job 'broken', field 'estimated_duration', required field missing
             error: jobs/broken.pxu:2: job 'broken', field 'plugin', valid values are: attachment, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
             Validation of provider com.example:test has failed
             """))
@@ -387,10 +383,6 @@ class ProviderManagerToolTests(TestCase):
             """
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual or qml job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'estimated_duration', required field missing
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             Validation of provider com.example:test has failed
             """))
 
@@ -410,11 +402,7 @@ class ProviderManagerToolTests(TestCase):
             """
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual or qml job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'estimated_duration', required field missing
             advice: jobs/broken.pxu:1: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            advice: jobs/broken.pxu:1-4: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             Validation of provider com.example:test has failed
             """))
 

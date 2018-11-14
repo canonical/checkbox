@@ -63,59 +63,6 @@ logger = logging.getLogger("plainbox.unit.testplan")
 __all__ = ['TestPlanUnit']
 
 
-class NonEmptyPatternIntersectionValidator(FieldValidatorBase):
-    """
-    We want to ensure that it is a good pattern, we need to parse it
-    to see the fine structure and know what it describes.
-    We want to ensure it describes a known job, either precisely
-    """
-
-    def check_in_context(self, parent, unit, field, context):
-        for issue in self._check_test_plan_in_context(
-                parent, unit, field, context):
-            yield issue
-
-    def _check_test_plan_in_context(self, parent, unit, field, context):
-        id_map = context.compute_shared(
-            "field_value_map[id]", compute_value_map, context, 'id')
-        # TODO: compute potential_id_map
-        advice = _("selector {!a} may not match any known or generated job")
-        # error = _("selector {!a} doesn't match any known or generated job")
-        qual_gen = unit._gen_qualifiers(
-            str(field), getattr(unit, str(field)), True)
-        for qual in qual_gen:
-            assert isinstance(qual, FieldQualifier)
-            if qual.field != 'id':
-                # NOTE: unsupported field
-                continue
-            if isinstance(qual.matcher, PatternMatcher):
-                # TODO: check potential_id map
-                for an_id in id_map:
-                    if an_id is None:
-                        # Don't report this twice.
-                        # Each unit-with-id cares about having an id
-                        continue
-                    if qual.matcher.match(an_id):
-                        break
-                else:
-                    yield parent.advice(
-                        unit, field, Problem.bad_reference,
-                        advice.format(qual.matcher.pattern_text),
-                        origin=qual.origin)
-            elif isinstance(qual.matcher, OperatorMatcher):
-                assert qual.matcher.op is operator.eq
-                target_id = qual.matcher.value
-                if target_id not in id_map:
-                    assert qual.origin.source is unit.origin.source
-                    yield parent.advice(
-                        unit, field, Problem.bad_reference,
-                        advice.format(target_id),
-                        origin=qual.origin)
-            else:
-                # NOTE: unsupported matcher
-                raise NotImplementedError
-
-
 class NoBaseIncludeValidator(FieldValidatorBase):
     """
     We want to ensure it does not select jobs already selected by the 'include'
@@ -623,16 +570,11 @@ class TestPlanUnit(UnitWithId):
             fields.description: [
                 concrete_validators.translatable,
                 concrete_validators.templateVariant,
-                PresentFieldValidator(
-                    severity=Severity.advice,
-                    onlyif=lambda unit: unit.virtual is False),
             ],
             fields.include: [
-                NonEmptyPatternIntersectionValidator(),
                 concrete_validators.present,
             ],
             fields.mandatory_include: [
-                NonEmptyPatternIntersectionValidator(),
                 NoBaseIncludeValidator(),
             ],
             fields.bootstrap_include: [
@@ -649,33 +591,12 @@ class TestPlanUnit(UnitWithId):
                             message=_("only automated jobs are allowed "
                                       "in bootstrapping_include"))])
             ],
-            fields.exclude: [
-                NonEmptyPatternIntersectionValidator(),
-            ],
-            fields.nested_part: [
-                NonEmptyPatternIntersectionValidator(),
-            ],
             fields.estimated_duration: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
-                PresentFieldValidator(
-                    severity=Severity.advice,
-                    onlyif=lambda unit: unit.virtual is False),
-                CorrectFieldValueValidator(
-                    lambda duration, unit: unit.estimated_duration > 0,
-                    message="value must be a positive number",
-                    onlyif=lambda unit: (
-                        unit.virtual is False and
-                        unit.get_record_value('estimated_duration'))),
             ],
             fields.icon: [
                 concrete_validators.untranslatable,
-            ],
-            fields.category_overrides: [
-                # optional
-                # valid
-                # referring to jobs correctly
-                # referring to categories correctly
             ],
         }
 

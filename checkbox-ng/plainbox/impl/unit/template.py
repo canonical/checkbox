@@ -446,12 +446,6 @@ class TemplateUnit(Unit):
         field_validators = {
             fields.template_unit: [
                 concrete_validators.untranslatable,
-                CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_record_value('template-unit') is not None),
-                    Problem.missing, Severity.advice, message=_(
-                        "template should explicitly define instantiated"
-                        " unit type")),
             ],
             fields.template_resource: [
                 concrete_validators.untranslatable,

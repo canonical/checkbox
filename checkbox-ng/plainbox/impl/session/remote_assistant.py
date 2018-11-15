@@ -319,7 +319,7 @@ class RemoteSessionAssistant():
         self._state = Bootstrapping
         self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
 
-    @allowed_when(Running, Bootstrapping, Interacting)
+    @allowed_when(Running, Bootstrapping, Interacting, TestsSelected)
     def monitor_job(self):
         """
         Check the state of the currently running job.

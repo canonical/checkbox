@@ -336,7 +336,6 @@ class RemoteSessionAssistant():
             return ('running', self.buffered_ui.get_output())
         else:
             return ('done', self.buffered_ui.get_output())
-        return 'running' if self._be.is_alive() else 'done'
 
     def get_remote_api_version(self):
         return self.REMOTE_API_VERSION

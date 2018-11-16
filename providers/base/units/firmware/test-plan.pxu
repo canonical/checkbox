@@ -6,5 +6,6 @@ _description:
 mandatory_include:
     firmware/fwts_server
     firmware/fwts_results.log.gz
+include:
 bootstrap_include:
     fwts

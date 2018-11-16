@@ -34,8 +34,11 @@ mandatory_include:
     info/disk_partitions
     kernel_cmdline_attachment
 include:
-    miscellanea/fwts_test
-    miscellanea/fwts_results.log
+    miscellanea/ipmi_test
+    miscellanea/bmc_info
+    miscellanea/fwupdate                    certification-status=non-blocker
+    firmware/fwts_server
+    firmware/fwts_server_results.log.gz
     memory/info
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker

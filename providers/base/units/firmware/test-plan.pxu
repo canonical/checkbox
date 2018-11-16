@@ -1,0 +1,11 @@
+id: server-firmware
+unit: test plan
+_name: Server Firmware Tests
+_description:
+ Server Focused Firmware Tests
+mandatory_include:
+    firmware/fwts_server
+    firmware/fwts_results.log.gz
+include:
+bootstrap_include:
+    fwts

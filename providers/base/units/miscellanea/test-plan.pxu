@@ -53,3 +53,25 @@ include:
     miscellanea/oops_results.log
 bootstrap_include:
     fwts
+
+id: server-miscellaneous
+unit: test plan
+_name: Miscellaneous server cert tests
+_description:
+ Miscellaneous server tests (log checks, dmi data, etc)
+mandatory_include:
+    miscellanea/submission-resources
+    miscellanea/get_make_and_model
+    miscellanea/get_maas_version               certification-status=blocker
+    miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/secure_boot_mode
+    miscellanea/efi_pxeboot
+    miscellanea/check_prerelease
+    miscellanea/cpus_are_not_samples
+    miscellanea/ipmi_test                      certification-status=blocker
+    miscellanea/bmc_info
+    miscellanea/fwupdate
+    miscellanea/dmitest_server
+    miscellanea/sosreport
+    miscellanea/sosreport_attachment
+include:

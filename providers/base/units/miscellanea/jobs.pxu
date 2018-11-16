@@ -314,11 +314,14 @@ _description:
 
 plugin:shell
 id: miscellanea/oops
+category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 10.0
 requires: executable.name == 'fwts'
 user: root
 _description:
  Run Firmware Test Suite (fwts) oops tests.
+_summary:
+ Run FWTS OOPs check
 environ: PLAINBOX_SESSION_SHARE
 command:
  checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results.log -t oops
@@ -330,6 +333,52 @@ id: miscellanea/oops_results.log
 command:
  [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log
 _description: Attaches the FWTS oops results log to the submission
+
+plugin:shell
+id: miscellanea/olog
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 10.0
+requires:
+ executable.name == 'fwts'
+ cpuinfo.platform in ("ppc64el")
+user: root
+_description:
+ Run Firmware Test Suite (fwts) olog tests (ppc64el only).
+_summary:
+ Run FWTS OLOG check on ppc64el
+environ: PLAINBOX_SESSION_SHARE
+command:
+ checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_olog_results.log -t olog
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+id: miscellanea/olog_results.log
+command:
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_olog_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_olog_results.log
+_description: Attaches the FWTS olog results log to the submission
+
+plugin:shell
+id: miscellanea/klog
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 10.0
+requires: executable.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) klog tests.
+_summary:
+ Run FWTS Kernel Log check
+environ: PLAINBOX_SESSION_SHARE
+command:
+ checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_klog_results.log -t oops
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+id: miscellanea/klog_results.log
+command:
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_klog_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_klog_results.log
+_description: Attaches the FWTS klog results log to the submission
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

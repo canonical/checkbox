@@ -73,7 +73,7 @@ class BufferedUI(SilentUI):
         self.clear_buffers()
 
     def got_program_output(self, stream_name, line):
-        self._queue.put(line.decode(sys.stdout.encoding))
+        self._queue.put(line.decode(sys.stdout.encoding, 'replace'))
         self._whole_queue.put(line)
 
     def whole_output(self):

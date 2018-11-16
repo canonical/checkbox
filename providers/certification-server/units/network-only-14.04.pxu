@@ -6,9 +6,11 @@ _description:
     only.  It does not provide any testing of other hardware and should only be
     run at the direction of the Cert Team when re-testing of network devices is
     requried.
+nested_part:
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
 mandatory_include:
     # Meta-job to include required resources, please don't remove
-    miscellanea/submission-resources
     config_file_attachment
     cpuinfo_attachment
     dkms_info_attachment
@@ -29,11 +31,6 @@ mandatory_include:
     udev_attachment
     udev-summary_attachment
     lsmod_attachment
-    miscellanea/get_make_and_model
-    miscellanea/get_maas_version               certification-status=blocker
-    miscellanea/efi_boot_mode                  certification-status=non-blocker
-    miscellanea/secure_boot_mode               certification-status=non-blocker
-    miscellanea/check_prerelease            certification-status=non-blocker
     info/network_devices
     kernel_cmdline_attachment
 include:
@@ -44,6 +41,10 @@ include:
     ethernet/multi_nic_.*
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
 bootstrap_include:
     device
     fwts

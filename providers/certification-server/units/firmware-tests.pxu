@@ -6,9 +6,11 @@ _description:
     hardware.  It will run several checks of firmware and DMI data.  This
     whitelist is meant to provide the hardware vendor with information on
     their system firmware.
+nested_part:
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
 mandatory_include:
     # Meta-job to include required resources, please don't remove
-    miscellanea/submission-resources
     config_file_attachment
     cpuinfo_attachment
     dkms_info_attachment
@@ -29,24 +31,21 @@ mandatory_include:
     udev_attachment
     udev-summary_attachment
     lsmod_attachment
-    miscellanea/get_make_and_model
-    miscellanea/get_maas_version            certification-status=blocker
-    miscellanea/efi_boot_mode               certification-status=blocker
-    miscellanea/secure_boot_mode            certification-status=non-blocker
-    miscellanea/check_prerelease            certification-status=non-blocker
-    miscellanea/cpus_are_not_samples
-    miscellanea/dmitest_server
     info/disk_partitions
     kernel_cmdline_attachment
 include:
     miscellanea/ipmi_test
     miscellanea/bmc_info
     miscellanea/fwupdate                    certification-status=non-blocker
-    miscellanea/fwts_test
-    miscellanea/fwts_results.log
+    firmware/fwts_server
+    firmware/fwts_server_results.log.gz
     memory/info
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
 bootstrap_include:
     device
     fwts

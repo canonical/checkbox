@@ -408,6 +408,7 @@ class RemoteSessionAssistant():
                 self._state = Idle
             else:
                 self._state = TestsSelected
+        return result
 
     def get_jobs_repr(self, job_ids, offset=0):
         """

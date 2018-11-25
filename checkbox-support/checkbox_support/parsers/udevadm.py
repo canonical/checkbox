@@ -488,6 +488,9 @@ class UdevadmDevice(object):
                 if self.driver == 'dasd-eckd':
                     # IBM s390x DASD device types
                     return "DISK"
+                if self.driver == 'nd_pmem':
+                    # NVDIMM devices
+                    return "DISK"
             if devtype == "scsi_device":
                 match = SCSI_RE.match(self._environment.get("MODALIAS", ""))
                 type = int(match.group("type"), 16) if match else -1
@@ -1079,6 +1082,10 @@ class UdevadmParser(object):
             return False
         # Do not ignore MTD disks
         if device.category == "DISK" and device.bus == "mtd":
+            device.product = device.name
+            return False
+        # Do not ignore NVDIMM devices
+        if device.category == "DISK" and device.driver == "nd_pmem":
             device.product = device.name
             return False
         # Do not ignore Bluetooth devices w/o product & vendor ID.

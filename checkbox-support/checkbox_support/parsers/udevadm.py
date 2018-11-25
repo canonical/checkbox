@@ -193,7 +193,11 @@ class UdevadmDevice(object):
             self._list_partitions and
             self._environment.get("DEVTYPE") == "partition" and self._stack
         ):
-            if any(d.bus == 'usb' for d in self._stack):
+            if CARD_READER_RE.search(self._environment.get("ID_MODEL", "")):
+                return 'mediacard'
+            elif any(d.bus == 'mmc' for d in self._stack):
+                return 'mediacard'
+            elif any(d.bus == 'usb' for d in self._stack):
                 for d in self._stack:
                     # Report the current usb hub version
                     if d._environment.get("ID_MODEL_ID") == '0003':

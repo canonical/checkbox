@@ -193,7 +193,11 @@ class UdevadmDevice(object):
             self._list_partitions and
             self._environment.get("DEVTYPE") == "partition" and self._stack
         ):
-            if any(d.bus == 'usb' for d in self._stack):
+            if CARD_READER_RE.search(self._environment.get("ID_MODEL", "")):
+                return 'mediacard'
+            elif any(d.bus == 'mmc' for d in self._stack):
+                return 'mediacard'
+            elif any(d.bus == 'usb' for d in self._stack):
                 for d in self._stack:
                     # Report the current usb hub version
                     if d._environment.get("ID_MODEL_ID") == '0003':
@@ -484,6 +488,9 @@ class UdevadmDevice(object):
                 if self.driver == 'dasd-eckd':
                     # IBM s390x DASD device types
                     return "DISK"
+                if self.driver == 'nd_pmem':
+                    # NVDIMM devices
+                    return "DISK"
             if devtype == "scsi_device":
                 match = SCSI_RE.match(self._environment.get("MODALIAS", ""))
                 type = int(match.group("type"), 16) if match else -1
@@ -651,7 +658,7 @@ class UdevadmDevice(object):
             if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
                     if i in self._environment["DEVLINKS"]]:
                 if "ID_MODEL_ID" in self._environment:
-                    return decode_id(self._environment["ID_MODEL_ID"])
+                    return int(self._environment["ID_MODEL_ID"], 16)
         if "SUBSYSTEM" in self._environment:
             # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
@@ -660,7 +667,7 @@ class UdevadmDevice(object):
             # video4linux
             if self._environment["SUBSYSTEM"] == "video4linux":
                 if "ID_MODEL_ID" in self._environment:
-                    return decode_id(self._environment["ID_MODEL_ID"])
+                    return int(self._environment["ID_MODEL_ID"], 16)
         return None
 
     @product_id.setter
@@ -705,7 +712,7 @@ class UdevadmDevice(object):
             if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
                     if i in self._environment["DEVLINKS"]]:
                 if "ID_VENDOR_ID" in self._environment:
-                    return decode_id(self._environment["ID_VENDOR_ID"])
+                    return int(self._environment["ID_VENDOR_ID"], 16)
         if "SUBSYSTEM" in self._environment:
             # hidraw
             if self._environment["SUBSYSTEM"] == "hidraw" and self._stack:
@@ -714,7 +721,7 @@ class UdevadmDevice(object):
             # video4linux
             if self._environment["SUBSYSTEM"] == "video4linux":
                 if "ID_VENDOR_ID" in self._environment:
-                    return decode_id(self._environment["ID_VENDOR_ID"])
+                    return int(self._environment["ID_VENDOR_ID"], 16)
         return None
 
     @vendor_id.setter
@@ -1075,6 +1082,10 @@ class UdevadmParser(object):
             return False
         # Do not ignore MTD disks
         if device.category == "DISK" and device.bus == "mtd":
+            device.product = device.name
+            return False
+        # Do not ignore NVDIMM devices
+        if device.category == "DISK" and device.driver == "nd_pmem":
             device.product = device.name
             return False
         # Do not ignore Bluetooth devices w/o product & vendor ID.

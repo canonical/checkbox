@@ -35,7 +35,7 @@ class MergeSubmissions(MergeReports):
             'submission', nargs='*', metavar='SUBMISSION',
             help='submission tarball')
         parser.add_argument(
-            '-o', '--output-file', metavar='FILE',
+            '-o', '--output-file', metavar='FILE',  required=True,
             help='save combined test results to the specified FILE')
         parser.add_argument(
             '--title', action='store', metavar='SESSION_NAME',

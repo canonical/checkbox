@@ -45,7 +45,7 @@ class MergeReports(Command):
             'submission', nargs='*', metavar='SUBMISSION',
             help='submission tarball')
         parser.add_argument(
-            '-o', '--output-file', metavar='FILE',
+            '-o', '--output-file', metavar='FILE', required=True,
             help='save combined test results to the specified FILE')
 
     def _parse_submission(self, submission, tmpdir, mode="list"):

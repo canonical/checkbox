@@ -41,9 +41,33 @@
                     <h1>System Testing Report</h1>
                 </div><!-- /header -->
             <div role="main" class="ui-content jqm-content">
-                {%- if ns ~ "lsb" in resource_map %}
-                <h2>Software Information</h2>
-                <p>{{ resource_map[ns ~ "lsb"][0]["description"] }}</p>
+                {%- if ns ~ 'system_info_json' in state.job_state_map and state.job_state_map[ns ~ 'system_info_json'].result.outcome == 'pass' %}
+                <h2>System Information</h2>
+                {%- set system_info_json = state.job_state_map[ns ~ 'system_info_json'].result.io_log_as_text_attachment.rstrip() %}
+                {%- set system_info = system_info_json|json_load_ordered_dict %}
+                <table data-role="table" id="system-info" data-mode="reflow" class="ui-body-d ui-responsive table-stroke">
+                    <thead><tr class="ui-bar-d"></tr></thead>
+                    </tbody>
+                    {%- for section, section_data in system_info.items() %}
+                        <tr style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">
+                        <th style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; vertical-align:top; font-size: 0.85em;">{{ section }}</th>
+                        <td style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; line-height: 1em;">
+                        {%- for info in section_data %}
+                        <p style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; font-size: 0.85em">
+                        {% autoescape false %}
+                        {%- if section in ('System', 'Machine', 'CPU') %}
+                        {{ info|highlight_keys }}
+                        {%- else %}
+                        {{ info }}
+                        {%- endif %}
+                        {% endautoescape %}</p>
+                        {%- endfor %}
+                        </td>
+                        </tr>
+                    {%- endfor %}
+                    </tbody>
+                </table>
+                <br>
                 {%- endif %}
                 <h2>Tests Results</h2>
                     {%- if manager.test_plans %}

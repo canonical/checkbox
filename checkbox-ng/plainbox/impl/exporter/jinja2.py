@@ -26,6 +26,8 @@
 """
 
 import json
+import re
+from collections import OrderedDict
 from datetime import datetime
 
 from jinja2 import Environment
@@ -60,6 +62,17 @@ def do_strip_ns(_environment, unit_id, ns=CERTIFICATION_NS):
 def do_is_name(text):
     """A filter for checking if something is equal to "name"."""
     return text == 'name'
+
+
+def json_load_ordered_dict(text):
+    """Render json dict in Jinja templates but keep keys ordering."""
+    return json.loads(
+        text, object_pairs_hook=OrderedDict)
+
+
+def highlight_keys(text):
+    """A filter for rendering keys as bold html text."""
+    return re.sub('(\w+:\s)', r'<b>\1</b>', text)
 
 
 class Jinja2SessionStateExporter(ISessionStateExporter):
@@ -123,6 +136,8 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         env.autoescape = True
         env.filters['jsonify'] = json.dumps
         env.filters['strip_ns'] = do_strip_ns
+        env.filters['json_load_ordered_dict'] = json_load_ordered_dict
+        env.filters['highlight_keys'] = highlight_keys
         env.tests['is_name'] = do_is_name
 
     def dump(self, data, stream):

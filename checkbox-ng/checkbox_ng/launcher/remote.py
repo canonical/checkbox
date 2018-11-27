@@ -80,6 +80,9 @@ class SimpleUI(NormalUI, MainLoopStage):
     def green_text(text, end='\n'):
         print(SimpleUI.C.GREEN(text), end)
 
+    def horiz_line():
+        print(SimpleUI.C.WHITE('-' * 80))
+
     @property
     def is_interactive(self):
         return True
@@ -363,6 +366,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             SimpleUI.header(job['name'])
             print(_("ID: {0}").format(job['id']))
             print(_("Category: {0}").format(job['category_name']))
+            SimpleUI.horiz_line()
             next_job = False
             for interaction in self.sa.run_job(job['id']):
                 if interaction.kind == 'sudo_input':
@@ -383,7 +387,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     cmd = SimpleUI(None)._interaction_callback(
                         job, interaction.extra)
                     self.sa.remember_users_response(cmd)
-                    self.sa.finish_job(interaction.extra.get_result())
+                    self.finish_job(interaction.extra.get_result())
                     next_job = True
                 elif interaction.kind == 'comment':
                     new_comment = input(SimpleUI.C.BLUE(
@@ -406,8 +410,14 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             if state == 'running':
                 time.sleep(0.5)
             else:
-                self.sa.finish_job()
+                self.finish_job()
                 break
+
+    def finish_job(self, result=None):
+        job_result = self.sa.finish_job(result)
+        if not self._is_bootstrapping:
+            SimpleUI.horiz_line()
+            print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
     def abandon(self):
         self.sa.finalize_session()

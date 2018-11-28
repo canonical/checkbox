@@ -84,6 +84,7 @@ _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
+flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}

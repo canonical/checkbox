@@ -87,6 +87,5 @@ id: system_info_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command: system_info.py
-user: root
 _description: Attaches json dumps of system info tools (inxi + udev)
 _summary: Attaches json dumps of system info tools

@@ -209,7 +209,7 @@ class INXI:
 
 def main():
     inxi_output = _run_cmd(
-        "inxi_snapshot -A -G -C -M -m -N -D -S -R -xx "
+        "inxi_snapshot --usb-sys -A -G -C -M -m -N -D -S -R -xx "
         "--output json --output-file print")
     if not inxi_output:
         inxi_output = '{}'

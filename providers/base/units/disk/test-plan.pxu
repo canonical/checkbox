@@ -36,6 +36,12 @@ include:
 nested_part:
     disk-automated
 
+id: disk-manual
+unit: test plan
+_name: Manual disks tests
+_description: Manual QA disk tests for Ubuntu Core devices
+include:
+
 id: disk-automated
 unit: test plan
 _name: Automated disk tests

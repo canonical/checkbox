@@ -7,6 +7,23 @@
 
 id: docker-full
 unit: test plan
+_name: QA tests for Docker containers
+_description:
+ QA test plan for Docker containers (docker and docker-compose)
+include:
+nested_part:
+    docker-manual
+    docker-automated
+
+id: docker-manual
+unit: test plan
+_name: Manual QA tests for Docker containers
+_description:
+ QA test plan for Docker containers (docker and docker-compose)
+include:
+
+id: docker-automated
+unit: test plan
 _name: Fully automated QA tests for Docker containers
 _description:
  QA test plan for Docker containers (docker and docker-compose)

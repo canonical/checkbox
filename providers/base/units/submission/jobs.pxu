@@ -86,10 +86,6 @@ command: recovery_info version | python3 -m plainbox dev parse recovery-info
 id: system_info_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command:
- export LC_ALL=C.UTF-8
- system_info.py
-user: root
-environ: PERL5LIB
+command: system_info.py
 _description: Attaches json dumps of system info tools (inxi + udev)
 _summary: Attaches json dumps of system info tools

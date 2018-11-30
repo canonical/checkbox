@@ -38,14 +38,14 @@ halg=0x000B
 
 handle_hmac_key=0x81010013
 
-file_primary_key_ctx=/home/$USER/context.p_"$alg_primary_obj"_"$alg_primary_key"
-file_hmac_key_pub=/home/$USER/opu_"$alg_create_obj"_"$alg_create_key"
-file_hmac_key_priv=/home/$USER/opr_"$alg_create_obj"_"$alg_create_key"
-file_hmac_key_name=/home/$USER/name.load_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
-file_hmac_key_ctx=/home/$USER/ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
-file_hmac_output=/home/$USER/hmac_ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_primary_key_ctx=/root/context.p_"$alg_primary_obj"_"$alg_primary_key"
+file_hmac_key_pub=/root/opu_"$alg_create_obj"_"$alg_create_key"
+file_hmac_key_priv=/root/opr_"$alg_create_obj"_"$alg_create_key"
+file_hmac_key_name=/root/name.load_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_hmac_key_ctx=/root/ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_hmac_output=/root/hmac_ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
 
-file_input_data=/home/$USER/secret.data
+file_input_data=/root/secret.data
 
 fail()
 {
@@ -54,7 +54,7 @@ fail()
 }
 Pass()
 {
-	    echo ""$1" pass" >>/home/$USER/test_getpubak_pass.log
+	    echo ""$1" pass" >>/root/test_getpubak_pass.log
 }
 
 rm $file_primary_key_ctx $file_hmac_key_pub $file_hmac_key_priv $file_hmac_key_name $file_hmac_key_ctx  $file_hmac_output  -rf
@@ -87,9 +87,9 @@ fi
 
 ####handle test
 rm -f $file_hmac_output  
-tpm2_evictcontrol -A o -c $file_hmac_key_ctx -S $handle_hmac_key |tee /home/$USER/evict.log
+tpm2_evictcontrol -A o -c $file_hmac_key_ctx -S $handle_hmac_key |tee /root/evict.log
 c1="$?"
-grep "persistentHandle: "$handle_hmac_key"" /home/$USER/evict.log
+grep "persistentHandle: "$handle_hmac_key"" /root/evict.log
 c2="$?"
 
 if [ $c1 != 0 ] || [ $c2 != 0  ];then

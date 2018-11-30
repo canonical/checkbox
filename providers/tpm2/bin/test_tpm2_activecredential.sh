@@ -37,12 +37,12 @@ ak_alg=0x0001
 digestAlg=0x000B 
 signAlg=0x0014
 
-file_input_data=/home/$USER/secret.data
-output_ek_pub=/home/$USER/ek_pub.out
-output_ak_pub=/home/$USER/ak_pub.out
-output_ak_pub_name=/home/$USER/ak_name_pub.out
-output_mkcredential=/home/$USER/mkcredential.out
-output_actcredential=/home/$USER/actcredential.out
+file_input_data=/root/secret.data
+output_ek_pub=/root/ek_pub.out
+output_ak_pub=/root/ak_pub.out
+output_ak_pub_name=/root/ak_name_pub.out
+output_mkcredential=/root/mkcredential.out
+output_actcredential=/root/actcredential.out
 
 fail()
 {
@@ -62,12 +62,12 @@ if [ $? != 0 ] || [ ! -e $output_ek_pub ];then
 	fail getpubek 
 fi
 
-tpm2_getpubak  -E $handle_ek  -k $handle_ak -g $ak_alg -D $digestAlg -s $signAlg -f $output_ak_pub  -n $output_ak_pub_name |tee /home/$USER/output_ak
-if [ $? != 0 ] || [ ! -e /home/$USER/output_ak ];then
+tpm2_getpubak  -E $handle_ek  -k $handle_ak -g $ak_alg -D $digestAlg -s $signAlg -f $output_ak_pub  -n $output_ak_pub_name |tee /root/output_ak
+if [ $? != 0 ] || [ ! -e /root/output_ak ];then
 	fail getpubak 
 fi
-grep  -A 3 "Name of loaded key:" /home/$USER/output_ak|tr "\n" " " >/home/$USER/grep.txt
-Loadkeyname=`sed -e 's/ //g'  /home/$USER/grep.txt | awk  -F':' '{print $2}'`
+grep  -A 3 "Name of loaded key:" /root/output_ak|tr "\n" " " >/root/grep.txt
+Loadkeyname=`sed -e 's/ //g'  /root/grep.txt | awk  -F':' '{print $2}'`
 
 tpm2_makecredential -e $output_ek_pub  -s $file_input_data  -n $Loadkeyname -o $output_mkcredential
 if [ $? != 0 ];then

@@ -34,8 +34,8 @@
 new_path=`dirname $0`
 PATH="$PATH":"$new_path"
 
-file_input_data=/home/$USER/ak_pub.out
-output_akparse=/home/$USER/akparse.out
+file_input_data=/root/ak_pub.out
+output_akparse=/root/akparse.out
 
 rm $output_ekparse -rf 
 

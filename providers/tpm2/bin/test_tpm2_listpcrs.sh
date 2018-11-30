@@ -46,9 +46,9 @@ if [ $? != 0 ];then
  exit 1
 fi
 
-rm -rf /home/$USER/pcrs
+rm -rf /root/pcrs
 
-tpm2_listpcrs -L 0x04:17,18,19+0x0b:0,17,18,19 -o /home/$USER/pcrs
+tpm2_listpcrs -L 0x04:17,18,19+0x0b:0,17,18,19 -o /root/pcrs
 
 if [ $? != 0 ];then 
  echo "listpcrs  fail!"

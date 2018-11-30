@@ -41,6 +41,7 @@ category_id: tpm2
 depends: tpm2.0/init-resource-mgr
 estimated_duration: 2
 plugin: shell
+user: root
 _summary: tpm2_takeownership
 command: test_tpm2_takeownership_all.sh
 flags: preserve-cwd
@@ -50,6 +51,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 2
 plugin: shell
+user: root
 _summary: tpm2_createprimary
 command: test_tpm2_createprimary_all.sh
 flags: preserve-cwd
@@ -59,6 +61,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_createprimary_all
 estimated_duration: 2
 plugin: shell
+user: root
 _summary: tpm2_create
 command: test_tpm2_create_all.sh
 flags: preserve-cwd
@@ -68,6 +71,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 2
 plugin: shell
+user: root
 _summary: tpm2 NV tools
 command: test_tpm2_nv.sh
 flags: preserve-cwd
@@ -77,6 +81,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 15
 plugin: shell
+user: root
 _summary: tpm2_listpcrs
 command: test_tpm2_listpcrs.sh
 flags: preserve-cwd
@@ -86,6 +91,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 2
 plugin: shell
+user: root
 _summary: tpm2_getrandom
 command: test_tpm2_getrandom.sh
 flags: preserve-cwd
@@ -95,6 +101,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_load
 command: test_tpm2_load.sh
 flags: preserve-cwd
@@ -104,6 +111,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_loadexternal
 command: test_tpm2_loadexternal.sh
 flags: preserve-cwd
@@ -113,6 +121,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_evictcontrol
 command: test_tpm2_evictcontrol.sh
 flags: preserve-cwd
@@ -122,6 +131,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_hash
 command: test_tpm2_hash.sh
 flags: preserve-cwd
@@ -131,6 +141,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
+user: root
 _summary: tpm2_hmac
 command: test_tpm2_hmac.sh
 flags: preserve-cwd
@@ -140,6 +151,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
+user: root
 _summary: tpm2_quote
 command: test_tpm2_quote.sh
 flags: preserve-cwd
@@ -149,6 +161,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_unseal
 command: test_tpm2_unseal.sh
 flags: preserve-cwd
@@ -158,6 +171,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_akparse
 command: test_tpm2_akparse.sh
 flags: preserve-cwd
@@ -167,6 +181,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_certify
 command: test_tpm2_certify.sh
 flags: preserve-cwd
@@ -176,6 +191,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
+user: root
 _summary: tpm2_getpubek
 command: test_tpm2_getpubek.sh
 flags: preserve-cwd
@@ -185,6 +201,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 10
 plugin: shell
+user: root
 _summary: tpm2_getpubak
 command: test_tpm2_getpubak.sh
 flags: preserve-cwd
@@ -194,6 +211,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_makecredential
 command: test_tpm2_makecredential.sh
 flags: preserve-cwd
@@ -203,6 +221,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_activatecredential
 command: test_tpm2_activecredential.sh
 flags: preserve-cwd
@@ -212,6 +231,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_readpublic
 command: test_tpm2_readpublic.sh
 flags: preserve-cwd
@@ -221,6 +241,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 40
 plugin: shell
+user: root
 _summary: tpm2_rsaencrypt
 command: test_tpm2_rsaencrypt.sh
 flags: preserve-cwd
@@ -230,6 +251,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 40
 plugin: shell
+user: root
 _summary: tpm2_rsadecrypt
 command: test_tpm2_rsadecrypt.sh
 flags: preserve-cwd
@@ -239,6 +261,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 40
 plugin: shell
+user: root
 _summary: tpm2_encryptdecrypt
 command: test_tpm2_encryptdecrypt.sh
 flags: preserve-cwd
@@ -248,6 +271,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_sign
 command: test_tpm2_sign.sh
 flags: preserve-cwd
@@ -257,6 +281,7 @@ category_id: tpm2
 depends: tpm2.0/tpm2_takeownership
 estimated_duration: 20
 plugin: shell
+user: root
 _summary: tpm2_verifysignature
 command: test_tpm2_verifysignature.sh
 flags: preserve-cwd

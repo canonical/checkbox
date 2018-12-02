@@ -126,7 +126,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 3
+    REMOTE_API_VERSION = 4
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -497,6 +497,10 @@ class RemoteSessionAssistant():
     def finalize_session(self):
         self._sa.finalize_session()
         self._reset_sa()
+
+    def transmit_input(self, text):
+        self._pipe_from_master.write(text)
+        self._pipe_from_master.flush()
 
     @property
     def manager(self):

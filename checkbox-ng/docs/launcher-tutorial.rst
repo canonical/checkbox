@@ -393,6 +393,23 @@ Example:
 
 .. _generating-reports:
 
+Daemon-specific configuration
+=============================
+
+``[daemon]``
+
+Beginning of the daemon-specific section.
+Setting in this section only apply to sessions that are run by checkbox-slave
+spawned as a daemon.
+
+``normal-user``
+
+Username to use when job doesn't specify which user to run as.
+
+Checkbox-slave daemon is run by root so in order to run some jobs as an
+unpriviledged user this variable can be used.
+
+
 Generating reports
 ==================
 

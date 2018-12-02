@@ -518,7 +518,8 @@ class CheckBoxExecutionControllerTestsMixIn:
                 env=self.ctrl.get_execution_environment(
                     self.job, self.job_state, self.config, self.SESSION_DIR,
                     nest_dir),
-                cwd=cwd_dir)
+                cwd=cwd_dir,
+                stdin=None)
         # Ensure that execute_job() returns the return value of call()
         self.assertEqual(retval, self.extcmd_popen.call())
         # Ensure that presence of CHECKBOX_DATA directory was checked for

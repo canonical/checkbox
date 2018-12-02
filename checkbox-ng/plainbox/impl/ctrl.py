@@ -416,7 +416,8 @@ class CheckBoxExecutionController(IExecutionController):
         """
         self._provider_list = provider_list
 
-    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
+    def execute_job(self, job, job_state, config, session_dir, extcmd_popen,
+                    stdin=None):
         """
         Execute the specified job using the specified subprocess-like object
 
@@ -456,12 +457,13 @@ class CheckBoxExecutionController(IExecutionController):
                 if 'preserve-cwd' in job.get_flag_set() or os.getenv("SNAP"):
                     logger.debug(_("job[%s] executing %r with env %r"),
                                  job.id, cmd, env)
-                    return_code = extcmd_popen.call(cmd, env=env)
+                    return_code = extcmd_popen.call(cmd, env=env, stdin=stdin)
                 else:
                     logger.debug(_("job[%s] executing %r with env %r "
                                    "in cwd %r"),
                                  job.id, cmd, env, cwd_dir)
-                    return_code = extcmd_popen.call(cmd, env=env, cwd=cwd_dir)
+                    return_code = extcmd_popen.call(
+                        cmd, env=env, cwd=cwd_dir, stdin=stdin)
                 if 'noreturn' in job.get_flag_set():
                     self._halt()
                 return return_code

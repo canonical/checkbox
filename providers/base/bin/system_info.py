@@ -22,13 +22,15 @@ from collections import OrderedDict
 import json
 import re
 import subprocess
+import sys
 
 
 def _run_cmd(cmd):
     try:
         return subprocess.check_output(
             cmd, shell=True, universal_newlines=True)
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        print(e.output, file=sys.stderr)
         return None
 
 

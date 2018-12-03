@@ -35,13 +35,13 @@ alg_primary_key=0x0001
 alg_create_obj=0x000B
 alg_create_key=0x0008
 
-file_input_data=/home/$USER/secret.data
-file_primary_key_ctx=/home/$USER/context.p_"$alg_primary_obj"_"$alg_primary_key"
-file_unseal_key_pub=/home/$USER/opu_"$alg_create_obj"_"$alg_create_key"
-file_unseal_key_priv=/home/$USER/opr_"$alg_create_obj"_"$alg_create_key"
-file_unseal_key_ctx=/home/$USER/ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
-file_unseal_key_name=/home/$USER/name.load_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
-file_unseal_output_data=/home/$USER/usl_ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_input_data=/root/secret.data
+file_primary_key_ctx=/root/context.p_"$alg_primary_obj"_"$alg_primary_key"
+file_unseal_key_pub=/root/opu_"$alg_create_obj"_"$alg_create_key"
+file_unseal_key_priv=/root/opr_"$alg_create_obj"_"$alg_create_key"
+file_unseal_key_ctx=/root/ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_unseal_key_name=/root/name.load_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
+file_unseal_output_data=/root/usl_ctx_load_out_"$alg_primary_obj"_"$alg_primary_key"-"$alg_create_obj"_"$alg_create_key"
   
 rm $file_primary_key_ctx $file_unseal_key_pub $file_unseal_key_priv $file_unseal_key_ctx $file_unseal_key_name $file_unseal_output_data -rf
 

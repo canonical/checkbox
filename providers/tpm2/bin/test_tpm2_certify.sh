@@ -30,13 +30,13 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
 #!/bin/bash
-file_primary_key_ctx=/home/$USER/context.p_B1
-file_certify_key_pub=/home/$USER/opuB1_B8
-file_certify_key_priv=/home/$USER/oprB1_B8
-file_certify_key_ctx=/home/$USER/context_load_out_B1_B8
-file_certify_key_name=/home/$USER/name.load.B1_B8
-file_output_attest=/home/$USER/attest.out
-file_output_signature=/home/$USER/certify_signature.out
+file_primary_key_ctx=/root/context.p_B1
+file_certify_key_pub=/root/opuB1_B8
+file_certify_key_priv=/root/oprB1_B8
+file_certify_key_ctx=/root/context_load_out_B1_B8
+file_certify_key_name=/root/name.load.B1_B8
+file_output_attest=/root/attest.out
+file_output_signature=/root/certify_signature.out
   
 
 alg_hash=0x000B

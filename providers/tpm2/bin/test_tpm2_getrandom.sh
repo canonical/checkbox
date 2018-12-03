@@ -33,9 +33,9 @@
 
 size=32
 
-rm -f  /home/$USER/random.out
+rm -f  /root/random.out
 
-tpm2_getrandom -s 32  -o /home/$USER/random.out
+tpm2_getrandom -s 32  -o /root/random.out
 if [ $? != 0 ];then
 	    echo "getrandom test fail, please check the environment or parameters!"
 		exit 1

@@ -35,14 +35,14 @@
 halg=0x000B
 Hierarchy=e
 
-rm -f  /home/$USER/hash_out_"$Hierarchy"_"$halg" /home/$USER/hash_tk_"$Hierarchy"_"$halg"
+rm -f  /root/hash_out_"$Hierarchy"_"$halg" /root/hash_tk_"$Hierarchy"_"$halg"
 
-if [ ! -f /home/$USER/hash.in ];then
-echo "T0naX0u123abc" >/home/$USER/hash.in
+if [ ! -f /root/hash.in ];then
+echo "T0naX0u123abc" >/root/hash.in
 fi
 
 	
-tpm2_hash -H $Hierarchy -g $halg -I /home/$USER/hash.in -o /home/$USER/hash_out_"$Hierarchy"_"$halg" -t /home/$USER/hash_tk_"$Hierarchy"_"$halg"
+tpm2_hash -H $Hierarchy -g $halg -I /root/hash.in -o /root/hash_out_"$Hierarchy"_"$halg" -t /root/hash_tk_"$Hierarchy"_"$halg"
 if [ $? != 0 ];then
 	    echo "hash forHierarchy:"$Hierarchy"halg:"$halg" fail, please check the environment or parameters!"
 		exit 1

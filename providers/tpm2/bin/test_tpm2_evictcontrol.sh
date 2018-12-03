@@ -30,11 +30,11 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
 #!/bin/bash
-file_primary_key_ctx=/home/$USER/context.p_B1
-file_evict_key_pub=/home/$USER/opuB1_B8
-file_evict_key_priv=/home/$USER/oprB1_B8
-file_evict_key_ctx=/home/$USER/context_load_out_B1_B8
-file_evict_key_name=/home/$USER/name.load.B1_B8
+file_primary_key_ctx=/root/context.p_B1
+file_evict_key_pub=/root/opuB1_B8
+file_evict_key_priv=/root/oprB1_B8
+file_evict_key_ctx=/root/context_load_out_B1_B8
+file_evict_key_name=/root/name.load.B1_B8
   
 persistentHandle=0x81010003
 

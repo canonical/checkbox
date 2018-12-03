@@ -31,13 +31,13 @@
 #;**********************************************************************;
 #!/bin/bash
 
-file_primary_key_ctx=/home/$USER/context.p_B1
-file_signing_key_pub=/home/$USER/opuB1_B8
-file_signing_key_priv=/home/$USER/oprB1_B8
-file_signing_key_ctx=/home/$USER/context_load_out_B1_B8
-file_signing_key_name=/home/$USER/name.load.B1_B8
-file_input_data=/home/$USER/secret.data
-file_output_data=/home/$USER/sig.4
+file_primary_key_ctx=/root/context.p_B1
+file_signing_key_pub=/root/opuB1_B8
+file_signing_key_priv=/root/oprB1_B8
+file_signing_key_ctx=/root/context_load_out_B1_B8
+file_signing_key_name=/root/name.load.B1_B8
+file_input_data=/root/secret.data
+file_output_data=/root/sig.4
 
   
 handle_signing_key=0x81010005
@@ -53,7 +53,7 @@ fail()
 }
 Pass()
 {
-	    echo ""$1" pass" >>/home/$USER/test_getpubak_pass.log
+	    echo ""$1" pass" >>/root/test_getpubak_pass.log
 }
 
 
@@ -85,9 +85,9 @@ else
  rm $file_output_data -rf
 fi
 
-tpm2_evictcontrol -A o -c $file_signing_key_ctx -S $handle_signing_key |tee /home/$USER/evict.log
+tpm2_evictcontrol -A o -c $file_signing_key_ctx -S $handle_signing_key |tee /root/evict.log
 c1="$?"
-grep "persistentHandle: "$handle_signing_key"" /home/$USER/evict.log
+grep "persistentHandle: "$handle_signing_key"" /root/evict.log
 c2="$?"
 
 if [ $c1 != 0 ] || [ $c2 != 0  ];then

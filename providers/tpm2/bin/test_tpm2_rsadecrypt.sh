@@ -30,16 +30,16 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
 #!/bin/bash
-file_primary_key_ctx=/home/$USER/context.p_B1
-file_rsaencrypt_key_pub=/home/$USER/opuB1_B8
-file_rsaencrypt_key_priv=/home/$USER/oprB1_B8
-file_rsaencrypt_key_ctx=/home/$USER/context_loadext_out_B1_B8
-file_rsadecrypt_key_ctx=/home/$USER/context_load_out_B1_B8
-file_rsaencrypt_key_name=/home/$USER/name.load.B1_B8
+file_primary_key_ctx=/root/context.p_B1
+file_rsaencrypt_key_pub=/root/opuB1_B8
+file_rsaencrypt_key_priv=/root/oprB1_B8
+file_rsaencrypt_key_ctx=/root/context_loadext_out_B1_B8
+file_rsadecrypt_key_ctx=/root/context_load_out_B1_B8
+file_rsaencrypt_key_name=/root/name.load.B1_B8
 
-file_rsa_en_output_data=/home/$USER/rsa_en.out
-file_rsa_de_output_data=/home/$USER/rsa_de.out
-file_input_data=/home/$USER/secret.data
+file_rsa_en_output_data=/root/rsa_en.out
+file_rsa_de_output_data=/root/rsa_de.out
+file_input_data=/root/secret.data
   
 alg_hash=0x000B
 alg_primary_key=0x0001

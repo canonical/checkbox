@@ -36,6 +36,7 @@ import socket
 import struct
 import subprocess
 import tempfile
+import threading
 from subprocess import (
     CalledProcessError,
     check_call,
@@ -44,6 +45,9 @@ from subprocess import (
 )
 import sys
 import time
+
+# Global results[] variable to pass results from multiple threads....
+results = []
 
 
 class IPerfPerformanceTest(object):
@@ -77,6 +81,73 @@ class IPerfPerformanceTest(object):
         self.scan_timeout = scan_timeout
         self.iface_timeout = iface_timeout
 
+    def run_one_thread(self, cmd, port_num):
+        """Run a single test thread, storing the output in the global results[]
+        variable."""
+        cmd = cmd + " -p {}".format(port_num)
+        logging.debug("Executing command {}".format(cmd))
+        try:
+            iperf_return = check_output(
+                shlex.split(cmd), universal_newlines=True)
+        except CalledProcessError as iperf_exception:
+            if iperf_exception.returncode != 124:
+                # timeout command will return 124 if iperf timed out, so any
+                # other return value means something did fail
+                logging.error("Failed executing iperf: {}".
+                              format(iperf_exception.output))
+                return iperf_exception.returncode
+            else:
+                # this is normal so we "except" this exception and we
+                # "pass through" whatever output iperf did manage to produce.
+                # When confronted with SIGTERM iperf should stop and output
+                # a partial (but usable) result.
+                logging.warning("iperf timed out - this should be OK")
+                iperf_return = iperf_exception.output
+        results.append(iperf_return)
+
+    def summarize_speeds(self):
+        """Search the global results[] variable, computing the throughput for
+        each thread and returning the total throughput for all threads."""
+        total_throughput = 0
+        n = 0
+        for run in results:
+            logging.debug(run)
+            # iperf3 provides "sender" and "receiver" summaries; remove them
+            run = re.sub(r".*(sender|receiver)", "", run)
+            speeds = list(map(float, re.findall(r"([\w\.]+)\sMbits/sec",
+                                                run)))
+            if (len(speeds) > 0):
+                total_throughput = total_throughput + sum(speeds)/len(speeds)
+                logging.debug("Throughput for thread {} is {}".
+                              format(n, sum(speeds)/len(speeds)))
+                logging.debug("Min Transfer speed for thread {}: {} Mb/s".
+                              format(n, min(speeds)))
+                logging.debug("Max Transfer speed for thread {}: {} Mb/s".
+                              format(n, max(speeds)))
+                n = n + 1
+        return total_throughput
+
+    def summarize_cpu(self):
+        """Return the average CPU load of all the threads, as reported by
+        iperf3. (Version 2 of iperf does not return CPU loads, in which case
+        this function returns 0.)"""
+        sum_cpu = 0.0
+        avg_cpu = 0.0
+        n = 0
+        for thread_results in results:
+            # "CPU Utilization" line present only in iperf3 output
+            new_cpu = re.findall(r"CPU Utilization.*local/sender\s([\w\.]+)",
+                                 thread_results)
+            if new_cpu:
+                float_cpu = float(new_cpu[0])
+                logging.debug("CPU load for thread {}: {}%".
+                              format(n, float_cpu))
+                sum_cpu = sum_cpu + float_cpu
+                n = n + 1
+            if n > 0:
+                avg_cpu = sum_cpu / n
+        return avg_cpu
+
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
         if self.iface.max_speed == 0:
@@ -98,12 +169,29 @@ class IPerfPerformanceTest(object):
         else:
             threads = self.num_threads
 
-        logging.debug("Using {} threads.".format(threads))
+        if threads == 1:
+            logging.info("Using 1 thread.")
+        else:
+            logging.info("Using {} threads.".format(threads))
+
+        # Alter variables for iperf (2) vs. iperf3 -- Use iperf (2)'s own
+        # built-in threading, vs. this script's threading for iperf3. (Note
+        # that even with iperf 2, this script creates one separate thread
+        # for running iperf -- but only one; within that thread, iperf 2's
+        # own multi-threading handles that detail.)
+        if self.iperf3:
+            start_port = 5201
+            iperf_threads = 1
+            python_threads = threads
+        else:
+            start_port = 5001
+            iperf_threads = threads
+            python_threads = 1
 
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
             cmd = "{} -c {} -t {} -i 1 -f m -P {}".format(
-                self.executable, self.target, self.run_time, threads)
+                self.executable, self.target, self.run_time, iperf_threads)
         else:
             # Because we can vary the data size, we need to vary the timeout as
             # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
@@ -114,89 +202,66 @@ class IPerfPerformanceTest(object):
             self.timeout = 1080*int(self.data_size)
             cmd = "timeout -k 1 {} {} -c {} -n {}G -i 1 -f -m -P {}".format(
                 self.timeout, self.executable, self.target, self.data_size,
-                threads)
+                iperf_threads)
 
-        logging.debug("Executing command {}".format(cmd))
-        logging.debug("Starting iperf against {}, this could take a while...".
-                      format(self.target))
-        try:
-            iperf_return = check_output(
-                shlex.split(cmd), universal_newlines=True)
-        except CalledProcessError as iperf_exception:
-            if iperf_exception.returncode != 124:
-                # timeout command will return 124 if iperf timed out, so any
-                # other return value means something did fail
-                logging.error("Failed executing iperf: %s",
-                              iperf_exception.output)
-                return iperf_exception.returncode
-            else:
-                # this is normal so we "except" this exception and we
-                # "pass through" whatever output iperf did manage to produce.
-                # When confronted with SIGTERM iperf should stop and output
-                # a partial (but usable) result.
-                logging.warning("iperf timed out - this should be OK")
-                iperf_return = iperf_exception.output
+        # Handle threading -- start Python threads (even if just one is
+        # used), then use join() to wait for them all to complete....
+        t = []
+        results.clear()
+        for thread_num in range(0, python_threads):
+            port_num = start_port + thread_num
+            t.append(threading.Thread(target=self.run_one_thread,
+                                      args=(cmd, port_num)))
+            t[thread_num].start()
+        for thread_num in range(0, python_threads):
+            t[thread_num].join()
 
-        logging.debug(iperf_return)
-        # "CPU Utilization" line present only in iperf3 output
-        cpu = re.findall(r"CPU Utilization.*local/sender\s([\w\.]+)",
-                         iperf_return)
-        # iperf3 provides "sender" and "receiver" summaries; remove them
-        iperf_return = re.sub(r".*(sender|receiver)", "", iperf_return)
-        speeds = list(map(float, re.findall(r"([\w\.]+)\sMbits/sec",
-                          iperf_return)))
+        throughput = self.summarize_speeds()
         invalid_speed = False
-        if speeds:
-            throughput = sum(speeds)/len(speeds)
-            try:
-                percent = throughput / int(self.iface.max_speed) * 100
-            except (ZeroDivisionError, TypeError):
-                # Catches a condition where the interface functions fine but
-                # ethtool fails to properly report max speed. In this case
-                # it's up to the reviewer to pass or fail.
-                percent = 0
-                invalid_speed = True
+        try:
+            percent = throughput / int(self.iface.max_speed) * 100
+        except (ZeroDivisionError, TypeError):
+            # Catches a condition where the interface functions fine but
+            # ethtool fails to properly report max speed. In this case
+            # it's up to the reviewer to pass or fail.
+            percent = 0
+            invalid_speed = True
+        logging.info("Avg Transfer speed: {} Mb/s".format(throughput))
+        if invalid_speed:
+            # If we have no link_speed (e.g. wireless interfaces don't
+            # report this), then we shouldn't penalize them because
+            # the transfer may have been reasonable. So in this case,
+            # we'll exit with a pass-warning.
+            logging.warning("Unable to obtain maximum speed.")
+            logging.warning("Considering the test as passed.")
+            return 0
+        # Below is guaranteed to not throw an exception because we'll
+        # have exited above if it did.
+        logging.info("{:03.2f}% of theoretical max {} Mb/s".
+                     format(percent, int(self.iface.max_speed)))
 
-            logging.debug("Min Transfer speed: {} Mb/s".format(min(speeds)))
-            logging.debug("Max Transfer speed: {} Mb/s".format(max(speeds)))
-            logging.info("Avg Transfer speed: {} Mb/s".format(throughput))
-            if invalid_speed:
-                # If we have no link_speed (e.g. wireless interfaces don't
-                # report this), then we shouldn't penalize them because
-                # the transfer may have been reasonable. So in this case,
-                # we'll exit with a pass-warning.
-                logging.warning("Unable to obtain maximum speed.")
-                logging.warning("Considering the test as passed.")
-                return 0
-            # Below is guaranteed to not throw an exception because we'll
-            # have exited above if it did.
-            logging.info("{:03.2f}% of theoretical max {} Mb/s".
-                         format(percent, int(self.iface.max_speed)))
-            if cpu:
-                logging.info("CPU utilization: {}%".format(cpu[0]))
-                cpu_load = float(cpu[0])
-            else:
-                cpu_load = 0.0
-            if percent < self.fail_threshold or \
-                    cpu_load > self.cpu_load_fail_threshold:
-                logging.warning("Poor network performance detected against {}".
-                                format(self.target))
-                if percent < self.fail_threshold:
-                    logging.warning("  Transfer speed: {} Mb/s".
-                                    format(throughput))
-                    logging.warning("  {:03.2f}% of theoretical max {} Mb/s\n".
-                                    format(percent, int(self.iface.max_speed)))
-                if cpu_load > self.cpu_load_fail_threshold:
-                    logging.warning("  CPU load: {}%".format(cpu_load))
-                    logging.warning("  CPU load is above {}% maximum\n".
-                                    format(self.cpu_load_fail_threshold))
-                return 30
-
-            logging.debug("Passed benchmark against {}".format(self.target))
+        if self.iperf3:
+            cpu_load = self.summarize_cpu()
+            logging.info("Average CPU utilization: {}%".
+                         format(round(cpu_load, 1)))
         else:
-            logging.error("Failed iperf benchmark against {}".
-                          format(self.target))
-            return 1
+            cpu_load = 0
+        if percent < self.fail_threshold or \
+                cpu_load > self.cpu_load_fail_threshold:
+            logging.warning("Poor network performance detected against {}".
+                            format(self.target))
+            if percent < self.fail_threshold:
+                logging.warning("  Transfer speed: {} Mb/s".
+                                format(throughput))
+                logging.warning("  {:03.2f}% of theoretical max {} Mb/s\n".
+                                format(percent, int(self.iface.max_speed)))
+            if cpu_load > self.cpu_load_fail_threshold:
+                logging.warning("  CPU load: {}%".format(cpu_load))
+                logging.warning("  CPU load is above {}% maximum\n".
+                                format(self.cpu_load_fail_threshold))
+            return 30
+
+        logging.debug("Passed benchmark against {}".format(self.target))
 
 
 class StressPerformanceTest:
@@ -479,7 +544,7 @@ def make_target_list(iface, test_targets, log_warnings):
 # Wait until the specified interface comes up, or until iface_timeout.
 def wait_for_iface_up(iface, timeout):
     isdown = True
-    deadline = time.time() + timeout;
+    deadline = time.time() + timeout
     while (time.time() < deadline) and isdown:
         try:
             link_status = check_output(["ip", "link", "show", "dev",

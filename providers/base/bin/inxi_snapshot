@@ -5456,7 +5456,7 @@ sub generate_json {
     my ($json);
     my $b_debug = 1;
     my ($b_cpanel,$b_valid);
-    error_handler('not-in-irc', 'help') if $b_irc;
+    #error_handler('not-in-irc', 'help') if $b_irc;
     #print Dumper \%data if $b_debug;
     if (check_module('Cpanel::JSON::XS')){
         import Cpanel::JSON::XS;

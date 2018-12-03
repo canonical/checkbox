@@ -29,6 +29,7 @@ from subprocess import DEVNULL, CalledProcessError, check_call
 
 from plainbox.impl.ctrl import RootViaSudoWithPassExecutionController
 from plainbox.impl.ctrl import UserJobExecutionController
+from plainbox.impl.ctrl import DaemonicExecutionController
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
@@ -125,7 +126,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 3
+    REMOTE_API_VERSION = 4
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -135,22 +136,17 @@ class RemoteSessionAssistant():
         self._session_change_lock = Lock()
         self._operator_lock = Lock()
         self.buffered_ui = BufferedUI()
+        self._input_piping = os.pipe()
         self._reset_sa()
         self._passwordless_sudo = is_passwordless_sudo()
         self.terminate_cb = None
+        self._pipe_from_master = open(self._input_piping[1], 'w')
 
     def _reset_sa(self):
         self._state = Idle
         self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
         self._sa.configure_application_restart(self._cmd_callback)
-        self._sa.use_alternate_execution_controllers([
-            (
-                RootViaSudoWithPassExecutionController,
-                (),
-                {'password_provider_cls': self.get_decrypted_password}
-            ),
-            (UserJobExecutionController, [], {}),
-        ])
+        self._choose_exec_ctrls()
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
@@ -158,6 +154,31 @@ class RemoteSessionAssistant():
         self._currently_running_job = None  # XXX: yuck!
         self._current_comments = ""
         self._last_response = None
+        self._normal_user = ''
+
+    def _choose_exec_ctrls(self):
+        normal_user_provider = lambda: self._normal_user
+        if os.getuid() == 0:
+            stdin = open(self._input_piping[0])
+            self._sa.use_alternate_execution_controllers([
+                (
+                    DaemonicExecutionController,
+                    (),
+                    {
+                        'normal_user_provider': normal_user_provider,
+                        'stdin': stdin,
+                    }
+                ),
+            ])
+        else:
+            self._sa.use_alternate_execution_controllers([
+                (
+                    RootViaSudoWithPassExecutionController,
+                    (),
+                    {'password_provider_cls': self.get_decrypted_password}
+                ),
+                (UserJobExecutionController, [], {}),
+            ])
 
     @property
     def session_change_lock(self):
@@ -204,6 +225,7 @@ class RemoteSessionAssistant():
         filtered_tps = set()
         for filter in self._launcher.test_plan_filters:
             filtered_tps.update(fnmatch.filter(tps, filter))
+        self._normal_user = self._launcher.normal_user
         filtered_tps = list(filtered_tps)
         response = zip(filtered_tps, [self._sa.get_test_plan(
             tp).name for tp in filtered_tps])
@@ -475,6 +497,10 @@ class RemoteSessionAssistant():
     def finalize_session(self):
         self._sa.finalize_session()
         self._reset_sa()
+
+    def transmit_input(self, text):
+        self._pipe_from_master.write(text)
+        self._pipe_from_master.flush()
 
     @property
     def manager(self):

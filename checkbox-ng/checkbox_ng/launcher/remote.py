@@ -28,6 +28,7 @@ the session.
 """
 import gettext
 import os
+import select
 import socket
 import time
 import signal
@@ -409,6 +410,13 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                 SimpleUI.green_text(payload, end='')
             if state == 'running':
                 time.sleep(0.5)
+                while True:
+                    res = select.select([sys.stdin], [], [], 0)
+                    if not res[0]:
+                        break
+                    # XXX: this assumes that sys.stdin is chunked in lines
+                    self.sa.transmit_input(res[0][0].readline())
+
             else:
                 self.finish_job()
                 break

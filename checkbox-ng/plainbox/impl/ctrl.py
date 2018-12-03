@@ -416,7 +416,8 @@ class CheckBoxExecutionController(IExecutionController):
         """
         self._provider_list = provider_list
 
-    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
+    def execute_job(self, job, job_state, config, session_dir, extcmd_popen,
+                    stdin=None):
         """
         Execute the specified job using the specified subprocess-like object
 
@@ -456,12 +457,13 @@ class CheckBoxExecutionController(IExecutionController):
                 if 'preserve-cwd' in job.get_flag_set() or os.getenv("SNAP"):
                     logger.debug(_("job[%s] executing %r with env %r"),
                                  job.id, cmd, env)
-                    return_code = extcmd_popen.call(cmd, env=env)
+                    return_code = extcmd_popen.call(cmd, env=env, stdin=stdin)
                 else:
                     logger.debug(_("job[%s] executing %r with env %r "
                                    "in cwd %r"),
                                  job.id, cmd, env, cwd_dir)
-                    return_code = extcmd_popen.call(cmd, env=env, cwd=cwd_dir)
+                    return_code = extcmd_popen.call(
+                        cmd, env=env, cwd=cwd_dir, stdin=stdin)
                 if 'noreturn' in job.get_flag_set():
                     self._halt()
                 return return_code
@@ -1603,3 +1605,51 @@ class RootViaSudoWithPassExecutionController(
             return 2
         else:
             return -1
+
+
+class DaemonicExecutionController(CheckBoxDifferentialExecutionController):
+    """Execution controller that is used when Checkbox is as a service."""
+
+    def __init__(self, provider_list, normal_user_provider=None, stdin=None):
+        """
+        :param provider_list:
+            A list of Provider1 objects that will be available for script
+            dependency resolutions. Currently all of the scripts are makedirs
+            available but this will be refined to the minimal set later.
+        :param normal_user:
+            Name of the user to run a job as, when the job does not specify
+            which user it would like to use.
+        :param stdin:
+            Filelike object that provides input to the command run by the job.
+        """
+        super().__init__(provider_list)
+        self._user_provider = normal_user_provider
+        self._stdin = stdin or subprocess.PIPE
+
+    def get_execution_command(self, job, job_state, config, session_dir,
+                              nest_dir):
+        cmd = []
+        if not job.user:
+            target_user = self._user_provider()
+            if target_user:
+                # run only if normal user has been provided by launcher/configs
+                # otherwise run as root
+                cmd = ['sudo', '-S', '-u', self._user_provider()]
+        elif job.user != 'root':
+            cmd = ['sudo', '-S', '-u', job.user]
+        cmd += ['env']
+        env = self.get_differential_execution_environment(
+            job, job_state, config, session_dir, nest_dir)
+        cmd += ["{key}={value}".format(key=key, value=value)
+                for key, value in sorted(env.items())]
+        cmd += [job.shell, '-c', job.command]
+        return cmd
+
+    def get_checkbox_score(self, job):
+        # if this controller is even considered then it means it's the best
+        # so the score can be '1'
+        return 1
+
+    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
+        return super().execute_job(
+            job, job_state, config, session_dir, extcmd_popen, self._stdin)

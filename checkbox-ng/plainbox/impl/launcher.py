@@ -213,6 +213,12 @@ class LauncherDefinition1(LauncherDefinition):
         help_text=_("Delay (in seconds) before retrying failed jobs in"
                     " auto-retry mode."))
 
+    normal_user = config.Variable(
+        section='daemon',
+        kind=str,
+        default='',
+        help_text=_("Username to use for jobs that don't specify user"))
+
     restart_strategy = config.Variable(
         section='restart',
         name='strategy',
@@ -235,6 +241,10 @@ class LauncherDefinition1(LauncherDefinition):
 
     environment = config.Section(
         help_text=_('Environment variables to use'))
+
+    daemon = config.Section(
+        name='daemon',
+        help_text=_('Daemon-specific configuration'))
 
 
 DefaultLauncherDefinition = LauncherDefinition1

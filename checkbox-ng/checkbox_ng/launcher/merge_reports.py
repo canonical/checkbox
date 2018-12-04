@@ -86,6 +86,7 @@ class MergeReports(Command):
         except OSError as e:
             raise SystemExit(e)
         except KeyError as e:
+            self._output_potential_action(str(e))
             raise SystemExit(e)
         return data['title']
 
@@ -128,6 +129,18 @@ class MergeReports(Command):
         exporter_support = exporter_map[exporter_id]
         return exporter_support.exporter_cls(
             [], exporter_unit=exporter_support)
+
+    def _output_potential_action(self, message):
+        hint = ""
+        keys = ['resource', 'attachment']
+        for key in keys:
+            if key in message:
+                hint = ("Make sure your input submission provides {}-related "
+                        "information.".format(key))
+        if hint:
+            print("Fail to merge. " + hint)
+        else:
+            print("Fail to merge.")
 
     def invoked(self, ctx):
         manager_list = []

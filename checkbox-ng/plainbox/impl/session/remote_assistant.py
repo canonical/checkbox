@@ -215,6 +215,7 @@ class RemoteSessionAssistant():
 
     @allowed_when(Idle)
     def start_session(self, configuration):
+        self._reset_sa()
         _logger.debug("start_session: %r", configuration)
         self._launcher = DefaultLauncherDefinition()
         if configuration['launcher']:

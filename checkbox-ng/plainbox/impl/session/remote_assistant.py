@@ -155,6 +155,8 @@ class RemoteSessionAssistant():
         self._current_comments = ""
         self._last_response = None
         self._normal_user = ''
+        self.session_change_lock.acquire(blocking=False)
+        self._session_change_lock.release()
 
     def _choose_exec_ctrls(self):
         normal_user_provider = lambda: self._normal_user

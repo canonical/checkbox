@@ -14,7 +14,7 @@ _name: Bluetooth tests (Manual)
 _description:
  Bluetooth tests (Manual)
 include:
- bluetooth/audio-a2dp                           certification-status=non-blocker
+ bluetooth/audio-a2dp                           certification-status=blocker
  bluetooth/HID
  bluetooth4/HOGP-mouse                          certification-status=blocker
  bluetooth4/HOGP-keyboard                       certification-status=blocker
@@ -34,3 +34,4 @@ _description: Bluetooth tests (certification blockers only)
 include:
  bluetooth4/HOGP-mouse                          certification-status=blocker
  bluetooth4/HOGP-keyboard                       certification-status=blocker
+ bluetooth/audio-a2dp                           certification-status=blocker

@@ -220,8 +220,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     'testsselected': self.run_jobs,
                     'bootstrapped': partial(
                         self.select_jobs, all_jobs=payload),
-                    'started': partial(
-                        self.interactively_choose_tp, tps=payload),
+                    'started': self.restart,
                     'interacting': partial(
                         self.resume_interacting, interaction=payload),
                 }[state]()
@@ -429,6 +428,10 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
 
     def abandon(self):
         self.sa.finalize_session()
+
+    def restart(self):
+        self.abandon()
+        self.new_session()
 
     def local_export(self, exporter_id, transport, options=()):
         exporter = self._sa.manager.create_exporter(exporter_id, options)

@@ -1,14 +1,12 @@
 #!/bin/bash
 
-function finish {
-  rm -rf ./checkbox-ng
-}
-trap finish EXIT
+TMPDIR=$(mktemp -d)
+trap "rm -rf $TMPDIR" EXIT
 
 set -e
 
-git clone git://git.launchpad.net/checkbox-ng
+git clone git://git.launchpad.net/checkbox-ng $TMPDIR/checkbox-ng
 echo "I: running 'develop' on checkbox-ng"
-( cd ./checkbox-ng/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
+( cd $TMPDIR/checkbox-ng/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
 
 ./manage.py validate

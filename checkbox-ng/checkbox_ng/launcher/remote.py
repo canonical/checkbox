@@ -218,6 +218,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
                     'testsselected': self.run_jobs,
+                    'bootstrapping': self.restart,
                     'bootstrapped': partial(
                         self.select_jobs, all_jobs=payload),
                     'started': self.restart,

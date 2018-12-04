@@ -156,7 +156,7 @@ class RemoteSessionAssistant():
         self._last_response = None
         self._normal_user = ''
         self.session_change_lock.acquire(blocking=False)
-        self._session_change_lock.release()
+        self.session_change_lock.release()
 
     def _choose_exec_ctrls(self):
         normal_user_provider = lambda: self._normal_user
@@ -418,7 +418,7 @@ class RemoteSessionAssistant():
     def finish_job(self, result=None):
         # assert the thread completed
         self.session_change_lock.acquire(blocking=False)
-        self._session_change_lock.release()
+        self.session_change_lock.release()
         if self._sa.get_job(self._currently_running_job).plugin in [
                 'manual', 'user-interact-verify'] and not result:
             # for manually verified jobs we don't set the outcome here

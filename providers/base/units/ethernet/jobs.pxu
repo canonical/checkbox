@@ -387,8 +387,12 @@ plugin: shell
 estimated_duration: 2s
 command: check_static {{ interface }}
 requires:
+  {%- if __on_ubuntucore__ %}
   snap.name == 'network-manager'
   connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+  {%- else %}
+  executable.name == 'nmcli'
+  {% endif -%}
 
 plugin: shell
 category_id: com.canonical.plainbox::ethernet

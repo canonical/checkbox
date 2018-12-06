@@ -358,7 +358,6 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         return False
 
     def wait_and_continue(self):
-        # TODO: nicer UI
         progress = self.sa.whats_up()[1]
         print("Rejoined session.")
         print("In progress: {} ({}/{})".format(

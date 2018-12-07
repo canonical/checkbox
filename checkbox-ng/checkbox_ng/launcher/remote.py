@@ -27,6 +27,7 @@ RemoteMaster implements the part that presents UI to the operator and steers
 the session.
 """
 import gettext
+import logging
 import os
 import select
 import socket
@@ -53,6 +54,8 @@ from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
 
 _ = gettext.gettext
+
+_logger = logging.getLogger("remote")
 
 
 class SimpleUI(NormalUI, MainLoopStage):
@@ -188,6 +191,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         while True:
             try:
                 if interrupted:
+                    _logger.info("master: Session interrupted")
                     interrupted = False  # we are handling the interruption ATM
                     # next line can raise exception due to connection being
                     # lost so let's set the default behavior to quitting
@@ -213,21 +217,25 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                                        "Slave uses: {}. Master uses: {}").format(
                         slave_api_version, master_api_version))
                 state, payload = self.sa.whats_up()
+                _logger.info("master: Main dispatch with state: %s", state)
                 keep_running = {
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
                     'testsselected': self.run_jobs,
+                    'bootstrapping': self.restart,
                     'bootstrapped': partial(
                         self.select_jobs, all_jobs=payload),
                     'started': self.restart,
                     'interacting': partial(
                         self.resume_interacting, interaction=payload),
                 }[state]()
-            except EOFError:
+            except EOFError as exc:
                 print("Connection lost!")
+                _logger.info("master: Connection lost due to: %s", exc)
                 time.sleep(1)
-            except (ConnectionRefusedError, socket.timeout, OSError):
+            except (ConnectionRefusedError, socket.timeout, OSError) as exc:
+                _logger.info("master: Connection lost due to: %s", exc)
                 if not keep_running:
                     raise
                 # it's reconnecting, so we can ignore refuses
@@ -240,10 +248,13 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                 break
 
     def new_session(self):
+        _logger.info("master: Starting new session.")
         configuration = dict()
         configuration['launcher'] = self._launcher_text
 
         tps = self.sa.start_session(configuration)
+        _logger.debug("master: Session started. Available TPs:\n%s",
+            '\n'.join(['  ' + tp[0] for tp in tps]))
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)
@@ -251,6 +262,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             self.interactively_choose_tp(tps)
 
     def interactively_choose_tp(self, tps):
+        _logger.info("master: Interactively choosing TP.")
         tp_names = [tp[1] for tp in tps]
         selected_index = test_plan_browser(
             "Select test plan", tp_names, 0)
@@ -277,6 +289,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     wrong_pass = False
 
     def select_tp(self, tp):
+        _logger.info("master: Selected test plan: %s", tp)
         pass_required = self.sa.prepare_bootstrapping(tp)
         if pass_required:
             self.password_query()
@@ -293,7 +306,9 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.jobs = self.sa.finish_bootstrap()
 
     def select_jobs(self, all_jobs):
+        _logger.info("master: Selecting jobs.")
         if self.launcher.test_selection_forced:
+            _logger.debug("master: Force-seleced jobs: %s", all_jobs)
             self.sa.save_todo_list(all_jobs)
             self.run_jobs()
         else:
@@ -303,6 +318,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             # wanted_set may have bad order, let's use it as a filter to the
             # original list
             todo_list = [job for job in all_jobs if job in wanted_set]
+            _logger.debug("master: Selected jobs: %s", todo_list)
             self.sa.save_todo_list(todo_list)
             self.run_jobs()
         return False
@@ -342,7 +358,6 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         return False
 
     def wait_and_continue(self):
-        # TODO: nicer UI
         progress = self.sa.whats_up()[1]
         print("Rejoined session.")
         print("In progress: {} ({}/{})".format(
@@ -351,7 +366,10 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.run_jobs()
 
     def run_jobs(self):
+        _logger.info("master: Running jobs.")
         jobs = self.sa.get_session_progress()
+        _logger.debug("master: Jobs to be run:\n%s",
+            '\n'.join(['  ' + job for job in jobs]))
         total_num = len(jobs['done']) + len(jobs['todo'])
 
         jobs_repr = self.sa.get_jobs_repr(jobs['todo'], len(jobs['done']))
@@ -403,6 +421,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.run_jobs()
 
     def wait_for_job(self):
+        _logger.info("master: Waiting for job to finish.")
         while True:
             state, payload = self.sa.monitor_job()
             if payload and not self._is_bootstrapping:
@@ -421,19 +440,23 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                 break
 
     def finish_job(self, result=None):
+        _logger.info("master: Finishing job with a result: %s", result)
         job_result = self.sa.finish_job(result)
         if not self._is_bootstrapping:
             SimpleUI.horiz_line()
             print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
     def abandon(self):
+        _logger.info("master: Abandoning session.")
         self.sa.finalize_session()
 
     def restart(self):
+        _logger.info("master: Restarting session.")
         self.abandon()
         self.new_session()
 
     def local_export(self, exporter_id, transport, options=()):
+        _logger.info("master: Exporting locally'")
         exporter = self._sa.manager.create_exporter(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
         async_dump = rpyc.async_(exporter.dump_from_session_manager)

@@ -399,7 +399,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                         next_job = True
                     self.sa.remember_users_response(cmd)
                 elif interaction.kind == 'verification':
-                    self.wait_for_job()
+                    self.wait_for_job(dont_finish=True)
                     JobAdapter = namedtuple('job_adapter', ['command'])
                     job = JobAdapter(job['command'])
                     cmd = SimpleUI(None)._interaction_callback(
@@ -420,7 +420,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.sa.remember_users_response('rollback')
         self.run_jobs()
 
-    def wait_for_job(self):
+    def wait_for_job(self, dont_finish=False):
         _logger.info("master: Waiting for job to finish.")
         while True:
             state, payload = self.sa.monitor_job()
@@ -436,6 +436,8 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     self.sa.transmit_input(res[0][0].readline())
 
             else:
+                if dont_finish:
+                    return
                 self.finish_job()
                 break
 

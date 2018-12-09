@@ -394,12 +394,18 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     SimpleUI.description(_('Purpose:'), interaction.message)
                 elif interaction.kind in ['description', 'steps']:
                     SimpleUI.description(_('Steps:'), interaction.message)
-                    cmd = SimpleUI(None).wait_for_interaction_prompt(None)
+                    if job['command'] is None:
+                        cmd = 'run'
+                    else:
+                        cmd = SimpleUI(None).wait_for_interaction_prompt(None)
                     if cmd == 'skip':
                         next_job = True
                     self.sa.remember_users_response(cmd)
                 elif interaction.kind == 'verification':
                     self.wait_for_job(dont_finish=True)
+                    if interaction.message:
+                        SimpleUI.description(
+                            _('Verification:'), interaction.message)
                     JobAdapter = namedtuple('job_adapter', ['command'])
                     job = JobAdapter(job['command'])
                     cmd = SimpleUI(None)._interaction_callback(

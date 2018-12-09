@@ -394,7 +394,10 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     SimpleUI.description(_('Purpose:'), interaction.message)
                 elif interaction.kind in ['description', 'steps']:
                     SimpleUI.description(_('Steps:'), interaction.message)
-                    cmd = SimpleUI(None).wait_for_interaction_prompt(None)
+                    if job['command'] is None:
+                        cmd = 'run'
+                    else:
+                        cmd = SimpleUI(None).wait_for_interaction_prompt(None)
                     if cmd == 'skip':
                         next_job = True
                     self.sa.remember_users_response(cmd)

@@ -400,6 +400,9 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     self.sa.remember_users_response(cmd)
                 elif interaction.kind == 'verification':
                     self.wait_for_job(dont_finish=True)
+                    if interaction.message:
+                        SimpleUI.description(
+                            _('Verification:'), interaction.message)
                     JobAdapter = namedtuple('job_adapter', ['command'])
                     job = JobAdapter(job['command'])
                     cmd = SimpleUI(None)._interaction_callback(

@@ -89,3 +89,5 @@ category_id: com.canonical.plainbox::info
 command: system_info.py
 _description: Attaches json dumps of system info tools (inxi + udev)
 _summary: Attaches json dumps of system info tools
+requires:
+  cpuinfo.platform not in ("aarch64")

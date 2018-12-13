@@ -38,6 +38,13 @@ include:
 nested_part:
     after-suspend-ethernet-automated
 
+id: after-suspend-ethernet-manual
+unit: test plan
+_name: Manual ethernet tests (after suspend)
+_description: Manual ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+
 id: after-suspend-ethernet-automated
 unit: test plan
 _name: Automated ethernet tests (after suspend)

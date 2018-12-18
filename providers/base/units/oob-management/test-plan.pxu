@@ -1,0 +1,32 @@
+
+id: oob-management-full
+unit: test plan
+_name: QA tests for Out-of-Band Management tools
+_description:
+  Tests for tools for Out-of-Band Management tools such as Intel AMT
+include:
+nested_part:
+  oob-management-manual
+  oob-management-automated
+
+id: oob-management-manual
+unit: test plan
+_name: Maual Out-of-Band Management tools tests
+_description:
+  Tests for tools for Out-of-Band Management tools such as Intel AMT
+include:
+  oob-management/amt/amtinfo_cmd
+  oob-management/amt/smbios_cmd
+  oob-management/amt/amtversions_cmd
+  oob-management/amt/amtccm_provisioning
+  oob-management/amt/amtccm_webui
+  oob-management/amt/amtccm_deactivate
+
+
+id: oob-management-automated
+unit: test plan
+_name: Automated Out-of-Band Management tools tests
+_description:
+  Tests for tools for Out-of-Band Management tools such as Intel AMT
+include:
+  oob-management/amt/lms_service_running

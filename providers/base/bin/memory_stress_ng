@@ -70,7 +70,7 @@ get_params() {
 #   had_error -- sets to "1" if an error occurred
 run_stressor() {
     local runtime="$2"
-    # Add 50% to runtime; will forcefully terminate if stress-ng
+    # Double runtime; will forcefully terminate if stress-ng
     # fails to return in that time.
     end_time=$((runtime*2))
     echo "Running stress-ng $1 stressor for $2 seconds...."

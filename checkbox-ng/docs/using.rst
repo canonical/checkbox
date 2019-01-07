@@ -47,7 +47,7 @@ checkbox-cli startprovider
 The command will also add example units to that provider, to create an empty
 provider, use ``--empty`` option, e.g.::
 
-    $ checkbox-cli --empty startprovider com.acme:another-example
+    $ checkbox-cli startprovider --empty com.acme:another-example
 
 
 checkbox-cli list

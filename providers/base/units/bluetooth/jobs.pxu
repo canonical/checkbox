@@ -1,3 +1,16 @@
+unit: job
+id: bluetooth/detect
+category_id: com.canonical.plainbox::bluetooth
+_summary: Make sure at least one bluetooth device is detected
+plugin: shell
+command:
+  bt_list_adapters.py
+estimated_duration: 2s
+flags: preserve-locale
+requires: manifest.has_bt_adapter
+imports: from com.canonical.plainbox import manifest
+
+
 plugin: shell
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output

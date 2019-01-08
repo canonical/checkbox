@@ -46,7 +46,7 @@ id: graphics/xorg-process
 requires:
  package.name == 'xorg'
  package.name == 'procps'
-command: pgrep -f '/usr/bin/X' >/dev/null
+command: pgrep -a -f '/usr/lib/xorg/Xorg'
 estimated_duration: 0.100
 _description: Test that the X process is running.
 _summary: Test that the X process is running.

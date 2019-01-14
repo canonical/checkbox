@@ -442,7 +442,33 @@ class SessionAssistant:
         # NOTE: copy the list as we don't want to mutate the object returned by
         # get_providers().  This helps unit tests that actually return a fixed
         # list here.
+        def qualified_name(provider):
+            return "{}:{}".format(provider.namespace, provider.name)
+        side_loaded = [qualified_name(p) for p in additional_providers]
+        provider_list = [p for p in provider_list if p.namespace + p.name]
+        provider_list = [
+            p for p in provider_list if qualified_name(p) not in side_loaded]
         provider_list = provider_list[:] + list(additional_providers)
+        for prov in side_loaded:
+            _logger.warning("Using side-loaded provider: %s", prov)
+        if side_loaded:
+            for disabled_rep in ['certification', 'certification-staging']:
+                if disabled_rep in self._config.stock_reports:
+                    _logger.warning(
+                        "Using side-loaded providers disabled the %s report",
+                        disabled_rep)
+                    self._config.stock_reports.remove(disabled_rep)
+            self._config.stock_reports = [
+                sr for sr in self._config.stock_reports if sr not in [
+                    'certification', 'certification-staging']]
+            # iterating over a copy so we can modify the original one
+            for rep_name, rep_params in self._config.reports.copy().items():
+                if rep_params.get('transport') == 'certification':
+                    _logger.warning(
+                        "Using side-loaded providers disabled the %s report",
+                        rep_name)
+                    del self._config.reports[rep_name]
+
         # Select all of the plainbox providers in a separate iteration. This
         # way they get loaded unconditionally, regardless of what patterns are
         # passed to the function (including not passing *any* patterns).

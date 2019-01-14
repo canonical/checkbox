@@ -230,12 +230,9 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             )
             # side-load providers local-providers
             side_load_path = os.path.expandvars(os.path.join(
-                '/home', '$USER', 'providers'))
+                '/var', 'tmp', 'checkbox-providers'))
             additional_providers = ()
             if os.path.exists(side_load_path):
-                print(self._C.RED(_(
-                    "WARNING: using side-loaded providers")))
-                os.environ['PROVIDERPATH'] = ''
                 embedded_providers = EmbeddedProvider1PlugInCollection(
                     side_load_path)
                 additional_providers = embedded_providers.get_all_plugin_objects()

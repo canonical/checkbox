@@ -40,6 +40,7 @@ Table of contents
    bugs.rst
    stack.rst
    launcher-tutorial.rst
+   side-loading.rst
    configs.rst
    nested-test-plan.rst
    snappy.rst

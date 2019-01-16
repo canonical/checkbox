@@ -990,13 +990,18 @@ class TestPlanExport(Command):
         parser.add_argument(
             'TEST_PLAN',
             help=_("test-plan id to bootstrap"))
+        parser.add_argument(
+            '-n', '--nofake', action='store_true')
 
     def invoked(self, ctx):
         self.ctx = ctx
         try_selecting_providers(self.sa, '*')
-        from plainbox.impl.runner import FakeJobRunner
-        self.sa.start_new_session('tp-export-ephemeral', FakeJobRunner)
-        self.sa._context.state._fake_resources = True
+        if ctx.args.nofake:
+            self.sa.start_new_session('tp-export-ephemeral')
+        else:
+            from plainbox.impl.runner import FakeJobRunner
+            self.sa.start_new_session('tp-export-ephemeral', FakeJobRunner)
+            self.sa._context.state._fake_resources = True
         tps = self.sa.get_test_plans()
         if ctx.args.TEST_PLAN not in tps:
             raise SystemExit('Test plan not found')

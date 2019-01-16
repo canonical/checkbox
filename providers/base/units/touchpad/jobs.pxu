@@ -52,33 +52,10 @@ _siblings:
     [{ "id": "touchpad/vertical-after-suspend",
        "depends": "suspend/suspend_advanced touchpad/vertical" }]
 
-plugin: shell
-category_id: com.canonical.plainbox::touchpad
-id: touchpad/singletouch-automated
-requires:
-  dmi.product in ['Notebook','Laptop','Portable','Convertible']
-  xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
-command: true
-estimated_duration: 1.2
-_purpose:
- Determine whether the touchpad is detected as a singletouch device automatically.
-
-plugin: shell
-category_id: com.canonical.plainbox::touchpad
-id: touchpad/multitouch-automated
-estimated_duration: 1.2
-requires:
-  dmi.product in ['Notebook','Laptop','Portable','Convertible']
-  xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'dependent'
-command: true
-_purpose:
- Determine whether the touchpad is detected as a multitouch device automatically.
-
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-manual
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-depends: touchpad/singletouch-automated
 estimated_duration: 120.0
 _purpose:
      Touchpad manual detection of multitouch.
@@ -110,7 +87,6 @@ plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-rightclick
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _purpose:
      Determine that the right click function is working as expected.
@@ -179,7 +155,6 @@ plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-zoom
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check touchpad pinch-to-zoom gesture
 _purpose:
@@ -195,7 +170,6 @@ plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-dash
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check 4-finger tap gesture
 _purpose:

@@ -92,20 +92,6 @@ _siblings:
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
-id: touchpad/singletouch-corner
-requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-estimated_duration: 120.0
-_purpose:
-     Determine that the hot corner feature is working as expected
-_steps:
-    1. Launch a browser.
-    2. Go to a website, and hover the cursor over a link.
-    3. Tap the upper right corner on the touchpad.
-_verification:
-     Did the tap trigger a new tab to be opened?
-
-plugin: manual
-category_id: com.canonical.plainbox::touchpad
 id: touchpad/singletouch-selection
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0

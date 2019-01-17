@@ -1,2 +1,1 @@
 checkbox-ng
-plainbox-provider-checkbox

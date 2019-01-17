@@ -12,8 +12,10 @@ canonical-certification-server: unusual-interpreter usr/bin/certify-vm-16.04 #!c
 canonical-certification-server: unusual-interpreter usr/bin/test-firmware #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-functional-18.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-functional-16.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-memory #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-network-18.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-network-16.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-storage #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/test-stress #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-usb #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-virtualization #!checkbox-cli

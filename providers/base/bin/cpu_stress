@@ -62,9 +62,14 @@ if [ $result = "0" ] ; then
     echo "* stress-ng CPU test passed!"
 else
     if [ $result = "137" ] ; then
-        echo "* stress-ng CPU test timed out and was forcefully terminated!"
+        echo "** stress-ng CPU test timed out and SIGKILL was used to " \
+            "terminate the test (Error $result)!"
+    elif [ $return_code = "124" ] ; then
+        echo "* stress-ng CPU test timed out and was forcefully terminated " \
+            "(Error $result)!"
+    else
+        echo "* stress-ng CPU test failed with result $result"
     fi
-    echo "* stress-ng CPU test failed with result $result"
 fi
 echo "**********************************************************"
 exit $result

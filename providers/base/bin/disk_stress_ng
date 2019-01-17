@@ -245,8 +245,12 @@ run_stressor() {
 	fi
         had_error=1
         echo "*****************************************************************"
-        if [ $return_code = "137" ] ; then
-            echo "** stress-ng disk test timed out and was forcefully terminated!"
+        if [ $return_code = "124" ] ; then
+            echo "** stress-ng $stressor test timed out and was forcefully " \
+                "terminated! (Error $return_code)"
+        elif [ $return_code = "137" ] ; then
+            echo "** stress-ng $stressor test timed out and SIGKILL was used to " \
+                "terminate the test case! (Error $return_code)"
         else
             echo "** Error $return_code reported on stressor $stressor!)"
         fi

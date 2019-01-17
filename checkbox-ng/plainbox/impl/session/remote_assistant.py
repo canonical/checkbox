@@ -137,12 +137,14 @@ class RemoteSessionAssistant():
         self._operator_lock = Lock()
         self.buffered_ui = BufferedUI()
         self._input_piping = os.pipe()
-        self._reset_sa()
         self._passwordless_sudo = is_passwordless_sudo()
         self.terminate_cb = None
         self._pipe_from_master = open(self._input_piping[1], 'w')
+        self._pipe_to_subproc = open(self._input_piping[0])
+        self._reset_sa()
 
     def _reset_sa(self):
+        _logger.info("Resetting RSA")
         self._state = Idle
         self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
         self._sa.configure_application_restart(self._cmd_callback)
@@ -155,18 +157,19 @@ class RemoteSessionAssistant():
         self._current_comments = ""
         self._last_response = None
         self._normal_user = ''
+        self.session_change_lock.acquire(blocking=False)
+        self.session_change_lock.release()
 
     def _choose_exec_ctrls(self):
         normal_user_provider = lambda: self._normal_user
         if os.getuid() == 0:
-            stdin = open(self._input_piping[0])
             self._sa.use_alternate_execution_controllers([
                 (
                     DaemonicExecutionController,
                     (),
                     {
                         'normal_user_provider': normal_user_provider,
-                        'stdin': stdin,
+                        'stdin': self._pipe_to_subproc,
                     }
                 ),
             ])
@@ -213,6 +216,7 @@ class RemoteSessionAssistant():
 
     @allowed_when(Idle)
     def start_session(self, configuration):
+        self._reset_sa()
         _logger.debug("start_session: %r", configuration)
         self._launcher = DefaultLauncherDefinition()
         if configuration['launcher']:
@@ -416,7 +420,7 @@ class RemoteSessionAssistant():
     def finish_job(self, result=None):
         # assert the thread completed
         self.session_change_lock.acquire(blocking=False)
-        self._session_change_lock.release()
+        self.session_change_lock.release()
         if self._sa.get_job(self._currently_running_job).plugin in [
                 'manual', 'user-interact-verify'] and not result:
             # for manually verified jobs we don't set the outcome here

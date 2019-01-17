@@ -230,12 +230,9 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             )
             # side-load providers local-providers
             side_load_path = os.path.expandvars(os.path.join(
-                '/home', '$USER', 'providers'))
+                '/var', 'tmp', 'checkbox-providers'))
             additional_providers = ()
             if os.path.exists(side_load_path):
-                print(self._C.RED(_(
-                    "WARNING: using side-loaded providers")))
-                os.environ['PROVIDERPATH'] = ''
                 embedded_providers = EmbeddedProvider1PlugInCollection(
                     side_load_path)
                 additional_providers = embedded_providers.get_all_plugin_objects()
@@ -993,13 +990,18 @@ class TestPlanExport(Command):
         parser.add_argument(
             'TEST_PLAN',
             help=_("test-plan id to bootstrap"))
+        parser.add_argument(
+            '-n', '--nofake', action='store_true')
 
     def invoked(self, ctx):
         self.ctx = ctx
         try_selecting_providers(self.sa, '*')
-        from plainbox.impl.runner import FakeJobRunner
-        self.sa.start_new_session('tp-export-ephemeral', FakeJobRunner)
-        self.sa._context.state._fake_resources = True
+        if ctx.args.nofake:
+            self.sa.start_new_session('tp-export-ephemeral')
+        else:
+            from plainbox.impl.runner import FakeJobRunner
+            self.sa.start_new_session('tp-export-ephemeral', FakeJobRunner)
+            self.sa._context.state._fake_resources = True
         tps = self.sa.get_test_plans()
         if ctx.args.TEST_PLAN not in tps:
             raise SystemExit('Test plan not found')

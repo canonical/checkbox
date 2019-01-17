@@ -40,7 +40,8 @@ class USBWatcher:
                           "USB Mass Storage device detected": False
                           },
                       "removal": {
-                          "USB disconnect, device number": False
+                          "USB disconnect, device number": False,
+                          "Aborting journal on device": False
                           }
                       }
 
@@ -62,7 +63,7 @@ class USBWatcher:
         while p.poll():
             if j.process() != journal.APPEND:
                 continue
-            self._callback([e['MESSAGE'] for e in j if e])
+            self._callback([e['MESSAGE'] for e in j if e and 'MESSAGE' in e])
 
     def _callback(self, lines):
         for line in lines:
@@ -94,7 +95,8 @@ class USBWatcher:
         # insertion detection
         if (
             self.args.testcase == "insertion" and
-            self.FLAG_DETECTION["insertion"]["USB Mass Storage device detected"] and
+            self.FLAG_DETECTION["insertion"][
+                "USB Mass Storage device detected"] and
             self.MOUNTED_PARTITION
         ):
             device = ""
@@ -122,10 +124,27 @@ class USBWatcher:
                 logger.info("USB3 insertion test passed.")
                 self._write_usb_info()
                 sys.exit()
+        elif (
+            self.args.testcase == "insertion" and
+            self.args.usb_type == "mediacard" and
+            self.MOUNTED_PARTITION
+        ):
+            logger.info("usable partition: %s" % self.MOUNTED_PARTITION)
+            logger.info("%s insertion test passed." % self.args.usb_type)
+            self._write_usb_info()
+            sys.exit()
         # removal detection
         if (
             self.args.testcase == "removal" and
             self.FLAG_DETECTION["removal"]["USB disconnect, device number"]
+        ):
+            logger.info("Removal test passed.")
+            self._remove_usb_info()
+            sys.exit()
+        elif (
+            self.args.testcase == "removal" and
+            self.args.usb_type == "mediacard" and
+            self.FLAG_DETECTION["removal"]["Aborting journal on device"]
         ):
             logger.info("Removal test passed.")
             self._remove_usb_info()
@@ -153,7 +172,7 @@ class USBWatcher:
             file_to_share.close()
 
     def _remove_usb_info(self):
-        """remove usb strage info from $PLAINBOX_SESSION_SHARE."""
+        """remove usb storage info from $PLAINBOX_SESSION_SHARE."""
         plainbox_session_share = os.environ.get('PLAINBOX_SESSION_SHARE')
         if not plainbox_session_share:
             logger.error("no env var PLAINBOX_SESSION_SHARE")
@@ -171,8 +190,8 @@ class USBWatcher:
         detected after USB_ACTION_TIMEOUT secs
         """
         logger.error(
-            "no USB storage %s was reported in systemd journal"
-            % self.args.testcase)
+            "no %s storage %s was reported in systemd journal",
+            self.args.usb_type, self.args.testcase)
         sys.exit(1)
 
 
@@ -182,7 +201,7 @@ def main():
                         choices=['insertion', 'removal'],
                         help=("insertion or removal"))
     parser.add_argument('usb_type',
-                        choices=['usb2', 'usb3'],
+                        choices=['usb2', 'usb3', 'mediacard'],
                         help=("usb2 or usb3"))
     args = parser.parse_args()
     watcher = USBWatcher(args)

@@ -5,6 +5,8 @@ usr/bin/certify-vm-18.04
 usr/bin/certify-16.04
 usr/bin/certify-soc-16.04
 usr/bin/certify-vm-16.04
+usr/bin/test-memory
+usr/bin/test-stress
 usr/bin/test-storage
 usr/bin/test-virtualization
 usr/bin/test-firmware

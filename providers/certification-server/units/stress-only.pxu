@@ -8,33 +8,9 @@ _description:
     test which will exercise the CPU, RAM and storage to very high
     loading.
 nested_part:
+    com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
-mandatory_include:
-    # Meta-job to include required resources, please don't remove
-    config_file_attachment
-    cpuinfo_attachment
-    dkms_info_attachment
-    dmesg_attachment
-    dmi_attachment
-    dmidecode_attachment
-    efi_attachment
-    lspci_attachment
-    lshw_attachment
-    lsusb_attachment
-    lsblk_attachment
-    meminfo_attachment
-    modprobe_attachment
-    modinfo_attachment
-    modules_attachment
-    sysctl_attachment
-    sysfs_attachment
-    udev_attachment
-    udev-summary_attachment
-    lsmod_attachment
-    info/disk_partitions
-    info/network_devices
-    kernel_cmdline_attachment
 include:
     stress/cpu_stress_ng_test                  certification-status=blocker
 bootstrap_include:

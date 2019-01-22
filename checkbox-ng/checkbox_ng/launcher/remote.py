@@ -376,50 +376,11 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         if any([x['user'] is not None for x in jobs_repr]):
             self.password_query()
 
-        for job in jobs_repr:
-            SimpleUI.header(
-                _('Running job {} / {}').format(
-                    job['num'], total_num,
-                    fill='-'))
-            SimpleUI.header(job['name'])
-            print(_("ID: {0}").format(job['id']))
-            print(_("Category: {0}").format(job['category_name']))
-            SimpleUI.horiz_line()
-            next_job = False
-            for interaction in self.sa.run_job(job['id']):
-                if interaction.kind == 'sudo_input':
-                    self.sa.save_password(
-                        self._sudo_provider.encrypted_password)
-                if interaction.kind == 'purpose':
-                    SimpleUI.description(_('Purpose:'), interaction.message)
-                elif interaction.kind in ['description', 'steps']:
-                    SimpleUI.description(_('Steps:'), interaction.message)
-                    if job['command'] is None:
-                        cmd = 'run'
-                    else:
-                        cmd = SimpleUI(None).wait_for_interaction_prompt(None)
-                    if cmd == 'skip':
-                        next_job = True
-                    self.sa.remember_users_response(cmd)
-                elif interaction.kind == 'verification':
-                    self.wait_for_job(dont_finish=True)
-                    if interaction.message:
-                        SimpleUI.description(
-                            _('Verification:'), interaction.message)
-                    JobAdapter = namedtuple('job_adapter', ['command'])
-                    job = JobAdapter(job['command'])
-                    cmd = SimpleUI(None)._interaction_callback(
-                        job, interaction.extra)
-                    self.sa.remember_users_response(cmd)
-                    self.finish_job(interaction.extra.get_result())
-                    next_job = True
-                elif interaction.kind == 'comment':
-                    new_comment = input(SimpleUI.C.BLUE(
-                        _('Please enter your comments:') + '\n'))
-                    self.sa.remember_users_response(new_comment + '\n')
-            if next_job:
-                continue
-            self.wait_for_job()
+        self._run_jobs(jobs_repr, total_num)
+        if self.launcher.auto_retry:
+            while True:
+                if not self._maybe_auto_retry_jobs():
+                    break
         self.finish_session()
 
     def resume_interacting(self, interaction):
@@ -473,3 +434,65 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         exported_stream.seek(0)
         result = transport.send(exported_stream)
         return result
+
+    def _maybe_auto_retry_jobs(self):
+        # create a list of jobs that qualify for rerunning
+        retry_candidates = self.sa.get_auto_retry_candidates()
+        # bail-out early if no job qualifies for rerunning
+        if not retry_candidates:
+            return False
+        # we wait before retrying
+        delay = self.launcher.delay_before_retry
+        _logger.info(_("Waiting {} seconds before retrying failed"
+                       " jobs...".format(delay)))
+        time.sleep(delay)
+        # include resource jobs that jobs to retry depend on
+        candidates = self.sa.prepare_auto_retry_candidates(retry_candidates)
+        self._run_jobs(self.sa.get_jobs_repr(candidates), len(candidates))
+        return True
+
+    def _run_jobs(self, jobs_repr, total_num=0):
+        for job in jobs_repr:
+            SimpleUI.header(
+                _('Running job {} / {}').format(
+                    job['num'], total_num,
+                    fill='-'))
+            SimpleUI.header(job['name'])
+            print(_("ID: {0}").format(job['id']))
+            print(_("Category: {0}").format(job['category_name']))
+            SimpleUI.horiz_line()
+            next_job = False
+            for interaction in self.sa.run_job(job['id']):
+                if interaction.kind == 'sudo_input':
+                    self.sa.save_password(
+                        self._sudo_provider.encrypted_password)
+                if interaction.kind == 'purpose':
+                    SimpleUI.description(_('Purpose:'), interaction.message)
+                elif interaction.kind in ['description', 'steps']:
+                    SimpleUI.description(_('Steps:'), interaction.message)
+                    if job['command'] is None:
+                        cmd = 'run'
+                    else:
+                        cmd = SimpleUI(None).wait_for_interaction_prompt(None)
+                    if cmd == 'skip':
+                        next_job = True
+                    self.sa.remember_users_response(cmd)
+                elif interaction.kind == 'verification':
+                    self.wait_for_job(dont_finish=True)
+                    if interaction.message:
+                        SimpleUI.description(
+                            _('Verification:'), interaction.message)
+                    JobAdapter = namedtuple('job_adapter', ['command'])
+                    job = JobAdapter(job['command'])
+                    cmd = SimpleUI(None)._interaction_callback(
+                        job, interaction.extra)
+                    self.sa.remember_users_response(cmd)
+                    self.finish_job(interaction.extra.get_result())
+                    next_job = True
+                elif interaction.kind == 'comment':
+                    new_comment = input(SimpleUI.C.BLUE(
+                        _('Please enter your comments:') + '\n'))
+                    self.sa.remember_users_response(new_comment + '\n')
+            if next_job:
+                continue
+            self.wait_for_job()

@@ -262,6 +262,10 @@ class RemoteSessionAssistant():
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
         self._state = Bootstrapped
+        if self._launcher.auto_retry:
+            for job_id in self._sa.get_static_todo_list():
+                job_state = self._sa.get_job_state(job_id)
+                job_state.attempts = self._launcher.max_attempts
         return self._sa.get_static_todo_list()
 
     def save_todo_list(self, chosen_jobs):
@@ -431,10 +435,50 @@ class RemoteSessionAssistant():
         self._sa.use_job_result(self._currently_running_job, result)
         if self._state != Bootstrapping:
             if not self._sa.get_dynamic_todo_list():
-                self._state = Idle
+                if (
+                    self._launcher.auto_retry and
+                    self.get_auto_retry_candidates()
+                ):
+                    self._state = TestsSelected
+                else:
+                    self._state = Idle
             else:
                 self._state = TestsSelected
         return result
+
+    def get_auto_retry_candidates(self):
+        """Get all the tests that might be selected for an automatic retry."""
+        def retry_predicate(job_state):
+            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) \
+                and job_state.effective_auto_retry != 'no'
+        retry_candidates = []
+        todo_list = self._sa.get_static_todo_list()
+        job_states = {job_id: self._sa.get_job_state(job_id) for job_id
+                      in todo_list}
+        for job_id, job_state in job_states.items():
+            if retry_predicate(job_state) and job_state.attempts > 0:
+                retry_candidates.append(self._sa.get_job(job_id))
+        return retry_candidates
+
+    def prepare_auto_retry_candidates(self, retry_candidates):
+        """Include resource jobs that jobs to retry depend on."""
+        candidates = []
+        resources_to_rerun = []
+        for job in retry_candidates:
+            job_state = self._sa.get_job_state(job.id)
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                    resources_to_rerun.append(inhibitor.related_job)
+        # reset outcome of jobs that are selected for re-running
+        for job in retry_candidates + resources_to_rerun:
+            self._sa.get_job_state(job.id).result = MemoryJobResult({})
+            candidates.append(job.id)
+            _logger.info("{}: {} attempts".format(
+                job.id,
+                self._sa.get_job_state(job.id).attempts
+            ))
+        self._state = TestsSelected
+        return candidates
 
     def get_jobs_repr(self, job_ids, offset=0):
         """

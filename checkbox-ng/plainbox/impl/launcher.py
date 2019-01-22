@@ -116,7 +116,7 @@ class LauncherDefinition1(LauncherDefinition):
             config.OneOrTheOtherValidator(
                 {'none'}, {'text', 'certification', 'certification-staging',
                            'submission_files'}),
-            ],
+        ],
         default=['text', 'certification', 'submission_files'],
         help_text=_('List of stock reports to use'))
 
@@ -126,6 +126,19 @@ class LauncherDefinition1(LauncherDefinition):
         default=True,
         help_text=_("Send/generate submission report locally when using "
                     "checkbox remote"))
+
+    session_title = config.Variable(
+        section='launcher',
+        default='session title',
+        help_text=_("A title to be applied to the sessions created using "
+                    "this launcher that can be used in report generation"))
+
+    session_desc = config.Variable(
+        section='launcher',
+        default='session description',
+        help_text=_("A string that can be applied to sessions created using "
+                    "this launcher. Useful for storing some contextual "
+                    "infomation about the session"))
 
     providers = config.Variable(
         section='providers',

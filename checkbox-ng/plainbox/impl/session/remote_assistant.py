@@ -218,12 +218,23 @@ class RemoteSessionAssistant():
     def start_session(self, configuration):
         self._reset_sa()
         _logger.debug("start_session: %r", configuration)
+        session_title = 'checkbox-slave'
+        session_desc = 'checkbox-slave session'
+
         self._launcher = DefaultLauncherDefinition()
         if configuration['launcher']:
             self._launcher.read_string(configuration['launcher'])
+            session_title = self._launcher.session_title
+            session_desc = self._launcher.session_desc
+
         self._sa.use_alternate_configuration(self._launcher)
         self._sa.select_providers(*self._launcher.providers)
-        self._sa.start_new_session('checkbox-service')
+
+        self._sa.start_new_session(session_title)
+
+        self._sa.update_app_blob(json.dumps(
+            {'description': session_desc, }).encode("UTF-8"))
+
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
         filtered_tps = set()

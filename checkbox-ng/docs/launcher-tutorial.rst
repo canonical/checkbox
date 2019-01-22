@@ -87,9 +87,19 @@ spaces or commas. The default value is an empty list.
 
 ``api_version``
 
-API version determines the behaviour of the launcher. Each checkbox feature  is
+API version determines the behaviour of the launcher. Each checkbox feature is
 added at a specific API version. Default behaviours don't change silently;
 explicit launcher change is required. Default value: ``0.99``
+
+``session_title``
+
+A title to be applied to the sessions created using this launcher. This can be
+be used to identify a stored sessions and can be used in report generation.
+
+``session_desc``
+
+A string that can be applied to sessions created using this launcher. Useful
+for storing some contextual infomation about the session.
 
 ``stock_reports``
 
@@ -112,11 +122,10 @@ If you don't want to have any stock report automatically generated use
 This field is a list; use commas or spaces to separate stock reports. The
 default value: ``text, certification, submission_files``.
 
-When using ``certification`` stock report, two submission variables may be
-overriden by the launcher: ``secure_id`` and ``description``.
-To do this define ``secure_id`` or ``description`` in a ``transport:c3``
-section (this is the transport that's used by the ``certification`` stock
-reports).
+When using ``certification`` stock report, the ``secure_id`` variable may be
+overriden by the launcher.
+To do this define ``secure_id`` in a ``transport:c3`` section (this is the
+transport that's used by the ``certification`` stock reports).
 
 Launcher section example:
 
@@ -126,6 +135,8 @@ Launcher section example:
     app_id = com.foobar:system-testing
     launcher_version = 1
     stock_reports = text
+    session_title = MegaCorp Thingy Alpha-1 
+    session_desc = Testing the alpha-1 release of MegaCorp Thingy including feature X
 
 Launcher using all defaults with overridden secure_id:
 
@@ -133,13 +144,6 @@ Launcher using all defaults with overridden secure_id:
 
     [transport:c3]
     secure_id = 001122334455667788
-
-Launcher that defines submission description:
-
-::
-
-    [transport:c3]
-    description = my testing session
 
 Launcher that disables all stock reports:
 
@@ -591,7 +595,6 @@ staging version of certification site and saved to /tmp/submission.tar.xz
     type = certification
     secure-id = 00112233445566
     staging = yes
-    description = System Testing of the MegaCorp
 
     [transport:local_file]
     type = file

@@ -28,6 +28,7 @@ import collections
 import datetime
 import fnmatch
 import itertools
+import json
 import logging
 import os
 import shlex
@@ -737,7 +738,13 @@ class SessionAssistant:
             Bytes sequence containing JSON-ised app_blob object.
 
         """
-        self._context.state.metadata.app_blob = app_blob
+        if self._context.state.metadata.app_blob == b'':
+            updated_blob = app_blob
+        else:
+            current_dict = json.loads(self._context.state.metadata.app_blob)
+            current_dict.update(json.loads(app_blob))
+            updated_blob = json.dumps(current_dict).encode('UTF-8')
+        self._context.state.metadata.app_blob = updated_blob
         self._manager.checkpoint()
 
     @morris.signal

@@ -741,8 +741,8 @@ class SessionAssistant:
         if self._context.state.metadata.app_blob == b'':
             updated_blob = app_blob
         else:
-            current_dict = json.loads(self._context.state.metadata.app_blob)
-            current_dict.update(json.loads(app_blob))
+            current_dict = json.loads(self._context.state.metadata.app_blob.decode('UTF-8'))
+            current_dict.update(json.loads(app_blob.decode('UTF-8')))
             updated_blob = json.dumps(current_dict).encode('UTF-8')
         self._context.state.metadata.app_blob = updated_blob
         self._manager.checkpoint()

@@ -5,7 +5,7 @@ _name: IPDT GPU Tests
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdtgpu/IGD-{platform}
 category_id: ipdtgpu
@@ -23,7 +23,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdtgpu/GFX-{platform}
 category_id: ipdtgpu

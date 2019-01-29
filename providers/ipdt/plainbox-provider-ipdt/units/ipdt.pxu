@@ -5,7 +5,7 @@ _name: IPDT
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/SPBC-{platform}
 category_id: ipdt
@@ -29,7 +29,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/genintel-{platform}
 category_id: ipdt
@@ -53,7 +53,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/temperature-{platform}
 category_id: ipdt
@@ -78,7 +78,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/brandstring-{platform}
 category_id: ipdt
@@ -102,7 +102,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/CPUFreq-{platform}
 category_id: ipdt
@@ -127,7 +127,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/Math_FP-{platform}
 category_id: ipdt
@@ -151,7 +151,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/Math_PrimeNum-{platform}
 category_id: ipdt
@@ -175,7 +175,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/cache-{platform}
 category_id: ipdt
@@ -199,7 +199,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/avx-{platform}
 category_id: ipdt
@@ -223,7 +223,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/IMC-{platform}
 category_id: ipdt
@@ -247,7 +247,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/PCH-{platform}
 category_id: ipdt
@@ -272,7 +272,7 @@ flags: preserve-locale suppress-output
 unit: template
 template-imports: from com.canonical.certification import cpuinfo
 template-resource: cpuinfo
-template-filter: cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64'
+template-filter: cpuinfo.platform == 'x86_64'
 template-unit: job
 id: ipdt/mmxsse-{platform}
 category_id: ipdt

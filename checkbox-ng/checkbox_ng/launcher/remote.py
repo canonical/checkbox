@@ -108,6 +108,20 @@ class RemoteSlave(Command):
     name = 'remote-service'
 
     def invoked(self, ctx):
+        slave_port = 18871
+
+        # Check if able to connect to the slave port as indicator of there
+        # already being a slave running
+        def slave_port_open():
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(0.5)
+            result = sock.connect_ex(('127.0.0.1', slave_port))
+            sock.close()
+            return result
+        if slave_port_open() == 0:
+            raise SystemExit(_("Found port {} is open. Is Checkbox slave"
+                               " already running?").format(slave_port))
+
         SessionAssistantSlave.session_assistant = RemoteSessionAssistant(
             lambda s: [sys.argv[0] + ' remote-service --resume'])
         if ctx.args.resume:
@@ -117,7 +131,7 @@ class RemoteSlave(Command):
                 print("Couldn't resume the session")
         self._server = ThreadedServer(
             SessionAssistantSlave,
-            port=18871,
+            port=slave_port,
             protocol_config={
                 "allow_all_attrs": True,
                 "allow_setattr": True,
@@ -254,7 +268,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
 
         tps = self.sa.start_session(configuration)
         _logger.debug("master: Session started. Available TPs:\n%s",
-            '\n'.join(['  ' + tp[0] for tp in tps]))
+                      '\n'.join(['  ' + tp[0] for tp in tps]))
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)
@@ -369,7 +383,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         _logger.info("master: Running jobs.")
         jobs = self.sa.get_session_progress()
         _logger.debug("master: Jobs to be run:\n%s",
-            '\n'.join(['  ' + job for job in jobs]))
+                      '\n'.join(['  ' + job for job in jobs]))
         total_num = len(jobs['done']) + len(jobs['todo'])
 
         jobs_repr = self.sa.get_jobs_repr(jobs['todo'], len(jobs['done']))

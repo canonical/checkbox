@@ -535,6 +535,8 @@ class RemoteSessionAssistant():
         return test_info_list
 
     def resume_last(self):
+        self._launcher = DefaultLauncherDefinition()
+        self._sa.select_providers(*self._launcher.providers)
         last = next(self._sa.get_resumable_sessions())
         meta = self._sa.resume_session(last.id)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))

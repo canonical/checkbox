@@ -128,7 +128,7 @@ class RemoteSlave(Command):
             try:
                 SessionAssistantSlave.session_assistant.resume_last()
             except StopIteration:
-                print("Couldn't resume the session")
+                print("No session to resume")
         self._server = ThreadedServer(
             SessionAssistantSlave,
             port=slave_port,

@@ -59,7 +59,7 @@ find_largest_lv() {
 } # find_largest_lv()
 
 
-# Find the largest partition that holds a supported filesystem on $disk_device.
+# Find the largest partition that holds a supported filesystem on $disk.
 # This code is adapted from a similar function in `disk_stress_ng`.
 # Output:
 #   $largest_part -- Device filename of largest qualifying partition or logical volume
@@ -67,13 +67,14 @@ find_largest_lv() {
 #   $largest_fs -- Filesystem (ext4, etc.) used on largest qualifying partition or logical volume
 #   $unsupported_fs -- Empty or contains name of unsupported filesystem found on disk
 find_largest_partition() {
+    echo "Find largest partition on $disk..."
     largest_part=""
     largest_size=0
     mapper_string="dm-"
-    if [ "${disk_device#*$mapper_string}" = "$disk_device" ]; then
-        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device | grep part | tr -s " ")
+    if [ "${disk_device#*$mapper_string}" = "$disk" ]; then
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk | grep part | tr -s " ")
     else
-        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk_device)
+        partitions=$(lsblk -b -l -n -o NAME,SIZE,TYPE,MOUNTPOINT $disk)
     fi
     unsupported_fs=""
     for partition in $(echo "$partitions" | cut -d " " -f 1) ; do

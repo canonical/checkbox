@@ -675,7 +675,6 @@ class SessionAssistant:
                     io_log_filename=self._runner.get_record_path_for_job(job),
                 ).get_result()
                 self._context.state.update_job_result(job, result)
-                self._metadata.running_job_name = None
                 self._manager.checkpoint()
         if self._restart_strategy is not None:
             self._restart_strategy.diffuse_application_restart(self._app_id)

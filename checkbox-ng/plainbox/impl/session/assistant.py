@@ -686,6 +686,8 @@ class SessionAssistant:
         else:
             UsageExpectation.of(self).allowed_calls = {
                 self.select_test_plan: "to save test plan selection",
+                self.use_alternate_configuration: (
+                    "use an alternate configuration system"),
             }
         return self._metadata
 

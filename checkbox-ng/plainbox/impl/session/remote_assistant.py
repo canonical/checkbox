@@ -42,7 +42,7 @@ from checkbox_ng.launcher.run import SilentUI
 
 _ = gettext.gettext
 
-_logger = logging.getLogger("plainbox.session.assistant2")
+_logger = logging.getLogger("plainbox.session.remote_assistant")
 
 Interaction = namedtuple('Interaction', ['kind', 'message', 'extra'])
 

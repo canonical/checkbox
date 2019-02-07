@@ -71,7 +71,7 @@ id: power-management/suspend_30_cycles_with_reboots
 estimated_duration: 5400.0
 depends:
  power-management/rtc
- suspend/suspend_advanced
+ suspend/suspend_advanced_auto
 requires:
  executable.name == 'x-terminal-emulator'
 flags: noreturn

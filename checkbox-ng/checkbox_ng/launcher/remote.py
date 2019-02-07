@@ -366,6 +366,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             return True
 
     def finish_session(self):
+        print(self.C.header("Results"))
         if self.launcher.local_submission:
             # Disable SIGINT while we save local results
             tmp_sig = signal.signal(signal.SIGINT, signal.SIG_IGN)

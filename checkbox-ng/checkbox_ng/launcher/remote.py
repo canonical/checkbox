@@ -50,6 +50,7 @@ from plainbox.vendor.rpyc.utils.server import ThreadedServer
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
+from checkbox_ng.urwid_ui import resume_dialog
 from checkbox_ng.launcher.run import NormalUI
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
@@ -403,6 +404,8 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
     def _handle_last_job_after_resume(self, resumed_session_info):
         if self.launcher.ui_type == 'silent':
             time.sleep(20)
+        else:
+            resume_dialog(10)
         jobs_repr = self.sa.get_jobs_repr([resumed_session_info['last_job']])
         job = jobs_repr[-1]
         SimpleUI.header(job['name'])

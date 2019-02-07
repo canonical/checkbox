@@ -22,6 +22,8 @@
 ============================================================
 """
 
+import time
+
 from gettext import gettext as _
 import urwid
 
@@ -619,6 +621,59 @@ def interrupt_dialog(host):
         return ['cancel', 'kill-controller', 'kill-service', 'abandon'][index]
     except StopIteration:
         return None
+
+
+class CountdownWidget(urwid.BigText):
+
+    def __init__(self, duration):
+        self._started = time.time()
+        self._duration = duration
+        self.set_text('{0:.1f}'.format(duration))
+        self.font = urwid.HalfBlock6x5Font()
+        super().__init__(self.get_text()[0], self.font)
+
+    def update(self):
+        remaining = self._duration + self._started - time.time()
+        if remaining <= 0:
+            remaining = 0
+        text = '{0:.1f}'.format(remaining)
+        self.set_text(text)
+        print('\33]2;Auto resume remote session in %s\007' % text, end='')
+        if remaining:
+            return True
+        else:
+            raise urwid.ExitMainLoop
+
+
+def resume_dialog(duration):
+    palette = [
+        ('body', 'light gray', 'black', 'standout'),
+        ('header', 'black', 'light gray', 'bold'),
+        ('buttnf', 'black', 'light gray'),
+        ('buttn', 'light gray', 'black', 'bold'),
+        ('foot', 'light gray', 'black'),
+        ('start', 'dark green,bold', 'black'),
+    ]
+    footer_text = [
+        ('Press '), ('<CTRL + C>'),
+        (" to open the cancellation menu")]
+    timer = CountdownWidget(duration)
+    timer_pad = urwid.Padding(timer, align='center', width='clip')
+    timer_fill = urwid.Filler(timer_pad)
+    title = _("Checkbox slave is about to resume the session!")
+    header = urwid.AttrWrap(urwid.Padding(urwid.Text(title), left=1), 'header')
+    footer = urwid.AttrWrap(
+        urwid.Padding(urwid.Text(footer_text), left=1), 'foot')
+    frame = urwid.Frame(urwid.AttrWrap(urwid.LineBox(timer_fill), 'body'),
+                        header=header, footer=footer)
+
+    def update_timer(loop, timer):
+        if timer.update():
+            loop.set_alarm_in(0.1, update_timer, timer)
+
+    loop = urwid.MainLoop(frame, palette)
+    update_timer(loop, timer)
+    loop.run()
 
 
 def add_widget(id, widget):

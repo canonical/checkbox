@@ -497,6 +497,9 @@ class RemoteSessionAssistant():
         self._state = TestsSelected
         return candidates
 
+    def get_job_result(self, job_id):
+        return self._sa.get_job_state(job_id).result
+
     def get_jobs_repr(self, job_ids, offset=0):
         """
         Translate jobs into a {'field': 'val'} representations.

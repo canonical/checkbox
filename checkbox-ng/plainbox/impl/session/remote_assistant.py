@@ -74,7 +74,8 @@ class BufferedUI(SilentUI):
         self.clear_buffers()
 
     def got_program_output(self, stream_name, line):
-        self._queue.put(line.decode(sys.stdout.encoding, 'replace'))
+        self._queue.put(
+            (stream_name, line.decode(sys.stdout.encoding, 'replace')))
         self._whole_queue.put(line)
 
     def whole_output(self):
@@ -85,9 +86,9 @@ class BufferedUI(SilentUI):
 
     def get_output(self):
         """Returns all the output queued up since previous call."""
-        output = ''
+        output = []
         while not self._queue.empty():
-            output += self._queue.get()
+            output.append(self._queue.get())
         return output
 
     def clear_buffers(self):

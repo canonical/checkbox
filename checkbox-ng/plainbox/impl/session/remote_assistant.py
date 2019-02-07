@@ -155,6 +155,7 @@ class RemoteSessionAssistant():
         self._jobs_count = 0
         self._job_index = 0
         self._currently_running_job = None  # XXX: yuck!
+        self._last_job = None
         self._current_comments = ""
         self._last_response = None
         self._normal_user = ''
@@ -394,6 +395,8 @@ class RemoteSessionAssistant():
             payload = (
                 self._job_index, self._jobs_count, self._currently_running_job
             )
+        if self._state == TestsSelected and not self._currently_running_job:
+            payload = {'last_job': self._last_job}
         elif self._state == Started:
             payload = self._available_testplans
         elif self._state == Interacting:
@@ -536,24 +539,52 @@ class RemoteSessionAssistant():
         return test_info_list
 
     def resume_last(self):
+        last = next(self._sa.get_resumable_sessions())
+        self.resume_by_id(last.id)
+
+    def resume_by_id(self, session_id):
         self._launcher = DefaultLauncherDefinition()
         self._sa.select_providers(*self._launcher.providers)
-        last = next(self._sa.get_resumable_sessions())
-        meta = self._sa.resume_session(last.id)
+        resume_candidates = list(self._sa.get_resumable_sessions())
+        _logger.warning("Resuming session: %r", session_id)
+        meta = self._sa.resume_session(session_id)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
         test_plan_id = app_blob['testplan_id']
         self._sa.select_test_plan(test_plan_id)
         self._sa.bootstrap()
-        result = MemoryJobResult({
+        self._last_job = meta.running_job_name
+
+        result_dict = {
             'outcome': IJobResult.OUTCOME_PASS,
-            'comments': _("Passed after resuming execution")
-        })
-        last_job = meta.running_job_name
-        if last_job:
+            'comments': _("Automatically passed after resuming execution"),
+        }
+        result_path = os.path.join(
+            self._sa.get_session_dir(), 'CHECKBOX_DATA', '__result')
+        if os.path.exists(result_path):
             try:
-                self._sa.use_job_result(last_job, result)
+                with open(result_path, 'rt') as f:
+                    result_dict = json.load(f)
+                    # the only really important field in the result is
+                    # 'outcome' so let's make sure it doesn't contain
+                    # anything stupid
+                    if result_dict.get('outcome') not in [
+                            'pass', 'fail', 'skip']:
+                        result_dict['outcome'] = IJobResult.OUTCOME_PASS
+            except json.JSONDecodeError as e:
+                pass
+        result = MemoryJobResult(result_dict)
+        if self._last_job:
+            try:
+                self._sa.use_job_result(self._last_job, result)
             except KeyError:
-                raise SystemExit(last_job)
+                raise SystemExit(self._last_job)
+
+        if self._launcher.auto_retry:
+            for job_id in [job.id for job in self.get_auto_retry_candidates()]:
+                job_state = self._sa.get_job_state(job_id)
+                job_state.attempts = self._launcher.max_attempts - len(
+                    job_state.result_history)
+
         self._state = TestsSelected
 
     def finalize_session(self):

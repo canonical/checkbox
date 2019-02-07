@@ -74,11 +74,11 @@ ACPI_TESTS = ['acpiinfo', 'xenv', 'xsdt', 'wsmt', 'wpbt', 'wmi', 'wdat',
               'pptt', 'pmtt', 'pdtt', 'pcct', 'pcc', 'nfit', 'method', 'msdm',
               'msct', 'mpst', 'mchi', 'mcfg', 'madt', 'lpit', 'iort', 'hmat',
               'hpet', 'hest', 'gtdt', 'fpdt', 'fadt', 'facs', 'erst', 'einj',
-              'ecdt', 'drtm', 'dppt', 'dmar', 'acpi_wpc', 'acpi_time', 'acpi_als',
-              'acpi_lid', 'acpi_slpb', 'acpi_pwrb', 'acpi_ec', 'smart_battery',
-              'acpi_battery', 'acpi_ac', 'dbg2', 'dbgp', 'cstates', 'csrt',
-              'cpep', 'checksum', 'boot', 'bgrt', 'bert', 'aspt', 'asf',
-              'apicinstance', 'acpitables']
+              'ecdt', 'drtm', 'dppt', 'dmar', 'acpi_wpc', 'acpi_time',
+              'acpi_als', 'acpi_lid', 'acpi_slpb', 'acpi_pwrb', 'acpi_ec',
+              'smart_battery', 'acpi_battery', 'acpi_ac', 'dbg2', 'dbgp',
+              'cstates', 'csrt', 'cpep', 'checksum', 'boot', 'bgrt', 'bert',
+              'aspt', 'asf', 'apicinstance', 'acpitables']
 # There are some overlaps there, this creates one master list removing
 # duplicates and then we add some that seem to only apply to Power hardware
 SERVER_TESTS = list(dict.fromkeys(ACPI_TESTS + SBBR_TESTS + UEFI_TESTS))
@@ -152,6 +152,7 @@ def detect_progress_indicator():
         return ["dialog", "--gauge", "Progress", "20", "70"]
     # Return empty list if no progress indicator is to be used
     return []
+
 
 def main():
     description_text = 'Tests the system BIOS using the Firmware Test Suite'
@@ -237,11 +238,12 @@ def main():
                        help='List all QA concerned tests in fwts')
     group.add_argument('--list-server',
                        action='store_true',
-                       help='List all Server Certification concerned tests in fwts')
+                       help=('List all Server Certification concerned tests '
+                             'in fwts'))
     args = parser.parse_args()
 
     tests = []
-    requested_tests=[]
+    requested_tests = []
     results = {}
     critical_fails = []
     high_fails = []
@@ -365,15 +367,17 @@ def main():
         if 's4' not in args.sleep:
             average_times(iteration_results)
     else:
-        # Because the list of available tests varies from arch to arch, we need to 
-        # validate our test selections and remove any unsupported tests.
+        # Because the list of available tests varies from arch to arch, we
+        # need to validate our test selections and remove any unsupported
+        # tests.
         cmd = ('fwts --show-tests')
         fwts_test_list = (Popen(cmd, stdout=PIPE, shell=True)
                           .communicate()[0].strip().decode().split('\n'))
         AVAILABLE_TESTS = list(dict.fromkeys(
-                               [item.lstrip().split()[0] for item in fwts_test_list
-                                if not item.endswith(':') and item != '']))
-        # Compare requested tests to AVAILABLE_TESTS, and if we've requested a 
+                               [item.lstrip().split()[0] for item in
+                                fwts_test_list if not item.endswith(':')
+                                and item != '']))
+        # Compare requested tests to AVAILABLE_TESTS, and if we've requested a
         # test that isn't available, go ahead and mark it as skipped, otherwise
         # add it to tests for execution
         for test in requested_tests:
@@ -417,7 +421,8 @@ def main():
     if critical_fails:
         print("Critical Failures: %d" % len(critical_fails))
         if not args.quiet:
-            print(" WARNING: The following test cases were reported as critical\n"
+            print(" WARNING: The following test cases were reported as"
+                  " critical\n"
                   " level failures by fwts. Please review the log at\n"
                   " %s for more information." % args.log)
             for test in critical_fails:
@@ -433,8 +438,9 @@ def main():
     if medium_fails:
         print("Medium Failures: %d" % len(medium_fails))
         if not args.quiet:
-            print(" WARNING: The following test cases were reported as medium\n"
-                  " level failures by fwts. Please review the log at\n"             
+            print(" WARNING: The following test cases were reported as"
+                  " medium\n"
+                  " level failures by fwts. Please review the log at\n"
                   " %s for more information." % args.log)
             for test in medium_fails:
                 print("  - " + test)

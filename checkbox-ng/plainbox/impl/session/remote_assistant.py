@@ -236,6 +236,8 @@ class RemoteSessionAssistant():
 
         self._sa.update_app_blob(json.dumps(
             {'description': session_desc, }).encode("UTF-8"))
+        self._sa.update_app_blob(json.dumps(
+            {'launcher': configuration['launcher'], }).encode("UTF-8"))
 
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
@@ -549,6 +551,9 @@ class RemoteSessionAssistant():
         _logger.warning("Resuming session: %r", session_id)
         meta = self._sa.resume_session(session_id)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
+        launcher = app_blob['launcher']
+        self._launcher.read_string(launcher)
+        self._sa.use_alternate_configuration(self._launcher)
         test_plan_id = app_blob['testplan_id']
         self._sa.select_test_plan(test_plan_id)
         self._sa.bootstrap()

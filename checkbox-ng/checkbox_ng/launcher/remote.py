@@ -44,6 +44,7 @@ from plainbox.impl.color import Colorizer
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
+from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
 from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
 from checkbox_ng.urwid_ui import test_plan_browser
@@ -127,7 +128,22 @@ class RemoteSlave(Command):
 
         SessionAssistantSlave.session_assistant = RemoteSessionAssistant(
             lambda s: [sys.argv[0] + ' remote-service --resume'])
-        if ctx.args.resume:
+        snap_data = os.getenv('SNAP_DATA')
+        remote_restart_stragegy_debug = os.getenv('REMOTE_RESTART_DEBUG')
+        if snap_data or remote_restart_stragegy_debug:
+            if remote_restart_stragegy_debug:
+                strategy = RemoteSnappyRestartStrategy(debug=True)
+            else:
+                strategy = RemoteSnappyRestartStrategy()
+            if os.path.exists(strategy.session_resume_filename):
+                with open(strategy.session_resume_filename, 'rt') as f:
+                    session_id = f.readline()
+                try:
+                    SessionAssistantSlave.session_assistant.resume_by_id(
+                        session_id)
+                except StopIteration:
+                    print("Couldn't resume the session")
+        elif ctx.args.resume:
             try:
                 SessionAssistantSlave.session_assistant.resume_last()
             except StopIteration:
@@ -239,7 +255,8 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
                     'finalizing': self.finish_session,
-                    'testsselected': self.run_jobs,
+                    'testsselected': partial(
+                        self.run_jobs, resumed_session_info=payload),
                     'bootstrapping': self.restart,
                     'bootstrapped': partial(
                         self.select_jobs, all_jobs=payload),
@@ -383,7 +400,22 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.wait_for_job()
         self.run_jobs()
 
-    def run_jobs(self):
+    def _handle_last_job_after_resume(self, resumed_session_info):
+        if self.launcher.ui_type == 'silent':
+            time.sleep(20)
+        jobs_repr = self.sa.get_jobs_repr([resumed_session_info['last_job']])
+        job = jobs_repr[-1]
+        SimpleUI.header(job['name'])
+        print(_("ID: {0}").format(job['id']))
+        print(_("Category: {0}").format(job['category_name']))
+        SimpleUI.horiz_line()
+        print(
+            _("Outcome") + ": " +
+            SimpleUI.C.result(self.sa.get_job_result(job['id'])))
+
+    def run_jobs(self, resumed_session_info=None):
+        if resumed_session_info:
+            self._handle_last_job_after_resume(resumed_session_info)
         _logger.info("master: Running jobs.")
         jobs = self.sa.get_session_progress()
         _logger.debug("master: Jobs to be run:\n%s",

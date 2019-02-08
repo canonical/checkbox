@@ -197,6 +197,37 @@ class SnappyRestartStrategy(IRestartStrategy):
         subprocess.call(['sudo', 'rm', filename])
 
 
+class RemoteSnappyRestartStrategy(IRestartStrategy):
+
+    """
+    Remote Restart strategy for checkbox snaps.
+    """
+
+    def __init__(self, debug=False):
+        self.debug = debug
+        self.session_resume_filename = self.get_session_resume_filename()
+
+    def get_session_resume_filename(self) -> str:
+        if self.debug:
+            return '/tmp/session_resume'
+        snap_data = os.getenv('SNAP_DATA')
+        return os.path.join(snap_data, 'session_resume')
+
+    def prime_application_restart(self, app_id: str,
+                                  session_id: str, cmd: str) -> None:
+        with open(self.session_resume_filename, 'wt') as f:
+            f.write(session_id)
+
+    def diffuse_application_restart(self, app_id: str) -> None:
+        try:
+            os.remove(self.session_resume_filename)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                pass
+            else:
+                raise
+
+
 def detect_restart_strategy() -> IRestartStrategy:
     """
     Detect the restart strategy for the current environment.
@@ -206,16 +237,40 @@ def detect_restart_strategy() -> IRestartStrategy:
     :raises LookupError:
         When no such object can be found.
     """
+    # XXX: RemoteSnappyRestartStrategy debug
+    remote_restart_stragegy_debug = os.getenv('REMOTE_RESTART_DEBUG')
+    if remote_restart_stragegy_debug:
+        return RemoteSnappyRestartStrategy(debug=True)
     # If we are running as a confined Snappy app this variable will have been
     # set by the launcher script
     if on_ubuntucore():
-        return SnappyRestartStrategy()
-        
+        try:
+            slave_status = subprocess.check_output(
+                ['snapctl', 'get', 'slave'], universal_newlines=True).rstrip()
+            if slave_status == 'disabled':
+                return SnappyRestartStrategy()
+            else:
+                return RemoteSnappyRestartStrategy()
+        except subprocess.CalledProcessError:
+            return SnappyRestartStrategy()
+
+    # Classic + remote service enabled
+    snap_data = os.getenv('SNAP_DATA')
+    if snap_data:
+        try:
+            slave_status = subprocess.check_output(
+                ['snapctl', 'get', 'slave'], universal_newlines=True).rstrip()
+            if slave_status == 'enabled':
+                return RemoteSnappyRestartStrategy()
+        except subprocess.CalledProcessError:
+            pass
+
     if os.path.isdir('/etc/xdg/autostart'):
         # NOTE: Assume this is a terminal application
         return XDGRestartStrategy(app_terminal=True)
 
     raise LookupError("Unable to find appropriate strategy.""")
+
 
 def get_strategy_by_name(name: str) -> type:
     """

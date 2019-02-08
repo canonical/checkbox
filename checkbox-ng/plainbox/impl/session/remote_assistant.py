@@ -42,7 +42,7 @@ from checkbox_ng.launcher.run import SilentUI
 
 _ = gettext.gettext
 
-_logger = logging.getLogger("plainbox.session.assistant2")
+_logger = logging.getLogger("plainbox.session.remote_assistant")
 
 Interaction = namedtuple('Interaction', ['kind', 'message', 'extra'])
 
@@ -74,7 +74,8 @@ class BufferedUI(SilentUI):
         self.clear_buffers()
 
     def got_program_output(self, stream_name, line):
-        self._queue.put(line.decode(sys.stdout.encoding, 'replace'))
+        self._queue.put(
+            (stream_name, line.decode(sys.stdout.encoding, 'replace')))
         self._whole_queue.put(line)
 
     def whole_output(self):
@@ -85,9 +86,9 @@ class BufferedUI(SilentUI):
 
     def get_output(self):
         """Returns all the output queued up since previous call."""
-        output = ''
+        output = []
         while not self._queue.empty():
-            output += self._queue.get()
+            output.append(self._queue.get())
         return output
 
     def clear_buffers(self):
@@ -126,7 +127,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 4
+    REMOTE_API_VERSION = 5
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -154,6 +155,7 @@ class RemoteSessionAssistant():
         self._jobs_count = 0
         self._job_index = 0
         self._currently_running_job = None  # XXX: yuck!
+        self._last_job = None
         self._current_comments = ""
         self._last_response = None
         self._normal_user = ''
@@ -234,6 +236,8 @@ class RemoteSessionAssistant():
 
         self._sa.update_app_blob(json.dumps(
             {'description': session_desc, }).encode("UTF-8"))
+        self._sa.update_app_blob(json.dumps(
+            {'launcher': configuration['launcher'], }).encode("UTF-8"))
 
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
@@ -393,6 +397,8 @@ class RemoteSessionAssistant():
             payload = (
                 self._job_index, self._jobs_count, self._currently_running_job
             )
+        if self._state == TestsSelected and not self._currently_running_job:
+            payload = {'last_job': self._last_job}
         elif self._state == Started:
             payload = self._available_testplans
         elif self._state == Interacting:
@@ -491,6 +497,9 @@ class RemoteSessionAssistant():
         self._state = TestsSelected
         return candidates
 
+    def get_job_result(self, job_id):
+        return self._sa.get_job_state(job_id).result
+
     def get_jobs_repr(self, job_ids, offset=0):
         """
         Translate jobs into a {'field': 'val'} representations.
@@ -535,24 +544,55 @@ class RemoteSessionAssistant():
         return test_info_list
 
     def resume_last(self):
+        last = next(self._sa.get_resumable_sessions())
+        self.resume_by_id(last.id)
+
+    def resume_by_id(self, session_id):
         self._launcher = DefaultLauncherDefinition()
         self._sa.select_providers(*self._launcher.providers)
-        last = next(self._sa.get_resumable_sessions())
-        meta = self._sa.resume_session(last.id)
+        resume_candidates = list(self._sa.get_resumable_sessions())
+        _logger.warning("Resuming session: %r", session_id)
+        meta = self._sa.resume_session(session_id)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
+        launcher = app_blob['launcher']
+        self._launcher.read_string(launcher)
+        self._sa.use_alternate_configuration(self._launcher)
         test_plan_id = app_blob['testplan_id']
         self._sa.select_test_plan(test_plan_id)
         self._sa.bootstrap()
-        result = MemoryJobResult({
+        self._last_job = meta.running_job_name
+
+        result_dict = {
             'outcome': IJobResult.OUTCOME_PASS,
-            'comments': _("Passed after resuming execution")
-        })
-        last_job = meta.running_job_name
-        if last_job:
+            'comments': _("Automatically passed after resuming execution"),
+        }
+        result_path = os.path.join(
+            self._sa.get_session_dir(), 'CHECKBOX_DATA', '__result')
+        if os.path.exists(result_path):
             try:
-                self._sa.use_job_result(last_job, result)
+                with open(result_path, 'rt') as f:
+                    result_dict = json.load(f)
+                    # the only really important field in the result is
+                    # 'outcome' so let's make sure it doesn't contain
+                    # anything stupid
+                    if result_dict.get('outcome') not in [
+                            'pass', 'fail', 'skip']:
+                        result_dict['outcome'] = IJobResult.OUTCOME_PASS
+            except json.JSONDecodeError as e:
+                pass
+        result = MemoryJobResult(result_dict)
+        if self._last_job:
+            try:
+                self._sa.use_job_result(self._last_job, result)
             except KeyError:
-                raise SystemExit(last_job)
+                raise SystemExit(self._last_job)
+
+        if self._launcher.auto_retry:
+            for job_id in [job.id for job in self.get_auto_retry_candidates()]:
+                job_state = self._sa.get_job_state(job_id)
+                job_state.attempts = self._launcher.max_attempts - len(
+                    job_state.result_history)
+
         self._state = TestsSelected
 
     def finalize_session(self):

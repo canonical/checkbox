@@ -283,7 +283,7 @@ id: rtc
 estimated_duration: 0.02
 plugin: resource
 command:
-  if [ -e /sys/class/rtc ]
+  if [ -e /proc/driver/rtc ]
   then
       echo "state: supported"
   else

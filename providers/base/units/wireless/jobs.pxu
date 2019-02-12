@@ -442,3 +442,31 @@ command:
 estimated_duration: 330.0
 _description:
  Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+id: wireless/nm_connection_save_{category}
+category_id: com.canonical.plainbox::wireless
+_summary: Save any NetworkManager 802.11 configurations prior to testing
+plugin: shell
+user: root
+command:
+    wifi_nmcli_backup.py save
+estimated_duration: 2.0
+flags: preserve-locale also-after-suspend also-after-suspend-manual
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+id: wireless/nm_connection_restore_{category}
+category_id: com.canonical.plainbox::wireless
+_summary: Restore any NetworkManager 802.11 configurations after testing
+plugin: shell
+user: root
+command:
+    wifi_nmcli_backup.py restore
+estimated_duration: 2.0
+depends: wireless/nm_connection_save_{category}
+flags: preserve-locale also-after-suspend also-after-suspend-manual

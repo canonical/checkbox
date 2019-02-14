@@ -1,0 +1,329 @@
+name: checkbox-core18
+summary: Checkbox Core
+description: "Checkbox runtime and public providers"
+version: '1.0'
+grade: stable
+
+base: core18
+
+# Don't forget to add a new slot if a new provider part is added in the parts
+# section below.
+slots:
+  provider-resource:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-resource
+  provider-checkbox:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-checkbox
+  provider-snappy:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-snappy
+  provider-ipdt:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-ipdt
+  provider-docker:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-docker
+  provider-tpm2:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-tpm2
+  provider-engineering-tests:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-engineering-tests
+  provider-sru:
+    interface: content
+    read:
+      - $SNAP/providers/plainbox-provider-sru
+  checkbox-runtime:
+    interface: content
+    read:
+      - /
+
+parts:
+################################################################################
+# Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
+  fwts:
+    source-tag: ""
+    plugin: autotools
+    source: git://kernel.ubuntu.com/hwe/fwts
+    stage-packages:
+      - libfdt1
+      - libbsd0
+      - libpci3
+    build-packages:
+      - gcc
+      - make
+      - autoconf
+      - automake
+      - libtool
+      - libjson-c-dev
+      - flex
+      - bison
+      - dh-autoreconf
+      - libglib2.0-dev
+      - libfdt-dev
+      - libbsd-dev
+################################################################################
+# Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
+  stress-ng:
+    source-tag: ""
+    plugin: make
+    source: git://kernel.ubuntu.com/cking/stress-ng
+    make-parameters:
+      - STATIC=1
+    build-packages:
+      - gcc
+      - make
+      - zlib1g-dev
+      - libbsd-dev
+      - libattr1-dev
+      - libgcrypt20-dev
+      - libkeyutils-dev
+      - libapparmor-dev
+      - libaio-dev
+      - libcap-dev
+      - libsctp-dev
+    after: [plainbox-provider-checkbox]
+################################################################################
+  checkbox-support:
+    source-tag: ""
+    plugin: python
+    source: git://git.launchpad.net/checkbox-support
+    stage-packages:
+      - python3-requests-unixsocket
+      - python3-systemd
+    python-packages:
+      - pynmea2
+    after: [fwts]
+################################################################################
+  checkbox-ng:
+    source-tag: ""
+    plugin: python
+    build-packages:
+      - zlib1g-dev
+      - build-essential
+    python-packages:
+      - guacamole
+      - Jinja2
+      - padme
+      - requests-oauthlib
+      - urwid
+      - XlsxWriter
+    source: git://git.launchpad.net/checkbox-ng
+################################################################################
+  plainbox-provider-resource:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/plainbox-provider-resource
+    stage-packages:
+      - cpu-checker
+      - dpkg
+      - dmidecode
+      - libjson-xs-perl
+      - pciutils
+      - python3-requests-unixsocket
+      - smartmontools
+    override-build: |
+      cd src && autoreconf -i
+      snapcraftctl build
+    build-packages:
+      - autoconf
+      - automake
+      - libnl-3-dev
+      - libnl-genl-3-dev
+      - pkg-config
+    after: [checkbox-support, checkbox-ng]
+################################################################################
+  plainbox-provider-checkbox:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/plainbox-provider-checkbox
+    stage-packages:
+      - bc
+      - bonnie++
+      - cryptsetup-bin
+      - dmidecode
+      - dmsetup
+      - ethtool
+      - fswebcam
+      - gir1.2-cheese-3.0
+      - gir1.2-clutter-1.0
+      - gir1.2-gst-plugins-base-1.0
+      - gir1.2-gudev-1.0
+      - gstreamer1.0-pulseaudio
+      - try: [hdapsd] # optional as not available for arm
+      - hdparm
+      - ipmitool
+      - iperf
+      - iperf3
+      - iw
+      - jq
+      - kmod
+      - libfdt1
+      - lshw
+      - mesa-utils
+      - mokutil
+      - net-tools
+      - nmap
+      - nux-tools
+      - nvme-cli
+      - obexftp
+      - parted
+      - pciutils
+      - pulseaudio-utils
+      - pyotherside
+      - python3-dbus
+      - python3-gi
+      - python3-yaml
+      - qml-module-qtquick-controls
+      - qml-module-qtquick-layouts
+      - qmlscene
+      - smartmontools
+      - usbutils
+      - util-linux
+      - uuid-runtime
+      - wmctrl
+    after: [plainbox-provider-resource]
+################################################################################
+  plainbox-provider-snappy:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/plainbox-provider-snappy
+    stage-packages:
+      - bluez-tests
+      - bonnie++
+      - gir1.2-gudev-1.0
+      - hdparm
+      - iperf3
+      - iw
+      - libasound2
+      - libcap2-bin
+      - lshw
+      - python3-dbus
+      - python3-gi
+      - python3-yaml
+      - usbutils
+      - wget
+    build-packages:
+      - libasound2-dev
+      - libcap-dev
+    after: [plainbox-provider-checkbox]
+################################################################################
+  plainbox-provider-ipdt:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/plainbox-provider-ipdt
+    source-subdir: plainbox-provider-ipdt
+    stage-packages:
+        - util-linux
+    after: [plainbox-provider-snappy]
+################################################################################
+  plainbox-provider-docker:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/plainbox-provider-docker
+    after: [plainbox-provider-ipdt]
+################################################################################
+  plainbox-provider-tpm2:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/plainbox-provider-tpm2
+    after: [plainbox-provider-docker]
+################################################################################
+  plainbox-provider-sru:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/plainbox-provider-sru
+    after: [plainbox-provider-tpm2, tpm2-tools-3]
+################################################################################
+  plainbox-provider-engineering-tests:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/engineering-tests
+    source-subdir: com.canonical.se:engineering-tests
+    after: [plainbox-provider-sru]
+################################################################################
+  i2c-tools:
+    plugin: nil
+    stage-packages:
+      - i2c-tools
+    prime:
+      - usr/sbin/i2cdetect
+################################################################################
+  # This module is a dependency for the job gpio/gpiomem_loopback_pairs_{model}
+  # in plainbox-provider-snappy only available in pypi and so can't be addded
+  # to stage-packages
+  rpi-support-libs:
+    plugin: python
+    python-packages:
+      - RPi.GPIO
+################################################################################
+  tpm2-tss-1.4:
+    plugin: autotools
+    source: https://github.com/tpm2-software/tpm2-tss
+    source-type: git
+    source-tag: 1.4.0
+    configflags:
+      - --enable-unit
+    build-packages:
+      - autoconf
+      - autoconf-archive
+      - libtool
+      - gcc
+      - g++
+      - libc6-dev
+    prime:
+      - -include
+    # Keep this, fwts builds are somehow affected by staged libs if not built
+    # first hence the after clause in tpm2-tss-1.4.
+    after: [fwts]
+################################################################################
+  tpm2-tools-3:
+    plugin: autotools
+    source: https://github.com/tpm2-software/tpm2-tools
+    source-type: git
+    source-tag: 3.0.4
+    configflags:
+      - --enable-unit
+      - --with-tcti-device
+    build-packages:
+      - autoconf
+      - autoconf-archive
+      - automake
+      - pkg-config
+      - libcmocka-dev
+      - libcurl4-openssl-dev
+      - libssl-dev
+      - libtool
+      - python-yaml
+    stage-packages:
+      - try: [libcurl4]
+      - else: [libcurl3]
+    prime:
+      - -include
+    after: [tpm2-tss-1.4]
+    override-pull: |
+      snapcraftctl pull
+      # https://github.com/tpm2-software/tpm2-tools/issues/908
+      sed -i 's|LIBMARSHAL_CFLAGS = \\|LIBMARSHAL_CFLAGS = |g' Makefile.am
+      sed -i 's|-DALG_ECMQV=1||g' Makefile.am
+################################################################################
+  parts-meta-info:
+    plugin: nil
+    override-build: |
+      snapcraftctl build
+      for p in `ls -d ../../*`; do
+          (cd $p/src
+              if [ -d $p/src/.git ]; then
+                  (echo `basename $p`\: && git show --pretty=format:"%h%d %aN %ci%n%s%n" -q ; echo ) >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+              fi # for additional `source-type` support, elif them here
+          )
+      done
+    after: [plainbox-provider-engineering-tests]

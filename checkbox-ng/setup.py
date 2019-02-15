@@ -90,6 +90,7 @@ setup(
     entry_points={
         'console_scripts': [
             'checkbox-cli=checkbox_ng.launcher.checkbox_cli:main',
+            'checkbox-provider-tools=checkbox_ng.launcher.provider_tools:main',
             ('plainbox-trusted-launcher-1='
              'plainbox.impl.secure.launcher1:main'),
         ],

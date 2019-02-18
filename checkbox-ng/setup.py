@@ -50,6 +50,7 @@ else:
         'urwid >= 1.1.1',
         'Jinja2 >= 2.7',
         'pycrypto >= 2.6.1',
+        'xlsxwriter >= 0.3',
     ]
 
 setup(
@@ -84,9 +85,6 @@ setup(
         'Topic :: Utilities',
     ],
     install_requires=install_requires,
-    extras_require={
-        'XLSX': 'XlsxWriter >= 0.3',
-    },
     entry_points={
         'console_scripts': [
             'checkbox-cli=checkbox_ng.launcher.checkbox_cli:main',
@@ -95,8 +93,8 @@ setup(
         ],
         'plainbox.exporter': [
             'text=plainbox.impl.exporter.text:TextSessionStateExporter',
-            'tar=plainbox.impl.exporter.tar:TARSessionStateExporter [XLSX]',
-            'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
+            'tar=plainbox.impl.exporter.tar:TARSessionStateExporter',
+            'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter',
             'jinja2=plainbox.impl.exporter.jinja2:Jinja2SessionStateExporter',
         ],
         'plainbox.buildsystem': [

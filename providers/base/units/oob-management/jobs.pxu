@@ -113,14 +113,14 @@ plugin: shell
 template-engine: jinja2
 requires:
   {%- if __on_ubuntucore__ %}
-  # TODO: name is a guess until snap provided
+  {# TODO: name is a guess until snap provided #}
   snap.name == 'lms'
   {%- else %}
   package.name == 'lms'
   {% endif -%}
 command:
   {%- if __on_ubuntucore__ %}
-  # TODO: name is a guess until snap provided
+  {# TODO: name is a guess until snap provided #}
   SERVICE_NAME="snap.lms.lms.service"
   {%- else %}
   SERVICE_NAME="lms.service"

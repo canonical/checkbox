@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_ethernet_adapter
+_name: An Ethernet Adapter
+value-type: bool

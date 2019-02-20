@@ -7,7 +7,7 @@ id: wireless/wireless_scanning_{{ interface }}
 _summary: Test system can discover Wi-Fi networks on {{ interface }}
 command:
   net_driver_info $NET_DRIVER_INFO
-  wifi_nmcli_test scan {{ interface }}
+  wifi_nmcli_test.py scan {{ interface }}
 plugin: shell
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 6
@@ -31,7 +31,7 @@ _purpose:
 plugin: shell
 command:
   net_driver_info $NET_DRIVER_INFO
-  wifi_nmcli_test secured {{ interface }} "$WPA_BG_SSID" "$WPA_BG_PSK"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_BG_SSID" "$WPA_BG_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
@@ -52,7 +52,7 @@ _purpose:
 plugin: shell
 command:
   net_driver_info $NET_DRIVER_INFO
-  wifi_nmcli_test open {{ interface }} "$OPEN_BG_SSID"
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_BG_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
@@ -73,7 +73,7 @@ _purpose:
 plugin: shell
 command:
   net_driver_info $NET_DRIVER_INFO
-  wifi_nmcli_test secured {{ interface }} "$WPA_N_SSID" "$WPA_N_PSK"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_N_SSID" "$WPA_N_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
@@ -94,7 +94,7 @@ _purpose:
 plugin: shell
 command:
   net_driver_info $NET_DRIVER_INFO
-  wifi_nmcli_test open {{ interface }} "$OPEN_N_SSID"
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_N_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
@@ -115,7 +115,7 @@ _purpose:
 plugin: shell
 command:
   net_driver_info $NET_DRIVER_INFO
-  wifi_nmcli_test secured {{ interface }} "$WPA_AC_SSID" "$WPA_AC_PSK"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_AC_SSID" "$WPA_AC_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual
@@ -137,7 +137,7 @@ _purpose:
 plugin: shell
 command:
   net_driver_info $NET_DRIVER_INFO
-  wifi_nmcli_test open {{ interface }} "$OPEN_AC_SSID"
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_AC_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend also-after-suspend-manual

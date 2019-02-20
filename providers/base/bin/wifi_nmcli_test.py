@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2017-2018 Canonical Ltd.
+# Copyright 2017-2019 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
@@ -13,6 +13,7 @@ import argparse
 import functools
 import subprocess as sp
 import sys
+import time
 
 from distutils.version import LooseVersion
 
@@ -61,7 +62,13 @@ def device_rescan():
     print_head("Calling a rescan")
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
-    sp.call(cmd, shell=True)
+    retcode = sp.call(cmd, shell=True)
+    if retcode != 0:
+        # Most often the rescan request fails because NM has itself started
+        # a scan in recent past, we should let these operations complete before
+        # attempting a connection
+        print('Scan request failed, allow other operations to complete (15s)')
+        time.sleep(15)
     print()
 
 
@@ -73,7 +80,8 @@ def list_aps(args):
         cmd = "nmcli -t -f {} d wifi list iface {}".format(fields, args.device)
     else:
         fields = "SSID,CHAN,FREQ,SIGNAL"
-        cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, args.device)
+        cmd = "nmcli -t -f {} d wifi list ifname {}".format(
+            fields, args.device)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
@@ -108,10 +116,11 @@ def open_connection(args):
     print_cmd(cmd)
     sp.call(cmd, shell=True)
     if legacy_nmcli():
-        cmd_part = "nmcli -m tabular -t -f GENERAL d list | "
-        cmd = cmd_part + "grep {} | awk -F: '{{print $15}}'".format(args.device)
+        cmd = ("nmcli -m tabular -t -f GENERAL d list | grep {} | "
+               "awk -F: '{{print $15}}'".format(args.device))
     else:
-        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
+        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(
+            args.device)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     state = output.decode(sys.stdout.encoding).strip()
@@ -126,18 +135,19 @@ def open_connection(args):
 def secured_connection(args):
     print_head("Connection attempt")
     if legacy_nmcli():
-        cmd = "nmcli d wifi connect {} password {} iface {} name TEST_CON".format(
-            args.essid, args.psk, args.device)
+        cmd = ("nmcli d wifi connect {} password {} iface {} name "
+               "TEST_CON".format(args.essid, args.psk, args.device))
     else:
-        cmd = "nmcli d wifi connect {} password {} ifname {} name TEST_CON".format(
-            args.essid, args.psk, args.device)
+        cmd = ("nmcli d wifi connect {} password {} ifname {} name "
+               "TEST_CON".format(args.essid, args.psk, args.device))
     print_cmd(cmd)
     sp.call(cmd, shell=True)
     if legacy_nmcli():
-        cmd_part = "nmcli -m tabular -t -f GENERAL d list | "
-        cmd = cmd_part + "grep {} | awk -F: '{{print $15}}'".format(args.device)
+        cmd = ("nmcli -m tabular -t -f GENERAL d list | "
+               "grep {} | awk -F: '{{print $15}}'".format(args.device))
     else:
-        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(args.device)
+        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(
+            args.device)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     state = output.decode(sys.stdout.encoding).strip()

@@ -1,0 +1,9 @@
+# Copyright 2018 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+
+unit: category
+id: edgex
+_name: EdgeX Tests

@@ -1,0 +1,8 @@
+id: edgex-tp
+unit: test plan
+_name: foo
+_description: long desc
+include:
+    edgex/install
+    edgex/security-services-proxy-certs
+    edgex/services-alive

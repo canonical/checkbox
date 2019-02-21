@@ -1,0 +1,21 @@
+id: edgex/install
+_summary: blah blah
+command: test-install.sh
+user: root
+category_id: edgex
+flags: simple
+
+id: edgex/security-services-proxy-certs
+_summary: blah blah
+command: test-security-services-proxy-certs.sh
+user: root
+category_id: edgex
+flags: simple
+
+id: edgex/services-alive
+_summary: blah blah
+command: test-services-alive.sh
+user: root
+category_id: edgex
+flags: simple
+

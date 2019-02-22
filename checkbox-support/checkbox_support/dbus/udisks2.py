@@ -128,6 +128,9 @@ UDISKS2_BLOCK_INTERFACE = "org.freedesktop.UDisks2.Block"
 # exposed by UDisks2
 UDISKS2_DRIVE_INTERFACE = "org.freedesktop.UDisks2.Drive"
 
+# The well-known name of the loop interface
+UDISKS2_LOOP_INTERFACE = "org.freedesktop.UDisks2.Loop"
+
 
 class Signal:
     """

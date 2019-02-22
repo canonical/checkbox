@@ -50,6 +50,7 @@ def main():
     provider_list = all_providers.get_all_plugin_objects()
     for provider in provider_list:
         print("ns: {}".format(provider.namespace))
+        print("name: {}".format(provider.name))
         for unit in provider.unit_list:
             if unit.Meta.name != 'manifest entry':
                 continue

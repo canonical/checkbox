@@ -21,6 +21,7 @@ from checkbox_support.dbus import connect_to_system_bus
 from checkbox_support.dbus.udisks2 import UDISKS2_BLOCK_INTERFACE
 from checkbox_support.dbus.udisks2 import UDISKS2_DRIVE_INTERFACE
 from checkbox_support.dbus.udisks2 import UDISKS2_FILESYSTEM_INTERFACE
+from checkbox_support.dbus.udisks2 import UDISKS2_LOOP_INTERFACE
 from checkbox_support.dbus.udisks2 import UDisks2Model, UDisks2Observer
 from checkbox_support.dbus.udisks2 import is_udisks2_supported
 from checkbox_support.dbus.udisks2 import lookup_udev_device
@@ -38,6 +39,7 @@ from checkbox_support.udev import get_udev_xhci_devices
 
 class ActionTimer():
     '''Class to implement a simple timer'''
+
     def __enter__(self):
         self.start = time.time()
         return self
@@ -49,6 +51,7 @@ class ActionTimer():
 
 class RandomData():
     '''Class to create data files'''
+
     def __init__(self, size):
         self.tfile = tempfile.NamedTemporaryFile(delete=False)
         self.path = ''
@@ -299,7 +302,8 @@ class DiskTest():
                 udev_devices = get_udev_block_devices(GUdev.Client())
                 for udev_device in udev_devices:
                     if udev_device.get_device_file() == dev_file:
-                        interconnect_speed = get_interconnect_speed(udev_device)
+                        interconnect_speed = get_interconnect_speed(
+                            udev_device)
                         if interconnect_speed:
                             self.rem_disks_speed[dev_file] = (
                                 interconnect_speed * 10 ** 6)
@@ -329,7 +333,8 @@ class DiskTest():
             """
             for udisks2_object_path, interfaces in udisks2_objects.items():
                 if (UDISKS2_FILESYSTEM_INTERFACE in interfaces and
-                        UDISKS2_BLOCK_INTERFACE in interfaces):
+                        UDISKS2_BLOCK_INTERFACE in interfaces and
+                        UDISKS2_LOOP_INTERFACE not in interfaces):
                     yield udisks2_object_path
         # We need to know about all IO candidates,
         # let's iterate over all the block devices reported by udisks2
@@ -605,7 +610,7 @@ def main():
                         help=("Detect the driver of the host controller."
                               "Only xhci_hcd for usb3 is supported so far."))
     parser.add_argument("--lsblkcommand", action='store', type=str,
-                        default="lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT",
+                        default="lsblk -i -n -P -e 7 -o KNAME,TYPE,MOUNTPOINT",
                         help=("Command to execute to get lsblk information. "
                               "Only change it if you know what you're doing."))
 
@@ -869,6 +874,7 @@ def main():
     else:  # If we don't have removable drives attached and mounted
         logging.error("No removable drives were detected, aborting")
         return 1
+
 
 if __name__ == '__main__':
     sys.exit(main())

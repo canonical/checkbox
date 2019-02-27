@@ -1,7 +1,7 @@
 id: edgex-tp
 unit: test plan
-_name: foo
-_description: long desc
+_name: EdgeX
+_description: EdgeX tests
 include:
     edgex/install
     edgex/security-services-proxy-certs

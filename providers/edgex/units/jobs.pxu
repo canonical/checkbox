@@ -1,19 +1,19 @@
 id: edgex/install
-_summary: blah blah
+_summary: Test installation of EdgeX snap
 command: test-install.sh
 user: root
 category_id: edgex
 flags: simple
 
 id: edgex/security-services-proxy-certs
-_summary: blah blah
+_summary: Test security services proxy certs work properly
 command: test-security-services-proxy-certs.sh
 user: root
 category_id: edgex
 flags: simple
 
 id: edgex/services-alive
-_summary: blah blah
+_summary: Test that all services can be started properly
 command: test-services-alive.sh
 user: root
 category_id: edgex

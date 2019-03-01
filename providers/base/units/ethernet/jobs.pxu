@@ -2,13 +2,15 @@ plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/detect
 flags: also-after-suspend
-command: network_device_info
+command: network_device_info.py detect
 estimated_duration: 2.0
 _summary:
- Report info about available network devices
+ Detect if at least one ethernet device is detected
 _description:
  Test to detect and return information about available network controllers on
  the system under test.
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ethernet_adapter == 'True'
 
 plugin: shell
 category_id: com.canonical.plainbox::ethernet

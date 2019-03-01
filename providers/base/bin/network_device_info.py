@@ -17,7 +17,7 @@
 # NetworkManager
 # http://cgit.freedesktop.org/NetworkManager/NetworkManager/tree/examples/python
 #
-# Copyright (C) 2012 Canonical, Ltd.
+# Copyright (C) 2012-2019 Canonical, Ltd.
 
 from subprocess import check_output, CalledProcessError, STDOUT
 import sys
@@ -125,7 +125,7 @@ class NetworkingDevice():
         cmd = ['/sbin/modinfo', driver]
         try:
             stream = check_output(cmd, stderr=STDOUT, universal_newlines=True)
-        except CalledProcessError as err:
+        except CalledProcessError:
             return None
 
         if not stream:
@@ -156,6 +156,35 @@ class NetworkingDevice():
         return "%d.%d.%d.%d" % (ip[0], ip[1], ip[2], ip[3])
 
 
+def print_udev_devices():
+    print("[ Devices found by udev ]".center(80, '-'))
+    for device in udev_devices:
+        for attribute in attributes:
+            value = getattr(device, attribute)
+            if value is not None:
+                if attribute == 'driver':
+                    props = {}
+                    props['Driver'] = value
+                    network_dev = NetworkingDevice(
+                        None, props, None, None)
+                    print("%s: %s (ver: %s)" % (
+                        attribute.capitalize(), value,
+                        network_dev._driver_ver))
+                else:
+                    print("%s: %s" % (attribute.capitalize(), value))
+        vendor_id = getattr(device, 'vendor_id')
+        product_id = getattr(device, 'product_id')
+        subvendor_id = getattr(device, 'subvendor_id')
+        subproduct_id = getattr(device, 'subproduct_id')
+        if vendor_id and product_id:
+            print("ID:           [{0:04x}:{1:04x}]".format(
+                vendor_id, product_id))
+        if subvendor_id and subproduct_id:
+            print("Subsystem ID: [{0:04x}:{1:04x}]".format(
+                subvendor_id, subproduct_id))
+        print()
+
+
 def get_nm_devices():
     devices = []
     bus = dbus.SystemBus()
@@ -183,30 +212,11 @@ def get_nm_devices():
     return devices
 
 
-def match_counts(nm_devices, udev_devices, devtype):
-    """
-    Ensures that the count of devices matching devtype is the same for the
-    two passed in lists, devices from Network Manager and devices from lspci.
-    """
-    # now check that the count (by type) matches
-    nm_type_devices = [dev for dev in nm_devices if dev.gettype() in devtype]
-    udevtype = 'NETWORK'
-    udev_type_devices = [
-        udev
-        for udev in udev_devices
-        if udev.category == udevtype]
-    if len(nm_type_devices) != len(udev_type_devices):
-        print("ERROR: devices missing - udev showed %d %s devices, but "
-              "NetworkManager saw %d devices in %s" %
-              (len(udev_type_devices), udevtype,
-               len(nm_type_devices), devtype),
-              file=sys.stderr)
-        return False
-    else:
-        return True
+def main():
+    if len(sys.argv) != 2 or sys.argv[1] not in ('detect', 'info'):
+        raise SystemExit('ERROR: please specify detect or info')
+    action = sys.argv[1]
 
-
-def main(args):
     try:
         output = check_output(['udevadm', 'info', '--export-db'])
     except CalledProcessError as err:
@@ -219,48 +229,33 @@ def main(args):
     result = UdevResult()
     udev.run(result)
 
-    if udev_devices:
-        print("[ Devices found by udev ]".center(80, '-'))
-        for device in udev_devices:
-            for attribute in attributes:
-                value = getattr(device, attribute)
-                if value is not None:
-                    if attribute == 'driver':
-                        props = {}
-                        props['Driver'] = value
-                        network_dev = NetworkingDevice(None, props, None, None)
-                        print("%s: %s (ver: %s)" % (attribute.capitalize(),
-                              value, network_dev._driver_ver))
-                    else:
-                        print("%s: %s" % (attribute.capitalize(), value))
-            vendor_id = getattr(device, 'vendor_id')
-            product_id = getattr(device, 'product_id')
-            subvendor_id = getattr(device, 'subvendor_id')
-            subproduct_id = getattr(device, 'subproduct_id')
-            if vendor_id and product_id:
-                print("ID:           [{0:04x}:{1:04x}]".format(vendor_id, product_id))
-            if subvendor_id and subproduct_id:
-                print("Subsystem ID: [{0:04x}:{1:04x}]".format(subvendor_id, subproduct_id))
-            print()
+    # The detect action should indicate presence of an ethernet adatper and
+    # cause the job to fail if none present - rely on udev for this
+    if action == 'detect':
+        if udev_devices:
+            print_udev_devices()
+        else:
+            raise SystemExit('No devices detected by udev')
 
-    try:
-        nm_devices = get_nm_devices()
-    except dbus.exceptions.DBusException as e:
-        # server's don't have network manager installed
-        print("Warning: Exception while talking to Network Manager over dbus."
-              " Skipping the remainder of this test. If this is a server, this"
-              " is expected.", file=sys.stderr)
-        print("The Error Generated was:\n %s" % e, file=sys.stderr)
-        return 0
+    # The info action should just gather infomation about any ethernet devices
+    # found and report for inclusion in e.g. an attachment job
+    if action == 'info':
+        # Report udev detected devices first
+        if udev_devices:
+            print_udev_devices()
 
-    print("[ Devices found by Network Manager ]".center(80, '-'))
-    for nm_dev in nm_devices:
-        print(nm_dev)
+        # Attempt to report devices found by NetworkManager - this doesn't
+        # make sense for server installs so skipping is acceptable
+        try:
+            nm_devices = get_nm_devices()
+        except dbus.exceptions.DBusException:
+            # server's don't have network manager installed
+            print('Network Manager not found')
+        else:
+            print("[ Devices found by Network Manager ]".center(80, '-'))
+            for nm_dev in nm_devices:
+                print(nm_dev)
 
-    if not match_counts(nm_devices, udev_devices, "Ethernet"):
-        return 1
-    else:
-        return 0
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    main()

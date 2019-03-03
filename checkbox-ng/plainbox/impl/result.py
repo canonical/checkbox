@@ -436,6 +436,16 @@ class _JobResultBase(IJobResult):
         filename = io_log_filename.replace('record.gz', 'stdout')
         return imghdr.what(filename)
 
+    @property
+    def io_log_as_base64(self):
+        try:
+            io_log_filename = self.io_log_filename
+        except AttributeError:
+            return ''
+        filename = io_log_filename.replace('record.gz', 'stdout')
+        with open(filename, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read())
+        return encoded_string.decode('ASCII')
 
     @property
     def is_hollow(self):

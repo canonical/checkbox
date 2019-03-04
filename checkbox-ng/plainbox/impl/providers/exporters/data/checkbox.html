@@ -265,7 +265,8 @@
                                     {%- else %}
                                     <td style='width:10%'></td>
                                     {%- endif %}
-                                    {%- if job_state.result.io_log_as_text_attachment != "" %}
+                                    {%- set img_type = job_state.result.img_type %}
+                                    {%- if img_type or job_state.result.io_log_as_text_attachment != "" %}
                                     <td style='width:10%'><a href="#attachment-{{ loop.index }}-log">View</a></td>
                                     {%- else %}
                                     <td style='width:10%'></td>
@@ -340,7 +341,18 @@
     {%- endif %}
     {%- endfor %}
     {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
-    {%- if job_state.result.io_log_as_text_attachment != "" %}
+    {%- set img_type = job_state.result.img_type %}
+    {%- if img_type %}
+    {%- set base64_data = job_state.result.io_log_as_base64 %}
+    <div class="jqm-demos ui-page" tabindex="0" data-url="attachment-{{ loop.index }}" id="attachment-{{ loop.index }}-log" data-role="page">
+        <div data-role="header" class="jqm-header">
+            <h1>{{ job_state.job.tr_summary() }}</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <img style="height: 100%; width: 100%" src="data:image/{{ img_type }};base64,{{ base64_data }}" />
+        </div>
+    </div>
+    {%- elif job_state.result.io_log_as_text_attachment != "" %}
     <div class="jqm-demos ui-page" tabindex="0" data-url="attachment-{{ loop.index }}" id="attachment-{{ loop.index }}-log" data-role="page">
         <div data-role="header" class="jqm-header">
             <h1>{{ job_state.job.tr_summary() }}</h1>

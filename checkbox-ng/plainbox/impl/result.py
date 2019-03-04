@@ -30,6 +30,7 @@ This module has two basic implementation of :class:`IJobResult`:
 import base64
 import codecs
 import gzip
+import imghdr
 import inspect
 import io
 import json
@@ -63,8 +64,6 @@ CONTROL_CODE_RE_STR = re.compile(
 #
 # We use this to sanitize comments entered during testing
 ANSI_ESCAPE_SEQ_RE_STR = re.compile("(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
-
-ANSI_ESCAPE_SGR_RE_STR = re.compile(b"(\x9B|\x1B\[)[0-9;]*m")
 
 # Tuple representing entries in the JobResult.io_log
 # Each entry has three fields:
@@ -426,6 +425,29 @@ class _JobResultBase(IJobResult):
             return ''
 
     @property
+    def img_type(self):
+        """
+        Return the image type as tring if the result is actually an image.
+        """
+        try:
+            io_log_filename = self.io_log_filename
+        except AttributeError:
+            return ''
+        filename = io_log_filename.replace('record.gz', 'stdout')
+        return imghdr.what(filename)
+
+    @property
+    def io_log_as_base64(self):
+        try:
+            io_log_filename = self.io_log_filename
+        except AttributeError:
+            return ''
+        filename = io_log_filename.replace('record.gz', 'stdout')
+        with open(filename, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read())
+        return encoded_string.decode('ASCII')
+
+    @property
     def is_hollow(self):
         """
         flag that indicates if the result is hollow.
@@ -489,7 +511,7 @@ class DiskJobResult(_JobResultBase):
                     record = IOLogRecord(
                         record[0],
                         record[1],
-                        ANSI_ESCAPE_SGR_RE_STR.sub(b'', record.data))
+                        record.data)
                     yield record
 
     @property

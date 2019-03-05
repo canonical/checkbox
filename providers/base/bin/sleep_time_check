@@ -41,12 +41,17 @@ def main():
     resume_times = []
     # find our times
     for line in lines:
-        if "Average time to sleep" in line:
-            sleep_time = float(line.split(':')[1].strip())
-            sleep_times.append(sleep_time)
-        elif "Average time to resume" in line:
-            resume_time = float(line.split(':')[1].strip())
-            resume_times.append(resume_time)
+        try:
+            if "Average time to sleep" in line:
+                sleep_time = float(line.split(':')[1].strip())
+                sleep_times.append(sleep_time)
+            elif "Average time to resume" in line:
+                resume_time = float(line.split(':')[1].strip())
+                resume_times.append(resume_time)
+        except ValueError as e:
+            print("ERROR: One or more times was not reported correctly:")
+            print(e)
+            return 1
 
     if (sleep_time is None or resume_time is None) or \
     (len(sleep_times) != len(resume_times)):

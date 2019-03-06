@@ -26,6 +26,12 @@ if [[ "$1" != '' ]]; then
     DISK="$1"
 fi
 
+nvdimm="pmem"
+if [ -z "${DISK##*$nvdimm*}" ];then
+    echo "Disk $DISK appears to be an NVDIMM, skipping"
+    exit $STATUS
+fi
+
 #Check /proc/partitions, exit with fail if disk isn't found
 grep -w -q $DISK /proc/partitions
 check_return_code $? "Disk $DISK not found in /proc/partitions"

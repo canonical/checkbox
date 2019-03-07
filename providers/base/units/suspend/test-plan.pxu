@@ -22,8 +22,8 @@ include:
     keys/sleep                                     certification-status=blocker
     suspend/oops_after_suspend                     certification-status=blocker
     suspend/oops_results_after_suspend.log
-    led/power-blink-suspend
-    led/suspend
+    led/power-blink-suspend                        certification-status=blocker
+    led/suspend                                    certification-status=blocker
 
 id: before-suspend-reference-cert-automated
 unit: test plan

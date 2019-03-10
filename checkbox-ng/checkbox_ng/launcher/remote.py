@@ -131,7 +131,7 @@ class RemoteSlave(Command):
             lambda s: [sys.argv[0] + ' remote-service --resume'])
         snap_data = os.getenv('SNAP_DATA')
         remote_restart_stragegy_debug = os.getenv('REMOTE_RESTART_DEBUG')
-        if snap_data or remote_restart_stragegy_debug:
+        if snap_data or remote_restart_stragegy_debug or ctx.args.resume:
             if remote_restart_stragegy_debug:
                 strategy = RemoteSnappyRestartStrategy(debug=True)
             else:
@@ -139,16 +139,12 @@ class RemoteSlave(Command):
             if os.path.exists(strategy.session_resume_filename):
                 with open(strategy.session_resume_filename, 'rt') as f:
                     session_id = f.readline()
-                try:
-                    SessionAssistantSlave.session_assistant.resume_by_id(
-                        session_id)
-                except StopIteration:
-                    print("Couldn't resume the session")
-        elif ctx.args.resume:
-            try:
-                SessionAssistantSlave.session_assistant.resume_last()
-            except StopIteration:
-                print("No session to resume")
+                SessionAssistantSlave.session_assistant.resume_by_id(
+                    session_id)
+            elif ctx.args.resume:
+                # XXX: explicitly passing None to not have to bump Remote API
+                # TODO: remove on the next Remote API bump
+                SessionAssistantSlave.session_assistant.resume_by_id(None)
         self._server = ThreadedServer(
             SessionAssistantSlave,
             port=slave_port,

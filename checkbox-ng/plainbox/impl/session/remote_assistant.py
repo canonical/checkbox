@@ -543,14 +543,18 @@ class RemoteSessionAssistant():
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list
 
-    def resume_last(self):
-        last = next(self._sa.get_resumable_sessions())
-        self.resume_by_id(last.id)
-
-    def resume_by_id(self, session_id):
+    def resume_by_id(self, session_id=None):
         self._launcher = DefaultLauncherDefinition()
         self._sa.select_providers(*self._launcher.providers)
         resume_candidates = list(self._sa.get_resumable_sessions())
+        if not session_id:
+            if not resume_candidates:
+                print('No session to resume')
+                return
+            session_id = resume_candidates[0].id
+        if session_id not in [s.id for s in resume_candidates]:
+            print("Requested session not found")
+            return
         _logger.warning("Resuming session: %r", session_id)
         meta = self._sa.resume_session(session_id)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))

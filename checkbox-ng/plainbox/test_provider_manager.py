@@ -28,6 +28,7 @@ from unittest import TestCase
 import inspect
 import os
 import shutil
+import sys
 import tarfile
 import tempfile
 import textwrap
@@ -47,53 +48,52 @@ def inline_output(text):
 
 class ProviderManagerToolTests(TestCase):
     """
-    Unit tests for the ``./manage.py`` tool
+    Unit tests for provider manager tools
     """
 
     maxDiff = None
 
     def test_help(self):
         """
-        verify that ``manage.py --help`` works.
+        verify that ``--help`` works.
         """
         with TestIO() as test_io:
             with self.assertRaises(SystemExit):
                 self.tool.main(["--help"])
         self.maxDiff = None
-        self.assertEqual(
-            test_io.stdout, inspect.cleandoc(
-                """
-                usage: manage.py [--help] [--version] [options]
+        help_str = """
+            usage: {} [--help] [--version] [options]
 
-                Per-provider management script
+            Per-provider management script
 
-                positional arguments:
-                  {info,validate,develop,install,sdist,i18n,build,clean,packaging}
-                    info                display basic information about this provider
-                    validate            perform various static analysis and validation
-                    develop             install/remove this provider, only for development
-                    install             install this provider in the system
-                    sdist               create a source tarball
-                    i18n                update, merge and build translation catalogs
-                    build               build provider specific executables from source
-                    clean               clean build results
-                    packaging           generate packaging meta-data
+            positional arguments:
+              {{info,validate,develop,install,sdist,i18n,build,clean,packaging}}
+                info                display basic information about this provider
+                validate            perform various static analysis and validation
+                develop             install/remove this provider, only for development
+                install             install this provider in the system
+                sdist               create a source tarball
+                i18n                update, merge and build translation catalogs
+                build               build provider specific executables from source
+                clean               clean build results
+                packaging           generate packaging meta-data
 
-                optional arguments:
-                  -h, --help            show this help message and exit
-                  --version             show program's version number and exit
+            optional arguments:
+              -h, --help            show this help message and exit
+              --version             show program's version number and exit
 
-                logging and debugging:
-                  -v, --verbose         be more verbose (same as --log-level=INFO)
-                  -D, --debug           enable DEBUG messages on the root logger
-                  -C, --debug-console   display DEBUG messages in the console
-                  -T LOGGER, --trace LOGGER
-                                        enable DEBUG messages on the specified logger (can be
-                                        used multiple times)
-                  -P, --pdb             jump into pdb (python debugger) when a command crashes
-                  -I, --debug-interrupt
-                                        crash on SIGINT/KeyboardInterrupt, useful with --pdb
-                """) + '\n')
+            logging and debugging:
+              -v, --verbose         be more verbose (same as --log-level=INFO)
+              -D, --debug           enable DEBUG messages on the root logger
+              -C, --debug-console   display DEBUG messages in the console
+              -T LOGGER, --trace LOGGER
+                                    enable DEBUG messages on the specified logger (can be
+                                    used multiple times)
+              -P, --pdb             jump into pdb (python debugger) when a command crashes
+              -I, --debug-interrupt
+                                    crash on SIGINT/KeyboardInterrupt, useful with --pdb
+            """.format(os.path.basename(sys.argv[0]))
+        self.assertEqual(test_io.stdout, inspect.cleandoc(help_str) + '\n')
 
     def assert_common_flat_install(self, prefix="/foo"):
         filename = self.tmpdir + os.path.join(
@@ -132,7 +132,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_install__flat(self):
         """
-        verify that ``manage.py install --layout=flat`` works
+        verify that ``install --layout=flat`` works
         """
         self.tool.main(
             ["install", "--prefix=/foo", "--root={}".format(self.tmpdir)])
@@ -149,7 +149,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_install__flat_partial(self):
         """
-        verify that ``manage.py install --layout=flat`` works when some files
+        verify that ``install --layout=flat`` works when some files
         are missing
         """
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
@@ -207,7 +207,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_install__unix(self):
         """
-        verify that ``manage.py install --layout=unix`` works
+        verify that ``install --layout=unix`` works
         """
         self.tool.main(
             ["install", "--prefix=/foo", "--layout=unix",
@@ -234,7 +234,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_sdist(self):
         """
-        verify that ``manage.py sdist`` creates a proper tarball
+        verify that ``sdist`` creates a proper tarball
         """
         self.tool.main(["sdist"])
         tarball = os.path.join(
@@ -251,7 +251,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_sdist__partial(self):
         """
-        verify that ``manage.py sdist`` creates a proper tarball
+        verify that ``sdist`` creates a proper tarball
         even if some files are missing
         """
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
@@ -264,7 +264,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_develop(self):
         """
-        verify that ``manage.py develop`` creates a provider file
+        verify that ``develop`` creates a provider file
         """
         xdg_data_home = os.path.join(self.tmpdir, "xdg-data-home")
         filename = os.path.join(xdg_data_home, "plainbox-providers-1",
@@ -284,7 +284,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_develop__force(self):
         """
-        verify that ``manage.py develop --force`` overwrites existing .provider
+        verify that ``develop --force`` overwrites existing .provider
         file
         """
         xdg_data_home = os.path.join(self.tmpdir, "xdg-data-home")
@@ -308,7 +308,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_develop__uninstall(self):
         """
-        verify that ``manage.py develop --uninstall`` works
+        verify that ``develop --uninstall`` works
         """
         xdg_data_home = os.path.join(self.tmpdir, "xdg-data-home")
         filename = os.path.join(xdg_data_home, "plainbox-providers-1",
@@ -323,7 +323,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_validate(self):
         """
-        verify that ``manage.py validate -N`` says everything is okay when it is
+        verify that ``validate -N`` says everything is okay when it is
         """
         with TestIO() as test_io:
             self.tool.main(["validate", "-N"])
@@ -334,7 +334,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_validate__broken_missing_field(self):
         """
-        verify that ./manage.py validate -N shows information about missing fields
+        verify that ``validate -N`` shows information about missing fields
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
@@ -350,7 +350,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_validate__broken_wrong_field(self):
         """
-        verify that ./manage.py validate -N shows information about incorrect
+        verify that ``validate -N`` shows information about incorrect
         field values
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
@@ -368,7 +368,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_validate__broken_useless_field(self):
         """
-        verify that ./manage.py validate -N shows information about useless field
+        verify that ``validate -N`` shows information about useless field
         values
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
@@ -388,7 +388,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_validate__broken_deprecated_field(self):
         """
-        verify that ./manage.py validate -N shows information about deprecated fields
+        verify that ``validate -N`` shows information about deprecated fields
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
@@ -408,7 +408,7 @@ class ProviderManagerToolTests(TestCase):
 
     def test_info(self):
         """
-        verify that ./manage.py info shows basic provider information
+        verify that ``info`` shows basic provider information
         """
         with TestIO() as test_io:
             self.tool.main(["info"])

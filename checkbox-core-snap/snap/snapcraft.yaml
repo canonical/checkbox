@@ -41,6 +41,10 @@ slots:
     interface: content
     read:
       - $SNAP/providers/plainbox-provider-sru
+  provider-edgex:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-edgex
   checkbox-runtime:
     interface: content
     read:
@@ -249,6 +253,14 @@ parts:
     source: git://git.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/engineering-tests
     source-subdir: com.canonical.se:engineering-tests
     after: [plainbox-provider-sru]
+################################################################################
+  checkbox-provider-edgex:
+    source-tag: ""
+    plugin: plainbox-provider
+    source: git://git.launchpad.net/checkbox-provider-edgex
+    stage-packages:
+        - curl
+    after: [plainbox-provider-engineering-tests]
 ################################################################################
   i2c-tools:
     plugin: nil

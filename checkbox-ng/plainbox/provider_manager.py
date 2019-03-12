@@ -34,6 +34,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 
 from plainbox import __version__ as version
@@ -478,7 +479,7 @@ class SourceDistributionCommand(ManageCommand):
                     tarball.add(src_name, dst_name)
         subprocess.call(
             'gpg --armor --sign --detach-sig {}.tar.gz'.format(
-            self.toplevel_name),
+                self.toplevel_name),
             shell=True, cwd=self.dist_dir)
 
 
@@ -1405,7 +1406,8 @@ class ProviderManagerTool(ToolBase):
             prog=self.get_exec_name(),
             # TRANSLATORS: please keep 'manage.py', '--help', '--version'
             # untranslated. Translate only '[options]'
-            usage=_("manage.py [--help] [--version] [options]"))
+            usage=_("{} [--help] [--version] [options]".format(
+                self.get_exec_name())))
         parser.add_argument(
             "--version", action="version", version=self.get_exec_version(),
             help=_("show program's version number and exit"))
@@ -1416,7 +1418,7 @@ class ProviderManagerTool(ToolBase):
         """
         Get the name of this executable
         """
-        return "manage.py"
+        return os.path.basename(sys.argv[0])
 
     @classmethod
     def get_exec_version(cls):

@@ -1,5 +1,5 @@
-name: checkbox-core18
-summary: Checkbox Core
+name: checkbox18
+summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
 version: '1.0'
 grade: stable

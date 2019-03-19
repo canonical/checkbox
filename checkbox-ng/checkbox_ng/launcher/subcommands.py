@@ -583,22 +583,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         self._run_jobs(rerun_candidates)
         return True
 
-    def default_rerun_predicate(job_state):
-        return job_state.result.outcome in (
-            IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-            IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
-
-    def _get_rerun_candidates(self, rerun_predicate=default_rerun_predicate):
-        """Get all the tests that might be selected for rerunning."""
-        rerun_candidates = []
-        todo_list = self.ctx.sa.get_static_todo_list()
-        job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
-                      in todo_list}
-        for job_id, job_state in job_states.items():
-            if rerun_predicate(job_state):
-                rerun_candidates.append(self.ctx.sa.get_job(job_id))
-        return rerun_candidates
-
     def _get_ui_for_job(self, job):
         class CheckboxUI(NormalUI):
             def considering_job(self, job, job_state):

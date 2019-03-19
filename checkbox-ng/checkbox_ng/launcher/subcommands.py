@@ -552,14 +552,15 @@ class Launcher(Command, MainLoopStage, ReportsStage):
     def _get_auto_retry_candidates(self):
         """Get all the tests that might be selected for an automatic retry."""
         def retry_predicate(job_state):
-            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) \
-                and job_state.effective_auto_retry != 'no'
+            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
+                job_state.effective_auto_retry != 'no'
+                and job_state.attempts > 0)
         retry_candidates = []
         todo_list = self.ctx.sa.get_static_todo_list()
         job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
                       in todo_list}
         for job_id, job_state in job_states.items():
-            if retry_predicate(job_state) and job_state.attempts > 0:
+            if retry_predicate(job_state):
                 retry_candidates.append(self.ctx.sa.get_job(job_id))
         return retry_candidates
 

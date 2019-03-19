@@ -593,12 +593,13 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         self._run_jobs(rerun_candidates)
         return True
 
-    def _get_rerun_candidates(self):
+    def default_rerun_predicate(job_state):
+        return job_state.result.outcome in (
+            IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
+            IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
+
+    def _get_rerun_candidates(self, rerun_predicate=default_rerun_predicate):
         """Get all the tests that might be selected for rerunning."""
-        def rerun_predicate(job_state):
-            return job_state.result.outcome in (
-                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-                IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
         rerun_candidates = []
         todo_list = self.ctx.sa.get_static_todo_list()
         job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id

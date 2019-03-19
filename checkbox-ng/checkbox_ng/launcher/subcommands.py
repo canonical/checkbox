@@ -520,8 +520,12 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             self.ctx.sa.use_job_result(last_job, result)
 
     def _maybe_auto_retry_jobs(self):
+        def auto_retry_predicate(job_state):
+            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
+                job_state.effective_auto_retry != 'no'
+                and job_state.attempts > 0)
         # create a list of jobs that qualify for rerunning
-        retry_candidates = self._get_auto_retry_candidates()
+        retry_candidates = self._get_rerun_candidates(auto_retry_predicate)
         # bail-out early if no job qualifies for rerunning
         if not retry_candidates:
             return False
@@ -548,21 +552,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             ))
         self._run_jobs(candidates)
         return True
-
-    def _get_auto_retry_candidates(self):
-        """Get all the tests that might be selected for an automatic retry."""
-        def retry_predicate(job_state):
-            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
-                job_state.effective_auto_retry != 'no'
-                and job_state.attempts > 0)
-        retry_candidates = []
-        todo_list = self.ctx.sa.get_static_todo_list()
-        job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
-                      in todo_list}
-        for job_id, job_state in job_states.items():
-            if retry_predicate(job_state):
-                retry_candidates.append(self.ctx.sa.get_job(job_id))
-        return retry_candidates
 
     def _maybe_rerun_jobs(self):
         # create a list of jobs that qualify for rerunning

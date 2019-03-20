@@ -49,6 +49,7 @@ from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
 from checkbox_ng.urwid_ui import test_plan_browser
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
 from checkbox_ng.urwid_ui import resume_dialog
 from checkbox_ng.launcher.run import NormalUI
@@ -426,9 +427,15 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             self.password_query()
 
         self._run_jobs(jobs_repr, total_num)
+        rerun_candidates = self.sa.get_rerun_candidates('manual')
+        if rerun_candidates:
+            if self.launcher.ui_type == 'interactive':
+                while True:
+                    if not self._maybe_manual_rerun_jobs():
+                        break
         if self.launcher.auto_retry:
             while True:
-                if not self._maybe_auto_retry_jobs():
+                if not self._maybe_auto_rerun_jobs():
                     break
         self.finish_session()
 
@@ -488,11 +495,11 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         result = transport.send(exported_stream)
         return result
 
-    def _maybe_auto_retry_jobs(self):
+    def _maybe_auto_rerun_jobs(self):
         # create a list of jobs that qualify for rerunning
-        retry_candidates = self.sa.get_auto_retry_candidates()
+        rerun_candidates = self.sa.get_rerun_candidates('auto')
         # bail-out early if no job qualifies for rerunning
-        if not retry_candidates:
+        if not rerun_candidates:
             return False
         # we wait before retrying
         delay = self.launcher.delay_before_retry
@@ -500,7 +507,23 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                        " jobs...".format(delay)))
         time.sleep(delay)
         # include resource jobs that jobs to retry depend on
-        candidates = self.sa.prepare_auto_retry_candidates(retry_candidates)
+
+        candidates = self.sa.prepare_rerun_candidates(rerun_candidates)
+        self._run_jobs(self.sa.get_jobs_repr(candidates), len(candidates))
+        return True
+
+    def _maybe_manual_rerun_jobs(self):
+        rerun_candidates = self.sa.get_rerun_candidates('manual')
+        if not rerun_candidates:
+            return False
+        test_info_list = self.sa.get_jobs_repr(
+            [j.id for j in rerun_candidates])
+        wanted_set = ReRunBrowser(
+            _("Select jobs to re-run"), test_info_list, rerun_candidates).run()
+        if not wanted_set:
+            return False
+        candidates = self.sa.prepare_rerun_candidates([
+            job for job in rerun_candidates if job.id in wanted_set])
         self._run_jobs(self.sa.get_jobs_repr(candidates), len(candidates))
         return True
 

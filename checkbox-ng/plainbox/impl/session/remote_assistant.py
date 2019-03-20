@@ -455,7 +455,7 @@ class RemoteSessionAssistant():
             if not self._sa.get_dynamic_todo_list():
                 if (
                     self._launcher.auto_retry and
-                    self.get_auto_retry_candidates()
+                    self.get_rerun_candidates('auto')
                 ):
                     self._state = TestsSelected
                 else:
@@ -464,41 +464,11 @@ class RemoteSessionAssistant():
                 self._state = TestsSelected
         return result
 
-    def get_auto_retry_candidates(self):
-        """Get all the tests that might be selected for an automatic retry."""
-        def auto_retry_predicate(job_state):
-            if job_state.effective_auto_retry == 'yes':
-                return False
-            if job_state.result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED:
-                for inhibitor in job_state.readiness_inhibitor_list:
-                    if inhibitor.cause == InhibitionCause.FAILED_DEP:
-                        return True
-            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
-                job_state.attempts > 0)
-        return self._sa.get_rerun_candidates(auto_retry_predicate)
+    def get_rerun_candidates(self, session_type='manual'):
+        return self._sa.get_rerun_candidates(session_type)
 
-    def prepare_auto_retry_candidates(self, retry_candidates):
-        """Include resource jobs that jobs to retry depend on."""
-        candidates = []
-        resources_to_rerun = []
-        for job in retry_candidates:
-            job_state = self._sa.get_job_state(job.id)
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if inhibitor.cause == InhibitionCause.FAILED_DEP:
-                    resources_to_rerun.append(inhibitor.related_job)
-        # make the candidates pop only once in the list
-        final_candidates = []
-        for job in resources_to_rerun + retry_candidates:
-            if job not in final_candidates:
-                final_candidates.append(job)
-        # reset outcome of jobs that are selected for re-running
-        for job in final_candidates:
-            self._sa.get_job_state(job.id).result = MemoryJobResult({})
-            candidates.append(job.id)
-            _logger.info("{}: {} attempts".format(
-                job.id,
-                self._sa.get_job_state(job.id).attempts
-            ))
+    def prepare_rerun_candidates(self, rerun_candidates):
+        candidates = self._sa.prepare_rerun_candidates(rerun_candidates)
         self._state = TestsSelected
         return candidates
 
@@ -597,7 +567,8 @@ class RemoteSessionAssistant():
                 raise SystemExit(self._last_job)
 
         if self._launcher.auto_retry:
-            for job_id in [job.id for job in self.get_auto_retry_candidates()]:
+            for job_id in [
+                    job.id for job in self.get_auto_rerun_candidates('auto')]:
                 job_state = self._sa.get_job_state(job_id)
                 job_state.attempts = self._launcher.max_attempts - len(
                     job_state.result_history)

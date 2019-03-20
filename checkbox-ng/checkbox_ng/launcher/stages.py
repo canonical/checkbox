@@ -268,11 +268,6 @@ class MainLoopStage(CheckboxUiStage):
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list
 
-    def default_rerun_predicate(job_state):
-        return job_state.result.outcome in (
-            IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-            IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
-
 
 class ReportsStage(CheckboxUiStage):
 

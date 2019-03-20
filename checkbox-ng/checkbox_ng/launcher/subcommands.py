@@ -525,7 +525,8 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                 job_state.effective_auto_retry != 'no'
                 and job_state.attempts > 0)
         # create a list of jobs that qualify for rerunning
-        retry_candidates = self._get_rerun_candidates(auto_retry_predicate)
+        retry_candidates = self.ctx.sa.get_rerun_candidates(
+            auto_retry_predicate)
         # bail-out early if no job qualifies for rerunning
         if not retry_candidates:
             return False
@@ -555,7 +556,7 @@ class Launcher(Command, MainLoopStage, ReportsStage):
 
     def _maybe_rerun_jobs(self):
         # create a list of jobs that qualify for rerunning
-        rerun_candidates = self._get_rerun_candidates()
+        rerun_candidates = self.ctx.sa.get_rerun_candidates()
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False

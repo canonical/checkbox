@@ -469,7 +469,7 @@ class RemoteSessionAssistant():
             return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
                 job_state.effective_auto_retry != 'no'
                 and job_state.attempts > 0)
-        return self._get_rerun_candidates(auto_retry_predicate)
+        return self._sa.get_rerun_candidates(auto_retry_predicate)
 
     def prepare_auto_retry_candidates(self, retry_candidates):
         """Include resource jobs that jobs to retry depend on."""

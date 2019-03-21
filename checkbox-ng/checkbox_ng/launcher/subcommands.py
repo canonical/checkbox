@@ -521,9 +521,14 @@ class Launcher(Command, MainLoopStage, ReportsStage):
 
     def _maybe_auto_retry_jobs(self):
         def auto_retry_predicate(job_state):
+            if job_state.effective_auto_retry == 'yes':
+                return False
+            if job_state.result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED:
+                for inhibitor in job_state.readiness_inhibitor_list:
+                    if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                        return True
             return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
-                job_state.effective_auto_retry != 'no'
-                and job_state.attempts > 0)
+                job_state.attempts > 0)
         # create a list of jobs that qualify for rerunning
         retry_candidates = self.ctx.sa.get_rerun_candidates(
             auto_retry_predicate)
@@ -543,8 +548,13 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             for inhibitor in job_state.readiness_inhibitor_list:
                 if inhibitor.cause == InhibitionCause.FAILED_DEP:
                     resources_to_rerun.append(inhibitor.related_job)
+        # make the candidates pop only once in the list
+        final_candidates = []
+        for job in resources_to_rerun + retry_candidates:
+            if job not in final_candidates:
+                final_candidates.append(job)
         # reset outcome of jobs that are selected for re-running
-        for job in retry_candidates + resources_to_rerun:
+        for job in final_candidates:
             self.ctx.sa.get_job_state(job.id).result = MemoryJobResult({})
             candidates.append(job.id)
             _logger.info("{}: {} attempts".format(

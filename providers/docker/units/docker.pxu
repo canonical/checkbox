@@ -296,6 +296,7 @@ requires:
  snap.name == 'docker'
  docker_resource.arch_supported == 'yes'
 command:
+ export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
  #A readable&writable path for docker snap
  compose_file=/var/snap/docker/common/docker-compose.yaml
@@ -322,6 +323,7 @@ requires:
  snap.name == 'docker'
  docker_resource.arch_supported == 'yes'
 command:
+ export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
  #read content from stdin
  yml=$(cat <<EOF
@@ -470,6 +472,7 @@ requires:
  snap.name == 'docker'
  docker_resource.arch_supported == 'yes'
 command:
+ export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
  #A readable&writable path for docker snap
  compose_file=/var/snap/docker/common/docker-compose.yaml
@@ -498,6 +501,7 @@ requires:
  snap.name == 'docker'
  docker_resource.arch_supported == 'yes'
 command:
+  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
   set -ex
   #A readable&writable path for docker snap
   compose_file=/var/snap/docker/common/docker-compose-california-0.6.1.yml

@@ -33,6 +33,7 @@ from plainbox.impl.ctrl import DaemonicExecutionController
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.secure.sudo_broker import SudoBroker, EphemeralKey
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
@@ -465,17 +466,16 @@ class RemoteSessionAssistant():
 
     def get_auto_retry_candidates(self):
         """Get all the tests that might be selected for an automatic retry."""
-        def retry_predicate(job_state):
-            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) \
-                and job_state.effective_auto_retry != 'no'
-        retry_candidates = []
-        todo_list = self._sa.get_static_todo_list()
-        job_states = {job_id: self._sa.get_job_state(job_id) for job_id
-                      in todo_list}
-        for job_id, job_state in job_states.items():
-            if retry_predicate(job_state) and job_state.attempts > 0:
-                retry_candidates.append(self._sa.get_job(job_id))
-        return retry_candidates
+        def auto_retry_predicate(job_state):
+            if job_state.effective_auto_retry == 'yes':
+                return False
+            if job_state.result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED:
+                for inhibitor in job_state.readiness_inhibitor_list:
+                    if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                        return True
+            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
+                job_state.attempts > 0)
+        return self._sa.get_rerun_candidates(auto_retry_predicate)
 
     def prepare_auto_retry_candidates(self, retry_candidates):
         """Include resource jobs that jobs to retry depend on."""
@@ -486,8 +486,13 @@ class RemoteSessionAssistant():
             for inhibitor in job_state.readiness_inhibitor_list:
                 if inhibitor.cause == InhibitionCause.FAILED_DEP:
                     resources_to_rerun.append(inhibitor.related_job)
+        # make the candidates pop only once in the list
+        final_candidates = []
+        for job in resources_to_rerun + retry_candidates:
+            if job not in final_candidates:
+                final_candidates.append(job)
         # reset outcome of jobs that are selected for re-running
-        for job in retry_candidates + resources_to_rerun:
+        for job in final_candidates:
             self._sa.get_job_state(job.id).result = MemoryJobResult({})
             candidates.append(job.id)
             _logger.info("{}: {} attempts".format(

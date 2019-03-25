@@ -1495,6 +1495,32 @@ class SessionAssistant:
         del allowed_calls[self.use_job_result]
         allowed_calls[self.run_job] = "run another job"
 
+    def default_rerun_predicate(job_state):
+        return job_state.result.outcome in (
+            IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
+            IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
+
+    @raises(UnexpectedMethodCall)
+    def get_rerun_candidates(self, rerun_predicate=default_rerun_predicate):
+        """
+        Get all the tests that might be selected for rerunning.
+
+        :returns:
+            The JobUnits that failed previously and satisfy the predicate.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        rerun_candidates = []
+        todo_list = self.get_static_todo_list()
+        job_states = {job_id: self.get_job_state(job_id) for job_id
+                      in todo_list}
+        for job_id, job_state in job_states.items():
+            if rerun_predicate(job_state):
+                rerun_candidates.append(self.get_job(job_id))
+        return rerun_candidates
+
     def get_summary(self) -> 'defaultdict':
         """
         Get a grand total statistic for the jobs that ran.
@@ -1703,6 +1729,7 @@ class SessionAssistant:
     def _get_allowed_calls_in_normal_state(self) -> dict:
         return {
             self.get_job_state: "to access the state of any job",
+            self.get_rerun_candidates: "to get list of rerunnable jobs",
             self.get_job: "to access the definition of any job",
             self.get_test_plan: "to access the definition of any test plan",
             self.get_category: "to access the definition of ant category",

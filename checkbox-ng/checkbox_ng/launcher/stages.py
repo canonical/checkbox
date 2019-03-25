@@ -244,6 +244,35 @@ class MainLoopStage(CheckboxUiStage):
             result_builder = self.sa.run_job(job_id, 'piano', False)
             self.sa.use_job_result(job_id, result_builder.get_result())
 
+    def _generate_job_infos(self, job_list):
+        test_info_list = tuple()
+        for job in job_list:
+            cat_id = self.ctx.sa.get_job_state(job.id).effective_category_id
+            duration_txt = _('No estimated duration provided for this job')
+            if job.estimated_duration is not None:
+                duration_txt = '{} {}'.format(job.estimated_duration, _(
+                    'seconds'))
+            test_info = {
+                "id": job.id,
+                "partial_id": job.partial_id,
+                "name": job.tr_summary(),
+                "category_id": cat_id,
+                "category_name": self.ctx.sa.get_category(cat_id).tr_name(),
+                "automated": (_('this job is fully automated') if job.automated
+                              else _('this job requires some manual interaction')),
+                "duration": duration_txt,
+                "description": (job.tr_description() or
+                                _('No description provided for this job')),
+                "outcome": self.ctx.sa.get_job_state(job.id).result.outcome,
+            }
+            test_info_list = test_info_list + ((test_info, ))
+        return test_info_list
+
+    def default_rerun_predicate(job_state):
+        return job_state.result.outcome in (
+            IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
+            IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
+
 
 class ReportsStage(CheckboxUiStage):
 

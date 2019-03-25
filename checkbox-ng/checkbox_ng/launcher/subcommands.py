@@ -460,29 +460,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                        if job_id in wanted_set]
         self.ctx.sa.use_alternate_selection(job_id_list)
 
-    def _generate_job_infos(self, job_list):
-        test_info_list = tuple()
-        for job in job_list:
-            cat_id = self.ctx.sa.get_job_state(job.id).effective_category_id
-            duration_txt = _('No estimated duration provided for this job')
-            if job.estimated_duration is not None:
-                duration_txt = '{} {}'.format(job.estimated_duration, _(
-                    'seconds'))
-            test_info = {
-                "id": job.id,
-                "partial_id": job.partial_id,
-                "name": job.tr_summary(),
-                "category_id": cat_id,
-                "category_name": self.ctx.sa.get_category(cat_id).tr_name(),
-                "automated": (_('this job is fully automated') if job.automated
-                              else _('this job requires some manual interaction')),
-                "duration": duration_txt,
-                "description": (job.tr_description() or
-                                _('No description provided for this job')),
-                "outcome": self.ctx.sa.get_job_state(job.id).result.outcome,
-            }
-            test_info_list = test_info_list + ((test_info, ))
-        return test_info_list
 
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:
@@ -543,8 +520,18 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             self.ctx.sa.use_job_result(last_job, result)
 
     def _maybe_auto_retry_jobs(self):
+        def auto_retry_predicate(job_state):
+            if job_state.effective_auto_retry == 'yes':
+                return False
+            if job_state.result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED:
+                for inhibitor in job_state.readiness_inhibitor_list:
+                    if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                        return True
+            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
+                job_state.attempts > 0)
         # create a list of jobs that qualify for rerunning
-        retry_candidates = self._get_auto_retry_candidates()
+        retry_candidates = self.ctx.sa.get_rerun_candidates(
+            auto_retry_predicate)
         # bail-out early if no job qualifies for rerunning
         if not retry_candidates:
             return False
@@ -561,8 +548,13 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             for inhibitor in job_state.readiness_inhibitor_list:
                 if inhibitor.cause == InhibitionCause.FAILED_DEP:
                     resources_to_rerun.append(inhibitor.related_job)
+        # make the candidates pop only once in the list
+        final_candidates = []
+        for job in resources_to_rerun + retry_candidates:
+            if job not in final_candidates:
+                final_candidates.append(job)
         # reset outcome of jobs that are selected for re-running
-        for job in retry_candidates + resources_to_rerun:
+        for job in final_candidates:
             self.ctx.sa.get_job_state(job.id).result = MemoryJobResult({})
             candidates.append(job.id)
             _logger.info("{}: {} attempts".format(
@@ -572,23 +564,9 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         self._run_jobs(candidates)
         return True
 
-    def _get_auto_retry_candidates(self):
-        """Get all the tests that might be selected for an automatic retry."""
-        def retry_predicate(job_state):
-            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) \
-                and job_state.effective_auto_retry != 'no'
-        retry_candidates = []
-        todo_list = self.ctx.sa.get_static_todo_list()
-        job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
-                      in todo_list}
-        for job_id, job_state in job_states.items():
-            if retry_predicate(job_state) and job_state.attempts > 0:
-                retry_candidates.append(self.ctx.sa.get_job(job_id))
-        return retry_candidates
-
     def _maybe_rerun_jobs(self):
         # create a list of jobs that qualify for rerunning
-        rerun_candidates = self._get_rerun_candidates()
+        rerun_candidates = self.ctx.sa.get_rerun_candidates()
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
@@ -615,21 +593,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             rerun_candidates.append(job_id)
         self._run_jobs(rerun_candidates)
         return True
-
-    def _get_rerun_candidates(self):
-        """Get all the tests that might be selected for rerunning."""
-        def rerun_predicate(job_state):
-            return job_state.result.outcome in (
-                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-                IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
-        rerun_candidates = []
-        todo_list = self.ctx.sa.get_static_todo_list()
-        job_states = {job_id: self.ctx.sa.get_job_state(job_id) for job_id
-                      in todo_list}
-        for job_id, job_state in job_states.items():
-            if rerun_predicate(job_state):
-                rerun_candidates.append(self.ctx.sa.get_job(job_id))
-        return rerun_candidates
 
     def _get_ui_for_job(self, job):
         class CheckboxUI(NormalUI):

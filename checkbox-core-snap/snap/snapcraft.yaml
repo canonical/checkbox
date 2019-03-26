@@ -54,7 +54,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: ""
+    source-tag: "V19.03.00"
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts
     stage-packages:
@@ -77,7 +77,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: ""
+    source-tag: "V0.09.56"
     plugin: make
     source: git://kernel.ubuntu.com/cking/stress-ng
     make-parameters:
@@ -97,7 +97,7 @@ parts:
     after: [plainbox-provider-checkbox]
 ################################################################################
   checkbox-support:
-    source-tag: ""
+    source-tag: "snap-2019-03-08T0906"
     plugin: python
     source: git://git.launchpad.net/checkbox-support
     stage-packages:
@@ -108,7 +108,7 @@ parts:
     after: [fwts]
 ################################################################################
   checkbox-ng:
-    source-tag: ""
+    source-tag: "snap-2019-03-26T0942"
     plugin: python
     build-packages:
       - zlib1g-dev
@@ -123,7 +123,7 @@ parts:
     source: git://git.launchpad.net/checkbox-ng
 ################################################################################
   plainbox-provider-resource:
-    source-tag: ""
+    source-tag: "snap-2019-03-08T0906"
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-resource
     stage-packages:
@@ -146,7 +146,7 @@ parts:
     after: [checkbox-support, checkbox-ng]
 ################################################################################
   plainbox-provider-checkbox:
-    source-tag: ""
+    source-tag: "snap-2019-03-08T0906"
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-checkbox
     stage-packages:
@@ -197,7 +197,7 @@ parts:
     after: [plainbox-provider-resource]
 ################################################################################
   plainbox-provider-snappy:
-    source-tag: ""
+    source-tag: "snap-2019-03-26T0942"
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-snappy
     stage-packages:
@@ -221,7 +221,7 @@ parts:
     after: [plainbox-provider-checkbox]
 ################################################################################
   plainbox-provider-ipdt:
-    source-tag: ""
+    source-tag: "snap-2019-03-26T0942"
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-ipdt
     source-subdir: plainbox-provider-ipdt
@@ -230,32 +230,32 @@ parts:
     after: [plainbox-provider-snappy]
 ################################################################################
   plainbox-provider-docker:
-    source-tag: ""
+    source-tag: "snap-2019-03-26T0942"
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-docker
     after: [plainbox-provider-ipdt]
 ################################################################################
   plainbox-provider-tpm2:
-    source-tag: ""
+    source-tag: "snap-2019-03-08T0906"
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-tpm2
     after: [plainbox-provider-docker]
 ################################################################################
   plainbox-provider-sru:
-    source-tag: ""
+    source-tag: "snap-2019-03-08T0906"
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-sru
     after: [plainbox-provider-tpm2, tpm2-tools-3]
 ################################################################################
   plainbox-provider-engineering-tests:
-    source-tag: ""
+    source-tag: "7"
     plugin: plainbox-provider
     source: git://git.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/engineering-tests
     source-subdir: com.canonical.se:engineering-tests
     after: [plainbox-provider-sru]
 ################################################################################
   checkbox-provider-edgex:
-    source-tag: ""
+    source-tag: "snap-2019-03-08T0906"
     plugin: plainbox-provider
     source: git://git.launchpad.net/checkbox-provider-edgex
     stage-packages:
@@ -281,7 +281,7 @@ parts:
     plugin: autotools
     source: https://github.com/tpm2-software/tpm2-tss
     source-type: git
-    source-tag: 1.4.0
+    source-tag: "1.4.0"
     configflags:
       - --enable-unit
     build-packages:
@@ -301,7 +301,7 @@ parts:
     plugin: autotools
     source: https://github.com/tpm2-software/tpm2-tools
     source-type: git
-    source-tag: 3.0.4
+    source-tag: "3.0.4"
     configflags:
       - --enable-unit
       - --with-tcti-device

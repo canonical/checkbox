@@ -478,18 +478,22 @@ id: dock/mac-address-pass-through
 category_id: dock-network
 plugin: manual
 depends: dock/cold-plug
-estimated_duration: 60
-_summary: MAC address pass through function test
+estimated_duration: 180
+_summary: MAC address passthrough function test
 _purpose:
-    Test MAC address pass through function with docking station (Dell Dock specific function, TB15, WD15) 
+    Test MAC address passthrough function with dock station.
 _steps:
-    Skip this test if your docking station does not support MAC address pass through.
-    1. Make sure the dock is connected to network using an Ethernet cable
-    2. Run 'ifconfig' to get system specific MAC address and IP
-    3. Ping the IP address from another system
-    4. Run 'arp -a IP' from another system to get the MAC address of the test unit through dock
+    Skip this test if your dock station does not support MAC address passthrough.
+    1. Find Passthrough MAC Address in BIOS setup
+    2. Check "Passthrough MAC Address" is enabled
+    2. Connect dock to system
+    3. Boot to OS
+    4. Run "ip a" in terminal to get dock ethernet MAC address
 _verification:
-    Is the MAC address got from arp matching with specific MAC address?
+    1. Is the Passthrough MAC Address the same as MAC address found in step 4?
+    2. If BIOS doesn't have Passthrough MAC Address in BIOS setup, a bug should be filed.
+    3. If dock ethernet MAC address is not the same as BIOS Passthrough MAC Address, a 
+    bug should be filed.
 
 ### USB Tests ###
 

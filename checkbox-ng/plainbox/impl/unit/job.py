@@ -822,7 +822,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.environ: [
                 concrete_validators.untranslatable,
-                concrete_validators.templateInvariant,
                 # Environ is useless without a command to run
                 UselessFieldValidator(
                     message=_("environ without a command makes no sense"),

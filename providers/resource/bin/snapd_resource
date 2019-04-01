@@ -74,7 +74,8 @@ class AssertionQuery(SnapdQuery):
         """ Super naive Assertion parser
 
         No attempt to handle assertions with a body. Discards signatures based
-        on lack of colon characters.
+        on lack of colon characters. Update: need to be less naive about
+        gadget and kernel names on UC18
         """
         data = self.get(self.prefix + assertion)
         count = int(data.headers['X-Ubuntu-Assertions-Count'])
@@ -82,7 +83,14 @@ class AssertionQuery(SnapdQuery):
             for line in io.StringIO(data.text):
                 if line.strip() == "":
                     print()
-                if ':' in line:
+                if line.count(':') == 1:
+                    key, val = [x.strip() for x in line.split(':')]
+                    if key in ('gadget', 'kernel'):
+                        if '=' in val:
+                            snap, track = [x.strip() for x in val.split('=')]
+                            print('{}: {}'.format(key, snap))
+                            print('{}_track: {}'.format(key, track))
+                            continue
                     print(line.strip())
         return count
 

@@ -323,7 +323,7 @@ class RemoteSessionAssistant():
             if self._last_response == 'skip':
                 result_builder = JobResultBuilder(
                     outcome=IJobResult.OUTCOME_SKIP,
-                    comments=_("Explicitly skipped before" " execution"))
+                    comments=_("Explicitly skipped before execution"))
                 if self._current_comments != "":
                     result_builder.comments = self._current_comments
                 self.finish_job(result_builder.get_result())

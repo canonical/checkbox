@@ -82,6 +82,15 @@ class MainLoopStage(CheckboxUiStage):
             if job.plugin in ('user-interact', 'user-interact-verify',
                               'user-verify', 'manual'):
                 job_state = self.sa.get_job_state(job.id)
+                if (not self.is_interactive and
+                        job.plugin in ('user-interact',
+                                       'user-interact-verify',
+                                       'manual')):
+                    result_builder = JobResultBuilder(
+                        outcome=IJobResult.OUTCOME_SKIP,
+                        comments=_("Trying to run interactive job in a silent"
+                                    " session"))
+                    return result_builder
                 if job_state.can_start():
                     ui.notify_about_purpose(job)
                 if (self.is_interactive and

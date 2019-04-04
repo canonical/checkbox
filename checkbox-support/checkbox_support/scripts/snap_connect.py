@@ -67,7 +67,6 @@ def main():
         assert os.environ['SNAP_NAME']
         snap = os.environ['SNAP_NAME']
         existing_connections = get_connections()
-        print(existing_connections)
         new_connection = Connection(
             target_snap=conn[1], target_slot=conn[2],
             plug_snap=snap, plug_plug=conn[0])

@@ -471,13 +471,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.environ,
                               Problem.unexpected_i18n, Severity.warning)
 
-    def test_environ__template_invarinat(self):
-        issue_list = self.unit_cls({
-            'environ': '{attr}'
-        }, parameters={'attr': 'environ'}, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.environ,
-                              Problem.variable, Severity.error)
-
     def test_environ__useless_without_command(self):
         message = "field 'environ', environ without a command makes no sense"
         issue_list = self.unit_cls({

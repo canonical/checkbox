@@ -460,7 +460,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                        if job_id in wanted_set]
         self.ctx.sa.use_alternate_selection(job_id_list)
 
-
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:
             return
@@ -727,8 +726,19 @@ class Run(Command, MainLoopStage):
                 "0.99",
                 ["restartable"],
             )
+            # side-load providers local-providers
+            side_load_path = os.path.expandvars(os.path.join(
+                '/var', 'tmp', 'checkbox-providers'))
+            additional_providers = ()
+            if os.path.exists(side_load_path):
+                embedded_providers = EmbeddedProvider1PlugInCollection(
+                    side_load_path)
+                additional_providers = embedded_providers.get_all_plugin_objects()
             self._configure_restart()
-            try_selecting_providers(self.sa, '*')
+            try_selecting_providers(
+                self.sa,
+                '*',
+                additional_providers=additional_providers)
             self.sa.start_new_session(self.ctx.args.title or 'checkbox-run')
             tps = self.sa.get_test_plans()
             self._configure_report()

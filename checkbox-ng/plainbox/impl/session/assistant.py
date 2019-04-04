@@ -178,6 +178,7 @@ class SessionAssistant:
         # List of providers that were selected. This is buffered until a
         # session is created or resumed.
         self._selected_providers = []
+        self.sideloaded_providers = False
         # All the key state for the active session. Technically just the
         # manager matters, the context and metadata are just shortcuts to stuff
         # available on the manager.
@@ -453,22 +454,7 @@ class SessionAssistant:
         for prov in side_loaded:
             _logger.warning("Using side-loaded provider: %s", prov)
         if side_loaded:
-            for disabled_rep in ['certification', 'certification-staging']:
-                if disabled_rep in self._config.stock_reports:
-                    _logger.warning(
-                        "Using side-loaded providers disabled the %s report",
-                        disabled_rep)
-                    self._config.stock_reports.remove(disabled_rep)
-            self._config.stock_reports = [
-                sr for sr in self._config.stock_reports if sr not in [
-                    'certification', 'certification-staging']]
-            # iterating over a copy so we can modify the original one
-            for rep_name, rep_params in self._config.reports.copy().items():
-                if rep_params.get('transport') == 'certification':
-                    _logger.warning(
-                        "Using side-loaded providers disabled the %s report",
-                        rep_name)
-                    del self._config.reports[rep_name]
+            self.sideloaded_providers = True
 
         # Select all of the plainbox providers in a separate iteration. This
         # way they get loaded unconditionally, regardless of what patterns are

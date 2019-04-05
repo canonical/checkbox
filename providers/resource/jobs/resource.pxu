@@ -418,3 +418,14 @@ command:
     echo "dev: $i"
     echo ""
   done
+
+id: ubuntu_core_features
+_summary: Indicate whether product features of Ubuntu Core are enabled
+_description:
+ There are features of Ubuntu Core images that could be enabled depending on
+ device type or owner requirements. This resource detects that state of those
+ features so that appropriate tests can be run.
+plugin: resource
+estimated_duration: 1.0
+command:
+  snapd_resource features

@@ -290,7 +290,7 @@ parts:
     python-packages:
       - RPi.GPIO
 ################################################################################
-  tpm2-tss-1.4:
+  tpm2-tss:
     plugin: autotools
     source: https://github.com/tpm2-software/tpm2-tss
     source-type: git
@@ -333,7 +333,7 @@ parts:
       - else: [libcurl3]
     prime:
       - -include
-    after: [tpm2-tss-1.4]
+    after: [tpm2-tss]
     override-pull: |
       snapcraftctl pull
       # https://github.com/tpm2-software/tpm2-tools/issues/908

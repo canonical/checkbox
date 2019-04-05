@@ -514,6 +514,7 @@ class RemoteSessionAssistant():
                 "user": job.user,
                 "command": job.command,
                 "num": job_no,
+                "plugin": job.plugin,
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list

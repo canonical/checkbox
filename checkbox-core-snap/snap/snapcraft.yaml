@@ -55,6 +55,7 @@ parts:
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
     source-tag: "V19.03.00"
+    source-depth: 1
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts
     stage-packages:
@@ -78,6 +79,7 @@ parts:
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
     source-tag: "V0.09.56"
+    source-depth: 1
     plugin: make
     source: git://kernel.ubuntu.com/cking/stress-ng
     make-parameters:
@@ -98,6 +100,7 @@ parts:
 ################################################################################
   checkbox-support:
     source-tag: "snap-2019-03-08T0906"
+    source-depth: 1
     plugin: python
     source: git://git.launchpad.net/checkbox-support
     stage-packages:
@@ -109,7 +112,9 @@ parts:
 ################################################################################
   checkbox-ng:
     source-tag: "snap-2019-03-26T0942"
+    source-depth: 1
     plugin: python
+    source: git://git.launchpad.net/checkbox-ng
     build-packages:
       - zlib1g-dev
       - build-essential
@@ -120,10 +125,10 @@ parts:
       - requests-oauthlib
       - urwid
       - XlsxWriter
-    source: git://git.launchpad.net/checkbox-ng
 ################################################################################
   plainbox-provider-resource:
     source-tag: "snap-2019-03-08T0906"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-resource
     stage-packages:
@@ -147,6 +152,7 @@ parts:
 ################################################################################
   plainbox-provider-checkbox:
     source-tag: "snap-2019-03-08T0906"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-checkbox
     stage-packages:
@@ -198,6 +204,7 @@ parts:
 ################################################################################
   plainbox-provider-snappy:
     source-tag: "snap-2019-03-26T0942"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-snappy
     stage-packages:
@@ -222,6 +229,7 @@ parts:
 ################################################################################
   plainbox-provider-ipdt:
     source-tag: "snap-2019-03-26T0942"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-ipdt
     source-subdir: plainbox-provider-ipdt
@@ -231,24 +239,28 @@ parts:
 ################################################################################
   plainbox-provider-docker:
     source-tag: "snap-2019-03-26T0942"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-docker
     after: [plainbox-provider-ipdt]
 ################################################################################
   plainbox-provider-tpm2:
     source-tag: "snap-2019-03-08T0906"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-tpm2
     after: [plainbox-provider-docker]
 ################################################################################
   plainbox-provider-sru:
     source-tag: "snap-2019-03-08T0906"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-sru
     after: [plainbox-provider-tpm2, tpm2-tools-3]
 ################################################################################
   plainbox-provider-engineering-tests:
     source-tag: "7"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/engineering-tests
     source-subdir: com.canonical.se:engineering-tests
@@ -256,6 +268,7 @@ parts:
 ################################################################################
   checkbox-provider-edgex:
     source-tag: "snap-2019-03-08T0906"
+    source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/checkbox-provider-edgex
     stage-packages:

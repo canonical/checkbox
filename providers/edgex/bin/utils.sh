@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-install_snap()
+snap_install()
 {
     local the_snap=$1
     local the_channel=$2

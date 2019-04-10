@@ -45,6 +45,7 @@ from plainbox.impl.developer import UnexpectedMethodCall
 from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.result import JobResultBuilder
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.providers import get_providers
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import JobRunnerUIDelegate
@@ -1481,13 +1482,8 @@ class SessionAssistant:
         del allowed_calls[self.use_job_result]
         allowed_calls[self.run_job] = "run another job"
 
-    def default_rerun_predicate(job_state):
-        return job_state.result.outcome in (
-            IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
-            IJobResult.OUTCOME_SKIP, IJobResult.OUTCOME_NOT_SUPPORTED)
-
     @raises(UnexpectedMethodCall)
-    def get_rerun_candidates(self, rerun_predicate=default_rerun_predicate):
+    def get_rerun_candidates(self, session_type='manual'):
         """
         Get all the tests that might be selected for rerunning.
 
@@ -1503,9 +1499,62 @@ class SessionAssistant:
         job_states = {job_id: self.get_job_state(job_id) for job_id
                       in todo_list}
         for job_id, job_state in job_states.items():
-            if rerun_predicate(job_state):
-                rerun_candidates.append(self.get_job(job_id))
+            if session_type == 'manual':
+                if job_state.result.outcome in (
+                        IJobResult.OUTCOME_FAIL,
+                        IJobResult.OUTCOME_CRASH,
+                        IJobResult.OUTCOME_SKIP,
+                        IJobResult.OUTCOME_NOT_SUPPORTED):
+                    rerun_candidates.append(self.get_job(job_id))
+            if session_type == 'auto':
+                if job_state.attempts == 0:
+                    continue
+                if job_state.effective_auto_retry == 'no':
+                    continue
+                if job_state.result.outcome in (
+                        IJobResult.OUTCOME_NOT_SUPPORTED):
+                    for inhibitor in job_state.readiness_inhibitor_list:
+                        if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                            rerun_candidates.append(self.get_job(job_id))
+                if job_state.result.outcome in (
+                        IJobResult.OUTCOME_FAIL,
+                        IJobResult.OUTCOME_CRASH):
+                    rerun_candidates.append(self.get_job(job_id))
         return rerun_candidates
+
+    @raises(UnexpectedMethodCall)
+    def prepare_rerun_candidates(self, rerun_candidates):
+        """
+        Rearm jobs so they can be run again.
+
+        :returns:
+            List of JobUnits armed for running.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        candidates = []
+        resources_to_rerun = []
+        for job in rerun_candidates:
+            job_state = self.get_job_state(job.id)
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                    resources_to_rerun.append(inhibitor.related_job)
+        # make the candidates pop only once in the list
+        final_candidates = []
+        for job in resources_to_rerun + list(rerun_candidates):
+            if job not in final_candidates:
+                final_candidates.append(job)
+        # reset outcome of jobs that are selected for re-running
+        for job in final_candidates:
+            self.get_job_state(job.id).result = MemoryJobResult({})
+            candidates.append(job.id)
+            _logger.info("{}: {} attempts".format(
+                job.id,
+                self.get_job_state(job.id).attempts
+            ))
+        return candidates
 
     def get_summary(self) -> 'defaultdict':
         """

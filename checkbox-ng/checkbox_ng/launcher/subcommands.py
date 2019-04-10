@@ -264,7 +264,7 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                         break
             elif self.launcher.auto_retry:
                 while True:
-                    if not self._maybe_auto_retry_jobs():
+                    if not self._maybe_auto_rerun_jobs():
                         break
             self._export_results()
             ctx.sa.finalize_session()
@@ -518,54 +518,23 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         if result:
             self.ctx.sa.use_job_result(last_job, result)
 
-    def _maybe_auto_retry_jobs(self):
-        def auto_retry_predicate(job_state):
-            if job_state.effective_auto_retry == 'yes':
-                return False
-            if job_state.result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED:
-                for inhibitor in job_state.readiness_inhibitor_list:
-                    if inhibitor.cause == InhibitionCause.FAILED_DEP:
-                        return True
-            return job_state.result.outcome in (IJobResult.OUTCOME_FAIL,) and (
-                job_state.attempts > 0)
-        # create a list of jobs that qualify for rerunning
-        retry_candidates = self.ctx.sa.get_rerun_candidates(
-            auto_retry_predicate)
+    def _maybe_auto_rerun_jobs(self):
+        rerun_candidates = self.ctx.sa.get_rerun_candidates('auto')
         # bail-out early if no job qualifies for rerunning
-        if not retry_candidates:
+        if not rerun_candidates:
             return False
         # we wait before retrying
         delay = self.launcher.delay_before_retry
         _logger.info(_("Waiting {} seconds before retrying failed"
                        " jobs...".format(delay)))
         time.sleep(delay)
-        candidates = []
-        # include resource jobs that jobs to retry depend on
-        resources_to_rerun = []
-        for job in retry_candidates:
-            job_state = self.ctx.sa.get_job_state(job.id)
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if inhibitor.cause == InhibitionCause.FAILED_DEP:
-                    resources_to_rerun.append(inhibitor.related_job)
-        # make the candidates pop only once in the list
-        final_candidates = []
-        for job in resources_to_rerun + retry_candidates:
-            if job not in final_candidates:
-                final_candidates.append(job)
-        # reset outcome of jobs that are selected for re-running
-        for job in final_candidates:
-            self.ctx.sa.get_job_state(job.id).result = MemoryJobResult({})
-            candidates.append(job.id)
-            _logger.info("{}: {} attempts".format(
-                job.id,
-                self.ctx.sa.get_job_state(job.id).attempts
-            ))
+        candidates = self.ctx.sa.prepare_rerun_candidates(rerun_candidates)
         self._run_jobs(candidates)
         return True
 
     def _maybe_rerun_jobs(self):
         # create a list of jobs that qualify for rerunning
-        rerun_candidates = self.ctx.sa.get_rerun_candidates()
+        rerun_candidates = self.ctx.sa.get_rerun_candidates('manual')
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
@@ -575,21 +544,11 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         if not wanted_set:
             # nothing selected - nothing to run
             return False
-        rerun_candidates = []
+        rerun_candidates = [
+            self.ctx.sa.get_job(job_id) for job_id in wanted_set]
+        rerun_candidates = self.ctx.sa.prepare_rerun_candidates(
+            rerun_candidates)
         # include resource jobs that selected jobs depend on
-        resources_to_rerun = []
-        for job_id in wanted_set:
-            job_state = self.ctx.sa.get_job_state(job_id)
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if inhibitor.cause == InhibitionCause.FAILED_DEP:
-                    resources_to_rerun.append(inhibitor.related_job.id)
-        # some resource jobs may have been selected in the UI and also added
-        # automatically, let's only add the missing ones
-        wanted_jobs = [j for j in wanted_set if j not in resources_to_rerun]
-        # reset outcome of jobs that are selected for re-running
-        for job_id in resources_to_rerun + wanted_jobs:
-            self.ctx.sa.get_job_state(job_id).result = MemoryJobResult({})
-            rerun_candidates.append(job_id)
         self._run_jobs(rerun_candidates)
         return True
 

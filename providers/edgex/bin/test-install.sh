@@ -9,7 +9,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 # install the snap to make sure it installs
-install_snap edgexfoundry stable 
+install_snap edgexfoundry beta 
 
 # remove the snap to run again
 snap_remove

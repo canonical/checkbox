@@ -9,7 +9,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 # install the snap to make sure it installs
-install_snap edgexfoundry stable 
+install_snap edgexfoundry beta 
 
 # wait for services to come online
 # NOTE: this may have to be significantly increased on arm64 or low RAM platforms

@@ -15,3 +15,5 @@ usr/bin/test-network-18.04
 usr/bin/test-functional-16.04
 usr/bin/test-network-16.04
 usr/bin/test-usb
+usr/bin/test-gpgpu
+usr/bin/testflinger-sample

@@ -12,6 +12,20 @@ snap_install()
     fi
 }
 
+snap_refresh()
+{
+    local the_snap=$1
+    local the_channel=$2
+
+    if [ "$the_snap" = "edgexfoundry" ]; then
+        snap refresh "$the_snap" --channel="$the_channel"
+    else
+        # for refreshing a file snap we need to use install
+        # but snapd still treats it like a refresh
+        snap install "$the_snap" --devmode
+    fi
+}
+
 snap_check_svcs() 
 {
     # group services by status

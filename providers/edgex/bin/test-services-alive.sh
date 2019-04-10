@@ -2,13 +2,10 @@
 
 # get the directory of this script
 # snippet from https://stackoverflow.com/a/246128/10102404
-if [ ! -z "${BASH_SOURCE}" ]; then
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-else
-    SCRIPT_DIR=$PWD
-fi
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 # load the utils
+# shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
 # install the snap to make sure it installs
@@ -23,8 +20,8 @@ sleep 120
 
 # enabled services
 for svc in core-command core-data core-metadata security-services mongod mongo-worker core-config-seed consul; do 
-    # make sue it's enabled
-    if [ "enabled" != $(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}') ]; then
+    # make sure it's enabled
+    if [ "enabled" != "$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')" ]; then
         echo "service $svc isn't enabled but should be"
         exit 1
     fi
@@ -34,8 +31,8 @@ done
 # same as enabled, but without core-config-seed and without mongo-worker as 
 # those are both oneshot daemons
 for svc in core-command core-data core-metadata security-services mongod consul ; do 
-    # make sue it's enabled
-    if [ "active" != $(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}') ]; then
+    # make sure it's enabled
+    if [ "active" != "$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')" ]; then
         echo "service $svc isn't enabled but should be"
         exit 1
     fi
@@ -43,8 +40,8 @@ done
 
 # disabled services
 for svc in export-distro export-client support-notifications support-scheduler support-rulesengine support-logging device-virtual device-modbus device-mqtt device-random; do 
-    # make sue it's enabled
-    if [ "disabled" != $(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}') ]; then
+    # make sure it's enabled
+    if [ "disabled" != "$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')" ]; then
         echo "service $svc isn't enabled but should be"
         exit 1
     fi
@@ -54,8 +51,8 @@ done
 # inactive services
 # all the disabled services + core-config-seed + mongo-worker
 for svc in export-distro export-client support-notifications support-scheduler support-rulesengine support-logging device-virtual device-modbus device-mqtt device-random core-config-seed; do 
-    # make sue it's enabled
-    if [ "inactive" != $(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}') ]; then
+    # make sure it's enabled
+    if [ "inactive" != "$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')" ]; then
         echo "service $svc is active but shouldn't be"
         exit 1
     fi

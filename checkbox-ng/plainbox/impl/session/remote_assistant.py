@@ -592,6 +592,10 @@ class RemoteSessionAssistant():
     def passwordless_sudo(self):
         return self._passwordless_sudo
 
+    @property
+    def sideloaded_providers(self):
+        return self._sa.sideloaded_providers
+
 
 def is_passwordless_sudo():
     """

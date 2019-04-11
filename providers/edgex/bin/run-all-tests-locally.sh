@@ -50,6 +50,6 @@ export EDGEX_STABLE_SNAP_FILE
 export EDGEX_DELHI_SNAP_FILE
 
 # run all the tests (except this file obviously)
-for file in test-*.sh; do 
+for file in "$SCRIPT_DIR"/test-*.sh; do 
     bash "$file"
 done

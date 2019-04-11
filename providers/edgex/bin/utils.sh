@@ -4,11 +4,12 @@ snap_install()
 {
     local the_snap=$1
     local the_channel=$2
+    local confinement=$3
 
     if [ "$the_snap" = "edgexfoundry" ]; then
-        snap install "$the_snap" --channel="$the_channel"
+        snap install "$the_snap" --channel="$the_channel" "$confinement"
     else
-        snap install "$the_snap" --devmode
+        snap install "$the_snap" "$confinement"
     fi
 }
 
@@ -16,13 +17,14 @@ snap_refresh()
 {
     local the_snap=$1
     local the_channel=$2
+    local confinement=$3
 
     if [ "$the_snap" = "edgexfoundry" ]; then
-        snap refresh "$the_snap" --channel="$the_channel"
+        snap refresh "$the_snap" --channel="$the_channel" "$confinement"
     else
         # for refreshing a file snap we need to use install
         # but snapd still treats it like a refresh
-        snap install "$the_snap" --devmode
+        snap install "$the_snap" "$confinement"
     fi
 }
 

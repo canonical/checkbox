@@ -28,8 +28,13 @@ snap_refresh()
     fi
 }
 
-snap_check_svcs() 
+snap_check_delhi_svcs() 
 {
+    if [ "$1" = "--notfatal" ]; then
+        FATAL=0
+    else   
+        FATAL=1
+    fi
     # group services by status
 
     # enabled services
@@ -38,7 +43,9 @@ snap_check_svcs()
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "enabled" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be enabled"
-            exit 1
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
         fi
     done
 
@@ -49,16 +56,20 @@ snap_check_svcs()
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
         if [ "active" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be active"
-            exit 1
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
         fi
     done
 
     # disabled services
-    for svc in export-distro export-client support-notifications support-scheduler support-rulesengine support-logging device-virtual device-modbus device-mqtt device-random; do 
+    for svc in export-distro export-client support-notifications support-scheduler support-rulesengine support-logging device-virtual device-mqtt device-modbus device-random; do 
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "disabled" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be disabled"
-            exit 1
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
         fi
     done
 
@@ -68,10 +79,71 @@ snap_check_svcs()
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
         if [ "inactive" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be inactive"
-            exit 1
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
         fi
     done
 }
+
+snap_check_edinburgh_svcs() 
+{
+    if [ "$1" = "--notfatal" ]; then
+        FATAL=0
+    else   
+        FATAL=1
+    fi
+    # group services by status
+
+    # enabled services
+    # all the core-* services, security-services, consul, and all the mongo* services
+    for svc in cassandra consul core-command core-config-seed core-data core-metadata edgexproxy kong-daemon mongo-worker mongod pkisetup sys-mgmt-agent vault vault-worker; do 
+        svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
+        if [ "enabled" != "$svcStatus" ]; then
+            echo "service $svc has status \"$svcStatus\" but should be enabled"
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
+        fi
+    done
+
+    # active services
+    # same as enabled, but without core-config-seed, mongo-worker, edgexproxy, pkisetup or vault-worker as 
+    # those are all oneshot daemons
+    for svc in cassandra consul core-command core-data core-metadata kong-daemon mongod sys-mgmt-agent vault; do 
+        svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
+        if [ "active" != "$svcStatus" ]; then
+            echo "service $svc has status \"$svcStatus\" but should be active"
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
+        fi
+    done
+
+    # disabled services
+    for svc in device-modbus device-mqtt device-random export-client export-distro support-logging support-notifications support-rulesengine support-scheduler; do 
+        svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
+        if [ "disabled" != "$svcStatus" ]; then
+            echo "service $svc has status \"$svcStatus\" but should be disabled"
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
+        fi
+    done
+
+    # inactive services
+    # all the disabled services + the oneshot daemons
+    for svc in core-config-seed device-modbus device-mqtt device-random edgexproxy export-client export-distro mongo-worker pkisetup support-logging support-notifications support-rulesengine support-scheduler vault-worker; do 
+        svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
+        if [ "inactive" != "$svcStatus" ]; then
+            echo "service $svc has status \"$svcStatus\" but should be inactive"
+            if [ "$FATAL" = "1" ]; then
+                exit 1
+            fi
+        fi
+    done
+}
+
 
 snap_remove()
 {

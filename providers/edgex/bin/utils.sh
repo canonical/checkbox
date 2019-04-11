@@ -7,9 +7,17 @@ snap_install()
     local confinement=$3
 
     if [ "$the_snap" = "edgexfoundry" ]; then
-        snap install "$the_snap" --channel="$the_channel" "$confinement"
+        if [ -n "$confinement" ]; then
+            snap install "$the_snap" --channel="$the_channel" "$confinement"
+        else
+            snap install "$the_snap" --channel="$the_channel"
+        fi
     else
-        snap install "$the_snap" "$confinement"
+        if [ -n "$confinement" ]; then
+            snap install "$the_snap" "$confinement"
+        else
+            snap install "$the_snap"
+        fi
     fi
 }
 
@@ -20,11 +28,19 @@ snap_refresh()
     local confinement=$3
 
     if [ "$the_snap" = "edgexfoundry" ]; then
-        snap refresh "$the_snap" --channel="$the_channel" "$confinement"
+        if [ -n "$confinement" ]; then
+            snap refresh "$the_snap" --channel="$the_channel" "$confinement"
+        else
+            snap refresh "$the_snap" --channel="$the_channel"
+        fi
     else
         # for refreshing a file snap we need to use install
         # but snapd still treats it like a refresh
-        snap install "$the_snap" "$confinement"
+        if [ -n "$confinement" ]; then
+            snap install "$the_snap" "$confinement"
+        else
+            snap install "$the_snap"
+        fi
     fi
 }
 

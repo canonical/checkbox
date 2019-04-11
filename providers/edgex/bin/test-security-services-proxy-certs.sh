@@ -22,7 +22,7 @@ sleep 120
 
 # copy the root certificate to confirm that can be used to authenticate the
 # kong server
-cp /var/snap/edgexfoundry/current/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem /tmp/EdgeXFoundryCA.pem
+sudo cp /var/snap/edgexfoundry/current/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem /tmp/EdgeXFoundryCA.pem
 
 # make the CA world-readable
 sudo chmod +r /tmp/EdgeXFoundryCA.pem

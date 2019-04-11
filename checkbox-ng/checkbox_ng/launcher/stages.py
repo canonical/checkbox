@@ -415,7 +415,7 @@ class ReportsStage(CheckboxUiStage):
                     # don't generate stock c3 reports if sideloaded providers
                     # were in use, something that should only be done during
                     # development
-                    if self.ctx.sa.sideloaded_providers:
+                    if self.sa.sideloaded_providers:
                         _logger.warning(_("Using side-loaded providers "
                                           "disabled the %s report"), report)
                         continue
@@ -428,7 +428,7 @@ class ReportsStage(CheckboxUiStage):
             # were in use, something that should only be done during
             # development
             if (params.get('transport') == 'certification' and
-                    self.ctx.sa.sideloaded_providers):
+                    self.sa.sideloaded_providers):
                 _logger.warning(_("Using side-loaded providers disabled "
                                   "the %s report"), name)
                 continue

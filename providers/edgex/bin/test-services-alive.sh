@@ -9,7 +9,11 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 # install the snap to make sure it installs
-snap_install edgexfoundry beta 
+if [ -n "$REVISION_TO_TEST" ]; then
+    snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
+else
+    snap_install edgexfoundry beta 
+fi
 
 # wait for services to come online
 # NOTE: this may have to be significantly increased on arm64 or low RAM platforms

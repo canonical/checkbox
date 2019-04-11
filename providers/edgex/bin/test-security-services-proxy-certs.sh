@@ -24,11 +24,15 @@ sleep 120
 # kong server
 cp /var/snap/edgexfoundry/current/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem /tmp/EdgeXFoundryCA.pem
 
+# make the CA world-readable
+sudo chmod +r /tmp/EdgeXFoundryCA.pem
+
 # use curl to talk to the kong admin endpoint with the cert
 curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command
 
-# restart the security-services and make sure the same certificate still works
-snap restart edgexfoundry.security-services
+# restart all of EdgeX (including the security-services) and make sure the 
+# same certificate still works
+snap restart edgexfoundry
 
 sleep 120
 curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command

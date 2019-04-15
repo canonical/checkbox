@@ -66,7 +66,7 @@ class RemoteSlave(Command):
     part should be run on system-under-test.
     """
 
-    name = 'remote-service'
+    name = 'slave'
 
     def invoked(self, ctx):
         slave_port = 18871
@@ -84,7 +84,7 @@ class RemoteSlave(Command):
                                " already running?").format(slave_port))
 
         SessionAssistantSlave.session_assistant = RemoteSessionAssistant(
-            lambda s: [sys.argv[0] + ' remote-service --resume'])
+            lambda s: [sys.argv[0] + 'slave'])
         snap_data = os.getenv('SNAP_DATA')
         remote_restart_strategy_debug = os.getenv('REMOTE_RESTART_DEBUG')
         if snap_data or remote_restart_strategy_debug or ctx.args.resume:

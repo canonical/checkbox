@@ -55,3 +55,28 @@ include:
     after-suspend-ethernet/ping_.*
 bootstrap_include:
     device
+
+id: server-ethernet
+unit: test plan
+_name: Server Ethernet Tests
+_description: Automated ethernet tests for server certification
+estimated_duration: 4h
+include:
+    ethernet/detect
+    ethernet/info_automated
+    ethernet/ethtool_info
+    ethernet/ethertool_check_.*
+    ethernet/multi_iperf3_nic_device.*
+
+id: server-ethernet-underspeed
+unit: test plan
+_name: Server Ethernet Tests (Speed Check Disabled)
+_description: Automated ethernet tests for server certification without speed
+check
+estimated_duration: 4h
+include:
+    ethernet/detect
+    ethernet/info_automated
+    ethernet/ethtool_info
+    ethernet/ethertool_check_.*
+    ethernet/multi_iperf3_nic_underspeed_device.*

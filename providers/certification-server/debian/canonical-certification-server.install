@@ -10,6 +10,7 @@ usr/bin/test-stress
 usr/bin/test-storage
 usr/bin/test-virtualization
 usr/bin/test-firmware
+usr/bin/test-network-underspeed
 usr/bin/test-functional-18.04
 usr/bin/test-network-18.04
 usr/bin/test-functional-16.04

@@ -6,10 +6,12 @@
 #    Authors: Jonathan Cave <jonathan.cave@canonical.com>
 
 import io
+import os
 import string
 
 from guacamole import Command
 from checkbox_support.snap_utils.snapd import Snapd
+from checkbox_support.snap_utils.system import get_kernel_snap
 
 from collections import namedtuple
 
@@ -173,12 +175,34 @@ class Interfaces(Command):
     )
 
 
+class Features(Command):
+
+    def invoked(self, ctx):
+        self._detect_kernel_extraction()
+        print()
+
+    def _detect_kernel_extraction(self):
+        '''
+        Detect if the kernel extraction feature of snapd is enabled.
+
+        This feature is typically enabled when the device is using full disk
+        encryption as it ensures that the kernel.img is available to the
+        bootloader prior to decrypting the writable partition.
+        '''
+        snap = get_kernel_snap()
+        if snap is not None:
+            feature_f = '/snap/{}/current/meta/force-kernel-extraction'.format(
+                snap)
+            print('force_kernel_extraction: {}'.format(os.path.exists(feature_f)))
+
+
 class SnapdResource(Command):
 
     sub_commands = (
         ('assertions', Assertions),
         ('snaps', Snaps),
         ('interfaces', Interfaces),
+        ('features', Features)
     )
 
 

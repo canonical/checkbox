@@ -71,8 +71,7 @@ include:
 id: server-ethernet-underspeed
 unit: test plan
 _name: Server Ethernet Tests (Speed Check Disabled)
-_description: Automated ethernet tests for server certification without speed
-check
+_description: Automated ethernet tests for server certification without speed check
 estimated_duration: 4h
 include:
     ethernet/detect

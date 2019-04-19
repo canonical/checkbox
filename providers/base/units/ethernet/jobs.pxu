@@ -84,6 +84,25 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
+id: ethernet/multi_iperf3_nic_underspeed_device{__index__}_{interface}
+_summary: Underspeed Enabled Multi-NIC Iperf3 stress testing for NIC {interface}
+estimated_duration: 7400.0
+requires:
+ package.name == 'iperf3' or executable.name == 'iperf3'
+ package.name == 'ethtool' or executable.name == 'ethtool'
+ package.name == 'nmap' or executable.name == 'nmap'
+user: root
+environ: TEST_TARGET_IPERF
+command: network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4 --underspeed-ok
+_description:
+ This is the standard Multi-NIC Iperf3 test with the speed check disabled
+ for retesting systems that are incorrectly reporting supported speeds.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+plugin: shell
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/ethertool_check_device{__index__}_{interface}
 _summary: ethtool check for NIC {interface}
 estimated_duration: 330.0

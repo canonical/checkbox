@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2016-2018 Canonical Ltd.
+# Copyright 2016-2019 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #

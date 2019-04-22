@@ -46,7 +46,8 @@ from checkbox_ng.launcher.subcommands import (
 from checkbox_ng.launcher.check_config import CheckConfig
 from checkbox_ng.launcher.merge_reports import MergeReports
 from checkbox_ng.launcher.merge_submissions import MergeSubmissions
-from checkbox_ng.launcher.remote import RemoteSlave, RemoteMaster
+from checkbox_ng.launcher.master import RemoteMaster
+from checkbox_ng.launcher.slave import RemoteSlave
 
 
 _ = gettext.gettext

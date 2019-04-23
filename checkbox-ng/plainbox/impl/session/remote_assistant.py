@@ -567,9 +567,11 @@ class RemoteSessionAssistant():
             except KeyError:
                 raise SystemExit(self._last_job)
 
+        # some jobs have already been run, so we need to update the attempts
+        # count for future auto-rerunning
         if self._launcher.auto_retry:
             for job_id in [
-                    job.id for job in self.get_auto_rerun_candidates('auto')]:
+                    job.id for job in self.get_rerun_candidates('auto')]:
                 job_state = self._sa.get_job_state(job_id)
                 job_state.attempts = self._launcher.max_attempts - len(
                     job_state.result_history)

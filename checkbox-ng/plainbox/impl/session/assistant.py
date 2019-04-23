@@ -1507,6 +1507,9 @@ class SessionAssistant:
                         IJobResult.OUTCOME_NOT_SUPPORTED):
                     rerun_candidates.append(self.get_job(job_id))
             if session_type == 'auto':
+                if job_state.result.outcome is None:
+                    rerun_candidates.append(self.get_job(job_id))
+                    continue
                 if job_state.attempts == 0:
                     continue
                 if job_state.effective_auto_retry == 'no':

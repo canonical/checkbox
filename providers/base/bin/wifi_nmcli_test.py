@@ -10,7 +10,9 @@
 
 
 import argparse
+import datetime
 import functools
+import os
 import subprocess as sp
 import sys
 import time
@@ -196,6 +198,17 @@ def hotspot(args):
     return retcode
 
 
+def print_journal_entries(start):
+    print_head("Journal Entries")
+    cmd = ('journalctl -q --no-pager '
+           '-u snap.network-manager.networkmanager.service '
+           '-u NetworkManager.service '
+           '-u wpa_supplicant.service '
+           '--since "{}" '.format(start.strftime('%Y-%m-%d %H:%M:%S')))
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='WiFi connection test using mmcli')
@@ -232,6 +245,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    start_time = datetime.datetime.now()
+
     cleanup_nm_connections()
     if not legacy_nmcli():
         device_rescan()
@@ -247,6 +262,13 @@ if __name__ == '__main__':
 
     if args.func:
         try:
-            sys.exit(args.func(args))
-        finally:
+            result = args.func(args)
+        except:
             cleanup_nm_connections()
+
+    # The test is not required to run as root, but root access is required for
+    # journal access so only attempt to print when e.g. running under Remote
+    if result != 0 and os.geteuid() == 0:
+        print_journal_entries(start_time)
+
+    sys.exit(result)

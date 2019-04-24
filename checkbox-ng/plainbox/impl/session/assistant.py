@@ -1437,7 +1437,8 @@ class SessionAssistant:
         return builder
 
     @raises(UnexpectedMethodCall)
-    def use_job_result(self, job_id: str, result: 'IJobResult') -> None:
+    def use_job_result(self, job_id: str, result: 'IJobResult',
+                       clear_history=False) -> None:
         """
         Feed job result back to the session.
 
@@ -1474,6 +1475,8 @@ class SessionAssistant:
             # happens when using `checkbox-cli run, or plainbox`, and with old,
             # legacy Launchers. They are not expected to do auto-retries.
             pass
+        if clear_history:
+            self._context.state.job_state_map[job_id].result_history=()
         self._manager.checkpoint()
         # Set up expectations so that run_job() and use_job_result() must be
         # called in pairs and applications cannot just forget and call

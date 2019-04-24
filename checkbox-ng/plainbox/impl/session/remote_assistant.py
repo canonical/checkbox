@@ -563,7 +563,7 @@ class RemoteSessionAssistant():
         result = MemoryJobResult(result_dict)
         if self._last_job:
             try:
-                self._sa.use_job_result(self._last_job, result)
+                self._sa.use_job_result(self._last_job, result, True)
             except KeyError:
                 raise SystemExit(self._last_job)
 

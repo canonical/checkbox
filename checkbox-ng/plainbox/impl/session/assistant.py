@@ -1438,7 +1438,7 @@ class SessionAssistant:
 
     @raises(UnexpectedMethodCall)
     def use_job_result(self, job_id: str, result: 'IJobResult',
-                       clear_history=False) -> None:
+            override_last: bool=False) -> None:
         """
         Feed job result back to the session.
 
@@ -1466,6 +1466,9 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         job = self._context.get_unit(job_id, 'job')
+        job_state = self._context.state.job_state_map[job_id]
+        if len(job_state.result_history) > 0 and override_last:
+            job_state.result_history = job_state.result_history[:-1]
         self._context.state.update_job_result(job, result)
         try:
             if self._config.auto_retry:
@@ -1475,8 +1478,6 @@ class SessionAssistant:
             # happens when using `checkbox-cli run, or plainbox`, and with old,
             # legacy Launchers. They are not expected to do auto-retries.
             pass
-        if clear_history:
-            self._context.state.job_state_map[job_id].result_history=()
         self._manager.checkpoint()
         # Set up expectations so that run_job() and use_job_result() must be
         # called in pairs and applications cannot just forget and call

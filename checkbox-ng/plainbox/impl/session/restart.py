@@ -217,6 +217,7 @@ class RemoteSnappyRestartStrategy(IRestartStrategy):
                                   session_id: str, cmd: str) -> None:
         with open(self.session_resume_filename, 'wt') as f:
             f.write(session_id)
+            os.fsync(f.fileno())
 
     def diffuse_application_restart(self, app_id: str) -> None:
         try:

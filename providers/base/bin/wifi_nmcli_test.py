@@ -159,6 +159,43 @@ def secured_connection(args):
     return rc
 
 
+def hotspot(args):
+    print_head("Create Wi-Fi hotspot")
+    cmd = ("nmcli c add type wifi ifname {} con-name TEST_CON autoconnect no"
+           " ssid CHECKBOX_AP".format(args.device))
+    print_cmd(cmd)
+    retcode = sp.call(cmd, shell=True)
+    if retcode != 0:
+        print("Connection creation failed\n")
+        return retcode
+    cmd = ("nmcli c modify TEST_CON 802-11-wireless.mode ap ipv4.method shared"
+           " 802-11-wireless.band {}".format(args.band))
+    print_cmd(cmd)
+    retcode = sp.call(cmd, shell=True)
+    if retcode != 0:
+        print("Set band failed\n")
+        return retcode
+    cmd = "nmcli c modify TEST_CON wifi-sec.key-mgmt wpa-psk"
+    print_cmd(cmd)
+    retcode = sp.call(cmd, shell=True)
+    if retcode != 0:
+        print("Set key-mgmt failed\n")
+        return retcode
+    cmd = "nmcli connection modify TEST_CON wifi-sec.psk \"ubuntu1234\""
+    print_cmd(cmd)
+    retcode = sp.call(cmd, shell=True)
+    if retcode != 0:
+        print("Set PSK failed\n")
+        return retcode
+    cmd = "nmcli connection up TEST_CON"
+    print_cmd(cmd)
+    retcode = sp.call(cmd, shell=True)
+    if retcode != 0:
+        print("Failed to bring up connection\n")
+    print()
+    return retcode
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='WiFi connection test using mmcli')
@@ -185,6 +222,14 @@ if __name__ == '__main__':
     parser_secured.add_argument('essid', type=str, help='ESSID')
     parser_secured.add_argument('psk', type=str, help='Pre-Shared Key')
     parser_secured.set_defaults(func=secured_connection)
+
+    parser_ap = subparsers.add_parser(
+        'ap', help='Test creation of a hotspot')
+    parser_ap.add_argument(
+        'device', type=str, help='Device name e.g. wlan0')
+    parser_ap.add_argument('band', type=str, help='Band')
+    parser_ap.set_defaults(func=hotspot)
+
     args = parser.parse_args()
 
     cleanup_nm_connections()

@@ -132,7 +132,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             self.launcher.read_string(self._launcher_text)
         timeout = 600
         deadline = time.time() + timeout
-        port = 18871
+        port = ctx.args.port
         print(_("Connecting to {}:{}. Timeout: {}s").format(
             ctx.args.host, port, timeout))
         while time.time() < deadline:
@@ -291,6 +291,8 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         parser.add_argument('host', help=_("target host"))
         parser.add_argument('launcher', nargs='?', help=_(
             "launcher definition file to use"))
+        parser.add_argument('--port', type=int, default=18871, help=_(
+            "port to connect to"))
 
     def _handle_interrupt(self):
         """

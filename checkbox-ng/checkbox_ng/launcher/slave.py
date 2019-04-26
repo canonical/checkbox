@@ -69,7 +69,7 @@ class RemoteSlave(Command):
     name = 'slave'
 
     def invoked(self, ctx):
-        slave_port = 18871
+        slave_port = ctx.args.port
 
         # Check if able to connect to the slave port as indicator of there
         # already being a slave running
@@ -118,3 +118,5 @@ class RemoteSlave(Command):
     def register_arguments(self, parser):
         parser.add_argument('--resume', action='store_true', help=_(
             "resume last session"))
+        parser.add_argument('--port', type=int, default=18871, help=_(
+            "port to listen on"))

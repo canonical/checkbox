@@ -45,6 +45,17 @@ Invocation:
   Example:
     ``checkbox-cli master dut8.local /home/ubuntu/testplans/sutton-client``
 
+Custom port
+===========
+
+By default Slave listens on port 18871. To change that ``--port`` option can be
+used. The same option used on Master specifies which port to connect to.
+
+  Example:
+    ``checkbox-cli slave --port 10101``
+
+    ``checkbox-cli master dut8.local --port 10101``
+
 Session control
 ===============
 

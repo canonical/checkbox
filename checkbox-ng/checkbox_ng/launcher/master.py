@@ -94,6 +94,8 @@ class SimpleUI(NormalUI, MainLoopStage):
 
 class RemoteMaster(Command, ReportsStage, MainLoopStage):
     """
+    Control remote slave instance
+
     This class implements the part that presents UI to the operator and
     steers the session.
     """

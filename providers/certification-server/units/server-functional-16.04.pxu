@@ -10,6 +10,7 @@ nested_part:
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-ethernet
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
@@ -27,11 +28,6 @@ include:
     disk/disk_stress_ng_.*                     certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=non-blocker
     networking/predictable_names               certification-status=non-blocker
-    ethernet/detect                            certification-status=non-blocker
-    ethernet/info_automated                    certification-status=non-blocker
-    ethernet/ethtool_info                      certification-status=non-blocker
-    ethernet/ethertool_check_.*                certification-status=non-blocker
-    ethernet/multi_iperf3_nic_.*               certification-status=blocker
     mediacard/sd-preinserted                   certification-status=blocker
     memory/info                                certification-status=blocker
     optical/detect                             certification-status=non-blocker

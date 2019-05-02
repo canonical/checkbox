@@ -452,8 +452,10 @@ class SessionAssistant:
         provider_list = [
             p for p in provider_list if qualified_name(p) not in side_loaded]
         provider_list = provider_list[:] + list(additional_providers)
+        prov_paths = {qualified_name(p): p.base_dir for p in provider_list}
         for prov in side_loaded:
-            _logger.warning("Using side-loaded provider: %s", prov)
+            _logger.warning("Using side-loaded provider: %s from %s",
+                            prov, prov_paths[prov])
         if side_loaded:
             self.sideloaded_providers = True
 

@@ -189,7 +189,7 @@ class CheckboxCommand(CanonicalCommand):
         # Doing such a call early ensures the right socket module is still
         # loaded.
         try:
-            _res = socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
+            socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
         except Exception as exc:
             pass
 

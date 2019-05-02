@@ -183,6 +183,16 @@ class CheckboxCommand(CanonicalCommand):
             "show program's version information and exit"))
 
     def invoked(self, ctx):
+        # Ugly hack to avoid a segfault when running from a classic snap where
+        # libc6 is newer than the 16.04 version.  The requests module is not
+        # calling the right glibc getaddrinfo() when sending results to C3.
+        # Doing such a call early ensures the right socket module is still
+        # loaded.
+        try:
+            _res = socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
+        except Exception as exc:
+            pass
+
         if ctx.args.verbose:
             logging_level = logging.INFO
             logging.basicConfig(level=logging_level)

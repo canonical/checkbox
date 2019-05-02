@@ -61,6 +61,8 @@ class SessionAssistantSlave(rpyc.Service):
 
 class RemoteSlave(Command):
     """
+    Run checkbox instance as a slave
+
     RemoteSlave implements functionality for the half that's actually running
     the tests - the one that was summoned using `checkbox-cli slave`. This
     part should be run on system-under-test.

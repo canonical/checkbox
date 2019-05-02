@@ -352,3 +352,7 @@ parts:
           )
       done
     after: [plainbox-provider-engineering-tests]
+################################################################################
+  common-config:
+    plugin: dump
+    source: config/

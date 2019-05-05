@@ -1,7 +1,7 @@
 name: checkbox18
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-version: '1.1'
+version: '1.1.dev'
 grade: stable
 
 base: core18

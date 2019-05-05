@@ -251,7 +251,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                 if not self.sa.save_password(
                         self._sudo_provider.encrypted_password):
                     self._sudo_provider.clear_password()
-                    print(_("Sorry, try again"))
+                    print(_("Sorry, try again."))
                 else:
                     wrong_pass = False
 
@@ -391,7 +391,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     else:
                         SimpleUI.green_text(line, end='')
             if state == 'running':
-                time.sleep(0.5)
+                time.sleep(0.01)
                 while True:
                     res = select.select([sys.stdin], [], [], 0)
                     if not res[0]:

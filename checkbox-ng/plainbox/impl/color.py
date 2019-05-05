@@ -91,17 +91,6 @@ for obj_on, obj_off in zip(
         setattr(obj_off, name, "")
 
 
-# XXX: Temporary hack that disables colors on win32 until
-# all of the codebase has been ported over to use colorama
-if sys.platform == 'win32':
-    try:
-        import colorama
-    except ImportError:
-        ansi_on = ansi_off
-    else:
-        colorama.init()
-
-
 def get_color_for_tty(stream=None):
     """
     Get ``ansi_on`` if stdout is a tty, ``ansi_off`` otherwise.

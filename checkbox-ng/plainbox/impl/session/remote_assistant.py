@@ -27,14 +27,14 @@ from collections import namedtuple
 from threading import Thread, Lock
 from subprocess import DEVNULL, CalledProcessError, check_call
 
-from plainbox.impl.ctrl import RootViaSudoWithPassExecutionController
-from plainbox.impl.ctrl import UserJobExecutionController
-from plainbox.impl.ctrl import DaemonicExecutionController
+from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.secure.sudo_broker import SudoBroker, EphemeralKey
+from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
+from plainbox.impl.secure.sudo_broker import validate_pass
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.abc import IJobResult
@@ -72,18 +72,11 @@ class BufferedUI(SilentUI):
     #      might be a cleaner approach than those queues
     def __init__(self):
         super().__init__()
-        self.clear_buffers()
+        self._queue = queue.Queue()
 
     def got_program_output(self, stream_name, line):
         self._queue.put(
             (stream_name, line.decode(sys.stdout.encoding, 'replace')))
-        self._whole_queue.put(line)
-
-    def whole_output(self):
-        """Returns all the output since last clear_buffers() call."""
-        while not self._whole_queue.empty():
-            self._whole_output += self._whole_queue.get()
-        return self._whole_output
 
     def get_output(self):
         """Returns all the output queued up since previous call."""
@@ -91,11 +84,6 @@ class BufferedUI(SilentUI):
         while not self._queue.empty():
             output.append(self._queue.get())
         return output
-
-    def clear_buffers(self):
-        self._queue = queue.Queue()
-        self._whole_queue = queue.Queue()
-        self._whole_output = ""
 
 
 class BackgroundExecutor(Thread):
@@ -150,7 +138,6 @@ class RemoteSessionAssistant():
         self._state = Idle
         self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
         self._sa.configure_application_restart(self._cmd_callback)
-        self._choose_exec_ctrls()
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
@@ -162,29 +149,6 @@ class RemoteSessionAssistant():
         self._normal_user = ''
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
-
-    def _choose_exec_ctrls(self):
-        normal_user_provider = lambda: self._normal_user
-        if os.getuid() == 0:
-            self._sa.use_alternate_execution_controllers([
-                (
-                    DaemonicExecutionController,
-                    (),
-                    {
-                        'normal_user_provider': normal_user_provider,
-                        'stdin': self._pipe_to_subproc,
-                    }
-                ),
-            ])
-        else:
-            self._sa.use_alternate_execution_controllers([
-                (
-                    RootViaSudoWithPassExecutionController,
-                    (),
-                    {'password_provider_cls': self.get_decrypted_password}
-                ),
-                (UserJobExecutionController, [], {}),
-            ])
 
     @property
     def session_change_lock(self):
@@ -233,8 +197,15 @@ class RemoteSessionAssistant():
         self._sa.use_alternate_configuration(self._launcher)
         self._sa.select_providers(*self._launcher.providers)
 
-        self._sa.start_new_session(session_title)
-
+        self._normal_user = self._launcher.normal_user
+        pass_provider = (None if self._passwordless_sudo else
+                         self.get_decrypted_password)
+        runner_kwargs = {
+            'normal_user_provider': lambda: self._normal_user,
+            'password_provider': pass_provider,
+            'stdin': self._pipe_to_subproc,
+        }
+        self._sa.start_new_session(session_title, UnifiedRunner, runner_kwargs)
         self._sa.update_app_blob(json.dumps(
             {'description': session_desc, }).encode("UTF-8"))
         self._sa.update_app_blob(json.dumps(
@@ -245,7 +216,6 @@ class RemoteSessionAssistant():
         filtered_tps = set()
         for filter in self._launcher.test_plan_filters:
             filtered_tps.update(fnmatch.filter(tps, filter))
-        self._normal_user = self._launcher.normal_user
         filtered_tps = list(filtered_tps)
         response = zip(filtered_tps, [self._sa.get_test_plan(
             tp).name for tp in filtered_tps])
@@ -341,6 +311,8 @@ class RemoteSessionAssistant():
                     pass_is_correct = validate_pass(
                         self._sudo_broker.decrypt_password(
                             self._sudo_password))
+                    if not pass_is_correct:
+                        print(_('Sorry, try again.'))
                 assert(self._sudo_password is not None)
             self._state = Running
             self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
@@ -597,32 +569,3 @@ class RemoteSessionAssistant():
     @property
     def sideloaded_providers(self):
         return self._sa.sideloaded_providers
-
-
-def is_passwordless_sudo():
-    """
-    Check if system can run sudo without pass.
-    """
-    # running sudo with -A will try using ASKPASS envvar that should specify
-    # the program to use when asking for password
-    # If the system is configured to not ask for password, this will silently
-    # succeed. If the pass is required, it'll return 1 and not ask for pass,
-    # as the askpass program is not provided
-    try:
-        check_call(['sudo', '-A', 'true'], stdout=DEVNULL, stderr=DEVNULL)
-    except CalledProcessError:
-        return False
-    return True
-
-
-def validate_pass(password):
-    cmd = ['sudo', '--prompt=', '--reset-timestamp', '--stdin',
-           '--user', 'root', 'true']
-    r, w = os.pipe()
-    os.write(w, (password + "\n").encode('utf-8'))
-    os.close(w)
-    try:
-        check_call(cmd, stdin=r, stdout=DEVNULL, stderr=DEVNULL)
-        return True
-    except CalledProcessError:
-        return False

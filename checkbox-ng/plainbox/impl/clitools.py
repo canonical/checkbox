@@ -836,8 +836,8 @@ def autopager(pager_list=['sensible-pager', 'less', 'more']):
         will prevent users from feeding any input to plainbox as all input
         will be "stolen" by the pager process.
     """
-    # If stdout is not connected to a tty or when running on win32, just return
-    if not sys.stdout.isatty() or sys.platform == "win32":
+    # Just return if stdout is not connected to a tty
+    if not sys.stdout.isatty():
         return
     # Check if the user has a PAGER set, if so, consider that the prime
     # candidate for the effective pager.

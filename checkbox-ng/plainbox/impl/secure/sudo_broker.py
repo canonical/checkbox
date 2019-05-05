@@ -31,8 +31,11 @@ module.
 import gc
 import getpass
 import hashlib
+import os
 import sys
+
 from Crypto.PublicKey import RSA
+from subprocess import check_call, CalledProcessError, DEVNULL
 
 
 class EphemeralKey():
@@ -89,9 +92,9 @@ class SudoBroker():
         :param ciphertext:
             Bytes sequence, as returned by the SudoProvider.encrypted_password.
         :returns:
-            String with plaintext password.
+            Bytes with plaintext password.
         """
-        return self._master_key.decrypt(ciphertext).decode('utf-8')
+        return self._master_key.decrypt(ciphertext)
 
     def export_key(self, passphrase):
         """
@@ -154,3 +157,31 @@ class SudoProvider():
         """
         key = RSA.importKey(temp_key)
         return key.encrypt(self._master_passphrase.encode('utf-8'), '_')
+
+def is_passwordless_sudo():
+    """
+    Check if system can run sudo without pass.
+    """
+    # running sudo with -A will try using ASKPASS envvar that should specify
+    # the program to use when asking for password
+    # If the system is configured to not ask for password, this will silently
+    # succeed. If the pass is required, it'll return 1 and not ask for pass,
+    # as the askpass program is not provided
+    try:
+        check_call(['sudo', '-A', '-k', 'true'], stdout=DEVNULL, stderr=DEVNULL)
+    except CalledProcessError:
+        return False
+    return True
+
+
+def validate_pass(password):
+    cmd = ['sudo', '--prompt=', '--reset-timestamp', '--stdin',
+           '--user', 'root', 'true']
+    r, w = os.pipe()
+    os.write(w, password + b"\n")
+    os.close(w)
+    try:
+        check_call(cmd, stdin=r, stdout=DEVNULL, stderr=DEVNULL)
+        return True
+    except CalledProcessError:
+        return False

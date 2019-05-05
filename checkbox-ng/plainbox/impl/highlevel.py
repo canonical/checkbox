@@ -28,7 +28,6 @@ from io import BytesIO
 import logging
 
 from plainbox.impl.applogic import run_job_if_possible
-from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionStorageRepository
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports

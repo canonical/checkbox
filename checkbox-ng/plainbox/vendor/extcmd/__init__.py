@@ -466,6 +466,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
         self._delegate = SafeDelegate.wrap_if_needed(delegate)
         self._killsig = killsig
         self._flags = flags
+        self.proc = None
 
     def call(self, *args, **kwargs):
         """
@@ -482,7 +483,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
         # Setup stodut/stderr redirection
         kwargs['stdout'] = subprocess.PIPE
         kwargs['stderr'] = subprocess.PIPE
-        proc = None
+        self.proc = None
         stdout_reader = None
         stderr_reader = None
         queue_worker = None
@@ -490,16 +491,17 @@ class ExternalCommandWithDelegate(ExternalCommand):
         try:
             # Start the process
             _logger.debug("starting process %r", (args,))
-            proc = self._popen(*args, **kwargs)
-            _logger.debug("Process created: %r (pid: %d)", proc, proc.pid)
+            self.proc = self._popen(*args, **kwargs)
+            _logger.debug(
+                "Process created: %r (pid: %d)", self.proc, self.proc.pid)
             # Setup all worker threads. By now the pipes have been created and
             # proc.stdout/proc.stderr point to open pipe objects.
             stdout_reader = threading.Thread(
                 target=self._read_stream, name='stdout_reader',
-                args=(proc.stdout, "stdout"))
+                args=(self.proc.stdout, "stdout"))
             stderr_reader = threading.Thread(
                 target=self._read_stream, name='stderr_reader',
-                args=(proc.stderr, "stderr"))
+                args=(self.proc.stderr, "stderr"))
             queue_worker = threading.Thread(
                 target=self._drain_queue, name='queue_worker')
             # Start all workers
@@ -513,7 +515,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
                 try:
                     # Wait for the process to finish
                     _logger.debug("Waiting for process to exit")
-                    return_code = proc.wait()
+                    return_code = self.proc.wait()
                     _logger.debug(
                         "Process did exit with code %d", return_code)
                     # Break out of the endless loop if it does
@@ -522,7 +524,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
                 except KeyboardInterrupt:
                     _logger.debug("KeyboardInterrupt in call()")
                     # On interrupt send a signal to the process
-                    self._on_keyboard_interrupt(proc)
+                    self._on_keyboard_interrupt(self.proc)
                     # And send a notification about this
                     self._delegate.on_interrupt()
         finally:
@@ -531,15 +533,15 @@ class ExternalCommandWithDelegate(ExternalCommand):
             # This causes all kinds of ugly issues on Windows.
             if should_terminate:
                 # Try to kill the process
-                if proc is not None:
+                if self.proc is not None:
                     try:
                         _logger.debug("Calling terminate() on the process")
-                        proc.terminate()
+                        self.proc.terminate()
                         if hasattr(signal, "SIGKILL"):
                             _logger.debug("Killing the process")
-                            proc.send_signal(signal.SIGKILL)
+                            self.proc.send_signal(signal.SIGKILL)
                             _logger.debug("Killing the process again")
-                            proc.send_signal(signal.SIGKILL)
+                            self.proc.send_signal(signal.SIGKILL)
                     except OSError as exc:
                         if exc.errno == errno.ESRCH:
                             _logger.debug("The process is already dead")
@@ -551,14 +553,14 @@ class ExternalCommandWithDelegate(ExternalCommand):
             _logger.debug("Joining all threads...")
             if do_close:
                 _logger.debug("Closing child stdout")
-                proc.stdout.close()
+                self.proc.stdout.close()
             if stdout_reader is not None and stdout_reader.is_alive():
                 _logger.debug("Joining 1/3 %r...", stdout_reader)
                 stdout_reader.join()
                 _logger.debug("Joined thread: %r", stdout_reader)
             if do_close:
                 _logger.debug("Closing child stderr")
-                proc.stderr.close()
+                self.proc.stderr.close()
             if stderr_reader is not None and stderr_reader.is_alive():
                 _logger.debug("Joining 2/3 %r...", stderr_reader)
                 stderr_reader.join()
@@ -571,13 +573,13 @@ class ExternalCommandWithDelegate(ExternalCommand):
                 queue_worker.join()
                 _logger.debug("Joined thread: %r", queue_worker)
         # Notify that the process has finished
-        if proc.returncode < 0:
+        if self.proc.returncode < 0:
             # negative returncode from subprocess is a sign that the process
             # was killed by a signal with that number
-            self._delegate.on_abnormal_end(-proc.returncode)
+            self._delegate.on_abnormal_end(-self.proc.returncode)
         else:
-            self._delegate.on_end(proc.returncode)
-        return proc.returncode
+            self._delegate.on_end(self.proc.returncode)
+        return self.proc.returncode
 
     def _on_keyboard_interrupt(self, proc):
         _logger.debug("Sending signal %s to the process", self._killsig)

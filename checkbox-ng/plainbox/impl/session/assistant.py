@@ -43,11 +43,11 @@ from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.decorators import raises
 from plainbox.impl.developer import UnexpectedMethodCall
 from plainbox.impl.developer import UsageExpectation
+from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.providers import get_providers
-from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import select_jobs
@@ -569,7 +569,7 @@ class SessionAssistant:
                 storage.remove()
 
     @raises(UnexpectedMethodCall)
-    def start_new_session(self, title: str, runner_cls=JobRunner,
+    def start_new_session(self, title: str, runner_cls=UnifiedRunner,
                           runner_kwargs=dict()):
         """
         Create a new testing session.
@@ -623,7 +623,7 @@ class SessionAssistant:
 
     @raises(KeyError, UnexpectedMethodCall)
     def resume_session(self, session_id: str,
-                       runner_cls=JobRunner,
+                       runner_cls=UnifiedRunner,
                        runner_kwargs=dict()) -> 'SessionMetaData':
         """
         Resume a session.

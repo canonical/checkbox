@@ -631,6 +631,16 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         )[0]
         self.assertEqual(len(document.record_list), 55)
 
+    def test_pactl_list_ports_with_pretag(self):
+        document = self.assertParses(
+            pactl.Document.Syntax, self.get_text("pa_ucm_pre_tag_bionic")
+        )[0]
+        self.assertEqual(len(document.record_list), 42)
+        self.assertEqual(document.record_list[27].name, "Sink #0")
+        self.assertEqual(
+            document.record_list[27].attribute_list[14].value[0].name,
+            "Speaker")
+
     def test_pactl_list(self):
         document = self.assertParses(
             pactl.Document.Syntax, self.get_text("desktop-precise")

@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2019 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -220,7 +221,9 @@ class Port(Node):
     }
 
     __syntax__ = (
-        p.Word(p.alphanums + "-;").setResultsName('port-name')
+        p.Optional('[Out] ').suppress()
+        + p.Optional('[In] ').suppress()
+        + p.Word(p.alphanums + "-;").setResultsName('port-name')
         + p.Suppress(':')
         # This part was very tricky to write. The label is basically
         # arbitrary localized Unicode text.  We want to grab all of it in
@@ -283,7 +286,9 @@ class PortWithProfile(Node):
     }
 
     __syntax__ = (
-        p.Word(p.alphanums + "-;").setResultsName('port-name')
+        p.Optional('[Out] ').suppress()
+        + p.Optional('[In] ').suppress()
+        + p.Word(p.alphanums + "-;").setResultsName('port-name')
         + p.Suppress(':')
         # This part was very tricky to write. The label is basically arbitrary
         # localized Unicode text. We want to grab all of it in one go but

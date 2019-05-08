@@ -10,6 +10,7 @@
 # identify in the special interest list!
 
 from pathlib import Path
+import subprocess as sp
 import sys
 
 # Store pairs of (interface, driver)
@@ -42,4 +43,9 @@ for interface, driver in driver_list:
                 # trusty as well, which uses python 3.4 by default.
                 with open(str(path), 'r') as f:
                     print("    {}: {}".format(path.name, f.read().strip()))
+    print()
+    print('Checking kernel ring buffer for {} messages:'.format(driver))
+    cmd = "dmesg -T -x | grep {} || true".format(driver)
+    output = sp.check_output(cmd, shell=True)
+    print(output.decode(sys.stdout.encoding))
     print()

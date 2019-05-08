@@ -11,13 +11,13 @@ snap_download_and_ack()
     # download the snap and grep the output for the assert file so we can ack 
     # it
     snap_download_output=$(snap download "$1" "$2")
-    snap ack "$(echo "$snap_download_output" | grep "edgexfoundry.*.assert" | awk '{print $3}')"
+    snap ack "$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.assert')"
     # return the name of this snap
-    echo "$(pwd)"/"$snap_download_output" | grep "edgexfoundry.*.snap" | awk '{print $3}'
+    echo "$(pwd)"/"$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.snap')"
 }
 
 # if this script was provided with an argument, then assume it's a local snap
-# to test adn confirm that the file exists
+# to test and confirm that the file exists
 # otherwise if we didn't get any arguments assume to test the snap from beta
 if [ -n "$1" ]; then
     if [ -f "$1" ]; then

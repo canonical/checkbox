@@ -22,7 +22,7 @@ sleep 120
 
 # check services
 # ignore failures for now due to https://bugs.launchpad.net/snapd/+bug/1818306
-snap_check_edinburgh_svcs --notfatal
+snap_check_delhi_svcs --notfatal
 
 # remove the snap to run the next test
 snap_remove

@@ -49,8 +49,16 @@ EDGEX_DELHI_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=delhi)
 export EDGEX_STABLE_SNAP_FILE
 export EDGEX_DELHI_SNAP_FILE
 
-# run all the tests (except this file obviously)
-for file in "$SCRIPT_DIR"/test-*.sh; do 
-    echo "running $file"
-    "$file"
-done
+# second argument to the script if it exists is which specific test to run
+if [ -n "$2" ]; then
+    echo "running single test: $2"
+    "$SCRIPT_DIR/$2"
+else
+    # run all the tests (except this file obviously)
+    for file in "$SCRIPT_DIR"/test-*.sh; do 
+        echo "running $file"
+        "$file"
+    done
+fi
+
+

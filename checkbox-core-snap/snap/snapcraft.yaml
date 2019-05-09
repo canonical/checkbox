@@ -1,7 +1,7 @@
 name: checkbox18
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-version: '1.1.dev'
+version: '1.2.dev'
 grade: stable
 
 base: core18
@@ -234,7 +234,7 @@ parts:
     source: git://git.launchpad.net/plainbox-provider-ipdt
     source-subdir: plainbox-provider-ipdt
     stage-packages:
-        - util-linux
+      - util-linux
     after: [plainbox-provider-snappy]
 ################################################################################
   plainbox-provider-docker:
@@ -272,7 +272,7 @@ parts:
     plugin: plainbox-provider
     source: git://git.launchpad.net/checkbox-provider-edgex
     stage-packages:
-        - curl
+      - curl
     after: [plainbox-provider-engineering-tests]
 ################################################################################
   i2c-tools:

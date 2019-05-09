@@ -34,7 +34,7 @@ for channel in delhi stable; do
     esac
 
     # get the revision number for this channel
-    SNAP_REVISION=$(snap run --shell edgexfoundry -c "echo \$SNAP_REVISION")
+    SNAP_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
 
     # wait for services to come online
     # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
@@ -62,9 +62,9 @@ for channel in delhi stable; do
     cd /var/snap/edgexfoundry/current
     notUpgradedFiles=$(sudo grep -R "edgexfoundry/$SNAP_REVISION" | \
         grep -v "Binary file" | \
-        grep -v "cassandra/logs | \
-        grep -v "and the location of the files uses reference"")
-    if [ -z "$notUpgradedFiles" ]; then
+        grep -v "cassandra/logs" | \
+        grep -v "and the location of the files uses reference")
+    if [ -n "$notUpgradedFiles" ]; then
         echo "files not upgraded to use \"current\" symlink in config files:"
         echo "$notUpgradedFiles"
         exit 1

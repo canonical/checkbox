@@ -70,14 +70,6 @@ for channel in delhi stable; do
         exit 1
     fi
 
-    # also check that the vault-config.hcl file exists - it used to be called
-    # vault-config.json but it's not really a json file so we renamed it to an
-    # hcl file
-    if [ ! -f /var/snap/edgexfoundry/current/config/security-secret-store/vault-config.hcl ]; then
-        echo "vault-config.hcl file is missing"
-        exit 1
-    fi
-
     # remove the snap to run the next channel upgrade
     snap_remove
 done

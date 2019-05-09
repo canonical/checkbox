@@ -51,5 +51,6 @@ export EDGEX_DELHI_SNAP_FILE
 
 # run all the tests (except this file obviously)
 for file in "$SCRIPT_DIR"/test-*.sh; do 
+    echo "running $file"
     "$file"
 done

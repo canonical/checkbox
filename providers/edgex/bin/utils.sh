@@ -8,15 +8,15 @@ snap_install()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            snap install "$the_snap" --channel="$the_channel" "$confinement"
+            snap install "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
         else
-            snap install "$the_snap" --channel="$the_channel"
+            snap install "$the_snap" --channel="$the_channel" > /dev/null
         fi
     else
         if [ -n "$confinement" ]; then
-            snap install "$the_snap" "$confinement"
+            snap install "$the_snap" "$confinement" > /dev/null
         else
-            snap install "$the_snap"
+            snap install "$the_snap" > /dev/null
         fi
     fi
 }
@@ -29,17 +29,17 @@ snap_refresh()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            snap refresh "$the_snap" --channel="$the_channel" "$confinement"
+            snap refresh "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
         else
-            snap refresh "$the_snap" --channel="$the_channel"
+            snap refresh "$the_snap" --channel="$the_channel" > /dev/null
         fi
     else
         # for refreshing a file snap we need to use install
         # but snapd still treats it like a refresh
         if [ -n "$confinement" ]; then
-            snap install "$the_snap" "$confinement"
+            snap install "$the_snap" "$confinement" > /dev/null
         else
-            snap install "$the_snap"
+            snap install "$the_snap" > /dev/null
         fi
     fi
 }
@@ -163,5 +163,5 @@ snap_check_edinburgh_svcs()
 
 snap_remove()
 {
-    snap remove edgexfoundry || true
+    snap remove edgexfoundry 2>/dev/null >/dev/null || true
 }

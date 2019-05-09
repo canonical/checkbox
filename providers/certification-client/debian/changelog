@@ -1,4 +1,4 @@
-plainbox-provider-certification-client (0.36.0-1) UNRELEASED; urgency=medium
+plainbox-provider-certification-client (0.37.0~rc1-1) UNRELEASED; urgency=medium
 
   [ pierre ]
   * "new upstream version"
@@ -29,8 +29,9 @@ plainbox-provider-certification-client (0.36.0-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Thu, 24 Jan 2019 09:13:58 +0100
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Thu, 09 May 2019 14:39:17 +0200
 
 plainbox-provider-certification-client (0.27-1) precise; urgency=medium
 

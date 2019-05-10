@@ -4,6 +4,12 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+if [ "$(id -u)" = "0" ]; then
+    SUDO=""
+else
+    SUDO="sudo"
+fi
+
 # load the utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
@@ -22,17 +28,17 @@ sleep 120
 
 # copy the root certificate to confirm that can be used to authenticate the
 # kong server
-sudo cp /var/snap/edgexfoundry/current/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem /tmp/EdgeXFoundryCA.pem
+$SUDO cp /var/snap/edgexfoundry/current/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem /tmp/EdgeXFoundryCA.pem
 
 # make the CA world-readable
-sudo chmod +r /tmp/EdgeXFoundryCA.pem
+$SUDO chmod +r /tmp/EdgeXFoundryCA.pem
 
 # use curl to talk to the kong admin endpoint with the cert
 curl -s --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null
 
 # restart all of EdgeX (including the security-services) and make sure the 
 # same certificate still works
-snap restart edgexfoundry > /dev/null
+$SUDO snap restart edgexfoundry > /dev/null
 
 sleep 120
 curl -s --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null

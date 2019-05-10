@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+if [ "$(id -u)" = "0" ]; then
+    SUDO=""
+else
+    SUDO="sudo"
+fi
+
 snap_install()
 {
     local the_snap=$1
@@ -8,15 +14,15 @@ snap_install()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            snap install "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
+            $SUDO snap install "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
         else
-            snap install "$the_snap" --channel="$the_channel" > /dev/null
+            $SUDO snap install "$the_snap" --channel="$the_channel" > /dev/null
         fi
     else
         if [ -n "$confinement" ]; then
-            snap install "$the_snap" "$confinement" > /dev/null
+            $SUDO snap install "$the_snap" "$confinement" > /dev/null
         else
-            snap install "$the_snap" > /dev/null
+            $SUDO snap install "$the_snap" > /dev/null
         fi
     fi
 }
@@ -29,17 +35,17 @@ snap_refresh()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            snap refresh "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
+            $SUDO snap refresh "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
         else
-            snap refresh "$the_snap" --channel="$the_channel" > /dev/null
+            $SUDO snap refresh "$the_snap" --channel="$the_channel" > /dev/null
         fi
     else
         # for refreshing a file snap we need to use install
         # but snapd still treats it like a refresh
         if [ -n "$confinement" ]; then
-            snap install "$the_snap" "$confinement" > /dev/null
+            $SUDO snap install "$the_snap" "$confinement" > /dev/null
         else
-            snap install "$the_snap" > /dev/null
+            $SUDO snap install "$the_snap" > /dev/null
         fi
     fi
 }
@@ -160,8 +166,18 @@ snap_check_edinburgh_svcs()
     done
 }
 
+get_snap_svc_status()
+{
+    case "$1" in 
+        "status")
+            svcStatus="$(snap services edgexfoundry.$1 | grep $1 | awk '{print $3}')"
+            ;;
+        "")
+            ;;
+    esac
+}
 
 snap_remove()
 {
-    snap remove edgexfoundry 2>/dev/null >/dev/null || true
+    $SUDO snap remove edgexfoundry 2>/dev/null >/dev/null || true
 }

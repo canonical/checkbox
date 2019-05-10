@@ -4,6 +4,12 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+if [ "$(id -u)" = "0" ]; then
+    SUDO=""
+else
+    SUDO="sudo"
+fi
+
 # load the utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
@@ -60,7 +66,7 @@ for channel in delhi stable; do
     # note we have to run the initial grep as sudo so that it can access all 
     # of the files, some of which are 0600 root owned
     cd /var/snap/edgexfoundry/current
-    notUpgradedFiles=$(sudo grep -R "edgexfoundry/$SNAP_REVISION" | \
+    notUpgradedFiles=$($SUDO grep -R "edgexfoundry/$SNAP_REVISION" | \
         grep -v "Binary file" | \
         grep -v "cassandra/logs" | \
         grep -v "and the location of the files uses reference")

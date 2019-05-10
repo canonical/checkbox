@@ -4,6 +4,12 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+if [ "$(id -u)" = "0" ]; then
+    SUDO=""
+else
+    SUDO="sudo"
+fi
+
 # helper function to download the snap, ack the assertion and return the
 # name of the file
 snap_download_and_ack()
@@ -11,7 +17,7 @@ snap_download_and_ack()
     # download the snap and grep the output for the assert file so we can ack 
     # it
     snap_download_output=$(snap download "$1" "$2")
-    snap ack "$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.assert')"
+    $SUDO snap ack "$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.assert')"
     # return the name of this snap
     echo "$(pwd)"/"$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.snap')"
 }

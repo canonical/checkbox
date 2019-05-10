@@ -10,6 +10,10 @@ else
     SUDO="sudo"
 fi
 
+# load the utils
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/utils.sh"
+
 # helper function to download the snap, ack the assertion and return the
 # name of the file
 snap_download_and_ack()
@@ -22,16 +26,59 @@ snap_download_and_ack()
     echo "$(pwd)"/"$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.snap')"
 }
 
-# if this script was provided with an argument, then assume it's a local snap
-# to test and confirm that the file exists
+# parse arguments - adapted from https://stackoverflow.com/a/14203146/10102404
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        -h|--help)
+            echo "usage:"
+            echo "run-all-tests-locally.sh [OPTIONS]"
+            echo "options:"
+            printf -- "-s|--snap SNAP\t local snap file to test\n"
+            printf -- "-t|--test TEST\t run single test\n"
+            printf -- "-v|--verbose\t show output of tests even if passed\n"
+            printf -- "-i|--ignorefail\t continue running tests even if some fail\n"
+            exit 0
+            ;;
+        -s|--snap)
+            LOCAL_SNAP="$2"
+            shift # past argument
+            shift # past value
+            ;;
+        -t|--test)
+            SINGLE_TEST="$2"
+            shift # past argument
+            shift # past value
+            ;;
+        -v|--verbose)
+            VERBOSE=YES
+            shift # past argument
+            ;;
+        -i|--ignorefail)
+            IGNORE_FAIL=YES
+            shift # past argument
+            ;;
+        *)    # unknown option
+            POSITIONAL+=("$1") # save it in an array for later
+            shift # past argument
+            ;;
+    esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+# if an argument was provided to the script, it's supposed to be a local snap
+# file to test - confirm that the file exists
 # otherwise if we didn't get any arguments assume to test the snap from beta
-if [ -n "$1" ]; then
-    if [ -f "$1" ]; then
-        REVISION_TO_TEST=$1
+if [[ -n $LOCAL_SNAP ]]; then
+    if [ -f "$LOCAL_SNAP" ]; then
+        REVISION_TO_TEST=$LOCAL_SNAP
         REVISION_TO_TEST_CHANNEL=""
+        # for now always need to test edgexfoundry locally with devmode
+        # because we can't auto-connect interfaces that are needed
         REVISION_TO_TEST_CONFINEMENT="--devmode"
     else
-        echo "local snap to test: \"$1\" does not exist"
+        echo "local snap to test: \"$LOCAL_SNAP\" does not exist"
         exit 1
     fi
 else 
@@ -55,16 +102,38 @@ EDGEX_DELHI_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=delhi)
 export EDGEX_STABLE_SNAP_FILE
 export EDGEX_DELHI_SNAP_FILE
 
-# second argument to the script if it exists is which specific test to run
-if [ -n "$2" ]; then
-    echo "running single test: $2"
-    "$SCRIPT_DIR/$2"
+set +e
+if [ -n "$SINGLE_TEST" ]; then
+    printf "running single test: %s ..." "$SINGLE_TEST"
+    if stdout="$("$SCRIPT_DIR/$SINGLE_TEST" 2>&1)"; then
+        printf -- "\tPASSED\n"
+        if [ -n "$VERBOSE" ]; then
+            echo "$stdout"
+        fi
+    else
+        printf -- "\tFAILED:\n"
+        echo "$stdout"
+        exit 1
+    fi
 else
     # run all the tests (except this file obviously)
     for file in "$SCRIPT_DIR"/test-*.sh; do 
-        echo "running $file"
-        "$file"
+        printf "running test: %s..." "$file"
+        if stdout="$($file 2>&1)"; then
+            printf "\t\tPASSED\n"
+            if [ -n "$VERBOSE" ]; then
+                echo "$stdout"
+            fi
+        else
+            printf "\t\tFAILED:\n"
+            echo "$stdout"
+            if [ -z "$IGNORE_FAIL" ]; then
+                snap_remove
+                exit 1
+            fi
+        fi
     done
 fi
 
-
+# finally remove the snap if it's still there
+snap_remove

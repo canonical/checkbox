@@ -136,4 +136,4 @@ else
 fi
 
 # finally remove the snap if it's still there
-snap_remove
+snap_remove 2>/dev/null > /dev/null

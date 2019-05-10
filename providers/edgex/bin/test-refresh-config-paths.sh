@@ -41,6 +41,7 @@ for channel in delhi stable; do
 
     # get the revision number for this channel
     SNAP_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
+    
 
     # wait for services to come online
     # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
@@ -59,6 +60,8 @@ for channel in delhi stable; do
     # to accomodate time for everything to come online
     sleep 120
 
+    echo "checking for files with previous snap revision $SNAP_REVISION"
+
     # check that all files in $SNAP_DATA don't reference the previous revision
     # except for binary files, cassandra log files, and an errant comment I 
     # put in the vault hcl file which the install hook from previous revisions
@@ -66,6 +69,7 @@ for channel in delhi stable; do
     # note we have to run the initial grep as sudo so that it can access all 
     # of the files, some of which are 0600 root owned
     cd /var/snap/edgexfoundry/current
+    set +e
     notUpgradedFiles=$($SUDO grep -R "edgexfoundry/$SNAP_REVISION" | \
         grep -v "Binary file" | \
         grep -v "cassandra/logs" | \
@@ -75,6 +79,7 @@ for channel in delhi stable; do
         echo "$notUpgradedFiles"
         exit 1
     fi
+    set -e
 
     # remove the snap to run the next channel upgrade
     snap_remove

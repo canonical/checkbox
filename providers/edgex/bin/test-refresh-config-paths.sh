@@ -21,6 +21,7 @@ for channel in delhi stable; do
     # first make sure that the snap installs correctly from the channel
     case "$channel" in 
         delhi)
+            echo "installing delhi channel snap"
             if [ -n "$EDGEX_DELHI_SNAP_FILE" ]; then
                 snap_install "$EDGEX_DELHI_SNAP_FILE"
             else
@@ -28,6 +29,7 @@ for channel in delhi stable; do
             fi
             ;;
         stable)
+            echo "installing stable channel snap"
             if [ -n "$EDGEX_STABLE_SNAP_FILE" ]; then
                 snap_install "$EDGEX_STABLE_SNAP_FILE"
             else
@@ -35,6 +37,7 @@ for channel in delhi stable; do
             fi
             ;;
         *)
+            echo "installing $channel channel snap"
             snap_install edgexfoundry "$channel"
             ;;
     esac
@@ -68,18 +71,21 @@ for channel in delhi stable; do
     # also ends up putting the path including the old revision number inside
     # note we have to run the initial grep as sudo so that it can access all 
     # of the files, some of which are 0600 root owned
-    cd /var/snap/edgexfoundry/current
+    pushd /var/snap/edgexfoundry/current > /dev/null
     set +e
     notUpgradedFiles=$($SUDO grep -R "edgexfoundry/$SNAP_REVISION" | \
         grep -v "Binary file" | \
         grep -v "cassandra/logs" | \
         grep -v "and the location of the files uses reference")
+    popd > /dev/null
     if [ -n "$notUpgradedFiles" ]; then
         echo "files not upgraded to use \"current\" symlink in config files:"
         echo "$notUpgradedFiles"
         exit 1
     fi
     set -e
+
+    echo "removing $channel snap"
 
     # remove the snap to run the next channel upgrade
     snap_remove

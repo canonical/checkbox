@@ -14,15 +14,15 @@ snap_install()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            $SUDO snap install "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
+            $SUDO snap install "$the_snap" --channel="$the_channel" "$confinement"
         else
-            $SUDO snap install "$the_snap" --channel="$the_channel" > /dev/null
+            $SUDO snap install "$the_snap" --channel="$the_channel"
         fi
     else
         if [ -n "$confinement" ]; then
-            $SUDO snap install "$the_snap" "$confinement" > /dev/null
+            $SUDO snap install "$the_snap" "$confinement"
         else
-            $SUDO snap install "$the_snap" > /dev/null
+            $SUDO snap install "$the_snap"
         fi
     fi
 }
@@ -35,17 +35,17 @@ snap_refresh()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            $SUDO snap refresh "$the_snap" --channel="$the_channel" "$confinement" > /dev/null
+            $SUDO snap refresh "$the_snap" --channel="$the_channel" "$confinement"
         else
-            $SUDO snap refresh "$the_snap" --channel="$the_channel" > /dev/null
+            $SUDO snap refresh "$the_snap" --channel="$the_channel"
         fi
     else
         # for refreshing a file snap we need to use install
         # but snapd still treats it like a refresh
         if [ -n "$confinement" ]; then
-            $SUDO snap install "$the_snap" "$confinement" > /dev/null
+            $SUDO snap install "$the_snap" "$confinement"
         else
-            $SUDO snap install "$the_snap" > /dev/null
+            $SUDO snap install "$the_snap"
         fi
     fi
 }
@@ -179,5 +179,5 @@ get_snap_svc_status()
 
 snap_remove()
 {
-    $SUDO snap remove edgexfoundry 2>/dev/null >/dev/null || true
+    $SUDO snap remove edgexfoundry || true
 }

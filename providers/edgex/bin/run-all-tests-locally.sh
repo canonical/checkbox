@@ -95,6 +95,7 @@ export REVISION_TO_TEST_CONFINEMENT
 # download and ack the stable and delhi channels as we have tests to ensure
 # there's a smooth upgrade between those channels and this one that is 
 # under consideration
+# this also saves in download bandwidth and time
 EDGEX_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --stable)
 EDGEX_DELHI_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=delhi)
 

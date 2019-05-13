@@ -13,6 +13,7 @@ snap_remove
 
 for channel in delhi stable; do 
     # first make sure that the snap installs correctly from the channel
+    # use locally cached version of stable and delhi
     case "$channel" in 
         delhi)
             if [ -n "$EDGEX_DELHI_SNAP_FILE" ]; then
@@ -50,7 +51,7 @@ for channel in delhi stable; do
     sleep 120
 
     # ignore failures for now due to https://bugs.launchpad.net/snapd/+bug/1818306
-    snap_check_edinburgh_svcs --notfatal
+    snap_check_delhi_svcs --notfatal
 
     # remove the snap to run the next channel upgrade
     snap_remove

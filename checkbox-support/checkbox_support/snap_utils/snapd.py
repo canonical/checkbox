@@ -27,8 +27,10 @@ class Snapd():
     _interfaces = '/v2/interfaces'
     _assertions = '/v2/assertions'
 
-    def __init__(self):
+    def __init__(self, task_timeout=30, poll_interval=1):
         self._session = requests_unixsocket.Session()
+        self._task_timeout = task_timeout
+        self._poll_interval = poll_interval
 
     def _get(self, path, params=None, decode=True):
         r = self._session.get(self._url + path, params=params)
@@ -51,13 +53,15 @@ class Snapd():
             return r.json()
         return r
 
-    def _poll_change(self, change_id, timeout=30):
-        for _ in range(30):
+    def _poll_change(self, change_id):
+        maxtime = time.time() + self._task_timeout
+        while True:
             status = self.change(change_id)
             if status == 'Done':
                 return True
-            time.sleep(1)
-        raise AsyncException(status)
+            if time.time() > maxtime:
+                raise AsyncException(status)
+            time.sleep(self._poll_interval)
 
     def list(self, snap=None):
         path = self._snaps

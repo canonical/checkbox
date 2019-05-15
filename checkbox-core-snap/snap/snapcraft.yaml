@@ -98,6 +98,20 @@ parts:
       - libsctp-dev
     after: [plainbox-provider-checkbox]
 ################################################################################
+# Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
+  acpi-tools:
+    source-tag: ""
+    source-depth: 1
+    plugin: make
+    source: https://github.com/acpica/acpica.git
+    build-packages:
+      - gcc
+      - make
+      - bison
+      - flex
+    prime:
+      - usr/bin/
+################################################################################
   checkbox-support:
     source-tag: ""
     source-depth: 1

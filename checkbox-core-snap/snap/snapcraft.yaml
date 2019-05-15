@@ -163,10 +163,10 @@ parts:
       - dmsetup
       - ethtool
       - fswebcam
-      - gir1.3.dev-cheese-3.0
-      - gir1.3.dev-clutter-1.0
-      - gir1.3.dev-gst-plugins-base-1.0
-      - gir1.3.dev-gudev-1.0
+      - gir1.2-cheese-3.0
+      - gir1.2-clutter-1.0
+      - gir1.2-gst-plugins-base-1.0
+      - gir1.2-gudev-1.0
       - gstreamer1.0-pulseaudio
       - try: [hdapsd] # optional as not available for arm
       - hdparm
@@ -210,7 +210,7 @@ parts:
     stage-packages:
       - bluez-tests
       - bonnie++
-      - gir1.3.dev-gudev-1.0
+      - gir1.2-gudev-1.0
       - hdparm
       - iperf3
       - iw

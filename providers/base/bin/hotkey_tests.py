@@ -420,6 +420,23 @@ class HotKeyTesting:
             self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
             return False
 
+    def check_command_hotkey(self):
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        filename = os.path.join('/tmp/hotkey-testing-cmd-{}'.format(timestamp))
+        self.kb.press_key(KeyCodes.KEY_F2, {'alt'})
+        assert(not os.path.exists(filename))
+        time.sleep(2)
+        self.kb.type_text('touch {}'.format(filename))
+        self.kb.press_key(KeyCodes.KEY_ENTER)
+        for attempt_no in range(10):
+            # let's wait some time to let X/terminal process the command
+            time.sleep(0.5)
+            if os.path.exists(filename):
+                os.unlink(filename)
+                return True
+        else:
+            return False
+
 
 def main():
     if not (os.geteuid() == 0):

@@ -380,6 +380,22 @@ class HotKeyTesting:
             self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=3, delay=0.2)
         return vc.before < vc.after
 
+    def check_volume_down(self):
+        """
+        Check if the volume down key has an effect on ALSA
+        """
+        # if the volume is already on min, then lowering it won't make any
+        # difference, so first, let's raise it before establishing the baseline
+        self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=4, delay=0.2)
+        self.kb.press_key(KeyCodes.KEY_VOLUMEDOWN)
+        # let's grab output of alsa mixer to establish what is the baseline
+        # before we start raising the volume
+        vc = VolumeChange()
+        with self._monitored_volume_change(vc):
+            self.kb.press_key(
+                KeyCodes.KEY_VOLUMEDOWN, repetitions=3, delay=0.2)
+        return vc.before > vc.after
+
     @contextlib.contextmanager
     def _monitored_volume_change(self, vc):
         before = subprocess.check_output('amixer').decode(

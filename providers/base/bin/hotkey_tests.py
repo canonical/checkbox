@@ -409,12 +409,16 @@ class HotKeyTesting:
         time.sleep(2)
         self.kb.type_text('touch {}'.format(filename))
         self.kb.press_key(KeyCodes.KEY_ENTER)
-        result = os.path.exists(filename)
-        if not result:
-            return result
-        self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
-        os.unlink(filename)
-        return result
+        for attempt_no in range(10):
+            # let's wait some time to let X/terminal process the command
+            time.sleep(0.5)
+            if os.path.exists(filename):
+                self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
+                os.unlink(filename)
+                return True
+        else:
+            self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
+            return False
 
 
 def main():

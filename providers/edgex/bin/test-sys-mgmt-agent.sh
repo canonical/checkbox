@@ -32,6 +32,7 @@ fi
 
 # issue a stop command to the SMA for core-data
 edgexfoundry.curl \
+    --fail \
     --header "Content-Type: application/json" \
     --request POST \
     --data '{"action":"stop","services":["edgex-core-data"]}' \

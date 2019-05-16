@@ -45,7 +45,6 @@ for channel in delhi stable; do
     # get the revision number for this channel
     SNAP_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
     
-
     # wait for services to come online
     # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
     # to accomodate time for everything to come online

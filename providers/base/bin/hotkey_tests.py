@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
+import contextlib
 import datetime
 import enum
 import os
@@ -310,6 +311,12 @@ def guess_kb_dev_path():
     raise SystemExit("Couldn't guess a proper keyboard device")
 
 
+class VolumeChange:
+    def __init__(self):
+        self.before = 0
+        self.after = 0
+
+
 class FauxKeyboard():
     def __init__(self, dev_path=guess_kb_dev_path()):
         self.kb_dev_file = open(dev_path, 'wb')
@@ -358,9 +365,9 @@ class HotKeyTesting:
     def __init__(self):
         self.kb = FauxKeyboard()
 
-    def check_volume_media_keys(self):
+    def check_volume_up(self):
         """
-        Check if the volume media keys have an effect on ALSA
+        Check if the volume up key has an effect on ALSA
         """
         # if the volume is already on max, then raising it won't make any
         # difference, so first, let's lower it before establishing the baseline
@@ -368,9 +375,16 @@ class HotKeyTesting:
         self.kb.press_key(KeyCodes.KEY_VOLUMEUP)
         # let's grab output of alsa mixer to establish what is the baseline
         # before we start raising the volume
+        vc = VolumeChange()
+        with self._monitored_volume_change(vc):
+            self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=3, delay=0.2)
+        return vc.before < vc.after
+
+    @contextlib.contextmanager
+    def _monitored_volume_change(self, vc):
         before = subprocess.check_output('amixer').decode(
             sys.stdout.encoding).splitlines()
-        self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=3, delay=0.2)
+        yield
         after = subprocess.check_output('amixer').decode(
             sys.stdout.encoding).splitlines()
         temp = before.copy()
@@ -394,8 +408,8 @@ class HotKeyTesting:
             vol_b = regex.search(b).groups()
             vol_a = regex.search(a).groups()
             if vol_a and vol_b:
-                if int(vol_b[0]) < int(vol_a[0]):
-                    return True
+                vc.before = int(vol_b[0])
+                vc.after = int(vol_a[0])
         return False
 
     def check_terminal_hotkey(self):

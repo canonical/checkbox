@@ -48,31 +48,34 @@ fi
 # TODO: enable these other tests for Edinburgh where they will actually work
 # for delhi, only stopping services works with the SMA
 
-# # issue a start command to the SMA for core-data
-# edgexfoundry.curl \
-#     --header "Content-Type: application/json" \
-#     --request POST \
-#     --data '{"action":"start","services":["edgex-core-data"]}' \
-#     localhost:48090/api/v1/operation
+# issue a start command to the SMA for core-data
+edgexfoundry.curl \
+    --fail \
+    --header "Content-Type: application/json" \
+    --request POST \
+    --data '{"action":"start","services":["edgex-core-data"]}' \
+    localhost:48090/api/v1/operation
 
-# # check that core-data is now running
-# if [ -n "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | grep inactive)" ]; then
-#     echo "SMA failed to stop core-data"
-#     snap_remove
-#     exit 1
-# fi
+# check that core-data is now running
+if [ -n "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | grep inactive)" ]; then
+    echo "SMA failed to stop core-data"
+    snap_remove
+    exit 1
+fi
 
-# # issue a bogus stop command to the SMA to check that it returns an error message
-# set +e
-# if edgexfoundry.curl \
-#     --header "Content-Type: application/json" \
-#     --request POST \
-#     --data '{"action":"start","services":["NOT-A-REAL-SERVICE"]}' \
-#     localhost:48090/api/v1/operation; then
-#     echo "SMA erronously reports starting a non-existent service"
-#     snap_remove
-#     exit 1
-# fi
-# set -e
+# issue a bogus start command to the SMA to check that it returns an error message
+set +e
+if edgexfoundry.curl \
+    --fail \
+    --header "Content-Type: application/json" \
+    --request POST \
+    --data '{"action":"start","services":["NOT-A-REAL-SERVICE"]}' \
+    localhost:48090/api/v1/operation; then
+    echo
+    echo "SMA erronously reports starting a non-existent service"
+    snap_remove
+    exit 1
+fi
+set -e
 
 snap_remove

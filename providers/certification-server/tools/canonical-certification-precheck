@@ -606,7 +606,8 @@ for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun
     # current_speed (above) and speed (below) are computed in the same way here as
     # in the "network" Checkbox script (give or take bash vs. Python differences).
     # If one is changed, the other should be, too.
-    for speed in $(ethtool $nic 2> /dev/null | egrep '[[:digit:]](base)([A-Z]+)|[[:digit:]](Mb/s)' | \
+    for speed in $(ethtool $nic 2> /dev/null | sed 's/base.*/baseT/' | \
+                   egrep '[[:digit:]](base)([A-Z]+)|[[:digit:]](Mb/s)' | \
                    sed 's/[^0-9 ]*//g' | tr " " "\n" | sort | uniq | sed '/^\s*$/d'); do
         if [ $speed -ge $max_speed ]; then
             max_speed="$speed"

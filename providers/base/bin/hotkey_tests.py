@@ -315,6 +315,8 @@ class VolumeChange:
     def __init__(self):
         self.before = 0
         self.after = 0
+        self.mute_before = None
+        self.mute_after = None
 
 
 class FauxKeyboard():
@@ -396,6 +398,18 @@ class HotKeyTesting:
                 KeyCodes.KEY_VOLUMEDOWN, repetitions=3, delay=0.2)
         return vc.before > vc.after
 
+    def check_mute(self):
+        """
+        Check if the mute key has an effect on ALSA
+        """
+        # first, let's raise volume (if it was already muted, then it will
+        # unmute it)
+        self.kb.press_key(KeyCodes.KEY_VOLUMEUP)
+        vc = VolumeChange()
+        with self._monitored_volume_change(vc):
+            self.kb.press_key(KeyCodes.KEY_MUTE)
+        return vc.mute_after
+
     @contextlib.contextmanager
     def _monitored_volume_change(self, vc):
         before = subprocess.check_output('amixer').decode(
@@ -416,7 +430,7 @@ class HotKeyTesting:
         # we expect that the lines that changed are status information about
         # the output devices. Percentage volume is in square brackets so let's
         # search for those and see if they got higher
-        regex = re.compile(r'\[(\d*)%\]')
+        regex = re.compile(r'\[(\d*)%\].*\[(on|off)\]')
         if len(before) != len(after):
             # more of an assertion - the lines diff should match
             return
@@ -426,6 +440,8 @@ class HotKeyTesting:
             if vol_a and vol_b:
                 vc.before = int(vol_b[0])
                 vc.after = int(vol_a[0])
+                vc.mute_before = vol_b[1] == 'off'
+                vc.mute_after = vol_a[1] == 'off'
             return
 
     def check_terminal_hotkey(self):

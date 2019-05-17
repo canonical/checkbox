@@ -70,6 +70,7 @@ include:
  efi_attachment
  info/disk_partitions
  info/hdparm_.*.txt
+ info/network-config
  installer_debug.gz
  kernel_cmdline_attachment
  lsblk_attachment

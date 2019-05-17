@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if `grep -q "replaced by netplan" /etc/network/interfaces`; then
+    for configfile in `find /etc/netplan -type f`; do
+        echo "Config File $configfile:"
+        cat $configfile
+        echo ""
+    done
+else
+    echo "/etc/network/interfaces:"
+    cat /etc/network/interfaces
+fi

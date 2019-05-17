@@ -412,21 +412,21 @@ class HotKeyTesting:
             # all lines removed from before, so there's no state change
             # of the stuff reported bevore hitting volume up, so let's fail
             # the test
-            return False
+            return
         # we expect that the lines that changed are status information about
         # the output devices. Percentage volume is in square brackets so let's
         # search for those and see if they got higher
         regex = re.compile(r'\[(\d*)%\]')
         if len(before) != len(after):
             # more of an assertion - the lines diff should match
-            return False
+            return
         for b, a in zip(before, after):
             vol_b = regex.search(b).groups()
             vol_a = regex.search(a).groups()
             if vol_a and vol_b:
                 vc.before = int(vol_b[0])
                 vc.after = int(vol_a[0])
-        return False
+            return
 
     def check_terminal_hotkey(self):
         # spawn a terminal window using ctrl+alt+t

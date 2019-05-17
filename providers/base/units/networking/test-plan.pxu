@@ -35,6 +35,7 @@ include:
     networking/gateway_ping                        certification-status=blocker
     networking/info_device.*                       certification-status=blocker
     networking/ntp                                 certification-status=blocker
+    ethernet/hotplug-.*                            certification-status=blocker
 bootstrap_include:
     device
 

@@ -452,3 +452,10 @@ command:
  lstopo $PLAINBOX_SESSION_SHARE/lstopo_visual.png; \
  [ -e "$PLAINBOX_SESSION_SHARE/lstopo_visual.png" ] && \
  cat "$PLAINBOX_SESSION_SHARE/lstopo_visual.png"
+
+id: info/network-config
+plugin: attachment
+category_id: com.canonical.plainbox::info
+estimated_duration: 0.2
+_summary: attach network configuration
+command: network_configs

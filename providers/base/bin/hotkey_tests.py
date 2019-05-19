@@ -401,6 +401,7 @@ class HotKeyTesting:
         vc = VolumeChange()
         with self._monitored_volume_change(vc):
             self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=3, delay=0.2)
+        time.sleep(1)
         return vc.before < vc.after
 
     def check_volume_down(self):
@@ -429,6 +430,7 @@ class HotKeyTesting:
         vc = VolumeChange()
         with self._monitored_volume_change(vc):
             self.kb.press_key(KeyCodes.KEY_MUTE)
+        time.sleep(1)
         return vc.mute_after
 
     @contextlib.contextmanager
@@ -447,6 +449,7 @@ class HotKeyTesting:
             # all lines removed from before, so there's no state change
             # of the stuff reported bevore hitting volume up, so let's fail
             # the test
+            print('No change in amixer registered! ', end='')
             return
         # we expect that the lines that changed are status information about
         # the output devices. Percentage volume is in square brackets so let's
@@ -503,6 +506,21 @@ class HotKeyTesting:
                 return True
         else:
             return False
+
+    def check_media_play(self):
+        cmd = "timeout 30 rhythmbox --debug 2> /tmp/media-key-test"
+        self.kb.press_key(KeyCodes.KEY_T, {'ctrl', 'alt'})
+        time.sleep(2)
+        self.kb.type_text(cmd)
+        self.kb.press_key(KeyCodes.KEY_ENTER)
+        time.sleep(3)
+        self.kb.press_key(KeyCodes.KEY_PLAYPAUSE)
+        self.kb.press_key(KeyCodes.KEY_F4, {'alt'})
+        time.sleep(1)
+        self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
+        with open('/tmp/media-key-test', 'rt') as f:
+            output = f.read()
+            return "got media key 'Play'" in output
 
 
 def main():

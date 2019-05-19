@@ -435,13 +435,13 @@ class HotKeyTesting:
             # more of an assertion - the lines diff should match
             return
         for b, a in zip(before, after):
-            vol_b = regex.search(b).groups()
-            vol_a = regex.search(a).groups()
-            if vol_a and vol_b:
-                vc.before = int(vol_b[0])
-                vc.after = int(vol_a[0])
-                vc.mute_before = vol_b[1] == 'off'
-                vc.mute_after = vol_a[1] == 'off'
+            match_b = regex.search(b)
+            match_a = regex.search(a)
+            if match_b and match_a:
+                vc.before = int(match_b.groups()[0])
+                vc.after = int(match_a.groups()[0])
+                vc.mute_before = match_b.groups()[1] == 'off'
+                vc.mute_after = match_a.groups()[1] == 'off'
             return
 
     def check_terminal_hotkey(self):

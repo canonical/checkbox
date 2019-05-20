@@ -287,6 +287,7 @@ class KeyCodes(enum.Enum):
             '/': KeyCodes.KEY_SLASH,
             ' ': KeyCodes.KEY_SPACE,
             '-': KeyCodes.KEY_MINUS,
+            '.': KeyCodes.KEY_DOT,
         }
         if c in obvious_keys.keys():
             return obvious_keys[c]
@@ -298,19 +299,6 @@ class KeyCodes(enum.Enum):
                 'One does not simply convert {} to a keycode'.format(c))
 
 
-def guess_kb_dev_path():
-    """
-    Guess the path of the keyboard device that we can send events to.
-    """
-    # most intel-based devices I tested had platform-i8042-serio-0-event-kbd
-    # device, so let's use that if it is present
-    intel_generic = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
-
-    if os.path.exists(intel_generic):
-        return intel_generic
-    raise SystemExit("Couldn't guess a proper keyboard device")
-
-
 class VolumeChange:
     def __init__(self):
         self.before = 0
@@ -320,16 +308,39 @@ class VolumeChange:
 
 
 class FauxKeyboard():
-    def __init__(self, dev_path=guess_kb_dev_path()):
-        self.kb_dev_file = open(dev_path, 'wb')
+    def __init__(self):
+        base = '/dev/input/by-path'
+        all_devs = [
+            os.path.join(base, dev) for dev in sorted(os.listdir(base))]
+        kbd_devs = [dev for dev in all_devs if dev.endswith('kbd')]
+        event_devs = [dev for dev in all_devs if dev.endswith('event-mouse')]
+        self.kb_dev_file = None
+        self.event_dev_file = None
+        if not kbd_devs:
+            raise SystemExit(
+                "Could not connect to existing keyboard connection. "
+                "Is keyboard plugged in?")
+        if not event_devs:
+            raise SystemExit(
+                "Could not connect to existing mouse connection. "
+                "Is mouse plugged in?")
+        self.kb_dev_file = open(kbd_devs[0], 'wb')
+        self.event_dev_file = open(event_devs[0], 'wb')
         self.event_struct = struct.Struct('llHHi')
 
     def __del__(self):
-        self.kb_dev_file.close()
+        if self.kb_dev_file:
+            self.kb_dev_file.close()
+        if self.event_dev_file:
+            self.event_dev_file.close()
 
     def type_text(self, text):
         for c in text:
-            self.press_key(KeyCodes.from_char(c))
+            if c == '>':
+                self.press_key(KeyCodes.KEY_DOT, {'shift'})
+                continue
+            modifiers = {'shift'} if c.isupper() else set()
+            self.press_key(KeyCodes.from_char(c), modifiers)
 
     def press_key(self, key_code, modifiers=set(), repetitions=1, delay=0.05):
         # simple key press actions contains four events:
@@ -339,6 +350,12 @@ class FauxKeyboard():
         # EV_KEY, {KEY_CODE}, 0
         # XXX: ATM there's no distinction between left and right modifiers
         assert(repetitions >= 0)
+        # sending "special" codes (like media control ones) to a general kbd
+        # device doesn't work, so we have to send them to the event-mouse one
+        SPECIAL_CODES = [
+            KeyCodes.KEY_PLAYPAUSE,
+        ]
+        use_special = key_code in SPECIAL_CODES
         while repetitions:
             if not modifiers.issubset({'alt', 'ctrl', 'shift', 'meta'}):
                 raise SystemExit('Unknown modifier')
@@ -356,8 +373,12 @@ class FauxKeyboard():
                 mod_code = KeyCodes['KEY_LEFT{}'.format(mod.upper())].value
                 data += self.event_struct.pack(0, 10, 1, mod_code, 0)
             data += self.event_struct.pack(0, 10, 0, 0, 0)
-            self.kb_dev_file.write(data)
-            self.kb_dev_file.flush()
+            if use_special:
+                self.event_dev_file.write(data)
+                self.event_dev_file.flush()
+            else:
+                self.kb_dev_file.write(data)
+                self.kb_dev_file.flush()
             time.sleep(delay)
             repetitions -= 1
 

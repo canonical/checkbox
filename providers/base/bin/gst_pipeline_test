@@ -17,14 +17,14 @@ from subprocess import check_output
 def check_state(device):
     """Checks whether the sink is available for the given device.
     """
-    sink_info = check_output(['pacmd', 'list-sinks'],
+    sink_info = check_output(['pactl', 'list', 'sinks'],
                              universal_newlines=True)
 
     data = sink_info.split("\n")
     try:
-        device_name = re.findall(".*name:\s.*%s.*" % device, sink_info)[0].lstrip()
-        sink = re.findall(".*name:\s<(.*%s.*)>" % device, sink_info)[0].lstrip()
-        status = data[data.index("\t" + device_name) + 3]
+        device_name = re.findall(".*Name:\s.*%s.*" % device, sink_info)[0].lstrip()
+        sink = re.findall(".*Name:\s(.*%s.*)" % device, sink_info)[0].lstrip()
+        status = data[data.index("\t" + device_name) - 1]
     except (IndexError, ValueError):
         logging.error("Failed to find status for device: %s" % device)
         return False

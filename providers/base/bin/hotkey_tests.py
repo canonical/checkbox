@@ -15,6 +15,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
+"""
+This program tests whether the system properly reacts to hotkey presses.
+
+To inject the keypresses /dev/input/ devices are used.
+
+For particular scenarios see "check_*" methods of the HotKeyTesting class.
+
+TODO: Create one virtual input device using uinput.
+      Heuristic for picking the device to write to is not optimal, and on some
+      systems the fake keypresses are not registered. Having "own" input
+      device could improve reliability/portability.
+"""
+
 import contextlib
 import datetime
 import enum

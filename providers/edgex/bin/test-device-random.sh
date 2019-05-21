@@ -4,12 +4,6 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [ "$(id -u)" = "0" ]; then
-    SUDO=""
-else
-    SUDO="sudo"
-fi
-
 # load the utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
@@ -29,7 +23,7 @@ fi
 sleep 120
 
 # start device-random
-$SUDO snap start edgexfoundry.device-random
+snap start edgexfoundry.device-random
 
 # wait 10 seconds - check to make sure it's still running
 sleep 10

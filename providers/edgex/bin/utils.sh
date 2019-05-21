@@ -1,9 +1,8 @@
 #!/bin/bash -e
 
-if [ "$(id -u)" = "0" ]; then
-    SUDO=""
-else
-    SUDO="sudo"
+if [ "$(id -u)" != "0" ]; then
+    echo "script must be run as root"
+    exit 1
 fi
 
 snap_install()
@@ -14,15 +13,15 @@ snap_install()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            $SUDO snap install "$the_snap" --channel="$the_channel" "$confinement"
+            snap install "$the_snap" --channel="$the_channel" "$confinement"
         else
-            $SUDO snap install "$the_snap" --channel="$the_channel"
+            snap install "$the_snap" --channel="$the_channel"
         fi
     else
         if [ -n "$confinement" ]; then
-            $SUDO snap install "$the_snap" "$confinement"
+            snap install "$the_snap" "$confinement"
         else
-            $SUDO snap install "$the_snap"
+            snap install "$the_snap"
         fi
     fi
 }
@@ -35,17 +34,17 @@ snap_refresh()
 
     if [ "$the_snap" = "edgexfoundry" ]; then
         if [ -n "$confinement" ]; then
-            $SUDO snap refresh "$the_snap" --channel="$the_channel" "$confinement"
+            snap refresh "$the_snap" --channel="$the_channel" "$confinement"
         else
-            $SUDO snap refresh "$the_snap" --channel="$the_channel"
+            snap refresh "$the_snap" --channel="$the_channel"
         fi
     else
         # for refreshing a file snap we need to use install
         # but snapd still treats it like a refresh
         if [ -n "$confinement" ]; then
-            $SUDO snap install "$the_snap" "$confinement"
+            snap install "$the_snap" "$confinement"
         else
-            $SUDO snap install "$the_snap"
+            snap install "$the_snap"
         fi
     fi
 }
@@ -179,5 +178,5 @@ get_snap_svc_status()
 
 snap_remove()
 {
-    $SUDO snap remove edgexfoundry || true
+    snap remove edgexfoundry || true
 }

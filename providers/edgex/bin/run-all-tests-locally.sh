@@ -4,10 +4,9 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [ "$(id -u)" = "0" ]; then
-    SUDO=""
-else
-    SUDO="sudo"
+if [ "$(id -u)" != "0" ]; then
+    echo "script must be run as root"
+    exit 1
 fi
 
 # load the utils

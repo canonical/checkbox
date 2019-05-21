@@ -434,3 +434,13 @@ user: root
 command:
  SOSFILE=`ls -t $PLAINBOX_SESSION_SHARE/sosreport*xz | head -1`; [ -e ${SOSFILE} ] && cat $SOSFILE
 _summary: Attach the baseline sosreport file
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.2
+id: miscellanea/cpuid
+user: root
+requires: cpuinfo.platform in ("i386", "x86_64")
+command: cpuid.py
+_summary: Attempt to identify CPU family (x86/amd64 only)
+_description: Attempts to identify the CPU family of an x86/amd64 processor

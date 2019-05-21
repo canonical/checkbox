@@ -61,6 +61,7 @@ _description:
  Miscellaneous server tests (log checks, dmi data, etc)
 mandatory_include:
     miscellanea/submission-resources
+    miscellanea/cpuid
     miscellanea/get_make_and_model
     miscellanea/get_maas_version               certification-status=blocker
     miscellanea/efi_boot_mode                  certification-status=blocker

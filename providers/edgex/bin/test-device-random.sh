@@ -96,9 +96,6 @@ while true; do
         break
     fi
 done
-
-
-
 set -e
 
 # remove the snap to run the next test

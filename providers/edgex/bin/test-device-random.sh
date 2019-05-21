@@ -41,7 +41,7 @@ elif command -v jq > /dev/null; then
     JQ=$(command -v jq)
 else
     echo "NOT FOUND"
-    echo "install with snap install jq"
+    echo "install with \`snap install jq\`"
     exit 1
 fi
 

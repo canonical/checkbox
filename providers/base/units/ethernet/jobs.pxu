@@ -2,7 +2,7 @@ plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/detect
 flags: also-after-suspend
-command: network_device_info.py detect
+command: network_device_info.py detect NETWORK
 estimated_duration: 2.0
 _summary:
  Detect if at least one ethernet device is detected

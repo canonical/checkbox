@@ -62,8 +62,7 @@ _name: Server Ethernet Tests
 _description: Automated ethernet tests for server certification
 estimated_duration: 4h
 include:
-    ethernet/detect
-    ethernet/info_automated
+    ethernet/info_automated_server
     ethernet/ethtool_info
     ethernet/ethertool_check_.*
     ethernet/multi_iperf3_nic_device.*
@@ -74,8 +73,7 @@ _name: Server Ethernet Tests (Speed Check Disabled)
 _description: Automated ethernet tests for server certification without speed check
 estimated_duration: 4h
 include:
-    ethernet/detect
-    ethernet/info_automated
+    ethernet/info_automated_server
     ethernet/ethtool_info
     ethernet/ethertool_check_.*
     ethernet/multi_iperf3_nic_underspeed_device.*

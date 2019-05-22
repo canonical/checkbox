@@ -37,6 +37,10 @@ from plainbox.impl.unit.category import CategoryUnit
 from plainbox.impl.unit.job import JobDefinition
 
 
+#: Name-space prefix for Canonical Certification
+CERTIFICATION_NS = 'com.canonical.certification::'
+
+
 class MergeReports(Command):
     name = 'merge-reports'
 
@@ -58,6 +62,10 @@ class MergeReports(Command):
             for result in data['results']:
                 result['plugin'] = 'shell'  # Required so default to shell
                 result['summary'] = result['name']
+                # 'id' field in json file only contains partial id
+                result['id'] = result.get('full_id', result['id'])
+                if "::" not in result['id']:
+                    result['id'] = CERTIFICATION_NS + result['id']
                 if mode == "list":
                     self.job_list.append(JobDefinition(result))
                 elif mode == "dict":
@@ -65,6 +73,10 @@ class MergeReports(Command):
             for result in data['resource-results']:
                 result['plugin'] = 'resource'
                 result['summary'] = result['name']
+                # 'id' field in json file only contains partial id
+                result['id'] = result.get('full_id', result['id'])
+                if "::" not in result['id']:
+                    result['id'] = CERTIFICATION_NS + result['id']
                 if mode == "list":
                     self.job_list.append(JobDefinition(result))
                 elif mode == "dict":
@@ -72,6 +84,10 @@ class MergeReports(Command):
             for result in data['attachment-results']:
                 result['plugin'] = 'attachment'
                 result['summary'] = result['name']
+                # 'id' field in json file only contains partial id
+                result['id'] = result.get('full_id', result['id'])
+                if "::" not in result['id']:
+                    result['id'] = CERTIFICATION_NS + result['id']
                 if mode == "list":
                     self.job_list.append(JobDefinition(result))
                 elif mode == "dict":
@@ -98,7 +114,8 @@ class MergeReports(Command):
                     keepends=True))
         ]
         result = MemoryJobResult({
-            'outcome': job.get_record_value('status'),
+            'outcome': job.get_record_value('outcome',
+                                            job.get_record_value('status')),
             'comments': job.get_record_value('comments'),
             'execution_duration': job.get_record_value('duration'),
             'io_log': io_log,
@@ -111,12 +128,12 @@ class MergeReports(Command):
                 new_resource_list.append(resource)
             if not new_resource_list:
                 new_resource_list = [Resource({})]
-            state.set_resource_list(
-                "com.canonical.certification::" + job.id,
-                new_resource_list)
+            state.set_resource_list(job.id, new_resource_list)
         job_state = state.job_state_map[job.id]
         job_state.effective_category_id = job.get_record_value(
             'category_id', 'com.canonical.plainbox::uncategorised')
+        job_state.effective_certification_status = job.get_record_value(
+            'certification_status', 'unspecified')
 
     def _create_exporter(self, exporter_id):
         exporter_map = {}

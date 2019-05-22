@@ -19,3 +19,44 @@ user: root
 category_id: edgex
 flags: simple
 
+id: edgex/device-random
+_summary: Test that device-random works with core-data and core-metadata
+command: test-device-random.sh
+user: root
+category_id: edgex
+flags: simple
+
+id: edgex/install-config-paths
+_summary: Test that installing uses "current" based filepaths in config files
+command: test-install-config-paths.sh
+user: root
+category_id: edgex
+flags: simple
+
+id: edgex/refresh-config-paths
+_summary: Test that refreshing uses "current" based filepaths in config files
+command: test-refresh-config-paths.sh
+user: root
+category_id: edgex
+flags: simple
+
+id: edgex/refresh-services
+_summary: Test that services start after refreshing 
+command: test-refresh-services.sh
+user: root
+category_id: edgex
+flags: simple
+
+id: edgex/self-refresh-services
+_summary: Test that services start after refreshing to this revision from self 
+command: test-self-refresh-services.sh
+user: root
+category_id: edgex
+flags: simple
+
+id: edgex/sys-mgmt-agent
+_summary: Test that the system management agent works with the snap
+command: test-sys-mgmt-agent.sh
+user: root
+category_id: edgex
+flags: simple

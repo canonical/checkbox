@@ -3,6 +3,4 @@ unit: test plan
 _name: EdgeX
 _description: EdgeX tests
 include:
-    edgex/install
-    edgex/security-services-proxy-certs
-    edgex/services-alive
+    edgex/*

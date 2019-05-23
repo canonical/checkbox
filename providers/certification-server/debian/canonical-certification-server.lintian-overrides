@@ -9,6 +9,7 @@ canonical-certification-server: unusual-interpreter usr/bin/certify-soc-18.04 #!
 canonical-certification-server: unusual-interpreter usr/bin/certify-soc-16.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/certify-vm-18.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/certify-vm-16.04 #!checkbox-cli
+canonical-certification-server: unusual-interpreter usr/bin/regression-full #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-firmware #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-functional-18.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/test-functional-16.04 #!checkbox-cli

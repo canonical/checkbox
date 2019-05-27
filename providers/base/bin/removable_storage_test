@@ -391,12 +391,11 @@ class DiskTest():
                     interconnect_speed * 10 ** 6)
             else:
                 self.rem_disks_speed[dev_file] = None
-            # We need to skip-non memory cards if we look for memory cards and
-            # vice-versa so let's inspect the drive and use heuristics to
-            # detect memory cards (a memory card reader actually) now.
-            if self.memorycard != is_memory_card(drive_props['Vendor'],
-                                                 drive_props['Model'],
-                                                 drive_props['Media']):
+            # Ensure it is a media card reader if this was explicitly requested
+            drive_is_reader = is_memory_card(
+                drive_props['Vendor'], drive_props['Model'],
+                drive_props['Media'])
+            if self.memorycard and not drive_is_reader:
                 continue
             # The if/else test below simply distributes the mount_point to the
             # appropriate variable, to keep the API requirements. It is

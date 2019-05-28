@@ -569,7 +569,8 @@ class SessionAssistant:
                 storage.remove()
 
     @raises(UnexpectedMethodCall)
-    def start_new_session(self, title: str, runner_cls=JobRunner):
+    def start_new_session(self, title: str, runner_cls=JobRunner,
+                          runner_kwargs=dict()):
         """
         Create a new testing session.
 
@@ -606,7 +607,7 @@ class SessionAssistant:
         self._metadata.flags = {'bootstrapping'}
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._init_runner(runner_cls)
+        self._init_runner(runner_cls, runner_kwargs)
         self.session_available(self._manager.storage.id)
         _logger.debug("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
@@ -622,7 +623,8 @@ class SessionAssistant:
 
     @raises(KeyError, UnexpectedMethodCall)
     def resume_session(self, session_id: str,
-                       runner_cls=JobRunner) -> 'SessionMetaData':
+                       runner_cls=JobRunner,
+                       runner_kwargs=dict()) -> 'SessionMetaData':
         """
         Resume a session.
 
@@ -650,7 +652,7 @@ class SessionAssistant:
         self._context = self._manager.default_device_context
         self._metadata = self._context.state.metadata
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._init_runner(runner_cls)
+        self._init_runner(runner_cls, runner_kwargs)
         if self._metadata.running_job_name:
             job = self._context.get_unit(
                 self._metadata.running_job_name, 'job')
@@ -1801,18 +1803,21 @@ class SessionAssistant:
             self.finish_bootstrap: "to finish bootstrapping",
         }
 
-    def _init_runner(self, runner_cls):
+    def _init_runner(self, runner_cls, runner_kwargs=dict()):
         self._execution_ctrl_list = []
         for ctrl_cls, args, kwargs in self._ctrl_setup_list:
             self._execution_ctrl_list.append(
                 ctrl_cls(self._context.provider_list, *args, **kwargs))
+        runner_kwargs['jobs_io_log_dir'] = os.path.join(
+            self._manager.storage.location, 'io-logs')
+        runner_kwargs['command_io_delegate'] = self._command_io_delegate
+        runner_kwargs['execution_ctrl_list'] = (
+            self._execution_ctrl_list or None)
+
         self._runner = runner_cls(
             self._manager.storage.location,
             self._context.provider_list,
-            jobs_io_log_dir=os.path.join(
-                self._manager.storage.location, 'io-logs'),
-            command_io_delegate=self._command_io_delegate,
-            execution_ctrl_list=self._execution_ctrl_list or None)
+            **runner_kwargs)
         return
 
 

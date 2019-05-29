@@ -310,7 +310,7 @@ _description: Lists the device driver and version for all audio devices.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/network_devices
-command: network_device_info.py info
+command: network_device_info.py info NETWORK
 estimated_duration: 0.550
 _description: Provides information about network devices
 

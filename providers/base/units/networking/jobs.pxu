@@ -14,7 +14,8 @@ category_id: com.canonical.plainbox::networking
 id: networking/info_device{__index__}_{interface}
 _summary: Network Information of device {__index__} ({interface})
 estimated_duration: 1.0
-command: network_info {interface} | zenity --text-info --title="{interface}"
+command:
+  network_device_info.py info NETWORK --interface {interface} | zenity --text-info --title="{interface}"
 _description:
  PURPOSE:
      This test will check the network device {__index__} ({interface})

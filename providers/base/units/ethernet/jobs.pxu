@@ -2,7 +2,7 @@ plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/detect
 flags: also-after-suspend
-command: network_device_info.py detect
+command: network_device_info.py detect NETWORK
 estimated_duration: 2.0
 _summary:
  Detect if at least one ethernet device is detected
@@ -18,13 +18,26 @@ id: ethernet/info_automated
 requires:
  executable.name == 'ip'
  device.category == 'NETWORK'
-command: udev_resource -f NETWORK | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
-estimated_duration: 30.0
+command: network_device_info.py detect NETWORK
+estimated_duration: 2.0
 _summary:
  Gather info on current state of network devices
 _description:
  Gathers some info on the current state of your network devices. If no devices
  are found, the test will exit with an error.
+
+plugin: shell
+category_id: com.canonical.plainbox::ethernet
+id: ethernet/info_automated_server
+requires:
+ device.category == 'NETWORK'
+user: root
+command: network_device_info.py info NETWORK --no-nm
+estimated_duration: 2.0
+_summary:
+ Provide information about detected ethernet devices
+_description:
+ This job provides detailed information about detected ethernet devices.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::ethernet

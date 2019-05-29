@@ -20,7 +20,7 @@ fi
 # wait for services to come online
 # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
 # to accomodate time for everything to come online
-sleep 120
+sleep 240
 
 # copy the root certificate to confirm that can be used to authenticate the
 # kong server
@@ -36,7 +36,7 @@ curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null
 # same certificate still works
 snap restart edgexfoundry > /dev/null
 
-sleep 120
+sleep 240
 curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null
 
 # remove the snap to run the next test

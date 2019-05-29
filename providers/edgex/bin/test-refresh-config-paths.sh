@@ -48,7 +48,7 @@ for channel in delhi stable; do
     if [ -n "$REVISION_TO_TEST" ]; then
         snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
     else
-        snap_install edgexfoundry beta 
+        snap_refresh edgexfoundry beta 
     fi
 
     # wait for services to come online

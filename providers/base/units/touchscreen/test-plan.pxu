@@ -5,8 +5,8 @@ _description:
  Touchscreen tests
 include:
 nested_part:
- com.canonical.certification::touchscreen-cert-manual
- com.canonical.certification::touchscreen-cert-automated
+ touchscreen-cert-manual
+ touchscreen-cert-automated
 
 id: touchscreen-cert-manual
 unit: test plan
@@ -27,6 +27,34 @@ _description:
  Touchscreen tests (Automated)
 include:
 
+id: after-suspend-cert-full
+unit: test plan
+_name: Touchscreen tests
+_description:
+ Touchscreen tests
+include:
+nested_part:
+ after-suspend-touchscreen-cert-manual
+ after-suspend-touchscreen-cert-automated
+
+id: after-suspend-touchscreen-cert-manual
+unit: test plan
+_name: Touchscreen tests (Manual)
+_description:
+ Touchscreen tests (Manual)
+include:
+ after-suspend-manual-touchscreen/drag-n-drop       certification-status=blocker
+ after-suspend-manual-touchscreen/multitouch-zoom   certification-status=blocker
+ after-suspend-manual-touchscreen/multitouch-rotate
+ after-suspend-manual-touchscreen/3-touch-tap       certification-status=blocker
+ after-suspend-manual-touchscreen/4-touch-tap       certification-status=blocker
+
+id: after-suspend-touchscreen-cert-automated
+unit: test plan
+_name: Touchscreen tests (Automated)
+_description:
+ Touchscreen tests (Automated)
+include:
 
 id: touchscreen-cert-blockers
 unit: test plan
@@ -37,3 +65,13 @@ include:
     touchscreen/multitouch-zoom                certification-status=blocker
     touchscreen/3-touch-tap                    certification-status=blocker
     touchscreen/4-touch-tap                    certification-status=blocker
+
+id: after-suspend-touchscreen-cert-blockers
+unit: test plan
+_name: Touchscreen tests (after suspend, certification blockers only)
+_description: Touchscreen tests (after suspend, certification blockers only)
+include:
+    after-suspend-manual-touchscreen/drag-n-drop        certification-status=blocker
+    after-suspend-manual-touchscreen/multitouch-zoom    certification-status=blocker
+    after-suspend-manual-touchscreen/3-touch-tap        certification-status=blocker
+    after-suspend-manual-touchscreen/4-touch-tap        certification-status=blocker

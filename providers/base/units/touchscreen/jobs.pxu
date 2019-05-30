@@ -59,6 +59,7 @@ _description:
      2. Drag and drop the object in a different location
  VERIFICATION:
      Does drag and drop work?
+flags: also-after-suspend-manual
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::touchscreen
@@ -76,6 +77,7 @@ _description:
      2. Using 2 fingers, resize the blue square until it turns green, then release it.
  VERIFICATION:
      Did the blue square change size following the gesture?
+flags: also-after-suspend-manual
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::touchscreen
@@ -93,6 +95,7 @@ _description:
      2. Using 2 fingers, rotate the blue square until it turns green, then release it.
  VERIFICATION:
      Did the blue square rotate following the gesture?
+flags: also-after-suspend-manual
 
 plugin: manual
 category_id: com.canonical.plainbox::touchscreen
@@ -158,6 +161,7 @@ command:
     EXIT=$?
     {% endif %}
     exit $EXIT
+flags: also-after-suspend-manual
 
 plugin: user-interact-verify
 template-engine: jinja2
@@ -192,3 +196,4 @@ command:
     EXIT=$?
     {% endif %}
     exit $EXIT
+flags: also-after-suspend-manual

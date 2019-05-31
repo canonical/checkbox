@@ -307,18 +307,20 @@ class UdevDevices():
         """Convert to list of NetworkDevice with UDev derived attrs set"""
         for device in self._devices:
             nd = NetworkDeviceInfo()
-            nd.category = getattr(device, 'category')
-            nd.interface = getattr(device, 'interface')
-            nd.product = getattr(device, 'product')
-            nd.vendor = getattr(device, 'vendor')
-            nd.driver = getattr(device, 'driver')
-            nd.path = getattr(device, 'path')
-            nd.id = '[{0:04x}:{1:04x}]'.format(
-                getattr(device, 'vendor_id'),
-                getattr(device, 'product_id'))
-            nd.subsystem_id = '[{0:04x}:{1:04x}]'.format(
-                getattr(device, 'subvendor_id'),
-                getattr(device, 'subproduct_id'))
+            nd.category = getattr(device, 'category', None)
+            nd.interface = getattr(device, 'interface', None)
+            nd.product = getattr(device, 'product', None)
+            nd.vendor = getattr(device, 'vendor', None)
+            nd.driver = getattr(device, 'driver', None)
+            nd.path = getattr(device, 'path', None)
+            vid = getattr(device, 'vendor_id', None)
+            pid = getattr(device, 'product_id', None)
+            if vid and pid:
+                nd.id = '[{0:04x}:{1:04x}]'.format(vid, pid)
+            svid = getattr(device, 'subvendor_id', None)
+            spid = getattr(device, 'subproduct_id', None)
+            if svid and spid:
+                nd.subsystem_id = '[{0:04x}:{1:04x}]'.format(svid, spid)
             yield nd
 
 

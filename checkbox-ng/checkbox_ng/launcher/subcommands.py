@@ -63,7 +63,7 @@ from checkbox_ng.launcher.run import Action
 from checkbox_ng.launcher.run import NormalUI
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
-from checkbox_ng.urwid_ui import test_plan_browser
+from checkbox_ng.urwid_ui import TestPlanBrowser
 
 _ = gettext.gettext
 
@@ -409,27 +409,12 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         filtered_tp_ids = set()
         for filter in self.launcher.test_plan_filters:
             filtered_tp_ids.update(fnmatch.filter(test_plan_ids, filter))
-        filtered_tp_ids = list(filtered_tp_ids)
-        filtered_tp_ids.sort(
-            key=lambda tp_id: self.ctx.sa.get_test_plan(tp_id).name)
-        test_plan_names = [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
-                           filtered_tp_ids]
-        preselected_index = None
-        if self.launcher.test_plan_default_selection:
-            try:
-                preselected_index = test_plan_names.index(
-                    self.ctx.sa.get_test_plan(
-                        self.launcher.test_plan_default_selection).name)
-            except KeyError:
-                _logger.warning(_('%s test plan not found'),
-                                self.launcher.test_plan_default_selection)
-                preselected_index = None
-        try:
-            selected_index = test_plan_browser(
-                _("Select test plan"), test_plan_names, preselected_index)
-            return filtered_tp_ids[selected_index]
-        except (IndexError, TypeError):
-            return None
+        tp_info_list = self._generate_tp_infos(filtered_tp_ids)
+        selected_tp = TestPlanBrowser(
+            _("Select test plan"),
+            tp_info_list,
+            self.launcher.test_plan_default_selection).run()
+        return selected_tp
 
     def _pick_jobs_to_run(self):
         if self.launcher.test_selection_forced:

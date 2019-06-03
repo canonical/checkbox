@@ -37,10 +37,8 @@ from plainbox.impl.color import Colorizer
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
-from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
 from plainbox.vendor import rpyc
-from plainbox.vendor.rpyc.utils.server import ThreadedServer
-from checkbox_ng.urwid_ui import test_plan_browser
+from checkbox_ng.urwid_ui import TestPlanBrowser
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
@@ -50,6 +48,7 @@ from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
 _ = gettext.gettext
 _logger = logging.getLogger("master")
+
 
 class SimpleUI(NormalUI, MainLoopStage):
     """
@@ -175,11 +174,12 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     slave_api_version = self.sa.get_remote_api_version()
                 except AttributeError:
                     raise SystemExit(_("Slave doesn't declare Remote API"
-                                       " version. Update Checkbox on the Slave!"))
+                                       " version. Update Checkbox on the"
+                                       " Slave!"))
                 master_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
                 if slave_api_version != master_api_version:
-                    raise SystemExit(_("Remote API version mismatch. "
-                                       "Slave uses: {}. Master uses: {}").format(
+                    raise SystemExit(_("Remote API version mismatch. Slave "
+                                       "uses: {}. Master uses: {}").format(
                         slave_api_version, master_api_version))
                 state, payload = self.sa.whats_up()
                 _logger.info("master: Main dispatch with state: %s", state)
@@ -229,14 +229,15 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
 
     def interactively_choose_tp(self, tps):
         _logger.info("master: Interactively choosing TP.")
-        tp_names = [tp[1] for tp in tps]
-        selected_index = test_plan_browser(
-            "Select test plan", tp_names, 0)
-        if selected_index is None:
+        tp_info_list = [{'id': tp[0], 'name': tp[1]} for tp in tps]
+        selected_tp = TestPlanBrowser(
+            _("Select test plan"),
+            tp_info_list, None).run()
+        if selected_tp is None:
             print(_("Nothing selected"))
             raise SystemExit(0)
 
-        self.select_tp(tps[selected_index][0])
+        self.select_tp(selected_tp)
         if not self.jobs:
             print(self.C.RED(_("There were no tests to select from!")))
             self.sa.finalize_session()

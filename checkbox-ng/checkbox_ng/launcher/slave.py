@@ -22,34 +22,18 @@ functionality.
 import gettext
 import logging
 import os
-import select
 import socket
-import time
-import signal
 import sys
 
-from collections import namedtuple
-from functools import partial
-from tempfile import SpooledTemporaryFile
-
 from guacamole import Command
-from plainbox.impl.color import Colorizer
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
 from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
-from checkbox_ng.urwid_ui import test_plan_browser
-from checkbox_ng.urwid_ui import CategoryBrowser
-from checkbox_ng.urwid_ui import ReRunBrowser
-from checkbox_ng.urwid_ui import interrupt_dialog
-from checkbox_ng.urwid_ui import resume_dialog
-from checkbox_ng.launcher.run import NormalUI
-from checkbox_ng.launcher.stages import MainLoopStage
-from checkbox_ng.launcher.stages import ReportsStage
+
 _ = gettext.gettext
 _logger = logging.getLogger("slave")
+
 
 class SessionAssistantSlave(rpyc.Service):
 

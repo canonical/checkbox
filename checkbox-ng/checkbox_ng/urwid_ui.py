@@ -541,8 +541,9 @@ class TestPlanButton(urwid.RadioButton):
 class TestPlanBrowser():
 
     palette = [
+        ('focus', 'black', 'light gray', 'standout'),
         ('body', 'light gray', 'black', 'standout'),
-        ('header', 'black', 'light gray', 'bold'),
+        ('head', 'black', 'light gray', 'bold'),
         ('buttnf', 'black', 'light gray'),
         ('buttn', 'light gray', 'black', 'bold'),
         ('foot', 'light gray', 'black'),
@@ -603,7 +604,7 @@ class TestPlanBrowser():
                 self.loop.widget = self.help_view
                 return True
         else:
-            if key in ('h', 'H', '?', 'f1', 'esc', 'm', 'M'):
+            if key in ('h', 'H', '?', 'f1', 'esc'):
                 self.loop.widget = self.frame
 
     def run(self):

@@ -89,7 +89,7 @@ class MainLoopStage(CheckboxUiStage):
                     result_builder = JobResultBuilder(
                         outcome=IJobResult.OUTCOME_SKIP,
                         comments=_("Trying to run interactive job in a silent"
-                                    " session"))
+                                   " session"))
                     return result_builder
                 if job_state.can_start():
                     ui.notify_about_purpose(job)
@@ -276,6 +276,16 @@ class MainLoopStage(CheckboxUiStage):
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list
+
+    def _generate_tp_infos(self, tp_list):
+        tp_info_list = tuple()
+        for tp_id in tp_list:
+            tp_info = {
+                'id': tp_id,
+                'name': self.sa.get_test_plan(tp_id).name
+            }
+            tp_info_list = tp_info_list + ((tp_info,))
+        return tp_info_list
 
 
 class ReportsStage(CheckboxUiStage):

@@ -11,6 +11,8 @@ _purpose:
 _steps:
     Skip this test if your system does not have a VGA port.
     1. Connect a display (if not already connected) to the VGA port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
     Was the desktop displayed correctly on both screens?
 
@@ -27,6 +29,8 @@ _purpose:
 _steps:
     Skip this test if your system does not have a DVI port.
     1. Connect a display (if not already connected) to the DVI port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
     Was the desktop displayed correctly on both screens?
 
@@ -43,6 +47,8 @@ _purpose:
 _steps:
      Skip this test if your system does not have a DisplayPort port.
      1. Connect a display (if not already connected) to the DisplayPort port on your system
+     2. Switch display modes between in your Display Settings, check if it can be
+     set to mirrored, extended, displayed on external or onboard only
 _verification:
      Was the desktop displayed correctly on both screens?
 
@@ -59,6 +65,8 @@ _purpose:
 _steps:
     Skip this test if your system does not have a HDMI port.
     1. Connect a display (if not already connected) to the HDMI port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
     Was the desktop displayed correctly on both screens?
 

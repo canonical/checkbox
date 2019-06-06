@@ -569,6 +569,7 @@ class TestPlanBrowser():
     def __init__(self, title, test_plan_list, selection=None):
         self.radio_button_group = []
         blank = urwid.Divider()
+        test_plan_list.sort(key=lambda tp_info: tp_info.get('name'))
         button_pile = urwid.Pile([urwid.AttrWrap(TestPlanButton(
             tp, self.radio_button_group), 'buttn', 'buttnf')
             for tp in test_plan_list])

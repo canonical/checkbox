@@ -278,13 +278,13 @@ class MainLoopStage(CheckboxUiStage):
         return test_info_list
 
     def _generate_tp_infos(self, tp_list):
-        tp_info_list = tuple()
+        tp_info_list = []
         for tp_id in tp_list:
             tp_info = {
                 'id': tp_id,
                 'name': self.sa.get_test_plan(tp_id).name
             }
-            tp_info_list = tp_info_list + ((tp_info,))
+            tp_info_list.append(tp_info)
         return tp_info_list
 
 

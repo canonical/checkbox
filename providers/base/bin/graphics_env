@@ -8,26 +8,23 @@
 
 DRIVER=$1
 INDEX=$2
-UBUNTU_CODENAME=`lsb_release -c | awk {'print $2'}`
 
-# We only want to set the DRI_PRIME env variable on Xenial (16.04) systems
-# with more than 1 GPU running the amdgpu/radeon drivers.
+# We only want to set the DRI_PRIME env variable on systems with more than
+# 1 GPU running the amdgpu/radeon drivers.
 if [[ $DRIVER == "amdgpu" || $DRIVER == "radeon" ]]; then
-    if [[ $UBUNTU_CODENAME == "xenial" ]]; then
-        NB_GPU=`udev_resource -l VIDEO | grep -oP -m1 '\d+'`
-        if [ $NB_GPU -gt 1 ]; then
-            if [ $INDEX -gt 1 ]; then
-                # See https://wiki.archlinux.org/index.php/PRIME
-                echo "Setting up PRIME GPU offloading for AMD discrete GPU"
-                if ! cat /var/log/Xorg.0.log ~/.local/share/xorg/Xorg.0.log 2>&1 | grep -q DRI3; then
-                    PROVIDER_ID=`xrandr --listproviders | grep "Sink Output" | awk {'print $4'} | tail -1`
-                    SINK_ID=`xrandr --listproviders | grep "Source Output" | awk {'print $4'} | tail -1`
-                    xrandr --setprovideroffloadsink ${PROVIDER_ID} ${SINK_ID}
-                fi
-                export DRI_PRIME=1
-            else
-                export DRI_PRIME=
+    NB_GPU=`udev_resource -l VIDEO | grep -oP -m1 '\d+'`
+    if [ $NB_GPU -gt 1 ]; then
+        if [ $INDEX -gt 1 ]; then
+            # See https://wiki.archlinux.org/index.php/PRIME
+            echo "Setting up PRIME GPU offloading for AMD discrete GPU"
+            if ! cat /var/log/Xorg.0.log ~/.local/share/xorg/Xorg.0.log 2>&1 | grep -q DRI3; then
+                PROVIDER_ID=`xrandr --listproviders | grep "Sink Output" | awk {'print $4'} | tail -1`
+                SINK_ID=`xrandr --listproviders | grep "Source Output" | awk {'print $4'} | tail -1`
+                xrandr --setprovideroffloadsink ${PROVIDER_ID} ${SINK_ID}
             fi
+            export DRI_PRIME=1
+        else
+            export DRI_PRIME=
         fi
     fi
 fi

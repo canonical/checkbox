@@ -7,12 +7,15 @@ flags: also-after-suspend-manual
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
-    This test will check your VGA port.
+    This test will check your VGA port as a monitor interconnect for {vendor} {product}.
 _steps:
     Skip this test if your system does not have a VGA port.
     1. Connect a display (if not already connected) to the VGA port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on both screens?
+    Was the desktop displayed correctly with {vendor} {product} on the VGA-connected
+    screen in every mode?
 
 unit: template
 template-resource: graphics_card
@@ -23,12 +26,15 @@ flags: also-after-suspend-manual
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
-    This test will check your DVI port.
+    This test will check your DVI port as a monitor interconnect for {vendor} {product}.
 _steps:
     Skip this test if your system does not have a DVI port.
     1. Connect a display (if not already connected) to the DVI port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on both screens?
+    Was the desktop displayed correctly with {vendor} {product} on the DVI-connected
+    screen in every mode?
 
 unit: template
 template-resource: graphics_card
@@ -39,12 +45,15 @@ flags: also-after-suspend-manual
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
-     This test will check your DisplayPort port.
+     This test will check your DisplayPort port as a monitor interconnect for {vendor} {product}.
 _steps:
      Skip this test if your system does not have a DisplayPort port.
      1. Connect a display (if not already connected) to the DisplayPort port on your system
+     2. Switch display modes between in your Display Settings, check if it can be
+     set to mirrored, extended, displayed on external or onboard only
 _verification:
-     Was the desktop displayed correctly on both screens?
+    Was the desktop displayed correctly with {vendor} {product} on the DisplayPort-connected
+    screen in every mode?
 
 unit: template
 template-resource: graphics_card
@@ -55,12 +64,15 @@ flags: also-after-suspend-manual
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
-    This test will check your HDMI port.
+    This test will check your HDMI port as a monitor interconnect for {vendor} {product}.
 _steps:
     Skip this test if your system does not have a HDMI port.
     1. Connect a display (if not already connected) to the HDMI port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on both screens?
+    Was the desktop displayed correctly with {vendor} {product} on the HDMI-connected 
+    screen in every mode?
 
 unit: template
 template-resource: graphics_card
@@ -70,12 +82,15 @@ requires: display.svideo == 'supported'
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
-    This test will check your S-VIDEO port.
+    This test will check your S-VIDEO port as a monitor interconnect for {vendor} {product}.
 _steps:
     Skip this test if your system does not have a S-VIDEO port.
     1. Connect a display (if not already connected) to the S-VIDEO port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on both screens?
+    Was the desktop displayed correctly with {vendor} {product} on the S-VIDEO-connected
+    screen in every mode?
 
 unit: template
 template-resource: graphics_card
@@ -85,12 +100,15 @@ requires: display.rca == 'supported'
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
-    This test will check your RCA port.
+    This test will check your RCA port as a monitor interconnect for {vendor} {product}.
 _steps:
     Skip this test if your system does not have a RCA port.
     1. Connect a display (if not already connected) to the RCA port on your system
+    2. Switch display modes between in your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on both screens?
+    Was the desktop displayed correctly with {vendor} {product} on the RCA-connected
+    screen in every mode?
 
 unit: template
 template-resource: graphics_card

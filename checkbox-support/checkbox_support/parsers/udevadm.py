@@ -1025,6 +1025,14 @@ class UdevadmDevice(object):
 
         return {a: getattr(self, a) for a in attributes if getattr(self, a)}
 
+    @property
+    def symlink_uuid(self):
+        if self.category == "PARTITION":
+            for link in self._symlinks:
+                if 'by-uuid' in link:
+                    return link
+        return None
+
 
 class UdevadmParser(object):
     """Parser for the udevadm command."""

@@ -142,10 +142,11 @@ class UdevadmDevice(object):
         "_vendor",
         "_vendor_id",
         "_subvendor_id",
-        "_vendor_slug",)
+        "_vendor_slug",
+        "_symlinks")
 
     def __init__(self, environment, name, lsblk=None, list_partitions=False,
-                 bits=None, stack=[]):
+                 bits=None, stack=[], symlinks=None):
         self._environment = environment
         self._name = name
         self._lsblk = lsblk
@@ -163,6 +164,9 @@ class UdevadmDevice(object):
         self._vendor_id = None
         self._subvendor_id = None
         self._vendor_slug = None
+        self._symlinks = []
+        if symlinks:
+            self._symlinks = symlinks
 
     def __repr__(self):
         vid = int(self.vendor_id) if self.vendor_id else 0
@@ -1152,6 +1156,7 @@ class UdevadmParser(object):
             path = None
             name = None
             element = None
+            symlinks = []
             environment = {}
             for line in record.splitlines():
                 line_match = line_pattern.match(line)
@@ -1168,6 +1173,8 @@ class UdevadmParser(object):
                     path = value
                 elif key == "N":
                     name = value
+                elif key == "S":
+                    symlinks.append(value)
                 elif key == "E":
                     key_match = multi_pattern.match(value)
                     if not key_match:
@@ -1187,7 +1194,7 @@ class UdevadmParser(object):
 
             device = self.device_factory(
                 environment, name, self.lsblk, self.list_partitions, self.bits,
-                list(stack))
+                list(stack), symlinks)
             if not self._ignoreDevice(device):
                 if device._raw_path in self.devices:
                     if self.devices[device._raw_path].category == 'CARDREADER':

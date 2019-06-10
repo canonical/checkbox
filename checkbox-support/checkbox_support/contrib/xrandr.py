@@ -977,6 +977,8 @@ class Screen(object):
 def get_current_display():
     """Returns the currently used display"""
     display_url = os.getenv("DISPLAY")
+    if display_url is None:
+        raise SystemExit("DISPLAY environment variable is not defined!")
     open_display = xlib.XOpenDisplay
     # Set .argtypes and .restype, to ensure proper
     # type check and conversion

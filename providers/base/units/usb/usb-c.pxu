@@ -189,6 +189,7 @@ estimated_duration: 30
 
 id: usb-c/c-to-ethernet-adapter-insert
 plugin: user-interact
+flags: also-after-suspend-manual
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'

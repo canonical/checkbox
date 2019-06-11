@@ -102,6 +102,7 @@ include:
     after-suspend-manual-usb-c/insert                               certification-status=blocker
     after-suspend-manual-usb-c/storage-automated                    certification-status=blocker
     after-suspend-manual-usb-c/remove                               certification-status=blocker
+    after-suspend-manual-usb-c/c-to-ethernet-adapter-insert
 
 id: usb-cert-blockers
 unit: test plan

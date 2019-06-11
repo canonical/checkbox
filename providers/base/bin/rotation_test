@@ -5,14 +5,14 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012-2019 Canonical Ltd.
 #
 # Authors: Alberto Milone <alberto.milone@canonical.com>
+#          Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,53 +22,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import gi
 import time
-import sys
+import subprocess
 
-from checkbox_support.contrib import xrandr
-
-
-def rotate_screen(rotation):
-    # Refresh the screen. Required by NVIDIA
-    screen = xrandr.get_current_screen()
-    screen.set_rotation(rotation)
-    return screen.apply_config()
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gdk
 
 def main():
-    screen = xrandr.get_current_screen()
-    rotations = {'normal': xrandr.RR_ROTATE_0,
-                 'right': xrandr.RR_ROTATE_90,
-                 'inverted': xrandr.RR_ROTATE_180,
-                 'left': xrandr.RR_ROTATE_270}
-    rots_statuses = {}
+    """Run rotation cycling by running xrandr command."""
+    screen = Gdk.Screen.get_default()
+    output = screen.get_monitor_plug_name(screen.get_primary_monitor())
+    print("Using output: {}".format(output))
 
-    for rot in rotations:
-        try:
-            status = rotate_screen(rotations[rot])
-        except (xrandr.RRError, xrandr.UnsupportedRRError) as exc:
-            status = 1
-            error = exc
-        else:
-            error = 'N/A'
-        # Collect the status and the error message
-        rots_statuses[rot] = (status, error)
+    for rotation in ['right', 'inverted', 'left', 'normal']:
+        print("Changing rotation to: {}".format(rotation))
+        subprocess.check_call(
+            ['xrandr', '--output', output, '--rotation', rotation])
         time.sleep(4)
-
-    # Try to set the screen back to normal
-    try:
-        rotate_screen(xrandr.RR_ROTATE_0)
-    except(xrandr.RRError, xrandr.UnsupportedRRError) as error:
-        print(error)
-
-    result = 0
-    for elem in rots_statuses:
-        status = rots_statuses.get(elem)[0]
-        error = rots_statuses.get(elem)[1]
-        if status != 0:
-            print('Error: rotation "%s" failed with status %d: %s.' %
-                  (elem, status, error), file=sys.stderr)
-            result = 1
-    return result
 
 if __name__ == '__main__':
     exit(main())

@@ -32,6 +32,7 @@ include:
  audio/1_playback_type-c_displayport_.*     certification-status=blocker
  monitor/type-c-to-hdmi                     certification-status=blocker
  # placeholder for monitor/1_type-c_hdmi_.*
+ audio/1_playback_type-c_hdmi_.*            certification-status=blocker
  monitor/type-c-to-vga                      certification-status=blocker
  monitor/1_dvi_.*                           certification-status=blocker
  monitor/1_hdmi_.*                          certification-status=blocker
@@ -61,6 +62,7 @@ include:
  (after-suspend-manual-)?audio/1_playback_type-c_displayport_.*     certification-status=blocker
  (after-suspend-manual-)?monitor/type-c-to-hdmi                     certification-status=blocker
  # placeholder for (after-suspend-manual-)?monitor/1_type-c_hdmi_.*
+ (after-suspend-manual-)?audio/1_playback_type-c_hdmi_.*            certification-status=blocker
  (after-suspend-manual-)?monitor/type-c-to-vga                      certification-status=blocker
  (after-suspend-manual-)?monitor/1_dvi_.*                           certification-status=blocker
  (after-suspend-manual-)?monitor/1_hdmi_.*                          certification-status=blocker

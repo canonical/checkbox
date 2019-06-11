@@ -185,6 +185,37 @@ _steps:
 _verification:
     Did you hear the sound from the DisplayPort device?
 
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/{index}_playback_type-c_hdmi_{product_slug}
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_usb_type_c == 'True'
+ display.dp == 'supported'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+flags: also-after-suspend-manual
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    HDMI audio via USB Type-C port interface verification
+_steps:
+    1. Plug an external HDMI device with sound on a USB Type-C port using a "USB Typce-C to HDMI" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the HDMI device?
+    
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_headphones

@@ -47,28 +47,46 @@ fi
 
 echo "found at $JQ"
 
+# a new try every other second, at max 30 tries is 1 minute for device-virtual
+# to start
+MAX_READING_TRIES=30
+num_tries=0
+
 # check to see if we can find the device created by device-virtual
 while true; do
     if ! (edgexfoundry.curl -s localhost:48081/api/v1/device | $JQ '.'); then
         # not json - something's wrong
         echo "invalid JSON response from core-metadata"
         exit 1
-    elif [ "$(edgexfoundry.curl -s localhost:48081/api/v1/device | $JQ 'map(select(.name == "Random-Boolean-Generator01")) | length')" -lt 1 ]; then
-        # no devices yet, keep waiting
-        sleep 1
+    elif [ "$(edgexfoundry.curl -s localhost:48081/api/v1/device | $JQ 'map(select(.name == "Random-Boolean-Device")) | length')" -lt 1 ]; then
+        # increment number of tries
+        num_tries=$((num_tries+1))
+        if (( num_tries > MAX_READING_TRIES )); then
+            echo "max tries attempting to get device-virtual readings"
+            exit 1
+        fi
+        # no readings yet, keep waiting
+        sleep 2
     else
         # got the device, break out
         break
     fi
 done
 
-# check to see if we can get a reading from the Random-Boolean-Generator01
+# reset the number of tries
+num_tries=0
 while true; do
     if ! (edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Generator01/10 | $JQ '.'); then
         # not json - something's wrong
         echo "invalid JSON response from core-data"
         exit 1
     elif [ "$(edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Generator01/10 | $JQ 'length')" -le 1 ]; then
+        # increment number of tries
+        num_tries=$((num_tries+1))
+        if (( num_tries > MAX_READING_TRIES )); then
+            echo "max tries attempting to get device-virtual readings"
+            exit 1
+        fi
         # no readings yet, keep waiting
         sleep 1
     else

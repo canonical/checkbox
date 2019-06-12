@@ -302,13 +302,17 @@ Following fields may be used by the job unit:
 
         id: after-suspend-foo
         _summary: bar after suspend (S3)
-        depends: com.canonical.certification::suspend/suspend_advanced_auto
+        depends:
+          com.canonical.certification::suspend/suspend_advanced_auto
+          foo
 
     ``also-after-suspend-manual`` is a shortcut to create the following job::
 
         id: after-suspend-manual-foo
         _summary: bar after suspend (S3)
-        depends: com.canonical.certification::suspend/suspend_advanced
+        depends:
+          com.canonical.certification::suspend/suspend_advanced
+          foo
 
 .. warning::
     The curly braces used in this field have to be escaped when used in a

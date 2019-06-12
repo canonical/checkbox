@@ -75,12 +75,14 @@ done
 
 # reset the number of tries
 num_tries=0
+
+# check to see if we can get a reading from the Random-Boolean-Device
 while true; do
-    if ! (edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Generator01/10 | $JQ '.'); then
+    if ! (edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Device/10 | $JQ '.'); then
         # not json - something's wrong
         echo "invalid JSON response from core-data"
         exit 1
-    elif [ "$(edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Generator01/10 | $JQ 'length')" -le 1 ]; then
+    elif [ "$(edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Device/10 | $JQ 'length')" -le 1 ]; then
         # increment number of tries
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then
@@ -88,7 +90,7 @@ while true; do
             exit 1
         fi
         # no readings yet, keep waiting
-        sleep 1
+        sleep 2
     else
         # got at least one reading, break out
         break

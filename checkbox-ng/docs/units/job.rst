@@ -270,8 +270,8 @@ Following fields may be used by the job unit:
         _siblings: [
             { "id": "foo-after-suspend",
               "_summary": "foo foo foo after suspend",
-              "depends": suspend/advanced}
-        ]
+              "depends": "suspend/advanced"}
+            ]
 
     Another example creating two more jobs in order to cover a total of 3
     external USB ports::
@@ -285,7 +285,7 @@ Following fields may be used by the job unit:
               "_summary": "usb stress test_(port 2)"},
             { "id": "usb_test_port3",
               "_summary": "usb stress test_(port 3)"},
-        ]
+            ]
 
     For convenience two flags can be set (``also-after-suspend`` and
     ``also-after-suspend-manual``) to create siblings with predefined settings
@@ -318,8 +318,8 @@ Following fields may be used by the job unit:
             _siblings: [
                 {{ "id": "bar-after-suspend_{interface}",
                   "_summary": "bar after suspend",
-                  "depends": suspend/advanced}}
-            ]
+                  "depends": "suspend/advanced"}}
+                ]
 
 ``imports``:
     (optional) This field lists all the resource jobs that will have to be

@@ -952,6 +952,36 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "NETWORK"), 2)
         self.assertEqual(self.count(devices, "DISK"), 2)
 
+    def test_SHUTTLE_DH170_WITH_USB_DISK(self):
+        """ DH170 with USB stick comparing pre and post reboot. """
+        devices_pre = self.parse("SHUTTLE_DH170_WITH_USB_DISK",
+                                 with_partitions=True)
+        self.assertEqual(len(devices_pre), 70)
+        self.assertEqual(self.count(devices_pre, "PARTITION"), 1)
+        devices_post = self.parse("SHUTTLE_DH170_WITH_USB_DISK_REBOOTED",
+                                  with_partitions=True)
+        self.assertEqual(len(devices_post), 70)
+        self.assertEqual(self.count(devices_post, "PARTITION"), 1)
+        # Pre and post have same number of deviecs and partitions
+        self.assertEqual(len(devices_pre), len(devices_post))
+        self.assertEqual(self.count(devices_pre, "PARTITION"),
+                         self.count(devices_post, "PARTITION"))
+        symlink_pre = symlink_post = ""
+        for d in devices_pre:
+            if d.category == "PARTITION":
+                self.assertIsNotNone(d.symlink_uuid)
+                self.assertEqual(d.name, "sdc1")
+                self.assertEqual(d.symlink_uuid, "disk/by-uuid/C9DC-C426")
+                symlink_pre = d.symlink_uuid
+        for d in devices_post:
+            if d.category == "PARTITION":
+                self.assertIsNotNone(d.symlink_uuid)
+                self.assertEqual(d.name, "sdb1")
+                self.assertEqual(d.symlink_uuid, "disk/by-uuid/C9DC-C426")
+                symlink_post = d.symlink_uuid
+        # The symlink should follow the device
+        self.assertEqual(symlink_pre, symlink_post)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

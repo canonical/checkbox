@@ -31,6 +31,8 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #;**********************************************************************;
 
+set -x
+
 # Purpose of this test is to cover the additional code paths that come into
 # play when non-default output formats for public keys or signatures are used
 # in the various tools.
@@ -92,7 +94,7 @@ for fmt in tss pem der; do
     if [ "$fmt" = tss ]; then
         diff "$file_pubek_orig" "$this_key" > /dev/null
     else
-        openssl rsa -pubin -inform "$fmt" -text -in "$this_key" &> /dev/null
+        openssl rsa -pubin -inform "$fmt" -text -in "$this_key"
     fi
 
 done

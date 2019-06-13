@@ -5,6 +5,11 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 20.0
 command: removable_storage_watcher insert --timeout 40 scsi
+_siblings: [
+    { "id": "after-suspend-manual-thunderbolt/insert",
+      "_summary": "thunderbolt/insert after suspend",
+      "depends": "suspend/suspend_advanced"}
+    ]
 _summary: Storage insert detection on Thunderbolt
 _description:
  PURPOSE:
@@ -27,6 +32,11 @@ requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert
 estimated_duration: 45.0
 command: removable_storage_test -s 268400000 scsi
+_siblings: [
+    { "id": "after-suspend-manual-thunderbolt/storage-test",
+      "_summary": "thunderbolt/storage-test after suspend",
+      "depends": "after-suspend-manual-thunderbolt/insert"}
+    ]
 _summary: Storage test on Thunderbolt
 _description:
  This is an automated test which performs read/write operations on an attached
@@ -41,6 +51,11 @@ depends: thunderbolt/insert
 estimated_duration: 10.0
 command: removable_storage_watcher remove scsi
 _summary: Storage removal detection on Thunderbolt
+_siblings: [
+    { "id": "after-suspend-manual-thunderbolt/remove",
+      "_summary": "thunderbolt/remove after suspend",
+      "depends": "after-suspend-manual-thunderbolt/insert"}
+    ]
 _description:
  PURPOSE:
      This test will check the system can detect the removal of a Thunderbolt HDD
@@ -82,6 +97,11 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 20.0
 command: removable_storage_watcher insert --timeout 40 scsi
+_siblings: [
+    { "id": "after-suspend-manual-thunderbolt3/insert",
+      "_summary": "thunderbolt3/insert after suspend",
+      "depends": "suspend/suspend_advanced"}
+    ]
 _summary: Storage insert detection on Thunderbolt 3 port
 _description:
  PURPOSE:
@@ -104,6 +124,11 @@ requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 45.0
 command: removable_storage_test -s 268400000 scsi
+_siblings: [
+    { "id": "after-suspend-manual-thunderbolt3/storage-test",
+      "_summary": "thunderbolt3/storage-test after suspend",
+      "depends": "after-suspend-manual-thunderbolt3/insert"}
+    ]
 _summary: Storage test on Thunderbolt 3
 _description:
  This is an automated test which performs read/write operations on an attached
@@ -117,6 +142,11 @@ requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 10.0
 command: removable_storage_watcher remove scsi
+_siblings: [
+    { "id": "after-suspend-manual-thunderbolt3/remove",
+      "_summary": "thunderbolt3/remove after suspend",
+      "depends": "after-suspend-manual-thunderbolt3/insert"}
+    ]
 _summary: Storage removal detection on Thunderbolt 3 port
 _description:
  PURPOSE:

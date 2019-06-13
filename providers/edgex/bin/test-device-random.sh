@@ -54,9 +54,11 @@ num_tries=0
 
 # check to see if we can find the device created by device-random
 while true; do
-    if ! (edgexfoundry.curl -s localhost:48081/api/v1/device | $JQ '.'); then
+    testOut=$(edgexfoundry.curl -s localhost:48081/api/v1/device)
+    if ! (echo "$testOut" | $JQ '.'); then
         # not json - something's wrong
-        echo "invalid JSON response from core-metadata"
+        echo "invalid JSON response from core-metadata:"
+        echo "$testOut"
         exit 1
     elif [ "$(edgexfoundry.curl -s localhost:48081/api/v1/device | $JQ 'map(select(.name == "Random-Integer-Generator01")) | length')" -lt 1 ]; then
         # increment number of tries
@@ -78,9 +80,11 @@ num_tries=0
 
 # check to see if we can get a reading from the Random-Integer-Generator
 while true; do
-    if ! (edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Integer-Generator01/10 | $JQ '.'); then
+    testOut=$(edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Integer-Generator01/10)
+    if ! (echo "$testOut" | $JQ '.'); then
         # not json - something's wrong
-        echo "invalid JSON response from core-data"
+        echo "invalid JSON response from core-data:"
+        echo "$testOut"
         exit 1
     elif [ "$(edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Integer-Generator01/10 | $JQ 'length')" -le 1 ]; then
         # increment number of tries

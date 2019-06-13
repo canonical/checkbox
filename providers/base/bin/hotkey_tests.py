@@ -15,6 +15,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
+"""
+This program tests whether the system properly reacts to hotkey presses.
+
+To inject the keypresses /dev/input/ devices are used.
+
+For particular scenarios see "check_*" methods of the HotKeyTesting class.
+
+TODO: Create one virtual input device using uinput.
+      Heuristic for picking the device to write to is not optimal, and on some
+      systems the fake keypresses are not registered. Having "own" input
+      device could improve reliability/portability.
+"""
+
+import contextlib
 import datetime
 import enum
 import os
@@ -286,6 +300,7 @@ class KeyCodes(enum.Enum):
             '/': KeyCodes.KEY_SLASH,
             ' ': KeyCodes.KEY_SPACE,
             '-': KeyCodes.KEY_MINUS,
+            '.': KeyCodes.KEY_DOT,
         }
         if c in obvious_keys.keys():
             return obvious_keys[c]
@@ -297,30 +312,48 @@ class KeyCodes(enum.Enum):
                 'One does not simply convert {} to a keycode'.format(c))
 
 
-def guess_kb_dev_path():
-    """
-    Guess the path of the keyboard device that we can send events to.
-    """
-    # most intel-based devices I tested had platform-i8042-serio-0-event-kbd
-    # device, so let's use that if it is present
-    intel_generic = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
-
-    if os.path.exists(intel_generic):
-        return intel_generic
-    raise SystemExit("Couldn't guess a proper keyboard device")
+class VolumeChange:
+    def __init__(self):
+        self.before = 0
+        self.after = 0
+        self.mute_before = None
+        self.mute_after = None
 
 
 class FauxKeyboard():
-    def __init__(self, dev_path=guess_kb_dev_path()):
-        self.kb_dev_file = open(dev_path, 'wb')
+    def __init__(self):
+        base = '/dev/input/by-path'
+        all_devs = [
+            os.path.join(base, dev) for dev in sorted(os.listdir(base))]
+        kbd_devs = [dev for dev in all_devs if dev.endswith('kbd')]
+        event_devs = [dev for dev in all_devs if dev.endswith('event-mouse')]
+        self.kb_dev_file = None
+        self.event_dev_file = None
+        if not kbd_devs:
+            raise SystemExit(
+                "Could not connect to existing keyboard connection. "
+                "Is keyboard plugged in?")
+        if not event_devs:
+            raise SystemExit(
+                "Could not connect to existing mouse connection. "
+                "Is mouse plugged in?")
+        self.kb_dev_file = open(kbd_devs[0], 'wb')
+        self.event_dev_file = open(event_devs[0], 'wb')
         self.event_struct = struct.Struct('llHHi')
 
     def __del__(self):
-        self.kb_dev_file.close()
+        if self.kb_dev_file:
+            self.kb_dev_file.close()
+        if self.event_dev_file:
+            self.event_dev_file.close()
 
     def type_text(self, text):
         for c in text:
-            self.press_key(KeyCodes.from_char(c))
+            if c == '>':
+                self.press_key(KeyCodes.KEY_DOT, {'shift'})
+                continue
+            modifiers = {'shift'} if c.isupper() else set()
+            self.press_key(KeyCodes.from_char(c), modifiers)
 
     def press_key(self, key_code, modifiers=set(), repetitions=1, delay=0.05):
         # simple key press actions contains four events:
@@ -330,6 +363,12 @@ class FauxKeyboard():
         # EV_KEY, {KEY_CODE}, 0
         # XXX: ATM there's no distinction between left and right modifiers
         assert(repetitions >= 0)
+        # sending "special" codes (like media control ones) to a general kbd
+        # device doesn't work, so we have to send them to the event-mouse one
+        SPECIAL_CODES = [
+            KeyCodes.KEY_PLAYPAUSE,
+        ]
+        use_special = key_code in SPECIAL_CODES
         while repetitions:
             if not modifiers.issubset({'alt', 'ctrl', 'shift', 'meta'}):
                 raise SystemExit('Unknown modifier')
@@ -347,8 +386,12 @@ class FauxKeyboard():
                 mod_code = KeyCodes['KEY_LEFT{}'.format(mod.upper())].value
                 data += self.event_struct.pack(0, 10, 1, mod_code, 0)
             data += self.event_struct.pack(0, 10, 0, 0, 0)
-            self.kb_dev_file.write(data)
-            self.kb_dev_file.flush()
+            if use_special:
+                self.event_dev_file.write(data)
+                self.event_dev_file.flush()
+            else:
+                self.kb_dev_file.write(data)
+                self.kb_dev_file.flush()
             time.sleep(delay)
             repetitions -= 1
 
@@ -358,9 +401,9 @@ class HotKeyTesting:
     def __init__(self):
         self.kb = FauxKeyboard()
 
-    def check_volume_media_keys(self):
+    def check_volume_up(self):
         """
-        Check if the volume media keys have an effect on ALSA
+        Check if the volume up key has an effect on ALSA
         """
         # if the volume is already on max, then raising it won't make any
         # difference, so first, let's lower it before establishing the baseline
@@ -368,9 +411,46 @@ class HotKeyTesting:
         self.kb.press_key(KeyCodes.KEY_VOLUMEUP)
         # let's grab output of alsa mixer to establish what is the baseline
         # before we start raising the volume
+        vc = VolumeChange()
+        with self._monitored_volume_change(vc):
+            self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=3, delay=0.2)
+        time.sleep(1)
+        return vc.before < vc.after
+
+    def check_volume_down(self):
+        """
+        Check if the volume down key has an effect on ALSA
+        """
+        # if the volume is already on min, then lowering it won't make any
+        # difference, so first, let's raise it before establishing the baseline
+        self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=4, delay=0.2)
+        self.kb.press_key(KeyCodes.KEY_VOLUMEDOWN)
+        # let's grab output of alsa mixer to establish what is the baseline
+        # before we start raising the volume
+        vc = VolumeChange()
+        with self._monitored_volume_change(vc):
+            self.kb.press_key(
+                KeyCodes.KEY_VOLUMEDOWN, repetitions=3, delay=0.2)
+        return vc.before > vc.after
+
+    def check_mute(self):
+        """
+        Check if the mute key has an effect on ALSA
+        """
+        # first, let's raise volume (if it was already muted, then it will
+        # unmute it)
+        self.kb.press_key(KeyCodes.KEY_VOLUMEUP)
+        vc = VolumeChange()
+        with self._monitored_volume_change(vc):
+            self.kb.press_key(KeyCodes.KEY_MUTE)
+        time.sleep(1)
+        return vc.mute_after
+
+    @contextlib.contextmanager
+    def _monitored_volume_change(self, vc):
         before = subprocess.check_output('amixer').decode(
             sys.stdout.encoding).splitlines()
-        self.kb.press_key(KeyCodes.KEY_VOLUMEUP, repetitions=3, delay=0.2)
+        yield
         after = subprocess.check_output('amixer').decode(
             sys.stdout.encoding).splitlines()
         temp = before.copy()
@@ -382,21 +462,24 @@ class HotKeyTesting:
             # all lines removed from before, so there's no state change
             # of the stuff reported bevore hitting volume up, so let's fail
             # the test
-            return False
+            print('No change in amixer registered! ', end='')
+            return
         # we expect that the lines that changed are status information about
         # the output devices. Percentage volume is in square brackets so let's
         # search for those and see if they got higher
-        regex = re.compile(r'\[(\d*)%\]')
+        regex = re.compile(r'\[(\d*)%\].*\[(on|off)\]')
         if len(before) != len(after):
             # more of an assertion - the lines diff should match
-            return False
+            return
         for b, a in zip(before, after):
-            vol_b = regex.search(b).groups()
-            vol_a = regex.search(a).groups()
-            if vol_a and vol_b:
-                if int(vol_b[0]) < int(vol_a[0]):
-                    return True
-        return False
+            match_b = regex.search(b)
+            match_a = regex.search(a)
+            if match_b and match_a:
+                vc.before = int(match_b.groups()[0])
+                vc.after = int(match_a.groups()[0])
+                vc.mute_before = match_b.groups()[1] == 'off'
+                vc.mute_after = match_a.groups()[1] == 'off'
+            return
 
     def check_terminal_hotkey(self):
         # spawn a terminal window using ctrl+alt+t
@@ -409,12 +492,48 @@ class HotKeyTesting:
         time.sleep(2)
         self.kb.type_text('touch {}'.format(filename))
         self.kb.press_key(KeyCodes.KEY_ENTER)
-        result = os.path.exists(filename)
-        if not result:
-            return result
+        for attempt_no in range(10):
+            # let's wait some time to let X/terminal process the command
+            time.sleep(0.5)
+            if os.path.exists(filename):
+                self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
+                os.unlink(filename)
+                return True
+        else:
+            self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
+            return False
+
+    def check_command_hotkey(self):
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        filename = os.path.join('/tmp/hotkey-testing-cmd-{}'.format(timestamp))
+        self.kb.press_key(KeyCodes.KEY_F2, {'alt'})
+        assert(not os.path.exists(filename))
+        time.sleep(2)
+        self.kb.type_text('touch {}'.format(filename))
+        self.kb.press_key(KeyCodes.KEY_ENTER)
+        for attempt_no in range(10):
+            # let's wait some time to let X/terminal process the command
+            time.sleep(0.5)
+            if os.path.exists(filename):
+                os.unlink(filename)
+                return True
+        else:
+            return False
+
+    def check_media_play(self):
+        cmd = "timeout 30 rhythmbox --debug 2> /tmp/media-key-test"
+        self.kb.press_key(KeyCodes.KEY_T, {'ctrl', 'alt'})
+        time.sleep(2)
+        self.kb.type_text(cmd)
+        self.kb.press_key(KeyCodes.KEY_ENTER)
+        time.sleep(3)
+        self.kb.press_key(KeyCodes.KEY_PLAYPAUSE)
+        self.kb.press_key(KeyCodes.KEY_F4, {'alt'})
+        time.sleep(1)
         self.kb.press_key(KeyCodes.KEY_D, {'ctrl'})
-        os.unlink(filename)
-        return result
+        with open('/tmp/media-key-test', 'rt') as f:
+            output = f.read()
+            return "got media key 'Play'" in output
 
 
 def main():

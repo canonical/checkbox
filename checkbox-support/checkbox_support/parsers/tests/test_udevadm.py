@@ -79,7 +79,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         parser.run(result)
         return result
 
-    def parse(self, name, with_lsblk=True):
+    def parse(self, name, with_lsblk=True, with_partitions=False):
         # Uncomment only for debugging purpose
         """
         attributes = ("path", "driver", "bus", "product_id", "vendor_id",
@@ -93,7 +93,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         if with_lsblk:
             lsblk = self.get_lsblk(name)
         return parse_udevadm_output(
-            self.get_text(name), lsblk, False, 64)
+            self.get_text(name), lsblk, with_partitions, 64)
 
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])

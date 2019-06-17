@@ -19,9 +19,9 @@ include:
     memory/info
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker
-    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog                        certification-status=blocker
     miscellanea/olog_results.log
-    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog                        certification-status=blocker
     miscellanea/klog_results.log
 bootstrap_include:
     device

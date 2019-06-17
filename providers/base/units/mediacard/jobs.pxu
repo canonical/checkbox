@@ -156,6 +156,20 @@ _description:
  system under test has a memory card device plugged in prior to checkbox execution.
  It is intended for SRU automated testing.
 
+plugin: shell
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sd-preinserted-server
+estimated_duration: 30.0
+user: root
+flags: preserve-cwd
+command: removable_storage_test -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test --memorycard sdio usb scsi
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+_summary: Automated test of SD Card reading & writing (udisk2) for servers
+_description:
+ This is a fully automated version of mediacard/sd-automated and assumes that the
+ system under test has a memory card device plugged in prior to checkbox execution.
+
 plugin: user-interact
 template-engine: jinja2
 category_id: com.canonical.plainbox::mediacard

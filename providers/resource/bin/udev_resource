@@ -33,7 +33,8 @@ categories = ("ACCELEROMETER", "AUDIO", "BLUETOOTH", "CAPTURE", "CARDREADER",
 
 attributes = ("path", "name", "bus", "category", "driver", "product_id",
               "vendor_id", "subproduct_id", "subvendor_id", "product",
-              "vendor", "interface", "mac", "product_slug", "vendor_slug")
+              "vendor", "interface", "mac", "product_slug", "vendor_slug",
+              "symlink_uuid")
 
 
 class UdevResultDump:

@@ -23,9 +23,10 @@
 
 # Modifications: 2019 Jeffrey Lane (jeffrey.lane@canonical.com)
 
-import platform
-import os
 import ctypes
+import os
+import platform
+import sys
 from ctypes import c_uint32, c_int, c_long, c_ulong, c_size_t, c_void_p, POINTER, CFUNCTYPE
 from subprocess import check_output
 
@@ -102,7 +103,8 @@ class CPUID_struct(ctypes.Structure):
 class CPUID(object):
     def __init__(self):
         if platform.machine() not in ("AMD64", "x86_64", "x86", "i686"):
-            raise SystemError("Only available for x86")
+            print("ERROR: Only available for x86")
+            sys.exit(1)
         
         opc = _POSIX_64_OPC if is_64bit else _CDECL_32_OPC
 
@@ -114,14 +116,15 @@ class CPUID(object):
         self.libc.valloc.argtypes = [ctypes.c_size_t]
         self.addr = self.libc.valloc(size)
         if not self.addr:
-            raise MemoryError("Could not allocate memory")
+            print("ERROR: Could not allocate memory")
+            sys.exit(1)
 
         self.libc.mprotect.restype = c_int
         self.libc.mprotect.argtypes = [c_void_p, c_size_t, c_int]
         ret = self.libc.mprotect(self.addr, size, 1 | 2 | 4)
         if ret != 0:
-            raise OSError("Failed to set RWX")
-
+            print("ERROR: Failed to set RWX")
+            sys.exit(1)
 
         ctypes.memmove(self.addr, code, size)
 
@@ -140,7 +143,8 @@ class CPUID(object):
         self.libc.free.argtypes = [c_void_p]
         self.libc.free(self.addr)
 
-if __name__ == "__main__":
+
+def main():
     cpuid = CPUID()
     cpu = cpuid(1)
     ## Lets play Guess The CPU!
@@ -163,4 +167,8 @@ if __name__ == "__main__":
 
     if not complete:
         print("Unable to determine CPU Family for this CPUID: %s" % my_id)
+        return 1
+    else: return 0
 
+if __name__ == "__main__":
+    sys.exit(main())

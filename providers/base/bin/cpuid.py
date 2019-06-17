@@ -4,22 +4,23 @@
 #
 # Copyright (c) 2014 Anders Høst
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-# the Software, and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 # Modifications: 2019 Jeffrey Lane (jeffrey.lane@canonical.com)
 
@@ -27,7 +28,8 @@ import ctypes
 import os
 import platform
 import sys
-from ctypes import c_uint32, c_int, c_long, c_ulong, c_size_t, c_void_p, POINTER, CFUNCTYPE
+from ctypes import (c_uint32, c_int, c_long, c_ulong, c_size_t, c_void_p,
+                    POINTER, CFUNCTYPE)
 from subprocess import check_output
 
 # Posix x86_64:
@@ -71,41 +73,43 @@ _CDECL_32_OPC = [
         0xc3                     # ret
 ]
 
-is_64bit   = ctypes.sizeof(ctypes.c_voidp) == 8
+is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
 
 CPUIDS = {
-        "Amber Lake":      ['0x806e9'],
-        "AMD EPYC":        ['0x800f12'],
-        "AMD Opteron 6100":['0x100f91'],
-        "AMD ROME":        ['0x830f10'],
-        "Broadwell":       ['0x4067', '0x306d4', '0x5066', '0x406f'],
-        "Canon Lake":      ['0x6066'],
-        "Cascade Lake":    ['0x50655', '0x50656', '0x50657'],
-        "Coffee Lake":     ['0x806ea', '0x906ea', '0x906eb', '0x906ec'],
-        "Haswell":         ['0x306c', '0x4065', '0x4066', '0x306f'],
-        "Ice Lake":        ['0x706e'],
-        "Ivy Bridge":      ['0x306a', '0x306e'],
-        "Kaby Lake":       ['0x806e9', '0x906e9'],
-        "Knights Landing": ['0x5067'],
-        "Knights Mill":    ['0x8065'],
-        "Nehalem":         ['0x106a', '0x106e5', '0x206e'],
-        "Pineview":        ['0x106ca'],
-        "Penryn":          ['0x1067a'],
-        "Sandy Bridge":    ['0x206a', '0x206d'],
-        "Skylake":         ['0x406e3', '0x506e3', '0x50654', '0x50652'],
-        "Westmere":        ['0x2065', '0x206c', '0x206f'],
-        "Whisky Lake":     ['0x806eb', '0x806ec'],
+        "Amber Lake":       ['0x806e9'],
+        "AMD EPYC":         ['0x800f12'],
+        "AMD Opteron 6100": ['0x100f91'],
+        "AMD ROME":         ['0x830f10'],
+        "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
+        "Canon Lake":       ['0x6066'],
+        "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
+        "Coffee Lake":      ['0x806ea', '0x906ea', '0x906eb', '0x906ec'],
+        "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
+        "Ice Lake":         ['0x706e'],
+        "Ivy Bridge":       ['0x306a', '0x306e'],
+        "Kaby Lake":        ['0x806e9', '0x906e9'],
+        "Knights Landing":  ['0x5067'],
+        "Knights Mill":     ['0x8065'],
+        "Nehalem":          ['0x106a', '0x106e5', '0x206e'],
+        "Pineview":         ['0x106ca'],
+        "Penryn":           ['0x1067a'],
+        "Sandy Bridge":     ['0x206a', '0x206d'],
+        "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
+        "Westmere":         ['0x2065', '0x206c', '0x206f'],
+        "Whisky Lake":      ['0x806eb', '0x806ec'],
         }
+
 
 class CPUID_struct(ctypes.Structure):
     _fields_ = [(r, c_uint32) for r in ("eax", "ebx", "ecx", "edx")]
+
 
 class CPUID(object):
     def __init__(self):
         if platform.machine() not in ("AMD64", "x86_64", "x86", "i686"):
             print("ERROR: Only available for x86")
             sys.exit(1)
-        
+
         opc = _POSIX_64_OPC if is_64bit else _CDECL_32_OPC
 
         size = len(opc)
@@ -147,28 +151,29 @@ class CPUID(object):
 def main():
     cpuid = CPUID()
     cpu = cpuid(1)
-    ## Lets play Guess The CPU!
 
+    # Lets play Guess The CPU!
     # First lets get the name from /proc/cpuinfo
     cpu_data = check_output('lscpu', universal_newlines=True).split('\n')
     for line in cpu_data:
         if line.startswith('Model name:'):
             print("CPU Model: %s" % line.split(':')[1].lstrip())
 
-
     my_id = (hex(cpu[0]))
     complete = False
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:
             if value in my_id:
-                print("CPUID: %s which appears to be a %s processor" % 
-                      (my_id,key))
+                print("CPUID: %s which appears to be a %s processor" %
+                      (my_id, key))
                 complete = True
 
     if not complete:
         print("Unable to determine CPU Family for this CPUID: %s" % my_id)
         return 1
-    else: return 0
+    else:
+        return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

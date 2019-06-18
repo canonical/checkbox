@@ -193,21 +193,7 @@ def netplan_apply_config():
 
 
 def perform_ping_test(interface):
-    """Simple ping test - change to call gateway_ping_test ??"""
-    # Get gateway ip for ping test
-    server_ip = ""
-    with open("/proc/net/route", "r") as route_file:
-        for line in route_file:
-            if (line.split()[0] == interface
-                    and line.split()[1] == "00000000"):
-                server_ip = inet_ntoa(
-                    pack('<I', int(line.split()[2], 16)))
-        if server_ip == "":
-            print("Can't find default gateway ip, exiting...")
-            return False
-
-    # Test connection by ping
-    cmd = "ping -c 5 -I {} {}".format(interface, server_ip)
+    cmd = 'gateway_ping_test -v --interface={}'.format(interface)
     print_cmd(cmd)
     retcode = sp.call(cmd, shell=True)
     return retcode == 0

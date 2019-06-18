@@ -13,6 +13,7 @@ To see how to use, please run "./wifi_client_test_netplan.py --help"
 """
 
 import argparse
+import datetime
 import functools
 import glob
 import os
@@ -212,6 +213,16 @@ def perform_ping_test(interface):
     return retcode == 0
 
 
+def print_journal_entries(start):
+    print_head("Journal Entries")
+    cmd = ('journalctl -q --no-pager '
+           '-u systemd-networkd.service '
+           '-u wpa_supplicant.service '
+           '--since "{}" '.format(start.strftime('%Y-%m-%d %H:%M:%S')))
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+
+
 def main():
     # Read arguments
     parser = argparse.ArgumentParser(
@@ -241,6 +252,8 @@ def main():
         default="")
     args = parser.parse_args()
 
+    start_time = datetime.datetime.now()
+
     netplan_config_backup()
     netplan_config_wipe()
 
@@ -257,6 +270,7 @@ def main():
     if not netplan_apply_config():
         delete_test_config()
         netplan_config_restore()
+        print_journal_entries(start_time)
         raise SystemExit(1)
     print()
     time.sleep(20)
@@ -273,9 +287,11 @@ def main():
     netplan_config_restore()
 
     if not netplan_apply_config():
+        print_journal_entries(start_time)
         raise SystemExit("ERROR: failed to apply restored config")
 
     if not test_result:
+        print_journal_entries(start_time)
         raise SystemExit(1)
 
 

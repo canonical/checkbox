@@ -1,0 +1,40 @@
+name: checkbox-edgexfoundry
+summary: Checkbox tests for EdgeX Foundry
+description: "The provider is a collection of EdgeX Foundry tests to be run on Snappy devices.\n"
+version: '0.1.dev'
+grade: stable
+
+plugs:
+  checkbox-runtime:
+    interface: content
+    target: $SNAP/checkbox-runtime
+    default-provider: checkbox
+
+apps:
+  checkbox-cli:
+    command: bin/checkbox-cli-wrapper
+    plugs: &standard [home, network-bind, hardware-observe,
+      mount-observe, network-manager, pulseaudio, serial-port,
+      system-observe]
+  test-runner:
+    command: bin/test-runner
+    plugs: *standard
+  remote-slave:
+    command: bin/checkbox-slave
+    daemon: simple
+    restart-condition: on-failure
+    plugs: *standard
+  shell:
+    command: bin/shell-wrapper
+    plugs: *standard
+
+parts:
+  checkbox-provider-edgex:
+    plugin: checkbox-provider
+    source: ./
+    source-type: local
+  launchers:
+    plugin: dump
+    source: launchers/
+    organize:
+      '*': bin/

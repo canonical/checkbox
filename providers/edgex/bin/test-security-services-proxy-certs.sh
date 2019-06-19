@@ -24,13 +24,13 @@ sleep 240
 
 # copy the root certificate to confirm that can be used to authenticate the
 # kong server
-cp /var/snap/edgexfoundry/current/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem /tmp/EdgeXFoundryCA.pem
+cp /var/snap/edgexfoundry/current/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem /var/snap/edgexfoundry/current/EdgeXFoundryCA.pem
 
 # make the CA world-readable
-chmod +r /tmp/EdgeXFoundryCA.pem
+chmod +r /var/snap/edgexfoundry/current/EdgeXFoundryCA.pem
 
 # use curl to talk to the kong admin endpoint with the cert
-edgexfoundry.curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null
+edgexfoundry.curl --cacert /var/snap/edgexfoundry/current/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null
 
 # restart all of EdgeX (including the security-services) and make sure the 
 # same certificate still works
@@ -38,7 +38,7 @@ snap disable edgexfoundry > /dev/null
 snap enable edgexfoundry > /dev/null
 
 sleep 240
-edgexfoundry.curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null
+edgexfoundry.curl --cacert /var/snap/edgexfoundry/current/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null
 
 # remove the snap to run the next test
 snap_remove

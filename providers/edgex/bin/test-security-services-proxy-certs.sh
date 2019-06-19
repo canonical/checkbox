@@ -34,7 +34,8 @@ edgexfoundry.curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/comman
 
 # restart all of EdgeX (including the security-services) and make sure the 
 # same certificate still works
-snap restart edgexfoundry > /dev/null
+snap disable edgexfoundry > /dev/null
+snap enable edgexfoundry > /dev/null
 
 sleep 240
 edgexfoundry.curl --cacert /tmp/EdgeXFoundryCA.pem https://localhost:8443/command > /dev/null

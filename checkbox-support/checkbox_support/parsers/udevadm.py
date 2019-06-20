@@ -23,6 +23,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 from subprocess import check_output, CalledProcessError
+import os
 import re
 import string
 
@@ -1287,6 +1288,17 @@ class UdevadmParser(object):
                     dev_interface = dev_interface.pop()
                     device.interface = dev_interface.interface
                     self.devices.pop(dev_interface._raw_path, None)
+            elif device.category == 'CAPTURE':
+                meta_capture_device = [
+                    d for d in self.devices.values()
+                    if d.category == 'CAPTURE' and
+                    device._raw_path != d._raw_path and
+                    device._environment["MINOR"] < d._environment["MINOR"] and
+                    os.path.dirname(device._raw_path) in d._raw_path
+                ]
+                if meta_capture_device:
+                    meta_device = meta_capture_device.pop()
+                    self.devices.pop(meta_device._raw_path, None)
             elif device.category == 'DISK':
                 # If dev/mapper list devices then they take precedence over the
                 # other block devices

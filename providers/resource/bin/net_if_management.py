@@ -89,8 +89,14 @@ def main():
         print('device: {}'.format(n))
         print('nmcli_available: {}'.format(nm_conf.available))
 
+        if n in netplan_conf.wifis:
+            category_scope_manager = netplan_conf.wifis.get('renderer')
+        elif n in netplan_conf.ethernets:
+            category_scope_manager = netplan_conf.ethernets.get('renderer')
+
         # Netplan config indcates NM
-        if global_scope_manager == States.nm.value:
+        if (global_scope_manager == States.nm.value or
+                category_scope_manager == States.nm.value):
             # if NM isnt actually available this is a bad config
             if not nm_conf.available:
                 print('managed_by: {}'.format(States.error.value))

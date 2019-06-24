@@ -560,7 +560,7 @@ class TestPlanBrowser():
         urwid.Text("                                Home/End"),
         urwid.Text("                                PageUp/PageDown"),
         urwid.Text("Toggle test plan id/summary     i"),
-        urwid.Text("Filter test plan list           f,s,/")
+        urwid.Text("Filter test plan list           f,s,/"),
         urwid.Text("Exit (abandon session)          Ctrl+C")]))
 
     def __init__(self, title, test_plan_list, selection=None):

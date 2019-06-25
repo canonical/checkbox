@@ -33,7 +33,7 @@ class SudoBrokerTests(TestCase):
             sb = SudoBroker()
         pubkey = RSA.importKey(sb.master_public)
         ciphertext = pubkey.encrypt(b'foobar', '_')
-        self.assertEqual('foobar', sb.decrypt_password(ciphertext))
+        self.assertEqual(b'foobar', sb.decrypt_password(ciphertext))
 
     def test_public_key_same_after_export(self):
         with patch('Crypto.PublicKey.RSA.generate',
@@ -53,7 +53,7 @@ class IntegrationTests(TestCase):
         with patch('getpass.getpass', return_value='burnafterreading'):
             provider.ask_for_password()
         self.assertEqual(
-            'burnafterreading',
+            b'burnafterreading',
             broker.decrypt_password(provider.encrypted_password))
 
     def test_works_from_exported_master(self):
@@ -83,7 +83,7 @@ class IntegrationTests(TestCase):
         new_broker = SudoBroker(exported, new_master_passphrase)
         # new_broker should be functionally the same ads original_broker
         self.assertEqual(
-            'burnafterreading',
+            b'burnafterreading',
             new_broker.decrypt_password(provider.encrypted_password))
 
 # following keys could be a set of real, generated keys, but it takes a while

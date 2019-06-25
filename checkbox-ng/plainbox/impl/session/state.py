@@ -222,9 +222,6 @@ class SessionDeviceContext:
         and also exposes some legacy API for computing the run list and the
         desired job list
     """
-
-    # Cache key that stores the list of execution controllers
-    _CACHE_EXECUTION_CTRL_LIST = 'execution_controller_list'
     # Cache key that stores the map of field overrides
     _CACHE_OVERRIDE_MAP = 'override_map'
 
@@ -324,22 +321,6 @@ class SessionDeviceContext:
             Currently you cannot reorder the list of units.
         """
         return self._unit_list
-
-    @property
-    def execution_controller_list(self):
-        """
-        A list of execution controllers applicable in this context.
-
-        :returns:
-            A list of IExecutionController objects
-
-        .. note::
-            The return value is different whenever a provider is added to the
-            context. If you have obtained this value in the past it may be
-            no longer accurate.
-        """
-        return self.compute_shared(
-            self._CACHE_EXECUTION_CTRL_LIST, self._compute_execution_ctrl_list)
 
     @property
     def override_map(self):
@@ -467,46 +448,10 @@ class SessionDeviceContext:
             raise KeyError(unit_id)
         return unit
 
-    def get_ctrl_for_job(self, job):
-        """
-        Get the execution controller most applicable to run this job.
-
-        :param job:
-            A job definition to run
-        :returns:
-            An execution controller instance
-        :raises LookupError:
-            if no execution controller capable of running the specified job can
-            be found
-
-        The best controller is the controller that has the highest score
-        (as computed by :meth:`IExecutionController.get_score()) for the
-        job in question.
-        """
-        # Compute the score of each controller
-        ctrl_score = [
-            (ctrl, ctrl.get_score(job))
-            for ctrl in self.execution_controller_list]
-        # Sort scores
-        ctrl_score.sort(key=lambda pair: pair[1])
-        # Get the best score
-        ctrl, score = ctrl_score[-1]
-        # Ensure that the controller is viable
-        if score < 0:
-            raise LookupError(
-                _("No exec controller supports job {}").format(job))
-        logger.debug(
-            _("Selected execution controller %s (score %d) for job %r"),
-            ctrl.__class__.__name__, score, job.id)
-        return ctrl
-
     @morris.signal
     def on_provider_added(self, provider):
         """Signal sent whenever a provider is added to the context."""
         logger.info(_("Provider %s added to context %s"), provider, self)
-        # Invalidate the list of execution controllers as they depend
-        # on the accuracy of provider_list
-        self._invalidate_execution_ctrl_list()
 
     @morris.signal
     def on_unit_added(self, unit):
@@ -557,33 +502,6 @@ class SessionDeviceContext:
         """Invalidate a cached shared value."""
         if cache_key in self._shared_cache:
             del self._shared_cache[cache_key]
-
-    def _compute_execution_ctrl_list(self):
-        """Compute the list of execution controllers."""
-        # TODO: tie this with the upcoming device patches
-        import sys
-        if sys.platform == 'linux':
-            from plainbox.impl.ctrl import RootViaPkexecExecutionController
-            from plainbox.impl.ctrl import RootViaPTL1ExecutionController
-            from plainbox.impl.ctrl import RootViaSudoExecutionController
-            from plainbox.impl.ctrl import UserJobExecutionController
-            return [
-                RootViaPTL1ExecutionController(self.provider_list),
-                RootViaPkexecExecutionController(self.provider_list),
-                # XXX: maybe this one should be only used on command line
-                RootViaSudoExecutionController(self.provider_list),
-                UserJobExecutionController(self.provider_list),
-            ]
-        elif sys.platform == 'win32':
-            from plainbox.impl.ctrl import UserJobExecutionController
-            return [UserJobExecutionController(self.provider_list)]
-        else:
-            logger.warning("Unsupported platform: %s", sys.platform)
-            return []
-
-    def _invalidate_execution_ctrl_list(self, *args, **kwargs):
-        """Invalidate the list of execution controllers."""
-        self.invalidate_shared(self._CACHE_EXECUTION_CTRL_LIST)
 
     def _compute_override_map(self):
         """Compute the map of field overrides."""

@@ -21,15 +21,19 @@ associated with a particular stage of checkbox execution.
 """
 import abc
 import datetime
+import getpass
 import gettext
 import json
 import logging
 import os
+import sys
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import tr_outcome
+from plainbox.impl.secure.sudo_broker import validate_pass
+from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
@@ -71,6 +75,11 @@ class CheckboxUiStage(metaclass=abc.ABCMeta):
 
 
 class MainLoopStage(CheckboxUiStage):
+
+    def __init__(self):
+        super().__init__()
+        self._sudo_password = None
+        self._passwordless_sudo = False
 
     def _run_single_job_with_ui_loop(self, job, ui):
         print(self.C.header(job.tr_summary(), fill='-'))
@@ -286,6 +295,19 @@ class MainLoopStage(CheckboxUiStage):
             }
             tp_info_list.append(tp_info)
         return tp_info_list
+
+    def _get_sudo_password(self):
+        if self._sudo_password:
+            return self._sudo_password
+        pass_is_correct = False
+        while not pass_is_correct:
+            prompt = 'Enter sudo password:\n'
+            password = getpass.getpass(prompt).encode(sys.stdin.encoding)
+            pass_is_correct = validate_pass(password)
+            if not pass_is_correct:
+                print(_('Sorry, try again.'))
+        self._sudo_password = password
+        return password
 
 
 class ReportsStage(CheckboxUiStage):

@@ -42,11 +42,13 @@ from guacamole import Command
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
 from plainbox.impl.color import Colorizer
+from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.providers import get_providers
 from plainbox.impl.providers.embedded_providers import (
     EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
@@ -379,7 +381,14 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             title = os.path.basename(self.ctx.args.launcher)
         if self.launcher.app_version:
             title += ' {}'.format(self.launcher.app_version)
-        self.ctx.sa.start_new_session(title)
+        pass_provider = (None if is_passwordless_sudo() else
+                         self._get_sudo_password)
+        runner_kwargs = {
+            'normal_user_provider': lambda: self.launcher.normal_user,
+            'password_provider': pass_provider,
+            'stdin': None,
+        }
+        self.ctx.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
         if self.launcher.test_plan_forced:
             tp_id = self.launcher.test_plan_default_selection
         elif not self.is_interactive:
@@ -673,7 +682,17 @@ class Run(Command, MainLoopStage):
                 self.sa,
                 '*',
                 additional_providers=additional_providers)
-            self.sa.start_new_session(self.ctx.args.title or 'checkbox-run')
+            pass_provider = (None if is_passwordless_sudo() else
+                         self._get_sudo_password)
+            runner_kwargs = {
+                'normal_user_provider': lambda: None,
+                'password_provider': pass_provider,
+                'stdin': None,
+            }
+            self.sa.start_new_session(
+                self.ctx.args.title or 'checkbox-run',
+                UnifiedRunner,
+                runner_kwargs)
             tps = self.sa.get_test_plans()
             self._configure_report()
             selection = ctx.args.PATTERN
@@ -902,7 +921,7 @@ class TestPlanExport(Command):
         if ctx.args.nofake:
             self.sa.start_new_session('tp-export-ephemeral')
         else:
-            from plainbox.impl.runner import FakeJobRunner
+            from plainbox.impl.execution import FakeJobRunner
             self.sa.start_new_session('tp-export-ephemeral', FakeJobRunner)
             self.sa._context.state._fake_resources = True
         tps = self.sa.get_test_plans()

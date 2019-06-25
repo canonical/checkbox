@@ -429,3 +429,17 @@ plugin: resource
 estimated_duration: 1.0
 command:
   snapd_resource features
+
+id: net_if_management
+_summary: Identify what service is managing each physical network interface
+_description:
+ Network interfaces on Ubuntu systems are generally configured by either
+ systemd-networkd or NetworkManager. This configuration can be maintained using
+ the Netplan utility. This resource attempts to identify which "renderer" is
+ responsible for cofiguring an individual interface allowing appropriate tests
+ to be run.
+plugin: resource
+estimated_duration: 2.0
+user: root
+command:
+  net_if_management.py

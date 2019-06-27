@@ -88,6 +88,8 @@ setup(
                 "checkbox_support.scripts.snap_connect:main"),
             ("checkbox-support-eddystone_scanner="
                 "checkbox_support.scripts.eddystone_scanner:main"),
+            ("checkbox-support-lsusb="
+                "checkbox_support.scripts.lsusb:main"),
         ],
     },
 )

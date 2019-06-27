@@ -93,18 +93,20 @@ class BackgroundExecutor(Thread):
         self._job_id = job_id
         self._real_run = real_run
         self._builder = None
+        self._started_real_run = False
         self._sa.session_change_lock.acquire()
         self.start()
         _logger.debug("BackgroundExecutor started for %s" % job_id)
 
     def wait(self):
-        while self.is_alive():
+        while self.is_alive() or not self._started_real_run:
             # return control to RPC server
             time.sleep(0.1)
         self.join()
         return self._builder
 
     def run(self):
+        self._started_real_run = True
         self._builder = self._real_run(
             self._job_id, self._sa.buffered_ui, False)
         _logger.debug("Finished running")

@@ -343,6 +343,10 @@ class UnifiedRunner(IJobRunner):
                 _("Please store desired files in $PLAINBOX_SESSION_SHARE"
                     "and use regular temporary files for everything else"))
 
+    def get_record_path_for_job(self, job):
+        return os.path.join(self._jobs_io_log_dir,
+                            "{}.record.gz".format(slugify(job.id)))
+
 
 class FakeJobRunner(UnifiedRunner):
     """

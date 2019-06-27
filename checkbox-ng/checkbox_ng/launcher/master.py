@@ -391,7 +391,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                     else:
                         SimpleUI.green_text(line, end='')
             if state == 'running':
-                time.sleep(0.01)
+                time.sleep(0.5)
                 while True:
                     res = select.select([sys.stdin], [], [], 0)
                     if not res[0]:

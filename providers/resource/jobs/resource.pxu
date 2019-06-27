@@ -220,7 +220,7 @@ command:
  for version in 2 3; do
      echo -n "usb$version: "
      if [[ -v SNAP ]]; then
-         lsusb.py -f $SNAP/var/lib/usbutils/usb.ids | grep -q "Linux Foundation ${version}.00 root hub" && echo "supported" || echo "unsupported"
+         checkbox-support-lsusb -f $SNAP/checkbox-runtime/var/lib/usbutils/usb.ids | grep -q "Linux Foundation ${version}.00 root hub" && echo "supported" || echo "unsupported"
      else
          lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
      fi

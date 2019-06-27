@@ -89,10 +89,13 @@ def main():
         print('device: {}'.format(n))
         print('nmcli_available: {}'.format(nm_conf.available))
 
+        category_scope_manager = States.unspecified.value
         if n in netplan_conf.wifis:
-            category_scope_manager = netplan_conf.wifis.get('renderer')
+            category_scope_manager = netplan_conf.wifis.get(
+                'renderer', States.unspecified.value)
         elif n in netplan_conf.ethernets:
-            category_scope_manager = netplan_conf.ethernets.get('renderer')
+            category_scope_manager = netplan_conf.ethernets.get(
+                'renderer', States.unspecified.value)
 
         # Netplan config indcates NM
         if (global_scope_manager == States.nm.value or

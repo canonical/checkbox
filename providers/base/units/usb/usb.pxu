@@ -7,7 +7,7 @@ estimated_duration: 1.0
 command:
  set -o pipefail
  if [[ -v SNAP ]]; then
-     lsusb.py -f $SNAP/var/lib/usbutils/usb.ids 2>/dev/null | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
+     checkbox-support-lsusb -f $SNAP/checkbox-runtime/var/lib/usbutils/usb.ids 2>/dev/null | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
  else
      lsusb 2>/dev/null | sort || echo "No USB devices were detected" >&2
  fi

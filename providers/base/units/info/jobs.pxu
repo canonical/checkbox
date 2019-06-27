@@ -103,7 +103,7 @@ category_id: com.canonical.plainbox::info
 user: root
 command:
  if [[ -v SNAP ]]; then
-     lsusb.py -f $SNAP/var/lib/usbutils/usb.ids
+     checkbox-support-lsusb -f $SNAP/checkbox-runtime/var/lib/usbutils/usb.ids
  else
      lsusb -vv | iconv -t 'utf-8' -c
  fi

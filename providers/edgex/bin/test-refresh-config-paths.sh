@@ -8,10 +8,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
-# remove the snap if it's already installed
+DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
+
 snap_remove
 
-for channel in delhi stable; do 
+echo "skipping test until snap with epoch 1 is released to edge"
+exit 0
+
+for channel in edge; do 
     # first make sure that the snap installs correctly from the channel
     case "$channel" in 
         delhi)
@@ -48,7 +52,7 @@ for channel in delhi stable; do
     if [ -n "$REVISION_TO_TEST" ]; then
         snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
     else
-        snap_refresh edgexfoundry beta 
+        snap_refresh edgexfoundry "$DEFAULT_TEST_CHANNEL"  
     fi
 
     # wait for services to come online

@@ -10,11 +10,13 @@ source "$SCRIPT_DIR/utils.sh"
 
 snap_remove
 
+DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
+
 # install the snap to make sure it installs
 if [ -n "$REVISION_TO_TEST" ]; then
     snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
 else
-    snap_install edgexfoundry beta 
+    snap_install edgexfoundry "$DEFAULT_TEST_CHANNEL" 
 fi
 
 # remove the snap to run again

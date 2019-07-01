@@ -102,6 +102,9 @@ EDGEX_DELHI_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=delhi)
 export EDGEX_STABLE_SNAP_FILE
 export EDGEX_DELHI_SNAP_FILE
 
+# make sure to remove the snap if it's installed before running
+snap_remove 2>/dev/null > /dev/null
+
 set +e
 if [ -n "$SINGLE_TEST" ]; then
     printf "running single test: %s ..." "$SINGLE_TEST"

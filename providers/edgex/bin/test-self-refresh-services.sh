@@ -9,13 +9,15 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 # remove the snap if it's already installed
+DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
+
 snap_remove
 
 # install the snap version we are testing
 if [ -n "$REVISION_TO_TEST" ]; then
     snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
 else
-    snap_install edgexfoundry beta
+    snap_install edgexfoundry "$DEFAULT_TEST_CHANNEL" 
 fi
 
 # wait for services to come online
@@ -30,7 +32,7 @@ if [ -n "$REVISION_TO_TEST" ]; then
 else
     # if we aren't running locally, then we need to download the revision and
     # install it locally as if it was a different revision
-    snap_download_output=$(snap download edgexfoundry --beta)
+    snap_download_output=$(snap download edgexfoundry --channel="$DEFAULT_TEST_CHANNEL")
     THIS_REVISION_LOCALLY="$(pwd)/$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.snap')"
     snap_install "$THIS_REVISION_LOCALLY" "" "--devmode"
 fi
@@ -41,11 +43,11 @@ fi
 sleep 120
 
 # ignore failures for now due to https://bugs.launchpad.net/snapd/+bug/1818306
-snap_check_delhi_svcs --notfatal
+snap_check_edinburgh_svcs --notfatal
 
-# ensure the release config item is set to delhi
+# ensure the release config item is set to edinburgh
 snapRelease=$(snap get edgexfoundry release)
-if [ "$snapRelease" != "delhi" ]; then
+if [ "$snapRelease" != "edinburgh" ]; then
     echo "missing or invalid config item for snap release: \"$snapRelease\""
     snap_remove
     exit 1

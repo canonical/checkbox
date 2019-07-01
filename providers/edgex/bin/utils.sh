@@ -142,7 +142,7 @@ snap_check_edinburgh_svcs()
     done
 
     # disabled services
-    for svc in device-modbus device-mqtt device-random export-client export-distro support-logging support-notifications support-rulesengine support-scheduler; do 
+    for svc in device-random export-client export-distro support-logging support-notifications support-rulesengine support-scheduler; do 
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "disabled" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be disabled"
@@ -154,7 +154,7 @@ snap_check_edinburgh_svcs()
 
     # inactive services
     # all the disabled services + the oneshot daemons
-    for svc in core-config-seed device-modbus device-mqtt device-random edgexproxy export-client export-distro mongo-worker pkisetup support-logging support-notifications support-rulesengine support-scheduler vault-worker; do 
+    for svc in core-config-seed device-random edgexproxy export-client export-distro mongo-worker pkisetup support-logging support-notifications support-rulesengine support-scheduler vault-worker; do 
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
         if [ "inactive" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be inactive"

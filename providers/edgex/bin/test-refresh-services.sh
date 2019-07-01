@@ -8,10 +8,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
-# remove the snap if it's already installed
+DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
+
 snap_remove
 
-for channel in delhi stable; do 
+echo "skipping test until snap with epoch 1 is released to edge"
+exit 0
+
+for channel in edge; do 
     # first make sure that the snap installs correctly from the channel
     # use locally cached version of stable and delhi
     case "$channel" in 
@@ -37,13 +41,13 @@ for channel in delhi stable; do
     # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
     # to accomodate time for everything to come online
     sleep 120
-    snap_check_delhi_svcs
+    snap_check_edinburgh_svcs
 
     # now install the snap version we are testing and check again
     if [ -n "$REVISION_TO_TEST" ]; then
         snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
     else
-        snap_refresh edgexfoundry beta 
+        snap_refresh edgexfoundry "$DEFAULT_TEST_CHANNEL"  
     fi
     # wait for services to come online
     # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
@@ -51,7 +55,7 @@ for channel in delhi stable; do
     sleep 120
 
     # ignore failures for now due to https://bugs.launchpad.net/snapd/+bug/1818306
-    snap_check_delhi_svcs --notfatal
+    snap_check_edinburgh_svcs --notfatal
 
     # remove the snap to run the next channel upgrade
     snap_remove

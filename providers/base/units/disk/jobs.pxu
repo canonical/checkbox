@@ -75,7 +75,7 @@ user: root
 requires:
 _summary: Disk I/O stress test for {product_slug}
 _description: Take the path of the storage device and test is it a block device
-command: storage_test {name}
+command: storage_test.py {name}
 
 unit: template
 template-resource: device

@@ -205,6 +205,7 @@ parts:
       - pyotherside
       - python3-dbus
       - python3-gi
+      - python3-psutil
       - python3-yaml
       - qml-module-qtquick-controls
       - qml-module-qtquick-layouts

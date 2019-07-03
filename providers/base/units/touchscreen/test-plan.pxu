@@ -27,7 +27,7 @@ _description:
  Touchscreen tests (Automated)
 include:
 
-id: after-suspend-cert-full
+id: after-suspend-touchscreen-cert-full
 unit: test plan
 _name: Touchscreen tests
 _description:

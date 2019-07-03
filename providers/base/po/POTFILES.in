@@ -130,7 +130,6 @@ bin/samba_test
 [type: gettext/python] bin/sleep_time_check
 bin/sources_test
 bin/spindown
-bin/storage_test
 bin/tomcat_test
 [type: gettext/python] bin/touchpad_driver_info
 [type: gettext/python] bin/touchpad_test

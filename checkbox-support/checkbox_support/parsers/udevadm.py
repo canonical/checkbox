@@ -481,8 +481,8 @@ class UdevadmDevice(object):
                     # we need to report.
                     return "DISK"
                 if '/dev/mapper' in self._environment.get('DEVLINKS', ''):
-                    if "ID_FS_TYPE" in self._environment:
-                        if self._environment["ID_FS_TYPE"] != 'swap':
+                    if "ID_FS_USAGE" in self._environment:
+                        if self._environment["ID_FS_USAGE"] == 'filesystem':
                             return "DISK"
                     else:
                         return "DISK"
@@ -1059,8 +1059,8 @@ class UdevadmParser(object):
 
         # Keep /dev/mapper devices (non swap)
         if '/dev/mapper' in device._environment.get('DEVLINKS', ''):
-            if "ID_FS_TYPE" in device._environment:
-                if device._environment["ID_FS_TYPE"] == 'swap':
+            if "ID_FS_USAGE" in device._environment:
+                if device._environment["ID_FS_USAGE"] != 'filesystem':
                     return True
             return False
 
@@ -1233,8 +1233,8 @@ class UdevadmParser(object):
         for d in self.devices.values():
             if d.category == 'DISK':
                 if '/dev/mapper' in d._environment.get('DEVLINKS', ''):
-                    if "ID_FS_TYPE" in d._environment:
-                        if d._environment["ID_FS_TYPE"] != 'swap':
+                    if "ID_FS_USAGE" in d._environment:
+                        if d._environment["ID_FS_USAGE"] == 'filesystem':
                             dev_mapper_devices.append(d)
                     else:
                         dev_mapper_devices.append(d)

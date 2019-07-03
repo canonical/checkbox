@@ -506,7 +506,15 @@ class RemoteSessionAssistant():
             print("Requested session not found")
             return
         _logger.warning("Resuming session: %r", session_id)
-        meta = self._sa.resume_session(session_id)
+        self._normal_user = self._launcher.normal_user
+        pass_provider = (None if self._passwordless_sudo else
+                         self.get_decrypted_password)
+        runner_kwargs = {
+            'normal_user_provider': lambda: self._normal_user,
+            'password_provider': pass_provider,
+            'stdin': self._pipe_to_subproc,
+        }
+        meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
         launcher = app_blob['launcher']
         self._launcher.read_string(launcher)

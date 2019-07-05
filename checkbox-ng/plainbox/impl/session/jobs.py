@@ -262,15 +262,6 @@ def job_assign_filter(instance, field, old_value, new_value):
     return new_value
 
 
-def job_via_assign_filter(instance, field, old_value, new_value):
-    """A custom setter for JobState.via_job."""
-    if (old_value is not pod.UNSET and
-        not isinstance(new_value, JobDefinition) and
-            new_value is not None):
-        raise TypeError("via_job must be the actual job, not the checksum")
-    return new_value
-
-
 class JobState(pod.POD):
 
     """
@@ -282,7 +273,6 @@ class JobState(pod.POD):
         * the result (outcome) of the run (IJobResult)
         * the effective category identifier
         * the effective certification status
-        * the job that was used to create it (via_job)
 
     For convenience (to SessionState implementation) it also has a reference to
     the job itself.  This class is a pure state holder an will typically
@@ -310,11 +300,6 @@ class JobState(pod.POD):
         doc="a tuple of result_history of the associated job",
         type=tuple, initial=(), notify=True,
         assign_filter_list=[pod.typed, pod.typed.sequence(IJobResult)])
-
-    via_job = pod.Field(
-        doc="the parent job definition",
-        type=JobDefinition,
-        assign_filter_list=[job_via_assign_filter])
 
     effective_category_id = OverridableJobField(
         job_field="category_id",

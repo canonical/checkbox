@@ -149,7 +149,6 @@ class JobStateTests(TestCase):
                          self.job.certification_status)
         self.assertEqual(self.job_state.effective_auto_retry,
                          self.job.auto_retry)
-        self.assertIsNone(self.job_state.via_job)
 
     def test_getting_job(self):
         self.assertIs(self.job_state.job, self.job)
@@ -246,19 +245,3 @@ class JobStateTests(TestCase):
         self.job_state.effective_certification_status = 'value'
         self.assertEqual(self.job_state.effective_certification_status,
                          'value')
-
-    def test_setting_via_job__TypeError(self):
-        with self.assertRaises(TypeError):
-            self.job_state.via_job = 'value'
-
-    def test_setting_via_job(self):
-        parent = make_job("parent")
-        self.job_state.via_job = parent
-        self.assertIs(self.job_state.via_job, parent)
-
-    def test_resetting_via_job(self):
-        parent = make_job("parent")
-        self.job_state.via_job = parent
-        self.assertIs(self.job_state.via_job, parent)
-        self.job_state.via_job = None
-        self.assertIs(self.job_state.via_job, None)

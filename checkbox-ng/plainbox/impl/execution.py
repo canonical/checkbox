@@ -35,6 +35,7 @@ import time
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
+from plainbox.impl.color import Colorizer
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import CommandOutputWriter
@@ -93,6 +94,13 @@ class UnifiedRunner(IJobRunner):
             from_cache, result = self._resource_cache.get(
                 job.checksum, lambda: self._run_command(
                     job, config).get_result())
+            if from_cache:
+                print(Colorizer().header(_("Using cached data!")))
+                jrud = self._job_runner_ui_delegate
+                jrud.on_begin('', dict())
+                for io_log_entry in result.io_log:
+                    jrud.on_chunk(io_log_entry.stream_name, io_log_entry.data)
+                jrud.on_end(result.return_code)
             return result
 
         # manual jobs don't require running anything so we just return

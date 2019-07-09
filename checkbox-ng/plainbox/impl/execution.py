@@ -92,7 +92,7 @@ class UnifiedRunner(IJobRunner):
         if job.plugin == 'resource' and 'cachable' in job.get_flag_set():
             return self._resource_cache.get(
                 job.checksum, lambda: self._run_command(
-                    job, job_state, config).get_result())
+                    job, config).get_result())
 
         # manual jobs don't require running anything so we just return
         # the 'undecided' outcome

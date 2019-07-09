@@ -74,7 +74,6 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
         self.assertIsNone(result.outcome)
         self.assertIsNone(result.comments)
         self.assertEqual(result.io_log, ())
-        assert mock_logger.warning.call_count == 1
         self.assertIsNone(result.return_code)
         self.assertTrue(result.is_hollow)
 
@@ -98,7 +97,6 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
-        assert mock_logger.warning.call_count == 1
         self.assertEqual(result.io_log_as_flat_text, 'blah\n')
         self.assertEqual(result.return_code, 0)
         self.assertFalse(result.is_hollow)

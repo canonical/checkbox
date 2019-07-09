@@ -235,8 +235,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                 ctx.sa,
                 *self.launcher.providers,
                 additional_providers=additional_providers)
-            if ctx.args.clear_cache:
-                ctx.sa.clear_cache()
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()

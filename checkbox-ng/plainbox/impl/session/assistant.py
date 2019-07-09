@@ -44,7 +44,6 @@ from plainbox.impl.decorators import raises
 from plainbox.impl.developer import UnexpectedMethodCall
 from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.execution import UnifiedRunner
-from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.providers import get_providers
@@ -490,8 +489,6 @@ class SessionAssistant:
             "create a new session from scratch")
         allowed_calls[self.get_resumable_sessions] = (
             "get resume candidates")
-        allowed_calls[self.clear_cache] = (
-            "clear job cache")
         return self._selected_providers
 
     @morris.signal
@@ -1766,11 +1763,6 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         url = transport_details["url"]
         return OAuthTransport(url, '', transport_details)
-
-    @raises(UnexpectedMethodCall)
-    def clear_cache(self) -> None:
-        UsageExpectation.of(self).enforce()
-        ResourceJobCache().clear()
 
     def _get_allowed_calls_in_normal_state(self) -> dict:
         return {

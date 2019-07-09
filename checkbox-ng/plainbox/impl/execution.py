@@ -90,9 +90,10 @@ class UnifiedRunner(IJobRunner):
         # for cached resource jobs we get the result using cache
         # if it's not in the cache, ordinary "_run_command" will be run
         if job.plugin == 'resource' and 'cachable' in job.get_flag_set():
-            return self._resource_cache.get(
+            from_cache, result = self._resource_cache.get(
                 job.checksum, lambda: self._run_command(
                     job, config).get_result())
+            return result
 
         # manual jobs don't require running anything so we just return
         # the 'undecided' outcome

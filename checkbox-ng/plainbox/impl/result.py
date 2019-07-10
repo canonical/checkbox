@@ -517,7 +517,7 @@ class DiskJobResult(_JobResultBase):
     @property
     def io_log(self):
         caller_frame, filename, lineno = inspect.stack(0)[1][:3]
-        logger.warning(
+        logger.info(
             # TRANSLATORS: please keep DiskJobResult.io_log untranslated
             _("Expensive DiskJobResult.io_log property access from %s:%d"),
             filename, lineno)

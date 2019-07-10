@@ -60,16 +60,20 @@ class ResourceJobCache:
 
     def get(self, job_checksum, compute_fn):
         """
-        Get a result from cache run compute_fn to acquire it
+        Get a result from cache or run compute_fn to acquire it.
+        Return a pair containing:
+            - a bool signifying whether the result was found in cache
+            - a DiskJobResult object with the result
         """
-        if job_checksum not in self._cache.keys():
+        in_cache = job_checksum in self._cache.keys()
+        if not in_cache:
             logger.debug(_("%s not found in cache"), job_checksum)
             result = compute_fn().get_builder().as_dict()
             self._store(job_checksum, result.copy())
         else:
             logger.info(_("%s found in cache"), job_checksum)
             result = self._cache[job_checksum]
-        return DiskJobResult(result)
+        return in_cache, DiskJobResult(result)
 
     def _try_load_cache_entry(self, job_cache_path):
         job_checksum = os.path.basename(job_cache_path)

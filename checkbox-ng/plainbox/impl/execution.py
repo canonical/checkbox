@@ -35,6 +35,7 @@ import time
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
+from plainbox.impl.color import Colorizer
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import CommandOutputWriter
@@ -90,9 +91,17 @@ class UnifiedRunner(IJobRunner):
         # for cached resource jobs we get the result using cache
         # if it's not in the cache, ordinary "_run_command" will be run
         if job.plugin == 'resource' and 'cachable' in job.get_flag_set():
-            return self._resource_cache.get(
+            from_cache, result = self._resource_cache.get(
                 job.checksum, lambda: self._run_command(
                     job, config).get_result())
+            if from_cache:
+                print(Colorizer().header(_("Using cached data!")))
+                jrud = self._job_runner_ui_delegate
+                jrud.on_begin('', dict())
+                for io_log_entry in result.io_log:
+                    jrud.on_chunk(io_log_entry.stream_name, io_log_entry.data)
+                jrud.on_end(result.return_code)
+            return result
 
         # manual jobs don't require running anything so we just return
         # the 'undecided' outcome

@@ -36,6 +36,7 @@ from plainbox.impl.ingredients import CanonicalCrashIngredient
 from plainbox.impl.ingredients import CanonicalCommand
 from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
+from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 
@@ -193,6 +194,8 @@ class CheckboxCommand(CanonicalCommand):
         except Exception as exc:
             pass
 
+        if ctx.args.clear_cache:
+            ResourceJobCache().clear()
         if ctx.args.verbose:
             logging_level = logging.INFO
             logging.basicConfig(level=logging_level)

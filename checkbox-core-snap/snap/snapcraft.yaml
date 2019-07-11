@@ -1,7 +1,7 @@
 name: checkbox18
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-version: '1.5.dev'
+version: '1.6.dev'
 grade: stable
 
 base: core18
@@ -54,7 +54,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V19.06.00"
+    source-tag: ""
     source-depth: 1
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts

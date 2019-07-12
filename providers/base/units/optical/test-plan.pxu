@@ -31,6 +31,17 @@ include:
 bootstrap_include:
     device
 
+id: after-suspend-optical-cert-full
+unit: test plan
+_name: Optical drive tests (after suspend)
+_description:
+ Optical drive tests (after suspend)
+include:
+    optical/detect                                                      certification-status=blocker
+    after-suspend-manual-optical/read_.*                                certification-status=blocker
+    after-suspend-manual-optical/bluray-read_.*                         certification-status=blocker
+bootstrap_include:
+    device
 
 id: optical-cert-blockers
 unit: test plan
@@ -42,3 +53,15 @@ include:
     optical/bluray-read_.*                         certification-status=blocker
 bootstrap_include:
     device
+
+id: after-suspend-optical-cert-blockers
+unit: test plan
+_name: Optical drive tests (certification blockers only)
+_description: Optical drive tests (certification blockers only)
+include:
+    optical/detect                                                      certification-status=blocker
+    after-suspend-manual-optical/read_.*                                certification-status=blocker
+    after-suspend-manual-optical/bluray-read_.*                         certification-status=blocker
+bootstrap_include:
+    device
+

@@ -45,9 +45,7 @@ Description: CheckBoxNG test runner
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: plainbox-secure-policy (= ${binary:Version}) | plainbox-insecure-policy (= ${binary:Version}),
-         policykit-1,
-         python3-crypto,
+Depends: python3-crypto,
          python3-guacamole (>= 0.9),
          python3-jinja2,
          python3-padme,
@@ -79,35 +77,3 @@ Description: CheckBoxNG test runner (documentation)
  directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
  .
  This package contains the documentation for the checkbox-ng Python 3 library
-
-Package: plainbox-secure-policy
-Architecture: all
-Depends: ${misc:Depends}
-Conflicts: plainbox-insecure-policy
-Replaces: plainbox-insecure-policy
-Description: policykit policy required to use CheckBoxNG (secure version)
- CheckBoxNG is a hardware testing tool useful for certifying laptops,
- desktops and servers. It is a new version of CheckBox that is built
- directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
- .
- This package contains a PolicyKit .policy file that allows CheckBoxNG to run
- plainbox-trusted-launcher-1 as root and ask for the user password only once
- per session.
-
-Package: plainbox-insecure-policy
-Architecture: all
-Priority: extra
-Depends: ${misc:Depends}
-Conflicts: plainbox-secure-policy
-Replaces: plainbox-secure-policy
-Description: policykit policy required to use CheckBoxNG (insecure version)
- CheckBoxNG is a hardware testing tool useful for certifying laptops,
- desktops and servers. It is a new version of CheckBox that is built
- directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
- .
- Note that installing this package will allow *any* local user to execute any
- of the CheckBoxNG jobs (test definitions), also installed on the same machine
- (in system-wide locations), without any confirmation. You should only install
- this package on machines where that is not a security problem. Typically this
- package is installed on test machines inside automatically deployed test
- farms.

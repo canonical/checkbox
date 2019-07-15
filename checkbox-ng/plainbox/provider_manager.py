@@ -36,6 +36,8 @@ import shutil
 import subprocess
 import sys
 import tarfile
+from unittest import TextTestRunner
+from unittest.loader import defaultTestLoader
 
 from plainbox import __version__ as version
 from plainbox.i18n import docstring
@@ -1335,6 +1337,33 @@ class PackagingCommand(ManageCommand):
             driver.modify_packaging_tree()
 
 
+class TestCommand(ManageCommand):
+    """run tests defined for this provider"""
+
+    @property
+    def tests_dir(self):
+        """location of the unit tests"""
+        return os.path.join(self.definition.location, 'tests')
+
+    @property
+    def scripts_dir(self):
+        """location of the scripts that will be tested"""
+        return os.path.join(self.definition.location, 'bin')
+
+    def register_parser(self, subparsers):
+        self.add_subcommand(subparsers)
+
+    def invoked(self, ns):
+        if not os.path.isdir(self.tests_dir):
+            print("No tests directory found")
+            return
+        sys.path.insert(0, self.scripts_dir)
+        runner = TextTestRunner(verbosity=2)
+        result = runner.run(defaultTestLoader.discover(self.tests_dir))
+        if not result.wasSuccessful():
+            return 1
+
+
 class ProviderManagerTool(ToolBase):
     """
     Command line tool that is covertly used by each provider's manage.py script
@@ -1374,6 +1403,11 @@ class ProviderManagerTool(ToolBase):
         This command updates, merges and builds binary versions of message
         translation catalogs. It can be used as a part of a build system, to
         standardize and facilitate providing localized test definitions.
+
+    `manage.py test`:
+        This command searches the `tests` directory (if it exists) for python
+        unittest test cases and executes them. Only if a test definition is
+        found and it fails will the command return an error code.
     """
 
     _SUB_COMMANDS = [
@@ -1386,6 +1420,7 @@ class ProviderManagerTool(ToolBase):
         BuildCommand,
         CleanCommand,
         PackagingCommand,
+        TestCommand,
     ]
 
     # XXX: keywords=None is for anyone who has copied the example go provider

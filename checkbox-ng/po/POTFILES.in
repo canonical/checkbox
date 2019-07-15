@@ -61,7 +61,6 @@
 ./plainbox/impl/runner.py
 ./plainbox/impl/secure/__init__.py
 ./plainbox/impl/secure/config.py
-./plainbox/impl/secure/launcher1.py
 ./plainbox/impl/secure/origin.py
 ./plainbox/impl/secure/plugins.py
 ./plainbox/impl/secure/providers/__init__.py
@@ -70,7 +69,6 @@
 ./plainbox/impl/secure/qualifiers.py
 ./plainbox/impl/secure/rfc822.py
 ./plainbox/impl/secure/test_config.py
-./plainbox/impl/secure/test_launcher1.py
 ./plainbox/impl/secure/test_origin.py
 ./plainbox/impl/secure/test_plugins.py
 ./plainbox/impl/secure/test_qualifiers.py

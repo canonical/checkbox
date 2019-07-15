@@ -1009,7 +1009,6 @@ class SessionState:
         except KeyError:
             # Register the new job in our state
             self.job_state_map[new_job.id] = JobState(new_job)
-            self.job_state_map[new_job.id].via_job = via
             self.job_list.append(new_job)
             self.unit_list.append(new_job)
             self.on_job_state_map_changed()

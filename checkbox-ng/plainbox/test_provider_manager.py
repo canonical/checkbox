@@ -67,7 +67,7 @@ class ProviderManagerToolTests(TestCase):
             Per-provider management script
 
             positional arguments:
-              {{info,validate,develop,install,sdist,i18n,build,clean,packaging}}
+              {{info,validate,develop,install,sdist,i18n,build,clean,packaging,test}}
                 info                display basic information about this provider
                 validate            perform various static analysis and validation
                 develop             install/remove this provider, only for development
@@ -77,6 +77,7 @@ class ProviderManagerToolTests(TestCase):
                 build               build provider specific executables from source
                 clean               clean build results
                 packaging           generate packaging meta-data
+                test                run tests defined for this provider
 
             optional arguments:
               -h, --help            show this help message and exit

@@ -16,7 +16,6 @@ _description:
 include:
  keys/lock-screen                               certification-status=blocker
  keys/super                                     certification-status=blocker
- keys/battery-info                              certification-status=blocker
  keys/brightness                                certification-status=blocker
  keys/media-control                             certification-status=blocker
  keys/mute                                      certification-status=blocker
@@ -42,7 +41,6 @@ _description:
 include:
     after-suspend-manual-keys/lock-screen          certification-status=blocker
     after-suspend-manual-keys/super                certification-status=blocker
-    after-suspend-manual-keys/battery-info         certification-status=blocker
     after-suspend-manual-keys/brightness           certification-status=blocker
     after-suspend-manual-keys/media-control        certification-status=blocker
     after-suspend-manual-keys/mute                 certification-status=blocker
@@ -61,7 +59,6 @@ _description:
 include:
     keys/lock-screen                               certification-status=blocker
     keys/super                                     certification-status=blocker
-    keys/battery-info                              certification-status=blocker
     keys/brightness                                certification-status=blocker
     keys/media-control                             certification-status=blocker
     keys/mute                                      certification-status=blocker
@@ -79,7 +76,6 @@ _description:
 include:
     after-suspend-manual-keys/lock-screen          certification-status=blocker
     after-suspend-manual-keys/super                certification-status=blocker
-    after-suspend-manual-keys/battery-info         certification-status=blocker
     after-suspend-manual-keys/brightness           certification-status=blocker
     after-suspend-manual-keys/media-control        certification-status=blocker
     after-suspend-manual-keys/mute                 certification-status=blocker

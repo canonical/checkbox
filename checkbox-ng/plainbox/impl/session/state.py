@@ -1246,6 +1246,27 @@ class SessionState:
         wanted_category_ids = frozenset({
                 job_state.effective_category_id
                 for job_state in self.job_state_map.values()
+                if job_state.result.outcome != None
+            })
+        return {
+            unit.id: unit.tr_name()
+            for unit in self.unit_list
+            if unit.Meta.name == 'category'
+            and unit.id in wanted_category_ids
+        }
+
+    @property
+    def category_map_lite(self):
+        """
+        Map from category id to their corresponding translated names but
+        without taking into account resources and attachments jobs.
+
+        Meant to be used to generate the HTML reports where resources and
+        attachments are presented in different sections.
+        """
+        wanted_category_ids = frozenset({
+                job_state.effective_category_id
+                for job_state in self.job_state_map.values()
                 if job_state.result.outcome != None and
                 job_state.job.plugin not in ("resource", "attachment")
             })

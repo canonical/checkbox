@@ -49,10 +49,8 @@ CERTIFICATION_NS = 'com.canonical.certification::'
 @environmentfilter
 def do_strip_ns(_environment, unit_id, ns=CERTIFICATION_NS):
     """Remove the namespace part of the identifier."""
-    if unit_id.startswith(ns):
-        rv = unit_id[len(ns):]
-    else:
-        rv = unit_id
+    # com.my.namespace::category/job-id → category/job-id
+    rv = unit_id.split("::")[-1]
     rv = escape(rv)
     if _environment.autoescape:
         rv = Markup(rv)

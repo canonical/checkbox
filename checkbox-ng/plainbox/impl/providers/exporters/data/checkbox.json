@@ -46,11 +46,13 @@
     {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "attachment") %}
         {
             "id": "{{ job_id|strip_ns }}",
+            "full_id": "{{ job_id }}",
             "name": "{{ job_state.job.tr_summary() }}",
             "certification_status": "{{ job_state.effective_certification_status }}",
             "category": "{{ category_map[job_state.effective_category_id] }}",
             "category_id": "{{ job_state.effective_category_id }}",
             "status": "{{ job_state.result.outcome_meta().hexr_mapping }}",
+            "outcome": "{{ job_state.result.outcome }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
             "type": "test",
@@ -63,10 +65,13 @@
     {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "resource" %}
         {
             "id": "{{ job_id|strip_ns }}",
+            "full_id": "{{ job_id }}",
             "name": "{{ job_state.job.tr_summary() }}",
             "certification_status": "{{ job_state.effective_certification_status }}",
             "category": "{{ category_map[job_state.effective_category_id] }}",
+            "category_id": "{{ job_state.effective_category_id }}",
             "status": "{{ job_state.result.outcome_meta().hexr_mapping }}",
+            "outcome": "{{ job_state.result.outcome }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
             "type": "test",
@@ -79,10 +84,13 @@
     {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
         {
             "id": "{{ job_id|strip_ns }}",
+            "full_id": "{{ job_id }}",
             "name": "{{ job_state.job.tr_summary() }}",
             "certification_status": "{{ job_state.effective_certification_status }}",
             "category": "{{ category_map[job_state.effective_category_id] }}",
+            "category_id": "{{ job_state.effective_category_id }}",
             "status": "{{ job_state.result.outcome_meta().hexr_mapping }}",
+            "outcome": "{{ job_state.result.outcome }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_text_attachment | jsonify | safe }},
             "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}}
@@ -95,7 +103,7 @@
         {%- endfor %}
     }
 {%- if ns ~ 'dkms_info_json' in state.job_state_map and state.job_state_map[ns ~ 'dkms_info_json'].result.outcome == 'pass' %},
-{%- set dkms_info_json = state.job_state_map[ns ~ 'dkms_info_json'].result.io_log_as_text_attachment %}
+{%- set dkms_info_json = '{' + state.job_state_map[ns ~ 'dkms_info_json'].result.io_log_as_text_attachment.split('{', 1)[-1] %}
     "dkms_info": {{ dkms_info_json | indent(4, false) | safe }}
 {%- endif %}
 {%- if ns ~ 'udev_json' in state.job_state_map and state.job_state_map[ns ~ 'udev_json'].result.outcome == 'pass' %},

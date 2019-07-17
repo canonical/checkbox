@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2017 Canonical Ltd.
+# Copyright 2017-2019 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -185,3 +185,25 @@ def validate_pass(password):
         return True
     except CalledProcessError:
         return False
+
+
+class SudoPasswordProvider:
+    def __init__(self):
+        self._sudo_password = None
+        self._is_passwordless = is_passwordless_sudo()
+    def get_sudo_password(self):
+        if self._is_passwordless:
+            return None
+        if self._sudo_password:
+            return self._sudo_password
+        pass_is_correct = False
+        while not pass_is_correct:
+            prompt = 'Enter sudo password:\n'
+            password = getpass.getpass(prompt).encode(sys.stdin.encoding)
+            pass_is_correct = validate_pass(password)
+            if not pass_is_correct:
+                print('Sorry, try again.')
+        self._sudo_password = password
+        return password
+
+sudo_password_provider = SudoPasswordProvider()

@@ -20,6 +20,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import glob
+import io
 import logging
 import os
 import yaml
@@ -76,23 +77,12 @@ class Netplan():
     def renderer(self):
         return self.network['renderer']
 
-    def parse(self):
+    def parse(self, data=None):
         """
         Parse all our config files to return an object that describes the
         system's entire configuration, so that it can later be interrogated.
         Returns a dict that contains the entire, collated and merged YAML.
         """
-
-        # /run/netplan shadows /etc/netplan/, which shadows /lib/netplan
-        names_to_paths = {}
-        for yaml_dir in ['lib', 'etc', 'run']:
-            for yaml_file in glob.glob(os.path.join(
-                    self.prefix, yaml_dir, 'netplan', '*.yaml')):
-                names_to_paths[os.path.basename(yaml_file)] = yaml_file
-
-        files = [names_to_paths[name]
-                 for name in sorted(names_to_paths.keys())]
-
         self.config['network'] = {
             'ethernets': {},
             'wifis': {},
@@ -101,8 +91,24 @@ class Netplan():
             'vlans': {},
             'renderer': None
         }
-        for yaml_file in files:
-            self._merge_yaml_config(yaml_file)
+
+        if data is None:
+            # /run/netplan shadows /etc/netplan/, which shadows /lib/netplan
+            names_to_paths = {}
+            for yaml_dir in ['lib', 'etc', 'run']:
+                for yaml_file in glob.glob(os.path.join(
+                        self.prefix, yaml_dir, 'netplan', '*.yaml')):
+                    names_to_paths[os.path.basename(yaml_file)] = yaml_file
+
+            files = [names_to_paths[name]
+                     for name in sorted(names_to_paths.keys())]
+
+            for yaml_file in files:
+                with open(yaml_file) as f:
+                    self._merge_yaml_config(f)
+        else:
+            with io.StringIO(data) as f:
+                self._merge_yaml_config(f)
 
     def _merge_interface_config(self, orig, new):
         new_interfaces = set()
@@ -120,40 +126,39 @@ class Netplan():
 
         return new_interfaces
 
-    def _merge_yaml_config(self, yaml_file):
+    def _merge_yaml_config(self, yaml_stream):
         new_interfaces = set()
 
         try:
-            with open(yaml_file) as f:
-                yaml_data = yaml.load(f, Loader=yaml.CSafeLoader)
-                network = None
-                if yaml_data is not None:
-                    network = yaml_data.get('network')
-                if network:
-                    if 'ethernets' in network:
-                        new = self._merge_interface_config(
-                            self.ethernets, network.get('ethernets'))
-                        new_interfaces |= new
-                    if 'wifis' in network:
-                        new = self._merge_interface_config(
-                            self.wifis, network.get('wifis'))
-                        new_interfaces |= new
-                    if 'bridges' in network:
-                        new = self._merge_interface_config(
-                            self.bridges, network.get('bridges'))
-                        new_interfaces |= new
-                    if 'bonds' in network:
-                        new = self._merge_interface_config(
-                            self.bonds, network.get('bonds'))
-                        new_interfaces |= new
-                    if 'vlans' in network:
-                        new = self._merge_interface_config(
-                            self.vlans, network.get('vlans'))
-                        new_interfaces |= new
-                    if 'renderer' in network:
-                        self.config['network']['renderer'] = network.get(
-                            'renderer')
+            yaml_data = yaml.load(yaml_stream, Loader=yaml.CSafeLoader)
+            network = None
+            if yaml_data is not None:
+                network = yaml_data.get('network')
+            if network:
+                if 'ethernets' in network:
+                    new = self._merge_interface_config(
+                        self.ethernets, network.get('ethernets'))
+                    new_interfaces |= new
+                if 'wifis' in network:
+                    new = self._merge_interface_config(
+                        self.wifis, network.get('wifis'))
+                    new_interfaces |= new
+                if 'bridges' in network:
+                    new = self._merge_interface_config(
+                        self.bridges, network.get('bridges'))
+                    new_interfaces |= new
+                if 'bonds' in network:
+                    new = self._merge_interface_config(
+                        self.bonds, network.get('bonds'))
+                    new_interfaces |= new
+                if 'vlans' in network:
+                    new = self._merge_interface_config(
+                        self.vlans, network.get('vlans'))
+                    new_interfaces |= new
+                if 'renderer' in network:
+                    self.config['network']['renderer'] = network.get(
+                        'renderer')
             return new_interfaces
         except (IOError, yaml.YAMLError):
-            logging.error('Error while loading {}'.format(yaml_file))
+            logging.error('Error while loading yaml')
             self.config = {}

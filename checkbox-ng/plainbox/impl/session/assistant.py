@@ -1764,6 +1764,9 @@ class SessionAssistant:
         url = transport_details["url"]
         return OAuthTransport(url, '', transport_details)
 
+    def send_signal(self, signal, target_user):
+        self._runner.send_signal(signal, target_user)
+
     def _get_allowed_calls_in_normal_state(self) -> dict:
         return {
             self.get_job_state: "to access the state of any job",

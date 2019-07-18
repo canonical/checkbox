@@ -118,7 +118,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 6
+    REMOTE_API_VERSION = 7
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -134,6 +134,7 @@ class RemoteSessionAssistant():
         self._pipe_from_master = open(self._input_piping[1], 'w')
         self._pipe_to_subproc = open(self._input_piping[0])
         self._reset_sa()
+        self._currently_running_job = None
 
     def _reset_sa(self):
         _logger.info("Resetting RSA")
@@ -567,6 +568,12 @@ class RemoteSessionAssistant():
     def transmit_input(self, text):
         self._pipe_from_master.write(text)
         self._pipe_from_master.flush()
+
+    def send_signal(self, signal):
+        if not self._currently_running_job:
+            return
+        target_user = self._sa.get_job(self._currently_running_job).user
+        self._sa.send_signal(signal, target_user)
 
     @property
     def manager(self):

@@ -44,6 +44,7 @@ from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.runner import slugify
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.vendor import extcmd
 
 logger = logging.getLogger("plainbox.unified")
@@ -59,7 +60,9 @@ class UnifiedRunner(IJobRunner):
     def __init__(self, session_dir, provider_list, jobs_io_log_dir,
                  command_io_delegate=None, dry_run=False,
                  execution_ctrl_list=None, stdin=False,
-                 normal_user_provider=None, password_provider=None):
+                 normal_user_provider=lambda: None,
+                 password_provider=sudo_password_provider.get_sudo_password):
+        self._session_dir = session_dir
         self._session_dir = session_dir
         self._provider_list = provider_list
         if execution_ctrl_list is not None:
@@ -180,7 +183,9 @@ class UnifiedRunner(IJobRunner):
             # started checkbox and when changing the user (sudo) requires
             # password
             if target_user and self._password_provider:
-                os.write(in_w, self._password_provider() + b'\n')
+                password = self._password_provider()
+                if password:
+                    os.write(in_w, password + b'\n')
 
             def stdin_forwarder(stdin):
                 """Forward data from one pipe to the other."""

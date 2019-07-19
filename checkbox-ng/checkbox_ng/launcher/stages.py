@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2019 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -21,7 +21,6 @@ associated with a particular stage of checkbox execution.
 """
 import abc
 import datetime
-import getpass
 import gettext
 import json
 import logging
@@ -32,8 +31,6 @@ from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import tr_outcome
-from plainbox.impl.secure.sudo_broker import validate_pass
-from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
@@ -295,19 +292,6 @@ class MainLoopStage(CheckboxUiStage):
             }
             tp_info_list.append(tp_info)
         return tp_info_list
-
-    def _get_sudo_password(self):
-        if self._sudo_password:
-            return self._sudo_password
-        pass_is_correct = False
-        while not pass_is_correct:
-            prompt = 'Enter sudo password:\n'
-            password = getpass.getpass(prompt).encode(sys.stdin.encoding)
-            pass_is_correct = validate_pass(password)
-            if not pass_is_correct:
-                print(_('Sorry, try again.'))
-        self._sudo_password = password
-        return password
 
 
 class ReportsStage(CheckboxUiStage):

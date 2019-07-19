@@ -48,7 +48,7 @@ from plainbox.impl.providers import get_providers
 from plainbox.impl.providers.embedded_providers import (
     EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
+from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import detect_restart_strategy
@@ -379,11 +379,9 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             title = os.path.basename(self.ctx.args.launcher)
         if self.launcher.app_version:
             title += ' {}'.format(self.launcher.app_version)
-        pass_provider = (None if is_passwordless_sudo() else
-                         self._get_sudo_password)
         runner_kwargs = {
             'normal_user_provider': lambda: self.launcher.normal_user,
-            'password_provider': pass_provider,
+            'password_provider': sudo_password_provider.get_sudo_password,
             'stdin': None,
         }
         self.ctx.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
@@ -680,17 +678,9 @@ class Run(Command, MainLoopStage):
                 self.sa,
                 '*',
                 additional_providers=additional_providers)
-            pass_provider = (None if is_passwordless_sudo() else
-                         self._get_sudo_password)
-            runner_kwargs = {
-                'normal_user_provider': lambda: None,
-                'password_provider': pass_provider,
-                'stdin': None,
-            }
             self.sa.start_new_session(
                 self.ctx.args.title or 'checkbox-run',
-                UnifiedRunner,
-                runner_kwargs)
+                UnifiedRunner)
             tps = self.sa.get_test_plans()
             self._configure_report()
             selection = ctx.args.PATTERN

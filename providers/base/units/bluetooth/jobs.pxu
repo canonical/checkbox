@@ -82,11 +82,15 @@ _description:
  PURPOSE:
      This test will check that you can transfer information through a bluetooth connection
  STEPS:
-     1. Make sure that you're able to browse the files in your mobile device
-     2. Copy a file from the computer to the mobile device
-     3. Copy a file from the mobile device to the computer
+     1. Enable bluetooth on a target device (e.g. another laptop) and DUT (device under test)
+     2. Launch bluetooth settings from menu bar
+     3. Select target device from Device options for connection establishing
+     4. Confirm PIN code on both DUT and target device
+     5. Target device is connected
+     7. Click target device in device list
+     8. Click 'Send Files...' and choose a file to send in DUT
  VERIFICATION:
-     Were all files copied correctly?
+     Were file sent to target device ~/Downloads folder correctly?
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth

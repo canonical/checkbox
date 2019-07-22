@@ -190,9 +190,18 @@ def validate_pass(password):
 class SudoPasswordProvider:
     def __init__(self):
         self._sudo_password = None
-        self._is_passwordless = is_passwordless_sudo()
+        self._already_checked = False
+        self._is_passwordless = False
+
+    @property
+    def is_passwordless(self):
+        if not self._already_checked:
+            self._is_passwordless = is_passwordless_sudo()
+            self._already_checked = True
+        return self._is_passwordless
+
     def get_sudo_password(self):
-        if self._is_passwordless:
+        if self.is_passwordless:
             return None
         if self._sudo_password:
             return self._sudo_password

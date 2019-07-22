@@ -23,6 +23,7 @@ import time
 import shutil
 from struct import pack
 from socket import inet_ntoa
+import sys
 
 print = functools.partial(print, flush=True)
 
@@ -188,8 +189,37 @@ def netplan_apply_config():
     retcode = sp.call(cmd, shell=True, env=env)
     if retcode != 0:
         print("ERROR: failed netplan apply call")
+        print()
         return False
+    print()
     return True
+
+
+def _get_networkctl_state(interface):
+    cmd = 'networkctl status --no-pager --no-legend {}'.format(interface)
+    output = sp.check_output(cmd, shell=True)
+    for line in output.decode(sys.stdout.encoding).splitlines():
+        key, val = line.strip().split(':', maxsplit=1)
+        if key == "State":
+            return val
+
+
+def wait_for_routable(interface, max_wait=15):
+    routable = False
+    attempts = 0
+    while not routable and attempts < max_wait:
+        state = _get_networkctl_state(interface)
+        print(state)
+        if "routable" in state:
+            routable = True
+            break
+        time.sleep(1)
+        attempts += 1
+    if routable:
+        print("Reached routable state")
+    else:
+        print("WARN: did not reach routable state")
+    print()
 
 
 def perform_ping_test(interface):
@@ -204,6 +234,7 @@ def print_journal_entries(start):
     cmd = ('journalctl -q --no-pager '
            '-u systemd-networkd.service '
            '-u wpa_supplicant.service '
+           ' -u netplan-* '
            '--since "{}" '.format(start.strftime('%Y-%m-%d %H:%M:%S')))
     print_cmd(cmd)
     sp.call(cmd, shell=True)
@@ -258,8 +289,10 @@ def main():
         netplan_config_restore()
         print_journal_entries(start_time)
         raise SystemExit(1)
-    print()
     time.sleep(20)
+
+    print_head("Wait for interface to be routable")
+    wait_for_routable(args.interface)
 
     # Check connection by ping or link status
     print_head("Perform a ping test")

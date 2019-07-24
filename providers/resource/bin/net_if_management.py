@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import Enum
-import os
+from shutil import which
 import subprocess as sp
 import sys
 
@@ -45,20 +45,11 @@ class UdevInterfaceLister(UdevResult):
 
 
 def is_nm_available():
-    cmd = 'nmcli -v'
-    rc = sp.call(cmd, shell=True, stdout=sp.DEVNULL, stderr=sp.DEVNULL)
-    return rc == 0
+    return which('nmcli') is not None
 
 
 def is_netplan_available():
-    env = os.environ
-    env.pop('PYTHONHOME', None)
-    env.pop('PYTHONPATH', None)
-    env.pop('PYTHONUSERBASE', None)
-    cmd = 'netplan -h'
-    rc = sp.call(cmd, shell=True, stdout=sp.DEVNULL,
-                 stderr=sp.DEVNULL, env=env)
-    return rc == 0
+    return which('netplan') is not None
 
 
 class NmInterfaceState():

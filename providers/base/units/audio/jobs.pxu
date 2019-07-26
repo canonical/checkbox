@@ -391,6 +391,8 @@ plugin: manual
 category_id: com.canonical.plainbox::audio
 id: audio/external-lineout
 estimated_duration: 30.0
+requires:
+ dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
 _description:
  PURPOSE:
       Check that external line out connection works correctly
@@ -407,6 +409,7 @@ category_id: com.canonical.plainbox::audio
 id: audio/external-linein
 estimated_duration: 120.0
 requires:
+ dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'

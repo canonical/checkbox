@@ -76,6 +76,7 @@ class UnifiedRunner(IJobRunner):
         self._user_provider = normal_user_provider
         self._password_provider = password_provider
         self._stdin = stdin
+        self._running_jobs_pid = None
 
     def run_job(self, job, job_state, config=None, ui=None):
         logger.info(_("Running %r"), job)
@@ -176,6 +177,7 @@ class UnifiedRunner(IJobRunner):
             # Setup stdout/stderr redirection
             kwargs['stdout'] = subprocess.PIPE
             kwargs['stderr'] = subprocess.PIPE
+            kwargs['start_new_session'] = True
             # Prepare stdio supply
             in_r, in_w = os.pipe()
             # first let's punch the password in
@@ -210,6 +212,7 @@ class UnifiedRunner(IJobRunner):
 
             # Start the process
             proc = extcmd_popen._popen(*args, **kwargs)
+            self._running_jobs_pid = proc.pid
             # Setup all worker threads. By now the pipes have been created and
             # proc.stdout/proc.stderr point to open pipe objects.
             stdout_reader = threading.Thread(
@@ -232,6 +235,7 @@ class UnifiedRunner(IJobRunner):
                         # And send a notification about this
                         extcmd_popen._delegate.on_interrupt()
             finally:
+                self._running_jobs_pid = None
                 # Wait until all worker threads shut down
                 stdout_reader.join()
                 proc.stdout.close()
@@ -360,6 +364,21 @@ class UnifiedRunner(IJobRunner):
     def get_record_path_for_job(self, job):
         return os.path.join(self._jobs_io_log_dir,
                             "{}.record.gz".format(slugify(job.id)))
+
+    def send_signal(self, signal, target_user):
+        if not target_user:
+            os.kill(self._running_jobs_pid, signal)
+        else:
+            # process used sudo, so sudo is needed to kill it
+            in_r, in_w = os.pipe()
+            os.write(in_w, self._password_provider() + b'\n')
+            cmd = ['sudo', '--prompt', '', '--reset-timestamp', '--stdin',
+                    '--user', 'root', 'kill', '-s', str(signal),
+                    '-{}'.format(self._running_jobs_pid)]
+            try:
+                subprocess.check_call(cmd, stdin=in_r)
+            except subprocess.CalledProcessError:
+                logger.warning("Failed to kill process")
 
 
 class FakeJobRunner(UnifiedRunner):

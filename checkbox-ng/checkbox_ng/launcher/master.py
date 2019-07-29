@@ -316,6 +316,9 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         elif response == 'abandon':
             self._sa.finalize_session()
             return True
+        elif response == 'kill-command':
+            self._sa.send_signal(signal.SIGKILL.value)
+            return True
 
     def finish_session(self):
         print(self.C.header("Results"))
@@ -351,7 +354,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             SimpleUI.C.result(self.sa.get_job_result(job['id'])))
 
     def run_jobs(self, resumed_session_info=None):
-        if resumed_session_info:
+        if resumed_session_info and resumed_session_info['last_job']:
             self._handle_last_job_after_resume(resumed_session_info)
         _logger.info("master: Running jobs.")
         jobs = self.sa.get_session_progress()

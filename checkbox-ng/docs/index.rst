@@ -36,6 +36,7 @@ Table of contents
    understanding.rst
    tutorials.rst
    remote.rst
+   slave-daemon.rst
    units/index.rst
    bugs.rst
    stack.rst

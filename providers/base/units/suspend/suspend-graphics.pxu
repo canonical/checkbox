@@ -72,7 +72,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 template-engine: jinja2
 plugin: manual
 category_id: com.canonical.plainbox::suspend
-id: suspend/{{ index }}_display_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_display_after_suspend_{{ product_slug }}_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -94,7 +94,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
-id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_graphics
 requires: package.name == 'xorg'
 depends:
  {%- if gpu_count > "1" %}
@@ -120,7 +120,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
-depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_auto
+depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_graphics
 command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
@@ -150,7 +150,7 @@ template-resource: graphics_card
 template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
-id: suspend/{{ index }}_glxgears_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_glxgears_after_suspend_{{ product_slug }}_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -176,7 +176,7 @@ _description:
 unit: template
 template-resource: graphics_card
 template-engine: jinja2
-id: suspend/{{ index }}_video_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_video_after_suspend_{{ product_slug }}_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto

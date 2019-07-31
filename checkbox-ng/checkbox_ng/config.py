@@ -57,43 +57,35 @@ class CheckBoxConfig(PlainBoxConfig):
                         os.path.expanduser('~/.config/checkbox.conf')))))
 
 def load_configs(launcher_file=None):
-    if not launcher_file:
-        # launcher not supplied from cli - using the default one
-        launcher = DefaultLauncherDefinition()
-        configs = [
-            '/etc/xdg/{}'.format(launcher.config_filename),
-            os.path.expanduser(
-                '~/.config/{}'.format(launcher.config_filename))]
-    else:
-        configs = [launcher_file]
-        try:
-            with open(launcher_file, 'rt', encoding='UTF-8') as stream:
-                first_line = stream.readline()
-                if not first_line.startswith("#!"):
-                    stream.seek(0)
-                text = stream.read()
-        except IOError as exc:
-            _logger.error(_("Unable to load launcher definition: %s"), exc)
-            raise SystemExit(1)
+    # launcher can override the default name of config files to look for
+    # so first we need to establish the filename to look for
+    configs = []
+    config_filename = 'checkbox.conf'
+    launcher = DefaultLauncherDefinition()
+    if launcher_file:
+        configs.append(launcher_file)
         generic_launcher = LauncherDefinition()
-        generic_launcher.read_string(text)
-        config_filename = os.path.expandvars(
-            generic_launcher.config_filename)
-        # if wrapper specifies just the basename
-        if not os.path.split(config_filename)[0]:
-            if "SNAP_DATA" in os.environ:
-                configs = [launcher_file]
-                configs.append(os.path.join(
-                    os.path.expandvars('$SNAP_DATA'), config_filename))
-            else:
-                configs += [
-                    '/etc/xdg/{}'.format(config_filename),
-                    os.path.expanduser('~/.config/{}'.format(
-                        config_filename))]
-        # if wrapper specifies an absolute file
-        else:
-            configs.append(config_filename)
+        if not os.path.exists(launcher_file):
+            _logger.error(_(
+                "Unable to load launcher '%s'. File not found!"),
+                launcher_file)
+            raise SystemExit(1)
+        generic_launcher.read(launcher_file)
+        config_filename = os.path.expandvars(os.path.expanduser(
+            generic_launcher.config_filename))
         launcher = generic_launcher.get_concrete_launcher()
+    if os.path.isabs(config_filename):
+        configs.append(config_filename)
+    else:
+        search_dirs = [
+            '$SNAP_DATA',
+            '/etc/xdg/',
+            '~/.config/',
+        ]
+        for d in search_dirs:
+            config = expand_all(os.path.join(d, config_filename))
+            if os.path.exists(config):
+                configs.append(config)
     launcher.read(configs)
     if launcher.problem_list:
         _logger.error(_("Unable to start launcher because of errors:"))
@@ -101,3 +93,6 @@ def load_configs(launcher_file=None):
             _logger.error("%s", str(problem))
         raise SystemExit(1)
     return launcher
+
+def expand_all(path):
+    return os.path.expandvars(os.path.expanduser(path))

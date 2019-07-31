@@ -162,6 +162,8 @@ def is_passwordless_sudo():
     """
     Check if system can run sudo without pass.
     """
+    if os.geteuid() == 0:
+        return True
     # running sudo with -A will try using ASKPASS envvar that should specify
     # the program to use when asking for password
     # If the system is configured to not ask for password, this will silently

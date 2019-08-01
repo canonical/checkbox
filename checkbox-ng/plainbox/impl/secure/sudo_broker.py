@@ -31,11 +31,16 @@ module.
 import gc
 import getpass
 import hashlib
+import logging
 import os
 import sys
 
 from Crypto.PublicKey import RSA
-from subprocess import check_call, CalledProcessError, DEVNULL
+from plainbox.i18n import gettext as _
+from subprocess import check_call, CalledProcessError, DEVNULL, SubprocessError
+
+
+logger = logging.getLogger("sudo_broker")
 
 
 class EphemeralKey():
@@ -162,6 +167,16 @@ def is_passwordless_sudo():
     """
     Check if system can run sudo without pass.
     """
+    if os.geteuid() == 0:
+        # even though we run as root, we still may need to use sudo to switch
+        # to a normal user for jobs not requiring root, so let's see if sudo
+        # actually works.
+        try:
+            check_call(['sudo', '-A', '-k', 'true'], stdout=DEVNULL, stderr=DEVNULL)
+        except (SubprocessError, OSError)  as exc:
+            logger.error(_("Unable to run sudo %s"), exc)
+            raise SystemExit(1)
+        return True
     # running sudo with -A will try using ASKPASS envvar that should specify
     # the program to use when asking for password
     # If the system is configured to not ask for password, this will silently

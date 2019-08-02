@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import Enum
+from shutil import which
 import subprocess as sp
 import sys
 
@@ -43,19 +44,24 @@ class UdevInterfaceLister(UdevResult):
                 self.names.append(p)
 
 
+def is_nm_available():
+    return which('nmcli') is not None
+
+
+def is_netplan_available():
+    return which('netplan') is not None
+
+
 class NmInterfaceState():
 
     def __init__(self):
         self.devices = {}
-        cmd = 'nmcli -v'
-        rc = sp.call(cmd, shell=True, stdout=sp.DEVNULL, stderr=sp.DEVNULL)
-        if rc != 0:
-            self.available = False
-            return
-        self.available = True
-        cmd = 'nmcli -t -f DEVICE,STATE d'
-        output = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
-        for line in output.splitlines():
+
+    def parse(self, data=None):
+        if data is None:
+            cmd = 'nmcli -t -f DEVICE,STATE d'
+            data = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+        for line in data.splitlines():
             dev, state = line.strip().split(':')
             self.devices[dev] = state
 
@@ -67,60 +73,74 @@ class States(Enum):
     nm = 'NetworkManager'
 
 
-def main():
-    # Use udev as definitive source of network interfaces
-    all_interfaces = UdevInterfaceLister(['NETWORK', 'WIRELESS'])
+def identify_managers(interfaces=None,
+                      has_netplan=True, netplan_yaml=None,
+                      has_nm=True, nm_device_state=None):
+    if interfaces is None:
+        interfaces = UdevInterfaceLister(['NETWORK', 'WIRELESS']).names
 
-    # Get the neplan config
-    netplan_conf = Netplan()
-    netplan_conf.parse()
+    results = dict.fromkeys(interfaces, States.unspecified)
 
-    # Get the NetworkManager config
-    nm_conf = NmInterfaceState()
+    if has_nm:
+        nm_conf = NmInterfaceState()
+        nm_conf.parse(nm_device_state)
 
     # fallback state
     global_scope_manager = States.unspecified.value
+    if has_netplan:
+        netplan_conf = Netplan()
+        netplan_conf.parse(data=netplan_yaml)
+        # if netplan has a top-level renderer use that as default:
+        if netplan_conf.network.get('renderer'):
+            global_scope_manager = netplan_conf.network['renderer']
 
-    # if netplan has a top-level renderer use that as default:
-    if netplan_conf.network.get('renderer'):
-        global_scope_manager = netplan_conf.network['renderer']
-
-    for n in all_interfaces.names:
-        print('device: {}'.format(n))
-        print('nmcli_available: {}'.format(nm_conf.available))
-
+    for n in results:
         category_scope_manager = States.unspecified.value
-        if n in netplan_conf.wifis:
-            category_scope_manager = netplan_conf.wifis.get(
-                'renderer', States.unspecified.value)
-        elif n in netplan_conf.ethernets:
-            category_scope_manager = netplan_conf.ethernets.get(
-                'renderer', States.unspecified.value)
+        if has_netplan:
+            if n in netplan_conf.wifis:
+                category_scope_manager = netplan_conf.wifis.get(
+                    'renderer', States.unspecified.value)
+            elif n in netplan_conf.ethernets:
+                category_scope_manager = netplan_conf.ethernets.get(
+                    'renderer', States.unspecified.value)
 
         # Netplan config indcates NM
         if (global_scope_manager == States.nm.value or
-                category_scope_manager == States.nm.value):
+                category_scope_manager == States.nm.value or
+                not has_netplan):
             # if NM isnt actually available this is a bad config
-            if not nm_conf.available:
-                print('managed_by: {}'.format(States.error.value))
-                print()
+            if not has_nm:
+                print('error: netplan defines NM or there is no netplan, '
+                      'but NM unavailable')
+                results[n] = States.error
                 continue
             # NM does not know the interface
             if nm_conf.devices.get(n) is None:
-                print('managed_by: {}'.format(States.error.value))
-                print()
+                print('error: netplan defines NM or there is no netplan, '
+                      'but interface unknown to NM')
+                results[n] = States.error
                 continue
-            # NM thinks it doesnt managed the device despite netplan config
+            # NM thinks it doesnt manage the device despite netplan config
             if nm_conf.devices.get(n) == 'unmanaged':
-                print('managed_by: {}'.format(States.error.value))
-                print()
+                print('error: netplan defines NM or there is no netplan, '
+                      'but NM reports unmanaged')
+                results[n] = States.error
                 continue
-            print('managed_by: {}'.format(States.nm.value))
-            print()
+            results[n] = States.nm
             continue
 
-        # No renderer specified
-        print('managed_by: {}'.format(States.networkd.value))
+        # has netplan but no renderer specified
+        if has_netplan:
+            results[n] = States.networkd
+    return results
+
+
+def main():
+    results = identify_managers(has_netplan=is_netplan_available(),
+                                has_nm=is_nm_available())
+    for interface, state in results.items():
+        print('device: {}'.format(interface))
+        print('managed_by: {}'.format(state.value))
         print()
 
 

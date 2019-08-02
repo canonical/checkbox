@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import unittest
-# from unittest import mock
 
 from checkbox_support.parsers.netplan import Netplan
 from checkbox_support.parsers.udevadm import UdevadmParser, UdevResult
@@ -30,6 +30,15 @@ class NetIfMngrTest():
 
     has_netplan = True
     has_nm = True
+
+    @staticmethod
+    def get_text(filename):
+        full_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'test_net_if_management_data',
+            filename)
+        with open(full_path, 'rt', encoding='UTF-8') as stream:
+            return stream.read()
 
     def get_results(self):
         if self.netplan_yaml is None:
@@ -48,16 +57,11 @@ class Test_CARA_T(unittest.TestCase, NetIfMngrTest):
     interfaces = ['eth0', 'eth1', 'wlan0']
 
     # the combined netplan configuration
-    netplan_yaml = """network:
-  renderer: NetworkManager
-"""
+    netplan_yaml = NetIfMngrTest.get_text('CARA_T_netplan.yaml')
+
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if no NM available
-    nm_device_state = """eth0:connected
-eth1:unavailable
-wlan0:disconnected
-lo:unmanaged
-"""
+    nm_device_state = NetIfMngrTest.get_text('CARA_T_nmcli.txt')
 
     def test(self):
         res = self.get_results()
@@ -75,10 +79,7 @@ class Test_XENIAL_DESKTOP(unittest.TestCase, NetIfMngrTest):
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed
-    nm_device_state = """eth0:connected
-wlan0:disconnected
-lo:unmanaged
-"""
+    nm_device_state = NetIfMngrTest.get_text('XENIAL_DESKTOP_nmcli.txt')
 
     def test(self):
         res = self.get_results()
@@ -91,18 +92,11 @@ class Test_CASCADE_500(unittest.TestCase, NetIfMngrTest):
     interfaces = ['eth0', 'wlan0']
 
     # the combined netplan configuration or `None` if netplan not installed
-    netplan_yaml = """network:
-  renderer: NetworkManager
-"""
+    netplan_yaml = NetIfMngrTest.get_text('CASCADE_500_netplan.yaml')
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed
-    nm_device_state = """eth0:connected
-wlan0:connected
-ttyACM1:unavailable
-lo:unmanaged
-p2p0:unmanaged
-"""
+    nm_device_state = NetIfMngrTest.get_text('CASCADE_500_nmcli.txt')
 
     def test(self):
         res = self.get_results()
@@ -115,14 +109,7 @@ class Test_RPI2_UC16_CCONF(unittest.TestCase, NetIfMngrTest):
     interfaces = ['eth0']
 
     # the combined netplan configuration or `None` if netplan not installed
-    netplan_yaml = """# This is the network config written by 'console_conf'
-network:
-  ethernets:
-    eth0:
-      addresses: []
-      dhcp4: true
-  version: 2
-"""
+    netplan_yaml = NetIfMngrTest.get_text('RPI2_UC16_CCONF_netplan.yaml')
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed
@@ -138,20 +125,7 @@ class Test_RPI3B_UC16_CLOUDINIT(unittest.TestCase, NetIfMngrTest):
     interfaces = ['eth0', 'wlan0']
 
     # the combined netplan configuration or `None` if netplan not installed
-    netplan_yaml = """# This file is generated from information provided by
-# the datasource.  Changes to it will not persist across an instance.
-# To disable cloud-init's network configuration capabilities, write a file
-# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
-# network: {config: disabled}
-network:
-    version: 2
-    ethernets:
-        eth0:
-            dhcp4: true
-            match:
-                macaddress: 00:00:00:00:00:00
-            set-name: eth0
-"""
+    netplan_yaml = NetIfMngrTest.get_text('RPI3B_UC16_CLOUDINIT_netplan.yaml')
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed

@@ -1,0 +1,4 @@
+eth0:connected
+eth1:unavailable
+wlan0:disconnected
+lo:unmanaged

@@ -1,0 +1,7 @@
+# This is the network config written by 'console_conf'
+network:
+  ethernets:
+    eth0:
+      addresses: []
+      dhcp4: true
+  version: 2

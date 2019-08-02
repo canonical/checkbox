@@ -1,0 +1,5 @@
+eth0: connected
+wlan0: connected
+ttyACM1: unavailable
+lo: unmanaged
+p2p0: unmanaged

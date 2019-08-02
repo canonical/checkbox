@@ -58,6 +58,7 @@ from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
 
+from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.launcher.startprovider import (
     EmptyProviderSkeleton, IQN, ProviderSkeleton)
@@ -674,6 +675,8 @@ class Run(Command, MainLoopStage):
                     side_load_path)
                 additional_providers = embedded_providers.get_all_plugin_objects()
             self._configure_restart()
+            config = load_configs()
+            self.sa.use_alternate_configuration(config)
             try_selecting_providers(
                 self.sa,
                 '*',

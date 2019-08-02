@@ -139,6 +139,8 @@ parts:
       - requests-oauthlib
       - urwid
       - XlsxWriter
+    stage-packages:
+      - sudo
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""

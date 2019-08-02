@@ -545,7 +545,7 @@ class Config(metaclass=ConfigMeta):
                     parser.set(section_name, k, str(v))
         return parser
 
-    def read_string(self, string):
+    def read_string(self, string, reset=True):
         """
         Load settings from a string.
 
@@ -574,10 +574,12 @@ class Config(metaclass=ConfigMeta):
             and :attr:`_filename_list`.
         """
         parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
-        # Reset filename list and problem list
-        self._filename_list = []
-        self._problem_list = []
+        if reset:
+            # Reset filename list and problem list
+            self._filename_list = []
+            self._problem_list = []
         # Try loading all of the config files
+        parser.read(self._filename_list)
         try:
             parser.read_string(string)
         except configparser.Error as exc:

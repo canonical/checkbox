@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2018 Canonical Ltd.
+# Copyright 2018-2019 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -17,42 +17,38 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 from guacamole import Command
 
-from checkbox_ng.config import CheckBoxConfig
-
 from plainbox.impl.secure.config import ValidationError
 from plainbox.i18n import gettext as _
+
+from checkbox_ng.config import load_configs
 
 
 class CheckConfig(Command):
     def invoked(self, ctx):
-        self.config = CheckBoxConfig.get()
+        config = load_configs()
         print(_("Configuration files:"))
-        for filename in self.config.Meta.filename_list:
-            if filename in self.config.filename_list:
-                print(" - {0}".format(filename))
-            else:
-                print(_(" - {0} (not present)").format(filename))
-        print(_("Variables:"))
-        for variable in self.config.Meta.variable_list:
+        for filename in config.filename_list:
+            print(" - {}".format(filename))
+        for variable in config.Meta.variable_list:
             print("   [{0}]".format(variable.section))
             print("   {0}={1}".format(
                 variable.name,
-                variable.__get__(self.config, self.config.__class__)))
-        print(_("Sections:"))
-        for section in self.config.Meta.section_list:
+                variable.__get__(config, config.__class__)))
+        for section in config.Meta.section_list:
             print("   [{0}]".format(section.name))
-            section_value = section.__get__(self.config, self.config.__class__)
+            section_value = section.__get__(config, config.__class__)
             if section_value:
                 for key, value in sorted(section_value.items()):
                     print("   {0}={1}".format(key, value))
-        if self.config.problem_list:
+        if config.problem_list:
             print(_("Problems:"))
-            for problem in self.config.problem_list:
+            for problem in config.problem_list:
                 if isinstance(problem, ValidationError):
                     print(_(" - variable {0}: {1}").format(
                         problem.variable.name, problem.message))
                 else:
                     print(" - {0}".format(problem.message))
+            return 1
         else:
             print(_("No validation problems found"))
-        return 0 if len(self.config.problem_list) == 0 else 1
+            return 0

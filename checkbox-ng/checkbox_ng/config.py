@@ -1,7 +1,8 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2019 Canonical Ltd.
 # Written by:
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
@@ -21,29 +22,56 @@
 :mod:`checkbox_ng.config` -- CheckBoxNG configuration
 =====================================================
 """
-
+import gettext
 import itertools
+import logging
 import os
 
-from plainbox.impl.applogic import PlainBoxConfig
+from plainbox.impl.launcher import DefaultLauncherDefinition
+from plainbox.impl.launcher import LauncherDefinition
 
 
-class CheckBoxConfig(PlainBoxConfig):
-    """
-    Configuration for checkbox-ng
-    """
+_ = gettext.gettext
 
-    class Meta(PlainBoxConfig.Meta):
-        # TODO: properly depend on xdg and use real code that also handles
-        # XDG_CONFIG_HOME.
-        #
-        # NOTE: filename_list is composed of checkbox and plainbox variables,
-        # mixed so that:
-        # - checkbox takes precedence over plainbox
-        # - ~/.config takes precedence over /etc
-        filename_list = list(
-            itertools.chain(
-                *zip(
-                    PlainBoxConfig.Meta.filename_list, (
-                        '/etc/xdg/checkbox.conf',
-                        os.path.expanduser('~/.config/checkbox.conf')))))
+_logger = logging.getLogger("config")
+
+def expand_all(path):
+    return os.path.expandvars(os.path.expanduser(path))
+
+def load_configs(launcher_file=None):
+    # launcher can override the default name of config files to look for
+    # so first we need to establish the filename to look for
+    configs = []
+    config_filename = 'checkbox.conf'
+    launcher = DefaultLauncherDefinition()
+    if launcher_file:
+        configs.append(launcher_file)
+        generic_launcher = LauncherDefinition()
+        if not os.path.exists(launcher_file):
+            _logger.error(_(
+                "Unable to load launcher '%s'. File not found!"),
+                launcher_file)
+            raise SystemExit(1)
+        generic_launcher.read(launcher_file)
+        config_filename = os.path.expandvars(os.path.expanduser(
+            generic_launcher.config_filename))
+        launcher = generic_launcher.get_concrete_launcher()
+    if os.path.isabs(config_filename):
+        configs.append(config_filename)
+    else:
+        search_dirs = [
+            '$SNAP_DATA',
+            '/etc/xdg/',
+            '~/.config/',
+        ]
+        for d in search_dirs:
+            config = expand_all(os.path.join(d, config_filename))
+            if os.path.exists(config):
+                configs.append(config)
+    launcher.read(configs)
+    if launcher.problem_list:
+        _logger.error(_("Unable to start launcher because of errors:"))
+        for problem in launcher.problem_list:
+            _logger.error("%s", str(problem))
+        raise SystemExit(1)
+    return launcher

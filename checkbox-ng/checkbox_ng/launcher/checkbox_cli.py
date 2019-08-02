@@ -40,6 +40,7 @@ from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 
+from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.subcommands import (
     Launcher, List, Run, StartProvider, Submit, ListBootstrapped,
     TestPlanExport
@@ -80,52 +81,9 @@ class LauncherIngredient(Ingredient):
 
     def late_init(self, context):
         if context.args.command1.get_cmd_name() != 'launcher':
-            context.cmd_toplevel.launcher = DefaultLauncherDefinition()
-            return
-        if not context.args.launcher:
-            # launcher not supplied from cli - using the default one
             launcher = DefaultLauncherDefinition()
-            configs = [
-                '/etc/xdg/{}'.format(launcher.config_filename),
-                os.path.expanduser(
-                    '~/.config/{}'.format(launcher.config_filename))]
         else:
-            configs = [context.args.launcher]
-            try:
-                with open(context.args.launcher,
-                          'rt', encoding='UTF-8') as stream:
-                    first_line = stream.readline()
-                    if not first_line.startswith("#!"):
-                        stream.seek(0)
-                    text = stream.read()
-            except IOError as exc:
-                _logger.error(_("Unable to load launcher definition: %s"), exc)
-                raise SystemExit(1)
-            generic_launcher = LauncherDefinition()
-            generic_launcher.read_string(text)
-            config_filename = os.path.expandvars(
-                generic_launcher.config_filename)
-            # if wrapper specifies just the basename
-            if not os.path.split(config_filename)[0]:
-                if "SNAP_DATA" in os.environ:
-                    configs = [context.args.launcher]
-                    configs.append(os.path.join(
-                        os.path.expandvars('$SNAP_DATA'), config_filename))
-                else:
-                    configs += [
-                        '/etc/xdg/{}'.format(config_filename),
-                        os.path.expanduser('~/.config/{}'.format(
-                            config_filename))]
-            # if wrapper specifies an absolute file
-            else:
-                configs.append(config_filename)
-            launcher = generic_launcher.get_concrete_launcher()
-        launcher.read(configs)
-        if launcher.problem_list:
-            _logger.error(_("Unable to start launcher because of errors:"))
-            for problem in launcher.problem_list:
-                _logger.error("%s", str(problem))
-            raise SystemExit(1)
+            launcher = load_configs(context.args.launcher)
         context.cmd_toplevel.launcher = launcher
 
 

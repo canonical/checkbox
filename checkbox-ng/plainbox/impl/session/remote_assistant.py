@@ -28,7 +28,6 @@ from threading import Thread, Lock
 from subprocess import DEVNULL, CalledProcessError, check_call
 
 from plainbox.impl.execution import UnifiedRunner
-from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
@@ -39,6 +38,7 @@ from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.abc import IJobResult
 
+from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.run import SilentUI
 
 _ = gettext.gettext
@@ -191,9 +191,9 @@ class RemoteSessionAssistant():
         session_title = 'checkbox-slave'
         session_desc = 'checkbox-slave session'
 
-        self._launcher = DefaultLauncherDefinition()
+        self._launcher = load_configs()
         if configuration['launcher']:
-            self._launcher.read_string(configuration['launcher'])
+            self._launcher.read_string(configuration['launcher'], False)
             session_title = self._launcher.session_title
             session_desc = self._launcher.session_desc
 
@@ -495,7 +495,7 @@ class RemoteSessionAssistant():
         return test_info_list
 
     def resume_by_id(self, session_id=None):
-        self._launcher = DefaultLauncherDefinition()
+        self._launcher = load_configs()
         self._sa.select_providers(*self._launcher.providers)
         resume_candidates = list(self._sa.get_resumable_sessions())
         if not session_id:
@@ -518,7 +518,7 @@ class RemoteSessionAssistant():
         meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
         launcher = app_blob['launcher']
-        self._launcher.read_string(launcher)
+        self._launcher.read_string(launcher, False)
         self._sa.use_alternate_configuration(self._launcher)
         test_plan_id = app_blob['testplan_id']
         self._sa.select_test_plan(test_plan_id)

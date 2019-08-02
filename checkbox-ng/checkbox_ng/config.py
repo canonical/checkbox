@@ -27,7 +27,6 @@ import itertools
 import logging
 import os
 
-from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
 
@@ -36,25 +35,8 @@ _ = gettext.gettext
 
 _logger = logging.getLogger("config")
 
-class CheckBoxConfig(PlainBoxConfig):
-    """
-    Configuration for checkbox-ng
-    """
-
-    class Meta(PlainBoxConfig.Meta):
-        # TODO: properly depend on xdg and use real code that also handles
-        # XDG_CONFIG_HOME.
-        #
-        # NOTE: filename_list is composed of checkbox and plainbox variables,
-        # mixed so that:
-        # - checkbox takes precedence over plainbox
-        # - ~/.config takes precedence over /etc
-        filename_list = list(
-            itertools.chain(
-                *zip(
-                    PlainBoxConfig.Meta.filename_list, (
-                        '/etc/xdg/checkbox.conf',
-                        os.path.expanduser('~/.config/checkbox.conf')))))
+def expand_all(path):
+    return os.path.expandvars(os.path.expanduser(path))
 
 def load_configs(launcher_file=None):
     # launcher can override the default name of config files to look for
@@ -93,6 +75,3 @@ def load_configs(launcher_file=None):
             _logger.error("%s", str(problem))
         raise SystemExit(1)
     return launcher
-
-def expand_all(path):
-    return os.path.expandvars(os.path.expanduser(path))

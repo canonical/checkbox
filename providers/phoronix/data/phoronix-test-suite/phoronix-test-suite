@@ -1,0 +1,298 @@
+#!/bin/sh
+
+#
+#	Phoronix Test Suite
+#	URLs: http://www.phoronix.com, http://www.phoronix-test-suite.com/
+#	Copyright (C) 2008 - 2019, Phoronix Media
+#	Copyright (C) 2008 - 2019, Michael Larabel
+#	phoronix-test-suite: The Phoronix Test Suite is an extensible open-source testing / benchmarking platform
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 3 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License
+#	along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+if which sed >/dev/null 2>&1 ;
+then
+	# Remove the current dir from PATH if present, as it causes infinitely resursive shell scripts.
+	PATH="`echo $PATH | sed -e s/:[\.]:/:/g -e s/:[\.]// -e  s/[\.]://`"
+fi
+
+# Full path to root directory of the actual Phoronix Test Suite code
+# export PTS_DIR=$(readlink -f `dirname $0`)
+export PTS_DIR=`pwd`
+export PTS_MODE="CLIENT"
+if which realpath >/dev/null 2>&1 ;
+then
+	export PTS_LAUNCHER=`realpath $0`
+else
+	export PTS_LAUNCHER="$PTS_DIR/phoronix-test-suite"
+fi
+
+if [ $PTS_DIR != "`pwd`" ]
+then
+	cd $PTS_DIR
+fi
+
+# Run any start-up hooks, such as to pre-seed environment variables or other non-default behaviors / customizations
+if [ -d pts-core/hooks/startup ]
+then
+	for file in pts-core/hooks/startup/*.sh
+	do
+		./$file
+	done
+fi
+
+# Determine PHP binary location
+if [ ! "X$PHP_BIN" = "X" ] && [ -x $PHP_BIN ]
+then
+	export PHP_BIN=$PHP_BIN
+elif [ -x /usr/bin/php7 ] || [ -x /usr/local/bin/php7 ] || [ -x /usr/pkg/bin/php7 ]
+then
+	export PHP_BIN="php7"
+elif [ -x /usr/bin/php ] || [ -x /usr/pkg/bin/php ]
+then
+	export PHP_BIN="php"
+elif [ -x /usr/php7/bin/php ]
+then
+	export PHP_BIN="/usr/php7/bin/php"
+elif [ -x /usr/php/bin/php ]
+then
+	export PHP_BIN="/usr/php/bin/php"
+elif [ -x /usr/local/bin/php ]
+then
+	export PHP_BIN="/usr/local/bin/php"
+elif [ -x /usr/local/bin/php-7.0 ]
+then
+	export PHP_BIN="/usr/local/bin/php-7.0"
+elif [ -x /usr/local/bin/php-7.1 ]
+then
+	export PHP_BIN="/usr/local/bin/php-7.1"
+elif [ -x /usr/local/bin/php-7.2 ]
+then
+	export PHP_BIN="/usr/local/bin/php-7.2"
+elif [ -x /opt/bin/php ]
+then
+	export PHP_BIN="/opt/bin/php"
+elif [ -x /usr/pkg/libexec/cgi-bin/php ]
+then
+	export PHP_BIN="/usr/pkg/libexec/cgi-bin/php"
+elif which php >/dev/null 2>&1 ;
+then
+	export PHP_BIN="php"
+elif which php7 >/dev/null 2>&1 ;
+then
+	export PHP_BIN="php7"
+elif [ -x /usr/php5/bin/php ]
+then
+	export PHP_BIN="/usr/php5/bin/php"
+elif [ -x /usr/bin/php5 ] || [ -x /usr/local/bin/php5 ] || [ -x /usr/pkg/bin/php5 ]
+then
+	export PHP_BIN="php5"
+elif which php5 >/dev/null 2>&1 ;
+then
+	export PHP_BIN="php5"
+elif which php-cli >/dev/null 2>&1 ;
+then
+	export PHP_BIN="php-cli"
+elif [ -x /usr/bin/hhvm ]
+then
+	export PHP_BIN="/usr/bin/hhvm"
+elif which hhvm >/dev/null 2>&1 ;
+then
+	export PHP_BIN="hhvm"
+else
+	export PHP_BIN=""
+fi
+
+# Make sure PHP is installed
+if [ "X$PHP_BIN" = "X" ]
+then
+	cat <<'EOT'
+
+PHP must be installed for the Phoronix Test Suite
+The PHP command-line package is commonly called php-cli, php7-cli, or php.
+For more information visit: https://www.phoronix-test-suite.com/
+
+EOT
+
+if [ -x /usr/bin/zypper ]
+then
+	# SUSE / OpenSUSE
+	echo "The command to likely run for your operating system is: "
+	echo "# zypper install php7 php7-zip php7-openssl"
+	echo " "
+elif [ -x /usr/bin/apt-get ]
+then
+	# Debian / Ubuntu Based Systems
+	echo "The command to likely run for your operating system is: "
+	echo "# apt-get install php-cli php-xml"
+	echo " "
+elif [ -x /usr/bin/dnf ]
+then
+	# Modern Fedora
+	echo "The command to likely run for your operating system is: "
+	echo "# dnf install php-cli php-xml php-json"
+	echo " "
+elif [ -x /usr/bin/yum ]
+then
+	# Red Hat / Fedora / etc
+	echo "The command to likely run for your operating system is: "
+	echo "# yum install php-cli php-xml php-json"
+	echo " "
+elif [ -x /usr/bin/pkg_radd ]
+then
+	# BSD
+	echo "The command to likely run for your operating system is: "
+	echo "# pkg_radd php7 php7-json php7-zip php7-dom"
+	echo " "
+elif [ -x /usr/bin/pacman ]
+then
+	# Arch Linux
+	echo "The command to likely run for your operating system is: "
+	echo "# pacman -S php"
+	echo " "
+elif [ -x /usr/local/sbin/pkg ] || [ -x /usr/sbin/pkg ]
+then
+	# DragonFlyBSD and others
+	echo "The command to likely run for your operating system is: "
+	echo "# pkg install php73 php73-dom php73-zip php73-json php73-simplexml php73-openssl"
+	echo " "
+elif [ -x /usr/bin/swupd ]
+then
+	# Clear Linux
+	echo "The command to likely run for your operating system is: "
+	echo "# swupd bundle-add os-testsuite-phoronix"
+	echo " "
+elif [ -x /usr/sbin/pkg_add ]
+then
+	# OpenBSD
+	echo "The command to likely run for your operating system is: "
+	echo "# pkg_add php php-zip"
+	echo " "
+elif [ -x /usr/sbin/equo ]
+then
+	# Sabayon
+	echo "The command to likely run for your operating system is: "
+	echo "# equo install dev-lang/php"
+	echo " "
+elif [ -x /usr/bin/xbps-install ] || [ -x /usr/sbin/xbps-install ]
+then
+	# Void Linux
+	echo "The command to likely run for your operating system is: "
+	echo "# xbps-install -Sy php unzip"
+	echo " "
+elif [ -x /usr/sbin/netpkg ]
+then
+	# Zenwalk / Slackware
+	echo "The command to likely run for your operating system is: "
+	echo "# netpkg php"
+	echo " "
+elif [ -x /sbin/apk ]
+then
+	# Alpine Linux
+	echo "The command to likely run for your operating system is: "
+	echo "# apk add php7 php7-dom php7-zip php7-json php7-simplexml"
+	echo " "
+elif [ -x /usr/bin/urpmi ]
+then
+	# OpenMandriva Linux
+	echo "The command to likely run for your operating system is: "
+	echo "# urpmi php-cli"
+	echo " "
+elif [ -x /usr/bin/eopkg ]
+then
+	# Solus Linux
+	echo "The command to likely run for your operating system is: "
+	echo "# eopkg install php"
+	echo " "
+elif [ -x /usr/sbin/mport ]
+then
+	# MidnightBSD
+	echo "The command to likely run for your operating system is: "
+	echo "# mport install php71 php71-dom php71-zip php71-json php71-simplexml"
+	echo " "
+elif [ -x /bin/opkg ]
+then
+	# Linux Embedded Development Environment
+	echo "The command to likely run for your operating system is: "
+	echo "# opkg install php7-cli php7-mod-dom php7-mod-zip php7-mod-json php7-mod-simplexml"
+	echo " "
+elif [ -x /usr/bin/equo ]
+then
+	# Sabayon
+	echo "The command to likely run for your operating system is: "
+	echo "# equo install php"
+	echo " "
+elif [ -x /usr/bin/emerge ]
+then
+	# Gentoo
+	echo "The command to likely run for your operating system is: "
+	echo "# emerge dev-lang/php"
+	echo " "
+fi
+
+exit
+fi
+
+if [ ! -f pts-core/phoronix-test-suite.php ] && [ -f `dirname $0`/pts-core/phoronix-test-suite.php ]
+then
+	cd `dirname $0`
+fi
+
+# Ensure the user is in the correct directory
+if [ ! -f pts-core/phoronix-test-suite.php ]
+then
+	cat <<'EOT'
+
+To run the Phoronix Test Suite locally you must first change directories to phoronix-test-suite/ 
+or install the program using the install-sh script. For support visit: https://www.phoronix-test-suite.com/
+
+EOT
+exit
+fi
+
+# Command-specific conditions
+case "$1" in
+"test-module" | "debug-module" | "webui")
+	export PTS_IGNORE_MODULES=1
+	;;
+"debug-self-test")
+	export PTS_IGNORE_MODULES=1
+	export PTS_SILENT_MODE=1
+	;;
+"enterprise-setup")
+	export PTS_SILENT_MODE=1
+	;;
+esac
+
+export PTS_EXT_LAUNCH_SCRIPT_DIR=`mktemp -d 2>/dev/null || mktemp -d -t ptstmp`
+
+# Run The Phoronix Test Suite
+PTS_EXIT_STATUS=8
+while [ $PTS_EXIT_STATUS -eq 8 ]; do
+	$PHP_BIN pts-core/phoronix-test-suite.php $@
+	PTS_EXIT_STATUS=$?
+done
+
+if [ -f $PTS_EXT_LAUNCH_SCRIPT_DIR/web-server-launcher ]
+then
+	chmod +x $PTS_EXT_LAUNCH_SCRIPT_DIR/web-server-launcher
+	exec $PTS_EXT_LAUNCH_SCRIPT_DIR/web-server-launcher
+	rm -f $PTS_EXT_LAUNCH_SCRIPT_DIR/web-server-launcher
+elif [ -f $PTS_EXT_LAUNCH_SCRIPT_DIR/phoromatic-server-launcher ]
+then
+	chmod +x $PTS_EXT_LAUNCH_SCRIPT_DIR/phoromatic-server-launcher
+	exec $PTS_EXT_LAUNCH_SCRIPT_DIR/phoromatic-server-launcher
+	rm -f $PTS_EXT_LAUNCH_SCRIPT_DIR/phoromatic-server-launcher
+fi
+# rm -rf $PTS_EXT_LAUNCH_SCRIPT_DIR

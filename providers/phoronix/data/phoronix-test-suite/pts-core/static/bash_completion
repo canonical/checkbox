@@ -1,0 +1,11 @@
+have phoronix-test-suite &&
+_phoronix_test_suite_show()
+{
+        local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        COMPREPLY=($( compgen -W "$(phoronix-test-suite dump-possible-options)" -- "$cur" ))
+}
+complete -F _phoronix_test_suite_show phoronix-test-suite
+

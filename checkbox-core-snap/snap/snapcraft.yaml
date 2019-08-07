@@ -141,6 +141,7 @@ parts:
       - XlsxWriter
     stage-packages:
       - sudo
+      - libpam-modules
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""

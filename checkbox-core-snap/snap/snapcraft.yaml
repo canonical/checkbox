@@ -141,6 +141,7 @@ parts:
       - XlsxWriter
     stage-packages:
       - sudo
+      - libpam-modules
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""
@@ -227,6 +228,7 @@ parts:
     stage-packages:
       - bluez-tests
       - bonnie++
+      - dbus
       - gir1.2-gudev-1.0
       - hdparm
       - iperf3

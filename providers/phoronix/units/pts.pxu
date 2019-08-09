@@ -4,23 +4,33 @@ _name: Phoronix Test Suite
 include:
  pts-prepare-nest
  pts/.*
+ pts-generate-report
 bootstrap_include:
  pts-job-generator
 
 id: pts-job-generator
 plugin: resource
 command:
- echo id: pts/compress-gzip
- echo name: Gzip Compression
+ #echo id: pts/compress-gzip
+ #echo name: Gzip Compression
+ #echo
+ echo id: pts/pybench
+ echo name: PyBench
+ echo
+ echo id: pts/x264
+ echo name: X264
  echo
 
 id: pts-prepare-nest
 plugin: shell
 command:
  mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
+ if [ ! -z "$PTS_PRELOAD_PATH" ]; then
+   cp -r $PTS_PRELOAD_PATH/* $PLAINBOX_SESSION_SHARE/pts-nest/
+ fi
  cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
  sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml
- 
+environ: PTS_PRELOAD_PATH
 
 unit: template
 template-resource: pts-job-generator
@@ -28,9 +38,10 @@ id: {id}
 _summary: {name}
 command:
  export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
- $PLAINBOX_PROVIDER_DATA/phoronix-test-suite/phoronix-test-suite install {id}
- $PLAINBOX_PROVIDER_DATA/phoronix-test-suite/phoronix-test-suite batch-run {id}
+ pts_wrapper.py {id}
 plugin: shell
 depends: pts-prepare-nest
+flags: has-leftovers
+environ: PTS_PRELOAD_PATH
 
 

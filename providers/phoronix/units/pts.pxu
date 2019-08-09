@@ -5,6 +5,7 @@ include:
  pts-prepare-nest
  pts/.*
  pts-generate-report
+ pts-attach-report
 bootstrap_include:
  pts-job-generator
 
@@ -44,4 +45,17 @@ depends: pts-prepare-nest
 flags: has-leftovers
 environ: PTS_PRELOAD_PATH
 
+id: pts-generate-report
+plugin: shell
+command:
+ export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
+ cd $PLAINBOX_SESSION_SHARE/pts-nest/test-results/
+ pts_merge_reports.py
 
+id: pts-attach-report
+plugin: attachment
+depends: pts-generate-report
+_summary: Attach PTS report in PDF form
+command:
+ cat $PLAINBOX_SESSION_SHARE/results.pdf
+_description: Attach PTS report in PDF form

@@ -28,6 +28,7 @@ command:
  mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
  if [ ! -z "$PTS_PRELOAD_PATH" ]; then
    cp -r $PTS_PRELOAD_PATH/* $PLAINBOX_SESSION_SHARE/pts-nest/
+   rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
  fi
  cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
  sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml

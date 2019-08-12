@@ -14,7 +14,7 @@ command:
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
-plugin: user-interact-verify
+plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend_after_switch_to_card_{product_slug}_auto
 requires:
@@ -24,27 +24,12 @@ after: graphics/{index}_auto_switch_card_{product_slug}
 user: root
 environ: PLAINBOX_SESSION_SHARE
 command:
- if type -P fwts >/dev/null; then
-  echo "Calling fwts"
-  set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
- else
-  echo "Calling sleep_test"
-  set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+ if [[ -v SNAP ]]; then
+     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
  fi
-estimated_duration: 90.0
-_summary: Test suspend/resume after switching to {vendor} {product}
-_description:
- PURPOSE:
-     This test will check suspend and resume after switching to {vendor} {product} graphics card.
- STEPS:
-     1. Ensure you have switched to {vendor} {product} graphics card.
-     2. Click "Test" and your system will suspend for about 30 - 60 seconds
-     3. Observe the Power LED to see if it blinks or changes color during suspend
-     4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
-     5. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
- VERIFICATION:
-     Did your system suspend and resume correctly after switching to {vendor} {product} graphics card?
-     (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
+ set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+estimated_duration: 1m30s
+_summary: Test auto suspend/resume after switching to {vendor} {product}
 
 unit: template
 template-resource: graphics_card
@@ -72,7 +57,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 template-engine: jinja2
 plugin: manual
 category_id: com.canonical.plainbox::suspend
-id: suspend/{{ index }}_display_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_display_after_suspend_{{ product_slug }}_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -94,7 +79,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
-id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_graphics
 requires: package.name == 'xorg'
 depends:
  {%- if gpu_count > "1" %}
@@ -120,7 +105,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
-depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_auto
+depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_graphics
 command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
@@ -150,7 +135,7 @@ template-resource: graphics_card
 template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
-id: suspend/{{ index }}_glxgears_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_glxgears_after_suspend_{{ product_slug }}_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -176,7 +161,7 @@ _description:
 unit: template
 template-resource: graphics_card
 template-engine: jinja2
-id: suspend/{{ index }}_video_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_video_after_suspend_{{ product_slug }}_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto

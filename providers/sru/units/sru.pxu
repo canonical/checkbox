@@ -116,6 +116,8 @@ include:
     suspend/gpu_lockup_after_suspend
     suspend/screenshot_after_suspend
     screenshot_after_suspend.jpg
+    disk/disk_stress_ng_.*
+    stress/cpu_stress_ng_test
 bootstrap_include:
     device
     graphics_card

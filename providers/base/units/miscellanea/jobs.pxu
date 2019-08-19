@@ -444,3 +444,11 @@ requires: cpuinfo.platform in ("i386", "x86_64")
 command: cpuid.py
 _summary: Attempt to identify CPU family (x86/amd64 only)
 _description: Attempts to identify the CPU family of an x86/amd64 processor
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 240
+id: miscellanea/fan_stress_reaction
+command: fan_reaction_test.py
+_summary: Check if system fans react to CPU load
+_description: Check if system fans react to CPU load

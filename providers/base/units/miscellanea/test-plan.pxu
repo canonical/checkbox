@@ -34,6 +34,7 @@ include:
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
     miscellanea/dmitest_client
+    miscellanea/fan_stress_reaction
 bootstrap_include:
     fwts
 

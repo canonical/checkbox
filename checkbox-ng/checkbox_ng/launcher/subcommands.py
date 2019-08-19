@@ -416,6 +416,9 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         for filter in self.launcher.test_plan_filters:
             filtered_tp_ids.update(fnmatch.filter(test_plan_ids, filter))
         tp_info_list = self._generate_tp_infos(filtered_tp_ids)
+        if not tp_info_list:
+            print(self.C.RED(_("There were no test plans to select from!")))
+            return
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
             tp_info_list,

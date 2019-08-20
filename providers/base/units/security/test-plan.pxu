@@ -1,0 +1,31 @@
+id: kernel-security-full
+unit: test plan
+_name: Kernel-security tests
+_description: Collection of tests from QA Regression Testing repository
+include:
+nested_part:
+    kernel-security-automated
+estimated_duration: 900s
+
+id: kernel-security-automated
+unit: test plan
+_name: Automated kernel-security tests
+_description: Automated kernel-security tests for Snappy Ubuntu Core devices
+estimated_duration: 900s
+include:
+
+id: tainted-kernel-security-full
+unit: test plan
+_name: Kernel-security tests (tainted)
+_description: Kernel-security from QA Regression Testing (ignoring tainting)
+include:
+nested_part:
+    tainted-kernel-security-automated
+estimated_duration: 870s
+
+id: tainted-kernel-security-automated
+unit: test plan
+_name: Automated kernel-security tests (tainted)
+_description: Automated kernel-security tests (ignoring tainting)
+include:
+estimated_duration: 870s

@@ -311,3 +311,109 @@ _steps:
 _verification:
     Was the desktop displayed correctly with on the screen connected using a
     "USB Type-C to VGA" adapter in every mode?
+
+id: monitor/dvi
+_summary: Monitor works (DVI)
+_purpose:
+ Check output to display through DVI port
+_steps:
+ 1. Connect display to DVI port
+ 2. Check the display
+_verification:
+ Output to display works
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+estimated_duration: 300
+flags: also-after-suspend
+
+id: monitor/hdmi
+_summary: Monitor works (HDMI)
+_purpose:
+ Check output to display through HDMI port
+_steps:
+ 1. Connect display to HDMI port
+ 2. Check the display
+_verification:
+ Output to display works
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+estimated_duration: 300
+flags: also-after-suspend
+
+id: monitor/displayport
+_summary: Monitor works (DisplayPort)
+_purpose:
+ Check output to display through DisplayPort
+_steps:
+ 1. Connect display to DisplayPort
+ 2. Check the display
+_verification:
+ Output to display works
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+estimated_duration: 300
+flags: also-after-suspend
+
+id: monitor/dvi-to-vga
+_summary: Monitor works (DVI-to-VGA)
+_purpose:
+ Check output to display through VGA adaptor on DVI port
+_steps:
+ 1. Connect display to VGA adaptor on DVI port
+ 2. Check the display
+_verification:
+ Output to display works
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+estimated_duration: 300
+flags: also-after-suspend
+
+id: monitor/hdmi-to-vga
+_summary: Monitor works (HDMI-to-VGA)
+_purpose:
+ Check output to display through VGA adaptor on HDMI port
+_steps:
+ 1. Connect display to VGA adaptor on HDMI port
+ 2. Check the display
+_verification:
+ Output to display works
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+estimated_duration: 300
+flags: also-after-suspend
+
+id: monitor/displayport_hotplug
+_summary: Can hotplug monitor (DisplayPort)
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+_purpose:
+     This test will check the DisplayPort port and the ability to do hotplugging.
+_steps:
+     Skip this test if your system does not have a DisplayPort port.
+     1. If a display is already connected, unplug it.
+     2. (Re-)Connect a display to the DisplayPort port on your system
+_verification:
+     Was the interface displayed correctly on the screen?
+flags: also-after-suspend
+
+id: monitor/hdmi-hotplug-automated
+flags: also-after-suspend
+estimated_duration: 15.0
+plugin: shell
+category_id: com.canonical.plainbox::monitor
+_summary: Automated HDMI hotplug test
+_description:
+ This test will use edid injector on muxpi to check if system detect HDMI hotplug
+environ: HDMI_PORT MUXPI_IP
+requires: manifest.has_muxpi_hdmi == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
+  export SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+  timeout 60 ssh $SSH_OPTS ubuntu@$MUXPI_IP "stm -hdmi off" || exit 1
+  sleep 3
+  timeout 60 ssh $SSH_OPTS ubuntu@$MUXPI_IP "stm -hdmi on" || exit 1
+  sleep 3
+  if [ "$(cat /sys/class/drm/$HDMI_PORT/status)" != "connected" ] ;then exit 1; fi
+  timeout 60 ssh $SSH_OPTS ubuntu@$MUXPI_IP "stm -hdmi off" || exit 1
+  sleep 3
+  if [ "$(cat /sys/class/drm/$HDMI_PORT/status)" != "disconnected" ] ;then exit 1; fi

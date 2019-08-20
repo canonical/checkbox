@@ -262,7 +262,7 @@ _steps:
 _verification:
  System poweroff successfully
 plugin: manual
-category_id: power
+category_id: com.canonical.plainbox::power-management
 estimated_duration: 300
 
 id: power-management/reboot-manual
@@ -275,11 +275,11 @@ _steps:
 _verification:
      System reboot into system successfully
 plugin: manual
-category_id: power
+category_id: com.canonical.plainbox::power-management
 estimated_duration: 300
 
 id: power-management/warm-reboot
-category_id: power
+category_id: com.canonical.plainbox::power-management
 _summary: Warm reboot
 _description: This tests reboots the system using the `reboot` command
 unit: job
@@ -291,7 +291,7 @@ flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
 
 id: power-management/cold-reboot
-category_id: power
+category_id: com.canonical.plainbox::power-management
 _summary: Cold reboot
 _description: This tests powers off the system and then powers it on using RTC
 unit: job
@@ -311,7 +311,7 @@ unit: template
 template-resource: model_assertion
 template-unit: job
 plugin: shell
-category_id: power
+category_id: com.canonical.plainbox::power-management
 id: power-management/tickless_idle_{kernel}
 estimated_duration: 1.0
 requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')

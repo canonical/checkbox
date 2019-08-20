@@ -1,0 +1,8 @@
+unit: category
+id: usb2
+_name: USB 2.0
+
+unit: category
+id: usb3
+_name: USB 3.0
+

@@ -290,3 +290,35 @@ command: removable_storage_test -s 268400000 -p 15 usb
 _description:
  This test will check that your USB 2.0 port transfers data at a
  minimum expected speed.
+
+unit: template
+template-resource: removable_partition
+template-filter: "usb" in removable_partition.bus
+template-unit: job
+plugin: shell
+category_id: usb2
+id: usb/storage-preinserted-{symlink_uuid}
+user: root
+estimated_duration: 45.0
+flags: also-after-suspend reset-locale
+command: USB_RWTEST_PARTITIONS={symlink_uuid} checkbox-support-usb_read_write
+_summary:
+ Test USB storage on 2.0 or 1.1 ports detected by udev ({symlink_uuid})
+_description:
+ Tests USB 2.0 or 1.1 ports on a system by doing write/read/compare tests on
+ randomly created data.  It requires that a USB stick is plugged into an
+ available USB port before running the certification suite.
+
+id: usb/hid
+_summary: USB keyboard works
+_purpose:
+ Check USB input device works
+_steps:
+ 1. Connect USB keyboard
+ 2. Input somethings with USB keyboard
+_verification:
+ What just input is displayed correctly
+plugin: manual
+flags: also-after-suspend
+category_id: usb2
+estimated_duration: 60

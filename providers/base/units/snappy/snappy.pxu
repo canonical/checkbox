@@ -1,0 +1,335 @@
+id: snappy/snap-list
+_summary: Test that the snap list command is working.
+_purpose: If snap list command is working then should at least find the
+ ubuntu-core package.
+plugin: shell
+command: snap_tests.py list
+category_id: snappy
+estimated_duration: 10s
+flags: preserve-locale
+
+id: snappy/snap-search
+template-engine: jinja2
+_summary: Test that the snap find command is working.
+_purpose:
+ If snap find command is working then should find
+ {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} in the store.
+plugin: shell
+command: snap_tests.py search
+category_id: snappy
+estimated_duration: 10s
+flags: preserve-locale
+
+id: snappy/snap-install
+template-engine: jinja2
+_summary: Test the snap install command is working
+_purpose:
+ The store should contain the
+ {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap. The test
+ makes sure this can be downloaded and installed on the system.
+plugin: shell
+command: snap_tests.py install stable
+category_id: snappy
+estimated_duration: 10s
+flags: preserve-locale
+user: root
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+
+id: snappy/snap-remove
+template-engine: jinja2
+_summary: Test the snap remove command is working.
+_purpose:
+ After having installed the
+ {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap, check it
+ can removed.
+plugin: shell
+command: snap_tests.py remove
+category_id: snappy
+estimated_duration: 10s
+depends: snappy/snap-install
+flags: preserve-locale
+user: root
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+
+id: snappy/snap-refresh
+_summary: Test the snap refresh command is able to update the hello snap.
+_purpose:
+ Check hello snap can be refreshed by snap refresh
+_steps:
+ 1. Install
+    snap install hello
+ 2. Check version number
+    snap list hello
+ 3. Update
+    snap refresh hello --beta
+ 4. Check version number
+    snap list hello
+_verification:
+ Check hello version is newer using the beta channel
+plugin: manual
+after: snappy/snap-remove
+category_id: snappy
+estimated_duration: 60
+
+id: snappy/snap-revert
+_summary: Test the snap revert command is able to revert the hello snap.
+_purpose:
+ Check hello snap can be reverted by snap revert
+_steps:
+ 1. Revert
+    snap revert hello
+ 2. Check version number
+    snap list hello
+_verification:
+ Check hello version is back to its stable version
+plugin: manual
+depends: snappy/snap-refresh
+category_id: snappy
+estimated_duration: 60
+
+id: snappy/snap-reupdate
+_summary: Test the snap refresh command is able to refresh again the hello snap.
+_purpose:
+ Check hello snap can be refreshed after removal of the blacklisted revision
+_steps:
+ 1. Remove reverted version (and associated data)
+    snap remove hello --revision=<beta_revision>
+ 2. Reupdate
+    snap refresh hello --beta
+ 3. Check version number
+    snap list hello
+_verification:
+ Check hello version is again the one from the beta channel
+plugin: manual
+depends: snappy/snap-revert
+category_id: snappy
+estimated_duration: 60
+
+id: snappy/snap-refresh-automated
+template-engine: jinja2
+_summary: Test the snap refresh command is working.
+_description:
+ The snap {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} should
+ be installed from the stable channel prior to starting the test. The job
+ refreshes to edge and compares the revision before and after.
+plugin: shell
+command: snap_tests.py refresh
+depends: snappy/snap-install
+category_id: snappy
+estimated_duration: 10s
+user: root
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+
+id: snappy/snap-revert-automated
+template-engine: jinja2
+_summary: Test the snap revert command is working.
+_description:
+ Runs after snap-refresh-automated and should revert the installed edge channel
+ snap {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} leftover
+ from that test to the one from stable.
+plugin: shell
+command: snap_tests.py revert
+depends: snappy/snap-refresh-automated
+category_id: snappy
+estimated_duration: 10s
+user: root
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+
+id: snappy/snap-reupdate-automated
+template-engine: jinja2
+_summary: Test the snap refresh command works after blacklisting.
+_description:
+ Checks that the {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }}
+ snap can be refreshed after removal of the blacklisted revision.
+plugin: shell
+command: snap_tests.py reupdate
+depends: snappy/snap-revert-automated
+category_id: snappy
+estimated_duration: 10s
+user: root
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+
+id: snappy/os-refresh
+_summary: Refresh the system using the snap tool
+_purpose:
+ Check "core" can be refreshed by snap refresh
+_steps:
+ 1. Check version number
+    snap list core
+ 2. Update
+    snap refresh core --edge
+ 3. Reboot the system and log in
+    sudo reboot
+ 4. Check version number
+    snap list core
+_verification:
+ Check core version is newer using the edge channel
+plugin: manual
+category_id: snappy
+estimated_duration: 400
+
+id: snappy/os-refresh-with-refresh-control
+_summary: Refresh the system using the snap tool
+_purpose:
+ Check "core" can be refreshed by snap refresh
+_steps:
+ 1. Check version number
+    snap list core
+ 2. Update
+    snap refresh core --edge --ignore-validation
+ 3. Reboot the system and log in
+    sudo reboot
+ 4. Check version number
+    snap list core
+_verification:
+ Check core version is newer using the edge channel
+plugin: manual
+category_id: snappy
+estimated_duration: 400
+
+id: snappy/os-revert
+_summary: Rollback system update using the snap tool
+_purpose:
+ Check core can be reverted by snap revert
+_steps:
+ 1. Check version number
+    snap list core
+ 2. Revert
+    snap revert core
+ 3. Reboot the system and log in
+    sudo reboot
+ 4. Check version number
+    snap list core
+_verification:
+ Check core version is back to its stable version
+plugin: manual
+depends: snappy/os-refresh
+category_id: snappy
+estimated_duration: 400
+
+id: snappy/os-revert-with-refresh-control
+_summary: Rollback system update using the snap tool
+_purpose:
+ Check core can be reverted by snap revert
+_steps:
+ 1. Check version number
+    snap list core
+ 2. Revert
+    snap revert core
+ 3. Reboot the system and log in
+    sudo reboot
+ 4. Check version number
+    snap list core
+_verification:
+ Check core version is back to its stable version
+plugin: manual
+depends: snappy/os-refresh-with-refresh-control
+category_id: snappy
+estimated_duration: 400
+
+id: snappy/os-fail-boot
+_summary: Automatically rollback after failed boot after upgrade
+_purpose:
+ Check system will rollback to original core snap if failed to boot the updated one
+_steps:
+ 1. Remove reverted version (and associated data)
+    snap remove core --revision=<edge_revision>
+ 2. Check that the edge revision is back in the refresh list
+    snap refresh --list core
+ 3. Update
+    snap refresh core --edge
+ 4. Modify the GRUB Environment Block to simulate a failed boot
+    sudo /usr/bin/grub-editenv /boot/grub/grubenv set snap_mode=trying
+ 5. Reboot the system and log in
+    sudo reboot
+ 6. Check version number
+    snap list core
+_verification:
+ Check system is currently booting the stable core version
+plugin: manual
+category_id: snappy
+depends: snappy/os-revert
+estimated_duration: 500
+
+id: snappy/os-fail-boot-with-refresh-control
+_summary: Automatically rollback after failed boot after upgrade
+_purpose:
+ Check system will rollback to original core snap if failed to boot the updated one
+_steps:
+ 1. Remove reverted version (and associated data)
+    snap remove core --revision=<edge_revision>
+ 2. Check that the edge revision is back in the refresh list
+    snap refresh --list core
+ 3. Update
+    snap refresh core --edge --ignore-validation
+ 4. Modify the GRUB Environment Block to simulate a failed boot
+    sudo /usr/bin/grub-editenv /boot/grub/grubenv set snap_mode=trying
+ 5. Reboot the system and log in
+    sudo reboot
+ 6. Check version number
+    snap list core
+_verification:
+ Check system is currently booting the stable core version
+plugin: manual
+category_id: snappy
+depends: snappy/os-revert-with-refresh-control
+estimated_duration: 500
+
+id: snappy/sshd
+_summary: SSH is enabled and operational
+_purpose:
+ Check if user can access the system through ssh from other machine
+_steps:
+ 1. Execute following command on other machine in same network
+     ssh [user id]@[ip address of the testing system]
+ 2. Enter password to login
+_verification:
+ Can log into system through ssh from other machine
+plugin: manual
+category_id: snappy
+estimated_duration: 120
+
+id: snappy/test-store-install-beta
+_summary: Snappy install command - beta channel store
+_purpose:
+ Test the snappy install command is able to install and remove snap in beta
+ channel store.
+plugin: shell
+command: snap_tests.py install beta && snap_tests.py remove
+user: root
+category_id: com.canonical.certification::snappy
+estimated_duration: 30s
+flags: preserve-locale
+
+id: snappy/test-store-install-edge
+_summary: Snappy install command - edge channel store
+_purpose:
+ Test the snappy install command is able to install snap in edge
+ channel store.
+plugin: shell
+command: snap_tests.py install edge && snap_tests.py remove
+user: root
+category_id: com.canonical.certification::snappy
+estimated_duration: 30s
+flags: preserve-locale
+
+unit: template
+template-resource: com.canonical.certification::model_assertion
+template-unit: job
+id: snappy/test-store-config-{store}
+_summary: Test that image is using the correct snappy store configuration.
+_purpose:
+ The image can be tied to using a particular store for the OEM. This
+ tests the store for the image is as expected.
+plugin: shell
+environ: STORE_ID
+command:
+ echo "Expected store ID:"
+ echo "$STORE_ID"
+ echo
+ echo "Store ID in model assertion:"
+ echo "{store}"
+ [ "$STORE_ID" == "{store}" ]
+category_id: com.canonical.certification::snappy
+estimated_duration: 1.0
+flags: preserve-locale

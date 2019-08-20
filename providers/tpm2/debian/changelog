@@ -1,4 +1,4 @@
-plainbox-provider-tpm2 (1.10.0-1) UNRELEASED; urgency=low
+plainbox-provider-tpm2 (1.11.0~rc1-1) UNRELEASED; urgency=low
 
   [ Sylvain Pineau ]
   * Initial release
@@ -24,5 +24,6 @@ plainbox-provider-tpm2 (1.10.0-1) UNRELEASED; urgency=low
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 03 Jun 2019 11:57:23 +0200
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 20 Aug 2019 15:38:03 +0200

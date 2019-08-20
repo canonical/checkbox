@@ -1,0 +1,9 @@
+# Copyright 2015-2018 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+
+unit: category
+id: gpio
+_name: General Purpose I/O

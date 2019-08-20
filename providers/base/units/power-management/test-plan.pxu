@@ -57,3 +57,30 @@ include:
     power-management/poweroff-log-attach
     power-management/reboot                        certification-status=blocker
     power-management/reboot-log-attach
+
+id: power-full
+unit: test plan
+_name: Power tests
+_description: QA power tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    power-manual
+    # power-automated is not part of the -full test plan as it silently
+    # autorestarts checkbox upon reboots thanks to a systemd unit on core.
+    # This could lead to multiple jobs being skipped w/o any notice
+
+id: power-automated
+unit: test plan
+_name: Automated power tests
+_description: Automated power tests for Snappy Ubuntu Core devices
+include:
+    power-management/warm-reboot
+    power-management/cold-reboot
+
+id: power-manual
+unit: test plan
+_name: Manual power tests
+_description: Manual power tests for Snappy Ubuntu Core devices
+include:
+    power-management/poweroff-manual
+    power-management/reboot-manual

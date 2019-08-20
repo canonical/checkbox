@@ -1,0 +1,7 @@
+unit: category
+id: wifi
+_name: Wi-Fi
+
+unit: category
+id: wifi_ap
+_name: Wi-Fi access point

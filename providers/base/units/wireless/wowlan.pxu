@@ -1,0 +1,165 @@
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
+id: wireless/wowlan_S5_{interface}_wakeonlan
+_summary: Wake on Wireless LAN (WoWLAN) test from S5 - {interface} - wakeonlan
+_purpose:
+ Check that another system can wake up from S5 the SUT using WoWLAN function.
+_steps:
+ 1. Ensure WoWLAN is enabled in BIOS.
+ 2. Initiate connection to an AP (using nmcli)
+ 3. Configure the device for WoWLAN, run the command:
+    $ sudo iw phy phy0 wowlan enable magic-packet
+ 4. Press Enter for S5 (Soft Off).
+ 5. From another computer on the same network run the following command:
+    $ wakeonlan {mac}
+    If wakeonlan tool is not installed run:
+    $ sudo apt install wakeonlan
+ 6. Resume Checkbox
+_verification:
+  Did the SUT wake up from S5?
+plugin: user-interact-verify
+command: poweroff
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
+id: wireless/wowlan_S5_{interface}_etherwake
+_summary: Wake on Wireless LAN (WoWLAN) test from S5 - {interface} - etherwake
+_purpose:
+ Check that another system can wake up from S5 the SUT using WoWLAN function.
+_steps:
+ 1. Ensure WoWLAN is enabled in BIOS.
+ 2. Initiate connection to an AP (using nmcli)
+ 3. Configure the device for WoWLAN, run the command:
+    $ sudo iw phy phy0 wowlan enable magic-packet
+ 4. Press Enter for S5 (Soft Off).
+ 5. From another computer on the same network run the following command:
+    $ sudo etherwake {mac}
+    If etherwake tool is not installed run:
+    $ sudo apt install etherwake
+ 6. Resume Checkbox
+_verification:
+  Did the SUT wake up from S5?
+plugin: user-interact-verify
+command: poweroff
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
+id: wireless/wowlan_S4_{interface}_wakeonlan
+_summary: Wake on Wireless LAN (WoWLAN) test from S4 - {interface} - wakeonlan
+_purpose:
+ Check that another system can wake up from S4 the SUT using WoWLAN function.
+_steps:
+ 1. Ensure WoWLAN is enabled in BIOS.
+ 2. Initiate connection to an AP (using nmcli)
+ 3. Configure the device for WoWLAN, run the command:
+    $ sudo iw phy phy0 wowlan enable magic-packet
+ 4. Press Enter to hibernate the system.
+ 5. From another computer on the same network run the following command:
+    $ wakeonlan {mac}
+    If wakeonlan tool is not installed run:
+    $ sudo apt install wakeonlan
+_verification:
+  Did the SUT wake up from S4?
+plugin: user-interact-verify
+requires:
+  sleep.disk == 'supported'
+command: systemctl hibernate
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
+id: wireless/wowlan_S4_{interface}_etherwake
+_summary: Wake on Wireless LAN (WoWLAN) test from S4 - {interface} - etherwake
+_purpose:
+ Check that another system can wake up from S4 the SUT using WoWLAN function.
+_steps:
+ 1. Ensure WoWLAN is enabled in BIOS.
+ 2. Initiate connection to an AP (using nmcli)
+ 3. Configure the device for WoWLAN, run the command:
+    $ sudo iw phy phy0 wowlan enable magic-packet
+ 4. Press Enter to hibernate the system.
+ 5. From another computer on the same network run the following command:
+    $ sudo etherwake {mac}
+    If etherwake tool is not installed run:
+    $ sudo apt install etherwake
+_verification:
+  Did the SUT wake up from S4?
+plugin: user-interact-verify
+requires:
+  sleep.disk == 'supported'
+command: systemctl hibernate
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
+id: wireless/wowlan_S3_{interface}_wakeonlan
+_summary: Wake on Wireless LAN (WoWLAN) test from S3 - {interface} - wakeonlan
+_purpose:
+ Check that another system can wake up from S3 the SUT using WoWLAN function.
+_steps:
+ 1. Ensure WoWLAN is enabled in BIOS.
+ 2. Initiate connection to an AP (using nmcli)
+ 3. Configure the device for WoWLAN, run the command:
+    $ sudo iw phy phy0 wowlan enable magic-packet
+ 4. Press Enter to suspend the system.
+ 5. From another computer on the same network run the following command:
+    $ wakeonlan {mac}
+    If wakeonlan tool is not installed run:
+    $ sudo apt install wakeonlan
+_verification:
+  Did the SUT wake up from S3?
+plugin: user-interact-verify
+requires:
+  sleep.mem == 'supported'
+command: systemctl suspend
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 120
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
+id: wireless/wowlan_S3_{interface}_etherwake
+_summary: Wake on Wireless LAN (WoWLAN) test from S3 - {interface} - etherwake
+_purpose:
+ Check that another system can wake up from S3 the SUT using WoWLAN function.
+_steps:
+ 1. Ensure WoWLAN is enabled in BIOS.
+ 2. Initiate connection to an AP (using nmcli)
+ 3. Configure the device for WoWLAN, run the command:
+    $ sudo iw phy phy0 wowlan enable magic-packet
+ 4. Press Enter to suspend the system.
+ 5. From another computer on the same network run the following command:
+    $ sudo etherwake {mac}
+    If etherwake tool is not installed run:
+    $ sudo apt install etherwake
+_verification:
+  Did the SUT wake up from S3?
+plugin: user-interact-verify
+requires:
+  sleep.mem == 'supported'
+command: systemctl suspend
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 120
+flags: preserve-locale

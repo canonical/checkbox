@@ -783,3 +783,21 @@ _description:
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
+unit: template
+template-resource: removable_partition
+template-filter: removable_partition.bus == 'mediacard'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/storage-preinserted-{symlink_uuid}
+user: root
+estimated_duration: 45.0
+flags: also-after-suspend reset-locale
+command: USB_RWTEST_PARTITIONS={symlink_uuid} checkbox-support-usb_read_write
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+_summary: Automated test of SD Card reading & writing ({symlink_uuid})
+_description:
+ This is a fully automated version of mediacard/sd-automated and assumes that the
+ system under test has a memory card device plugged in prior to checkbox execution.

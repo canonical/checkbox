@@ -1,8 +1,4 @@
 unit: category
-id: bluetooth
-_name: Bluetooth
-
-unit: category
 id: bluetooth_bluez5_selftests
 _name: Bluetooth - BlueZ Self Tests
 

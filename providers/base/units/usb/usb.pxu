@@ -296,7 +296,7 @@ template-resource: removable_partition
 template-filter: "usb" in removable_partition.bus
 template-unit: job
 plugin: shell
-category_id: usb2
+category_id: com.canonical.plainbox::usb
 id: usb/storage-preinserted-{symlink_uuid}
 user: root
 estimated_duration: 45.0
@@ -320,5 +320,5 @@ _verification:
  What just input is displayed correctly
 plugin: manual
 flags: also-after-suspend
-category_id: usb2
+category_id: com.canonical.plainbox::usb
 estimated_duration: 60

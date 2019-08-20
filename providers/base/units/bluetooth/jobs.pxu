@@ -261,3 +261,134 @@ user: root
 flags: also-after-suspend also-after-suspend-manual
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 10
+
+unit: template
+template-resource: bluez-internal-rfcomm-tests
+template-unit: job
+id: bluetooth/bluez-internal-rfcomm-tests_{bluez-internal-rfcomm-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-rfcomm-test}
+_description:
+ Runs a specific test from the rfcomm test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ rfcomm-tester -p "{bluez-internal-rfcomm-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-hci-tests
+template-unit: job
+id: bluetooth/bluez-internal-hci-tests_{bluez-internal-hci-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-hci-test}
+_description:
+ Runs a specific test from the hci test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ hci-tester -p "{bluez-internal-hci-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-mgmt-tests
+template-unit: job
+id: bluetooth/bluez-internal-mgmt-tests_{bluez-internal-mgmt-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-mgmt-test}
+_description:
+ Runs a specific test from the mgmt test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ mgmt-tester -p "{bluez-internal-mgmt-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-uc-tests
+template-unit: job
+id: bluetooth/bluez-internal-uc-tests_{bluez-internal-uc-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-uc-test}
+_description:
+ Runs a specific test from the user channel test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ userchan-tester -p "{bluez-internal-uc-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-bnep-tests
+template-unit: job
+id: bluetooth/bluez-internal-bnep-tests_{bluez-internal-bnep-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-bnep-test}
+_description:
+ Runs a specific test from the bnep test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ bnep-tester -p "{bluez-internal-bnep-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+id: bluetooth/keyboard
+_summary: Bluetooth keyboard works
+_purpose:
+ Check if bluetooth keyboard works
+_verification:
+ Did the keyboard work?
+plugin: user-verify
+user: root
+flags: also-after-suspend
+command: test_bt_keyboard
+category_id: bluetooth
+estimated_duration: 1m
+
+id: bluetooth/keyboard-manual
+_summary: Bluetooth keyboard manual test
+_purpose:
+ Check bluetooth input device works
+_steps:
+ 1. Run the following command to start bluetoothctl console:
+ sudo bluetoothctl -a
+ ***Following steps are run in bluetoothctl console***
+ 2. Power on the device:
+ power on
+ 3. Register agent for keyboard:
+ agent KeyboardOnly
+ default-agent
+ 4. Put controller in pairable mode:
+ pairable on
+ 5. Scan nearby bluetooth device:
+ scan on
+ 6. Stop Scanning after bluetooth keyboard is found:
+ scan off
+ 7. Pair bluetooth
+ pair [MAC address of bluetooth keyboard]
+ 8. Enter PIN Code on bluetooth keyboard if needed
+ 9. Trust the bluetooth keyboard
+ trust [MAC address of bluetooth keyboard]
+ 10. Connect to bluetooth keyboard:
+ connect [MAC address of bluetooth keyboard]
+ 11. Quit bluetoothctl console
+ quit
+ 12. Use bluetooth keyboard to input
+ **for headless please check the input outside the bluetooth console by using:
+ $ sudo cat /dev/tty1
+_verification:
+ Confirm characters from Bluetooth input device are displayed correctly
+plugin: manual
+flags: also-after-suspend-manual
+category_id: bluetooth
+estimated_duration: 5m

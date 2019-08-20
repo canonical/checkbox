@@ -93,6 +93,7 @@ include:
     wireless/wireless_connection_wpa_ac_nm_.*
     wireless/wireless_connection_open_ac_nm_.*
     bluetooth4/beacon_eddystone_url_.*
+    miscellanea/fan_stress_reaction
     suspend/audio_before_suspend
     suspend/cpu_before_suspend
     suspend/network_before_suspend

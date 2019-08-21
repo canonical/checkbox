@@ -7,8 +7,8 @@ include:
 bootstrap_include:
  graphics_card
 nested_part:
- com.canonical.certification::graphics-integrated-gpu-cert-manual
  com.canonical.certification::graphics-integrated-gpu-cert-automated
+ com.canonical.certification::graphics-integrated-gpu-cert-manual
 
 id: graphics-integrated-gpu-cert-manual
 unit: test plan
@@ -31,6 +31,7 @@ _name: Graphics tests (integrated GPU) (Automated)
 _description:
  Graphics tests (integrated GPU) (Automated)
 include:
+ graphics/1_auto_switch_card_.*             certification-status=blocker
  graphics/xorg-version                      certification-status=blocker
  graphics/xorg-failsafe                     certification-status=blocker
  graphics/xorg-process                      certification-status=blocker

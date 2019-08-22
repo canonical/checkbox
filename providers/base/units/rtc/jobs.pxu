@@ -1,0 +1,16 @@
+id: rtc/battery
+_summary: RTC battery tracks the time
+_purpose:
+ RTC battery backup power can send system wakeup event
+_steps:
+ 1. Start the test to poweroff the system (wakeup scheduled in 30s)
+_verification:
+ RTC can wake up the system successfully
+command:
+ rtcwake -v -m disable
+ rtcwake -v -m off -s 30
+plugin: user-interact
+user: root
+category_id: rtc_category
+estimated_duration: 40
+flags: noreturn

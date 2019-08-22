@@ -34,3 +34,119 @@ include:
  bluetooth4/HOGP-mouse                          certification-status=blocker
  bluetooth4/HOGP-keyboard                       certification-status=blocker
  bluetooth/audio-a2dp                           certification-status=blocker
+
+id: bluetooth-full
+unit: test plan
+_name: Bluetooth tests
+_description: QA tests for Bluetooth
+estimated_duration: 6m
+include:
+nested_part:
+    bluetooth-manual
+    bluez-automated
+
+id: bluetooth-manual
+unit: test plan
+_name: Manual Bluetooth tests
+_description: Manual QA tests for Bluetooth
+estimated_duration: 5m
+include:
+    bluetooth/keyboard-manual
+
+id: bluez-automated
+unit: test plan
+_name: Automated tests for bluez
+_description:
+ Automated tests for bluez
+estimated_duration: 1m
+include:
+    bluetooth/detect
+    bluetooth/bluez-controller-detect
+    bluetooth/bluez-internal-rfcomm-tests_.*
+    bluetooth/bluez-internal-hci-tests_.*
+    # Blacklist all mngt tests since they randomly fail
+    # (even with upstream 5.45)
+    # Note: The mgmt tests are not that much critical as these just test
+    # the management interface.
+    # Next line is commented out until upstream fixes the issue
+    # bluetooth/bluez-internal-mgmt-tests_.*
+    bluetooth/bluez-internal-uc-tests_.*
+    bluetooth/bluez-internal-bnep-tests_.*
+    bluetooth4/beacon_eddystone_url_.*
+bootstrap_include:
+    device
+    bluez-internal-rfcomm-tests
+    bluez-internal-hci-tests
+    # Blacklist all mngt tests since they randomly fail
+    # (even with upstream 5.45)
+    # Note: The mgmt tests are not that much critical as these just test
+    # the management interface.
+    # Next line is commented out until upstream fixes the issue
+    # bluez-internal-mgmt-tests
+    bluez-internal-uc-tests
+    bluez-internal-bnep-tests
+exclude:
+    # Read Country Code is deprecated
+    "bluetooth/bluez-internal-hci-tests_Read Country Code"
+    # Blacklist the following three hci tests, they randomly fail
+    # (even with upstream 5.45)
+    "bluetooth/bluez-internal-hci-tests_LE Read Local PK"
+    "bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs"
+    "bluetooth/bluez-internal-hci-tests_LE Generate DHKey"
+
+id: after-suspend-bluetooth-full
+unit: test plan
+_name: Bluetooth tests (after suspend)
+_description: QA tests for Bluetooth
+estimated_duration: 6m
+include:
+nested_part:
+    after-suspend-bluetooth-manual
+    after-suspend-bluez-automated
+
+id: after-suspend-bluetooth-manual
+unit: test plan
+_name: Manual Bluetooth tests
+_description: Manual QA tests for Bluetooth
+estimated_duration: 5m
+include:
+    after-suspend-manual-bluetooth/keyboard-manual
+
+id: after-suspend-bluez-automated
+unit: test plan
+_name: Automated tests for bluez
+_description:
+ Automated tests for bluez
+estimated_duration: 1m
+include:
+    after-suspend-bluetooth/bluez-internal-rfcomm-tests_.*
+    after-suspend-bluetooth/bluez-internal-hci-tests_.*
+    # Blacklist all mngt tests since they randomly fail
+    # (even with upstream 5.45)
+    # Note: The mgmt tests are not that much critical as these just test
+    # the management interface.
+    # Next line is commented out until upstream fixes the issue
+    # after-suspend-bluetooth/bluez-internal-mgmt-tests_.*
+    after-suspend-bluetooth/bluez-internal-uc-tests_.*
+    after-suspend-bluetooth/bluez-internal-bnep-tests_.*
+    after-suspend-bluetooth4/beacon_eddystone_url_.*
+bootstrap_include:
+    device
+    bluez-internal-rfcomm-tests
+    bluez-internal-hci-tests
+    # Blacklist all mngt tests since they randomly fail
+    # (even with upstream 5.45)
+    # Note: The mgmt tests are not that much critical as these just test
+    # the management interface.
+    # Next line is commented out until upstream fixes the issue
+    # bluez-internal-mgmt-tests
+    bluez-internal-uc-tests
+    bluez-internal-bnep-tests
+exclude:
+    # Read Country Code is deprecated
+    "after-suspend-bluetooth/bluez-internal-hci-tests_Read Country Code"
+    # Blacklist the following three hci tests, they randomly fail
+    # (even with upstream 5.45)
+    "after-suspend-bluetooth/bluez-internal-hci-tests_LE Read Local PK"
+    "after-suspend-bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs"
+    "after-suspend-bluetooth/bluez-internal-hci-tests_LE Generate DHKey"

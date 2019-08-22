@@ -73,3 +73,77 @@ include:
     suspend/microphone-plug-detection-after-suspend        certification-status=blocker
     suspend/playback_headphones-after-suspend              certification-status=blocker
     suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+
+id: audio-full
+unit: test plan
+_name: Audio tests
+_description: QA audio tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    audio-manual
+    audio-automated
+
+id: audio-manual
+unit: test plan
+_name: Manual audio tests
+_description: Manual audio tests for Snappy Ubuntu Core devices
+include:
+    audio/alsa-playback
+    audio/alsa-loopback
+
+id: audio-pa-manual
+unit: test plan
+_name: Manual audio tests using pulseaudio
+_description: Manual audio tests using pulseaudio for Snappy Ubuntu Core devices
+include:
+    audio/pa-record-internal-mic
+    audio/pa-record-external-mic
+    audio/pa-playback-headphone
+    audio/pa-playback-lineout
+    audio/pa-playback-hdmi
+
+id: audio-automated
+unit: test plan
+_name: Automated audio tests
+_description: Automated audio tests for Snappy Ubuntu Core devices
+include:
+    audio/detect-playback-devices
+    audio/detect-capture-devices
+    audio/alsa-loopback-automated
+
+id: after-suspend-audio-full
+unit: test plan
+_name: Audio tests (after suspend)
+_description: QA audio tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-audio-manual
+    after-suspend-audio-automated
+
+id: after-suspend-audio-manual
+unit: test plan
+_name: Manual audio tests (after suspend)
+_description: Manual audio tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-audio/alsa-playback
+    after-suspend-audio/alsa-loopback
+
+id: after-suspend-audio-pa-manual
+unit: test plan
+_name: Manual audio tests using pulseaudio (after suspend)
+_description: Manual audio tests using pulseaudio for Snappy Ubuntu Core devices
+include:
+    after-suspend-audio/pa-record-internal-mic
+    after-suspend-audio/pa-record-external-mic
+    after-suspend-audio/pa-playback-headphone
+    after-suspend-audio/pa-playback-lineout
+    after-suspend-audio/pa-playback-hdmi
+
+id: after-suspend-audio-automated
+unit: test plan
+_name: Automated audio tests
+_description: Automated audio tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-audio/detect-playback-devices
+    after-suspend-audio/detect-capture-devices
+    after-suspend-audio/alsa-loopback-automated

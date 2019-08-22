@@ -251,3 +251,70 @@ _description:
      successfully otherwise, Select 'Fail' to indicate there was a problem.
  VERIFICATION:
      Did the system shutdown and boot correctly?
+
+id: power-management/poweroff-manual
+_summary: System can be powered off
+_purpose:
+ Check system can poweroff successfully
+_steps:
+ 1. Execute following command:
+  sudo poweroff
+_verification:
+ System poweroff successfully
+plugin: manual
+category_id: com.canonical.plainbox::power-management
+estimated_duration: 300
+
+id: power-management/reboot-manual
+_summary: System can be rebooted
+_purpose:
+ Check system can reboot
+_steps:
+ 1. Execute following command:
+  sudo reboot
+_verification:
+     System reboot into system successfully
+plugin: manual
+category_id: com.canonical.plainbox::power-management
+estimated_duration: 300
+
+id: power-management/warm-reboot
+category_id: com.canonical.plainbox::power-management
+_summary: Warm reboot
+_description: This tests reboots the system using the `reboot` command
+unit: job
+plugin: shell
+command:
+ dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 180.0
+
+id: power-management/cold-reboot
+category_id: com.canonical.plainbox::power-management
+_summary: Cold reboot
+_description: This tests powers off the system and then powers it on using RTC
+unit: job
+plugin: shell
+requires: rtc.state == 'supported'
+command:
+ rtcwake --mode no -s 120
+ sleep 5
+ rtcwake -m show
+ sleep 5
+ dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 300
+
+unit: template
+template-resource: model_assertion
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/tickless_idle_{kernel}
+estimated_duration: 1.0
+requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
+_description: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
+command:
+ zgrep 'CONFIG_NO_HZ=y' /snap/{kernel}/current/config-`uname -r` >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )

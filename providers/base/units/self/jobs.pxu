@@ -1,0 +1,12 @@
+
+unit: template
+template-engine: jinja2
+template-resource: interface
+template-filter: interface.interface == 'content' and interface.type == 'plug' and interface.snap == '{{ __system_env__["SNAP_NAME"] }}'
+id: self/content-plug-connected-{{ name }}
+_summary: Ensure the content interface plug {{ name }} is connected
+plugin: shell
+command:
+  plug_connected_test.py {{ snap }} {{ name }}
+estimated_duration: 1.0
+

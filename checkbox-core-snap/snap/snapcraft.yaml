@@ -174,8 +174,10 @@ parts:
     source: git://git.launchpad.net/plainbox-provider-checkbox
     stage-packages:
       - bc
+      - bluez-tests
       - bonnie++
       - cryptsetup-bin
+      - dbus
       - dmidecode
       - dmsetup
       - ethtool
@@ -193,6 +195,8 @@ parts:
       - iw
       - jq
       - kmod
+      - libasound2
+      - libcap2-bin
       - libfdt1
       - lshw
       - mesa-utils
@@ -217,7 +221,11 @@ parts:
       - usbutils
       - util-linux
       - uuid-runtime
+      - wget
       - wmctrl
+    build-packages:
+      - libasound2-dev
+      - libcap-dev
     after: [plainbox-provider-resource]
 ################################################################################
   plainbox-provider-snappy:
@@ -225,25 +233,6 @@ parts:
     source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-snappy
-    stage-packages:
-      - bluez-tests
-      - bonnie++
-      - dbus
-      - gir1.2-gudev-1.0
-      - hdparm
-      - iperf3
-      - iw
-      - libasound2
-      - libcap2-bin
-      - lshw
-      - python3-dbus
-      - python3-gi
-      - python3-yaml
-      - usbutils
-      - wget
-    build-packages:
-      - libasound2-dev
-      - libcap-dev
     after: [plainbox-provider-checkbox]
 ################################################################################
   plainbox-provider-ipdt:

@@ -251,7 +251,6 @@ parts:
     source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-ipdt
-    source-subdir: plainbox-provider-ipdt
     stage-packages:
       - util-linux
     after: [plainbox-provider-snappy]

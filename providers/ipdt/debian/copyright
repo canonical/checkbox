@@ -1,0 +1,11 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: plainbox-provider-ipdt
+Source: https://launchpad.net/plainbox-provider-ipdt
+
+Files: *
+Copyright: Copyright 2015-2019 Canonical Ltd.
+License: GPL-3
+
+Files: bin/* data/*
+Copyright: (C) 2014, Intel Corporation. All rights reserved. 
+License: Proprietary

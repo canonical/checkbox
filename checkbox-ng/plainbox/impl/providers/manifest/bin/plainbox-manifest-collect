@@ -45,7 +45,7 @@ def collect_console(manifest, provider_list):
                     print(unit.tr_prompt() or _(
                         "Does this machine have this piece of hardware?"))
                     print(" - {}".format(unit.tr_name()))
-                    answer = input(_("(yes/y, no/n) "))
+                    answer = input(_("(yes/y, no/n)\n"))
                     if answer == _('y') or answer == _('yes'):
                         answer = True
                         again = False
@@ -59,7 +59,7 @@ def collect_console(manifest, provider_list):
                     print(unit.tr_prompt() or _(
                         "Please enter the requested data"))
                     print(unit.tr_name())
-                    answer = input(_("(natural number) "))
+                    answer = input(_("(natural number)\n"))
                     try:
                         answer = int(answer, 10)
                     except ValueError:

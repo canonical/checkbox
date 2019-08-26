@@ -18,7 +18,15 @@ estimated_duration: 7200.0
 requires:
  package.name == 'stress-ng' or executable.name == 'stress-ng'
 user: root
-command: cpu_stress --runtime 7200
+command:
+  if [ -n "$STRESS_NG_CPU_TIME" ]
+  then
+    echo "Found STRESS_NG_CPU_TIME env var, stress_ng cpu running time is now: $STRESS_NG_CPU_TIME seconds"
+    cpu_stress --runtime $STRESS_NG_CPU_TIME
+  else
+    echo STRESS_NG_CPU_TIME env var is not found, stress_ng cpu running time is default value
+    cpu_stress --runtime 7200
+  fi
 _summary:
  Stress of CPUs (very long runtime)
 _description:

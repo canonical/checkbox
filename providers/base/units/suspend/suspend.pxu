@@ -268,7 +268,14 @@ command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
  fi
- set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
+ # fwts s3 is not available on all architectures (i.e ARM)
+ if fwts --show-tests-categories | grep -q 's3 '; then
+     echo "Calling fwts"
+     set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
+ else
+     echo "Calling rtcwake"
+     rtcwake -m mem -s 30
+ fi
 estimated_duration: 90.000
 
 unit: template

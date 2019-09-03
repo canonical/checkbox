@@ -78,12 +78,3 @@ _description: Job with plugin=manual
 plugin: manual
 estimated_duration: 1
 category_id: plugin-representative
-
-id: representative/plugin/qml
-_summary: Job with plugin=qml
-_description: Job with plugin=qml
-plugin: qml
-qml_file: qml-simple.qml
-flags: preserve-locale
-estimated_duration: 10
-category_id: plugin-representative

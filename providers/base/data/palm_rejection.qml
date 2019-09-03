@@ -1,7 +1,7 @@
 /*
  * This file is part of Checkbox.
  *
- * Copyright 2018 Canonical Ltd.
+ * Copyright 2018-2019 Canonical Ltd.
  * Written by:
  *   Maciej Kisielewski <maciej.kisielewski@canonical.com>
  *
@@ -20,9 +20,8 @@
 import QtQuick 2.5
 import QtQuick.Layouts 1.2
 import QtQuick.Controls 1.4
-import Plainbox 1.0
 
-QmlJob {
+Item {
     property var steps: [
         ['images/palm-rejection-1.jpg', 2000],
         ['images/palm-rejection-2.jpg', 500],
@@ -61,21 +60,17 @@ QmlJob {
                 text: 'Pass'
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                onClicked: testDone({'outcome': 'pass'})
-            }
-            Button {
-                text: 'Skip'
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                onClicked: testDone({'outcome': 'skip'})
+                onClicked: {
+                    console.log('PASS')
+                    Qt.quit()
+                }
             }
             Button {
                 text: 'Fail'
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                onClicked: testDone({'outcome': 'fail'})
+                onClicked: Qt.quit()
             }
-
         }
     }
     Timer {

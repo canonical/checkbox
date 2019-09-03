@@ -112,6 +112,9 @@ class _PluginValues(SymbolDef):
     qml = 'qml'
 
 
+supported_plugins = [str(s) for s in _PluginValues.get_all_symbols()]
+
+
 class _CertificationStatusValues(SymbolDef):
     """
     Symbols for each value of the JobDefinition.certification_status field

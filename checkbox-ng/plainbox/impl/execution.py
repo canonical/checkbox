@@ -36,6 +36,7 @@ import time
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
+from plainbox.impl.unit.job import supported_plugins
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import CommandOutputWriter
@@ -80,6 +81,13 @@ class UnifiedRunner(IJobRunner):
 
     def run_job(self, job, job_state, config=None, ui=None):
         logger.info(_("Running %r"), job)
+        if job.plugin not in supported_plugins:
+            print(Colorizer().RED("Unsupported plugin type: {}".format(
+                job.plugin)))
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_SKIP,
+                comments=_("Unsupported plugin type: {}".format(job.plugin))
+            ).get_result()
 
         # resource and attachment jobs are always run (even in dry runs)
         if self._dry_run and job.plugin not in ('resource', 'attachment'):

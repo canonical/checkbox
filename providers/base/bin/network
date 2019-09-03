@@ -63,6 +63,7 @@ class IPerfPerformanceTest(object):
             cpu_load_fail_threshold,
             iperf3,
             num_threads,
+            reverse,
             protocol="tcp",
             data_size="1",
             run_time=None,
@@ -80,6 +81,7 @@ class IPerfPerformanceTest(object):
         self.run_time = run_time
         self.scan_timeout = scan_timeout
         self.iface_timeout = iface_timeout
+        self.reverse = reverse
 
     def run_one_thread(self, cmd, port_num):
         """Run a single test thread, storing the output in the global results[]
@@ -192,6 +194,8 @@ class IPerfPerformanceTest(object):
         if self.run_time is not None:
             cmd = "{} -c {} -t {} -i 1 -f m -P {}".format(
                 self.executable, self.target, self.run_time, iperf_threads)
+            if self.reverse:
+                cmd += " -R"
         else:
             # Because we can vary the data size, we need to vary the timeout as
             # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
@@ -471,7 +475,8 @@ def run_test(args, test_target):
         iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
                                                args.fail_threshold,
                                                args.cpu_load_fail_threshold,
-                                               args.iperf3, args.num_threads)
+                                               args.iperf3, args.num_threads,
+                                               args.reverse)
         if args.datasize:
             iperf_benchmark.data_size = args.datasize
         if args.runtime:
@@ -822,6 +827,9 @@ TEST_TARGET_IPERF = iperf-server.example.com
         '--num-threads', type=int, default=-1,
         help=("Number of threads to use in the test. "
               "(Default is computed based on network speed.)"))
+    test_parser.add_argument(
+        '--reverse', default=False, action="store_true",
+        help="Run in reverse mode (server sends, client receives)")
 
     # Sub info options
     info_parser.add_argument(

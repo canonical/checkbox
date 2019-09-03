@@ -407,6 +407,24 @@ _description:
 unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-unit: job
+id: ethernet/iperf3_reverse_{interface}
+plugin: shell
+_summary: Iperf3 stress testing for {interface} (reverse)
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 240.0
+user: root
+environ:
+ TEST_TARGET_IPERF
+ LD_LIBRARY_PATH
+command: network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 50 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4 --reverse
+_description:
+ This test uses iperf3 to ensure network devices pass data at an acceptable
+ minimum percentage of advertized speed (Reverse).
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: ethernet/check-{{ interface }}-static-configuration

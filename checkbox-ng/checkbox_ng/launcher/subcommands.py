@@ -201,15 +201,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         if not ctx.args.verbose and not ctx.args.debug:
             # Command line args take precendence
             logging.basicConfig(level=logging_level)
-
-        if self.launcher.ui_type in ['converged', 'converged-silent']:
-            # Stop processing the launcher config and call the QML ui
-            qml_main_file = os.path.join('/usr/share/checkbox-converged',
-                                         'checkbox-converged.qml')
-            cmd = ['qmlscene', qml_main_file,
-                   '--launcher={}'.format(os.path.abspath(ctx.args.launcher))]
-            os.execvp(cmd[0], cmd)
-
         try:
             self._C = Colorizer()
             self.ctx = ctx

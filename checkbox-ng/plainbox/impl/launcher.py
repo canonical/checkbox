@@ -186,7 +186,7 @@ class LauncherDefinition1(LauncherDefinition):
         name='type',
         default='interactive',
         validator_list=[config.ChoiceValidator(
-            ['interactive', 'silent', 'converged', 'converged-silent'])],
+            ['interactive', 'silent'])],
         help_text=_('Type of stock user interface to use.'))
 
     output = config.Variable(

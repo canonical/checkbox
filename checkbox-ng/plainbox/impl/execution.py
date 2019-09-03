@@ -89,9 +89,6 @@ class UnifiedRunner(IJobRunner):
             ).get_result()
         self._job_runner_ui_delegate.ui = ui
 
-        if job.plugin == 'qml':
-            return self.run_qml_job(job, job_state, config)
-
         # for cached resource jobs we get the result using cache
         # if it's not in the cache, ordinary "_run_command" will be run
         if job.plugin == 'resource' and 'cachable' in job.get_flag_set():

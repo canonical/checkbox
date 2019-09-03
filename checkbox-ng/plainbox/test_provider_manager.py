@@ -363,7 +363,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertEqual(test_io.stdout, inline_output(
             """
             error: jobs/broken.pxu:1-2: job 'broken', field 'command', command is mandatory for non-manual jobs
-            error: jobs/broken.pxu:2: job 'broken', field 'plugin', valid values are: attachment, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
+            error: jobs/broken.pxu:2: job 'broken', field 'plugin', valid values are: attachment, manual, resource, shell, user-interact, user-interact-verify, user-verify
             Validation of provider com.example:test has failed
             """))
 
@@ -382,7 +382,7 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual or qml job makes no sense
+            warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             Validation of provider com.example:test has failed
             """))
@@ -401,7 +401,7 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual or qml job makes no sense
+            warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             advice: jobs/broken.pxu:1: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
             Validation of provider com.example:test has failed

@@ -1,4 +1,9 @@
+unit: category
+id: phoronix
+_name: Phoronix Test Suite
+
 unit: test plan
+category_id: phoronix
 id: pts
 _name: Phoronix Test Suite
 include:
@@ -10,6 +15,7 @@ bootstrap_include:
  pts-job-generator
 
 id: pts-job-generator
+category_id: phoronix
 plugin: resource
 command:
  echo id: pts/cpuminer-opt
@@ -44,6 +50,7 @@ command:
  echo
 
 id: pts-prepare-nest
+category_id: phoronix
 plugin: shell
 command:
  mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
@@ -58,6 +65,7 @@ environ: PTS_PRELOAD_PATH
 unit: template
 template-resource: pts-job-generator
 id: {id}
+category_id: phoronix
 _summary: {name}
 command:
  export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
@@ -71,6 +79,7 @@ flags: has-leftovers
 environ: PTS_PRELOAD_PATH
 
 id: pts-generate-report
+category_id: phoronix
 plugin: shell
 command:
  export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
@@ -78,6 +87,7 @@ command:
  pts_merge_reports.py
 
 id: pts-attach-report
+category_id: phoronix
 plugin: attachment
 depends: pts-generate-report
 _summary: Attach PTS report in PDF form

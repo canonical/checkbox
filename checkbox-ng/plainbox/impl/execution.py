@@ -122,6 +122,12 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
 
         # all other kinds of jobs at this point need to run their command
+        if not job.command:
+            print(Colorizer().RED("No command to run!"))
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_FAIL,
+                comments=_("No command to run!")
+            ).get_result()
         result_builder = self._run_command(job, config)
 
         # for user-interact-verify and user-verify jobs the operator chooses

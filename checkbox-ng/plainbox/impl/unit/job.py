@@ -109,7 +109,6 @@ class _PluginValues(SymbolDef):
     user_interact = "user-interact"
     user_interact_verify = "user-interact-verify"
     shell = 'shell'
-    qml = 'qml'
 
 
 supported_plugins = [str(s) for s in _PluginValues.get_all_symbols()]
@@ -377,22 +376,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.qualify_id(
             self.get_record_value(
                 'category_id', 'com.canonical.plainbox::uncategorised'))
-
-    @cached_property
-    def qml_file(self):
-        """
-        path to a QML file that implements tests UI for this job
-
-        This property exposes a path to QML file that follows the Plainbox QML
-        Test Specification. The file will be loaded either in the native test
-        shell of the application using plainbox or with a helper, generic
-        loader for all command-line applications.
-
-        To use this property, the plugin type should be set to 'qml'.
-        """
-        qml_file = self.get_record_value('qml_file')
-        if qml_file is not None and self.provider is not None:
-            return os.path.join(self.provider.data_dir, qml_file)
 
     @propertywithsymbols(symbols=_AutoRetryValues)
     def auto_retry(self):
@@ -730,7 +713,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
             purpose = 'purpose'
             steps = 'steps'
             verification = 'verification'
-            qml_file = 'qml_file'
             certification_status = 'certification_status'
             siblings = 'siblings'
             auto_retry = 'auto_retry'
@@ -765,11 +747,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),
-                    onlyif=lambda unit: unit.plugin not in ('manual', 'qml')),
+                    onlyif=lambda unit: unit.plugin != 'manual'),
                 # Manual jobs cannot have a command
                 UselessFieldValidator(
-                    message=_("command on a manual or qml job makes no sense"),
-                    onlyif=lambda unit: unit.plugin in ('manual', 'qml')),
+                    message=_("command on a manual job makes no sense"),
+                    onlyif=lambda unit: unit.plugin == 'manual'),
                 # We don't want to refer to CHECKBOX_SHARE anymore
                 CorrectFieldValueValidator(
                     lambda command: "CHECKBOX_SHARE" not in command,
@@ -930,17 +912,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.flags: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
-            ],
-            fields.qml_file: [
-                concrete_validators.untranslatable,
-                concrete_validators.templateInvariant,
-                PresentFieldValidator(
-                    onlyif=lambda unit: unit.plugin == 'qml'),
-                CorrectFieldValueValidator(
-                    lambda value, unit: os.path.isfile(unit.qml_file),
-                    message=_('please point to an existing QML file'),
-                    onlyif=lambda unit: (unit.plugin == 'qml' and
-                                         unit.qml_file)),
             ],
             fields.certification_status: [
                 concrete_validators.untranslatable,

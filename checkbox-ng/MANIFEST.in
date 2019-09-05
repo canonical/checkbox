@@ -38,11 +38,6 @@ include plainbox/impl/providers/stubbox/po/POTFILES.in
 include plainbox/impl/providers/stubbox/units/jobs/*.pxu
 include plainbox/impl/providers/stubbox/units/testplans/*.pxu
 
-include plainbox/data/plainbox-qml-modules/Plainbox/qmldir
-include plainbox/data/plainbox-qml-modules/Plainbox/QmlJob.qml
-include plainbox/data/qml-shell/pipe_handler.py
-include plainbox/data/qml-shell/plainbox_qml_shell.qml
-
 recursive-exclude daily-package-testing *
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf

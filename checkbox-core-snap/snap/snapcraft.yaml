@@ -189,6 +189,7 @@ parts:
       - gstreamer1.0-pulseaudio
       - try: [hdapsd] # optional as not available for arm
       - hdparm
+      - i2c-tools
       - ipmitool
       - iperf
       - iperf3
@@ -281,13 +282,6 @@ parts:
     stage-packages:
       - curl
     after: [plainbox-provider-engineering-tests]
-################################################################################
-  i2c-tools:
-    plugin: nil
-    stage-packages:
-      - i2c-tools
-    prime:
-      - usr/sbin/i2cdetect
 ################################################################################
   # This module is a dependency for the job gpio/gpiomem_loopback_pairs_{model}
   # in plainbox-provider-snappy only available in pypi and so can't be addded

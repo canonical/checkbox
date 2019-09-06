@@ -46,5 +46,4 @@ include plainbox/data/qml-shell/plainbox_qml_shell.qml
 recursive-exclude daily-package-testing *
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf
-recursive-include plainbox/data *.rng
 recursive-include plainbox/test-data *.json *.html *.tar.xz

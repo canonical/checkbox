@@ -31,14 +31,15 @@ _name: Graphics tests (integrated GPU) (Automated)
 _description:
  Graphics tests (integrated GPU) (Automated)
 include:
- graphics/1_auto_switch_card_.*             certification-status=blocker
- graphics/xorg-version                      certification-status=blocker
- graphics/xorg-failsafe                     certification-status=blocker
- graphics/xorg-process                      certification-status=blocker
- graphics/VESA_drivers_not_in_use           certification-status=blocker
- graphics/1_driver_version_.*               certification-status=blocker
- graphics/1_compiz_check_.*                 certification-status=blocker
+ graphics/1_auto_switch_card_.*                 certification-status=blocker
+ graphics/xorg-version                          certification-status=blocker
+ graphics/xorg-failsafe                         certification-status=blocker
+ graphics/xorg-process                          certification-status=blocker
+ graphics/VESA_drivers_not_in_use               certification-status=blocker
+ graphics/1_driver_version_.*                   certification-status=blocker
+ graphics/1_compiz_check_.*                     certification-status=blocker
  graphics/1_minimum_resolution_.*
+ suspend/1_resolution_before_suspend_.*_auto    certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -99,7 +100,6 @@ _name: After suspend tests (integrated GPU automated)
 _description: After suspend tests (integrated GPU automated)
 include:
     graphics/1_auto_switch_card_.*                           certification-status=blocker
-    suspend/1_resolution_before_suspend_.*_auto              certification-status=blocker
     suspend/1_suspend_after_switch_to_card_.*_auto           certification-status=blocker
     # The following after suspend jobs will automatically select the right suspend job
     # depending on the amount of graphic cards available on the SUT:

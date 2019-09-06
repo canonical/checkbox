@@ -30,7 +30,6 @@ override_dh_install:
 	mkdir -p debian/checkbox-ng/usr/bin
 	mkdir -p debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
 	mv debian/python3-checkbox-ng/usr/bin/checkbox-cli debian/checkbox-ng/usr/bin
-	cp -R plainbox/data debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
 	cp -R plainbox/test-data debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
 	find debian/python3-checkbox-ng -type d -empty -delete
 	rm -rf $(foreach version,$(shell py3versions -s), debian/python3-checkbox-ng/usr/lib/$(version)/dist-packages/plainbox/data)

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:annotation>
+	<xs:documentation xml:lang="en">
+		Phoronix Test Suite / OpenBenchmarking.org XML Result File Specification
+		Copyright (C) 2008 - 2017, Phoronix Media
+		Copyright (C) 2008 - 2017, Michael Larabel
+	</xs:documentation>
+</xs:annotation>
+<xs:include schemaLocation="types.xsd" />
+<xs:element name="PhoronixTestSuite">
+<xs:complexType>
+<xs:sequence>
+		<xs:element name="SuiteInformation">
+		<xs:complexType>
+		<xs:sequence>
+			<xs:element name="Title" type="TitleString" />
+			<xs:element name="Version" type="VersionString" />
+			<xs:element name="TestType" type="TestType" />
+			<xs:element name="Description" type="DescriptionString" />
+			<xs:element name="Maintainer" type="xs:string" />
+			<xs:element name="PreRunMessage" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="PostRunMessage" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="RunMode" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="RequiresCoreVersionMin" type="CoreVersion" minOccurs="0" maxOccurs="1" />
+			<xs:element name="RequiresCoreVersionMax" type="CoreVersion" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+
+		<xs:element name="Execute" minOccurs="1" maxOccurs="unbounded">
+		<xs:complexType>
+		<xs:sequence>
+			<xs:element name="Test" type="TestExtends" />
+			<xs:element name="Arguments" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="Mode" type="RunModes" minOccurs="0" maxOccurs="1" />
+			<xs:element name="OverrideTestOptions" type="xs:string" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:schema>

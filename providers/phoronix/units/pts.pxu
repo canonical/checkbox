@@ -1,0 +1,96 @@
+unit: category
+id: phoronix
+_name: Phoronix Test Suite
+
+unit: test plan
+category_id: phoronix
+id: pts
+_name: Phoronix Test Suite
+include:
+ pts-prepare-nest
+ pts/.*
+ pts-generate-report
+ pts-attach-report
+bootstrap_include:
+ pts-job-generator
+
+id: pts-job-generator
+category_id: phoronix
+plugin: resource
+command:
+ echo id: pts/cpuminer-opt
+ echo "name: Cpuminer benchmark."
+ echo
+ echo id: pts/encode-mp3
+ echo "name: This test measures the time required to encode a WAV file to MP3 format."
+ echo
+ echo id: pts/fftw
+ echo "name: FFTW is a C subroutine library for computing the discrete Fourier transform (DFT) in one or more dimensions."
+ echo
+ echo id: pts/fs-mark
+ echo "name: FS_Mark is designed to test a system\'s file-system performance."
+ echo
+ echo id: pts/gl-vs-vk
+ echo "name: GL_vs_VK is a comparison of OpenGL and Vulkan APIs in simple performance micro-benchmarks."
+ echo
+ echo id: pts/john-the-ripper
+ echo "name: This is a benchmark of John The Ripper, which is a password cracker."
+ echo
+ echo id: pts/mbw
+ echo "name: This is a basic/simple memory (RAM) bandwidth benchmark for memory copy operations."
+ echo
+ echo id: pts/network-loopback
+ echo "name: This test measures the loopback network adapter performance using a micro-benchmark to measure the TCP performance."
+ echo
+ echo id: pts/ramspeed
+ echo "name: This benchmark tests the system memory (RAM) performance."
+ echo
+ echo id: pts/tiobench
+ echo "name: Tiotester (Threaded I/O Tester) benchmarks the hard disk drive / file-system performance."
+ echo
+
+id: pts-prepare-nest
+category_id: phoronix
+plugin: shell
+command:
+ mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
+ if [ ! -z "$PTS_PRELOAD_PATH" ]; then
+   cp -r $PTS_PRELOAD_PATH/* $PLAINBOX_SESSION_SHARE/pts-nest/
+   rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
+ fi
+ cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
+ sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml
+environ: PTS_PRELOAD_PATH
+
+unit: template
+template-resource: pts-job-generator
+id: {id}
+category_id: phoronix
+_summary: {name}
+command:
+ export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
+ if [ -z "$PTS_PRELOAD_PATH" ]; then
+   $PLAINBOX_PROVIDER_DATA/phoronix-test-suite/phoronix-test-suite install {id}
+ fi
+ pts_wrapper.py {id}
+plugin: shell
+depends: pts-prepare-nest
+flags: has-leftovers
+environ: PTS_PRELOAD_PATH
+
+id: pts-generate-report
+category_id: phoronix
+plugin: shell
+command:
+ export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
+ cd $PLAINBOX_SESSION_SHARE/pts-nest/test-results/
+ pts_merge_reports.py
+
+id: pts-attach-report
+category_id: phoronix
+plugin: attachment
+depends: pts-generate-report
+_summary: Attach PTS report in PDF form
+command:
+ cat $PLAINBOX_SESSION_SHARE/results.pdf
+_description: Attach PTS report in PDF form

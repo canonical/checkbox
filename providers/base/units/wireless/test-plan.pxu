@@ -41,6 +41,8 @@ include:
     wireless/wireless_connection_open_n_nm_.*      certification-status=blocker
     wireless/wireless_connection_wpa_ac_nm_.*      certification-status=blocker
     wireless/wireless_connection_open_ac_nm_.*     certification-status=blocker
+    wireless/wireless_connection_wpa_ax_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_ax_nm_.*     certification-status=blocker
     wireless/nm_connection_restore_.*
 
 id: after-suspend-wireless-cert-automated
@@ -57,6 +59,8 @@ include:
     after-suspend-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
     after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
     after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
     after-suspend-wireless/nm_connection_restore_.*
 
 id: after-suspend-manual-wireless-cert-automated
@@ -73,6 +77,8 @@ include:
     after-suspend-manual-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
     after-suspend-manual-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
     after-suspend-manual-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
+    after-suspend-manual-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-manual-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
     after-suspend-manual-wireless/nm_connection_restore_.*
 
 id: wireless-cert-blockers
@@ -90,6 +96,8 @@ include:
     wireless/wireless_connection_open_n_nm_.*      certification-status=blocker
     wireless/wireless_connection_wpa_ac_nm_.*      certification-status=blocker
     wireless/wireless_connection_open_ac_nm_.*     certification-status=blocker
+    wireless/wireless_connection_wpa_ax_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_ax_nm_.*     certification-status=blocker
     wireless/nm_connection_restore_.*
 
 id: after-suspend-wireless-cert-blockers
@@ -107,6 +115,8 @@ include:
     after-suspend-manual-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
     after-suspend-manual-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
     after-suspend-manual-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
+    after-suspend-manual-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-manual-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
     after-suspend-manual-wireless/nm_connection_restore_.*
 
 id: wireless-full
@@ -127,9 +137,11 @@ include:
     # following matchers may also include some automated jobs, this could be
     # fixed with some regex magic, but the lesser evil seems to be just to
     # include them as well; XXX: the test plan is not really manual-only
+    wireless/wireless_connection_open_ax_.*
     wireless/wireless_connection_open_ac_.*
     wireless/wireless_connection_open_bg_.*
     wireless/wireless_connection_open_n_.*
+    wireless/wireless_connection_wpa_ax_.*
     wireless/wireless_connection_wpa_ac_.*
     wireless/wireless_connection_wpa_bg_.*
     wireless/wireless_connection_wpa_n_.*
@@ -138,20 +150,24 @@ id: wireless-automated
 unit: test plan
 _name: Automated tests for wireless
 _description:
- Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
  networks.
 include:
     wireless/detect
     wireless/wireless_scanning_.*
+    wireless/wireless_connection_open_ax_nm_.*
     wireless/wireless_connection_open_ac_nm_.*
     wireless/wireless_connection_open_bg_nm_.*
     wireless/wireless_connection_open_n_nm_.*
+    wireless/wireless_connection_wpa_ax_nm_.*
     wireless/wireless_connection_wpa_ac_nm_.*
     wireless/wireless_connection_wpa_bg_nm_.*
     wireless/wireless_connection_wpa_n_nm_.*
+    # wireless/wireless_connection_open_ax_np_.*
     # wireless/wireless_connection_open_ac_np_.*
     # wireless/wireless_connection_open_bg_np_.*
     # wireless/wireless_connection_open_n_np_.*
+    # wireless/wireless_connection_wpa_ax_np_.*
     # wireless/wireless_connection_wpa_ac_np_.*
     # wireless/wireless_connection_wpa_bg_np_.*
     # wireless/wireless_connection_wpa_n_np_.*
@@ -162,20 +178,24 @@ id: wireless-netplan-automated
 unit: test plan
 _name: Automated tests for wireless using netplan
 _description:
- Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
  networks using netplan.
 include:
     wireless/detect
     # wireless/wireless_scanning_.*
+    # wireless/wireless_connection_open_ax_nm_.*
     # wireless/wireless_connection_open_ac_nm_.*
     # wireless/wireless_connection_open_bg_nm_.*
     # wireless/wireless_connection_open_n_nm_.*
+    # wireless/wireless_connection_wpa_ax_nm_.*
     # wireless/wireless_connection_wpa_ac_nm_.*
     # wireless/wireless_connection_wpa_bg_nm_.*
     # wireless/wireless_connection_wpa_n_nm_.*
+    wireless/wireless_connection_open_ax_np_.*
     wireless/wireless_connection_open_ac_np_.*
     wireless/wireless_connection_open_bg_np_.*
     wireless/wireless_connection_open_n_np_.*
+    wireless/wireless_connection_wpa_ax_np_.*
     wireless/wireless_connection_wpa_ac_np_.*
     wireless/wireless_connection_wpa_bg_np_.*
     wireless/wireless_connection_wpa_n_np_.*
@@ -320,9 +340,11 @@ include:
     # following matchers may also include some automated jobs, this could be
     # fixed with some regex magic, but the lesser evil seems to be just to
     # include them as well; XXX: the test plan is not really manual-only
+    after-suspend-wireless/wireless_connection_open_ax_.*
     after-suspend-wireless/wireless_connection_open_ac_.*
     after-suspend-wireless/wireless_connection_open_bg_.*
     after-suspend-wireless/wireless_connection_open_n_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_.*
     after-suspend-wireless/wireless_connection_wpa_ac_.*
     after-suspend-wireless/wireless_connection_wpa_bg_.*
     after-suspend-wireless/wireless_connection_wpa_n_.*
@@ -332,19 +354,23 @@ id: after-suspend-wireless-automated
 unit: test plan
 _name: Automated tests for wireless (after suspend)
 _description:
- Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
  networks.
 include:
     after-suspend-wireless/wireless_scanning_.*
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*
     after-suspend-wireless/wireless_connection_open_ac_nm_.*
     after-suspend-wireless/wireless_connection_open_bg_nm_.*
     after-suspend-wireless/wireless_connection_open_n_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
     after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
     after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
     after-suspend-wireless/wireless_connection_wpa_n_nm_.*
+    # after-suspend-wireless/wireless_connection_open_ax_np_.*
     # after-suspend-wireless/wireless_connection_open_ac_np_.*
     # after-suspend-wireless/wireless_connection_open_bg_np_.*
     # after-suspend-wireless/wireless_connection_open_n_np_.*
+    # after-suspend-wireless/wireless_connection_wpa_ax_np_.*
     # after-suspend-wireless/wireless_connection_wpa_ac_np_.*
     # after-suspend-wireless/wireless_connection_wpa_bg_np_.*
     # after-suspend-wireless/wireless_connection_wpa_n_np_.*
@@ -355,19 +381,23 @@ id: after-suspend-wireless-netplan-automated
 unit: test plan
 _name: Automated tests for wireless using netplan (after suspend)
 _description:
- Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
  networks using netplan.
 include:
     # after-suspend-wireless/wireless_scanning_.*
+    # after-suspend-wireless/wireless_connection_open_ax_nm_.*
     # after-suspend-wireless/wireless_connection_open_ac_nm_.*
     # after-suspend-wireless/wireless_connection_open_bg_nm_.*
     # after-suspend-wireless/wireless_connection_open_n_nm_.*
+    # after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
     # after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
     # after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
     # after-suspend-wireless/wireless_connection_wpa_n_nm_.*
+    after-suspend-wireless/wireless_connection_open_ax_np_.*
     after-suspend-wireless/wireless_connection_open_ac_np_.*
     after-suspend-wireless/wireless_connection_open_bg_np_.*
     after-suspend-wireless/wireless_connection_open_n_np_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_np_.*
     after-suspend-wireless/wireless_connection_wpa_ac_np_.*
     after-suspend-wireless/wireless_connection_wpa_bg_np_.*
     after-suspend-wireless/wireless_connection_wpa_n_np_.*

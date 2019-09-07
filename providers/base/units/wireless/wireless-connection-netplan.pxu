@@ -3,6 +3,30 @@ template-resource: device
 template-filter: device.category == 'WIRELESS'
 template-engine: jinja2
 template-unit: job
+id: wireless/wireless_connection_open_ax_np_{{ interface }}
+_summary:
+ Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }} - netplan
+_purpose:
+ Check system can connect to insecure 802.11ax AP using netplan
+plugin: shell
+command:
+    net_driver_info $NET_DRIVER_INFO
+    wifi_client_test_netplan.py -i {{ interface }} -s $OPEN_AX_SSID -d
+user: root
+environ: LD_LIBRARY_PATH OPEN_AX_SSID NET_DRIVER_INFO
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 15
+flags: preserve-locale also-after-suspend also-after-suspend-manual
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+# net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS'
+template-engine: jinja2
+template-unit: job
 id: wireless/wireless_connection_open_ac_np_{{ interface }}
 _summary:
  Connect to unencrypted 802.11ac Wi-Fi network on {{ interface }} - netplan
@@ -67,6 +91,30 @@ estimated_duration: 15
 flags: preserve-locale also-after-suspend also-after-suspend-manual
 #requires:
 #  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_wpa_ax_np_{{ interface }}
+_summary:
+ Connect to WPA-encrypted 802.11ax Wi-Fi network on {{ interface }} - netplan
+_purpose:
+ Check system can connect to 802.11ax AP with wpa security using netplan
+plugin: shell
+command:
+    net_driver_info $NET_DRIVER_INFO
+    wifi_client_test_netplan.py -i {{ interface }} -s $WPA_AX_SSID -k $WPA_AX_PSK -d
+user: root
+environ: LD_LIBRARY_PATH WPA_AX_SSID WPA_AX_PSK NET_DRIVER_INFO
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 15
+flags: preserve-locale also-after-suspend also-after-suspend-manual
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+# net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
 
 unit: template

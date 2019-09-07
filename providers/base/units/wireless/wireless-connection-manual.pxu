@@ -1,4 +1,23 @@
-
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS'
+template-unit: job
+id: wireless/wireless_connection_open_ax_{interface}
+_summary: Connect to unencrypted 802.11ax Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to insecure 802.11ax AP
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test -i {interface} -s "$OPEN_AX_SSID"
+environ: OPEN_AX_SSID
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
@@ -58,6 +77,27 @@ _verification:
 plugin: user-interact
 command: wifi_client_test -i {interface} -s "$OPEN_N_SSID"
 environ: OPEN_N_SSID
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS'
+template-unit: job
+id: wireless/wireless_connection_wpa_ax_{interface}
+_summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to 802.11ax AP with wpa security
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test -i {interface} -s "$WPA_AX_SSID" -k "$WPA_AX_PSK"
+environ: WPA_AX_SSID WPA_AX_PSK
 user: root
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 90

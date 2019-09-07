@@ -236,3 +236,12 @@ include:
 bootstrap_include:
     device
     stress-ng-classes
+
+id: stress-iperf3-automated
+unit: test plan
+_name: Automated iperf3 tests
+_description: Automated iperf3 performance test
+include:
+    ethernet/iperf3_.*
+bootstrap_include:
+    device

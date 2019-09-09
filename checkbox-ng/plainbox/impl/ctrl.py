@@ -217,6 +217,13 @@ class CheckBoxSessionStateController(ISessionStateController):
                     cause=InhibitionCause.PENDING_DEP,
                     related_job=dep_job_state.job)
                 inhibitors.append(inhibitor)
+        for dep_id in sorted(job.get_salvage_dependencies()):
+            dep_job_state = session_state.job_state_map[dep_id]
+            if dep_job_state.result.outcome != IJobResult.OUTCOME_FAIL:
+                inhibitor = JobReadinessInhibitor(
+                    cause=InhibitionCause.NOT_FAILED_DEP,
+                    related_job=dep_job_state.job)
+                inhibitors.append(inhibitor)
         return inhibitors
 
     def observe_result(self, session_state, job, result,

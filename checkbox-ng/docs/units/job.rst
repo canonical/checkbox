@@ -81,6 +81,11 @@ Following fields may be used by the job unit:
 
     This feature is available since plainbox 0.24.
 
+``salvages``:
+    (optional). If specified, the job will only run if all the listed jobs have
+    failed. This is useful for obtaining logs from a system when something
+    fails. Multiple job names, separated by spaces, can be specified.
+
 ``command``:
     (optional). A command can be provided, to be executed under specific
     circumstances. For ``manual``, ``user-interact`` and ``user-verify``

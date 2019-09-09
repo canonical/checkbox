@@ -67,6 +67,7 @@ class InhibitionCause(IntEnum):
     FAILED_DEP = 2
     PENDING_RESOURCE = 3
     FAILED_RESOURCE = 4
+    NOT_FAILED_DEP = 5
 
 
 def cause_convert_assign_filter(
@@ -109,6 +110,9 @@ class JobReadinessInhibitor(pod.POD):
 
         FAILED_RESOURCE:
             This job has a resource requirement that evaluated to a false value
+
+        NOT_FAILED_DEP:
+            This job depends on another job failing, but it did not fail
 
     All causes apart from UNDESIRED use the related_job property to encode a
     job that is related to the problem. The PENDING_RESOURCE and
@@ -205,10 +209,13 @@ class JobReadinessInhibitor(pod.POD):
                 "resource expression {!r} could not be evaluated because"
                 " the resource it depends on did not run yet"
             ).format(self.related_expression.text)
-        else:
-            assert self.cause == InhibitionCause.FAILED_RESOURCE
+        elif self.cause == InhibitionCause.FAILED_RESOURCE:
             return _("resource expression {!r} evaluates to false").format(
                 self.related_expression.text)
+        elif self.cause == InhibitionCause.NOT_FAILED_DEP:
+            return _("required dependency {!r} did not fail").format(
+                self.related_job.id)
+        raise NotImplementedError("Unknown inhibitor {}".format(self.cause))
 
 
 # A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.

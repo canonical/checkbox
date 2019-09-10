@@ -281,7 +281,7 @@ estimated_duration: 1.0
 depends: stress/reboot
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*reboot.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*reboot.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -302,7 +302,7 @@ id: stress/reboot_30_log
 depends: stress/reboot_30
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*reboot.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*reboot.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -325,7 +325,7 @@ estimated_duration: 1.0
 depends: stress/poweroff
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*poweroff.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*poweroff.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -347,7 +347,7 @@ id: stress/poweroff_30_log
 depends: stress/poweroff_30
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*poweroff.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*poweroff.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -364,7 +364,7 @@ estimated_duration: 1.0
 depends: stress/reboot_30_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -381,7 +381,7 @@ estimated_duration: 1.0
 depends: stress/poweroff_30_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -398,7 +398,7 @@ estimated_duration: 1.0
 depends: stress/reboot_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -415,7 +415,7 @@ estimated_duration: 1.0
 depends: stress/poweroff_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress

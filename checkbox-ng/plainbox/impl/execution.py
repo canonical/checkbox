@@ -216,6 +216,7 @@ class UnifiedRunner(IJobRunner):
                             time.sleep(0.1)
                 except BrokenPipeError:
                     pass
+                os.close(in_w)
             forwarder_thread = threading.Thread(
                 target=stdin_forwarder, args=(stdin,))
             forwarder_thread.start()
@@ -241,8 +242,9 @@ class UnifiedRunner(IJobRunner):
                         proc.wait()
                         break
                     except KeyboardInterrupt:
-                        # On interrupt send a signal to the process
-                        extcmd_popen._on_keyboard_interrupt(proc)
+                        is_alive = False
+                        import signal
+                        self.send_signal(signal.SIGKILL, target_user)
                         # And send a notification about this
                         extcmd_popen._delegate.on_interrupt()
             finally:

@@ -69,6 +69,7 @@ nested_part:
     misc-client-cert-full
     cpu-cert-full
     disk-cert-automated
+    stress-iperf3-automated
     stress-cert-full
     tpm2.0
     info-attachment-cert-full

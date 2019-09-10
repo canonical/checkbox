@@ -72,6 +72,7 @@ nested_part:
     misc-client-cert-full
     cpu-cert-full
     disk-cert-automated
+    stress-iperf3-automated
     #stress-cert-full
     stress-suspend-30-cycles-with-reboots-automated
     stress-ng-cert-automated

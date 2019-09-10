@@ -49,7 +49,7 @@ id: power-management/poweroff-log-attach
 estimated_duration: 1.0
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*poweroff.1.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*poweroff.1.log
 _description:
  This will attach any logs from the power-management/poweroff test to the results.
 
@@ -71,7 +71,7 @@ id: power-management/reboot-log-attach
 estimated_duration: 1.0
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*reboot.1.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*reboot.1.log
 _description:
  This will attach any logs from the power-management/reboot test to the results.
 

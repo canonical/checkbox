@@ -102,9 +102,22 @@ struct Pcm {
                 + string(". ") + string(snd_strerror(res));
             throw std::system_error(ec, msg);
         }
+        logger.info() << "PCM opened. Name: " << device_name << " PCM handle: "
+            << pcm_handle << " PCM mode: "
+            << (int(mode) ? "capture" : "playback") << std::endl;
     }
     ~Pcm() {
-        snd_pcm_drain(this->pcm_handle);
+        switch (mode) {
+            case Mode::playback:
+                logger.info() << "Draining PCM " << pcm_handle << std::endl;
+                snd_pcm_drain(this->pcm_handle);
+                break;
+            case Mode::capture:
+                logger.info() << "Dropping PCM " << pcm_handle << std::endl;
+                snd_pcm_drop(this->pcm_handle);
+                break;
+        }
+        logger.info() << "Closing PCM " << pcm_handle << std::endl;
         snd_pcm_close(this->pcm_handle);
     }
     void drain() {
@@ -234,6 +247,7 @@ private:
     snd_pcm_t *pcm_handle;
     unsigned rate;
     snd_pcm_uframes_t period;
+    Mode mode;
 };
 
 template<>

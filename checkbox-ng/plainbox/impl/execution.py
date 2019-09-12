@@ -209,7 +209,6 @@ class UnifiedRunner(IJobRunner):
                         if stdin in select.select([stdin], [], [], 0)[0]:
                             buf = stdin.readline()
                             if buf == '':
-                                os.close(in_w)
                                 break
                             os.write(in_w, buf.encode(stdin.encoding))
                         else:

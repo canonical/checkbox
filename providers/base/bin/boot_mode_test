@@ -26,19 +26,16 @@ import logging
 from argparse import ArgumentParser
 
 
-def version_check(check):
-    """Check the installed Ubuntu version to see if it is older than 16.04
-    (Xenial) and run the requested check
+def do_tests(check):
+    """Dispatcher for the requested tests.
 
     :returns:
-        0 if if the installed version is older than 16.04 regardless of return
-        code from the requested check
-
-        return code from requested check if the installed version is 16.04 or
-        newer.
+        return code from requested check.
     """
     if check == 'efi':
         return efi_boot_check()
+    elif check == 'reboot_firmware':
+        return reboot_to_firmware_check()
     else:
         return secure_boot_check()
 
@@ -56,6 +53,33 @@ def efi_boot_check():
         return 0
     else:
         logging.error("FAIL: System did not boot in EFI mode")
+        return 1
+
+
+def reboot_to_firmware_check():
+    """Test that the computer supports the reboot-to-firmware feature.
+
+    :returns:
+        0 if the feature IS supported (pass)
+        1 if the feature is NOT supported (fail)
+    """
+    osis_dir = "/sys/firmware/efi/efivars/"
+    osis_var = osis_dir + \
+        "OsIndicationsSupported-8be4df61-93ca-11d2-aa0d-00e098032b8c"
+    if os.path.isdir(osis_dir):
+        if os.path.isfile(osis_var):
+            fw_info = open(osis_var).read()
+            if ord(fw_info[4]) & 1:
+                logging.info("PASS: Reboot-to-firmware feature is present.")
+                return 0
+            else:
+                logging.error("FAIL: Reboot-to-firmware feature is missing.")
+                return 1
+        else:
+            logging.info("FAIL: OsIndicationsSupported variable not present.")
+            return 1
+    else:
+        logging.info("FAIL: System did NOT boot in EFI mode.")
         return 1
 
 
@@ -97,13 +121,14 @@ def secure_boot_check():
 def main():
     parser = ArgumentParser()
     parser.add_argument('check',
-                        choices=['efi', 'secureboot'],
+                        choices=['efi', 'secureboot', 'reboot_firmware'],
                         help='The type of check to perform')
     args = parser.parse_args()
 
     FORMAT = '%(levelname)s: %(message)s'
     logging.basicConfig(level=logging.INFO, format=FORMAT)
-    return version_check(args.check)
+    return do_tests(args.check)
+
 
 if __name__ == '__main__':
     sys.exit(main())

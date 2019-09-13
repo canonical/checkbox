@@ -377,22 +377,28 @@ float dominant_freq(storage_type *buff, int buffsize, int rate) {
 }
 template<class storage_type>
 int loopback_test(float duration, int sampling_rate, const char* capture_pcm, const char* playback_pcm) {
+    const float test_freq = 440.0f;
     int buffsize = static_cast<int>(ceil(float(sampling_rate * 2) * duration));
-    auto *buff = new storage_type[buffsize];
+    std::vector<storage_type> buff(buffsize);
     for (int attempt = 0; attempt < 3; ++attempt) {
         for (int i=0; i<buffsize; i++) buff[i] = storage_type(0);
         auto recorder = Alsa::Pcm<storage_type> (capture_pcm, Alsa::Pcm<storage_type>::Mode::capture);
         recorder.set_params(sampling_rate);
         std::thread rec_thread([&recorder, &buff, &buffsize]() mutable{
-            recorder.record(buff, buffsize);
+            recorder.record(&buff[0], buffsize);
         });
-        const float test_freq = 440.0f;
-        auto player = Alsa::Pcm<storage_type>(playback_pcm);
-        player.set_params(sampling_rate);
-        player.sine(test_freq, duration, 0.5f);
-        player.drain();
-        rec_thread.join();
-        float dominant = dominant_freq<storage_type>(buff, buffsize, sampling_rate * 2);
+        try {
+            auto player = Alsa::Pcm<storage_type>(playback_pcm);
+            player.set_params(sampling_rate);
+            player.sine(test_freq, duration, 0.5f);
+            player.drain();
+            rec_thread.join();
+        }
+        catch (Alsa::AlsaError& exc) {
+            rec_thread.join();
+            return 1;
+        }
+        float dominant = dominant_freq<storage_type>(&buff[0], buffsize, sampling_rate * 2);
         if (dominant > 0.0f) {
             //buff contains stereo samples, so the sampling rate can be considered 88200
             logger.normal() << "Dominant frequency: " << dominant << std::endl;
@@ -403,6 +409,33 @@ int loopback_test(float duration, int sampling_rate, const char* capture_pcm, co
             logger.normal() << "Deviation: " << deviation << std::endl;
             if (deviation <= epsilon)
                 return 0;
+        }
+    }
+    return 1;
+}
+template<class storage_type>
+int fallback_loopback(float duration, int sampling_rate, const char* _1, const char* _2) {
+    auto playback = Alsa::get_devices("Output");
+    auto record = Alsa::get_devices("Input");
+    auto both = Alsa::get_devices("Both");
+    std::copy(both.begin(), both.end(), std::back_inserter(playback));
+    std::copy(both.begin(), both.end(), std::back_inserter(record));
+    for (auto player = playback.cbegin(); player != playback.cend(); ++player) {
+        if (*player == std::string{"surround40:CARD=PCH,DEV=0"}) {
+            continue;
+        }
+        for (auto recorder = record.cbegin(); recorder != record.cend(); ++recorder) {
+            logger.normal() << "Trying combination " << *player << " -> " << *recorder << std::endl;
+            try {
+                int error = loopback_test<storage_type>(
+                    duration, sampling_rate, recorder->c_str(), player->c_str());
+                if (!error) {
+                    return 0;
+                }
+            }
+            catch(Alsa::AlsaError& exc) {
+                logger.normal() << "Alsa problem: " << exc.what() << std::endl;
+            }
         }
     }
     return 1;
@@ -497,14 +530,17 @@ int main(int argc, char *argv[]) {
     if (sample_format == "float") {
         scenarios["playback"] = playback_test<float>;
         scenarios["loopback"] = loopback_test<float>;
+        scenarios["fallback"] = fallback_loopback<float>;
     }
     else if (sample_format == "int16") {
         scenarios["playback"] = playback_test<int16_t>;
         scenarios["loopback"] = loopback_test<int16_t>;
+        scenarios["fallback"] = fallback_loopback<int16_t>;
     }
     else if (sample_format == "uint16") {
         scenarios["playback"] = playback_test<uint16_t>;
         scenarios["loopback"] = loopback_test<uint16_t>;
+        scenarios["fallback"] = fallback_loopback<uint16_t>;
     }
     else {
         assert(!"MISSING IF-ELSES FOR FORMATS");
@@ -541,7 +577,9 @@ int main(int argc, char *argv[]) {
         return scenarios["playback"](duration, sampling_rate, capture_pcm.c_str(), playback_pcm.c_str());
     }
     else if (scenario == "loopback") {
-        return scenarios["loopback"](duration, sampling_rate, capture_pcm.c_str(), playback_pcm.c_str());
+        int error = scenarios["loopback"](duration, sampling_rate, capture_pcm.c_str(), playback_pcm.c_str());
+        if (!error) return 0;
+        return scenarios["fallback"](duration, sampling_rate, nullptr, nullptr);
     }
     else if (scenario == "list-formats") {
         return list_formats();

@@ -322,6 +322,31 @@ private:
     snd_mixer_selem_id_t *sid;
     snd_mixer_elem_t* elem;
 };
+
+std::vector<std::string> get_devices(std::string io) {
+    std::vector<std::string> result;
+    void **out;
+    int err = snd_device_name_hint(-1 /* all cards */, "pcm", &out);
+    if (err) {
+        logger.normal() << "Couldn't get the device hints" << std::endl;
+        return result;
+    }
+    while (*out) {
+        const char *name = snd_device_name_get_hint(*out, "NAME");
+        const char *desc = snd_device_name_get_hint(*out, "DESC");
+        const char *ioid = snd_device_name_get_hint(*out, "IOID");
+        if (ioid == nullptr) ioid = "Both";
+        logger.info() << "Got a device hint. Name: " << name
+                      << " Description: " << desc
+                      << " IOID: " << ioid << std::endl;
+        std::string direction{ioid};
+        if (direction == io) {
+           result.push_back(std::string{name});
+        }
+        out++;
+    }
+    return result;
+}
 }; //namespace Alsa
 
 template<class storage_type>
@@ -407,6 +432,24 @@ int list_formats(){
         std::cout << "description: " << format.second << std::endl;
         std::cout << std::endl;
     }
+    return 0;
+}
+
+int list_devices() {
+    auto playback = Alsa::get_devices("Output");
+    auto record = Alsa::get_devices("Input");
+    auto both = Alsa::get_devices("Both");
+    std::copy(both.begin(), both.end(), std::back_inserter(playback));
+    std::copy(both.begin(), both.end(), std::back_inserter(record));
+    std::cout << "Playback devices: " << std::endl;
+    for (auto i = playback.cbegin(); i != playback.cend(); ++i) {
+        std::cout << *i << std::endl;
+    }
+    std::cout << "\n\nRecording devices: " << std::endl;
+    for (auto i = record.cbegin(); i != record.cend(); ++i) {
+        std::cout << *i << std::endl;
+    }
+    return 0;
 }
 
 void set_volumes(const std::string playback_pcm, const std::string capture_pcm) {
@@ -502,6 +545,9 @@ int main(int argc, char *argv[]) {
     }
     else if (scenario == "list-formats") {
         return list_formats();
+    }
+    else if (scenario == "list-devices") {
+        return list_devices();
     }
     if (scenarios.find(args[1]) == scenarios.end()) {
         std::cerr << args[1] << " scenario not found!" << std::endl;

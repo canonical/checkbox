@@ -102,7 +102,7 @@ struct Pcm {
             auto ec = std::error_code(-res, std::system_category());
             auto msg = string("Failed to open device: ") + string(device_name)
                 + string(". ") + string(snd_strerror(res));
-            throw std::system_error(ec, msg);
+            throw AlsaError(msg);
         }
         logger.info() << "PCM opened. Name: " << device_name << " PCM handle: "
             << pcm_handle << " PCM mode: "

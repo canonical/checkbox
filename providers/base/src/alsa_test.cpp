@@ -54,7 +54,9 @@ private:
     Level level;
     struct NullStream : std::ostream {
         template<typename T>
-        NullStream& operator<<(T const&) {}
+        NullStream& operator<<(T const&) {
+            return *this;
+        }
     };
     NullStream nullStream;
 };
@@ -327,6 +329,7 @@ int playback_test(float duration, int sampling_rate, const char* capture_pcm, co
     auto player = Alsa::Pcm<storage_type>();
     player.set_params(sampling_rate);
     player.sine(440, duration, 0.5f);
+    return 0;
 }
 
 template<class storage_type>

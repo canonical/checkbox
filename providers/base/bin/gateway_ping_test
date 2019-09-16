@@ -133,6 +133,18 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
                                     stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError:
             pass
+    # Try to get the gateway address for the interface from networkctl
+    cmd = 'networkctl status --no-pager --no-legend {}'.format(interface)
+    try:
+        output = subprocess.check_output(cmd, shell=True)
+        for line in output.decode(sys.stdout.encoding).splitlines():
+            key, val = line.strip().split(':', maxsplit=1)
+            if key == "Gateway":
+                subprocess.check_output(["ping", "-q", "-c", "1", val],
+                                        stderr=subprocess.STDOUT)
+                break
+    except subprocess.CalledProcessError:
+        pass
     ARP_POPULATE_TRIES = 10
     num_tries = 0
     while num_tries < ARP_POPULATE_TRIES:

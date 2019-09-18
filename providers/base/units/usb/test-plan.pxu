@@ -320,3 +320,13 @@ include:
     after-suspend-usb-c/insert
     after-suspend-usb-c/storage-automated
     after-suspend-usb-c/remove
+
+id: after-suspend-usb-automated
+unit: test plan
+_name: Automated USB tests
+_description: Automated USB tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-usb/storage-preinserted-.*
+bootstrap_include:
+    removable_partition
+

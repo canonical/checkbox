@@ -54,7 +54,9 @@ private:
     Level level;
     struct NullStream : std::ostream {
         template<typename T>
-        NullStream& operator<<(T const&) {}
+        NullStream& operator<<(T const&) {
+            return *this;
+        }
     };
     NullStream nullStream;
 };
@@ -100,11 +102,24 @@ struct Pcm {
             auto ec = std::error_code(-res, std::system_category());
             auto msg = string("Failed to open device: ") + string(device_name)
                 + string(". ") + string(snd_strerror(res));
-            throw std::system_error(ec, msg);
+            throw AlsaError(msg);
         }
+        logger.info() << "PCM opened. Name: " << device_name << " PCM handle: "
+            << pcm_handle << " PCM mode: "
+            << (int(mode) ? "capture" : "playback") << std::endl;
     }
     ~Pcm() {
-        snd_pcm_drain(this->pcm_handle);
+        switch (mode) {
+            case Mode::playback:
+                logger.info() << "Draining PCM " << pcm_handle << std::endl;
+                snd_pcm_drain(this->pcm_handle);
+                break;
+            case Mode::capture:
+                logger.info() << "Dropping PCM " << pcm_handle << std::endl;
+                snd_pcm_drop(this->pcm_handle);
+                break;
+        }
+        logger.info() << "Closing PCM " << pcm_handle << std::endl;
         snd_pcm_close(this->pcm_handle);
     }
     void drain() {
@@ -234,6 +249,7 @@ private:
     snd_pcm_t *pcm_handle;
     unsigned rate;
     snd_pcm_uframes_t period;
+    Mode mode;
 };
 
 template<>
@@ -306,6 +322,31 @@ private:
     snd_mixer_selem_id_t *sid;
     snd_mixer_elem_t* elem;
 };
+
+std::vector<std::string> get_devices(std::string io) {
+    std::vector<std::string> result;
+    void **out;
+    int err = snd_device_name_hint(-1 /* all cards */, "pcm", &out);
+    if (err) {
+        logger.normal() << "Couldn't get the device hints" << std::endl;
+        return result;
+    }
+    while (*out) {
+        const char *name = snd_device_name_get_hint(*out, "NAME");
+        const char *desc = snd_device_name_get_hint(*out, "DESC");
+        const char *ioid = snd_device_name_get_hint(*out, "IOID");
+        if (ioid == nullptr) ioid = "Both";
+        logger.info() << "Got a device hint. Name: " << name
+                      << " Description: " << desc
+                      << " IOID: " << ioid << std::endl;
+        std::string direction{ioid};
+        if (direction == io) {
+           result.push_back(std::string{name});
+        }
+        out++;
+    }
+    return result;
+}
 }; //namespace Alsa
 
 template<class storage_type>
@@ -313,6 +354,7 @@ int playback_test(float duration, int sampling_rate, const char* capture_pcm, co
     auto player = Alsa::Pcm<storage_type>();
     player.set_params(sampling_rate);
     player.sine(440, duration, 0.5f);
+    return 0;
 }
 
 template<class storage_type>
@@ -335,22 +377,28 @@ float dominant_freq(storage_type *buff, int buffsize, int rate) {
 }
 template<class storage_type>
 int loopback_test(float duration, int sampling_rate, const char* capture_pcm, const char* playback_pcm) {
+    const float test_freq = 440.0f;
     int buffsize = static_cast<int>(ceil(float(sampling_rate * 2) * duration));
-    auto *buff = new storage_type[buffsize];
+    std::vector<storage_type> buff(buffsize);
     for (int attempt = 0; attempt < 3; ++attempt) {
         for (int i=0; i<buffsize; i++) buff[i] = storage_type(0);
         auto recorder = Alsa::Pcm<storage_type> (capture_pcm, Alsa::Pcm<storage_type>::Mode::capture);
         recorder.set_params(sampling_rate);
         std::thread rec_thread([&recorder, &buff, &buffsize]() mutable{
-            recorder.record(buff, buffsize);
+            recorder.record(&buff[0], buffsize);
         });
-        const float test_freq = 440.0f;
-        auto player = Alsa::Pcm<storage_type>(playback_pcm);
-        player.set_params(sampling_rate);
-        player.sine(test_freq, duration, 0.5f);
-        player.drain();
-        rec_thread.join();
-        float dominant = dominant_freq<storage_type>(buff, buffsize, sampling_rate * 2);
+        try {
+            auto player = Alsa::Pcm<storage_type>(playback_pcm);
+            player.set_params(sampling_rate);
+            player.sine(test_freq, duration, 0.5f);
+            player.drain();
+            rec_thread.join();
+        }
+        catch (Alsa::AlsaError& exc) {
+            rec_thread.join();
+            return 1;
+        }
+        float dominant = dominant_freq<storage_type>(&buff[0], buffsize, sampling_rate * 2);
         if (dominant > 0.0f) {
             //buff contains stereo samples, so the sampling rate can be considered 88200
             logger.normal() << "Dominant frequency: " << dominant << std::endl;
@@ -361,6 +409,33 @@ int loopback_test(float duration, int sampling_rate, const char* capture_pcm, co
             logger.normal() << "Deviation: " << deviation << std::endl;
             if (deviation <= epsilon)
                 return 0;
+        }
+    }
+    return 1;
+}
+template<class storage_type>
+int fallback_loopback(float duration, int sampling_rate, const char* _1, const char* _2) {
+    auto playback = Alsa::get_devices("Output");
+    auto record = Alsa::get_devices("Input");
+    auto both = Alsa::get_devices("Both");
+    std::copy(both.begin(), both.end(), std::back_inserter(playback));
+    std::copy(both.begin(), both.end(), std::back_inserter(record));
+    for (auto player = playback.cbegin(); player != playback.cend(); ++player) {
+        if (*player == std::string{"surround40:CARD=PCH,DEV=0"}) {
+            continue;
+        }
+        for (auto recorder = record.cbegin(); recorder != record.cend(); ++recorder) {
+            logger.normal() << "Trying combination " << *player << " -> " << *recorder << std::endl;
+            try {
+                int error = loopback_test<storage_type>(
+                    duration, sampling_rate, recorder->c_str(), player->c_str());
+                if (!error) {
+                    return 0;
+                }
+            }
+            catch(Alsa::AlsaError& exc) {
+                logger.normal() << "Alsa problem: " << exc.what() << std::endl;
+            }
         }
     }
     return 1;
@@ -390,6 +465,24 @@ int list_formats(){
         std::cout << "description: " << format.second << std::endl;
         std::cout << std::endl;
     }
+    return 0;
+}
+
+int list_devices() {
+    auto playback = Alsa::get_devices("Output");
+    auto record = Alsa::get_devices("Input");
+    auto both = Alsa::get_devices("Both");
+    std::copy(both.begin(), both.end(), std::back_inserter(playback));
+    std::copy(both.begin(), both.end(), std::back_inserter(record));
+    std::cout << "Playback devices: " << std::endl;
+    for (auto i = playback.cbegin(); i != playback.cend(); ++i) {
+        std::cout << *i << std::endl;
+    }
+    std::cout << "\n\nRecording devices: " << std::endl;
+    for (auto i = record.cbegin(); i != record.cend(); ++i) {
+        std::cout << *i << std::endl;
+    }
+    return 0;
 }
 
 void set_volumes(const std::string playback_pcm, const std::string capture_pcm) {
@@ -437,14 +530,17 @@ int main(int argc, char *argv[]) {
     if (sample_format == "float") {
         scenarios["playback"] = playback_test<float>;
         scenarios["loopback"] = loopback_test<float>;
+        scenarios["fallback"] = fallback_loopback<float>;
     }
     else if (sample_format == "int16") {
         scenarios["playback"] = playback_test<int16_t>;
         scenarios["loopback"] = loopback_test<int16_t>;
+        scenarios["fallback"] = fallback_loopback<int16_t>;
     }
     else if (sample_format == "uint16") {
         scenarios["playback"] = playback_test<uint16_t>;
         scenarios["loopback"] = loopback_test<uint16_t>;
+        scenarios["fallback"] = fallback_loopback<uint16_t>;
     }
     else {
         assert(!"MISSING IF-ELSES FOR FORMATS");
@@ -481,10 +577,15 @@ int main(int argc, char *argv[]) {
         return scenarios["playback"](duration, sampling_rate, capture_pcm.c_str(), playback_pcm.c_str());
     }
     else if (scenario == "loopback") {
-        return scenarios["loopback"](duration, sampling_rate, capture_pcm.c_str(), playback_pcm.c_str());
+        int error = scenarios["loopback"](duration, sampling_rate, capture_pcm.c_str(), playback_pcm.c_str());
+        if (!error) return 0;
+        return scenarios["fallback"](duration, sampling_rate, nullptr, nullptr);
     }
     else if (scenario == "list-formats") {
         return list_formats();
+    }
+    else if (scenario == "list-devices") {
+        return list_devices();
     }
     if (scenarios.find(args[1]) == scenarios.end()) {
         std::cerr << args[1] << " scenario not found!" << std::endl;

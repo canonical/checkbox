@@ -36,6 +36,7 @@ import time
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
+from plainbox.impl.unit.job import supported_plugins
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import CommandOutputWriter
@@ -80,6 +81,13 @@ class UnifiedRunner(IJobRunner):
 
     def run_job(self, job, job_state, config=None, ui=None):
         logger.info(_("Running %r"), job)
+        if job.plugin not in supported_plugins:
+            print(Colorizer().RED("Unsupported plugin type: {}".format(
+                job.plugin)))
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_SKIP,
+                comments=_("Unsupported plugin type: {}".format(job.plugin))
+            ).get_result()
 
         # resource and attachment jobs are always run (even in dry runs)
         if self._dry_run and job.plugin not in ('resource', 'attachment'):
@@ -88,9 +96,6 @@ class UnifiedRunner(IJobRunner):
                 comments=_("Job skipped in dry-run mode")
             ).get_result()
         self._job_runner_ui_delegate.ui = ui
-
-        if job.plugin == 'qml':
-            return self.run_qml_job(job, job_state, config)
 
         # for cached resource jobs we get the result using cache
         # if it's not in the cache, ordinary "_run_command" will be run
@@ -114,6 +119,12 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
 
         # all other kinds of jobs at this point need to run their command
+        if not job.command:
+            print(Colorizer().RED("No command to run!"))
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_FAIL,
+                comments=_("No command to run!")
+            ).get_result()
         result_builder = self._run_command(job, config)
 
         # for user-interact-verify and user-verify jobs the operator chooses
@@ -198,13 +209,13 @@ class UnifiedRunner(IJobRunner):
                         if stdin in select.select([stdin], [], [], 0)[0]:
                             buf = stdin.readline()
                             if buf == '':
-                                os.close(in_w)
                                 break
                             os.write(in_w, buf.encode(stdin.encoding))
                         else:
                             time.sleep(0.1)
                 except BrokenPipeError:
                     pass
+                os.close(in_w)
             forwarder_thread = threading.Thread(
                 target=stdin_forwarder, args=(stdin,))
             forwarder_thread.start()
@@ -230,8 +241,9 @@ class UnifiedRunner(IJobRunner):
                         proc.wait()
                         break
                     except KeyboardInterrupt:
-                        # On interrupt send a signal to the process
-                        extcmd_popen._on_keyboard_interrupt(proc)
+                        is_alive = False
+                        import signal
+                        self.send_signal(signal.SIGKILL, target_user)
                         # And send a notification about this
                         extcmd_popen._delegate.on_interrupt()
             finally:

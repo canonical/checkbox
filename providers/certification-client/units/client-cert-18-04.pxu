@@ -57,6 +57,7 @@ nested_part:
     after-suspend-touchscreen-cert-full
     after-suspend-usb-cert-full
     after-suspend-usb3-cert-full
+    after-suspend-usb-c-cert-full
     after-suspend-wireless-cert-full
     after-suspend-keys-cert-full
     # hibernate-integrated-gpu-cert-full (No hibernate in 18.04)
@@ -71,6 +72,7 @@ nested_part:
     misc-client-cert-full
     cpu-cert-full
     disk-cert-automated
+    stress-iperf3-automated
     #stress-cert-full
     stress-suspend-30-cycles-with-reboots-automated
     stress-ng-cert-automated

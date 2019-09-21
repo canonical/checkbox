@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check"
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check"
 
 while getopts "i" opt; do
   case $opt in
@@ -573,7 +573,7 @@ fi
 local iperf3found=0
 for iperfserver in $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf | cut -d = -f 2 | sed s/,/\\n/g)
         do
-                iperf3 -c $iperfserver -n 1 >/dev/null 2>&1
+                timeout 5 iperf3 -c $iperfserver -n 1 >/dev/null 2>&1
                 if [ $? = 0 ]; then
                         echo " Iperf3 server found on port 5201 on $iperfserver"
                         iperf3found=1
@@ -587,6 +587,38 @@ if [[ $iperf3found == 0 ]]; then
 else
 	pass
 fi
+}
+
+# Check that jumbo frames are enabled on all >10Gbps NICs
+Jumbo_Frames(){
+name="Jumbo frames are enabled on fast network devices"
+echoname
+local worst_status=0
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`; do
+    local current_speed=$(cat /sys/class/net/$nic/speed 2> /dev/null)
+    if [ -z "$current_speed" ]; then
+        current_speed=0
+    fi
+    echo -n " Interface $nic is"
+    if [ $current_speed -gt 10000 ]; then
+        local current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
+        echo -n " fast and has MTU of $current_mtu;"
+        if [ $current_mtu -lt 9000 ]; then
+            echo " config is BAD"
+            let worst_status=$(($worst_status | 1))
+        else
+            echo " config is OK"
+        fi
+    else
+        echo " slow or down; jumbo frame status not checked."
+    fi
+done
+case "$worst_status" in
+    0) pass
+        ;;
+    *) fail
+        ;;
+esac
 }
 
 # All NICs are enabled and set to maximum speed

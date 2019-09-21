@@ -459,3 +459,11 @@ category_id: com.canonical.plainbox::info
 estimated_duration: 0.2
 _summary: attach network configuration
 command: network_configs
+
+id: parts_meta_info_attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command: cat $SNAP/parts_meta_info $SNAP/checkbox-runtime/parts_meta_info || echo "no parts meta info available" 
+environ: SNAP
+estimated_duration: 0.02
+_summary: Attaches an information about all parts that constituted this snap

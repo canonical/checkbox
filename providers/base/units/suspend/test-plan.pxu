@@ -102,3 +102,47 @@ include:
     keys/sleep                                     certification-status=blocker
     suspend/oops_after_suspend                     certification-status=blocker
     suspend/oops_results_after_suspend.log
+
+id: suspend-tp
+unit: test plan
+_name: Suspend the system
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after suspending the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-suspend-tp and after-suspend-tp
+  in the nested_part section of the surrounding test plan.
+include:
+  suspend/suspend_advanced_auto
+
+id: hibernate-tp
+unit: test plan
+_name: Hibernate the system
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after hibernating the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-hibernate-tp and
+  after-hibernate-tp in the nested_part section of the surrounding test plan.
+include:
+  power-management/hibernate_advanced_auto
+
+id: suspend-tp-manual
+unit: test plan
+_name: Suspend the system (manual)
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after suspending the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-suspend-tp and after-suspend-tp
+  in the nested_part section of the surrounding test plan.
+include:
+  suspend/suspend_advanced
+
+id: hibernate-tp-manual
+unit: test plan
+_name: Hibernate the system (manual)
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after hibernating the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-hibernate-tp and
+  after-hibernate-tp in the nested_part section of the surrounding test plan.
+include:
+  power-management/hibernate_advanced

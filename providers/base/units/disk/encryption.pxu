@@ -19,3 +19,30 @@ command:
   fde_tests.py desktop
   {% endif -%}
 estimated_duration: 2.0
+
+id: disk/encryption/check-fde-tpm
+_summary: Disk decryption after TPM change
+_description:
+ Check that the data partition cannot be decrypted (and therefore the device
+ cannot boot) if PCR7 value is modified.
+category_id: com.canonical.plainbox::disk
+estimated_duration: 45m
+plugin: manual
+_purpose:
+ The device partition is encrypted using TPM master key. To unseal the master
+ key from TPM, PCR7 (Platform Configuration Register 7) needs to be identical
+ to the value it had when the master key was sealed into TPM. Every time the
+ device boots, it checks PCR7 to unseal TPM and retrieves master key from TPM
+ to decrypt its data partition. If TPM PCR7 is modified (e.g. by flashing the
+ BIOS), the device won't be able to get the master key and decrypt its data
+ partition.
+_steps:
+ 1. Install the image and make sure it boots and you can log in.
+ 2. Turn the device off and upgrade/downgrade the BIOS
+ 3. Make sure the BIOS is set up properly (e.g. TPM enabled, UEFI boot mode)
+ 4. Start the device
+_verification:
+ Mark this test as "Passed" if the device cannot boot anymore.
+ Note: You must flash the BIOS back to the latest version and re-install the
+ image afterwards.
+

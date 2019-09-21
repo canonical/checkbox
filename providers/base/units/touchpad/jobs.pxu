@@ -219,14 +219,17 @@ _siblings:
     [{ "id": "touchpad/continuous-move-after-suspend",
        "depends": "suspend/suspend_advanced touchpad/continuous-move" }]
 
-plugin: qml
-category_id: com.canonical.plainbox::touchpad
 id: touchpad/palm-rejection
-requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-estimated_duration: 20
+plugin: user-interact
+category_id: com.canonical.plainbox::touchpad
+command: qmlscene -qt5 --fullscreen $PLAINBOX_PROVIDER_DATA/palm_rejection.qml 2>&1 | grep -o PASS
 _purpose:
  This test checks if touchpad ignores palm touches
-qml_file: palm_rejection.qml
+_steps:
+ Select "Test" and follow the instruction on the screen
+_verification:
+ Cursor should not have moved.
 _siblings:
     [{ "id": "touchpad/palm-rejection-after-suspend",
        "depends": "suspend/suspend_advanced touchpad/palm-rejection" }]
+estimated_duration: 40

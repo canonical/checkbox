@@ -1,0 +1,7 @@
+unit: category
+id: bluetooth_bluez5_selftests
+_name: Bluetooth - BlueZ Self Tests
+
+unit: category
+id: after-suspend-bluetooth_bluez5_selftests
+_name: Suspend - Bluetooth - BlueZ Self Tests

@@ -1,0 +1,26 @@
+
+id: self-full
+unit: test plan
+_name: Self tests
+_description: Tests to make sure the checkbox snap is setup correctly
+include:
+nested_part:
+  self-manual
+  self-automated
+
+
+id: self-manual
+unit: test plan
+_name: Manual self tests
+_description: Manual tests to make sure the checkbox snap is setup correctly
+include:
+
+
+id: self-automated
+unit: test plan
+_name: Automated self tests
+_description: Automated tests to make sure the checkbox snap is setup correctly
+include:
+    self/content-plug-connected-.*
+bootstrap_include:
+    interface

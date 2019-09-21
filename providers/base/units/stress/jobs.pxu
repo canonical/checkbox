@@ -18,7 +18,15 @@ estimated_duration: 7200.0
 requires:
  package.name == 'stress-ng' or executable.name == 'stress-ng'
 user: root
-command: cpu_stress --runtime 7200
+command:
+  if [ -n "$STRESS_NG_CPU_TIME" ]
+  then
+    echo "Found STRESS_NG_CPU_TIME env var, stress_ng cpu running time is now: $STRESS_NG_CPU_TIME seconds"
+    cpu_stress --runtime $STRESS_NG_CPU_TIME
+  else
+    echo STRESS_NG_CPU_TIME env var is not found, stress_ng cpu running time is default value
+    cpu_stress --runtime 7200
+  fi
 _summary:
  Stress of CPUs (very long runtime)
 _description:
@@ -273,7 +281,7 @@ estimated_duration: 1.0
 depends: stress/reboot
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*reboot.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*reboot.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -294,7 +302,7 @@ id: stress/reboot_30_log
 depends: stress/reboot_30
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*reboot.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*reboot.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -317,7 +325,7 @@ estimated_duration: 1.0
 depends: stress/poweroff
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*poweroff.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*poweroff.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -339,7 +347,7 @@ id: stress/poweroff_30_log
 depends: stress/poweroff_30
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/*poweroff.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/*poweroff.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -356,7 +364,7 @@ estimated_duration: 1.0
 depends: stress/reboot_30_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -373,7 +381,7 @@ estimated_duration: 1.0
 depends: stress/poweroff_30_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -390,7 +398,7 @@ estimated_duration: 1.0
 depends: stress/reboot_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
@@ -407,7 +415,7 @@ estimated_duration: 1.0
 depends: stress/poweroff_check
 command:
  set -o pipefail
- more $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log | cat
+ cat $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress

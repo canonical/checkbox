@@ -1,0 +1,11 @@
+# Copyright 2019 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Gavin Lin <gavin.lin@canonical.com>
+
+unit: manifest entry
+id: has_muxpi_hdmi
+_prompt: Is the device connected to the following?:
+_name: MuxPi HDMI Port
+value-type: bool

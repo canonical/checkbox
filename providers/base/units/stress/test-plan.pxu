@@ -88,3 +88,160 @@ include:
     stress/cpu_stress_ng_test                      certification-status=blocker
     memory/memory_stress_ng                        certification-status=blocker
 
+id: stress-full
+unit: test plan
+_name: Stress tests
+_description: QA stress tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    stress-automated
+
+id: stress-automated
+unit: test plan
+_name: Automated stress tests
+_description: Automated stress tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    warm-boot-stress-test
+    cold-boot-stress-test
+    suspend-stress-test
+    hibernate-stress-test
+    stress-ng-automated
+
+unit: test plan
+id: warm-boot-stress-test
+_name: Warm boot stress test
+_description:
+ Reboots the machine a pre-defined number of times and on
+ resumption of OS performs a hardware check to ensure all
+ items are still present. Reboot is immediate.
+estimated_duration: 25h
+bootstrap_include:
+  reboot-run-generator
+include:
+  warm-boot-loop-.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+unit: test plan
+id: cold-boot-stress-test
+_name: Cold boot stress test
+_description:
+ Reboots the machine a pre-defined number of times and on
+ resumption of OS performs a hardware check to ensure all
+ items are still present. The reboot is delayed by 2 minutes
+ by the RTC to allow hardware to cool.
+estimated_duration: 42h
+bootstrap_include:
+  reboot-run-generator
+include:
+  cold-boot-loop-.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+
+unit: test plan
+id: suspend-stress-test
+_name: Suspend (S3) stress test
+_description:
+ Suspends the machine a pre-defined number of times and on
+ resume of OS performs a hardware check to ensure all
+ items are still present.
+estimated_duration: 42h
+bootstrap_include:
+  stress_s3_iterations
+include:
+  stress-tests/suspend.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+unit: test plan
+id: hibernate-stress-test
+_name: Hibernate (S4) stress test
+_description:
+ Hibernates the machine a pre-defined number of times and on
+ resume of OS performs a hardware check to ensure all
+ items are still present.
+estimated_duration: 42h
+bootstrap_include:
+  stress_s4_iterations
+include:
+  stress-tests/hibernate.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+id: stress-ng-automated
+unit: test plan
+_name: Automated stress-ng tests
+_description: Automated stress-ng tests for Snappy Ubuntu Core devices
+include:
+    stress/stress-ng-test-for-class-.*
+    disk/disk_stress_ng_.*
+bootstrap_include:
+    device
+    stress-ng-classes
+
+id: stress-iperf3-automated
+unit: test plan
+_name: Automated iperf3 tests
+_description: Automated iperf3 performance test
+include:
+    ethernet/iperf3_.*
+bootstrap_include:
+    device

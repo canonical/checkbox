@@ -52,3 +52,34 @@ include:
     suspend/sdhc-insert-after-suspend              certification-status=blocker
     suspend/sdhc-storage-after-suspend             certification-status=blocker
     suspend/sdhc-remove-after-suspend              certification-status=blocker
+
+id: mediacard-full
+unit: test plan
+_name: Mediacard tests
+_description: QA mediacard tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    mediacard-manual
+# nested_part doesn't include automated test plan as its tests overlap with the
+# ones from the manual one
+
+id: mediacard-manual
+unit: test plan
+_name: Manual mediacard tests
+_description: Manual mediacard tests for Snappy Ubuntu Core devices
+include:
+    mediacard/.*-insert
+    mediacard/.*-storage
+    mediacard/.*-remove
+    mediacard/.*-performance-manual
+
+id: mediacard-automated
+unit: test plan
+_name: Automated mediacard tests
+_description:
+ Automated mediacard tests for Snappy Ubuntu Core devices
+ (not requiring udisks2)
+include:
+    mediacard/storage-preinserted-.*
+bootstrap_include:
+    removable_partition

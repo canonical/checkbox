@@ -46,3 +46,33 @@ include:
     cpu/maxfreq_test-log-attach
     cpu/offlining_test                             certification-status=blocker
     cpu/topology                                   certification-status=blocker
+
+id: cpu-full
+unit: test plan
+_name: CPU tests
+_description: QA CPU tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    cpu-automated
+
+id: cpu-manual
+unit: test plan
+_name: Manual CPU tests
+_description: Manual QA CPU tests for Snappy Ubuntu Core devices
+include:
+
+id: cpu-automated
+unit: test plan
+_name: Automated CPU tests
+_description: Automated CPU tests for Snappy Ubuntu Core devices
+include:
+    cpu/scaling_test
+    cpu/scaling_test-log-attach
+    cpu/maxfreq_test
+    cpu/maxfreq_test-log-attach
+    cpu/clocktest
+    cpu/offlining_test
+    cpu/topology
+    cpu/arm_vfp_support_.*
+    cpu/cstates
+    cpu/cstates_results.log

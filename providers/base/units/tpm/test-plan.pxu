@@ -1,0 +1,56 @@
+# Copyright 2015 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+
+unit: test plan
+id: tpm-manual
+_name: TPM (Trusted Platform Module) Smoke Tests
+_description:
+ This test plan contains simple tests for the TPM chip. The tests will ensure
+ that the TPM chip is present, is visible by the OS and that ownership over the
+ chip can be taken.
+ .
+ After testing, a number of logs are collected for additional analysis.
+estimated_duration: 20m
+include:
+ # First just the manifest stuff (interactive collection + resource)
+ com.canonical.plainbox::collect-manifest
+ com.canonical.plainbox::manifest
+ # Vendor-specific, interactive recovery process. We want to educate the tester
+ # how they can reset the TPM chip from unknown state using vendor-specific
+ # instructions.
+ recovery/.*/clear-tpm-chip
+ # Generic setup path, we want to go from any TPM state (Active, Inactive,
+ # Disabled) to Active where we can perform useful tests.
+ setup/enable-inactive-tpm
+ setup/enable-disabled-tpm
+ # The first thing we want to try is to clear the ownership of the TPM chip
+ # This will let us ensure that all the other tests are independent of any
+ # ownership or data already stored there.
+ action/clear-ownership
+ # Which might require us to reboot / poweroff the machine to complete.
+ action/re-enable-tpm
+ # Next we want to take the ownership of the chip.
+ action/take-ownership
+ # Finally, with the TPM chip owned, we can perform some simple query jobs and
+ # collect everything.
+ query/.*
+
+unit: test plan
+id: tpm-automated
+_name: Collect TPM (Trusted Platform Module) Information
+_description:
+ This test plan contains a selection of jobs that collect various bits of
+ information about a TPM chip. They are designed to run with an owned TPM chip
+ that uses well-known (20 zero bytes) owner key.
+ .
+ This test plan is not interactive.
+estimated_duration: 1m
+include:
+ com.canonical.plainbox::manifest
+ # Next we want to take the ownership of the chip if it's not owned yet.
+ action/take-ownership
+ # Then collect all of the information
+ query/.*

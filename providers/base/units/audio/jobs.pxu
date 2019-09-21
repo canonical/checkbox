@@ -617,3 +617,232 @@ command:
   audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles
   diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles
 
+id: audio/detect-playback-devices
+_summary: Check that at least one audio playback device exits
+plugin: shell
+category_id: com.canonical.plainbox::audio
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_audio_playback == 'True'
+command:
+ COUNT=$(alsa_pcm_info | grep Playback | wc -l)
+ echo "Count: $COUNT"
+ if [ $COUNT -eq 0 ]; then
+  exit 1
+ fi
+estimated_duration: 1s
+
+id: audio/detect-capture-devices
+_summary: Check that at least one audio capture device exists
+plugin: shell
+category_id: com.canonical.plainbox::audio
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_audio_capture == 'True'
+command:
+ COUNT=$(alsa_pcm_info | grep Capture | wc -l)
+ echo "Count: $COUNT"
+ if [ $COUNT -eq 0 ]; then
+   exit 1
+ fi
+esimated_duration: 1s
+
+id: audio/alsa-playback
+_summary: Playback works
+_purpose:
+ Check if sound is played through ALSA on the default output
+_steps:
+ 1. Make sure speakers or headphones are connect to the device
+ 2. Commence the test
+_verification:
+ Did you hear the sound?
+plugin: user-interact-verify
+depends: audio/detect-playback-devices
+user: root
+environ: ALSA_CONFIG_PATH ALSADEVICE
+flags: also-after-suspend
+command: alsa_test playback -d 5
+category_id: com.canonical.plainbox::audio
+estimated_duration: 10
+
+id: audio/alsa-loopback-automated
+_summary: Captured sound matches played one (automated)
+_purpose:
+ Check if sound that is 'hearable' by capture device
+plugin: shell
+depends: audio/detect-playback-devices audio/detect-capture-devices
+user: root
+environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
+flags: also-after-suspend
+command: alsa_test loopback -d 5
+category_id: com.canonical.plainbox::audio
+estimated_duration: 5
+
+id: audio/alsa-loopback
+_summary: Captured sound matches played one
+_purpose:
+ Check if sound that is 'hearable' by capture device
+_steps:
+ 1. Connect line-out to line-in (plug the loop-back cable)
+ 2. Commence the test
+ 3. Observe command's output
+_verification:
+ Is the reported frequency in the 438 - 442 range
+plugin: user-interact-verify
+depends: audio/detect-playback-devices audio/detect-capture-devices
+user: root
+environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
+flags: also-after-suspend
+command: alsa_test loopback -d 5
+category_id: com.canonical.plainbox::audio
+estimated_duration: 30
+
+id: audio/pa-record-internal-mic
+_summary: Record a wav file and check it using pulseaudio - internal mic
+_purpose:
+ Check if audio input work fine through pulseaudio on internal mic
+_steps:
+ 1. Make sure no external mic is connected to the device
+ 2. Make sure there's at least one output device connected to the device
+ 3. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 4. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 5. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 6. Unmute and set volume of input/output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+    sudo pulseaudio.pactl set-source-mute <Source id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-source-volume <Source id #, e.g. 0> 80%
+ 7. Record for 5 seconds to a wav file:
+    sudo timeout 5 pulseaudio.parec -v /var/snap/pulseaudio/common/test.wav
+ 8. Play the recorded file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 9. Remove the recorded file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the recorded sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-record-external-mic
+_summary: Record a wav file and check it using pulseaudio - external mic
+_purpose:
+ Check if audio input work fine through pulseaudio on external mic
+_steps:
+ 1. Make sure an external mic is connected to the device
+ 2. Make sure there's at least one output device connected to the device
+ 3. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 4. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 5. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 6. Unmute and set volume of input/output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+    sudo pulseaudio.pactl set-source-mute <Source id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-source-volume <Source id #, e.g. 0> 80%
+ 7. Record for 5 seconds to a wav file:
+    sudo timeout 5 pulseaudio.parec -v /var/snap/pulseaudio/common/test.wav
+ 8. Play the recorded file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 9. Remove the recorded file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the recorded sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-playback-headphone
+_summary: Play sample wav file using pulseaudio - headphone
+_purpose:
+ Check if sound is played through pulseaudio to headphone
+_steps:
+ 1. Make sure a headphone is connected to the device
+ 2. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 3. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 4. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 5. Unmute and set volume of output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+ 6. Put a test wav file in system as /var/snap/pulseaudio/common/test.wav
+ 7. Play the test wav file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 8. Remove the test file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-playback-lineout
+_summary: Play sample wav file using pulseaudio - lineout
+_purpose:
+ Check if sound is played through pulseaudio to lineout
+_steps:
+ 1. Make sure a output device is connected to the lineout port on device
+ 2. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 3. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 4. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 5. Unmute and set volume of output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+ 6. Put a test wav file in system as /var/snap/pulseaudio/common/test.wav
+ 7. Play the test wav file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 8. Remove the test file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-playback-hdmi
+_summary: Play sample wav file using pulseaudio - hdmi
+_purpose:
+ Check if sound is played through pulseaudio to HDMI output device
+_steps:
+ 1. Make sure a HDMI output device is connected to the device
+ 2. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 3. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 4. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:hdmi-stereo+input:analog-stereo
+ 5. Unmute and set volume of output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+ 6. Put a test wav file in system as /var/snap/pulseaudio/common/test.wav
+ 7. Play the test wav file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 8. Remove the test file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m

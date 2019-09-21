@@ -1,0 +1,67 @@
+id: watchdog/systemd-config
+_summary: Check if the hardware watchdog is properly configured
+template-engine: jinja2
+command:
+  inbuilt=$(systemctl show -p RuntimeWatchdogUSec | awk -F= '{print $2}')
+  external=$(systemctl is-active watchdog.service)
+  {%- if __on_ubuntucore__ %}
+  if [ "$inbuilt" == "0" ]; then
+    echo "systemd watchdog should be enabled but reset timeout: $inbuilt"
+    exit 1
+  fi
+  if [ "$external" == "active" ]; then
+    echo "found unexpected active watchdog.service unit"
+    exit 1
+  fi
+  echo "systemd watchdog enabled, reset timeout: $inbuilt"
+  echo "watchdog.service is not active"
+  {%- else %}
+  if [ "$inbuilt" != "0" ]; then
+    echo "systemd watchdog should not be enabled but reset timeout: $inbuilt"
+    exit 1
+  fi
+  if [ "$external" != "active" ]; then
+    echo "watchdog.service unit does not report as active"
+    exit 1
+  fi
+  echo "systemd watchdog disabled"
+  echo "watchdog.service active"
+  {% endif -%}
+category_id: com.canonical.plainbox::power-management
+flags: simple
+
+id: watchdog/trigger-system-reset
+depends: watchdog/systemd-config
+_summary: Test that the watchdog module can trigger a system reset
+_purpose:
+ The watchdog module should be capable of issuing a hard reset of the SUT.
+_steps:
+ 1. Commence the test to trigger a SysRq.
+ 2. Once the watchdog timeout has expired (10s) the SUT should reset itself.
+ 3. The board will reboot and the user should resume the test session.
+_verification:
+ Did the board reset itself?
+command:
+  echo 1 > /proc/sys/kernel/sysrq
+  echo 0 > /proc/sys/kernel/panic
+  echo c > /proc/sysrq-trigger
+flags: noreturn preserve-locale
+user: root
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::power-management
+estimated_duration: 60
+
+id: watchdog/trigger-system-reset-auto
+depends: watchdog/systemd-config
+_summary: Test that the watchdog module can trigger a system reset
+command:
+  sync
+  sleep 5
+  echo 1 > /proc/sys/kernel/sysrq
+  echo 0 > /proc/sys/kernel/panic
+  echo c > /proc/sysrq-trigger
+flags: preserve-locale noreturn autorestart
+user: root
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+estimated_duration: 60

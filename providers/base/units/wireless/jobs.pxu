@@ -166,6 +166,52 @@ requires:
  {% endif -%}
 # net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_wpa_ax_nm_{{ interface }}
+_summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to 802.11ax AP with wpa security
+plugin: shell
+command:
+  net_driver_info $NET_DRIVER_INFO
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_AX_SSID" "$WPA_AX_PSK"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend also-after-suspend-manual
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {% endif -%}
+# net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_open_ax_nm_{{ interface }}
+_summary: Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to insecure 802.11ax AP
+plugin: shell
+command:
+  net_driver_info $NET_DRIVER_INFO
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_AX_SSID"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend also-after-suspend-manual
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {% endif -%}
+# net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::wireless
 id: wireless/wireless_connection_wpa_bg_manual

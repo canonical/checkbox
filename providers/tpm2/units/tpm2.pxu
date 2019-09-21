@@ -1,0 +1,52 @@
+# This file is part of Checkbox.
+#
+# Copyright 2019 Canonical Ltd.
+# Written by:
+#   Pierre Equoy <pierre.equoy@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+id: tpm2/pcr7-unsealing
+_summary: TPM2 PCR7 unsealing
+_description: Check that PCR7 can be unsealed, extended and fails to be unsealed afterwards
+category_id: tpm2
+requires: tpm2_resource.kernel_rm == 'supported'
+estimated_duration: 1
+plugin: shell
+user: root
+command:
+ initial_pcr7=`tpm2_pcrlist --sel-list sha256:7 | awk '/  7  \:/ {print $3}'`
+ echo "Initial PCR7 value: ${initial_pcr7}"
+ echo "Trying to unseal item based on PCR7... "
+ unsealed_item=`tpm2_unseal --item 0x81000000 --set-list sha256:7` # --tcti device:/dev/tpm0
+ if [ "$?" = "0" ]; then
+     echo "As expected, can unseal data before extending PCR7."
+ else
+     echo "Fail after trying to initially unseal data. Has PCR7 been altered already?"
+     exit 1
+ fi
+ echo "Unsealed item: ${unsealed_item}"
+ echo
+ echo "Extending PCR7 with random data..."
+ tpm2_pcrextend 7:sha256="$(base64 /dev/urandom | tr -dc '0-9a-f' | dd bs=64 count=1 status=none)" # --tcti device:/dev/tpm0
+ extended_pcr7=`tpm2_pcrlist --sel-list sha256:7 | awk '/  7  \:/ {print $3}'`
+ echo "New PCR7 value: ${extended_pcr7}"
+ echo "Trying to unseal item based on PCR7 again..."
+ unsealed_item=`tpm2_unseal --item 0x81000000 --set-list sha256:7` # --tcti device:/dev/tpm0
+ if [ "$?" = "1" ]; then
+     echo "As expected, cannot unseal data after extending PCR7. Test passes!"
+     exit 0
+ else
+     echo "Fail"
+     exit 1
+ fi

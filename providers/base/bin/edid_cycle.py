@@ -10,6 +10,7 @@ https://docs.google.com/document/d/1kjgaazt2IMskn_HPjN7adXYx1O5zXc39DRayZ0PYh9Y
 The command-line argument for the program is the address of the RaspberryPi
 Host (optionally with a username), e.g.: pi@192.168.1.100
 """
+import os
 import re
 import subprocess
 import sys
@@ -27,8 +28,8 @@ def check_resolution():
 
 def change_edid(host, edid_file):
     with open(edid_file, 'rb') as f:
-        cmd = ['ssh', host, 'v4l2-ctl', '--set-edid=file=-,format=raw',
-               '--fix-edid-checksums']
+        cmd = ['ssh', host, '/snap/bin/pigbox', 'run',
+               '\'v4l2-ctl --set-edid=file=-,format=raw --fix-edid-checksums\'']
         subprocess.check_output(cmd, input=f.read())
 
 
@@ -38,7 +39,9 @@ def main():
     failed = False
     for res in ['2560x1440', '1920x1080', '1280x1024']:
         print('changing EDID to {}'.format(res))
-        change_edid(sys.argv[1], '{}.edid'.format(res))
+        edid_file = os.path.expandvars(os.path.join(
+            '$PLAINBOX_PROVIDER_DATA', 'edids', '{}.edid'.format(res)))
+        change_edid(sys.argv[1], edid_file)
         time.sleep(1)
         print('checking resolution... ', end='')
         actual_res = check_resolution()

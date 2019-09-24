@@ -38,6 +38,7 @@ from jinja2 import escape
 
 from plainbox import get_version_string
 from plainbox.abc import ISessionStateExporter
+from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.result import OUTCOME_METADATA_MAP
 from plainbox.impl.unit.exporter import ExporterError
 
@@ -73,7 +74,7 @@ def highlight_keys(text):
     return re.sub('(\w+:\s)', r'<b>\1</b>', text)
 
 
-class Jinja2SessionStateExporter(ISessionStateExporter):
+class Jinja2SessionStateExporter(SessionStateExporterBase):
 
     """Session state exporter that renders output using jinja2 template."""
 
@@ -162,7 +163,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
         """
         try:
-            state = session_manager.state
+            state = self._trim_session_manager(session_manager).state
             app_blob = state.metadata.app_blob
             app_blob_data = json.loads(app_blob.decode("UTF-8"))
         except ValueError:

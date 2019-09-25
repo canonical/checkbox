@@ -33,13 +33,23 @@ etc.) that can be used to easily share the results of a test session.
 Installation
 ^^^^^^^^^^^^
 
-Checkbox can be installed from a :abbr:`PPA (Personal Package Archive)`
-(recommended) or :abbr:`pypi (python package index)` on Ubuntu Precise (12.04)
-or newer.
+Checkbox can be installed from a :abbr:`PPA (Personal Package Archive)`.
 
 .. code-block:: bash
 
-    $ sudo add-apt-repository ppa:hardware-certification/public && sudo apt-get update && sudo apt-get install checkbox-ng
+    $ sudo add-apt-repository ppa:hardware-certification/public
+    $ sudo apt-get update
+    $ sudo apt-get install checkbox-ng plainbox-provider-resource-generic plainbox-provider-certification-client plainbox-provider-checkbox canonical-certification-client
+
+The ``plainbox-provider-certification-client`` package will pull a lot of
+desktop-related packages. If you intend to run tests on a server, run these
+commands instead:
+
+.. code-block:: bash
+
+    $ sudo add-apt-repository ppa:hardware-certification/public
+    $ sudo apt-get update
+    $ sudo apt-get install checkbox-ng plainbox-provider-resource-generic plainbox-provider-certification-server plainbox-provider-checkbox canonical-certification-server
 
 Table of contents
 =================

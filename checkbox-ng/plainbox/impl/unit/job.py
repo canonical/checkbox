@@ -327,6 +327,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.get_record_value('after')
 
     @cached_property
+    def salvages(self):
+        return self.get_record_value('salvages')
+
+    @cached_property
     def command(self):
         return self.get_record_value('command')
 
@@ -651,6 +655,24 @@ class JobDefinition(UnitWithId, IJobDefinition):
         V().visit(WordList.parse(self.after))
         return deps
 
+    def get_salvage_dependencies(self):
+        """Return a set of jobs that need to fail before this job can run."""
+        deps = set()
+        if self.salvages is None:
+            return deps
+
+        class V(Visitor):
+
+            def visit_Text_node(visitor, node: Text):
+                deps.add(self.qualify_id(node.text))
+
+            def visit_Error_node(visitor, node: Error):
+                logger.warning(_("unable to parse depends: %s"), node.msg)
+
+        V().visit(WordList.parse(self.salvages))
+        return deps
+
+
     def get_resource_dependencies(self):
         """
         Compute and return a set of resource dependencies
@@ -705,6 +727,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             estimated_duration = 'estimated_duration'
             depends = 'depends'
             after = 'after'
+            salvages = 'salvages'
             requires = 'requires'
             shell = 'shell'
             imports = 'imports'

@@ -379,6 +379,10 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         self.ctx.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
         if self.launcher.test_plan_forced:
             tp_id = self.launcher.test_plan_default_selection
+            if tp_id not in self.ctx.sa.get_test_plans():
+                _logger.error(_(
+                    'The test plan "%s" is not available!'), tp_id)
+                raise SystemExit(1)
         elif not self.is_interactive:
             # XXX: this maybe somewhat redundant with validation
             _logger.error(_(

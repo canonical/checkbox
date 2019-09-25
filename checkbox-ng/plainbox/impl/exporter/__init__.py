@@ -189,7 +189,8 @@ class SessionStateExporterBase(ISessionStateExporter):
         This method takes session manager instance, extracts session
         information from it, and dumps it to a stream.
         """
-        self.dump(self.get_session_data_subset(session_manager), stream)
+        self.dump(self.get_session_data_subset(
+            self._trim_session_manager(session_manager)), stream)
 
     def get_session_data_subset(self, session_manager):
         """
@@ -332,6 +333,25 @@ class SessionStateExporterBase(ISessionStateExporter):
         return [(record.delay, record.stream_name,
                  base64.standard_b64encode(record.data).decode('ASCII'))
                 for record in io_log]
+
+    @staticmethod
+    def _trim_session_manager(session_manager):
+        """
+        Modify the session information so certain jobs don't show up in the
+        reports.
+        """
+        jobs_to_remove = []
+        for job_id, job_state in session_manager.state.job_state_map.items():
+            # remove skipped salvage jobs
+            if (job_state.job.salvages is not None and
+                    job_state.result.outcome == 'not-supported'):
+                jobs_to_remove.append(job_id)
+                continue
+        for job_id in jobs_to_remove:
+            session_manager.state.run_list.remove(
+                session_manager.state.job_state_map[job_id].job)
+            del session_manager.state.job_state_map[job_id]
+        return session_manager
 
 
 class ByteStringStreamTranslator(RawIOBase):

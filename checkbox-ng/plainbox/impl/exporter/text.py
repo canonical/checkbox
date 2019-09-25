@@ -41,6 +41,7 @@ class TextSessionStateExporter(SessionStateExporterBase):
 
     def get_session_data_subset(self, session_manager):
         return session_manager.state
+        return self._trim_session_manager(session_manager).state
 
     def dump(self, session, stream):
         for job in session.run_list:

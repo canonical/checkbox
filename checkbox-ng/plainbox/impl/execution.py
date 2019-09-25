@@ -278,12 +278,13 @@ class UnifiedRunner(IJobRunner):
                          {"ID": job.id, "CMD": cmd,
                           "ENV": env})
             if 'preserve-cwd' in job.get_flag_set() or os.getenv("SNAP"):
-                return_code = call(extcmd_popen, cmd, stdin=subprocess.PIPE,
-                        env=env)
+                return_code = call(
+                    extcmd_popen, cmd, stdin=subprocess.PIPE, env=env)
             else:
                 with self.temporary_cwd(job, config) as cwd_dir:
-                    return_code = call(extcmd_popen, cmd,
-                            stdin=subprocess.PIPE, env=env, cwd=cwd_dir)
+                    return_code = call(
+                        extcmd_popen, cmd, stdin=subprocess.PIPE, env=env,
+                        cwd=cwd_dir)
             if 'noreturn' in job.get_flag_set():
                 import signal
                 signal.pause()
@@ -365,10 +366,11 @@ class UnifiedRunner(IJobRunner):
         if leftovers:
             logger.warning(
                 _("Job {0} created leftover filesystem artefacts"
-                " in its working directory").format(job.id))
+                  " in its working directory").format(job.id))
             for item in leftovers:
-                logger.warning(_("Leftover file/directory: %r"),
-                            os.path.relpath(item, cwd_dir))
+                logger.warning(_(
+                    "Leftover file/directory: %r"),
+                    os.path.relpath(item, cwd_dir))
             logger.warning(
                 _("Please store desired files in $PLAINBOX_SESSION_SHARE"
                     "and use regular temporary files for everything else"))
@@ -385,8 +387,8 @@ class UnifiedRunner(IJobRunner):
             in_r, in_w = os.pipe()
             os.write(in_w, self._password_provider() + b'\n')
             cmd = ['sudo', '--prompt', '', '--reset-timestamp', '--stdin',
-                    '--user', 'root', 'kill', '-s', str(signal),
-                    '-{}'.format(self._running_jobs_pid)]
+                   '--user', 'root', 'kill', '-s', str(signal),
+                   '-{}'.format(self._running_jobs_pid)]
             try:
                 subprocess.check_call(cmd, stdin=in_r)
             except subprocess.CalledProcessError:
@@ -418,14 +420,13 @@ class FakeJobRunner(UnifiedRunner):
         builder.return_code = 0
         return builder.get_result()
 
+
 def get_execution_environment(job, config, session_dir, nest_dir):
     """
     Get the environment required to execute the specified job:
 
     :param job:
         job definition with the command and environment definitions
-    :param job_state:
-        The JobState associated to the job to execute.
     :param config:
         A PlainBoxConfig instance which can be used to load missing environment
         definitions that apply to all jobs. It is used to provide values for
@@ -477,6 +478,7 @@ def get_execution_environment(job, config, session_dir, nest_dir):
         [nest_dir] + env.get("PATH", "").split(os.pathsep))
     # Add per-session shared state directory
     env['PLAINBOX_SESSION_SHARE'] = os.path.join(session_dir, "CHECKBOX_DATA")
+
     def set_if_not_none(envvar, source):
         """Update env if the source variable is not None"""
         if source is not None:
@@ -562,7 +564,7 @@ def get_execution_command(job, config, session_dir,
         #   - gets password as the first line of stdin (--stdin)
         #   - change the user to the target user (--user)
         cmd = ['sudo', '--prompt', '', '--reset-timestamp', '--stdin',
-                '--user', target_user]
+               '--user', target_user]
     cmd += ['env']
     if target_user:
         env = get_differential_execution_environment(

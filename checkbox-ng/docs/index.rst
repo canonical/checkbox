@@ -9,9 +9,24 @@ Checkbox
 Checkbox is a flexible test automation software.
 It's the main tool used in Ubuntu Certification program.
 
+.. image:: _images/checkbox-test-report.png
+   :alt: Test report exported in HTML
+   :scale: 25%
+   :align: right
+   :target: _images/checkbox-test-report.png
+
 You can use checkbox without any modification to check if your system is
 behaving correctly or you can develop your own set of tests to check your
 needs. See :ref:`tutorials` for details.
+
+Checkbox optionally generates test reports in different formats (JSON, HTML,
+etc.) that can be used to easily share the results of a test session.
+
+.. figure:: _images/checkbox-snappy-3-select-jobs.png
+   :alt: Checkbox test selection screen
+   :align: center
+
+   Test selection screen in checkbox
 
 .. _installation:
 

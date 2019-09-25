@@ -497,6 +497,59 @@ def get_execution_environment(job, config, session_dir, nest_dir):
             env[env_var] = config.environment[env_var]
     return env
 
+
+def get_differential_execution_environment(job, config, session_dir, nest_dir):
+    """
+    Get the environment required to execute the specified job:
+
+    :param job:
+        job definition with the command and environment definitions
+    :param config:
+        A PlainBoxConfig instance which can be used to load missing
+        environment definitions that apply to all jobs. It is used to
+        provide values for missing environment variables that are required
+        by the job (as expressed by the environ key in the job definition
+        file).
+    :param session_dir:
+        Base directory of the session this job will execute in.
+        This directory is used to co-locate some data that is unique to
+        this execution as well as data that is shared by all executions.
+    :param nest_dir:
+        A directory with a nest of symlinks to all executables required to
+        execute the specified job. This is simply passed to
+        :meth:`get_execution_environment()` directly.
+    :returns:
+        Differential environment (see below).
+
+    This implementation computes the desired environment (as it was
+    computed in the base class) and then discards all of the environment
+    variables that are identical in both sets. The exception are variables
+    that are mentioned in
+    :meth:`plainbox.impl.job.JobDefinition.get_environ_settings()` which
+    are always retained.
+    """
+    base_env = os.environ
+    target_env = get_execution_environment(job, config, session_dir, nest_dir)
+    delta_env = {
+        key: value
+        for key, value in target_env.items()
+        if key not in base_env or base_env[key] != value
+        or key in job.get_environ_settings()
+    }
+    if 'reset-locale' in job.get_flag_set():
+        delta_env['LANG'] = 'C.UTF-8'
+        delta_env['LANGUAGE'] = ''
+        delta_env['LC_ALL'] = 'C.UTF-8'
+    # Preserve the copy_vars variables + those prefixed with SNAP on Snappy
+    if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
+        copy_vars = ['PYTHONHOME', 'PYTHONUSERBASE', 'LD_LIBRARY_PATH',
+                     'GI_TYPELIB_PATH']
+        for key, value in base_env.items():
+            if key in copy_vars or key.startswith('SNAP'):
+                delta_env[key] = value
+    return delta_env
+
+
 def get_execution_command(job, config, session_dir,
                           nest_dir, target_user=None):
     """Generate a command argv to run in the shell."""
@@ -511,7 +564,11 @@ def get_execution_command(job, config, session_dir,
         cmd = ['sudo', '--prompt', '', '--reset-timestamp', '--stdin',
                 '--user', target_user]
     cmd += ['env']
-    env = get_execution_environment(job, config, session_dir, nest_dir)
+    if target_user:
+        env = get_differential_execution_environment(
+            job, config, session_dir, nest_dir)
+    else:
+        env = get_execution_environment(job, config, session_dir, nest_dir)
     cmd += ["{key}={value}".format(key=key, value=value)
             for key, value in sorted(env.items())]
     cmd += [job.shell, '-c', job.command]

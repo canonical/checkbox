@@ -36,9 +36,6 @@ command:
  echo id: pts/john-the-ripper
  echo "name: This is a benchmark of John The Ripper, which is a password cracker."
  echo
- echo id: pts/mbw
- echo "name: This is a basic/simple memory (RAM) bandwidth benchmark for memory copy operations."
- echo
  echo id: pts/network-loopback
  echo "name: This test measures the loopback network adapter performance using a micro-benchmark to measure the TCP performance."
  echo

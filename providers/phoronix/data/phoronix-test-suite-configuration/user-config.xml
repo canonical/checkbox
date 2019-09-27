@@ -57,7 +57,7 @@
       <PromptForTestIdentifier>FALSE</PromptForTestIdentifier>
       <PromptForTestDescription>FALSE</PromptForTestDescription>
       <PromptSaveName>FALSE</PromptSaveName>
-      <RunAllTestCombinations>FALSE</RunAllTestCombinations>
+      <RunAllTestCombinations>TRUE</RunAllTestCombinations>
       <Configured>TRUE</Configured>
     </BatchMode>
     <Networking>

@@ -1,0 +1,5 @@
+id: pig
+plugin: resource
+_summary: Get Pig's capabilities
+environ: PIG_HOST
+command: ssh -q -o 'StrictHostKeyChecking=no' $PIG_HOST /snap/bin/pigbox capabilities

@@ -1034,6 +1034,14 @@ class UdevadmDevice(object):
                     return link
         return None
 
+    @property
+    def symlink_v4l_by_id(self):
+        if self.category == "CAPTURE":
+            for link in self._symlinks:
+                if 'v4l/by-id/' in link:
+                    return link.replace('v4l/by-id/', '')
+        return None
+
 
 class UdevadmParser(object):
     """Parser for the udevadm command."""
@@ -1295,6 +1303,18 @@ class UdevadmParser(object):
                     device._raw_path != d._raw_path and
                     device._environment["MINOR"] < d._environment["MINOR"] and
                     os.path.dirname(device._raw_path) in d._raw_path
+                ]
+                if meta_capture_device:
+                    meta_device = meta_capture_device.pop()
+                    self.devices.pop(meta_device._raw_path, None)
+                # A second iteration to filter out devices with the same v4l
+                # symlink
+                meta_capture_device = [
+                    d for d in self.devices.values()
+                    if d.category == 'CAPTURE' and
+                    device._raw_path != d._raw_path and
+                    device._environment["MINOR"] < d._environment["MINOR"] and
+                    device.symlink_v4l_by_id == d.symlink_v4l_by_id
                 ]
                 if meta_capture_device:
                     meta_device = meta_capture_device.pop()

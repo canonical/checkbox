@@ -984,12 +984,17 @@ E: UDEV_LOG=3
 
     def test_CAPTURE_METADATA(self):
         devices = self.parse("CAPTURE_METADATA")
-        self.assertEqual(len(devices), 112)
-        self.assertEqual(self.count(devices, "CAPTURE"), 2)
+        self.assertEqual(len(devices), 111)
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
         self.assertEqual(devices[41].category, "CAPTURE")
         self.assertTrue(devices[41].path.endswith("video0"))
+
+    def test_CAPTURE_METADATA_2(self):
+        devices = self.parse("CAPTURE_METADATA_2")
+        self.assertEqual(len(devices), 135)
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
         self.assertEqual(devices[45].category, "CAPTURE")
-        self.assertTrue(devices[45].path.endswith("video2"))
+        self.assertTrue(devices[45].path.endswith("video0"))
 
     def verify_devices(self, devices, expected_device_list):
         """

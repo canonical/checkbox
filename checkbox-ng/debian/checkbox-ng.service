@@ -1,0 +1,13 @@
+[Unit]
+Description=Checkbox remote slave service
+Wants=network.target
+
+[Service]
+ExecStart=/usr/bin/checkbox-cli slave
+SyslogIdentifier=checkbox-slave
+Restart=on-failure
+TimeoutStopSec=30
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

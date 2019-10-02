@@ -39,9 +39,6 @@ command:
  echo id: pts/ramspeed
  echo "name: This benchmark tests the system memory (RAM) performance."
  echo
- echo id: pts/tiobench
- echo "name: Tiotester (Threaded I/O Tester) benchmarks the hard disk drive / file-system performance."
- echo
 
 id: pts-prepare-nest
 category_id: phoronix

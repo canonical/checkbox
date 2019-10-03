@@ -1,4 +1,4 @@
-plainbox-provider-certification-server (0.43.0~rc2-1) UNRELEASED; urgency=medium
+plainbox-provider-certification-server (0.43.0~rc3-1) UNRELEASED; urgency=medium
 
   [ pierre ]
   * "new upstream version"
@@ -43,8 +43,9 @@ plainbox-provider-certification-server (0.43.0~rc2-1) UNRELEASED; urgency=medium
 
   [ Jenkins ]
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@sylvain-ThinkPad-T480s>  Sat, 21 Sep 2019 10:43:19 +0200
+ -- Jenkins <jenkins@sylvain-ThinkPad-T480s>  Thu, 03 Oct 2019 23:29:01 +0200
 
 plainbox-provider-certification-server (0.28-1) precise; urgency=medium
 

@@ -538,4 +538,4 @@ user: root
 command:
  {switch_to_cmd}
  pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
-flags: noreturn preserve-locale
+flags: noreturn preserve-locale also-after-suspend

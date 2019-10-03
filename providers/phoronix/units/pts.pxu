@@ -24,9 +24,6 @@ command:
  echo id: pts/encode-mp3
  echo "name: This test measures the time required to encode a WAV file to MP3 format."
  echo
- echo id: pts/fftw
- echo "name: FFTW is a C subroutine library for computing the discrete Fourier transform (DFT) in one or more dimensions."
- echo
  echo id: pts/fs-mark
  echo "name: FS_Mark is designed to test a system\'s file-system performance."
  echo
@@ -41,9 +38,6 @@ command:
  echo
  echo id: pts/ramspeed
  echo "name: This benchmark tests the system memory (RAM) performance."
- echo
- echo id: pts/tiobench
- echo "name: Tiotester (Threaded I/O Tester) benchmarks the hard disk drive / file-system performance."
  echo
 
 id: pts-prepare-nest

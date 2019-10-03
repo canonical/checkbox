@@ -1,3 +1,3 @@
 unit: packaging meta-data
 os-id: debian
-Depends: php-cli, php-xml, xorg-dev
+Depends: php-cli, php-xml, xserver-xorg-dev

@@ -1,8 +1,12 @@
-plainbox-provider-ipdt (0.2.0~rc1-1) UNRELEASED; urgency=medium
+plainbox-provider-ipdt (0.2.0-1) UNRELEASED; urgency=medium
 
+  [ Sylvain Pineau ]
   * "new upstream version"
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Sat, 24 Aug 2019 09:36:32 +0200
+  [ Jenkins ]
+  * "new upstream version"
+
+ -- Jenkins <jenkins@sylvain-ThinkPad-T480s>  Fri, 04 Oct 2019 11:15:20 +0200
 
 plainbox-provider-ipdt (0.1) bionic; urgency=medium
 

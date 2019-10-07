@@ -577,6 +577,8 @@ class TestPlanBrowser():
             urwid.Padding(self.button_pile, left=4, right=3, min_width=13),
             urwid.Divider(),
         ]
+        if selection:
+            self.radio_button_group[selection].set_state(True)
         self.listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
         # Footer
         self.default_footer = urwid.AttrWrap(urwid.Columns(

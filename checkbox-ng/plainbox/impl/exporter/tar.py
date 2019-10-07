@@ -66,7 +66,7 @@ class TARSessionStateExporter(SessionStateExporterBase):
 
         job_state_map = manager.default_device_context.state.job_state_map
         with tarfile.TarFile.open(None, 'w:xz', stream, preset=preset) as tar:
-            for fmt in ('html', 'json', 'xlsx'):
+            for fmt in ('html', 'json', 'junit', 'xlsx'):
                 if fmt == 'xlsx':
                     options_list = [
                         XLSXSessionStateExporter.OPTION_WITH_SYSTEM_INFO,

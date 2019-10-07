@@ -170,12 +170,16 @@ class NormalUI(IJobRunnerUI):
             'stdout': sys.stdout,
             'stderr': sys.stderr
         }[stream_name]
-        if stream_name == 'stdout':
-            print(self.C.GREEN(line.decode("UTF-8", "ignore")),
-                  end='', file=stream)
-        elif stream_name == 'stderr':
-            print(self.C.RED(line.decode("UTF-8", "ignore")),
-                  end='', file=stream)
+        try:
+            if stream_name == 'stdout':
+                print(self.C.GREEN(line.decode("UTF-8")),
+                      end='', file=stream)
+            elif stream_name == 'stderr':
+                print(self.C.RED(line.decode("UTF-8")),
+                      end='', file=stream)
+        except UnicodeDecodeError:
+            self.show_cmd_output = False
+            print(self.C.BLACK("(" + _("Hiding binary test output") + ")"))
         stream.flush()
 
     def finished_executing_program(self, returncode):

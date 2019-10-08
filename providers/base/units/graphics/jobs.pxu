@@ -254,28 +254,14 @@ _description:
 
 unit: template
 template-resource: graphics_card
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-id: graphics/{index}_compiz_check_{product_slug}
-requires: package.name == 'nux-tools'
-command:
- source graphics_env {driver} {index}
- ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
-estimated_duration: 0.130
-_description: Check that {vendor} {product} hardware is able to run compiz
-_summary: Test Compiz support for {vendor} {product}
-
-unit: template
-template-resource: graphics_card
-plugin: shell
-category_id: com.canonical.plainbox::graphics
-id: graphics/{index}_unity_support_{product_slug}
+id: graphics/{index}_gl_support_{product_slug}
 requires: package.name == 'nux-tools'
 command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.131
-_description: Check that {vendor} {product} hardware is able to run Unity 3D
-_summary: Test Unity 3D support for {vendor} {product}
+_description: Check that {vendor} {product} hardware is able to run a desktop session (OpenGL)
+_summary: Test OpenGL support for {vendor} {product}
 
 unit: template
 template-resource: graphics_card

@@ -115,7 +115,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/{{ index }}_compiz_check_after_suspend_{{ product_slug }}_auto
+id: suspend/{{ index }}_gl_support_after_suspend_{{ product_slug }}_auto
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -125,10 +125,10 @@ depends:
 requires: package.name == 'nux-tools'
 command:
  source graphics_env {{ driver }} {{ index }}
- ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+ ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
-_description: Check that {{ product }} hardware is able to run compiz after suspend
-_summary: Test Compiz support for {{ product }} after suspend
+_description: Check that {{ product }} hardware is able to run a desktop session (OpenGL)
+_summary: Test OpenGL support for {{ product }} after suspend
 
 unit: template
 template-resource: graphics_card

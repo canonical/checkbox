@@ -13,10 +13,17 @@ for disk in $@; do
 
   disk_type=`udevadm info --name /dev/$disk --query property | grep "ID_BUS" | awk '{gsub(/ID_BUS=/," ")}{printf $1}'`
   dev_path=`udevadm info --name /dev/$disk --query property | grep "DEVPATH" | awk '{gsub(/DEVPATH=/," ")}{printf $1}'`
+  if [[ $dev_path =~ dm ]]; then
+    disk_type="devmapper"
+  fi
   if [[ $dev_path =~ nvme ]]; then
     disk_type="nvme"
   fi
+  if [[ $dev_path =~ mmc ]]; then
+    disk_type="mmc"
+  fi
   if [ -z "$disk_type" ]; then
+  echo "ERROR: disk type not recognized"
     exit 1
   fi
   echo "INFO: $disk type is $disk_type"
@@ -35,7 +42,9 @@ for disk in $@; do
                 fi
             fi
             ;;
+    "devmapper" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
     "ide" ) MIN_BUF_READ=40;;
+    "mmc" ) MIN_BUF_READ=50;;
     "nvme" ) MIN_BUF_READ=1000;;
     *     ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
   esac

@@ -824,6 +824,13 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(self.count(devices, "FLOPPY"), 0)
 
+    def test_DELL_IDRAC_2(self):
+        # Ignore iDRAC Virtual NIC
+        # See https://bugs.launchpad.net/bugs/1672415
+        devices = self.parse("DELL_IDRAC_2")
+        self.assertEqual(len(devices), 241)
+        self.assertEqual(self.count(devices, "NETWORK"), 4)
+
     def test_DELL_VOSTRO_270(self):
         # Interesting because while its Intel video card has the same PCI
         # vendor/product ID as others (8086:0152) the subvendor_id and

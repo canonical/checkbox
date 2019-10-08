@@ -996,6 +996,17 @@ E: UDEV_LOG=3
         self.assertEqual(devices[45].category, "CAPTURE")
         self.assertTrue(devices[45].path.endswith("video0"))
 
+    def test_RNDIS_AS_USB(self):
+        devices = self.parse("RNDIS")
+        self.assertEqual(len(devices), 226)
+        self.assertEqual(self.count(devices, "USB"), 4)
+        self.assertEqual(self.count(devices, "NETWORK"), 6)
+
+    def test_NO_VIRTUAL_CDROM(self):
+        devices = self.parse("VIRT_CDROM")
+        self.assertEqual(len(devices), 107)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

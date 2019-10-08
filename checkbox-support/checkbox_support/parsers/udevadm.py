@@ -267,6 +267,8 @@ class UdevadmDevice(object):
                     if class_id == Pci.BASE_CLASS_NETWORK:
                         if subclass_id == Pci.CLASS_NETWORK_INFINIBAND:
                             return "INFINIBAND"
+            if self.driver and "rndis" in self.driver:
+                return "USB"
             return "NETWORK"
 
         if self.bus == "bluetooth":

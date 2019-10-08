@@ -1,4 +1,19 @@
 
+id: kernel-snap/force-kernel-extraction
+category_id: kernel-snap
+_summary: Kernel snap contains force-kernel-extraction flag
+_description:
+  In Ubuntu Core 16 & Ubuntu Core 18 images for devices using Full Disk
+  Encryption it is necessary to inform snapd that when a kernel snap is
+  refreshed the kernel image should be extracted and placed in the boot
+  partition.
+flags: simple fail-on-resource
+command: echo "force-kernel-extraction file found in kernel snap"
+imports:
+  from com.canonical.certification import ubuntu_core_features
+requires:
+  ubuntu_core_features.force_kernel_extraction == 'True'
+
 id: kernel-snap/booted-kernel-matches-current
 category_id: kernel-snap
 _summary: The booted kernel image matches image in current kernel snap

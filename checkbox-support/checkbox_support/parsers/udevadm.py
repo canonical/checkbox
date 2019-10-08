@@ -1332,6 +1332,10 @@ class UdevadmParser(object):
                 if md_devices:
                     if device.name in md_devices:
                         self.devices.pop(device._raw_path, None)
+            elif device.category == 'CDROM':
+                # Remove Virtal CDROM devices
+                if not [k for k in device._environment if "ID_CDROM_" in k]:
+                    self.devices.pop(device._raw_path, None)
 
         [result.addDevice(device) for device in self.devices.values()]
 

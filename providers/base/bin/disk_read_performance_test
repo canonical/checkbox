@@ -13,6 +13,12 @@ for disk in $@; do
 
   disk_type=`udevadm info --name /dev/$disk --query property | grep "ID_BUS" | awk '{gsub(/ID_BUS=/," ")}{printf $1}'`
   dev_path=`udevadm info --name /dev/$disk --query property | grep "DEVPATH" | awk '{gsub(/DEVPATH=/," ")}{printf $1}'`
+  if [[ $dev_path =~ nvme ]]; then
+    disk_type="nvme"
+  fi
+  if [ -z "$disk_type" ]; then
+    exit 1
+  fi
   echo "INFO: $disk type is $disk_type"
 
   case $disk_type in
@@ -30,6 +36,7 @@ for disk in $@; do
             fi
             ;;
     "ide" ) MIN_BUF_READ=40;;
+    "nvme" ) MIN_BUF_READ=1000;;
     *     ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
   esac
   echo "INFO: $disk_type: Using $MIN_BUF_READ MB/sec as the minimum throughput speed"
@@ -45,7 +52,7 @@ for disk in $@; do
 
     if [ -z "$speed" ]; then
       echo "WARNING: Device $disk is too small! Aborting test."
-      exit 0
+      exit 1
     fi
 
     speed=${speed/.*}

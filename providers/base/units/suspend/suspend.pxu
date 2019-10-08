@@ -2120,23 +2120,23 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_compiz_check_after_suspend_{product_slug}
+id: suspend/{index}_gl_support_after_suspend_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
-_description: Check that {product} hardware is able to run compiz after suspend
-_summary: Test Compiz support for {product} after suspend
+_description: Check that {product} hardware is able to run a desktop session (OpenGL) after suspend
+_summary: Test OpenGL support for {product} after suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/compiz_check_after_suspend
+id: suspend/gl_support_after_suspend
 depends: suspend/suspend_advanced
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
-_description: Check that the hardware is able to run compiz after suspend
-_summary: Test Compiz support after suspend
+_description: Check that the hardware is able to run a desktop session (OpenGL)
+_summary: Test OpenGL support after suspend
 
 unit: template
 template-resource: graphics_card

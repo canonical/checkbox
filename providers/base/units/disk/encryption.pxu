@@ -38,11 +38,11 @@ _purpose:
  partition.
 _steps:
  1. Install the image and make sure it boots and you can log in.
- 2. Turn the device off and upgrade/downgrade the BIOS
+ 2. Turn the device off and upgrade/downgrade the BIOS or modify Secure Boot state
  3. Make sure the BIOS is set up properly (e.g. TPM enabled, UEFI boot mode)
  4. Start the device
 _verification:
  Mark this test as "Passed" if the device cannot boot anymore.
- Note: You must flash the BIOS back to the latest version and re-install the
- image afterwards.
+ Note: You must flash the BIOS back to the latest version, re-enable Secure Boot
+ and re-install the image afterwards.
 

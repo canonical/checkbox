@@ -17,9 +17,10 @@
 
 import os
 
+from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
+
 # Supported bootloaders and detected files taken from:
 # https://github.com/snapcore/snapd/blob/master/bootloader/bootloader.go
-
 # name = [root dir, config file]
 bootloaders = {
     'uboot': ['/boot/uboot', 'uboot.env'],
@@ -36,7 +37,31 @@ def detect_bootloader():
     return 'unknown'
 
 
+def booted_kernel_location(bl_name):
+    path = 'unknown'
+    type = 'unknown'
+    if bl_name == 'uboot':
+        pass
+    if bl_name == 'grub':
+        # what about force-kernel-extract true/false ?
+        type = 'fs'
+        with open('/proc/cmdline', 'r') as f:
+            cmdline = f.readline()
+        result = parse_kernel_cmdline(cmdline)
+        grub_path = result.params['BOOT_IMAGE']
+        path = os.path.join('/boot/efi', grub_path[grub_path.index(')')+2:])
+    if bl_name == 'androidboot':
+        pass
+    if bl_name == 'lk':
+        # get partlabel of actiave boot partition using `lk-boot-env -r`
+        type = 'raw'
+    return (path, type)
+
+
 if __name__ == "__main__":
     bl_name = detect_bootloader()
     print('name: {}'.format(bl_name))
+    path, type = booted_kernel_location(bl_name)
+    print('booted-kernel-path: {}'.format(path))
+    print('booted-kernel-partition-type: {}'.format(type))
     print()

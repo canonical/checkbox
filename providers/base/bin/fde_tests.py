@@ -28,7 +28,10 @@ def main():
     base_mount = '/' if on_desktop else '/writable'
 
     # discover the underlying mount point for the encrypted part
-    cmd = 'findmnt {} -n -o SOURCE'.format(base_mount)
+    if on_desktop:
+        cmd = 'findmnt {} -n -o SOURCE'.format(base_mount)
+    else:
+        cmd = 'findfs LABEL=writable'
     print('+ {}'.format(cmd))
     try:
         source = sp.check_output(cmd, shell=True).decode(

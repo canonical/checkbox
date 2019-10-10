@@ -291,6 +291,30 @@ parts:
     python-packages:
       - RPi.GPIO
 ################################################################################
+  lk-boot-env:
+    plugin: nil
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      wget https://github.com/snapcore/snapd/raw/master/include/lk/snappy_boot_v1.h
+      wget https://raw.githubusercontent.com/kubiko/if6640-gadget/18/snap-boot-sel/lk-boot-env.c
+    build-packages:
+      - wget
+      - on amd64 to armhf:
+        - gcc-arm-linux-gnueabihf:amd64
+      - on amd64 to arm64:
+        - gcc-aarch64-linux-gnu:amd64
+    override-build: |
+      mkdir -p ${SNAPCRAFT_PART_INSTALL}/bin
+      if [ "${SNAPCRAFT_ARCH_TRIPLET}" = "arm-linux-gnueabihf" ]; then
+          arm-linux-gnueabihf-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
+      elif [ "${SNAPCRAFT_ARCH_TRIPLET}" = "aarch64-linux-gnu" ]; then
+          aarch64-linux-gnu-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
+      else
+          # native build
+          gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
+      fi
+################################################################################
   tpm2-tss:
     plugin: autotools
     source: https://github.com/tpm2-software/tpm2-tss

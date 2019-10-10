@@ -31,6 +31,9 @@ def find_largest_partition(device):
     blk_devs = [BlkDev(*p.strip().split())
                 for p in out.decode(sys.stdout.encoding).splitlines()]
     blk_devs[:] = [bd for bd in blk_devs if bd.type == 'part']
+    if not blk_devs:
+        raise SystemExit(
+            'ERROR: No partitions found on device {}'.format(device))
     blk_devs.sort(key=lambda bd: int(bd.size))
     return blk_devs[-1].name
 

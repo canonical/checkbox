@@ -74,6 +74,8 @@ setup(
              "_info_attachment_output"),
             ("bto=checkbox_support.parsers.image_info:parse_bto_attachment"
              "_output"),
+            ("kernelcmdline=checkbox_support.parsers.kernel_cmdline:parse"
+             "_kernel_cmdline"),
         ],
         'console_scripts': [
             ("checkbox-support-run_watcher="

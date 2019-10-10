@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2019 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -14,10 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+import io
+
+
+class KernelCmdlineResult():
+
+    def __init__(self):
+        self.flags = []
+        self.params = {}
+
+    def addFlag(self, flag):
+        self.flags.append(flag)
+
+    def addParam(self, name, val):
+        self.params[name] = val
 
 
 class KernelCmdlineParser(object):
@@ -34,4 +44,17 @@ class KernelCmdlineParser(object):
         with the first line
         """
         line = self.stream.readline().strip()
-        result.setKernelCmdline(line)
+        for entry in line.split():
+            if '=' in entry:
+                for name in entry.split('=')[:-1]:
+                    result.addParam(name, entry.split('=')[-1])
+                continue
+            result.addFlag(entry)
+
+
+def parse_kernel_cmdline(cmdline):
+    stream = io.StringIO(cmdline)
+    parser = KernelCmdlineParser(stream)
+    result = KernelCmdlineResult()
+    parser.run(result)
+    return result

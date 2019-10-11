@@ -571,14 +571,13 @@ class TestPlanBrowser():
         # Body
         self.radio_button_group = []
         self.button_pile = None
+        self._preselected_tp = selection
         self._update_button_pile(self.master_list)
         listbox_content = [
             urwid.Divider(),
             urwid.Padding(self.button_pile, left=4, right=3, min_width=13),
             urwid.Divider(),
         ]
-        if selection:
-            self.radio_button_group[selection].set_state(True)
         self.listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
         # Footer
         self.default_footer = urwid.AttrWrap(urwid.Columns(
@@ -610,6 +609,11 @@ class TestPlanBrowser():
                 self.button_pile = urwid.Pile(contents)
             else:
                 self.button_pile.widget_list[:] = contents
+            if self._preselected_tp:
+                for index, tp in enumerate(tplist):
+                    if tp['id'] == self._preselected_tp:
+                        self.radio_button_group[index].set_state(True)
+                        break
 
     def unhandled_input(self, key):
         if self.loop.widget == self.frame:
@@ -620,6 +624,7 @@ class TestPlanBrowser():
                     self.filtering = False
                 elif key in ('enter'):
                     filter_str = self.filter_footer.get_edit_text()
+                    self.radio_button_group = []
                     if filter_str == '':
                         self._update_button_pile(self.master_list)
                     else:

@@ -414,17 +414,9 @@ class Launcher(Command, MainLoopStage, ReportsStage):
         if not tp_info_list:
             print(self.C.RED(_("There were no test plans to select from!")))
             return
-        preselected_index = None
-        if self.launcher.test_plan_default_selection:
-            for index, tp_proxy in enumerate(tp_info_list):
-                if tp_proxy['id'] == self.launcher.test_plan_default_selection:
-                    preselected_index = index
-                    break
-            else:
-                _logger.warning(_('%s test plan not found'),
-                    self.launcher.test_plan_default_selection)
         selected_tp = TestPlanBrowser(
-            _("Select test plan"), tp_info_list, preselected_index).run()
+            _("Select test plan"), tp_info_list,
+            self.launcher.test_plan_default_selection).run()
         return selected_tp
 
     def _pick_jobs_to_run(self):

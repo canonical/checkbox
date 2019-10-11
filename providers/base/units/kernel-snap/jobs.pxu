@@ -14,7 +14,9 @@ imports:
 requires:
   ubuntu_core_features.force_kernel_extraction == 'True'
 
-id: kernel-snap/booted-kernel-matches-current
+unit: template
+template-resource: bootloader
+id: kernel-snap/booted-kernel-matches-current-{name}
 category_id: kernel-snap
 _summary: The booted kernel image matches image in current kernel snap
 _description:
@@ -25,7 +27,7 @@ plugin: shell
 user: root
 estimated_duration: 2.0
 command: 
-  booted_kernel_tests.py
+  booted_kernel_tests.py {booted-kernel-path}
 imports:
   from com.canonical.certification import ubuntu_core_features
 requires:

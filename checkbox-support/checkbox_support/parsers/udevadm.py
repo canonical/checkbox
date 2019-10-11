@@ -1082,6 +1082,11 @@ class UdevadmParser(object):
         if not device.bus:
             return True
 
+        # Ignore virtual devices created by Dell iDRAC manager
+        # See pad.lv/1308702 and pad.lv/1672415
+        if device.vendor == "iDRAC" or device.interface == "idrac":
+            return True
+
         # Do not ignore devices with bus == net and ID_NET_NAME_MAC
         # These can be virtual network interfaces which don't have PCI
         # product/vendor ID, yet still constitute valid ethX interfaces.
@@ -1135,11 +1140,6 @@ class UdevadmParser(object):
 
         # Ignore ACPI devices
         if device.bus == "acpi":
-            return True
-
-        # Ignore virtual devices created by Dell iDRAC manager
-        # See pad.lv/1308702
-        if device.vendor == "iDRAC":
             return True
 
         # Ignore virtual devices created by Cisco CIMC manager

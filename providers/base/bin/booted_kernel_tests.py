@@ -6,21 +6,13 @@
 #   Jonathan Cave <jonathan.cave@canonical.com>
 
 import hashlib
+import os
 import sys
 
 from checkbox_support.snap_utils.system import get_kernel_snap
-from checkbox_support.snap_utils.system import get_bootloader
 
 # 64kb buffer, hopefully suitable for all devices that might run this test
 BUF_SIZE = 65536
-
-
-def get_running_kernel_path():
-    bootloader = get_bootloader()
-    if bootloader is None:
-        raise SystemExit('ERROR: failed to get bootloader')
-    path = '/boot/{}/kernel.img'.format(bootloader)
-    return path
 
 
 def get_snap_kernel_path():
@@ -42,15 +34,28 @@ def get_hash(path):
     return sha1.hexdigest()
 
 
-def kernel_matches_current():
-    rh = get_hash(get_running_kernel_path())
+def kernel_matches_current(booted_kernel_image):
+    rh = get_hash(booted_kernel_image)
     print('Running kernel hash:\n', rh, '\n')
-    sh = get_hash(get_snap_kernel_path())
+    snap_kernel_image = get_snap_kernel_path()
+    print('Snap kernel image: {}'.format(snap_kernel_image))
+    sh = get_hash(snap_kernel_image)
     print('Current kernel snap hash:\n', sh, '\n')
     if rh != sh:
+        print('ERROR: hashes do not match')
         return 1
+    print('Hashes match')
     return 0
 
 
 if __name__ == '__main__':
-    sys.exit(kernel_matches_current())
+    if len(sys.argv) != 2:
+        raise SystemExit('ERROR: please specify the path to booted kerenl')
+    booted_kernel_image = sys.argv[1]
+
+    print('Supplied booted kernel image: {}'.format(booted_kernel_image))
+
+    if not os.path.exists(booted_kernel_image):
+        raise SystemExit('ERROR: invalid path to booted kernel supplied')
+
+    sys.exit(kernel_matches_current(booted_kernel_image))

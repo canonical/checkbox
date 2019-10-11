@@ -445,3 +445,13 @@ estimated_duration: 2.0
 user: root
 command:
   net_if_management.py
+
+id: bootloader
+_summary: Detect which bootloader is used on the device
+_description:
+ Apply a simple heuristic to determine the bootloader that is used on the
+ device. This can help identify what boot security systems might be used.
+plugin: resource
+estimated_duration: 1.0
+command:
+  bootloader_resource.py

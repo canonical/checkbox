@@ -453,5 +453,6 @@ _description:
  device. This can help identify what boot security systems might be used.
 plugin: resource
 estimated_duration: 1.0
+user: root
 command:
   bootloader_resource.py

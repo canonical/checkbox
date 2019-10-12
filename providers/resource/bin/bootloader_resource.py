@@ -16,6 +16,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
+import subprocess as sp
 
 from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
 
@@ -42,7 +44,7 @@ def booted_kernel_location(bl_name):
     type = 'unknown'
     if bl_name == 'uboot':
         pass
-    if bl_name == 'grub':
+    elif bl_name == 'grub':
         # what about force-kernel-extract true/false ?
         type = 'fs'
         with open('/proc/cmdline', 'r') as f:
@@ -50,10 +52,25 @@ def booted_kernel_location(bl_name):
         result = parse_kernel_cmdline(cmdline)
         grub_path = result.params['BOOT_IMAGE']
         path = os.path.join('/boot/efi', grub_path[grub_path.index(')')+2:])
-    if bl_name == 'androidboot':
+    elif bl_name == 'androidboot':
         pass
-    if bl_name == 'lk':
-        # get partlabel of actiave boot partition using `lk-boot-env -r`
+    elif bl_name == 'lk':
+        with open('/proc/cmdline', 'r') as f:
+            cmdline = f.readline()
+        result = parse_kernel_cmdline(cmdline)
+        snap_kernel = result.params['snap_kernel']
+        # get the bootimg matrix using `lk-boot-env -r`
+        try:
+            snap_boot_selection = sp.run(
+                ['lk-boot-env', '-r', os.path.join(*bootloaders['lk'])],
+                check=True, stdout=sp.PIPE).stdout.decode()
+            match = re.search(
+                'bootimg_matrix\s+\[(.*?)\]\[{}\]'.format(snap_kernel),
+                snap_boot_selection, re.M)
+            if match:
+                path = os.path.join(bootloaders['lk'][0], match.group(1))
+        except FileNotFoundError:
+            path = 'unknown'
         type = 'raw'
     return (path, type)
 

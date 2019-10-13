@@ -20,7 +20,7 @@ id: kernel-snap/booted-kernel-matches-current-{name}
 category_id: kernel-snap
 _summary: The booted kernel image matches image in current kernel snap
 _description:
-  On some Ubuntu Core deviecs it is necessary for the kernel image to be
+  On some Ubuntu Core devices it is necessary for the kernel image to be
   extracted from the kernel snap and placed in the boot partition (notably 
   device using full disk encryption). This checks the images are in sync.
 plugin: shell

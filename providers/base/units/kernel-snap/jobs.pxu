@@ -27,7 +27,7 @@ plugin: shell
 user: root
 estimated_duration: 2.0
 command: 
-  booted_kernel_tests.py {booted-kernel-path}
+  booted_kernel_tests.py {booted_kernel_path}
 imports:
   from com.canonical.certification import ubuntu_core_features
 requires:

@@ -160,6 +160,7 @@ id: miscellanea/secure_boot_mode_{gadget}
 _summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active
 _description:
  Test to verify that the system booted with Secure Boot active.
+user:root
 command:
  boot_mode_test_snappy.py {gadget} {kernel}
 

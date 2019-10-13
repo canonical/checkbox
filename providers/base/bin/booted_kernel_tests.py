@@ -50,7 +50,7 @@ def kernel_matches_current(booted_kernel_image):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        raise SystemExit('ERROR: please specify the path to booted kerenl')
+        raise SystemExit('ERROR: please specify the path to booted kernel')
     booted_kernel_image = sys.argv[1]
 
     print('Supplied booted kernel image: {}'.format(booted_kernel_image))

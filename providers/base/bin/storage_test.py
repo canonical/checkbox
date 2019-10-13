@@ -81,7 +81,7 @@ def run_bonnie(test_dir, user='root'):
     free = free_space(test_dir)
     print('{}MB of free space avaialble'.format(free))
     if (force_mem_mb * 2) > free:
-        force_mem_mb = free / 2
+        force_mem_mb = free / 4
     print('Forcing memory setting to {}MB'.format(force_mem_mb))
     cmd = 'bonnie++ -d {} -u {} -r {}'.format(test_dir, user, force_mem_mb)
     print('+', cmd, flush=True)

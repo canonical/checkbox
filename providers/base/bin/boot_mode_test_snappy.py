@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
-# Copyright 2018 Canonical Ltd.
+# Copyright 2018-2019 Canonical Ltd.
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 
 import io
 import os
 import re
+import shutil
 import sys
 import subprocess as sp
+import tempfile
 
 import yaml
+
+from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
+from checkbox_support.snap_utils.system import get_lk_bootimg_path
 
 
 def fitdumpimage(filename):
@@ -26,8 +32,9 @@ def fitdumpimage(filename):
 
     # from then on should get blocks of text describing the objects that were
     # combined in to the FIT image e.g. kernel, ramdisk, device tree
-    image_re = re.compile(r'(?:^\ Image)\ \d+\ \((\S+)\)$')
-    config_re = re.compile(r'^\ Default Configuration|^\ Configuration')
+    image_config_re = re.compile(
+        r'(?:^\ Image|Configuration)\ \d+\ \((\S+)\)$')
+    configuration_re = re.compile(r'^\ Default Configuration')
     objects = {}
     name = ''
     while True:
@@ -36,16 +43,16 @@ def fitdumpimage(filename):
         if line == '':
             break
         # interested in storing image information
-        match = image_re.search(line)
+        match = image_config_re.search(line)
         if match:
             name = match.group(1)
             objects[name] = {}
             continue
-        # not interested in configurations
-        if config_re.search(line):
+        # not interested in the default configuration
+        if configuration_re.search(line):
             name = ''
             continue
-        # while in an image section store the info
+        # while in an image/config section store the info
         if name != '':
             entries = [s.strip() for s in line.split(':', 1)]
             objects[name][entries[0]] = entries[1]
@@ -71,7 +78,7 @@ def main():
     if not bootloader:
         raise SystemExit('ERROR: could not find name of bootloader')
 
-    if bootloader not in ('u-boot', 'grub'):
+    if bootloader not in ('u-boot', 'grub', 'lk'):
         raise SystemExit(
             'ERROR: Unexpected bootloader name {}'.format(bootloader))
     print('Bootloader is {}\n'.format(bootloader))
@@ -86,6 +93,8 @@ def main():
         boot_objects = fitdumpimage(boot_kernel)
 
         for obj, attrs in boot_objects.items():
+            if obj == 'conf':
+                continue
             print('Checking object {}'.format(obj))
             if 'Sign value' not in attrs:
                 raise SystemExit('ERROR: no sign value found for object')
@@ -107,6 +116,47 @@ def main():
             raise SystemExit(
                 'ERROR: boot kernel and current snap kernel do not match')
         print('Kernel images in current snap and u-boot match\n')
+
+        print('Secure Boot appears to be enabled on this system')
+
+    if bootloader == 'lk':
+        bootimg_path = get_lk_bootimg_path()
+        if bootimg_path == 'unknown':
+            raise SystemExit('ERROR: lk-boot-env not found')
+
+        # XXX: Assuming FIT format
+        bootimg = os.path.basename(bootimg_path)
+        print('Parsing FIT image information ({})...\n'.format(bootimg))
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            shutil.copy2(bootimg_path, tmpdirname)
+            boot_kernel = os.path.join(tmpdirname, bootimg)
+            boot_objects = fitdumpimage(boot_kernel)
+
+        for obj, attrs in boot_objects.items():
+            if obj != 'conf':
+                continue
+            print('Checking object {}'.format(obj))
+            if 'Sign value' not in attrs:
+                raise SystemExit('ERROR: no sign value found for object')
+            print('Found "Sign value"')
+            if len(attrs['Sign value']) != 512:
+                raise SystemExit('ERROR: unexpected sign value size')
+            if all(s in attrs['Sign algo'] for s in ['sha256', 'rsa2048']):
+                print('Found expected signing algorithms')
+            else:
+                raise SystemExit(
+                    'ERROR: unexpected signing algorithms {}'.format(
+                        attrs['Sign algo']))
+            print()
+
+        # check that all parts of the fit image have
+        snap_kernel = '/snap/{}/current/boot.img'.format(kernel)
+        snap_objects = fitdumpimage(snap_kernel)
+        if snap_objects != boot_objects:
+            raise SystemExit(
+                'ERROR: boot kernel and current snap kernel do not match')
+        print('Kernel images in current snap and lk snapbootsel match\n')
 
         print('Secure Boot appears to be enabled on this system')
 

@@ -5,8 +5,12 @@
 #    Jonathan Cave <jonathan.cave@canonical.com>
 
 import io
+import os
+import re
+import subprocess as sp
 import yaml
 
+from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
 from checkbox_support.snap_utils.snapd import Snapd
 
 
@@ -52,3 +56,23 @@ def get_bootloader():
         for k in data['volumes'].keys():
             bootloader = data['volumes'][k]['bootloader']
     return bootloader
+
+
+def get_lk_bootimg_path():
+    with open('/proc/cmdline', 'r') as f:
+        cmdline = f.readline()
+    result = parse_kernel_cmdline(cmdline)
+    try:
+        snap_kernel = result.params['snap_kernel']
+        # get the bootimg matrix using `lk-boot-env -r`
+        snap_boot_selection = sp.run(
+            ['lk-boot-env', '-r', '/dev/disk/by-partlabel/snapbootsel'],
+            check=True, stdout=sp.PIPE).stdout.decode()
+        match = re.search(
+            'bootimg_matrix\s+\[(.*?)\]\[{}\]'.format(snap_kernel),
+            snap_boot_selection, re.M)
+        if match:
+            path = os.path.join('/dev/disk/by-partlabel', match.group(1))
+    except (KeyError, AttributeError, FileNotFoundError):
+        path = 'unknown'
+    return path

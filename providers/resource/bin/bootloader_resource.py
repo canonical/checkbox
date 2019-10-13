@@ -20,6 +20,7 @@ import re
 import subprocess as sp
 
 from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
+from checkbox_support.snap_utils.system import get_lk_bootimg_path
 
 # Supported bootloaders and detected files taken from:
 # https://github.com/snapcore/snapd/blob/master/bootloader/bootloader.go
@@ -55,23 +56,8 @@ def booted_kernel_location(bl_name):
     elif bl_name == 'androidboot':
         pass
     elif bl_name == 'lk':
-        with open('/proc/cmdline', 'r') as f:
-            cmdline = f.readline()
-        result = parse_kernel_cmdline(cmdline)
-        snap_kernel = result.params['snap_kernel']
-        # get the bootimg matrix using `lk-boot-env -r`
-        try:
-            snap_boot_selection = sp.run(
-                ['lk-boot-env', '-r', os.path.join(*bootloaders['lk'])],
-                check=True, stdout=sp.PIPE).stdout.decode()
-            match = re.search(
-                'bootimg_matrix\s+\[(.*?)\]\[{}\]'.format(snap_kernel),
-                snap_boot_selection, re.M)
-            if match:
-                path = os.path.join(bootloaders['lk'][0], match.group(1))
-        except FileNotFoundError:
-            path = 'unknown'
         type = 'raw'
+        path = get_lk_bootimg_path()
     return (path, type)
 
 
@@ -79,6 +65,6 @@ if __name__ == "__main__":
     bl_name = detect_bootloader()
     print('name: {}'.format(bl_name))
     path, type = booted_kernel_location(bl_name)
-    print('booted-kernel-path: {}'.format(path))
-    print('booted-kernel-partition-type: {}'.format(type))
+    print('booted_kernel_path: {}'.format(path))
+    print('booted_kernel_partition_type: {}'.format(type))
     print()

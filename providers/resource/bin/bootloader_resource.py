@@ -65,6 +65,6 @@ if __name__ == "__main__":
     bl_name = detect_bootloader()
     print('name: {}'.format(bl_name))
     path, type = booted_kernel_location(bl_name)
-    print('booted-kernel-path: {}'.format(path))
-    print('booted-kernel-partition-type: {}'.format(type))
+    print('booted_kernel_path: {}'.format(path))
+    print('booted_kernel_partition_type: {}'.format(type))
     print()

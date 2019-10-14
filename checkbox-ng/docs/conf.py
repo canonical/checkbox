@@ -77,7 +77,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Checkbox'
-copyright = '2013-2017, Checkbox Developers'
+copyright = '2013-2019, Checkbox Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

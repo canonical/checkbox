@@ -6,10 +6,10 @@ Side-loading Providers
 If you want to create a new job, or tweak an existing one without a need
 to repackage the provider or the snap, you can use side-loaded providers.
 
-If the path ``/var/tmp/checkbox-proviers`` exists, Checkbox will load providers
-from that path. If any given provider has the same namespace and the same name
-as an existing (installed or supplied with the same snap) provider, only the
-side-loaded one will be used.
+If the path ``/var/tmp/checkbox-providers`` exists, Checkbox will load
+providers from that path. If any given provider has the same namespace and the
+same name as an existing (installed or supplied with the same snap) provider,
+only the side-loaded one will be used.
 
 You may override as many providers as you find necessary. There's also no limit
 on the number of new providers supplied with side-loading.

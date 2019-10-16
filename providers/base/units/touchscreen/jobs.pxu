@@ -197,3 +197,98 @@ command:
     {% endif %}
     exit $EXIT
 flags: also-after-suspend-manual
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that single-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with one finger.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 1
+flags: also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that 2-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with 2 fingers simultaneously.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 2
+flags: also-after-suspend
+after: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/3-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that 3-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with 34 fingers simultaneously.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 3
+flags: also-after-suspend
+after: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/4-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that 4-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with 4 fingers simultaneously.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 4
+flags: also-after-suspend
+after: touchscreen/evdev/3-touch-tap-{{ product_slug }}

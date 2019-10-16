@@ -75,3 +75,23 @@ include:
     after-suspend-manual-touchscreen/multitouch-zoom    certification-status=blocker
     after-suspend-manual-touchscreen/3-touch-tap        certification-status=blocker
     after-suspend-manual-touchscreen/4-touch-tap        certification-status=blocker
+
+id: touchscreen-evdev
+unit: test plan
+_name: Touchscreen evdev tests
+_description:
+ Touchscreen evdev tests
+include:
+ touchscreen/evdev.*
+bootstrap_include:
+    device
+
+id: after-suspend-touchscreen-evdev
+unit: test plan
+_name: Touchscreen evdev tests
+_description:
+ Touchscreen evdev tests
+include:
+ after-suspend-touchscreen/evdev.*
+bootstrap_include:
+    device

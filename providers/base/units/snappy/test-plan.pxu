@@ -85,20 +85,12 @@ bootstrap_include:
 
 id: snappy-snap-automated-lightweight
 unit: test plan
-_name: Automated tests for snap command lightweight
+_name: Automated tests for snap command (lightweight version)
 _description:
- QA test plan that includes automated tests for the snap command for OEM classic
- Ubuntu Core devices.
+ QA test plan that includes automated tests for the snap command for OEM classic devices.
 estimated_duration: 1m
 include:
-    snappy/snap-list
-    snappy/snap-search
-    snappy/snap-install
-    snappy/snap-refresh-automated
-    snappy/snap-revert-automated
-    snappy/snap-reupdate-automated
-    snappy/snap-remove
-mandatory_include:
-    snap
-bootstrap_include:
-    model_assertion
+exclude:
+    snappy/test-store.*
+nested_part:
+    snappy-snap-automated

@@ -8,3 +8,4 @@ mandatory_include:
     miscellanea/device_check
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources
+    info/systemd-analyze

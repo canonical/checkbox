@@ -17,7 +17,7 @@ Build-Depends: autoconf,
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/plainbox-provider-ipdt
 
-Package: plainbbox-provider-ipdt
+Package: plainbox-provider-ipdt
 Architecture: all
 Depends: apt-file,
          autoconf,

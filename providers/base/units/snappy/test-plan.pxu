@@ -82,3 +82,15 @@ mandatory_include:
     snap
 bootstrap_include:
     model_assertion
+
+id: snappy-snap-automated-lightweight
+unit: test plan
+_name: Automated tests for snap command (lightweight version)
+_description:
+ QA test plan that includes automated tests for the snap command for OEM classic devices.
+estimated_duration: 1m
+include:
+exclude:
+    snappy/test-store.*
+nested_part:
+    snappy-snap-automated

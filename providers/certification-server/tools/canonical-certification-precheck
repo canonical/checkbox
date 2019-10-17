@@ -291,6 +291,24 @@ else
 fi
 }
 
+# Download a KVM image, if it's on a remote host, and change $kvmurl to match.
+KVM_Image_Download() {
+kvm_dl_status=0
+if [[ "$kvmurl" =~ ^http://.* ]] ; then
+    local kvmlocal="/tmp/${kvmurl##*/}"
+    rm -f "$kvmlocal"
+    wget "$kvmurl" -O "$kvmlocal" 2>&1
+    if [ $? = "0" ]; then
+        kvmurl=$kvmlocal
+        # Since we've just downloaded it, use the local version....
+        sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvmlocal,g" /etc/xdg/canonical-certification.conf
+    else
+        kvm_dl_status=1
+    fi
+fi
+return $kvm_dl_status
+}
+
 # Check local availability of KVM image or pull from Internet, which tends to be slow
 KVM_Image_Check(){
 name="KVM Image Check"
@@ -298,6 +316,7 @@ echoname
 if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
     kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
     if [[ "$kvmurl" =~ .*\.img$ ]] ; then
+        KVM_Image_Download
         /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
         if [ $? = "0" ]; then
             echo -e " $kvmurl is a valid image.\n Continuing to use this image"
@@ -310,6 +329,7 @@ if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
                 read -e -p " Enter the path of your KVM Image: " kvm
                 sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
                 kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                KVM_Image_Download
                 /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
                 if [ $? = "0" ]; then
                     echo -e " $kvmurl is a valid image.\n Continuing to use this image"

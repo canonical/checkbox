@@ -44,8 +44,6 @@ echo "*  Adding nVidia package repository"
 
 OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
 
-read -p "About to install $OSRELEASE [Y/n]: " foo
-
 wget https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64/cuda-$OSRELEASE.pin
 mv cuda-$OSRELEASE.pin /etc/apt/preferences.d/cuda-repository-pin-600
 # Ran into a case where the 16.04 repo uses http while 18.04 uses https :/
@@ -77,5 +75,5 @@ cd $GPU_BURN_DIR
 echo "*  Building gpu-burn"
 make && echo "*  Build completed..."
 echo "*"
-echo "*  Completed installatiion. Please reboot the machine now"
+echo "*  Completed installation. Please reboot the machine now"
 echo "*  to load the nVidia proprietary drivers"

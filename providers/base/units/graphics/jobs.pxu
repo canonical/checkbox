@@ -525,3 +525,16 @@ command:
  {switch_to_cmd}
  pm_test --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 flags: noreturn preserve-locale also-after-suspend
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/nvlink-status-check
+requires:
+ dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
+ graphics_card.driver == 'nvidia'
+ package.name == 'nvidia-smi'
+command: nvidia_nvlink_check
+_summary: Check NVIDIA NVLINK status
+_description: Check NVLINK are supported and NVLINK are connected properly on system, please make sure below items before testing:
+    1. More than one NVIDIA Graphic card are installed.
+    2. Each graphic card are connected by NVLINK.

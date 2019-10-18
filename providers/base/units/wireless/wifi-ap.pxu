@@ -1,6 +1,6 @@
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_a_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -29,7 +29,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_a_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -71,7 +71,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_b_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -100,7 +100,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_b_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -142,7 +142,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_g_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -171,7 +171,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_g_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -213,7 +213,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_ad_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -242,7 +242,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_ad_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -284,7 +284,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -314,7 +314,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -357,7 +357,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -387,7 +387,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -430,7 +430,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -460,7 +460,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -503,7 +503,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_no_sta_{interface}_manual
 category_id: wifi_ap
@@ -533,7 +533,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_no_sta_{interface}_auto
 category_id: wifi_ap
@@ -576,7 +576,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_with_sta_{interface}
 category_id: wifi_ap
@@ -615,7 +615,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_with_sta_{interface}_auto
 category_id: wifi_ap
@@ -664,7 +664,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_with_sta_{interface}
 category_id: wifi_ap
@@ -703,7 +703,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_with_sta_{interface}_auto
 category_id: wifi_ap
@@ -752,7 +752,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_with_sta_{interface}
 category_id: wifi_ap
@@ -791,7 +791,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_with_sta_{interface}_auto
 category_id: wifi_ap
@@ -840,7 +840,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_with_sta_{interface}
 category_id: wifi_ap
@@ -879,7 +879,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_with_sta_{interface}_auto
 category_id: wifi_ap
@@ -928,7 +928,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_setup_wizard_{interface}_auto
 category_id: wifi_ap
@@ -959,7 +959,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_setup
 category_id: wifi_ap
@@ -991,7 +991,7 @@ flags: preserve-locale noreturn autorestart
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_setup_manual
 category_id: wifi_ap
@@ -1025,7 +1025,7 @@ flags: preserve-locale noreturn
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_check
 category_id: wifi_ap
@@ -1057,7 +1057,7 @@ flags: preserve-locale
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_check_manual
 category_id: wifi_ap

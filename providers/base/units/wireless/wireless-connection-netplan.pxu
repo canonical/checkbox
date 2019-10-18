@@ -1,6 +1,6 @@
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ax_np_{{ interface }}
@@ -24,7 +24,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ac_np_{{ interface }}
@@ -49,7 +49,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_bg_np_{{ interface }}
@@ -72,7 +72,7 @@ flags: preserve-locale also-after-suspend also-after-suspend-manual
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_n_np_{{ interface }}
@@ -95,7 +95,7 @@ flags: preserve-locale also-after-suspend also-after-suspend-manual
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ax_np_{{ interface }}
@@ -119,7 +119,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ac_np_{{ interface }}
@@ -143,7 +143,7 @@ requires:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_bg_np_{{ interface }}
@@ -166,7 +166,7 @@ flags: preserve-locale also-after-suspend also-after-suspend-manual
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_n_np_{{ interface }}

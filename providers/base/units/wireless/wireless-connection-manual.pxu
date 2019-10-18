@@ -1,6 +1,6 @@
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_open_ax_{interface}
 _summary: Connect to unencrypted 802.11ax Wi-Fi network on {interface}
@@ -21,7 +21,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_open_ac_{interface}
 _summary: Connect to unencrypted 802.11ac Wi-Fi network on {interface}
@@ -42,7 +42,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_open_bg_{interface}
 _summary: Connect to unencrypted 802.11b/g Wi-Fi network on {interface}
@@ -63,7 +63,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_open_n_{interface}
 _summary: Connect to unencrypted 802.11n Wi-Fi network on {interface}
@@ -84,7 +84,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_wpa_ax_{interface}
 _summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {interface}
@@ -105,7 +105,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_wpa_ac_{interface}
 _summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {interface}
@@ -126,7 +126,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_wpa_bg_{interface}
 _summary: Connect to WPA-encrypted 802.11b/g Wi-Fi network {interface}
@@ -147,7 +147,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_wpa_n_{interface}
 _summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {interface}
@@ -168,7 +168,7 @@ flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
-template-filter: device.category == 'WIRELESS'
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 plugin: shell

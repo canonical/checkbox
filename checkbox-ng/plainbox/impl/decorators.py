@@ -95,7 +95,7 @@ class UndocumentedException(TypeError):
             self.exc_cls.__name__)
 
 
-def raises(*exc_cls_list: Exception):
+def raises(*exc_cls_list: BaseException):
     """
     Declare possible exceptions from a callable
 
@@ -119,7 +119,7 @@ def raises(*exc_cls_list: Exception):
        valued) which contains the list of exceptions that may be raised.
     """
     for exc_cls in exc_cls_list:
-        if not isinstance(exc_cls, type) or not issubclass(exc_cls, Exception):
+        if not isinstance(exc_cls, type) or not issubclass(exc_cls, BaseException):
             raise TypeError("All arguments must be exceptions")
 
     def decorator(func):
@@ -134,7 +134,7 @@ def raises(*exc_cls_list: Exception):
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except Exception as exc:
+            except BaseException as exc:
                 if not isinstance(exc, exc_cls_list):
                     _bug_logger.error(
                         "Undeclared exception %s raised from %s",

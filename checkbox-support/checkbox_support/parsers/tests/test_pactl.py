@@ -420,6 +420,14 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.value[0].priority, 5800)
         self.assertEqual(attr.value[0].availability, 'available')
 
+    def test_active_port_with_prefix(self):
+        attr = self.assertParses(
+            pactl.GenericSimpleAttribute.Syntax, (
+                'Active Port: [In] Dmic')
+        )['attribute']
+        self.assertEqual(attr.name, 'Active Port')
+        self.assertEqual(attr.value, 'Dmic')
+
     def test_many_ports(self):
         attr = self.assertParses(
             pactl.GenericListAttribute.Syntax, (

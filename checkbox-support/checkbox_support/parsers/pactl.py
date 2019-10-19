@@ -360,6 +360,16 @@ class PortWithProfile(Node):
 AttributeName = p.Regex("[a-zA-Z][^:\n]+").setResultsName("attribute-name")
 
 
+ActivePortAttributeValue = (
+    p.Combine(
+        p.Or([p.Literal('[Out] '), p.Literal('[In] ')]).suppress()
+        + p.Regex("[^\n]*")
+        + p.LineEnd().suppress(),
+        adjacent=False
+    ).setResultsName("attribute-value")
+)
+
+
 VolumeAttributeValue = (
     p.Combine(
         p.Or([
@@ -410,6 +420,7 @@ SimpleAttributeValue = (
 
 # simple values
 GenericSimpleAttributeValue = p.MatchFirst([
+    ActivePortAttributeValue,
     VolumeAttributeValue,
     BaseVolumeAttributeValue,
     SimpleAttributeValue,

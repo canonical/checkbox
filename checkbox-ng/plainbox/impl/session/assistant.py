@@ -44,9 +44,11 @@ from plainbox.impl.decorators import raises
 from plainbox.impl.developer import UnexpectedMethodCall
 from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.execution import UnifiedRunner
+from plainbox.impl.providers import get_providers
+from plainbox.impl.providers.embedded_providers import (
+    EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.providers import get_providers
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import select_jobs
@@ -199,6 +201,8 @@ class SessionAssistant:
                 "use an alternate execution controllers"),
             self.select_providers: (
                 "select the providers to work with"),
+            self.load_providers: (
+                "load all available providers"),
             self.get_old_sessions: (
                 "get previously created sessions"),
             self.delete_sessions: (
@@ -386,6 +390,52 @@ class SessionAssistant:
         # NOTE: We expect applications to call this at most once.
         del UsageExpectation.of(self).allowed_calls[
             self.use_alternate_execution_controllers]
+
+    @raises(SystemExit, UnexpectedMethodCall)
+    def load_providers(self) -> None:
+        """
+        Load all Checkbox providers
+
+        :raises SystemExit:
+            When no provider was found in the system.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        UsageExpectation.of(self).enforce()
+
+        def qualified_name(provider):
+            return "{}:{}".format(provider.namespace, provider.name)
+        sideload_path = os.path.expandvars(os.path.join(
+            '/var', 'tmp', 'checkbox-providers'))
+        embedded_providers = EmbeddedProvider1PlugInCollection(sideload_path)
+        loaded_provs = embedded_providers.get_all_plugin_objects()
+        for p in loaded_provs:
+            _logger.warning("Using sideloaded provider: %s from %s",
+                            p, p.base_dir)
+        sl_qual_names = [qualified_name(p) for p in loaded_provs]
+        self.sideloaded_providers = len(sl_qual_names) > 0
+        for std_prov in get_providers():
+            if qualified_name(std_prov) in sl_qual_names:
+                # this provider got overriden by sideloading
+                # so let's not load the original one
+                continue
+            loaded_provs.append(std_prov)
+        if not loaded_provs:
+            from plainbox.impl.providers.v1 import all_providers
+            message = '\n'.join((
+                _("No providers found! Paths searched:"),
+                *all_providers.provider_search_paths))
+            raise SystemExit(message)
+        self._selected_providers = loaded_provs
+        UsageExpectation.of(self).allowed_calls = {
+            self.start_new_session: "create a new session from scratch",
+            self.get_resumable_sessions: "get resume candidates",
+            self.get_old_sessions: "get previously created sessions",
+            self.delete_sessions: "delete previously created sessions",
+            self.finalize_session: "to finalize session",
+        }
 
     @raises(ValueError, UnexpectedMethodCall)
     def select_providers(

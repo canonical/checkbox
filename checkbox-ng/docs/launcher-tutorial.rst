@@ -154,28 +154,6 @@ Launcher that disables all stock reports:
     launcher_version = 1
     stock_reports = none
 
-Providers section
-=================
-
-This section provides control over which providers are used by the launcher.
-
-``[providers]``
-
-Beginning of the providers section.
-
-``use``
-
-A list of globs, from which a provider id must match at least one in order to
-be used. By default all providers are used.
-
-Providers section example:
-
-::
-
-    [providers]
-    use = provider1, provider2, provider-*
-
-
 Test plan section
 =================
 

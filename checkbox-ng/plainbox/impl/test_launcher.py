@@ -76,7 +76,6 @@ class LauncherDefinition1Tests(TestCase):
         self.assertEqual(l.api_version, '0.99')
         self.assertEqual(l.app_id, 'checkbox-cli')
         self.assertEqual(l.api_flags, ['restartable'])
-        self.assertEqual(l.providers, ['*'])
         self.assertEqual(l.test_plan_filters, ['*'])
         self.assertEqual(l.test_plan_default_selection, Unset)
         self.assertEqual(l.test_plan_forced, False)
@@ -94,8 +93,6 @@ class LauncherDefinition1Tests(TestCase):
         api_version = 0.99
         api_flags = restartable
         app_id = FOOBAR
-        [providers]
-        use = foo* bar*, baz
         [test plan]
         unit = 2000.the.chosen.one
         filter = 2000*, 3000* tp_foo*
@@ -122,7 +119,6 @@ class LauncherDefinition1Tests(TestCase):
         self.assertEqual(l.api_version, '0.99')
         self.assertEqual(l.app_id, 'FOOBAR')
         self.assertEqual(l.api_flags, ['restartable'])
-        self.assertEqual(l.providers, ['foo*', 'bar*', 'baz'])
         self.assertEqual(l.test_plan_filters, ['2000*', '3000*', 'tp_foo*'])
         self.assertEqual(l.test_plan_default_selection, '2000.the.chosen.one')
         self.assertEqual(l.test_plan_forced, True)

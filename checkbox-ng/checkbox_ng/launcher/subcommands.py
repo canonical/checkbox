@@ -415,8 +415,7 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             print(self.C.RED(_("There were no test plans to select from!")))
             return
         selected_tp = TestPlanBrowser(
-            _("Select test plan"),
-            tp_info_list,
+            _("Select test plan"), tp_info_list,
             self.launcher.test_plan_default_selection).run()
         return selected_tp
 

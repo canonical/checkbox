@@ -212,21 +212,10 @@ class Launcher(Command, MainLoopStage, ReportsStage):
                 self.get_sa_api_version(),
                 self.get_sa_api_flags(),
             )
-            # side-load providers local-providers
-            side_load_path = os.path.expandvars(os.path.join(
-                '/var', 'tmp', 'checkbox-providers'))
-            additional_providers = ()
-            if os.path.exists(side_load_path):
-                embedded_providers = EmbeddedProvider1PlugInCollection(
-                    side_load_path)
-                additional_providers = embedded_providers.get_all_plugin_objects()
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)
-            try_selecting_providers(
-                ctx.sa,
-                *self.launcher.providers,
-                additional_providers=additional_providers)
+            ctx.sa.load_providers()
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()
@@ -664,21 +653,10 @@ class Run(Command, MainLoopStage):
                 "0.99",
                 ["restartable"],
             )
-            # side-load providers local-providers
-            side_load_path = os.path.expandvars(os.path.join(
-                '/var', 'tmp', 'checkbox-providers'))
-            additional_providers = ()
-            if os.path.exists(side_load_path):
-                embedded_providers = EmbeddedProvider1PlugInCollection(
-                    side_load_path)
-                additional_providers = embedded_providers.get_all_plugin_objects()
             self._configure_restart()
             config = load_configs()
             self.sa.use_alternate_configuration(config)
-            try_selecting_providers(
-                self.sa,
-                '*',
-                additional_providers=additional_providers)
+            self.sa.load_providers()
             self.sa.start_new_session(
                 self.ctx.args.title or 'checkbox-run',
                 UnifiedRunner)
@@ -854,7 +832,7 @@ class ListBootstrapped(Command):
 
     def invoked(self, ctx):
         self.ctx = ctx
-        try_selecting_providers(self.sa, '*')
+        self.sa.load_providers()
         self.sa.start_new_session('checkbox-listing-ephemeral')
         tps = self.sa.get_test_plans()
         if ctx.args.TEST_PLAN not in tps:
@@ -906,7 +884,7 @@ class TestPlanExport(Command):
 
     def invoked(self, ctx):
         self.ctx = ctx
-        try_selecting_providers(self.sa, '*')
+        self.sa.load_providers()
         if ctx.args.nofake:
             self.sa.start_new_session('tp-export-ephemeral')
         else:

@@ -773,6 +773,7 @@ class List(Command):
                     "Use '?' to list possible values")))
 
     def invoked(self, ctx):
+        _logger.warning(_('List subcommand ignores sideloaded providers!'))
         if ctx.args.GROUP == 'all-jobs':
             if ctx.args.attrs:
                 print_objs('job', True)

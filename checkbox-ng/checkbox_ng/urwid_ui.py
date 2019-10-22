@@ -618,11 +618,7 @@ class TestPlanBrowser():
     def unhandled_input(self, key):
         if self.loop.widget == self.frame:
             if self.filtering:
-                if key in ('esc'):
-                    self.frame.contents['footer'] = (self.default_footer, None)
-                    self.frame.set_focus('body')
-                    self.filtering = False
-                elif key in ('enter'):
+                if key == 'enter':
                     filter_str = self.filter_footer.get_edit_text()
                     self.radio_button_group = []
                     if filter_str == '':
@@ -631,6 +627,10 @@ class TestPlanBrowser():
                         self._update_button_pile(
                             [x for x in self.master_list
                              if filter_str in x.get('name')])
+                if key in ('esc', 'enter'):
+                    self.frame.contents['footer'] = (self.default_footer, None)
+                    self.frame.set_focus('body')
+                    self.filtering = False
             else:
                 if key == 'enter':
                     raise urwid.ExitMainLoop()

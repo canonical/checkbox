@@ -140,13 +140,6 @@ class LauncherDefinition1(LauncherDefinition):
                     "this launcher. Useful for storing some contextual "
                     "infomation about the session"))
 
-    providers = config.Variable(
-        section='providers',
-        name='use',
-        kind=list,
-        default=['*'],
-        help_text=_('Which providers to load; glob patterns can be used'))
-
     test_plan_filters = config.Variable(
         section='test plan',
         name='filter',

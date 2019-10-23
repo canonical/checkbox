@@ -198,7 +198,7 @@ class RemoteSessionAssistant():
             session_desc = self._launcher.session_desc
 
         self._sa.use_alternate_configuration(self._launcher)
-        self._sa.select_providers(*self._launcher.providers)
+        self._sa.load_providers()
 
         self._normal_user = self._launcher.normal_user
         pass_provider = (None if self._passwordless_sudo else
@@ -496,7 +496,7 @@ class RemoteSessionAssistant():
 
     def resume_by_id(self, session_id=None):
         self._launcher = load_configs()
-        self._sa.select_providers(*self._launcher.providers)
+        self._sa.load_providers()
         resume_candidates = list(self._sa.get_resumable_sessions())
         if not session_id:
             if not resume_candidates:

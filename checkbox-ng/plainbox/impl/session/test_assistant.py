@@ -85,78 +85,15 @@ class SessionAssistantTests(morris.SignalTestCase):
         """Get the stubbox provider, it's fully functional."""
         return [self.stubbox]
 
-    def test_select_providers__loads_plainbox(self, mock_get_providers):
-        """Check that select_providers() loads special plainbox providers."""
-        mock_get_providers.return_value = self._get_mock_providers()
-        selected_providers = self.sa.select_providers()
-        # We're expecting to see just [p1]
-        self.assertEqual(selected_providers, [self.p1])
-        # p1 is always auto-loaded
-        self.assertSignalFired(self.sa.provider_selected, self.p1, auto=True)
-        # p2 is not loaded
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p2, auto=True)
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p2, auto=False)
-        # p3 is not loaded
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p3, auto=True)
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p3, auto=False)
-
-    def test_select_providers__loads_by_id(self, mock_get_providers):
-        """Check that select_providers() loads providers with given name."""
-        mock_get_providers.return_value = self._get_mock_providers()
-        selected_providers = self.sa.select_providers(self.p2.name)
-        # We're expecting to see both providers [p1, p2]
-        self.assertEqual(selected_providers, [self.p1, self.p2])
-        # p1 is always auto-loaded
-        self.assertSignalFired(
-            self.sa.provider_selected, self.p1, auto=True)
-        # p2 is loaded on demand
-        self.assertSignalFired(
-            self.sa.provider_selected, self.p2, auto=False)
-        # p3 is not loaded
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p3, auto=False)
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p3, auto=True)
-
-    def test_select_providers__loads_by_pattern(self, mock_get_providers):
-        """Check that select_providers() loads providers matching a pattern."""
-        mock_get_providers.return_value = self._get_mock_providers()
-        selected_providers = self.sa.select_providers("*canonical*")
-        # We're expecting to see both canonical providers [p1, p3]
-        self.assertEqual(selected_providers, [self.p1, self.p3])
-        # p1 is always auto-loaded
-        self.assertSignalFired(
-            self.sa.provider_selected, self.p1, auto=True)
-        # p2 is not loaded
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p2, auto=False)
-        self.assertSignalNotFired(
-            self.sa.provider_selected, self.p2, auto=True)
-        # p3 is loaded on demand
-        self.assertSignalFired(
-            self.sa.provider_selected, self.p3, auto=False)
-
-    def test_select_providers__reports_bogus_names(self, mock_get_providers):
-        """Check that select_providers() reports wrong names and patterns."""
-        mock_get_providers.return_value = self._get_mock_providers()
-        with self.assertRaises(ValueError) as boom:
-            self.sa.select_providers("*bimbo*")
-        self.assertEqual(str(boom.exception), "nothing selected with: *bimbo*")
-
     def test_expected_call_sequence(self, mock_get_providers):
         """Track the sequence of allowed method calls."""
         mock_get_providers.return_value = self._get_test_providers()
-        # SessionAssistant.select_providers() must be allowed
-        self.assertIn(self.sa.select_providers,
+        # SessionAssistant.load_providers() must be allowed
+        self.assertIn(self.sa.load_providers,
                       UsageExpectation.of(self.sa).allowed_calls)
-        # Call SessionAssistant.select_providers()
-        self.sa.select_providers()
-        # SessionAssistant.select_providers() must no longer be allowed
-        self.assertNotIn(self.sa.select_providers,
+        self.sa.load_providers()
+        # SessionAssistant.load_providers() must no longer be allowed
+        self.assertNotIn(self.sa.load_providers,
                          UsageExpectation.of(self.sa).allowed_calls)
         # SessionAssistant.start_new_session() must now be allowed
         self.assertIn(self.sa.start_new_session,

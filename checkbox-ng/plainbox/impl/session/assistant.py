@@ -44,9 +44,11 @@ from plainbox.impl.decorators import raises
 from plainbox.impl.developer import UnexpectedMethodCall
 from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.execution import UnifiedRunner
+from plainbox.impl.providers import get_providers
+from plainbox.impl.providers.embedded_providers import (
+    EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.providers import get_providers
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import select_jobs
@@ -121,12 +123,6 @@ class SessionAssistant:
       to change the location of the session storage repository. This is where
       various files are created so if you don't want to use the default
       location for any reason this is the only chance you have.
-    * The application selects a set of providers to load using
-      :meth:`select_providers()`. Typically applications will work with a
-      well-defined set of providers, either maintained by the same set of
-      developers or (sometimes) by reusing some third party test providers.
-      A small set of wild-cards are supported so that applications can load all
-      providers from a given name-space or even all available providers.
     """
 
     # TODO: create a flowchart of possible states
@@ -189,7 +185,6 @@ class SessionAssistant:
         self._runner = None
         # Keep a record of jobs run during bootstrap phase
         self._bootstrap_done_list = []
-        # Expect that select_providers() be called
         UsageExpectation.of(self).allowed_calls = {
             self.use_alternate_repository: (
                 "use an alternate storage repository"),
@@ -197,8 +192,8 @@ class SessionAssistant:
                 "use an alternate configuration system"),
             self.use_alternate_execution_controllers: (
                 "use an alternate execution controllers"),
-            self.select_providers: (
-                "select the providers to work with"),
+            self.load_providers: (
+                "load all available providers"),
             self.get_old_sessions: (
                 "get previously created sessions"),
             self.delete_sessions: (
@@ -387,109 +382,51 @@ class SessionAssistant:
         del UsageExpectation.of(self).allowed_calls[
             self.use_alternate_execution_controllers]
 
-    @raises(ValueError, UnexpectedMethodCall)
-    def select_providers(
-        self, *patterns, additional_providers: 'Iterable[Provider1]'=()
-    ) -> 'List[Provider1]':
+    @raises(SystemExit, UnexpectedMethodCall)
+    def load_providers(self) -> None:
         """
-        Load plainbox providers.
+        Load all Checkbox providers
 
-        :param patterns:
-            The list of patterns (or just names) of providers to load.
-
-            Note that some special provides are always loaded, regardless of if
-            the application wants that or not. Those providers are a part of
-            plainbox itself and are required for normal operation of the
-            framework.
-
-            The names may include the ``*`` character (asterisk) to indicate
-            "any". This includes both the namespace part and the provider name
-            part, e.g. ``com.canonical.certification::*`` will load all of
-            providers made by the Canonical certification team.  To load
-            everything just pass ``*``.
-        :param additional_providers:
-            A list of providers that were loaded by other means (usually in
-            some app-custom way).
-        :returns:
-            The list of loaded providers (including plainbox providers)
-        :raises ValueError:
-            If any of the patterns didn't match any provider.
+        :raises SystemExit:
+            When no provider was found in the system.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
             is the likely cause.
-
-        Providers are loaded into a temporary area so that they are ready for a
-        session that you can either create from scratch or resume one you may
-        have created earlier. In either case, this is the first method you
-        should call.
-
-        A provider is used to supply tests (or in general, jobs) to execute.
-        Typically applications will have an associated, well-known provider
-        that they wish to load.
-
-        Providers can be broken and can, in fact, load in a partially or
-        entirely damaged state. Applications should inspect the problem list of
-        each loaded provider to see if they wish to abort.
-
-        .. todo::
-            Delegate correctness checking to a mediator class that also
-            implements some useful, default behavior for this.
         """
         UsageExpectation.of(self).enforce()
-        # NOTE: providers are actually enumerated here, they are only loaded
-        # and validated on demand so this is is not going to expose any
-        # problems from utterly broken providers we don't care about.
-        provider_list = get_providers()
-        # NOTE: copy the list as we don't want to mutate the object returned by
-        # get_providers().  This helps unit tests that actually return a fixed
-        # list here.
+
         def qualified_name(provider):
             return "{}:{}".format(provider.namespace, provider.name)
-        side_loaded = [qualified_name(p) for p in additional_providers]
-        provider_list = [p for p in provider_list if p.namespace + p.name]
-        provider_list = [
-            p for p in provider_list if qualified_name(p) not in side_loaded]
-        provider_list = provider_list[:] + list(additional_providers)
-        prov_paths = {qualified_name(p): p.base_dir for p in provider_list}
-        for prov in side_loaded:
-            _logger.warning("Using side-loaded provider: %s from %s",
-                            prov, prov_paths[prov])
-        if side_loaded:
-            self.sideloaded_providers = True
-
-        # Select all of the plainbox providers in a separate iteration. This
-        # way they get loaded unconditionally, regardless of what patterns are
-        # passed to the function (including not passing *any* patterns).
-        for provider in provider_list[:]:
-            if provider.namespace == "com.canonical.plainbox":
-                provider_list.remove(provider)
-                self._selected_providers.append(provider)
-                self.provider_selected(provider, auto=True)
-        # Select all of the providers matched by any of the patterns.
-        for pat in patterns:
-            # Track useless patterns so that we can report them
-            useless = True
-            for provider in provider_list[:]:
-                if (provider.name == pat or
-                        fnmatch.fnmatchcase(provider.name, pat)):
-                    # Once a provider is selected, remove it from the list of
-                    # candidates. This saves us from checking if we're adding
-                    # something twice at each iteration.
-                    provider_list.remove(provider)
-                    self._selected_providers.append(provider)
-                    self.provider_selected(provider, auto=False)
-                    useless = False
-            if useless:
-                raise ValueError("nothing selected with: {}".format(pat))
-        # Set expectations for subsequent calls.
-        allowed_calls = UsageExpectation.of(self).allowed_calls
-        del allowed_calls[self.select_providers]
-        allowed_calls[self.start_new_session] = (
-            "create a new session from scratch")
-        allowed_calls[self.get_resumable_sessions] = (
-            "get resume candidates")
-        return self._selected_providers
+        sideload_path = os.path.expandvars(os.path.join(
+            '/var', 'tmp', 'checkbox-providers'))
+        embedded_providers = EmbeddedProvider1PlugInCollection(sideload_path)
+        loaded_provs = embedded_providers.get_all_plugin_objects()
+        for p in loaded_provs:
+            _logger.warning("Using sideloaded provider: %s from %s",
+                            p, p.base_dir)
+        sl_qual_names = [qualified_name(p) for p in loaded_provs]
+        self.sideloaded_providers = len(sl_qual_names) > 0
+        for std_prov in get_providers():
+            if qualified_name(std_prov) in sl_qual_names:
+                # this provider got overriden by sideloading
+                # so let's not load the original one
+                continue
+            loaded_provs.append(std_prov)
+        if not loaded_provs:
+            from plainbox.impl.providers.v1 import all_providers
+            message = '\n'.join((
+                _("No providers found! Paths searched:"),
+                *all_providers.provider_search_paths))
+            raise SystemExit(message)
+        self._selected_providers = loaded_provs
+        UsageExpectation.of(self).allowed_calls = {
+            self.start_new_session: "create a new session from scratch",
+            self.get_resumable_sessions: "get resume candidates",
+            self.get_old_sessions: "get previously created sessions",
+            self.delete_sessions: "delete previously created sessions",
+            self.finalize_session: "to finalize session",
+        }
 
     @morris.signal
     def provider_selected(self, provider, auto):

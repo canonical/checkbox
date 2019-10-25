@@ -62,11 +62,11 @@ def reload_nm_connections():
 
 
 def save_connections(keyfile_list):
+    if not os.path.exists(SAVE_DIR):
+        os.makedirs(SAVE_DIR)
     if len(keyfile_list) == 0:
         print('No stored 802.11 connections to save')
         return
-    if not os.path.exists(SAVE_DIR):
-        os.makedirs(SAVE_DIR)
     for f in keyfile_list:
         print('Save connection {}'.format(f))
         if not os.path.exists(f):

@@ -14,6 +14,8 @@ command:
   gpio_sysfs_loopback.py {model}
 estimated_duration: 20.0
 flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.gpio_loopback == 'True'
 
 
 # Filtering this job by the same devices as above as uses the same pin 
@@ -31,6 +33,8 @@ command:
   gpio_gpiomem_loopback.py {model}
 estimated_duration: 20.0
 flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.gpio_loopback == 'True'
 # If starting to test confinement then this connection will be requried:
 #requires:
 #  {%- if __on_ubuntucore__ %}

@@ -4,7 +4,7 @@ Wants=network.target
 
 [Service]
 ExecStart=/usr/bin/checkbox-cli slave
-SyslogIdentifier=checkbox-slave
+SyslogIdentifier=checkbox-ng.remote-slave
 Restart=on-failure
 TimeoutStopSec=30
 Type=simple

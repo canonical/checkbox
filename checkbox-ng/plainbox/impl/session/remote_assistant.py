@@ -25,12 +25,11 @@ import time
 import sys
 from collections import namedtuple
 from threading import Thread, Lock
-from subprocess import DEVNULL, CalledProcessError, check_call, check_output
+from subprocess import CalledProcessError, check_output
 
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
-from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.secure.sudo_broker import SudoBroker, EphemeralKey
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.secure.sudo_broker import validate_pass
@@ -318,7 +317,8 @@ class RemoteSessionAssistant():
                     yield from self.interact(
                         Interaction('purpose', job.tr_purpose()))
                 if job.tr_steps():
-                    yield from self.interact(Interaction('steps', job.tr_steps()))
+                    yield from self.interact(
+                        Interaction('steps', job.tr_steps()))
                 if self._last_response == 'comment':
                     yield from self.interact(Interaction('comment'))
                     if self._last_response:

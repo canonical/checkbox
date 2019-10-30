@@ -19,7 +19,9 @@
 This module contains implementation of the master end of the remote execution
 functionality.
 """
+import getpass
 import gettext
+import ipaddress
 import logging
 import os
 import select
@@ -122,6 +124,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._sudo_provider = None
+        self._normal_user = ''
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -131,6 +134,12 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             with open(expanded_path, 'rt') as f:
                 self._launcher_text = f.read()
             self.launcher.read_string(self._launcher_text)
+        if 'local' in ctx.args.host:
+            ctx.args.host = '127.0.0.1'
+            if ipaddress.ip_address(ctx.args.host).is_loopback:
+                self._normal_user = getpass.getuser()
+        if ctx.args.user:
+            self._normal_user = ctx.args.user
         timeout = 600
         deadline = time.time() + timeout
         port = ctx.args.port

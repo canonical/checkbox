@@ -49,11 +49,18 @@ class Utils():
     @staticmethod
     def get_ipv4_address(interface):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        return socket.inet_ntoa(fcntl.ioctl(
-            s.fileno(),
-            0x8915,  # SIOCGIFADDR
-            struct.pack('256s', interface[:15].encode())
-        )[20:24])
+        try:
+            ipv4_addr = socket.inet_ntoa(fcntl.ioctl(
+                s.fileno(),
+                0x8915,  # SIOCGIFADDR
+                struct.pack('256s', interface[:15].encode())
+            )[20:24])
+        except Exception as e:
+            print("ERROR: getting the IPv4 address for %s: %s" %
+                  (interface, repr(e)))
+            ipv4_addr = "***NOT CONFIGURED***"
+        finally:
+            return ipv4_addr
 
     @staticmethod
     def get_ipv6_address(interface):
@@ -362,6 +369,7 @@ if __name__ == "__main__":
 
         # Report udev detected devices first
         print("[ Devices found by udev ]".center(80, '-'))
+        print("DEBUG: %s" % udev.devices())
         for device in udev.devices():
             print(device)
 

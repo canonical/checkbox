@@ -229,6 +229,8 @@ class RemoteSessionAssistant():
         self._sa.load_providers()
 
         self._normal_user = self._launcher.normal_user
+        if configuration['normal_user']:
+            self._normal_user = configuration['normal_user']
         pass_provider = (None if self._passwordless_sudo else
                          self.get_decrypted_password)
         runner_kwargs = {

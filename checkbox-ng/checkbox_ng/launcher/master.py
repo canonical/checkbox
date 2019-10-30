@@ -228,6 +228,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         _logger.info("master: Starting new session.")
         configuration = dict()
         configuration['launcher'] = self._launcher_text
+        configuration['normal_user'] = self._normal_user
 
         tps = self.sa.start_session(configuration)
         _logger.debug("master: Session started. Available TPs:\n%s",
@@ -305,6 +306,8 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             "launcher definition file to use"))
         parser.add_argument('--port', type=int, default=18871, help=_(
             "port to connect to"))
+        parser.add_argument('-u', '--user', help=_(
+            "normal user to run non-root jobs"))
 
     def _handle_interrupt(self):
         """

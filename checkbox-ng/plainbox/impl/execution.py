@@ -62,7 +62,8 @@ class UnifiedRunner(IJobRunner):
                  command_io_delegate=None, dry_run=False,
                  execution_ctrl_list=None, stdin=False,
                  normal_user_provider=lambda: None,
-                 password_provider=sudo_password_provider.get_sudo_password):
+                 password_provider=sudo_password_provider.get_sudo_password,
+                 extra_env=None):
         self._session_dir = session_dir
         self._session_dir = session_dir
         self._provider_list = provider_list
@@ -78,6 +79,7 @@ class UnifiedRunner(IJobRunner):
         self._password_provider = password_provider
         self._stdin = stdin
         self._running_jobs_pid = None
+        self._extra_env = extra_env
 
     def run_job(self, job, job_state, config=None, ui=None):
         logger.info(_("Running %r"), job)
@@ -269,7 +271,8 @@ class UnifiedRunner(IJobRunner):
             # Get the command and the environment.
             # of this execution controller
             cmd = get_execution_command(
-                job, config, self._session_dir, nest_dir, target_user)
+                job, config, self._session_dir, nest_dir, target_user,
+                self._extra_env)
             env = get_execution_environment(
                 job, config, self._session_dir, nest_dir)
             # run the command
@@ -500,7 +503,8 @@ def get_execution_environment(job, config, session_dir, nest_dir):
     return env
 
 
-def get_differential_execution_environment(job, config, session_dir, nest_dir):
+def get_differential_execution_environment(job, config, session_dir, nest_dir,
+                                           extra_env=None):
     """
     Get the environment required to execute the specified job:
 
@@ -542,6 +546,8 @@ def get_differential_execution_environment(job, config, session_dir, nest_dir):
         delta_env['LANG'] = 'C.UTF-8'
         delta_env['LANGUAGE'] = ''
         delta_env['LC_ALL'] = 'C.UTF-8'
+    if extra_env:
+        delta_env.update(extra_env)
     # Preserve the copy_vars variables + those prefixed with SNAP on Snappy
     if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
         copy_vars = ['PYTHONHOME', 'PYTHONUSERBASE', 'LD_LIBRARY_PATH',
@@ -553,7 +559,7 @@ def get_differential_execution_environment(job, config, session_dir, nest_dir):
 
 
 def get_execution_command(job, config, session_dir,
-                          nest_dir, target_user=None):
+                          nest_dir, target_user=None, extra_env=None):
     """Generate a command argv to run in the shell."""
     cmd = []
     if target_user:
@@ -568,7 +574,7 @@ def get_execution_command(job, config, session_dir,
     cmd += ['env']
     if target_user:
         env = get_differential_execution_environment(
-            job, config, session_dir, nest_dir)
+            job, config, session_dir, nest_dir, extra_env)
     else:
         env = get_execution_environment(job, config, session_dir, nest_dir)
     cmd += ["{key}={value}".format(key=key, value=value)

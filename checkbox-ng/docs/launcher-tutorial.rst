@@ -384,7 +384,7 @@ Beginning of the daemon-specific section.
 Setting in this section only apply to sessions that are run by checkbox-slave
 spawned as a daemon.
 
-``normal-user``
+``normal_user``
 
 Username to use when job doesn't specify which user to run as.
 

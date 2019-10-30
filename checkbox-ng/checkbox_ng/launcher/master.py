@@ -143,8 +143,9 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         timeout = 600
         deadline = time.time() + timeout
         port = ctx.args.port
-        print(_("Connecting to {}:{}. Timeout: {}s").format(
-            ctx.args.host, port, timeout))
+        if not ipaddress.ip_address(ctx.args.host).is_loopback:
+            print(_("Connecting to {}:{}. Timeout: {}s").format(
+                ctx.args.host, port, timeout))
         while time.time() < deadline:
             try:
                 self.connect_and_run(ctx.args.host, port)

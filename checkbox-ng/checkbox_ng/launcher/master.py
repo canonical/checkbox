@@ -45,7 +45,7 @@ from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
 from checkbox_ng.urwid_ui import resume_dialog
-from checkbox_ng.launcher.run import NormalUI
+from checkbox_ng.launcher.run import NormalUI, ReRunJob
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
 _ = gettext.gettext
@@ -490,37 +490,68 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             print(_("Category: {0}").format(job['category_name']))
             SimpleUI.horiz_line()
             next_job = False
-            for interaction in self.sa.run_job(job['id']):
-                if interaction.kind == 'sudo_input':
-                    self.sa.save_password(
-                        self._sudo_provider.encrypted_password)
-                if interaction.kind == 'purpose':
-                    SimpleUI.description(_('Purpose:'), interaction.message)
-                elif interaction.kind in ['description', 'steps']:
-                    SimpleUI.description(_('Steps:'), interaction.message)
-                    if job['command'] is None:
-                        cmd = 'run'
-                    else:
-                        cmd = SimpleUI(None).wait_for_interaction_prompt(None)
-                    if cmd == 'skip':
+            while next_job is False:
+                for interaction in self.sa.run_job(job['id']):
+                    if interaction.kind == 'sudo_input':
+                        self.sa.save_password(
+                            self._sudo_provider.encrypted_password)
+                    if interaction.kind == 'purpose':
+                        SimpleUI.description(_('Purpose:'),
+                                             interaction.message)
+                    elif interaction.kind == 'description':
+                        SimpleUI.description(_('Description:'),
+                                             interaction.message)
+                        if job['command'] is None:
+                            cmd = 'run'
+                        else:
+                            cmd = SimpleUI(
+                                None).wait_for_interaction_prompt(None)
+                        if cmd == 'skip':
+                            next_job = True
+                        self.sa.remember_users_response(cmd)
+                        self.wait_for_job(dont_finish=True)
+                    elif interaction.kind in 'steps':
+                        SimpleUI.description(_('Steps:'), interaction.message)
+                        if job['command'] is None:
+                            cmd = 'run'
+                        else:
+                            cmd = SimpleUI(
+                                None).wait_for_interaction_prompt(None)
+                        if cmd == 'skip':
+                            next_job = True
+                        self.sa.remember_users_response(cmd)
+                    elif interaction.kind == 'verification':
+                        self.wait_for_job(dont_finish=True)
+                        if interaction.message:
+                            SimpleUI.description(
+                                _('Verification:'), interaction.message)
+                        JobAdapter = namedtuple('job_adapter', ['command'])
+                        job_lite = JobAdapter(job['command'])
+                        try:
+                            cmd = SimpleUI(None)._interaction_callback(
+                                job_lite, interaction.extra._builder)
+                            self.sa.remember_users_response(cmd)
+                            self.finish_job(
+                                interaction.extra._builder.get_result())
+                            next_job = True
+                            break
+                        except ReRunJob:
+                            next_job = False
+                            self.sa.rerun_job(
+                                job['id'],
+                                interaction.extra._builder.get_result())
+                            break
+                    elif interaction.kind == 'comment':
+                        new_comment = input(SimpleUI.C.BLUE(
+                            _('Please enter your comments:') + '\n'))
+                        self.sa.remember_users_response(new_comment + '\n')
+                    elif interaction.kind == 'skip':
+                        self.finish_job(
+                            interaction.extra._builder.get_result())
                         next_job = True
-                    self.sa.remember_users_response(cmd)
-                elif interaction.kind == 'verification':
-                    self.wait_for_job(dont_finish=True)
-                    if interaction.message:
-                        SimpleUI.description(
-                            _('Verification:'), interaction.message)
-                    JobAdapter = namedtuple('job_adapter', ['command'])
-                    job = JobAdapter(job['command'])
-                    cmd = SimpleUI(None)._interaction_callback(
-                        job, interaction.extra)
-                    self.sa.remember_users_response(cmd)
-                    self.finish_job(interaction.extra.get_result())
-                    next_job = True
-                elif interaction.kind == 'comment':
-                    new_comment = input(SimpleUI.C.BLUE(
-                        _('Please enter your comments:') + '\n'))
-                    self.sa.remember_users_response(new_comment + '\n')
+                        break
+                else:
+                    self.wait_for_job()
+                    break
             if next_job:
                 continue
-            self.wait_for_job()

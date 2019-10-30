@@ -293,6 +293,13 @@ class RemoteSessionAssistant():
         self._jobs_count = len(self._sa.get_dynamic_todo_list())
         self._state = TestsSelected
 
+    @allowed_when(Interacting)
+    def rerun_job(self, job_id, result):
+        self._sa.use_job_result(job_id, result)
+        self.session_change_lock.acquire(blocking=False)
+        self.session_change_lock.release()
+        self._state = TestsSelected
+
     @allowed_when(TestsSelected)
     def run_job(self, job_id):
         """
@@ -326,13 +333,16 @@ class RemoteSessionAssistant():
                     may_comment = True
                     continue
             if self._last_response == 'skip':
-                result_builder = JobResultBuilder(
-                    outcome=IJobResult.OUTCOME_SKIP,
-                    comments=_("Explicitly skipped before execution"))
-                if self._current_comments != "":
-                    result_builder.comments = self._current_comments
-                self.finish_job(result_builder.get_result())
-                return
+                def skipped_builder(*args, **kwargs):
+                    result_builder = JobResultBuilder(
+                        outcome=IJobResult.OUTCOME_SKIP,
+                        comments=_("Explicitly skipped before execution"))
+                    if self._current_comments != "":
+                        result_builder.comments = self._current_comments
+                    return result_builder
+                self._be = BackgroundExecutor(self, job_id, skipped_builder)
+                yield from self.interact(
+                    Interaction('skip', job.verification, self._be))
         if job.command:
             if (job.user and not self._passwordless_sudo
                     and not self._sudo_password):
@@ -357,14 +367,8 @@ class RemoteSessionAssistant():
             self._be = BackgroundExecutor(self, job_id, undecided_builder)
         if self._sa.get_job(self._currently_running_job).plugin in [
                 'manual', 'user-interact-verify']:
-            rb = self._be.wait()
-            # by this point the ui will handle adding comments via
-            # ResultBuilder.add_comment method that adds \n in front
-            # of the addition, let's rstrip it
-            rb.comments = self._current_comments.rstrip()
             yield from self.interact(
-                Interaction('verification', job.verification, rb))
-            self.finish_job(rb.get_result())
+                Interaction('verification', job.verification, self._be))
 
     @allowed_when(Started, Bootstrapping)
     def run_bootstrapping_job(self, job_id):

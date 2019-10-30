@@ -41,6 +41,8 @@ from plainbox.abc import IJobResult
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.run import SilentUI
 
+import psutil
+
 _ = gettext.gettext
 
 _logger = logging.getLogger("plainbox.session.remote_assistant")
@@ -184,6 +186,16 @@ class RemoteSessionAssistant():
         self._last_response = response
         self._state = Running
 
+    def prepare_extra_env(self):
+        # If possible also set the DISPLAY env var
+        # i.e when a user desktop session is running
+        for p in psutil.pids():
+            p_environ = psutil.Process(p).environ()
+            p_user = psutil.Process(p).username()
+            if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
+                return {'DISPLAY': p_environ['DISPLAY']}
+                break
+
     @allowed_when(Idle)
     def start_session(self, configuration):
         self._reset_sa()
@@ -207,6 +219,7 @@ class RemoteSessionAssistant():
             'normal_user_provider': lambda: self._normal_user,
             'password_provider': pass_provider,
             'stdin': self._pipe_to_subproc,
+            'extra_env': self.prepare_extra_env(),
         }
         self._sa.start_new_session(session_title, UnifiedRunner, runner_kwargs)
         self._sa.update_app_blob(json.dumps(
@@ -514,6 +527,7 @@ class RemoteSessionAssistant():
             'normal_user_provider': lambda: self._normal_user,
             'password_provider': pass_provider,
             'stdin': self._pipe_to_subproc,
+            'extra_env': self.prepare_extra_env(),
         }
         meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))

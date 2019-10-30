@@ -369,7 +369,6 @@ if __name__ == "__main__":
 
         # Report udev detected devices first
         print("[ Devices found by udev ]".center(80, '-'))
-        print("DEBUG: %s" % udev.devices())
         for device in udev.devices():
             print(device)
 

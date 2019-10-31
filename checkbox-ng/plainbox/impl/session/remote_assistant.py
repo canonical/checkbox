@@ -190,8 +190,11 @@ class RemoteSessionAssistant():
         # If possible also set the DISPLAY env var
         # i.e when a user desktop session is running
         for p in psutil.pids():
-            p_environ = psutil.Process(p).environ()
-            p_user = psutil.Process(p).username()
+            try:
+                p_environ = psutil.Process(p).environ()
+                p_user = psutil.Process(p).username()
+            except psutil.AccessDenied:
+                continue
             if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
                 return {'DISPLAY': p_environ['DISPLAY']}
                 break

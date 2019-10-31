@@ -414,12 +414,15 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             return
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
-        test_info_list = self._generate_job_infos(job_list)
         if not job_list:
             print(self.C.RED(_("There were no tests to select from!")))
             return
+        test_info_list = self._generate_job_infos(job_list)
         wanted_set = CategoryBrowser(
             _("Choose tests to run on your system:"), test_info_list).run()
+        # no need to set an alternate selection if the job list not changed
+        if len(test_info_list) == len(wanted_set):
+            return
         # NOTE: tree.selection is correct but ordered badly. To retain
         # the original ordering we should just treat it as a mask and
         # use it to filter jobs from get_static_todo_list.

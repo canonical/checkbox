@@ -274,7 +274,8 @@ class RemoteSessionAssistant():
         return self._sa.get_static_todo_list()
 
     def save_todo_list(self, chosen_jobs):
-        self._sa.use_alternate_selection(chosen_jobs)
+        if chosen_jobs is not None:
+            self._sa.use_alternate_selection(chosen_jobs)
         self._jobs_count = len(self._sa.get_dynamic_todo_list())
         self._state = TestsSelected
 

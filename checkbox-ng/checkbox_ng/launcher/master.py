@@ -273,22 +273,20 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.jobs = self.sa.finish_bootstrap()
 
     def select_jobs(self, all_jobs):
-        _logger.info("master: Selecting jobs.")
-        if self.launcher.test_selection_forced:
-            _logger.debug("master: Force-seleced jobs: %s", all_jobs)
-            self.sa.save_todo_list(all_jobs)
-            self.run_jobs()
-        else:
+        chosen_jobs = None  # leaving as None indicates no user modifications
+        if not self.launcher.test_selection_forced:
+            _logger.info("master: Selecting jobs.")
             reprs = self.sa.get_jobs_repr(all_jobs)
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs).run()
-            # wanted_set may have bad order, let's use it as a filter to the
-            # original list
-            todo_list = [job for job in all_jobs if job in wanted_set]
-            _logger.debug("master: Selected jobs: %s", todo_list)
-            self.sa.save_todo_list(todo_list)
-            self.run_jobs()
-        return False
+            # no need to set an alternate selection if the job list not changed
+            if len(reprs) != len(wanted_set):
+                # wanted_set may have bad order, let's use it as a filter to
+                # the original list
+                chosen_jobs = [job for job in all_jobs if job in wanted_set]
+                _logger.debug("master: Selected jobs: %s", chosen_jobs)
+        self.sa.save_todo_list(chosen_jobs)
+        self.run_jobs()
 
     def register_arguments(self, parser):
         parser.add_argument('host', help=_("target host"))

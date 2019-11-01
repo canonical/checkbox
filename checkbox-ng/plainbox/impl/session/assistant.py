@@ -538,7 +538,7 @@ class SessionAssistant:
         self._metadata = self._context.state.metadata
         self._metadata.app_id = self._app_id
         self._metadata.title = title
-        self._metadata.flags = {'bootstrapping'}
+        self._metadata.flags = {SessionMetaData.FLAG_BOOTSTRAPPING}
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)
@@ -849,7 +849,7 @@ class SessionAssistant:
         # available now.
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state())
-        self._metadata.flags = {'incomplete'}
+        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
         self._manager.checkpoint()
 
     @raises(UnexpectedMethodCall)
@@ -878,7 +878,8 @@ class SessionAssistant:
                 '^{}$'.format(pattern)), Origin('hand-pick')))
         jobs = select_jobs(self._context.state.job_list, qualifiers)
         self._context.state.update_desired_job_list(jobs)
-        self._metadata.flags = {'incomplete', 'testplanless'}
+        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE,
+                                SessionMetaData.FLAG_TESTPLANLESS}
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state())
 
@@ -935,7 +936,7 @@ class SessionAssistant:
         # available now.
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state())
-        self._metadata.flags = {'incomplete'}
+        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
         self._manager.checkpoint()
         # No bootstrap is done update the cache of jobs that were run
         # during bootstrap phase

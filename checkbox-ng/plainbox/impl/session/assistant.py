@@ -969,6 +969,7 @@ class SessionAssistant:
             :meth:`get_static_todo_list()` and :meth:`get_dynamic_todo_list()`.
         """
         UsageExpectation.of(self).enforce()
+        self._metadata.custom_joblist = True
         desired_job_list = [
             self._context.get_unit(job_id, 'job') for job_id in
             self.get_static_todo_list() if job_id in selection]

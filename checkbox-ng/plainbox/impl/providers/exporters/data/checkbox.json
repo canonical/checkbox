@@ -5,6 +5,11 @@
 {%- set category_map = state.category_map -%}
 {
     "title": {{ state.metadata.title | jsonify | safe }},
+{%- if "testplan_id" in app_blob %}
+{%- if app_blob['testplan_id'] %}
+    "testplan_id": {{ app_blob['testplan_id'] | jsonify | safe }},
+{%- endif %}
+{%- endif %}
 {%- if "description" in app_blob %}
 {%- if app_blob['description'] %}
     "description": {{ app_blob['description'] | jsonify | safe }},

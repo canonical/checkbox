@@ -970,9 +970,14 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         self._metadata.custom_joblist = True
-        desired_job_list = [
-            self._context.get_unit(job_id, 'job') for job_id in
-            self.get_static_todo_list() if job_id in selection]
+        desired_job_list = []
+        rejected_job_list = []
+        for job_id in self.get_static_todo_list():
+            if job_id in selection:
+                desired_job_list.append(self._context.get_unit(job_id, 'job'))
+            else:
+                rejected_job_list.append(job_id)
+        self._metadata.rejected_jobs = rejected_job_list
         self._context.state.update_desired_job_list(desired_job_list)
 
     @raises(UnexpectedMethodCall)

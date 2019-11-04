@@ -60,7 +60,7 @@ Depends: python3-requests-unixsocket
 
 # This is for wireless_sta_protocol
 unit: packaging meta-data
-os-id: debian
+os-id: ubuntu
 os-version-id: 18.04
 Depends: iw (>= 5.3)
 

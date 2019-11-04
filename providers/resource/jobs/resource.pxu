@@ -58,6 +58,12 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3-requests-unixsocket
 
+# This is for wireless_sta_protocol
+unit: packaging meta-data
+os-id: debian
+os-version-id: 18.04
+Depends: iw (>= 5.3)
+
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource

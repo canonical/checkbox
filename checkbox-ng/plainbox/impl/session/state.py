@@ -75,7 +75,7 @@ class SessionMetaData:
     FLAG_TESTPLANLESS = "testplanless"
 
     def __init__(self, title=None, flags=None, running_job_name=None,
-                 app_blob=b'', app_id=None):
+                 app_blob=b'', app_id=None, custom_joblist=False):
         """Initialize a new session state meta-data object."""
         if flags is None:
             flags = []
@@ -84,6 +84,7 @@ class SessionMetaData:
         self._running_job_name = running_job_name
         self._app_blob = app_blob
         self._app_id = app_id
+        self._custom_joblist = custom_joblist
 
     def __repr__(self):
         """Get the representation of the session state meta-data."""
@@ -189,6 +190,14 @@ class SessionMetaData:
             # TRANSLATORS: please don't translate app_blob, None and bytes
             raise TypeError(_("app_id must be either None or str"))
         self._app_id = value
+
+    @property
+    def custom_joblist(self):
+        return self._custom_joblist
+
+    @custom_joblist.setter
+    def custom_joblist(self, value):
+        self._custom_joblist = value
 
 
 class SessionDeviceContext:
@@ -1235,7 +1244,7 @@ class SessionState:
         stats = collections.defaultdict(int)
         for job_id, job_state in self.job_state_map.items():
             if (not job_state.result.outcome or
-                job_state.job.plugin in ("resource", "attachment")):
+                    job_state.job.plugin in ("resource", "attachment")):
                 continue
             stats[job_state.result.outcome] += 1
         return stats
@@ -1244,10 +1253,10 @@ class SessionState:
     def category_map(self):
         """Map from category id to their corresponding translated names."""
         wanted_category_ids = frozenset({
-                job_state.effective_category_id
-                for job_state in self.job_state_map.values()
-                if job_state.result.outcome != None
-            })
+            job_state.effective_category_id
+            for job_state in self.job_state_map.values()
+            if job_state.result.outcome != None
+        })
         return {
             unit.id: unit.tr_name()
             for unit in self.unit_list
@@ -1265,11 +1274,11 @@ class SessionState:
         attachments are presented in different sections.
         """
         wanted_category_ids = frozenset({
-                job_state.effective_category_id
-                for job_state in self.job_state_map.values()
-                if job_state.result.outcome != None and
-                job_state.job.plugin not in ("resource", "attachment")
-            })
+            job_state.effective_category_id
+            for job_state in self.job_state_map.values()
+            if job_state.result.outcome != None and
+            job_state.job.plugin not in ("resource", "attachment")
+        })
         return {
             unit.id: unit.tr_name()
             for unit in self.unit_list
@@ -1281,10 +1290,10 @@ class SessionState:
     def category_outcome_map(self):
         """Map from category id to their corresponding global outcome."""
         wanted_category_ids = frozenset({
-                job_state.effective_category_id
-                for job_state in self.job_state_map.values()
-                if job_state.result.outcome != None
-            })
+            job_state.effective_category_id
+            for job_state in self.job_state_map.values()
+            if job_state.result.outcome != None
+        })
         tmp_result_map = {}
         for job_state in self.job_state_map.values():
             if job_state.job.plugin in ("resource", "attachment"):
@@ -1419,7 +1428,7 @@ class SessionState:
             # Remove the undesired inhibitor as we want to run this job
             try:
                 job_state.readiness_inhibitor_list.remove(
-                   UndesiredJobReadinessInhibitor)
+                    UndesiredJobReadinessInhibitor)
             except ValueError:
                 pass
             # Ask the job controller about inhibitors affecting this job

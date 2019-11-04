@@ -10,6 +10,7 @@
     "testplan_id": {{ app_blob['testplan_id'] | jsonify | safe }},
 {%- endif %}
 {%- endif %}
+    "custom_joblist": {{ state.metadata.custom_joblist | jsonify | safe }},
 {%- if "description" in app_blob %}
 {%- if app_blob['description'] %}
     "description": {{ app_blob['description'] | jsonify | safe }},

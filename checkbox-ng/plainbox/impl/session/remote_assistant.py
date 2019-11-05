@@ -25,7 +25,7 @@ import time
 import sys
 from collections import namedtuple
 from threading import Thread, Lock
-from subprocess import DEVNULL, CalledProcessError, check_call
+from subprocess import DEVNULL, CalledProcessError, check_call, check_output
 
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
@@ -186,6 +186,16 @@ class RemoteSessionAssistant():
         self._last_response = response
         self._state = Running
 
+    def _prepare_display_without_psutil(self):
+        try:
+            value = check_output(
+                'strings /proc/*/environ 2>/dev/null | '
+                'grep -m 1 -oP "(?<=DISPLAY=).*"',
+                shell=True, universal_newlines=True).rstrip()
+            return {'DISPLAY': value}
+        except CalledProcessError:
+            return None
+
     def prepare_extra_env(self):
         # If possible also set the DISPLAY env var
         # i.e when a user desktop session is running
@@ -195,6 +205,9 @@ class RemoteSessionAssistant():
                 p_user = psutil.Process(p).username()
             except psutil.AccessDenied:
                 continue
+            except AttributeError:
+                # psutil < 4.0.0 doesn't provide Process.environ()
+                return self._prepare_display_without_psutil()
             if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
                 return {'DISPLAY': p_environ['DISPLAY']}
                 break

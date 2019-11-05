@@ -24,6 +24,8 @@ from __future__ import unicode_literals
 from io import StringIO
 from unittest import TestCase
 
+from pkg_resources import resource_filename
+
 from checkbox_support.parsers.dmidecode import DmidecodeParser
 from checkbox_support.parsers.tests.test_dmi import TestDmiMixin, DmiResult
 
@@ -92,11 +94,13 @@ BIOS Information
 \tFirmware Revision: 1.7
 """
 
+
 class TestDmidecodeArtificialParser(TestCase, TestDmiMixin):
 
     def getParser(self):
         stream = StringIO(FAKE_DMIDECODE)
         return DmidecodeParser(stream)
+
 
 class TestDmidecodeRealParser(TestCase):
 
@@ -159,3 +163,30 @@ class TestDmidecodeRealParser(TestCase):
         self.assertEqual(device.raw_attributes['sku_number'], "LENOVO_MT_20AM")
         self.assertEqual(device.raw_attributes['uuid'],
                          "170AFF01-52A1-11CB-A7A6-EB7272884401")
+
+
+class TestLenovoSystemX(TestCase):
+
+    def parse(self):
+        resource = 'parsers/tests/dmidecode_data/LENOVO_SYSTEMX.txt'
+        filename = resource_filename('checkbox_support', resource)
+        with open(filename, 'rt', encoding='UTF-8') as stream:
+            parser = DmidecodeParser(stream)
+            result = DmiResult()
+            parser.run(result)
+        return result
+
+    def test_system_product_name(self):
+        result = self.parse()
+        dmi_device = result.getDevice("SYSTEM")
+        self.assertTrue(dmi_device)
+        correct_values = {
+            'vendor': 'LENOVO',
+            'name': 'System x3550 M5: -[5463AC1]-',
+            'version': '07',
+            'serial': '06EEEAR',
+            'uuid': '7b75005c-d029-11e4-9aa6-40f2e9b938a0',
+            'wake_up_type': 'Power Switch',
+            'sku_number': '(none)',
+            'family': 'System X'}
+        self.assertDictEqual(dmi_device.raw_attributes, correct_values)

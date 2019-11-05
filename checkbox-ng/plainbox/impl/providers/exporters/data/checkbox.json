@@ -103,6 +103,13 @@
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ],
+    "rejected-jobs": [
+    {%- for job_id in state.metadata.rejected_jobs %}
+        {
+            "full_id": "{{ job_id }}"
+        }{%- if not loop.last -%},{%- endif %}
+    {%- endfor %}
+    ],
     "category_map": {
         {%- for cat_id, cat_name in category_map|dictsort %}
         "{{ cat_id }}": "{{ cat_name }}"{%- if not loop.last -%},{%- endif %}

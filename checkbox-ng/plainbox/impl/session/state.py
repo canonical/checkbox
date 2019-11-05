@@ -85,6 +85,7 @@ class SessionMetaData:
         self._app_blob = app_blob
         self._app_id = app_id
         self._custom_joblist = custom_joblist
+        self._rejected_jobs = []
 
     def __repr__(self):
         """Get the representation of the session state meta-data."""
@@ -198,6 +199,14 @@ class SessionMetaData:
     @custom_joblist.setter
     def custom_joblist(self, value):
         self._custom_joblist = value
+
+    @property
+    def rejected_jobs(self):
+        return self._rejected_jobs
+
+    @rejected_jobs.setter
+    def rejected_jobs(self, value):
+        self._rejected_jobs = value
 
 
 class SessionDeviceContext:

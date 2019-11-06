@@ -36,7 +36,7 @@ HANDLE_RE = re.compile(
     r"(?P<size>\d+) bytes$"
     % hexdigits)
 KEY_VALUE_RE = re.compile(
-    r"^\t(?P<key>[%s].+):( (?P<value>.+))?$"
+    r"^\t(?P<key>[%s][^:]+):( (?P<value>.+))?$"
     % ascii_uppercase)
 
 
@@ -64,7 +64,7 @@ class DmidecodeParser(object):
         "Type": "type",
         "Vendor": "vendor",
         "Version": "version",
-        }
+    }
 
     def __init__(self, stream):
         self.stream = stream

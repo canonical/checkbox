@@ -5,6 +5,7 @@ Wants=network.target
 [Service]
 ExecStart=/usr/bin/checkbox-cli slave
 SyslogIdentifier=checkbox-ng.remote-slave
+Environment="XDG_CACHE_HOME=/var/cache/"
 Restart=on-failure
 TimeoutStopSec=30
 Type=simple

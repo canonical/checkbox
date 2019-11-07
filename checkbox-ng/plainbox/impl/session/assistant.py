@@ -1328,7 +1328,9 @@ class SessionAssistant:
                 checkbox_data_dir = os.path.join(
                     self.get_session_dir(), 'CHECKBOX_DATA')
                 if not os.path.exists(checkbox_data_dir):
+                    oldmask = os.umask(000)
                     os.mkdir(checkbox_data_dir)
+                    os.umask(oldmask)
                 respawn_cmd_file = os.path.join(
                     checkbox_data_dir, '__respawn_checkbox')
                 if self._restart_cmd_callback:

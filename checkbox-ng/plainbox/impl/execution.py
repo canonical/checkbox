@@ -265,7 +265,9 @@ class UnifiedRunner(IJobRunner):
             extcmd_popen._delegate.on_end(proc.returncode)
             return proc.returncode
         if not os.path.isdir(os.path.join(self._session_dir, "CHECKBOX_DATA")):
+            oldmask = os.umask(000)
             os.makedirs(os.path.join(self._session_dir, "CHECKBOX_DATA"))
+            os.umask(oldmask)
         # Setup the executable nest directory
         with self.configured_filesystem(job) as nest_dir:
             # Get the command and the environment.

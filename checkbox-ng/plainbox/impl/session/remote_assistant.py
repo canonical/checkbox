@@ -209,7 +209,6 @@ class RemoteSessionAssistant():
                 return self._prepare_display_without_psutil()
             if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
                 return {'DISPLAY': p_environ['DISPLAY']}
-                break
 
     @allowed_when(Idle)
     def start_session(self, configuration):

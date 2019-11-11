@@ -22,8 +22,6 @@
 from gettext import bindtextdomain
 from gettext import dgettext
 
-from guacamole.ingredients.ansi import ANSIFormatter
-
 from plainbox.impl.providers.special import get_manifest_def
 from plainbox.provider_manager import DevelopCommand
 from plainbox.provider_manager import InstallCommand
@@ -70,48 +68,6 @@ class InstallCommandExt(InstallCommand):
     def invoked(self, ns):
         print(_("The Manifest provider is special"))
         print(_("You don't need to install it explicitly"))
-
-
-@manage_py_extension
-class L10NCommand(ManageCommand):
-
-    """display localized data specific to this provider."""
-
-    name = 'l10n'
-
-    def register_parser(self, subparsers):
-        self.add_subcommand(subparsers)
-
-    def invoked(self, ns):
-        provider = self.get_provider()
-        ansi = ANSIFormatter()
-        ansi.aprint(_(
-            "Legend: {native}N: native{reset},"
-            " {raw}R: raw{reset},"
-            " {localized}L: localized{reset}"
-        ).format(
-            native=ansi("", fg='bright_green', reset=False),
-            raw=ansi("", fg='bright_blue', reset=False),
-            localized=ansi("", fg='bright_yellow', reset=False),
-            reset=ansi("", reset=True)),
-        bold=1)
-        for unit in provider.unit_list:
-            need_unit_header = True
-            for field in unit.Meta.fields.get_all_symbols():
-                field = str(field)
-                if not unit.is_translatable_field(field):
-                    continue
-                if need_unit_header:
-                    ansi.aprint("In unit: {!r}".format(unit))
-                    need_unit_header = False
-                ansi.aprint("Internationalized field: {!a}".format(field))
-                ansi.aprint('N: {!a}'.format(
-                    unit.get_record_value(field)), fg='bright_green')
-                ansi.aprint('R: {!a}'.format(
-                    unit.get_raw_record_value(field)), fg='bright_blue')
-                ansi.aprint('L: {!a}'.format(
-                    unit.get_translated_record_value(field)),
-                    fg='bright_yellow')
 
 
 if __name__ == "__main__":

@@ -36,11 +36,13 @@ from tempfile import SpooledTemporaryFile
 
 from plainbox.impl.color import Colorizer
 from plainbox.impl.launcher import DefaultLauncherDefinition
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from checkbox_ng.urwid_ui import TestPlanBrowser
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
 from checkbox_ng.urwid_ui import resume_dialog
@@ -296,6 +298,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 chosen_jobs = [job for job in all_jobs if job in wanted_set]
                 _logger.debug("master: Selected jobs: %s", chosen_jobs)
                 self.sa.modify_todo_list(chosen_jobs)
+            manifest_repr = self.sa.get_manifest_repr()
+            if manifest_repr:
+                manifest_answers = ManifestBrowser(
+                    "System Manifest:", manifest_repr).run()
+                self.sa.save_manifest(manifest_answers)
         self.sa.finish_job_selection()
         self.run_jobs()
 

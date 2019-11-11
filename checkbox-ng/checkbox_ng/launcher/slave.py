@@ -25,7 +25,6 @@ import os
 import socket
 import sys
 
-from guacamole import Command
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
 from plainbox.vendor import rpyc
@@ -45,7 +44,7 @@ class SessionAssistantSlave(rpyc.Service):
         return SessionAssistantSlave.session_assistant
 
 
-class RemoteSlave(Command):
+class RemoteSlave():
     """
     Run checkbox instance as a slave
 

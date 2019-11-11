@@ -26,7 +26,6 @@ Session Assistant.
 
 import collections
 import datetime
-import fnmatch
 import itertools
 import json
 import logging

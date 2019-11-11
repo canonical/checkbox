@@ -25,7 +25,6 @@ import gettext
 import json
 import logging
 import os
-import sys
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_

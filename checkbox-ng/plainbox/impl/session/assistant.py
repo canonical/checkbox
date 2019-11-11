@@ -214,6 +214,10 @@ class SessionAssistant:
         self._manifest_path = os.path.expanduser(
             '~/.local/share/plainbox/machine-manifest.json')
 
+    @property
+    def config(self):
+        return self._config
+
     @raises(UnexpectedMethodCall, LookupError)
     def configure_application_restart(
             self, cmd_callback: 'Callable[[str], List[str]]') -> None:

@@ -158,6 +158,10 @@ class RemoteSessionAssistant():
     def session_change_lock(self):
         return self._session_change_lock
 
+    @property
+    def config(self):
+        return self._sa.config
+
     def allowed_when(*states):
         def wrap(f):
             def fun(self, *args):

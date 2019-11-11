@@ -1330,6 +1330,21 @@ class SessionAssistant:
             manifest_info.update({'value': value})
             manifest_info_dict[prompt].append(manifest_info)
         return manifest_info_dict
+
+    def save_manifest(self, manifest_answers):
+        """
+        Record the manifest on disk.
+        """
+        manifest_cache = dict()
+        if os.path.isfile(self._manifest_path):
+            with open(self._manifest_path, 'rt', encoding='UTF-8') as stream:
+                manifest_cache = json.load(stream)
+        os.makedirs(os.path.dirname(self._manifest_path), exist_ok=True)
+        manifest_cache.update(manifest_answers)
+        print("Saving manifest to {}".format(self._manifest_path))
+        with open(self._manifest_path, 'wt', encoding='UTF-8') as stream:
+            json.dump(manifest_cache, stream, sort_keys=True, indent=2)
+
     @raises(ValueError, TypeError, UnexpectedMethodCall)
     def run_job(
         self, job_id: str, ui: 'Union[str, IJobRunnerUI]',

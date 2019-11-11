@@ -57,25 +57,6 @@ _ = gettext.gettext
 _logger = logging.getLogger("checkbox-cli")
 
 
-class DisplayIngredient(Ingredient):
-
-    """Ingredient that adds a Textland display to guacamole."""
-
-    def late_init(self, context):
-        """Add a DisplayIngredient as ``display`` to the guacamole context."""
-        context.display = get_display()
-
-
-class WarmupCommandsIngredient(Ingredient):
-    """Ingredient that runs given commands at startup."""
-
-    def late_init(self, context):
-        # https://bugs.launchpad.net/checkbox-ng/+bug/1423949
-        # MAAS-deployed server images need "tput reset" to keep ugliness
-        # from happening....
-        subprocess.check_call(['tput', 'reset'])
-
-
 class LauncherIngredient(Ingredient):
     """Ingredient that adds Checkbox Launcher support to guacamole."""
 

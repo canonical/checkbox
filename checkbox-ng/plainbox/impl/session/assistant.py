@@ -54,6 +54,7 @@ from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.secure.qualifiers import FieldQualifier
+from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.session import SessionMetaData
@@ -934,7 +935,9 @@ class SessionAssistant:
         desired_job_list = select_jobs(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans] +
-                self._exclude_qualifiers)
+                self._exclude_qualifiers +
+                [JobIdQualifier(
+                    'com.canonical.plainbox::collect-manifest', None, False)])
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.

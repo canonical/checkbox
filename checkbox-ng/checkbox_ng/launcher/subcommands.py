@@ -403,6 +403,11 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _pick_jobs_to_run(self):
         if self.launcher.test_selection_forced:
+            if self.launcher.manifest is not Unset:
+                self.ctx.sa.save_manifest(
+                    {manifest_id: self.launcher.manifest[manifest_id] for
+                     manifest_id in self.launcher.manifest}
+                )
             # by default all tests are selected; so we're done here
             return
         job_list = [self.ctx.sa.get_job(job_id) for job_id in

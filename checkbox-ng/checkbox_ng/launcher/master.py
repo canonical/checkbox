@@ -286,7 +286,13 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self.jobs = self.sa.finish_bootstrap()
 
     def select_jobs(self, all_jobs):
-        if not self.launcher.test_selection_forced:
+        if self.launcher.test_selection_forced:
+            if self.launcher.manifest is not Unset:
+                self.sa.save_manifest(
+                    {manifest_id: self.launcher.manifest[manifest_id] for
+                     manifest_id in self.launcher.manifest}
+                )
+        else:
             _logger.info("master: Selecting jobs.")
             reprs = self.sa.get_jobs_repr(all_jobs)
             wanted_set = CategoryBrowser(

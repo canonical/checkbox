@@ -58,6 +58,12 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3-requests-unixsocket
 
+# This is for wireless_sta_protocol
+unit: packaging meta-data
+os-id: ubuntu
+os-version-id: 18.04
+Depends: iw (>= 5.3)
+
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
@@ -212,6 +218,7 @@ requires: package.name == "x11-xserver-utils"
 _summary: Creates display resource info from xrandr output
 
 id: usb
+template-engine: jinja2
 estimated_duration: 0.33
 plugin: resource
 _description: Creates resource info for supported USB versions
@@ -219,11 +226,11 @@ _summary: Collect information about supported types of USB
 command:
  for version in 2 3; do
      echo -n "usb$version: "
-     if [[ -v SNAP ]]; then
-         checkbox-support-lsusb -f $SNAP/checkbox-runtime/var/lib/usbutils/usb.ids | grep -q "Linux Foundation ${version}.00 root hub" && echo "supported" || echo "unsupported"
-     else
-         lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
-     fi
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-lsusb -f $SNAP/checkbox-runtime/var/lib/usbutils/usb.ids | grep -q "Linux Foundation ${version}.00 root hub" && echo "supported" || echo "unsupported"
+ {%- else %}
+     lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
+ {% endif -%}
  done
 
 id: xinput

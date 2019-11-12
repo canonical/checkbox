@@ -119,7 +119,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 7
+    REMOTE_API_VERSION = 8
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -286,9 +286,10 @@ class RemoteSessionAssistant():
                 job_state.attempts = self._launcher.max_attempts
         return self._sa.get_static_todo_list()
 
-    def save_todo_list(self, chosen_jobs):
-        if chosen_jobs is not None:
-            self._sa.use_alternate_selection(chosen_jobs)
+    def modify_todo_list(self, chosen_jobs):
+        self._sa.use_alternate_selection(chosen_jobs)
+
+    def finish_job_selection(self):
         self._jobs_count = len(self._sa.get_dynamic_todo_list())
         self._state = TestsSelected
 

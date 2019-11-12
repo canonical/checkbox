@@ -285,7 +285,6 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.jobs = self.sa.finish_bootstrap()
 
     def select_jobs(self, all_jobs):
-        chosen_jobs = None  # leaving as None indicates no user modifications
         if not self.launcher.test_selection_forced:
             _logger.info("master: Selecting jobs.")
             reprs = self.sa.get_jobs_repr(all_jobs)
@@ -297,7 +296,8 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
                 # the original list
                 chosen_jobs = [job for job in all_jobs if job in wanted_set]
                 _logger.debug("master: Selected jobs: %s", chosen_jobs)
-        self.sa.save_todo_list(chosen_jobs)
+                self.sa.modify_todo_list(chosen_jobs)
+        self.sa.finish_job_selection()
         self.run_jobs()
 
     def register_arguments(self, parser):

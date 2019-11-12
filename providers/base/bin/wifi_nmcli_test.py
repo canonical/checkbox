@@ -221,7 +221,7 @@ if __name__ == '__main__':
     if args.func:
         try:
             result = args.func(args)
-        except:
+        finally:
             cleanup_nm_connections()
 
     # The test is not required to run as root, but root access is required for

@@ -538,7 +538,7 @@ class SessionAssistant:
         self._metadata = self._context.state.metadata
         self._metadata.app_id = self._app_id
         self._metadata.title = title
-        self._metadata.flags = {'bootstrapping'}
+        self._metadata.flags = {SessionMetaData.FLAG_BOOTSTRAPPING}
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)
@@ -849,7 +849,7 @@ class SessionAssistant:
         # available now.
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state())
-        self._metadata.flags = {'incomplete'}
+        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
         self._manager.checkpoint()
 
     @raises(UnexpectedMethodCall)
@@ -878,7 +878,8 @@ class SessionAssistant:
                 '^{}$'.format(pattern)), Origin('hand-pick')))
         jobs = select_jobs(self._context.state.job_list, qualifiers)
         self._context.state.update_desired_job_list(jobs)
-        self._metadata.flags = {'incomplete', 'testplanless'}
+        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE,
+                                SessionMetaData.FLAG_TESTPLANLESS}
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state())
 
@@ -935,7 +936,7 @@ class SessionAssistant:
         # available now.
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state())
-        self._metadata.flags = {'incomplete'}
+        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
         self._manager.checkpoint()
         # No bootstrap is done update the cache of jobs that were run
         # during bootstrap phase
@@ -968,9 +969,15 @@ class SessionAssistant:
             :meth:`get_static_todo_list()` and :meth:`get_dynamic_todo_list()`.
         """
         UsageExpectation.of(self).enforce()
-        desired_job_list = [
-            self._context.get_unit(job_id, 'job') for job_id in
-            self.get_static_todo_list() if job_id in selection]
+        self._metadata.custom_joblist = True
+        desired_job_list = []
+        rejected_job_list = []
+        for job_id in self.get_static_todo_list():
+            if job_id in selection:
+                desired_job_list.append(self._context.get_unit(job_id, 'job'))
+            else:
+                rejected_job_list.append(job_id)
+        self._metadata.rejected_jobs = rejected_job_list
         self._context.state.update_desired_job_list(desired_job_list)
 
     @raises(UnexpectedMethodCall)
@@ -1321,7 +1328,9 @@ class SessionAssistant:
                 checkbox_data_dir = os.path.join(
                     self.get_session_dir(), 'CHECKBOX_DATA')
                 if not os.path.exists(checkbox_data_dir):
+                    oldmask = os.umask(000)
                     os.mkdir(checkbox_data_dir)
+                    os.umask(oldmask)
                 respawn_cmd_file = os.path.join(
                     checkbox_data_dir, '__respawn_checkbox')
                 if self._restart_cmd_callback:

@@ -19,7 +19,9 @@
 This module contains implementation of the master end of the remote execution
 functionality.
 """
+import getpass
 import gettext
+import ipaddress
 import logging
 import os
 import select
@@ -43,7 +45,7 @@ from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import interrupt_dialog
 from checkbox_ng.urwid_ui import resume_dialog
-from checkbox_ng.launcher.run import NormalUI
+from checkbox_ng.launcher.run import NormalUI, ReRunJob
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
 _ = gettext.gettext
@@ -122,6 +124,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._sudo_provider = None
+        self._normal_user = ''
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -131,11 +134,18 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             with open(expanded_path, 'rt') as f:
                 self._launcher_text = f.read()
             self.launcher.read_string(self._launcher_text)
+        if 'local' in ctx.args.host:
+            ctx.args.host = '127.0.0.1'
+            if ipaddress.ip_address(ctx.args.host).is_loopback:
+                self._normal_user = getpass.getuser()
+        if ctx.args.user:
+            self._normal_user = ctx.args.user
         timeout = 600
         deadline = time.time() + timeout
         port = ctx.args.port
-        print(_("Connecting to {}:{}. Timeout: {}s").format(
-            ctx.args.host, port, timeout))
+        if not ipaddress.ip_address(ctx.args.host).is_loopback:
+            print(_("Connecting to {}:{}. Timeout: {}s").format(
+                ctx.args.host, port, timeout))
         while time.time() < deadline:
             try:
                 self.connect_and_run(ctx.args.host, port)
@@ -149,6 +159,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config['allow_all_attrs'] = True
+        config['sync_request_timeout'] = 60
         keep_running = False
         self._prepare_transports()
         interrupted = False
@@ -217,6 +228,7 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         _logger.info("master: Starting new session.")
         configuration = dict()
         configuration['launcher'] = self._launcher_text
+        configuration['normal_user'] = self._normal_user
 
         tps = self.sa.start_session(configuration)
         _logger.debug("master: Session started. Available TPs:\n%s",
@@ -273,22 +285,20 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
         self.jobs = self.sa.finish_bootstrap()
 
     def select_jobs(self, all_jobs):
-        _logger.info("master: Selecting jobs.")
-        if self.launcher.test_selection_forced:
-            _logger.debug("master: Force-seleced jobs: %s", all_jobs)
-            self.sa.save_todo_list(all_jobs)
-            self.run_jobs()
-        else:
+        if not self.launcher.test_selection_forced:
+            _logger.info("master: Selecting jobs.")
             reprs = self.sa.get_jobs_repr(all_jobs)
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs).run()
-            # wanted_set may have bad order, let's use it as a filter to the
-            # original list
-            todo_list = [job for job in all_jobs if job in wanted_set]
-            _logger.debug("master: Selected jobs: %s", todo_list)
-            self.sa.save_todo_list(todo_list)
-            self.run_jobs()
-        return False
+            # no need to set an alternate selection if the job list not changed
+            if len(reprs) != len(wanted_set):
+                # wanted_set may have bad order, let's use it as a filter to
+                # the original list
+                chosen_jobs = [job for job in all_jobs if job in wanted_set]
+                _logger.debug("master: Selected jobs: %s", chosen_jobs)
+                self.sa.modify_todo_list(chosen_jobs)
+        self.sa.finish_job_selection()
+        self.run_jobs()
 
     def register_arguments(self, parser):
         parser.add_argument('host', help=_("target host"))
@@ -296,6 +306,8 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             "launcher definition file to use"))
         parser.add_argument('--port', type=int, default=18871, help=_(
             "port to connect to"))
+        parser.add_argument('-u', '--user', help=_(
+            "normal user to run non-root jobs"))
 
     def _handle_interrupt(self):
         """
@@ -478,37 +490,68 @@ class RemoteMaster(Command, ReportsStage, MainLoopStage):
             print(_("Category: {0}").format(job['category_name']))
             SimpleUI.horiz_line()
             next_job = False
-            for interaction in self.sa.run_job(job['id']):
-                if interaction.kind == 'sudo_input':
-                    self.sa.save_password(
-                        self._sudo_provider.encrypted_password)
-                if interaction.kind == 'purpose':
-                    SimpleUI.description(_('Purpose:'), interaction.message)
-                elif interaction.kind in ['description', 'steps']:
-                    SimpleUI.description(_('Steps:'), interaction.message)
-                    if job['command'] is None:
-                        cmd = 'run'
-                    else:
-                        cmd = SimpleUI(None).wait_for_interaction_prompt(None)
-                    if cmd == 'skip':
+            while next_job is False:
+                for interaction in self.sa.run_job(job['id']):
+                    if interaction.kind == 'sudo_input':
+                        self.sa.save_password(
+                            self._sudo_provider.encrypted_password)
+                    if interaction.kind == 'purpose':
+                        SimpleUI.description(_('Purpose:'),
+                                             interaction.message)
+                    elif interaction.kind == 'description':
+                        SimpleUI.description(_('Description:'),
+                                             interaction.message)
+                        if job['command'] is None:
+                            cmd = 'run'
+                        else:
+                            cmd = SimpleUI(
+                                None).wait_for_interaction_prompt(None)
+                        if cmd == 'skip':
+                            next_job = True
+                        self.sa.remember_users_response(cmd)
+                        self.wait_for_job(dont_finish=True)
+                    elif interaction.kind in 'steps':
+                        SimpleUI.description(_('Steps:'), interaction.message)
+                        if job['command'] is None:
+                            cmd = 'run'
+                        else:
+                            cmd = SimpleUI(
+                                None).wait_for_interaction_prompt(None)
+                        if cmd == 'skip':
+                            next_job = True
+                        self.sa.remember_users_response(cmd)
+                    elif interaction.kind == 'verification':
+                        self.wait_for_job(dont_finish=True)
+                        if interaction.message:
+                            SimpleUI.description(
+                                _('Verification:'), interaction.message)
+                        JobAdapter = namedtuple('job_adapter', ['command'])
+                        job_lite = JobAdapter(job['command'])
+                        try:
+                            cmd = SimpleUI(None)._interaction_callback(
+                                job_lite, interaction.extra._builder)
+                            self.sa.remember_users_response(cmd)
+                            self.finish_job(
+                                interaction.extra._builder.get_result())
+                            next_job = True
+                            break
+                        except ReRunJob:
+                            next_job = False
+                            self.sa.rerun_job(
+                                job['id'],
+                                interaction.extra._builder.get_result())
+                            break
+                    elif interaction.kind == 'comment':
+                        new_comment = input(SimpleUI.C.BLUE(
+                            _('Please enter your comments:') + '\n'))
+                        self.sa.remember_users_response(new_comment + '\n')
+                    elif interaction.kind == 'skip':
+                        self.finish_job(
+                            interaction.extra._builder.get_result())
                         next_job = True
-                    self.sa.remember_users_response(cmd)
-                elif interaction.kind == 'verification':
-                    self.wait_for_job(dont_finish=True)
-                    if interaction.message:
-                        SimpleUI.description(
-                            _('Verification:'), interaction.message)
-                    JobAdapter = namedtuple('job_adapter', ['command'])
-                    job = JobAdapter(job['command'])
-                    cmd = SimpleUI(None)._interaction_callback(
-                        job, interaction.extra)
-                    self.sa.remember_users_response(cmd)
-                    self.finish_job(interaction.extra.get_result())
-                    next_job = True
-                elif interaction.kind == 'comment':
-                    new_comment = input(SimpleUI.C.BLUE(
-                        _('Please enter your comments:') + '\n'))
-                    self.sa.remember_users_response(new_comment + '\n')
+                        break
+                else:
+                    self.wait_for_job()
+                    break
             if next_job:
                 continue
-            self.wait_for_job()

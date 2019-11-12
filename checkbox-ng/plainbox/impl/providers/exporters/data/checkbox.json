@@ -5,6 +5,12 @@
 {%- set category_map = state.category_map -%}
 {
     "title": {{ state.metadata.title | jsonify | safe }},
+{%- if "testplan_id" in app_blob %}
+{%- if app_blob['testplan_id'] %}
+    "testplan_id": {{ app_blob['testplan_id'] | jsonify | safe }},
+{%- endif %}
+{%- endif %}
+    "custom_joblist": {{ state.metadata.custom_joblist | jsonify | safe }},
 {%- if "description" in app_blob %}
 {%- if app_blob['description'] %}
     "description": {{ app_blob['description'] | jsonify | safe }},
@@ -94,6 +100,13 @@
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_text_attachment | jsonify | safe }},
             "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}}
+        }{%- if not loop.last -%},{%- endif %}
+    {%- endfor %}
+    ],
+    "rejected-jobs": [
+    {%- for job_id in state.metadata.rejected_jobs %}
+        {
+            "full_id": "{{ job_id }}"
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ],

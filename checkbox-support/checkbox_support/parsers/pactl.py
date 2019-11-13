@@ -60,7 +60,10 @@ from collections import OrderedDict
 from inspect import isroutine
 
 import pyparsing as p
-
+try:
+    p.__compat__.collect_all_And_tokens = False
+except AttributeError:
+    pass
 
 # Enable packrat paring.
 #

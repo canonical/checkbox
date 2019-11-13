@@ -427,6 +427,7 @@ class SessionAssistant:
             self.delete_sessions: "delete previously created sessions",
             self.finalize_session: "to finalize session",
         }
+        return self._selected_providers
 
     @morris.signal
     def provider_selected(self, provider, auto):

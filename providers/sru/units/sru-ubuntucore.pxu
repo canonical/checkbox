@@ -109,3 +109,4 @@ include:
 bootstrap_include:
     device
     graphics_card
+    net_if_management

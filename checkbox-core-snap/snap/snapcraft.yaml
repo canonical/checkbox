@@ -134,14 +134,14 @@ parts:
       - build-essential
     python-packages:
       - guacamole
-      - Jinja2
-      - padme
-      - requests-oauthlib
-      - urwid
-      - XlsxWriter
     stage-packages:
-      - sudo
       - libpam-modules
+      - python3-jinja2
+      - python3-padme
+      - python3-requests-oauthlib
+      - python3-urwid
+      - python3-xlsxwriter
+      - sudo
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""

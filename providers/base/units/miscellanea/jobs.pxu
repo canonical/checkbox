@@ -190,6 +190,16 @@ command: check-prerelease
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+id: miscellanea/kernel_taint_test
+_summary: Test that kernel is not tainted
+_description:
+ Test to verify that the kernel is not tainted by out-of-tree
+ drivers, live patches, proprietary modules, etc.
+command: kernel_taint_test
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
 requires:
  package.name == 'ipmitool' or executable.name == 'ipmitool'

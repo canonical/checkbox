@@ -67,6 +67,7 @@ mandatory_include:
     miscellanea/secure_boot_mode
     miscellanea/efi_pxeboot
     miscellanea/check_prerelease
+    miscellanea/kernel_taint_test
     miscellanea/cpus_are_not_samples
     miscellanea/ipmi_test                      certification-status=blocker
     miscellanea/bmc_info

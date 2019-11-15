@@ -27,7 +27,7 @@ All abstract base classes are in :mod:`plainbox.abc`.
 # PEP440 compliant version declaration.
 #
 # This is used by @public decorator to enforce our public API guarantees.
-__version__ = '1.6.0rc2'
+__version__ = '1.6.0'
 
 def get_version_string():
     import os

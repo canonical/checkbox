@@ -37,13 +37,12 @@ import sys
 import tarfile
 import time
 
-from guacamole import Command
-
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
 from plainbox.impl.color import Colorizer
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
+from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.providers import get_providers
 from plainbox.impl.providers.embedded_providers import (
     EmbeddedProvider1PlugInCollection)
@@ -73,7 +72,7 @@ _ = gettext.gettext
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
 
 
-class Submit(Command):
+class Submit():
     def register_arguments(self, parser):
         def secureid(secure_id):
             if not re.match(SECURE_ID_PATTERN, secure_id):
@@ -141,7 +140,7 @@ class Submit(Command):
                         ": {0}").format(result))
 
 
-class StartProvider(Command):
+class StartProvider():
     def register_arguments(self, parser):
         parser.add_argument(
             'name', metavar=_('name'), type=IQN,
@@ -161,12 +160,7 @@ class StartProvider(Command):
             gettext_domain=re.sub("[.:]", "_", ctx.args.name))
 
 
-class Launcher(Command, MainLoopStage, ReportsStage):
-
-    name = 'launcher'
-
-    app_id = 'com.canonical:checkbox-cli'
-
+class Launcher(MainLoopStage, ReportsStage):
     @property
     def sa(self):
         return self.ctx.sa
@@ -192,7 +186,10 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             # exited by now, so validation passed
             print(_("Launcher seems valid."))
             return
-        self.launcher = ctx.cmd_toplevel.launcher
+        if ctx.args.launcher:
+            self.launcher =  load_configs(ctx.args.launcher)
+        else:
+            self.launcher = DefaultLauncherDefinition()
         logging_level = {
             'normal': logging.WARNING,
             'verbose': logging.INFO,
@@ -206,12 +203,6 @@ class Launcher(Command, MainLoopStage, ReportsStage):
             self.ctx = ctx
             # now we have all the correct flags and options, so we need to
             # replace the previously built SA with the defaults
-            ctx.sa = SessionAssistant(
-                self.get_app_id(),
-                self.get_cmd_version(),
-                self.get_sa_api_version(),
-                self.get_sa_api_flags(),
-            )
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)
@@ -579,9 +570,7 @@ class CheckboxUI(NormalUI):
         pass
 
 
-class Run(Command, MainLoopStage):
-    name = 'run'
-
+class Run(MainLoopStage):
     def register_arguments(self, parser):
         parser.add_argument(
             'PATTERN', nargs="*",
@@ -651,7 +640,7 @@ class Run(Command, MainLoopStage):
             self.ctx = ctx
             ctx.sa = SessionAssistant(
                 "com.canonical:checkbox-cli",
-                self.get_cmd_version(),
+                "0.99",
                 "0.99",
                 ["restartable"],
             )
@@ -759,9 +748,7 @@ class Run(Command, MainLoopStage):
             lambda session_id: [respawn_cmd.format(session_id)])
 
 
-class List(Command):
-    name = 'list'
-
+class List():
     def register_arguments(self, parser):
         parser.add_argument(
             'GROUP', nargs='?',
@@ -817,9 +804,7 @@ class List(Command):
         print_objs(ctx.args.GROUP, ctx.args.attrs)
 
 
-class ListBootstrapped(Command):
-    name = 'list-bootstrapped'
-
+class ListBootstrapped():
     @property
     def sa(self):
         return self.ctx.sa
@@ -871,8 +856,7 @@ class ListBootstrapped(Command):
                 print(job_id)
 
 
-class TestPlanExport(Command):
-    name = 'tp-export'
+class TestPlanExport():
 
     @property
     def sa(self):

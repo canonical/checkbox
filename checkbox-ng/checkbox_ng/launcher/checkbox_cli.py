@@ -26,19 +26,10 @@ import os
 import subprocess
 import sys
 
-from guacamole.core import Ingredient
-from guacamole.ingredients import ansi
-from guacamole.ingredients import argparse
-from guacamole.ingredients import cmdtree
-from guacamole.recipes.cmd import CommandRecipe
-
-from plainbox.impl.ingredients import CanonicalCrashIngredient
-from plainbox.impl.ingredients import CanonicalCommand
-from plainbox.impl.ingredients import RenderingContextIngredient
-from plainbox.impl.ingredients import SessionAssistantIngredient
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.launcher import LauncherDefinition
+from plainbox.impl.session.assistant import SessionAssistant
 
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.subcommands import (
@@ -57,128 +48,59 @@ _ = gettext.gettext
 _logger = logging.getLogger("checkbox-cli")
 
 
-class DisplayIngredient(Ingredient):
-
-    """Ingredient that adds a Textland display to guacamole."""
-
-    def late_init(self, context):
-        """Add a DisplayIngredient as ``display`` to the guacamole context."""
-        context.display = get_display()
-
-
-class WarmupCommandsIngredient(Ingredient):
-    """Ingredient that runs given commands at startup."""
-
-    def late_init(self, context):
-        # https://bugs.launchpad.net/checkbox-ng/+bug/1423949
-        # MAAS-deployed server images need "tput reset" to keep ugliness
-        # from happening....
-        subprocess.check_call(['tput', 'reset'])
-
-
-class LauncherIngredient(Ingredient):
-    """Ingredient that adds Checkbox Launcher support to guacamole."""
-
-    def late_init(self, context):
-        if context.args.command1.get_cmd_name() != 'launcher':
-            launcher = DefaultLauncherDefinition()
-        else:
-            launcher = load_configs(context.args.launcher)
-        context.cmd_toplevel.launcher = launcher
-
-
-class CheckboxCommandRecipe(CommandRecipe):
-
-    """A recipe for using Checkbox-enhanced commands."""
-
-    def get_ingredients(self):
-        """Get a list of ingredients for guacamole."""
-        return [
-            cmdtree.CommandTreeBuilder(self.command),
-            cmdtree.CommandTreeDispatcher(),
-            argparse.ParserIngredient(),
-            CanonicalCrashIngredient(),
-            ansi.ANSIIngredient(),
-            LauncherIngredient(),
-            SessionAssistantIngredient(),
-            RenderingContextIngredient(),
-        ]
-
-
-class CheckboxCommand(CanonicalCommand):
-
-    """
-    A command with Checkbox-enhanced ingredients.
-
-    If no command is given, launcher command is assumed.
-    See checkbox-cli launcher -h for more information
-    """
-
-    bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"
-
-    sub_commands = (
-        ('check-config', CheckConfig),
-        ('launcher', Launcher),
-        ('list', List),
-        ('run', Run),
-        ('startprovider', StartProvider),
-        ('submit', Submit),
-        ('list-bootstrapped', ListBootstrapped),
-        ('merge-reports', MergeReports),
-        ('merge-submissions', MergeSubmissions),
-        ('tp-export', TestPlanExport),
-        ('slave', RemoteSlave),
-        ('master', RemoteMaster),
-    )
-
-    def register_arguments(self, parser):
-        parser.add_argument('-v', '--verbose', action='store_true', help=_(
-            'print more logging from checkbox'))
-        parser.add_argument('--debug', action='store_true', help=_(
-            'print debug messages from checkbox'))
-        parser.add_argument('--clear-cache', action='store_true', help=_(
-            'remove cached results from the system'))
-        parser.add_argument('--version', action='store_true', help=_(
-            "show program's version information and exit"))
-
-    def invoked(self, ctx):
-        # Ugly hack to avoid a segfault when running from a classic snap where
-        # libc6 is newer than the 16.04 version.  The requests module is not
-        # calling the right glibc getaddrinfo() when sending results to C3.
-        # Doing such a call early ensures the right socket module is still
-        # loaded.
-        try:
-            socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
-        except Exception as exc:
-            pass
-
-        if ctx.args.clear_cache:
-            ResourceJobCache().clear()
-        if ctx.args.verbose:
-            logging_level = logging.INFO
-            logging.basicConfig(level=logging_level)
-        if ctx.args.debug:
-            logging_level = logging.DEBUG
-            logging.basicConfig(level=logging_level)
-
-    def main(self, argv=None, exit=True):
-        """
-        Shortcut for running a command.
-
-        See :meth:`guacamole.recipes.Recipe.main()` for details.
-        """
-        return CheckboxCommandRecipe(self).main(argv, exit)
-
+class Context:
+    def __init__(self, args, sa):
+        self.args = args
+        self.sa = sa
 
 def main():
-    # the next block preserves checkbox-cli universal invocation, i.e.:
-    # $ checkbox-cli             -> runs default settings
-    # $ checkbox-cli my-launcher -> runs checkbox-cli with `my-launcher` as
-    #                               launcher
-    # $ checkbox-cli launcher my-launcher ->  same as ^
-    # to achieve that the following code 'injects launcher subcommand to argv
-    known_cmds = [x[0] for x in CheckboxCommand.sub_commands]
+    import argparse
+    commands = {
+        'check-config': CheckConfig,
+        'launcher': Launcher,
+        'list': List,
+        'run': Run,
+        'startprovider': StartProvider,
+        'submit': Submit,
+        'list-bootstrapped': ListBootstrapped,
+        'merge-reports': MergeReports,
+        'merge-submissions': MergeSubmissions,
+        'tp-export': TestPlanExport,
+        'slave': RemoteSlave,
+        'master': RemoteMaster,
+    }
+    known_cmds = list(commands.keys())
     known_cmds += ['-h', '--help']
     if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
-    CheckboxCommand().main()
+    top_parser = argparse.ArgumentParser()
+    top_parser.add_argument('-v', '--verbose', action='store_true', help=_(
+        'print more logging from checkbox'))
+    top_parser.add_argument('--debug', action='store_true', help=_(
+        'print debug messages from checkbox'))
+    top_parser.add_argument('--clear-cache', action='store_true', help=_(
+        'remove cached results from the system'))
+    top_parser.add_argument('--version', action='store_true', help=_(
+        "show program's version information and exit"))
+    top_parser.add_argument('subcommand', help=_("subcommand to run"),
+            choices=commands.keys())
+    # parse all the cli invocation until a subcommand is found
+    # subcommand doesn't start with a '-'
+    subcmd_index = 1
+    for i, arg in enumerate(sys.argv[1:]):
+        if not arg.startswith('-'):
+            subcmd_index = i + 1
+            break
+    args = top_parser.parse_args(sys.argv[1:subcmd_index + 1])
+    subcmd_parser = argparse.ArgumentParser()
+    subcmd = commands[args.subcommand]()
+    subcmd.register_arguments(subcmd_parser)
+    sub_args = subcmd_parser.parse_args(sys.argv[subcmd_index + 1:])
+    sa = SessionAssistant(
+            "com.canonical:checkbox-cli",
+            "0.99",
+            "0.99",
+            ["restartable"],
+        )
+    ctx = Context(sub_args, sa)
+    subcmd.invoked(ctx)

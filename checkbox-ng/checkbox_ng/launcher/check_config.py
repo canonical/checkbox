@@ -15,15 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-from guacamole import Command
-
 from plainbox.impl.secure.config import ValidationError
 from plainbox.i18n import gettext as _
 
 from checkbox_ng.config import load_configs
 
 
-class CheckConfig(Command):
+class CheckConfig():
     def invoked(self, ctx):
         config = load_configs()
         print(_("Configuration files:"))

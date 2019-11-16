@@ -25,8 +25,6 @@ import os
 import tarfile
 from tempfile import TemporaryDirectory
 
-from guacamole import Command
-
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
 from plainbox.impl.providers.special import get_exporters
 from plainbox.impl.resource import Resource
@@ -41,9 +39,7 @@ from plainbox.impl.unit.job import JobDefinition
 CERTIFICATION_NS = 'com.canonical.certification::'
 
 
-class MergeReports(Command):
-    name = 'merge-reports'
-
+class MergeReports():
     def register_arguments(self, parser):
         parser.add_argument(
             'submission', nargs='*', metavar='SUBMISSION',

@@ -34,7 +34,6 @@ from collections import namedtuple
 from functools import partial
 from tempfile import SpooledTemporaryFile
 
-from guacamole import Command
 from plainbox.impl.color import Colorizer
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.sudo_broker import SudoProvider
@@ -93,7 +92,7 @@ class SimpleUI(NormalUI, MainLoopStage):
         None
 
 
-class RemoteMaster(Command, ReportsStage, MainLoopStage):
+class RemoteMaster(ReportsStage, MainLoopStage):
     """
     Control remote slave instance
 

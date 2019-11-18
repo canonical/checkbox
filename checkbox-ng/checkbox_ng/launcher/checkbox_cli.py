@@ -103,4 +103,16 @@ def main():
             ["restartable"],
         )
     ctx = Context(sub_args, sa)
+    try:
+        socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
+    except Exception as exc:
+        pass
+    if args.clear_cache:
+        ResourceJobCache().clear()
+    if args.verbose:
+        logging_level = logging.INFO
+        logging.basicConfig(level=logging_level)
+    if args.debug:
+        logging_level = logging.DEBUG
+        logging.basicConfig(level=logging_level)
     subcmd.invoked(ctx)

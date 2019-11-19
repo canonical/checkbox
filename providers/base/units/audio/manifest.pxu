@@ -13,3 +13,9 @@ unit: manifest entry
 id: has_audio_capture
 _name: Audio capture
 value-type: bool
+
+unit: manifest entry
+id: has_audio_loopback_connector
+prompt: Does this device have the following?:
+_name: Audio Loopback Connector
+value-type: bool

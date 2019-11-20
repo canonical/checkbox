@@ -125,7 +125,7 @@ class InteractiveCommand:
         else:
             raw = self._proc.stdout.read(self._pending)
             self._pending = 0
-            decoded = raw.decode(sys.stdout.encoding)
+            decoded = raw.decode(sys.stdout.encoding, errors='ignore')
             self._logger.debug("Read %s bytes. : %s" % (len(raw), decoded))
             return decoded
 

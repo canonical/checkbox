@@ -25,7 +25,6 @@ import gettext
 import json
 import logging
 import os
-import sys
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
@@ -262,7 +261,7 @@ class MainLoopStage(CheckboxUiStage):
     def _generate_job_infos(self, job_list):
         test_info_list = tuple()
         for job in job_list:
-            cat_id = self.ctx.sa.get_job_state(job.id).effective_category_id
+            cat_id = self.sa.get_job_state(job.id).effective_category_id
             duration_txt = _('No estimated duration provided for this job')
             if job.estimated_duration is not None:
                 duration_txt = '{} {}'.format(job.estimated_duration, _(
@@ -272,13 +271,16 @@ class MainLoopStage(CheckboxUiStage):
                 "partial_id": job.partial_id,
                 "name": job.tr_summary(),
                 "category_id": cat_id,
-                "category_name": self.ctx.sa.get_category(cat_id).tr_name(),
-                "automated": (_('this job is fully automated') if job.automated
-                              else _('this job requires some manual interaction')),
+                "category_name": self.sa.get_category(cat_id).tr_name(),
+                "automated": (
+                    _('this job is fully automated')
+                    if job.automated
+                    else _('this job requires some manual interaction')
+                ),
                 "duration": duration_txt,
                 "description": (job.tr_description() or
                                 _('No description provided for this job')),
-                "outcome": self.ctx.sa.get_job_state(job.id).result.outcome,
+                "outcome": self.sa.get_job_state(job.id).result.outcome,
             }
             test_info_list = test_info_list + ((test_info, ))
         return test_info_list
@@ -306,39 +308,39 @@ class ReportsStage(CheckboxUiStage):
     def _prepare_stock_report(self, report):
         # this is purposefully not using pythonic dict-keying for better
         # readability
-        if not self.launcher.transports:
-            self.launcher.transports = dict()
-        if not self.launcher.exporters:
-            self.launcher.exporters = dict()
-        if not self.launcher.reports:
-            self.launcher.reports = dict()
+        if not self.sa.config.transports:
+            self.sa.config.transports = dict()
+        if not self.sa.config.exporters:
+            self.sa.config.exporters = dict()
+        if not self.sa.config.reports:
+            self.sa.config.reports = dict()
         if report == 'text':
-            self.launcher.exporters['text'] = {
+            self.sa.config.exporters['text'] = {
                 'unit': 'com.canonical.plainbox::text'}
-            self.launcher.transports['stdout'] = {
+            self.sa.config.transports['stdout'] = {
                 'type': 'stream', 'stream': 'stdout'}
             # '1_' prefix ensures ordering amongst other stock reports. This
             # report name does not appear anywhere (because of forced: yes)
-            self.launcher.reports['1_text_to_screen'] = {
+            self.sa.config.reports['1_text_to_screen'] = {
                 'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
         elif report == 'certification':
-            self.launcher.exporters['tar'] = {
+            self.sa.config.exporters['tar'] = {
                 'unit': 'com.canonical.plainbox::tar'}
-            self.launcher.transports['c3'] = {
+            self.sa.config.transports['c3'] = {
                 'type': 'submission-service',
-                'secure_id': self.launcher.transports.get('c3', {}).get(
+                'secure_id': self.sa.config.transports.get('c3', {}).get(
                     'secure_id', None)}
-            self.launcher.reports['upload to certification'] = {
+            self.sa.config.reports['upload to certification'] = {
                 'transport': 'c3', 'exporter': 'tar'}
         elif report == 'certification-staging':
-            self.launcher.exporters['tar'] = {
+            self.sa.config.exporters['tar'] = {
                 'unit': 'com.canonical.plainbox::tar'}
-            self.launcher.transports['c3-staging'] = {
+            self.sa.config.transports['c3-staging'] = {
                 'type': 'submission-service',
-                'secure_id': self.launcher.transports.get('c3', {}).get(
+                'secure_id': self.sa.config.transports.get('c3', {}).get(
                     'secure_id', None),
                 'staging': 'yes'}
-            self.launcher.reports['upload to certification-staging'] = {
+            self.sa.config.reports['upload to certification-staging'] = {
                 'transport': 'c3-staging', 'exporter': 'tar'}
         elif report == 'submission_files':
             # LP:1585326 maintain isoformat but removing ':' chars that cause
@@ -352,14 +354,14 @@ class ReportsStage(CheckboxUiStage):
                                        ('xlsx', '.xlsx'), ('tar', '.tar.xz')]:
                 path = os.path.join(self.base_dir, ''.join(
                     ['submission_', timestamp, file_ext]))
-                self.launcher.transports['{}_file'.format(exporter)] = {
+                self.sa.config.transports['{}_file'.format(exporter)] = {
                     'type': 'file',
                     'path': path}
-                if exporter not in self.launcher.exporters:
-                    self.launcher.exporters[exporter] = {
+                if exporter not in self.sa.config.exporters:
+                    self.sa.config.exporters[exporter] = {
                         'unit': 'com.canonical.plainbox::{}'.format(
                             exporter)}
-                self.launcher.reports['2_{}_file'.format(exporter)] = {
+                self.sa.config.reports['2_{}_file'.format(exporter)] = {
                     'transport': '{}_file'.format(exporter),
                     'exporter': '{}'.format(exporter),
                     'forced': 'yes'
@@ -379,7 +381,7 @@ class ReportsStage(CheckboxUiStage):
         # depending on the type of transport we need to pick variable that
         # serves as the 'where' param for the transport. In case of
         # certification site the URL is supplied here
-        tr_type = self.launcher.transports[transport]['type']
+        tr_type = self.sa.config.transports[transport]['type']
         if tr_type not in self._available_transports:
             _logger.error(_("Unrecognized type '%s' of transport '%s'"),
                           tr_type, transport)
@@ -388,18 +390,18 @@ class ReportsStage(CheckboxUiStage):
         if tr_type == 'file':
             self.transports[transport] = cls(
                 os.path.expanduser(
-                    self.launcher.transports[transport]['path']))
+                    self.sa.config.transports[transport]['path']))
         elif tr_type == 'stream':
             self.transports[transport] = cls(
-                self.launcher.transports[transport]['stream'])
+                self.sa.config.transports[transport]['stream'])
         elif tr_type == 'submission-service':
-            secure_id = self.launcher.transports[transport].get(
+            secure_id = self.sa.config.transports[transport].get(
                 'secure_id', None)
             if self.is_interactive:
                 new_description = input(self.C.BLUE(_(
                     'Enter submission description (press Enter to skip): ')))
                 if new_description:
-                    self.ctx.sa.update_app_blob(json.dumps(
+                    self.sa.update_app_blob(json.dumps(
                         {
                             'description': new_description,
 
@@ -410,7 +412,7 @@ class ReportsStage(CheckboxUiStage):
                 options = "secure_id={}".format(secure_id)
             else:
                 options = ""
-            if self.launcher.transports[transport].get('staging', False):
+            if self.sa.config.transports[transport].get('staging', False):
                 url = ('https://certification.staging.canonical.com/'
                        'api/v1/submission/{}/'.format(secure_id))
             else:
@@ -419,13 +421,13 @@ class ReportsStage(CheckboxUiStage):
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):
-        if 'none' not in self.launcher.stock_reports:
-            for report in self.launcher.stock_reports:
+        if 'none' not in self.sa.config.stock_reports:
+            for report in self.sa.config.stock_reports:
                 if report in ['certification', 'certification-staging']:
                     # skip stock c3 report if secure_id is not given from
                     # config files or launchers, and the UI is non-interactive
                     # (silent)
-                    if ('c3' not in self.launcher.transports and
+                    if ('c3' not in self.sa.config.transports and
                             not self.is_interactive):
                         continue
                     # don't generate stock c3 reports if sideloaded providers
@@ -439,7 +441,7 @@ class ReportsStage(CheckboxUiStage):
         # reports are stored in an ordinary dict(), so sorting them ensures
         # the same order of submitting them between runs, and if they
         # share common prefix, they are next to each other
-        for name, params in sorted(self.launcher.reports.items()):
+        for name, params in sorted(self.sa.config.reports.items()):
             # don't generate stock c3 reports if sideloaded providers
             # were in use, something that should only be done during
             # development
@@ -458,7 +460,7 @@ class ReportsStage(CheckboxUiStage):
                 cmd = 'y'
             if cmd == 'n':
                 continue
-            exporter_id = self.launcher.exporters[params['exporter']]['unit']
+            exporter_id = self.sa.config.exporters[params['exporter']]['unit']
             done_sending = False
             while not done_sending:
                 try:
@@ -492,7 +494,7 @@ class ReportsStage(CheckboxUiStage):
                 except InvalidSecureIDError:
                     _logger.warning(_("Invalid secure_id"))
                     if self._retry_dialog():
-                        self.launcher.transports['c3'].pop('secure_id')
+                        self.sa.config.transports['c3'].pop('secure_id')
                         continue
                 done_sending = True
 

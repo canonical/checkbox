@@ -26,7 +26,6 @@ Session Assistant.
 
 import collections
 import datetime
-import fnmatch
 import itertools
 import json
 import logging
@@ -214,6 +213,10 @@ class SessionAssistant:
         # Manifest
         self._manifest_path = os.path.expanduser(
             '~/.local/share/plainbox/machine-manifest.json')
+
+    @property
+    def config(self):
+        return self._config
 
     @raises(UnexpectedMethodCall, LookupError)
     def configure_application_restart(

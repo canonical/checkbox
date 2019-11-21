@@ -47,6 +47,7 @@ from plainbox.impl.providers import get_providers
 from plainbox.impl.providers.embedded_providers import (
     EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
@@ -64,6 +65,7 @@ from checkbox_ng.launcher.startprovider import (
 from checkbox_ng.launcher.run import Action
 from checkbox_ng.launcher.run import NormalUI
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import TestPlanBrowser
 
@@ -401,6 +403,11 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _pick_jobs_to_run(self):
         if self.launcher.test_selection_forced:
+            if self.launcher.manifest is not Unset:
+                self.ctx.sa.save_manifest(
+                    {manifest_id: self.launcher.manifest[manifest_id] for
+                     manifest_id in self.launcher.manifest}
+                )
             # by default all tests are selected; so we're done here
             return
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
@@ -411,6 +418,11 @@ class Launcher(MainLoopStage, ReportsStage):
         test_info_list = self._generate_job_infos(job_list)
         wanted_set = CategoryBrowser(
             _("Choose tests to run on your system:"), test_info_list).run()
+        manifest_repr = self.ctx.sa.get_manifest_repr()
+        if manifest_repr:
+            manifest_answers = ManifestBrowser(
+                "System Manifest:", manifest_repr).run()
+            self.ctx.sa.save_manifest(manifest_answers)
         # no need to set an alternate selection if the job list not changed
         if len(test_info_list) == len(wanted_set):
             return

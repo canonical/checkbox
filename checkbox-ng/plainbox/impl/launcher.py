@@ -252,5 +252,7 @@ class LauncherDefinition1(LauncherDefinition):
         name='daemon',
         help_text=_('Daemon-specific configuration'))
 
+    manifest = config.Section(
+        help_text=_('Manifest entries to use'))
 
 DefaultLauncherDefinition = LauncherDefinition1

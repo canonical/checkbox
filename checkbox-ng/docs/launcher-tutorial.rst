@@ -392,6 +392,26 @@ Checkbox-slave daemon is run by root so in order to run some jobs as an
 unpriviledged user this variable can be used.
 
 
+Manifest section
+================
+
+``[manifest]``
+
+Beginning of the manifest section.
+
+Each variable present in the ``manifest`` section will be used a a preset value
+for the system manifest, taking precedence over the disk cache.
+
+Example:
+
+::
+
+    [manifest]
+    com.canonical.certification::has_touchscreen = yes
+    com.canonical.certification::has_usb_type_c = true
+    com.canonical.certification::foo = 23
+
+
 Generating reports
 ==================
 

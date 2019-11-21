@@ -744,6 +744,137 @@ class CountdownWidget(urwid.BigText):
             raise urwid.ExitMainLoop
 
 
+class ManifestNaturalEdit(urwid.IntEdit):
+
+    def keypress(self, size, key):
+        (maxcol,) = size
+        return urwid.Edit.keypress(self, (maxcol,), key)
+
+    def value(self):
+        if self.edit_text:
+            return int(self.edit_text)
+
+
+class ManifestQuestion(urwid.WidgetWrap):
+
+    def __init__(self, question):
+        self.id = question['id']
+        self._value = question['value']
+        self._value_type = question['value_type']
+        if self._value_type == 'bool':
+            self.options = []
+            yes = urwid.RadioButton(
+                self.options, "Yes", state=False,
+                on_state_change=self._set_bool_value)
+            no = urwid.RadioButton(
+                self.options, "No", state=False,
+                on_state_change=self._set_bool_value)
+            if question['value'] is not None:
+                if question['value'] is True:
+                    yes.set_state(True)
+                else:
+                    no.set_state(True)
+            self.display_widget = urwid.Columns([
+                urwid.Padding(urwid.Text(question['name']), left=2),
+                urwid.GridFlow([yes, no], 7, 3, 1, align='left')
+            ], dividechars=5)
+            urwid.WidgetWrap.__init__(self, self.display_widget)
+        elif self._value_type == 'natural':
+            self._edit_widget = ManifestNaturalEdit(u"", self._value)
+            self.display_widget = urwid.Columns([
+                urwid.Padding(urwid.Text(question['name']), left=2),
+                (8, urwid.Padding(urwid.Text("["), left=7)),
+                self._edit_widget,
+                (1, urwid.Text("]"))
+            ])
+            urwid.WidgetWrap.__init__(self, self.display_widget)
+
+    def _set_bool_value(self, w, new_state, user_data=None):
+        if w.label == 'Yes' and new_state:
+            self._value = new_state
+        elif w.label == 'No' and new_state:
+            self._value = False
+
+    @property
+    def value(self):
+        if self._value_type == 'bool':
+            return self._value
+        elif self._value_type == 'natural':
+            return self._edit_widget.value()
+
+
+class ManifestBrowser:
+    palette = [
+        ('body', 'light gray', 'black'),
+        ('buttnf', 'black', 'light gray'),
+        ('buttn', 'light gray', 'black', 'bold'),
+        ('head', 'black', 'light gray', 'standout'),
+        ('foot', 'light gray', 'black'),
+        ('title', 'white', 'black', 'bold'),
+        ('start', 'dark green,bold', 'black'),
+        ('bold', 'bold', 'black'),
+    ]
+
+    footer_text = [('Press ('), ('start', 'T'), (') to start Testing')]
+    footer_shortcuts = [('Shortcuts: '), ('bold', 'y'), ('/'), ('bold', 'n ')]
+
+    def __init__(self, title, manifest):
+        self.manifest = manifest
+        self._manifest_out = {}
+        self._widget_cache = []
+        # Header
+        self.header = urwid.Padding(urwid.Text(title), left=1)
+        # Body
+        content = []
+        for prompt, questions in sorted(self.manifest.items()):
+            content.append(urwid.Text(prompt))
+            for q in sorted(questions, key=lambda i: i['name']):
+                question_widget = ManifestQuestion(q)
+                content.append(urwid.AttrWrap(question_widget,
+                               'buttn', 'buttnf'))
+                self._widget_cache.append(question_widget)
+        self._pile = urwid.Pile(content)
+        listbox_content = [
+            urwid.Padding(self._pile, left=1, right=1, min_width=13),
+        ]
+        self.listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
+        # Footer
+        self.default_footer = urwid.AttrWrap(urwid.Columns(
+            [urwid.Padding(urwid.Text(self.footer_text), left=1),
+             urwid.Text(self.footer_shortcuts, 'right')]), 'foot')
+        # Main frame
+        self.frame = urwid.Frame(
+            urwid.AttrWrap(urwid.LineBox(self.listbox), 'body'),
+            header=urwid.AttrWrap(self.header, 'head'),
+            footer=self.default_footer)
+
+    def run(self):
+        """Run the urwid MainLoop."""
+        self.loop = urwid.MainLoop(
+            self.frame, self.palette, unhandled_input=self.unhandled_input,
+            handle_mouse=False)
+        self.loop.run()
+        for w in self._widget_cache:
+            self._manifest_out.update({w.id: w.value})
+        return self._manifest_out
+
+    def unhandled_input(self, key):
+        if key in ('t', 'T'):
+            for w in self._widget_cache:
+                if w.value is None:
+                    break
+            else:
+                raise urwid.ExitMainLoop()
+        if self._pile.focus._value_type == 'bool':
+            if key in ('y', 'Y'):
+                self.loop.process_input(["left", " ", "down"])
+            elif key in ('n', 'N'):
+                self.loop.process_input(["right", " ", "down"])
+        elif self._pile.focus._value_type == 'natural':
+            if key == 'enter':
+                self.loop.process_input(["down"])
+
+
 def resume_dialog(duration):
     palette = [
         ('body', 'light gray', 'black', 'standout'),

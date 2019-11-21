@@ -394,6 +394,7 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         """
         self._ids_seen_set = set()
         self._ids_seen_list = []
+        self._manifest_attr_seen_list = []
 
     @property
     def ids_seen_set(self):
@@ -409,6 +410,13 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         """
         return self._ids_seen_list
 
+    @property
+    def manifest_attr_seen_list(self):
+        """
+        list() of ast.Attribute().attr values seen
+        """
+        return self._manifest_attr_seen_list
+
     def visit_Name(self, node):
         """
         Internal method of NodeVisitor.
@@ -420,6 +428,20 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         if node.id not in self._ids_seen_set:
             self._ids_seen_set.add(node.id)
             self._ids_seen_list.append(node.id)
+
+    def visit_Attribute(self, node):
+        """
+        Internal method of NodeVisitor.
+
+        This method is called whenever generic_visit() looks at an instance of
+        ast.Attribute(). It records the attr identifier
+        """
+        self._check_node(node)
+        if isinstance(node.value, ast.Name):
+            self.visit_Name(node.value)
+            if node.value.id == 'manifest':
+                if node.attr not in self._manifest_attr_seen_list:
+                    self._manifest_attr_seen_list.append(node.attr)
 
     def visit_Call(self, node):
         """
@@ -516,6 +538,7 @@ class ResourceExpression:
         """
         self._implicit_namespace = implicit_namespace
         self._resource_alias_list = self._analyze(text)
+        self._manifest_id_list = self._analyze_manifest(text)
         self._resource_id_list = []
         if imports is None:
             imports = ()
@@ -570,6 +593,10 @@ class ResourceExpression:
             else resource_id
             for resource_id in self._resource_id_list
         ]
+
+    @property
+    def manifest_id_list(self):
+        return self._manifest_id_list
 
     @property
     def resource_alias_list(self):
@@ -647,6 +674,33 @@ class ResourceExpression:
             raise NoResourcesReferenced()
         else:
             return list(visitor.ids_seen_list)
+
+    def _analyze_manifest(self, text):
+        """
+        Analyze the expression and return the id of the manifest resource
+
+        May raise SyntaxError or a ResourceProgramError subclass
+        """
+        # Use the ast module to build an abstract syntax tree of the expression
+        try:
+            node = ast.parse(text)
+        except SyntaxError:
+            raise ResourceSyntaxError
+        # Use ResourceNodeVisitor to see what kind of ast.Name objects are
+        # referenced by the expression. This may also raise CodeNotAllowed
+        # which should be captured by the higher layers.
+        visitor = ResourceNodeVisitor()
+        visitor.visit(node)
+        # Bail if the expression is not using exactly one resource id
+        if len(visitor.ids_seen_list) == 0:
+            raise NoResourcesReferenced()
+        else:
+            return [
+                "{}::{}".format(self._implicit_namespace, manifest_id)
+                if "::" not in manifest_id and self._implicit_namespace
+                else manifest_id
+                for manifest_id in list(visitor.manifest_attr_seen_list)
+            ]
 
 
 def parse_imports_stmt(imports):

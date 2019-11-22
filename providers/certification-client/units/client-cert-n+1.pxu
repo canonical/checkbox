@@ -242,6 +242,5 @@ bootstrap_include:
     fwts
     graphics_card
 mandatory_include:
-    com.canonical.plainbox::collect-manifest
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources

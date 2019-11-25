@@ -774,7 +774,6 @@ class List():
                     "Use '?' to list possible values")))
 
     def invoked(self, ctx):
-        _logger.warning(_('List subcommand ignores sideloaded providers!'))
         if ctx.args.GROUP == 'all-jobs':
             if ctx.args.attrs:
                 print_objs('job', True)
@@ -903,7 +902,9 @@ class TestPlanExport():
 
 
 def get_all_jobs():
-    root = Explorer(get_providers()).get_object_tree()
+    sa = SessionAssistant("com.canonical:checkbox-cli")
+    providers = sa.load_providers()
+    root = Explorer(providers).get_object_tree()
 
     def get_jobs(obj):
         jobs = []
@@ -919,7 +920,9 @@ def get_all_jobs():
 
 
 def print_objs(group, show_attrs=False, filter_fun=None):
-    obj = Explorer(get_providers()).get_object_tree()
+    sa = SessionAssistant("com.canonical:checkbox-cli")
+    providers = sa.load_providers()
+    obj = Explorer(providers).get_object_tree()
 
     def _show(obj, indent):
         if group is None or obj.group == group:

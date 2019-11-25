@@ -3,4 +3,5 @@ python3-guacamole
 python3-jinja2
 python3-padme
 python3-xlsxwriter
+python3-crypto
 

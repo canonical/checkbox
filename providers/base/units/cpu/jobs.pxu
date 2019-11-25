@@ -2,7 +2,9 @@ plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/scaling_test
 estimated_duration: 150.0
-requires: executable.name == 'fwts'
+requires:
+ executable.name == 'fwts'
+ cpuinfo.platform not in ("ppc64el", "s390x")
 user: root
 environ: PLAINBOX_SESSION_SHARE LD_LIBRARY_PATH SNAP
 command:

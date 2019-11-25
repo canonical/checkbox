@@ -37,9 +37,12 @@ class FanMonitor:
     def get_rpm(self):
         result = {}
         for p in self._fan_paths:
-            with open(p, 'rt') as f:
-                fan_mon_name = os.path.relpath(p, '/sys/class/hwmon')
-                result[fan_mon_name] = int(f.read())
+            try:
+                with open(p, 'rt') as f:
+                    fan_mon_name = os.path.relpath(p, '/sys/class/hwmon')
+                    result[fan_mon_name] = int(f.read())
+            except OSError:
+                print('Fan SysFS node dissappeared ({})'.format(p))
         return result
     def get_average_rpm(self, period):
         acc = self.get_rpm()

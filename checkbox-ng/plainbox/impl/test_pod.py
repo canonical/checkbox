@@ -304,9 +304,6 @@ class PODTests(TestCase):
             f3 = Field(initial_fn=lambda: m())
 
         self.assertEqual(T.namedtuple_cls.__name__, 'T')
-        self.assertIsInstance(T.namedtuple_cls.f1, property)
-        self.assertIsInstance(T.namedtuple_cls.f2, property)
-        self.assertIsInstance(T.namedtuple_cls.f3, property)
 
     def test_initializer_positional_arguments(self):
         """.__init__() works correctly with positional arguments."""

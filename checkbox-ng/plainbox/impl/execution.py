@@ -44,7 +44,6 @@ from plainbox.impl.runner import IOLogRecordGenerator
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.runner import slugify
 from plainbox.impl.jobcache import ResourceJobCache
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.vendor import extcmd
 
@@ -58,6 +57,7 @@ class UnifiedRunner(IJobRunner):
     Instance of this class should is responsible for creating proper
     environment for job's command can run in.
     """
+
     def __init__(self, session_dir, provider_list, jobs_io_log_dir,
                  command_io_delegate=None, dry_run=False,
                  execution_ctrl_list=None, stdin=False,
@@ -81,7 +81,7 @@ class UnifiedRunner(IJobRunner):
         self._running_jobs_pid = None
         self._extra_env = extra_env
 
-    def run_job(self, job, job_state, config=None, ui=None):
+    def run_job(self, job, job_state, environ=None, ui=None):
         logger.info(_("Running %r"), job)
         if job.plugin not in supported_plugins:
             print(Colorizer().RED("Unsupported plugin type: {}".format(
@@ -104,7 +104,7 @@ class UnifiedRunner(IJobRunner):
         if job.plugin == 'resource' and 'cachable' in job.get_flag_set():
             from_cache, result = self._resource_cache.get(
                 job.checksum, lambda: self._run_command(
-                    job, config).get_result())
+                    job, environ).get_result())
             if from_cache:
                 print(Colorizer().header(_("Using cached data!")))
                 jrud = self._job_runner_ui_delegate
@@ -127,7 +127,7 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_FAIL,
                 comments=_("No command to run!")
             ).get_result()
-        result_builder = self._run_command(job, config)
+        result_builder = self._run_command(job, environ)
 
         # for user-interact-verify and user-verify jobs the operator chooses
         # the final outcome, so we need to reset the outcome to undecided
@@ -144,7 +144,7 @@ class UnifiedRunner(IJobRunner):
         # this is left here to conform to the interface
         return []
 
-    def _run_command(self, job, config):
+    def _run_command(self, job, environ):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
@@ -162,7 +162,7 @@ class UnifiedRunner(IJobRunner):
                 self._job_runner_ui_delegate, io_log_gen,
                 self._command_io_delegate, output_writer])
             ecmd = extcmd.ExternalCommandWithDelegate(delegate)
-            return_code = self.execute_job(job, config, ecmd, self._stdin)
+            return_code = self.execute_job(job, environ, ecmd, self._stdin)
             io_log_gen.on_new_record.disconnect(writer.write_record)
         if return_code == 0:
             outcome = IJobResult.OUTCOME_PASS
@@ -176,7 +176,7 @@ class UnifiedRunner(IJobRunner):
             io_log_filename=log,
             execution_duration=time.time() - start_time)
 
-    def execute_job(self, job, config, extcmd_popen, stdin=None):
+    def execute_job(self, job, environ, extcmd_popen, stdin=None):
         """Run the 'binary' associated with the job."""
         target_user = job.user or self._user_provider()
         if target_user == getpass.getuser():
@@ -273,10 +273,10 @@ class UnifiedRunner(IJobRunner):
             # Get the command and the environment.
             # of this execution controller
             cmd = get_execution_command(
-                job, config, self._session_dir, nest_dir, target_user,
+                job, environ, self._session_dir, nest_dir, target_user,
                 self._extra_env)
             env = get_execution_environment(
-                job, config, self._session_dir, nest_dir)
+                job, environ, self._session_dir, nest_dir)
             # run the command
             logger.debug(_("job[%(ID)s] executing %(CMD)r with env %(ENV)r"
                            " in cwd %(DIR)r"),
@@ -286,7 +286,7 @@ class UnifiedRunner(IJobRunner):
                 return_code = call(
                     extcmd_popen, cmd, stdin=subprocess.PIPE, env=env)
             else:
-                with self.temporary_cwd(job, config) as cwd_dir:
+                with self.temporary_cwd(job) as cwd_dir:
                     return_code = call(
                         extcmd_popen, cmd, stdin=subprocess.PIPE, env=env,
                         cwd=cwd_dir)
@@ -302,12 +302,6 @@ class UnifiedRunner(IJobRunner):
 
         :param job:
             The JobDefinition to execute
-        :param config:
-            A PlainBoxConfig instance which can be used to load missing
-            environment definitions that apply to all jobs. It is used to
-            provide values for missing environment variables that are required
-            by the job (as expressed by the environ key in the job definition
-            file).
         :returns:
             Pathname of the executable symlink nest directory.
         """
@@ -326,19 +320,13 @@ class UnifiedRunner(IJobRunner):
             yield nest_dir
 
     @contextlib.contextmanager
-    def temporary_cwd(self, job, config):
+    def temporary_cwd(self, job):
         """
         Context manager for handling temporary current working directory
         for a particular execution of a job definition command.
 
         :param job:
             The JobDefinition to execute
-        :param config:
-            A PlainBoxConfig instance which can be used to load missing
-            environment definitions that apply to all jobs. It is used to
-            provide values for missing environment variables that are required
-            by the job (as expressed by the environ key in the job definition
-            file).
         :returns:
             Pathname of the new temporary directory
         """
@@ -406,14 +394,15 @@ class FakeJobRunner(UnifiedRunner):
 
     Special runner that creates fake resource objects.
     """
-    def run_job(self, job, job_state, config=None, ui=None):
+
+    def run_job(self, job, job_state, environ=None, ui=None):
         """
         Only one resouce object is created from this runner.
         Exception: 'graphics_card' resource job creates two objects to
         simulate hybrid graphics.
         """
         if job.plugin != 'resource':
-            return super().run_job(job, job_state, config, ui)
+            return super().run_job(job, job_state, environ, ui)
         builder = JobResultBuilder()
         if job.partial_id == 'graphics_card':
             builder.io_log = [(0, 'stdout', b'a: b\n'),
@@ -426,17 +415,17 @@ class FakeJobRunner(UnifiedRunner):
         return builder.get_result()
 
 
-def get_execution_environment(job, config, session_dir, nest_dir):
+def get_execution_environment(job, environ, session_dir, nest_dir):
     """
     Get the environment required to execute the specified job:
 
     :param job:
         job definition with the command and environment definitions
-    :param config:
-        A PlainBoxConfig instance which can be used to load missing environment
-        definitions that apply to all jobs. It is used to provide values for
-        missing environment variables that are required by the job (as
-        expressed by the environ key in the job definition file).
+    :param environ:
+        A dictionary of environment variables which can be used to load missing
+        environment definitions that apply to all jobs. It is used to provide
+        values for missing environment variables that are required by the job
+        (as expressed by the environ key in the job definition file).
     :param session_dir:
         Base directory of the session this job will execute in.  This directory
         is used to co-locate some data that is unique to this execution as well
@@ -492,28 +481,28 @@ def get_execution_environment(job, config, session_dir, nest_dir):
     set_if_not_none('PLAINBOX_PROVIDER_UNITS', job.provider.units_dir)
     set_if_not_none('CHECKBOX_SHARE', job.provider.CHECKBOX_SHARE)
     # Inject additional variables that are requested in the config
-    if config is not None and config.environment is not Unset:
-        for env_var in config.environment:
+    if environ is not None:
+        for env_var in environ:
             # Don't override anything that is already present in the
             # current environment. This will allow users to customize
             # variables without editing any config files.
             if env_var in env:
                 continue
-            # If the environment section of the configuration file has a
-            # particular variable then copy it over.
-            env[env_var] = config.environment[env_var]
+            # The environ dict is populated from the environment section of the
+            # config file. If it has a particular variable then copy it over.
+            env[env_var] = environ[env_var]
     return env
 
 
-def get_differential_execution_environment(job, config, session_dir, nest_dir,
+def get_differential_execution_environment(job, environ, session_dir, nest_dir,
                                            extra_env=None):
     """
     Get the environment required to execute the specified job:
 
     :param job:
         job definition with the command and environment definitions
-    :param config:
-        A PlainBoxConfig instance which can be used to load missing
+    :param environ:
+        A dictionary of environment variables which can be used to load missing
         environment definitions that apply to all jobs. It is used to
         provide values for missing environment variables that are required
         by the job (as expressed by the environ key in the job definition
@@ -537,7 +526,7 @@ def get_differential_execution_environment(job, config, session_dir, nest_dir,
     are always retained.
     """
     base_env = os.environ
-    target_env = get_execution_environment(job, config, session_dir, nest_dir)
+    target_env = get_execution_environment(job, environ, session_dir, nest_dir)
     delta_env = {
         key: value
         for key, value in target_env.items()
@@ -560,7 +549,7 @@ def get_differential_execution_environment(job, config, session_dir, nest_dir,
     return delta_env
 
 
-def get_execution_command(job, config, session_dir,
+def get_execution_command(job, environ, session_dir,
                           nest_dir, target_user=None, extra_env=None):
     """Generate a command argv to run in the shell."""
     cmd = []
@@ -576,9 +565,9 @@ def get_execution_command(job, config, session_dir,
     cmd += ['env']
     if target_user:
         env = get_differential_execution_environment(
-            job, config, session_dir, nest_dir, extra_env)
+            job, environ, session_dir, nest_dir, extra_env)
     else:
-        env = get_execution_environment(job, config, session_dir, nest_dir)
+        env = get_execution_environment(job, environ, session_dir, nest_dir)
     cmd += ["{key}={value}".format(key=key, value=value)
             for key, value in sorted(env.items())]
     cmd += [job.shell, '-c', job.command]

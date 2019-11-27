@@ -441,6 +441,19 @@ class MetaDataHelper3MixIn(MetaDataHelper2MixIn):
             value_none=True)
 
 
+class MetaDataHelper6MixIn(MetaDataHelper3MixIn):
+
+    @classmethod
+    def _restore_SessionState_metadata(cls, metadata, session_repr):
+        super()._restore_SessionState_metadata(metadata, session_repr)
+        metadata_repr = _validate(
+            session_repr, key='metadata', value_type=dict)
+        metadata.custom_joblist = _validate(
+            metadata_repr, key='custom_joblist', value_type=bool)
+        metadata.rejected_jobs = _validate(
+            metadata_repr, key='rejected_jobs', value_type=list)
+
+
 class SessionPeekHelper1(MetaDataHelper1MixIn):
 
     """
@@ -537,7 +550,7 @@ class SessionPeekHelper5(SessionPeekHelper4):
     """
 
 
-class SessionPeekHelper6(SessionPeekHelper5):
+class SessionPeekHelper6(MetaDataHelper6MixIn, SessionPeekHelper5):
     """
     Helper class for implementing session peek feature
 
@@ -1064,7 +1077,8 @@ class SessionResumeHelper5(SessionResumeHelper4):
             raise ValueError("Location must be a directory name")
         return os.path.join(location, io_log_filename)
 
-class SessionResumeHelper6(SessionResumeHelper5):
+
+class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
     """
     Helper class for implementing session resume feature
 

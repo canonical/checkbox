@@ -586,6 +586,12 @@ class SessionSuspendHelper6(SessionSuspendHelper5):
 
     VERSION = 6
 
+    def _repr_SessionMetaData(self, obj, session_dir):
+        data = super()._repr_SessionMetaData(obj, session_dir)
+        data["custom_joblist"] = obj.custom_joblist
+        data["rejected_jobs"] = obj.rejected_jobs
+        return data
+
     def _repr_SessionState(self, obj, session_dir):
         """
         Compute the representation of :class:`SessionState`.
@@ -646,6 +652,7 @@ class SessionSuspendHelper6(SessionSuspendHelper5):
             ],
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
+
 
 # Alias for the most recent version
 SessionSuspendHelper = SessionSuspendHelper6

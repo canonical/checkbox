@@ -25,7 +25,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 # IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
-import socket, asyncio, sys
+import socket, asyncio
 from struct import pack, unpack, calcsize
 
 
@@ -106,15 +106,14 @@ class Bool:
 
     """
     def __init__(self,name,val=True):
-        self.name=name
-        self.val=val
+        self.name = name
+        self.val = val
 
     def encode (self):
-        val=(self.val and b'\x01') or b'\x00'
-        return val
+        return b'\x01' if self.val else b'\x00'
 
     def decode(self,data):
-        self.val= data[:1]==b"\x01"
+        self.val = (data[:1] == b"\x01")
         return data[1:]
 
     def __len__(self):
@@ -769,7 +768,7 @@ class HCI_Cmd_LE_Scan_Enable(HCI_Command):
 
     """
 
-    def __init__(self,enable=True,filter_dups=True):
+    def __init__(self,enable=True,filter_dups=False):
         super(self.__class__, self).__init__(b"\x08",b"\x0c")
         self.payload.append(Bool("enable",enable))
         self.payload.append(Bool("filter",filter_dups))
@@ -803,7 +802,7 @@ class HCI_Cmd_LE_Set_Scan_Params(HCI_Command):
 
     """
 
-    def __init__(self,scan_type=0x0,interval=10, window=750, oaddr_type=0,filter=0):
+    def __init__(self,scan_type=0x1,interval=10, window=750, oaddr_type=0,filter=0):
 
         super(self.__class__, self).__init__(b"\x08",b"\x0b")
         self.payload.append(EnumByte("scan type",scan_type,
@@ -1000,7 +999,11 @@ class HCI_LE_Meta_Event(Packet):
             data=x.decode(data)
         code=self.payload[0]
         if code.val==b"\x02":
-            ev=HCI_LEM_Adv_Report()
+            ev=RepeatedField("Reports", HCI_LEM_Adv_Report)
+            data=ev.decode(data)
+            self.payload.append(ev)
+        elif code.val==b"\x0d":
+            ev=RepeatedField("Ext Adv Report", HCI_LEM_Ext_Adv_Report)
             data=ev.decode(data)
             self.payload.append(ev)
         else:
@@ -1014,12 +1017,50 @@ class HCI_LE_Meta_Event(Packet):
         for x in self.payload:
             x.show(depth+1)
 
+class ManufacturerSpecificData(Packet):
+    def __init__(self, name="Manufacturer Specific Data"):
+        self.name = name
+        self.payload = [UShortInt("Manufacturer ID", endian="little"), Itself("Payload")]
+
+    def decode(self, data):
+        # Warning: Will consume all the data you give it!
+        for p in self.payload:
+            data = p.decode(data)
+        return data
+
+    def show(self, depth=0):
+        print("{}{}:".format(PRINT_INDENT*depth,self.name))
+        for x in self.payload:
+            x.show(depth+1)
+
+
+class RepeatedField(Packet):
+    def __init__(self, name, subfield_cls, length_field_cls=UIntByte):
+        self.name = name
+        self.subfield_cls = subfield_cls
+        self.length_field = length_field_cls("count of " + name)
+        self.payload = []
+
+    def decode(self, data):
+        self.payload = []
+        data = self.length_field.decode(data)
+        for x in range(self.length_field.val):
+            field = self.subfield_cls()
+            data = field.decode(data)
+            self.payload.append(field)
+
+        return data
+
+    def show(self, depth=0):
+        print("{}{}: {}".format(PRINT_INDENT*depth, self.name, self.length_field.val))
+        for field in self.payload:
+            field.show(depth+1)
+
 
 class HCI_LEM_Adv_Report(Packet):
     def __init__(self):
         self.name="Adv Report"
-        self.payload=[UIntByte("num reports"),
-                      EnumByte("ev type",0,{0:"generic adv", 3:"no connection adv", 4:"scan rsp"}),
+        self.payload=[EnumByte("ev type",0,{0:"generic adv", 3:"no connection adv", 4:"scan rsp"}),
                       EnumByte("addr type",0,{0:"public", 1:"random"}),
                       MACAddr("peer"),UIntByte("length")]
 
@@ -1029,85 +1070,57 @@ class HCI_LEM_Adv_Report(Packet):
         for x in self.payload:
             data=x.decode(data)
         #Now we have a sequence of len, type data with possibly a RSSI byte at the end
-        while len(data) > 1:
-            length=UIntByte("sublen")
-            data=length.decode(data)
-            code=EIR_Hdr()
-            data=code.decode(data)
+        datalength = self.payload[-1].val
 
-            if code.val == 0x01:
-                #Flag
-                myinfo=BitFieldByte("flags",0,["Undef","Undef","Simul LE - BR/EDR (Host)","Simul LE - BR/EDR (Control.)","BR/EDR Not Supported",
-                                           "LE General Disc.","LE Limited Disc."])
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x02:
-                myinfo=NBytes_List("Incomplete uuids",2)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x03:
-                myinfo=NBytes_List("Complete uuids",2)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x04:
-                myinfo=NBytes_List("Incomplete uuids",4)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x05:
-                myinfo=NBytes_List("Complete uuids",4)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x06:
-                myinfo=NBytes_List("Incomplete uuids",16)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x07:
-                myinfo=NBytes_List("Complete uuids",16)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x14:
-                myinfo=NBytes_List("Service Solicitation uuid",2)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x16:
-                myinfo=Adv_Data("Advertised Data",2)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x1f:
-                myinfo=NBytes_List("Service Solicitation uuid",4)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x20:
-                myinfo=Adv_Data("Advertised Data",4)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x15:
-                myinfo=NBytes_List("Service Solicitation uuid",16)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x21:
-                myinfo=Adv_Data("Advertised Data",16)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x08:
-                myinfo=String("Short Name")
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            elif code.val == 0x09:
-                myinfo=String("Complete Name")
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
-            else:
-                myinfo=Itself("Payload for %s"%code.strval)
-                xx=myinfo.decode(data[:length.val-len(code)])
-                self.payload.append(myinfo)
+        while datalength > 0:
+            ad=AD_Structure()
+            data=ad.decode(data)
+            self.payload.append(ad)
 
-            data=data[length.val-len(code):]
+            datalength -= len(ad)
+
         if data:
             myinfo=IntByte("rssi")
             data=myinfo.decode(data)
             self.payload.append(myinfo)
         return data
+
+    def show(self,depth=0):
+        print("{}{}:".format(PRINT_INDENT*depth,self.name))
+        for x in self.payload:
+            x.show(depth+1)
+
+
+class HCI_LEM_Ext_Adv_Report(Packet):
+    def __init__(self):
+        self.name="Ext Adv Report"
+        self.payload=[BitFieldByte("ev type",0,["Connectable", "Scannable", "Directed", "Scan Response", "Legacy", "Incomplete/more", "Incomplete/truncated", "RFU"]),
+                      UIntByte("unused"),
+                      EnumByte("addr type",0,{0:"public device", 1:"random device", 2:"public identity", 3:"random identity", 0xFF:"anonymous"}),
+                      MACAddr("peer"),
+                      EnumByte("primary phy",1,{1:"LE 1M", 3:"LE Coded"}),
+                      EnumByte("secondary phy",0,{0:"N/A", 1:"LE 1M", 2:"LE 2M", 3:"LE Coded"}),
+                      EnumByte("adv sid",255,{0:"0x00", 1:"0x01", 2:"0x02", 3:"0x03", 4:"0x04", 5:"0x05", 6:"0x06", 7:"0x07", 8:"0x08", 9:"0x09", 10:"0x0A", 11:"0x0B", 12:"0x0C", 13:"0x0D", 14:"0x0E", 15:"0x0F", 0xFF:"N/A"}),
+                      IntByte("tx power"),
+                      IntByte("rssi"),
+                      UShortInt("adv interval", endian="little"),
+                      EnumByte("direct addr type",0,{0:"public device", 1:"random device", 2:"public identity", 3:"random identity", 0xFE:"random device"}),
+                      MACAddr("direct addr"),
+                      UIntByte("data len")]
+
+
+    def decode(self,data):
+
+        for x in self.payload:
+            data=x.decode(data)
+
+        datalength = self.payload[-1].val
+        while datalength > 0:
+            ad=AD_Structure()
+            data=ad.decode(data)
+            self.payload.append(ad)
+
+            datalength -= len(ad)
 
     def show(self,depth=0):
         print("{}{}:".format(PRINT_INDENT*depth,self.name))
@@ -1154,8 +1167,8 @@ class EIR_Hdr(Packet):
     def decode(self,data):
         return self.type.decode(data)
 
-    def show(self):
-        return self.type.show()
+    def show(self,depth=0):
+        return self.type.show(depth)
 
     @property
     def val(self):
@@ -1195,7 +1208,75 @@ class Adv_Data(Packet):
             resu+=len(x)
         return resu
 
+class AD_Structure(Packet):
+    def __init__(self):
+        self.name=""
+        self.length=0
+        self.payload=[]
 
+    def __len__(self):
+        return self.length
+
+    def decode(self,data):
+        length=UIntByte("sublen")
+        data=length.decode(data)
+        self.length=len(length)+length.val
+        self.payload=[]
+        if length.val == 0:
+            return data
+
+        type=EIR_Hdr()
+        data=type.decode(data)
+
+        val = None
+        if type.val == 0x01:
+            val=BitFieldByte("flags",0,["Undef","Undef","Simul LE - BR/EDR (Host)","Simul LE - BR/EDR (Control.)","BR/EDR Not Supported",
+                                       "LE General Disc.","LE Limited Disc."])
+        elif type.val == 0x02:
+            val=NBytes_List("Incomplete uuids",2)
+        elif type.val == 0x03:
+            val=NBytes_List("Complete uuids",2)
+        elif type.val == 0x04:
+            val=NBytes_List("Incomplete uuids",4)
+        elif type.val == 0x05:
+            val=NBytes_List("Complete uuids",4)
+        elif type.val == 0x06:
+            val=NBytes_List("Incomplete uuids",16)
+        elif type.val == 0x07:
+            val=NBytes_List("Complete uuids",16)
+        elif type.val == 0x08:
+            val=String("Short Name")
+        elif type.val == 0x09:
+            val=String("Complete Name")
+        elif type.val == 0x14:
+            val=NBytes_List("Service Solicitation uuid",2)
+        elif type.val == 0x15:
+            val=NBytes_List("Service Solicitation uuid",16)
+        elif type.val == 0x16:
+            val=Adv_Data("Advertised Data",2)
+        elif type.val == 0x1f:
+            val=NBytes_List("Service Solicitation uuid",4)
+        elif type.val == 0x20:
+            val=Adv_Data("Advertised Data",4)
+        elif type.val == 0x21:
+            val=Adv_Data("Advertised Data",16)
+        elif type.val == 0xff:
+            val=ManufacturerSpecificData()
+        else:
+            val=Itself("Payload for %s"%type.strval)
+
+        # Some data type may consume all input data, therefore an copy
+        # is passed instead.
+        val.decode(data[:length.val-len(type)])
+
+        self.payload.append(type)
+        self.payload.append(val)
+
+        return data[length.val-len(type):]
+
+    def show(self,depth=0):
+        for x in self.payload:
+            x.show(depth+1)
 
 #
 # The defs are over. Now the realstuffs

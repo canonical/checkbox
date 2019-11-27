@@ -28,6 +28,8 @@ CPUINFO_FILENAME = "/proc/cpuinfo"
 # Filename where maximum frequency is stored.
 FREQUENCY_FILENAME = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
 
+# Filename where available frequency governors are stored.
+GOVERNORS_FILENAME = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors"
 
 class CpuinfoResult:
 
@@ -40,6 +42,7 @@ class CpuinfoResult:
                     value = int(value) // 1000
             if value:
                 print("%s: %s" % (key, value))
+        print("governors: %s" % open(GOVERNORS_FILENAME).read().strip())
 
 
 def main():

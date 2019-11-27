@@ -1443,9 +1443,12 @@ class SessionAssistant:
                         f.writelines(self._restart_cmd_callback(
                             self.get_session_id()))
             if not native:
-                builder = self._runner.run_job(
-                    job, job_state, self._config, ui
-                ).get_builder()
+                if self._config.environment is Unset:
+                    result = self._runner.run_job(job, job_state, ui=ui)
+                else:
+                    result = self._runner.run_job(job, job_state,
+                                                  self._config.environment, ui)
+                builder = result.get_builder()
             else:
                 builder = JobResultBuilder(
                     outcome=IJobResult.OUTCOME_UNDECIDED,

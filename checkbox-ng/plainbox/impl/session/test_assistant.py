@@ -88,13 +88,6 @@ class SessionAssistantTests(morris.SignalTestCase):
     def test_expected_call_sequence(self, mock_get_providers):
         """Track the sequence of allowed method calls."""
         mock_get_providers.return_value = self._get_test_providers()
-        # SessionAssistant.load_providers() must be allowed
-        self.assertIn(self.sa.load_providers,
-                      UsageExpectation.of(self.sa).allowed_calls)
-        self.sa.load_providers()
-        # SessionAssistant.load_providers() must no longer be allowed
-        self.assertNotIn(self.sa.load_providers,
-                         UsageExpectation.of(self.sa).allowed_calls)
         # SessionAssistant.start_new_session() must now be allowed
         self.assertIn(self.sa.start_new_session,
                       UsageExpectation.of(self.sa).allowed_calls)

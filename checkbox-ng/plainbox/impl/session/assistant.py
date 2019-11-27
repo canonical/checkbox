@@ -186,15 +186,16 @@ class SessionAssistant:
         self._runner = None
         # Keep a record of jobs run during bootstrap phase
         self._bootstrap_done_list = []
+        self._load_providers()
         UsageExpectation.of(self).allowed_calls = {
+            self.start_new_session: "create a new session from scratch",
+            self.get_resumable_sessions: "get resume candidates",
             self.use_alternate_repository: (
                 "use an alternate storage repository"),
             self.use_alternate_configuration: (
                 "use an alternate configuration system"),
             self.use_alternate_execution_controllers: (
                 "use an alternate execution controllers"),
-            self.load_providers: (
-                "load all available providers"),
             self.get_old_sessions: (
                 "get previously created sessions"),
             self.delete_sessions: (
@@ -390,20 +391,13 @@ class SessionAssistant:
         del UsageExpectation.of(self).allowed_calls[
             self.use_alternate_execution_controllers]
 
-    @raises(SystemExit, UnexpectedMethodCall)
-    def load_providers(self) -> None:
+    def _load_providers(self) -> None:
         """
         Load all Checkbox providers
 
         :raises SystemExit:
             When no provider was found in the system.
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
         """
-        UsageExpectation.of(self).enforce()
-
         def qualified_name(provider):
             return "{}:{}".format(provider.namespace, provider.name)
         sideload_path = os.path.expandvars(os.path.join(
@@ -428,13 +422,8 @@ class SessionAssistant:
                 *all_providers.provider_search_paths))
             raise SystemExit(message)
         self._selected_providers = loaded_provs
-        UsageExpectation.of(self).allowed_calls = {
-            self.start_new_session: "create a new session from scratch",
-            self.get_resumable_sessions: "get resume candidates",
-            self.get_old_sessions: "get previously created sessions",
-            self.delete_sessions: "delete previously created sessions",
-            self.finalize_session: "to finalize session",
-        }
+
+    def get_selected_providers(self):
         return self._selected_providers
 
     @morris.signal
@@ -1689,7 +1678,6 @@ class SessionAssistant:
             The identifier of the exporter unit to use. This must have been
             loaded into the session from an existing provider. Many users will
             want to load the ``com.canonical.palainbox:exporter`` provider
-            (via :meth:`load_providers()`.
         :param transport:
             A pre-created transport object such as the `CertificationTransport`
             that is useful for sending data to the Canonical Certification
@@ -1734,7 +1722,6 @@ class SessionAssistant:
             The identifier of the exporter unit to use. This must have been
             loaded into the session from an existing provider. Many users will
             want to load the ``com.canonical.palainbox:exporter`` provider
-            (via :meth:`load_providers()`.
         :param option_list:
             List of options customary to the exporter that is being created.
         :param dir_path:
@@ -1779,7 +1766,6 @@ class SessionAssistant:
             The identifier of the exporter unit to use. This must have been
             loaded into the session from an existing provider. Many users will
             want to load the ``com.canonical.palainbox:exporter`` provider
-            (via :meth:`load_providers()`.
         :param option_list:
             List of options customary to the exporter that is being created.
         :param stream:

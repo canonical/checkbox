@@ -189,7 +189,7 @@ class Launcher(MainLoopStage, ReportsStage):
             print(_("Launcher seems valid."))
             return
         if ctx.args.launcher:
-            self.launcher =  load_configs(ctx.args.launcher)
+            self.launcher = load_configs(ctx.args.launcher)
         else:
             self.launcher = DefaultLauncherDefinition()
         logging_level = {
@@ -208,7 +208,6 @@ class Launcher(MainLoopStage, ReportsStage):
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.launcher)
-            ctx.sa.load_providers()
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()
@@ -650,16 +649,10 @@ class Run(MainLoopStage):
         try:
             self._C = Colorizer()
             self.ctx = ctx
-            ctx.sa = SessionAssistant(
-                "com.canonical:checkbox-cli",
-                "0.99",
-                "0.99",
-                ["restartable"],
-            )
+
             self._configure_restart()
             config = load_configs()
             self.sa.use_alternate_configuration(config)
-            self.sa.load_providers()
             self.sa.start_new_session(
                 self.ctx.args.title or 'checkbox-run',
                 UnifiedRunner)
@@ -700,7 +693,7 @@ class Run(MainLoopStage):
     def _configure_report(self):
         """Configure transport and exporter."""
         if self.ctx.args.output_format == '?':
-            print_objs('exporter')
+            print_objs('exporter', self.ctx.sa)
             raise SystemExit(0)
         if self.ctx.args.transport == '?':
             print(', '.join(get_all_transports()))
@@ -776,11 +769,11 @@ class List():
     def invoked(self, ctx):
         if ctx.args.GROUP == 'all-jobs':
             if ctx.args.attrs:
-                print_objs('job', True)
+                print_objs('job', ctx.sa, True)
 
                 def filter_fun(u): return u.attrs['template_unit'] == 'job'
-                print_objs('template', True, filter_fun)
-            jobs = get_all_jobs()
+                print_objs('template', ctx.sa, True, filter_fun)
+            jobs = get_all_jobs(ctx.sa)
             if ctx.args.format == '?':
                 all_keys = set()
                 for job in jobs:
@@ -812,7 +805,7 @@ class List():
             return
         elif ctx.args.format:
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
-        print_objs(ctx.args.GROUP, ctx.args.attrs)
+        print_objs(ctx.args.GROUP, ctx.sa, ctx.args.attrs)
 
 
 class ListBootstrapped():
@@ -831,7 +824,6 @@ class ListBootstrapped():
 
     def invoked(self, ctx):
         self.ctx = ctx
-        self.sa.load_providers()
         self.sa.start_new_session('checkbox-listing-ephemeral')
         tps = self.sa.get_test_plans()
         if ctx.args.TEST_PLAN not in tps:
@@ -882,7 +874,6 @@ class TestPlanExport():
 
     def invoked(self, ctx):
         self.ctx = ctx
-        self.sa.load_providers()
         if ctx.args.nofake:
             self.sa.start_new_session('tp-export-ephemeral')
         else:
@@ -901,9 +892,8 @@ class TestPlanExport():
         print(path)
 
 
-def get_all_jobs():
-    sa = SessionAssistant("com.canonical:checkbox-cli")
-    providers = sa.load_providers()
+def get_all_jobs(sa):
+    providers = sa.get_selected_providers()
     root = Explorer(providers).get_object_tree()
 
     def get_jobs(obj):
@@ -919,9 +909,8 @@ def get_all_jobs():
     return sorted(get_jobs(root), key=operator.itemgetter('full_id'))
 
 
-def print_objs(group, show_attrs=False, filter_fun=None):
-    sa = SessionAssistant("com.canonical:checkbox-cli")
-    providers = sa.load_providers()
+def print_objs(group, sa, show_attrs=False, filter_fun=None):
+    providers = sa.get_selected_providers()
     obj = Explorer(providers).get_object_tree()
 
     def _show(obj, indent):

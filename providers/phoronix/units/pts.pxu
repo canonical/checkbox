@@ -27,9 +27,6 @@ command:
  echo id: pts/fs-mark
  echo "name: FS_Mark is designed to test a system\'s file-system performance."
  echo
- echo id: pts/gl-vs-vk
- echo "name: GL_vs_VK is a comparison of OpenGL and Vulkan APIs in simple performance micro-benchmarks."
- echo
  echo id: pts/john-the-ripper
  echo "name: This is a benchmark of John The Ripper, which is a password cracker."
  echo

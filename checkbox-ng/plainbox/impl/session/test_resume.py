@@ -226,8 +226,8 @@ class SessionResumeHelperTests(TestCase):
         with mock.patch.object(helper6, 'resume_json'):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-                b'{"app_blob":null,"app_id":null,"flags":[],'
-                b'"running_job_name":null,"title":null'
+                b'{"app_blob":null,"app_id":null,"custom_joblist":false,"flags":[],'
+                b'"rejected_jobs":[],"running_job_name":null,"title":null'
                 b'},"results":{}},"version":6}')
             SessionResumeHelper([], None, None).resume(data)
             helper6.resume_json.assert_called_once_with(
@@ -236,7 +236,9 @@ class SessionResumeHelperTests(TestCase):
                                           'app_id': None,
                                           'running_job_name': None,
                                           'app_blob': None,
-                                          'flags': []},
+                                          'flags': [],
+                                          'custom_joblist': False,
+                                          'rejected_jobs': []},
                              'desired_job_list': [],
                              'results': {}},
                  'version': 6}, None)

@@ -694,7 +694,8 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         self.assertEqual(gzip.decompress(data), (
             b'{"session":{"desired_job_list":[],"jobs":{},'
             b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":"","app_id":null,"flags":[],'
+            b'{"app_blob":"","app_id":null,"custom_joblist":false,"flags":[],'
+            b'"rejected_jobs":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":6}'))
 
@@ -748,6 +749,8 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
                 'running_job_name': None,
                 'app_blob': '',
                 'app_id': None,
+                'custom_joblist': False,
+                'rejected_jobs': []
             },
         })
 
@@ -768,7 +771,49 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
                 'running_job_name': None,
                 'app_blob': '',
                 'app_id': None,
+                'custom_joblist': False,
+                'rejected_jobs': []
             },
+        })
+
+    def test_repr_SessionMetaData_empty_metadata(self):
+        """
+        verify that representation of empty SessionMetaData is okay
+        """
+        # all defaults with empty values
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(), self.session_dir)
+        print(data)
+        self.assertEqual(data, {
+            'title': None,
+            'flags': [],
+            'running_job_name': None,
+            'app_blob': '',
+            'app_id': None,
+            'custom_joblist': False,
+            'rejected_jobs': []
+        })
+
+    def test_repr_SessionMetaData_typical_metadata(self):
+        """
+        verify that representation of typical SessionMetaData is okay
+        """
+        # no surprises here, just the same data copied over
+        data = self.helper._repr_SessionMetaData(SessionMetaData(
+            title='USB Testing session',
+            flags=['incomplete'],
+            running_job_name='usb/detect',
+            app_blob=b'blob',
+            app_id='com.canonical.certification.plainbox',
+        ), self.session_dir)
+        self.assertEqual(data, {
+            'title': 'USB Testing session',
+            'flags': ['incomplete'],
+            'running_job_name': 'usb/detect',
+            'app_blob': 'YmxvYg==',
+            'app_id': 'com.canonical.certification.plainbox',
+            'custom_joblist': False,
+            'rejected_jobs': []
         })
 
 

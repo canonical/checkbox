@@ -40,6 +40,8 @@ _description:
     This test plan contains tests that are useful for validating a Stable
     Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
     recommended for, nor will it be accepted for self-testing purposes.
+nested_part:
+    com.canonical.certification::pts
 include:
     miscellanea/submission-resources
     acpi_sleep_attachment

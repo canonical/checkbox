@@ -11,7 +11,6 @@ Build-Depends: debhelper (>= 9),
                python3-crypto,
                python3-distutils-extra,
                python3-docutils,
-               python3-guacamole (>= 0.9),
                python3-jinja2,
                python3-padme,
                python3-pkg-resources,
@@ -47,7 +46,6 @@ Description: CheckBoxNG test runner
 Package: python3-checkbox-ng
 Architecture: all
 Depends: python3-crypto,
-         python3-guacamole (>= 0.9),
          python3-jinja2,
          python3-padme,
          python3-pkg-resources,

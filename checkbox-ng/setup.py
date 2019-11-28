@@ -45,7 +45,6 @@ if on_rtd:
     install_requires = []
 else:
     install_requires = [
-        'guacamole >= 0.9',
         'requests >= 1.0',
         'urwid >= 1.1.1',
         'Jinja2 >= 2.7',

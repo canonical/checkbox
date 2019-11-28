@@ -4,7 +4,7 @@ id: cpu/scaling_test
 estimated_duration: 150.0
 requires:
  executable.name == 'fwts'
- 'performance' in cpuinfo.governors
+ 'userspace' in cpuinfo.governors
 user: root
 environ: PLAINBOX_SESSION_SHARE LD_LIBRARY_PATH SNAP
 command:

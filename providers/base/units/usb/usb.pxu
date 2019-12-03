@@ -18,6 +18,8 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::usb
 id: usb/disk_detect
 depends: usb/detect
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
 estimated_duration: 1.0
 command: removable_storage_test -l usb
 _description:

@@ -291,6 +291,18 @@ _description:
  This test will check that your USB 2.0 port transfers data at a
  minimum expected speed.
 
+id: usb/storage-detect
+category_id: com.canonical.plainbox::usb
+plugin: shell
+_summary: Detect storage partitions on a device on the USB bus
+command:
+  udev_resource -f PARTITION | grep "bus: usb"
+estimated_duration: 1.0
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_usb_storage == 'True'
+
 unit: template
 template-resource: removable_partition
 template-filter: "usb" in removable_partition.bus
@@ -308,6 +320,7 @@ _description:
  Tests USB 2.0 or 1.1 ports on a system by doing write/read/compare tests on
  randomly created data.  It requires that a USB stick is plugged into an
  available USB port before running the certification suite.
+depends: usb/storage-detect
 
 id: usb/hid
 _summary: USB keyboard works

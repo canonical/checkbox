@@ -221,6 +221,7 @@ unit: test plan
 _name: Automated USB tests
 _description: Automated USB tests for Snappy Ubuntu Core devices
 include:
+    usb/storage-detect
     usb/storage-preinserted-.*
 bootstrap_include:
     removable_partition
@@ -326,6 +327,7 @@ unit: test plan
 _name: Automated USB tests
 _description: Automated USB tests for Snappy Ubuntu Core devices
 include:
+    after-suspend-usb/storage-detect
     after-suspend-usb/storage-preinserted-.*
 bootstrap_include:
     removable_partition

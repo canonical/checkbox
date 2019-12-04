@@ -152,6 +152,23 @@ _verification:
     Was the desktop displayed correctly on the screen connected 
     using a "USB Type-C to VGA" adapter in every mode?
 
+id: dock/monitor-thunderbolt3
+category_id: dock-display
+depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+estimated_duration: 120.0
+_summary: Thunderbolt3 port test on the dock
+plugin: manual
+_purpose:
+    This test will check the Thunderbolt3 port(s) on the dock.
+_steps:
+    Skip this test if the dock does not have a Thunderbolt3 port.
+    1. Connect a display (if not already connected) to the Thunderbolt3 port on the dock
+    2. Repeat step 1 for each additional Thunderbolt3 port, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
 id: dock/monitor-dual-head
 category_id: dock-display
 depends: dock/cold-plug
@@ -159,9 +176,9 @@ estimated_duration: 120.0
 _summary: Dual monitors test while docked
 plugin: manual
 _purpose:
-    This test verifies that dual-monitor output works using the dock. You will need two external monitors to perform this test.
+    This test verifies that dual-monitor output works using the dock. You will need two external monitors to perform this test. Depends on the specification of the device to use 4K monitor or FHD monitor.
 _steps:
-    Skip this test if your video card or the dock do not support multiple monitors. Use 4K monitors to run this test if the video card and dock both support.
+    Skip this test if your video card or the dock do not support multiple monitors.
     1. If your dock provides more than one monitor outputs, connect two monitors
     2. Open the "Displays" tool (open the dash and search for "Displays")
     3. Configure your output to provide one desktop across all the monitors
@@ -169,14 +186,14 @@ _steps:
 _verification:
     Was the stretched desktop displayed correctly across all the screens?
 
-id: dock/monitor-tripple-head
+id: dock/monitor-triple-head
 category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120.0
 _summary: Tripple monitors test while docked
 plugin: manual
 _purpose:
-    This test verifies that tripple-monitor output works using the dock. You will need three external monitors to perform this test.
+    This test verifies that triple-monitor output works using the dock. You will need three external monitors to perform this test. Depends on the specification of the device to use 4K monitor or FHD monitor.
 _steps:
     Skip this test if your video card or the dock do not support multiple monitors.
     1. If your dock provides more than one monitor outputs, connect three monitors
@@ -225,6 +242,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
+flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
@@ -252,6 +270,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
+flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
@@ -269,9 +288,96 @@ _steps:
 _verification:
     Did you hear the sound from the DisplayPort device?
 
+id: dock/audio-playback-type-c-hdmi
+category_id: dock-audio
+depends: dock/cold-plug
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: HDMI audio test
+plugin: user-interact-verify
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Dock USB Type-C HDMI audio interface verification
+_steps:
+    1. Plug an external HDMI device with sound on a USB Type-C port using a "USB Typce-C to HDMI" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
+_verification:
+    Did you hear the sound from the HDMI device?
+
+id: dock/audio-playback-type-c-displayport
+category_id: dock-audio
+depends: dock/cold-plug
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: HDMI audio test
+plugin: user-interact-verify
+flags: also-after-suspend-manual
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Dock USB Type-C Displayport audio interface verification
+_steps:
+    1. Plug an external Displayport device with sound on a USB Type-C port using a "USB Typce-C to Displayport" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
+_verification:
+    Did you hear the sound from the Displayport device?
+
+id: dock/audio-playback-thunderbolt3
+category_id: dock-audio
+depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+ manifest.has_thunderbolt3 == 'True'
+_summary: DisplayPort audio test
+plugin: user-interact-verify
+flags: also-after-suspend-manual
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Dock Thunderbolt3 audio interface verification
+_steps:
+    1. Plug an external Thunderbolt3 device with sound to the dock (use only one HDMI/DisplayPort/Thunderbolt3 interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
+_verification:
+    Did you hear the sound from the Thunderbolt3 device?
+
+
 id: dock/audio-playback-headphones
 category_id: dock-audio
 plugin: user-interact-verify
+flags: also-after-suspend-manual
 estimated_duration: 30.0
 _summary: Headphones output test
 depends: dock/audio-list-devices
@@ -300,6 +406,7 @@ plugin: user-interact-verify
 category_id: dock-audio
 id: dock/audio-alsa-record-playback-external
 estimated_duration: 30.0
+flags: also-after-suspend-manual
 _summary: External microphone plugged to the dock to record sound test
 depends: dock/audio-playback-headphones
 requires:
@@ -883,6 +990,27 @@ _description:
      Did a notification show and was the connection correctly established?
 
 plugin: user-interact
+id: dock/hotplug-usb-insert
+category_id: dock-hotplug
+depends: dock/hot-plug
+estimated_duration: 10.0
+_summary: USB drive insertion test
+command: removable_storage_watcher insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB storage device plugged on the dock
+_steps:
+    1. Click "Test" and insert a USB storage device, preferably a HDD,
+       in one of the dock's port.
+       Although a USB pen drive may be used it might cause performance
+       related tests to fail. (Note: this test will time-out after 20
+       seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
 id: dock/hotplug-usb3-insert
 category_id: dock-hotplug
 depends: dock/hot-plug
@@ -903,6 +1031,17 @@ _verification:
     automatically selected result.
 
 plugin: shell
+id: dock/hotplug-usb-storage-automated
+category_id: dock-hotplug
+depends: dock/hotplug-usb-insert
+user: root
+estimated_duration: 45.0
+_summary: USB drive storage test
+command: removable_storage_test -s 268400000 usb
+_description:
+ This test is automated and executes after the dock/usb_insert test is run.
+
+plugin: shell
 id: dock/hotplug-usb3-storage-automated
 category_id: dock-hotplug
 depends: dock/hotplug-usb3-insert
@@ -912,6 +1051,23 @@ _summary: USB3 drive storage test
 command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
+
+plugin: user-interact
+id: dock/hotplug-usb-remove
+category_id: dock-hotplug
+depends: dock/hotplug-usb-insert
+estimated_duration: 10.0
+_summary: USB drive removal test
+command: removable_storage_watcher remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB storage device
+_steps:
+    1. Click "Test" and remove the USB device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 
 plugin: user-interact
 id: dock/hotplug-usb3-remove
@@ -930,35 +1086,117 @@ _verification:
     The verification of this test is automated. Do not change the
     automatically selected result.
 
-id: dock/hotplug-monitor-displayport
+id: dock/hotplug-playback-type-c-displayport
 category_id: dock-hotplug
 depends: dock/hot-plug
-estimated_duration: 120.0
-_summary: DisplayPort test on the dock
-plugin: manual
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: HDMI audio test
+plugin: user-interact-verify
+flags: also-after-suspend-manual
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
 _purpose:
-    This test will check the DisplayPort(s) on the dock after hot plugged in.
+    Dock USB Type-C Displayport audio interface verification
 _steps:
-    Skip this test if the dock does not have a DisplayPort.
-    1. Connect a display (if not already connected) to the DisplayPort on the dock
-    2. Repeat step 1 for each additional DisplayPorts, if any
+    1. Plug an external Displayport device with sound on a USB Type-C port using a "USB Typce-C to Displayport" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
 _verification:
-    Was the desktop displayed correctly on both screens?
+    Did you hear the sound from the Displayport device?
 
-id: dock/hotplug-monitor-hdmi
+id: dock/hotplug-playback-thumderbolt3
 category_id: dock-hotplug
 depends: dock/hot-plug
-estimated_duration: 120.0
-_summary: HDMI port test on the dock
-plugin: manual
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: HDMI audio test
+plugin: user-interact-verify
+flags: also-after-suspend-manual
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
 _purpose:
-    This test will check the HDMI port(s) on the dock after hot plugged in.
+    Dock Thunderbolt3 audio interface verification
 _steps:
-    Skip this test if the dock does not have a HDMI port.
-    1. Connect a display (if not already connected) to the HDMI port on the dock
-    2. Repeat step 1 for each additional HDMI port, if any
+    1. Plug an external Thunderbolt3 device with sound (Use only one HDMI/DisplayPort/Thunderbolt3 interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
 _verification:
-    Was the desktop displayed correctly on both screens?
+    Did you hear the sound from the HDMI device?
+
+id: dock/hotplug-playback-displayport
+category_id: dock-hotplug
+depends: dock/hot-plug
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: DisplayPort audio test
+plugin: user-interact-verify
+flags: also-after-suspend-manual
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Dock DisplayPort audio interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound to the dock (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
+_verification:
+    Did you hear the sound from the DisplayPort device?
+
+id: dock/hotplug-playback-hdmi
+category_id: dock-hotplug
+depends: dock/hot-plug
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: HDMI audio test
+plugin: user-interact-verify
+flags: also-after-suspend-manual
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Dock HDMI audio interface verification
+_steps:
+    1. Plug an external HDMI device with sound to the dock (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
+_verification:
+    Did you hear the sound from the HDMI device?
 
 ### Network ###
 
@@ -1233,6 +1471,41 @@ _steps:
 _verification:
     Was the desktop displayed correctly on the screen connected 
     using a "USB Type-C to VGA" adapter in every mode?
+
+id: dock/monitor-dual-head-after-suspend
+category_id: dock-display
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_summary: Dual monitors test while docked after suspend
+plugin: manual
+_purpose:
+    This test verifies that dual-monitor output works using the dock after suspend. You will need two external monitors to perform this test. Depends on the specification of the device to use 4K monitor or FHD monitor.
+_steps:
+    Skip this test if your video card or the dock do not support multiple monitors.
+    1. If your dock provides more than one monitor outputs, connect two monitors
+    2. Open the "Displays" tool (open the dash and search for "Displays")
+    3. Configure your output to provide one desktop across all the monitors
+    4. Open any application and drag its window from one monitor to the next.
+_verification:
+    Was the stretched desktop displayed correctly across all the screens?
+
+id: dock/monitor-triple-head-after-suspend
+category_id: dock-display
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_summary: Tripple monitors test while docked after suspend
+plugin: manual
+_purpose:
+    This test verifies that triple-monitor output works using the dock after suspend. You will need three external monitors to perform this test. Depends on the specification of the device to use 4K monitor or FHD monitor.
+_steps:
+    Skip this test if your video card or the dock do not support multiple monitors.
+    1. If your dock provides more than one monitor outputs, connect three monitors
+    2. Open the "Displays" tool (open the dash and search for "Displays")
+    3. Turn off internal monitor
+    4. Configure your output to provide one desktop across all the monitors
+    5. Open any application and drag its window from one monitor to the next.
+_verification:
+    Was the stretched desktop displayed correctly across all the screens?
 
 ### Suspend, Undocked, Resume ###
 
@@ -1650,51 +1923,83 @@ _verification:
     Are all kinds of discs properly written?
 
 plugin: user-interact
-id: dock/thunderbolt-insert
+id: dock/thunderbolt3-insert
 category_id: dock
 estimated_duration: 40.0
 depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+flags: also-after-suspend-manual
 command: removable_storage_watcher insert --timeout 40 scsi
-_summary: Thunderbolt storage insertion detection
+_summary: Thunderbolt3 storage insertion detection
 _purpose:
-    This test will check if the connection of a Thunderbolt HDD to the dock could be detected
+    This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
 _steps:
     1. Click 'Test' to begin the test. This test will
        timeout and fail if the insertion has not been detected within 40 seconds.
-    2. Plug a Thunderbolt HDD into an available Thunderbolt port on the dock;
+    2. Plug a Thunderbolt3 HDD into an available Thunderbolt3 port on the dock;
        if it's not mounted automatically, please click the HDD icon to mount it.
 _verification:
     The verification of this test is automated. Do not change the automatically
     selected result
 
 plugin: shell
-id: dock/thunderbolt-storage-test
+id: dock/thunderbolt3-storage-test
 category_id: dock
 estimated_duration: 45.0
 user: root
-depends: dock/thunderbolt-insert
+depends: dock/thunderbolt3-insert
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+flags: also-after-suspend-manual
 command: removable_storage_test -s 268400000 scsi
-_summary: Thunderbolt storage test
+_summary: Thunderbolt3 storage test
 _description:
  This is an automated test which performs read/write operations on an attached
  Thunderbolt HDD
 
 plugin: user-interact
-id: dock/thunderbolt-remove
+id: dock/thunderbolt3-remove
 category_id: dock
 estimated_duration: 20.0
-depends: dock/thunderbolt-insert
+depends: dock/thunderbolt3-insert
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+flags: also-after-suspend-manual
 command: removable_storage_watcher remove scsi
-_summary: Thunderbolt storage removal detection
+_summary: Thunderbolt3 storage removal detection
 _purpose:
-    This test will check the system can detect the removal of a Thunderbolt HDD
+    This test will check the system can detect the removal of a Thunderbolt3 HDD
 _steps:
     1. Click 'Test' to begin the test. This test will timeout and fail if
        the removal has not been detected within 20 seconds.
-    2. Remove the previously attached Thunderbolt HDD from the Thunderbolt port.
+    2. Remove the previously attached Thunderbolt3 HDD from the Thunderbolt3 port.
 _verification:
     The verification of this test is automated. Do not change the automatically
     selected result
+
+plugin: user-interact-verify
+category_id: dock
+id: dock/thunderbolt3-daisy-chain
+flags: also-after-suspend-manual
+estimated_duration: 45.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+command: removable_storage_test -s 268400000 scsi
+_summary: Daisy-chain testing for Thunderbolt 3 storage and display device
+_description:
+_purpose:
+     This test will check if your system can support daisy-chaining of a storage
+     and a monitor over Thunderbolt 3 port
+ _steps:
+     1. Connect your Thunderbolt monitor to your systems
+     2. Connect and mount your Thunderbolt HDD to another Thunderbolt 3 port of the
+        monitor (you can do this with HDD first as well)
+     3. Click 'Test' to perform the storage test on the Thunderbolt HDD
+ _verification:
+     1. The verification for storage is automated, please select the result combine
+        with the result for the display.
+     2. Was the desktop displayed correctly on the Thunderbolt-connected screen?
 
 ### Hot Plug after suspend ###
 
@@ -1728,6 +2033,27 @@ _description:
      Did a notification show and was the connection correctly established?
 
 plugin: user-interact
+id: dock/hotplug-usb-insert-after-suspend
+category_id: dock-hotplug
+depends: dock/hot-plug-after-suspend
+estimated_duration: 10.0
+_summary: USB drive insertion after resuming
+command: removable_storage_watcher insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB storage device plugged on the dock after suspend
+_steps:
+    1. Click "Test" and insert a USB storage device, preferably a HDD,
+       in one of the dock's port.
+       Although a USB pen drive may be used it might cause performance
+       related tests to fail. (Note: this test will time-out after 20
+       seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
 id: dock/hotplug-usb3-insert-after-suspend
 category_id: dock-hotplug
 depends: dock/hot-plug-after-suspend
@@ -1748,6 +2074,17 @@ _verification:
     automatically selected result.
 
 plugin: shell
+id: dock/hotplug-usb-storage-automated-after-suspend
+category_id: dock-hotplug
+depends: dock/hotplug-usb-insert-after-suspend
+user: root
+estimated_duration: 45.0
+_summary: USB drive storage test after resuming
+command: removable_storage_test -s 268400000 usb
+_description:
+ This test is automated and executes after the dock/usb-insert test is run.
+
+plugin: shell
 id: dock/hotplug-usb3-storage-automated-after-suspend
 category_id: dock-hotplug
 depends: dock/hotplug-usb3-insert-after-suspend
@@ -1757,6 +2094,23 @@ _summary: USB3 drive storage test
 command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
+
+plugin: user-interact
+id: dock/hotplug-usb-remove-after-suspend
+category_id: dock-hotplug
+depends: dock/hotplug-usb-insert-after-suspend
+estimated_duration: 10.0
+_summary: USB drive removal after resuming
+command: removable_storage_watcher remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB storage device after suspend
+_steps:
+    1. Click "Test" and remove the USB device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 
 plugin: user-interact
 id: dock/hotplug-usb3-remove-after-suspend
@@ -1774,36 +2128,6 @@ _steps:
 _verification:
     The verification of this test is automated. Do not change the
     automatically selected result.
-
-id: dock/hotplug-monitor-displayport-after-suspend
-category_id: dock-hotplug
-depends: dock/hot-plug-after-suspend
-estimated_duration: 120.0
-_summary: DisplayPort test on the dock
-plugin: manual
-_purpose:
-    This test will check the DisplayPort(s) on the dock after hot plugged in.
-_steps:
-    Skip this test if the dock does not have a DisplayPort.
-    1. Connect a display (if not already connected) to the DisplayPort on the dock
-    2. Repeat step 1 for each additional DisplayPorts, if any
-_verification:
-    Was the desktop displayed correctly on both screens?
-
-id: dock/hotplug-monitor-hdmi-after-suspend
-category_id: dock-hotplug
-depends: dock/hot-plug-after-suspend
-estimated_duration: 120.0
-_summary: HDMI port test on the dock
-plugin: manual
-_purpose:
-    This test will check the HDMI port(s) on the dock after hot plugged in.
-_steps:
-    Skip this test if the dock does not have a HDMI port.
-    1. Connect a display (if not already connected) to the HDMI port on the dock
-    2. Repeat step 1 for each additional HDMI port, if any
-_verification:
-    Was the desktop displayed correctly on both screens?
 
 ### Suspend, Undocked, Docked, Resume ###
 
@@ -1838,6 +2162,27 @@ _description:
      Did a notification show and was the connection correctly established?
 
 plugin: user-interact
+id: dock/usb-insert-after-suspend-dock-resume
+category_id: suspend-dock-resume
+depends: dock/suspend-dock-resume
+estimated_duration: 10.0
+_summary: USB drive insertion after resuming
+command: removable_storage_watcher insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB storage device plugged on the dock after suspend
+_steps:
+    1. Click "Test" and insert a USB storage device, preferably a HDD,
+       in one of the dock's port.
+       Although a USB pen drive may be used it might cause performance
+       related tests to fail. (Note: this test will time-out after 20
+       seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
 id: dock/usb3-insert-after-suspend-dock-resume
 category_id: suspend-dock-resume
 depends: dock/suspend-dock-resume
@@ -1858,6 +2203,17 @@ _verification:
     automatically selected result.
 
 plugin: shell
+id: dock/usb-storage-automated-after-suspend-dock-resume
+category_id: suspend-dock-resume
+depends: dock/usb-insert-after-suspend-dock-resume
+user: root
+estimated_duration: 45.0
+_summary: USB drive storage test after resuming
+command: removable_storage_test -s 268400000 usb
+_description:
+ This test is automated and executes after the dock/usb-insert test is run.
+
+plugin: shell
 id: dock/usb3-storage-automated-after-suspend-dock-resume
 category_id: suspend-dock-resume
 depends: dock/usb3-insert-after-suspend-dock-resume
@@ -1867,6 +2223,23 @@ _summary: USB3 drive storage test
 command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
+
+plugin: user-interact
+id: dock/usb-remove-after-suspend-dock-resume
+category_id: suspend-dock-resume
+depends: dock/usb-insert-after-suspend-dock-resume
+estimated_duration: 10.0
+_summary: USB drive removal after resuming
+command: removable_storage_watcher remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB storage device after suspend
+_steps:
+    1. Click "Test" and remove the USB device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 
 plugin: user-interact
 id: dock/usb3-remove-after-suspend-dock-resume
@@ -1914,3 +2287,13 @@ _steps:
     2. Repeat step 1 for each additional HDMI port, if any
 _verification:
     Was the desktop displayed correctly on both screens?
+
+id: dock/mac-address-passthrough
+category_id: dock
+plugin: shell
+user: root
+command: mac-passthrough.py
+_description: Check dock MAC address pass-through function, please make sure following items before running this test:
+    1. Pass-through mac address is flashed in BIOS
+    2. MAC address pass-through is enabled in BIOS settings
+    3. Dock is connected

@@ -9,3 +9,13 @@ nested_part:
     com.canonical.certification::wireless-automated
     com.canonical.certification::after-suspend-wireless-automated
     com.canonical.certification::info-attachment-cert-full
+
+id: cdts-dock
+_name: CDTS Dock test plan
+unit: test plan
+_description: CDTS Dock test plan
+include:
+nested_part:
+    com.canonical.certification::dock-cert-full
+    com.canonical.certification::after-suspend-dock-cert-full
+

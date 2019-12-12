@@ -403,17 +403,7 @@ plugin: shell
 category_id: com.canonical.plainbox::monitor
 _summary: Automated HDMI hotplug test
 _description:
- This test will use edid injector on muxpi to check if system detect HDMI hotplug
-environ: HDMI_PORT MUXPI_IP
-requires: manifest.has_muxpi_hdmi == 'True'
-imports: from com.canonical.plainbox import manifest
+  Use chamleon board to simulate connection/disconnection of an HDMI monitor.
+environ: HDMI_PORT CHAMELEON_IP
 command:
-  export SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-  timeout 60 ssh $SSH_OPTS ubuntu@$MUXPI_IP "stm -hdmi off" || exit 1
-  sleep 3
-  timeout 60 ssh $SSH_OPTS ubuntu@$MUXPI_IP "stm -hdmi on" || exit 1
-  sleep 3
-  if [ "$(cat /sys/class/drm/$HDMI_PORT/status)" != "connected" ] ;then exit 1; fi
-  timeout 60 ssh $SSH_OPTS ubuntu@$MUXPI_IP "stm -hdmi off" || exit 1
-  sleep 3
-  if [ "$(cat /sys/class/drm/$HDMI_PORT/status)" != "disconnected" ] ;then exit 1; fi
+  chameleon_hdmi_hotplug.py $HDMI_PORT $CHAMELEON_IP

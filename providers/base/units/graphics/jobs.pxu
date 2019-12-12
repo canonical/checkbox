@@ -405,7 +405,7 @@ command:
  totem --fullscreen $PLAINBOX_PROVIDER_DATA/video/Ogg_Theora_Video.ogv 2>/dev/null &
  set -o pipefail
  sleep 15 && camera_test still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg -q 2>&1 | ansi_parser
- sleep 5 && totem --quit 2>/dev/null
+ sleep 5 && pkill totem
  gsettings set org.gnome.totem repeat false
 _summary: Test FSV screenshot for {vendor} {product}
 _description:

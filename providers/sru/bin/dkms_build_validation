@@ -45,7 +45,6 @@ if [ "$number_dkms_min" -ne "$number_dkms_max" ]; then
     echo
     echo "=== DKMS status ==="
     dkms status
-    exit 1
 fi
 
 # scan the APT log during system update

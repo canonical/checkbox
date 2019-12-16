@@ -234,7 +234,7 @@ category_id: com.canonical.plainbox::usb
 id: usb/storage-preinserted
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -l usb && removable_storage_test -s 268400000 usb
+command: removable_storage_test -l usb && timeout 300 removable_storage_test -s 268400000 usb
 flags: also-after-suspend preserve-cwd
 requires:
  cpuinfo.platform != 's390x'
@@ -258,7 +258,7 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 estimated_duration: 45.0
-command: removable_storage_test -l usb && removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test -l usb && timeout 300 removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _summary: 
  Test USB 3.0 or 3.1 ports
 _description:

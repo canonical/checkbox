@@ -729,6 +729,8 @@ def main():
                     total_write_size = sum(write_sizes)
 
                 try:
+                    # Clear dmesg so we can check for I/O errors later
+                    subprocess.check_output(['dmesg', '-C'])
                     for disk, mount_point in disks_eligible.items():
                         print("%s (Total Data Size / iteration: %0.4f MB):" %
                               (disk, (total_write_size / 1024 / 1024)))
@@ -807,6 +809,10 @@ def main():
                         if test.umount() != 0:
                             errors += 1
                         test.clean_tmp_dir()
+                    dmesg = subprocess.run(['dmesg'], stdout=subprocess.PIPE)
+                    if 'I/O error' in dmesg.stdout.decode():
+                        logging.error("I/O errors found in dmesg")
+                        errors += 1
 
                 if errors > 0:
                     logging.warning(

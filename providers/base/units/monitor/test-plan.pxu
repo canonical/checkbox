@@ -299,6 +299,7 @@ _name: Automated monitor tests
 _description: Automated monitor tests for Snappy Ubuntu Core devices
 include:
     monitor/hdmi-hotplug-automated
+    monitor/edid-stress-automated
 
 id: after-suspend-monitor-full
 unit: test plan

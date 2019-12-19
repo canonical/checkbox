@@ -564,7 +564,10 @@ class IOLogRecordReader:
         :returns: None if the stream is empty
         :returns: next :class:`IOLogRecord` as found in the stream.
         """
-        text = self.stream.readline()
+        try:
+            text = self.stream.readline()
+        except OSError:
+            return
         if len(text) == 0:
             return
         data = json.loads(text)

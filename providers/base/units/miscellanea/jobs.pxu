@@ -154,8 +154,7 @@ unit: template
 template-resource: model_assertion
 template-unit: job
 requires:
- executable.name == 'dumpimage'
- executable.name == 'mokutil'
+ executable.name == 'dumpimage' or executable.name == 'mokutil'
 id: miscellanea/secure_boot_mode_{gadget}
 _summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active
 _description:

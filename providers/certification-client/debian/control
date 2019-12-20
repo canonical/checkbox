@@ -42,7 +42,8 @@ Recommends: ethtool,
             render-bench,
             shutter,
             stress,
-            wmctrl
+            wmctrl,
+            pm-graph
 Description: Client Certification provider for Plainbox
  This package provides a test set of test plans that are used by Canonical
  for the testing and certification of "client" devices. Client devices include

@@ -552,7 +552,7 @@ class RunCommand(object):
 
     def run(self, cmd):
         proc = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE,
-                     universal_newlines=True)
+                     stdin=DEVNULL, universal_newlines=True)
         self.stdout, self.stderr = proc.communicate()
         self.returncode = proc.returncode
 

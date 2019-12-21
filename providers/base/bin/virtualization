@@ -24,24 +24,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 from argparse import ArgumentParser
-import configparser
-from glob import glob
 import os
-import re
 import logging
 import lsb_release
 import platform
 import requests
 import shlex
-import signal
 from subprocess import (
     Popen,
     PIPE,
-    STDOUT,
     DEVNULL,
     CalledProcessError,
     check_output,
-    check_call,
     call
 )
 import sys
@@ -204,7 +198,7 @@ class KVMTest(object):
         self.arch = check_output(['dpkg', '--print-architecture'],
                                  universal_newlines=True).strip()
         self.qemu_config = QEMU_ARCH_CONFIG[self.arch]
-        self.release = lsb_release.get_lsb_information()["CODENAME"]
+        self.release = lsb_release.get_distro_information()["CODENAME"]
 
     def url_to_path(self, image_path):
         """
@@ -834,7 +828,8 @@ def main():
         args.func(args)
     except AttributeError:
         parser.print_help()
-        return False
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

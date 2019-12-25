@@ -22,9 +22,6 @@ _description:
            - led/wireless is redundant given that we have led/wlan and
              led/bluetooth already. (Manual)
 include:
- led/battery-charged
- led/battery-charging
- led/battery-low
  camera/led_.*                      certification-status=blocker
  led/caps-lock                      certification-status=blocker
  led/numeric-keypad                 certification-status=blocker
@@ -52,9 +49,6 @@ unit: test plan
 _name: LED tests (after suspend)
 _description: LED tests (after suspend)
 include:
-    suspend/led_after_suspend/battery-charged
-    suspend/led_after_suspend/battery-charging
-    suspend/led_after_suspend/battery-low
     after-suspend-manual-camera/led_.*          certification-status=blocker
     suspend/led_after_suspend/caps-lock         certification-status=blocker
     suspend/led_after_suspend/numeric-keypad    certification-status=blocker

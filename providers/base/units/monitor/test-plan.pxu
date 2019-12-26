@@ -36,9 +36,6 @@ include:
  monitor/1_dvi_.*                           certification-status=blocker
  monitor/1_hdmi_.*                          certification-status=blocker
  audio/1_playback_hdmi_.*                   certification-status=blocker
- monitor/1_thunderbolt_.*                   certification-status=blocker
- audio/1_playback_thunderbolt_.*            certification-status=blocker
- thunderbolt/daisy-chain                    certification-status=blocker
  monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  thunderbolt3/daisy-chain                   certification-status=non-blocker
@@ -65,9 +62,6 @@ include:
  after-suspend-manual-monitor/1_dvi_.*                           certification-status=blocker
  after-suspend-manual-monitor/1_hdmi_.*                          certification-status=blocker
  after-suspend-manual-audio/1_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/1_thunderbolt_.*                   certification-status=blocker
- after-suspend-manual-audio/1_playback_thunderbolt_.*            certification-status=blocker
- after-suspend-manual-thunderbolt/daisy-chain                    certification-status=blocker
  after-suspend-manual-monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  after-suspend-manual-audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  after-suspend-manual-thunderbolt3/daisy-chain                   certification-status=non-blocker
@@ -116,8 +110,6 @@ include:
  monitor/2_dvi_.*                           certification-status=blocker
  monitor/2_hdmi_.*                          certification-status=blocker
  audio/2_playback_hdmi_.*                   certification-status=blocker
- monitor/2_thunderbolt_.*                   certification-status=blocker
- audio/2_playback_thunderbolt_.*            certification-status=blocker
  monitor/2_thunderbolt3_.*                  certification-status=non-blocker
  audio/2_playback_thunderbolt3_.*           certification-status=non-blocker
  monitor/2_vga_.*                           certification-status=blocker
@@ -153,9 +145,6 @@ include:
  after-suspend-manual-monitor/2_dvi_.*                           certification-status=blocker
  after-suspend-manual-monitor/2_hdmi_.*                          certification-status=blocker
  after-suspend-manual-audio/2_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/2_thunderbolt_.*                   certification-status=blocker
- after-suspend-manual-audio/2_playback_thunderbolt_.*            certification-status=blocker
- after-suspend-manual-thunderbolt/daisy-chain                    certification-status=blocker
  after-suspend-manual-monitor/2_thunderbolt3_.*                  certification-status=non-blocker
  after-suspend-manual-audio/2_playback_thunderbolt3_.*           certification-status=non-blocker
  after-suspend-manual-thunderbolt3/daisy-chain                   certification-status=non-blocker
@@ -191,9 +180,6 @@ include:
     monitor/1_dvi_.*                           certification-status=blocker
     monitor/1_hdmi_.*                          certification-status=blocker
     audio/1_playback_hdmi_.*                   certification-status=blocker
-    monitor/1_thunderbolt_.*                   certification-status=blocker
-    audio/1_playback_thunderbolt_.*            certification-status=blocker
-    thunderbolt/daisy-chain                    certification-status=blocker
     monitor/1_vga_.*                           certification-status=blocker
     monitor/1_multi-head_.*                    certification-status=blocker
 bootstrap_include:
@@ -216,9 +202,6 @@ include:
  after-suspend-manual-monitor/1_dvi_.*                           certification-status=blocker
  after-suspend-manual-monitor/1_hdmi_.*                          certification-status=blocker
  after-suspend-manual-audio/1_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/1_thunderbolt_.*                   certification-status=blocker
- after-suspend-manual-audio/1_playback_thunderbolt_.*            certification-status=blocker
- after-suspend-manual-thunderbolt/daisy-chain                    certification-status=blocker
  after-suspend-manual-monitor/1_vga_.*                           certification-status=blocker
  after-suspend-manual-monitor/1_multi-head_.*                    certification-status=blocker
 bootstrap_include:
@@ -241,8 +224,6 @@ include:
     monitor/2_dvi_.*                           certification-status=blocker
     monitor/2_hdmi_.*                          certification-status=blocker
     audio/2_playback_hdmi_.*                   certification-status=blocker
-    monitor/2_thunderbolt_.*                   certification-status=blocker
-    audio/2_playback_thunderbolt_.*            certification-status=blocker
     monitor/2_vga_.*                           certification-status=blocker
     monitor/2_multi-head_.*                    certification-status=blocker
 bootstrap_include:
@@ -265,9 +246,6 @@ include:
  after-suspend-manual-monitor/2_dvi_.*                           certification-status=blocker
  after-suspend-manual-monitor/2_hdmi_.*                          certification-status=blocker
  after-suspend-manual-audio/2_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/2_thunderbolt_.*                   certification-status=blocker
- after-suspend-manual-audio/2_playback_thunderbolt_.*            certification-status=blocker
- after-suspend-manual-thunderbolt/daisy-chain                    certification-status=blocker
  after-suspend-manual-monitor/2_vga_.*                           certification-status=blocker
  after-suspend-manual-monitor/2_multi-head_.*                    certification-status=blocker
 bootstrap_include:

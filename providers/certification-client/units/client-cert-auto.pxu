@@ -1,0 +1,90 @@
+id: client-cert-auto
+_name: Fully Automatic Client Certification Tests
+unit: test plan
+_description: This test plan covered most of fully automatic tests
+ in client certification test plan and excludes the tests depend on
+ manual tests. No user interactions are needed to complete this test plan.
+ It's available for auto-regression and auto-sanity tests.
+include:
+    com.canonical.certification::audio/alsa_record_playback_automated
+    com.canonical.certification::bluetooth/detect-output
+    com.canonical.certification::camera/detect
+    com.canonical.certification::camera/multiple-resolution-images
+    com.canonical.certification::cpu/scaling_test
+    com.canonical.certification::cpu/scaling_test-log-attach
+    com.canonical.certification::cpu/offlining_test
+    com.canonical.certification::cpu/topology
+    com.canonical.certification::disk/read_performance_.*
+    com.canonical.certification::graphics/xorg-version
+    com.canonical.certification::graphics/1_gl_support_.*
+    com.canonical.certification::graphics/xorg-failsafe
+    com.canonical.certification::graphics/xorg-process
+    com.canonical.certification::graphics/2_auto_switch_card_.*
+    com.canonical.certification::graphics/2_valid_opengl_renderer_.*
+    com.canonical.certification::graphics/2_driver_version_.*
+    com.canonical.certification::graphics/2_gl_support_.*
+    com.canonical.certification::suspend/2_resolution_before_suspend_.*_auto
+    com.canonical.certification::install/apt-get-gets-updates
+    com.canonical.certification::mediacard/sd-preinserted
+    com.canonical.certification::memory/info
+    com.canonical.certification::ethernet/detect
+    com.canonical.certification::ethernet/info_automated
+    com.canonical.certification::miscellanea/dkms_build_validation
+    com.canonical.certification::networking/http
+    com.canonical.certification::networking/gateway_ping
+    com.canonical.certification::power-management/tickless_idle
+    com.canonical.certification::power-management/rtc
+    com.canonical.certification::power-management/fwts_wakealarm
+    com.canonical.certification::power-management/fwts_wakealarm-log-attach
+    com.canonical.certification::usb/detect
+    com.canonical.certification::usb/storage-preinserted
+    com.canonical.certification::wireless/nm_connection_save_.*
+    com.canonical.certification::wireless/wireless_scanning_.*
+    com.canonical.certification::wireless/wireless_connection_wpa_bg_nm_.*
+    com.canonical.certification::wireless/wireless_connection_open_bg_nm_.*
+    com.canonical.certification::wireless/wireless_connection_wpa_n_nm_.*
+    com.canonical.certification::wireless/wireless_connection_open_n_nm_.*
+    com.canonical.certification::wireless/nm_connection_restore_.*
+    com.canonical.certification::suspend/audio_before_suspend
+    com.canonical.certification::suspend/bluetooth_obex_browse_before_suspend
+    com.canonical.certification::suspend/cpu_before_suspend
+    com.canonical.certification::suspend/network_before_suspend
+    com.canonical.certification::suspend/memory_before_suspend
+    com.canonical.certification::suspend/suspend_advanced_auto
+    com.canonical.certification::suspend/suspend-single-log-attach
+    com.canonical.certification::suspend/audio_after_suspend_auto
+    com.canonical.certification::suspend/2_suspend_after_switch_to_card_.*_auto
+    com.canonical.certification::suspend/2_suspend-time-check_.*_auto
+    com.canonical.certification::suspend/2_suspend-single-log-attach_.*_auto
+    com.canonical.certification::suspend/2_gl_support_after_suspend_.*_auto
+    com.canonical.certification::suspend/2_driver_version_after_suspend_.*_auto
+    com.canonical.certification::suspend/2_resolution_after_suspend_.*_auto
+    com.canonical.certification::graphics/1_auto_switch_card_.*
+    com.canonical.certification::suspend/1_resolution_before_suspend_.*_auto
+    com.canonical.certification::suspend/1_suspend_after_switch_to_card_.*_auto
+    com.canonical.certification::suspend/1_suspend-time-check_.*_auto
+    com.canonical.certification::suspend/1_suspend-single-log-attach_.*_auto
+    com.canonical.certification::suspend/1_gl_support_after_suspend_.*_auto
+    com.canonical.certification::suspend/1_driver_version_after_suspend_.*_auto
+    com.canonical.certification::suspend/1_resolution_after_suspend_.*_auto
+    com.canonical.certification::suspend/network_resume_time_auto
+    com.canonical.certification::suspend/wifi_resume_time_auto
+    com.canonical.certification::suspend/usb_storage_preinserted_after_suspend
+    com.canonical.certification::suspend/record_playback_after_suspend_auto
+    com.canonical.certification::suspend/bluetooth_obex_browse_after_suspend_auto
+    com.canonical.certification::suspend/cpu_after_suspend_auto
+    com.canonical.certification::suspend/memory_after_suspend_auto
+    com.canonical.certification::after-suspend-wireless/nm_connection_save_.*
+    com.canonical.certification::after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
+    com.canonical.certification::after-suspend-wireless/wireless_connection_open_bg_nm_.*
+    com.canonical.certification::after-suspend-wireless/wireless_connection_wpa_n_nm_.*
+    com.canonical.certification::after-suspend-wireless/wireless_connection_open_n_nm_.*
+    com.canonical.certification::after-suspend-wireless/nm_connection_restore_.*
+    com.canonical.certification::suspend/gpu_lockup_after_suspend
+    com.canonical.certification::recovery_info_attachment
+nested_part:
+    com.canonical.certification::submission-cert-full
+    com.canonical.certification::info-attachment-cert-full
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::graphics_card

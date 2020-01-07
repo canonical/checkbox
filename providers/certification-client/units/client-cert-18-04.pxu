@@ -14,8 +14,6 @@ nested_part:
     audio-cert-full
     bluetooth-cert-full
     camera-cert-full
-    esata-cert-full
-    firewire-cert-full
     thunderbolt-cert-full
     monitor-integrated-gpu-cert-full
     graphics-integrated-gpu-cert-full

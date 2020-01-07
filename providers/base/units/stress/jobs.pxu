@@ -495,3 +495,41 @@ _description:
      2. Press wifi hotkey at a rate of 1 press per second and slowly increase the speed of the tap, until you are tapping as fast as possible
  VERIFICATION:
      Verify the system is not frozen and the wifi and bluetooth applets are still visible and functional
+
+plugin:shell
+category_id: com.canonical.plainbox::stress
+id: stress/s2idle_pm-graph_30
+estimated_duration: 10m
+requires: executable.name == 'sleepgraph'
+user: root
+_summary: Resume from idle by using Intel pm-graph
+command:
+ sleepgraph -m freeze -rtcwake 10 -sync -gzip -multi 30 0 -skiphtml -o $PLAINBOX_SESSION_SHARE/s2idle_pm-graph/s2idle-{date}-{time}
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/s2idle_pm-graph_30.tar.xz
+estimated_duration: 1
+user: root
+_summary: Attach pm-graph logs (s2idle)
+command:
+ tar Jcf $PLAINBOX_SESSION_SHARE/s2idle_pm-graph_30.tar.xz $PLAINBOX_SESSION_SHARE/s2idle_pm-graph && cat $PLAINBOX_SESSION_SHARE/s2idle_pm-graph_30.tar.xz
+
+plugin:shell
+category_id: com.canonical.plainbox::stress
+id: stress/s3_pm-graph_30
+estimated_duration: 10m
+requires: executable.name == 'sleepgraph'
+user: root
+_summary: Resume from suspend by using Intel pm-graph
+command:
+ sleepgraph -m mem -rtcwake 10 -sync -gzip -multi 30 0 -skiphtml -o $PLAINBOX_SESSION_SHARE/s3_pm-graph/suspend-{date}-{time}
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/s3_pm-graph_30.tar.xz
+estimated_duration: 1
+user: root
+_summary: Attach pm-graph logs (s3)
+command:
+ tar Jcf $PLAINBOX_SESSION_SHARE/s3_pm-graph_30.tar.xz $PLAINBOX_SESSION_SHARE/s3_pm-graph && cat $PLAINBOX_SESSION_SHARE/s3_pm-graph_30.tar.xz

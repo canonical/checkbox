@@ -68,7 +68,7 @@ def main():
         operation.teardown()
         result = {
             'outcome': 'fail',
-            'comment': message,
+            'comments': message,
         }
         with open(os.path.join(args.log_dir, '__result'), 'wt') as f:
             json.dump(result, f)
@@ -268,7 +268,7 @@ class PowerManagementOperation():
             if problems:
                 result = {
                     'outcome': 'fail' if problems else 'pass',
-                    'comment': problems,
+                    'comments': problems,
                 }
                 result_filename = os.path.join(self.args.log_dir, '__result')
                 with open(result_filename, 'wt') as f:

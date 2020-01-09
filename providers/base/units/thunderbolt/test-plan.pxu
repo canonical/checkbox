@@ -23,9 +23,6 @@ _name: Thunderbolt tests (Manual)
 _description:
  Thunderbolt tests (Manual)
 include:
- thunderbolt/insert                         certification-status=blocker
- thunderbolt/storage-test                   certification-status=blocker
- thunderbolt/remove                         certification-status=blocker
  thunderbolt3/insert                        certification-status=non-blocker
  thunderbolt3/storage-test                  certification-status=non-blocker
  thunderbolt3/remove                        certification-status=non-blocker
@@ -43,9 +40,6 @@ unit: test plan
 _name: Thunderbolt tests (certification blockers only)
 _description: Thunderbolt tests (certification blockers only)
 include:
- thunderbolt/insert                         certification-status=blocker
- thunderbolt/storage-test                   certification-status=blocker
- thunderbolt/remove                         certification-status=blocker
 
 id: after-suspend-thunderbolt-cert-manual
 unit: test plan
@@ -53,9 +47,6 @@ _name: Thunderbolt tests (after suspend Manual)
 _description:
  Thunderbolt tests (after suspend Manual)
 include:
- after-suspend-manual-thunderbolt/insert                         certification-status=blocker
- after-suspend-manual-thunderbolt/storage-test                   certification-status=blocker
- after-suspend-manual-thunderbolt/remove                         certification-status=blocker
  after-suspend-manual-thunderbolt3/insert                        certification-status=non-blocker
  after-suspend-manual-thunderbolt3/storage-test                  certification-status=non-blocker
  after-suspend-manual-thunderbolt3/remove                        certification-status=non-blocker
@@ -65,8 +56,5 @@ unit: test plan
 _name: Thunderbolt tests (after suspend - certification blockers only)
 _description: Thunderbolt tests (after suspend - certification blockers only)
 include:
- after-suspend-manual-thunderbolt/insert                         certification-status=blocker
- after-suspend-manual-thunderbolt/storage-test                   certification-status=blocker
- after-suspend-manual-thunderbolt/remove                         certification-status=blocker
 
 

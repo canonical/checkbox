@@ -18,12 +18,19 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import Enum
+import os
 from shutil import which
 import subprocess as sp
 import sys
 
 from checkbox_support.parsers.netplan import Netplan
 from checkbox_support.parsers.udevadm import UdevadmParser, UdevResult
+
+
+def log(msg):
+    file = os.path.expandvars('$PLAINBOX_SESSION_SHARE/net_if_management.log')
+    with open(file, 'a') as f:
+        f.write(msg + '\n')
 
 
 class UdevInterfaceLister(UdevResult):
@@ -95,8 +102,10 @@ def identify_managers(interfaces=None,
             global_scope_manager = netplan_conf.network['renderer']
 
     for n in results:
+        log('=={}=='.format(n))
         category_scope_manager = States.unspecified.value
         if has_netplan:
+            log('has netplan')
             if n in netplan_conf.wifis:
                 category_scope_manager = netplan_conf.wifis.get(
                     'renderer', States.unspecified.value)
@@ -108,23 +117,24 @@ def identify_managers(interfaces=None,
         if (global_scope_manager == States.nm.value or
                 category_scope_manager == States.nm.value or
                 not has_netplan):
+            log('NM indicated')
             # if NM isnt actually available this is a bad config
             if not has_nm:
-                print('error: netplan defines NM or there is no netplan, '
-                      'but NM unavailable')
+                log('error: netplan defines NM or there is no netplan, '
+                    'but NM unavailable')
                 results[n] = States.error
                 continue
             # NM does not know the interface
             if nm_conf.devices.get(n) is None:
-                print('error: netplan defines NM or there is no netplan, '
-                      'but interface unknown to NM')
+                log('error: netplan defines NM or there is no netplan, '
+                    'but interface unknown to NM')
                 results[n] = States.error
                 continue
             # NM thinks it doesnt manage the device despite netplan config
             if nm_conf.devices.get(n) == 'unmanaged':
-                print('error: netplan defines NM or there is no netplan, '
-                      'but NM reports unmanaged')
-                results[n] = States.error
+                log('error: netplan defines NM or there is no netplan, '
+                    'but NM reports unmanaged')
+                results[n] = States.unspecified
                 continue
             results[n] = States.nm
             continue

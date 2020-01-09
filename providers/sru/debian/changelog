@@ -1,4 +1,4 @@
-plainbox-provider-sru (1.14.0-1) UNRELEASED; urgency=medium
+plainbox-provider-sru (1.15.0-1) UNRELEASED; urgency=medium
 
   [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
@@ -24,8 +24,9 @@ plainbox-provider-sru (1.14.0-1) UNRELEASED; urgency=medium
 
   [ Jenkins ]
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@sylvain-ThinkPad-T480s>  Fri, 04 Oct 2019 11:14:45 +0200
+ -- Jenkins <jenkins@open-joey-201506-18558.maas>  Thu, 09 Jan 2020 13:57:34 +0000
 
 plainbox-provider-sru (1.5) unstable; urgency=medium
 

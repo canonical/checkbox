@@ -398,7 +398,8 @@ _purpose:
     (Skip this test if there is no headphone connector on the dock)
 _steps:
     1. Connect a pair of headphones to the dock
-    2. Click the Test button to play a sound to your audio device
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button to play a sound to your audio device
 _verification:
     Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
 
@@ -426,8 +427,9 @@ _purpose:
     (Skip this test if the dock does not have a microphone connector)
 _steps:
     1. Connect a microphone to the dock's microphone port
-    2. Click "Test", then speak into the external microphone
-    3. After a few seconds, your speech will be played back to you
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click "Test", then speak into the external microphone
+    4. After a few seconds, your speech will be played back to you
 _verification:
     Did you hear your speech played back?
 

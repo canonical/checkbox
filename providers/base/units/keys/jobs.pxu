@@ -277,3 +277,16 @@ _description:
  VERIFICATION:
      Did the keyboard overhead light key or switch turns on and off the light?
 
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/power-button
+estimated_duration: 30.0
+flags: also-after-suspend-manual
+_purpose:
+    This test will test the power button
+_steps:
+    1. press the power button.
+    2. press cancel to quit.
+_verification:
+    Did the power management prompt pop up when press power button?
+

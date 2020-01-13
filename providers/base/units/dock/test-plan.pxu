@@ -45,9 +45,7 @@ include:
   dock/audio-alsa-info-collect
   dock/audio-alsa-info-attachment
   dock/audio-list-devices
-  dock/audio-speaker-headphone-plug-detection   certification-status=blocker
   dock/audio-playback-headphones        certification-status=blocker
-  dock/audio-microphone-plug-detection  certification-status=blocker
   dock/audio-alsa-record-playback-external      certification-status=blocker
   dock/audio-external-linein
   dock/audio-external-lineout
@@ -208,9 +206,7 @@ include:
   dock/monitor_type-c_vga                 certification-status=blocker
   dock/keys-video-out                     certification-status=blocker
   dock/monitor-dual-head                  certification-status=blocker
-  dock/audio-speaker-headphone-plug-detection   certification-status=blocker
   dock/audio-playback-headphones        certification-status=blocker
-  dock/audio-microphone-plug-detection  certification-status=blocker
   dock/audio-alsa-record-playback-external      certification-status=blocker
   dock/networking-gateway-ping          certification-status=blocker
   dock/networking-ntp                   certification-status=blocker

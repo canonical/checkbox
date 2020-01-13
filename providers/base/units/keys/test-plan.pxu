@@ -24,6 +24,7 @@ include:
  keys/wireless                                  certification-status=blocker
  keys/keyboard-backlight                        certification-status=blocker
  keys/microphone-mute                           certification-status=blocker
+ keys/power-button                              certification-status=blocker
 
 id: keys-cert-automated
 unit: test plan

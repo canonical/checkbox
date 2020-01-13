@@ -26,7 +26,7 @@ sleep 120
 
 # check services
 # ignore failures for now due to https://bugs.launchpad.net/snapd/+bug/1818306
-snap_check_edinburgh_svcs
+snap_check_fuji_svcs
 
 # remove the snap to run the next test
 snap_remove

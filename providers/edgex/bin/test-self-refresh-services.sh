@@ -43,11 +43,11 @@ fi
 sleep 120
 
 # ignore failures for now due to https://bugs.launchpad.net/snapd/+bug/1818306
-snap_check_edinburgh_svcs --notfatal
+snap_check_fuji_svcs --notfatal
 
-# ensure the release config item is set to edinburgh
+# ensure the release config item is set to fuji
 snapRelease=$(snap get edgexfoundry release)
-if [ "$snapRelease" != "edinburgh" ]; then
+if [ "$snapRelease" != "fuji" ]; then
     echo "missing or invalid config item for snap release: \"$snapRelease\""
     snap_remove
     exit 1

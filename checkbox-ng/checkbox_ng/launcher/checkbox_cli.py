@@ -107,7 +107,7 @@ def main():
         socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
     except Exception as exc:
         pass
-    if args.clear_cache:
+    if '--clear-cache' in sys.argv:
         ResourceJobCache().clear()
     if args.verbose:
         logging_level = logging.INFO

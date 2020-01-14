@@ -453,6 +453,18 @@ user: root
 command:
   net_if_management.py
 
+id: net_if_management_attachment
+_summary: Collect logging from the net_if_management job
+_description:
+ Allows logging of debug info and errors by the associated resource job
+plugin: attachment
+estimated_duration: 1.0
+category_id: com.canonical.plainbox::info
+command:
+  log_file="$PLAINBOX_SESSION_SHARE/net_if_management.log"
+  [ -e "$log_file" ] && cat "$log_file"
+after: net_if_management
+
 id: bootloader
 _summary: Detect which bootloader is used on the device
 _description:

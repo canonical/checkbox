@@ -571,6 +571,8 @@ class Launcher(MainLoopStage, ReportsStage):
             'print debug messages from checkbox'))
         parser.add_argument('--clear-cache', action='store_true', help=_(
             'remove cached results from the system'))
+        parser.add_argument('--clear-old-sessions', action='store_true', help=_(
+            "remove previous sessions' data"))
         parser.add_argument('--version', action='store_true', help=_(
             "show program's version information and exit"))
 

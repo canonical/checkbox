@@ -80,6 +80,8 @@ def main():
         'print debug messages from checkbox'))
     top_parser.add_argument('--clear-cache', action='store_true', help=_(
         'remove cached results from the system'))
+    top_parser.add_argument('--clear-old-sessions', action='store_true', help=_(
+        "remove previous sessions' data"))
     top_parser.add_argument('--version', action='store_true', help=_(
         "show program's version information and exit"))
     top_parser.add_argument('subcommand', help=_("subcommand to run"),
@@ -109,6 +111,9 @@ def main():
         pass
     if '--clear-cache' in sys.argv:
         ResourceJobCache().clear()
+    if '--clear-old-sessions' in sys.argv:
+        old_sessions = [s[0] for s in sa.get_old_sessions()]
+        sa.delete_sessions(old_sessions)
     if args.verbose:
         logging_level = logging.INFO
         logging.basicConfig(level=logging_level)

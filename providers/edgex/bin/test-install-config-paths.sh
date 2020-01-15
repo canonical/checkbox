@@ -37,7 +37,7 @@ cd /var/snap/edgexfoundry/current
 set +e
 notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | \
     grep -v "Binary file" | \
-    grep -v "cassandra/logs" | \
+    grep -v "postmaster" | \
     grep -v "and the location of the files uses reference")
 if [ -n "$notUpgradedFiles" ]; then
     echo "files not upgraded to use \"current\" symlink in config files:"

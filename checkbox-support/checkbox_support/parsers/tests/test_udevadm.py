@@ -989,6 +989,16 @@ E: UDEV_LOG=3
         # The symlink should follow the device
         self.assertEqual(symlink_pre, symlink_post)
 
+    def test_RPI2_WITH_CAMERA(self):
+        devices = self.parse("RPI2_WITH_CAMERA")
+        self.assertEqual(self.count(devices, "MMAL"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+
+    def test_RPI2_WITH_CAMERA_V4L2(self):
+        devices = self.parse("RPI2_WITH_CAMERA_V4L2")
+        self.assertEqual(self.count(devices, "MMAL"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
+
     def test_CAPTURE_METADATA(self):
         devices = self.parse("CAPTURE_METADATA")
         self.assertEqual(len(devices), 111)

@@ -211,6 +211,10 @@ class RemoteSessionAssistant():
             except AttributeError:
                 # psutil < 4.0.0 doesn't provide Process.environ()
                 return self._prepare_display_without_psutil()
+            except psutil.NoSuchProcess:
+                # quietly ignore the process that died before we had a chance to
+                # read the environment from them
+                continue
             if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
                 return {'DISPLAY': p_environ['DISPLAY']}
 

@@ -20,10 +20,10 @@ for channel in edge; do
     # use locally cached version of stable and delhi
     case "$channel" in 
         delhi)
-            if [ -n "$EDGEX_DELHI_SNAP_FILE" ]; then
-                snap_install "$EDGEX_DELHI_SNAP_FILE"
+            if [ -n "$EDGEX_EDINBURGH_SNAP_FILE" ]; then
+                snap_install "$EDGEX_EDINBURGH_SNAP_FILE"
             else
-                snap_install edgexfoundry delhi
+                snap_install edgexfoundry edinburgh
             fi
             ;;
         stable)

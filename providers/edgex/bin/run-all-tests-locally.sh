@@ -25,6 +25,20 @@ snap_download_and_ack()
     echo "$(pwd)"/"$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.snap')"
 }
 
+snap_download_stable_and_last()
+{
+    # download and ack the stable and edinburgh channels as we have tests to ensure
+    # there's a smooth upgrade between those channels and this one that is
+    # under consideration
+    # this also saves in download bandwidth and time
+    EDGEX_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --stable)
+    EDGEX_EDINBURGH_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=edinburgh)
+
+    # export the names of the stable and delhi snap files
+    export EDGEX_STABLE_SNAP_FILE
+    export EDGEX_EDINBURGH_SNAP_FILE
+}
+
 # parse arguments - adapted from https://stackoverflow.com/a/14203146/10102404
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
@@ -71,6 +85,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 # otherwise if we didn't get any arguments assume to test the snap from beta
 if [[ -n $LOCAL_SNAP ]]; then
     if [ -f "$LOCAL_SNAP" ]; then
+        echo "testing local snap: $LOCAL_SNAP"
         REVISION_TO_TEST=$LOCAL_SNAP
         REVISION_TO_TEST_CHANNEL=""
         # for now always need to test edgexfoundry locally with devmode
@@ -91,23 +106,18 @@ export REVISION_TO_TEST
 export REVISION_TO_TEST_CHANNEL
 export REVISION_TO_TEST_CONFINEMENT
 
-# download and ack the stable and delhi channels as we have tests to ensure
-# there's a smooth upgrade between those channels and this one that is 
-# under consideration
-# this also saves in download bandwidth and time
-EDGEX_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --stable)
-EDGEX_DELHI_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=delhi)
-
-# export the names of the stable and delhi snap files
-export EDGEX_STABLE_SNAP_FILE
-export EDGEX_DELHI_SNAP_FILE
-
 # make sure to remove the snap if it's installed before running
 snap_remove 2>/dev/null > /dev/null
 
 set +e
 if [ -n "$SINGLE_TEST" ]; then
     printf "running single test: %s ..." "$SINGLE_TEST"
+
+    if [ "$SINGLE_TEST" == "test-refresh-config-paths.sh" ] ||
+       [ "$SINGLE_TEST" == "test-refresh-services.sh" ]; then
+        snap_download_stable_and_last
+    fi
+
     if stdout="$("$SCRIPT_DIR/$SINGLE_TEST" 2>&1)"; then
         printf -- "\tPASSED\n"
         if [ -n "$VERBOSE" ]; then
@@ -119,6 +129,8 @@ if [ -n "$SINGLE_TEST" ]; then
         exit 1
     fi
 else
+    snap_download_stable_and_last
+
     # run all the tests (except this file obviously)
     for file in "$SCRIPT_DIR"/test-*.sh; do 
         printf "running test: %s..." "$file"

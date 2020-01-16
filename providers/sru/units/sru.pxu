@@ -58,6 +58,7 @@ include:
     meminfo_attachment
     modprobe_attachment
     modules_attachment
+    net_if_management_attachment
     sysctl_attachment
     lsmod_attachment
     audio/alsa_record_playback_automated

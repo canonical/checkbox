@@ -1,0 +1,7473 @@
+P: /devices/armv7_cortex_a7
+E: DEVPATH=/devices/armv7_cortex_a7
+E: SUBSYSTEM=event_source
+E: USEC_INITIALIZED=5774685
+E: net.ifnames=0
+
+P: /devices/breakpoint
+E: DEVPATH=/devices/breakpoint
+E: SUBSYSTEM=event_source
+E: USEC_INITIALIZED=5775461
+E: net.ifnames=0
+
+P: /devices/platform/3e513000.framebuffer
+E: DEVPATH=/devices/platform/3e513000.framebuffer
+E: MODALIAS=of:NframebufferT<NULL>Csimple-framebuffer
+E: OF_COMPATIBLE_0=simple-framebuffer
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/framebuffer@3e513000
+E: OF_NAME=framebuffer
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5790475
+E: net.ifnames=0
+
+P: /devices/platform/Fixed MDIO bus.0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0
+E: MODALIAS=platform:Fixed MDIO bus
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5777044
+E: net.ifnames=0
+
+P: /devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0
+E: SUBSYSTEM=mdio_bus
+E: USEC_INITIALIZED=5780264
+E: net.ifnames=0
+
+P: /devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0/fixed-0:1f
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0/fixed-0:1f
+E: SUBSYSTEM=mdio_bus
+E: USEC_INITIALIZED=5783211
+E: net.ifnames=0
+
+P: /devices/platform/alarmtimer
+E: DEVPATH=/devices/platform/alarmtimer
+E: DRIVER=alarmtimer
+E: MODALIAS=platform:alarmtimer
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5778049
+E: net.ifnames=0
+
+P: /devices/platform/chosen
+E: DEVPATH=/devices/platform/chosen
+E: MODALIAS=of:NchosenT<NULL>Csimple_bus
+E: OF_COMPATIBLE_0=simple_bus
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/chosen
+E: OF_NAME=chosen
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5786255
+E: net.ifnames=0
+
+P: /devices/platform/clocks
+E: DEVPATH=/devices/platform/clocks
+E: MODALIAS=of:NclocksT<NULL>Csimple-bus
+E: OF_COMPATIBLE_0=simple-bus
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/clocks
+E: OF_NAME=clocks
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5781099
+E: net.ifnames=0
+
+P: /devices/platform/fixedregulator_3v3
+E: DEVPATH=/devices/platform/fixedregulator_3v3
+E: DRIVER=reg-fixed-voltage
+E: MODALIAS=of:Nfixedregulator_3v3T<NULL>Cregulator-fixed
+E: OF_COMPATIBLE_0=regulator-fixed
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/fixedregulator_3v3
+E: OF_NAME=fixedregulator_3v3
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5789703
+E: net.ifnames=0
+
+P: /devices/platform/fixedregulator_3v3/regulator/regulator.2
+E: DEVPATH=/devices/platform/fixedregulator_3v3/regulator/regulator.2
+E: OF_COMPATIBLE_0=regulator-fixed
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/fixedregulator_3v3
+E: OF_NAME=fixedregulator_3v3
+E: SUBSYSTEM=regulator
+E: USEC_INITIALIZED=5794701
+E: net.ifnames=0
+
+P: /devices/platform/fixedregulator_5v0
+E: DEVPATH=/devices/platform/fixedregulator_5v0
+E: DRIVER=reg-fixed-voltage
+E: MODALIAS=of:Nfixedregulator_5v0T<NULL>Cregulator-fixed
+E: OF_COMPATIBLE_0=regulator-fixed
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/fixedregulator_5v0
+E: OF_NAME=fixedregulator_5v0
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5784670
+E: net.ifnames=0
+
+P: /devices/platform/fixedregulator_5v0/regulator/regulator.1
+E: DEVPATH=/devices/platform/fixedregulator_5v0/regulator/regulator.1
+E: OF_COMPATIBLE_0=regulator-fixed
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/fixedregulator_5v0
+E: OF_NAME=fixedregulator_5v0
+E: SUBSYSTEM=regulator
+E: USEC_INITIALIZED=5789029
+E: net.ifnames=0
+
+P: /devices/platform/leds
+E: DEVPATH=/devices/platform/leds
+E: DRIVER=leds-gpio
+E: MODALIAS=of:NledsT<NULL>Cgpio-leds
+E: OF_COMPATIBLE_0=gpio-leds
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/leds
+E: OF_NAME=leds
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5785664
+E: net.ifnames=0
+
+P: /devices/platform/leds/leds/led0
+E: DEVPATH=/devices/platform/leds/leds/led0
+E: OF_COMPATIBLE_N=0
+E: OF_FULLNAME=/leds/act
+E: OF_NAME=act
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=5789021
+E: net.ifnames=0
+
+P: /devices/platform/leds/leds/led1
+E: DEVPATH=/devices/platform/leds/leds/led1
+E: OF_COMPATIBLE_N=0
+E: OF_FULLNAME=/leds/pwr
+E: OF_NAME=pwr
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=5800327
+E: net.ifnames=0
+
+P: /devices/platform/phy
+E: DEVPATH=/devices/platform/phy
+E: DRIVER=usb_phy_generic
+E: MODALIAS=of:NphyT<NULL>Cusb-nop-xceiv
+E: OF_COMPATIBLE_0=usb-nop-xceiv
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/phy
+E: OF_NAME=phy
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5795361
+E: net.ifnames=0
+
+P: /devices/platform/reg-dummy
+E: DEVPATH=/devices/platform/reg-dummy
+E: DRIVER=reg-dummy
+E: MODALIAS=platform:reg-dummy
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5799346
+E: net.ifnames=0
+
+P: /devices/platform/reg-dummy/regulator/regulator.0
+E: DEVPATH=/devices/platform/reg-dummy/regulator/regulator.0
+E: SUBSYSTEM=regulator
+E: USEC_INITIALIZED=5801004
+E: net.ifnames=0
+
+P: /devices/platform/regulatory.0
+E: DEVPATH=/devices/platform/regulatory.0
+E: MODALIAS=platform:regulatory
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=34869448
+E: net.ifnames=0
+
+P: /devices/platform/snd-soc-dummy
+E: DEVPATH=/devices/platform/snd-soc-dummy
+E: DRIVER=snd-soc-dummy
+E: MODALIAS=platform:snd-soc-dummy
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=6385516
+E: net.ifnames=0
+
+P: /devices/platform/soc
+E: DEVPATH=/devices/platform/soc
+E: MODALIAS=of:NsocT<NULL>Csimple-bus
+E: OF_COMPATIBLE_0=simple-bus
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc
+E: OF_NAME=soc
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5795591
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma
+E: DEVPATH=/devices/platform/soc/3f007000.dma
+E: DRIVER=bcm2835-dma
+E: MODALIAS=of:NdmaT<NULL>Cbrcm,bcm2835-dma
+E: OF_COMPATIBLE_0=brcm,bcm2835-dma
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/dma@7e007000
+E: OF_NAME=dma
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5799087
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan0
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan0
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5802037
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan1
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan1
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5802047
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan2
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan2
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5803137
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan3
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan3
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5802186
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan4
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan4
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5803163
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan5
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan5
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5804430
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan6
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan6
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5803297
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan7
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan7
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5807874
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan8
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan8
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5809183
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f007000.dma/dma/dma0chan9
+E: DEVPATH=/devices/platform/soc/3f007000.dma/dma/dma0chan9
+E: SUBSYSTEM=dma
+E: USEC_INITIALIZED=5809002
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f00b840.vchiq
+E: DEVPATH=/devices/platform/soc/3f00b840.vchiq
+E: DRIVER=bcm2835_vchiq
+E: MODALIAS=of:NvchiqT<NULL>Cbrcm,bcm2835-vchiq
+E: OF_COMPATIBLE_0=brcm,bcm2835-vchiq
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/vchiq
+E: OF_NAME=vchiq
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5811382
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f00b880.mailbox
+E: DEVPATH=/devices/platform/soc/3f00b880.mailbox
+E: DRIVER=bcm2835-mbox
+E: MODALIAS=of:NmailboxT<NULL>Cbrcm,bcm2835-mbox
+E: OF_COMPATIBLE_0=brcm,bcm2835-mbox
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/mailbox@7e00b880
+E: OF_NAME=mailbox
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5811878
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f100000.watchdog
+E: DEVPATH=/devices/platform/soc/3f100000.watchdog
+E: DRIVER=bcm2835-wdt
+E: MODALIAS=of:NwatchdogT<NULL>Cbrcm,bcm2835-pm-wdt
+E: OF_COMPATIBLE_0=brcm,bcm2835-pm-wdt
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/watchdog@7e100000
+E: OF_NAME=watchdog
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5813767
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f100000.watchdog/misc/watchdog
+N: watchdog
+E: DEVNAME=/dev/watchdog
+E: DEVPATH=/devices/platform/soc/3f100000.watchdog/misc/watchdog
+E: MAJOR=10
+E: MINOR=130
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=5816565
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f100000.watchdog/watchdog/watchdog0
+N: watchdog0
+E: DEVNAME=/dev/watchdog0
+E: DEVPATH=/devices/platform/soc/3f100000.watchdog/watchdog/watchdog0
+E: MAJOR=248
+E: MINOR=0
+E: SUBSYSTEM=watchdog
+E: USEC_INITIALIZED=5816582
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f101000.cprman
+E: DEVPATH=/devices/platform/soc/3f101000.cprman
+E: DRIVER=bcm2835-clk
+E: MODALIAS=of:NcprmanT<NULL>Cbrcm,bcm2835-cprman
+E: OF_COMPATIBLE_0=brcm,bcm2835-cprman
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/cprman@7e101000
+E: OF_NAME=cprman
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5813855
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f104000.rng
+E: DEVPATH=/devices/platform/soc/3f104000.rng
+E: DRIVER=bcm2835-rng
+E: MODALIAS=of:NrngT<NULL>Cbrcm,bcm2835-rng
+E: OF_COMPATIBLE_0=brcm,bcm2835-rng
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/rng@7e104000
+E: OF_NAME=rng
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5817840
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f200000.gpio
+E: DEVPATH=/devices/platform/soc/3f200000.gpio
+E: DRIVER=pinctrl-bcm2835
+E: MODALIAS=of:NgpioT<NULL>Cbrcm,bcm2835-gpio
+E: OF_COMPATIBLE_0=brcm,bcm2835-gpio
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/gpio@7e200000
+E: OF_NAME=gpio
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5817828
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f200000.gpio/gpio/gpiochip0
+E: DEVPATH=/devices/platform/soc/3f200000.gpio/gpio/gpiochip0
+E: SUBSYSTEM=gpio
+E: USEC_INITIALIZED=5820723
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f200000.gpio/gpiochip0
+N: gpiochip0
+E: DEVNAME=/dev/gpiochip0
+E: DEVPATH=/devices/platform/soc/3f200000.gpio/gpiochip0
+E: MAJOR=254
+E: MINOR=0
+E: OF_COMPATIBLE_0=brcm,bcm2835-gpio
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/gpio@7e200000
+E: OF_NAME=gpio
+E: SUBSYSTEM=gpio
+E: USEC_INITIALIZED=5821909
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f200000.gpiomem
+E: DEVPATH=/devices/platform/soc/3f200000.gpiomem
+E: DRIVER=gpiomem-bcm2835
+E: MODALIAS=of:NgpiomemT<NULL>Cbrcm,bcm2835-gpiomem
+E: OF_COMPATIBLE_0=brcm,bcm2835-gpiomem
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/gpiomem
+E: OF_NAME=gpiomem
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5822162
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f201000.serial
+E: AMBA_ID=00241011
+E: DEVPATH=/devices/platform/soc/3f201000.serial
+E: DRIVER=uart-pl011
+E: MODALIAS=amba:d00241011
+E: OF_ALIAS_0=serial0
+E: OF_ALIAS_1=uart0
+E: OF_COMPATIBLE_0=brcm,bcm2835-pl011
+E: OF_COMPATIBLE_1=arm,pl011
+E: OF_COMPATIBLE_2=arm,primecell
+E: OF_COMPATIBLE_N=3
+E: OF_FULLNAME=/soc/serial@7e201000
+E: OF_NAME=serial
+E: SUBSYSTEM=amba
+E: USEC_INITIALIZED=5823270
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f201000.serial/tty/ttyAMA0
+N: ttyAMA0
+E: DEVNAME=/dev/ttyAMA0
+E: DEVPATH=/devices/platform/soc/3f201000.serial/tty/ttyAMA0
+E: MAJOR=204
+E: MINOR=64
+E: SUBSYSTEM=tty
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=5825239
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f202000.mmc
+E: DEVPATH=/devices/platform/soc/3f202000.mmc
+E: DRIVER=sdhost-bcm2835
+E: MODALIAS=of:NmmcT<NULL>Cbrcm,bcm2835-sdhost
+E: OF_ALIAS_0=mmc0
+E: OF_COMPATIBLE_0=brcm,bcm2835-sdhost
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/mmc@7e202000
+E: OF_NAME=mmc
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5824425
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f202000.mmc/mmc_host/mmc0
+E: DEVPATH=/devices/platform/soc/3f202000.mmc/mmc_host/mmc0
+E: SUBSYSTEM=mmc_host
+E: USEC_INITIALIZED=5826325
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624
+E: DEVPATH=/devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624
+E: DRIVER=mmcblk
+E: MMC_NAME=SU16G
+E: MMC_TYPE=SD
+E: MODALIAS=mmc:block
+E: SUBSYSTEM=mmc
+E: USEC_INITIALIZED=5827599
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624/block/mmcblk0
+N: mmcblk0
+S: disk/by-id/mmc-SU16G_0x0da36cd8
+S: disk/by-path/platform-3f202000.mmc
+E: DEVLINKS=/dev/disk/by-path/platform-3f202000.mmc /dev/disk/by-id/mmc-SU16G_0x0da36cd8
+E: DEVNAME=/dev/mmcblk0
+E: DEVPATH=/devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624/block/mmcblk0
+E: DEVTYPE=disk
+E: ID_NAME=SU16G
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PART_TABLE_UUID=8310f206
+E: ID_PATH=platform-3f202000.mmc
+E: ID_PATH_TAG=platform-3f202000_mmc
+E: ID_SERIAL=0x0da36cd8
+E: MAJOR=179
+E: MINOR=0
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=5985467
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624/block/mmcblk0/mmcblk0p1
+N: mmcblk0p1
+S: disk/by-id/mmc-SU16G_0x0da36cd8-part1
+S: disk/by-label/system-boot
+S: disk/by-partuuid/8310f206-01
+S: disk/by-path/platform-3f202000.mmc-part1
+S: disk/by-uuid/1E21-EF28
+E: DEVLINKS=/dev/disk/by-id/mmc-SU16G_0x0da36cd8-part1 /dev/disk/by-path/platform-3f202000.mmc-part1 /dev/disk/by-partuuid/8310f206-01 /dev/disk/by-label/system-boot /dev/disk/by-uuid/1E21-EF28
+E: DEVNAME=/dev/mmcblk0p1
+E: DEVPATH=/devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624/block/mmcblk0/mmcblk0p1
+E: DEVTYPE=partition
+E: ID_FS_LABEL=system-boot
+E: ID_FS_LABEL_ENC=system-boot
+E: ID_FS_TYPE=vfat
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=1E21-EF28
+E: ID_FS_UUID_ENC=1E21-EF28
+E: ID_FS_VERSION=FAT32
+E: ID_NAME=SU16G
+E: ID_PART_ENTRY_DISK=179:0
+E: ID_PART_ENTRY_FLAGS=0x80
+E: ID_PART_ENTRY_NUMBER=1
+E: ID_PART_ENTRY_OFFSET=2048
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=262144
+E: ID_PART_ENTRY_TYPE=0xc
+E: ID_PART_ENTRY_UUID=8310f206-01
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PART_TABLE_UUID=8310f206
+E: ID_PATH=platform-3f202000.mmc
+E: ID_PATH_TAG=platform-3f202000_mmc
+E: ID_SERIAL=0x0da36cd8
+E: MAJOR=179
+E: MINOR=1
+E: PARTN=1
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6221752
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624/block/mmcblk0/mmcblk0p2
+N: mmcblk0p2
+S: disk/by-id/mmc-SU16G_0x0da36cd8-part2
+S: disk/by-label/writable
+S: disk/by-partuuid/8310f206-02
+S: disk/by-path/platform-3f202000.mmc-part2
+S: disk/by-uuid/f892244e-ec7b-4bfd-b561-d54eb87233ae
+E: DEVLINKS=/dev/disk/by-path/platform-3f202000.mmc-part2 /dev/disk/by-uuid/f892244e-ec7b-4bfd-b561-d54eb87233ae /dev/disk/by-partuuid/8310f206-02 /dev/disk/by-label/writable /dev/disk/by-id/mmc-SU16G_0x0da36cd8-part2
+E: DEVNAME=/dev/mmcblk0p2
+E: DEVPATH=/devices/platform/soc/3f202000.mmc/mmc_host/mmc0/mmc0:e624/block/mmcblk0/mmcblk0p2
+E: DEVTYPE=partition
+E: ID_FS_LABEL=writable
+E: ID_FS_LABEL_ENC=writable
+E: ID_FS_TYPE=ext4
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=f892244e-ec7b-4bfd-b561-d54eb87233ae
+E: ID_FS_UUID_ENC=f892244e-ec7b-4bfd-b561-d54eb87233ae
+E: ID_FS_VERSION=1.0
+E: ID_NAME=SU16G
+E: ID_PART_ENTRY_DISK=179:0
+E: ID_PART_ENTRY_NUMBER=2
+E: ID_PART_ENTRY_OFFSET=264192
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=30790496
+E: ID_PART_ENTRY_TYPE=0x83
+E: ID_PART_ENTRY_UUID=8310f206-02
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PART_TABLE_UUID=8310f206
+E: ID_PATH=platform-3f202000.mmc
+E: ID_PATH_TAG=platform-3f202000_mmc
+E: ID_SERIAL=0x0da36cd8
+E: MAJOR=179
+E: MINOR=2
+E: PARTN=2
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6217882
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f204000.spi
+E: DEVPATH=/devices/platform/soc/3f204000.spi
+E: DRIVER=spi-bcm2835
+E: MODALIAS=of:NspiT<NULL>Cbrcm,bcm2835-spi
+E: OF_ALIAS_0=spi0
+E: OF_COMPATIBLE_0=brcm,bcm2835-spi
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/spi@7e204000
+E: OF_NAME=spi
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5827190
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f204000.spi/spi_master/spi0
+E: DEVPATH=/devices/platform/soc/3f204000.spi/spi_master/spi0
+E: OF_ALIAS_0=spi0
+E: OF_COMPATIBLE_0=brcm,bcm2835-spi
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/spi@7e204000
+E: OF_NAME=spi
+E: SUBSYSTEM=spi_master
+E: USEC_INITIALIZED=5831908
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.0
+E: DEVPATH=/devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.0
+E: DRIVER=spidev
+E: MODALIAS=spi:spidev
+E: OF_COMPATIBLE_0=spidev
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/spi@7e204000/spidev@0
+E: OF_NAME=spidev
+E: SUBSYSTEM=spi
+E: USEC_INITIALIZED=5835294
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.0/spidev/spidev0.0
+N: spidev0.0
+E: DEVNAME=/dev/spidev0.0
+E: DEVPATH=/devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.0/spidev/spidev0.0
+E: MAJOR=153
+E: MINOR=0
+E: SUBSYSTEM=spidev
+E: USEC_INITIALIZED=5838606
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.1
+E: DEVPATH=/devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.1
+E: DRIVER=spidev
+E: MODALIAS=spi:spidev
+E: OF_COMPATIBLE_0=spidev
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/spi@7e204000/spidev@1
+E: OF_NAME=spidev
+E: SUBSYSTEM=spi
+E: USEC_INITIALIZED=5835318
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.1/spidev/spidev0.1
+N: spidev0.1
+E: DEVNAME=/dev/spidev0.1
+E: DEVPATH=/devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.1/spidev/spidev0.1
+E: MAJOR=153
+E: MINOR=1
+E: SUBSYSTEM=spidev
+E: USEC_INITIALIZED=5840201
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f205000.i2c
+E: DEVPATH=/devices/platform/soc/3f205000.i2c
+E: DRIVER=i2c-bcm2835
+E: MODALIAS=of:Ni2cT<NULL>Cbrcm,bcm2835-i2c
+E: OF_ALIAS_0=i2c0
+E: OF_COMPATIBLE_0=brcm,bcm2835-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/i2c@7e205000
+E: OF_NAME=i2c
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5830493
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f205000.i2c/i2c-0
+E: DEVPATH=/devices/platform/soc/3f205000.i2c/i2c-0
+E: OF_ALIAS_0=i2c0
+E: OF_COMPATIBLE_0=brcm,bcm2835-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/i2c@7e205000
+E: OF_NAME=i2c
+E: SUBSYSTEM=i2c
+E: USEC_INITIALIZED=5835108
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f205000.i2c/i2c-0
+E: DEVPATH=/devices/platform/soc/3f205000.i2c/i2c-0
+E: OF_ALIAS_0=i2c0
+E: OF_COMPATIBLE_0=brcm,bcm2835-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/i2c@7e205000
+E: OF_NAME=i2c
+E: SUBSYSTEM=i2c
+E: USEC_INITIALIZED=5835108
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f205000.i2c/i2c-0/i2c-dev/i2c-0
+N: i2c-0
+E: DEVNAME=/dev/i2c-0
+E: DEVPATH=/devices/platform/soc/3f205000.i2c/i2c-0/i2c-dev/i2c-0
+E: MAJOR=89
+E: MINOR=0
+E: SUBSYSTEM=i2c-dev
+E: USEC_INITIALIZED=5841935
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f209000.dsi
+E: DEVPATH=/devices/platform/soc/3f209000.dsi
+E: MODALIAS=of:NdsiT<NULL>Cbrcm,bcm2835-dsi0
+E: OF_COMPATIBLE_0=brcm,bcm2835-dsi0
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/dsi@7e209000
+E: OF_NAME=dsi
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5832480
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f212000.thermal
+E: DEVPATH=/devices/platform/soc/3f212000.thermal
+E: DRIVER=bcm2835_thermal
+E: MODALIAS=of:NthermalT<NULL>Cbrcm,bcm2836-thermal
+E: OF_COMPATIBLE_0=brcm,bcm2836-thermal
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/thermal@7e212000
+E: OF_NAME=thermal
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5837885
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f215000.aux
+E: DEVPATH=/devices/platform/soc/3f215000.aux
+E: DRIVER=bcm2835-aux-clk
+E: MODALIAS=of:NauxT<NULL>Cbrcm,bcm2835-aux
+E: OF_COMPATIBLE_0=brcm,bcm2835-aux
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/aux@0x7e215000
+E: OF_NAME=aux
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5841794
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f600000.firmwarekms
+E: DEVPATH=/devices/platform/soc/3f600000.firmwarekms
+E: DRIVER=vc4_firmware_kms
+E: MODALIAS=of:NfirmwarekmsT<NULL>Craspberrypi,rpi-firmware-kms
+E: OF_COMPATIBLE_0=raspberrypi,rpi-firmware-kms
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/firmwarekms@7e600000
+E: OF_NAME=firmwarekms
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5843053
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f804000.i2c
+E: DEVPATH=/devices/platform/soc/3f804000.i2c
+E: DRIVER=i2c-bcm2835
+E: MODALIAS=of:Ni2cT<NULL>Cbrcm,bcm2835-i2c
+E: OF_ALIAS_0=i2c1
+E: OF_COMPATIBLE_0=brcm,bcm2835-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/i2c@7e804000
+E: OF_NAME=i2c
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5843057
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f804000.i2c/i2c-1
+E: DEVPATH=/devices/platform/soc/3f804000.i2c/i2c-1
+E: OF_ALIAS_0=i2c1
+E: OF_COMPATIBLE_0=brcm,bcm2835-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/i2c@7e804000
+E: OF_NAME=i2c
+E: SUBSYSTEM=i2c
+E: USEC_INITIALIZED=5846138
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f804000.i2c/i2c-1
+E: DEVPATH=/devices/platform/soc/3f804000.i2c/i2c-1
+E: OF_ALIAS_0=i2c1
+E: OF_COMPATIBLE_0=brcm,bcm2835-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/i2c@7e804000
+E: OF_NAME=i2c
+E: SUBSYSTEM=i2c
+E: USEC_INITIALIZED=5846138
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f804000.i2c/i2c-1/i2c-dev/i2c-1
+N: i2c-1
+E: DEVNAME=/dev/i2c-1
+E: DEVPATH=/devices/platform/soc/3f804000.i2c/i2c-1/i2c-dev/i2c-1
+E: MAJOR=89
+E: MINOR=1
+E: SUBSYSTEM=i2c-dev
+E: USEC_INITIALIZED=5853424
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb
+E: DEVPATH=/devices/platform/soc/3f980000.usb
+E: DRIVER=dwc_otg
+E: MODALIAS=of:NusbT<NULL>Cbrcm,bcm2708-usb
+E: OF_COMPATIBLE_0=brcm,bcm2708-usb
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/usb@7e980000
+E: OF_NAME=usb
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5847500
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1
+N: bus/usb/001/001
+E: BUSNUM=001
+E: DEVNAME=/dev/bus/usb/001/001
+E: DEVNUM=001
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_FOR_SEAT=usb-platform-3f980000_usb
+E: ID_MODEL=DWC_OTG_Controller
+E: ID_MODEL_ENC=DWC\x20OTG\x20Controller
+E: ID_MODEL_FROM_DATABASE=2.0 root hub
+E: ID_MODEL_ID=0002
+E: ID_PATH=platform-3f980000.usb
+E: ID_PATH_TAG=platform-3f980000_usb
+E: ID_REVISION=0415
+E: ID_SERIAL=Linux_4.15.0-1053-raspi2_dwc_otg_hcd_DWC_OTG_Controller_3f980000.usb
+E: ID_SERIAL_SHORT=3f980000.usb
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_4.15.0-1053-raspi2_dwc_otg_hcd
+E: ID_VENDOR_ENC=Linux\x204.15.0-1053-raspi2\x20dwc_otg_hcd
+E: ID_VENDOR_FROM_DATABASE=Linux Foundation
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=0
+E: OF_COMPATIBLE_0=brcm,bcm2708-usb
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/usb@7e980000
+E: OF_NAME=usb
+E: PRODUCT=1d6b/2/415
+E: SUBSYSTEM=usb
+E: TAGS=:seat:
+E: TYPE=9/0/1
+E: USEC_INITIALIZED=5854909
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-0:1.0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: ID_MODEL_FROM_DATABASE=2.0 root hub
+E: ID_USB_CLASS_FROM_DATABASE=Hub
+E: ID_USB_PROTOCOL_FROM_DATABASE=Single TT
+E: ID_VENDOR_FROM_DATABASE=Linux Foundation
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0002d0415dc09dsc00dp01ic09isc00ip00in00
+E: PRODUCT=1d6b/2/415
+E: SUBSYSTEM=usb
+E: TYPE=9/0/1
+E: USEC_INITIALIZED=5867707
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1
+N: bus/usb/001/002
+E: BUSNUM=001
+E: DEVNAME=/dev/bus/usb/001/002
+E: DEVNUM=002
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_FOR_SEAT=usb-platform-3f980000_usb-usb-0_1
+E: ID_MODEL=9514
+E: ID_MODEL_ENC=9514
+E: ID_MODEL_FROM_DATABASE=SMC9514 Hub
+E: ID_MODEL_ID=9514
+E: ID_PATH=platform-3f980000.usb-usb-0:1
+E: ID_PATH_TAG=platform-3f980000_usb-usb-0_1
+E: ID_REVISION=0200
+E: ID_SERIAL=0424_9514
+E: ID_USB_INTERFACES=:090001:090002:
+E: ID_VENDOR=0424
+E: ID_VENDOR_ENC=0424
+E: ID_VENDOR_FROM_DATABASE=Standard Microsystems Corp.
+E: ID_VENDOR_ID=0424
+E: MAJOR=189
+E: MINOR=1
+E: OF_COMPATIBLE_0=usb424,9514
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/usb@7e980000/usb1@1
+E: OF_NAME=usb1
+E: PRODUCT=424/9514/200
+E: SUBSYSTEM=usb
+E: TAGS=:seat:
+E: TYPE=9/0/2
+E: USEC_INITIALIZED=5410607
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1
+N: bus/usb/001/003
+E: BUSNUM=001
+E: DEVNAME=/dev/bus/usb/001/003
+E: DEVNUM=003
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=ec00
+E: ID_MODEL_ENC=ec00
+E: ID_MODEL_FROM_DATABASE=SMSC9512/9514 Fast Ethernet Adapter
+E: ID_MODEL_ID=ec00
+E: ID_REVISION=0200
+E: ID_SERIAL=0424_ec00
+E: ID_USB_INTERFACES=:ff00ff:
+E: ID_VENDOR=0424
+E: ID_VENDOR_ENC=0424
+E: ID_VENDOR_FROM_DATABASE=Standard Microsystems Corp.
+E: ID_VENDOR_ID=0424
+E: MAJOR=189
+E: MINOR=2
+E: OF_ALIAS_0=ethernet0
+E: OF_COMPATIBLE_0=usb424,ec00
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/usb@7e980000/usb1@1/usbether@1
+E: OF_NAME=usbether
+E: PRODUCT=424/ec00/200
+E: SUBSYSTEM=usb
+E: TYPE=255/0/1
+E: USEC_INITIALIZED=5939596
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=smsc95xx
+E: ID_MODEL_FROM_DATABASE=SMSC9512/9514 Fast Ethernet Adapter
+E: ID_USB_CLASS_FROM_DATABASE=Vendor Specific Class
+E: ID_VENDOR_FROM_DATABASE=Standard Microsystems Corp.
+E: INTERFACE=255/0/255
+E: MODALIAS=usb:v0424pEC00d0200dcFFdsc00dp01icFFisc00ipFFin00
+E: PRODUCT=424/ec00/200
+E: SUBSYSTEM=usb
+E: TYPE=255/0/1
+E: USEC_INITIALIZED=5951938
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0
+E: ID_BUS=usb
+E: ID_MODEL=ec00
+E: ID_MODEL_ENC=ec00
+E: ID_MODEL_FROM_DATABASE=SMSC9512/9514 Fast Ethernet Adapter
+E: ID_MODEL_ID=ec00
+E: ID_NET_NAME_MAC=enxb827ebb555e2
+E: ID_OUI_FROM_DATABASE=Raspberry Pi Foundation
+E: ID_PATH=platform-3f980000.usb-usb-0:1.1:1.0
+E: ID_PATH_TAG=platform-3f980000_usb-usb-0_1_1_1_0
+E: ID_REVISION=0200
+E: ID_SERIAL=0424_ec00
+E: ID_TYPE=generic
+E: ID_USB_CLASS_FROM_DATABASE=Vendor Specific Class
+E: ID_USB_DRIVER=smsc95xx
+E: ID_USB_INTERFACES=:ff00ff:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=0424
+E: ID_VENDOR_ENC=0424
+E: ID_VENDOR_FROM_DATABASE=Standard Microsystems Corp.
+E: ID_VENDOR_ID=0424
+E: IFINDEX=2
+E: INTERFACE=eth0
+E: SUBSYSTEM=net
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/eth0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6372424
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4
+N: bus/usb/001/004
+E: BUSNUM=001
+E: DEVNAME=/dev/bus/usb/001/004
+E: DEVNUM=004
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=Dell_USB_Entry_Keyboard
+E: ID_MODEL_ENC=Dell\x20USB\x20Entry\x20Keyboard
+E: ID_MODEL_ID=2107
+E: ID_REVISION=0104
+E: ID_SERIAL=DELL_Dell_USB_Entry_Keyboard
+E: ID_USB_INTERFACES=:030101:
+E: ID_VENDOR=DELL
+E: ID_VENDOR_ENC=DELL
+E: ID_VENDOR_FROM_DATABASE=Dell Computer Corp.
+E: ID_VENDOR_ID=413c
+E: MAJOR=189
+E: MINOR=3
+E: PRODUCT=413c/2107/104
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: USEC_INITIALIZED=6374575
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=usbhid
+E: ID_VENDOR_FROM_DATABASE=Dell Computer Corp.
+E: INTERFACE=3/1/1
+E: MODALIAS=usb:v413Cp2107d0104dc00dsc00dp00ic03isc01ip01in00
+E: PRODUCT=413c/2107/104
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: USEC_INITIALIZED=6376261
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001
+E: DRIVER=hid-generic
+E: HID_ID=0003:0000413C:00002107
+E: HID_NAME=DELL Dell USB Entry Keyboard
+E: HID_PHYS=usb-3f980000.usb-1.4/input0
+E: HID_UNIQ=
+E: MODALIAS=hid:b0003g0001v0000413Cp00002107
+E: SUBSYSTEM=hid
+E: USEC_INITIALIZED=6378921
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/hidraw/hidraw0
+N: hidraw0
+E: DEVNAME=/dev/hidraw0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/hidraw/hidraw0
+E: MAJOR=242
+E: MINOR=0
+E: SUBSYSTEM=hidraw
+E: USEC_INITIALIZED=6381037
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0
+E: EV=120013
+E: ID_BUS=usb
+E: ID_FOR_SEAT=input-platform-3f980000_usb-usb-0_1_4_1_0
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_INPUT_KEYBOARD=1
+E: ID_MODEL=Dell_USB_Entry_Keyboard
+E: ID_MODEL_ENC=Dell\x20USB\x20Entry\x20Keyboard
+E: ID_MODEL_ID=2107
+E: ID_PATH=platform-3f980000.usb-usb-0:1.4:1.0
+E: ID_PATH_TAG=platform-3f980000_usb-usb-0_1_4_1_0
+E: ID_REVISION=0104
+E: ID_SERIAL=DELL_Dell_USB_Entry_Keyboard
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030101:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=DELL
+E: ID_VENDOR_ENC=DELL
+E: ID_VENDOR_ID=413c
+E: KEY=800000 0 e0b0ffdf 1cfffff ffffffff fffffffe
+E: LED=1f
+E: MODALIAS=input:b0003v413Cp2107e0111-e0,1,4,11,14,k74,75,77,7D,7E,7F,B7,ram4,l0,1,2,3,4,sfw
+E: MSC=10
+E: NAME="DELL Dell USB Entry Keyboard"
+E: PHYS="usb-3f980000.usb-1.4/input0"
+E: PRODUCT=3/413c/2107/111
+E: PROP=0
+E: SUBSYSTEM=input
+E: TAGS=:seat:
+E: UNIQ=""
+E: USEC_INITIALIZED=6380609
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/event0
+N: input/event0
+S: input/by-id/usb-DELL_Dell_USB_Entry_Keyboard-event-kbd
+S: input/by-path/platform-3f980000.usb-usb-0:1.4:1.0-event-kbd
+E: DEVLINKS=/dev/input/by-path/platform-3f980000.usb-usb-0:1.4:1.0-event-kbd /dev/input/by-id/usb-DELL_Dell_USB_Entry_Keyboard-event-kbd
+E: DEVNAME=/dev/input/event0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/event0
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_INPUT_KEYBOARD=1
+E: ID_MODEL=Dell_USB_Entry_Keyboard
+E: ID_MODEL_ENC=Dell\x20USB\x20Entry\x20Keyboard
+E: ID_MODEL_ID=2107
+E: ID_PATH=platform-3f980000.usb-usb-0:1.4:1.0
+E: ID_PATH_TAG=platform-3f980000_usb-usb-0_1_4_1_0
+E: ID_REVISION=0104
+E: ID_SERIAL=DELL_Dell_USB_Entry_Keyboard
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030101:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=DELL
+E: ID_VENDOR_ENC=DELL
+E: ID_VENDOR_ID=413c
+E: MAJOR=13
+E: MINOR=64
+E: SUBSYSTEM=input
+E: TAGS=:power-switch:
+E: USEC_INITIALIZED=6382547
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::capslock
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::capslock
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=6383330
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::compose
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::compose
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=6382566
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::kana
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::kana
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=6382112
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::numlock
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::numlock
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=6382062
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::scrolllock
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1.4/1-1.4:1.0/0003:413C:2107.0001/input/input0/input0::scrolllock
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=6382822
+E: net.ifnames=0
+
+P: /devices/platform/soc/3f980000.usb/usb1/1-1/1-1:1.0
+E: DEVPATH=/devices/platform/soc/3f980000.usb/usb1/1-1/1-1:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: ID_MODEL_FROM_DATABASE=SMC9514 Hub
+E: ID_USB_CLASS_FROM_DATABASE=Hub
+E: ID_USB_PROTOCOL_FROM_DATABASE=TT per port
+E: ID_VENDOR_FROM_DATABASE=Standard Microsystems Corp.
+E: INTERFACE=9/0/2
+E: MODALIAS=usb:v0424p9514d0200dc09dsc00dp02ic09isc00ip02in00
+E: PRODUCT=424/9514/200
+E: SUBSYSTEM=usb
+E: TYPE=9/0/2
+E: USEC_INITIALIZED=5412309
+E: net.ifnames=0
+
+P: /devices/platform/soc/3fc00000.v3d
+E: DEVPATH=/devices/platform/soc/3fc00000.v3d
+E: DRIVER=vc4_v3d
+E: MODALIAS=of:Nv3dT<NULL>Cbrcm,vc4-v3d
+E: OF_COMPATIBLE_0=brcm,vc4-v3d
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/v3d@7ec00000
+E: OF_NAME=v3d
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5849717
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:arm-pmu
+E: DEVPATH=/devices/platform/soc/soc:arm-pmu
+E: DRIVER=armv7-pmu
+E: MODALIAS=of:Narm-pmuT<NULL>Carm,cortex-a7-pmu
+E: OF_COMPATIBLE_0=arm,cortex-a7-pmu
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/arm-pmu
+E: OF_NAME=arm-pmu
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5852792
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:audio
+E: DEVPATH=/devices/platform/soc/soc:audio
+E: DRIVER=bcm2835_audio
+E: MODALIAS=of:NaudioT<NULL>Cbrcm,bcm2835-audio
+E: OF_COMPATIBLE_0=brcm,bcm2835-audio
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/audio
+E: OF_NAME=audio
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5857822
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0
+E: DEVPATH=/devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0
+E: ID_FOR_SEAT=sound-platform-soc_audio
+E: ID_PATH=platform-soc:audio
+E: ID_PATH_TAG=platform-soc_audio
+E: SOUND_FORM_FACTOR=internal
+E: SOUND_INITIALIZED=1
+E: SUBSYSTEM=sound
+E: SYSTEMD_WANTS=sound.target
+E: TAGS=:systemd:seat:
+E: USEC_INITIALIZED=14257093
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0/pcmC0D0p
+N: snd/pcmC0D0p
+E: DEVNAME=/dev/snd/pcmC0D0p
+E: DEVPATH=/devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0/pcmC0D0p
+E: MAJOR=116
+E: MINOR=3
+E: SUBSYSTEM=sound
+E: TAGS=:uaccess:
+E: USEC_INITIALIZED=14268338
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0/pcmC0D1p
+N: snd/pcmC0D1p
+E: DEVNAME=/dev/snd/pcmC0D1p
+E: DEVPATH=/devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0/pcmC0D1p
+E: MAJOR=116
+E: MINOR=4
+E: SUBSYSTEM=sound
+E: TAGS=:uaccess:
+E: USEC_INITIALIZED=14268354
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0/controlC0
+N: snd/controlC0
+S: snd/by-path/platform-soc:audio
+E: DEVLINKS=/dev/snd/by-path/platform-soc:audio
+E: DEVNAME=/dev/snd/controlC0
+E: DEVPATH=/devices/platform/soc/soc:audio/bcm2835_alsa/sound/card0/controlC0
+E: ID_PATH=platform-soc:audio
+E: ID_PATH_TAG=platform-soc_audio
+E: MAJOR=116
+E: MINOR=2
+E: SUBSYSTEM=sound
+E: TAGS=:uaccess:
+E: USEC_INITIALIZED=14271856
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:firmware
+E: DEVPATH=/devices/platform/soc/soc:firmware
+E: DRIVER=raspberrypi-firmware
+E: MODALIAS=of:NfirmwareT<NULL>Craspberrypi,bcm2835-firmware
+E: OF_COMPATIBLE_0=raspberrypi,bcm2835-firmware
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/firmware
+E: OF_NAME=firmware
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5858347
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:gpu
+E: DEVPATH=/devices/platform/soc/soc:gpu
+E: DRIVER=vc4-drm
+E: MODALIAS=of:NgpuT<NULL>Cbrcm,bcm2835-vc4
+E: OF_COMPATIBLE_0=brcm,bcm2835-vc4
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/gpu
+E: OF_NAME=gpu
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5857936
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:gpu/drm/card0
+N: dri/card0
+S: dri/by-path/platform-soc:gpu-card
+E: DEVLINKS=/dev/dri/by-path/platform-soc:gpu-card
+E: DEVNAME=/dev/dri/card0
+E: DEVPATH=/devices/platform/soc/soc:gpu/drm/card0
+E: DEVTYPE=drm_minor
+E: ID_FOR_SEAT=drm-platform-soc_gpu
+E: ID_PATH=platform-soc:gpu
+E: ID_PATH_TAG=platform-soc_gpu
+E: MAJOR=226
+E: MINOR=0
+E: SUBSYSTEM=drm
+E: TAGS=:seat:master-of-seat:uaccess:
+E: USEC_INITIALIZED=6396471
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:gpu/drm/card0/card0-HDMI-A-1
+E: DEVPATH=/devices/platform/soc/soc:gpu/drm/card0/card0-HDMI-A-1
+E: ID_FOR_SEAT=drm-platform-soc_gpu
+E: ID_PATH=platform-soc:gpu
+E: ID_PATH_TAG=platform-soc_gpu
+E: SUBSYSTEM=drm
+E: TAGS=:seat:master-of-seat:
+E: USEC_INITIALIZED=6397735
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:gpu/drm/renderD128
+N: dri/renderD128
+S: dri/by-path/platform-soc:gpu-render
+E: DEVLINKS=/dev/dri/by-path/platform-soc:gpu-render
+E: DEVNAME=/dev/dri/renderD128
+E: DEVPATH=/devices/platform/soc/soc:gpu/drm/renderD128
+E: DEVTYPE=drm_minor
+E: ID_FOR_SEAT=drm-platform-soc_gpu
+E: ID_PATH=platform-soc:gpu
+E: ID_PATH_TAG=platform-soc_gpu
+E: MAJOR=226
+E: MINOR=128
+E: SUBSYSTEM=drm
+E: TAGS=:seat:uaccess:
+E: USEC_INITIALIZED=6394801
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:gpu/graphics/fb0
+N: fb0
+E: DEVNAME=/dev/fb0
+E: DEVPATH=/devices/platform/soc/soc:gpu/graphics/fb0
+E: ID_FOR_SEAT=graphics-platform-soc_gpu
+E: ID_PATH=platform-soc:gpu
+E: ID_PATH_TAG=platform-soc_gpu
+E: MAJOR=29
+E: MINOR=0
+E: SUBSYSTEM=graphics
+E: TAGS=:seat:master-of-seat:
+E: USEC_INITIALIZED=6397696
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:power
+E: DEVPATH=/devices/platform/soc/soc:power
+E: DRIVER=raspberrypi-power
+E: MODALIAS=of:NpowerT<NULL>Craspberrypi,bcm2835-power
+E: OF_COMPATIBLE_0=raspberrypi,bcm2835-power
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/power
+E: OF_NAME=power
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5865146
+E: net.ifnames=0
+
+P: /devices/platform/soc/soc:vcsm
+E: DEVPATH=/devices/platform/soc/soc:vcsm
+E: DRIVER=bcm2835-vcsm
+E: MODALIAS=of:NvcsmT<NULL>Craspberrypi,bcm2835-vcsm
+E: OF_COMPATIBLE_0=raspberrypi,bcm2835-vcsm
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/soc/vcsm
+E: OF_NAME=vcsm
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5867275
+E: net.ifnames=0
+
+P: /devices/platform/timer
+E: DEVPATH=/devices/platform/timer
+E: MODALIAS=of:NtimerT<NULL>Carm,armv7-timer
+E: OF_COMPATIBLE_0=arm,armv7-timer
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/timer
+E: OF_NAME=timer
+E: SUBSYSTEM=platform
+E: USEC_INITIALIZED=5864893
+E: net.ifnames=0
+
+P: /devices/software
+E: DEVPATH=/devices/software
+E: SUBSYSTEM=event_source
+E: USEC_INITIALIZED=5865037
+E: net.ifnames=0
+
+P: /devices/system/clockevents/broadcast
+E: DEVPATH=/devices/system/clockevents/broadcast
+E: SUBSYSTEM=clockevents
+E: USEC_INITIALIZED=5865377
+E: net.ifnames=0
+
+P: /devices/system/clockevents/clockevent0
+E: DEVPATH=/devices/system/clockevents/clockevent0
+E: SUBSYSTEM=clockevents
+E: USEC_INITIALIZED=5866803
+E: net.ifnames=0
+
+P: /devices/system/clockevents/clockevent1
+E: DEVPATH=/devices/system/clockevents/clockevent1
+E: SUBSYSTEM=clockevents
+E: USEC_INITIALIZED=5868333
+E: net.ifnames=0
+
+P: /devices/system/clockevents/clockevent2
+E: DEVPATH=/devices/system/clockevents/clockevent2
+E: SUBSYSTEM=clockevents
+E: USEC_INITIALIZED=5868815
+E: net.ifnames=0
+
+P: /devices/system/clockevents/clockevent3
+E: DEVPATH=/devices/system/clockevents/clockevent3
+E: SUBSYSTEM=clockevents
+E: USEC_INITIALIZED=5870803
+E: net.ifnames=0
+
+P: /devices/system/clocksource/clocksource0
+E: DEVPATH=/devices/system/clocksource/clocksource0
+E: SUBSYSTEM=clocksource
+E: USEC_INITIALIZED=5869145
+E: net.ifnames=0
+
+P: /devices/system/cpu/cpu0
+E: DEVPATH=/devices/system/cpu/cpu0
+E: MODALIAS=cpu:type:v7l:feature:,0001,0002,0004,0006,0007,000B,000C,000D,000F,0010,0011,0012,0013,0014,0015
+E: OF_COMPATIBLE_0=arm,cortex-a7
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/cpus/cpu@0
+E: OF_NAME=cpu
+E: OF_TYPE=cpu
+E: SUBSYSTEM=cpu
+E: USEC_INITIALIZED=5869723
+E: net.ifnames=0
+
+P: /devices/system/cpu/cpu1
+E: DEVPATH=/devices/system/cpu/cpu1
+E: MODALIAS=cpu:type:v7l:feature:,0001,0002,0004,0006,0007,000B,000C,000D,000F,0010,0011,0012,0013,0014,0015
+E: OF_COMPATIBLE_0=arm,cortex-a7
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/cpus/cpu@1
+E: OF_NAME=cpu
+E: OF_TYPE=cpu
+E: SUBSYSTEM=cpu
+E: USEC_INITIALIZED=5871755
+E: net.ifnames=0
+
+P: /devices/system/cpu/cpu2
+E: DEVPATH=/devices/system/cpu/cpu2
+E: MODALIAS=cpu:type:v7l:feature:,0001,0002,0004,0006,0007,000B,000C,000D,000F,0010,0011,0012,0013,0014,0015
+E: OF_COMPATIBLE_0=arm,cortex-a7
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/cpus/cpu@2
+E: OF_NAME=cpu
+E: OF_TYPE=cpu
+E: SUBSYSTEM=cpu
+E: USEC_INITIALIZED=5872493
+E: net.ifnames=0
+
+P: /devices/system/cpu/cpu3
+E: DEVPATH=/devices/system/cpu/cpu3
+E: MODALIAS=cpu:type:v7l:feature:,0001,0002,0004,0006,0007,000B,000C,000D,000F,0010,0011,0012,0013,0014,0015
+E: OF_COMPATIBLE_0=arm,cortex-a7
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/cpus/cpu@3
+E: OF_NAME=cpu
+E: OF_TYPE=cpu
+E: SUBSYSTEM=cpu
+E: USEC_INITIALIZED=5873843
+E: net.ifnames=0
+
+P: /devices/system/edac/mc
+E: DEVPATH=/devices/system/edac/mc
+E: SUBSYSTEM=edac
+E: USEC_INITIALIZED=5877896
+E: net.ifnames=0
+
+P: /devices/tracepoint
+E: DEVPATH=/devices/tracepoint
+E: SUBSYSTEM=event_source
+E: USEC_INITIALIZED=5873708
+E: net.ifnames=0
+
+P: /devices/virtual/bcm2708_vcio/vcio
+N: vcio
+E: DEVNAME=/dev/vcio
+E: DEVPATH=/devices/virtual/bcm2708_vcio/vcio
+E: MAJOR=245
+E: MINOR=0
+E: SUBSYSTEM=bcm2708_vcio
+E: USEC_INITIALIZED=5875069
+E: net.ifnames=0
+
+P: /devices/virtual/bcm2835-gpiomem/gpiomem
+N: gpiomem
+E: DEVNAME=/dev/gpiomem
+E: DEVPATH=/devices/virtual/bcm2835-gpiomem/gpiomem
+E: MAJOR=244
+E: MINOR=0
+E: SUBSYSTEM=bcm2835-gpiomem
+E: USEC_INITIALIZED=5875050
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/179:0
+E: DEVPATH=/devices/virtual/bdi/179:0
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5876172
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:0
+E: DEVPATH=/devices/virtual/bdi/7:0
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5876930
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:1
+E: DEVPATH=/devices/virtual/bdi/7:1
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5875956
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:10
+E: DEVPATH=/devices/virtual/bdi/7:10
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5876066
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:100
+E: DEVPATH=/devices/virtual/bdi/7:100
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5876930
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:101
+E: DEVPATH=/devices/virtual/bdi/7:101
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5879587
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:102
+E: DEVPATH=/devices/virtual/bdi/7:102
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5880985
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:103
+E: DEVPATH=/devices/virtual/bdi/7:103
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5880603
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:104
+E: DEVPATH=/devices/virtual/bdi/7:104
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5880539
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:105
+E: DEVPATH=/devices/virtual/bdi/7:105
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5882142
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:106
+E: DEVPATH=/devices/virtual/bdi/7:106
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5883022
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:107
+E: DEVPATH=/devices/virtual/bdi/7:107
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5882762
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:108
+E: DEVPATH=/devices/virtual/bdi/7:108
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5883020
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:109
+E: DEVPATH=/devices/virtual/bdi/7:109
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5884539
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:11
+E: DEVPATH=/devices/virtual/bdi/7:11
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5885547
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:110
+E: DEVPATH=/devices/virtual/bdi/7:110
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5885054
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:111
+E: DEVPATH=/devices/virtual/bdi/7:111
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5885344
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:112
+E: DEVPATH=/devices/virtual/bdi/7:112
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5886964
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:113
+E: DEVPATH=/devices/virtual/bdi/7:113
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5887886
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:114
+E: DEVPATH=/devices/virtual/bdi/7:114
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5887474
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:115
+E: DEVPATH=/devices/virtual/bdi/7:115
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5887747
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:116
+E: DEVPATH=/devices/virtual/bdi/7:116
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5889065
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:117
+E: DEVPATH=/devices/virtual/bdi/7:117
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5889387
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:118
+E: DEVPATH=/devices/virtual/bdi/7:118
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5890970
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:119
+E: DEVPATH=/devices/virtual/bdi/7:119
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5889987
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:12
+E: DEVPATH=/devices/virtual/bdi/7:12
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5890294
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:120
+E: DEVPATH=/devices/virtual/bdi/7:120
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5890769
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:121
+E: DEVPATH=/devices/virtual/bdi/7:121
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5892522
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:122
+E: DEVPATH=/devices/virtual/bdi/7:122
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5892764
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:123
+E: DEVPATH=/devices/virtual/bdi/7:123
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5893484
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:124
+E: DEVPATH=/devices/virtual/bdi/7:124
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5893481
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:125
+E: DEVPATH=/devices/virtual/bdi/7:125
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5894495
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:126
+E: DEVPATH=/devices/virtual/bdi/7:126
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5894194
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:127
+E: DEVPATH=/devices/virtual/bdi/7:127
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5895269
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:128
+E: DEVPATH=/devices/virtual/bdi/7:128
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5895550
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:129
+E: DEVPATH=/devices/virtual/bdi/7:129
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5896604
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:13
+E: DEVPATH=/devices/virtual/bdi/7:13
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5896359
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:130
+E: DEVPATH=/devices/virtual/bdi/7:130
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5898530
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:131
+E: DEVPATH=/devices/virtual/bdi/7:131
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5898046
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:132
+E: DEVPATH=/devices/virtual/bdi/7:132
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5898339
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:133
+E: DEVPATH=/devices/virtual/bdi/7:133
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5898624
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:134
+E: DEVPATH=/devices/virtual/bdi/7:134
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5901029
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:135
+E: DEVPATH=/devices/virtual/bdi/7:135
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5901220
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:136
+E: DEVPATH=/devices/virtual/bdi/7:136
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5900581
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:137
+E: DEVPATH=/devices/virtual/bdi/7:137
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5900858
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:138
+E: DEVPATH=/devices/virtual/bdi/7:138
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5901230
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:139
+E: DEVPATH=/devices/virtual/bdi/7:139
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5902550
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:14
+E: DEVPATH=/devices/virtual/bdi/7:14
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5905026
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:140
+E: DEVPATH=/devices/virtual/bdi/7:140
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5903177
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:141
+E: DEVPATH=/devices/virtual/bdi/7:141
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5904797
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:142
+E: DEVPATH=/devices/virtual/bdi/7:142
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5904864
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:143
+E: DEVPATH=/devices/virtual/bdi/7:143
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5907462
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:144
+E: DEVPATH=/devices/virtual/bdi/7:144
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5906702
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:145
+E: DEVPATH=/devices/virtual/bdi/7:145
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5907022
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:146
+E: DEVPATH=/devices/virtual/bdi/7:146
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5907295
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:147
+E: DEVPATH=/devices/virtual/bdi/7:147
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5909703
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:148
+E: DEVPATH=/devices/virtual/bdi/7:148
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5908993
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:149
+E: DEVPATH=/devices/virtual/bdi/7:149
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5909275
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:15
+E: DEVPATH=/devices/virtual/bdi/7:15
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5909561
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:150
+E: DEVPATH=/devices/virtual/bdi/7:150
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5911822
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:151
+E: DEVPATH=/devices/virtual/bdi/7:151
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5911152
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:152
+E: DEVPATH=/devices/virtual/bdi/7:152
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5911448
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:153
+E: DEVPATH=/devices/virtual/bdi/7:153
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5911733
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:154
+E: DEVPATH=/devices/virtual/bdi/7:154
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5914182
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:155
+E: DEVPATH=/devices/virtual/bdi/7:155
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5913493
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:156
+E: DEVPATH=/devices/virtual/bdi/7:156
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5913796
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:157
+E: DEVPATH=/devices/virtual/bdi/7:157
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5914081
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:158
+E: DEVPATH=/devices/virtual/bdi/7:158
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5916437
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:159
+E: DEVPATH=/devices/virtual/bdi/7:159
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5915684
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:16
+E: DEVPATH=/devices/virtual/bdi/7:16
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5915973
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:160
+E: DEVPATH=/devices/virtual/bdi/7:160
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5916406
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:161
+E: DEVPATH=/devices/virtual/bdi/7:161
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5918691
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:162
+E: DEVPATH=/devices/virtual/bdi/7:162
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5918023
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:163
+E: DEVPATH=/devices/virtual/bdi/7:163
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5918324
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:164
+E: DEVPATH=/devices/virtual/bdi/7:164
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5918612
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:165
+E: DEVPATH=/devices/virtual/bdi/7:165
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5921012
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:166
+E: DEVPATH=/devices/virtual/bdi/7:166
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5920332
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:167
+E: DEVPATH=/devices/virtual/bdi/7:167
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5920642
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:168
+E: DEVPATH=/devices/virtual/bdi/7:168
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5920914
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:169
+E: DEVPATH=/devices/virtual/bdi/7:169
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5923162
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:17
+E: DEVPATH=/devices/virtual/bdi/7:17
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5922504
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:170
+E: DEVPATH=/devices/virtual/bdi/7:170
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5922788
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:171
+E: DEVPATH=/devices/virtual/bdi/7:171
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5923067
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:172
+E: DEVPATH=/devices/virtual/bdi/7:172
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5925362
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:173
+E: DEVPATH=/devices/virtual/bdi/7:173
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5924737
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:174
+E: DEVPATH=/devices/virtual/bdi/7:174
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5925003
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:175
+E: DEVPATH=/devices/virtual/bdi/7:175
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5925290
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:176
+E: DEVPATH=/devices/virtual/bdi/7:176
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5927456
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:177
+E: DEVPATH=/devices/virtual/bdi/7:177
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5926825
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:178
+E: DEVPATH=/devices/virtual/bdi/7:178
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5927115
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:179
+E: DEVPATH=/devices/virtual/bdi/7:179
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5927414
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:18
+E: DEVPATH=/devices/virtual/bdi/7:18
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5931883
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:180
+E: DEVPATH=/devices/virtual/bdi/7:180
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5930606
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:181
+E: DEVPATH=/devices/virtual/bdi/7:181
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5930794
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:182
+E: DEVPATH=/devices/virtual/bdi/7:182
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5932865
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:183
+E: DEVPATH=/devices/virtual/bdi/7:183
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5934616
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:184
+E: DEVPATH=/devices/virtual/bdi/7:184
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5933730
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:185
+E: DEVPATH=/devices/virtual/bdi/7:185
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5935581
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:186
+E: DEVPATH=/devices/virtual/bdi/7:186
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5936827
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:187
+E: DEVPATH=/devices/virtual/bdi/7:187
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5938005
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:188
+E: DEVPATH=/devices/virtual/bdi/7:188
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5937635
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:189
+E: DEVPATH=/devices/virtual/bdi/7:189
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5939346
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:19
+E: DEVPATH=/devices/virtual/bdi/7:19
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5940944
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:190
+E: DEVPATH=/devices/virtual/bdi/7:190
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5940165
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:191
+E: DEVPATH=/devices/virtual/bdi/7:191
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5941559
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:192
+E: DEVPATH=/devices/virtual/bdi/7:192
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5942123
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:193
+E: DEVPATH=/devices/virtual/bdi/7:193
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5942952
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:194
+E: DEVPATH=/devices/virtual/bdi/7:194
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5943593
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:195
+E: DEVPATH=/devices/virtual/bdi/7:195
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5943033
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:196
+E: DEVPATH=/devices/virtual/bdi/7:196
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5943780
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:197
+E: DEVPATH=/devices/virtual/bdi/7:197
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5943794
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:198
+E: DEVPATH=/devices/virtual/bdi/7:198
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5945337
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:199
+E: DEVPATH=/devices/virtual/bdi/7:199
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5945532
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:2
+E: DEVPATH=/devices/virtual/bdi/7:2
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5946277
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:20
+E: DEVPATH=/devices/virtual/bdi/7:20
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5946185
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:200
+E: DEVPATH=/devices/virtual/bdi/7:200
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5948384
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:201
+E: DEVPATH=/devices/virtual/bdi/7:201
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5948494
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:202
+E: DEVPATH=/devices/virtual/bdi/7:202
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5949506
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:203
+E: DEVPATH=/devices/virtual/bdi/7:203
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5949229
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:204
+E: DEVPATH=/devices/virtual/bdi/7:204
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5950170
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:205
+E: DEVPATH=/devices/virtual/bdi/7:205
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5950854
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:206
+E: DEVPATH=/devices/virtual/bdi/7:206
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5951731
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:207
+E: DEVPATH=/devices/virtual/bdi/7:207
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5953229
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:208
+E: DEVPATH=/devices/virtual/bdi/7:208
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5952684
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:209
+E: DEVPATH=/devices/virtual/bdi/7:209
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5953969
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:21
+E: DEVPATH=/devices/virtual/bdi/7:21
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5954388
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:210
+E: DEVPATH=/devices/virtual/bdi/7:210
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5955239
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:211
+E: DEVPATH=/devices/virtual/bdi/7:211
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5955044
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:212
+E: DEVPATH=/devices/virtual/bdi/7:212
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5958548
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:213
+E: DEVPATH=/devices/virtual/bdi/7:213
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5957468
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:214
+E: DEVPATH=/devices/virtual/bdi/7:214
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5956293
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:215
+E: DEVPATH=/devices/virtual/bdi/7:215
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5956714
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:216
+E: DEVPATH=/devices/virtual/bdi/7:216
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5957635
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:217
+E: DEVPATH=/devices/virtual/bdi/7:217
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5958692
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:218
+E: DEVPATH=/devices/virtual/bdi/7:218
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5960902
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:219
+E: DEVPATH=/devices/virtual/bdi/7:219
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5959515
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:22
+E: DEVPATH=/devices/virtual/bdi/7:22
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5962205
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:220
+E: DEVPATH=/devices/virtual/bdi/7:220
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5961107
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:221
+E: DEVPATH=/devices/virtual/bdi/7:221
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5961812
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:222
+E: DEVPATH=/devices/virtual/bdi/7:222
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5961807
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:223
+E: DEVPATH=/devices/virtual/bdi/7:223
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5962226
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:224
+E: DEVPATH=/devices/virtual/bdi/7:224
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5962204
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:225
+E: DEVPATH=/devices/virtual/bdi/7:225
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5964512
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:226
+E: DEVPATH=/devices/virtual/bdi/7:226
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5964759
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:227
+E: DEVPATH=/devices/virtual/bdi/7:227
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5965834
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:228
+E: DEVPATH=/devices/virtual/bdi/7:228
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5965391
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:229
+E: DEVPATH=/devices/virtual/bdi/7:229
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5967592
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:23
+E: DEVPATH=/devices/virtual/bdi/7:23
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5967854
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:230
+E: DEVPATH=/devices/virtual/bdi/7:230
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5966909
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:231
+E: DEVPATH=/devices/virtual/bdi/7:231
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5967229
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:232
+E: DEVPATH=/devices/virtual/bdi/7:232
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5967643
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:233
+E: DEVPATH=/devices/virtual/bdi/7:233
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5969880
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:234
+E: DEVPATH=/devices/virtual/bdi/7:234
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5969458
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:235
+E: DEVPATH=/devices/virtual/bdi/7:235
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5970596
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:236
+E: DEVPATH=/devices/virtual/bdi/7:236
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5970452
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:237
+E: DEVPATH=/devices/virtual/bdi/7:237
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5971927
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:238
+E: DEVPATH=/devices/virtual/bdi/7:238
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5972286
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:239
+E: DEVPATH=/devices/virtual/bdi/7:239
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5973166
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:24
+E: DEVPATH=/devices/virtual/bdi/7:24
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5972938
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:240
+E: DEVPATH=/devices/virtual/bdi/7:240
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5974326
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:241
+E: DEVPATH=/devices/virtual/bdi/7:241
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5974569
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:242
+E: DEVPATH=/devices/virtual/bdi/7:242
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5975657
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:243
+E: DEVPATH=/devices/virtual/bdi/7:243
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5975504
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:244
+E: DEVPATH=/devices/virtual/bdi/7:244
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5977737
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:245
+E: DEVPATH=/devices/virtual/bdi/7:245
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5977877
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:246
+E: DEVPATH=/devices/virtual/bdi/7:246
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5978845
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:247
+E: DEVPATH=/devices/virtual/bdi/7:247
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5978752
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:248
+E: DEVPATH=/devices/virtual/bdi/7:248
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5980526
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:249
+E: DEVPATH=/devices/virtual/bdi/7:249
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5980801
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:25
+E: DEVPATH=/devices/virtual/bdi/7:25
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5982331
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:250
+E: DEVPATH=/devices/virtual/bdi/7:250
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5982225
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:251
+E: DEVPATH=/devices/virtual/bdi/7:251
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5982996
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:252
+E: DEVPATH=/devices/virtual/bdi/7:252
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5983523
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:253
+E: DEVPATH=/devices/virtual/bdi/7:253
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5984670
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:254
+E: DEVPATH=/devices/virtual/bdi/7:254
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5985745
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:255
+E: DEVPATH=/devices/virtual/bdi/7:255
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5984826
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:26
+E: DEVPATH=/devices/virtual/bdi/7:26
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5987381
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:27
+E: DEVPATH=/devices/virtual/bdi/7:27
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5989365
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:28
+E: DEVPATH=/devices/virtual/bdi/7:28
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5988303
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:29
+E: DEVPATH=/devices/virtual/bdi/7:29
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5991246
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:3
+E: DEVPATH=/devices/virtual/bdi/7:3
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5991738
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:30
+E: DEVPATH=/devices/virtual/bdi/7:30
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5991738
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:31
+E: DEVPATH=/devices/virtual/bdi/7:31
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5994303
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:32
+E: DEVPATH=/devices/virtual/bdi/7:32
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5993600
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:33
+E: DEVPATH=/devices/virtual/bdi/7:33
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5993703
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:34
+E: DEVPATH=/devices/virtual/bdi/7:34
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5993881
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:35
+E: DEVPATH=/devices/virtual/bdi/7:35
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5995441
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:36
+E: DEVPATH=/devices/virtual/bdi/7:36
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5995564
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:37
+E: DEVPATH=/devices/virtual/bdi/7:37
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5996649
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:38
+E: DEVPATH=/devices/virtual/bdi/7:38
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5996433
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:39
+E: DEVPATH=/devices/virtual/bdi/7:39
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5997973
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:4
+E: DEVPATH=/devices/virtual/bdi/7:4
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5999339
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:40
+E: DEVPATH=/devices/virtual/bdi/7:40
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5998504
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:41
+E: DEVPATH=/devices/virtual/bdi/7:41
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=5998771
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:42
+E: DEVPATH=/devices/virtual/bdi/7:42
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6000464
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:43
+E: DEVPATH=/devices/virtual/bdi/7:43
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6000622
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:44
+E: DEVPATH=/devices/virtual/bdi/7:44
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6001724
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:45
+E: DEVPATH=/devices/virtual/bdi/7:45
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6001291
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:46
+E: DEVPATH=/devices/virtual/bdi/7:46
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6002873
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:47
+E: DEVPATH=/devices/virtual/bdi/7:47
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6004640
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:48
+E: DEVPATH=/devices/virtual/bdi/7:48
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6003373
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:49
+E: DEVPATH=/devices/virtual/bdi/7:49
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6003665
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:5
+E: DEVPATH=/devices/virtual/bdi/7:5
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6005738
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:50
+E: DEVPATH=/devices/virtual/bdi/7:50
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6005685
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:51
+E: DEVPATH=/devices/virtual/bdi/7:51
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6006863
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:52
+E: DEVPATH=/devices/virtual/bdi/7:52
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6006347
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:53
+E: DEVPATH=/devices/virtual/bdi/7:53
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6010232
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:54
+E: DEVPATH=/devices/virtual/bdi/7:54
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6008769
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:55
+E: DEVPATH=/devices/virtual/bdi/7:55
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6008921
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:56
+E: DEVPATH=/devices/virtual/bdi/7:56
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6009227
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:57
+E: DEVPATH=/devices/virtual/bdi/7:57
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6011366
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:58
+E: DEVPATH=/devices/virtual/bdi/7:58
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6011366
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:59
+E: DEVPATH=/devices/virtual/bdi/7:59
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6011562
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:6
+E: DEVPATH=/devices/virtual/bdi/7:6
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6014768
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:60
+E: DEVPATH=/devices/virtual/bdi/7:60
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6014167
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:61
+E: DEVPATH=/devices/virtual/bdi/7:61
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6014128
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:62
+E: DEVPATH=/devices/virtual/bdi/7:62
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6014311
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:63
+E: DEVPATH=/devices/virtual/bdi/7:63
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6015879
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:64
+E: DEVPATH=/devices/virtual/bdi/7:64
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6016160
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:65
+E: DEVPATH=/devices/virtual/bdi/7:65
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6017241
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:66
+E: DEVPATH=/devices/virtual/bdi/7:66
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6016909
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:67
+E: DEVPATH=/devices/virtual/bdi/7:67
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6018480
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:68
+E: DEVPATH=/devices/virtual/bdi/7:68
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6019961
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:69
+E: DEVPATH=/devices/virtual/bdi/7:69
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6019169
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:7
+E: DEVPATH=/devices/virtual/bdi/7:7
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6019339
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:70
+E: DEVPATH=/devices/virtual/bdi/7:70
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6021248
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:71
+E: DEVPATH=/devices/virtual/bdi/7:71
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6022493
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:72
+E: DEVPATH=/devices/virtual/bdi/7:72
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6021605
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:73
+E: DEVPATH=/devices/virtual/bdi/7:73
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6023113
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:74
+E: DEVPATH=/devices/virtual/bdi/7:74
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6023353
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:75
+E: DEVPATH=/devices/virtual/bdi/7:75
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6025963
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:76
+E: DEVPATH=/devices/virtual/bdi/7:76
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6025251
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:77
+E: DEVPATH=/devices/virtual/bdi/7:77
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6025556
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:78
+E: DEVPATH=/devices/virtual/bdi/7:78
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6025825
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:79
+E: DEVPATH=/devices/virtual/bdi/7:79
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6028308
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:8
+E: DEVPATH=/devices/virtual/bdi/7:8
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6027511
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:80
+E: DEVPATH=/devices/virtual/bdi/7:80
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6027789
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:81
+E: DEVPATH=/devices/virtual/bdi/7:81
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6028308
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:82
+E: DEVPATH=/devices/virtual/bdi/7:82
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6028886
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:83
+E: DEVPATH=/devices/virtual/bdi/7:83
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6031361
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:84
+E: DEVPATH=/devices/virtual/bdi/7:84
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6030604
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:85
+E: DEVPATH=/devices/virtual/bdi/7:85
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6030885
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:86
+E: DEVPATH=/devices/virtual/bdi/7:86
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6031196
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:87
+E: DEVPATH=/devices/virtual/bdi/7:87
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6031459
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:88
+E: DEVPATH=/devices/virtual/bdi/7:88
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6034536
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:89
+E: DEVPATH=/devices/virtual/bdi/7:89
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6033547
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:9
+E: DEVPATH=/devices/virtual/bdi/7:9
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6033848
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:90
+E: DEVPATH=/devices/virtual/bdi/7:90
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6034182
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:91
+E: DEVPATH=/devices/virtual/bdi/7:91
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6034531
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:92
+E: DEVPATH=/devices/virtual/bdi/7:92
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6037398
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:93
+E: DEVPATH=/devices/virtual/bdi/7:93
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6037642
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:94
+E: DEVPATH=/devices/virtual/bdi/7:94
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6036922
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:95
+E: DEVPATH=/devices/virtual/bdi/7:95
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6037239
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:96
+E: DEVPATH=/devices/virtual/bdi/7:96
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6037513
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:97
+E: DEVPATH=/devices/virtual/bdi/7:97
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6039997
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:98
+E: DEVPATH=/devices/virtual/bdi/7:98
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6039231
+E: net.ifnames=0
+
+P: /devices/virtual/bdi/7:99
+E: DEVPATH=/devices/virtual/bdi/7:99
+E: SUBSYSTEM=bdi
+E: USEC_INITIALIZED=6039544
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop0
+N: loop0
+E: DEVNAME=/dev/loop0
+E: DEVPATH=/devices/virtual/block/loop0
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=0
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6042127
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop1
+N: loop1
+E: DEVNAME=/dev/loop1
+E: DEVPATH=/devices/virtual/block/loop1
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=1
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6042011
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop10
+N: loop10
+E: DEVNAME=/dev/loop10
+E: DEVPATH=/devices/virtual/block/loop10
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=10
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6046531
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop100
+N: loop100
+E: DEVNAME=/dev/loop100
+E: DEVPATH=/devices/virtual/block/loop100
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=100
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6045725
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop101
+N: loop101
+E: DEVNAME=/dev/loop101
+E: DEVPATH=/devices/virtual/block/loop101
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=101
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6049080
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop102
+N: loop102
+E: DEVNAME=/dev/loop102
+E: DEVPATH=/devices/virtual/block/loop102
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=102
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6049817
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop103
+N: loop103
+E: DEVNAME=/dev/loop103
+E: DEVPATH=/devices/virtual/block/loop103
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=103
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6054480
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop104
+N: loop104
+E: DEVNAME=/dev/loop104
+E: DEVPATH=/devices/virtual/block/loop104
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=104
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6052886
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop105
+N: loop105
+E: DEVNAME=/dev/loop105
+E: DEVPATH=/devices/virtual/block/loop105
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=105
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6052867
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop106
+N: loop106
+E: DEVNAME=/dev/loop106
+E: DEVPATH=/devices/virtual/block/loop106
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=106
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6054715
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop107
+N: loop107
+E: DEVNAME=/dev/loop107
+E: DEVPATH=/devices/virtual/block/loop107
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=107
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6054941
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop108
+N: loop108
+E: DEVNAME=/dev/loop108
+E: DEVPATH=/devices/virtual/block/loop108
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=108
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6058348
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop109
+N: loop109
+E: DEVNAME=/dev/loop109
+E: DEVPATH=/devices/virtual/block/loop109
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=109
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6058259
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop11
+N: loop11
+E: DEVNAME=/dev/loop11
+E: DEVPATH=/devices/virtual/block/loop11
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=11
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6060259
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop110
+N: loop110
+E: DEVNAME=/dev/loop110
+E: DEVPATH=/devices/virtual/block/loop110
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=110
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6059892
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop111
+N: loop111
+E: DEVNAME=/dev/loop111
+E: DEVPATH=/devices/virtual/block/loop111
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=111
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6062665
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop112
+N: loop112
+E: DEVNAME=/dev/loop112
+E: DEVPATH=/devices/virtual/block/loop112
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=112
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6064750
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop113
+N: loop113
+E: DEVNAME=/dev/loop113
+E: DEVPATH=/devices/virtual/block/loop113
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=113
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6066441
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop114
+N: loop114
+E: DEVNAME=/dev/loop114
+E: DEVPATH=/devices/virtual/block/loop114
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=114
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6064460
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop115
+N: loop115
+E: DEVNAME=/dev/loop115
+E: DEVPATH=/devices/virtual/block/loop115
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=115
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6064822
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop116
+N: loop116
+E: DEVNAME=/dev/loop116
+E: DEVPATH=/devices/virtual/block/loop116
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=116
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6068406
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop117
+N: loop117
+E: DEVNAME=/dev/loop117
+E: DEVPATH=/devices/virtual/block/loop117
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=117
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6069880
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop118
+N: loop118
+E: DEVNAME=/dev/loop118
+E: DEVPATH=/devices/virtual/block/loop118
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=118
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6070333
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop119
+N: loop119
+E: DEVNAME=/dev/loop119
+E: DEVPATH=/devices/virtual/block/loop119
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=119
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6074989
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop12
+N: loop12
+E: DEVNAME=/dev/loop12
+E: DEVPATH=/devices/virtual/block/loop12
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=12
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6074774
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop120
+N: loop120
+E: DEVNAME=/dev/loop120
+E: DEVPATH=/devices/virtual/block/loop120
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=120
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6077155
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop121
+N: loop121
+E: DEVNAME=/dev/loop121
+E: DEVPATH=/devices/virtual/block/loop121
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=121
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6078618
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop122
+N: loop122
+E: DEVNAME=/dev/loop122
+E: DEVPATH=/devices/virtual/block/loop122
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=122
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6076545
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop123
+N: loop123
+E: DEVNAME=/dev/loop123
+E: DEVPATH=/devices/virtual/block/loop123
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=123
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6078890
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop124
+N: loop124
+E: DEVNAME=/dev/loop124
+E: DEVPATH=/devices/virtual/block/loop124
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=124
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6080604
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop125
+N: loop125
+E: DEVNAME=/dev/loop125
+E: DEVPATH=/devices/virtual/block/loop125
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=125
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6080723
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop126
+N: loop126
+E: DEVNAME=/dev/loop126
+E: DEVPATH=/devices/virtual/block/loop126
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=126
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6080396
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop127
+N: loop127
+E: DEVNAME=/dev/loop127
+E: DEVPATH=/devices/virtual/block/loop127
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=127
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6083331
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop128
+N: loop128
+E: DEVNAME=/dev/loop128
+E: DEVPATH=/devices/virtual/block/loop128
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=128
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6083569
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop129
+N: loop129
+E: DEVNAME=/dev/loop129
+E: DEVPATH=/devices/virtual/block/loop129
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=129
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6085557
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop13
+N: loop13
+E: DEVNAME=/dev/loop13
+E: DEVPATH=/devices/virtual/block/loop13
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=13
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6085572
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop130
+N: loop130
+E: DEVNAME=/dev/loop130
+E: DEVPATH=/devices/virtual/block/loop130
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=130
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6085589
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop131
+N: loop131
+E: DEVNAME=/dev/loop131
+E: DEVPATH=/devices/virtual/block/loop131
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=131
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6088680
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop132
+N: loop132
+E: DEVNAME=/dev/loop132
+E: DEVPATH=/devices/virtual/block/loop132
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=132
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6088998
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop133
+N: loop133
+E: DEVNAME=/dev/loop133
+E: DEVPATH=/devices/virtual/block/loop133
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=133
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6091006
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop134
+N: loop134
+E: DEVNAME=/dev/loop134
+E: DEVPATH=/devices/virtual/block/loop134
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=134
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6093917
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop135
+N: loop135
+E: DEVNAME=/dev/loop135
+E: DEVPATH=/devices/virtual/block/loop135
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=135
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6090889
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop136
+N: loop136
+E: DEVNAME=/dev/loop136
+E: DEVPATH=/devices/virtual/block/loop136
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=136
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6098826
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop137
+N: loop137
+E: DEVNAME=/dev/loop137
+E: DEVPATH=/devices/virtual/block/loop137
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=137
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6094159
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop138
+N: loop138
+E: DEVNAME=/dev/loop138
+E: DEVPATH=/devices/virtual/block/loop138
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=138
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6096175
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop139
+N: loop139
+E: DEVNAME=/dev/loop139
+E: DEVPATH=/devices/virtual/block/loop139
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=139
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6097250
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop14
+N: loop14
+E: DEVNAME=/dev/loop14
+E: DEVPATH=/devices/virtual/block/loop14
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=14
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6099516
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop140
+N: loop140
+E: DEVNAME=/dev/loop140
+E: DEVPATH=/devices/virtual/block/loop140
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=140
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6097598
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop141
+N: loop141
+E: DEVNAME=/dev/loop141
+E: DEVPATH=/devices/virtual/block/loop141
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=141
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6098057
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop142
+N: loop142
+E: DEVNAME=/dev/loop142
+E: DEVPATH=/devices/virtual/block/loop142
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=142
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6099985
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop143
+N: loop143
+E: DEVNAME=/dev/loop143
+E: DEVPATH=/devices/virtual/block/loop143
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=143
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6101888
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop144
+N: loop144
+E: DEVNAME=/dev/loop144
+E: DEVPATH=/devices/virtual/block/loop144
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=144
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6102347
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop145
+N: loop145
+E: DEVNAME=/dev/loop145
+E: DEVPATH=/devices/virtual/block/loop145
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=145
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6104319
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop146
+N: loop146
+E: DEVNAME=/dev/loop146
+E: DEVPATH=/devices/virtual/block/loop146
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=146
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6103934
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop147
+N: loop147
+E: DEVNAME=/dev/loop147
+E: DEVPATH=/devices/virtual/block/loop147
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=147
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6103918
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop148
+N: loop148
+E: DEVNAME=/dev/loop148
+E: DEVPATH=/devices/virtual/block/loop148
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=148
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6106901
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop149
+N: loop149
+E: DEVNAME=/dev/loop149
+E: DEVPATH=/devices/virtual/block/loop149
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=149
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6109264
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop15
+N: loop15
+E: DEVNAME=/dev/loop15
+E: DEVPATH=/devices/virtual/block/loop15
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=15
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6107766
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop150
+N: loop150
+E: DEVNAME=/dev/loop150
+E: DEVPATH=/devices/virtual/block/loop150
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=150
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6108848
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop151
+N: loop151
+E: DEVNAME=/dev/loop151
+E: DEVPATH=/devices/virtual/block/loop151
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=151
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6108737
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop152
+N: loop152
+E: DEVNAME=/dev/loop152
+E: DEVPATH=/devices/virtual/block/loop152
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=152
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6111646
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop153
+N: loop153
+E: DEVNAME=/dev/loop153
+E: DEVPATH=/devices/virtual/block/loop153
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=153
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6114415
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop154
+N: loop154
+E: DEVNAME=/dev/loop154
+E: DEVPATH=/devices/virtual/block/loop154
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=154
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6112759
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop155
+N: loop155
+E: DEVNAME=/dev/loop155
+E: DEVPATH=/devices/virtual/block/loop155
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=155
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6113748
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop156
+N: loop156
+E: DEVNAME=/dev/loop156
+E: DEVPATH=/devices/virtual/block/loop156
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=156
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6113733
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop157
+N: loop157
+E: DEVNAME=/dev/loop157
+E: DEVPATH=/devices/virtual/block/loop157
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=157
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6117487
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop158
+N: loop158
+E: DEVNAME=/dev/loop158
+E: DEVPATH=/devices/virtual/block/loop158
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=158
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6118676
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop159
+N: loop159
+E: DEVNAME=/dev/loop159
+E: DEVPATH=/devices/virtual/block/loop159
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=159
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6118238
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop16
+N: loop16
+E: DEVNAME=/dev/loop16
+E: DEVPATH=/devices/virtual/block/loop16
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=16
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6120412
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop160
+N: loop160
+E: DEVNAME=/dev/loop160
+E: DEVPATH=/devices/virtual/block/loop160
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=160
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6124252
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop161
+N: loop161
+E: DEVNAME=/dev/loop161
+E: DEVPATH=/devices/virtual/block/loop161
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=161
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6121918
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop162
+N: loop162
+E: DEVNAME=/dev/loop162
+E: DEVPATH=/devices/virtual/block/loop162
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=162
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6123368
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop163
+N: loop163
+E: DEVNAME=/dev/loop163
+E: DEVPATH=/devices/virtual/block/loop163
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=163
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6123400
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop164
+N: loop164
+E: DEVNAME=/dev/loop164
+E: DEVPATH=/devices/virtual/block/loop164
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=164
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6126195
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop165
+N: loop165
+E: DEVNAME=/dev/loop165
+E: DEVPATH=/devices/virtual/block/loop165
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=165
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6126862
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop166
+N: loop166
+E: DEVNAME=/dev/loop166
+E: DEVPATH=/devices/virtual/block/loop166
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=166
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6130511
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop167
+N: loop167
+E: DEVNAME=/dev/loop167
+E: DEVPATH=/devices/virtual/block/loop167
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=167
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6128357
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop168
+N: loop168
+E: DEVNAME=/dev/loop168
+E: DEVPATH=/devices/virtual/block/loop168
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=168
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6131043
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop169
+N: loop169
+E: DEVNAME=/dev/loop169
+E: DEVPATH=/devices/virtual/block/loop169
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=169
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6129388
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop17
+N: loop17
+E: DEVNAME=/dev/loop17
+E: DEVPATH=/devices/virtual/block/loop17
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=17
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6134536
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop170
+N: loop170
+E: DEVNAME=/dev/loop170
+E: DEVPATH=/devices/virtual/block/loop170
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=170
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6133100
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop171
+N: loop171
+E: DEVNAME=/dev/loop171
+E: DEVPATH=/devices/virtual/block/loop171
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=171
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6133484
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop172
+N: loop172
+E: DEVNAME=/dev/loop172
+E: DEVPATH=/devices/virtual/block/loop172
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=172
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6135008
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop173
+N: loop173
+E: DEVNAME=/dev/loop173
+E: DEVPATH=/devices/virtual/block/loop173
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=173
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6134606
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop174
+N: loop174
+E: DEVNAME=/dev/loop174
+E: DEVPATH=/devices/virtual/block/loop174
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=174
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6137370
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop175
+N: loop175
+E: DEVNAME=/dev/loop175
+E: DEVPATH=/devices/virtual/block/loop175
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=175
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6139938
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop176
+N: loop176
+E: DEVNAME=/dev/loop176
+E: DEVPATH=/devices/virtual/block/loop176
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=176
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6140966
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop177
+N: loop177
+E: DEVNAME=/dev/loop177
+E: DEVPATH=/devices/virtual/block/loop177
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=177
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6142352
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop178
+N: loop178
+E: DEVNAME=/dev/loop178
+E: DEVPATH=/devices/virtual/block/loop178
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=178
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6140346
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop179
+N: loop179
+E: DEVNAME=/dev/loop179
+E: DEVPATH=/devices/virtual/block/loop179
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=179
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6146072
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop18
+N: loop18
+E: DEVNAME=/dev/loop18
+E: DEVPATH=/devices/virtual/block/loop18
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=18
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6146362
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop180
+N: loop180
+E: DEVNAME=/dev/loop180
+E: DEVPATH=/devices/virtual/block/loop180
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=180
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6144373
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop181
+N: loop181
+E: DEVNAME=/dev/loop181
+E: DEVPATH=/devices/virtual/block/loop181
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=181
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6144546
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop182
+N: loop182
+E: DEVNAME=/dev/loop182
+E: DEVPATH=/devices/virtual/block/loop182
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=182
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6147996
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop183
+N: loop183
+E: DEVNAME=/dev/loop183
+E: DEVPATH=/devices/virtual/block/loop183
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=183
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6145866
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop184
+N: loop184
+E: DEVNAME=/dev/loop184
+E: DEVPATH=/devices/virtual/block/loop184
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=184
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6151668
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop185
+N: loop185
+E: DEVNAME=/dev/loop185
+E: DEVPATH=/devices/virtual/block/loop185
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=185
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6149640
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop186
+N: loop186
+E: DEVNAME=/dev/loop186
+E: DEVPATH=/devices/virtual/block/loop186
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=186
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6152458
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop187
+N: loop187
+E: DEVNAME=/dev/loop187
+E: DEVPATH=/devices/virtual/block/loop187
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=187
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6150403
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop188
+N: loop188
+E: DEVNAME=/dev/loop188
+E: DEVPATH=/devices/virtual/block/loop188
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=188
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6152441
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop189
+N: loop189
+E: DEVNAME=/dev/loop189
+E: DEVPATH=/devices/virtual/block/loop189
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=189
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6151538
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop19
+N: loop19
+E: DEVNAME=/dev/loop19
+E: DEVPATH=/devices/virtual/block/loop19
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=19
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6154547
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop190
+N: loop190
+E: DEVNAME=/dev/loop190
+E: DEVPATH=/devices/virtual/block/loop190
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=190
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6156684
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop191
+N: loop191
+E: DEVNAME=/dev/loop191
+E: DEVPATH=/devices/virtual/block/loop191
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=191
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6155464
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop192
+N: loop192
+E: DEVNAME=/dev/loop192
+E: DEVPATH=/devices/virtual/block/loop192
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=192
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6157485
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop193
+N: loop193
+E: DEVNAME=/dev/loop193
+E: DEVPATH=/devices/virtual/block/loop193
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=193
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6156766
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop194
+N: loop194
+E: DEVNAME=/dev/loop194
+E: DEVPATH=/devices/virtual/block/loop194
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=194
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6159429
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop195
+N: loop195
+E: DEVNAME=/dev/loop195
+E: DEVPATH=/devices/virtual/block/loop195
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=195
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6164361
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop196
+N: loop196
+E: DEVNAME=/dev/loop196
+E: DEVPATH=/devices/virtual/block/loop196
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=196
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6160952
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop197
+N: loop197
+E: DEVNAME=/dev/loop197
+E: DEVPATH=/devices/virtual/block/loop197
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=197
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6164344
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop198
+N: loop198
+E: DEVNAME=/dev/loop198
+E: DEVPATH=/devices/virtual/block/loop198
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=198
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6162009
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop199
+N: loop199
+E: DEVNAME=/dev/loop199
+E: DEVPATH=/devices/virtual/block/loop199
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=199
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6167928
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop2
+N: loop2
+E: DEVNAME=/dev/loop2
+E: DEVPATH=/devices/virtual/block/loop2
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=2
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6166939
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop20
+N: loop20
+E: DEVNAME=/dev/loop20
+E: DEVPATH=/devices/virtual/block/loop20
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=20
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6166954
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop200
+N: loop200
+E: DEVNAME=/dev/loop200
+E: DEVPATH=/devices/virtual/block/loop200
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=200
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6170003
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop201
+N: loop201
+E: DEVNAME=/dev/loop201
+E: DEVPATH=/devices/virtual/block/loop201
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=201
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6171201
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop202
+N: loop202
+E: DEVNAME=/dev/loop202
+E: DEVPATH=/devices/virtual/block/loop202
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=202
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6174336
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop203
+N: loop203
+E: DEVNAME=/dev/loop203
+E: DEVPATH=/devices/virtual/block/loop203
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=203
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6170905
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop204
+N: loop204
+E: DEVNAME=/dev/loop204
+E: DEVPATH=/devices/virtual/block/loop204
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=204
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6173411
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop205
+N: loop205
+E: DEVNAME=/dev/loop205
+E: DEVPATH=/devices/virtual/block/loop205
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=205
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6173545
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop206
+N: loop206
+E: DEVNAME=/dev/loop206
+E: DEVPATH=/devices/virtual/block/loop206
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=206
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6175886
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop207
+N: loop207
+E: DEVNAME=/dev/loop207
+E: DEVPATH=/devices/virtual/block/loop207
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=207
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6175870
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop208
+N: loop208
+E: DEVNAME=/dev/loop208
+E: DEVPATH=/devices/virtual/block/loop208
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=208
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6181414
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop209
+N: loop209
+E: DEVNAME=/dev/loop209
+E: DEVPATH=/devices/virtual/block/loop209
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=209
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6178041
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop21
+N: loop21
+E: DEVNAME=/dev/loop21
+E: DEVPATH=/devices/virtual/block/loop21
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=21
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6179997
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop210
+N: loop210
+E: DEVNAME=/dev/loop210
+E: DEVPATH=/devices/virtual/block/loop210
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=210
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6185380
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop211
+N: loop211
+E: DEVNAME=/dev/loop211
+E: DEVPATH=/devices/virtual/block/loop211
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=211
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6179294
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop212
+N: loop212
+E: DEVNAME=/dev/loop212
+E: DEVPATH=/devices/virtual/block/loop212
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=212
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6179776
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop213
+N: loop213
+E: DEVNAME=/dev/loop213
+E: DEVPATH=/devices/virtual/block/loop213
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=213
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6181634
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop214
+N: loop214
+E: DEVNAME=/dev/loop214
+E: DEVPATH=/devices/virtual/block/loop214
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=214
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6187554
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop215
+N: loop215
+E: DEVNAME=/dev/loop215
+E: DEVPATH=/devices/virtual/block/loop215
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=215
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6187858
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop216
+N: loop216
+E: DEVNAME=/dev/loop216
+E: DEVPATH=/devices/virtual/block/loop216
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=216
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6190687
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop217
+N: loop217
+E: DEVNAME=/dev/loop217
+E: DEVPATH=/devices/virtual/block/loop217
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=217
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6191695
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop218
+N: loop218
+E: DEVNAME=/dev/loop218
+E: DEVPATH=/devices/virtual/block/loop218
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=218
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6191563
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop219
+N: loop219
+E: DEVNAME=/dev/loop219
+E: DEVPATH=/devices/virtual/block/loop219
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=219
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6195708
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop22
+N: loop22
+E: DEVNAME=/dev/loop22
+E: DEVPATH=/devices/virtual/block/loop22
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=22
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6193499
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop220
+N: loop220
+E: DEVNAME=/dev/loop220
+E: DEVPATH=/devices/virtual/block/loop220
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=220
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6193335
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop221
+N: loop221
+E: DEVNAME=/dev/loop221
+E: DEVPATH=/devices/virtual/block/loop221
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=221
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6196821
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop222
+N: loop222
+E: DEVNAME=/dev/loop222
+E: DEVPATH=/devices/virtual/block/loop222
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=222
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6195909
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop223
+N: loop223
+E: DEVNAME=/dev/loop223
+E: DEVPATH=/devices/virtual/block/loop223
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=223
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6197766
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop224
+N: loop224
+E: DEVNAME=/dev/loop224
+E: DEVPATH=/devices/virtual/block/loop224
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=224
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6199502
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop225
+N: loop225
+E: DEVNAME=/dev/loop225
+E: DEVPATH=/devices/virtual/block/loop225
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=225
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6199792
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop226
+N: loop226
+E: DEVNAME=/dev/loop226
+E: DEVPATH=/devices/virtual/block/loop226
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=226
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6202381
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop227
+N: loop227
+E: DEVNAME=/dev/loop227
+E: DEVPATH=/devices/virtual/block/loop227
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=227
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6201552
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop228
+N: loop228
+E: DEVNAME=/dev/loop228
+E: DEVPATH=/devices/virtual/block/loop228
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=228
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6212267
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop229
+N: loop229
+E: DEVNAME=/dev/loop229
+E: DEVPATH=/devices/virtual/block/loop229
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=229
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6204999
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop23
+N: loop23
+E: DEVNAME=/dev/loop23
+E: DEVPATH=/devices/virtual/block/loop23
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=23
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6203765
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop230
+N: loop230
+E: DEVNAME=/dev/loop230
+E: DEVPATH=/devices/virtual/block/loop230
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=230
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6209343
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop231
+N: loop231
+E: DEVNAME=/dev/loop231
+E: DEVPATH=/devices/virtual/block/loop231
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=231
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6210018
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop232
+N: loop232
+E: DEVNAME=/dev/loop232
+E: DEVPATH=/devices/virtual/block/loop232
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=232
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6207662
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop233
+N: loop233
+E: DEVNAME=/dev/loop233
+E: DEVPATH=/devices/virtual/block/loop233
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=233
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6212480
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop234
+N: loop234
+E: DEVNAME=/dev/loop234
+E: DEVPATH=/devices/virtual/block/loop234
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=234
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6209328
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop235
+N: loop235
+E: DEVNAME=/dev/loop235
+E: DEVPATH=/devices/virtual/block/loop235
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=235
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6228236
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop236
+N: loop236
+E: DEVNAME=/dev/loop236
+E: DEVPATH=/devices/virtual/block/loop236
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=236
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6214430
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop237
+N: loop237
+E: DEVNAME=/dev/loop237
+E: DEVPATH=/devices/virtual/block/loop237
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=237
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6213997
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop238
+N: loop238
+E: DEVNAME=/dev/loop238
+E: DEVPATH=/devices/virtual/block/loop238
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=238
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6217399
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop239
+N: loop239
+E: DEVNAME=/dev/loop239
+E: DEVPATH=/devices/virtual/block/loop239
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=239
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6229866
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop24
+N: loop24
+E: DEVNAME=/dev/loop24
+E: DEVPATH=/devices/virtual/block/loop24
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=24
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6229411
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop240
+N: loop240
+E: DEVNAME=/dev/loop240
+E: DEVPATH=/devices/virtual/block/loop240
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=240
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6220288
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop241
+N: loop241
+E: DEVNAME=/dev/loop241
+E: DEVPATH=/devices/virtual/block/loop241
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=241
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6226323
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop242
+N: loop242
+E: DEVNAME=/dev/loop242
+E: DEVPATH=/devices/virtual/block/loop242
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=242
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6225374
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop243
+N: loop243
+E: DEVNAME=/dev/loop243
+E: DEVPATH=/devices/virtual/block/loop243
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=243
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6228177
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop244
+N: loop244
+E: DEVNAME=/dev/loop244
+E: DEVPATH=/devices/virtual/block/loop244
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=244
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6225661
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop245
+N: loop245
+E: DEVNAME=/dev/loop245
+E: DEVPATH=/devices/virtual/block/loop245
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=245
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6231321
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop246
+N: loop246
+E: DEVNAME=/dev/loop246
+E: DEVPATH=/devices/virtual/block/loop246
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=246
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6229175
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop247
+N: loop247
+E: DEVNAME=/dev/loop247
+E: DEVPATH=/devices/virtual/block/loop247
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=247
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6232819
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop248
+N: loop248
+E: DEVNAME=/dev/loop248
+E: DEVPATH=/devices/virtual/block/loop248
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=248
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6235039
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop249
+N: loop249
+E: DEVNAME=/dev/loop249
+E: DEVPATH=/devices/virtual/block/loop249
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=249
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6235398
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop25
+N: loop25
+E: DEVNAME=/dev/loop25
+E: DEVPATH=/devices/virtual/block/loop25
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=25
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6237710
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop250
+N: loop250
+E: DEVNAME=/dev/loop250
+E: DEVPATH=/devices/virtual/block/loop250
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=250
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6237377
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop251
+N: loop251
+E: DEVNAME=/dev/loop251
+E: DEVPATH=/devices/virtual/block/loop251
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=251
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6237361
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop252
+N: loop252
+E: DEVNAME=/dev/loop252
+E: DEVPATH=/devices/virtual/block/loop252
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=252
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6240384
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop253
+N: loop253
+E: DEVNAME=/dev/loop253
+E: DEVPATH=/devices/virtual/block/loop253
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=253
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6240931
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop254
+N: loop254
+E: DEVNAME=/dev/loop254
+E: DEVPATH=/devices/virtual/block/loop254
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=254
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6241955
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop255
+N: loop255
+E: DEVNAME=/dev/loop255
+E: DEVPATH=/devices/virtual/block/loop255
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=255
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6242421
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop26
+N: loop26
+E: DEVNAME=/dev/loop26
+E: DEVPATH=/devices/virtual/block/loop26
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=26
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6242405
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop27
+N: loop27
+E: DEVNAME=/dev/loop27
+E: DEVPATH=/devices/virtual/block/loop27
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=27
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6246664
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop28
+N: loop28
+E: DEVNAME=/dev/loop28
+E: DEVPATH=/devices/virtual/block/loop28
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=28
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6246699
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop29
+N: loop29
+E: DEVNAME=/dev/loop29
+E: DEVPATH=/devices/virtual/block/loop29
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=29
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6252377
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop3
+N: loop3
+E: DEVNAME=/dev/loop3
+E: DEVPATH=/devices/virtual/block/loop3
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=3
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6249868
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop30
+N: loop30
+E: DEVNAME=/dev/loop30
+E: DEVPATH=/devices/virtual/block/loop30
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=30
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6249927
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop31
+N: loop31
+E: DEVNAME=/dev/loop31
+E: DEVPATH=/devices/virtual/block/loop31
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=31
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6249894
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop32
+N: loop32
+E: DEVNAME=/dev/loop32
+E: DEVPATH=/devices/virtual/block/loop32
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=32
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6253715
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop33
+N: loop33
+E: DEVNAME=/dev/loop33
+E: DEVPATH=/devices/virtual/block/loop33
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=33
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6254992
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop34
+N: loop34
+E: DEVNAME=/dev/loop34
+E: DEVPATH=/devices/virtual/block/loop34
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=34
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6254045
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop35
+N: loop35
+E: DEVNAME=/dev/loop35
+E: DEVPATH=/devices/virtual/block/loop35
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=35
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6255739
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop36
+N: loop36
+E: DEVNAME=/dev/loop36
+E: DEVPATH=/devices/virtual/block/loop36
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=36
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6256913
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop37
+N: loop37
+E: DEVNAME=/dev/loop37
+E: DEVPATH=/devices/virtual/block/loop37
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=37
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6257043
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop38
+N: loop38
+E: DEVNAME=/dev/loop38
+E: DEVPATH=/devices/virtual/block/loop38
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=38
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6258751
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop39
+N: loop39
+E: DEVNAME=/dev/loop39
+E: DEVPATH=/devices/virtual/block/loop39
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=39
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6258869
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop4
+N: loop4
+E: DEVNAME=/dev/loop4
+E: DEVPATH=/devices/virtual/block/loop4
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=4
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6259502
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop40
+N: loop40
+E: DEVNAME=/dev/loop40
+E: DEVPATH=/devices/virtual/block/loop40
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=40
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6259309
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop41
+N: loop41
+E: DEVNAME=/dev/loop41
+E: DEVPATH=/devices/virtual/block/loop41
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=41
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6260910
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop42
+N: loop42
+E: DEVNAME=/dev/loop42
+E: DEVPATH=/devices/virtual/block/loop42
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=42
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6263167
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop43
+N: loop43
+E: DEVNAME=/dev/loop43
+E: DEVPATH=/devices/virtual/block/loop43
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=43
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6261499
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop44
+N: loop44
+E: DEVNAME=/dev/loop44
+E: DEVPATH=/devices/virtual/block/loop44
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=44
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6265822
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop45
+N: loop45
+E: DEVNAME=/dev/loop45
+E: DEVPATH=/devices/virtual/block/loop45
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=45
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6264916
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop46
+N: loop46
+E: DEVNAME=/dev/loop46
+E: DEVPATH=/devices/virtual/block/loop46
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=46
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6263763
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop47
+N: loop47
+E: DEVNAME=/dev/loop47
+E: DEVPATH=/devices/virtual/block/loop47
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=47
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6264137
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop48
+N: loop48
+E: DEVNAME=/dev/loop48
+E: DEVPATH=/devices/virtual/block/loop48
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=48
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6264207
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop49
+N: loop49
+E: DEVNAME=/dev/loop49
+E: DEVPATH=/devices/virtual/block/loop49
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=49
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6264696
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop5
+N: loop5
+E: DEVNAME=/dev/loop5
+E: DEVPATH=/devices/virtual/block/loop5
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=5
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6266836
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop50
+N: loop50
+E: DEVNAME=/dev/loop50
+E: DEVPATH=/devices/virtual/block/loop50
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=50
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6267335
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop51
+N: loop51
+E: DEVNAME=/dev/loop51
+E: DEVPATH=/devices/virtual/block/loop51
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=51
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6268892
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop52
+N: loop52
+E: DEVNAME=/dev/loop52
+E: DEVPATH=/devices/virtual/block/loop52
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=52
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6268665
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop53
+N: loop53
+E: DEVNAME=/dev/loop53
+E: DEVPATH=/devices/virtual/block/loop53
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=53
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6268907
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop54
+N: loop54
+E: DEVNAME=/dev/loop54
+E: DEVPATH=/devices/virtual/block/loop54
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=54
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6270742
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop55
+N: loop55
+E: DEVNAME=/dev/loop55
+E: DEVPATH=/devices/virtual/block/loop55
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=55
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6275527
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop56
+N: loop56
+E: DEVNAME=/dev/loop56
+E: DEVPATH=/devices/virtual/block/loop56
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=56
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6271278
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop57
+N: loop57
+E: DEVNAME=/dev/loop57
+E: DEVPATH=/devices/virtual/block/loop57
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=57
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6271774
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop58
+N: loop58
+E: DEVNAME=/dev/loop58
+E: DEVPATH=/devices/virtual/block/loop58
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=58
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6273423
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop59
+N: loop59
+E: DEVNAME=/dev/loop59
+E: DEVPATH=/devices/virtual/block/loop59
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=59
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6273443
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop6
+N: loop6
+E: DEVNAME=/dev/loop6
+E: DEVPATH=/devices/virtual/block/loop6
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=6
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6273857
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop60
+N: loop60
+E: DEVNAME=/dev/loop60
+E: DEVPATH=/devices/virtual/block/loop60
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=60
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6275495
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop61
+N: loop61
+E: DEVNAME=/dev/loop61
+E: DEVPATH=/devices/virtual/block/loop61
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=61
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6275642
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop62
+N: loop62
+E: DEVNAME=/dev/loop62
+E: DEVPATH=/devices/virtual/block/loop62
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=62
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6275511
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop63
+N: loop63
+E: DEVNAME=/dev/loop63
+E: DEVPATH=/devices/virtual/block/loop63
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=63
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6278490
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop64
+N: loop64
+E: DEVNAME=/dev/loop64
+E: DEVPATH=/devices/virtual/block/loop64
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=64
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6278680
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop65
+N: loop65
+E: DEVNAME=/dev/loop65
+E: DEVPATH=/devices/virtual/block/loop65
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=65
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6279258
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop66
+N: loop66
+E: DEVNAME=/dev/loop66
+E: DEVPATH=/devices/virtual/block/loop66
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=66
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6281730
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop67
+N: loop67
+E: DEVNAME=/dev/loop67
+E: DEVPATH=/devices/virtual/block/loop67
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=67
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6280336
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop68
+N: loop68
+E: DEVNAME=/dev/loop68
+E: DEVPATH=/devices/virtual/block/loop68
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=68
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6281329
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop69
+N: loop69
+E: DEVNAME=/dev/loop69
+E: DEVPATH=/devices/virtual/block/loop69
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=69
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6283014
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop7
+N: loop7
+E: DEVNAME=/dev/loop7
+E: DEVPATH=/devices/virtual/block/loop7
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=7
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6282308
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop70
+N: loop70
+E: DEVNAME=/dev/loop70
+E: DEVPATH=/devices/virtual/block/loop70
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=70
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6284841
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop71
+N: loop71
+E: DEVNAME=/dev/loop71
+E: DEVPATH=/devices/virtual/block/loop71
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=71
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6285284
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop72
+N: loop72
+E: DEVNAME=/dev/loop72
+E: DEVPATH=/devices/virtual/block/loop72
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=72
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6285804
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop73
+N: loop73
+E: DEVNAME=/dev/loop73
+E: DEVPATH=/devices/virtual/block/loop73
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=73
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6287115
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop74
+N: loop74
+E: DEVNAME=/dev/loop74
+E: DEVPATH=/devices/virtual/block/loop74
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=74
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6287307
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop75
+N: loop75
+E: DEVNAME=/dev/loop75
+E: DEVPATH=/devices/virtual/block/loop75
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=75
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6288370
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop76
+N: loop76
+E: DEVNAME=/dev/loop76
+E: DEVPATH=/devices/virtual/block/loop76
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=76
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6289486
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop77
+N: loop77
+E: DEVNAME=/dev/loop77
+E: DEVPATH=/devices/virtual/block/loop77
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=77
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6290104
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop78
+N: loop78
+E: DEVNAME=/dev/loop78
+E: DEVPATH=/devices/virtual/block/loop78
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=78
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6291259
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop79
+N: loop79
+E: DEVNAME=/dev/loop79
+E: DEVPATH=/devices/virtual/block/loop79
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=79
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6291275
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop8
+N: loop8
+E: DEVNAME=/dev/loop8
+E: DEVPATH=/devices/virtual/block/loop8
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=8
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6292494
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop80
+N: loop80
+E: DEVNAME=/dev/loop80
+E: DEVPATH=/devices/virtual/block/loop80
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=80
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6293451
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop81
+N: loop81
+E: DEVNAME=/dev/loop81
+E: DEVPATH=/devices/virtual/block/loop81
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=81
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6294161
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop82
+N: loop82
+E: DEVNAME=/dev/loop82
+E: DEVPATH=/devices/virtual/block/loop82
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=82
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6294140
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop83
+N: loop83
+E: DEVNAME=/dev/loop83
+E: DEVPATH=/devices/virtual/block/loop83
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=83
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6296236
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop84
+N: loop84
+E: DEVNAME=/dev/loop84
+E: DEVPATH=/devices/virtual/block/loop84
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=84
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6296254
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop85
+N: loop85
+E: DEVNAME=/dev/loop85
+E: DEVPATH=/devices/virtual/block/loop85
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=85
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6296833
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop86
+N: loop86
+E: DEVNAME=/dev/loop86
+E: DEVPATH=/devices/virtual/block/loop86
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=86
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6297684
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop87
+N: loop87
+E: DEVNAME=/dev/loop87
+E: DEVPATH=/devices/virtual/block/loop87
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=87
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6298744
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop88
+N: loop88
+E: DEVNAME=/dev/loop88
+E: DEVPATH=/devices/virtual/block/loop88
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=88
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6302599
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop89
+N: loop89
+E: DEVNAME=/dev/loop89
+E: DEVPATH=/devices/virtual/block/loop89
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=89
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6299915
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop9
+N: loop9
+E: DEVNAME=/dev/loop9
+E: DEVPATH=/devices/virtual/block/loop9
+E: DEVTYPE=disk
+E: ID_FS_TYPE=squashfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_VERSION=4.0
+E: MAJOR=7
+E: MINOR=9
+E: SUBSYSTEM=block
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6300629
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop90
+N: loop90
+E: DEVNAME=/dev/loop90
+E: DEVPATH=/devices/virtual/block/loop90
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=90
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6302105
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop91
+N: loop91
+E: DEVNAME=/dev/loop91
+E: DEVPATH=/devices/virtual/block/loop91
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=91
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6301700
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop92
+N: loop92
+E: DEVNAME=/dev/loop92
+E: DEVPATH=/devices/virtual/block/loop92
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=92
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6302161
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop93
+N: loop93
+E: DEVNAME=/dev/loop93
+E: DEVPATH=/devices/virtual/block/loop93
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=93
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6304163
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop94
+N: loop94
+E: DEVNAME=/dev/loop94
+E: DEVPATH=/devices/virtual/block/loop94
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=94
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6304724
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop95
+N: loop95
+E: DEVNAME=/dev/loop95
+E: DEVPATH=/devices/virtual/block/loop95
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=95
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6306997
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop96
+N: loop96
+E: DEVNAME=/dev/loop96
+E: DEVPATH=/devices/virtual/block/loop96
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=96
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6306091
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop97
+N: loop97
+E: DEVNAME=/dev/loop97
+E: DEVPATH=/devices/virtual/block/loop97
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=97
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6306259
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop98
+N: loop98
+E: DEVNAME=/dev/loop98
+E: DEVPATH=/devices/virtual/block/loop98
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=98
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6307969
+E: net.ifnames=0
+
+P: /devices/virtual/block/loop99
+N: loop99
+E: DEVNAME=/dev/loop99
+E: DEVPATH=/devices/virtual/block/loop99
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=99
+E: SUBSYSTEM=block
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6308707
+E: net.ifnames=0
+
+P: /devices/virtual/graphics/fbcon
+E: DEVPATH=/devices/virtual/graphics/fbcon
+E: SUBSYSTEM=graphics
+E: USEC_INITIALIZED=6307126
+E: net.ifnames=0
+
+P: /devices/virtual/input/mice
+N: input/mice
+E: DEVNAME=/dev/input/mice
+E: DEVPATH=/devices/virtual/input/mice
+E: MAJOR=13
+E: MINOR=63
+E: SUBSYSTEM=input
+E: USEC_INITIALIZED=6309412
+E: net.ifnames=0
+
+P: /devices/virtual/mem/full
+N: full
+E: DEVMODE=0666
+E: DEVNAME=/dev/full
+E: DEVPATH=/devices/virtual/mem/full
+E: MAJOR=1
+E: MINOR=7
+E: SUBSYSTEM=mem
+E: USEC_INITIALIZED=6308637
+E: net.ifnames=0
+
+P: /devices/virtual/mem/kmsg
+N: kmsg
+E: DEVMODE=0644
+E: DEVNAME=/dev/kmsg
+E: DEVPATH=/devices/virtual/mem/kmsg
+E: MAJOR=1
+E: MINOR=11
+E: SUBSYSTEM=mem
+E: USEC_INITIALIZED=6309738
+E: net.ifnames=0
+
+P: /devices/virtual/mem/mem
+N: mem
+E: DEVNAME=/dev/mem
+E: DEVPATH=/devices/virtual/mem/mem
+E: MAJOR=1
+E: MINOR=1
+E: SUBSYSTEM=mem
+E: USEC_INITIALIZED=6309756
+E: net.ifnames=0
+
+P: /devices/virtual/mem/null
+N: null
+E: DEVMODE=0666
+E: DEVNAME=/dev/null
+E: DEVPATH=/devices/virtual/mem/null
+E: MAJOR=1
+E: MINOR=3
+E: SUBSYSTEM=mem
+E: USEC_INITIALIZED=6310649
+E: net.ifnames=0
+
+P: /devices/virtual/mem/random
+N: random
+E: DEVMODE=0666
+E: DEVNAME=/dev/random
+E: DEVPATH=/devices/virtual/mem/random
+E: MAJOR=1
+E: MINOR=8
+E: SUBSYSTEM=mem
+E: USEC_INITIALIZED=6310895
+E: net.ifnames=0
+
+P: /devices/virtual/mem/urandom
+N: urandom
+E: DEVMODE=0666
+E: DEVNAME=/dev/urandom
+E: DEVPATH=/devices/virtual/mem/urandom
+E: MAJOR=1
+E: MINOR=9
+E: SUBSYSTEM=mem
+E: USEC_INITIALIZED=6311619
+E: net.ifnames=0
+
+P: /devices/virtual/mem/zero
+N: zero
+E: DEVMODE=0666
+E: DEVNAME=/dev/zero
+E: DEVPATH=/devices/virtual/mem/zero
+E: MAJOR=1
+E: MINOR=5
+E: SUBSYSTEM=mem
+E: USEC_INITIALIZED=6312133
+E: net.ifnames=0
+
+P: /devices/virtual/misc/autofs
+N: autofs
+E: DEVMODE=0644
+E: DEVNAME=/dev/autofs
+E: DEVPATH=/devices/virtual/misc/autofs
+E: MAJOR=10
+E: MINOR=235
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6312816
+E: net.ifnames=0
+
+P: /devices/virtual/misc/cachefiles
+N: cachefiles
+E: DEVNAME=/dev/cachefiles
+E: DEVPATH=/devices/virtual/misc/cachefiles
+E: MAJOR=10
+E: MINOR=62
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6313432
+E: net.ifnames=0
+
+P: /devices/virtual/misc/cpu_dma_latency
+N: cpu_dma_latency
+E: DEVNAME=/dev/cpu_dma_latency
+E: DEVPATH=/devices/virtual/misc/cpu_dma_latency
+E: MAJOR=10
+E: MINOR=60
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6313852
+E: net.ifnames=0
+
+P: /devices/virtual/misc/device-mapper
+N: mapper/control
+E: DEVNAME=/dev/mapper/control
+E: DEVPATH=/devices/virtual/misc/device-mapper
+E: MAJOR=10
+E: MINOR=236
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6314403
+E: net.ifnames=0
+
+P: /devices/virtual/misc/ecryptfs
+N: ecryptfs
+E: DEVNAME=/dev/ecryptfs
+E: DEVPATH=/devices/virtual/misc/ecryptfs
+E: MAJOR=10
+E: MINOR=61
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6315109
+E: net.ifnames=0
+
+P: /devices/virtual/misc/hw_random
+N: hwrng
+E: DEVNAME=/dev/hwrng
+E: DEVPATH=/devices/virtual/misc/hw_random
+E: MAJOR=10
+E: MINOR=183
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6315372
+E: net.ifnames=0
+
+P: /devices/virtual/misc/loop-control
+N: loop-control
+E: DEVNAME=/dev/loop-control
+E: DEVPATH=/devices/virtual/misc/loop-control
+E: MAJOR=10
+E: MINOR=237
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6315945
+E: net.ifnames=0
+
+P: /devices/virtual/misc/memory_bandwidth
+N: memory_bandwidth
+E: DEVNAME=/dev/memory_bandwidth
+E: DEVPATH=/devices/virtual/misc/memory_bandwidth
+E: MAJOR=10
+E: MINOR=57
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6316619
+E: net.ifnames=0
+
+P: /devices/virtual/misc/network_latency
+N: network_latency
+E: DEVNAME=/dev/network_latency
+E: DEVPATH=/devices/virtual/misc/network_latency
+E: MAJOR=10
+E: MINOR=59
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6317125
+E: net.ifnames=0
+
+P: /devices/virtual/misc/network_throughput
+N: network_throughput
+E: DEVNAME=/dev/network_throughput
+E: DEVPATH=/devices/virtual/misc/network_throughput
+E: MAJOR=10
+E: MINOR=58
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6317622
+E: net.ifnames=0
+
+P: /devices/virtual/misc/psaux
+N: psaux
+E: DEVNAME=/dev/psaux
+E: DEVPATH=/devices/virtual/misc/psaux
+E: MAJOR=10
+E: MINOR=1
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6318119
+E: net.ifnames=0
+
+P: /devices/virtual/misc/rfkill
+N: rfkill
+E: DEVNAME=/dev/rfkill
+E: DEVPATH=/devices/virtual/misc/rfkill
+E: MAJOR=10
+E: MINOR=63
+E: SUBSYSTEM=misc
+E: SYSTEMD_WANTS=systemd-rfkill.socket
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6318655
+E: net.ifnames=0
+
+P: /devices/virtual/misc/snapshot
+N: snapshot
+E: DEVNAME=/dev/snapshot
+E: DEVPATH=/devices/virtual/misc/snapshot
+E: MAJOR=10
+E: MINOR=231
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6319151
+E: net.ifnames=0
+
+P: /devices/virtual/misc/uinput
+N: uinput
+E: DEVNAME=/dev/uinput
+E: DEVPATH=/devices/virtual/misc/uinput
+E: MAJOR=10
+E: MINOR=223
+E: SUBSYSTEM=misc
+E: USEC_INITIALIZED=6319771
+E: net.ifnames=0
+
+P: /devices/virtual/net/lo
+E: DEVPATH=/devices/virtual/net/lo
+E: IFINDEX=1
+E: INTERFACE=lo
+E: SUBSYSTEM=net
+E: USEC_INITIALIZED=6321660
+E: net.ifnames=0
+
+P: /devices/virtual/raw/rawctl
+N: raw/rawctl
+E: DEVNAME=/dev/raw/rawctl
+E: DEVPATH=/devices/virtual/raw/rawctl
+E: MAJOR=162
+E: MINOR=0
+E: SUBSYSTEM=raw
+E: USEC_INITIALIZED=6320818
+E: net.ifnames=0
+
+P: /devices/virtual/sound/timer
+N: snd/timer
+E: DEVNAME=/dev/snd/timer
+E: DEVPATH=/devices/virtual/sound/timer
+E: MAJOR=116
+E: MINOR=33
+E: SUBSYSTEM=sound
+E: TAGS=:uaccess:
+E: USEC_INITIALIZED=6369973
+E: net.ifnames=0
+
+P: /devices/virtual/thermal/thermal_zone0
+E: DEVPATH=/devices/virtual/thermal/thermal_zone0
+E: SUBSYSTEM=thermal
+E: USEC_INITIALIZED=6321206
+E: net.ifnames=0
+
+P: /devices/virtual/tty/console
+N: console
+E: DEVNAME=/dev/console
+E: DEVPATH=/devices/virtual/tty/console
+E: MAJOR=5
+E: MINOR=1
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6322494
+E: net.ifnames=0
+
+P: /devices/virtual/tty/ptmx
+N: ptmx
+E: DEVMODE=0666
+E: DEVNAME=/dev/ptmx
+E: DEVPATH=/devices/virtual/tty/ptmx
+E: MAJOR=5
+E: MINOR=2
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6322662
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty
+N: tty
+E: DEVMODE=0666
+E: DEVNAME=/dev/tty
+E: DEVPATH=/devices/virtual/tty/tty
+E: MAJOR=5
+E: MINOR=0
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6323270
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty0
+N: tty0
+E: DEVNAME=/dev/tty0
+E: DEVPATH=/devices/virtual/tty/tty0
+E: MAJOR=4
+E: MINOR=0
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6324546
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty1
+N: tty1
+E: DEVNAME=/dev/tty1
+E: DEVPATH=/devices/virtual/tty/tty1
+E: MAJOR=4
+E: MINOR=1
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6324562
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty10
+N: tty10
+E: DEVNAME=/dev/tty10
+E: DEVPATH=/devices/virtual/tty/tty10
+E: MAJOR=4
+E: MINOR=10
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6324832
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty11
+N: tty11
+E: DEVNAME=/dev/tty11
+E: DEVPATH=/devices/virtual/tty/tty11
+E: MAJOR=4
+E: MINOR=11
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6325801
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty12
+N: tty12
+E: DEVNAME=/dev/tty12
+E: DEVPATH=/devices/virtual/tty/tty12
+E: MAJOR=4
+E: MINOR=12
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6325819
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty13
+N: tty13
+E: DEVNAME=/dev/tty13
+E: DEVPATH=/devices/virtual/tty/tty13
+E: MAJOR=4
+E: MINOR=13
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6327548
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty14
+N: tty14
+E: DEVNAME=/dev/tty14
+E: DEVPATH=/devices/virtual/tty/tty14
+E: MAJOR=4
+E: MINOR=14
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6326926
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty15
+N: tty15
+E: DEVNAME=/dev/tty15
+E: DEVPATH=/devices/virtual/tty/tty15
+E: MAJOR=4
+E: MINOR=15
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6327321
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty16
+N: tty16
+E: DEVNAME=/dev/tty16
+E: DEVPATH=/devices/virtual/tty/tty16
+E: MAJOR=4
+E: MINOR=16
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6329606
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty17
+N: tty17
+E: DEVNAME=/dev/tty17
+E: DEVPATH=/devices/virtual/tty/tty17
+E: MAJOR=4
+E: MINOR=17
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6328630
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty18
+N: tty18
+E: DEVNAME=/dev/tty18
+E: DEVPATH=/devices/virtual/tty/tty18
+E: MAJOR=4
+E: MINOR=18
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6329392
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty19
+N: tty19
+E: DEVNAME=/dev/tty19
+E: DEVPATH=/devices/virtual/tty/tty19
+E: MAJOR=4
+E: MINOR=19
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6329407
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty2
+N: tty2
+E: DEVNAME=/dev/tty2
+E: DEVPATH=/devices/virtual/tty/tty2
+E: MAJOR=4
+E: MINOR=2
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6330617
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty20
+N: tty20
+E: DEVNAME=/dev/tty20
+E: DEVPATH=/devices/virtual/tty/tty20
+E: MAJOR=4
+E: MINOR=20
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6330599
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty21
+N: tty21
+E: DEVNAME=/dev/tty21
+E: DEVPATH=/devices/virtual/tty/tty21
+E: MAJOR=4
+E: MINOR=21
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6331102
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty22
+N: tty22
+E: DEVNAME=/dev/tty22
+E: DEVPATH=/devices/virtual/tty/tty22
+E: MAJOR=4
+E: MINOR=22
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6331614
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty23
+N: tty23
+E: DEVNAME=/dev/tty23
+E: DEVPATH=/devices/virtual/tty/tty23
+E: MAJOR=4
+E: MINOR=23
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6333989
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty24
+N: tty24
+E: DEVNAME=/dev/tty24
+E: DEVPATH=/devices/virtual/tty/tty24
+E: MAJOR=4
+E: MINOR=24
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6334337
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty25
+N: tty25
+E: DEVNAME=/dev/tty25
+E: DEVPATH=/devices/virtual/tty/tty25
+E: MAJOR=4
+E: MINOR=25
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6334819
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty26
+N: tty26
+E: DEVNAME=/dev/tty26
+E: DEVPATH=/devices/virtual/tty/tty26
+E: MAJOR=4
+E: MINOR=26
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6335360
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty27
+N: tty27
+E: DEVNAME=/dev/tty27
+E: DEVPATH=/devices/virtual/tty/tty27
+E: MAJOR=4
+E: MINOR=27
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6335773
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty28
+N: tty28
+E: DEVNAME=/dev/tty28
+E: DEVPATH=/devices/virtual/tty/tty28
+E: MAJOR=4
+E: MINOR=28
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6336709
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty29
+N: tty29
+E: DEVNAME=/dev/tty29
+E: DEVPATH=/devices/virtual/tty/tty29
+E: MAJOR=4
+E: MINOR=29
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6337237
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty3
+N: tty3
+E: DEVNAME=/dev/tty3
+E: DEVPATH=/devices/virtual/tty/tty3
+E: MAJOR=4
+E: MINOR=3
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6337482
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty30
+N: tty30
+E: DEVNAME=/dev/tty30
+E: DEVPATH=/devices/virtual/tty/tty30
+E: MAJOR=4
+E: MINOR=30
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6338155
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty31
+N: tty31
+E: DEVNAME=/dev/tty31
+E: DEVPATH=/devices/virtual/tty/tty31
+E: MAJOR=4
+E: MINOR=31
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6338596
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty32
+N: tty32
+E: DEVNAME=/dev/tty32
+E: DEVPATH=/devices/virtual/tty/tty32
+E: MAJOR=4
+E: MINOR=32
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6339174
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty33
+N: tty33
+E: DEVNAME=/dev/tty33
+E: DEVPATH=/devices/virtual/tty/tty33
+E: MAJOR=4
+E: MINOR=33
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6339623
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty34
+N: tty34
+E: DEVNAME=/dev/tty34
+E: DEVPATH=/devices/virtual/tty/tty34
+E: MAJOR=4
+E: MINOR=34
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6340279
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty35
+N: tty35
+E: DEVNAME=/dev/tty35
+E: DEVPATH=/devices/virtual/tty/tty35
+E: MAJOR=4
+E: MINOR=35
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6340784
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty36
+N: tty36
+E: DEVNAME=/dev/tty36
+E: DEVPATH=/devices/virtual/tty/tty36
+E: MAJOR=4
+E: MINOR=36
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6341400
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty37
+N: tty37
+E: DEVNAME=/dev/tty37
+E: DEVPATH=/devices/virtual/tty/tty37
+E: MAJOR=4
+E: MINOR=37
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6341816
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty38
+N: tty38
+E: DEVNAME=/dev/tty38
+E: DEVPATH=/devices/virtual/tty/tty38
+E: MAJOR=4
+E: MINOR=38
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6342314
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty39
+N: tty39
+E: DEVNAME=/dev/tty39
+E: DEVPATH=/devices/virtual/tty/tty39
+E: MAJOR=4
+E: MINOR=39
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6342819
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty4
+N: tty4
+E: DEVNAME=/dev/tty4
+E: DEVPATH=/devices/virtual/tty/tty4
+E: MAJOR=4
+E: MINOR=4
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6343359
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty40
+N: tty40
+E: DEVNAME=/dev/tty40
+E: DEVPATH=/devices/virtual/tty/tty40
+E: MAJOR=4
+E: MINOR=40
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6343866
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty41
+N: tty41
+E: DEVNAME=/dev/tty41
+E: DEVPATH=/devices/virtual/tty/tty41
+E: MAJOR=4
+E: MINOR=41
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6344675
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty42
+N: tty42
+E: DEVNAME=/dev/tty42
+E: DEVPATH=/devices/virtual/tty/tty42
+E: MAJOR=4
+E: MINOR=42
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6344867
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty43
+N: tty43
+E: DEVNAME=/dev/tty43
+E: DEVPATH=/devices/virtual/tty/tty43
+E: MAJOR=4
+E: MINOR=43
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6345503
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty44
+N: tty44
+E: DEVNAME=/dev/tty44
+E: DEVPATH=/devices/virtual/tty/tty44
+E: MAJOR=4
+E: MINOR=44
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6346630
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty45
+N: tty45
+E: DEVNAME=/dev/tty45
+E: DEVPATH=/devices/virtual/tty/tty45
+E: MAJOR=4
+E: MINOR=45
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6346648
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty46
+N: tty46
+E: DEVNAME=/dev/tty46
+E: DEVPATH=/devices/virtual/tty/tty46
+E: MAJOR=4
+E: MINOR=46
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6346973
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty47
+N: tty47
+E: DEVNAME=/dev/tty47
+E: DEVPATH=/devices/virtual/tty/tty47
+E: MAJOR=4
+E: MINOR=47
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6347912
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty48
+N: tty48
+E: DEVNAME=/dev/tty48
+E: DEVPATH=/devices/virtual/tty/tty48
+E: MAJOR=4
+E: MINOR=48
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6347966
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty49
+N: tty49
+E: DEVNAME=/dev/tty49
+E: DEVPATH=/devices/virtual/tty/tty49
+E: MAJOR=4
+E: MINOR=49
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6349154
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty5
+N: tty5
+E: DEVNAME=/dev/tty5
+E: DEVPATH=/devices/virtual/tty/tty5
+E: MAJOR=4
+E: MINOR=5
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6349515
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty50
+N: tty50
+E: DEVNAME=/dev/tty50
+E: DEVPATH=/devices/virtual/tty/tty50
+E: MAJOR=4
+E: MINOR=50
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6350358
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty51
+N: tty51
+E: DEVNAME=/dev/tty51
+E: DEVPATH=/devices/virtual/tty/tty51
+E: MAJOR=4
+E: MINOR=51
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6350137
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty52
+N: tty52
+E: DEVNAME=/dev/tty52
+E: DEVPATH=/devices/virtual/tty/tty52
+E: MAJOR=4
+E: MINOR=52
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6351318
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty53
+N: tty53
+E: DEVNAME=/dev/tty53
+E: DEVPATH=/devices/virtual/tty/tty53
+E: MAJOR=4
+E: MINOR=53
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6351480
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty54
+N: tty54
+E: DEVNAME=/dev/tty54
+E: DEVPATH=/devices/virtual/tty/tty54
+E: MAJOR=4
+E: MINOR=54
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6351688
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty55
+N: tty55
+E: DEVNAME=/dev/tty55
+E: DEVPATH=/devices/virtual/tty/tty55
+E: MAJOR=4
+E: MINOR=55
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6352946
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty56
+N: tty56
+E: DEVNAME=/dev/tty56
+E: DEVPATH=/devices/virtual/tty/tty56
+E: MAJOR=4
+E: MINOR=56
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6352931
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty57
+N: tty57
+E: DEVNAME=/dev/tty57
+E: DEVPATH=/devices/virtual/tty/tty57
+E: MAJOR=4
+E: MINOR=57
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6354081
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty58
+N: tty58
+E: DEVNAME=/dev/tty58
+E: DEVPATH=/devices/virtual/tty/tty58
+E: MAJOR=4
+E: MINOR=58
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6354067
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty59
+N: tty59
+E: DEVNAME=/dev/tty59
+E: DEVPATH=/devices/virtual/tty/tty59
+E: MAJOR=4
+E: MINOR=59
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6355282
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty6
+N: tty6
+E: DEVNAME=/dev/tty6
+E: DEVPATH=/devices/virtual/tty/tty6
+E: MAJOR=4
+E: MINOR=6
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6355049
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty60
+N: tty60
+E: DEVNAME=/dev/tty60
+E: DEVPATH=/devices/virtual/tty/tty60
+E: MAJOR=4
+E: MINOR=60
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6355444
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty61
+N: tty61
+E: DEVNAME=/dev/tty61
+E: DEVPATH=/devices/virtual/tty/tty61
+E: MAJOR=4
+E: MINOR=61
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6356498
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty62
+N: tty62
+E: DEVNAME=/dev/tty62
+E: DEVPATH=/devices/virtual/tty/tty62
+E: MAJOR=4
+E: MINOR=62
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6356562
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty63
+N: tty63
+E: DEVNAME=/dev/tty63
+E: DEVPATH=/devices/virtual/tty/tty63
+E: MAJOR=4
+E: MINOR=63
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6357297
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty7
+N: tty7
+E: DEVNAME=/dev/tty7
+E: DEVPATH=/devices/virtual/tty/tty7
+E: MAJOR=4
+E: MINOR=7
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6357760
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty8
+N: tty8
+E: DEVNAME=/dev/tty8
+E: DEVPATH=/devices/virtual/tty/tty8
+E: MAJOR=4
+E: MINOR=8
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6358790
+E: net.ifnames=0
+
+P: /devices/virtual/tty/tty9
+N: tty9
+E: DEVNAME=/dev/tty9
+E: DEVPATH=/devices/virtual/tty/tty9
+E: MAJOR=4
+E: MINOR=9
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=6358806
+E: net.ifnames=0
+
+P: /devices/virtual/tty/ttyprintk
+N: ttyprintk
+E: DEVNAME=/dev/ttyprintk
+E: DEVPATH=/devices/virtual/tty/ttyprintk
+E: MAJOR=5
+E: MINOR=3
+E: SUBSYSTEM=tty
+E: TAGS=:systemd:
+E: USEC_INITIALIZED=6359383
+E: net.ifnames=0
+
+P: /devices/virtual/vc-mem/vc-mem
+N: vc-mem
+E: DEVNAME=/dev/vc-mem
+E: DEVPATH=/devices/virtual/vc-mem/vc-mem
+E: MAJOR=246
+E: MINOR=0
+E: SUBSYSTEM=vc-mem
+E: USEC_INITIALIZED=6359689
+E: net.ifnames=0
+
+P: /devices/virtual/vc-sm/vcsm
+N: vcsm
+E: DEVNAME=/dev/vcsm
+E: DEVPATH=/devices/virtual/vc-sm/vcsm
+E: MAJOR=241
+E: MINOR=0
+E: SUBSYSTEM=vc-sm
+E: USEC_INITIALIZED=6360279
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcs
+N: vcs
+E: DEVNAME=/dev/vcs
+E: DEVPATH=/devices/virtual/vc/vcs
+E: MAJOR=7
+E: MINOR=0
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=6361134
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcs1
+N: vcs1
+E: DEVNAME=/dev/vcs1
+E: DEVPATH=/devices/virtual/vc/vcs1
+E: MAJOR=7
+E: MINOR=1
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=6362284
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcs3
+N: vcs3
+E: DEVNAME=/dev/vcs3
+E: DEVPATH=/devices/virtual/vc/vcs3
+E: MAJOR=7
+E: MINOR=3
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19836507
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcs4
+N: vcs4
+E: DEVNAME=/dev/vcs4
+E: DEVPATH=/devices/virtual/vc/vcs4
+E: MAJOR=7
+E: MINOR=4
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19853124
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcs5
+N: vcs5
+E: DEVNAME=/dev/vcs5
+E: DEVPATH=/devices/virtual/vc/vcs5
+E: MAJOR=7
+E: MINOR=5
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19849824
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcs6
+N: vcs6
+E: DEVNAME=/dev/vcs6
+E: DEVPATH=/devices/virtual/vc/vcs6
+E: MAJOR=7
+E: MINOR=6
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19859436
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcsa
+N: vcsa
+E: DEVNAME=/dev/vcsa
+E: DEVPATH=/devices/virtual/vc/vcsa
+E: MAJOR=7
+E: MINOR=128
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=6362077
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcsa1
+N: vcsa1
+E: DEVNAME=/dev/vcsa1
+E: DEVPATH=/devices/virtual/vc/vcsa1
+E: MAJOR=7
+E: MINOR=129
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=6362436
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcsa3
+N: vcsa3
+E: DEVNAME=/dev/vcsa3
+E: DEVPATH=/devices/virtual/vc/vcsa3
+E: MAJOR=7
+E: MINOR=131
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19852961
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcsa4
+N: vcsa4
+E: DEVNAME=/dev/vcsa4
+E: DEVPATH=/devices/virtual/vc/vcsa4
+E: MAJOR=7
+E: MINOR=132
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19856654
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcsa5
+N: vcsa5
+E: DEVNAME=/dev/vcsa5
+E: DEVPATH=/devices/virtual/vc/vcsa5
+E: MAJOR=7
+E: MINOR=133
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19864682
+E: net.ifnames=0
+
+P: /devices/virtual/vc/vcsa6
+N: vcsa6
+E: DEVNAME=/dev/vcsa6
+E: DEVPATH=/devices/virtual/vc/vcsa6
+E: MAJOR=7
+E: MINOR=134
+E: SUBSYSTEM=vc
+E: USEC_INITIALIZED=19863248
+E: net.ifnames=0
+
+P: /devices/virtual/vchiq/vchiq
+N: vchiq
+E: DEVNAME=/dev/vchiq
+E: DEVPATH=/devices/virtual/vchiq/vchiq
+E: MAJOR=240
+E: MINOR=0
+E: SUBSYSTEM=vchiq
+E: USEC_INITIALIZED=6364489
+E: net.ifnames=0
+
+P: /devices/virtual/video4linux/video0
+N: video0
+E: DEVNAME=/dev/video0
+E: DEVPATH=/devices/virtual/video4linux/video0
+E: ID_V4L_CAPABILITIES=:capture:video_overlay:
+E: ID_V4L_PRODUCT=mmal service 16.1
+E: ID_V4L_VERSION=2
+E: MAJOR=81
+E: MINOR=0
+E: SUBSYSTEM=video4linux
+E: TAGS=:seat:uaccess:
+E: USEC_INITIALIZED=13439180
+E: net.ifnames=0
+
+P: /devices/virtual/vtconsole/vtcon0
+E: DEVPATH=/devices/virtual/vtconsole/vtcon0
+E: SUBSYSTEM=vtconsole
+E: USEC_INITIALIZED=6363156
+E: net.ifnames=0
+
+P: /devices/virtual/vtconsole/vtcon1
+E: DEVPATH=/devices/virtual/vtconsole/vtcon1
+E: SUBSYSTEM=vtconsole
+E: USEC_INITIALIZED=6397607
+E: net.ifnames=0
+
+P: /devices/virtual/workqueue/writeback
+E: DEVPATH=/devices/virtual/workqueue/writeback
+E: SUBSYSTEM=workqueue
+E: USEC_INITIALIZED=6363485
+E: net.ifnames=0
+

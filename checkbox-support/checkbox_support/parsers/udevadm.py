@@ -547,6 +547,9 @@ class UdevadmDevice(object):
                 return "HIDRAW"
             if self._environment["SUBSYSTEM"] == "video4linux":
                 return "CAPTURE"
+            # special device for PiCamera
+            if self._environment["SUBSYSTEM"] == "vchiq":
+                return "MMAL"
 
         if ('RFKILL_TYPE' in self._environment and
                 'RFKILL_NAME' in self._environment):
@@ -1076,6 +1079,10 @@ class UdevadmParser(object):
 
         # Keep /dev/md* devices (Multiple Disks aka Software RAID)
         if '/dev/md' in device._environment.get('DEVNAME', ''):
+            return False
+
+        # Do not ignore PiCamera
+        if device.bus == "vchiq":
             return False
 
         # Ignore devices without bus information

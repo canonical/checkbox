@@ -27,9 +27,9 @@ from subprocess import check_output, CalledProcessError
 from checkbox_support.parsers.udevadm import UdevadmParser
 
 categories = ("ACCELEROMETER", "AUDIO", "BLUETOOTH", "CAPTURE", "CARDREADER",
-              "CDROM", "DISK", "KEYBOARD", "INFINIBAND", "MOUSE", "NETWORK",
-              "OTHER", "PARTITION", "TOUCHPAD", "TOUCHSCREEN", "USB", "VIDEO",
-              "WIRELESS", "WWAN")
+              "CDROM", "DISK", "KEYBOARD", "INFINIBAND", "MMAL", "MOUSE",
+              "NETWORK", "OTHER", "PARTITION", "TOUCHPAD", "TOUCHSCREEN",
+              "USB", "VIDEO", "WIRELESS", "WWAN")
 
 attributes = ("path", "name", "bus", "category", "driver", "product_id",
               "vendor_id", "subproduct_id", "subvendor_id", "product",
@@ -89,7 +89,8 @@ class UdevResultLister:
             pid = device.product_id if device.product_id else 0
             if not p:
                 p = getattr(device, "interface", "Unknow product")
-            self._data[c].append("{} {} [{:04x}:{:04x}]".format(v, p, vid, pid))
+            self._data[c].append(
+                "{} {} [{:04x}:{:04x}]".format(v, p, vid, pid))
 
 
 def main():

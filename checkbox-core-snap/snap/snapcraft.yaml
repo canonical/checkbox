@@ -291,6 +291,23 @@ parts:
     plugin: python
     python-packages:
       - RPi.GPIO
+      - picamera
+    build-environment:
+      - READTHEDOCS: 'True'
+  rpi-ppa:
+    plugin: nil
+    override-pull: |
+      sudo add-apt-repository ppa:ubuntu-raspi2/ppa
+      sudo apt-get update
+    build-packages:
+      - software-properties-common
+  rpi-support-binaries:
+    after: [rpi-ppa]
+    plugin: nil
+    stage-packages:
+      - try: [libraspberrypi0] # optional as only available on arm
+    organize:
+      usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
 ################################################################################
   lk-boot-env:
     plugin: nil

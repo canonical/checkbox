@@ -60,3 +60,29 @@ include:
  after-suspend-manual-camera/display_.*            certification-status=blocker
 bootstrap_include:
  device
+
+id: camera-full
+unit: test plan
+_name: Camera tests
+_description: Camera tests for Ubuntu Core devices
+include:
+nested_part:
+    camera-automated
+    camera-manual
+
+id: camera-manual
+unit: test plan
+_name: Manual camera tests
+_description: Manual camera tests for Ubuntu Core devices
+include:
+
+id: camera-automated
+unit: test plan
+_name: Automated camera tests
+_description: Automated camera tests for Ubuntu Core devices
+estimated_duration: 1h30m
+include:
+    camera/multiple-resolution-images-_.*
+    camera/multiple-resolution-images-rpi_.*
+bootstrap_include:
+    device

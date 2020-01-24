@@ -5,4 +5,4 @@ estimated_duration: 300
 requires:
     package.name == 'cuda'
 _summary: GPGPU stress testing
-command: cd /opt/gpu-burn/ && ./gpu_burn 1800 | grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"
+command: cd /opt/gpu-burn/ && ./gpu_burn 14400 | grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"

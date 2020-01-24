@@ -463,7 +463,11 @@ command: network_configs
 id: parts_meta_info_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: cat $SNAP/parts_meta_info $SNAP/checkbox-runtime/parts_meta_info || echo "no parts meta info available" 
+command:
+  # some top-level snaps don't bother with parts
+  cat $SNAP/parts_meta_info || true
+  # should always have parts info from content snap
+  cat $CHECKBOX_RUNTIME/parts_meta_info
 environ: SNAP
 estimated_duration: 0.02
 _summary: Attaches an information about all parts that constituted this snap

@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2020 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #    Authors: Gavin Lin <gavin.lin@canonical.com>
 #             Sylvain Pineau <sylvain.pineau@canonical.com>
+#             Jonathan Cave <jonathan.cave@canonical.com>
 
 """
-This script will check number of detected I2C buses or devices 
+This script will check number of detected I2C buses or devices
 
-To see how to use, please run "./i2c_driver_test"
+To see how to use, please run "./i2c_driver_test.py"
 """
 
+import argparse
 import os
 import subprocess
 
-from guacamole import Command
 
-
-class Bus(Command):
+class Bus():
 
     """Detect I2C bus."""
 
-    def invoked(self, ctx):
+    def invoked(self, args):
         """Method called when the command is invoked."""
         # Detect I2C buses and calculate number of them
         result = subprocess.check_output(['i2cdetect', '-l'],
@@ -37,25 +37,19 @@ class Bus(Command):
 
         # Verify if detected number of buses is as expected
         else:
-            if ctx.args.bus != 0:
-                if bus_number == ctx.args.bus:
+            if args.bus != 0:
+                if bus_number == args.bus:
                     print('Test passed')
                 else:
                     raise SystemExit('Test failed, expecting {} I2C '
-                                     'buses.'.format(ctx.args.bus))
-
-    def register_arguments(self, parser):
-        """Register command line arguments for the bus sub-command."""
-        parser.add_argument(
-            '-b', '--bus', type=int, help='Expected number of I2C bus.',
-            default=0)
+                                     'buses.'.format(args.bus))
 
 
-class Device(Command):
+class Device():
 
     """Detect I2C device."""
 
-    def invoked(self, ctx):
+    def invoked(self, args):
         # Make sure that we have root privileges
         if os.geteuid() != 0:
             raise SystemExit('Error: please run this command as root')
@@ -78,30 +72,29 @@ class Device(Command):
             for l in result_line:
                 address_value = l.strip('\n').split(':')[1].split()
                 for v in address_value:
-                    if v != '--': exit_code = 0
+                    if v != '--':
+                        exit_code = 0
         if exit_code == 1:
             raise SystemExit('No I2C device detected on any I2C bus')
-        else:
-            print('I2C device detected')
-        return exit_code
+        print('I2C device detected')
 
 
-class I2cDriverTest(Command):
+class I2cDriverTest():
 
     """I2C driver test."""
 
-    sub_commands = (
-        ('bus', Bus),
-        ('device', Device)
-    )
-
-    def invoked(self, ctx):
-        """Method called when the command is invoked."""
-        if not ctx.early_args.rest:
-            ctx.parser.print_help()
-            return 1
+    def main(self):
+        subcommands = {
+            'bus': Bus,
+            'device': Device
+        }
+        parser = argparse.ArgumentParser()
+        parser.add_argument('subcommand', type=str, choices=subcommands)
+        parser.add_argument('-b', '--bus', type=int, default=0,
+                            help='Expected number of I2C bus.')
+        args = parser.parse_args()
+        subcommands[args.subcommand]().invoked(args)
 
 
 if __name__ == '__main__':
     I2cDriverTest().main()
-

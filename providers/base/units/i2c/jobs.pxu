@@ -16,9 +16,9 @@ _steps:
     detected there's at least one i2c bus.
 command:
  if [ -z ${I2C_BUS_NUMBER+x} ]; then
-     i2c_driver_test bus
+     i2c_driver_test.py bus
  else
-     i2c_driver_test bus -b $I2C_BUS_NUMBER
+     i2c_driver_test.py bus -b $I2C_BUS_NUMBER
  fi
 user: root
 plugin: shell
@@ -37,7 +37,7 @@ _steps:
  1. This task is fully automatic, test will pass if there's at least one
     i2c device detected on any I2C bus.
 command:
- i2c_driver_test device
+ i2c_driver_test.py device
 user: root
 plugin: shell
 category_id: i2c

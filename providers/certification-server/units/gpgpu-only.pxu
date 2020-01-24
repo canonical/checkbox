@@ -1,0 +1,15 @@
+id: gpgpu-only
+unit: test plan
+_name: GPGPU Compute Testing
+_description:
+ Tests for GPGPU Computations (non-graphical)
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
+    com.canonical.certification::gpgpu-tests
+include:
+bootstrap_include:
+    device
+    fwts
+

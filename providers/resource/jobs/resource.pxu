@@ -53,7 +53,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: usbutils
 
-# This is for snapd_resource
+# This is for snapd_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: python3-requests-unixsocket
@@ -374,7 +374,7 @@ estimated_duration: 1.1
 plugin: resource
 command:
     unset PYTHONUSERBASE
-    snapd_resource snaps
+    snapd_resource.py snaps
 _description: Generates a list of snap packages
 _summary: Collect information about installed snap packages
 
@@ -383,7 +383,7 @@ estimated_duration: 1.1
 plugin: resource
 command:
     unset PYTHONUSERBASE
-    snapd_resource interfaces endpoints
+    snapd_resource.py interfaces endpoints
 _description: Generates a list of interface declarations on the device
 _summary: Collect information about interfaces
 
@@ -392,7 +392,7 @@ estimated_duration: 1.1
 plugin: resource
 command:
     unset PYTHONUSERBASE
-    snapd_resource interfaces connections
+    snapd_resource.py interfaces connections
 _description: Generates a list of plug and slot connections on the device
 _summary: Collect information about connections
 
@@ -403,7 +403,7 @@ _description:
 plugin: resource
 estimated_duration: 2.0
 command:
-  snapd_resource assertions model
+  snapd_resource.py assertions model
 
 id: serial_assertion
 _summary: Collect serial assertions on the device
@@ -412,7 +412,7 @@ _description:
 plugin: resource
 estimated_duration: 2.0
 command:
-  snapd_resource assertions serial
+  snapd_resource.py assertions serial
 
 id: serial_ports_static
 _summary: Generates a serial port resource based on user supplied configuration
@@ -437,7 +437,7 @@ _description:
 plugin: resource
 estimated_duration: 1.0
 command:
-  snapd_resource features
+  snapd_resource.py features
 
 id: net_if_management
 _summary: Identify what service is managing each physical network interface

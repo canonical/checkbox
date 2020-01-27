@@ -5,11 +5,12 @@
 # Written by:
 #    Authors: Jonathan Cave <jonathan.cave@canonical.com>
 
+import argparse
 import io
 import os
 import string
+import sys
 
-from guacamole import Command
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.system import get_kernel_snap
 
@@ -47,9 +48,9 @@ def http_to_resource(assertion_stream):
     return count
 
 
-class ModelAssertion(Command):
+class ModelAssertion():
 
-    def invoked(self, ctx):
+    def invoked(self):
         count = http_to_resource(Snapd().get_assertions('model'))
         if count == 0:
             # Print a dummy assertion - not nice but really trick to use
@@ -60,9 +61,9 @@ class ModelAssertion(Command):
             print()
 
 
-class SerialAssertion(Command):
+class SerialAssertion():
 
-    def invoked(self, ctx):
+    def invoked(self):
         count = http_to_resource(Snapd().get_assertions('serial'))
         if count == 0:
             # Print a dummy assertion - not nice but really trick to use
@@ -73,17 +74,23 @@ class SerialAssertion(Command):
             print()
 
 
-class Assertions(Command):
+class Assertions():
 
-    sub_commands = (
-        ('model', ModelAssertion),
-        ('serial', SerialAssertion),
-    )
+    def invoked(self):
+        actions = {
+            'model': ModelAssertion,
+            'serial': SerialAssertion,
+        }
+        parser = argparse.ArgumentParser()
+        parser.add_argument('action', type=str, help="The action to test",
+                            choices=actions)
+        args = parser.parse_args(sys.argv[2:3])
+        actions[args.action]().invoked()
 
 
-class Snaps(Command):
+class Snaps():
 
-    def invoked(self, ctx):
+    def invoked(self):
         data = Snapd().list()
         for snap in data:
             def print_field(key):
@@ -102,9 +109,9 @@ class Snaps(Command):
             print()
 
 
-class Endpoints(Command):
+class Endpoints():
 
-    def invoked(self, ctx):
+    def invoked(self):
         data = Snapd().interfaces()
 
         if 'plugs' in data:
@@ -158,26 +165,32 @@ def get_connections():
     return connections
 
 
-class Connections(Command):
+class Connections():
 
-    def invoked(self, ctx):
+    def invoked(self):
         for conn in get_connections():
             print('slot: {}:{}'.format(conn.target_snap, conn.target_slot))
             print('plug: {}:{}'.format(conn.plug_snap, conn.plug_plug))
             print()
 
 
-class Interfaces(Command):
+class Interfaces():
 
-    sub_commands = (
-        ('endpoints', Endpoints),
-        ('connections', Connections),
-    )
+    def invoked(self):
+        actions = {
+            'endpoints': Endpoints,
+            'connections': Connections
+        }
+        parser = argparse.ArgumentParser()
+        parser.add_argument('action', type=str, help="The action to test",
+                            choices=actions)
+        args = parser.parse_args(sys.argv[2:3])
+        actions[args.action]().invoked()
 
 
-class Features(Command):
+class Features():
 
-    def invoked(self, ctx):
+    def invoked(self):
         self._detect_kernel_extraction()
         print()
 
@@ -193,17 +206,24 @@ class Features(Command):
         if snap is not None:
             feature_f = '/snap/{}/current/meta/force-kernel-extraction'.format(
                 snap)
-            print('force_kernel_extraction: {}'.format(os.path.exists(feature_f)))
+            print('force_kernel_extraction: {}'.format(
+                os.path.exists(feature_f)))
 
 
-class SnapdResource(Command):
+class SnapdResource():
 
-    sub_commands = (
-        ('assertions', Assertions),
-        ('snaps', Snaps),
-        ('interfaces', Interfaces),
-        ('features', Features)
-    )
+    def main(self):
+        actions = {
+            'assertions': Assertions,
+            'snaps': Snaps,
+            'interfaces': Interfaces,
+            'features': Features
+        }
+        parser = argparse.ArgumentParser()
+        parser.add_argument('action', type=str, help="The action to test",
+                            choices=actions)
+        args = parser.parse_args(sys.argv[1:2])
+        actions[args.action]().invoked()
 
 
 if __name__ == '__main__':

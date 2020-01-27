@@ -36,7 +36,7 @@ PLAINBOX_SESSION_SHARE = os.environ.get('PLAINBOX_SESSION_SHARE', '')
 FOLDER_TO_MOUNT = tempfile.mkdtemp()
 REPETITION_NUM = 5  # number to repeat the read/write test units.
 # Prepare a random file which size is RANDOM_FILE_SIZE.
-RANDOM_FILE_SIZE = 104857600 # 100 MiB
+RANDOM_FILE_SIZE = 104857600  # 100 MiB
 mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
 mem_mib = mem_bytes/(1024.**2)
 # On systems with less than 1 GiB of RAM, only generate a 20 MiB file
@@ -257,6 +257,8 @@ def write_test_unit(random_file, idx=""):
     :param random_file: a RandomData object created to be written
     :return: a float in MB/s to denote writing speed
     """
+    # Clear dmesg so we can check for I/O errors later
+    subprocess.check_output(['dmesg', '-C'])
     target_file = os.path.join(
         FOLDER_TO_MOUNT, os.path.basename(random_file.tfile.name)) + idx
     process = subprocess.Popen([
@@ -271,7 +273,6 @@ def write_test_unit(random_file, idx=""):
     logging.debug(list_dd_message)
     try:
         dd_speed = float(list_dd_message[2].split(" ")[-2])
-        print("PASS: WRITING TEST: %s" % target_file)
     except:
         # Example:
         # ['dd: writing to ‘/tmp/tmp08osy45j/tmpnek46on30’: Input/output error'
@@ -279,6 +280,15 @@ def write_test_unit(random_file, idx=""):
         # (20 MB) copied, 99.647 s, 200 kB/s', '']
         print("ERROR: {}".format(list_dd_message))
         sys.exit(1)
+    dmesg = subprocess.run(['dmesg'], stdout=subprocess.PIPE)
+    # lp:1852510 - check there weren't any i/o errors sent to dmesg when the
+    # test files were sync'ed to the disk
+    if 'I/O error' in dmesg.stdout.decode():
+        print("ERROR: I/O errors found in dmesg")
+        sys.exit(1)
+    else:
+        logging.debug('No I/O errors found in dmesg')
+    print("PASS: WRITING TEST: %s" % target_file)
     return dd_speed
 
 

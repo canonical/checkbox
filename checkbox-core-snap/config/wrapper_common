@@ -32,3 +32,7 @@ else
   append_path PYTHONPATH $RUNTIME/usr/lib/python3/dist-packages
   append_path PYTHONPATH $RUNTIME/lib/python3*/site-packages
 fi
+
+# make sure we always know where the content snap is especially for classic
+# checkbox snaps where the checkbox-runtime bind mount does not exist
+export CHECKBOX_RUNTIME=$RUNTIME

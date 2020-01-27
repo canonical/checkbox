@@ -42,6 +42,10 @@ else
   append_path PYTHONPATH $RUNTIME/lib/python3*/site-packages
 fi
 
+# make sure we always know where the content snap is especially for classic
+# checkbox snaps where the checkbox-runtime bind mount does not exist
+export CHECKBOX_RUNTIME=$RUNTIME
+
 # Use a modules directory which doesn't exist so we don't load random things
 # which may then get deleted (or their dependencies) and potentially segfault
 export GIO_MODULE_DIR=$SNAP/gio/modules-dummy

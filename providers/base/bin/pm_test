@@ -256,8 +256,12 @@ class PowerManagementOperation():
             fwts_log_path = os.path.join(self.args.log_dir, 'fwts.log')
             try:
                 with open(fwts_log_path, 'rt') as f:
-                    magic_line = 'Completed S3 cycle(s) \n'
-                    count = f.readlines().count(magic_line)
+                    magic_line_s3 = 'Completed S3 cycle(s) \n'
+                    magic_line_s2idle = 'Completed s2idle cycle(s) \n'
+                    lines = f.readlines()
+                    count_s3 = lines.count(magic_line_s3)
+                    count_s2idle = lines.count(magic_line_s2idle)
+                    count = count_s3 + count_s2idle
                     if count != total_suspends_expected:
                         problems = (
                             "Found {} occurrences of '{}'. Expected {}".format(

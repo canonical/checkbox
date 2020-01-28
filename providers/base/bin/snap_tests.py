@@ -5,9 +5,10 @@
 # Written by:
 #    Authors: Jonathan Cave <jonathan.cave@canonical.com>
 
+import argparse
 import os
+import sys
 
-from guacamole import Command
 from checkbox_support.snap_utils.snapd import Snapd
 
 # Requirements for the test snap:
@@ -19,11 +20,11 @@ SNAPD_TASK_TIMEOUT = int(os.getenv('SNAPD_TASK_TIMEOUT', 30))
 SNAPD_POLL_INTERVAL = int(os.getenv('SNAPD_POLL_INTERVAL', 1))
 
 
-class SnapList(Command):
+class SnapList():
 
     """snap list sub-command."""
 
-    def invoked(self, ctx):
+    def invoked(self):
         """snap list should show the core package is installed."""
         data = Snapd().list()
         for snap in data:
@@ -34,11 +35,11 @@ class SnapList(Command):
         return 1
 
 
-class SnapSearch(Command):
+class SnapSearch():
 
     """snap search sub-command."""
 
-    def invoked(self, ctx):
+    def invoked(self):
         """snap search for TEST_SNAP."""
         data = Snapd().find(TEST_SNAP,)
         for snap in data:
@@ -49,19 +50,18 @@ class SnapSearch(Command):
         return 1
 
 
-class SnapInstall(Command):
+class SnapInstall():
 
     """snap install sub-command."""
 
-    def register_arguments(self, parser):
-        """Setup command arguments."""
-        parser.add_argument('channel', help='channel to install from')
-
-    def invoked(self, ctx):
+    def invoked(self):
         """Test install of test-snapd-tools snap."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument('channel', help='channel to install from')
+        args = parser.parse_args(sys.argv[2:])
         print('Install {}...'.format(TEST_SNAP))
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
-        s.install(TEST_SNAP, ctx.args.channel)
+        s.install(TEST_SNAP, args.channel)
         print('Confirm in snap list...')
         data = s.list()
         for snap in data:
@@ -71,11 +71,11 @@ class SnapInstall(Command):
         return 1
 
 
-class SnapRefresh(Command):
+class SnapRefresh():
 
     """snap refresh sub-command."""
 
-    def invoked(self, ctx):
+    def invoked(self):
         """Test refresh of test-snapd-tools snap."""
         def get_rev():
             data = Snapd().list()
@@ -96,11 +96,11 @@ class SnapRefresh(Command):
         return 0
 
 
-class SnapRevert(Command):
+class SnapRevert():
 
     """snap revert sub-command."""
 
-    def invoked(self, ctx):
+    def invoked(self):
         """Test revert of test-snapd-tools snap."""
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
         print('Get stable channel revision from store...')
@@ -123,11 +123,11 @@ class SnapRevert(Command):
         return 0
 
 
-class SnapReupdate(Command):
+class SnapReupdate():
 
     """snap reupdate sub-command."""
 
-    def invoked(self, ctx):
+    def invoked(self):
         """Test re-update of test-snapd-tools snap."""
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
         print('Get edge channel revision from store...')
@@ -145,11 +145,11 @@ class SnapReupdate(Command):
             return 1
 
 
-class SnapRemove(Command):
+class SnapRemove():
 
     """snap remove sub-command."""
 
-    def invoked(self, ctx):
+    def invoked(self):
         """Test remove of test-snapd-tools snap."""
         print('Install {}...'.format(TEST_SNAP))
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
@@ -163,19 +163,24 @@ class SnapRemove(Command):
         return 0
 
 
-class Snap(Command):
+class Snap():
 
     """Fake snap like command."""
 
-    sub_commands = (
-        ('list', SnapList),
-        ('search', SnapSearch),
-        ('install', SnapInstall),
-        ('refresh', SnapRefresh),
-        ('revert', SnapRevert),
-        ('reupdate', SnapReupdate),
-        ('remove', SnapRemove)
-    )
+    def main(self):
+        sub_commands = {
+            'list': SnapList,
+            'search': SnapSearch,
+            'install': SnapInstall,
+            'refresh': SnapRefresh,
+            'revert': SnapRevert,
+            'reupdate': SnapReupdate,
+            'remove': SnapRemove
+        }
+        parser = argparse.ArgumentParser()
+        parser.add_argument('subcommand', type=str, choices=sub_commands)
+        args = parser.parse_args(sys.argv[1:2])
+        sub_commands[args.subcommand]().invoked()
 
 
 if __name__ == '__main__':

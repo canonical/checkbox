@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2019 Canonical Ltd.
+# Copyright 2019-2020 Canonical Ltd.
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
 #
@@ -18,12 +18,16 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import tempfile
 import unittest
 
 from checkbox_support.parsers.netplan import Netplan
 from checkbox_support.parsers.udevadm import UdevadmParser, UdevResult
 
 import net_if_management
+
+# create a session dir for logging to be written to
+os.environ['PLAINBOX_SESSION_SHARE'] = tempfile.mkdtemp(prefix='cbox-test')
 
 
 class NetIfMngrTest():

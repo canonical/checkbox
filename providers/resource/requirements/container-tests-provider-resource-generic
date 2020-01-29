@@ -9,4 +9,9 @@ git clone git://git.launchpad.net/checkbox-ng $TMPDIR/checkbox-ng
 echo "I: running 'develop' on checkbox-ng"
 ( cd $TMPDIR/checkbox-ng/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
 
+git clone git://git.launchpad.net/checkbox-support $TMPDIR/checkbox-support
+echo "I: running 'develop' on checkbox-support"
+( cd $TMPDIR/checkbox-support/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
+
 ./manage.py validate
+./manage.py test

@@ -150,6 +150,18 @@ command: boot_mode_test secureboot
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
+id: miscellanea/reboot_firmware
+requires:
+ cpuinfo.platform in ("i386", "x86_64", "aarch64")
+depends: miscellanea/efi_boot_mode
+_summary: Test that system supports booting into firmware setup utility
+_description:
+ Test that the system supports rebooting into the firmware setup utility.
+command: boot_mode_test reboot_firmware
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
 unit: template
 template-resource: model_assertion
 template-unit: job

@@ -6,7 +6,7 @@ launcher_version = 1
 stock_reports = submission_files, certification
 
 [test plan]
-unit = com.canonical.certification::gpgpu-tests
+unit = com.canonical.certification::gpgpu-only
 forced = yes
 
 [test selection]

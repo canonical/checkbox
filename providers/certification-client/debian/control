@@ -8,13 +8,7 @@ Build-Depends: checkbox-ng,
                debhelper (>= 9.2),
                intltool,
                plainbox-provider-resource-generic (>= 0.25~),
-               python,
-               python-distutils-extra,
-               python-docutils,
-               python-setuptools,
                python3-all (>= 3.2),
-               python3-distutils-extra,
-               python3-pkg-resources,
                python3-setuptools
 
 Package: plainbox-provider-certification-client

@@ -87,7 +87,7 @@ CPUIDS = {
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
         "Ice Lake":         ['0x706e'],
         "Ivy Bridge":       ['0x306a', '0x306e'],
-        "Kaby Lake":        ['0x806e9', '0x906e9'],
+        "Kaby Lake":        ['0x806e9', '0x906e9', '0x906ed'],
         "Knights Landing":  ['0x5067'],
         "Knights Mill":     ['0x8065'],
         "Nehalem":          ['0x106a', '0x106e5', '0x206e'],

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2020 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
 #   Po-Hsu Lin <po-hsu.lin@canonical.com>
 
+import argparse
 import logging
 import os
 import subprocess
@@ -13,7 +14,6 @@ import sys
 import time
 
 import dbus
-from guacamole import Command
 
 
 TEST_IP = "8.8.8.8"
@@ -258,9 +258,10 @@ def _ping_test(if_name):
     return ret_code
 
 
-class ThreeGppConnection(Command):
+class ThreeGppConnection():
 
-    def register_arguments(self, parser):
+    def invoked(self, ctx):
+        parser = argparse.ArgumentParser()
         parser.add_argument('wwan_control_if',  type=str,
                             help='The control interface for the device')
         parser.add_argument('wwan_net_if', type=str,
@@ -269,14 +270,13 @@ class ThreeGppConnection(Command):
                             help='The APN for data connection')
         parser.add_argument('wwan_setup_time', type=int, default=30,
                             help='delay before ping test')
-
-    def invoked(self, ctx):
+        args = parser.parse_args(sys.argv[2:])
         ret_code = 1
         try:
-            _create_3gpp_connection(ctx.args.wwan_control_if, ctx.args.apn)
+            _create_3gpp_connection(ctx.args.wwan_control_if, args.apn)
             _wwan_radio_on()
-            time.sleep(ctx.args.wwan_setup_time)
-            ret_code = _ping_test(ctx.args.wwan_net_if)
+            time.sleep(args.wwan_setup_time)
+            ret_code = _ping_test(args.wwan_net_if)
         except:
             pass
         _destroy_3gpp_connection()
@@ -284,20 +284,28 @@ class ThreeGppConnection(Command):
         return ret_code
 
 
-class CountModems(Command):
+class CountModems():
 
-    def invoked(self, ctx):
-        if ctx.args.use_cli:
+    def invoked(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--use-cli', action='store_true',
+                            help="Use mmcli for all calls rather than dbus")
+        args = parser.parse_args(sys.argv[2:])
+        if args.use_cli:
             mm = MMCLI()
         else:
             mm = MMDbus()
         print(len(mm.get_modem_ids()))
 
 
-class Resources(Command):
+class Resources():
 
-    def invoked(self, ctx):
-        if ctx.args.use_cli:
+    def invoked(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--use-cli', action='store_true',
+                            help="Use mmcli for all calls rather than dbus")
+        args = parser.parse_args(sys.argv[2:])
+        if args.use_cli:
             mm = MMCLI()
         else:
             mm = MMDbus()
@@ -332,55 +340,60 @@ class Resources(Command):
             print()
 
 
-class SimPresent(Command):
+class SimPresent():
 
-    def register_arguments(self, parser):
+    def invoked(self):
+        parser = argparse.ArgumentParser()
         parser.add_argument('hw_id',  type=str,
                             help='The hardware ID of the modem whose attached'
                             'SIM we want to query')
-
-    def invoked(self, ctx):
-        if ctx.args.use_cli:
+        parser.add_argument('--use-cli', action='store_true',
+                            help="Use mmcli for all calls rather than dbus")
+        args = parser.parse_args(sys.argv[2:])
+        if args.use_cli:
             mm = MMCLI()
         else:
             mm = MMDbus()
-        mm_id = mm.equipment_id_to_mm_id(ctx.args.hw_id)
+        mm_id = mm.equipment_id_to_mm_id(args.hw_id)
         if not mm.sim_present(mm_id):
             return 1
 
 
-class SimInfo(Command):
+class SimInfo():
 
-    def register_arguments(self, parser):
+    def invoked(self):
+        parser = argparse.ArgumentParser()
         parser.add_argument('hw_id',  type=str,
                             help='The hardware ID of the modem whose attached'
                             'SIM we want to query')
-
-    def invoked(self, ctx):
-        if ctx.args.use_cli:
+        parser.add_argument('--use-cli', action='store_true',
+                            help="Use mmcli for all calls rather than dbus")
+        args = parser.parse_args(sys.argv[2:])
+        if args.use_cli:
             mm = MMCLI()
         else:
             mm = MMDbus()
-        mm_id = mm.equipment_id_to_mm_id(ctx.args.hw_id)
+        mm_id = mm.equipment_id_to_mm_id(args.hw_id)
         print("Operator: {}".format(mm.get_sim_operatorname(mm_id)))
         print("IMSI: {}".format(mm.get_sim_imsi(mm_id)))
         print("MCC/MNC: {}".format(mm.get_sim_operatoridentifier(mm_id)))
         print("ICCID: {}".format(mm.get_sim_simidentifier(mm_id)))
 
 
-class WWANTests(Command):
+class WWANTests():
 
-    sub_commands = (
-        ('count', CountModems),
-        ('resources', Resources),
-        ('3gpp-connection', ThreeGppConnection),
-        ('sim-present', SimPresent),
-        ('sim-info', SimInfo)
-    )
-
-    def register_arguments(self, parser):
-        parser.add_argument('--use-cli', action='store_true',
-                            help="Use mmcli for all calls rather than dbus")
+    def main(self):
+        sub_commands = {
+            'count': CountModems,
+            'resources': Resources,
+            '3gpp-connection': ThreeGppConnection,
+            'sim-present': SimPresent,
+            'sim-info': SimInfo
+        }
+        parser = argparse.ArgumentParser()
+        parser.add_argument('subcommand', type=str, choices=sub_commands)
+        args = parser.parse_args(sys.argv[1:2])
+        sub_commands[args.subcommand]().invoked()
 
 
 if __name__ == "__main__":

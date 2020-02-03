@@ -19,6 +19,7 @@
 This module contains implementation of the master end of the remote execution
 functionality.
 """
+import contextlib
 import getpass
 import gettext
 import ipaddress
@@ -166,6 +167,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         config['allow_all_attrs'] = True
         config['sync_request_timeout'] = 120
         keep_running = False
+        server_msg = None
         self._prepare_transports()
         interrupted = False
         while True:
@@ -181,6 +183,18 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         break
                 conn = rpyc.connect(host, port, config=config)
                 keep_running = True
+                def quitter(msg):
+                    # this will be called when the slave decides to disconnect
+                    # this master
+                    nonlocal server_msg
+                    nonlocal keep_running
+                    keep_running = False
+                    server_msg = msg
+                with contextlib.suppress(AttributeError):
+                    # TODO: REMOTE_API
+                    # when bumping the remote api make this bit obligatory
+                    # i.e. remove the suppressing
+                    conn.root.register_master_blaster(quitter)
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
                 if not self._sudo_provider:
@@ -213,9 +227,23 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         self.resume_interacting, interaction=payload),
                 }[state]()
             except EOFError as exc:
-                print("Connection lost!")
-                _logger.info("master: Connection lost due to: %s", exc)
-                time.sleep(1)
+                if keep_running:
+                    print("Connection lost!")
+                    # this is yucky but it works, in case of explicit
+                    # connection closing by the slave we get this msg
+                    _logger.info("master: Connection lost due to: %s", exc)
+                    if str(exc) == 'stream has been closed':
+                        print('Slave explicitly disconnected you. Possible '
+                              'reason: new master connected to the slave')
+                        break
+                    print(exc)
+                    time.sleep(1)
+                else:
+                    # if keep_running got set to False it means that the
+                    # network interruption was planned, AKA slave disconnected
+                    # this master
+                    print(server_msg)
+                    break
             except (ConnectionRefusedError, socket.timeout, OSError) as exc:
                 _logger.info("master: Connection lost due to: %s", exc)
                 if not keep_running:

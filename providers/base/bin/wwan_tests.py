@@ -56,7 +56,8 @@ class MMDbus():
             if (excp.get_dbus_name() ==
                     "org.freedesktop.DBus.Error.ServiceUnknown"):
                 logging.error(excp.get_dbus_message())
-                logging.error("Note: wwan_tests requires ModemManager >=1.0")
+                logging.error(
+                    "Note: wwan_tests.py requires ModemManager >=1.0")
             else:
                 logging.error(excp.get_dbus_message())
             return

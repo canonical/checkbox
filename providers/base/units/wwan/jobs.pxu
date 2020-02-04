@@ -15,7 +15,7 @@ _purpose:
 plugin: shell
 user: root
 command:
-  COUNT=$(wwan_tests count)
+  COUNT=$(wwan_tests.py count)
   if [ $COUNT -eq 0 ]; then
     exit 1
   fi
@@ -38,7 +38,7 @@ _description:
 plugin: shell
 command:
   BEGIN_CONNECTION_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
-  wwan_tests 3gpp-connection $WWAN_CONTROL_IF $WWAN_NET_IF $WWAN_APN ${{WWAN_SETUPTIME:-30}}
+  wwan_tests.py 3gpp-connection $WWAN_CONTROL_IF $WWAN_NET_IF $WWAN_APN ${{WWAN_SETUPTIME:-30}}
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then
     echo "==== Service units logs ===="
@@ -64,7 +64,7 @@ _summary:  Check if a SIM card is present in a slot connected to the modem
 _description:
  Check if a SIM card is present in a slot connected to the modem
 plugin: shell
-command: wwan_tests sim-present {hw_id}
+command: wwan_tests.py sim-present {hw_id}
 environ: LD_LIBRARY_PATH
 user: root
 estimated_duration: 10.0
@@ -90,7 +90,7 @@ _steps:
  1. Start the test to automatically retrieve information from the SIM card
 _verification:
  Check the output, if as expected then mark the test as passed.
-command: wwan_tests sim-info {hw_id}
+command: wwan_tests.py sim-info {hw_id}
 environ: LD_LIBRARY_PATH
 user: root
 estimated_duration: 5s

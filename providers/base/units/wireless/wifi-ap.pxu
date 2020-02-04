@@ -585,7 +585,6 @@ plugin: user-interact-verify
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
 command:
@@ -624,7 +623,6 @@ plugin: shell
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
 command:
@@ -673,7 +671,6 @@ plugin: user-interact-verify
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH $OPEN_BG_SSID
 command:
@@ -712,7 +709,6 @@ plugin: shell
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
 command:
@@ -761,7 +757,6 @@ plugin: user-interact-verify
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
 command:
@@ -800,7 +795,6 @@ plugin: shell
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
 command:
@@ -849,7 +843,6 @@ plugin: user-interact-verify
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
 command:
@@ -888,7 +881,6 @@ plugin: shell
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
-depends: wireless/wireless_connection_open_bg_nm_{interface}
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
 command:

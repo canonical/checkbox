@@ -22,10 +22,10 @@ command:
   if [ -n "$STRESS_NG_CPU_TIME" ]
   then
     echo "Found STRESS_NG_CPU_TIME env var, stress_ng cpu running time is now: $STRESS_NG_CPU_TIME seconds"
-    cpu_stress --runtime $STRESS_NG_CPU_TIME
+    stress_ng_test cpu --base-time $STRESS_NG_CPU_TIME
   else
     echo STRESS_NG_CPU_TIME env var is not found, stress_ng cpu running time is default value
-    cpu_stress --runtime 7200
+    stress_ng_test cpu --base-time 7200
   fi
 _summary:
  Stress of CPUs (very long runtime)

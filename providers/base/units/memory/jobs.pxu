@@ -46,7 +46,7 @@ estimated_duration: 11000.0
 user: root
 requires:
  package.name == 'stress-ng' or executable.name == 'stress-ng'
-command: memory_stress_ng
+command: stress_ng_test memory
 _summary: Stress test of system memory
 _description:
  Test to perform some basic stress and exercise of system memory via the

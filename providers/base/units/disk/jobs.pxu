@@ -94,10 +94,10 @@ command:
   if [ -n "$STRESS_NG_DISK_TIME" ]
   then
     echo "Found STRESS_NG_DISK_TIME env var, stress_ng disk running time is now: $STRESS_NG_DISK_TIME seconds"
-    disk_stress_ng {name} --base-time $STRESS_NG_DISK_TIME --really-run
+    stress_ng_test disk --device {name} --base-time $STRESS_NG_DISK_TIME
   else
     echo "STRESS_NG_DISK_TIME env var is not found, stress_ng disk running time is default value"
-    disk_stress_ng {name} --base-time 240 --really-run
+    stress_ng_test disk --device {name} --base-time 240
   fi
 
 unit: template

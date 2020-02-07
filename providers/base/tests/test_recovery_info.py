@@ -18,13 +18,9 @@
 
 import os
 import unittest
-# try:
 from unittest import mock
 from unittest.mock import patch
 import sys
-
-# except ImportError:
-#    from plainbox.vendor import mock
 
 import recovery_info
 

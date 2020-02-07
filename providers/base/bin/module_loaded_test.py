@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2020 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
@@ -10,31 +10,32 @@ Script to test if a module is loaded in the running kernel. If not the
 module will be loaded. This can be disabled using a flag.
 """
 
+import argparse
 import subprocess
 
-from guacamole import Command
 
-
-class ModuleLoadedTest(Command):
+class ModuleLoadedTest():
     """Check if a kernel module is loaded. If not load it."""
 
-    def register_arguments(self, parser):
+    def main(self):
+        parser = argparse.ArgumentParser()
         parser.add_argument("module", help="Specify the module to test for.")
-
         parser.add_argument("-n", "--no-load", action="store_true", help=(
             "Don't try and load the module just test."))
+        args = parser.parse_args()
 
-    def invoked(self, context):
-        if self.is_module_loaded(context.args.module):
+        if self.is_module_loaded(args.module):
             return
 
         # module not loaded
-        if context.args.no_load:
-            return 1
+        if args.no_load:
+            raise SystemExit("ERROR: module {} not loaded in running"
+                             " kernel".format(args.module))
 
         # attempt a load of the module
-        if not self.load_module(context.args.module):
-            return 1
+        if not self.load_module(args.module):
+            raise SystemExit(
+                "ERROR: attempt to load module {} failed".format(args.module))
 
     def is_module_loaded(self, module):
         with open('/proc/modules', 'r') as modules:

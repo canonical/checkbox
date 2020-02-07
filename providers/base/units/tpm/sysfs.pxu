@@ -11,8 +11,8 @@ plugin: resource
 _summary: Count the number of visible TPM chips in sysfs
 _description:
  This job just counts the number of visible TPM chips in as reported by
- tpm-sysfs-resource tool. The only resource attribute is 'count'
-command: echo "count: $(tpm-sysfs-resource | grep -F 'x-sysfs-device-name' | wc -l)"
+ tpm_sysfs_resource.py tool. The only resource attribute is 'count'
+command: echo "count: $(tpm_sysfs_resource.py | grep -F 'x-sysfs-device-name' | wc -l)"
 estimated_duration: 2s
 flags: preserve-locale
 
@@ -24,7 +24,7 @@ _summary: Collect TPM information from sysfs
 _description:
  This job collects all the available TPM information from
  /sys/class/tpm/*/device/*.
-command: tpm-sysfs-resource
+command: tpm_sysfs_resource.py
 estimated_duration: 2s
 flags: preserve-locale
 # Tie this resource with the has_tpm_chip manifest entry. This way it will
@@ -43,7 +43,7 @@ _description:
  This job collects all the available TPM information from
  /sys/class/tpm/*/device/*. Distinct files present there are converted to
  attributes of resource records.
-command: tpm-sysfs-resource
+command: tpm_sysfs_resource.py
 estimated_duration: 2s
 flags: preserve-locale
 # See note about manifest on the sysfs_tpm job above.
@@ -60,7 +60,7 @@ _description:
  This job collects all the available TPM information from
  /sys/class/tpm/*/device/*. Distinct files present there are converted to
  attributes of resource records.
-command: tpm-sysfs-resource
+command: tpm_sysfs_resource.py
 estimated_duration: 2s
 flags: preserve-locale
 # See note about manifest on the sysfs_tpm job above.

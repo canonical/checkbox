@@ -4,6 +4,7 @@
 # Written by:
 #   Shawn Wang <shawn.wang@canonical.com>
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Jonathan Cave <jonathan.cave@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -39,14 +40,9 @@ import logging
 import os
 import subprocess
 import sys
-import unittest
 
 from guacamole import Command
 
-try:
-    from unittest import mock
-except ImportError:
-    from plainbox.vendor import mock
 
 _logger = logging.getLogger(None)
 
@@ -158,99 +154,6 @@ def match_patterns(patterns):
     return matched
 
 
-class SystemInfoTests(unittest.TestCase):
-
-    """Tests for System Information Parsing and Collection."""
-
-    _proc_modules = """\
-xt_REDIRECT 16384 3 - Live 0x0000000000000000
-nf_nat_redirect 16384 1 xt_REDIRECT, Live 0x0000000000000000
-xt_hl 16384 3 - Live 0x0000000000000000
-hid_generic 16384 0 - Live 0x0000000000000000
-usbhid 53248 0 - Live 0x0000000000000000
-hid 110592 2 hid_generic,usbhid, Live 0x0000000000000000
-overlay 45056 1 - Live 0x0000000000000000
-"""
-    _modalias = """\
-usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
-"""
-
-    def setUp(self):
-        """Common setup code."""
-        get_system_module_list.cache_clear()
-        get_system_modaliases.cache_clear()
-
-    @mock.patch('io.open', mock.mock_open(read_data=_proc_modules))
-    def test_get_module_list__calls_and_parses_lsmod(self):
-        """Ensure that get_module_list() parses lsmod output."""
-        # NOTE: Return value was loaded from my system running kernel 4.0.
-        # The first few and last rows to be precise.
-        modules = get_system_module_list()
-        self.assertEqual(modules, [
-            'xt_REDIRECT', 'nf_nat_redirect', 'xt_hl', 'hid_generic',
-            'usbhid', 'hid', 'overlay'])
-
-    @mock.patch('io.open', mock.mock_open(read_data=_proc_modules))
-    def test_get_module_list_is_cached(self):
-        """Ensure that get_module_list() cache works."""
-        modules1 = get_system_module_list()
-        modules2 = get_system_module_list()
-        self.assertIn('xt_REDIRECT', modules1)
-        self.assertIn('overlay', modules2)
-        self.assertEqual(modules1, modules2)
-
-    @mock.patch('os.walk')
-    @mock.patch('io.open', mock.mock_open(read_data=_modalias))
-    def test_get_system_modalias(self, mock_os_walk):
-        """test_get_system_modalias."""
-        mock_os_walk.return_value = [
-            ("/sys/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0/modalias",
-             ["driver", "subsystem"],
-             ["modalias", "uevent"]),
-        ]
-
-        """fetch hw_modaliases from machine and check modalis types."""
-        modaliases = get_system_modaliases()
-        self.assertEqual(len(modaliases), 1)
-        self.assertIn("usb", modaliases)
-
-    @mock.patch('os.uname')
-    @mock.patch('os.walk')
-    def test_get_installed_dkms_modules(self, mock_os_walk, mock_os_uname):
-        """test_get_installed_dkms_modules."""
-        mock_os_walk.return_value = [
-            ("/var/lib/dkms/hello/0.1",
-             ["3.19.0-15-generic", "build", "source"],
-             []),
-        ]
-        o = mock.Mock()
-        o.release = "3.19.0-15-generic"
-        mock_os_uname.return_value = o
-        self.assertEqual([['hello', '0.1']],
-                         get_installed_dkms_modules())
-
-    @mock.patch('__main__.get_system_modaliases')
-    def test_match_patterns(self, mock_get_system_modaliases):
-        """Test of match_patterns."""
-        mock_get_system_modaliases.return_value = {
-            "pci": ["v0000168Cd00000036sv0000103Csd0000217Fbc02sc80i00",
-                    "v00008086d00008C26sv0000103Csd000022D9bc0Csc03i20"],
-            "usb": ["v8087p8000d0005dc09dsc00dp01ic09isc00ip00in00",
-                    "v1D6Bp0002d0319dc09dsc00dp00ic09isc00ip00in00"],
-        }
-        pkg_modalieses = ["pci:v00008086d00008C26sv*sd*bc*sc*i*",
-                          "usb:v07B4p010Ad0102dc*dsc*dp*ic*isc*ip*in*",
-                          "oemalias:test"]
-        matched_modalieses = match_patterns(tuple(pkg_modalieses))
-        # match_patterns
-        self.assertIn("pci:v00008086d00008C26sv*sd*bc*sc*i*",
-                      matched_modalieses)
-        self.assertIn("oemalias:test",
-                      matched_modalieses)
-        self.assertNotIn("usb:v07B4p010Ad0102dc*dsc*dp*ic*isc*ip*in*",
-                         matched_modalieses)
-
-
 class DkmsPackage(object):
 
     """
@@ -295,9 +198,9 @@ class DkmsPackage(object):
             if not fn.endswith(".list"):
                 continue
             with io.open(os.path.join(dpkg_info_root, fn), 'rt',
-                     encoding='UTF-8') as stream:
+                         encoding='UTF-8') as stream:
                 if path in stream.read():
-                     return fn[:-len(".list")]
+                    return fn[:-len(".list")]
         return None
 
     def _list_modules(self):
@@ -350,6 +253,7 @@ class DkmsPackage(object):
             install_mods[m] = match_patterns(tuple(aliases))
         return install_mods
 
+
 def _headers_to_dist(pkg_str):
     """
     Convert rft822 headers string to dict.
@@ -365,6 +269,7 @@ def _headers_to_dist(pkg_str):
     for key in header.keys():
         target[key.lower()] = header[key]
     return target
+
 
 class DebianPackageHandler(object):
 
@@ -396,7 +301,6 @@ class DebianPackageHandler(object):
         for pkg_str in self._file_object.read().split('\n\n'):
             yield pkg_str
 
-
     def _get_device_pkgs(self):
         """
         Only device packages have debian package header 'Modaliases'.
@@ -409,23 +313,21 @@ class DebianPackageHandler(object):
         """
 
         _logger.info("Looking for packages providing modaliases")
-        _modalias_pkgs = {}
-        target_str = ""
         result = {}
 
         for pkg_str in self._gen_all_pkg_strs():
 
             for pkg in self.extra_pkgs:
-                 if pkg.pkg_name is None:
-                     continue
-                 pstr = "Package: {}".format(pkg.pkg_name)
-                 if pstr in pkg_str:
-                     _logger.info("Gathering information of package, {}".format(
-                         pkg.pkg_name))
-                     pkg.pkg = _headers_to_dist(pkg_str)
-                     break
+                if pkg.pkg_name is None:
+                    continue
+                pstr = "Package: {}".format(pkg.pkg_name)
+                if pstr in pkg_str:
+                    _logger.info("Gathering information of package, {}".format(
+                        pkg.pkg_name))
+                    pkg.pkg = _headers_to_dist(pkg_str)
+                    break
             else:
-                if  "Modaliases:" in pkg_str:
+                if "Modaliases:" in pkg_str:
                     pkg = _headers_to_dist(pkg_str)
 
                     (modalias_header, pattern_str) = \
@@ -434,15 +336,17 @@ class DebianPackageHandler(object):
                     patterns.sort()
                     pkg['match_patterns'] = match_patterns(tuple(patterns))
 
-                    with io.open("/var/lib/dpkg/info/{}.list".format(pkg['package']),
-                            'rt', encoding='UTF-8') as stream:
+                    dpkgf = "/var/lib/dpkg/info/{}.list".format(pkg['package'])
+                    with io.open(dpkgf, 'rt', encoding='UTF-8') as stream:
                         if "/dkms.conf" in stream.read():
-                             pkg['unused_dkms'] = True
+                            pkg['unused_dkms'] = True
                     result[pkg['package']] = pkg
         return result
 
     def to_json(self):
-        return json.dumps({ "dkms": self.extra_pkgs, "non-dkms": self.pkgs }, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(
+            {"dkms": self.extra_pkgs, "non-dkms": self.pkgs},
+            default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def to_outline(self):
         result = ""
@@ -465,47 +369,6 @@ class DebianPackageHandler(object):
                 pkg["version"],
                 pkg['match_patterns'])
         return result
-
-
-class DebianPackageHandlerTest(unittest.TestCase):
-
-    """Test of DebianPackageHandler."""
-
-    _var_lib_dpkg_status = """\
-Package: foo
-Status: install ok installed
-Modaliases: hwe(pci:v000099DDd00000036sv*sd*bc*sc*i*)
-
-Package: foo1
-Status: install ok installed
-Modaliases: hwe(pci:v0000AADDd00000036sv*sd*bc*sc*i*)
-
-Package: foo2
-Status: install ok installed
-
-Package: foo3
-Status: install ok installed
-
-Package: bar
-Status: install ok installed
-
-"""
-
-
-    @mock.patch('io.open', mock.mock_open(read_data=_var_lib_dpkg_status))
-    @mock.patch('__main__.get_system_modaliases')
-    def test_get_pkgs(self, mock_get_system_modaliases):
-        """Test of test_get_pkgs."""
-        mock_get_system_modaliases.return_value = {
-            "pci": ["v0000168Cd00000036sv0000103Csd0000217Fbc02sc80i00",
-                    "v00008086d00008C26sv0000103Csd000022D9bc0Csc03i20"],
-            "usb": ["v8087p8000d0005dc09dsc00dp01ic09isc00ip00in00",
-                    "v1D6Bp0002d0319dc09dsc00dp00ic09isc00ip00in00"],
-        }
-
-        self.pkg_handler = DebianPackageHandler(
-            file_object=io.StringIO(self._var_lib_dpkg_status))
-        self.assertEqual(len(self.pkg_handler.pkgs), 2)
 
 
 class DeviceInfo(Command):
@@ -549,7 +412,7 @@ class DeviceInfo(Command):
             level=logging.INFO, format='[%(relativeCreated)06dms] %(message)s')
         _logger.info("Started")
 
-        dkms_pkgs = [] 
+        dkms_pkgs = []
         for (dkms_name, dkms_ver) in get_installed_dkms_modules():
             dkms_pkg = DkmsPackage(dkms_name, dkms_ver)
             dkms_pkgs.append(dkms_pkg)
@@ -567,8 +430,4 @@ class DeviceInfo(Command):
 
 
 if __name__ == '__main__':
-    if '--test' in sys.argv:
-        sys.argv.remove('--test')
-        unittest.main()
-    else:
-        DeviceInfo().main()
+    DeviceInfo().main()

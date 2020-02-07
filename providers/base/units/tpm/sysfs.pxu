@@ -76,6 +76,6 @@ _description:
  This job collects all the available DMI information from /sys/class/dmi/id/*.
  The main purpose of including this job is to allow the provider to include
  vendor-specific quirks by looking at the sysfs_dmi.bios_vendor attribute.
-command: dmi-sysfs-resource
+command: dmi_sysfs_resource.py
 estimated_duration: 1s
 flags: preserve-locale

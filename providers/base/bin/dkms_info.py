@@ -31,6 +31,7 @@ supported output format:
  - dumps: json output (fully information)
 """
 
+import argparse
 import fnmatch
 import functools
 import email.parser
@@ -40,8 +41,6 @@ import logging
 import os
 import subprocess
 import sys
-
-from guacamole import Command
 
 
 _logger = logging.getLogger(None)
@@ -371,7 +370,7 @@ class DebianPackageHandler(object):
         return result
 
 
-class DeviceInfo(Command):
+class DeviceInfo():
 
     """
     Implementation of the dkms-info command.
@@ -392,22 +391,20 @@ class DeviceInfo(Command):
      - dumps: json output (fully information)
     """
 
-    def register_arguments(self, parser):
-        """Register command line arguments for dkms-info."""
-
+    def main(self):
+        """Invoke dkms-info."""
+        parser = argparse.ArgumentParser()
         parser.add_argument(
             '--format', default="onelines",
             choices=["summary", "json"],
             help=("Choose output format type: "
                   "summary (one line per packages) "
                   "or json (json format, fully information)"))
-
         parser.add_argument(
             '--output', default=None,
             help=("Output filename to store the output date"))
+        args = parser.parse_args()
 
-    def invoked(self, ctx):
-        """Invoke dkms-info."""
         logging.basicConfig(
             level=logging.INFO, format='[%(relativeCreated)06dms] %(message)s')
         _logger.info("Started")
@@ -418,11 +415,11 @@ class DeviceInfo(Command):
             dkms_pkgs.append(dkms_pkg)
 
         output = sys.stdout
-        if ctx.args.output is not None:
-            output = open(ctx.args.output, 'wt', encoding='UTF-8')
+        if args.output is not None:
+            output = open(args.output, 'wt', encoding='UTF-8')
 
         pkg_handler = DebianPackageHandler(extra_pkgs=dkms_pkgs)
-        if ctx.args.format == "summary":
+        if args.format == "summary":
             output.write(pkg_handler.to_outline())
         else:
             output.write(pkg_handler.to_json())

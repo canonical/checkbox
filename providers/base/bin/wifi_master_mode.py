@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2020 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
 #   Po-Hsu Lin <po-hsu.lin@canonical.com>
 
+import argparse
 import logging
 import os
 import sys
 import subprocess
 import tempfile
 
-from guacamole import Command
 
-
-class WifiMasterMode(Command):
+class WifiMasterMode():
 
     """Make system to act as an 802.11 Wi-Fi Access Point."""
 
-    def register_arguments(self, parser):
+    def main(self):
+        parser = argparse.ArgumentParser()
         parser.add_argument('--protocol', default='g',
                             choices=['a', 'b', 'g', 'ad'],
                             help="802.11 protocol, possible value: a/b/g/ad")
         parser.add_argument('--auto', action='store_true',
                             help="Run in the automated mode")
+        args = parser.parse_args()
 
-    def invoked(self, ctx):
         data_dir = ""
         try:
             data_dir = os.environ['PLAINBOX_PROVIDER_DATA']
@@ -50,12 +50,12 @@ class WifiMasterMode(Command):
         with tempfile.NamedTemporaryFile(mode='w+t') as conf_file_out:
             with open(conf_in, "r") as conf_file_in:
                 data_in = conf_file_in.read()
-                data_out = data_in.replace("$PROTOCOL", ctx.args.protocol)
+                data_out = data_in.replace("$PROTOCOL", args.protocol)
                 data_out = data_out.replace("$WIFI-DEV-NAME", wifi_dev)
                 conf_file_out.write(data_out)
                 conf_file_out.flush()
 
-            if ctx.args.auto:
+            if args.auto:
                 child = subprocess.Popen(['hostapd', '-d', conf_file_out.name],
                                          stdout=subprocess.PIPE,
                                          universal_newlines=True)
@@ -86,6 +86,7 @@ class WifiMasterMode(Command):
                     input()
                 finally:
                     child.terminate()
+
 
 if __name__ == "__main__":
     WifiMasterMode().main()

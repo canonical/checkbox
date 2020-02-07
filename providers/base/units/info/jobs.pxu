@@ -218,7 +218,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 requires:
   package.name == 'dkms'
-command: dkms_info  --format json
+command: dkms_info.py  --format json
 _description: Attaches json dumps of installed dkms package information.
 _summary: Attaches json dumps of installed dkms package information.
 

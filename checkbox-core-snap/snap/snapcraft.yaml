@@ -132,8 +132,6 @@ parts:
     build-packages:
       - zlib1g-dev
       - build-essential
-    python-packages:
-      - guacamole
     stage-packages:
       - libpam-modules
       - python3-jinja2

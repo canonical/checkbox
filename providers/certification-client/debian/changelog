@@ -1,4 +1,4 @@
-plainbox-provider-certification-client (0.38.0-1) UNRELEASED; urgency=medium
+plainbox-provider-certification-client (0.39.0~rc1-1) UNRELEASED; urgency=medium
 
   [ pierre ]
   * "new upstream version"
@@ -36,8 +36,9 @@ plainbox-provider-certification-client (0.38.0-1) UNRELEASED; urgency=medium
   [ Jenkins ]
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@sylvain-ThinkPad-T480s>  Fri, 04 Oct 2019 11:14:44 +0200
+ -- Jenkins <jenkins@open-joey-201506-18558.maas>  Tue, 11 Feb 2020 12:51:24 +0000
 
 plainbox-provider-certification-client (0.27-1) precise; urgency=medium
 

@@ -125,6 +125,7 @@ id: camera/multiple-resolution-images-rpi_{name}
 _summary: Webcam multiple resolution capture test for Pi Camera
 estimated_duration: 16.0
 depends: camera/detect-rpi
+requires: cpuinfo.platform == 'armv7l'
 command:
   camera_test_rpi.py --device /dev/{name}
 _description:

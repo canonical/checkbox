@@ -52,7 +52,23 @@ def booted_kernel_location(bl_name):
             cmdline = f.readline()
         result = parse_kernel_cmdline(cmdline)
         grub_path = result.params['BOOT_IMAGE']
-        path = os.path.join('/boot/efi', grub_path[grub_path.index(')')+2:])
+
+        # The BOOT_IMAGE parameter is tricky to decipher. It can be absolute
+        # path or refer or contain a variable expanded by ... initramfs?
+        if os.path.isabs(grub_path):
+            path = grub_path
+        else:
+            try:
+                # if we know where the parameter is referencing, replace it
+                if '(loop)' in grub_path:
+                    # implies of out of the kernel snap (so no FDE)
+                    pass
+                elif '(hd1,gpt1)' in grub_path:
+                    # used by fortknox
+                    path = os.path.join(
+                        '/boot/efi', grub_path[grub_path.index(')')+2:])
+            except ValueError:
+                pass
     elif bl_name == 'androidboot':
         pass
     elif bl_name == 'lk':

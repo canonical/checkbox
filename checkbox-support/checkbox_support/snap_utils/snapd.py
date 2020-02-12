@@ -12,8 +12,9 @@ import requests_unixsocket
 
 class AsyncException(Exception):
 
-    def __init__(self, message):
+    def __init__(self, message, abort_message=''):
         self.message = message
+        self.abort_message = abort_message
 
 
 class Snapd():
@@ -60,8 +61,15 @@ class Snapd():
             if status == 'Done':
                 return True
             if time.time() > maxtime:
-                raise AsyncException(status)
+                abort_result = self._abort_change(change_id)
+                raise AsyncException(status, abort_result)
             time.sleep(self._poll_interval)
+
+    def _abort_change(self, change_id):
+        path = self._changes + '/' + change_id
+        data = {'action': 'abort'}
+        r = self._post(path, json.dumps(data))
+        return r['result']['status']
 
     def list(self, snap=None):
         path = self._snaps

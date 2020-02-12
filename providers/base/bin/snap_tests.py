@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2015-2019 Canonical Ltd.
+# Copyright 2015-2020 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
@@ -15,7 +15,16 @@ from checkbox_support.snap_utils.snapd import Snapd
 #  - the snap must not be installed at the start of the nested test plan
 #  - the snap must be strictly confined (no classic or devmode flags)
 #  - there must be different revisions on the stable & edge channels
-TEST_SNAP = os.getenv('TEST_SNAP', 'test-snapd-tools')
+try:
+    TEST_SNAP = os.environ['TEST_SNAP']
+except KeyError:
+    runtime = os.getenv('CHECKBOX_RUNTIME', '/snap/checkbox/current')
+    if 'checkbox18' in runtime:
+        TEST_SNAP = 'test-snapd-tools-core18'
+    elif 'checkbox20' in runtime:
+        TEST_SNAP = 'test-snapd-tools-core20'
+    else:
+        TEST_SNAP = 'test-snapd-tools'
 SNAPD_TASK_TIMEOUT = int(os.getenv('SNAPD_TASK_TIMEOUT', 30))
 SNAPD_POLL_INTERVAL = int(os.getenv('SNAPD_POLL_INTERVAL', 1))
 

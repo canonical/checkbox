@@ -69,7 +69,7 @@ class SnapInstall():
         parser.add_argument('channel', help='channel to install from')
         args = parser.parse_args(sys.argv[2:])
         print('Install {}...'.format(TEST_SNAP))
-        s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
+        s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL, verbose=True)
         s.install(TEST_SNAP, args.channel)
         print('Confirm in snap list...')
         data = s.list()

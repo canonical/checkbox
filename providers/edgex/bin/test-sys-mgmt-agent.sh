@@ -12,9 +12,6 @@ DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
 
-echo "skipping test until snap sys-mgmt-agent-executor is fixed in fuji"
-exit 0
-
 # now install the snap version we are testing and check again
 if [ -n "$REVISION_TO_TEST" ]; then
     snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
@@ -69,12 +66,14 @@ fi
 
 # issue a bogus start command to the SMA to check that it returns an error message
 set +e
-if edgexfoundry.curl \
+fail_response = edgexfoundry.curl \
     --fail \
     --header "Content-Type: application/json" \
     --request POST \
     --data '{"action":"start","services":["NOT-A-REAL-SERVICE"]}' \
-    localhost:48090/api/v1/operation; then
+    localhost:48090/api/v1/operation | edgexfoundry.jq '.[0].Success'
+
+if [ "$fail_response" == "false" ]; then
     echo
     echo "SMA erronously reports starting a non-existent service"
     snap_remove

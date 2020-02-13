@@ -12,8 +12,9 @@ import requests_unixsocket
 
 class AsyncException(Exception):
 
-    def __init__(self, message):
+    def __init__(self, message, abort_message=''):
         self.message = message
+        self.abort_message = abort_message
 
 
 class Snapd():
@@ -27,10 +28,15 @@ class Snapd():
     _interfaces = '/v2/interfaces'
     _assertions = '/v2/assertions'
 
-    def __init__(self, task_timeout=30, poll_interval=1):
+    def __init__(self, task_timeout=30, poll_interval=1, verbose=False):
         self._session = requests_unixsocket.Session()
         self._task_timeout = task_timeout
         self._poll_interval = poll_interval
+        self._verbose = verbose
+
+    def _info(self, msg):
+        if self._verbose:
+            print('(info) {}'.format(msg), flush=True)
 
     def _get(self, path, params=None, decode=True):
         r = self._session.get(self._url + path, params=params)
@@ -60,8 +66,18 @@ class Snapd():
             if status == 'Done':
                 return True
             if time.time() > maxtime:
-                raise AsyncException(status)
+                abort_result = self._abort_change(change_id)
+                raise AsyncException(status, abort_result)
+            for task in self.tasks(change_id):
+                if task['status'] == 'Doing':
+                    self._info(task['summary'])
             time.sleep(self._poll_interval)
+
+    def _abort_change(self, change_id):
+        path = self._changes + '/' + change_id
+        data = {'action': 'abort'}
+        r = self._post(path, json.dumps(data))
+        return r['result']['status']
 
     def list(self, snap=None):
         path = self._snaps
@@ -110,6 +126,11 @@ class Snapd():
         path = self._changes + '/' + change_id
         r = self._get(path)
         return r['result']['status']
+
+    def tasks(self, change_id):
+        path = self._changes + '/' + change_id
+        r = self._get(path)
+        return r['result']['tasks']
 
     def revert(self, snap, channel='stable', revision=None):
         path = self._snaps + '/' + snap

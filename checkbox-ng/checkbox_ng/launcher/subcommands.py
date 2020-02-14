@@ -400,11 +400,15 @@ class Launcher(MainLoopStage, ReportsStage):
             self.launcher.test_plan_default_selection).run()
         return selected_tp
 
+    def _strtobool(self, val):
+        return val.lower() in ('y', 'yes', 't', 'true', 'on', '1')
+
     def _pick_jobs_to_run(self):
         if self.launcher.test_selection_forced:
             if self.launcher.manifest is not Unset:
                 self.ctx.sa.save_manifest(
-                    {manifest_id: self.launcher.manifest[manifest_id] for
+                    {manifest_id:
+                     self._strtobool(self.launcher.manifest[manifest_id]) for
                      manifest_id in self.launcher.manifest}
                 )
             # by default all tests are selected; so we're done here

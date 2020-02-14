@@ -285,11 +285,15 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._is_bootstrapping = False
         self.jobs = self.sa.finish_bootstrap()
 
+    def _strtobool(self, val):
+        return val.lower() in ('y', 'yes', 't', 'true', 'on', '1')
+
     def select_jobs(self, all_jobs):
         if self.launcher.test_selection_forced:
             if self.launcher.manifest is not Unset:
                 self.sa.save_manifest(
-                    {manifest_id: self.launcher.manifest[manifest_id] for
+                    {manifest_id:
+                     self._strtobool(self.launcher.manifest[manifest_id]) for
                      manifest_id in self.launcher.manifest}
                 )
         else:

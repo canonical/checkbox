@@ -829,6 +829,10 @@ class UdevadmDevice(object):
         elif '/dev/md' in self._environment.get('DEVNAME', ''):
             if "MD_NAME" in self._environment:
                 return self._environment.get("MD_NAME")
+            # if there's MD_LEVEL in the env and it's not a container it's an
+            # actual RAID disk
+            elif self._environment.get("MD_LEVEL", "container") != "container":
+                return self._environment.get("MD_DEVNAME")
         elif self.major == "94":
             # See http://pad.lv/1559189
             return "IBM s390 Virtual Disk"

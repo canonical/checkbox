@@ -131,3 +131,32 @@ _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
 user: root
+
+unit: template
+template-engine: jinja2
+template-resource: device
+template-filter: device.category in ('CAPTURE', 'MMAL') and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/roundtrip-qrcode_{{ name }}
+_summary: Test video output and camera {{ name }} by displaying and reading a qrcode
+estimated_duration: 5.0
+requires:
+  {%- if __on_ubuntucore__ %}
+  lsb.release >= '19.1'
+  {%- else %}
+  lsb.release >= '19.1'
+  package.name == 'python3-zbar'
+  package.name == 'python3-pyqrcode'
+  package.name == 'python3-pil'
+  {% endif -%}
+command:
+  roundtrip_qr.py {{ name }}
+_description:
+  Generates a QRcode representing a random string of ascii letters. This is
+  written to tty1 using ascii escape codes. Either the PiCamera python module or
+  a gstreamer pipeline is used to capture an image of the display. An attempt
+  to decode a QRcode in the image is then made and data compared against the
+  random string.
+user: root

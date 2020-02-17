@@ -84,5 +84,6 @@ estimated_duration: 1h30m
 include:
     camera/multiple-resolution-images-_.*
     camera/multiple-resolution-images-rpi_.*
+    camera/roundtrip-qrcode_.*
 bootstrap_include:
     device

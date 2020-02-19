@@ -1,4 +1,4 @@
-From 2ce2f9da74e22a251bf4ebdd7c8cf3b5c167dad9 Mon Sep 17 00:00:00 2001
+From 928d1210abd5792e0670aaf8886f7436940bc5b6 Mon Sep 17 00:00:00 2001
 From: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Date: Thu, 8 Oct 2015 08:38:22 -0700
 Subject: Revert the documentation theme back to default

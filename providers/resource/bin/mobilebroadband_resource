@@ -2,7 +2,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2014 Canonical Ltd.
+# Copyright 2014-2020 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -22,7 +22,7 @@ MMCLI_PATH=$(which mmcli)
 
 if [ -x "$MMCLI_PATH" ]; then
     # Use mmcli to query for modem capabilities
-    for i in $(mmcli --simple-status -L | \
+    for i in $(mmcli --simple-status -L 2>/dev/null || mmcli -L | \
                awk '/freedesktop\/ModemManager1\/Modem/ {print $1;}'); do
         mmcli -m $i |grep -q "supported: .*gsm-umts.*" && GSM=yes
         mmcli -m $i |grep -q "supported: .*cdma.*" && CDMA=yes
@@ -32,15 +32,5 @@ if [ -x "$MMCLI_PATH" ]; then
     # really failed :D
     [ "$GSM" = "yes" ] && echo "gsm: supported" || true
     [ "$CDMA" = "yes" ] && echo "cdma: supported" || true
-else
-    # Fall back to old mm-test script
-    if mm-test --no-scan | grep -q 'GSM modem'
-    then
-        echo "gsm: supported"
-    fi
-    if mm-test --no-scan | grep -q 'CDMA modem'
-    then
-        echo "cdma: supported"
-    fi
 fi
 

@@ -49,7 +49,7 @@ for disk in $@; do
     "ide" ) MIN_BUF_READ=40;;
     "mmc" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
     "nvme" ) MIN_BUF_READ=200;;
-    "mdadm" ) MIN_BUF_READ=500;;
+    "mdadm" ) MIN_BUF_READ=80;;
     *     ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
   esac
   echo "INFO: $disk_type: Using $MIN_BUF_READ MB/sec as the minimum throughput speed"

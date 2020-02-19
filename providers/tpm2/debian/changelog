@@ -1,4 +1,4 @@
-plainbox-provider-tpm2 (1.12.0~rc1-1) UNRELEASED; urgency=low
+plainbox-provider-tpm2 (1.12.0-1) UNRELEASED; urgency=low
 
   [ Sylvain Pineau ]
   * Initial release
@@ -30,5 +30,6 @@ plainbox-provider-tpm2 (1.12.0~rc1-1) UNRELEASED; urgency=low
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@open-joey-201506-18558.maas>  Mon, 17 Feb 2020 13:14:32 +0000
+ -- Jenkins <jenkins@open-joey-201506-18558.maas>  Wed, 19 Feb 2020 07:56:05 +0000

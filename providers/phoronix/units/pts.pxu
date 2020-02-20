@@ -25,7 +25,7 @@ command:
  echo "name: This test measures the time required to encode a WAV file to MP3 format."
  echo
  echo id: pts/fs-mark
- echo "name: FS_Mark is designed to test a system\'s file-system performance."
+ echo "name: FS_Mark is designed to test a system's file-system performance."
  echo
  echo id: pts/john-the-ripper
  echo "name: This is a benchmark of John The Ripper, which is a password cracker."

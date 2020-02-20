@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Now make sure the modules are loaded
-echo '---------------------------------'
+
+echo '---------------------------------' && echo 'Verifying kernel modules:' && echo
 for module in ipmi_si ipmi_devintf ipmi_powernv ipmi_ssif ipmi_msghandler; do
     if lsmod |grep -q $module; then
         echo "$module already loaded"
@@ -23,60 +24,61 @@ for module in ipmi_si ipmi_devintf ipmi_powernv ipmi_ssif ipmi_msghandler; do
         fi
     fi
 done
-echo '---------------------------------'
-echo
+echo '---------------------------------' && echo
 
 # Now get our info from ipmitool to make sure communication works
 # First lest check chassis status
 
-echo '---------------------------------'
-echo "Calling chassis status"
-echo
-(ipmi-chassis --get-status) && echo && echo "Successfully called chassis status" && chassis=0 \
+echo '---------------------------------' && echo "Fetching chassis status:" && echo
+(ipmi-chassis --get-status) && echo && echo "Successfully fetched chassis status..." && chassis=0 \
     || chassis=1
-echo '---------------------------------'
-echo
+echo '---------------------------------' && echo
 
-echo '---------------------------------'
-echo "Calling power status"
-echo
+echo '---------------------------------' && echo "Fetching power status:" && echo
 (ipmi-chassis --get-status | grep 'System Power') && echo \
-    && echo "Successfully called power status" && power=0 || power=1
-echo '---------------------------------'
-echo
+    && echo "Successfully fetched power status.." && power=0 || power=1
+echo '---------------------------------' && echo
 
-echo '---------------------------------'
-echo "Calling IPMI channel user data"
-echo
+echo '---------------------------------' && echo "Fetching IPMI channel user data:" && echo
 # LP:1794926 Find the active channel. blindly calling user list sometimes
 # fails.
 channel=99
 for x in 0 1 2 3 4 5 6 7 8 9 10 11 14 15; do
-    if !(ipmi-config --checkout --lan-channel-number $x 2>&1 >/dev/null | grep -q '^Unable to get Number of Users$'); \
-        then
+    if !(ipmi-config --checkout --lan-channel-number $x 2>&1 >/dev/null | grep -q '^Unable to get Number of Users$'); then
         channel=$x
-        echo "IPMI channel: $channel"
-    echo
+        echo "IPMI channel: $channel" && echo
         break
     fi
 done
 
 # Extrapolate user list from general IPMI function
 (ipmi-config --checkout --category=core | grep -A 19 "User[0-9]*.$" | sed '/#/d' | grep -v "Section$" | sed 's/Section //') \
-    && echo && echo "Successfully called user data" && user=0 || user=1
-echo '---------------------------------'
-echo
+    && echo && echo "Successfully fetched IPMI channel & user data..." && user=0 || user=1
+echo '---------------------------------' && echo
 
-echo '---------------------------------'
-echo "Calling BMC info"
-echo
-bmc-info && echo && echo "Successfully called BMC info" && bmc=0 || bmc=1
-echo '---------------------------------'
-echo
+echo '---------------------------------' && echo "Fetching BMC information and checking IPMI version:" && echo
+bmc-info && echo && echo "Successfully called BMC-info..." && echo && bmc=0 || bmc=1
+
+version=$(bmc-info | awk '/IPMI Version/ {print $4}')
+echo "IPMI Version: $version" && echo
+# parse major from ipmi version
+version=$(echo $version| cut -d'.' -f1)
+# can refactor to evaluate in final check function
+if [ $version -lt 2 ]; then
+    ipmiV=1 && echo "IPMI version below 2.0..."
+    else
+        ipmiV=0 && echo "IPMI version OK..."
+    fi
+echo '---------------------------------' && echo
+
+echo '---------------------------------' && echo "Calling IPMI-locate" && echo
+(ipmi-locate) && echo "Successfully called ipmi-locate..." && ipmiL=0 || ipmiL=1
+echo '---------------------------------' && echo
 
 # if everything passes, exit 0
-[ $chassis -eq 0 ] && [ $power -eq 0 ] && [ $user -eq 0 ] && [ $bmc -eq 0 ] &&  exit 0 \
-    || echo "FAILURE: chassis: $chassis  power: $power  user: $user  bmc: $bmc"
+[ $chassis -eq 0 ] && [ $power -eq 0 ] && [ $user -eq 0 ] && [ $bmc -eq 0 ] && [ $ipmiV -eq 0 ] && [ $ipmiL -eq 0 ] \
+    && echo "## IPMI checks succeeded. ##" && echo && exit 0 \
+    || echo "## FAILURE: chassis: $chassis  power: $power  user: $user  bmc: $bmc  ipmi_version: $ipmiV  ipmi_locate: $ipmiL ##" && echo
 
 # otherwise exit 1
 exit 1

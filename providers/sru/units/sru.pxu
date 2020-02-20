@@ -2,6 +2,10 @@ unit: packaging meta-data
 os-id: debian
 Depends: checkbox-provider-phoronix
 
+unit: packaging meta-data
+os-id: debian
+Depends: plainbox-provider-certification-client
+
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dkms_build_validation

@@ -46,8 +46,6 @@ import uuid
 
 # 10GiB (smallest acceptable size for disk tests):
 min_fs_size = 10 * 1024 * 1024 * 1024
-# 16GiB (smallest acceptable swap size for memory tests)
-min_swap_space = 16 * 1024 * 1024 * 1024
 # Swap filename
 my_swap = None
 
@@ -100,13 +98,13 @@ class stress_ng():
             print("stress_ng exited with code {}".format(err.returncode))
             self.results = err.stdout
             self.returncode = run.returncode
-        except TimeoutExpired as err:
+        except TimeoutExpired:
             print("stress_ng timed out!")
             os.kill(run.pid, signal.SIGINT)
             self.results = ""
             # For consistency with old bash script & "timeout" wrapper...
             self.returncode = 124
-        except KeyboardInterrupt as err:
+        except KeyboardInterrupt:
             self.results = ""
             self.returncode = 125
         return self.returncode
@@ -166,14 +164,28 @@ def num_numa_nodes():
         return num_nodes
 
 
-def swap_space_ok():
-    """Check available swap space. If too small, add more. Returns:
+def swap_space_ok(args):
+    """Check available swap space. If too small, add more. The minimum
+    acceptable mount is defined as the GREATER of the amount specified
+    by the command-line -s/--swap-space option OR the amount specified
+    by the STRESS_NG_MIN_SWAP_SIZE environment variable. Both values are
+    specified in gibibytes (GiB). If neither is specified, a value of 0
+    (no swap required) is assumed.
+    Returns:
     - True if OK (already or after adding more)
     - False if insufficient swap space"""
 
     retval = 0
     all_ok = True
     global my_swap
+    min_swap_space = 0
+    if "STRESS_NG_MIN_SWAP_SIZE" in os.environ:
+        min_swap_space = int(os.environ['STRESS_NG_MIN_SWAP_SIZE']) \
+            * 1024 * 1024 * 1024
+    if args.swap_size > min_swap_space:
+        min_swap_space = args.swap_size * 1024 * 1024 * 1024
+    print("Minimum swap space is set to {:.0f} GiB".
+          format(min_swap_space / 1024 / 1024 / 1024))
     swap = psutil.swap_memory()
     if swap.total < min_swap_space:
         print("Swap space too small! Attempting to add more (this may take " +
@@ -215,7 +227,7 @@ def stress_memory(args):
     """Run stress-ng tests on memory."""
 
     retval = 0
-    if not swap_space_ok():
+    if not swap_space_ok(args):
         return 130
 
     ram = psutil.virtual_memory()
@@ -255,8 +267,6 @@ def stress_memory(args):
                                 wrapper_timeout=vrt*2)
         retval = retval | test_object.run()
         print(test_object.get_results())
-    #print("In stress_memory(), my_swap is {}".format(my_swap))
-    #print("In stress_memory(), args.keep_swap is {}".format(args.keep_swap))
     if my_swap is not None and args.keep_swap is False:
         print("Deleting temporary swap file....")
         cmd = "swapoff {}".format(my_swap)
@@ -516,6 +526,8 @@ def main():
     memory_parser.add_argument("-t", "--time-per-gig", type=int,
                                help="Extra time per GiB for some stressors " +
                                "(default=10)", default=10)
+    memory_parser.add_argument("-s", "--swap-size", type=int,
+                               help="swap size in GiB", default=0)
     memory_parser.add_argument("-k", "--keep-swap", action="store_true",
                                help="Keep swap file, if added by test")
 

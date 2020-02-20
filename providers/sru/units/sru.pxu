@@ -2,6 +2,10 @@ unit: packaging meta-data
 os-id: debian
 Depends: checkbox-provider-phoronix
 
+unit: packaging meta-data
+os-id: debian
+Depends: plainbox-provider-certification-client
+
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dkms_build_validation
@@ -46,6 +50,7 @@ _description:
     recommended for, nor will it be accepted for self-testing purposes.
 nested_part:
     com.canonical.certification::pts
+    com.canonical.certification::stress-pm-graph
 include:
     miscellanea/submission-resources
     acpi_sleep_attachment

@@ -50,6 +50,7 @@ _description:
     recommended for, nor will it be accepted for self-testing purposes.
 nested_part:
     com.canonical.certification::pts
+    com.canonical.certification::stress-pm-graph
 include:
     miscellanea/submission-resources
     acpi_sleep_attachment

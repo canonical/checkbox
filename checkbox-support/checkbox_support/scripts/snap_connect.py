@@ -72,7 +72,9 @@ def main():
             plug_snap=snap, plug_plug=conn[0])
         if new_connection not in existing_connections:
             try:
-                Snapd().connect(*new_connection)
+                # increase timeout to ensure slow devices (caracalla) can
+                # complete their snap connect jobs
+                Snapd(task_timeout=60).connect(*new_connection)
             except requests.HTTPError as exc:
                 logging.warning("Failed to connect %s to %s. %s" % (
                     conn[0], conn[1], exc))

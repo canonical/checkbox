@@ -84,7 +84,7 @@ CPUIDS = {
         "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
         "Canon Lake":       ['0x6066'],
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
-        "Coffee Lake":      ['0x806ea', '0x906e'],
+        "Coffee Lake":      ['0x806ea', '0x906ea', '0x906eb', '0x906ec', '0x906ed'],
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
         "Ice Lake":         ['0x706e'],
         "Ivy Bridge":       ['0x306a', '0x306e'],

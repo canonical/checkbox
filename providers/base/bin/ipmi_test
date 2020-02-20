@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Now make sure the modules are loaded
+echo '---------------------------------'
 for module in ipmi_si ipmi_devintf ipmi_powernv ipmi_ssif ipmi_msghandler; do
     if lsmod |grep -q $module; then
         echo "$module already loaded"
@@ -22,38 +23,60 @@ for module in ipmi_si ipmi_devintf ipmi_powernv ipmi_ssif ipmi_msghandler; do
         fi
     fi
 done
+echo '---------------------------------'
+echo
 
 # Now get our info from ipmitool to make sure communication works
 # First lest check chassis status
+
+echo '---------------------------------'
+echo "Calling chassis status"
 echo
-echo "Checking for chassis status"
-ipmitool chassis status && echo "Successfully got chassis status" && chassis=0 || chassis=1
+(ipmi-chassis --get-status) && echo && echo "Successfully called chassis status" && chassis=0 \
+    || chassis=1
+echo '---------------------------------'
+echo
 
-echo "Checking to see if we can get power status"
-ipmitool power status && echo "Successfully got power status" && power=0 || power=1
+echo '---------------------------------'
+echo "Calling power status"
+echo
+(ipmi-chassis --get-status | grep 'System Power') && echo \
+    && echo "Successfully called power status" && power=0 || power=1
+echo '---------------------------------'
+echo
 
-echo "Checking to see if we can get user data"
+echo '---------------------------------'
+echo "Calling IPMI channel user data"
+echo
 # LP:1794926 Find the active channel. blindly calling user list sometimes
 # fails.
 channel=99
 for x in 0 1 2 3 4 5 6 7 8 9 10 11 14 15; do
-    if ipmitool channel getaccess $x 2>1 >/dev/null; then
+    if !(ipmi-config --checkout --lan-channel-number $x 2>&1 >/dev/null | grep -q '^Unable to get Number of Users$'); \
+        then
         channel=$x
-        echo "Channel in use appears to be $channel"
+        echo "IPMI channel: $channel"
+    echo
         break
     fi
 done
-if [ $channel -lt 99 ]; then
-    ipmitool user list $channel && echo "Successfully got user data" && user=0 || user=1
-else
-    user=1
-fi
 
-echo "Checking to see if we can get info on the BMC"
-ipmitool bmc info && echo "Successfully got BMC information" && bmc=0 || bmc=1
+# Extrapolate user list from general IPMI function
+(ipmi-config --checkout --category=core | grep -A 19 "User[0-9]*.$" | sed '/#/d' | grep -v "Section$" | sed 's/Section //') \
+    && echo && echo "Successfully called user data" && user=0 || user=1
+echo '---------------------------------'
+echo
+
+echo '---------------------------------'
+echo "Calling BMC info"
+echo
+bmc-info && echo && echo "Successfully called BMC info" && bmc=0 || bmc=1
+echo '---------------------------------'
+echo
 
 # if everything passes, exit 0
-[ $chassis -eq 0 ] && [ $power -eq 0 ] && [ $user -eq 0 ] && [ $bmc -eq 0 ] &&  exit 0 || echo "FAILURE: chassis: $chassis  power: $power  user: $user  bmc: $bmc"
+[ $chassis -eq 0 ] && [ $power -eq 0 ] && [ $user -eq 0 ] && [ $bmc -eq 0 ] &&  exit 0 \
+    || echo "FAILURE: chassis: $chassis  power: $power  user: $user  bmc: $bmc"
 
 # otherwise exit 1
 exit 1

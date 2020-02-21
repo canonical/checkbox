@@ -261,7 +261,7 @@ def _ping_test(if_name):
 
 class ThreeGppConnection():
 
-    def invoked(self, ctx):
+    def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument('wwan_control_if',  type=str,
                             help='The control interface for the device')
@@ -274,7 +274,7 @@ class ThreeGppConnection():
         args = parser.parse_args(sys.argv[2:])
         ret_code = 1
         try:
-            _create_3gpp_connection(ctx.args.wwan_control_if, args.apn)
+            _create_3gpp_connection(args.wwan_control_if, args.apn)
             _wwan_radio_on()
             time.sleep(args.wwan_setup_time)
             ret_code = _ping_test(args.wwan_net_if)

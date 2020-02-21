@@ -24,20 +24,20 @@ for module in ipmi_si ipmi_devintf ipmi_powernv ipmi_ssif ipmi_msghandler; do
         fi
     fi
 done
-echo '---------------------------------' && echo
 
-# Now get our info from ipmitool to make sure communication works
-# First lest check chassis status
+
+# Now get our info from FreeIPMI to make sure communication works
+# First lets check chassis status
 
 echo '---------------------------------' && echo "Fetching chassis status:" && echo
 (ipmi-chassis --get-status) && echo && echo "Successfully fetched chassis status..." && chassis=0 \
     || chassis=1
-echo '---------------------------------' && echo
+
 
 echo '---------------------------------' && echo "Fetching power status:" && echo
 (ipmi-chassis --get-status | grep 'System Power') && echo \
     && echo "Successfully fetched power status.." && power=0 || power=1
-echo '---------------------------------' && echo
+
 
 echo '---------------------------------' && echo "Fetching IPMI channel user data:" && echo
 # LP:1794926 Find the active channel. blindly calling user list sometimes
@@ -54,7 +54,7 @@ done
 # Extrapolate user list from general IPMI function
 (ipmi-config --checkout --category=core | grep -A 19 "User[0-9]*.$" | sed '/#/d' | grep -v "Section$" | sed 's/Section //') \
     && echo && echo "Successfully fetched IPMI channel & user data..." && user=0 || user=1
-echo '---------------------------------' && echo
+
 
 echo '---------------------------------' && echo "Fetching BMC information and checking IPMI version:" && echo
 bmc-info && echo && echo "Successfully called BMC-info..." && echo && bmc=0 || bmc=1
@@ -69,16 +69,16 @@ if [ $version -lt 2 ]; then
     else
         ipmiV=0 && echo "IPMI version OK..."
     fi
-echo '---------------------------------' && echo
+
 
 echo '---------------------------------' && echo "Calling IPMI-locate" && echo
 (ipmi-locate) && echo "Successfully called ipmi-locate..." && ipmiL=0 || ipmiL=1
-echo '---------------------------------' && echo
+
 
 # if everything passes, exit 0
 [ $chassis -eq 0 ] && [ $power -eq 0 ] && [ $user -eq 0 ] && [ $bmc -eq 0 ] && [ $ipmiV -eq 0 ] && [ $ipmiL -eq 0 ] \
     && echo "## IPMI checks succeeded. ##" && echo && exit 0 \
-    || echo "## FAILURE: chassis: $chassis  power: $power  user: $user  bmc: $bmc  ipmi_version: $ipmiV  ipmi_locate: $ipmiL ##" && echo
+    || echo "## FAILURE: chassis: $chassis  power: $power  user: $user  bmc: $bmc  ipmi_version: $ipmiV  ipmi_locate: $ipmiL ##"
 
 # otherwise exit 1
 exit 1

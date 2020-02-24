@@ -44,6 +44,7 @@ category_id: com.canonical.plainbox::memory
 id: memory/memory_stress_ng
 estimated_duration: 11000.0
 user: root
+environ: STRESS_NG_MIN_SWAP_SIZE
 requires:
  package.name == 'stress-ng' or executable.name == 'stress-ng'
 command: stress_ng_test memory

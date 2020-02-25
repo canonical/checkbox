@@ -31,6 +31,10 @@ class LshwJsonParser(object):
         self.stream_or_string = stream_or_string
 
     def _parse_lshw(self, lshw, result):
+        if isinstance(lshw, list) and len(lshw) > 0:
+            # newer lshw prints out list of JSON objects,
+            # from what I found it is still one, so let use that one
+            lshw = lshw[0]
         if 'children' in lshw.keys():
             for child in lshw['children']:
                 self._parse_lshw(child, result)

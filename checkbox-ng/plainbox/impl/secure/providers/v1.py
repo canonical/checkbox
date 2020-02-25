@@ -730,7 +730,7 @@ class Provider1(IProvider1):
     @classmethod
     def from_definition(cls, definition, secure, *,
                         validate=False, validation_kwargs=None, check=True,
-                        context=None, sideloaded=True):
+                        context=None, sideloaded=False):
         """
         Initialize a provider from Provider1Definition object
 

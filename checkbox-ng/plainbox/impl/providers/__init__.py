@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013-2015 Canonical Ltd.
+# Copyright 2013-2020 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -41,6 +42,14 @@ this is also described by :class:`IProvider1`::
       PYTHONPATH)
 """
 
+import logging
+import os
+
+from plainbox.impl.providers.embedded_providers import (
+    EmbeddedProvider1PlugInCollection)
+
+logger = logging.getLogger("plainbox.providers.__init__")
+
 
 class ProviderNotFound(LookupError):
 
@@ -65,14 +74,37 @@ def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
     Policy, those might start without prompting the user for the password. If
     you want to load only them, use the `only_secure` option.
     """
+    from plainbox.impl.providers import special
     if only_secure:
         from plainbox.impl.secure.providers.v1 import all_providers
     else:
         from plainbox.impl.providers.v1 import all_providers
-    from plainbox.impl.providers import special
     all_providers.load()
-    return [
+    std_providers= [
         special.get_manifest(),
         special.get_exporters(),
         special.get_categories(),
     ] + all_providers.get_all_plugin_objects()
+    if only_secure:
+        return std_providers
+
+    def qualified_name(provider):
+        return "{}:{}".format(provider.namespace, provider.name)
+    sideload_path = os.path.expandvars(os.path.join(
+        '/var', 'tmp', 'checkbox-providers'))
+    embedded_providers = EmbeddedProvider1PlugInCollection(sideload_path)
+    loaded_provs = embedded_providers.get_all_plugin_objects()
+    for p in loaded_provs:
+        logger.warning("Using sideloaded provider: %s from %s", p, p.base_dir)
+    sl_qual_names = [qualified_name(p) for p in loaded_provs]
+    for std_prov in std_providers:
+        if qualified_name(std_prov) in sl_qual_names:
+            # this provider got overriden by sideloading
+            # so let's not load the original one
+            continue
+        loaded_provs.append(std_prov)
+    if not loaded_provs:
+        message = '\n'.join(( _("No providers found! Paths searched:"),
+            *all_providers.provider_search_paths))
+        raise SystemExit(message)
+    return loaded_provs

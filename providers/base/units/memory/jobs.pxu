@@ -44,9 +44,10 @@ category_id: com.canonical.plainbox::memory
 id: memory/memory_stress_ng
 estimated_duration: 11000.0
 user: root
+environ: STRESS_NG_MIN_SWAP_SIZE
 requires:
  package.name == 'stress-ng' or executable.name == 'stress-ng'
-command: memory_stress_ng
+command: stress_ng_test memory
 _summary: Stress test of system memory
 _description:
  Test to perform some basic stress and exercise of system memory via the

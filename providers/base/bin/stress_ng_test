@@ -1,0 +1,594 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2020 Canonical Ltd.
+
+Authors
+  Rod Smith <rod.smith@canonical.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+The purpose of this script is to run CPU, memory, and disk stress
+tests using the stress-ng binary program. It replaces the older
+cpu_stress, memory_stress_ng, and disk_stress_ng Bash scripts.
+"""
+
+
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+from subprocess import (
+    CalledProcessError,
+    PIPE,
+    Popen,
+    STDOUT,
+    TimeoutExpired
+)
+import os
+import psutil
+import shlex
+import shutil
+import signal
+import stat
+import sys
+import time
+import uuid
+
+# 10GiB (smallest acceptable size for disk tests):
+min_fs_size = 10 * 1024 * 1024 * 1024
+# Swap filename
+my_swap = None
+
+
+class stress_ng():
+    """Interfaces with the external stress-ng binary -- accepts
+    test parameters, runs the test, and enables access to test
+    results."""
+
+    def __init__(self,
+                 stressors=['str'],
+                 wrapper_timeout=25,
+                 sng_timeout=20,
+                 test_dir="/tmp",
+                 extra_options=""):
+
+        self.stressors = stressors
+        self.wrapper_timeout = wrapper_timeout
+        self.sng_timeout = sng_timeout
+        self.test_dir = test_dir
+        self.extra_options = extra_options
+        self.results = ""
+        self.returncode = 0
+
+    def run(self):
+        """Run a stress-ng test, storing results in self.results."""
+
+        stressor_list = "--" + " 0 --".join(self.stressors)
+        command = "stress-ng --aggressive --verify --timeout {} {} {} 0". \
+            format(int(self.sng_timeout),
+                   self.extra_options,
+                   stressor_list)
+        time_str = time.strftime("%d %b %H:%M", time.gmtime())
+        if len(self.stressors) == 1:
+            print("{}: Running stress-ng {} stressor for {:.0f} seconds...".
+                  format(time_str, self.stressors[0], self.sng_timeout))
+        else:
+            print("{}: Running multiple stress-ng ".format(time_str) +
+                  "stressors in parallel for {:.0f}".format(self.sng_timeout))
+            print("seconds...")
+        try:
+            run = Popen(shlex.split(command), stderr=STDOUT, stdout=PIPE)
+            local_results = run.communicate(timeout=self.wrapper_timeout)[0]
+            self.results = (local_results.decode(encoding="utf-8",
+                                                 errors="ignore"))
+            self.returncode = run.returncode
+            if self.returncode != 0:
+                print("stress_ng exited with code {}".format(self.returncode))
+        except CalledProcessError as err:
+            print("stress_ng exited with code {}".format(err.returncode))
+            self.results = err.stdout
+            self.returncode = run.returncode
+        except TimeoutExpired:
+            print("stress_ng timed out!")
+            os.kill(run.pid, signal.SIGINT)
+            self.results = ""
+            # For consistency with old bash script & "timeout" wrapper...
+            self.returncode = 124
+        except KeyboardInterrupt:
+            self.results = ""
+            self.returncode = 125
+        return self.returncode
+
+    def get_results(self):
+        return self.results
+
+    def get_returncode(self):
+        return self.returncode
+
+
+"""Define CPU-related functions..."""
+
+
+def stress_cpu(args):
+    """Run stress-ng tests on CPUs."""
+
+    retval = 0
+    stressors = ['bsearch', 'context', 'cpu', 'crypt', 'hsearch', 'longjmp',
+                 'lsearch', 'matrix', 'qsort', 'str', 'stream', 'tsearch',
+                 'vecmath', 'wcs']
+    # Add 10% to runtime; will forcefully terminate if stress-ng
+    # fails to return in that time.
+    end_time = args.base_time * 11 / 10
+    print("Estimated total run time is {:.0f} minutes\n".
+          format(args.base_time/60))
+
+    test_object = stress_ng(stressors=stressors,
+                            sng_timeout=args.base_time,
+                            wrapper_timeout=end_time,
+                            extra_options="--metrics-brief --tz --times")
+    retval = test_object.run()
+    print(test_object.get_results())
+    return retval
+
+
+"""Define memory-related functions..."""
+
+
+def num_numa_nodes():
+    """Return the number of NUMA nodes supported by the CPU."""
+
+    if shutil.which("numactl") is None:
+        return 1
+    else:
+        command = "numactl --hardware"
+        numactl = Popen(shlex.split(command), stderr=STDOUT, stdout=PIPE)
+        local_results = numactl.communicate()[0].split()
+        # local_results[1] will sometimes hold the number of NUMA nodes;
+        # but "numactl --hardware" sometimes returns the error message
+        # "No NUMA available on this system", so if this (or some other)
+        # error message appears, assume one NUMA node....
+        try:
+            num_nodes = int(local_results[1])
+        except ValueError:
+            num_nodes = 1
+        return num_nodes
+
+
+def swap_space_ok(args):
+    """Check available swap space. If too small, add more. The minimum
+    acceptable mount is defined as the GREATER of the amount specified
+    by the command-line -s/--swap-space option OR the amount specified
+    by the STRESS_NG_MIN_SWAP_SIZE environment variable. Both values are
+    specified in gibibytes (GiB). If neither is specified, a value of 0
+    (no swap required) is assumed.
+    Returns:
+    - True if OK (already or after adding more)
+    - False if insufficient swap space"""
+
+    retval = 0
+    all_ok = True
+    global my_swap
+    min_swap_space = 0
+    if "STRESS_NG_MIN_SWAP_SIZE" in os.environ:
+        min_swap_space = int(os.environ['STRESS_NG_MIN_SWAP_SIZE']) \
+            * 1024 * 1024 * 1024
+    if args.swap_size > min_swap_space:
+        min_swap_space = args.swap_size * 1024 * 1024 * 1024
+    print("Minimum swap space is set to {:.0f} GiB".
+          format(min_swap_space / 1024 / 1024 / 1024))
+    swap = psutil.swap_memory()
+    if swap.total < min_swap_space:
+        print("Swap space too small! Attempting to add more (this may take " +
+              "a while)....")
+        my_swap = "/swap-{}.img".format(uuid.uuid1())
+        # Create swap file 10KiB bigger than minimum because there's a 4KiB
+        # overhead in the file, so if it were exactly the minimum, it would
+        # still be too small....
+        try:
+            with open(my_swap, "w+b") as f:
+                # Swap file zeroed out and increased in size in 1KiB chunks to
+                # avoid problems with sparse files and creating temporary RAM
+                # use that potentially exceeds available RAM....
+                for i in range(int((min_swap_space + 10240) / 1024)):
+                    f.write(b"\x00" * 1024)
+            f.close()
+        except OSError:
+            print("Unable to create temporary swap file! Aborting test!")
+            f.close()
+            os.remove(my_swap)
+            all_ok = False
+        if all_ok:
+            os.chmod(my_swap, stat.S_IRUSR | stat.S_IWUSR)
+            cmd = "mkswap {}".format(my_swap)
+            Popen(shlex.split(cmd), stderr=STDOUT, stdout=PIPE).communicate()[0]
+            cmd = "swapon {}".format(my_swap)
+            Popen(shlex.split(cmd), stderr=STDOUT, stdout=PIPE).communicate()[0]
+        else:
+            retval = False
+    swap = psutil.swap_memory()
+    if swap.total < min_swap_space:
+        retval = False
+    else:
+        retval = True
+    return retval
+
+
+def stress_memory(args):
+    """Run stress-ng tests on memory."""
+
+    retval = 0
+    if not swap_space_ok(args):
+        return 130
+
+    ram = psutil.virtual_memory()
+    total_mem_in_gb = ram.total / 1073741824
+    vrt = args.base_time + total_mem_in_gb * args.time_per_gig
+    print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
+    print("Constant run time is {} seconds per stressor".
+          format(args.base_time))
+    print("Variable run time is {:.0f} seconds per stressor".format(vrt))
+    print("Number of NUMA nodes is {}".format(num_numa_nodes()))
+
+    # Constant-run-time stressors -- run them for the same length of time on
+    # all systems....
+    crt_stressors = ['bsearch', 'context', 'hsearch', 'lsearch', 'matrix',
+                     'memcpy', 'null', 'pipe', 'qsort', 'stack', 'str',
+                     'stream', 'tsearch', 'vm-rw', 'wcs', 'zero', 'mlock',
+                     'mmapfork', 'mmapmany', 'mremap', 'shm-sysv',
+                     'vm-splice']
+    if num_numa_nodes() > 1:
+        crt_stressors.append('numa')
+
+    # Variable-run-time stressors -- run longer on systems with more RAM....
+    vrt_stressors = ['malloc', 'mincore', 'vm', 'bigheap', 'brk', 'mmap']
+
+    est_runtime = len(crt_stressors) * args.base_time + \
+        len(vrt_stressors) * vrt
+    print("Estimated total run time is {:.0f} minutes\n".
+          format(est_runtime/60))
+    for stressor in crt_stressors:
+        test_object = stress_ng(stressors=stressor.split(),
+                                sng_timeout=args.base_time,
+                                wrapper_timeout=args.base_time*2)
+        retval = retval | test_object.run()
+        print(test_object.get_results())
+    for stressor in vrt_stressors:
+        test_object = stress_ng(stressors=stressor.split(), sng_timeout=vrt,
+                                wrapper_timeout=vrt*2)
+        retval = retval | test_object.run()
+        print(test_object.get_results())
+    if my_swap is not None and args.keep_swap is False:
+        print("Deleting temporary swap file....")
+        cmd = "swapoff {}".format(my_swap)
+        Popen(shlex.split(cmd), stderr=STDOUT, stdout=PIPE).communicate()[0]
+        os.remove(my_swap)
+    return retval
+
+
+"""Define disk-related functions..."""
+
+
+def get_partition_data(file):
+    """Get partition details (size & type) on /dev/{file} & return in
+    dictionary."""
+
+    part_data = {}
+    part_data['name'] = file
+
+    # Get size of device, in bytes....
+    command = "blockdev --getsize64 /dev/{}".format(file)
+    run = Popen(shlex.split(command), stderr=STDOUT, stdout=PIPE)
+    part_data['size'] = int(run.communicate()[0])
+
+    # Get filesystem type....
+    part_data['fs_type'] = ""
+    command = "blkid /dev/{} -o export".format(file)
+    run = Popen(shlex.split(command), stderr=STDOUT, stdout=PIPE)
+    local_results = run.communicate()[0].split()
+    for result in local_results:
+        result_str = result.decode(encoding="utf-8", errors="ignore")
+        if "TYPE" in result_str:
+            part_data['fs_type'] = result_str.split("=")[1]
+    return part_data
+
+
+def find_mount_point(file):
+    """Find the mount point of /dev/{file}.
+    Returns:
+    * None if unmounted
+    * The mount point (as a string) if it's mounted."""
+
+    mount_point = None
+    command = "df /dev/{} --output=target".format(file)
+    run = Popen(shlex.split(command), stderr=STDOUT, stdout=PIPE)
+    output = run.communicate()[0].decode(encoding="utf-8", errors="ignore"). \
+        split()
+    potential_mount_point = str(output[-1])
+    # If df is fed a non-mounted-partition, it returns "/dev" as the
+    # mount point, so ignore that....
+    if potential_mount_point != "/dev":
+        mount_point = potential_mount_point
+    return mount_point
+
+
+class disk():
+    """Interfaces to disk device, to check device status, find largest
+    partition, mount it, etc."""
+
+    def __init__(self, device=""):
+        self.device = device
+        self.all_parts = []
+        self.unsupported_fs = None
+        self.test_dir = "/tmp"
+        lvm_detected = False
+        # Find final element of device name; for instance "sda" for "/dev/sda"
+        stripped_devname = self.device.split("/")[-1]
+
+        # Do first pass to collect data on partitions & software RAID
+        # devices (which we treat like partitions)....
+        for file in os.listdir("/sys/class/block"):
+            if stripped_devname in file:
+                part_data = get_partition_data(file)
+                part_data['part_type'] = "partition"
+                if part_data['fs_type'] == "LVM2_member":
+                    lvm_detected = True
+                self.all_parts.append(part_data)
+
+        # Do another pass to collect data on logical volumes, if any exist
+        # on the target device....
+        # NOTE: This code ignores where an LVM exists; it could span multiple
+        # disks, or be on one other than the one being tested. Canonical
+        # certification specifies use of partitions, not LVMs, so this code
+        # exists mainly for software development using development systems,
+        # not on servers actually being tested.
+        if lvm_detected:
+            for file in os.listdir("/sys/class/block/"):
+                if "dm-" in file:
+                    part_data = get_partition_data(file)
+                    part_data['part_type'] = "lv"
+                    self.all_parts.append(part_data)
+
+    def is_block_device(self):
+        try:
+            mode = os.stat(self.device).st_mode
+            if not stat.S_ISBLK(mode):
+                print("{} is NOT a block device! Aborting!".
+                      format(self.device))
+                return False
+        except FileNotFoundError:
+            print("{} does not exist! Aborting!".format(self.device))
+            return False
+        return True
+
+    def find_largest_partition(self):
+        """Find the largest partition that holds a supported filesystem on
+        self.device. Sets:
+        self.largest_part -- Dictionary containing information on largest
+                             partition
+        self.unsupported_fs -- Empty or contains information about largest
+                               unsupported filesystem (of certain known types)
+                               found on disk"""
+
+        self.largest_part = {'name': "",
+                             'size': 0,
+                             'part_type': "lv",
+                             'fs_type': ""}
+        self.unsupported_fs = None
+
+        # A filesystem can be supported for the test; unsupported but worth
+        # noting in an error message; or unsupported and not worth noting.
+        # The first two categories are enumerated in lists....
+        supported_filesystems = ['ext2', 'ext3', 'ext4', 'xfs', 'jfs', 'btrfs']
+        unsupported_filesystems = ['ntfs', 'vfat', 'hfs', 'LVM2_member']
+
+        for part in self.all_parts:
+            new_sz = int(part['size'])
+            old_sz = int(self.largest_part['size'])
+            new_lv = part['part_type'] == "lv"
+            old_lv = self.largest_part['part_type'] == "lv"
+            if (new_sz > 0 and old_sz == 0) or \
+                    (new_sz > min_fs_size and old_sz < min_fs_size) or \
+                    (new_sz > min_fs_size and new_sz > old_sz and old_lv) or \
+                    (new_sz > old_sz and not new_lv):
+                if part['fs_type'] in supported_filesystems:
+                    self.largest_part = part
+                elif part['fs_type'] in unsupported_filesystems:
+                    # Make note of it if it might be an old filesystem
+                    # that was not properly re-allocated....
+                    self.unsupported_fs = part
+        return self.largest_part
+
+    def mount_filesystem(self, simulate):
+        print("Disk device is {}".format(self.device))
+        target_part = self.find_largest_partition()
+        if target_part['name'] == "":
+            if self.unsupported_fs is not None:
+                print("A filesystem of type {} was found, but is not "
+                      "supported by this test.".
+                      format(self.unsupported_fs['fs_type']))
+                print("A Linux-native filesystem (ext2/3/4fs, XFS, JFS, or "
+                      "Btrfs) is required.")
+            else:
+                print("No suitable partition found!")
+            return False
+
+        if target_part['size'] < min_fs_size:
+            print("Warning: {} is less than {:.0f} GiB in size!".
+                  format(target_part['name'], min_fs_size/1024/1024/1024))
+            print("Disk is too small to test. Aborting test!")
+            return False
+
+        full_device = "/dev/{}".format(target_part['name'])
+        print("Testing partition {}".format(full_device))
+        mount_point = find_mount_point(target_part['name'])
+        if simulate:
+            print("Run with --simulate, so not mounting filesystems.")
+            print("If run without --simulate, would mount {} to {}".
+                  format(full_device, mount_point))
+            print("(if not already mounted).")
+        else:
+            if not mount_point:
+                mount_point = "/mnt/{}".format(target_part['name'])
+                print("Trying to mount {} to {}...".
+                      format(full_device, mount_point))
+                os.makedirs(mount_point, exist_ok=True)
+                command = "mount {} {}".format(full_device, mount_point)
+                run = Popen(shlex.split(command), stderr=STDOUT, stdout=PIPE)
+                output = run.communicate()[0].decode(encoding="utf-8",
+                                                     errors="ignore")
+                print(output)
+            else:
+                print("{} is already mounted at {}".
+                      format(full_device, mount_point))
+            self.test_dir = "{}/tmp/stress-ng-{}".format(mount_point,
+                                                         uuid.uuid1())
+            os.makedirs(self.test_dir, exist_ok=True)
+        return True
+
+
+def stress_disk(args):
+    """Run stress-ng tests on disk."""
+
+    disk_stressors = ['aio', 'aiol', 'chdir', 'chmod', 'chown', 'dentry',
+                      'dir', 'fallocate', 'fiemap', 'filename', 'flock',
+                      'fstat', 'hdd', 'ioprio', 'lease', 'locka', 'lockf',
+                      'lockofd', 'madvise', 'mknod', 'msync', 'readahead',
+                      'seal', 'seek', 'sync-file', 'xattr']
+
+    retval = 0
+    if "/dev" not in args.device and args.device != "":
+        args.device = "/dev/" + args.device
+
+    test_disk = disk(args.device)
+    if not test_disk.is_block_device():
+        return 131
+    if test_disk.mount_filesystem(args.simulate):
+        est_runtime = len(disk_stressors) * args.base_time
+        print("Using test directory: '{}'".format(test_disk.test_dir))
+        print("Estimated total run time is {:.0f} minutes\n".
+              format(est_runtime/60))
+        retval = 0
+        if not args.simulate:
+            for stressor in disk_stressors:
+                disk_options = "--temp-path {} ".format(test_disk.test_dir) + \
+                    "--hdd-opts dsync --readahead-bytes 16M -k"
+                test_object = stress_ng(stressors=stressor.split(),
+                                        sng_timeout=args.base_time,
+                                        wrapper_timeout=args.base_time*5,
+                                        extra_options=disk_options)
+                retval = retval | test_object.run()
+                print(test_object.get_results())
+        if test_disk.test_dir != "/tmp" and not args.simulate:
+            shutil.rmtree(test_disk.test_dir, ignore_errors=True)
+    else:
+        retval = 132
+
+    return retval
+
+
+"""Main program body..."""
+
+
+def main():
+    """Run a stress_ng-based stress run."""
+
+    parser = ArgumentParser(
+        description="Run tests based on stress-ng",
+        formatter_class=RawTextHelpFormatter)
+    subparsers = parser.add_subparsers()
+
+    # Main cli options
+    cpu_parser = subparsers.add_parser('cpu', help=("Run CPU tests"))
+    memory_parser = subparsers.add_parser('memory', help=("Run memory tests"))
+    disk_parser = subparsers.add_parser('disk', help=("Run disk tests"))
+
+    # Sub test options
+    # action = test_parser.add_mutually_exclusive_group()
+
+    # CPU parameters
+    cpu_parser.add_argument("-b", "--base-time", type=int, default=7200,
+                            help="Run time, in seconds (default=7200)")
+
+    # Memory parameters
+    memory_parser.add_argument("-b", "--base-time", type=int,
+                               help="Base time for each test, in seconds " +
+                               "(default=300)", default=300)
+    memory_parser.add_argument("-t", "--time-per-gig", type=int,
+                               help="Extra time per GiB for some stressors " +
+                               "(default=10)", default=10)
+    memory_parser.add_argument("-s", "--swap-size", type=int,
+                               help="swap size in GiB", default=0)
+    memory_parser.add_argument("-k", "--keep-swap", action="store_true",
+                               help="Keep swap file, if added by test")
+
+    # Disk parameters
+    disk_parser.add_argument("-d", "--device", type=str, required=True,
+                             help="Disk device (/dev/sda, etc.)")
+    disk_parser.add_argument("-b", "--base-time", type=int,
+                             help="Time for each test, in seconds " +
+                             "(default=240)", default=240)
+    disk_parser.add_argument("-s", "--simulate", action="store_true",
+                             help="Report disk info, but don't run tests")
+
+    cpu_parser.set_defaults(func=stress_cpu)
+    memory_parser.set_defaults(func=stress_memory)
+    disk_parser.set_defaults(func=stress_disk)
+
+    args = parser.parse_args()
+
+    # logging.basicConfig(level=logging.INFO)
+
+    if shutil.which("stress-ng") is None:
+        print("The stress-ng utility is not installed; exiting!")
+        return(128)
+    if not os.geteuid() == 0:
+        print("This program must be run as root (or via sudo); exiting!")
+        return(129)
+
+    retval = 1
+    if 'func' not in args:
+        parser.print_help()
+    else:
+        retval = args.func(args)
+        print("**************************************************************")
+        if retval == 0:
+            print("* stress-ng test passed!")
+        elif retval == 124:  # Terminated by Python timeout
+            print("** stress-ng test timed out and was forcefully ")
+            print("   terminated (Error {})".format(retval))
+        elif retval == 125:  # Terminated by SIGINT
+            print("** stress-ng test timed out and SIGINT (Ctrl+C) " +
+                  "was used to terminate")
+            print("   the test (Error {})!".format(retval))
+        elif retval == 130:  # Insufficient swap space for memory test
+            print("** Swap space unavailable! Please activate swap space " +
+                  "and re-run this test!")
+            print("   (Error {})".format(retval))
+        elif retval == 131:  # Alleged disk device is not a device file
+            print("** {} is not a block device! Aborting!".format(args.device))
+            print("   (Error {})".format(retval))
+        elif retval == 132:  # Unable to find a partition for disk test
+            print("** Unable to find a suitable partition! Aborting!")
+            print("   (Error {})".format(retval))
+        elif retval == 137:  # Terminated by SIGKILL
+            print("** stress-ng test timed out and SIGKILL was used to ")
+            print("   terminate the test (Error {})!".format(retval))
+        else:
+            print("stress-ng test failed with return code: {}".format(retval))
+        print("**************************************************************")
+
+    return(retval)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -68,7 +68,8 @@ class ManagePyProvider1PlugIn(Provider1PlugIn):
                 'gettext_domain', Unset)
         self._provider = Provider1.from_definition(
             definition, secure=False, validate=validate,
-            validation_kwargs=validation_kwargs, check=check, context=context)
+            validation_kwargs=validation_kwargs, check=check, context=context,
+            sideloaded=True)
         self._wrap_time = now() - start_time
 
     @property

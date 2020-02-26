@@ -230,7 +230,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 hw_info['bios'] = result.pop()
         resource = 'com.canonical.certification::cpuinfo'
         if resource in data['resource_map']:
-            result = ['{} x {}'.format(i['model'], i['count'])
+            result = ['{} x {}'.format(i.get('model'), i.get('count'))
                       for i in data["resource_map"][resource]]
             if result:
                 hw_info['processors'] = result.pop()
@@ -268,7 +268,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 hw_info['vram'] = '{} MiB'.format(vram)
         resource = 'com.canonical.certification::meminfo'
         if resource in data['resource_map']:
-            result = ['{} GiB'.format(format(int(i['total']) / 1073741824,
+            result = ['{} GiB'.format(format(int(
+                i.get('total', 0)) / 1073741824,
                       '.1f')) for i in data["resource_map"][resource]]
             if result:
                 hw_info['memory'] = result.pop()

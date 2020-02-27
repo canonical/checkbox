@@ -25,6 +25,7 @@ _description:
  Monitor tests (integrated GPU) (Manual)
 include:
  monitor/1_powersaving_.*                   certification-status=blocker
+ power-management/light_sensor
  monitor/1_dim_brightness_.*                certification-status=blocker
  monitor/1_displayport_.*                   certification-status=blocker
  audio/1_playback_displayport_.*            certification-status=blocker
@@ -51,6 +52,7 @@ _description:
  Monitor tests (after manual suspend, integrated GPU) (Manual)
 include:
  after-suspend-manual-monitor/1_powersaving_.*                   certification-status=blocker
+ after-suspend-manual-power-management/light_sensor
  after-suspend-manual-monitor/1_dim_brightness_.*                certification-status=blocker
  after-suspend-manual-monitor/1_displayport_.*                   certification-status=blocker
  after-suspend-manual-audio/1_playback_displayport_.*            certification-status=blocker
@@ -99,6 +101,7 @@ _description:
  Monitor tests (discrete GPU) (Manual)
 include:
  monitor/2_powersaving_.*                   certification-status=blocker
+ power-management/light_sensor
  monitor/2_dim_brightness_.*                certification-status=blocker
  monitor/2_displayport_.*                   certification-status=blocker
  audio/2_playback_displayport_.*            certification-status=blocker
@@ -134,6 +137,7 @@ _description:
  Monitor tests (after manual suspend, discrete GPU) (Manual)
 include:
  after-suspend-manual-monitor/2_powersaving_.*                   certification-status=blocker
+ after-suspend-manual-power-management/light_sensor
  after-suspend-manual-monitor/2_dim_brightness_.*                certification-status=blocker
  after-suspend-manual-monitor/2_displayport_.*                   certification-status=blocker
  after-suspend-manual-audio/2_playback_displayport_.*            certification-status=blocker

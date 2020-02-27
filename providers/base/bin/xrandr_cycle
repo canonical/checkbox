@@ -33,7 +33,8 @@ failure_messages = []  # remember which modes failed
 success_messages = []  # remember which modes succeeded
 
 # Run xrandr and ask it what devices and modes are supported
-xrandrinfo = subprocess.Popen('xrandr -q', shell=True, stdout=subprocess.PIPE)
+xrandrinfo = subprocess.Popen(
+    'xrandr -q --verbose', shell=True, stdout=subprocess.PIPE)
 output = xrandrinfo.communicate()[0].decode().split('\n')
 
 
@@ -62,12 +63,20 @@ for line in output:
         elif device_context != '':  # we've previously seen a 'connected' dev
             # mode names seem to always be of the format [horiz]x[vert]
             # (there can be non-mode information inside of a device context!)
-            if foo[0].find('x') != -1:
-                modes.append((device_context, foo[0]))
+            x_pos = foo[0].find('x')
+            # for a resolution there has to be at least 3 chars:
+            # a digit, an x, and a digit
+            if x_pos > 0 and x_pos < len(foo[0]) - 1:
+                if 'DoubleScan' in foo:
+                    # xrandr lists DoubleScan resolutions but cannot set them
+                    # so for the purposes of this test let's not use them
+                    continue
+                if foo[0][x_pos-1].isdigit() and foo[0][x_pos+1].isdigit():
+                    modes.append((device_context, foo[0]))
             # we also want to remember what the current mode is, which xrandr
             # marks with a '*' character, so we can set things back the way
             # we found them at the end:
-            if foo[1].find('*') != -1:
+            if "*current" in foo:
                 current_modes.append((device_context, foo[0]))
 # let's create a dict of aspect_ratio:largest_width for each display
 # (width, because it's easier to compare simple ints when looking for the

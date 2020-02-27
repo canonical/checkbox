@@ -622,7 +622,8 @@ class Provider1(IProvider1):
     def __init__(self, name, namespace, version, description, secure,
                  gettext_domain, units_dir, jobs_dir, data_dir, bin_dir,
                  locale_dir, base_dir, *, validate=False,
-                 validation_kwargs=None, check=True, context=None):
+                 validation_kwargs=None, check=True, context=None,
+                 sideloaded=False):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -710,6 +711,7 @@ class Provider1(IProvider1):
             'check': check,
             'context': context,
         }
+        self._sideloaded = sideloaded
         # Setup provider specific i18n
         self._setup_translations()
         logger.info("Provider initialized %s", self)
@@ -728,7 +730,7 @@ class Provider1(IProvider1):
     @classmethod
     def from_definition(cls, definition, secure, *,
                         validate=False, validation_kwargs=None, check=True,
-                        context=None):
+                        context=None, sideloaded=False):
         """
         Initialize a provider from Provider1Definition object
 
@@ -765,7 +767,7 @@ class Provider1(IProvider1):
             definition.effective_data_dir, definition.effective_bin_dir,
             definition.effective_locale_dir, definition.location or None,
             validate=validate, validation_kwargs=validation_kwargs,
-            check=check, context=context)
+            check=check, context=context, sideloaded=sideloaded)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -1068,6 +1070,11 @@ class Provider1(IProvider1):
         Bridge to ``.content_collection.fake_plugins`` that's shorter to type.
         """
         return self._enumerator.content_collection.fake_plugins
+
+    @property
+    def sideloaded(self):
+        """True if provider was loaded using sideloading facilities."""
+        return self._sideloaded
 
 
 class IQNValidator(PatternValidator):

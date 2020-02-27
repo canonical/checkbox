@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2020 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
@@ -44,8 +44,6 @@ from plainbox.impl.developer import UnexpectedMethodCall
 from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.providers import get_providers
-from plainbox.impl.providers.embedded_providers import (
-    EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunnerUIDelegate
@@ -392,36 +390,10 @@ class SessionAssistant:
             self.use_alternate_execution_controllers]
 
     def _load_providers(self) -> None:
-        """
-        Load all Checkbox providers
-
-        :raises SystemExit:
-            When no provider was found in the system.
-        """
-        def qualified_name(provider):
-            return "{}:{}".format(provider.namespace, provider.name)
-        sideload_path = os.path.expandvars(os.path.join(
-            '/var', 'tmp', 'checkbox-providers'))
-        embedded_providers = EmbeddedProvider1PlugInCollection(sideload_path)
-        loaded_provs = embedded_providers.get_all_plugin_objects()
-        for p in loaded_provs:
-            _logger.warning("Using sideloaded provider: %s from %s",
-                            p, p.base_dir)
-        sl_qual_names = [qualified_name(p) for p in loaded_provs]
-        self.sideloaded_providers = len(sl_qual_names) > 0
-        for std_prov in get_providers():
-            if qualified_name(std_prov) in sl_qual_names:
-                # this provider got overriden by sideloading
-                # so let's not load the original one
-                continue
-            loaded_provs.append(std_prov)
-        if not loaded_provs:
-            from plainbox.impl.providers.v1 import all_providers
-            message = '\n'.join((
-                _("No providers found! Paths searched:"),
-                *all_providers.provider_search_paths))
-            raise SystemExit(message)
-        self._selected_providers = loaded_provs
+        """Load all Checkbox providers."""
+        self._selected_providers = get_providers()
+        self.sideloaded_providers = any(
+            [p.sideloaded for p in self._selected_providers])
 
     def get_selected_providers(self):
         return self._selected_providers

@@ -16,7 +16,7 @@ from plainbox.provider_manager import setup, N_
 setup(
     name='checkbox-provider-phoronix',
     namespace='com.canonical.certification',
-    version="0.5.0.dev0",
+    version="0.6.0.dev0",
     description=N_("Checkbox provider with Phoronix Test Suite"),
     gettext_domain="checkbox-provider-phoronix",
 )

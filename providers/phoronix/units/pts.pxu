@@ -12,11 +12,13 @@ include:
  pts-generate-report
  pts-attach-report
 bootstrap_include:
+ com.canonical.certification::cpuinfo
  pts-job-generator
 
 id: pts-job-generator
 category_id: phoronix
 plugin: resource
+requires: cpuinfo.platform == "x86_64"
 command:
  echo id: pts/cpuminer-opt
  echo "name: Cpuminer benchmark."

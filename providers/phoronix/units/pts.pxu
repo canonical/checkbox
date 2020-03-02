@@ -59,9 +59,6 @@ category_id: phoronix
 _summary: {name}
 command:
  export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
- if [ -z "$PTS_PRELOAD_PATH" ]; then
-   $PLAINBOX_PROVIDER_DATA/phoronix-test-suite/phoronix-test-suite install {id}
- fi
  pts_wrapper.py {id}
 plugin: shell
 depends: pts-prepare-nest

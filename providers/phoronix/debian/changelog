@@ -1,4 +1,4 @@
-checkbox-provider-phoronix (0.4.0-1) UNRELEASED; urgency=medium
+checkbox-provider-phoronix (0.5.0-1) UNRELEASED; urgency=medium
 
   [ Sylvain Pineau ]
   * "new upstream version"
@@ -11,8 +11,9 @@ checkbox-provider-phoronix (0.4.0-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@open-joey-201506-18558.maas>  Thu, 20 Feb 2020 12:02:11 +0000
+ -- Jenkins <jenkins@open-joey-201506-18558.maas>  Mon, 02 Mar 2020 17:39:59 +0000
 
 checkbox-provider-phoronix (0.1.3) bionic; urgency=medium
 

@@ -12,11 +12,13 @@ include:
  pts-generate-report
  pts-attach-report
 bootstrap_include:
+ com.canonical.certification::cpuinfo
  pts-job-generator
 
 id: pts-job-generator
 category_id: phoronix
 plugin: resource
+requires: cpuinfo.platform == "x86_64"
 command:
  echo id: pts/cpuminer-opt
  echo "name: Cpuminer benchmark."
@@ -42,10 +44,12 @@ category_id: phoronix
 plugin: shell
 command:
  mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
- if [ ! -z "$PTS_PRELOAD_PATH" ]; then
-   cp -r $PTS_PRELOAD_PATH/* $PLAINBOX_SESSION_SHARE/pts-nest/
-   rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
+ if [ -z "$PTS_PRELOAD_PATH" ]; then
+   echo "PTS_PRELOAD_PATH is not defined! PTS tests cannot run" >&2
+   exit 1
  fi
+ cp -r $PTS_PRELOAD_PATH/* $PLAINBOX_SESSION_SHARE/pts-nest/
+ rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
  cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
  sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml
 environ: PTS_PRELOAD_PATH
@@ -57,9 +61,6 @@ category_id: phoronix
 _summary: {name}
 command:
  export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
- if [ -z "$PTS_PRELOAD_PATH" ]; then
-   $PLAINBOX_PROVIDER_DATA/phoronix-test-suite/phoronix-test-suite install {id}
- fi
  pts_wrapper.py {id}
 plugin: shell
 depends: pts-prepare-nest
@@ -69,6 +70,7 @@ environ: PTS_PRELOAD_PATH
 id: pts-generate-report
 category_id: phoronix
 plugin: shell
+depends: pts-prepare-nest
 command:
  export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
  cd $PLAINBOX_SESSION_SHARE/pts-nest/test-results/

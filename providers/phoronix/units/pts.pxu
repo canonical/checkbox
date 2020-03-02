@@ -68,6 +68,7 @@ environ: PTS_PRELOAD_PATH
 id: pts-generate-report
 category_id: phoronix
 plugin: shell
+depends: pts-prepare-nest
 command:
  export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
  cd $PLAINBOX_SESSION_SHARE/pts-nest/test-results/

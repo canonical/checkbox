@@ -63,7 +63,8 @@
             "io_log": {{ job_state.result.io_log_as_flat_text | jsonify | safe }},
             "type": "test",
             "project": "certification",
-            "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}}
+            "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0 }},
+            "plugin": "{{ job_state.job.plugin }}"
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ],

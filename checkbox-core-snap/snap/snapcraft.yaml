@@ -133,13 +133,11 @@ parts:
       - zlib1g-dev
       - build-essential
     stage-packages:
-      - libpam-modules
       - python3-jinja2
       - python3-padme
       - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter
-      - sudo
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""

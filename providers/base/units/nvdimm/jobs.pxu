@@ -3,7 +3,9 @@ category_id: com.canonical.plainbox::nvdimm
 id: nvdimm/info
 estimated_duration: 1.0  
 user: root
-requires: executable.name == "ipmctl"
+requires: 
+ executable.name == "ipmctl"
+ lsb.release >= "18.04"
 command: ipmctl show -dimm
 _summary:
  Verify that NVDIMMs are discovered
@@ -15,7 +17,9 @@ category_id: com.canonical.plainbox::nvdimm
 id: nvdimm/health
 estimated_duration: 1.0
 user: root
-requires: executable.name == "ipmctl"
+requires: 
+ executable.name == "ipmctl"
+ lsb.release >= "18.04"
 command: ipmctl show -d CurrentValue,CurrentState -sensor Health
 _summary:
  Report health state of installed NVDIMM devices

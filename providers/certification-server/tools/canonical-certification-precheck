@@ -624,8 +624,23 @@ for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun
         local current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
         echo -n " fast and has MTU of $current_mtu;"
         if [ $current_mtu -lt 9000 ]; then
-            echo " config is BAD"
-            let worst_status=$(($worst_status | 1))
+            echo " do you want to set an"
+            echo -n " MTU of 9000 (recommended)? "
+            read -N1 a
+            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                sudo ip link set $nic mtu 9000
+                current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
+                if [ $current_mtu -lt 9000 ]; then
+                    echo -e "\n Unable to set MTU to 9000!"
+                    let worst_status=$(($worst_status | 1))
+                else
+                    echo -e "\n NOTE: MTU will not survive a system reset; edit network configuration"
+                    echo " file for that."
+                fi
+            else
+                echo -e "\n If network tests fail, try setting the MTU to 9000."
+                let worst_status=$(($worst_status | 1))
+            fi
         else
             echo " config is OK"
         fi

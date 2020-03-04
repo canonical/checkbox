@@ -112,6 +112,7 @@ include:
     after-suspend-bluetooth4/beacon_eddystone_url_.*
     suspend/cpu_after_suspend_auto
     suspend/memory_after_suspend_auto
+    after-suspend-wireless-automated
     suspend/gpu_lockup_after_suspend
     suspend/screenshot_after_suspend
     screenshot_after_suspend.jpg

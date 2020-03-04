@@ -42,7 +42,10 @@ class CpuinfoResult:
                     value = int(value) // 1000
             if value:
                 print("%s: %s" % (key, value))
-        print("governors: %s" % open(GOVERNORS_FILENAME).read().strip())
+        try:
+            print("governors: %s" % open(GOVERNORS_FILENAME).read().strip())
+        except FileNotFoundError:
+            print("governors: GOVERNORS NOT FOUND")
 
 
 def main():

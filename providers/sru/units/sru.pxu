@@ -51,6 +51,9 @@ _description:
 nested_part:
     com.canonical.certification::pts
     com.canonical.certification::stress-pm-graph
+    ethernet-automated
+    wireless-automated
+    usb-automated
 include:
     miscellanea/submission-resources
     acpi_sleep_attachment
@@ -86,8 +89,6 @@ include:
     install/apt-get-gets-updates
     mediacard/sd-preinserted
     memory/info
-    ethernet/detect
-    ethernet/info_automated
     miscellanea/dkms_build_validation
     networking/http
     networking/gateway_ping
@@ -95,15 +96,6 @@ include:
     power-management/rtc
     power-management/fwts_wakealarm
     power-management/fwts_wakealarm-log-attach
-    usb/detect
-    usb/storage-preinserted
-    wireless/wireless_scanning_.*
-    wireless/wireless_connection_wpa_bg_nm_.*
-    wireless/wireless_connection_open_bg_nm_.*
-    wireless/wireless_connection_wpa_n_nm_.*
-    wireless/wireless_connection_open_n_nm_.*
-    wireless/wireless_connection_wpa_ac_nm_.*
-    wireless/wireless_connection_open_ac_nm_.*
     bluetooth4/beacon_eddystone_url_.*
     miscellanea/fan_stress_reaction
     suspend/audio_before_suspend
@@ -120,12 +112,7 @@ include:
     after-suspend-bluetooth4/beacon_eddystone_url_.*
     suspend/cpu_after_suspend_auto
     suspend/memory_after_suspend_auto
-    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
-    after-suspend-wireless/wireless_connection_open_bg_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
-    after-suspend-wireless/wireless_connection_open_n_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
-    after-suspend-wireless/wireless_connection_open_ac_nm_.*
+    after-suspend-wireless-automated
     suspend/gpu_lockup_after_suspend
     suspend/screenshot_after_suspend
     screenshot_after_suspend.jpg

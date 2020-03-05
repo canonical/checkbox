@@ -8,7 +8,11 @@ id: pts
 _name: Phoronix Test Suite
 include:
  pts-prepare-nest
- pts/.*
+ pts/cpuminer-opt
+ pts/encode-mp3
+ pts/fs-mark
+ pts/john-the-ripper
+ pts/ramspeed
  pts-generate-report
  pts-attach-report
 bootstrap_include:

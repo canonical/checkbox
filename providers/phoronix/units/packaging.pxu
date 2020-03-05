@@ -1,3 +1,3 @@
 unit: packaging meta-data
 os-id: debian
-Depends: php-cli, php-xml, xserver-xorg-dev, plainbox-provider-resource-generic
+Depends: php-cli, php-xml, plainbox-provider-resource-generic, apt-file, autoconf, build-essential, curl, libasio-dev, libboost-all-dev, libboost-iostreams-dev, libcurl4-openssl-dev, libgmp3-dev, libjpeg-dev, libpng-dev, libsdl-gfx1.2-dev, libsdl-image1.2-dev, libsdl-mixer1.2-dev, libsdl-net1.2-dev, libsdl-ttf2.0-dev, libsdl1.2-dev, libssl-dev, libtiff5-dev, mesa-utils, unzip, zlib1g-dev

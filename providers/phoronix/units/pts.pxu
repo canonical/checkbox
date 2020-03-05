@@ -8,9 +8,26 @@ id: pts
 _name: Phoronix Test Suite
 include:
  pts-prepare-nest
- pts/.*
+ pts/cpuminer-opt
+ pts/encode-mp3
+ pts/fs-mark
+ pts/john-the-ripper
+ pts/ramspeed
  pts-generate-report
  pts-attach-report
+bootstrap_include:
+ com.canonical.certification::cpuinfo
+ pts-job-generator
+
+unit: test plan
+category_id: phoronix
+id: pts-autotest
+_name: Phoronix Test Suite - Autotest suite
+include:
+ pts/john-the-ripper
+ pts/openssl
+ pts/povray
+ pts/ttsiod-renderer
 bootstrap_include:
  com.canonical.certification::cpuinfo
  pts-job-generator
@@ -37,6 +54,15 @@ command:
  echo
  echo id: pts/ramspeed
  echo "name: This benchmark tests the system memory (RAM) performance."
+ echo
+ echo id: pts/openssl
+ echo "name: This test measures the RSA 4096-bit performance of OpenSSL."
+ echo
+ echo id: pts/povray
+ echo "name: This is a test of POV-Ray, the Persistence of Vision Raytracer."
+ echo
+ echo id: pts/ttsiod-renderer
+ echo "name: A portable GPL 3D software renderer that supports OpenMP and Intel Threading Building Blocks with many different rendering modes."
  echo
 
 id: pts-prepare-nest

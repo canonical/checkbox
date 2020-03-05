@@ -16,8 +16,7 @@ include:
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
     benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
     cpu/clocktest                              certification-status=blocker
-    cpu/scaling_test                           certification-status=blocker
-    cpu/scaling_test-log-attach                certification-status=non-blocker
+    cpu/frequency_governors                    certification-status=blocker
     cpu/maxfreq_test                           certification-status=blocker
     cpu/maxfreq_test-log-attach                certification-status=non-blocker
     cpu/topology                               certification-status=blocker

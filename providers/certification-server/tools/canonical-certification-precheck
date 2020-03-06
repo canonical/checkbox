@@ -624,8 +624,32 @@ for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun
         local current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
         echo -n " fast and has MTU of $current_mtu;"
         if [ $current_mtu -lt 9000 ]; then
-            echo " config is BAD"
-            let worst_status=$(($worst_status | 1))
+            echo " do you want to set an"
+            echo -n " MTU of 9000 (recommended)? "
+            read -N1 a
+            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+                sudo ip link set $nic mtu 9000
+                if [ -f /etc/rc.local ] ; then
+                    if grep exit /etc/rc.local > /dev/null ; then
+                        sudo sed -i "s/exit 0/ip link set $nic mtu 9000\n\nexit 0/g" /etc/rc.local
+                    else
+                        sudo sh -c "printf 'ip link set $nic mtu 9000\n\nexit 0\n' >> /etc/rc.local"
+                    fi
+                else
+                    sudo sh -c "printf '#!/bin/bash\n\nip link set $nic mtu 9000\n\nexit 0\n' > /etc/rc.local"
+                    sudo chmod a+x /etc/rc.local
+                fi
+                current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
+                if [ $current_mtu -lt 9000 ]; then
+                    echo -e "\n Unable to set MTU to 9000!"
+                    let worst_status=$(($worst_status | 1))
+                else
+                    echo -e "\n NOTE: MTU adjusted in /etc/rc.local."
+                fi
+            else
+                echo -e "\n If network tests fail, try setting the MTU to 9000."
+                let worst_status=$(($worst_status | 1))
+            fi
         else
             echo " config is OK"
         fi

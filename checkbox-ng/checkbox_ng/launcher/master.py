@@ -78,10 +78,10 @@ class SimpleUI(NormalUI, MainLoopStage):
         print(SimpleUI.C.header(header, fill='-'))
 
     def green_text(text, end='\n'):
-        print(SimpleUI.C.GREEN(text), end=end)
+        print(SimpleUI.C.GREEN(text), end=end, file=sys.stdout)
 
     def red_text(text, end='\n'):
-        print(SimpleUI.C.RED(text), end=end)
+        print(SimpleUI.C.RED(text), end=end, file=sys.stderr)
 
     def horiz_line():
         print(SimpleUI.C.WHITE('-' * 80))
@@ -417,11 +417,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         while True:
             state, payload = self.sa.monitor_job()
             if payload and not self._is_bootstrapping:
-                for stream, line in payload:
-                    if stream == 'stderr':
-                        SimpleUI.red_text(line, end='')
+                for line in payload.splitlines():
+                    if line.startswith('stderr'):
+                        SimpleUI.red_text(line[6:])
                     else:
-                        SimpleUI.green_text(line, end='')
+                        SimpleUI.green_text(line[6:])
             if state == 'running':
                 time.sleep(0.5)
                 while True:

@@ -24,6 +24,7 @@ import queue
 import time
 import sys
 from collections import namedtuple
+from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
 from subprocess import CalledProcessError, check_output
 
@@ -635,3 +636,10 @@ class RemoteSessionAssistant():
     @property
     def sideloaded_providers(self):
         return self._sa.sideloaded_providers
+
+    def exposed_cache_report(self, exporter_id, options):
+        exporter = self._sa._manager.create_exporter(exporter_id, options)
+        exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
+        exporter.dump_from_session_manager(self._sa._manager, exported_stream)
+        exported_stream.flush()
+        return exported_stream

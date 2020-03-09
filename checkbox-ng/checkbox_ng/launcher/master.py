@@ -49,6 +49,7 @@ from checkbox_ng.urwid_ui import resume_dialog
 from checkbox_ng.launcher.run import NormalUI, ReRunJob
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
+from tqdm import tqdm
 _ = gettext.gettext
 _logger = logging.getLogger("master")
 
@@ -452,13 +453,36 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self.abandon()
         self.new_session()
 
+    def _download_file(conn, remotepath, localpath, chunk_size=16384):
+        try:
+            rf = conn.root.open(remotepath, "rb")
+            with tqdm(total=conn.root.getsize(remotepath), unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+                with open(localpath, "wb") as lf:
+                    while True:
+                        buf = rf.read(chunk_size)
+                        pbar.set_postfix(file=remotepath, refresh=False)
+                        pbar.update(chunk_size)
+                        if not buf:
+                            break
+                        #time.sleep(0.01)
+                        lf.write(buf)
+        finally:
+            rf.close()
+
     def local_export(self, exporter_id, transport, options=()):
         _logger.info("master: Exporting locally'")
-        exporter = self._sa.manager.create_exporter(exporter_id, options)
+        rf = self.sa.cache_report(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
-        async_dump = rpyc.async_(exporter.dump_from_session_manager)
-        res = async_dump(self._sa.manager, exported_stream)
-        res.wait()
+        chunk_size=16384
+        with tqdm(total=rf.tell(), unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+            rf.seek(0)
+            while True:
+                buf = rf.read(chunk_size)
+                pbar.set_postfix(file=transport.url, refresh=False)
+                pbar.update(chunk_size)
+                if not buf:
+                    break
+                exported_stream.write(buf)
         exported_stream.seek(0)
         result = transport.send(exported_stream)
         return result

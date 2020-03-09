@@ -21,7 +21,13 @@ except ImportError:
 
 from plainbox.vendor.rpyc.core import brine
 from plainbox.vendor.rpyc.core import consts
-from plainbox.vendor.rpyc.lib.compat import is_py3k
+from plainbox.vendor.rpyc import version
+from plainbox.vendor.rpyc.lib.compat import is_py_3k
+
+
+REMOTE_LINE_START = "\n\n========= Remote Traceback "
+REMOTE_LINE_END = " =========\n"
+REMOTE_LINE = "{0}({{}}){1}".format(REMOTE_LINE_START, REMOTE_LINE_END)
 
 
 try:
@@ -30,7 +36,8 @@ except NameError:
     # python 2.4 compatible
     BaseException = Exception
 
-def dump(typ, val, tb, include_local_traceback):
+
+def dump(typ, val, tb, include_local_traceback, include_local_version):
     """Dumps the given exceptions info, as returned by ``sys.exc_info()``
 
     :param typ: the exception's type (class)
@@ -47,7 +54,7 @@ def dump(typ, val, tb, include_local_traceback):
               :func:`brine.dump <rpyc.core.brine.dump>`
     """
     if typ is StopIteration:
-        return consts.EXC_STOP_ITERATION # optimization
+        return consts.EXC_STOP_ITERATION  # optimization
     if type(typ) is str:
         return typ
 
@@ -76,7 +83,12 @@ def dump(typ, val, tb, include_local_traceback):
             if not brine.dumpable(attrval):
                 attrval = repr(attrval)
             attrs.append((name, attrval))
+    if include_local_version:
+        attrs.append(("_remote_version", version.version_string))
+    else:
+        attrs.append(("_remote_version", "<version denied>"))
     return (typ.__module__, typ.__name__), tuple(args), tuple(attrs), tbtext
+
 
 def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantiate_oldstyle_exceptions):
     """
@@ -101,11 +113,12 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
     :returns: A throwable exception object
     """
     if val == consts.EXC_STOP_ITERATION:
-        return StopIteration # optimization
+        return StopIteration  # optimization
     if type(val) is str:
-        return val # deprecated string exceptions
+        return val  # deprecated string exceptions
 
     (modname, clsname), args, attrs, tbtext = val
+
     if import_custom_exceptions and modname not in sys.modules:
         try:
             __import__(modname, None, None, "*")
@@ -122,7 +135,7 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
     else:
         cls = None
 
-    if is_py3k:
+    if is_py_3k:
         if not isinstance(cls, type) or not issubclass(cls, BaseException):
             cls = None
     else:
@@ -138,7 +151,7 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
         # py2: `type()` expects `str` not `unicode`!
         fullname = str(fullname)
         if fullname not in _generic_exceptions_cache:
-            fakemodule = {"__module__" : "%s/%s" % (__name__, modname)}
+            fakemodule = {"__module__": "%s/%s" % (__name__, modname)}
             if isinstance(GenericException, ClassType):
                 _generic_exceptions_cache[fullname] = ClassType(fullname, (GenericException,), fakemodule)
             else:
@@ -155,7 +168,17 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
 
     exc.args = args
     for name, attrval in attrs:
-        setattr(exc, name, attrval)
+        try:
+            setattr(exc, name, attrval)
+        except AttributeError:      # handle immutable attrs (@property)
+            pass
+
+    # When possible and relevant, warn the user about mismatch in major versions between remote and local
+    remote_ver = getattr(exc, "_remote_version", "<version denied>")
+    if remote_ver != "<version denied>" and remote_ver.split('.')[0] != str(version.version[0]):
+        _warn = '\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n'
+        tbtext += _warn.format(remote_ver, version.version_string)
+
     exc._remote_tb = tbtext
     return exc
 
@@ -165,8 +188,10 @@ class GenericException(Exception):
     the other party cannot be instantiated locally"""
     pass
 
+
 _generic_exceptions_cache = {}
 _exception_classes_cache = {}
+
 
 def _get_exception_class(cls):
     if cls in _exception_classes_cache:
@@ -180,9 +205,10 @@ def _get_exception_class(cls):
             except Exception:
                 text = "<Unprintable exception>"
             if hasattr(self, "_remote_tb"):
-                text += "\n\n========= Remote Traceback (%d) =========\n%s" % (
-                    self._remote_tb.count("\n\n========= Remote Traceback") + 1, self._remote_tb)
+                text += REMOTE_LINE.format(self._remote_tb.count(REMOTE_LINE_START) + 1)
+                text += self._remote_tb
             return text
+
         def __repr__(self):
             return str(self)
 
@@ -190,4 +216,3 @@ def _get_exception_class(cls):
     Derived.__module__ = cls.__module__
     _exception_classes_cache[cls] = Derived
     return Derived
-

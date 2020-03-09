@@ -6,8 +6,10 @@ Note that the services by both parties need not be symmetric, e.g., one side may
 exposed *service A*, while the other may expose *service B*. As long as the two
 can interoperate, you're good to go.
 """
+from functools import partial
+
 from plainbox.vendor.rpyc.lib import hybridmethod
-from plainbox.vendor.rpyc.lib.compat import execute, is_py3k
+from plainbox.vendor.rpyc.lib.compat import execute, is_py_3k
 from plainbox.vendor.rpyc.core.protocol import Connection
 
 
@@ -57,6 +59,7 @@ class Service(object):
     def on_connect(self, conn):
         """called when the connection is established"""
         pass
+
     def on_disconnect(self, conn):
         """called when the connection had already terminated for cleanup
         (must not perform any IO on the connection)"""
@@ -67,6 +70,7 @@ class Service(object):
 
     def _rpyc_delattr(self, name):
         raise AttributeError("access denied")
+
     def _rpyc_setattr(self, name, value):
         raise AttributeError("access denied")
 
@@ -79,6 +83,7 @@ class Service(object):
         if name.endswith("SERVICE"):
             name = name[:-7]
         return (name,)
+
     @classmethod
     def get_service_name(cls):
         """returns the canonical name of the service (which is its first
@@ -111,9 +116,11 @@ class ModuleNamespace(object):
     'module namespace'"""
 
     __slots__ = ["__getmodule", "__cache", "__weakref__"]
+
     def __init__(self, getmodule):
         self.__getmodule = getmodule
         self.__cache = {}
+
     def __contains__(self, name):
         try:
             self[name]
@@ -121,32 +128,41 @@ class ModuleNamespace(object):
             return False
         else:
             return True
+
     def __getitem__(self, name):
         if type(name) is tuple:
             name = ".".join(name)
         if name not in self.__cache:
             self.__cache[name] = self.__getmodule(name)
         return self.__cache[name]
+
     def __getattr__(self, name):
         return self[name]
 
+
 class Slave(object):
     __slots__ = ["_conn", "namespace"]
+
     def __init__(self):
         self._conn = None
         self.namespace = {}
+
     def execute(self, text):
         """execute arbitrary code (using ``exec``)"""
         execute(text, self.namespace)
+
     def eval(self, text):
         """evaluate arbitrary code (using ``eval``)"""
         return eval(text, self.namespace)
+
     def getmodule(self, name):
         """imports an arbitrary module"""
         return __import__(name, None, None, "*")
+
     def getconn(self):
         """returns the local connection instance to the other side"""
         return self._conn
+
 
 class SlaveService(Slave, Service):
     """The SlaveService allows the other side to perform arbitrary imports and
@@ -160,17 +176,18 @@ class SlaveService(Slave, Service):
     def on_connect(self, conn):
         self._conn = conn
         self._conn._config.update(dict(
-            allow_all_attrs = True,
-            allow_pickle = True,
-            allow_getattr = True,
-            allow_setattr = True,
-            allow_delattr = True,
-            allow_exposed_attrs = False,
-            import_custom_exceptions = True,
-            instantiate_custom_exceptions = True,
-            instantiate_oldstyle_exceptions = True,
+            allow_all_attrs=True,
+            allow_pickle=True,
+            allow_getattr=True,
+            allow_setattr=True,
+            allow_delattr=True,
+            allow_exposed_attrs=False,
+            import_custom_exceptions=True,
+            instantiate_custom_exceptions=True,
+            instantiate_oldstyle_exceptions=True,
         ))
         super(SlaveService, self).on_connect(conn)
+
 
 class FakeSlaveService(VoidService):
     """VoidService that can be used for connecting to peers that operate a
@@ -178,10 +195,11 @@ class FakeSlaveService(VoidService):
     ``SlaveService`` (pre v3.5) without exposing any functionality to them."""
     __slots__ = ()
     exposed_namespace = None
-    exposed_execute   = None
-    exposed_eval      = None
+    exposed_execute = None
+    exposed_eval = None
     exposed_getmodule = None
-    exposed_getconn   = None
+    exposed_getconn = None
+
 
 class MasterService(Service):
 
@@ -197,21 +215,25 @@ class MasterService(Service):
     @staticmethod
     def _install(conn, slave):
         modules = ModuleNamespace(slave.getmodule)
-        builtin = modules.builtins if is_py3k else modules.__builtin__
+        builtin = modules.builtins if is_py_3k else modules.__builtin__
         conn.modules = modules
         conn.eval = slave.eval
         conn.execute = slave.execute
         conn.namespace = slave.namespace
         conn.builtin = builtin
         conn.builtins = builtin
+        from plainbox.vendor.rpyc.utils.classic import teleport_function
+        conn.teleport = partial(teleport_function, conn)
+
 
 class ClassicService(MasterService, SlaveService):
     """Full duplex master/slave service, i.e. both parties have full control
     over the other. Must be used by both parties."""
     __slots__ = ()
 
+
 class ClassicClient(MasterService, FakeSlaveService):
     """MasterService that can be used for connecting to peers that operate a
-    :class:`MasterService`, :class:`ClassicService`, or the old
-    ``SlaveService`` (pre v3.5) without exposing any functionality to them."""
+    :class:`MasterService`, :class:`ClassicService` without exposing any
+    functionality to them."""
     __slots__ = ()

@@ -37,12 +37,14 @@ _purpose:
  BIOS), the device won't be able to get the master key and decrypt its data
  partition.
 _steps:
+ NOTE!!!! YOU'LL HAVE TO RE-INSTALL THE IMAGE AFTER THIS TEST
  1. Install the image and make sure it boots and you can log in.
- 2. Turn the device off and upgrade/downgrade the BIOS or modify Secure Boot state
- 3. Make sure the BIOS is set up properly (e.g. TPM enabled, UEFI boot mode)
- 4. Start the device
+ 2. Make sure the BIOS is set up properly (e.g. TPM enabled, UEFI boot mode)
+ 3. Based on your project's situation, choose one of the following methods to clean TPM:
+    a. Turn the device off and upgrade/downgrade the BIOS or modify Secure Boot state
+    b. Clean TPM via BIOS menu
+    c. Install checkbox, execute "checkbox-[project name].checkbox-cli run com.canonical.certification::tpm2.0_3.0.4/tpm2_takeownership"
+ 4. Start or reboot the device
 _verification:
  Mark this test as "Passed" if the device cannot boot anymore.
- Note: You must flash the BIOS back to the latest version, re-enable Secure Boot
- and re-install the image afterwards.
 

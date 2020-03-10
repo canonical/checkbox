@@ -133,6 +133,7 @@ parts:
       - zlib1g-dev
       - build-essential
     stage-packages:
+      - python3-crypto
       - python3-jinja2
       - python3-padme
       - python3-requests-oauthlib

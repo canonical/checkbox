@@ -161,7 +161,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config['allow_all_attrs'] = True
-        config['sync_request_timeout'] = 60
+        config['sync_request_timeout'] = 120
         keep_running = False
         self._prepare_transports()
         interrupted = False

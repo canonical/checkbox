@@ -138,6 +138,8 @@ parts:
       - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter
+    python-packages:
+      - tqdm
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""

@@ -27,7 +27,6 @@ from argparse import ArgumentParser
 import os
 import logging
 import lsb_release
-import platform
 import requests
 import shlex
 from subprocess import (
@@ -224,7 +223,7 @@ class KVMTest(object):
             if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
                 cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
                     self.release, self.qemu_config['cloudimg_arch'])
-            elif alt_pattern is "modern":
+            elif alt_pattern == "modern":
                 # LP 1635345 - yakkety and beyond have a new naming scheme
                 cloud_iso = "%s-server-cloudimg-%s.img" % (
                     self.release, self.qemu_config['cloudimg_arch'])
@@ -253,7 +252,7 @@ class KVMTest(object):
                 logging.error(" * Message: {}".format(e.with_traceback(None)))
                 return False
 
-            if ret.status_code is not 200:
+            if ret.status_code != 200:
                 return False
             else:
                 return True
@@ -561,7 +560,7 @@ class LXDTest(object):
         self.name = 'testbed'
         self.image_alias = uuid4().hex
         self.default_remote = "ubuntu:"
-        self.os_version = platform.linux_distribution()[1]
+        self.os_version = lsb_release.get_distro_information()["RELEASE"]
 
     def run_command(self, cmd):
         task = RunCommand(cmd)

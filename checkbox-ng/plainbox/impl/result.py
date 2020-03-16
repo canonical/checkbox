@@ -344,6 +344,11 @@ class _JobResultBase(IJobResult):
         """The amount of time in seconds it took to run this job."""
         return self._data.get('execution_duration')
 
+    @execution_duration.setter
+    def execution_duration(self, duration):
+        """Set correct amount of time in seconds it took to rut this job."""
+        self._data['execution_duration'] = duration
+
     @property
     def comments(self):
         """

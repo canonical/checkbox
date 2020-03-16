@@ -200,6 +200,8 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             return SessionPeekHelper5().peek_json(json_repr)
         elif version == 6:
             return SessionPeekHelper6().peek_json(json_repr)
+        elif version == 7:
+            return SessionPeekHelper7().peek_json(json_repr)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -328,6 +330,9 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         elif version == 6:
             helper = SessionResumeHelper6(
                 self.job_list, self.flags, self.location)
+        elif version == 7:
+            helper = SessionResumeHelper7(
+                self.job_list, self.flags, self.location)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -453,6 +458,13 @@ class MetaDataHelper6MixIn(MetaDataHelper3MixIn):
         metadata.rejected_jobs = _validate(
             metadata_repr, key='rejected_jobs', value_type=list)
 
+class MetaDataHelper7MixIn(MetaDataHelper6MixIn):
+    def _restore_SessionState_metadata(cls, metadata, session_repr):
+        super()._restore_SessionState_metadata(metadata, session_repr)
+        metadata.last_job_start_time = _validate(
+            session_repr['metadata'], key='last_job_start_time',
+            value_type=float)
+
 
 class SessionPeekHelper1(MetaDataHelper1MixIn):
 
@@ -562,6 +574,17 @@ class SessionPeekHelper6(MetaDataHelper6MixIn, SessionPeekHelper5):
     The only goal of this class is to reconstruct session state meta-data.
     """
 
+class SessionPeekHelper7(MetaDataHelper7MixIn, SessionPeekHelper6):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper7` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
 
 class SessionResumeHelper1(MetaDataHelper1MixIn):
 
@@ -1133,6 +1156,10 @@ class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
         # Return whatever we've got
         logger.debug(_("Resume complete!"))
         return session
+
+
+class SessionResumeHelper7(MetaDataHelper7MixIn, SessionResumeHelper6):
+    pass
 
 
 def _validate(obj, **flags):

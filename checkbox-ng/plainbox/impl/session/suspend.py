@@ -653,6 +653,14 @@ class SessionSuspendHelper6(SessionSuspendHelper5):
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
 
+class SessionSuspendHelper7(SessionSuspendHelper6):
+    VERSION = 7
+
+    def _repr_SessionMetaData(self, obj, session_dir):
+        data = super()._repr_SessionMetaData(obj, session_dir)
+        data['last_job_start_time'] = obj.last_job_start_time
+        return data
+
 
 # Alias for the most recent version
-SessionSuspendHelper = SessionSuspendHelper6
+SessionSuspendHelper = SessionSuspendHelper7

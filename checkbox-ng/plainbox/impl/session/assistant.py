@@ -1672,10 +1672,15 @@ class SessionAssistant:
             If the exporter unit reported an error.
         """
         UsageExpectation.of(self).enforce()
-        exporter = self._manager.create_exporter(exporter_id, options)
-        exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
-        exporter.dump_from_session_manager(self._manager, exported_stream)
-        exported_stream.seek(0)
+        try:
+            exporter = self._manager.create_exporter(exporter_id, options)
+            exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
+            exporter.dump_from_session_manager(self._manager, exported_stream)
+            exported_stream.seek(0)
+        except ExporterError as exc:
+            logging.warning(_("Transport skipped due to exporter error (%s)"),
+                            transport.url)
+            raise
         result = transport.send(exported_stream)
         if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
             self._metadata.flags.add(SessionMetaData.FLAG_SUBMITTED)

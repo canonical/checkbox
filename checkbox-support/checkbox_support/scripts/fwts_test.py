@@ -181,8 +181,10 @@ def main():
                         help=('Specify the location and name '
                               'of the log file.\n'
                               '[Default: %(default)s]'))
+    # "supercritical" default is used to avoid displaying critical results by
+    # default
     parser.add_argument('-f', '--fail-level',
-                        default='critical',
+                        default='supercritical',
                         choices=['critical', 'high', 'medium',
                                  'low', 'none', 'aborted'],
                         help=('Specify the FWTS failure level that will '
@@ -256,11 +258,12 @@ def main():
     warnings = []
 
     # Set correct fail level
-    if args.fail_level is not 'none':
+    if args.fail_level != 'none':
         args.fail_level = 'FAILED_%s' % args.fail_level.upper()
 
         # Get our failure priority and create the priority values
-        fail_levels = {'FAILED_CRITICAL': 4,
+        fail_levels = {'FAILED_SUPERCRITICAL': 5,
+                       'FAILED_CRITICAL': 4,
                        'FAILED_HIGH': 3,
                        'FAILED_MEDIUM': 2,
                        'FAILED_LOW': 1,
@@ -420,7 +423,8 @@ def main():
                 return 1
     if critical_fails:
         print("Critical Failures: %d" % len(critical_fails))
-        if not args.quiet:
+        if ((args.quiet and fail_priority <= fail_levels['FAILED_CRITICAL'])
+            or not args.quiet):
             print(" WARNING: The following test cases were reported as"
                   " critical\n"
                   " level failures by fwts. Please review the log at\n"
@@ -429,7 +433,8 @@ def main():
                 print("  - " + test)
     if high_fails:
         print("High Failures: %d" % len(high_fails))
-        if not args.quiet:
+        if ((args.quiet and fail_priority <= fail_levels['FAILED_HIGH'])
+            or not args.quiet):
             print(" WARNING: The following test cases were reported as high\n"
                   " level failures by fwts. Please review the log at\n"
                   " %s for more information." % args.log)
@@ -437,7 +442,8 @@ def main():
                 print("  - " + test)
     if medium_fails:
         print("Medium Failures: %d" % len(medium_fails))
-        if not args.quiet:
+        if ((args.quiet and fail_priority <= fail_levels['FAILED_MEDIUM'])
+            or not args.quiet):
             print(" WARNING: The following test cases were reported as"
                   " medium\n"
                   " level failures by fwts. Please review the log at\n"
@@ -446,7 +452,8 @@ def main():
                 print("  - " + test)
     if low_fails:
         print("Low Failures: %d" % len(low_fails))
-        if not args.quiet:
+        if ((args.quiet and fail_priority <= fail_levels['FAILED_LOW'])
+            or not args.quiet):
             print(" WARNING: The following test cases were reported as low\n"
                   " level failures by fwts. Please review the log at\n"
                   " %s for more information." % args.log)
@@ -454,7 +461,8 @@ def main():
                 print("  - " + test)
     if passed:
         print("Passed: %d" % len(passed))
-        if not args.quiet:
+        if ((args.quiet and fail_priority <= fail_levels['FAILED_NONE'])
+            or not args.quiet):
             for test in passed:
                 print(" - " + test)
     if skipped:
@@ -482,14 +490,15 @@ def main():
                 print("  - " + test)
     if aborted:
         print("Aborted Tests: %d" % len(aborted))
-        if not args.quiet:
+        if ((args.quiet and fail_priority <= fail_levels['FAILED_ABORTED'])
+            or not args.quiet):
             print(" WARNING: The following test cases were aborted by fwts\n"
                   " Please review the log at %s for more information."
                   % args.log)
             for test in aborted:
                 print("  - " + test)
 
-    if args.fail_level is not 'none':
+    if args.fail_level != 'none':
         if fail_priority == fail_levels['FAILED_CRITICAL']:
             if critical_fails:
                 return 1

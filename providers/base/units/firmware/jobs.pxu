@@ -77,7 +77,7 @@ _description:
 _summary: Run FWTS Server Cert selected tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- checkbox-support-fwts_test --server -q -l $PLAINBOX_SESSION_SHARE/fwts_server_results.log
+ checkbox-support-fwts_test --server -q -f high -l $PLAINBOX_SESSION_SHARE/fwts_server_results.log
 
 plugin: attachment
 category_id: com.canonical.plainbox::firmware

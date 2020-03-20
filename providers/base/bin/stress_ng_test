@@ -123,9 +123,9 @@ def stress_cpu(args):
     """Run stress-ng tests on CPUs."""
 
     retval = 0
-    stressors = ['bsearch', 'context', 'cpu', 'crypt', 'hsearch', 'longjmp',
-                 'lsearch', 'matrix', 'qsort', 'str', 'stream', 'tsearch',
-                 'vecmath', 'wcs']
+    stressors = ['af-alg', 'bsearch', 'context', 'cpu', 'crypt', 'hsearch',
+                 'longjmp', 'lsearch', 'matrix', 'qsort', 'str', 'stream',
+                 'tsearch', 'vecmath', 'wcs']
     # Add 10% to runtime; will forcefully terminate if stress-ng
     # fails to return in that time.
     end_time = args.base_time * 11 / 10

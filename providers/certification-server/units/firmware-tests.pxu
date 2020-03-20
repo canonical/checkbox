@@ -13,7 +13,6 @@ nested_part:
 include:
     miscellanea/ipmi_test
     miscellanea/bmc_info
-    miscellanea/fwupdate                    certification-status=non-blocker
     firmware/fwts_server
     firmware/fwts_server_results.log.gz
     memory/info

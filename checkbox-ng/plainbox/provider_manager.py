@@ -327,6 +327,8 @@ class InstallCommand(ManageCommand):
             src_name = os.path.join(self.definition.location, src_name)
             dst_name = root + dst_name
             if os.path.exists(src_name):
+                if os.path.exists(os.path.dirname(dst_name)):
+                    shutil.rmtree(dst_name, ignore_errors=True)
                 try:
                     os.makedirs(os.path.dirname(dst_name), exist_ok=True)
                 except IOError:

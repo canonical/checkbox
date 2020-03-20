@@ -71,7 +71,6 @@ mandatory_include:
     miscellanea/cpus_are_not_samples
     miscellanea/ipmi_test                      certification-status=blocker
     miscellanea/bmc_info
-    miscellanea/fwupdate
     miscellanea/dmitest_server
     miscellanea/sosreport
     miscellanea/sosreport_attachment

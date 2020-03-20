@@ -122,7 +122,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 9
+    REMOTE_API_VERSION = 10
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")

@@ -49,6 +49,7 @@ from checkbox_ng.urwid_ui import resume_dialog
 from checkbox_ng.launcher.run import NormalUI, ReRunJob
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
+from tqdm import tqdm
 _ = gettext.gettext
 _logger = logging.getLogger("master")
 
@@ -77,10 +78,10 @@ class SimpleUI(NormalUI, MainLoopStage):
         print(SimpleUI.C.header(header, fill='-'))
 
     def green_text(text, end='\n'):
-        print(SimpleUI.C.GREEN(text), end=end)
+        print(SimpleUI.C.GREEN(text), end=end, file=sys.stdout)
 
     def red_text(text, end='\n'):
-        print(SimpleUI.C.RED(text), end=end)
+        print(SimpleUI.C.RED(text), end=end, file=sys.stderr)
 
     def horiz_line():
         print(SimpleUI.C.WHITE('-' * 80))
@@ -160,7 +161,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config['allow_all_attrs'] = True
-        config['sync_request_timeout'] = 60
+        config['sync_request_timeout'] = 120
         keep_running = False
         self._prepare_transports()
         interrupted = False
@@ -416,11 +417,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         while True:
             state, payload = self.sa.monitor_job()
             if payload and not self._is_bootstrapping:
-                for stream, line in payload:
-                    if stream == 'stderr':
-                        SimpleUI.red_text(line, end='')
+                for line in payload.splitlines():
+                    if line.startswith('stderr'):
+                        SimpleUI.red_text(line[6:])
                     else:
-                        SimpleUI.green_text(line, end='')
+                        SimpleUI.green_text(line[6:])
             if state == 'running':
                 time.sleep(0.5)
                 while True:
@@ -452,13 +453,36 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self.abandon()
         self.new_session()
 
+    def _download_file(conn, remotepath, localpath, chunk_size=16384):
+        try:
+            rf = conn.root.open(remotepath, "rb")
+            with tqdm(total=conn.root.getsize(remotepath), unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+                with open(localpath, "wb") as lf:
+                    while True:
+                        buf = rf.read(chunk_size)
+                        pbar.set_postfix(file=remotepath, refresh=False)
+                        pbar.update(chunk_size)
+                        if not buf:
+                            break
+                        #time.sleep(0.01)
+                        lf.write(buf)
+        finally:
+            rf.close()
+
     def local_export(self, exporter_id, transport, options=()):
         _logger.info("master: Exporting locally'")
-        exporter = self._sa.manager.create_exporter(exporter_id, options)
+        rf = self.sa.cache_report(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
-        async_dump = rpyc.async_(exporter.dump_from_session_manager)
-        res = async_dump(self._sa.manager, exported_stream)
-        res.wait()
+        chunk_size=16384
+        with tqdm(total=rf.tell(), unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+            rf.seek(0)
+            while True:
+                buf = rf.read(chunk_size)
+                pbar.set_postfix(file=transport.url, refresh=False)
+                pbar.update(chunk_size)
+                if not buf:
+                    break
+                exported_stream.write(buf)
         exported_stream.seek(0)
         result = transport.send(exported_stream)
         return result

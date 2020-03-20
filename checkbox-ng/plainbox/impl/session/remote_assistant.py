@@ -16,14 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import fnmatch
+import io
 import json
 import gettext
 import logging
 import os
-import queue
 import time
-import sys
 from collections import namedtuple
+from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
 from subprocess import CalledProcessError, check_output
 
@@ -69,22 +69,25 @@ Finalizing = 'finalizing'
 class BufferedUI(SilentUI):
     """UI type that queues the output for later reading."""
 
-    # XXX: using as string as a buffer and one lock over it
-    #      might be a cleaner approach than those queues
     def __init__(self):
         super().__init__()
-        self._queue = queue.Queue()
+        self.lock = Lock()
+        self._output = io.StringIO()
 
     def got_program_output(self, stream_name, line):
-        self._queue.put(
-            (stream_name, line.decode(sys.stdout.encoding, 'replace')))
+        with self.lock:
+            try:
+                self._output.write(stream_name + line.decode("UTF-8"))
+            except UnicodeDecodeError:
+                # Don't start a slave->master transfer for binary attachments
+                pass
 
     def get_output(self):
         """Returns all the output queued up since previous call."""
-        output = []
-        while not self._queue.empty():
-            output.append(self._queue.get())
-        return output
+        with self.lock:
+            output = self._output.getvalue()
+            self._output = io.StringIO()
+            return output
 
 
 class BackgroundExecutor(Thread):
@@ -119,7 +122,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 9
+    REMOTE_API_VERSION = 10
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -212,8 +215,8 @@ class RemoteSessionAssistant():
                 # psutil < 4.0.0 doesn't provide Process.environ()
                 return self._prepare_display_without_psutil()
             except psutil.NoSuchProcess:
-                # quietly ignore the process that died before we had a chance to
-                # read the environment from them
+                # quietly ignore the process that died before we had a chance
+                # to read the environment from them
                 continue
             if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
                 return {'DISPLAY': p_environ['DISPLAY']}
@@ -635,3 +638,10 @@ class RemoteSessionAssistant():
     @property
     def sideloaded_providers(self):
         return self._sa.sideloaded_providers
+
+    def exposed_cache_report(self, exporter_id, options):
+        exporter = self._sa._manager.create_exporter(exporter_id, options)
+        exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
+        exporter.dump_from_session_manager(self._sa._manager, exported_stream)
+        exported_stream.flush()
+        return exported_stream

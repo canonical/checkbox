@@ -22,7 +22,6 @@ import gettext
 import logging
 import os
 import time
-import sys
 from collections import namedtuple
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
@@ -78,7 +77,7 @@ class BufferedUI(SilentUI):
     def got_program_output(self, stream_name, line):
         with self.lock:
             try:
-                self._output.write(stream_name+line.decode("UTF-8"))
+                self._output.write(stream_name + line.decode("UTF-8"))
             except UnicodeDecodeError:
                 # Don't start a slave->master transfer for binary attachments
                 pass
@@ -216,8 +215,8 @@ class RemoteSessionAssistant():
                 # psutil < 4.0.0 doesn't provide Process.environ()
                 return self._prepare_display_without_psutil()
             except psutil.NoSuchProcess:
-                # quietly ignore the process that died before we had a chance to
-                # read the environment from them
+                # quietly ignore the process that died before we had a chance
+                # to read the environment from them
                 continue
             if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
                 return {'DISPLAY': p_environ['DISPLAY']}

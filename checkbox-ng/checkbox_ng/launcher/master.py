@@ -453,28 +453,18 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self.abandon()
         self.new_session()
 
-    def _download_file(conn, remotepath, localpath, chunk_size=16384):
-        try:
-            rf = conn.root.open(remotepath, "rb")
-            with tqdm(total=conn.root.getsize(remotepath), unit='B', unit_scale=True, unit_divisor=1024) as pbar:
-                with open(localpath, "wb") as lf:
-                    while True:
-                        buf = rf.read(chunk_size)
-                        pbar.set_postfix(file=remotepath, refresh=False)
-                        pbar.update(chunk_size)
-                        if not buf:
-                            break
-                        #time.sleep(0.01)
-                        lf.write(buf)
-        finally:
-            rf.close()
-
     def local_export(self, exporter_id, transport, options=()):
         _logger.info("master: Exporting locally'")
         rf = self.sa.cache_report(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
-        chunk_size=16384
-        with tqdm(total=rf.tell(), unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+        chunk_size = 16384
+        with tqdm(
+            total=rf.tell(),
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024,
+            disable=not self.is_interactive
+        ) as pbar:
             rf.seek(0)
             while True:
                 buf = rf.read(chunk_size)

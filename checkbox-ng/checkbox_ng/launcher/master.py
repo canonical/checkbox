@@ -457,8 +457,14 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         _logger.info("master: Exporting locally'")
         rf = self.sa.cache_report(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
-        chunk_size=16384
-        with tqdm(total=rf.tell(), unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+        chunk_size = 16384
+        with tqdm(
+            total=rf.tell(),
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024,
+            disable=not self.is_interactive
+        ) as pbar:
             rf.seek(0)
             while True:
                 buf = rf.read(chunk_size)

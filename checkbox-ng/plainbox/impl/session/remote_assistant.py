@@ -74,13 +74,17 @@ class BufferedUI(SilentUI):
         self.lock = Lock()
         self._output = io.StringIO()
 
+    def _ignore_program_output(self, stream_name, line):
+        pass
+
     def got_program_output(self, stream_name, line):
         with self.lock:
             try:
                 self._output.write(stream_name + line.decode("UTF-8"))
             except UnicodeDecodeError:
                 # Don't start a slave->master transfer for binary attachments
-                pass
+                self._output.write("hidden(Hiding binary test output)\n")
+                self.got_program_output = self._ignore_program_output
 
     def get_output(self):
         """Returns all the output queued up since previous call."""
@@ -90,12 +94,26 @@ class BufferedUI(SilentUI):
             return output
 
 
+class RemoteSilentUI(SilentUI):
+    """SilentUI + fake get_output."""
+
+    def __init__(self):
+        super().__init__()
+        self._msg = "hidden(Command output hidden)"
+
+    def get_output(self):
+        msg = self._msg
+        self._msg = ''
+        return msg
+
+
 class BackgroundExecutor(Thread):
-    def __init__(self, sa, job_id, real_run):
+    def __init__(self, sa, job_id, real_run, ui=RemoteSilentUI()):
         super().__init__()
         self._sa = sa
         self._job_id = job_id
         self._real_run = real_run
+        self._ui = ui
         self._builder = None
         self._started_real_run = False
         self._sa.session_change_lock.acquire()
@@ -111,8 +129,7 @@ class BackgroundExecutor(Thread):
 
     def run(self):
         self._started_real_run = True
-        self._builder = self._real_run(
-            self._job_id, self._sa.buffered_ui, False)
+        self._builder = self._real_run(self._job_id, self._ui, False)
         _logger.debug("Finished running")
 
     def outcome(self):
@@ -131,7 +148,7 @@ class RemoteSessionAssistant():
         self._sudo_password = None
         self._session_change_lock = Lock()
         self._operator_lock = Lock()
-        self.buffered_ui = BufferedUI()
+        self._ui = BufferedUI()
         self._input_piping = os.pipe()
         self._passwordless_sudo = is_passwordless_sudo()
         self.terminate_cb = None
@@ -316,6 +333,22 @@ class RemoteSessionAssistant():
         self.session_change_lock.release()
         self._state = TestsSelected
 
+    def _get_ui_for_job(self, job):
+        show_out = True
+        if self._launcher.output == 'hide-resource-and-attachment':
+            if job.plugin in ('local', 'resource', 'attachment'):
+                show_out = False
+        elif self._launcher.output in ['hide', 'hide-automated']:
+            if job.plugin in ('shell', 'local', 'resource', 'attachment'):
+                show_out = False
+        if 'suppress-output' in job.get_flag_set():
+            show_out = False
+        if show_out:
+            self._ui = BufferedUI()
+        else:
+            self._ui = RemoteSilentUI()
+        return self._ui
+
     @allowed_when(TestsSelected)
     def run_job(self, job_id):
         """
@@ -356,7 +389,8 @@ class RemoteSessionAssistant():
                     if self._current_comments != "":
                         result_builder.comments = self._current_comments
                     return result_builder
-                self._be = BackgroundExecutor(self, job_id, skipped_builder)
+                self._be = BackgroundExecutor(
+                    self, job_id, skipped_builder)
                 yield from self.interact(
                     Interaction('skip', job.verification, self._be))
         if job.command:
@@ -376,7 +410,8 @@ class RemoteSessionAssistant():
                         print(_('Sorry, try again.'))
                 assert(self._sudo_password is not None)
             self._state = Running
-            self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
+            ui = self._get_ui_for_job(job)
+            self._be = BackgroundExecutor(self, job_id, self._sa.run_job, ui)
         else:
             def undecided_builder(*args, **kwargs):
                 return JobResultBuilder(outcome=IJobResult.OUTCOME_UNDECIDED)
@@ -406,9 +441,9 @@ class RemoteSessionAssistant():
         # either return [done, running, awaiting response]
         # TODO: handle awaiting_response (reading from stdin by the job)
         if self._be and self._be.is_alive():
-            return ('running', self.buffered_ui.get_output())
+            return ('running', self._ui.get_output())
         else:
-            return ('done', self.buffered_ui.get_output())
+            return ('done', self._ui.get_output())
 
     def get_remote_api_version(self):
         return self.REMOTE_API_VERSION

@@ -83,6 +83,9 @@ class SimpleUI(NormalUI, MainLoopStage):
     def red_text(text, end='\n'):
         print(SimpleUI.C.RED(text), end=end, file=sys.stderr)
 
+    def black_text(text, end='\n'):
+        print(SimpleUI.C.BLACK(text), end=end, file=sys.stdout)
+
     def horiz_line():
         print(SimpleUI.C.WHITE('-' * 80))
 
@@ -420,8 +423,10 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 for line in payload.splitlines():
                     if line.startswith('stderr'):
                         SimpleUI.red_text(line[6:])
-                    else:
+                    elif line.startswith('stdout'):
                         SimpleUI.green_text(line[6:])
+                    else:
+                        SimpleUI.black_text(line[6:])
             if state == 'running':
                 time.sleep(0.5)
                 while True:

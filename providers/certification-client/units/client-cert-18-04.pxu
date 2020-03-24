@@ -21,7 +21,6 @@ nested_part:
     monitor-discrete-gpu-cert-full
     input-cert-full
     disk-cert-manual
-    dock-cert-full
     keys-cert-full
     led-cert-full
     mediacard-cert-full
@@ -49,7 +48,6 @@ nested_part:
     after-suspend-reference-cert-full
     after-suspend-audio-cert-full
     after-suspend-camera-cert-full
-    after-suspend-dock-cert-full
     after-suspend-input-cert-full
     after-suspend-led-cert-full
     after-suspend-mediacard-cert-full

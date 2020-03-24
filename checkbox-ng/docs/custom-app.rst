@@ -68,16 +68,16 @@ Create a device/project specific provider
 
 .. code-block:: bash
 
-    $ plainbox startprovider --empty com.canonical.qa.myproject:
-    plainbox-provider-myproject
+    $ checkbox-cli startprovider --empty com.canonical.qa.myproject:
+    checkbox-provider-myproject
 
 The directory name for the provider is quite a mouthful, let's change it to
 something more manageable.
 
 .. code-block:: bash
 
-    $ mv com.canonical.qa.myproject:plainbox-provider-myproject
-    plainbox-provider-myproject
+    $ mv com.canonical.qa.myproject:checkbox-provider-myproject
+    checkbox-provider-myproject
 
 This new provider has to also be included as a part of the snap
 
@@ -88,16 +88,16 @@ This new provider has to also be included as a part of the snap
 
     (...)
     parts:
-        plainbox-provider-myproject:
+        checkbox-provider-myproject:
             plugin: plainbox-provider
-            source: ./plainbox-provider-myproject
+            source: ./checkbox-provider-myproject
             after: [plainbox-provider-snappy]
 
 
 Create your new test plans (and jobs to go in them)
 ===================================================
 
-Edit the plainbox-provider-myproject provider by adding jobs and particularly
+Edit the checkbox-provider-myproject provider by adding jobs and particularly
 test plans that list all the jobs that you want to run.
 
 By convention units reside in .pxu files in the ``units`` directory of the
@@ -105,7 +105,7 @@ provider. Let's create one
 
 .. code-block:: bash
 
-    $ cd plainbox-provider-myproject
+    $ cd checkbox-provider-myproject
     $ mkdir units
 
 Let's add a job from :ref:`tutorials`

@@ -161,7 +161,6 @@ class RemoteSessionAssistant():
         _logger.info("Resetting RSA")
         self._state = Idle
         self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
-        self._sa.configure_application_restart(self._cmd_callback)
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
@@ -244,12 +243,15 @@ class RemoteSessionAssistant():
         _logger.debug("start_session: %r", configuration)
         session_title = 'checkbox-slave'
         session_desc = 'checkbox-slave session'
+        session_type = 'checkbox-slave'
 
         self._launcher = load_configs()
         if configuration['launcher']:
             self._launcher.read_string(configuration['launcher'], False)
-            session_title = self._launcher.session_title
-            session_desc = self._launcher.session_desc
+            if self._launcher.session_title:
+                session_title = self._launcher.session_title
+            if self._launcher.session_desc:
+                session_desc = self._launcher.session_desc
 
         self._sa.use_alternate_configuration(self._launcher)
 
@@ -268,7 +270,10 @@ class RemoteSessionAssistant():
         self._sa.update_app_blob(json.dumps(
             {'description': session_desc, }).encode("UTF-8"))
         self._sa.update_app_blob(json.dumps(
+            {'type': session_type, }).encode("UTF-8"))
+        self._sa.update_app_blob(json.dumps(
             {'launcher': configuration['launcher'], }).encode("UTF-8"))
+        self._sa.configure_application_restart(self._cmd_callback)
 
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()

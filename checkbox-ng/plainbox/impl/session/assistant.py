@@ -253,7 +253,7 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         if self._restart_strategy is None:
-            self._restart_strategy = detect_restart_strategy()
+            self._restart_strategy = detect_restart_strategy(self)
         self._restart_cmd_callback = cmd_callback
         # Prevent second call to this method and to the
         # use_alternate_restart_strategy() method.

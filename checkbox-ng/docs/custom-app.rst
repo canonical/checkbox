@@ -6,107 +6,49 @@ Creating a custom Checkbox application for Ubuntu Core testing
 This guide describes how to create a custom Checkbox application for testing a
 new project (project meaning a new system that we want to test with Checkbox).
 
-Initialize the project
-======================
+Preparing a new Checkbox Project snap
+=====================================
 
-Creating your working directory and initializing the projects.  Make sure you
-have at least snapcraft version 2.13 (available in Ubuntu 16.04 or newer).::
-
-    mkdir checkbox-myproject
-    cd checkbox-myproject
-    snapcraft init
-    git init
-
-You will now have a ``snapcraft.yaml`` file in the ``snap`` directory.
-Modify it and  insert your title, description, version.
-
-.. code-block:: yaml
-    :caption: snap/snapcraft.yaml
-    :name: snapcraft.yaml-basic
-
-    name: checkbox-myproject
-    version: 1
-    summary: Checkbox tool for MyProject
-    description: Checkbox tool for MyProject
-    grade: devel
-    confinement: strict
-
-Adding parts
-============
-
-Add the basic reusable snappy provider parts.
-
-.. code-block:: yaml
-    :caption: snap/snapcraft.yaml
-    :name: snapcraft.yaml-with-parts
-
-    (...)
-    parts:
-        plainbox-provider-snappy:
-            after: [plainbox-provider-snappy-resource]
-        plainbox-provider-snappy-resource:
-            after: [plainbox-dev, checkbox-support-dev, checkbox-ng-dev]
-
-        network-tools:
-            plugin: nil
-            stage-packages:
-                - network-manager
-                - modemmanager
-                - hostapd
-                - iw
-            snap:
-                - usr/bin/mmcli
-                - usr/lib/*/libmm-glib.so*
-                - usr/bin/nmcli
-                - usr/lib/*/libnm*
-                - usr/sbin/hostapd
-                - sbin/iw
-
-
-Create a device/project specific provider
-=========================================
+Checkbox-Configure is a tool that generates a snap skeleton for a project.
+It uses autoconf, so make sure you've got it installed.
 
 .. code-block:: bash
 
-    $ plainbox startprovider --empty com.canonical.qa.myproject:
-    plainbox-provider-myproject
+    $ sudo apt install autoconf
 
-The directory name for the provider is quite a mouthful, let's change it to
-something more manageable.
+Getting the tool.
 
 .. code-block:: bash
 
-    $ mv com.canonical.qa.myproject:plainbox-provider-myproject
-    plainbox-provider-myproject
+    $ git clone https://git.launchpad.net/~checkbox-dev/checkbox/+git/checkbox-configure
+    $ cd checkbox-configure
+    $ autoconf
 
-This new provider has to also be included as a part of the snap
+Let's create a Checkbox Snap for project called "myproject".
 
-.. code-block:: yaml
+.. code-block:: bash
 
-    :caption: snap/snapcraft.yaml
-    :name: snapcraft.yaml-with-custom-provider
+    $ ./configure --with-provider-included project=myproject base=18 && ./cleanup.sh
 
-    (...)
-    parts:
-        plainbox-provider-myproject:
-            plugin: plainbox-provider
-            source: ./plainbox-provider-myproject
-            after: [plainbox-provider-snappy]
+This creates all the files necessary to use Snapcraft to build the
+new snap.
+
+The skeleton comes with some units defined, but you need to add the
+project-specific ones.
 
 
-Create your new test plans (and jobs to go in them)
-===================================================
+Adding new test jobs
+====================
 
-Edit the plainbox-provider-myproject provider by adding jobs and particularly
+Edit the checkbox-provider-myproject provider by adding jobs and particularly
 test plans that list all the jobs that you want to run.
 
 By convention units reside in .pxu files in the ``units`` directory of the
-provider. Let's create one
+provider.
 
 .. code-block:: bash
 
-    $ cd plainbox-provider-myproject
-    $ mkdir units
+    $ cd checkbox-provider-myproject
 
 Let's add a job from :ref:`tutorials`
 
@@ -114,7 +56,7 @@ Let's add a job from :ref:`tutorials`
     :caption: units/jobs.pxu
 
     id: my-first-job
-    _summary: 10GB available in $HOME
+    _summary: Is 10GB available in $HOME
     _description:
         this test checks if there's at least 10gb of free space in user's home
             directory
@@ -124,49 +66,33 @@ Let's add a job from :ref:`tutorials`
 
 You may read more on how to write jobs here: :ref:`job`
 
-It is a good practice to group jobs in test plans, here's one that will include
-the ``my-first-job``
-
-.. code-block:: none
-    :caption: unit/test-plan.pxu
-    :name: test-plan.pxu-basic
-
-    unit: test plan
-    id: my-project-custom
-    _name: MyProject tests
-    _description:
-        This test plan includes all test related to MyProject
-    include:
-        my-first-job
-
-You may read more on test plans here: :ref:`test-plan`
-
 Reusing existing provider(s)
 ============================
 
 It's best not to duplicate stuff, so if the test you want to run already exists
-in another provider it is best to include that provider in the snap, and
+in another provider it is best to reference that provider in the snap, and
 include the test, or whole test plans from that provider in your new testing
 project.
 
 Let's reuse disk tests from the "plainbox-provider-snappy" provider that we
-already have as a part of the snap. All we need is a test plan that will
-include both reused disk tests and the new custom ones.
+can use from the checkbox generic snap. All we need to do is add chosen tests
+to the ``include`` field of the test plan.
 
 .. code-block:: none
-    :caption: unit/test-plan.pxu
+    :caption: units/test-plan.pxu
     :name: test-plan.pxu-with-external
-    :emphasize-lines: 6-9
+    :emphasize-lines: 7-9
 
-    id: my-project-all-tests
-    _name: All MyProject tests
+    id: myproject-automated
+    unit: test plan
+    _name: Automated only QA tests for myproject
     _description:
-        This test plan includes some disk tests from plainbox-provider-snappy
-        and the my-first-job test.
+    QA test plan for the myproject hardware. This test plan contains
+    all of the automated tests used to validate the aproject device.
     include:
-        com.canonical.certification::disk/detect
-        com.canonical.certification::disk/stats_.*
-        my-first-job
+	com.canonical.certification::disk/encryption/detect
+	com.canonical.certification::miscellanea/secure_boot_mode_.*
+    (...)
 
 You can also include the whole *external* test plan. Let's reuse the CPU
 testing suite from plainbox-provider-snappy.
@@ -174,91 +100,27 @@ testing suite from plainbox-provider-snappy.
 .. code-block:: none
     :caption: unit/test-plan.pxu
     :name: test-plan.pxu-with-nested
-    :emphasize-lines: 10-11
+    :emphasize-lines: 14
 
-    unit: test plan
-    id: my-project-all-tests
-    _name: All MyProject tests
-    _description:
-        This test plan includes some disk tests from plainbox-provider-snappy
-        and the my-first-job test.
-    include:
-        com.canonical.certification::disk/detect
-        com.canonical.certification::disk/stats_.*
-        my-first-job
     nested_part:
-        com.canonical.certification::cpu-full
+	device-connections-tp
+	2016.com.intel.ipdt::ipdt-plan
+	com.canonical.certification::usb-automated
+	# com.canonical.certification::audio-automated # no working auto tests
+	com.canonical.certification::cpu-automated
+	com.canonical.certification::disk-automated
+	com.canonical.certification::ethernet-automated
+	com.canonical.certification::kernel-snap-automated
+	com.canonical.certification::memory-automated
+	com.canonical.certification::networking-automated
+	com.canonical.certification::rtc-automated
+	com.canonical.certification::snappy-snap-automated
+	com.canonical.certification::cpu-full
 
-Create Checkbox Launchers configurations
+
+Snapping the new checkbox-myproject snap
 ========================================
 
-Launchers help to predefine how Checkbox should run. Read more here:
-:ref:`launcher-tutorial`
-
-First, let's leave the provider directory and go back to the
-``checkbox-myproject``.
-
-.. code-block:: bash
-
-    $ cd ..
-
-and write the first launcher
-
-.. code-block:: none
-    :caption: launchers/myproject-test-runner
-
-    #!/usr/bin/env checkbox-cli-wrapper
-    [launcher]
-    app_id = com.canonical.qa.myproject:checkbox
-    launcher_version = 1
-    stock_reports = text, submission_files
-
-    [test plan]
-    filter = *myproject*, *tpm-smoke-tests
-
-Create wrapper scripts
-======================
-
-We currently need wrapper scripts to discover providers, set up the execution
-environment and work around a few other snappy issues. Add one like this:
-
-.. code-block:: bash
-    :caption: launchers/checkbox-cli-wrapper:
-
-    #!/bin/bash
-
-    export PATH="$PATH:$SNAP/usr/sbin"
-    exec python3 $(which checkbox-cli) "$@"
-
-Now we need to make the launchers executable
-
-.. code-block:: bash
-
-    chmod +x launchers/*
-
-
-.. code-block:: yaml
-    :caption: snap/snapcraft.yaml
-    :name: snapcraft.yaml-with-launchers
-
-    (...)
-    launchers:
-        plugin: dump
-        source: launchers/
-        organize:
-            '*': bin/
-
-Declare the launchers to be Apps that exist in your Snap
-========================================================
-
-.. code-block:: yaml
-    :caption: snap/snapcraft.yaml
-    :name: snapcraft.yaml-with-apps
-
-    (...)
-    apps:
-        myproject-test-runner:
-            command: bin/myproject-test-runner
 
 What's left is to snap it all together!
 

@@ -318,3 +318,23 @@ requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
 _description: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
 command:
  zgrep 'CONFIG_NO_HZ=y' /snap/{kernel}/current/config-`uname -r` >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )
+ 
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::power-management
+id: power-management/light_sensor
+estimated_duration: 10.0
+requires: dmi.product in ['Notebook','Laptop','Portable'] and executable.name == 'monitor-sensor'
+flags: also-after-suspend-manual
+command: light_sensor_test
+_description:
+_purpose:
+    This test will check your Ambient Light Sensor work, if you don't have it, please skip this test.
+_steps:
+    1. Make sure "Automatic brightness" is ON in Power settings. 
+    2. Locate Ambient Light Sensor, should be around the Camera.
+    3. Cover your hand on the Ambient Light Sensor.
+    4. When the backlight dimmed, press Enter to start testing.
+    5. Wait until the message "Has ambient light sensor" is printed on the screen and wave your hand slowly during testing.
+_verification:
+    Did the Ambient Light Sensor values change when you shaking your hands over the sensor? 
+    Did the Screen backlight also changed?

@@ -150,6 +150,9 @@ class SnappyRestartStrategy(IRestartStrategy):
         section = 'Service'
         config.add_section(section)
         config.set(section, 'Type', 'oneshot')
+        config.set(section, 'StandardOutput', 'tty')
+        config.set(section, 'StandardError', 'tty')
+        config.set(section, 'TTYPath', '/dev/console')
         if os.getenv('USER'):
             config.set(section, 'User', os.getenv('USER'))
 

@@ -58,9 +58,9 @@ for disk in $@; do
     "devmapper" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
     "ide" ) MIN_BUF_READ=40;;
     "mmc" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
-    "nvme" ) MIN_BUF_READ=500;;
+    "nvme" ) MIN_BUF_READ=200;;
     "nvdimm" ) MIN_BUF_READ=500;;
-    "mdadm" ) MIN_BUF_READ=150;;
+    "mdadm" ) MIN_BUF_READ=80;;
     "ata" ) MIN_BUF_READ=100;;
     "scsi" ) MIN_BUF_READ=100;;
     "ssd" ) MIN_BUF_READ=200;;

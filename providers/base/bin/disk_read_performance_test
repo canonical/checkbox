@@ -13,6 +13,10 @@ for disk in $@; do
 
   disk_type=`udevadm info --name /dev/$disk --query property | grep "ID_BUS" | awk '{gsub(/ID_BUS=/," ")}{printf $1}'`
   dev_path=`udevadm info --name /dev/$disk --query property | grep "DEVPATH" | awk '{gsub(/DEVPATH=/," ")}{printf $1}'`
+  # /sys/block/$disk/queue/rotational was added with Linux 2.6.29. If file is
+  # not present, test below will fail & disk will be considered an HDD, not
+  # an SSD.
+  rotational=`cat /sys/block/$disk/queue/rotational`
   if [[ $dev_path =~ dm ]]; then
     disk_type="devmapper"
   fi
@@ -24,6 +28,12 @@ for disk in $@; do
   fi
   if [[ $dev_path =~ mmc ]]; then
     disk_type="mmc"
+  fi
+  if [[ $dev_path =~ pmem ]]; then
+    disk_type="nvdimm"
+  fi
+  if [[ ($disk_type == "scsi" || $disk_type == "ata") && $rotational == 0 ]]; then
+    disk_type="ssd"
   fi
   if [ -z "$disk_type" ]; then
   echo "ERROR: disk type not recognized"
@@ -49,7 +59,11 @@ for disk in $@; do
     "ide" ) MIN_BUF_READ=40;;
     "mmc" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
     "nvme" ) MIN_BUF_READ=200;;
+    "nvdimm" ) MIN_BUF_READ=500;;
     "mdadm" ) MIN_BUF_READ=80;;
+    "ata" ) MIN_BUF_READ=100;;
+    "scsi" ) MIN_BUF_READ=100;;
+    "ssd" ) MIN_BUF_READ=200;;
     *     ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
   esac
   echo "INFO: $disk_type: Using $MIN_BUF_READ MB/sec as the minimum throughput speed"

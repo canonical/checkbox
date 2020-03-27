@@ -323,6 +323,74 @@ class ResourceExpressionTests(TestCase):
         expr = ResourceExpression("a.foo == 1 and b.bar == 2")
         self.assertEqual(expr.resource_id_list, ["a", "b"])
 
+    def test_compound_expression_and_passing(self):
+        resource_map = {
+            'a': [Resource({'foo': 1})],
+            'b': [Resource({'bar': 2})]
+        }
+        expr = ResourceExpression("a.foo == 1 and b.bar == 2")
+        self.assertTrue(expr.evaluate(
+            resource_map['a'],
+            resource_map['b'],
+            resource_map=resource_map))
+
+    def test_compound_expression_and_failing(self):
+        resource_map = {
+            'a': [Resource({'foo': 1})],
+            'b': [Resource({'bar': 3})]
+        }
+        expr = ResourceExpression("a.foo == 1 and b.bar == 2")
+        self.assertFalse(expr.evaluate(
+            resource_map['a'],
+            resource_map['b'],
+            resource_map=resource_map))
+
+    def test_compound_expression_or_passing(self):
+        resource_map = {
+            'a': [Resource({'foo': 1})],
+            'b': [Resource({'bar': 3})]
+        }
+        expr = ResourceExpression("a.foo == 1 or b.bar == 2")
+        self.assertTrue(expr.evaluate(
+            resource_map['a'],
+            resource_map['b'],
+            resource_map=resource_map))
+
+    def test_compound_expression_or_failing(self):
+        resource_map = {
+            'a': [Resource({'foo': 2})],
+            'b': [Resource({'bar': 3})]
+        }
+        expr = ResourceExpression("a.foo == 1 and b.bar == 2")
+        self.assertFalse(expr.evaluate(
+            resource_map['a'],
+            resource_map['b'],
+            resource_map=resource_map))
+
+    def test_compound_many_subexpressions_passing(self):
+        resource_map = {
+            'a': [Resource({'foo': 1}), Resource({'foo': 2})],
+            'b': [Resource({'bar': 3}), Resource({'bar': 4})]
+        }
+        expr = ResourceExpression(
+            "a.foo == 3 and b.bar == 3 and a.foo == 2 or b.bar == 4")
+        self.assertTrue(expr.evaluate(
+            resource_map['a'],
+            resource_map['b'],
+            resource_map=resource_map))
+
+    def test_compound_many_subexpressions_failing(self):
+        resource_map = {
+            'a': [Resource({'foo': 1}), Resource({'foo': 2})],
+            'b': [Resource({'bar': 3}), Resource({'bar': 4})]
+        }
+        expr = ResourceExpression(
+            "a.foo == 3 or b.bar == 3 and a.foo == 2 and b.bar == 1")
+        self.assertFalse(expr.evaluate(
+            resource_map['a'],
+            resource_map['b'],
+            resource_map=resource_map))
+
     def test_evaluate_no_namespaces(self):
         self.assertFalse(ResourceExpression("whatever").evaluate([]))
 

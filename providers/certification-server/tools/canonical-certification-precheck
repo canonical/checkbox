@@ -590,15 +590,18 @@ fi
 
 # Create a list of all local networks (identified by address/width, as in 10.1.10.0/23)
 for nic in $ALL_NICS; do
-    this_network=$(ipcalc $(ip addr show dev $nic | grep "inet " | awk '{print $2}') -nb | grep "Network" | awk '{print $2}')
-    found=0
-    for net in ${all_networks[@]}; do
-        if [ $net == $this_network ]; then
-            found=1;
+    local nic_addr=$(ip addr show dev $nic | grep "inet " | awk '{print $2}')
+    if [[ $nic_addr != "" ]]; then
+        this_network=$(ipcalc $nic_addr -nb | grep "Network" | awk '{print $2}')
+        found=0
+        for net in ${all_networks[@]}; do
+            if [ $net == $this_network ]; then
+                found=1;
+            fi
+        done
+        if [ $found == 0 ]; then
+            all_networks+=( $this_network )
         fi
-    done
-    if [ $found == 0 ]; then
-        all_networks+=( $this_network )
     fi
 done
 

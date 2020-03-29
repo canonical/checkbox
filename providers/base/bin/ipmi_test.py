@@ -43,19 +43,19 @@ def main():
     if sum(results) > 0:
         end_time = time.clock()
         total_time = "{0:.4f}".format(end_time - start_time)
-        print('-----------------------')
-        print('## IPMI tests failed! ##')
-        print(
+        print ('-----------------------')
+        print ('## IPMI tests failed! ##')
+        print (
             f'## Chassis: {results[0]}  Power: {results[1]}  '
             f'Channel: {results[2]}  BMC: {results[3]}  '
             f'IPMI Version: {results[4]}  IPMI Locate: {results[5]} ##')
-        print ('## Total time:', str(total_time) + 's ##')
+        print (f'## Total time: {total_time}s ##')
     else:
         end_time = time.clock()
         total_time = "{0:.4f}".format(end_time - start_time)
-        print('-----------------------')
-        print('## IPMI tests passed! ##')
-        print ('## Total time:', str(total_time) + 's ##')
+        print ('-----------------------')
+        print ('## IPMI tests passed! ##')
+        print (f'## Total time: {total_time}s ##')
 
 
 def kernel_mods(path_lsmod, path_modprobe, kernel_modules):
@@ -68,13 +68,13 @@ def kernel_mods(path_lsmod, path_modprobe, kernel_modules):
         output, error = process.communicate(timeout=15)
         for module in kernel_modules:
             if module in output.decode('utf-8'):
-                print ('-', module, 'already loaded.')
+                print (f'- {module} already loaded.')
             else:
                 try:
                     subprocess.check_call(
                         [path_modprobe, module],
                         stderr=subprocess.PIPE, timeout=15)
-                    print ('- Successfully loaded module', module)
+                    print (f'- Successfully loaded module {module}')
                 except subprocess.TimeoutExpired:
                     print (f'{e.timeout} timeout calling modprobe!')
                 except subprocess.CalledProcessError:
@@ -107,7 +107,7 @@ def impi_chassis(path_ipmi_chassis):
         end_time = time.clock()
         total_time = "{0:.4f}".format(end_time - start_time)
         print('Successfully fetched chassis status!')
-        print ('(took', str(total_time) + 's)\n')
+        print (f'(took {total_time}s)\n')
         return 0
     except subprocess.TimeoutExpired as e:
         print (f'Timeout ({e.timeout}s) fetching chassis status!\n')
@@ -138,7 +138,7 @@ def pwr_status(path_ipmi_chassis):
                 end_time = time.clock()
                 total_time = "{0:.4f}".format(end_time - start_time)
                 print ('Successfully fetched power status!')
-                print ('(took', str(total_time) + 's)\n')
+                print (f'(took {total_time}s)\n')
                 return 0
         if matches == 0:
             print('Unable to retrieve power status via IPMI.\n')
@@ -177,7 +177,7 @@ def ipmi_channel(path_ipmi_config):
                     end_time = time.clock()
                     total_time = "{0:.4f}".format(end_time - start_time)
                     print ('IPMI Channel:', i)
-                    print('(took', str(total_time) + 's)\n')
+                    print (f'(took {total_time}s)\n')
                     return 0
     except subprocess.TimeoutExpired as e:
         print (f'Timeout ({e.timeout}s) fetching IPMI channel!\n')
@@ -202,7 +202,7 @@ def bmc_info(path_bmc_info):
         end_time = time.clock()
         total_time = "{0:.4f}".format(end_time - start_time)
         print('Successfully fetched chassis status!')
-        print ('(took', str(total_time) + 's)\n')
+        print (f'(took {total_time}s)\n')
         return 0
     except subprocess.TimeoutExpired as e:
         print (f'Timeout ({e.timeout}s) fetching BMC information!\n')
@@ -235,7 +235,7 @@ def ipmi_version(path_bmc_info):
         else:
             end_time = time.clock()
             total_time = "{0:.4f}".format(end_time - start_time)
-            print('(took', str(total_time) + 's)\n')
+            print (f'(took {total_time}s)\n')
             return 0
     except subprocess.TimeoutExpired as e:
         print (f'Timeout ({e.timeout}s) fetching IPMI version!\n')
@@ -260,7 +260,7 @@ def ipmi_locate(path_ipmi_locate):
         end_time = time.clock()
         total_time = "{0:.4f}".format(end_time - start_time)
         print('Successfully called ipmi-locate!')
-        print ('(took', str(total_time) + 's)\n')
+        print (f'(took {total_time}s)\n')
         return 0
     except subprocess.TimeoutExpired as e:
         print (f'Timeout ({e.timeout}s) testing impmi-locate!\n')

@@ -76,7 +76,7 @@ def kernel_mods(path_lsmod, path_modprobe, kernel_modules):
                         stderr=subprocess.PIPE, timeout=15)
                     print (f'- Successfully loaded module {module}')
                 except subprocess.TimeoutExpired:
-                    print (f'{e.timeout} timeout calling modprobe!')
+                    print (f'Timeout ({e.timeout}s) calling modprobe!')
                 except subprocess.CalledProcessError:
                     print ('  *******************************************')
                     print (f'  WARNING: Unable to load module {module}')
@@ -86,7 +86,7 @@ def kernel_mods(path_lsmod, path_modprobe, kernel_modules):
                     print ('Unable to invoke modprobe!\n')
         print ('')
     except subprocess.TimeoutExpired as e:
-        print (f'{e.timeout} timeout calling lsmod!')
+        print (f'Timeout ({e.timeout}s) calling lsmod!')
     except subprocess.SubprocessError:
         # fail if true?
         print ('Error calling lsmod!\n')
@@ -113,7 +113,7 @@ def impi_chassis(path_ipmi_chassis):
         print (f'Timeout ({e.timeout}s) fetching chassis status!\n')
         return 1
     except subprocess.CalledProcessError:
-        print ('Error calling ipmi-chassis!\n')
+        print ('Error calling ipmi_chassis() subprocess!\n')
         return 1
     except EnvironmentError:
         print ('Unable to invoke ipmi-chassis!\n')
@@ -125,7 +125,6 @@ def pwr_status(path_ipmi_chassis):
     print('Fetching power status:')
     start_time = time.clock()
     regex = re.compile('^System Power')
-    matches = 0
     try:
         process = subprocess.Popen(
             [path_ipmi_chassis, '--get-status'],
@@ -134,20 +133,19 @@ def pwr_status(path_ipmi_chassis):
         output = output.decode('utf-8')
         for line in output.rstrip().split('\n'):
             if re.search(regex, line):
-                matches += 1
                 end_time = time.clock()
                 total_time = "{0:.4f}".format(end_time - start_time)
                 print ('Successfully fetched power status!')
                 print (f'(took {total_time}s)\n')
                 return 0
-        if matches == 0:
+        else:
             print('Unable to retrieve power status via IPMI.\n')
             return 1
     except subprocess.TimeoutExpired as e:
         print (f'Timeout ({e.timeout}s) fetching power status!\n')
         return 1
     except subprocess.SubprocessError:
-        print ('Error calling ipmi-chassis!\n')
+        print ('Error calling pwr_status() subprocess!\n')
         return 1
     except EnvironmentError:
         print ('Unable to invoke ipmi-chassis!\n')
@@ -158,32 +156,33 @@ def ipmi_channel(path_ipmi_config):
     print('-----------------------')
     print('Fetching IPMI channel:')
     start_time = time.clock()
-    # inverse match (look ahead)
-    regex = re.compile('^(?!Unable to get Number of Users)')
+    regex = re.compile('Section User')
     matches = 0
+    channel = []
     try:
         # test channels 0 - 15
-        for i in range(16):
-            if (i == 16 and matches == 0):
-                print('Unable to fetch IPMI channel!\n')
-                return 1
-            else:
-                process = subprocess.Popen(
-                    [path_ipmi_config, '--checkout', '--lan-channel-number', str(i)],
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                output, error = process.communicate(timeout=15)
-                if re.search(regex, output.decode('utf-8')):
-                    matches += 1
-                    end_time = time.clock()
-                    total_time = "{0:.4f}".format(end_time - start_time)
-                    print ('IPMI Channel:', i)
-                    print (f'(took {total_time}s)\n')
-                    return 0
+        for i in range(15):
+            process = subprocess.Popen(
+                [path_ipmi_config, '--checkout', '--lan-channel-number', str(i)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, error = process.communicate(timeout=15)
+            if re.search(regex, output.decode('utf-8')):
+                matches += 1
+                channel.append(i)
+        if matches > 0:
+            end_time = time.clock()
+            total_time = "{0:.4f}".format(end_time - start_time)
+            print ('IPMI Channel(s):', channel)
+            print (f'(took {total_time}s)\n')
+            return 0
+        else:
+            print ('Unable to fetch IPMI channel!')
+            return 1
     except subprocess.TimeoutExpired as e:
         print (f'Timeout ({e.timeout}s) fetching IPMI channel!\n')
         return 1
     except subprocess.SubprocessError:
-        print ('Error calling ipmi-config!\n')
+        print ('Error calling ipmi_channel() subprocess!\n')
         return 1
     except EnvironmentError:
         print ('Unable to invoke ipmi-config!\n')
@@ -208,7 +207,7 @@ def bmc_info(path_bmc_info):
         print (f'Timeout ({e.timeout}s) fetching BMC information!\n')
         return 1
     except subprocess.CalledProcessError:
-        print ('Error calling bmc-info!\n')
+        print ('Error calling bmc-info() subprocess!\n')
         return 1
     except EnvironmentError:
         print ('Unable to invoke bmc-info!\n')
@@ -241,7 +240,7 @@ def ipmi_version(path_bmc_info):
         print (f'Timeout ({e.timeout}s) fetching IPMI version!\n')
         return 1
     except subprocess.SubprocessError:
-        print ('Error calling bmc-info!\n')
+        print ('Error calling ipmi_version() subprocess!\n')
         return 1
     except EnvironmentError:
         print ('Unable to invoke bmc-info!\n')
@@ -266,7 +265,7 @@ def ipmi_locate(path_ipmi_locate):
         print (f'Timeout ({e.timeout}s) testing impmi-locate!\n')
         return 1
     except subprocess.CalledProcessError:
-        print ('Error calling ipmi-locate!\n')
+        print ('Error calling impi_locate() subprocess!\n')
         return 1
     except EnvironmentError:
         print ('Unable to invoke ipmi-locate!\n')

@@ -1,7 +1,8 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012-2020 Canonical Ltd.
 # Written by:
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
@@ -255,7 +256,7 @@ class ResourceProgram:
             result = expression.evaluate(*[
                 resource_map[resource_id]
                 for resource_id in expression.resource_id_list
-            ])
+            ], resource_map = resource_map)
             if not result:
                 raise ExpressionFailedError(expression)
         return True
@@ -540,6 +541,7 @@ class ResourceExpression:
         self._resource_alias_list = self._analyze(text)
         self._manifest_id_list = self._analyze_manifest(text)
         self._resource_id_list = []
+        self._imports = imports
         if imports is None:
             imports = ()
         # Respect any import statements.
@@ -624,6 +626,22 @@ class ResourceExpression:
         id in the expression. The return value is True if any of the attempts
         return a true value, otherwise the result is False.
         """
+        # in compound expressions 'and' takes precedence over 'or' so because
+        # we're recursively evaluating, we need to first evaluate the ors so
+        # ands become the leaves in the tree and are actually computed first
+
+        # operator by itself may be a part of some identifier so let's
+        # look for one surrounded by spaced
+        or_pos = self._text.rfind(' or ')
+        if or_pos > 0:
+            lhs, rhs = self._split_and_evaluate(' or ', resource_map)
+            return lhs or rhs
+        and_pos = self._text.rfind(' and ')
+        if and_pos > 0:
+            lhs, rhs = self._split_and_evaluate(' and ', resource_map)
+            return lhs and rhs
+
+        # there are no conjuctions, so let's do a simple evaluation
         for resource_list in resource_list_list:
             for resource in resource_list:
                 if not isinstance(resource, Resource):
@@ -651,6 +669,24 @@ class ResourceExpression:
         # python returns None implicitly) but it's more explicit on the
         # documentation side.
         return False
+
+    def _split_and_evaluate(self, operator, resource_map):
+        head, tail = self._text.rsplit(operator, 1)
+        head_expr = ResourceExpression(
+            head, self._implicit_namespace, self._imports)
+        new_res_list = [
+            resource_map[rid] for rid in head_expr.resource_id_list]
+        head_result = head_expr.evaluate(
+            *new_res_list, resource_map = resource_map)
+        tail = tail.strip()
+        tail_expr = ResourceExpression(
+            tail, self._implicit_namespace, self._imports)
+        new_res_list = [
+            resource_map[rid] for rid in tail_expr.resource_id_list]
+        tail_result = tail_expr.evaluate(
+            *new_res_list, resource_map = resource_map)
+        return (head_result, tail_result)
+
 
     @classmethod
     def _analyze(cls, text):

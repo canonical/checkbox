@@ -156,7 +156,7 @@ command:
  path=$(docker inspect -f {path} $ID)
  image=$(docker inspect -f {image} $ID)
  [ $path = "bash" ] || exit 1
- [ $image = "ubuntu" ] || exit 1
+ [ $image = "{image_prefix}ubuntu" ] || exit 1
  docker rm -f $ID
 _summary: Test query low-level information on a docker object
 flags: simple preserve-cwd

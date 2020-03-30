@@ -132,10 +132,7 @@
 ./plainbox/test_i18n.py
 ./plainbox/test_provider_manager.py
 ./plainbox/testing_utils/__init__.py
-./plainbox/testing_utils/cwd.py
 ./plainbox/testing_utils/io.py
-./plainbox/testing_utils/resource.py
-./plainbox/testing_utils/test_cwd.py
 ./plainbox/testing_utils/test_io.py
 ./plainbox/testing_utils/test_testcases.py
 ./plainbox/testing_utils/testcases.py

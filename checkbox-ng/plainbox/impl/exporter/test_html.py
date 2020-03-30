@@ -28,8 +28,9 @@ Test definitions for plainbox.impl.exporter.html module
 from unittest import TestCase
 import io
 
+from pkg_resources import resource_string
+
 from plainbox.abc import IJobResult
-from plainbox.testing_utils import resource_string
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.providers import get_providers
 from plainbox.impl.providers.special import get_categories

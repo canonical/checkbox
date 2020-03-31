@@ -22,6 +22,7 @@
 
 import abc
 import errno
+import json
 import os
 import shlex
 import subprocess
@@ -149,6 +150,9 @@ class SnappyRestartStrategy(IRestartStrategy):
         section = 'Service'
         config.add_section(section)
         config.set(section, 'Type', 'oneshot')
+        config.set(section, 'StandardOutput', 'tty')
+        config.set(section, 'StandardError', 'tty')
+        config.set(section, 'TTYPath', '/dev/console')
         if os.getenv('USER'):
             config.set(section, 'User', os.getenv('USER'))
 
@@ -229,10 +233,11 @@ class RemoteSnappyRestartStrategy(IRestartStrategy):
                 raise
 
 
-def detect_restart_strategy() -> IRestartStrategy:
+def detect_restart_strategy(session=None) -> IRestartStrategy:
     """
     Detect the restart strategy for the current environment.
-
+    :param session:
+        The current session object.
     :returns:
         A restart strategy object.
     :raises LookupError:
@@ -255,16 +260,30 @@ def detect_restart_strategy() -> IRestartStrategy:
         except subprocess.CalledProcessError:
             return SnappyRestartStrategy()
 
-    # Classic + remote service enabled
+    # Classic snaps
     snap_data = os.getenv('SNAP_DATA')
+    try:
+        if session:
+            app_blob = json.loads(session._context.state.metadata.app_blob.decode('UTF-8'))
+            session_type = app_blob.get("type")
+        else:
+            session_type = None
+    except AttributeError:
+        session_type = None
     if snap_data:
-        try:
-            slave_status = subprocess.check_output(
-                ['snapctl', 'get', 'slave'], universal_newlines=True).rstrip()
-            if slave_status == 'enabled':
-                return RemoteSnappyRestartStrategy()
-        except subprocess.CalledProcessError:
-            pass
+        # Classic snaps w/ remote service enabled and in use
+        if session_type == "checkbox-slave":
+            try:
+                slave_status = subprocess.check_output(
+                    ['snapctl', 'get', 'slave'],
+                    universal_newlines=True).rstrip()
+                if slave_status == 'enabled':
+                    return RemoteSnappyRestartStrategy()
+            except subprocess.CalledProcessError:
+                pass
+        # Classic snaps w/o remote service
+        else:
+            return SnappyRestartStrategy()
 
     if os.path.isdir('/etc/xdg/autostart'):
         # NOTE: Assume this is a terminal application

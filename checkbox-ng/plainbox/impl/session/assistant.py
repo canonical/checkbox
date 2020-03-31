@@ -253,7 +253,7 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         if self._restart_strategy is None:
-            self._restart_strategy = detect_restart_strategy()
+            self._restart_strategy = detect_restart_strategy(self)
         self._restart_cmd_callback = cmd_callback
         # Prevent second call to this method and to the
         # use_alternate_restart_strategy() method.
@@ -524,6 +524,13 @@ class SessionAssistant:
             self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
             self.finalize_session: "to finalize session",
         }
+        if SA_RESTARTABLE in self._flags:
+            allowed_calls = UsageExpectation.of(self).allowed_calls
+            allowed_calls[self.configure_application_restart] = (
+                "configure automatic restart capability")
+            allowed_calls[self.use_alternate_restart_strategy] = (
+                "configure automatic restart capability")
+
 
     @raises(KeyError, UnexpectedMethodCall)
     def resume_session(self, session_id: str,

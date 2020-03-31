@@ -14,23 +14,9 @@ plugin: resource
 category_id: docker
 _summary: Configure docker jobs
 _description:
- Configure arch image prefix (if needed) and docker compose command
+ Configure docker compose command and docker inspect json fields
 command:
  echo arch: $SNAP_ARCH
- case $SNAP_ARCH in
-   amd64)
-     echo 'arch_supported: yes'
-     echo 'image_prefix: '
-   ;;
-   armhf)
-     echo 'arch_supported: yes'
-     echo 'image_prefix: armhf/'
-   ;;
-   *)
-     echo "arch_supported: no"
-     echo 'image_prefix: '
-   ;;
- esac
  if [[ -z $SNAP ]]; then
      echo 'compose_command: docker-compose'
  else
@@ -69,10 +55,8 @@ template-unit: job
 id: docker/hello-world_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
-command: docker run --rm {image_prefix}hello-world
+requires: snap.name == 'docker'
+command: docker run --rm hello-world
 _summary: Download and run trivial hello-world container
 flags: simple preserve-cwd
 
@@ -82,10 +66,8 @@ template-unit: job
 id: docker/run_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
-command: docker run --rm {image_prefix}ubuntu echo 'Hello world'
+requires: snap.name == 'docker'
+command: docker run --rm ubuntu echo 'Hello world'
 _summary: Download and run ubuntu container
 flags: simple preserve-cwd
 
@@ -95,10 +77,8 @@ template-unit: job
 id: docker/interative_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
-command: docker run --rm -i {image_prefix}ubuntu bash <<< "echo 'Hello world'"
+requires: snap.name == 'docker'
+command: docker run --rm -i ubuntu bash <<< "echo 'Hello world'"
 _summary: Test an interactive shell in Ubuntu container
 flags: simple preserve-cwd
 
@@ -108,12 +88,10 @@ template-unit: job
 id: docker/diff_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -dit {image_prefix}ubuntu mkdir /home/test)
+ ID=$(docker run -dit ubuntu mkdir /home/test)
  docker diff $ID | grep 'A /home/test'
  docker rm -f $ID
 _summary: Test changes to files in Ubuntu container
@@ -125,12 +103,10 @@ template-unit: job
 id: docker/copy_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -dit {image_prefix}ubuntu touch /home/file)
+ ID=$(docker run -dit ubuntu touch /home/file)
  docker diff $ID | grep 'A /home/file'
  #A readable&writable path for docker snap
  file_path=/var/snap/docker/common/
@@ -147,16 +123,14 @@ template-unit: job
 id: docker/inspect_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -dit {image_prefix}ubuntu bash)
+ ID=$(docker run -dit ubuntu bash)
  path=$(docker inspect -f {path} $ID)
  image=$(docker inspect -f {image} $ID)
  [ $path = "bash" ] || exit 1
- [ $image = "{image_prefix}ubuntu" ] || exit 1
+ [ $image = "ubuntu" ] || exit 1
  docker rm -f $ID
 _summary: Test query low-level information on a docker object
 flags: simple preserve-cwd
@@ -167,12 +141,10 @@ template-unit: job
 id: docker/kill_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -dit --name test {image_prefix}ubuntu bash)
+ ID=$(docker run -dit --name test ubuntu bash)
  docker ps --no-trunc | grep $ID
  docker rename $ID test_2
  docker kill test_2
@@ -186,12 +158,10 @@ template-unit: job
 id: docker/start-stop_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -d {image_prefix}redis)
+ ID=$(docker run -d redis)
  [ `docker inspect -f {status} $ID` != running ] && exit 1
  docker stop $ID
  [ `docker wait $ID` != 0 ] && exit 1
@@ -207,13 +177,11 @@ template-unit: job
 id: docker/build-single_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
  dockerfile=$(cat <<EOF
-   FROM {image_prefix}alpine
+   FROM alpine
    CMD echo "hello-world"
  EOF
  )
@@ -231,12 +199,10 @@ template-unit: job
 id: docker/export-and-import_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -dit {image_prefix}ubuntu bash)
+ ID=$(docker run -dit ubuntu bash)
  #A readable&writable path for docker snap
  tarball_file=/var/snap/docker/common/ubuntu.tar
  docker export $ID > $tarball_file
@@ -253,12 +219,10 @@ template-unit: job
 id: docker/commit_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -dit --name test {image_prefix}ubuntu mkdir /home/test)
+ ID=$(docker run -dit --name test ubuntu mkdir /home/test)
  docker commit $ID ubuntu-plainbox
  docker images | grep 'ubuntu-plainbox'
  docker run ubuntu [ -d /home/test ] && exit 1 || echo 'Directory not found'
@@ -274,13 +238,11 @@ template-unit: job
 id: docker/save-and-load_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- docker pull {image_prefix}ubuntu
- docker save {image_prefix}ubuntu > /var/snap/docker/common/ubuntu.tar
+ docker pull ubuntu
+ docker save ubuntu > /var/snap/docker/common/ubuntu.tar
  docker load < /var/snap/docker/common/ubuntu.tar
  docker images -a | grep ubuntu
 _summary: Test docker save and load a docker image
@@ -292,16 +254,14 @@ template-unit: job
 id: docker/compose-single_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
  #A readable&writable path for docker snap
  compose_file=/var/snap/docker/common/docker-compose.yaml
  echo "test:
-   image: {image_prefix}ubuntu
+   image: ubuntu
    command: bash
    tty: true" > $compose_file
  {compose_command} -f $compose_file up -d
@@ -319,9 +279,7 @@ template-unit: job
 id: docker/compose-and-basic_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
@@ -360,9 +318,7 @@ template-unit: job
 id: docker/deploy-registry_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
  #A readable&writable path for docker snap
@@ -375,11 +331,11 @@ command:
    -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
    -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
     registry:2
- docker pull {image_prefix}ubuntu
- docker tag ubuntu localhost:5000/{image_prefix}ubuntu
+ docker pull ubuntu
+ docker tag ubuntu localhost:5000/ubuntu
  docker login --username user --password passwd localhost:5000
- docker push localhost:5000/{image_prefix}ubuntu
- docker pull localhost:5000/{image_prefix}ubuntu
+ docker push localhost:5000/ubuntu
+ docker pull localhost:5000/ubuntu
  docker stop registry
  docker rm -v registry
 _summary: Deploy a registry server and run it on localhost
@@ -391,13 +347,11 @@ template-unit: job
 id: docker/restart-on-failure_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
  dockerfile=$(cat <<EOF
-   FROM {image_prefix}ubuntu
+   FROM ubuntu
    CMD sleep 1; exit 1
  EOF
  )
@@ -420,13 +374,11 @@ template-unit: job
 id: docker/restart-always_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
  dockerfile=$(cat <<EOF
-   FROM {image_prefix}ubuntu
+   FROM ubuntu
    CMD sleep 1
  EOF
  )
@@ -447,12 +399,10 @@ template-unit: job
 id: docker/update_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run --restart always -dit {image_prefix}ubuntu bash)
+ ID=$(docker run --restart always -dit ubuntu bash)
  restartPolicy=$(docker inspect -f {restartPolicy} $ID)
  [ $restartPolicy = always ] || exit 1
  docker update --restart=no $ID
@@ -468,16 +418,14 @@ template-unit: job
 id: docker/compose-restart_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
  #A readable&writable path for docker snap
  compose_file=/var/snap/docker/common/docker-compose.yaml
  echo "test:
-   image: {image_prefix}ubuntu
+   image: ubuntu
    command: sleep 1
    restart: always" > $compose_file
  {compose_command} -f $compose_file up -d
@@ -497,9 +445,7 @@ template-unit: job
 id: docker/edgex_compose_{arch}
 user: root
 category_id: docker
-requires:
- snap.name == 'docker'
- docker_resource.arch_supported == 'yes'
+requires: snap.name == 'docker'
 command:
   export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
   set -ex

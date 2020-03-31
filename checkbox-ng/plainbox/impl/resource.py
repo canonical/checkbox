@@ -616,7 +616,7 @@ class ResourceExpression:
         """
         return self._implicit_namespace
 
-    def evaluate(self, *resource_list_list):
+    def evaluate(self, *resource_list_list, resource_map=None):
         """
         Evaluate the expression against a list of resources
 

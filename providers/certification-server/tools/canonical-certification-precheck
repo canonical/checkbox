@@ -528,16 +528,17 @@ Ubuntu_Version(){
  fi
 }
 
+ALL_NICS=$(cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb.")
 
 # All NICs are on the same network segment, to flag cabling, switch, or configuration errors (??)
 Network_Subnets(){
 name="Network Subnets"
 echoname
-check_bcast=$(for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`
+check_bcast=$(for nic in $ALL_NICS
 	do
 		ip addr show dev $nic | grep "inet "|awk '{print $4}'
 done|uniq|wc -l)
-for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`
+for nic in $ALL_NICS
 	do
 		echo  " $nic - $(ip addr show dev $nic | grep "inet "|awk '{print $2, $4}')"
 done
@@ -547,9 +548,25 @@ if [ $check_bcast = 1 ]; then
 	echo " All interfaces seem to be on the same subnet"
 else
 	echo " One or more interfaces are on separate subnets"
-	fail
+	eval info${i}=\"Multiple subnets detected\"
+	warn
 fi
 
+}
+
+# Find the network associated with the specified IP address.
+# Returns network (in network/width form, as in 10.1.10.0/23)
+# in the "network" variable, or empty variable if address
+# requires routing.
+find_network() {
+# $1 = IP address
+network=""
+# routable = 'via' if routed, 'dev' if local
+local routable=$(ip route get $1 | awk '{print $2}')
+if [ $routable == 'dev' ]; then
+    local nic=$(ip route get $1 | awk '{print $3}')
+    network=$(ipcalc $(ip addr show dev $nic | grep "inet " | awk '{print $2}') -nb | grep "Network" | awk '{print $2}')
+fi
 }
 
 # Check if iperf3 is available on server specified in /etc/xdg/canonical-certification.conf 
@@ -570,24 +587,58 @@ elif [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 
 		fail
 	fi
 fi
-local iperf3found=0
-for iperfserver in $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf | cut -d = -f 2 | sed s/,/\\n/g)
-        do
-                timeout 5 iperf3 -c $iperfserver -n 1 >/dev/null 2>&1
-                if [ $? = 0 ]; then
-                        echo " Iperf3 server found on port 5201 on $iperfserver"
-                        iperf3found=1
-		else
-                        echo " No Iperf3 server found on $iperfserver"
-                fi
+
+# Create a list of all local networks (identified by address/width, as in 10.1.10.0/23)
+for nic in $ALL_NICS; do
+    local nic_addr=$(ip addr show dev $nic | grep "inet " | awk '{print $2}')
+    if [[ $nic_addr != "" ]]; then
+        this_network=$(ipcalc $nic_addr -nb | grep "Network" | awk '{print $2}')
+        found=0
+        for net in ${all_networks[@]}; do
+            if [ $net == $this_network ]; then
+                found=1;
+            fi
+        done
+        if [ $found == 0 ]; then
+            all_networks+=( $this_network )
+        fi
+    fi
 done
-if [[ $iperf3found == 0 ]]; then
-        echo " No iperf3 server found"
-        fail
+
+# Report on presence of individual configured iperf3 servers....
+for iperfserver in $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf | cut -d = -f 2 | sed s/,/\\n/g)
+    do
+        timeout 5 iperf3 -c $iperfserver -n 1 >/dev/null 2>&1
+        if [ $? = 0 ]; then
+            echo " Iperf3 server found on port 5201 on $iperfserver"
+            find_network $iperfserver
+            all_networks=( "${all_networks[@]/$network}" )
+        else
+            echo " No Iperf3 server found on $iperfserver"
+        fi
+done
+
+# Count number of networks without an iperf3 server.
+# Note: ${#all_networks[@]} SHOULD have this, but seems to be thrown
+# off by removing elements earlier.
+local num_nets_left=0
+for net in ${all_networks[@]}; do
+    let num_nets_left=num_nets_left+1
+done
+
+if [[ $num_nets_left -gt 0 ]]; then
+    echo ""
+    echo " Networks without iperf3 servers:"
+    for net in ${all_networks[@]}; do
+        echo "  $net"
+    done
+    fail
 else
-	pass
+    echo ""
+    echo " iperf3 server(s) found on all network(s)."
+    pass
 fi
-}
+} # IPERF()
 
 # Check that jumbo frames are enabled on all >10Gbps NICs
 Jumbo_Frames(){

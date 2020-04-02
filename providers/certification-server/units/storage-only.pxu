@@ -28,7 +28,6 @@ include:
     miscellanea/olog_results.log
     miscellanea/klog                           certification-status=blocker
     miscellanea/klog_results.log
-    
 bootstrap_include:
     device
     fwts

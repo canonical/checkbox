@@ -567,6 +567,8 @@ def get_execution_command(job, environ, session_dir,
             job, environ, session_dir, nest_dir, extra_env)
     else:
         env = get_execution_environment(job, environ, session_dir, nest_dir)
+        if extra_env:
+            env.update(extra_env)
     cmd += ["{key}={value}".format(key=key, value=value)
             for key, value in sorted(env.items())]
     cmd += [job.shell, '-c', job.command]

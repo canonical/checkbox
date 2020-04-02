@@ -61,7 +61,7 @@ for disk in $@; do
     "nvme" ) MIN_BUF_READ=200;;
     "nvdimm" ) MIN_BUF_READ=500;;
     "mdadm" ) MIN_BUF_READ=80;;
-    "ata" ) MIN_BUF_READ=100;;
+    "ata" ) MIN_BUF_READ=80;;
     "scsi" ) MIN_BUF_READ=100;;
     "ssd" ) MIN_BUF_READ=200;;
     *     ) MIN_BUF_READ=$DEFAULT_BUF_READ;;

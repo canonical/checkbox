@@ -290,7 +290,7 @@ class CheckBoxSessionStateController(ISessionStateController):
             # XXX: Consider forwarding the origin object here.  I guess we
             # should have from_frc822_record as with JobDefinition
             resource = Resource(record.data)
-            logger.info(
+            logger.debug(
                 _("Storing resource record %r: %s"), job.id, resource)
             new_resource_list.append(resource)
         # Create an empty resource object to properly fail __getattr__ calls

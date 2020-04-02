@@ -277,6 +277,8 @@ class UnifiedRunner(IJobRunner):
                 self._extra_env)
             env = get_execution_environment(
                 job, environ, self._session_dir, nest_dir)
+            if self._user_provider():
+                env['NORMAL_USER'] = self._user_provider()
             # run the command
             logger.debug(_("job[%(ID)s] executing %(CMD)r with env %(ENV)r"),
                          {"ID": job.id, "CMD": cmd,

@@ -31,8 +31,6 @@ from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
 from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
 
-from checkbox_ng.config import load_configs
-
 _ = gettext.gettext
 _logger = logging.getLogger("slave")
 

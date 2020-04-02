@@ -513,7 +513,7 @@ class SessionAssistant:
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)
         self.session_available(self._manager.storage.id)
-        _logger.debug("New session created: %s", title)
+        _logger.info("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
             self.get_test_plans: "to get the list of available test plans",
             self.get_test_plan: "to get particular test plan object",
@@ -581,7 +581,7 @@ class SessionAssistant:
         if self._restart_strategy is not None:
             self._restart_strategy.diffuse_application_restart(self._app_id)
         self.session_available(self._manager.storage.id)
-        _logger.debug("Session resumed: %s", session_id)
+        _logger.info("Session resumed: %s", session_id)
         if SessionMetaData.FLAG_TESTPLANLESS in self._metadata.flags:
             UsageExpectation.of(self).allowed_calls = self._get_allowed_calls_in_normal_state()
         else:
@@ -622,7 +622,7 @@ class SessionAssistant:
             try:
                 metadata = SessionPeekHelper().peek(data)
             except SessionResumeError:
-                _logger.info("Exception raised when trying to resume"
+                _logger.info("Exception raised when trying to resume "
                              "session: %s", str(storage.id))
             else:
                 if (metadata.app_id == self._app_id and

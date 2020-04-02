@@ -240,7 +240,7 @@ class RemoteSessionAssistant():
     @allowed_when(Idle)
     def start_session(self, configuration):
         self._reset_sa()
-        _logger.debug("start_session: %r", configuration)
+        _logger.info("start_session: %r", configuration)
         session_title = 'checkbox-slave'
         session_desc = 'checkbox-slave session'
         session_type = 'checkbox-slave'
@@ -459,7 +459,7 @@ class RemoteSessionAssistant():
         :returns:
             (state, payload) tuple.
         """
-        _logger.debug("whats_up()")
+        _logger.debug("whats_up() -> %r", self._state)
         payload = None
         if self._state == Running:
             payload = (
@@ -587,6 +587,7 @@ class RemoteSessionAssistant():
         return test_info_list
 
     def resume_by_id(self, session_id=None):
+        _logger.info("resume_by_id: %r", session_id)
         self._launcher = load_configs()
         resume_candidates = list(self._sa.get_resumable_sessions())
         if not session_id:

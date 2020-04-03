@@ -210,11 +210,15 @@ class RemoteSessionAssistant():
 
     def _prepare_display_without_psutil(self):
         try:
-            value = check_output(
+            display_value = check_output(
                 'strings /proc/*/environ 2>/dev/null | '
                 'grep -m 1 -oP "(?<=DISPLAY=).*"',
                 shell=True, universal_newlines=True).rstrip()
-            return {'DISPLAY': value}
+            xauth_value = check_output(
+                'strings /proc/*/environ 2>/dev/null | '
+                'grep -m 1 -oP "(?<=XAUTHORITY=).*"',
+                shell=True, universal_newlines=True).rstrip()
+            return {'DISPLAY': display_value, 'XAUTHORITY': xauth_value}
         except CalledProcessError:
             return None
 
@@ -234,13 +238,20 @@ class RemoteSessionAssistant():
                 # quietly ignore the process that died before we had a chance
                 # to read the environment from them
                 continue
-            if ("DISPLAY" in p_environ and p_user != 'gdm'):  # gdm uses :1024
-                return {'DISPLAY': p_environ['DISPLAY']}
+            if (
+                "DISPLAY" in p_environ and
+                "XAUTHORITY" in p_environ and
+                p_user != 'gdm'
+            ):  # gdm uses :1024
+                return {
+                    'DISPLAY': p_environ['DISPLAY'],
+                    'XAUTHORITY': p_environ['XAUTHORITY']
+                    }
 
     @allowed_when(Idle)
     def start_session(self, configuration):
         self._reset_sa()
-        _logger.debug("start_session: %r", configuration)
+        _logger.info("start_session: %r", configuration)
         session_title = 'checkbox-slave'
         session_desc = 'checkbox-slave session'
         session_type = 'checkbox-slave'
@@ -459,7 +470,7 @@ class RemoteSessionAssistant():
         :returns:
             (state, payload) tuple.
         """
-        _logger.debug("whats_up()")
+        _logger.debug("whats_up() -> %r", self._state)
         payload = None
         if self._state == Running:
             payload = (
@@ -587,6 +598,7 @@ class RemoteSessionAssistant():
         return test_info_list
 
     def resume_by_id(self, session_id=None):
+        _logger.info("resume_by_id: %r", session_id)
         self._launcher = load_configs()
         resume_candidates = list(self._sa.get_resumable_sessions())
         if not session_id:

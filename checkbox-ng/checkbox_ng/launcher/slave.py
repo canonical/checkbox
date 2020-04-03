@@ -26,11 +26,10 @@ import socket
 import sys
 
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
+from plainbox.impl.session.restart import RemoteDebRestartStrategy
 from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
 from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
-
-from checkbox_ng.config import load_configs
 
 _ = gettext.gettext
 _logger = logging.getLogger("slave")
@@ -88,6 +87,19 @@ class RemoteSlave():
                 # XXX: explicitly passing None to not have to bump Remote API
                 # TODO: remove on the next Remote API bump
                 SessionAssistantSlave.session_assistant.resume_by_id(None)
+        else:
+            _logger.info("RemoteDebRestartStrategy")
+            if remote_restart_strategy_debug:
+                strategy = RemoteDebRestartStrategy(debug=True)
+            else:
+                strategy = RemoteDebRestartStrategy()
+            if os.path.exists(strategy.session_resume_filename):
+                with open(strategy.session_resume_filename, 'rt') as f:
+                    session_id = f.readline()
+                _logger.info(
+                    "RemoteDebRestartStrategy resume_by_id %r", session_id)
+                SessionAssistantSlave.session_assistant.resume_by_id(
+                    session_id)
         self._server = ThreadedServer(
             SessionAssistantSlave,
             port=slave_port,

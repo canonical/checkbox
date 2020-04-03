@@ -61,6 +61,7 @@ from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.restart import IRestartStrategy
 from plainbox.impl.session.restart import detect_restart_strategy
+from plainbox.impl.session.restart import RemoteDebRestartStrategy
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
@@ -513,7 +514,7 @@ class SessionAssistant:
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)
         self.session_available(self._manager.storage.id)
-        _logger.debug("New session created: %s", title)
+        _logger.info("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
             self.get_test_plans: "to get the list of available test plans",
             self.get_test_plan: "to get particular test plan object",
@@ -530,7 +531,6 @@ class SessionAssistant:
                 "configure automatic restart capability")
             allowed_calls[self.use_alternate_restart_strategy] = (
                 "configure automatic restart capability")
-
 
     @raises(KeyError, UnexpectedMethodCall)
     def resume_session(self, session_id: str,
@@ -578,10 +578,12 @@ class SessionAssistant:
                 ).get_result()
                 self._context.state.update_job_result(job, result)
                 self._manager.checkpoint()
+        self._restart_strategy = detect_restart_strategy(self)
+        _logger.info("Session strategy: %r", self._restart_strategy)
         if self._restart_strategy is not None:
             self._restart_strategy.diffuse_application_restart(self._app_id)
         self.session_available(self._manager.storage.id)
-        _logger.debug("Session resumed: %s", session_id)
+        _logger.info("Session resumed: %s", session_id)
         if SessionMetaData.FLAG_TESTPLANLESS in self._metadata.flags:
             UsageExpectation.of(self).allowed_calls = self._get_allowed_calls_in_normal_state()
         else:
@@ -622,7 +624,7 @@ class SessionAssistant:
             try:
                 metadata = SessionPeekHelper().peek(data)
             except SessionResumeError:
-                _logger.info("Exception raised when trying to resume"
+                _logger.info("Exception raised when trying to resume "
                              "session: %s", str(storage.id))
             else:
                 if (metadata.app_id == self._app_id and
@@ -920,7 +922,6 @@ class SessionAssistant:
         # No bootstrap is done update the cache of jobs that were run
         # during bootstrap phase
         self._bootstrap_done_list = self.get_dynamic_done_list()
-
 
     @raises(KeyError, UnexpectedMethodCall)
     def use_alternate_selection(self, selection: 'Iterable[str]'):
@@ -1387,12 +1388,21 @@ class SessionAssistant:
             autorestart = (self._restart_strategy is not None and
                            'autorestart' in job.get_flag_set())
             if autorestart:
-                restart_cmd = ' '.join(
-                    shlex.quote(cmd_part)
-                    for cmd_part in self._restart_cmd_callback(
-                        self._manager.storage.id))
+                restart_cmd = ''
+                if self._restart_cmd_callback:
+                    restart_cmd = ' '.join(
+                        shlex.quote(cmd_part)
+                        for cmd_part in self._restart_cmd_callback(
+                            self._manager.storage.id))
                 self._restart_strategy.prime_application_restart(
                     self._app_id, self._manager.storage.id, restart_cmd)
+            elif (
+                isinstance(self._restart_strategy, RemoteDebRestartStrategy)
+                and 'noreturn' in job.get_flag_set()
+            ):
+                self._restart_strategy.prime_application_restart(
+                    self._app_id, self._manager.storage.id,
+                    RemoteDebRestartStrategy.service_name)
             ui.started_running(job, job_state)
             if 'noreturn' in job.get_flag_set():
                 # 'share' the information how to respawn the application
@@ -1408,8 +1418,16 @@ class SessionAssistant:
                     checkbox_data_dir, '__respawn_checkbox')
                 if self._restart_cmd_callback:
                     with open(respawn_cmd_file, 'wt') as f:
-                        f.writelines(self._restart_cmd_callback(
-                            self.get_session_id()))
+                        if isinstance(self._restart_strategy,
+                                      RemoteDebRestartStrategy):
+                            service = RemoteDebRestartStrategy.service_name
+                            f.writelines([
+                                'sudo systemctl enable {}\n'.format(service),
+                                'sudo systemctl start {}'.format(service),
+                            ])
+                        else:
+                            f.writelines(self._restart_cmd_callback(
+                                self.get_session_id()))
             if not native:
                 if self._config.environment is Unset:
                     result = self._runner.run_job(job, job_state, ui=ui)

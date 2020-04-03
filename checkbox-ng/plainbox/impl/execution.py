@@ -277,9 +277,10 @@ class UnifiedRunner(IJobRunner):
                 self._extra_env)
             env = get_execution_environment(
                 job, environ, self._session_dir, nest_dir)
+            if self._user_provider():
+                env['NORMAL_USER'] = self._user_provider()
             # run the command
-            logger.debug(_("job[%(ID)s] executing %(CMD)r with env %(ENV)r"
-                           " in cwd %(DIR)r"),
+            logger.debug(_("job[%(ID)s] executing %(CMD)r with env %(ENV)r"),
                          {"ID": job.id, "CMD": cmd,
                           "ENV": env})
             if 'preserve-cwd' in job.get_flag_set() or os.getenv("SNAP"):
@@ -568,6 +569,8 @@ def get_execution_command(job, environ, session_dir,
             job, environ, session_dir, nest_dir, extra_env)
     else:
         env = get_execution_environment(job, environ, session_dir, nest_dir)
+        if extra_env:
+            env.update(extra_env)
     cmd += ["{key}={value}".format(key=key, value=value)
             for key, value in sorted(env.items())]
     cmd += [job.shell, '-c', job.command]

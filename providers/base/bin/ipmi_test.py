@@ -233,20 +233,19 @@ class IpmiTest(object):
 def main():
     # instantiate argparse as parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", action="store_true",
-                        help="Debug/verbose output (stdout/stderr)")
-    parser.add_argument("-q", "--quiet", action="store_true",
-                        help="Suppress output.")
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Debug/verbose output (stdout/stderr)')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help='Suppress output.')
     args = parser.parse_args()
 
-    # Set up the logging system
+    # logging subsystem
     if not args.quiet or args.debug:
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
         format = ''
         date_format = '%Y-%m-%d %H:%M:%S'
 
-    # If we DO want console output
     if not args.quiet:
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(

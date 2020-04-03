@@ -71,7 +71,7 @@ class IpmiTest(object):
         process = Popen(
             cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         output, error = process.communicate(timeout=self.subproc_timeout)
-        logging.debug('\n## Debug Output: ##')
+        logging.debug('## Debug Output: ##')
         if len(output) > 0:
                         # padding
             logging.debug('   [Stdout]\n')
@@ -158,11 +158,13 @@ class IpmiTest(object):
         matches = 0
         # support multiple channels
         channel = []
+        cmd = [self.path_ipmi_config, '--checkout',
+               '--lan-channel-number', channel]
         # test channels 0 - 15
         try:
-            for i in range(15):
-                cmd = [self.path_ipmi_config, '--checkout',
-                   '--lan-channel-number', str(i)]
+            for i in range(16):
+                del cmd[(len(cmd) - 1)]
+                cmd.append(str(i))
                 output = self.subproc_logging(cmd)
                 for line in output.rstrip().split('\n'):
                     if re.search(regex, line):
@@ -244,12 +246,11 @@ def main():
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
         format = ''
-        date_format = '%Y-%m-%d %H:%M:%S'
 
     if not args.quiet:
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(
-            logging.Formatter(format, date_format))
+            logging.Formatter(format, ))
         console_handler.setLevel(logging.INFO)
         logger.addHandler(console_handler)
 

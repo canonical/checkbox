@@ -632,14 +632,19 @@ class ResourceExpression:
 
         # operator by itself may be a part of some identifier so let's
         # look for one surrounded by spaced
-        or_pos = self._text.rfind(' or ')
-        if or_pos > 0:
-            lhs, rhs = self._split_and_evaluate(' or ', resource_map)
-            return lhs or rhs
-        and_pos = self._text.rfind(' and ')
-        if and_pos > 0:
-            lhs, rhs = self._split_and_evaluate(' and ', resource_map)
-            return lhs and rhs
+
+        # if parenthesis are used in the expression then there's a high chance
+        # we'll break the syntax with a bruteforce split on operator. Let's
+        # not do a split on exprs with parenthesis
+        if not '(' in self._text and ')' in self._text:
+            or_pos = self._text.rfind(' or ')
+            if or_pos > 0:
+                lhs, rhs = self._split_and_evaluate(' or ', resource_map)
+                return lhs or rhs
+            and_pos = self._text.rfind(' and ')
+            if and_pos > 0:
+                lhs, rhs = self._split_and_evaluate(' and ', resource_map)
+                return lhs and rhs
 
         # there are no conjuctions, so let's do a simple evaluation
         for resource_list in resource_list_list:

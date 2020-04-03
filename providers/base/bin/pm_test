@@ -36,11 +36,13 @@ def main():
         sys.exit(1)
 
     # Obtain name of the invoking user.
-    uid = os.getenv('SUDO_UID') or os.getenv('PKEXEC_UID')
-    if not uid:
-        sys.stderr.write('Unable to determine invoking user\n')
-        sys.exit(1)
-    username = pwd.getpwuid(int(uid)).pw_name
+    username = os.getenv('NORMAL_USER')
+    if not username:
+        uid = os.getenv('SUDO_UID') or os.getenv('PKEXEC_UID')
+        if not uid:q
+            sys.stderr.write('Unable to determine invoking user\n')
+            sys.exit(1)
+        username = pwd.getpwuid(int(uid)).pw_name
 
     LoggingConfiguration.set(args.log_level, args.log_filename, args.append)
     logging.debug('Invoking username: %s', username)

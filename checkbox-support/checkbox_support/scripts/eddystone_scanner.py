@@ -68,7 +68,7 @@ def main():
         return 1
     with InteractiveCommand('bluetoothctl') as btctl:
         btctl.writeline('power on')
-        time.sleep(1)
+        time.sleep(3)
         btctl.writeline('exit')
         btctl.kill()
     event_loop = asyncio.get_event_loop()

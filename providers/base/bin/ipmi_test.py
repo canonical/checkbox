@@ -88,12 +88,12 @@ class IpmiTest(object):
         return output
 
     # post-process exception handling
-    def proc_ex(self, e, subtest):
-        if (type(e) == TimeoutExpired):
+    def proc_ex(self, exc, subtest):
+        if (type(exc) == TimeoutExpired):
             logging.info(
                 f'Timeout calling {subtest}!'
                 f' ({self.subproc_timeout}s)\n')
-        elif (type(e) == TypeError):
+        elif (type(exc) == TypeError):
             logging.info(
                 f'Error calling {subtest}!'
                 ' Check your paths!\n')
@@ -141,8 +141,8 @@ class IpmiTest(object):
                 else:
                     self.modprobe_hlpr(module)
             logging.info('')
-        except self.subproc_exceptns as e:
-            self.proc_ex(e, 'lsmod')
+        except self.subproc_exceptns as exc:
+            self.proc_ex(exc, 'lsmod')
 
     # get ipmi chassis data
     # pass if called w/o error
@@ -152,8 +152,8 @@ class IpmiTest(object):
         cmd = ['sudo', self.path_ipmi_chassis, '--get-status']
         try:
             self.subproc_logging(cmd)
-        except self.subproc_exceptns as e:
-            self.proc_ex(e, 'ipmi_chassis()')
+        except self.subproc_exceptns as exc:
+            self.proc_ex(exc, 'ipmi_chassis()')
             return 1
         else:
             logging.info('Fetched chassis status!\n')
@@ -175,8 +175,8 @@ class IpmiTest(object):
             else:
                 logging.info('Unable to retrieve power status via IPMI.\n')
                 return 1
-        except self.subproc_exceptns as e:
-            self.proc_ex(e, 'pwr_status()')
+        except self.subproc_exceptns as exc:
+            self.proc_ex(exc, 'pwr_status()')
             return 1
 
     # get ipmi channel(s) in use
@@ -201,8 +201,8 @@ class IpmiTest(object):
                         matches += 1
                         channel.append(i)
                         break
-        except self.subproc_exceptns as e:
-            self.proc_ex(e, 'ipmi_channel()')
+        except self.subproc_exceptns as exc:
+            self.proc_ex(exc, 'ipmi_channel()')
             return 1
         else:
             if (matches > 0):
@@ -220,8 +220,8 @@ class IpmiTest(object):
         cmd = ['sudo', self.path_bmc_info]
         try:
             self.subproc_logging(cmd)
-        except self.subproc_exceptns as e:
-            self.proc_ex(e, 'bmc_info()')
+        except self.subproc_exceptns as exc:
+            self.proc_ex(exc, 'bmc_info()')
             return 1
         else:
             logging.info('Fetched BMC information!\n')
@@ -245,8 +245,8 @@ class IpmiTest(object):
                 return 1
             else:
                 return 0
-        except self.subproc_exceptns as e:
-            self.proc_ex(e, 'ipmi_version()')
+        except self.subproc_exceptns as exc:
+            self.proc_ex(exc, 'ipmi_version()')
             return 1
 
     # call ipmi-locate
@@ -264,8 +264,8 @@ class IpmiTest(object):
             else:
                 logging.info('Unable to locate IPMI driver!\n')
                 return 1
-        except self.subproc_exceptns as e:
-            self.proc_ex(e, 'ipmi_locate()')
+        except self.subproc_exceptns as exc:
+            self.proc_ex(exc, 'ipmi_locate()')
             return 1
 
 

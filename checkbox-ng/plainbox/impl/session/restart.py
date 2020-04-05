@@ -244,7 +244,7 @@ class RemoteDebRestartStrategy(RemoteSnappyRestartStrategy):
     def get_session_resume_filename(self) -> str:
         if self.debug:
             return '/tmp/session_resume'
-        cache_dir = os.getenv('XDG_CACHE_HOME')
+        cache_dir = os.getenv('XDG_CACHE_HOME', '/var/cache')
         return os.path.join(cache_dir, 'session_resume')
 
     def prime_application_restart(self, app_id: str,

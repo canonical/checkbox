@@ -299,7 +299,7 @@ def init_logging():
     parser.add_argument('-q', '--quiet', action='store_true',
                         help='Suppress output.')
     args = parser.parse_args()
-    if (not args.quiet or args.debug):
+    if ((not args.quiet) or args.debug):
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
     if (not args.quiet):

@@ -183,6 +183,7 @@ class SessionAssistant:
         self._context = None
         self._metadata = None
         self._runner = None
+        self._job_start_time = None
         # Keep a record of jobs run during bootstrap phase
         self._bootstrap_done_list = []
         self._load_providers()
@@ -580,6 +581,7 @@ class SessionAssistant:
                 self._manager.checkpoint()
         self._restart_strategy = detect_restart_strategy(self)
         _logger.info("Session strategy: %r", self._restart_strategy)
+        self._job_start_time = self._metadata.last_job_start_time
         if self._restart_strategy is not None:
             self._restart_strategy.diffuse_application_restart(self._app_id)
         self.session_available(self._manager.storage.id)
@@ -1377,7 +1379,8 @@ class SessionAssistant:
             for warm_up_func in warm_up_list:
                 warm_up_func()
         # XXX: job_state_map is a bit low level, can we avoid that?
-        start_time = time.time()
+        self._job_start_time = time.time()
+        self._metadata.last_job_start_time = self._job_start_time
         job_state = self._context.state.job_state_map[job_id]
         job = job_state.job
         ui.considering_job(job, job_state)
@@ -1439,7 +1442,6 @@ class SessionAssistant:
                 builder = JobResultBuilder(
                     outcome=IJobResult.OUTCOME_UNDECIDED,
                 )
-            builder.execution_duration = time.time() - start_time
             if autorestart:
                 self._restart_strategy.diffuse_application_restart(
                     self._app_id)
@@ -1510,6 +1512,8 @@ class SessionAssistant:
         job_state = self._context.state.job_state_map[job_id]
         if len(job_state.result_history) > 0 and override_last:
             job_state.result_history = job_state.result_history[:-1]
+        if self._job_start_time:
+            result.execution_duration = (time.time() - self._job_start_time)
         self._context.state.update_job_result(job, result)
         try:
             if self._config.auto_retry:

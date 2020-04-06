@@ -64,7 +64,7 @@ class IpmiTest(object):
         try:
             path_full = shutil.which(sbin)
             return path_full
-        except self.subproc_excs[2:3]:
+        except (self.subproc_excs[2:3]):
             logging.info('Unable to stat path via shutil lib!')
             logging.info('Using relative paths...')
             path_full = sbin
@@ -240,7 +240,7 @@ class IpmiTest(object):
             version = output[(res_index + 24):(res_index + 27)]
             logging.info(f'IPMI Version: {version}\n')
             # protect conditional
-            if float(version) < float(self.ipmi_ver):
+            if (float(version) < float(self.ipmi_ver)):
                 logging.info(f'IPMI Version below {self.ipmi_ver}!\n')
                 return 1
             else:
@@ -270,33 +270,14 @@ class IpmiTest(object):
 
 
 def main():
-    # instantiate argparse as parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', action='store_true',
-                        help='Debug/verbose output (stdout/stderr)')
-    parser.add_argument('-q', '--quiet', action='store_true',
-                        help='Suppress output.')
-    args = parser.parse_args()
-
-    # logging subsystem
-    if not args.quiet or args.debug:
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-
-    if not args.quiet:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        logger.addHandler(console_handler)
-
-    if args.debug:
-        console_handler.setLevel(logging.DEBUG)
-
+    # init logging subsystem
+    init_logging()
     # instantiate IpmiTest as ipmi_test
     # pass to [results] for post-processing
     ipmi_test = IpmiTest()
     results = ipmi_test.run_test()
     # tally results
-    if sum(results) > 0:
+    if (sum(results) > 0):
         print ('-----------------------')
         print ('## IPMI tests failed! ##')
         print (
@@ -308,6 +289,25 @@ def main():
         print ('-----------------------')
         print ('## IPMI tests passed! ##')
         return 0
+
+
+def init_logging():
+    # instantiate argparse as parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Debug/verbose output (stdout/stderr)')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help='Suppress output.')
+    args = parser.parse_args()
+    if (not args.quiet or args.debug):
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+    if (not args.quiet):
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        logger.addHandler(console_handler)
+    if args.debug:
+        console_handler.setLevel(logging.DEBUG)
 
 
 # call main()

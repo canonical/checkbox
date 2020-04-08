@@ -678,6 +678,11 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(document.record_list[42].name, "Card #0")
         self.assertEqual(len(document.record_list), 43)
 
+    def test_pactl_list_negative_balance_focal(self):
+        document = self.assertParses(
+            pactl.Document.Syntax, self.get_text(
+                "desktop-focal-vostro5590"))[0]
+
     def test_pactl_list_bt_volume_trusty(self):
         document = self.assertParses(
             pactl.Document.Syntax, self.get_text("desktop-trusty-bt-headset")

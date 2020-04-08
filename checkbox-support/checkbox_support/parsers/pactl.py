@@ -398,7 +398,7 @@ VolumeAttributeValue = (
         ])
         + p.LineEnd()
         + p.Optional(p.White('\t').suppress())
-        + p.Regex("balance [0-9]+\.[0-9]+")
+        + p.Regex("balance -?[0-9]+\.[0-9]+")
         + p.LineEnd(),
         adjacent=False
     ).setResultsName("attribute-value")

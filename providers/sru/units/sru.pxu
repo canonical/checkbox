@@ -86,7 +86,6 @@ include:
     graphics/1_screenshot_fullscreen_video_.*
     1_screenshot_fullscreen_video_.*.jpg
     install/apt-get-gets-updates
-    mediacard/sd-preinserted
     miscellanea/dkms_build_validation
     miscellanea/fan_stress_reaction
     networking/http
@@ -98,6 +97,7 @@ nested_part:
     cpu-cert-automated
     disk-automated
     ethernet-automated
+    mediacard-automated
     memory-automated
     power-management-precheck-cert-automated
     usb-automated

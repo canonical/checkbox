@@ -1,0 +1,884 @@
+Module #0
+	Name: module-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute state of devices"
+		module.version = "13.99.1"
+
+Module #1
+	Name: module-stream-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute/device state of streams"
+		module.version = "13.99.1"
+
+Module #2
+	Name: module-card-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore profile of cards"
+		module.version = "13.99.1"
+
+Module #3
+	Name: module-augment-properties
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Augment the property sets of streams with additional static information"
+		module.version = "13.99.1"
+
+Module #4
+	Name: module-switch-on-port-available
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "David Henningsson"
+		module.description = "Switches ports and profiles when devices are plugged/unplugged"
+		module.version = "13.99.1"
+
+Module #5
+	Name: module-switch-on-connect
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Michael Terry"
+		module.description = "When a sink/source is added, switch to it or conditionally switch to it"
+		module.version = "13.99.1"
+
+Module #6
+	Name: module-udev-detect
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Detect available audio hardware and load matching drivers"
+		module.version = "13.99.1"
+
+Module #7
+	Name: module-bluetooth-policy
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "FrÃ©dÃ©ric Dalleau, Pali RohÃ¡r"
+		module.description = "Policy module to make using bluetooth devices out-of-the-box easier"
+		module.version = "13.99.1"
+
+Module #8
+	Name: module-bluetooth-discover
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "JoÃ£o Paulo Rechi Vita"
+		module.description = "Detect available Bluetooth daemon and load the corresponding discovery module"
+		module.version = "13.99.1"
+
+Module #9
+	Name: module-bluez5-discover
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "JoÃ£o Paulo Rechi Vita"
+		module.description = "Detect available BlueZ 5 Bluetooth audio devices and load BlueZ 5 Bluetooth audio drivers"
+		module.version = "13.99.1"
+
+Module #10
+	Name: module-native-protocol-unix
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Native protocol (UNIX sockets)"
+		module.version = "13.99.1"
+
+Module #11
+	Name: module-default-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the default sink and source"
+		module.version = "13.99.1"
+
+Module #12
+	Name: module-always-sink
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Always keeps at least one sink loaded even if it's a null one"
+		module.version = "13.99.1"
+
+Module #14
+	Name: module-intended-roles
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically set device of streams based on intended roles of devices"
+		module.version = "13.99.1"
+
+Module #15
+	Name: module-suspend-on-idle
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is idle for too long, suspend it"
+		module.version = "13.99.1"
+
+Module #16
+	Name: module-console-kit
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Create a client for each ConsoleKit session of this user"
+		module.version = "13.99.1"
+
+Module #17
+	Name: module-systemd-login
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Create a client for each login session of this user"
+		module.version = "13.99.1"
+
+Module #18
+	Name: module-position-event-sounds
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Position event sounds between L and R depending on the position on screen of the widget triggering them."
+		module.version = "13.99.1"
+
+Module #19
+	Name: module-role-cork
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Mute & cork streams with certain roles while others exist"
+		module.version = "13.99.1"
+
+Module #20
+	Name: module-snap-policy
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Canonical Ltd"
+		module.description = "Ubuntu Snap policy management"
+		module.version = "13.99.1"
+
+Module #21
+	Name: module-filter-heuristics
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Detect when various filters are desirable"
+		module.version = "13.99.1"
+
+Module #22
+	Name: module-filter-apply
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Load filter sinks automatically when needed"
+		module.version = "13.99.1"
+
+Module #23
+	Name: module-alsa-card
+	Argument: device_id="0" name="pci-0000_00_1f.3-platform-skl_hda_dsp_generic" card_name="alsa_card.pci-0000_00_1f.3-platform-skl_hda_dsp_generic" namereg_fail=false tsched=yes fixed_latency_range=no ignore_dB=no deferred_volume=yes use_ucm=yes avoid_resampling=no card_properties="module-udev-detect.discovered=1"
+	Usage counter: 0
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "ALSA Card"
+		module.version = "13.99.1"
+
+Module #24
+	Name: module-x11-publish
+	Argument: display=:1 xauthority=/run/user/1000/gdm/Xauthority
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 credential publisher"
+		module.version = "13.99.1"
+
+Module #25
+	Name: module-x11-cork-request
+	Argument: display=:1 xauthority=/run/user/1000/gdm/Xauthority
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Synthesize X11 media key events when cork/uncork is requested"
+		module.version = "13.99.1"
+
+Module #26
+	Name: module-x11-xsmp
+	Argument: display=:1 xauthority=/run/user/1000/gdm/Xauthority session_manager=local/cbrown:@/tmp/.ICE-unix/2080,unix/cbrown:/tmp/.ICE-unix/2080
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 session management"
+		module.version = "13.99.1"
+
+Sink #1
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_5__sink
+	Description: sof-hda-dsp HDMI3/DP3 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_5__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDMI3 (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "5"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofhdadsp,5"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "HiFi: hw:sofhdadsp,5: sink"
+		device.profile.description = "HDMI3/DP3 Output"
+		alsa.mixer_device = "hw:sofhdadsp"
+		device.description = "sof-hda-dsp HDMI3/DP3 Output"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[Out] HDMI3: HDMI3/DP3 Output (priority: 700, not available)
+	Active Port: [Out] HDMI3
+	Formats:
+		pcm
+
+Sink #2
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_4__sink
+	Description: sof-hda-dsp HDMI2/DP2 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_4__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDMI2 (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "4"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofhdadsp,4"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "HiFi: hw:sofhdadsp,4: sink"
+		device.profile.description = "HDMI2/DP2 Output"
+		alsa.mixer_device = "hw:sofhdadsp"
+		device.description = "sof-hda-dsp HDMI2/DP2 Output"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[Out] HDMI2: HDMI2/DP2 Output (priority: 600, not available)
+	Active Port: [Out] HDMI2
+	Formats:
+		pcm
+
+Sink #3
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_3__sink
+	Description: sof-hda-dsp HDMI1/DP1 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_3__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDMI1 (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "3"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofhdadsp,3"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "HiFi: hw:sofhdadsp,3: sink"
+		device.profile.description = "HDMI1/DP1 Output"
+		alsa.mixer_device = "hw:sofhdadsp"
+		device.description = "sof-hda-dsp HDMI1/DP1 Output"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[Out] HDMI1: HDMI1/DP1 Output (priority: 500, not available)
+	Active Port: [Out] HDMI1
+	Formats:
+		pcm
+
+Sink #4
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink
+	Description: sof-hda-dsp Speaker + Headphones
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 40177 /  61% / -12.75 dB
+	        balance -0.39
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDA Analog (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofhdadsp"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "HiFi: hw:sofhdadsp: sink"
+		device.profile.description = "Speaker + Headphones"
+		alsa.mixer_device = "hw:sofhdadsp"
+		device.description = "sof-hda-dsp Speaker + Headphones"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[Out] Speaker: Speaker (priority: 100)
+		[Out] Headphones1: Headphones (priority: 200, not available)
+	Active Port: [Out] Speaker
+	Formats:
+		pcm
+
+Source #1
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_5__sink.monitor
+	Description: Monitor of sof-hda-dsp HDMI3/DP3 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_5__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of sof-hda-dsp HDMI3/DP3 Output"
+		device.class = "monitor"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "0"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #2
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_4__sink.monitor
+	Description: Monitor of sof-hda-dsp HDMI2/DP2 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_4__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of sof-hda-dsp HDMI2/DP2 Output"
+		device.class = "monitor"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "0"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #3
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_3__sink.monitor
+	Description: Monitor of sof-hda-dsp HDMI1/DP1 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_3__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of sof-hda-dsp HDMI1/DP1 Output"
+		device.class = "monitor"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "0"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #4
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink.monitor
+	Description: Monitor of sof-hda-dsp Speaker + Headphones
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of sof-hda-dsp Speaker + Headphones"
+		device.class = "monitor"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "0"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #5
+	State: SUSPENDED
+	Name: alsa_input.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp__source
+	Description: sof-hda-dsp Headset Mono Microphone + Headphones Stereo Microphone
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 32845 /  50% / -18.00 dB,   front-right: 32845 /  50% / -18.00 dB
+	        balance 0.00
+	Base Volume: 20724 /  32% / -30.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDA Analog (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofhdadsp"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "HiFi: hw:sofhdadsp: source"
+		device.profile.description = "Headset Mono Microphone + Headphones Stereo Microphone"
+		alsa.mixer_device = "hw:sofhdadsp"
+		device.description = "sof-hda-dsp Headset Mono Microphone + Headphones Stereo Microphone"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[In] Headset: Headset Mono Microphone (priority: 300, not available)
+		[In] Headphones2: Headphones Stereo Microphone (priority: 200, not available)
+	Active Port: [In] Headphones2
+	Formats:
+		pcm
+
+Source #6
+	State: SUSPENDED
+	Name: alsa_input.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofhdadsp_6__source
+	Description: sof-hda-dsp Digital Microphone
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 23
+	Mute: no
+	Volume: front-left: 30419 /  46% / -20.00 dB,   front-right: 30419 /  46% / -20.00 dB
+	        balance 0.00
+	Base Volume: 30419 /  46% / -20.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "DMIC48kHz (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "6"
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofhdadsp,6"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "HiFi: hw:sofhdadsp,6: source"
+		device.profile.description = "Digital Microphone"
+		alsa.mixer_device = "hw:sofhdadsp"
+		device.description = "sof-hda-dsp Digital Microphone"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[In] Mic: Digital Microphone (priority: 100)
+	Active Port: [In] Mic
+	Formats:
+		pcm
+
+Client #0
+	Driver: module-systemd-login.c
+	Owner Module: 17
+	Properties:
+		application.name = "Login Session 2"
+		systemd-login.session = "2"
+
+Client #4
+	Driver: module-x11-xsmp.c
+	Owner Module: 26
+	Properties:
+		application.name = "XSMP Session on gnome-session as 106b17f11961e02958158624570086141700000020800062"
+		xsmp.vendor = "gnome-session"
+		xsmp.client.id = "106b17f11961e02958158624570086141700000020800062"
+
+Client #5
+	Driver: protocol-native.c
+	Owner Module: 10
+	Properties:
+		application.name = "GNOME Shell Volume Control"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		application.id = "org.gnome.VolumeControl"
+		application.icon_name = "multimedia-volume-control"
+		application.version = "3.36.0"
+		application.process.id = "2115"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "gnome-shell"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":1"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+
+Client #6
+	Driver: protocol-native.c
+	Owner Module: 10
+	Properties:
+		application.name = "GNOME Volume Control Media Keys"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		application.id = "org.gnome.VolumeControl"
+		application.icon_name = "multimedia-volume-control"
+		application.version = ""
+		application.process.id = "2212"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "gsd-media-keys"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":1"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+
+Client #7
+	Driver: protocol-native.c
+	Owner Module: 10
+	Properties:
+		application.name = "Terminal"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		application.icon_name = "org.gnome.Terminal"
+		window.x11.display = ":1"
+		window.x11.screen = "0"
+		application.process.id = "2456"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "gnome-terminal-server"
+		application.language = "en_US.UTF-8"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+
+Client #10
+	Driver: protocol-native.c
+	Owner Module: 10
+	Properties:
+		application.name = "Mutter"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		application.process.id = "2115"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "gnome-shell"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":1"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+
+Client #15
+	Driver: protocol-native.c
+	Owner Module: 10
+	Properties:
+		application.name = "apport-gtk"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		application.icon_name = "apport"
+		window.x11.display = ":1"
+		window.x11.screen = "0"
+		application.process.id = "5484"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "python3.8"
+		application.language = "en_US.UTF-8"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+
+Client #16
+	Driver: protocol-native.c
+	Owner Module: 10
+	Properties:
+		application.name = "Firefox"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		window.x11.display = ":1"
+		window.x11.screen = "0"
+		application.process.id = "5746"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "firefox"
+		application.language = "en_US.UTF-8"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+		application.icon_name = "firefox"
+
+Client #18
+	Driver: protocol-native.c
+	Owner Module: 10
+	Properties:
+		application.name = "pactl"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		application.process.id = "6056"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "pactl"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":1"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+
+Sample #0
+	Name: bell-window-system
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Volume: (invalid)
+	        balance 0.00
+	Duration: 0.3s
+	Size: 49.9 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		event.description = "Bell event"
+		event.id = "bell-window-system"
+		media.name = "bell-window-system"
+		media.filename = "/usr/share//sounds/Yaru/stereo/bell.oga"
+		application.name = "Mutter"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "33"
+		application.process.id = "2115"
+		application.process.user = "pieq"
+		application.process.host = "cbrown"
+		application.process.binary = "gnome-shell"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":1"
+		application.process.machine_id = "0156ec7a5b7449d1a5e31e2f612e048e"
+
+Card #0
+	Name: alsa_card.pci-0000_00_1f.3-platform-skl_hda_dsp_generic
+	Driver: module-alsa-card.c
+	Owner Module: 23
+	Properties:
+		alsa.card = "0"
+		alsa.card_name = "sof-hda-dsp"
+		alsa.long_card_name = "DellInc.-Vostro5590--"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "0"
+		device.description = "sof-hda-dsp"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		HiFi: Play HiFi quality Music (sinks: 4, sources: 2, priority: 8000, available: yes)
+		off: Off (sinks: 0, sources: 0, priority: 0, available: yes)
+	Active Profile: HiFi
+	Ports:
+		[Out] HDMI3: HDMI3/DP3 Output (priority: 700, latency offset: 0 usec, not available)
+			Part of profile(s): HiFi
+		[Out] HDMI2: HDMI2/DP2 Output (priority: 600, latency offset: 0 usec, not available)
+			Part of profile(s): HiFi
+		[Out] HDMI1: HDMI1/DP1 Output (priority: 500, latency offset: 0 usec, not available)
+			Part of profile(s): HiFi
+		[Out] Speaker: Speaker (priority: 100, latency offset: 0 usec)
+			Part of profile(s): HiFi
+		[Out] Headphones1: Headphones (priority: 200, latency offset: 0 usec, not available)
+			Part of profile(s): HiFi
+		[In] Headset: Headset Mono Microphone (priority: 300, latency offset: 0 usec, not available)
+			Part of profile(s): HiFi
+		[In] Headphones2: Headphones Stereo Microphone (priority: 200, latency offset: 0 usec, not available)
+			Part of profile(s): HiFi
+		[In] Mic: Digital Microphone (priority: 100, latency offset: 0 usec)
+			Part of profile(s): HiFi
+

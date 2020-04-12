@@ -36,18 +36,33 @@ from subprocess import (
 
 class IpmiTest(object):
     def __init__(self):
+        # paths to kernel_module sbins
         self.path_lsmod = self.get_path('lsmod')
         self.path_modprobe = self.get_path('modprobe')
+        # kernel modules to load/verify
         self.kernel_modules = (
             'ipmi_si',
             'ipmi_devintf',
             'ipmi_powernv',
             'ipmi_ssif',
             'ipmi_msghandler')
+        # paths to freeipmi tools
         self.path_ipmi_chassis = self.get_path('ipmi-chassis')
         self.path_ipmi_config = self.get_path('ipmi-config')
         self.path_bmc_info = self.get_path('bmc-info')
         self.path_ipmi_locate = self.get_path('ipmi-locate')
+        # function subprocess commands
+        self.cmd_kernel_mods = [
+            'sudo', self.path_lsmod]
+        self.cmd_ipmi_chassis = [
+            'sudo', self.path_ipmi_chassis, '--get-status']
+        self.cmd_ipmi_channel = [
+            'sudo', self.path_ipmi_config, '--checkout',
+            '--lan-channel-number', self]
+        self.cmd_bmc_info = [
+            'sudo', self.path_bmc_info]
+        self.cmd_ipmi_locate = [
+            'sudo', self.path_ipmi_locate]
         # min. ipmi version to pass
         self.ipmi_ver = 2.0
         # subprocess call timeout (s)
@@ -102,7 +117,6 @@ class IpmiTest(object):
 
     # kernel_mods() helper function to call modprobe
     def modprobe_hlpr(self, module):
-        cmd = ['sudo', self.path_modprobe, module]
         try:
             check_call(
                 [self.path_modprobe, module],
@@ -132,9 +146,8 @@ class IpmiTest(object):
     def kernel_mods(self):
         logging.info('-----------------------')
         logging.info('Verifying kernel modules:')
-        cmd = ['sudo', self.path_lsmod]
         try:
-            output = self.subproc_logging(cmd)
+            output = self.subproc_logging(self.cmd_kernel_mods)
             for module in self.kernel_modules:
                 if module in output:
                     logging.info(f'- {module} already loaded')
@@ -149,9 +162,8 @@ class IpmiTest(object):
     def impi_chassis(self):
         logging.info('-----------------------')
         logging.info('Fetching chassis status:')
-        cmd = ['sudo', self.path_ipmi_chassis, '--get-status']
         try:
-            self.subproc_logging(cmd)
+            self.subproc_logging(self.cmd_ipmi_chassis)
         except self.subproc_excs as exc:
             self.proc_exc(exc, 'ipmi_chassis()')
             return 1
@@ -165,9 +177,8 @@ class IpmiTest(object):
         logging.info('-----------------------')
         logging.info('Fetching power status:')
         regex = re.compile('^System Power')
-        cmd = ['sudo', self.path_ipmi_chassis, '--get-status']
         try:
-            output = self.subproc_logging(cmd)
+            output = self.subproc_logging(self.cmd_ipmi_chassis)
             for line in output.rstrip().split('\n'):
                 if re.search(regex, line):
                     logging.info('Fetched power status!\n')
@@ -188,8 +199,7 @@ class IpmiTest(object):
         matches = 0
         # support multiple channels
         channel = []
-        cmd = ['sudo', self.path_ipmi_config, '--checkout',
-               '--lan-channel-number', channel]
+        cmd = self.cmd_ipmi_channel
         # test channels 0 - 15
         try:
             for i in range(16):
@@ -206,6 +216,7 @@ class IpmiTest(object):
             return 1
         else:
             if (matches > 0):
+                logging.info(f'Found {matches} channel(s)!')
                 logging.info(f'IPMI Channel(s): {channel}\n')
                 return 0
             else:
@@ -217,9 +228,8 @@ class IpmiTest(object):
     def bmc_info(self):
         logging.info('-----------------------')
         logging.info('Fetching BMC information:')
-        cmd = ['sudo', self.path_bmc_info]
         try:
-            self.subproc_logging(cmd)
+            self.subproc_logging(self.cmd_bmc_info)
         except self.subproc_excs as exc:
             self.proc_exc(exc, 'bmc_info()')
             return 1
@@ -232,9 +242,8 @@ class IpmiTest(object):
     def ipmi_version(self):
         logging.info('-----------------------')
         logging.info('Testing IPMI version:')
-        cmd = ['sudo', self.path_bmc_info]
         try:
-            output = self.subproc_logging(cmd)
+            output = self.subproc_logging(self.cmd_bmc_info)
             # Prefer .index() over .find() for exception handling
             res_index = output.index('IPMI Version')
             version = output[(res_index + 24):(res_index + 27)]
@@ -255,9 +264,8 @@ class IpmiTest(object):
         logging.info('-----------------------')
         logging.info('Testing ipmi-locate:')
         regex = re.compile('driver:')
-        cmd = ['sudo', self.path_ipmi_locate]
         try:
-            output = self.subproc_logging(cmd)
+            output = self.subproc_logging(self.cmd_ipmi_locate)
             if re.search(regex, output):
                 logging.info('Located IPMI driver!\n')
                 return 0
@@ -295,9 +303,9 @@ def init_logging():
     # instantiate argparse as parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true',
-                        help='Debug/verbose output (stdout/stderr)')
+                        help='debug/verbose output (stdout/stderr)')
     parser.add_argument('-q', '--quiet', action='store_true',
-                        help='Suppress output.')
+                        help='suppress output')
     args = parser.parse_args()
     if ((not args.quiet) or args.debug):
         logger = logging.getLogger()

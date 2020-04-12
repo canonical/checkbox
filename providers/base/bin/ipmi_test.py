@@ -202,7 +202,7 @@ class IpmiTest(object):
         cmd = self.cmd_ipmi_channel
         # test channels 0 - 15
         try:
-            for i in range(16):
+            for i in range(15):
                 del cmd[(len(cmd) - 1)]
                 cmd.append(str(i))
                 output = self.subproc_logging(cmd)

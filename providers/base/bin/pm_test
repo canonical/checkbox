@@ -39,7 +39,7 @@ def main():
     username = os.getenv('NORMAL_USER')
     if not username:
         uid = os.getenv('SUDO_UID') or os.getenv('PKEXEC_UID')
-        if not uid:q
+        if not uid:
             sys.stderr.write('Unable to determine invoking user\n')
             sys.exit(1)
         username = pwd.getpwuid(int(uid)).pw_name

@@ -90,7 +90,7 @@ def get_lk_bootimg_path():
             ['lk-boot-env', '-r', '/dev/disk/by-partlabel/snapbootsel'],
             check=True, stdout=sp.PIPE).stdout.decode()
         match = re.search(
-            'bootimg_matrix\s+\[(.*?)\]\[{}\]'.format(snap_kernel),
+            r'bootimg_matrix\s+\[(.*?)\]\[{}\]'.format(snap_kernel),
             snap_boot_selection, re.M)
         if match:
             path = os.path.join('/dev/disk/by-partlabel', match.group(1))

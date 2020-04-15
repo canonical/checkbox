@@ -33,6 +33,7 @@ from subprocess import (
     TimeoutExpired,
     SubprocessError)
 
+
 class IpmiTest(object):
     def __init__(self):
         # paths to kernel_module sbins

@@ -57,7 +57,7 @@ class IpmiTest(object):
             'sudo', self.path_ipmi_chassis, '--get-status']
         self.cmd_ipmi_channel = [
             'sudo', self.path_ipmi_config, '--checkout',
-            '--lan-channel-number', 0]
+            '--lan-channel-number']
         self.cmd_bmc_info = [
             'sudo', self.path_bmc_info]
         self.cmd_ipmi_locate = [
@@ -114,6 +114,19 @@ class IpmiTest(object):
         else:
             logging.info(f'Error calling {subtest}!\n')
 
+    # initialize kernel modules and run ipmi tests
+    def run_test(self):
+        # load/val kernel modules
+        self.kernel_mods()
+        # tally results
+        results = [self.impi_chassis(),
+                   self.pwr_status(),
+                   self.ipmi_channel(),
+                   self.bmc_info(),
+                   self.ipmi_version(),
+                   self.ipmi_locate()]
+        return results
+
     # kernel_mods() helper function to call modprobe
     def modprobe_hlpr(self, module):
         try:
@@ -127,19 +140,6 @@ class IpmiTest(object):
             logging.info('  **********************************************')
         else:
             logging.info(f'- Successfully loaded module {module}')
-
-    # initialize kernel modules and run ipmi tests
-    def run_test(self):
-        # load/val kernel modules
-        self.kernel_mods()
-        # tally results
-        results = [self.impi_chassis(),
-                   self.pwr_status(),
-                   self.ipmi_channel(),
-                   self.bmc_info(),
-                   self.ipmi_version(),
-                   self.ipmi_locate()]
-        return results
 
     # check (and load) kernel modules
     def kernel_mods(self):
@@ -193,7 +193,8 @@ class IpmiTest(object):
     def ipmi_channel_hlpr(self, i, matches, channel):
         regex = re.compile('Section User')
         cmd = self.cmd_ipmi_channel
-        cmd.pop(len(cmd) - 1)
+        if (len(cmd)) > 4:
+            cmd.pop(len(cmd) - 1)
         cmd.append(str(i))
         output = self.subproc_logging(cmd)
         for line in output.rstrip().split('\n'):

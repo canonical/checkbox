@@ -17,10 +17,10 @@
 
 import os
 import re
-import subprocess as sp
 
 from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
-from checkbox_support.snap_utils.system import get_lk_bootimg_path
+from checkbox_support.snap_utils.system import (
+    get_lk_bootimg_path, add_hostfs_prefix)
 
 # Supported bootloaders and detected files taken from:
 # https://github.com/snapcore/snapd/blob/master/bootloader/bootloader.go
@@ -35,7 +35,8 @@ bootloaders = {
 
 def detect_bootloader():
     for name, config in bootloaders.items():
-        if os.path.exists(os.path.join(config[0], config[1])):
+        if os.path.exists(
+                os.path.join(add_hostfs_prefix(config[0]), config[1])):
             return name
     return 'unknown'
 
@@ -63,8 +64,8 @@ def booted_kernel_location(bl_name):
                 if '(loop)' in grub_path:
                     # implies of out of the kernel snap (so no FDE)
                     pass
-                elif '(hd1,gpt1)' in grub_path:
-                    # used by fortknox
+                elif re.search(r'\(hd\d,gpt\d\)', grub_path, re.M):
+                    # used by fortknox, vasteras,...
                     path = os.path.join(
                         '/boot/efi', grub_path[grub_path.index(')')+2:])
             except ValueError:

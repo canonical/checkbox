@@ -194,7 +194,7 @@ class IpmiTest(object):
     def ipmi_channel_hlpr(self, i, matches, channel):
         regex = re.compile('Section User')
         cmd = self.cmd_ipmi_channel
-        if (len(cmd)) > 4:
+        if (len(cmd) > 4):
             cmd.pop(len(cmd) - 1)
         cmd.append(str(i))
         output = self.subproc_logging(cmd)

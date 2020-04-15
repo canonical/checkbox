@@ -33,7 +33,6 @@ from subprocess import (
     TimeoutExpired,
     SubprocessError)
 
-
 class IpmiTest(object):
     def __init__(self):
         # paths to kernel_module sbins
@@ -58,7 +57,7 @@ class IpmiTest(object):
             'sudo', self.path_ipmi_chassis, '--get-status']
         self.cmd_ipmi_channel = [
             'sudo', self.path_ipmi_config, '--checkout',
-            '--lan-channel-number', self]
+            '--lan-channel-number', 0]
         self.cmd_bmc_info = [
             'sudo', self.path_bmc_info]
         self.cmd_ipmi_locate = [
@@ -190,32 +189,37 @@ class IpmiTest(object):
             self.proc_exc(exc, 'pwr_status()')
             return 1
 
+    # ipmi_channel discovery (thread safe)
+    def ipmi_channel_hlpr(self, i, matches, channel):
+        regex = re.compile('Section User')
+        cmd = self.cmd_ipmi_channel
+        cmd.pop(len(cmd) - 1)
+        cmd.append(str(i))
+        output = self.subproc_logging(cmd)
+        for line in output.rstrip().split('\n'):
+            if re.search(regex, line):
+                matches.append(1)
+                channel.append(i)
+                break
+        return (matches, channel)
+
     # get ipmi channel(s) in use
     # pass if user data returns after calling ipmi-config
     def ipmi_channel(self):
         logging.info('-----------------------')
         logging.info('Fetching IPMI channel:')
-        regex = re.compile('Section User')
-        matches = 0
+        matches = []
         # support multiple channels
         channel = []
-        cmd = self.cmd_ipmi_channel
         # test channels 0 - 15
-        try:
-            for i in range(15):
-                del cmd[(len(cmd) - 1)]
-                cmd.append(str(i))
-                output = self.subproc_logging(cmd)
-                for line in output.rstrip().split('\n'):
-                    if re.search(regex, line):
-                        matches += 1
-                        channel.append(i)
-                        break
-        except self.subproc_excs as exc:
-            self.proc_exc(exc, 'ipmi_channel()')
-            return 1
+        for i in range(16):
+            try:
+                self.ipmi_channel_hlpr(i, matches, channel)
+            except self.subproc_excs as exc:
+                self.proc_exc(exc, 'ipmi_channel()')
+                return 1
         else:
-            if (matches > 0):
+            if (sum(matches) > 0):
                 logging.info(f'Found {matches} channel(s)!')
                 logging.info(f'IPMI Channel(s): {channel}\n')
                 return 0

@@ -290,6 +290,16 @@ user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
 
+id: power-management/post-warm-reboot
+after: power-management/warm-reboot
+category_id: com.canonical.plainbox::power-management
+_summary: Post warm reboot service check
+_description: Check there are no failed services after the warm reboot
+unit: job
+plugin: shell
+command: failed_service_check.sh
+estimated_duration: 1.0
+
 id: power-management/cold-reboot
 category_id: com.canonical.plainbox::power-management
 _summary: Cold reboot
@@ -306,6 +316,16 @@ command:
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 300
+
+id: power-management/post-cold-reboot
+after: power-management/cold-reboot
+category_id: com.canonical.plainbox::power-management
+_summary: Post cold reboot service check
+_description: Check there are no failed services after the cold reboot
+unit: job
+plugin: shell
+command: failed_service_check.sh
+estimated_duration: 1.0
 
 unit: template
 template-resource: model_assertion

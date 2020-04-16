@@ -25,3 +25,4 @@ estimated_duration: 1s
 include:
     watchdog/systemd-config
     watchdog/trigger-system-reset-auto
+    watchdog/post-trigger-system-reset-auto

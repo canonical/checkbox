@@ -20,7 +20,7 @@ user: root
 requires: 
  executable.name == "ipmctl"
  lsb.release >= "18.04"
-command: ipmctl show -d CurrentValue,CurrentState -sensor Health
+command: ipmctl show -sensor Health
 _summary:
  Report health state of installed NVDIMM devices
 _description:

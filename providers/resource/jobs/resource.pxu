@@ -64,6 +64,11 @@ os-id: ubuntu
 os-version-id: 18.04
 Depends: iw (>= 5.3)
 
+# This is for nvdimm detection
+unit: packaging meta-data
+os-id: ubuntu
+Depends: ipmctl
+
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
@@ -475,3 +480,18 @@ estimated_duration: 1.0
 user: root
 command:
   bootloader_resource.py
+
+id: nvdimm
+estimated_duration: 0.25
+plugin: resource
+user: root
+requires:
+  package.name == 'ipmctl' or executable.name == 'ipmctl'
+_summary: Resource for NVDIMM detection
+command:
+ if ipmctl show -dimm |grep -iq "No DIMMs in the system";
+ then
+     echo "detected: false"
+ else
+     echo "detected: true"
+ fi

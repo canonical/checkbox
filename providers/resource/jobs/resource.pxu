@@ -481,7 +481,7 @@ user: root
 command:
   bootloader_resource.py
 
-id: nvdimm
+id: nvdimm_resource
 estimated_duration: 0.25
 plugin: resource
 user: root

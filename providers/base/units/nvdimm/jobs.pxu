@@ -6,6 +6,7 @@ user: root
 requires: 
  executable.name == "ipmctl"
  lsb.release >= "18.04"
+ nvdimm.detected == "true"
 command: ipmctl show -dimm
 _summary:
  Verify that NVDIMMs are discovered
@@ -20,6 +21,7 @@ user: root
 requires: 
  executable.name == "ipmctl"
  lsb.release >= "18.04"
+ nvdimm.detected == "true"
 command: ipmctl show -sensor Health
 _summary:
  Report health state of installed NVDIMM devices

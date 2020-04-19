@@ -595,7 +595,7 @@ class RemoteSessionAssistant():
                 "plugin": job.plugin,
             }
             test_info_list = test_info_list + ((test_info, ))
-        return test_info_list
+        return json.dumps(test_info_list)
 
     def resume_by_id(self, session_id=None):
         _logger.info("resume_by_id: %r", session_id)

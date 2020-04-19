@@ -264,8 +264,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         configuration['normal_user'] = self._normal_user
 
         tps = self.sa.start_session(configuration)
-        _logger.debug("master: Session started. Available TPs:\n%s",
-                      '\n'.join(['  ' + tp[0] for tp in tps]))
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)

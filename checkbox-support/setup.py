@@ -51,7 +51,7 @@ setup(
     install_requires=[
         'pyparsing >= 2.0.0',
         'requests >= 1.0',
-        'distro >= 1.3.0'
+        'distro >= 1.0'
     ] + (['configparser'] if sys.version_info.major == 2 else []) + (
         ['requests_unixsocket >= 0.1.2']
         if sys.version_info >= (3, 5) else []),

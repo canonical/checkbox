@@ -9,7 +9,8 @@ import hashlib
 import os
 import sys
 
-from checkbox_support.snap_utils.system import get_kernel_snap
+from checkbox_support.snap_utils.system import (
+    get_kernel_snap, add_hostfs_prefix)
 
 # 64kb buffer, hopefully suitable for all devices that might run this test
 BUF_SIZE = 65536
@@ -54,8 +55,9 @@ if __name__ == '__main__':
     booted_kernel_image = sys.argv[1]
 
     print('Supplied booted kernel image: {}'.format(booted_kernel_image))
+    prefixed_image = add_hostfs_prefix(booted_kernel_image)
 
-    if not os.path.exists(booted_kernel_image):
+    if not os.path.exists(prefixed_image):
         raise SystemExit('ERROR: invalid path to booted kernel supplied')
 
-    sys.exit(kernel_matches_current(booted_kernel_image))
+    sys.exit(kernel_matches_current(prefixed_image))

@@ -1,5 +1,5 @@
-id: 18.04-network-only
-_name: 18.04 Network Only Test Plan (Only tests network devices)
+id: network-only
+_name: Network Only Test Plan (Only tests network devices)
 unit: test plan
 _description:
     This test plan is intended to be used for retesting of network devices

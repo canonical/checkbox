@@ -1,19 +1,19 @@
-id: 16.04-server-soc-cert
-_name: 16.04 System On Chip Certification (For SoC Testing)
+id: server-regression
+_name: Server Regression Suite - Full
 unit: test plan
 _description:
-    This whitelist is intended to be used for testing Server SoCs.  The tests
-    contained here should work in any test lab envrionement. Please use this 
-    whitelist for the Ubuntu Certification self-testing programme.
+    This whitelist is intended to be used for server certification.
+    the tests contained here should work in any test lab envrionement.
+    Please use this whitelist for the Ubuntu Certification self-testing
+    programme.
 nested_part:
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
-    com.canonical.certification::server-ethernet
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker
-    benchmarks/disk/hdparm-read_.*
-    benchmarks/disk/hdparm-cache-read_.*
+    benchmarks/disk/hdparm-read_.*             certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
     cpu/clocktest                              certification-status=blocker
     cpu/frequency_governors                    certification-status=blocker
     cpu/maxfreq_test                           certification-status=blocker
@@ -23,22 +23,21 @@ include:
     disk/stats_.*                              certification-status=blocker
     disk/read_performance_.*                   certification-status=blocker
     disk/smart_.*                              certification-status=non-blocker
-    disk/disk_stress_ng_.*                     certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=non-blocker
     networking/predictable_names               certification-status=non-blocker
     mediacard/sd-preinserted-server            certification-status=blocker
     memory/info                                certification-status=blocker
-    memory/memory_stress_ng                    certification-status=blocker
+    optical/detect                             certification-status=non-blocker
+    optical/read-automated_.*                  certification-status=non-blocker
     power-management/rtc                       certification-status=blocker
-    stress/cpu_stress_ng_test                  certification-status=blocker
     usb/detect                                 certification-status=non-blocker
     usb/storage-preinserted                    certification-status=blocker
     usb3/storage-preinserted                   certification-status=blocker
-    virtualization/verify_lxd                  certification-status=non-blocker
+    virtualization/verify_lxd                  certification-status=blocker
     virtualization/kvm_check_vm                certification-status=blocker
     info/kvm_output                            certification-status=non-blocker
-    miscellanea/oops                           certification-status=non-blocker
-    miscellanea/oops_results.log               certification-status=non-blocker
+    miscellanea/oops                           certification-status=blocker
+    miscellanea/oops_results.log
     miscellanea/olog                           certification-status=blocker
     miscellanea/olog_results.log
     miscellanea/klog                           certification-status=blocker

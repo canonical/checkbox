@@ -6,7 +6,7 @@ launcher_version = 1
 stock_reports = submission_files, certification
 
 [test plan]
-unit = com.canonical.certification::16.04-server-functional
+unit = com.canonical.certification::server-regression
 forced = yes
 
 [test selection]
@@ -14,6 +14,17 @@ forced = yes
 
 [ui]
 output = hide-resource-and-attachment
+type = silent
+auto_retry = yes
+max_attempts = 2
 
 [config]
 config_filename = canonical-certification.conf
+
+[transport:certification]
+type = submission-service
+secure_id = $HEXR_DEVICE_SECURE_ID
+
+[report:upload to submission service]
+transport = certification
+exporter = tar

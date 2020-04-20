@@ -6,7 +6,7 @@ launcher_version = 1
 stock_reports = submission_files, certification
 
 [test plan]
-unit = com.canonical.certification::server-regression-full
+unit = com.canonical.certification::network-only
 forced = yes
 
 [test selection]
@@ -14,10 +14,6 @@ forced = yes
 
 [ui]
 output = hide-resource-and-attachment
-type = silent
-auto_retry = yes
-max_attempts = 2
-
 
 [config]
 config_filename = canonical-certification.conf

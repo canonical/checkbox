@@ -75,7 +75,9 @@ _name: Automated power tests
 _description: Automated power tests for Snappy Ubuntu Core devices
 include:
     power-management/warm-reboot
+    power-management/post-warm-reboot
     power-management/cold-reboot
+    power-management/post-cold-reboot
 
 id: power-manual
 unit: test plan

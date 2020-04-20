@@ -65,3 +65,13 @@ user: root
 plugin: shell
 category_id: com.canonical.plainbox::power-management
 estimated_duration: 60
+
+id: watchdog/post-trigger-system-reset-auto
+after: watchdog/trigger-system-reset-auto
+category_id: com.canonical.plainbox::power-management
+_summary: Post watchdog reset service check
+_description: Check there are no failed services after the watchdog triggered
+unit: job
+plugin: shell
+command: failed_service_check.sh
+estimated_duration: 1.0

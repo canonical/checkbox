@@ -64,11 +64,6 @@ os-id: ubuntu
 os-version-id: 18.04
 Depends: iw (>= 5.3)
 
-# This is for nvdimm detection
-unit: packaging meta-data
-os-id: ubuntu
-Depends: ipmctl
-
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource

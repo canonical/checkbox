@@ -36,7 +36,7 @@ from subprocess import (
 
 class IpmiTest(object):
     def __init__(self):
-        # paths to kernel_module sbins
+        # paths to kernel_module binaries
         self.path_lsmod = self._get_path('lsmod')
         self.path_modprobe = self._get_path('modprobe')
         # kernel modules to load/verify
@@ -75,15 +75,14 @@ class IpmiTest(object):
             TypeError)
 
     # fetch absolute path via shutil lib w/ exception handling
-    def _get_path(self, sbin):
+    def _get_path(self, binary):
         try:
-            path_full = shutil.which(sbin)
+            path_full = shutil.which(binary)
             return path_full
         except (self.sub_proc_excs[2:3]):
             logging.info('Unable to stat path via shutil lib!')
             logging.info('Using relative paths...')
-            path_full = sbin
-            return path_full
+            return binary
 
     # subprocess stdin/stderr handling
     def _subproc_logging(self, cmd):
@@ -284,7 +283,23 @@ class IpmiTest(object):
 
 def main():
     # init logging subsystem
-    init_logging()
+    # instantiate argparse as parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='debug/verbose output (stdout/stderr)')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help='suppress output')
+    args = parser.parse_args()
+    if ((not args.quiet) or args.debug):
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+    if (not args.quiet):
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        logger.addHandler(console_handler)
+    if args.debug:
+        console_handler.setLevel(logging.DEBUG)
+
     # instantiate IpmiTest as ipmi_test
     # pass to [results] for post-processing
     ipmi_test = IpmiTest()
@@ -302,25 +317,6 @@ def main():
         print ('-----------------------')
         print ('## IPMI tests passed! ##')
         return 0
-
-
-def init_logging():
-    # instantiate argparse as parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', action='store_true',
-                        help='debug/verbose output (stdout/stderr)')
-    parser.add_argument('-q', '--quiet', action='store_true',
-                        help='suppress output')
-    args = parser.parse_args()
-    if ((not args.quiet) or args.debug):
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-    if (not args.quiet):
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        logger.addHandler(console_handler)
-    if args.debug:
-        console_handler.setLevel(logging.DEBUG)
 
 
 # call main()

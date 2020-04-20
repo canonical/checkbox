@@ -1,4 +1,4 @@
-# Copyright 2019 Canonical Ltd.
+# Copyright 2019-2020 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
@@ -10,8 +10,29 @@ import re
 import subprocess as sp
 import yaml
 
+import distro
+
 from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
 from checkbox_support.snap_utils.snapd import Snapd
+
+
+def on_ubuntucore():
+    return 'ubuntu-core' in distro.id()
+
+
+def get_series():
+    return distro.version()
+
+
+def in_classic_snap():
+    snap = os.getenv("SNAP")
+    if snap:
+        with open(os.path.join(snap, 'meta/snap.yaml')) as f:
+            for l in f.readlines():
+                if l == "confinement: classic\n":
+                    return False
+        return True
+    return False
 
 
 def get_kernel_snap():
@@ -69,10 +90,18 @@ def get_lk_bootimg_path():
             ['lk-boot-env', '-r', '/dev/disk/by-partlabel/snapbootsel'],
             check=True, stdout=sp.PIPE).stdout.decode()
         match = re.search(
-            'bootimg_matrix\s+\[(.*?)\]\[{}\]'.format(snap_kernel),
+            r'bootimg_matrix\s+\[(.*?)\]\[{}\]'.format(snap_kernel),
             snap_boot_selection, re.M)
         if match:
             path = os.path.join('/dev/disk/by-partlabel', match.group(1))
     except (KeyError, AttributeError, FileNotFoundError):
         path = 'unknown'
+    return path
+
+
+def add_hostfs_prefix(path):
+    if on_ubuntucore():
+        if os.path.isabs(path):
+            path = path.split(os.path.sep, 1)[1]
+        return os.path.join(os.path.sep, 'var', 'lib', 'snapd', 'hostfs', path)
     return path

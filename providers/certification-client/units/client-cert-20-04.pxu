@@ -74,8 +74,7 @@ nested_part:
     stress-ng-cert-automated
     stress-30-reboot-poweroff-automated
     stress-pm-graph
-    # FIXME: tpm2-tools focal version is 4.1.1
-    # tpm2.0_3.0.4
+    tpm2.0_4.1.1-automated
     info-attachment-cert-full
 exclude:
     com.canonical.certification::keys/hibernate

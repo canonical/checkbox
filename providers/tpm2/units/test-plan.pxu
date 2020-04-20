@@ -68,3 +68,15 @@ exclude:
     tpm2.0_3.0.4/tpm2_encryptdecrypt
 mandatory_include:
     com.canonical.plainbox::manifest
+
+unit: test plan
+id: tpm2.0_4.1.1-automated
+_name:
+ TPM 2.0 (Trusted Platform Module) integration tests (4.1.1)
+_description:
+ This test plan includes all the upstream tests.
+estimated_duration: 10m
+include:
+    tpm2.0_4.1.1/.*
+mandatory_include:
+    com.canonical.plainbox::manifest

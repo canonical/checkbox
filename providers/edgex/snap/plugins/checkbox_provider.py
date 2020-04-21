@@ -50,6 +50,7 @@ class CheckboxProvider(plainbox_provider.PlainboxProviderPlugin):
                 provider_dirs = [
                     os.path.join(build_snap_provider_dir, provider)
                     for provider in os.listdir(build_snap_provider_dir)
+                    if 'edgex' not in provider
                 ]
                 env["PROVIDERPATH"] = ":".join(provider_dirs)
         cmd = "checkbox-provider-tools"

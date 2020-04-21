@@ -199,8 +199,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
                 if not self._sudo_provider:
-                    self._sudo_provider = SudoProvider(
-                        self.sa.get_master_public_key())
+                    self._sudo_provider = SudoProvider()
                 try:
                     slave_api_version = self.sa.get_remote_api_version()
                 except AttributeError:
@@ -293,7 +292,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             wrong_pass = True
             while wrong_pass:
                 if not self.sa.save_password(
-                        self._sudo_provider.encrypted_password):
+                        self._sudo_provider.password):
                     self._sudo_provider.clear_password()
                     print(_("Sorry, try again."))
                 else:
@@ -561,7 +560,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 for interaction in self.sa.run_job(job['id']):
                     if interaction.kind == 'sudo_input':
                         self.sa.save_password(
-                            self._sudo_provider.encrypted_password)
+                            self._sudo_provider.password)
                     if interaction.kind == 'purpose':
                         SimpleUI.description(_('Purpose:'),
                                              interaction.message)

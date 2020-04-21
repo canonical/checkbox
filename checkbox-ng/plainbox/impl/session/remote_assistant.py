@@ -30,7 +30,6 @@ from subprocess import CalledProcessError, check_output
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
-from plainbox.impl.secure.sudo_broker import SudoBroker, EphemeralKey
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.secure.sudo_broker import validate_pass
 from plainbox.impl.result import JobResultBuilder
@@ -144,7 +143,6 @@ class RemoteSessionAssistant():
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
         self._cmd_callback = cmd_callback
-        self._sudo_broker = SudoBroker()
         self._sudo_password = None
         self._session_change_lock = Lock()
         self._operator_lock = Lock()
@@ -416,15 +414,13 @@ class RemoteSessionAssistant():
             if (job.user and not self._passwordless_sudo
                     and not self._sudo_password):
                 self._ephemeral_key = EphemeralKey()
-                self._current_interaction = Interaction(
-                    'sudo_input', self._ephemeral_key.public_key)
+                self._current_interaction = Interaction('sudo_input')
                 pass_is_correct = False
                 while not pass_is_correct:
                     self.state = Interacting
                     yield self._current_interaction
                     pass_is_correct = validate_pass(
-                        self._sudo_broker.decrypt_password(
-                            self._sudo_password))
+                        self._sudo_password)
                     if not pass_is_correct:
                         print(_('Sorry, try again.'))
                 assert(self._sudo_password is not None)
@@ -502,14 +498,10 @@ class RemoteSessionAssistant():
             "todo": self._sa.get_dynamic_todo_list(),
         }
 
-    def get_master_public_key(self):
-        """Expose the master public key"""
-        return self._sudo_broker.master_public
-
-    def save_password(self, cyphertext):
-        """Store encrypted password"""
-        if validate_pass(self._sudo_broker.decrypt_password(cyphertext)):
-            self._sudo_password = cyphertext
+    def save_password(self, password):
+        """Store sudo password"""
+        if validate_pass(password):
+            self._sudo_password = password
             return True
         return False
 
@@ -518,7 +510,7 @@ class RemoteSessionAssistant():
         if self._passwordless_sudo:
             return ''
         assert(self._sudo_password)
-        return self._sudo_broker.decrypt_password(self._sudo_password)
+        return self._sudo_password
 
     def finish_job(self, result=None):
         # assert the thread completed

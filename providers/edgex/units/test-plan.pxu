@@ -1,6 +1,13 @@
-id: edgex-tp
+id: edgex-fuji-tp
 unit: test plan
-_name: EdgeX
-_description: EdgeX tests
+_name: EdgeX Fuji
+_description: EdgeX Fuji tests
 include:
-    edgex/.*
+    edgex/fuji/.*
+
+id: edgex-geneva-tp
+unit: test plan
+_name: EdgeX Geneva
+_description: EdgeX Geneva tests
+include:
+    edgex/geneva/.*

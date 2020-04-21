@@ -257,6 +257,8 @@ parts:
     source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-tpm2
+    stage-packages:
+      - tpm2-tools
     after: [plainbox-provider-docker]
 ################################################################################
   plainbox-provider-sru:
@@ -264,7 +266,7 @@ parts:
     source-depth: 1
     plugin: plainbox-provider
     source: git://git.launchpad.net/plainbox-provider-sru
-    after: [plainbox-provider-tpm2, tpm2-tools-3]
+    after: [plainbox-provider-tpm2]
 ################################################################################
   plainbox-provider-engineering-tests:
     source-tag: "7"
@@ -331,56 +333,6 @@ parts:
           # native build
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
-################################################################################
-  tpm2-tss:
-    plugin: autotools
-    source: https://github.com/tpm2-software/tpm2-tss
-    source-type: git
-    source-tag: "1.4.0"
-    configflags:
-      - --enable-unit
-    build-packages:
-      - autoconf
-      - autoconf-archive
-      - libtool
-      - gcc
-      - g++
-      - libc6-dev
-    prime:
-      - -include
-    # Keep this, fwts builds are somehow affected by staged libs if not built
-    # first hence the after clause in tpm2-tss-1.4.
-    after: [fwts]
-################################################################################
-  tpm2-tools-3:
-    plugin: autotools
-    source: https://github.com/tpm2-software/tpm2-tools
-    source-type: git
-    source-tag: "3.0.4"
-    configflags:
-      - --enable-unit
-      - --with-tcti-device
-    build-packages:
-      - autoconf
-      - autoconf-archive
-      - automake
-      - pkg-config
-      - libcmocka-dev
-      - libcurl4-openssl-dev
-      - libssl-dev
-      - libtool
-      - python-yaml
-    stage-packages:
-      - try: [libcurl4]
-      - else: [libcurl3]
-    prime:
-      - -include
-    after: [tpm2-tss]
-    override-pull: |
-      snapcraftctl pull
-      # https://github.com/tpm2-software/tpm2-tools/issues/908
-      sed -i 's|LIBMARSHAL_CFLAGS = \\|LIBMARSHAL_CFLAGS = |g' Makefile.am
-      sed -i 's|-DALG_ECMQV=1||g' Makefile.am
 ################################################################################
   parts-meta-info:
     plugin: nil

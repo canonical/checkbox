@@ -1,7 +1,7 @@
 name: checkbox-edgexfoundry
 summary: Checkbox tests for EdgeX Foundry
 description: "The provider is a collection of EdgeX Foundry tests to be run on Snappy devices.\n"
-version: '0.1.dev'
+version: '1.0'
 grade: stable
 
 plugs:
@@ -16,6 +16,12 @@ apps:
     plugs: &standard [home, network-bind, hardware-observe,
       mount-observe, network-manager, pulseaudio, serial-port,
       system-observe]
+  fuji:
+    command: bin/fuji
+    plugs: *standard
+  geneva:
+    command: bin/geneva
+    plugs: *standard
   test-runner:
     command: bin/test-runner
     plugs: *standard

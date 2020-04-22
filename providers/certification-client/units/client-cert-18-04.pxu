@@ -35,6 +35,7 @@ nested_part:
     usb-c-cert-full
     wireless-cert-full
     before-suspend-reference-cert-full
+    after-suspend-reference-cert-full
     # Test discrete card first, if present, since it's the one we will be using
     # after coming back from suspend if the system has hybrid graphics.
     after-suspend-graphics-discrete-gpu-cert-full
@@ -44,20 +45,20 @@ nested_part:
     # restart of checkbox.
     after-suspend-graphics-integrated-gpu-cert-full
     after-suspend-monitor-integrated-gpu-cert-full
-    suspend-key-led-oops-check-cert
-    after-suspend-reference-cert-full
+    suspend-key-led-oops-check-cert    
     after-suspend-audio-cert-full
     after-suspend-camera-cert-full
     after-suspend-input-cert-full
+    after-suspend-keys-cert-full
     after-suspend-led-cert-full
     after-suspend-mediacard-cert-full
+    after-suspend-optical-cert-full
     after-suspend-touchpad-cert-full
     after-suspend-touchscreen-cert-full
     after-suspend-usb-cert-full
     after-suspend-usb3-cert-full
     after-suspend-usb-c-cert-full
-    after-suspend-wireless-cert-full
-    after-suspend-keys-cert-full
+    after-suspend-wireless-cert-full    
     # hibernate-integrated-gpu-cert-full (No hibernate in 18.04)
     # The following tests should run BEFORE the automated tests. The reboot and
     # power off tests will also give us a clean system to start the stress run

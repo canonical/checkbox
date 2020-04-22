@@ -102,7 +102,7 @@ requires:
  package.name == 'ipmitool' or executable.name == 'ipmitool'
  cpuinfo.platform != 's390x'
 user: root
-command: ipmi_test
+command: ipmi_test.py
 _summary:
  Test IPMI in-band communications
 _description:

@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check GPGPU_Check NVDIMM_Detection"
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check GPGPU_Check NVDIMM_Detection"
 
 while getopts "i" opt; do
   case $opt in
@@ -168,6 +168,23 @@ if [ -d "/sys/bus/usb/devices" ]; then
             usb_disk=1
         fi
     done
+fi
+}
+
+LVM_Check(){
+name="LVM Check"
+echoname
+local lvmCount=$(sudo lvmdiskscan | awk '/[0-9] LVM/ {print $1}' | tr -d -c 0-9)
+local lvmList=($(sudo lvmdiskscan | awk '/] LVM/ {print $1}'))
+if [ "$lvmCount" -eq "0" ]; then
+    echo -e " LVM not present."
+    pass
+else
+    echo -e " LVM members found:"
+    for element in "${lvmList[@]}"; do
+        echo -e " ${element}"
+    done
+    fail
 fi
 }
 

@@ -17,6 +17,7 @@ include:
  pts-attach-report
 bootstrap_include:
  com.canonical.certification::cpuinfo
+ com.canonical.certification::environment
  pts-job-generator
 
 unit: test plan
@@ -30,12 +31,15 @@ include:
  pts/ttsiod-renderer
 bootstrap_include:
  com.canonical.certification::cpuinfo
+ com.canonical.certification::environment
  pts-job-generator
 
 id: pts-job-generator
 category_id: phoronix
 plugin: resource
-requires: cpuinfo.platform == "x86_64"
+requires:
+ cpuinfo.platform == "x86_64"
+ environment.PTS_CACHE_URL != ''
 command:
  echo id: pts/cpuminer-opt
  echo "name: Cpuminer benchmark."
@@ -68,13 +72,18 @@ command:
 id: pts-prepare-nest
 category_id: phoronix
 plugin: shell
+depends: pts-job-generator
 command:
- mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
- if [ -z "$PTS_PRELOAD_PATH" ]; then
-   echo "PTS_PRELOAD_PATH is not defined! PTS tests cannot run" >&2
-   exit 1
+ if grep 'flags' /proc/cpuinfo |grep -q ' avx2 '; then
+     export KIND=avx2
+ else
+     export KIND=base
  fi
- cp -r $PTS_PRELOAD_PATH/* $PLAINBOX_SESSION_SHARE/pts-nest/
+ ARCH=`uname -m`
+ RELEASE=`lsb_release -cs`
+ CACHE_FILE=pts-cache-$RELEASE-$ARCH-$KIND.tar.gz
+ mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
+ wget -qO- $PTS_CACHE_URL/$CACHE_FILE |tar xz -C $PLAINBOX_SESSION_SHARE/pts-nest
  rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
  cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
  sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml

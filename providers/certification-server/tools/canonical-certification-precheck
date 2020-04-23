@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check GPGPU_Check NVDIMM_Detection"
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
 
 while getopts "i" opt; do
   case $opt in
@@ -851,6 +851,25 @@ else
     info
 fi
 }
+
+CPUFreq_Check() {
+name="CPUFreq Support Check"
+echoname
+if [ -z "$(ls -A /sys/devices/system/cpu/cpufreq)" ]; then
+   echo " CPUFreq directory empty or not present."
+   fail
+else
+   echo " CPUFreq directory present and populated."
+   if [ "$(ls /usr/lib/plainbox-provider-checkbox/bin | grep frequency_governors_test)" ]; then
+       echo " CPUFreq testing driver located."
+       pass
+   else
+       echo " Unable to locate CPUFreq testing driver."
+       fail
+   fi
+fi
+}
+
 
 runchoices() {
  echo 

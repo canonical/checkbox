@@ -176,6 +176,7 @@ command:
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 4.0
 flags: preserve-locale also-after-suspend
+user: root
 
 unit: template
 template-resource: device

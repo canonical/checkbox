@@ -2294,7 +2294,7 @@ id: dock/mac-address-passthrough
 category_id: dock
 plugin: shell
 user: root
-command: mac-passthrough.py
+command: mac_passthrough.py
 _description: Check dock MAC address pass-through function, please make sure following items before running this test:
     1. Pass-through mac address is flashed in BIOS
     2. MAC address pass-through is enabled in BIOS settings

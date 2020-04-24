@@ -323,13 +323,13 @@ def main():
                     'IPMI Locate': results[5]}
     # tally results
     if (sum(results) > 0):
-        print ('-----------------------')
-        print ('## IPMI tests failed! ##')
-        print (f'## {results_dict} ##')
+        print('-----------------------')
+        print('## IPMI tests failed! ##')
+        print(f'## {results_dict} ##')
         return 1
     else:
-        print ('-----------------------')
-        print ('## IPMI tests passed! ##')
+        print('-----------------------')
+        print('## IPMI tests passed! ##')
         return 0
 
 

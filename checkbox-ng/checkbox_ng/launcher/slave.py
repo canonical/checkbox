@@ -77,6 +77,10 @@ class SessionAssistantSlave(rpyc.Service):
             old_master.close()
             SessionAssistantSlave.controlling_master_conn = conn
 
+    def on_disconnect(self, conn):
+        SessionAssistantSlave.master_blaster = None
+        self.controlling_master_conn = None
+
 
 class RemoteSlave():
     """

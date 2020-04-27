@@ -24,6 +24,10 @@ except ImportError:
     print((sys.version), file=sys.stderr)
     sys.exit(127)
 
+try:
+    from collections.abc import Callable
+except ImportError:
+    from collections import Callable  # backward compatible
 
 #Frequency bands for FFT
 BINS = 256
@@ -124,7 +128,7 @@ class PAVolumeController(object):
         self._volume = None
         self.identifier = None
         self.method = method
-        if not isinstance(method, collections.Callable):
+        if not isinstance(method, Callable):
             self.method = self._pactl_output
         self.logger = logger
 

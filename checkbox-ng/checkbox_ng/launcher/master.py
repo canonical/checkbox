@@ -384,9 +384,10 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         print(self.C.header("Results"))
         if self.launcher.local_submission:
             # Disable SIGINT while we save local results
-            tmp_sig = signal.signal(signal.SIGINT, signal.SIG_IGN)
-            self._export_results()
-            signal.signal(signal.SIGINT, tmp_sig)
+            with contextlib.ExitStack() as stack:
+                tmp_sig = signal.signal(signal.SIGINT, signal.SIG_IGN)
+                stack.callback(signal.signal, signal.SIGINT, tmp_sig)
+                self._export_results()
         self.sa.finalize_session()
         return False
 

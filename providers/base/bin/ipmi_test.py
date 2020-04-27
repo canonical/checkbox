@@ -35,6 +35,7 @@ from subprocess import (
 
 
 class IpmiTest(object):
+
     def __init__(self):
         # paths to kernel_module binaries
         self._path_lsmod = self._get_path('lsmod')

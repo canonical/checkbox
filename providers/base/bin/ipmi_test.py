@@ -219,8 +219,7 @@ class IpmiTest(object):
                 return 0
 
     # ipmi_channel discovery loop
-    def _ipmi_channel_hlpr(self, i, channel):
-        regex = re.compile('Section User')
+    def _ipmi_channel_hlpr(self, i, regex, channel):
         cmd = self._cmd_ipmi_channel
         if (len(cmd) > 4):
             cmd.pop(-1)
@@ -238,10 +237,11 @@ class IpmiTest(object):
         logging.info('Fetching IPMI channels:')
         # support multiple channels
         channel = []
+        regex = re.compile('Section User')
         # test channels 0 - 15
         for i in range(16):
             try:
-                self._ipmi_channel_hlpr(i, channel)
+                self._ipmi_channel_hlpr(i, regex, channel)
             except self._sub_proc_excs as exc:
                 self._proc_exc(exc, self.ipmi_channel.__qualname__)
                 return 1
@@ -324,9 +324,9 @@ def main():
     results = ipmi_test.run_test()
     results_dict = {'Chassis': results[0],
                     'Power': results[1],
-                    'BMC': results[3],
-                    'IPMI Version': results[4],
-                    'Channel': results[2],
+                    'BMC': results[2],
+                    'IPMI Version': results[3],
+                    'Channel': results[4],
                     'IPMI Locate': results[5]}
     # tally results
     if (sum(results) > 0):

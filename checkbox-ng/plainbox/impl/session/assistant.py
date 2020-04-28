@@ -212,8 +212,7 @@ class SessionAssistant:
             allowed_calls[self.use_alternate_restart_strategy] = (
                 "configure automatic restart capability")
         # Manifest
-        self._manifest_path = os.path.expanduser(
-            '~/.local/share/plainbox/machine-manifest.json')
+        self._manifest_path = '/var/tmp/checkbox-ng/machine-manifest.json'
 
     @property
     def config(self):

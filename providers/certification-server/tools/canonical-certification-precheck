@@ -855,18 +855,12 @@ fi
 CPUFreq_Check() {
 name="CPUFreq Support Check"
 echoname
-if [ -z "$(ls -A /sys/devices/system/cpu/cpufreq)" ]; then
+if [ -z "$(ls -A /sys/devices/system/cpu/cpufreq 2>/dev/null)" ]; then
    echo " CPUFreq directory empty or not present."
    fail
 else
    echo " CPUFreq directory present and populated."
-   if [ "$(ls /usr/lib/plainbox-provider-checkbox/bin | grep frequency_governors_test)" ]; then
-       echo " CPUFreq testing driver located."
-       pass
-   else
-       echo " Unable to locate CPUFreq testing driver."
-       fail
-   fi
+   pass
 fi
 }
 

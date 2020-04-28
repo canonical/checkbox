@@ -155,6 +155,21 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
                 "desktop-raring-t430s-dp-available")),
             ('2', 'output:hdmi-stereo'))
 
+    def test_desktop_bionic_x13(self):
+        """
+        Bionic system with a Intel UHD Graphics chipset, it's DMIC system.
+        HDMI1, HDMI2 and HDMI3 are present in the card ports list, HDMI2 shown in the sinks list.
+        DMIC don't use "HDMI / DisplayPort " as keyword, now we use "HDMI" and "DP" keywords to find output port.
+        And in profile, there are not "hdmi-stereo" keyword any more, now we use "Hdmi".
+            Ports:
+        [...]
+                [Out] HDMI2: HDMI2/DP2 Output (priority: 400, latency offset: 0 usec, available)
+                    Part of profile(s): Hdmi2
+        """
+        self.assertEqual(
+            _guess_hdmi_profile(self.get_text("desktop-bionic-x13")),
+            ('0', 'Hdmi2'))
+
 class RegexTest(unittest.TestCase):
     
     def test_volume_regex_trusty(self):

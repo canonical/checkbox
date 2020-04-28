@@ -162,7 +162,7 @@ id: mediacard/sd-preinserted-server
 estimated_duration: 30.0
 user: root
 flags: preserve-cwd
-command: removable_storage_test -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test --memorycard sdio usb scsi
+command: removable_storage_test -s 268400000 --memorycard -l sdio usb && removable_storage_test --memorycard sdio usb
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
 _summary: Automated test of SD Card reading & writing (udisk2) for servers

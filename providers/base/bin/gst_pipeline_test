@@ -22,8 +22,8 @@ def check_state(device):
 
     data = sink_info.split("\n")
     try:
-        device_name = re.findall(".*Name:\s.*%s.*" % device, sink_info)[0].lstrip()
-        sink = re.findall(".*Name:\s(.*%s.*)" % device, sink_info)[0].lstrip()
+        device_name = re.findall(".*Name:\s.*%s.*" % device, sink_info, re.IGNORECASE)[0].lstrip()
+        sink = re.findall(".*Name:\s(.*%s.*)" % device, sink_info, re.IGNORECASE)[0].lstrip()
         status = data[data.index("\t" + device_name) - 1]
     except (IndexError, ValueError):
         logging.error("Failed to find status for device: %s" % device)

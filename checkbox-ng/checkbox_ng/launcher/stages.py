@@ -496,6 +496,11 @@ class ReportsStage(CheckboxUiStage):
                     if self._retry_dialog():
                         self.sa.config.transports['c3'].pop('secure_id')
                         continue
+                except Exception:
+                    _logger.error(
+                        _("Problem with a '%s' report using '%s' exporter "
+                          "sent to '%s' transport."),
+                        name, exporter_id, transport.url)
                 done_sending = True
 
     def _retry_dialog(self):

@@ -268,6 +268,12 @@ class IpmiTest(object):
 
     # call ipmi-locate
     # pass if drivers are loaded
+    # -- update 4-29-20 --
+    # ipmi-locate is throwing segfault when run on some focal
+    # systems during regression testing. bladernr/Jeff has
+    # filed a bug w/ FreeIPMI to address.
+    # we've opted to leave this test informational for data
+    # while this is being investigated.
     def ipmi_locate(self):
         logging.info('-----------------------')
         logging.info('Locating IPMI drivers:')
@@ -277,7 +283,8 @@ class IpmiTest(object):
             self._ipmi_locate_hlpr(ipmi_drivers)
         except self._sub_proc_excs as exc:
             self._proc_exc(exc, self.ipmi_locate.__qualname__)
-            return 1
+            # see above comments
+            return 0
         else:
             if (len(ipmi_drivers) > 0):
                 logging.info(f'- Found {len(ipmi_drivers)} IPMI driver(s)!')
@@ -285,7 +292,8 @@ class IpmiTest(object):
                 return 0
             else:
                 logging.info('* Unable to locate IPMI driver(s)!\n')
-                return 1
+                # see above comments
+                return 0
 
     # initialize kernel modules, run ipmi tests
     def run_test(self):

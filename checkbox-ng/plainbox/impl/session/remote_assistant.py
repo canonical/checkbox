@@ -181,6 +181,9 @@ class RemoteSessionAssistant():
     def config(self):
         return self._sa.config
 
+    def update_app_blob(self, app_blob):
+        self._sa.update_app_blob(app_blob)
+
     def allowed_when(*states):
         def wrap(f):
             def fun(self, *args):

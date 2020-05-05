@@ -617,6 +617,11 @@ def main():
 
     test = DiskTest(args.device, args.memorycard, args.lsblkcommand)
 
+    # LP:1876966
+    if os.getuid() != 0:
+        print("ERROR: This script must be run as root!")
+        return 1
+
     errors = 0
     # If we do have removable drives attached and mounted
     if len(test.rem_disks) > 0 or len(test.rem_disks_nm) > 0:

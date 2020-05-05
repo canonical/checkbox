@@ -1,0 +1,685 @@
+Module #0
+	Name: module-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute state of devices"
+		module.version = "11.1"
+
+Module #1
+	Name: module-stream-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute/device state of streams"
+		module.version = "11.1"
+
+Module #2
+	Name: module-card-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore profile of cards"
+		module.version = "11.1"
+
+Module #3
+	Name: module-augment-properties
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Augment the property sets of streams with additional static information"
+		module.version = "11.1"
+
+Module #4
+	Name: module-switch-on-port-available
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		
+
+Module #5
+	Name: module-switch-on-connect
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Michael Terry"
+		module.description = "When a sink/source is added, switch to it or conditionally switch to it"
+		module.version = "11.1"
+
+Module #6
+	Name: module-udev-detect
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Detect available audio hardware and load matching drivers"
+		module.version = "11.1"
+
+Module #7
+	Name: module-alsa-card
+	Argument: device_id="0" name="pci-0000_00_1f.3-platform-skl_hda_dsp_generic" card_name="alsa_card.pci-0000_00_1f.3-platform-skl_hda_dsp_generic" namereg_fail=false tsched=yes fixed_latency_range=no ignore_dB=no deferred_volume=yes use_ucm=yes card_properties="module-udev-detect.discovered=1"
+	Usage counter: 0
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "ALSA Card"
+		module.version = "11.1"
+
+Module #8
+	Name: module-bluetooth-policy
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Frédéric Dalleau, Pali Rohár"
+		module.description = "Policy module to make using bluetooth devices out-of-the-box easier"
+		module.version = "11.1"
+
+Module #9
+	Name: module-bluetooth-discover
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "João Paulo Rechi Vita"
+		module.description = "Detect available Bluetooth daemon and load the corresponding discovery module"
+		module.version = "11.1"
+
+Module #10
+	Name: module-bluez5-discover
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "João Paulo Rechi Vita"
+		module.description = "Detect available BlueZ 5 Bluetooth audio devices and load BlueZ 5 Bluetooth audio drivers"
+		module.version = "11.1"
+
+Module #11
+	Name: module-native-protocol-unix
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Native protocol (UNIX sockets)"
+		module.version = "11.1"
+
+Module #12
+	Name: module-default-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the default sink and source"
+		module.version = "11.1"
+
+Module #13
+	Name: module-rescue-streams
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is removed, try to move its streams to the default sink/source"
+		module.version = "11.1"
+
+Module #14
+	Name: module-always-sink
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Always keeps at least one sink loaded even if it's a null one"
+		module.version = "11.1"
+
+Module #15
+	Name: module-intended-roles
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically set device of streams based on intended roles of devices"
+		module.version = "11.1"
+
+Module #16
+	Name: module-suspend-on-idle
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is idle for too long, suspend it"
+		module.version = "11.1"
+
+Module #17
+	Name: module-console-kit
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Create a client for each ConsoleKit session of this user"
+		module.version = "11.1"
+
+Module #18
+	Name: module-systemd-login
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Create a client for each login session of this user"
+		module.version = "11.1"
+
+Module #19
+	Name: module-position-event-sounds
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Position event sounds between L and R depending on the position on screen of the widget triggering them."
+		module.version = "11.1"
+
+Module #20
+	Name: module-role-cork
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Mute & cork streams with certain roles while others exist"
+		module.version = "11.1"
+
+Module #21
+	Name: module-snap-policy
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Canonical Ltd"
+		module.description = "Ubuntu Snap policy management"
+		module.version = "11.1"
+
+Module #22
+	Name: module-filter-heuristics
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Detect when various filters are desirable"
+		module.version = "11.1"
+
+Module #23
+	Name: module-filter-apply
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Load filter sinks automatically when needed"
+		module.version = "11.1"
+
+Module #24
+	Name: module-x11-publish
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 credential publisher"
+		module.version = "11.1"
+
+Module #25
+	Name: module-x11-bell
+	Argument: display=:0 sample=bell.ogg
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 bell interceptor"
+		module.version = "11.1"
+
+Module #26
+	Name: module-x11-cork-request
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Synthesize X11 media key events when cork/uncork is requested"
+		module.version = "11.1"
+
+Module #27
+	Name: module-x11-xsmp
+	Argument: display=:0 session_manager=local/u-ThinkPad-X13-Gen-1:@/tmp/.ICE-unix/2045,unix/u-ThinkPad-X13-Gen-1:/tmp/.ICE-unix/2045
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 session management"
+		module.version = "11.1"
+
+Sink #42
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_4__sink
+	Description: sof-skl_hda_card HDMI2/DP2 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 7
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_4__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDMI2 (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "4"
+		alsa.card = "0"
+		alsa.card_name = "sof-skl_hda_card"
+		alsa.long_card_name = "LENOVO-20T2SIT004-ThinkPadX13Gen1-20T2SIT004"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofsklhdacard,4"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "Hdmi2: hw:sofsklhdacard,4: sink"
+		device.profile.description = "HDMI2/DP2 Output"
+		device.description = "sof-skl_hda_card HDMI2/DP2 Output"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[Out] HDMI2: HDMI2/DP2 Output (priority: 400, available)
+	Active Port: [Out] HDMI2
+	Formats:
+		pcm
+
+Source #84
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_4__sink.monitor
+	Description: Monitor of sof-skl_hda_card HDMI2/DP2 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 7
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_4__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of sof-skl_hda_card HDMI2/DP2 Output"
+		device.class = "monitor"
+		alsa.card = "0"
+		alsa.card_name = "sof-skl_hda_card"
+		alsa.long_card_name = "LENOVO-20T2SIT004-ThinkPadX13Gen1-20T2SIT004"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "0"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #85
+	State: SUSPENDED
+	Name: alsa_input.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_6__source
+	Description: sof-skl_hda_card Digital Microphone
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 7
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "DMIC32 (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "6"
+		alsa.card = "0"
+		alsa.card_name = "sof-skl_hda_card"
+		alsa.long_card_name = "LENOVO-20T2SIT004-ThinkPadX13Gen1-20T2SIT004"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofsklhdacard,6"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "Hdmi2: hw:sofsklhdacard,6: source"
+		device.profile.description = "Digital Microphone"
+		device.description = "sof-skl_hda_card Digital Microphone"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[In] Dmic: Digital Microphone (priority: 100)
+	Active Port: [In] Dmic
+	Formats:
+		pcm
+
+Source #86
+	State: SUSPENDED
+	Name: alsa_input.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_0__source
+	Description: sof-skl_hda_card Headset Microphone
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 7
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDA Analog (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "sof-skl_hda_card"
+		alsa.long_card_name = "LENOVO-20T2SIT004-ThinkPadX13Gen1-20T2SIT004"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofsklhdacard,0"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "Hdmi2: hw:sofsklhdacard,0: source"
+		device.profile.description = "Headset Microphone"
+		device.description = "sof-skl_hda_card Headset Microphone"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[In] Headset Microphone: Headset Microphone (priority: 100, not available)
+	Active Port: [In] Headset Microphone
+	Formats:
+		pcm
+
+Client #0
+	Driver: module-systemd-login.c
+	Owner Module: 18
+	Properties:
+		application.name = "Login Session 2"
+		systemd-login.session = "2"
+
+Client #1
+	Driver: protocol-native.c
+	Owner Module: 11
+	Properties:
+		application.name = "GNOME Shell"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		application.id = "org.gnome.Shell"
+		application.icon_name = "start-here"
+		application.language = "en_US.UTF-8"
+		window.x11.screen = "0"
+		window.x11.display = ":0"
+		application.process.id = "2184"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "gnome-shell"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Client #2
+	Driver: protocol-native.c
+	Owner Module: 11
+	Properties:
+		application.name = "GNOME Shell Volume Control"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		application.id = "org.gnome.VolumeControl"
+		application.icon_name = "multimedia-volume-control"
+		application.version = "3.28.4"
+		application.process.id = "2184"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "gnome-shell"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Client #8
+	Driver: module-x11-xsmp.c
+	Owner Module: 27
+	Properties:
+		application.name = "XSMP Session on gnome-session as 102c5c5ae2e20bde3b158804149680521100000020450059"
+		xsmp.vendor = "gnome-session"
+		xsmp.client.id = "102c5c5ae2e20bde3b158804149680521100000020450059"
+
+Client #9
+	Driver: protocol-native.c
+	Owner Module: 11
+	Properties:
+		application.name = "GNOME Volume Control Media Keys"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		application.id = "org.gnome.VolumeControl"
+		application.icon_name = "multimedia-volume-control"
+		application.version = ""
+		application.process.id = "2544"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "gsd-media-keys"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Client #71
+	Driver: protocol-native.c
+	Owner Module: 11
+	Properties:
+		application.name = "gsd-power"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		window.x11.display = ":0"
+		window.x11.screen = "0"
+		application.process.id = "2488"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "gsd-power"
+		application.language = "en_US.UTF-8"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Client #352
+	Driver: protocol-native.c
+	Owner Module: 11
+	Properties:
+		application.name = "gsd-media-keys"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		window.x11.display = ":0"
+		window.x11.screen = "0"
+		application.process.id = "2544"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "gsd-media-keys"
+		application.language = "en_US.UTF-8"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Client #578
+	Driver: protocol-native.c
+	Owner Module: 11
+	Properties:
+		application.name = "pactl"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		application.process.id = "8383"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "pactl"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Sample #0
+	Name: bell.ogg
+	Sample Specification: float32le 1ch 44100Hz
+	Channel Map: mono
+	Volume: (invalid)
+	        balance 0.00
+	Duration: 0.2s
+	Size: 34.5 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		media.name = "bell.ogg"
+		application.name = "pactl"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		application.process.id = "2528"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "pactl"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Sample #1
+	Name: bell-window-system
+	Sample Specification: s16le 1ch 44100Hz
+	Channel Map: mono
+	Volume: (invalid)
+	        balance 0.00
+	Duration: 0.2s
+	Size: 17.2 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		application.process.id = "2709"
+		application.name = "gnome-terminal-server"
+		event.description = "Bell event"
+		event.id = "bell-window-system"
+		media.name = "bell-window-system"
+		media.filename = "/usr/share//sounds/ubuntu/stereo/bell.ogg"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		application.id = "org.gnome.Shell"
+		application.icon_name = "start-here"
+		application.language = "en_US.UTF-8"
+		window.x11.screen = "0"
+		window.x11.display = ":0"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "gnome-shell"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Sample #2
+	Name: screen-capture
+	Sample Specification: s16le 2ch 96000Hz
+	Channel Map: front-left,front-right
+	Volume: (invalid)
+	        balance 0.00
+	Duration: 0.9s
+	Size: 327.1 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		event.description = "Screenshot taken"
+		event.id = "screen-capture"
+		media.name = "screen-capture"
+		media.filename = "/usr/share//sounds/freedesktop/stereo/screen-capture.oga"
+		application.name = "gsd-media-keys"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "32"
+		window.x11.display = ":0"
+		window.x11.screen = "0"
+		application.process.id = "2544"
+		application.process.user = "u"
+		application.process.host = "u-ThinkPad-X13-Gen-1"
+		application.process.binary = "gsd-media-keys"
+		application.language = "en_US.UTF-8"
+		application.process.machine_id = "d565935cdbf64125b679eb560a79c787"
+		application.process.session_id = "2"
+
+Card #0
+	Name: alsa_card.pci-0000_00_1f.3-platform-skl_hda_dsp_generic
+	Driver: module-alsa-card.c
+	Owner Module: 7
+	Properties:
+		alsa.card = "0"
+		alsa.card_name = "sof-skl_hda_card"
+		alsa.long_card_name = "LENOVO-20T2SIT004-ThinkPadX13Gen1-20T2SIT004"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "0"
+		device.description = "sof-skl_hda_card"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		Hdmi3: Play to Hdmi3 (sinks: 1, sources: 2, priority: 1000, available: yes)
+		Hdmi2: Play to Hdmi2 (sinks: 1, sources: 2, priority: 1000, available: yes)
+		Hdmi1: Play to Hdmi1 (sinks: 1, sources: 2, priority: 1000, available: yes)
+		HiFi: Play HiFi Music (sinks: 1, sources: 2, priority: 8000, available: yes)
+		off: Off (sinks: 0, sources: 0, priority: 0, available: yes)
+	Active Profile: Hdmi2
+	Ports:
+		[Out] HDMI3: HDMI3/DP3 Output (priority: 500, latency offset: 0 usec, not available)
+			Part of profile(s): Hdmi3
+		[In] Dmic: Digital Microphone (priority: 100, latency offset: 0 usec)
+			Part of profile(s): Hdmi3, Hdmi2, Hdmi1, HiFi
+		[In] Headset Microphone: Headset Microphone (priority: 100, latency offset: 0 usec, not available)
+			Part of profile(s): Hdmi3, Hdmi2, Hdmi1, HiFi
+		[Out] HDMI2: HDMI2/DP2 Output (priority: 400, latency offset: 0 usec, available)
+			Part of profile(s): Hdmi2
+		[Out] HDMI1: HDMI1/DP1 Output (priority: 300, latency offset: 0 usec, not available)
+			Part of profile(s): Hdmi1
+		[Out] Headphone: Headphone (priority: 200, latency offset: 0 usec, not available)
+			Part of profile(s): HiFi
+		[Out] Speaker: Speaker (priority: 100, latency offset: 0 usec)
+			Part of profile(s): HiFi

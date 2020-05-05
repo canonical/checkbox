@@ -74,7 +74,7 @@ def _guess_hdmi_profile(pactl_list):
         card = re.sub('.*#', '', record.name)  # save the card id
         ports = [
             p for p in record.attribute_map['Ports'].value
-            if 'HDMI / DisplayPort' in p.label]
+            if ('HDMI' in p.label) and (('DisplayPort' in p.label) or ('DP' in p.label))]
         if not ports:
             continue
         if [p for p in ports if p.availability]:
@@ -115,7 +115,7 @@ def _guess_hdmi_profile(pactl_list):
         card, port = available_port.popitem()
         # Keep the shortest string in the profile_list including 'stereo'
         # it will avoid testing 'surround' profiles
-        profile = min([p for p in port.profile_list if 'stereo' in p], key=len)
+        profile = min([p for p in port.profile_list if ('stereo' in p) or ('Hdmi' in p)], key=len)
         logging.info("[ Selected profile ]".center(80, '='))
         logging.info("Card #{} Profile: {}".format(card, profile))
         return (card, profile)

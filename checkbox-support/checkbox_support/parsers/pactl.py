@@ -226,7 +226,7 @@ class Port(Node):
     __syntax__ = (
         p.Optional('[Out] ').suppress()
         + p.Optional('[In] ').suppress()
-        + p.Word(p.alphanums + "-;").setResultsName('port-name')
+        + p.Word(p.alphanums + " -;").setResultsName('port-name')
         + p.Suppress(':')
         # This part was very tricky to write. The label is basically
         # arbitrary localized Unicode text.  We want to grab all of it in
@@ -291,7 +291,7 @@ class PortWithProfile(Node):
     __syntax__ = (
         p.Optional('[Out] ').suppress()
         + p.Optional('[In] ').suppress()
-        + p.Word(p.alphanums + "-;").setResultsName('port-name')
+        + p.Word(p.alphanums + " -;").setResultsName('port-name')
         + p.Suppress(':')
         # This part was very tricky to write. The label is basically arbitrary
         # localized Unicode text. We want to grab all of it in one go but

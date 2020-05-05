@@ -157,7 +157,6 @@ class PropertyTests(ParsingTestCase):
         self.assertEqual(prop.name, 'module-udev-detect.discovered')
         self.assertEqual(prop.value, '1')
 
-
 class PortTests(ParsingTestCase):
 
     def test_port(self):
@@ -191,6 +190,17 @@ class PortTests(ParsingTestCase):
         self.assertEqual(port.label, 'Wyjście analogowe')
         self.assertEqual(port.priority, 9900)
         self.assertEqual(port.availability, '')
+
+    def test_DMIC_port_with_blank_space(self):
+        port = self.assertParses(
+            pactl.Port.Syntax, (
+                '[In] Headset Microphone: Headset Microphone '
+                '(priority: 100, not available)')
+        )['port']
+        self.assertEqual(port.name, 'Headset Microphone')
+        self.assertEqual(port.label, 'Headset Microphone')
+        self.assertEqual(port.priority, 100)
+        self.assertEqual(port.availability, 'not available')
 
     def test_chinese_label(self):
         port = self.assertParses(
@@ -580,6 +590,21 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(
             record.attribute_map['Formats'].value, ['pcm'])
 
+    def test_DMIC_sinks(self):
+        record = self.assertParses(
+            pactl.Record.Syntax, self.get_text("sinks-desktop-bionic-x13")
+        )['record']
+        self.assertEqual(record.name, "Sink #42")
+        self.assertEqual(record.attribute_list[0].name, "State")
+        self.assertIs(record.attribute_map['State'], record.attribute_list[0])
+        # Probe some random things
+        self.assertEqual(
+            record.attribute_map['Ports'].value[0].name, "HDMI2")
+        self.assertEqual(
+            record.attribute_map['Properties'].value[2].value, "sound")
+        self.assertEqual(
+            record.attribute_map['Formats'].value, ['pcm'])
+
     def test_modules(self):
         record = self.assertParses(
             pactl.Record.Syntax, self.get_text("modules-desktop-precise-0")
@@ -632,6 +657,12 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
             pactl.Document.Syntax, self.get_text("desktop-precise-xps1340")
         )[0]
         self.assertEqual(len(document.record_list), 34)
+
+    def test_DMIC_pactl_list_cards_x13(self):
+        document = self.assertParses(
+            pactl.Document.Syntax, self.get_text("cards-desktop-bionic-x13")
+        )[0]
+        self.assertEqual(len(document.record_list), 1)
 
     def test_pactl_list_clients_bionic(self):
         document = self.assertParses(

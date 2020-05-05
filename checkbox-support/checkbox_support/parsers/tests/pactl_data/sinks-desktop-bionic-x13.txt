@@ -1,0 +1,50 @@
+Sink #42
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_4__sink
+	Description: sof-skl_hda_card HDMI2/DP2 Output
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 7
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.Hdmi2__hw_sofsklhdacard_4__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = ""
+		alsa.id = "HDMI2 (*)"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "4"
+		alsa.card = "0"
+		alsa.card_name = "sof-skl_hda_card"
+		alsa.long_card_name = "LENOVO-20T2SIT004-ThinkPadX13Gen1-20T2SIT004"
+		alsa.driver_name = "snd_soc_skl_hda_dsp"
+		device.bus_path = "pci-0000:00:1f.3-platform-skl_hda_dsp_generic"
+		sysfs.path = "/devices/pci0000:00/0000:00:1f.3/skl_hda_dsp_generic/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.id = "02c8"
+		device.string = "hw:sofsklhdacard,4"
+		device.buffering.buffer_size = "65472"
+		device.buffering.fragment_size = "16320"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "Hdmi2: hw:sofsklhdacard,4: sink"
+		device.profile.description = "HDMI2/DP2 Output"
+		device.description = "sof-skl_hda_card HDMI2/DP2 Output"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		[Out] HDMI2: HDMI2/DP2 Output (priority: 400, available)
+	Active Port: [Out] HDMI2
+	Formats:
+		pcm

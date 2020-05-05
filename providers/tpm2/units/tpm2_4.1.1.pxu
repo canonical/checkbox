@@ -734,3 +734,15 @@ command:
  INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
  export PATH=$INTEGRATION_TEST_PATH:$PATH
  TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/verifysignature.sh
+
+id: tpm2.0_4.1.1/pcr0_mismatch_check
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: Check the reconstruction of PCR0 using TPM event log
+user: root
+command:
+ fwupdmgr get-devices
+ fwupdmgr get-devices | ( grep 'TPM PCR0 differs from reconstruction' || exit 0 && exit 1)

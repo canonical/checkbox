@@ -43,7 +43,7 @@ class CPUScalingTest(object):
                     return None
                 # otherwise
                 self.cpufreqDirectories.append(cpufreqDirectory)
-        if len(self.cpufreqDirectories) is 0:
+        if len(self.cpufreqDirectories) == 0:
             return None
         # otherwise
         logging.debug("Located the following CPU Freq Directories:")

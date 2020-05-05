@@ -249,7 +249,7 @@ class DiskTest():
                     UDISKS2_BLOCK_INTERFACE in interfaces):
                 # To be an IO candidate there must be a drive object
                 drive = interfaces[UDISKS2_BLOCK_INTERFACE].get('Drive:')
-                if drive is None or drive is '/':
+                if drive is None or drive == '/':
                     continue
                 drive_object = udisks_devices[os.path.basename(drive)]
 

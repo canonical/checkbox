@@ -1,8 +1,6 @@
 # This is not a package for Debian.
 canonical-certification-server: new-package-should-close-itp-bug
 # Those are the desired (custom) interpreters
-canonical-certification-server: unusual-interpreter usr/bin/certify-advanced #!checkbox-launcher
-canonical-certification-server: unusual-interpreter usr/bin/certify-advanced #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/certify-18.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/certify-16.04 #!checkbox-cli
 canonical-certification-server: unusual-interpreter usr/bin/certify-soc-18.04 #!checkbox-cli

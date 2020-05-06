@@ -83,11 +83,13 @@ command:
  RELEASE=`lsb_release -cs`
  CACHE_FILE=pts-cache-$RELEASE-$ARCH-$KIND.tar.gz
  mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
+ echo Downloading PTS cache from $PTS_CACHE_URL/$CACHE_FILE
  wget -qO- $PTS_CACHE_URL/$CACHE_FILE |tar xz -C $PLAINBOX_SESSION_SHARE/pts-nest
+ echo Cache size after unpacking: `du -sh $PLAINBOX_SESSION_SHARE/pts-nest`
  rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
  cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
  sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml
-environ: PTS_PRELOAD_PATH
+environ: PTS_CACHE_URL
 
 unit: template
 template-resource: pts-job-generator
@@ -100,7 +102,6 @@ command:
 plugin: shell
 depends: pts-prepare-nest
 flags: has-leftovers
-environ: PTS_PRELOAD_PATH
 
 id: pts-generate-report
 category_id: phoronix

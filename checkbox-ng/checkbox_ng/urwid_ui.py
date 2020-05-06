@@ -250,7 +250,7 @@ class CategoryNode(urwid.ParentNode):
         else:
             value = next(
                 (job['partial_id'], job['name']) for job in test_info_list
-                if job.get("id") == key)
+                    if job["id"] == key)
             return JobNode(
                 value, parent=self, key=key, depth=self.get_depth() + 1)
 
@@ -457,7 +457,7 @@ class RerunNode(CategoryNode):
         else:
             value = next(
                 (job['partial_id'], job['name']) for job in test_info_list
-                if job.get("id") == key)
+                if job["id"] == key)
             return JobNode(
                 value, parent=self, key=key, depth=self.get_depth() + 1)
 

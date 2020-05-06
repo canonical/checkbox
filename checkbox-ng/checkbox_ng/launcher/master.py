@@ -23,6 +23,7 @@ import contextlib
 import getpass
 import gettext
 import ipaddress
+import json
 import logging
 import os
 import select
@@ -264,8 +265,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         configuration['normal_user'] = self._normal_user
 
         tps = self.sa.start_session(configuration)
-        _logger.debug("master: Session started. Available TPs:\n%s",
-                      '\n'.join(['  ' + tp[0] for tp in tps]))
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)
@@ -330,7 +329,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 )
         else:
             _logger.info("master: Selecting jobs.")
-            reprs = self.sa.get_jobs_repr(all_jobs)
+            reprs = json.loads(self.sa.get_jobs_repr(all_jobs))
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs).run()
             # no need to set an alternate selection if the job list not changed
@@ -404,7 +403,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             time.sleep(20)
         else:
             resume_dialog(10)
-        jobs_repr = self.sa.get_jobs_repr([resumed_session_info['last_job']])
+        jobs_repr = json.loads(
+            self.sa.get_jobs_repr([resumed_session_info['last_job']]))
         job = jobs_repr[-1]
         SimpleUI.header(job['name'])
         print(_("ID: {0}").format(job['id']))
@@ -423,7 +423,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                       '\n'.join(['  ' + job for job in jobs]))
         total_num = len(jobs['done']) + len(jobs['todo'])
 
-        jobs_repr = self.sa.get_jobs_repr(jobs['todo'], len(jobs['done']))
+        jobs_repr = json.loads(
+            self.sa.get_jobs_repr(jobs['todo'], len(jobs['done'])))
         if any([x['user'] is not None for x in jobs_repr]):
             self.password_query()
 
@@ -525,22 +526,24 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         # include resource jobs that jobs to retry depend on
 
         candidates = self.sa.prepare_rerun_candidates(rerun_candidates)
-        self._run_jobs(self.sa.get_jobs_repr(candidates), len(candidates))
+        self._run_jobs(
+            json.loads(self.sa.get_jobs_repr(candidates)), len(candidates))
         return True
 
     def _maybe_manual_rerun_jobs(self):
         rerun_candidates = self.sa.get_rerun_candidates('manual')
         if not rerun_candidates:
             return False
-        test_info_list = self.sa.get_jobs_repr(
-            [j.id for j in rerun_candidates])
+        test_info_list = json.loads(
+            self.sa.get_jobs_repr([j.id for j in rerun_candidates]))
         wanted_set = ReRunBrowser(
             _("Select jobs to re-run"), test_info_list, rerun_candidates).run()
         if not wanted_set:
             return False
         candidates = self.sa.prepare_rerun_candidates([
             job for job in rerun_candidates if job.id in wanted_set])
-        self._run_jobs(self.sa.get_jobs_repr(candidates), len(candidates))
+        self._run_jobs(
+            json.loads(self.sa.get_jobs_repr(candidates)), len(candidates))
         return True
 
     def _run_jobs(self, jobs_repr, total_num=0):

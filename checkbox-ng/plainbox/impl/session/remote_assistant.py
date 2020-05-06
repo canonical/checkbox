@@ -139,7 +139,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 10
+    REMOTE_API_VERSION = 11
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -598,7 +598,7 @@ class RemoteSessionAssistant():
                 "plugin": job.plugin,
             }
             test_info_list = test_info_list + ((test_info, ))
-        return test_info_list
+        return json.dumps(test_info_list)
 
     def resume_by_id(self, session_id=None):
         _logger.info("resume_by_id: %r", session_id)

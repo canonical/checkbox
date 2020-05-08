@@ -32,7 +32,7 @@ import platform
 import shlex
 import sys
 
-from subprocess import Popen, PIPE
+from subprocess import CalledProcessError, check_output
 
 
 def check_kernel_status():
@@ -43,37 +43,47 @@ def check_kernel_status():
     """
     kernel_release = platform.release()
 
-    retval = False
-    command = "apt-cache show linux-image-{}".format(kernel_release)
-    aptinfo = []
-    aptinfo_bytes = (Popen(shlex.split(command), stdout=PIPE)
-                     .communicate()[0])
-    aptinfo = (aptinfo_bytes.decode(encoding="utf-8", errors="ignore")
-               .splitlines())
+    retval = True
+    command = "apt-cache showpkg linux-image-{}".format(kernel_release)
+    aptinfo = check_output(shlex.split(command), universal_newlines=True)
 
-    """Kernel apt-cache info includes a 'Supported:' line on release
-    kernels to identify the period of support. This line is missing on
-    pre-release kernels. Thus, we return a True value only if this
-    line is present and shows a 5-year support period."""
-    if any("Supported: 5y" in s for s in aptinfo):
-        retval = True
-    if any("Supported: 9m" in s for s in aptinfo):
-        print("* Kernel is supported for 9 months; it is an interim release!")
-    if not any("Supported:" in s for s in aptinfo):
-        print("* Could not find a kernel support period; "
-              "may be a pre-release kernel!")
-
-    """We also want to exclude 'edge' kernels, which are identified via
-    the 'Source:' line in the apt-cache output...."""
-    if any("Source: linux-signed-hwe-edge" in s for s in aptinfo):
-        print("* Kernel is an 'edge' kernel!")
-        retval = False
-    if any("Source: linux-hwe-edge" in s for s in aptinfo):
-        print("* Kernel is an 'edge' kernel!")
+    # Exclude kernels that come from obvious PPAs....
+    if "ppa.launchpad.net" in aptinfo:
+        print("* Kernel appears to have come from a PPA!")
         retval = False
 
-    """We also want to exclude low-latency kernels, which are identified
-    via the kernel name string itself...."""
+    # Exclude kernels that don't come from the main repo
+    if "main_binary" not in aptinfo:
+        print("* Kernel does not come from the main Ubuntu repository!")
+        retval = False
+
+    try:
+        command = "apt-cache show linux-image-{}".format(kernel_release)
+        aptinfo = check_output(shlex.split(command), universal_newlines=True)
+    except CalledProcessError:
+        # "apt-cache show" returns an error status if called on a
+        # non-existent package.
+        print("* Kernel does not match any installed package!")
+        aptinfo = ""
+        retval = False
+
+    # Exclude 'edge' kernels, which are identified via the 'Source:' line
+    # in the apt-cache show output....
+    if "Source: linux-signed-hwe-edge" in aptinfo:
+        print("* Kernel is an 'edge' kernel!")
+        retval = False
+    if "Source: linux-hwe-edge" in aptinfo:
+        print("* Kernel is an 'edge' kernel!")
+        retval = False
+
+    # Exclude kernels that aren't from the "linux" (or variant, like
+    # "linux-hwe" or "linux-signed") source....
+    if "Source: linux" not in aptinfo:
+        print("* Kernel is not a Canonical kernel!")
+        retval = False
+
+    # Exclude low-latency kernels, which are identified via the kernel name
+    # string itself....
     if "lowlatency" in kernel_release:
         print("* Kernel is a low-latency kernel!")
         retval = False
@@ -86,29 +96,28 @@ def check_kernel_status():
 
 
 def check_os_status():
-    """Check OS to see if it's supported for certification. Note that this
-    passes any release version (even a non-LTS version), but not pre-release
-    versions.
+    """Check OS to see if it's supported for certification. The OS must be
+    BOTH an LTS version and a non-development branch to pass this test.
 
     :returns:
         True if OK, False if not
     """
     retval = True
     command = "lsb_release -s -d"
-    lsbinfo = []
-    lsbinfo_bytes = (Popen(shlex.split(command), stdout=PIPE)
-                     .communicate()[0])
-    lsbinfo = (lsbinfo_bytes.decode(encoding="utf-8", errors="ignore")
-               .rstrip())
+    lsbinfo = check_output(shlex.split(command), universal_newlines=True)
 
-    """OS information include '(development branch)' on pre-release
-    installations. Such installations should fail this test."""
+    # OS information include '(development branch)' on pre-release
+    # installations. Such installations should fail this test.
     if "(development branch)" in lsbinfo:
-        print("* 'lsb_release -s -d' result is '{}'".format(lsbinfo))
         print("* OS is reported as a development branch:")
         print("* {}".format(lsbinfo))
         retval = False
     print("")
+
+    if "LTS" not in lsbinfo:
+        print("* OS is a non-LTS version:")
+        print("* {}".format(lsbinfo))
+        retval = False
 
     return retval
 
@@ -126,7 +135,7 @@ def main():
     elif (retval == 1):
         print("** Test FAILS; running ineligible kernel!")
     elif (retval == 2):
-        print("** Test FAILS; running pre-release OS!")
+        print("** Test FAILS; running pre-release or non-LTS OS!")
     else:
         print("** Test FAILS; running pre-release OS with ineligible kernel!")
 

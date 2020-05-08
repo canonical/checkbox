@@ -45,27 +45,21 @@ def check_kernel_status():
 
     retval = True
     command = "apt-cache showpkg linux-image-{}".format(kernel_release)
-    aptinfo = []
-    aptinfo_bytes = check_output(shlex.split(command))
-    aptinfo = (aptinfo_bytes.decode(encoding="utf-8", errors="ignore")
-               .splitlines())
+    aptinfo = check_output(shlex.split(command), universal_newlines=True)
 
     # Exclude kernels that come from obvious PPAs....
-    if any("ppa.launchpad.net" in s for s in aptinfo):
+    if "ppa.launchpad.net" in aptinfo:
         print("* Kernel appears to have come from a PPA!")
         retval = False
 
     # Exclude kernels that don't come from the main repo
-    if not any("main_binary" in s for s in aptinfo):
+    if "main_binary" not in aptinfo:
         print("* Kernel does not come from the main Ubuntu repository!")
         retval = False
 
     try:
         command = "apt-cache show linux-image-{}".format(kernel_release)
-        aptinfo = []
-        aptinfo_bytes = check_output(shlex.split(command))
-        aptinfo = (aptinfo_bytes.decode(encoding="utf-8", errors="ignore")
-                   .splitlines())
+        aptinfo = check_output(shlex.split(command), universal_newlines=True)
     except CalledProcessError:
         # "apt-cache show" returns an error status if called on a
         # non-existent package.
@@ -75,16 +69,16 @@ def check_kernel_status():
 
     # Exclude 'edge' kernels, which are identified via the 'Source:' line
     # in the apt-cache show output....
-    if any("Source: linux-signed-hwe-edge" in s for s in aptinfo):
+    if "Source: linux-signed-hwe-edge" in aptinfo:
         print("* Kernel is an 'edge' kernel!")
         retval = False
-    if any("Source: linux-hwe-edge" in s for s in aptinfo):
+    if "Source: linux-hwe-edge" in aptinfo:
         print("* Kernel is an 'edge' kernel!")
         retval = False
 
     # Exclude kernels that aren't from the "linux" (or variant, like
     # "linux-hwe" or "linux-signed") source....
-    if not any("Source: linux" in s for s in aptinfo):
+    if "Source: linux" not in aptinfo:
         print("* Kernel is not a Canonical kernel!")
         retval = False
 
@@ -110,9 +104,7 @@ def check_os_status():
     """
     retval = True
     command = "lsb_release -s -d"
-    lsbinfo = []
-    lsbinfo_bytes = check_output(shlex.split(command))
-    lsbinfo = lsbinfo_bytes.decode(encoding="utf-8", errors="ignore")
+    lsbinfo = check_output(shlex.split(command), universal_newlines=True)
 
     # OS information include '(development branch)' on pre-release
     # installations. Such installations should fail this test.

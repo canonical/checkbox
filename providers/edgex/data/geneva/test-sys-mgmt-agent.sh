@@ -24,6 +24,10 @@ fi
 # to accomodate time for everything to come online
 sleep 120
 
+# enable sys-mgmt-agent, as it's disabled by default in Geneva
+snap set edgexfoundry sys-mgmt-agent=on
+sleep 15
+
 # make sure that core-data is running
 if [ -n "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | grep inactive)" ]; then
     echo "core-data is not running"

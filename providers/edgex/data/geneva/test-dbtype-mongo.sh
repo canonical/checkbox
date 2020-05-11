@@ -48,51 +48,65 @@ echo "found at $(command -v toml2json)"
 # wait for services to start up
 sleep 120
 
-# set to redis, assume that this change works, it's tested already elsewhere
-snap set edgexfoundry dbtype=redis
-sleep 15
+# check that the settings are for redis currently
+test_db_type "redisdb" "6379"
 
-# set back to mongo now
+# ensure redis is running
+if [ "$(snap services edgexfoundry.redis | grep -o inactive)" = "inactive" ]; then
+    echo "redis is not running initially"
+    exit 1
+fi
+
+# ensure redis is enabled
+if [ "$(snap services edgexfoundry.redis | grep -o disabled)" = "disabled" ]; then
+    echo "redis is not enabled initially"
+    exit 1
+fi
+
+# ensure mongod is not running
+if [ "$(snap services edgexfoundry.mongod | grep -o inactive)" != "inactive" ]; then
+    echo "mongod is running initially"
+    exit 1
+fi
+
+# ensure mongod is disabled
+if [ "$(snap services edgexfoundry.mongod | grep -o disabled)" != "disabled" ]; then
+    echo "mongod is enabled intially"
+    exit 1
+fi
+
+# set the dbtype
 snap set edgexfoundry dbtype=mongodb
+
+# wait for services to start/restart
 sleep 15
 
-# check that the config files use mongo now
-for svc in core-data core-metadata export-client support-notifications support-scheduler; do
-    # the type should be mongodb
-    if [ "$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Type')" != "mongodb" ]; then
-        echo "incorrect setting for $svc primary database type after changing to mongo"
-        exit 1
-    fi
-    # the port should be 27017
-    if [ "$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Port')" != "27017" ]; then
-        echo "incorrect setting for $svc primary database port after changing to mongo"
-        exit 1
-    fi
-done
-
-# ensure mongod is running
-if [ -n "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep inactive)" ]; then
-    echo "mongod is not running after changing to mongo"
-    exit 1
-fi
-
-# ensure mongod is enabled
-if [ -z "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep enabled)" ]; then
-    echo "mongod is not enabled after changing to mongo"
-    exit 1
-fi
-
-# ensure redis is not running
-if [ -z "$(snap services edgexfoundry.redis | grep edgexfoundry.redis | grep inactive)" ]; then
-    echo "redis is running after changing to mongo"
+# ensure redis isn't running
+if [ "$(snap services edgexfoundry.redis | grep -o inactive)" != "inactive" ]; then
+    echo "redis is still running after changing to mongodb"
     exit 1
 fi
 
 # ensure redis is disabled
-if [ -z "$(snap services edgexfoundry.redis | grep edgexfoundry.redis | grep disabled)" ]; then
-    echo "redis is enabled after changing to mongo"
+if [ "$(snap services edgexfoundry.redis | grep -o disabled)" != "disabled" ]; then
+    echo "redis is still enabled after changing to mongodb"
     exit 1
 fi
+
+# ensure mongod is now running
+if [ "$(snap services edgexfoundry.mongod | grep -o inactive)" = "inactive" ]; then
+    echo "mongod is not running after changing to mongodb"
+    exit 1
+fi
+
+# ensure mongod is enabled
+if [ "$(snap services edgexfoundry.mongod | grep disabled)" = "disabled" ]; then
+    echo "mongod is not enabled after changing to mongodb"
+    exit 1
+fi
+
+# check that the consul settings are for mongodb currently
+test_db_type "mongodb" "27017"
 
 # remove the snap to run again
 snap_remove

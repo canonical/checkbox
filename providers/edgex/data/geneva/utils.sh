@@ -233,7 +233,7 @@ snap_check_geneva_svcs()
 
     # enabled services
     # all the core-* services, security-services, consul, and redis
-    for svc in consul core-command core-data core-metadata kong-daemon redis postgres security-proxy-setup security-secrets-setup security-secretstore-setup sys-mgmt-agent vault; do
+    for svc in consul core-command core-data core-metadata kong-daemon redis postgres security-proxy-setup security-secrets-setup security-secretstore-setup vault; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "enabled" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be enabled"
@@ -245,7 +245,7 @@ snap_check_geneva_svcs()
 
     # active services
     # same as enabled, but without security-*-setup as those are all oneshot daemons
-    for svc in consul core-command core-data core-metadata kong-daemon redis postgres sys-mgmt-agent vault; do
+    for svc in consul core-command core-data core-metadata kong-daemon redis postgres vault; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
         if [ "active" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be active"
@@ -256,7 +256,7 @@ snap_check_geneva_svcs()
     done
 
     # disabled services
-    for svc in app-service-configurable device-virtual edgex-mongo support-logging mongod support-notifications support-rulesengine support-scheduler; do
+    for svc in app-service-configurable device-virtual edgex-mongo support-logging mongod support-notifications support-rulesengine support-scheduler sys-mgmt-agent; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "disabled" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be disabled"
@@ -268,7 +268,9 @@ snap_check_geneva_svcs()
 
     # inactive services
     # all the disabled services + the oneshot daemons
-    for svc in app-service-configurable device-virtual edgex-mongo mongod security-proxy-setup security-secrets-setup security-secretstore-setup support-logging support-notifications support-rulesengine support-scheduler; do
+
+    for svc in app-service-configurable device-virtual edgex-mongo mongod security-proxy-setup security-secrets-setup security-secretstore-setup support-logging \
+        support-notifications support-rulesengine support-scheduler sys-mgmt-agent; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
         if [ "inactive" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be inactive"
@@ -293,4 +295,35 @@ get_snap_svc_status()
 snap_remove()
 {
     snap remove edgexfoundry || true
+}
+
+test_db_type()
+{
+    # check that the settings are for redis currently
+    for svc in core-command core-data core-metadata support-notifications support-scheduler; do
+
+        # if service is running check values in consul, else check config files
+        status="$(snap services edgexfoundry.$svc | grep -o inactive)"
+        if [ "$status" = "inactive" ]; then
+            type="$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Type')"
+            port="$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Port')"
+            echo "config: svc: $svc type: $type port: $port"
+        else
+            type=$(edgexfoundry.curl -s http://localhost:8500/v1/kv/edgex/core/1.0/edgex-"$svc"/Databases/Primary/Type?raw)
+            port=$(edgexfoundry.curl -s http://localhost:8500/v1/kv/edgex/core/1.0/edgex-"$svc"/Databases/Primary/Port?raw)
+            echo "consul: svc: $svc type: $type port: $port"
+        fi
+
+        echo "after checks...: type: $type port: $port"
+
+        if [ "$type" != "$1" ]; then
+            echo "incorrect initial setting for $svc primary database type: $type"
+            exit 1
+        fi
+
+        if [ "$port" != "$2" ]; then
+            echo "incorrect initial setting for $svc primary database port: $port"
+            exit 1
+        fi
+    done
 }

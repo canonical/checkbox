@@ -48,91 +48,37 @@ echo "found at $(command -v toml2json)"
 # wait for services to start up
 sleep 120
 
-# check that the config files use mongo currently
-for svc in core-data core-metadata export-client support-notifications support-scheduler; do
-    # the type should be mongodb
-    if [ "$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Type')" != "mongodb" ]; then
-        echo "incorrect initial setting for $svc primary database type"
-        exit 1
-    fi
-    # the port should be 27017
-    if [ "$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Port')" != "27017" ]; then
-        echo "incorrect initial setting for $svc primary database port"
-        exit 1
-    fi
-done
-
-# ensure mongod is running
-if [ -n "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep inactive)" ]; then
-    echo "mongod is not running initially"
-    exit 1
-fi
-
-# ensure mongod is enabled
-if [ -z "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep enabled)" ]; then
-    echo "mongod is not enabled initially"
-    exit 1
-fi
-
-# ensure redis is not running
-if [ -z "$(snap services edgexfoundry.redis | grep edgexfoundry.redis | grep inactive)" ]; then
-    echo "redis is running initially"
-    exit 1
-fi
-
-# ensure redis is disabled
-if [ -z "$(snap services edgexfoundry.redis | grep edgexfoundry.redis | grep disabled)" ]; then
-    echo "redis is enabled intially"
-    exit 1
-fi
-
-# set the dbtype
-snap set edgexfoundry dbtype=redis
-
-# wait for services to start/restart
+# set the dbtype to mongodb
+snap set edgexfoundry dbtype=mongodb
 sleep 15
 
-# ensure mongod isn't running
-if [ -z "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep inactive)" ]; then
-    echo "mongod is still running after changing to redis"
-    exit 1
-fi
+# set the dbtype back to redis
+snap set edgexfoundry dbtype=redis
+sleep 15
 
-# ensure mongod is disabled
-if [ -z "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep disabled)" ]; then
-    echo "mongod is still enabled after changing to redis"
-    exit 1
-fi
+test_db_type "redisdb" "6379"
 
-# ensure redis is now running
+# ensure redis is running
 if [ -n "$(snap services edgexfoundry.redis | grep edgexfoundry.redis | grep inactive)" ]; then
-    echo "redis is not running after changing to redis"
+    echo "redis is not running initially"
     exit 1
 fi
 
 # ensure redis is enabled
 if [ -z "$(snap services edgexfoundry.redis | grep edgexfoundry.redis | grep enabled)" ]; then
-    echo "redis is not enabled after changing to redis"
+    echo "redis is not enabled initially"
     exit 1
 fi
 
-# check that the config files now use redis currently
-for svc in core-data core-metadata export-client support-notifications support-scheduler; do
-    # the type should be redisdb
-    if [ "$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Type')" != "redisdb" ]; then
-        echo "incorrect changed setting for $svc primary database type"
-        exit 1
-    fi
-    # the port should be 6379
-    if [ "$(toml2json < "/var/snap/edgexfoundry/current/config/$svc/res/configuration.toml" | jq -r '.Databases.Primary.Port')" != "6379" ]; then
-        echo "incorrect changed setting for $svc primary database port"
-        exit 1
-    fi
-done
+# ensure mongo is not running
+if [ -z "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep inactive)" ]; then
+    echo "mongod is running initially"
+    exit 1
+fi
 
-# support-logging should now have file persistence
-if [ "$(toml2json < "/var/snap/edgexfoundry/current/config/support-logging/res/configuration.toml" | jq -r '.Writable.Persistence')" != "file" ]; then
-    echo "incorrect initial setting for support-logging persistence mechanism"
+# ensure mongo is disabled
+if [ -z "$(snap services edgexfoundry.mongod | grep edgexfoundry.mongod | grep disabled)" ]; then
+    echo "mongod is enabled intially"
     exit 1
 fi
 

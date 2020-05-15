@@ -66,7 +66,7 @@ fi
 
 # issue a bogus start command to the SMA to check that it returns an error message
 set +e
-fail_response = edgexfoundry.curl \
+fail_response=edgexfoundry.curl \
     --fail \
     --header "Content-Type: application/json" \
     --request POST \

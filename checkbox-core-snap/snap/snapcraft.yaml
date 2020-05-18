@@ -489,7 +489,7 @@ parts:
             )
           fi
       done
-    after: [checkbox-provider-edgex]
+    after: [plainbox-provider-snappy]
 ################################################################################
   common-config:
     plugin: dump

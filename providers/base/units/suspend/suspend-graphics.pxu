@@ -262,3 +262,30 @@ command:
  fi
 _purpose:
  Suspend SUT 30 times while using {product_slug} graphics card
+ 
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+template-engine: jinja2
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/{{ index }}_rotation_after_suspend_{{ product_slug }}_graphics
+depends:
+ {%- if gpu_count > "1" %}
+  suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
+ {%- else %}
+  suspend/suspend_advanced
+ {%- endif %}
+command:
+ source graphics_env {{ driver }} {{ index }}
+ rotation_test
+estimated_duration: 20.000
+_summary: Test rotation for {{ vendor }} {{ product }} after suspend
+_description:
+ PURPOSE:
+     This test will test display rotation on the {{ vendor }} {{ product }} graphics card after suspend
+ STEPS:
+     1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
+     2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
+ VERIFICATION:
+     Did the display rotation take place without permanent screen corruption after suspend?

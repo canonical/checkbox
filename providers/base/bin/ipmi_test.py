@@ -244,7 +244,7 @@ class FreeIpmiTest:
             except self._sub_process_excs as exc:
                 self._process_exc(exc, self.get_ipmi_channel.__qualname__)
                 return False
-        if len(channel) > 0:
+        if channel:
             logging.info('- Found %d channel(s)!' % len(channel))
             logging.info('  IPMI channel(s): %s\n' % channel)
             return True

@@ -61,9 +61,9 @@ class FreeIpmiTest:
             'ipmi_msghandler')
         # method subprocess commands (FreeIPMI)
         self._cmd_ipmi_chassis = [
-            get_path('ipmi-chassisd'), '--get-status']
+            get_path('ipmi-chassis'), '--get-status']
         self._cmd_ipmi_channel = [
-            get_path('ipmi-configd'), '--checkout',
+            get_path('ipmi-config'), '--checkout',
             '--lan-channel-number']
         self._cmd_get_bmc_info = [
             get_path('bmc-info')]
@@ -239,6 +239,9 @@ class FreeIpmiTest:
         regex = re.compile('Section User')
         # test channels 0 - 15
         for i in range(16):
+            # channel 12, 13 are invalid channels, skip
+            if i == (12 | 13):
+                continue
             try:
                 self._ipmi_channel_hlpr(i, regex, channel)
             except self._sub_process_excs as exc:

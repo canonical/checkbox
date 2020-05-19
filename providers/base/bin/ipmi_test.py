@@ -61,9 +61,9 @@ class FreeIpmiTest:
             'ipmi_msghandler')
         # method subprocess commands (FreeIPMI)
         self._cmd_ipmi_chassis = [
-            get_path('ipmi-chassis'), '--get-status']
+            get_path('ipmi-chassisd'), '--get-status']
         self._cmd_ipmi_channel = [
-            get_path('ipmi-config'), '--checkout',
+            get_path('ipmi-configd'), '--checkout',
             '--lan-channel-number']
         self._cmd_get_bmc_info = [
             get_path('bmc-info')]
@@ -102,11 +102,11 @@ class FreeIpmiTest:
         """Allows for bundling of exception handling for all
         methods within this class.
         """
-        if type(exc) == TimeoutExpired:
+        if type(exc) is TimeoutExpired:
             logging.info(
                 '* Timeout calling %s! (%ss)\n' %
                 (test_method, self._subproc_timeout))
-        elif type(exc) == FileNotFoundError:
+        elif type(exc) is FileNotFoundError:
             logging.info(
                 '* Error calling %s! Check cmds/paths.\n' % test_method)
         else:

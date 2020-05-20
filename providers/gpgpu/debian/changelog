@@ -1,0 +1,6 @@
+checkbox-provider-gpgpu (0.1-0) bionic; urgency=medium
+
+  * Initial release
+  * Added in existing GPGPU setup script and test cases from PPC and PPCS
+
+ -- Jeff Lane <jeff@ubuntu.com>  Wed, 20 May 2020 14:49:13 -0400

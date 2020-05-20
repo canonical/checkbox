@@ -1,4 +1,4 @@
-checkbox-provider-gpgpu (0.1-0) bionic; urgency=medium
+checkbox-provider-gpgpu (0.1-1) bionic; urgency=medium
 
   * Initial release
   * Added in existing GPGPU setup script and test cases from PPC and PPCS

@@ -61,6 +61,7 @@ _description: Automated networking tests for devices
 include:
   ipv6_detect
   ipv6_link_local_address_.*
+  networking/predictable_names
 bootstrap_include:
   device
 

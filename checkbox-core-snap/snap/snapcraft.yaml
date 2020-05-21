@@ -270,6 +270,7 @@ parts:
       - python3-pil
       - python3-psutil
       - python3-pyqrcode
+      - python3-serial
       - python3-yaml
       - python3-zbar
       - qml-module-qtquick-controls

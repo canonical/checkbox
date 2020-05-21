@@ -839,9 +839,9 @@ if lspci | grep "3D controller [0302]"; then
     gpu="GPGPU Detected"
     echo " $gpu"
     echo " In order to test the discovered GPGPU device(s)"
-    echo " You will need to run the gpu-setup.sh script "
-    echo " included with the Server Certification suite to"
-    echo " install the necessary drivers and toolkit."
+    echo " You will need to install the checkbox-provider-gpgpu"
+    echo " package and run the gpu-setup script to install"
+    echo " the necessary drivers and toolkit."
     eval info${i}=\"$gpu\"
     info
 else

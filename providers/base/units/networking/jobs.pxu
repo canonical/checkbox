@@ -80,8 +80,10 @@ _description: Try to enable a remote printer on the network and print a test pag
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
+template-engine: jinja2
 id: networking/predictable_names
 command: network_predictable_names
 _summary: Verify that all network interfaces have predictable names.
 _description: Verify that all network interfaces have predictable names.
-
+requires:
+  {% if __on_ubuntucore__ %}lsb.release >= '20'{% else %}lsb.release >= '18'{% endif %}

@@ -23,6 +23,8 @@ class CPUScalingTest(object):
         self.idaSpeedupFactor = 8.0  # percent
         self.selectorExe = "cpufreq-selector"
         self.ifSelectorExe = None
+        self.minFreq = None
+        self.maxFreq = None
 
     def getCPUFreqDirectories(self):
         logging.debug("Getting CPU Frequency Directories")
@@ -279,16 +281,17 @@ class CPUScalingTest(object):
             logging.info("System has %u cpus" % len(self.cpufreqDirectories))
 
         # Ensure all CPUs support the same frequencies
-        freqFileName = "scaling_available_frequencies"
-        self.frequencies = self.checkParameters(freqFileName)
-        if not self.frequencies:
+        freqFileName = "scaling_min_freq"
+        self.minFreq = int(self.checkParameters(freqFileName)[0])
+        if not self.minFreq:
             return False
-
-        logging.info("Supported CPU Frequencies: ")
-        for freq in self.frequencies:
-            f = int(freq) / 1000
-            logging.info("    %u MHz" % f)
-
+        freqFileName = "scaling_max_freq"
+        self.maxFreq = int(self.checkParameters(freqFileName)[0])
+        if not self.maxFreq:
+            return False
+        logging.info(
+            "Supported CPU Frequencies: %s - %s MHz",
+            self.minFreq / 1000, self.maxFreq / 1000)
         # Check governors to verify all CPUs support the same control methods
         governorFileName = "scaling_available_governors"
         self.governors = self.checkParameters(governorFileName)
@@ -352,7 +355,7 @@ class CPUScalingTest(object):
                 success = False
 
             # Set the the CPU speed to it's lowest value
-            frequency = self.frequencies[-1]
+            frequency = self.minFreq
             logging.info("Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
             if not self.setFrequency(frequency):
                 success = False
@@ -377,7 +380,7 @@ class CPUScalingTest(object):
                        % self.minimumFrequencyTestTime)
 
             # Set the CPU speed to it's highest value as above.
-            frequency = self.frequencies[0]
+            frequency = self.maxFreq
             logging.info("Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
             if not self.setFrequency(frequency):
                 success = False

@@ -1,32 +1,126 @@
-plugin: manual
+plugin: shell
 category_id: com.canonical.plainbox::fingerprint
-id: fingerprint/login
-_description:
- PURPOSE:
-    This test will verify that a fingerprint reader will work properly for logging into your system. This test case assumes that there's a testing account from which test cases are run and a personal account that the tester uses to verify the fingerprint reader
- STEPS:
-    1. Click on the User indicator on the left side of the panel (your user name).
-    2. Select "Switch User Account"
-    3. On the LightDM screen select your username.
-    4. Use the fingerprint reader to login.
-    5. Click on the user switcher applet.
-    6. Select the testing account to continue running tests.
- VERIFICATION:
-    Did the authentication procedure work correctly?
+id: fingerprint/detect
+user: root
+command: fprintd-list ${SUDO_UID:-$NORMAL_USER}
+estimated_duration: 1.0
+_summary: Check if at least one fingerprint reader is detected
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_fingerprint_reader == 'True'
 
-plugin: manual
+plugin: user-interact
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/enroll
+depends: fingerprint/detect
+user: root
+command:
+  set -e
+  echo 'Removing existing signatures...'
+  fprintd-delete ${SUDO_UID:-$NORMAL_USER} > /dev/null
+  sleep 3
+  fprintd-enroll ${SUDO_UID:-$NORMAL_USER}
+estimated_duration: 20.0
+_summary: Enroll a fingerprint
+_purpose:
+ Enroll the user's right index finger into the database
+_steps:
+ 1. Press Enter
+ 2. Swipe your right index finger five times (wait 3s for the Enrolling message)
+_verification:
+ The verification of this test is automated.
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
+
+plugin: user-interact
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/verify-no-match
+depends: fingerprint/enroll
+user: root
+command:
+  sleep 2
+  fprintd-verify ${SUDO_UID:-$NORMAL_USER} | tee /dev/stderr | grep -o verify-no-match
+estimated_duration: 20.0
+_summary: Fingerprint negative match
+_purpose:
+ The verification must not match when using a wrong finger
+_steps:
+ 1. Press Enter
+ 2. Swipe an unenrolled finger on the reader
+_verification:
+ The verification of this test is automated.
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
+
+plugin: user-interact
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/verify-match
+depends: fingerprint/verify-no-match
+user: root
+command:
+  sleep 2
+  for i in {1..3}
+  do
+      fprintd-verify ${SUDO_UID:-$NORMAL_USER} | tee /dev/stderr | grep -o verify-match && break || sleep 3
+      [[ $i -eq 3 ]] && exit 1
+      echo "Attempts left: $((3-$i))"
+  done
+estimated_duration: 20.0
+_summary: Fingerprint positive match
+_purpose:
+ The verification must match when using the enrolled finger
+_steps:
+ 1. Press Enter
+ 2. Swipe your enrolled finger on the reader (3 attempts max)
+_verification:
+ The verification of this test is automated.
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
+
+plugin: user-interact-verify
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/unlock
-_description:
- PURPOSE:
-    This test will verify that a fingerprint reader can be used to unlock a locked system.
- STEPS:
-    1. Click on the Session indicator (Cog icon on the Left side of the panel) .
-    2. Select 'Lock screen'.
-    3. Press any key or move the mouse.
-    4. A window should appear that provides the ability to unlock either typing your password or using fingerprint authentication.
-    5. Use the fingerprint reader to unlock.
-    6. Your screen should be unlocked.
- VERIFICATION:
-    Did the authentication procedure work correctly?
+depends: fingerprint/verify-match
+user: root
+command:
+  python3 <<EOF
+  from evdev import UInput, ecodes as e
+  ui = UInput()
+  ui.write(e.EV_KEY, e.KEY_LEFTMETA, 1)
+  ui.write(e.EV_KEY, e.KEY_L, 1)
+  ui.write(e.EV_KEY, e.KEY_LEFTMETA, 0)
+  ui.write(e.EV_KEY, e.KEY_L, 0)
+  ui.syn()
+  ui.close()
+  EOF
+_summary: Fingerprint unlock screen
+_purpose:
+ This test will verify that a fingerprint reader can be used to unlock a locked system.
+_steps:
+ 1. Press Enter to lock the screen
+ 2. Press any key or move the mouse.
+ 3. A window should appear that provides the ability to unlock either typing your password or using fingerprint authentication.
+ 4. Use the fingerprint reader to unlock.
+ 5. Your screen should be unlocked.
+_verification:
+ Did the authentication procedure work correctly?
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
 
+plugin: shell
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/delete
+after: fingerprint/unlock
+user: root
+command: fprintd-delete ${SUDO_UID:-$NORMAL_USER}
+estimated_duration: 1.0
+_summary: Remove existing fingerprint signatures
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_fingerprint_reader == 'True'

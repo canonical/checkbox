@@ -1,0 +1,20 @@
+id: fingerprint-full
+unit: test plan
+_name: QA tests for fingerprint reader
+_description: Fingerprint tests
+estimated_duration: 1m
+include:
+nested_part:
+    fingerprint-manual
+
+id: fingerprint-manual
+unit: test plan
+_name: Manual fingerprint tests
+_description: Manual tests for fingerprint reader
+include:
+    fingerprint/detect               certification-status=non-blocker
+    fingerprint/enroll               certification-status=non-blocker
+    fingerprint/verify-no-match      certification-status=non-blocker
+    fingerprint/verify-match         certification-status=non-blocker
+    fingerprint/unlock               certification-status=non-blocker
+    fingerprint/delete               certification-status=non-blocker

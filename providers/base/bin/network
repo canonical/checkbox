@@ -252,16 +252,16 @@ class IPerfPerformanceTest(object):
             cpu_load = 0
         if percent < self.fail_threshold or \
                 cpu_load > self.cpu_load_fail_threshold:
-            logging.warning("Poor network performance detected against {}".
+            logging.warning("The network test against {} failed because:".
                             format(self.target))
             if percent < self.fail_threshold:
-                logging.warning("  Transfer speed: {} Mb/s".
+                logging.error("  Transfer speed: {} Mb/s".
                                 format(throughput))
-                logging.warning("  {:03.2f}% of theoretical max {} Mb/s\n".
+                logging.error("  {:03.2f}% of theoretical max {} Mb/s\n".
                                 format(percent, int(self.iface.max_speed)))
             if cpu_load > self.cpu_load_fail_threshold:
-                logging.warning("  CPU load: {}%".format(cpu_load))
-                logging.warning("  CPU load is above {}% maximum\n".
+                logging.error("  CPU load: {}%".format(cpu_load))
+                logging.error("  CPU load is above {}% maximum\n".
                                 format(self.cpu_load_fail_threshold))
             return 30
 

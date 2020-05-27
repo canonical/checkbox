@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_fingerprint_reader
+_name: A fingerprint reader
+value-type: bool

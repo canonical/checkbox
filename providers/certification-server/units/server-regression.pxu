@@ -7,6 +7,7 @@ _description:
     Please use this whitelist for the Ubuntu Certification self-testing
     programme.
 nested_part:
+    com.canonical.certification::cpu-server
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
@@ -14,11 +15,6 @@ include:
     info/hdparm_.*.txt                         certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
     benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
-    cpu/clocktest                              certification-status=blocker
-    cpu/frequency_governors                    certification-status=blocker
-    cpu/maxfreq_test                           certification-status=blocker
-    cpu/maxfreq_test-log-attach                certification-status=non-blocker
-    cpu/topology                               certification-status=blocker
     disk/detect                                certification-status=blocker
     disk/stats_.*                              certification-status=blocker
     disk/read_performance_.*                   certification-status=blocker

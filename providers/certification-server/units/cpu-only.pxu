@@ -7,15 +7,10 @@ _description:
     Please use this whitelist for the Ubuntu Certification self-testing
     programme.
 nested_part:
+    com.canonical.certification::cpu-server
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-miscellaneous
 include:
-    cpu/clocktest                              certification-status=blocker
-    cpu/scaling_test                           certification-status=blocker
-    cpu/scaling_test-log-attach                certification-status=non-blocker
-    cpu/maxfreq_test                           certification-status=blocker
-    cpu/maxfreq_test-log-attach                certification-status=non-blocker
-    cpu/topology                               certification-status=blocker
     stress/cpu_stress_ng_test                  certification-status=blocker
     miscellanea/oops                           certification-status=blocker
     miscellanea/oops_results.log

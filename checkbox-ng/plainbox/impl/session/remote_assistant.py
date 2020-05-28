@@ -614,6 +614,7 @@ class RemoteSessionAssistant():
             return
         _logger.warning("Resuming session: %r", session_id)
         self._normal_user = self._launcher.normal_user
+        _logger.info("normal_user: %r", self._normal_user)
         pass_provider = (None if self._passwordless_sudo else
                          self.get_decrypted_password)
         runner_kwargs = {
@@ -627,6 +628,9 @@ class RemoteSessionAssistant():
         launcher = app_blob['launcher']
         self._launcher.read_string(launcher, False)
         self._sa.use_alternate_configuration(self._launcher)
+        self._normal_user = self._launcher.normal_user
+        _logger.info(
+            "normal_user after loading metadata: %r", self._normal_user)
         test_plan_id = app_blob['testplan_id']
         self._sa.select_test_plan(test_plan_id)
         self._sa.bootstrap()

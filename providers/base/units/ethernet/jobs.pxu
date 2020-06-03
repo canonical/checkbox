@@ -434,18 +434,40 @@ _description:
  This job is intended to be used on particular devices where an interface has
  been identified for configuration with a static IP address. As such, this is
  not suitable for inclusion in the ethernet nested test plans, but should be
- specifically included where required.
+ specifically included where required. To check the address assigned to the
+ interface set the expected value in STATIC_IP_{{ interface.upper() }}.
 category_id: com.canonical.plainbox::ethernet
 plugin: shell
 estimated_duration: 2s
-command: check_static {{ interface }}
+command: check_static.py nm {{ interface }}
 requires:
+  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
   {%- if __on_ubuntucore__ %}
   snap.name == 'network-manager'
   connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
   {%- else %}
   executable.name == 'nmcli'
   {% endif -%}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: ethernet/check-{{ interface }}-static-configuration-np
+_summary: Check that {{ interface }} has a static configuration
+_description:
+ This job is intended to be used on particular devices where an interface has
+ been identified for configuration with a static IP address. As such, this is
+ not suitable for inclusion in the ethernet nested test plans, but should be
+ specifically included where required. To check the address assigned to the
+ interface set the expected value in STATIC_IP_{{ interface.upper() }}.
+category_id: com.canonical.plainbox::ethernet
+plugin: shell
+estimated_duration: 2s
+command: check_static.py networkd {{ interface }}
+requires:
+  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
 plugin: shell
 category_id: com.canonical.plainbox::ethernet

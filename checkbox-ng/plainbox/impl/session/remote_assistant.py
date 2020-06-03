@@ -500,10 +500,10 @@ class RemoteSessionAssistant():
 
     def save_password(self, password):
         """Store sudo password"""
-        if validate_pass(password):
-            self._sudo_password = password
-            return True
-        return False
+        # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+        # if the slave is running it means we don't need password
+        # so we can consider call to this function as passing
+        return True
 
     def get_decrypted_password(self):
         """Return decrypted password"""
@@ -684,7 +684,9 @@ class RemoteSessionAssistant():
 
     @property
     def passwordless_sudo(self):
-        return self._passwordless_sudo
+        # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+        # if the slave is still running it means it's very passwordless
+        return True
 
     @property
     def sideloaded_providers(self):

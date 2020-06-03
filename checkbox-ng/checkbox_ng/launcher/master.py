@@ -198,6 +198,14 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     conn.root.register_master_blaster(quitter)
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
+                # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+                # the check and bailout is not needed if the slave as up to
+                # date as this master, so after bumping RAPI we can assume
+                # that slave is always passwordless
+                if not self.sa.passwordless_sudo:
+                    raise SystemExit(
+                    _("This version of Checkbox Master requires the Slave"
+                      " to be run as root"))
                 if not self._sudo_provider:
                     self._sudo_provider = SudoProvider()
                 try:

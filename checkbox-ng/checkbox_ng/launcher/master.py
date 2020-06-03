@@ -549,9 +549,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             next_job = False
             while next_job is False:
                 for interaction in self.sa.run_job(job['id']):
-                    if interaction.kind == 'sudo_input':
-                        self.sa.save_password(
-                            self._sudo_provider.password)
                     if interaction.kind == 'purpose':
                         SimpleUI.description(_('Purpose:'),
                                              interaction.message)

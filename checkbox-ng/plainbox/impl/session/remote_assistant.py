@@ -31,7 +31,6 @@ from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
-from plainbox.impl.secure.sudo_broker import validate_pass
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.abc import IJobResult
@@ -143,7 +142,6 @@ class RemoteSessionAssistant():
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
         self._cmd_callback = cmd_callback
-        self._sudo_password = None
         self._session_change_lock = Lock()
         self._operator_lock = Lock()
         self._ui = BufferedUI()
@@ -270,11 +268,8 @@ class RemoteSessionAssistant():
         self._normal_user = self._launcher.normal_user
         if configuration['normal_user']:
             self._normal_user = configuration['normal_user']
-        pass_provider = (None if self._passwordless_sudo else
-                         self.get_decrypted_password)
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
-            'password_provider': pass_provider,
             'stdin': self._pipe_to_subproc,
             'extra_env': self.prepare_extra_env(),
         }
@@ -302,19 +297,15 @@ class RemoteSessionAssistant():
 
     @allowed_when(Started)
     def prepare_bootstrapping(self, test_plan_id):
-        """
-        Go through the list of bootstrapping jobs, and return True
-        if sudo password will be needed for any bootstrapping job.
-        """
+        """Save picked test plan to the app blob."""
         _logger.debug("prepare_bootstrapping: %r", test_plan_id)
         self._sa.update_app_blob(json.dumps(
             {'testplan_id': test_plan_id, }).encode("UTF-8"))
         self._sa.select_test_plan(test_plan_id)
-        for job_id in self._sa.get_bootstrap_todo_list():
-            job = self._sa.get_job(job_id)
-            if job.user is not None:
-                # job requires sudo controller
-                return True
+        # TODO: REMOTE API RAPI: Change this API on the next RAPI bump
+        # previously the function returned bool signifying the need for sudo
+        # password. With slave being guaranteed to never need it anymor
+        # we can make this funciton return nothing
         return False
 
     @allowed_when(Started)
@@ -411,19 +402,6 @@ class RemoteSessionAssistant():
                 yield from self.interact(
                     Interaction('skip', job.verification, self._be))
         if job.command:
-            if (job.user and not self._passwordless_sudo
-                    and not self._sudo_password):
-                self._ephemeral_key = EphemeralKey()
-                self._current_interaction = Interaction('sudo_input')
-                pass_is_correct = False
-                while not pass_is_correct:
-                    self.state = Interacting
-                    yield self._current_interaction
-                    pass_is_correct = validate_pass(
-                        self._sudo_password)
-                    if not pass_is_correct:
-                        print(_('Sorry, try again.'))
-                assert(self._sudo_password is not None)
             self._state = Running
             ui = self._get_ui_for_job(job)
             self._be = BackgroundExecutor(self, job_id, self._sa.run_job, ui)
@@ -504,13 +482,6 @@ class RemoteSessionAssistant():
         # if the slave is running it means we don't need password
         # so we can consider call to this function as passing
         return True
-
-    def get_decrypted_password(self):
-        """Return decrypted password"""
-        if self._passwordless_sudo:
-            return ''
-        assert(self._sudo_password)
-        return self._sudo_password
 
     def finish_job(self, result=None):
         # assert the thread completed
@@ -607,11 +578,8 @@ class RemoteSessionAssistant():
         _logger.warning("Resuming session: %r", session_id)
         self._normal_user = self._launcher.normal_user
         _logger.info("normal_user: %r", self._normal_user)
-        pass_provider = (None if self._passwordless_sudo else
-                         self.get_decrypted_password)
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
-            'password_provider': pass_provider,
             'stdin': self._pipe_to_subproc,
             'extra_env': self.prepare_extra_env(),
         }

@@ -127,7 +127,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._C = Colorizer()
         self._override_exporting(self.local_export)
         self._launcher_text = ''
-        self._password_entered = False
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._sudo_provider = None
@@ -295,23 +294,9 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             return
         self.select_jobs(self.jobs)
 
-    def password_query(self):
-        if not self._password_entered and not self.sa.passwordless_sudo:
-            wrong_pass = True
-            while wrong_pass:
-                if not self.sa.save_password(
-                        self._sudo_provider.password):
-                    self._sudo_provider.clear_password()
-                    print(_("Sorry, try again."))
-                else:
-                    wrong_pass = False
-
     def select_tp(self, tp):
         _logger.info("master: Selected test plan: %s", tp)
-        pass_required = self.sa.prepare_bootstrapping(tp)
-        if pass_required:
-            self.password_query()
-
+        self.sa.prepare_bootstrapping(tp)
         self._is_bootstrapping = True
         bs_todo = self.sa.get_bootstrapping_todo_list()
         for job_no, job_id in enumerate(bs_todo, start=1):
@@ -432,8 +417,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
         jobs_repr = json.loads(
             self.sa.get_jobs_repr(jobs['todo'], len(jobs['done'])))
-        if any([x['user'] is not None for x in jobs_repr]):
-            self.password_query()
 
         self._run_jobs(jobs_repr, total_num)
         rerun_candidates = self.sa.get_rerun_candidates('manual')

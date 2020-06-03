@@ -39,7 +39,6 @@ from tempfile import SpooledTemporaryFile
 from plainbox.impl.color import Colorizer
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.config import Unset
-from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from checkbox_ng.urwid_ui import TestPlanBrowser
@@ -129,7 +128,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._launcher_text = ''
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
-        self._sudo_provider = None
         self._normal_user = ''
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
@@ -205,8 +203,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     raise SystemExit(
                     _("This version of Checkbox Master requires the Slave"
                       " to be run as root"))
-                if not self._sudo_provider:
-                    self._sudo_provider = SudoProvider()
                 try:
                     slave_api_version = self.sa.get_remote_api_version()
                 except AttributeError:

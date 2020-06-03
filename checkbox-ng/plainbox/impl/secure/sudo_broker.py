@@ -36,28 +36,6 @@ from subprocess import check_call, CalledProcessError, DEVNULL, SubprocessError
 logger = logging.getLogger("sudo_broker")
 
 
-class SudoProvider():
-    """
-    This is the user-facing part of the duo.
-    Its main purpose is to ask user for password.
-    """
-
-    DEFAULT_PROMPT = 'Enter sudo password:\n'
-
-    def __init__(self, prompt=DEFAULT_PROMPT):
-        self._prompt = prompt
-        self._password = None
-
-    @property
-    def password(self):
-        if not self._password:
-            self._password = getpass.getpass(self._prompt).encode(
-                sys.stdin.encoding)
-        return self._password
-
-    def clear_password(self):
-        self._password = None
-
 def is_passwordless_sudo():
     """
     Check if system can run sudo without pass.

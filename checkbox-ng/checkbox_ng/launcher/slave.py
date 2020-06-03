@@ -24,7 +24,7 @@ import logging
 import os
 import socket
 import sys
-
+from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.impl.session.restart import RemoteDebRestartStrategy
 from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
@@ -94,6 +94,11 @@ class RemoteSlave():
     name = 'slave'
 
     def invoked(self, ctx):
+        if os.geteuid():
+            raise SystemExit(_("Checkbox Slave must be run by root!"))
+        if not is_passwordless_sudo():
+            raise SystemExit(
+                _("System is not configured to run sudo without a password!"))
         slave_port = ctx.args.port
 
         # Check if able to connect to the slave port as indicator of there

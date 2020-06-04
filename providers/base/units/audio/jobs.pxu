@@ -398,11 +398,12 @@ _description:
       Check that external line out connection works correctly
  STEPS:
       1. Insert cable to speakers (with built-in amplifiers) on the line out port
-      2. Open system sound preferences, 'Output' tab, select 'Line-out' on the connector list. Commence the test
-      3. On the system sound preferences, select 'Internal Audio' on the device list and click 'Test Speakers' to check left and right channel
+      2. Open system sound preferences, 'Output' tab, select 'Line Out' on the connector list. Commence the test
+      3. On the system sound preferences, click 'Test Sound' to check left and right channel
  VERIFICATION:
-      1. Do you hear a sound in the speakers? The internal speakers should *not* be muted automatically
-      2. Do you hear the sound coming out on the corresponding channel?
+      1. Do you see internal speakers? The internal speakers should be replaced by external speaker from Line out port, if any
+      2. Do you hear the sound in the internal speakers? The internal speakers should be muted automatically
+      3. Do you hear the sound coming out on the corresponding channel by external speakers from Line out port?
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio

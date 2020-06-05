@@ -1,6 +1,6 @@
 unit: packaging meta-data
 os-id: debian
-Depends: checkbox-provider-phoronix
+Depends: checkbox-provider-phoronix [amd64]
 
 unit: packaging meta-data
 os-id: debian

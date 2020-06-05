@@ -89,6 +89,7 @@ command:
  rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
  cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
  sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml
+ ln -s $PLAINBOX_SESSION_SHARE/pts-nest/installed-tests/pts/timed-audio-encode-1.0.0 $PLAINBOX_SESSION_SHARE/pts-nest/installed-tests/pts/timed-audio-encode-1.0.1
 environ: PTS_CACHE_URL
 
 unit: template

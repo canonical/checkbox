@@ -19,7 +19,7 @@ Standards-Version: 3.9.6
 Homepage: http://launchpad.net/plainbox-provider-sru
 
 Package: plainbox-provider-sru
-Architecture: all
+Architecture: any
 Depends: plainbox-provider-checkbox (>= 0.27),
          python3 (>= 3.2),
          python3-checkbox-support (>= 0.27),

@@ -2299,3 +2299,91 @@ _description: Check dock MAC address pass-through function, please make sure fol
     1. Pass-through mac address is flashed in BIOS
     2. MAC address pass-through is enabled in BIOS settings
     3. Dock is connected
+
+id: dock/all-initial
+category_id: dock
+plugin: manual
+estimated_duration: 300.00
+_description:
+ PURPOSE:
+     This test is to setup the initial stauts for all I/O port on docking
+ STEPS:
+     1. If the laptop is currently undocked, dock it now.
+     2. Connect a DP monitor.
+     3. Connect a Type-C to HDMI monitor.
+     4. Connect a TB3 storage.
+     5. Connect a Type-C storage.
+     6. Connect a USB3.0 storage.
+     7. Connect a headset.
+     8. Connect a Ethernet cable.
+ VERIFICATION:
+     1. Did the display works fine?
+     2. Did the storage works fine?
+     3. Did the audio works fine?
+     4. Did the network works fine?
+
+id: dock/all-reboot
+category_id: dock
+plugin: manual
+estimated_duration: 300.00
+_description:
+ PURPOSE:
+     This test is to test devices still working after reboot
+ STEPS:
+     Reboot the system.
+ VERIFICATION:
+     1. Did the display works fine after reboot?
+     2. Did the storage works fine after reboot?
+     3. Did the audio works fine after reboot?
+     4. Did the network works fine after reboot?
+
+id: dock/all-hotplug
+category_id: dock
+plugin: manual
+estimated_duration: 300.00
+_description:
+ PURPOSE:
+     This test is to test devices still working after hotplug
+ STEPS:
+     1. Unplug docking station.
+     2. Waiting 30 seconds.
+     3. Plug in docking station.
+ VERIFICATION:
+     1. Did the display works fine after hotplug?
+     2. Did the storage works fine after hotplug?
+     3. Did the audio works fine after hotplug?
+     4. Did the network works fine after hotplug?
+
+id: dock/all-suspend
+category_id: dock
+plugin: manual
+estimated_duration: 300.00
+_description:
+ PURPOSE:
+     This test is to test devices still working after suspend
+ STEPS:
+     1. Suspend the system.
+     2. Waiting 30 seconds.
+     3. Resume the system.
+ VERIFICATION:
+     1. Did the display works fine after suspend?
+     2. Did the storage works fine after suspend?
+     3. Did the audio works fine after suspend?
+     4. Did the network works fine after suspend?
+
+id: dock/all-poweroff
+category_id: dock
+plugin: manual
+estimated_duration: 300.00
+_description:
+ PURPOSE:
+     This test is to test devices still working after poweroff
+ STEPS:
+     1. Poweroff the system.
+     2. Waiting 30 seconds.
+     3. Poweron the system.
+ VERIFICATION:
+     1. Did the display works fine after poweroff?
+     2. Did the storage works fine after poweroff?
+     3. Did the audio works fine after poweroff?
+     4. Did the network works fine after poweroff?

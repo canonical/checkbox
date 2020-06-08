@@ -184,6 +184,11 @@ _description:
  Test for after susepnd then undock then resume the system.
 include:
   dock/suspend-undock-resume
+  dock/all-initial
+  dock/all-reboot
+  dock/all-hotplug
+  dock/all-suspend
+  dock/all-poweroff
 
 id: dock-cold-plug-cert-blockers
 unit: test plan

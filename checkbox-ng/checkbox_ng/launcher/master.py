@@ -39,7 +39,6 @@ from tempfile import SpooledTemporaryFile
 from plainbox.impl.color import Colorizer
 from plainbox.impl.launcher import DefaultLauncherDefinition
 from plainbox.impl.secure.config import Unset
-from plainbox.impl.secure.sudo_broker import SudoProvider
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from checkbox_ng.urwid_ui import TestPlanBrowser
@@ -127,10 +126,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._C = Colorizer()
         self._override_exporting(self.local_export)
         self._launcher_text = ''
-        self._password_entered = False
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
-        self._sudo_provider = None
         self._normal_user = ''
         self.launcher = DefaultLauncherDefinition()
         if ctx.args.launcher:
@@ -198,9 +195,14 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     conn.root.register_master_blaster(quitter)
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
-                if not self._sudo_provider:
-                    self._sudo_provider = SudoProvider(
-                        self.sa.get_master_public_key())
+                # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+                # the check and bailout is not needed if the slave as up to
+                # date as this master, so after bumping RAPI we can assume
+                # that slave is always passwordless
+                if not self.sa.passwordless_sudo:
+                    raise SystemExit(
+                    _("This version of Checkbox Master requires the Slave"
+                      " to be run as root"))
                 try:
                     slave_api_version = self.sa.get_remote_api_version()
                 except AttributeError:
@@ -288,23 +290,9 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             return
         self.select_jobs(self.jobs)
 
-    def password_query(self):
-        if not self._password_entered and not self.sa.passwordless_sudo:
-            wrong_pass = True
-            while wrong_pass:
-                if not self.sa.save_password(
-                        self._sudo_provider.encrypted_password):
-                    self._sudo_provider.clear_password()
-                    print(_("Sorry, try again."))
-                else:
-                    wrong_pass = False
-
     def select_tp(self, tp):
         _logger.info("master: Selected test plan: %s", tp)
-        pass_required = self.sa.prepare_bootstrapping(tp)
-        if pass_required:
-            self.password_query()
-
+        self.sa.prepare_bootstrapping(tp)
         self._is_bootstrapping = True
         bs_todo = self.sa.get_bootstrapping_todo_list()
         for job_no, job_id in enumerate(bs_todo, start=1):
@@ -425,8 +413,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
         jobs_repr = json.loads(
             self.sa.get_jobs_repr(jobs['todo'], len(jobs['done'])))
-        if any([x['user'] is not None for x in jobs_repr]):
-            self.password_query()
 
         self._run_jobs(jobs_repr, total_num)
         rerun_candidates = self.sa.get_rerun_candidates('manual')
@@ -559,9 +545,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             next_job = False
             while next_job is False:
                 for interaction in self.sa.run_job(job['id']):
-                    if interaction.kind == 'sudo_input':
-                        self.sa.save_password(
-                            self._sudo_provider.encrypted_password)
                     if interaction.kind == 'purpose':
                         SimpleUI.description(_('Purpose:'),
                                              interaction.message)

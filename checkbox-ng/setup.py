@@ -48,7 +48,6 @@ else:
         'requests >= 1.0',
         'urwid >= 1.1.1',
         'Jinja2 >= 2.7',
-        'pycrypto >= 2.6.1',
         'xlsxwriter >= 0.3',
     ]
 

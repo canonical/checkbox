@@ -15,6 +15,7 @@ include:
     disk/stats_.*
     disk/read_performance_.*                   certification-status=blocker
     disk/storage_device_.*                     certification-status=blocker
+    disk/fstrim_.*                             certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*
     benchmarks/disk/hdparm-cache-read_.*
     disk/apste_support_on_.*
@@ -52,5 +53,6 @@ include:
     disk/stats_.*
     disk/read_performance_.*
     disk/storage_device_.*
+    disk/fstrim_.*                             certification-status=non-blocker
 bootstrap_include:
     device

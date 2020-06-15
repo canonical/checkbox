@@ -29,8 +29,9 @@ returns a value of 1. The script also returns a value of 1 if
 
 
 import sys
+import shlex
 from argparse import ArgumentParser
-
+from subprocess import check_output
 
 # Note: If max_taints is increased, add descriptions to taint_meanings in
 # report_failures()
@@ -47,6 +48,33 @@ def find_taints(taint_file):
         print("Kernel taint file ({}) not found!".format(taint_file))
     print("Kernel taint value is {}".format(taints))
     return(taints)
+
+def get_modules():
+    lsmod_output = check_output('lsmod', universal_newlines=True).split('\n')
+    # get only the module names
+    modules = []
+    for line in lsmod_output:
+        if line and 'Module' not in line:
+            modules.append(line.split()[0])
+    return(modules)
+
+def print_out_of_tree_modules(modules):
+    print("    Modules not in-tree:")
+    for mod in modules:
+        cmd = 'modinfo -F intree %s' % mod
+        if not check_output(shlex.split(cmd),
+                            universal_newlines=True):
+            print("        %s" % mod)
+
+def print_GPL_incompatible_modules(modules):
+    print("    Modules with GPL Incompatible Licenses:")
+    for mod in modules:
+        cmd = 'modinfo -F license %s' % mod
+        license = check_output(shlex.split(cmd),
+                               universal_newlines=True).strip()
+        if "GPL" not in license and "MIT" not in license:
+            print("        %s: %s" % (mod, license))
+
 
 
 def report_failures(taints):
@@ -73,7 +101,12 @@ def report_failures(taints):
                       "kernel was built with the struct randomization plugin"]
     for i in range(max_taints+1):
         if (taints & (2 ** i)):
+            modules = get_modules()
             print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
+            if i == 0: # List GPL incompatible modules and licenses
+                print_GPL_incompatible_modules(modules)
+            if i == 12: # List out-of-tree modules
+                print_out_of_tree_modules(modules)
     if taints == 0:
         print("No kernel taints detected.")
 

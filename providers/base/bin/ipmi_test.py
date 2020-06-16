@@ -138,9 +138,9 @@ class FreeIpmiTest:
                     logging.info('- %s already loaded' % module)
                 else:
                     if (module == 'ipmi_powernv' and
-                        platform.machine() != 'ppc64le'):
-                          logging.info(' * Skipping module %s, incorrect '
-                                       'system architecture' % module)
+                            platform.machine() != 'ppc64le'):
+                        logging.info(' * Skipping module %s, incorrect '
+                                     'system architecture' % module)
                     else:
                         self._modprobe_hlpr(module)
             logging.info('')

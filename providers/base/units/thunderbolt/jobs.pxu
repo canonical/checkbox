@@ -134,6 +134,20 @@ _description:
  This is an automated test which performs read/write operations on an attached
  Thunderbolt HDD
 
+plugin: shell
+category_id: com.canonical.plainbox::disk
+id: thunderbolt3/storage-preinserted
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+estimated_duration: 45.0
+command: removable_storage_test -s 268400000 scsi
+flags: also-after-suspend
+_summary: Storage test on Thunderbolt 3 -preinserted
+_description:
+ This is an automated test which performs read/write operations on a preinserted
+ Thunderbolt HDD
+
 plugin: user-interact
 category_id: com.canonical.plainbox::disk
 id: thunderbolt3/remove

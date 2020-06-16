@@ -4,7 +4,7 @@ Copyright (C) 2020 Canonical Ltd.
 
 Authors
   Adrian Lane <adrian.lane@canonical.com>
-
+  Jeff Lane <jeff@ubuntu.com>
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3,
 as published by the Free Software Foundation.
@@ -23,6 +23,7 @@ Tests IPMI subsystem on SUT.
 import re
 import shutil
 import sys
+import platform
 import argparse
 import logging
 from subprocess import (
@@ -136,7 +137,12 @@ class FreeIpmiTest:
                 if module in output:
                     logging.info('- %s already loaded' % module)
                 else:
-                    self._modprobe_hlpr(module)
+                    if (module == 'ipmi_powernv' and
+                        platform.machine() != 'ppc64le'):
+                          logging.info(' * Skipping module %s, incorrect '
+                                       'system architecture' % module)
+                    else:
+                        self._modprobe_hlpr(module)
             logging.info('')
         except self._sub_process_excs as exc:
             self._process_exc(exc, self.load_kernel_mods.__qualname__)

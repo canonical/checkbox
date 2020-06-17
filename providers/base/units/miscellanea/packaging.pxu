@@ -1,0 +1,3 @@
+unit: packaging meta-data
+os-id: debian
+Depends: debsums

@@ -460,3 +460,13 @@ id: miscellanea/fan_stress_reaction
 command: fan_reaction_test.py
 _summary: Check if system fans react to CPU load
 _description: Check if system fans react to CPU load
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 60
+id: miscellanea/debsums
+user: root
+requires: package.name == 'debsums'
+command: debsums -c
+_summary: Check the MD5 sums of installed Debian packages
+_description: Verify installed Debian package files against MD5 checksum lists from /var/lib/dpkg/info/*.md5sums.

@@ -33,6 +33,7 @@ include:
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
     miscellanea/fan_stress_reaction
+    miscellanea/debsums
 bootstrap_include:
     fwts
 

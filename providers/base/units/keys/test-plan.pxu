@@ -25,6 +25,7 @@ include:
  keys/keyboard-backlight                        certification-status=blocker
  keys/microphone-mute                           certification-status=blocker
  keys/power-button                              certification-status=blocker
+ keys/fn-lock                                   certification-status=non-blocker
 
 id: keys-cert-automated
 unit: test plan
@@ -50,6 +51,8 @@ include:
     after-suspend-manual-keys/wireless             certification-status=blocker
     after-suspend-manual-keys/keyboard-backlight   certification-status=blocker
     after-suspend-manual-keys/microphone-mute      certification-status=blocker
+    after-suspend-manual-keys/power-button         certification-status=blocker
+    after-suspend-manual-keys/fn-lock              certification-status=non-blocker
 
 id: keys-cert-blockers
 unit: test plan
@@ -68,6 +71,7 @@ include:
     keys/wireless                                  certification-status=blocker
     keys/keyboard-backlight                        certification-status=blocker
     keys/microphone-mute                           certification-status=blocker
+    keys/power-button                              certification-status=blocker
 
 id: after-suspend-keys-cert-blockers
 unit: test plan
@@ -85,3 +89,4 @@ include:
     after-suspend-manual-keys/wireless             certification-status=blocker
     after-suspend-manual-keys/keyboard-backlight   certification-status=blocker
     after-suspend-manual-keys/microphone-mute      certification-status=blocker
+    after-suspend-manual-keys/power-button         certification-status=blocker

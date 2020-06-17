@@ -290,3 +290,19 @@ _steps:
 _verification:
     Did the power management prompt pop up when press power button?
 
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/fn-lock
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend-manual
+_purpose:
+     This test will test the Fn Lock key
+_steps:
+     Skip this test if your system does not have Fn Lock key.
+     1. Press the Fn+Fn Lock key.
+     2. Press the Fn+any hotkey.
+_verification:
+    Do the keys work as expected?
+

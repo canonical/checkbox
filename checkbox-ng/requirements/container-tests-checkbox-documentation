@@ -4,4 +4,4 @@ if [[ $(lsb_release -cs) == 'trusty' ]]; then
     exit 0
 fi
 
-python3 setup.py build_sphinx
+python3 setup.py build_sphinx --build-dir build_$(lsb_release -cs)

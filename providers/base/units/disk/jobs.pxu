@@ -82,6 +82,20 @@ template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
+id: disk/fstrim_{name}
+estimated_duration: 1.0
+user: root
+requires:
+ block_device.rotation == 'no' and block_device.name == '{name}'
+_summary: Filesystem TRIM check for {product_slug}
+_description: Take the path of the storage device and test its TRIM capabilities
+command: fstrim_test --device-file {name}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: com.canonical.plainbox::disk
 id: disk/disk_stress_ng_{name}
 estimated_duration: 4560.0
 user: root

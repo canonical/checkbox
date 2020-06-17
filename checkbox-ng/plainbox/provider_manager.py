@@ -1541,7 +1541,8 @@ def manage_py_extension(cls):
         cmd_list.append(cls)
     else:
         # Override / replacement for an existing command
-        index = cmd_list.index(orig)
-        del cmd_list[index]
-        cmd_list.insert(index, cls)
+        if orig in cmd_list:
+            index = cmd_list.index(orig)
+            del cmd_list[index]
+            cmd_list.insert(index, cls)
     return cls

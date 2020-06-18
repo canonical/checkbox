@@ -26,6 +26,8 @@ This module has strict API stability requirements. The only public API is the
 therein.
 """
 
+import glob
+import unittest
 import argparse
 import inspect
 import itertools
@@ -1324,6 +1326,26 @@ class PackagingCommand(ManageCommand):
             driver.modify_packaging_tree()
 
 
+class ShellcheckTests(unittest.TestCase):
+    """
+    Holder of shellcheck test cases.
+
+    If candidates for shellcheck testing are found when TestCommand is invoked,
+    this class will have member functions monkey patched in to place that
+    represent an individual test case for each file.
+    """
+    pass
+
+
+def create_test(shellfile):
+    """Creates the target for the monkey patched methods in ShellcheckTests"""
+
+    def run_shellcheck(self):
+        result = subprocess.run(['shellcheck', shellfile])
+        self.assertEqual(result.returncode, 0)
+    return run_shellcheck
+
+
 class TestCommand(ManageCommand):
     """run tests defined for this provider"""
 
@@ -1341,12 +1363,23 @@ class TestCommand(ManageCommand):
         self.add_subcommand(subparsers)
 
     def invoked(self, ns):
-        if not os.path.isdir(self.tests_dir):
-            print("No tests directory found")
-            return
         sys.path.insert(0, self.scripts_dir)
         runner = TextTestRunner(verbosity=2)
-        result = runner.run(defaultTestLoader.discover(self.tests_dir))
+
+        # create unittest for each bin/*.sh file
+        for file in glob.glob(self.scripts_dir + "/*.sh"):
+            test_method = create_test(file)
+            test_method.__name__ = 'test_shellcheck_{}'.format(
+                os.path.splitext(file)[0])
+            setattr(ShellcheckTests, test_method.__name__, test_method)
+        shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
+            ShellcheckTests)
+
+        # find tests defined in tests/
+        tests_dir_suite = defaultTestLoader.discover(self.tests_dir)
+
+        result = runner.run(unittest.TestSuite(
+            [shellcheck_suite, tests_dir_suite]))
         if not result.wasSuccessful():
             return 1
 

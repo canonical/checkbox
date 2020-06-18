@@ -9,9 +9,6 @@ stock_reports = submission_files, certification
 unit = com.canonical.certification::storage-only
 forced = yes
 
-[test selection]
-forced = yes
-
 [ui]
 output = hide-resource-and-attachment
 

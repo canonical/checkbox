@@ -37,14 +37,14 @@ from subprocess import (
     PIPE,
     Popen
 )
-import disk_support
+import checkbox_support.disk_support
 
 
 def mount_filesystem(device):
     if "/dev" not in device and device != "":
         device = "/dev/" + device
 
-    test_disk = disk_support.Disk(device)
+    test_disk = checkbox_support.disk_support.Disk(device)
     mount_point = None
     if test_disk.mount_filesystem(False):
         mount_point = test_disk.get_mount_point()

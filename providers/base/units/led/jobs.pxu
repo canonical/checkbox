@@ -246,3 +246,17 @@ command: echo {0..1024} | tee /dev/ttyS{0..100} &> /dev/null
 user: root
 category_id: led
 estimated_duration: 15
+
+plugin: manual
+category_id: led
+id: led/fn
+estimated_duration: 30.0
+flags: also-after-suspend-manual
+_purpose:
+     This test will test Fn key LED
+_steps:
+     Skip this test if your system does not have Fn Lock key.
+     1. Press the Fn+Fn Lock key to activate/deactivate Fn keys blocking.
+     2. Fn key LED should be switched on/off every time the key is pressed.
+_verification:
+    Did the Fn key LED light as expected?

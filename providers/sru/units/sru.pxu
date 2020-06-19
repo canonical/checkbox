@@ -61,6 +61,7 @@ include:
     screenshot_after_suspend.jpg
     disk/disk_stress_ng_.*
     stress/cpu_stress_ng_test
+    after-suspend-thunderbolt3/storage-preinserted
 
 id: sru
 _name: All SRU Tests (Ubuntu Desktop)
@@ -90,6 +91,7 @@ include:
     miscellanea/fan_stress_reaction
     networking/http
     networking/gateway_ping
+    thunderbolt3/storage-preinserted
 nested_part:
     info-attachment-cert-full
     bluetooth-cert-automated

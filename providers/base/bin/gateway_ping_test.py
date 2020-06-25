@@ -57,12 +57,12 @@ class Route:
         try:
             with open("/proc/net/route", "rt") as stream:
                 route = stream.read()
-        except:
+        except Exception:
             logging.error(_("Failed to read def gateway from /proc"))
             return None
         else:
-            h = re.compile("\n(?P<interface>\w+)\s+00000000\s+"
-                           "(?P<def_gateway>[\w]+)\s+")
+            h = re.compile(r"\n(?P<interface>\w+)\s+00000000\s+"
+                           r"(?P<def_gateway>[\w]+)\s+")
             w = h.search(route)
             if w:
                 if w.group("def_gateway"):
@@ -87,7 +87,7 @@ class Route:
         routebin = subprocess.getstatusoutput(
             "export LANGUAGE=C; " "/usr/bin/env route -n")
         if routebin[0] == 0:
-            h = re.compile("\n0.0.0.0\s+(?P<def_gateway>[\w.]+)\s+")
+            h = re.compile(r"\n0.0.0.0\s+(?P<def_gateway>[\w.]+)\s+")
             w = h.search(routebin[1])
             if w:
                 def_gateway = w.group("def_gateway")
@@ -109,8 +109,8 @@ class Route:
 def get_host_to_ping(interface=None, verbose=False, default=None):
     # Get list of all IPs from all my interfaces,
     interface_list = subprocess.check_output(["ip", "-o", 'addr', 'show'])
-    reg = re.compile('\d: (?P<iface>\w+) +inet (?P<address>[\d\.]+)/'
-                     '(?P<netmask>[\d]+) brd (?P<broadcast>[\d\.]+)')
+    reg = re.compile(r'\d: (?P<iface>\w+) +inet (?P<address>[\d\.]+)/'
+                     r'(?P<netmask>[\d]+) brd (?P<broadcast>[\d\.]+)')
     # Will magically exclude lo because it lacks brd field
     interfaces = reg.findall(interface_list.decode())
     # ping -b the network on each one (one ping only)
@@ -151,12 +151,12 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
     while num_tries < ARP_POPULATE_TRIES:
         # Get output from arp -a -n to get known IPs
         known_ips = subprocess.check_output(["arp", "-a", "-n"])
-        reg = re.compile('\? \((?P<ip>[\d.]+)\) at (?P<mac>[a-f0-9\:]+) '
-                         '\[ether\] on (?P<iface>[\w\d]+)')
+        reg = re.compile(r'\? \((?P<ip>[\d.]+)\) at (?P<mac>[a-f0-9\:]+) '
+                         r'\[ether\] on (?P<iface>[\w\d]+)')
         # Filter (if needed) IPs not on the specified interface
         pingable_ips = [pingable[0] for pingable in reg.findall(
-                        known_ips.decode()) if not interface
-                        or pingable[2] == interface]
+                        known_ips.decode()) if not interface or
+                        pingable[2] == interface]
         # If the default given ip is among the remaining ones,
         # ping that.
         if default and default in pingable_ips:

@@ -318,13 +318,15 @@ template-unit: job
 id: docker/deploy-registry_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires:
+ snap.name == 'docker'
+ executable.name == 'htpasswd'
 command:
  set -e
  #A readable&writable path for docker snap
  auth_folder=/var/snap/docker/common/auth
  mkdir -p $auth_folder
- docker run --entrypoint htpasswd registry:2 -Bbn user passwd > $auth_folder/htpasswd
+ htpasswd -Bbn user passwd > $auth_folder/htpasswd
  docker run -d -p 5000:5000 --restart=always --name registry \
    -v $auth_folder:/auth \
    -e "REGISTRY_AUTH=htpasswd" \

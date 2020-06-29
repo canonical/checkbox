@@ -326,6 +326,8 @@ parts:
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-docker
+    stage-packages:
+      - apache2-utils
     after: [plainbox-provider-ipdt]
     override-build: |
       provider_path=""

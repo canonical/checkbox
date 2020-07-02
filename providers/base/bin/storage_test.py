@@ -45,7 +45,7 @@ def mount(source, target):
 
 
 def unmount(target):
-    cmd = 'unmount {}'.format(target)
+    cmd = 'umount {}'.format(target)
     print('+', cmd, flush=True)
     sp.check_call(cmd, shell=True)
 

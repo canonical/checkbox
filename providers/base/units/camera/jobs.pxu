@@ -61,6 +61,7 @@ _description:
      2. Camera LED should light for a few seconds
  VERIFICATION:
      Did the camera LED light?
+flags: also-after-suspend-manual
 
 unit: template
 template-resource: device

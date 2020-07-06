@@ -217,6 +217,8 @@ _description:
      either turned off and on or changed colors.
  VERIFICATION:
      Did the Audio LED turn on and off or change color as expected?
+flags: also-after-suspend
+       also-after-suspend-manual
 
 plugin: manual
 category_id: led
@@ -232,6 +234,8 @@ _description:
      determine if it either turned off and on or changed colors.
  VERIFICATION:
      Did the Microphone Mute LED turn on and off or change color as expected?
+flags: also-after-suspend
+       also-after-suspend-manual
 
 id: led/serial
 _summary: Serial ports LED behavior

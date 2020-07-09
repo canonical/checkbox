@@ -1,0 +1,36 @@
+id: nvdimm-only
+_name: Nvdimm Only Test Plan (Only tests memory and storage)
+unit: test plan
+_description:
+    This test plan is intended to be used for retesting of nvdimm devices in
+    storage and memory modes only.  It does not provide any testing of other 
+    hardware and should only be run at the direction of the Cert Team when 
+    re-testing nvdimm devices is required.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
+    com.canonical.certification::nvdimm-full
+include:
+    info/hdparm_.*.txt                         certification-status=non-blocker
+    benchmarks/disk/hdparm-read_.*             certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
+    disk/detect                                certification-status=blocker
+    disk/stats_.*                              certification-status=blocker
+    disk/read_performance_.*                   certification-status=blocker
+    disk/smart_.*                              certification-status=non-blocker
+    disk/fstrim_.*                             certification-status=non-blocker
+    disk/disk_stress_ng_.*                     certification-status=blocker
+    disk/disk_cpu_load_.*                      certification-status=non-blocker
+    mediacard/sd-preinserted-server            certification-status=blocker
+    memory/info                                certification-status=blocker
+    memory/memory_stress_ng                    certification-status=blocker
+    miscellanea/oops                           certification-status=non-blocker
+    miscellanea/oops_results.log               certification-status=non-blocker
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    fwts

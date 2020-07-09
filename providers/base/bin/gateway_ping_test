@@ -138,11 +138,12 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
     try:
         output = subprocess.check_output(cmd, shell=True)
         for line in output.decode(sys.stdout.encoding).splitlines():
-            key, val = line.strip().split(':', maxsplit=1)
-            if key == "Gateway":
-                subprocess.check_output(["ping", "-q", "-c", "1", val],
-                                        stderr=subprocess.STDOUT)
-                break
+            vals = line.strip().split(' ')
+            if len(vals) >= 2:
+                if vals[0] == 'Gateway:':
+                    subprocess.check_output(["ping", "-q", "-c", "1", vals[1]],
+                                            stderr=subprocess.STDOUT)
+                    break
     except subprocess.CalledProcessError:
         pass
     ARP_POPULATE_TRIES = 10

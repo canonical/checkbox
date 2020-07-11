@@ -1,0 +1,4 @@
+debian/tmp/usr/share/checkbox-provider-gpgpu/*
+debian/tmp/usr/share/plainbox-providers-1/*.provider
+usr/bin/test-gpgpu
+tools/gpu-setup /usr/bin/

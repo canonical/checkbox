@@ -7,7 +7,6 @@ usr/bin/certify-vm-20.04
 usr/bin/test-firmware
 usr/bin/test-functional-18.04
 usr/bin/test-functional-20.04
-usr/bin/test-gpgpu
 usr/bin/test-memory
 usr/bin/test-network
 usr/bin/test-network-underspeed

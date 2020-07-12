@@ -47,7 +47,7 @@ id: input/accelerometer
 estimated_duration: 60.0
 user: root
 requires: device.category == 'ACCELEROMETER'
-command: accelerometer_test -m
+command: accelerometer_test.py -m
 _description:
  PURPOSE:
      This test will test your accelerometer to see if it is detected

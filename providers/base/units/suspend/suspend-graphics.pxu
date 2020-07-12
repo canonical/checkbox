@@ -125,7 +125,7 @@ depends:
 requires: package.name == 'nux-tools'
 command:
  source graphics_env {{ driver }} {{ index }}
- ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+ ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
 _description: Check that {{ product }} hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support for {{ product }} after suspend

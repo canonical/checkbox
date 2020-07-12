@@ -51,7 +51,7 @@ estimated_duration: 120.0
 requires:
  optical_drive_{name}.cd_write == 'supported'
 user: root
-command: set -o pipefail; optical_write_test /dev/{name} cd | ansi_parser
+command: set -o pipefail; optical_write_test /dev/{name} cd | ansi_parser.py
 _description:
  PURPOSE:
      This test will check your system's {product} CD writing capabilities. This test requires a blank CD-R or CD+R.
@@ -73,7 +73,7 @@ estimated_duration: 120.0
 requires:
  optical_drive_{name}.cd_write == 'supported'
 user: root
-command: set -o pipefail; optical_write_test /dev/{name} cd | ansi_parser
+command: set -o pipefail; optical_write_test /dev/{name} cd | ansi_parser.py
 _description:
  This is an automated version of optical/cdrom-write. It assumes you have already inserted a data CD into your {product} optical drive prior to running Checkbox.
 
@@ -111,7 +111,7 @@ requires:
  optical_drive_{name}.dvd_write == 'supported'
 estimated_duration: 120.0
 user: root
-command: set -o pipefail; optical_write_test /dev/{name} dvd | ansi_parser
+command: set -o pipefail; optical_write_test /dev/{name} dvd | ansi_parser.py
 _description:
  PURPOSE:
      This test will check your system's {product} writing capabilities. This test requires a blank DVD-R or DVD+R.
@@ -133,7 +133,7 @@ estimated_duration: 120.0
 requires:
  optical_drive_{name}.dvd_write == 'supported'
 user: root
-command: set -o pipefail; optical_write_test /dev/{name} dvd | ansi_parser
+command: set -o pipefail; optical_write_test /dev/{name} dvd | ansi_parser.py
 _description:
  This is an automated version of optical/dvd-write. It assumes you have already inserted a data DVD into your {product} optical drive prior to running Checkbox.
 
@@ -186,7 +186,7 @@ requires:
  optical_drive_{name}.bd_write == "supported"
  package.name == "growisofs"
 user: root
-command: set -o pipefail; optical_write_test /dev/{name} bd | ansi_parser
+command: set -o pipefail; optical_write_test /dev/{name} bd | ansi_parser.py
 estimated_duration: 120.00
 _description:
  PURPOSE:

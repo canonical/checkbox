@@ -35,10 +35,10 @@ dd if=/dev/urandom of=$ORIGIN count=$SIZEKB bs=1024
 ORIGIN_SUM=$(sha256sum $ORIGIN | cut -f 1 -d ' ')
 set -o pipefail
 echo "Sending file using Bluetooth"
-time obexftp -v -b $BTDEVADDR -o $REMOTE --put $ORIGIN 2>&1 | ansi_parser
+time obexftp -v -b $BTDEVADDR -o $REMOTE --put $ORIGIN 2>&1 | ansi_parser.py
 sleep 5
 echo "Receiving file using Bluetooth"
-time obexftp -v -b $BTDEVADDR -o $DESTINATION --get $REMOTE 2>&1 | ansi_parser
+time obexftp -v -b $BTDEVADDR -o $DESTINATION --get $REMOTE 2>&1 | ansi_parser.py
 # Now checksum destination and compare
 DESTINATION_SUM=$(sha256sum $DESTINATION | cut -f 1 -d ' ')
 # Clean up before reporting

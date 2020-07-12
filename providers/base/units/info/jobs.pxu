@@ -19,9 +19,9 @@ category_id: com.canonical.plainbox::info
 user: root
 command:
  if [ -e /var/log/dmesg ]; then
-  cat /var/log/dmesg | ansi_parser
+  cat /var/log/dmesg | ansi_parser.py
  else
-  dmesg | ansi_parser
+  dmesg | ansi_parser.py
  fi
 estimated_duration: 0.640
 _description: Attaches a copy of /var/log/dmesg or the current dmesg buffer to the test results

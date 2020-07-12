@@ -258,7 +258,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.131
 _description: Check that {vendor} {product} hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support for {vendor} {product}
@@ -373,7 +373,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screenshot_{product_slug}
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg -q 2>&1 | ansi_parser
+command: set -o pipefail; camera_test still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg -q 2>&1 | ansi_parser.py
 _summary: Test grabbing a screenshot for {vendor} {product}
 _description:
  PURPOSE:
@@ -404,7 +404,7 @@ command:
  gsettings set org.gnome.totem repeat true
  totem --fullscreen $PLAINBOX_PROVIDER_DATA/video/Ogg_Theora_Video.ogv 2>/dev/null &
  set -o pipefail
- sleep 15 && camera_test still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg -q 2>&1 | ansi_parser
+ sleep 15 && camera_test still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg -q 2>&1 | ansi_parser.py
  sleep 5 && pkill totem
  gsettings set org.gnome.totem repeat false
 _summary: Test FSV screenshot for {vendor} {product}

@@ -119,7 +119,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser.py
 _summary: Bluetooth OBEX send before suspend
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
@@ -148,7 +148,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser.py
 _summary: Bluetooth OBEX browse before suspend
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
@@ -177,7 +177,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser.py
 _summary: Bluetooth OBEX get before suspend
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
@@ -966,7 +966,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -995,7 +995,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -1024,7 +1024,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -1053,7 +1053,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -1082,7 +1082,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -1111,7 +1111,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -1223,7 +1223,7 @@ id: suspend/screenshot_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser
+command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser.py
 _description:
  PURPOSE:
      Take a screengrab of the current screen after suspend (logged on Unity desktop)
@@ -2123,7 +2123,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_gl_support_after_suspend_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
 _description: Check that {product} hardware is able to run a desktop session (OpenGL) after suspend
 _summary: Test OpenGL support for {product} after suspend
@@ -2133,7 +2133,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/gl_support_after_suspend
 depends: suspend/suspend_advanced
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
 _description: Check that the hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support after suspend

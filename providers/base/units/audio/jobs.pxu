@@ -19,11 +19,11 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
   gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -51,11 +51,11 @@ requires:
  package.name == 'pulseaudio-utils'
 flags: also-after-suspend-manual
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     HDMI audio interface verification
@@ -80,11 +80,11 @@ requires:
  package.name == 'pulseaudio-utils'
 flags: also-after-suspend-manual
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     DisplayPort audio interface verification
@@ -110,11 +110,11 @@ requires:
  package.name == 'pulseaudio-utils'
 flags: also-after-suspend-manual
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Thunderbolt audio interface verification
@@ -140,11 +140,11 @@ requires:
  package.name == 'pulseaudio-utils'
 flags: also-after-suspend-manual
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Thunderbolt audio interface verification
@@ -171,11 +171,11 @@ requires:
  package.name == 'pulseaudio-utils'
 flags: also-after-suspend-manual
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     DisplayPort audio via USB Type-C port interface verification
@@ -202,11 +202,11 @@ requires:
  package.name == 'pulseaudio-utils'
 flags: also-after-suspend-manual
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     HDMI audio via USB Type-C port interface verification
@@ -227,11 +227,11 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
   gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -253,11 +253,11 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
   alsa_record_playback.sh
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -280,11 +280,11 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 command:
- audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --device=pci --volume=50
+ audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --device=pci --volume=50
  alsa_record_playback.sh
  EXIT_CODE=$?
- audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -306,11 +306,11 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=usb --volume=50
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=usb --volume=50
   alsa_record_playback.sh
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -415,11 +415,11 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
   alsa_record_playback.sh
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -485,11 +485,11 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
-    audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-    audio_settings set --device=pci --volume=50
+    audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+    audio_settings.py set --device=pci --volume=50
     gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
-    audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+    audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
     exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -513,11 +513,11 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
   gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -552,11 +552,11 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
   gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -614,7 +614,7 @@ requires:
  package.name == 'alsa-base'
 _description: Record mixer settings after suspending 30 times.
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles
   diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles
 
 id: audio/detect-playback-devices

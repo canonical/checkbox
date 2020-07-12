@@ -98,14 +98,14 @@ id: bluetooth/audio-a2dp
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   idx=`pactl list cards short | awk '/bluez/{print $1}'`
   bt_sink=`pactl list sinks short | awk '/bluez/{print $2}'`
   pactl set-card-profile $idx a2dp
   pactl set-default-sink $bt_sink
   gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:

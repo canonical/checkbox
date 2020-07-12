@@ -123,7 +123,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio
 depends: bluetooth/detect-output
 estimated_duration: 120.0
-command: audio_bluetooth_loopback_test
+command: audio_bluetooth_loopback_test.sh
 _description:
  PURPOSE:
      This test will check the Telephony Duplex capability of your bluetooth device,

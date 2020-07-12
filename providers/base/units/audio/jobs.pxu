@@ -334,7 +334,7 @@ requires:
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
  device.category == 'AUDIO'
-command: audio_test
+command: audio_test.py
 _description:
  Play back a sound on the default output and listen for it on the
  default input.
@@ -582,7 +582,7 @@ requires:
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
  device.category == 'AUDIO'
-command: audio_test
+command: audio_test.py
 _description:
  Play back a sound on the default output and listen for it on the
  default input, after suspending 30 times.

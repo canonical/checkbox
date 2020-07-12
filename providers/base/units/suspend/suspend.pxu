@@ -1189,7 +1189,7 @@ requires:
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
  device.category == 'AUDIO'
-command: audio_test
+command: audio_test.py
 _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
@@ -1206,7 +1206,7 @@ requires:
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
  device.category == 'AUDIO'
-command: audio_test
+command: audio_test.py
 _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 

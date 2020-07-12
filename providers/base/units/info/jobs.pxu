@@ -303,7 +303,7 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'kmod' or package.name == 'module-init-tools'
  device.category == 'AUDIO'
-command: audio_driver_info
+command: audio_driver_info.py
 estimated_duration: 0.177
 _description: Lists the device driver and version for all audio devices.
 

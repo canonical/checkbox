@@ -231,7 +231,7 @@ flags: also-after-suspend-manual
 command:
  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings set --device=pci --volume=50
- alsa_record_playback
+ alsa_record_playback.sh
  EXIT_CODE=$?
  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE

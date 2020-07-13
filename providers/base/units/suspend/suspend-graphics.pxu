@@ -200,7 +200,7 @@ depends:
  {%- endif %}
 command:
  source graphics_env {{ driver }} {{ index }}
- graphics_driver
+ graphics_driver.py
 estimated_duration: 0.500
 _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {{ vendor }} {{ product }} graphics card
 _summary: Test X driver/version after suspend for {{ vendor }} {{ product }}

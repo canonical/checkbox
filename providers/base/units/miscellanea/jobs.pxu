@@ -203,7 +203,7 @@ requires:
  cpuinfo.platform != 's390x'
 estimated_duration: 0.5
 user: root
-command: bmc_info
+command: bmc_info.py
 _description:
  This will gather some info about the BMC itself for diagnostic purposes. This
  will not works on non-IPMI systems like AMT and blade/sled type systems.

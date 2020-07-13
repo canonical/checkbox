@@ -542,3 +542,47 @@ user: root
 _summary: Attach pm-graph logs (s3)
 command:
  tar Jcf $PLAINBOX_SESSION_SHARE/s3_pm-graph_30.tar.xz $PLAINBOX_SESSION_SHARE/s3_pm-graph && cat $PLAINBOX_SESSION_SHARE/s3_pm-graph_30.tar.xz
+
+unit: job
+id: stress/wireless_bluetooth_coex_connect_stress
+_summary: Connect to 802.11n Wi-Fi network when Bluetooth is connected
+_purpose:
+ Check stability of connect to 2.4GHz 802.11n AP when Bluetooth is connected
+_steps:
+ 1. Connect to BT device (keyboard|mouse|headset|...)
+ 2. Make sure the BT device function works
+_verification:
+ The verification of this test is automated.
+plugin: user-interact
+command:
+ set -e
+ echo "How many times would you like to test? [default=1000]:"
+ read -t 20 -r NUM || NUM=1000
+ echo "Test AP SSID? [default=WPA_N_SSID]:"
+ read -t 20 -r SSID || SSID=${WPA_N_SSID}
+ echo "Test AP password? [default=WPA_N_PSK]:"
+ read -t 20 -r PSK || PSK=${WPA_N_PSK}
+ [ -n "${NUM}" ] || NUM=1000
+ [ -n "${SSID}" ] || SSID=${WPA_N_SSID}
+ [ -n "${PSK}" ] || PSK=${WPA_N_PSK}
+ for n in $(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*"); do
+     nmcli c delete ${n}
+ done
+ nmcli d wifi connect ${SSID} password ${PSK}
+ UUID=$(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*")
+ i=1
+ while [ ! $i -gt $NUM ]
+ do
+     echo "Connect/Disconnect Round ${i}"
+     nmcli c up uuid ${UUID}
+     sleep 5
+     if nmcli | grep ^wl | grep -q disconnected; then
+         exit 1
+     fi
+     nmcli c down uuid ${UUID}
+     sleep 3
+     i=$((i+1))
+ done
+environ: WPA_N_SSID WPA_N_PSK
+category_id: com.canonical.plainbox::stress
+flags: preserve-locale also-after-suspend-manual

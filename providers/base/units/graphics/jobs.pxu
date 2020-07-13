@@ -169,7 +169,7 @@ template-resource: graphics_card
 id: graphics/{index}_fresh_rate_{product_slug}
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-command: fresh_rate_info
+command: fresh_rate_info.py
 _description: Collect info on fresh rate for {vendor} {product}.
 _summary: Test refresh rate for {vendor} {product}
 

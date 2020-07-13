@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# fresh_rate_info
+# fresh_rate_info.py
 #
 # This file is part of Checkbox.
 #
@@ -23,7 +23,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    The fresh_rate_info got information from xrandr
+    The fresh_rate_info.py got information from xrandr
 """
 
 import re

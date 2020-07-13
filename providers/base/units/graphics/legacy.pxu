@@ -110,7 +110,7 @@ _summary: Collect info on color depth and pixel format.
 id: graphics/fresh_rate
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-command: fresh_rate_info
+command: fresh_rate_info.py
 _description: Collect info on fresh rate.
 _summary: Collect info on fresh rate.
 

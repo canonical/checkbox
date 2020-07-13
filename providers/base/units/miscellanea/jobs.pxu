@@ -193,7 +193,7 @@ _summary: Test that kernel is not tainted
 _description:
  Test to verify that the kernel is not tainted by out-of-tree
  drivers, live patches, proprietary modules, etc.
-command: kernel_taint_test
+command: kernel_taint_test.py
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

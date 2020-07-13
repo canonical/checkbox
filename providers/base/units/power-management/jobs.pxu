@@ -173,7 +173,7 @@ requires: package.name == 'upower'
 depends: power-management/unplug_ac
 _description: Checks the battery drain during idle. Reports time and capacity until empty.
 command:
- battery_test -t 90 --idle
+ battery_test.py -t 90 --idle
 
 plugin: shell
 category_id: com.canonical.plainbox::power-management
@@ -184,7 +184,7 @@ requires:
 depends: power-management/unplug_ac
 _description: Checks the battery drain while watching a movie. Reports time and capacity until empty. Requires MOVIE_VAR to be set.
 command:
- battery_test -t 90 --movie $MOVIE_VAR
+ battery_test.py -t 90 --movie $MOVIE_VAR
 
 plugin: shell
 category_id: com.canonical.plainbox::power-management
@@ -197,7 +197,7 @@ requires:
 depends: power-management/unplug_ac
 _description: Checks the battery drain during suspend. Reports time and capacity until empty.
 command:
- battery_test -t 120 --sleep
+ battery_test.py -t 120 --sleep
 
 plugin: manual
 category_id: com.canonical.plainbox::power-management

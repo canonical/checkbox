@@ -258,7 +258,7 @@ id: miscellanea/is_laptop
 user: root
 _description:
     Determine if we need to run tests specific to portable computers that may not apply to desktops.
-command: check_is_laptop
+command: check_is_laptop.sh
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

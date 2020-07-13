@@ -980,7 +980,7 @@ plugin: user-interact-verify
 category_id: dock-hotplug
 id: dock/hotplug-ethernet
 depends: dock/hot-plug
-command: network_check
+command: network_check.py
 estimated_duration: 10
 _description:
  PURPOSE:
@@ -2023,7 +2023,7 @@ plugin: user-interact-verify
 category_id: dock-hotplug
 id: dock/hotplug-ethernet-after-suspend
 depends: suspend/suspend_advanced
-command: network_check
+command: network_check.py
 estimated_duration: 10
 _description:
  PURPOSE:
@@ -2152,7 +2152,7 @@ plugin: user-interact-verify
 category_id: suspend-dock-resume
 id: dock/ethernet-after-suspend-dock-resume
 depends: dock/suspend-dock-resume
-command: network_check
+command: network_check.py
 estimated_duration: 10
 _description:
  PURPOSE:

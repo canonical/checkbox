@@ -27,7 +27,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::networking
 id: networking/modem_connection
-command: network_check
+command: network_check.py
 _description:
  PURPOSE:
     This test will check that a DSL modem can be configured and connected.

@@ -42,7 +42,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/wired_connection
-command: network_check
+command: network_check.py
 estimated_duration: 1.2
 _description:
  PURPOSE:

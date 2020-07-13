@@ -25,7 +25,7 @@ system booted from the network (test passes) or from a local disk
 (test fails).
 
 Usage:
-   efi-pxeboot
+   efi-pxeboot.py
 """
 
 import os

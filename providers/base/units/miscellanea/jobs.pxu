@@ -173,7 +173,7 @@ _summary: Test that system booted from the network
 _description:
  Test to verify that the system booted from the network.
  Works only on EFI-based systems.
-command: efi-pxeboot
+command: efi-pxeboot.py
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

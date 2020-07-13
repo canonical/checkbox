@@ -99,7 +99,7 @@ category_id: com.canonical.plainbox::cpu
 id: cpu/frequency_governors
 estimated_duration: 22.0
 user: root
-command: nice -n -20 frequency_governors_test --debug
+command: nice -n -20 frequency_governors_test.py --debug
 _description:
  This test checks that CPU frequency governors are obeyed when set.
 

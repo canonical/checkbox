@@ -75,7 +75,7 @@ category_id: com.canonical.plainbox::cpu
 id: cpu/offlining_test
 estimated_duration: 128.0
 user: root
-command: cpu_offlining
+command: cpu_offlining.py
 _summary:
  Test offlining of each CPU core
 _description:

@@ -41,7 +41,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
 flags: also-after-suspend-manual
 user: root
-command: key_test -s '0xe02e,0xe0ae:Volume Down' '0xe030,0xe0b0:Volume Up'
+command: key_test.py -s '0xe02e,0xe0ae:Volume Down' '0xe030,0xe0b0:Volume Up'
 _description:
  PURPOSE:
      This test will test the volume keys of your keyboard
@@ -60,7 +60,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
 flags: also-after-suspend-manual
 user: root
-command: key_test -s '0xe020,0xe0a0:Mute'
+command: key_test.py -s '0xe020,0xe0a0:Mute'
 _description:
  PURPOSE:
      This test will test the mute key of your keyboard
@@ -94,7 +94,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
 flags: also-after-suspend-manual
 user: root
-command: key_test -s '0xe071,0xef1:Battery Info'
+command: key_test.py -s '0xe071,0xef1:Battery Info'
 _description:
  PURPOSE:
      This test will test the battery information key
@@ -136,7 +136,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
 flags: also-after-suspend-manual
 user: root
-command: key_test -s 0xe010,0xe090:Previous 0xe024,0xe0a4:Stop 0xe019,0xe099:Next 0xe022,0xe0a2:Play
+command: key_test.py -s 0xe010,0xe090:Previous 0xe024,0xe0a4:Stop 0xe019,0xe099:Next 0xe022,0xe0a2:Play
 _description:
  PURPOSE:
      This test will test the media keys of your keyboard
@@ -155,7 +155,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
 flags: also-after-suspend-manual
 user: root
-command: key_test -s '0xe05b,0xe0db:Left Super Key'
+command: key_test.py -s '0xe05b,0xe0db:Left Super Key'
 _description:
  PURPOSE:
      This test will test the super key of your keyboard

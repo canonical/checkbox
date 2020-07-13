@@ -68,7 +68,7 @@ requires:
  package.name == 'nmap' or executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network test -i {interface} -t iperf --scan-timeout 3600 --fail-threshold 80 --runtime 900 --num_runs 4
+command: network.py test -i {interface} -t iperf --scan-timeout 3600 --fail-threshold 80 --runtime 900 --num_runs 4
 _description:
  This test uses iperf to ensure network devices pass data at an acceptable
  minimum percentage of advertized speed.
@@ -87,7 +87,7 @@ requires:
  package.name == 'nmap' or executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
 _description:
  This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertized speed.
@@ -106,7 +106,7 @@ requires:
  package.name == 'nmap' or executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4 --underspeed-ok
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4 --underspeed-ok
 _description:
  This is the standard Multi-NIC Iperf3 test with the speed check disabled
  for retesting systems that are incorrectly reporting supported speeds.
@@ -154,7 +154,7 @@ requires:
  package.name == 'iperf'
 user: root
 environ: TEST_TARGET_IPERF
-command: network test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'ethernet max bw {interface}'
+command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'ethernet max bw {interface}'
 _purpose:
  User verification of whether the observed transfer throughput is acceptable
  for the type and maximum speed of each ethernet interface.
@@ -175,7 +175,7 @@ _summary: Stress and performance test of ethernet device {__index__} ({interface
 estimated_duration: 330.0
 requires:
  package.name == 'ethtool'
-command: network test -i {interface} -t stress
+command: network.py test -i {interface} -t stress
 _description:
  Automated test that tests performance of ethernet device {__index__} ({interface}).
 
@@ -415,7 +415,7 @@ user: root
 environ:
  TEST_TARGET_IPERF
  LD_LIBRARY_PATH
-command: network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4
 _description:
  This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertized speed.
@@ -433,7 +433,7 @@ user: root
 environ:
  TEST_TARGET_IPERF
  LD_LIBRARY_PATH
-command: network test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 50 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4 --reverse
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 50 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4 --reverse
 _description:
  This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertized speed (Reverse).

@@ -60,7 +60,7 @@ requires:
  package.name == 'iperf'
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command: network test -i {interface} -t iperf
+command: network.py test -i {interface} -t iperf
 _summary: Before suspend iperf test ethernet {interface}
 _description:
  This test executes iperf connection performance/stability against device {__index__} ({interface}) before suspend.
@@ -75,7 +75,7 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network test -i $INTERFACE -t iperf
+ network.py test -i $INTERFACE -t iperf
 _summary: Before suspend iperf test GSM mobilebroadband
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
@@ -90,7 +90,7 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network test -i $INTERFACE -t iperf
+ network.py test -i $INTERFACE -t iperf
 _summary: Before suspend iperf test CDMA mobilebroadband
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
@@ -627,7 +627,7 @@ requires:
  package.name == 'iperf'
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command: network test -i {interface} -t iperf
+command: network.py test -i {interface} -t iperf
 _description:
  This test executes iperf connection performance/stability against device {__index__} ({interface}) after suspend.
 
@@ -643,7 +643,7 @@ requires:
  package.name == 'iperf'
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
-command: network test -i {interface} -t iperf
+command: network.py test -i {interface} -t iperf
 _description:
  This test executes iperf connection performance/stability against device {__index__} ({interface}) after suspend.
 
@@ -657,7 +657,7 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network test -i $INTERFACE -t iperf
+ network.py test -i $INTERFACE -t iperf
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 
@@ -671,7 +671,7 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network test -i $INTERFACE -t iperf
+ network.py test -i $INTERFACE -t iperf
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 

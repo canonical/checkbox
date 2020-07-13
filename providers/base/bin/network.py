@@ -710,17 +710,17 @@ This script provides benchmarking and information for a specified network
 interface.
 
 Example NIC information usage:
-network info -i eth0 --max-speed
+network.py info -i eth0 --max-speed
 
 For running iperf test:
-network test -i eth0 -t iperf --target 192.168.0.1
+network.py test -i eth0 -t iperf --target 192.168.0.1
 NOTE: The iperf test requires an iperf server running on the same network
 segment that the test machine is running on.
 
 Also, you can use iperf3 rather than iperf2 by specifying the -3 or --iperf3
 option like so:
 
-network test -i eth0 -t iperf -3 --target 192.168.0.1
+network.py test -i eth0 -t iperf -3 --target 192.168.0.1
 
 Configuration
 =============

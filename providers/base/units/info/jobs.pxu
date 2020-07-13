@@ -317,7 +317,7 @@ _description: Provides information about network devices
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/mobile_broadband_info
-command: broadband_info
+command: broadband_info.sh
 estimated_duration: 0.5
 _description: Provides information about wwan/mobile broadband devices
 

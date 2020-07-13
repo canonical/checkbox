@@ -119,7 +119,7 @@ requires:
 _summary: Test that system booted in EFI mode
 _description:
  Test to verify that the system booted in EFI mode with Secure Boot active.
-command: boot_mode_test efi
+command: boot_mode_test.py efi
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -131,7 +131,7 @@ depends: miscellanea/efi_boot_mode
 _summary: Test that system booted with Secure Boot active
 _description:
  Test to verify that the system booted in Secure Boot active.
-command: boot_mode_test secureboot
+command: boot_mode_test.py secureboot
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -143,7 +143,7 @@ depends: miscellanea/efi_boot_mode
 _summary: Test that system supports booting into firmware setup utility
 _description:
  Test that the system supports rebooting into the firmware setup utility.
-command: boot_mode_test reboot_firmware
+command: boot_mode_test.py reboot_firmware
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

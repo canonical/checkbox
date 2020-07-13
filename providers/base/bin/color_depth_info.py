@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# color_depth_info
+# color_depth_info.py
 #
 # This file is part of Checkbox.
 #

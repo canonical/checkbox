@@ -159,7 +159,7 @@ template-resource: graphics_card
 id: graphics/{index}_color_depth_{product_slug}
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-command: color_depth_info
+command: color_depth_info.py
 estimated_duration: 0.150
 _description: Collect info on color depth and pixel format for {vendor} {product}
 _summary: Test color depth info for {vendor} {product}

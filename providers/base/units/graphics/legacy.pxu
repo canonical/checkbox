@@ -102,7 +102,7 @@ _summary: Collect info on graphics modes
 id: graphics/color_depth
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-command: color_depth_info
+command: color_depth_info.py
 estimated_duration: 0.150
 _description: Collect info on color depth and pixel format.
 _summary: Collect info on color depth and pixel format.

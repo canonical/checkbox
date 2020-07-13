@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# graphics_stress_test
+# graphics_stress_test.py
 #
 # This file is part of Checkbox.
 #

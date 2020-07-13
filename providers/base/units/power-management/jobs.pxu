@@ -345,7 +345,7 @@ id: power-management/light_sensor
 estimated_duration: 10.0
 requires: dmi.product in ['Notebook','Laptop','Portable'] and executable.name == 'monitor-sensor'
 flags: also-after-suspend-manual
-command: light_sensor_test
+command: light_sensor_test.sh
 _description:
 _purpose:
     This test will check your Ambient Light Sensor work, if you don't have it, please skip this test.

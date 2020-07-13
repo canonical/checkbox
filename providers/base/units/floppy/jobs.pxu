@@ -1,9 +1,0 @@
-unit: template
-template-resource: device
-template-filter: device.driver == 'floppy'
-plugin: shell
-category_id: com.canonical.plainbox::floppy
-id: floppy/check_{name}
-_description: Floppy test for {product}
-user: root
-command: floppy_test /dev/{name}

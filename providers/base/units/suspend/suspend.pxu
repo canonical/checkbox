@@ -1249,7 +1249,7 @@ requires:
  package.name == 'firefox'
  package.name == 'unity'
 depends: suspend/suspend_advanced_auto
-command: gpu_test
+command: gpu_test.py
 _description:
  PURPOSE:
      Do some challenging operations then check for lockup on the GPU

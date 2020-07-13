@@ -458,7 +458,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.2
 _summary: attach network configuration
-command: network_configs
+command: network_configs.sh
 
 id: parts_meta_info_attachment
 plugin: attachment

@@ -23,8 +23,8 @@
 # stress-ng program.
 #
 # Usage:
-#   disk_cpu_load [ --max-load <load> ] [ --xfer <mebibytes> ]
-#                 [ --verbose ] [ <device-filename> ]
+#   disk_cpu_load.sh [ --max-load <load> ] [ --xfer <mebibytes> ]
+#                    [ --verbose ] [ <device-filename> ]
 #
 # Parameters:
 #  --max-load <load> -- The maximum acceptable CPU load, as a percentage.

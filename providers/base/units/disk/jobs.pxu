@@ -127,7 +127,7 @@ requires:
  package.name == 'bc' or executable.name == 'bc'
 _summary: Check of CPU load imposed by {product_slug}
 _description: Check to ensure CPU load of {product_slug} is not too high
-command: disk_cpu_load {name}
+command: disk_cpu_load.sh {name}
 
 plugin: shell
 category_id: com.canonical.plainbox::disk

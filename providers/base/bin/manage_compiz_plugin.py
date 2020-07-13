@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-manage_compiz_plugin
-====================
+manage_compiz_plugin.py
+=======================
 
 This script allows enabling or disabling compiz plugins using
 gsettings. Changes take effect on the fly.

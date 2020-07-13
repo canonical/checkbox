@@ -248,7 +248,7 @@ def serial_tests(args, stream, dmi_data):
 
 def main():
     """Main function."""
-    parser = ArgumentParser("dmitest")
+    parser = ArgumentParser()
     parser.add_argument('test_type',
                         help="Test type ('server', 'desktop' or 'cpu-check').",
                         choices=['server', 'desktop', 'cpu-check'])

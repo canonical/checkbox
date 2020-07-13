@@ -218,7 +218,7 @@ requires:
   dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
-command: dmitest cpu-check
+command: dmitest.py cpu-check
 _description:
  Sanity check of CPU information; fails if CPU is an engineering sample
 _summary:
@@ -232,7 +232,7 @@ requires:
   dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
-command: dmitest server
+command: dmitest.py server
 _description:
  Sanity check of DMI system identification data (for servers)
 _summary:
@@ -246,7 +246,7 @@ requires:
   dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
-command: dmitest --test_versions --test_serials desktop
+command: dmitest.py --test_versions --test_serials desktop
 _description:
  Sanity check of DMI system identification data (for desktops & laptops)
 _summary:

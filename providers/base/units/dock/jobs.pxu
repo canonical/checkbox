@@ -1540,7 +1540,7 @@ user: root
 environ: WPA_BG_SSID WPA_BG_PSK
 command:
     trap "nmcli con delete id $WPA_BG_SSID" EXIT
-    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+    if create_connection.py wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1564,7 +1564,7 @@ user: root
 environ: OPEN_BG_SSID
 command:
     trap "nmcli con delete id $OPEN_BG_SSID" EXIT
-    if create_connection wifi $OPEN_BG_SSID; then
+    if create_connection.py wifi $OPEN_BG_SSID; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1588,7 +1588,7 @@ user: root
 environ: WPA_N_SSID WPA_N_PSK
 command:
     trap "nmcli con delete id $WPA_N_SSID" EXIT
-    if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
+    if create_connection.py wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1612,7 +1612,7 @@ user: root
 environ: OPEN_N_SSID
 command:
     trap "nmcli con delete id $OPEN_N_SSID" EXIT
-    if create_connection wifi $OPEN_N_SSID; then
+    if create_connection.py wifi $OPEN_N_SSID; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1637,7 +1637,7 @@ user: root
 environ: WPA_AC_SSID WPA_AC_PSK
 command:
     trap "nmcli con delete id $WPA_AC_SSID" EXIT
-    if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
+    if create_connection.py wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1662,7 +1662,7 @@ user: root
 environ: OPEN_AC_SSID
 command:
     trap "nmcli con delete id $OPEN_AC_SSID" EXIT
-    if create_connection wifi $OPEN_AC_SSID; then
+    if create_connection.py wifi $OPEN_AC_SSID; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE

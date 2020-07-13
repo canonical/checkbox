@@ -687,7 +687,7 @@ user: root
 environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+    if create_connection.py wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
         connect_wireless.sh # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
@@ -727,7 +727,7 @@ user: root
 environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection wifi $ROUTER_SSID; then
+    if create_connection.py wifi $ROUTER_SSID; then
         connect_wireless.sh # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
@@ -767,7 +767,7 @@ user: root
 environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+    if create_connection.py wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
         connect_wireless.sh # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
@@ -807,7 +807,7 @@ user: root
 environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection wifi $ROUTER_SSID; then
+    if create_connection.py wifi $ROUTER_SSID; then
         connect_wireless.sh # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
@@ -847,7 +847,7 @@ user: root
 environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+    if create_connection.py wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
         connect_wireless.sh # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
@@ -887,7 +887,7 @@ user: root
 environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection wifi $ROUTER_SSID; then
+    if create_connection.py wifi $ROUTER_SSID; then
         connect_wireless.sh # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link

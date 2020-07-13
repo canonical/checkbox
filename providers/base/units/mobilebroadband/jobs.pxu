@@ -11,7 +11,7 @@ environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
 command:
   if [ -n "${GSM_APN}" ]; then
       trap "nmcli con delete id $GSM_CONN_NAME" EXIT
-      create_connection mobilebroadband gsm \
+      create_connection.py mobilebroadband gsm \
       `[ -n "${GSM_APN}" ] && echo "--apn=$GSM_APN"` \
       `[ -n "${GSM_CONN_NAME}" ] &&  echo "--name=$GSM_CONN_NAME"` \
       `[ -n "${GSM_USERNAME}" ] && echo "--username=$GSM_USERNAME"` \
@@ -41,7 +41,7 @@ environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
 command:
   if [ -n "${CDMA_USERNAME}" ]; then
       trap "nmcli con delete id $CDMA_CONN_NAME" EXIT
-      create_connection mobilebroadband cdma \
+      create_connection.py mobilebroadband cdma \
       `[ -n "${CDMA_CONN_NAME}" ] &&  echo "--name=$CDMA_CONN_NAME"` \
       `[ -n "${CDMA_USERNAME}" ] && echo "--username=$CDMA_USERNAME"` \
       `[ -n "${CDMA_PASSWORD}" ] && echo "--password=$CDMA_PASSWORD"` || exit 1

@@ -10,7 +10,7 @@ _purpose:
  Check system can connect to insecure 802.11ax AP using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $OPEN_AX_SSID -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_AX_SSID NET_DRIVER_INFO
@@ -34,7 +34,7 @@ _purpose:
  Check system can connect to insecure 802.11ac AP using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $OPEN_AC_SSID -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_AC_SSID NET_DRIVER_INFO
@@ -59,7 +59,7 @@ _purpose:
  Check system can connect to insecure 802.11b/g AP using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $OPEN_BG_SSID -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_BG_SSID NET_DRIVER_INFO
@@ -82,7 +82,7 @@ _purpose:
  Check system can connect to insecure 802.11n AP using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $OPEN_N_SSID -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_N_SSID NET_DRIVER_INFO
@@ -105,7 +105,7 @@ _purpose:
  Check system can connect to 802.11ax AP with wpa security using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $WPA_AX_SSID -k $WPA_AX_PSK -d
 user: root
 environ: LD_LIBRARY_PATH WPA_AX_SSID WPA_AX_PSK NET_DRIVER_INFO
@@ -129,7 +129,7 @@ _purpose:
  Check system can connect to 802.11ac AP with wpa security using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $WPA_AC_SSID -k $WPA_AC_PSK -d
 user: root
 environ: LD_LIBRARY_PATH WPA_AC_SSID WPA_AC_PSK NET_DRIVER_INFO
@@ -153,7 +153,7 @@ _purpose:
  Check system can connect to 802.11b/g AP with wpa security using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $WPA_BG_SSID -k $WPA_BG_PSK -d
 user: root
 environ: LD_LIBRARY_PATH WPA_BG_SSID WPA_BG_PSK NET_DRIVER_INFO
@@ -176,7 +176,7 @@ _purpose:
  Check system can connect to 802.11n AP with wpa security using netplan
 plugin: shell
 command:
-    net_driver_info $NET_DRIVER_INFO
+    net_driver_info.py $NET_DRIVER_INFO
     wifi_client_test_netplan.py -i {{ interface }} -s $WPA_N_SSID -k $WPA_N_PSK -d
 user: root
 environ: LD_LIBRARY_PATH WPA_N_SSID WPA_N_PSK NET_DRIVER_INFO

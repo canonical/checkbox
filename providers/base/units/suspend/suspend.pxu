@@ -1223,7 +1223,7 @@ id: suspend/screenshot_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser.py
+command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser.py
 _description:
  PURPOSE:
      Take a screengrab of the current screen after suspend (logged on Unity desktop)

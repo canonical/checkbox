@@ -218,7 +218,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/screenshot
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser.py
+command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser.py
 _summary: Test grabbing a screenshot
 _description:
  PURPOSE:
@@ -245,7 +245,7 @@ command:
  gsettings set org.gnome.totem repeat true
  totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
  set -o pipefail
- sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser.py
+ sleep 15 && camera_test.py still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser.py
  sleep 5 && totem --quit 2>/dev/null
  gsettings set org.gnome.totem repeat false
 _summary: Test FSV screenshot

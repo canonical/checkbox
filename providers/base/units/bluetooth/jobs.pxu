@@ -145,7 +145,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/HID
 depends: bluetooth/detect-output
 estimated_duration: 120.0
-command: keyboard_test
+command: keyboard_test.py
 _description:
  PURPOSE:
      This test will check that you can use a BlueTooth HID device

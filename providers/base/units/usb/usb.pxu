@@ -36,7 +36,7 @@ category_id: com.canonical.plainbox::usb
 id: usb/HID
 depends: usb/detect
 estimated_duration: 1.0
-command: keyboard_test
+command: keyboard_test.py
 _description:
  PURPOSE:
      This test will check that you can use a USB HID device

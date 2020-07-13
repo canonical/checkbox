@@ -611,7 +611,7 @@ id: dock/usb-HID
 category_id: dock-usb
 estimated_duration: 20.0
 _summary: USB HID device test
-command: keyboard_test
+command: keyboard_test.py
 _purpose:
     This test will check that you can use a USB HID device
 _steps:
@@ -1350,7 +1350,7 @@ category_id: dock-usb
 depends: suspend/suspend_advanced
 estimated_duration: 20.0
 _summary: USB HID device test after resuming
-command: keyboard_test
+command: keyboard_test.py
 _purpose:
     This test will check that you can use a USB HID device
 _steps:

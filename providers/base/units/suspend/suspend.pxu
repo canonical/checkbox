@@ -1384,7 +1384,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/numeric-keypad
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
-command: keyboard_test
+command: keyboard_test.py
 _description:
  PURPOSE:
      Validate that the numeric keypad LED operates the same before and after resuming from suspend

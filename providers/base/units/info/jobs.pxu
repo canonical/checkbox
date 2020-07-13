@@ -202,7 +202,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 requires: package.name == 'lcov'
 user: root
-command: gcov_tarball
+command: gcov_tarball.sh
 _description: Attaches a tarball of gcov data if present.
 
 id: lsmod_attachment

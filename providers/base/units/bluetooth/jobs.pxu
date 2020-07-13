@@ -183,7 +183,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  bluetooth_transfer_stress $BTDEVADDR
+  bluetooth_transfer_stress.sh $BTDEVADDR
 _description:
  This is an automated Bluetooth file transfer test. It sends a large file
  to the device specified by the BTDEVADDR environment variable, then

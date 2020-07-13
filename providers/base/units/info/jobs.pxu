@@ -208,7 +208,7 @@ _description: Attaches a tarball of gcov data if present.
 id: lsmod_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: lsmod_info
+command: lsmod_info.py
 estimated_duration: 0.5
 _description: Attaches a list of the currently running kernel modules.
 _summary: Attach a list of currently running kernel modules

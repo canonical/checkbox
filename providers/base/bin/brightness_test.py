@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  brightness_test
+#  brightness_test.py
 #
 # This file is part of Checkbox.
 #

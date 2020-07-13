@@ -154,7 +154,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::monitor
 user: root
 flags: also-after-suspend-manual
-command: brightness_test
+command: brightness_test.py
 _purpose:
     This test will test changes to screen brightness
 _steps:

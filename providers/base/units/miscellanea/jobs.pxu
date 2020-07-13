@@ -183,7 +183,7 @@ _summary: Test that system is not a pre-release version
 _description:
  Test to verify that the system uses production, rather
  than pre-release, versions of the kernel and the OS.
-command: check-prerelease
+command: check-prerelease.py
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

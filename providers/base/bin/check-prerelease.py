@@ -25,7 +25,7 @@ system booted from the network (test passes) or from a local disk
 (test fails).
 
 Usage:
-   check-prerelease
+   check-prerelease.py
 """
 
 import platform

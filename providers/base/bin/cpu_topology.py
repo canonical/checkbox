@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-cpu_topology
+cpu_topology.py
 Written by Jeffrey Lane <jeffrey.lane@canonical.com>
 '''
 import sys

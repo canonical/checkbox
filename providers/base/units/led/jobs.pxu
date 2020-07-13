@@ -82,7 +82,7 @@ plugin: user-interact-verify
 category_id: led
 id: led/hdd
 estimated_duration: 30.0
-command: led_hdd_test
+command: led_hdd_test.sh
 _description:
  PURPOSE:
      HDD LED verification

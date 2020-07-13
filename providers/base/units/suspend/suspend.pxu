@@ -1369,7 +1369,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/hdd
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
-command: led_hdd_test
+command: led_hdd_test.sh
 _description:
  PURPOSE:
      Validate that the HDD LED still operates as expected after resuming from suspend

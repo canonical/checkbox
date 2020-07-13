@@ -56,7 +56,7 @@ id: miscellanea/chvt
 requires:
  package.name == 'kbd'
 user: root
-command: cycle_vts
+command: cycle_vts.sh
 _description:
  PURPOSE:
      This test will check that the system can switch to a virtual terminal and back to X

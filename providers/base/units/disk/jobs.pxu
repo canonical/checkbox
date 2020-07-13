@@ -7,7 +7,7 @@ _summary: Gathers information about each disk detected
 _description:
  Uses lsblk to gather information about each disk detected on the system
  under test.
-command: disk_info
+command: disk_info.py
 estimated_duration: 0.25
 
 unit: template

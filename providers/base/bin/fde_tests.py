@@ -93,7 +93,7 @@ def main():
     print(cryptinfo, '\n')
 
     # use the type as the final arbiter of success
-    regexp = re.compile(r'type:\ *LUKS1')
+    regexp = re.compile(r'type:\ *LUKS\d$')
     if regexp.search(cryptinfo):
         print('Full Disk Encryption is operational on this device')
     else:

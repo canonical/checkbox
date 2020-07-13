@@ -17,7 +17,7 @@ estimated_duration: 1000.0
 user: root
 requires:
  uname.name == 'Linux'
-command: memory_test
+command: memory_test.py
 _summary:
  Run memory stress test including swapping to disk
 _description:

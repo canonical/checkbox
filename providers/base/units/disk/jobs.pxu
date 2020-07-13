@@ -48,7 +48,7 @@ _summary:
 _description:
  This tests the SMART capabilities for {product_slug} (Note that this test may not work against hardware RAID)
 user: root
-command: disk_smart -b /dev/{name} -s 130 -t 530
+command: disk_smart.py -b /dev/{name} -s 130 -t 530
 
 unit: template
 template-resource: device

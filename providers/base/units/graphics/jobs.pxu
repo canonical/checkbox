@@ -178,7 +178,7 @@ template-resource: graphics_card
 id: graphics/{index}_graphic_memory_{product_slug}
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-command: graphic_memory_info
+command: graphic_memory_info.py
 _description: Collect info on graphic memory for {vendor} {product}.
 _summary: Test graphic memory info for {vendor} {product}.
 

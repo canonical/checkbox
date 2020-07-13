@@ -117,7 +117,7 @@ _summary: Collect info on fresh rate.
 id: graphics/graphic_memory
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-command: graphic_memory_info
+command: graphic_memory_info.py
 _description: Collect info on graphic memory.
 _summary: Collect info on graphic memory.
 

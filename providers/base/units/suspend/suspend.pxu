@@ -512,7 +512,7 @@ requires:
 command:
   audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   audio_settings.py set --device=pci --volume=50
-  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
   audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
@@ -2185,7 +2185,7 @@ category_id: com.canonical.plainbox::suspend
 requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
-command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+command: gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed after suspend with {vendor} {product}
 _description:
  PURPOSE:
@@ -2203,7 +2203,7 @@ requires:
  device.category == 'VIDEO'
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
-command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+command: gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed after suspend
 _description:
  PURPOSE:

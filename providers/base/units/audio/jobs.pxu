@@ -21,7 +21,7 @@ requires:
 command:
   audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   audio_settings.py set --device=pci --volume=50
-  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
   audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
@@ -53,7 +53,7 @@ flags: also-after-suspend-manual
 command:
  audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
  audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
@@ -82,7 +82,7 @@ flags: also-after-suspend-manual
 command:
  audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
  audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
@@ -112,7 +112,7 @@ flags: also-after-suspend-manual
 command:
  audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
  audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
@@ -142,7 +142,7 @@ flags: also-after-suspend-manual
 command:
  audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
  audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
@@ -173,7 +173,7 @@ flags: also-after-suspend-manual
 command:
  audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
  audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
@@ -204,7 +204,7 @@ flags: also-after-suspend-manual
 command:
  audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
  audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
@@ -229,7 +229,7 @@ requires:
 command:
   audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   audio_settings.py set --device=pci --volume=50
-  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
   audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
@@ -487,7 +487,7 @@ requires:
 command:
     audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
     audio_settings.py set --device=pci --volume=50
-    gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    gst_pipeline_test.py -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
     audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
     exit $EXIT_CODE
@@ -515,7 +515,7 @@ requires:
 command:
   audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   audio_settings.py set --device=pci --volume=50
-  gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  gst_pipeline_test.py -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
   audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
@@ -554,7 +554,7 @@ requires:
 command:
   audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   audio_settings.py set --device=pci --volume=50
-  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
   audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE

@@ -3,7 +3,7 @@ category_id: com.canonical.plainbox::memory
 id: memory/info
 estimated_duration: 5.0 
 user: root
-command: memory_compare
+command: memory_compare.py
 _summary:
  Check amount of memory reported by meminfo against DMI
 _description:

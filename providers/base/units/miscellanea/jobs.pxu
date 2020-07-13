@@ -403,7 +403,7 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 30.0
 id: miscellanea/get_make_and_model
 user: root
-command: get_make_and_model
+command: get_make_and_model.py
 requires:
   dmi_present.state == 'supported'
 _description: Retrieve the computer's make and model for easier access than digging through the dmidecode output.

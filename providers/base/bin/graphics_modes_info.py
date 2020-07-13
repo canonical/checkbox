@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# graphics_modes_info
+# graphics_modes_info.py
 #
 # This file is part of Checkbox.
 #

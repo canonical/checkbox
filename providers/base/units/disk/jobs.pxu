@@ -89,7 +89,7 @@ requires:
  block_device.rotation == 'no' and block_device.name == '{name}'
 _summary: Filesystem TRIM check for {product_slug}
 _description: Take the path of the storage device and test its TRIM capabilities
-command: fstrim_test --device-file {name}
+command: fstrim_test.py --device-file {name}
 
 unit: template
 template-resource: device

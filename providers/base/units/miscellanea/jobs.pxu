@@ -271,7 +271,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/sources-list
-command: sources_test $SOURCES_LIST "$REPOSITORIES"
+command: sources_test.sh $SOURCES_LIST "$REPOSITORIES"
 _description: Checks that a specified sources list file contains the requested repositories
 
 unit: template

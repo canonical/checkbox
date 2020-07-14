@@ -236,7 +236,7 @@ depends:
   suspend/suspend_advanced
  {%- endif %}
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 unit: template

@@ -350,7 +350,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-time-check
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_single_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/suspend_single_times.log
 _summary: Ensure time to suspend/resume is under threshold
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
@@ -363,7 +363,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-time-check_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
 _summary: Ensure time to suspend/resume is under threshold
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 

@@ -179,7 +179,7 @@ category_id: com.canonical.plainbox::stress
 id: power-management/suspend-30-cycles-time-check
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
@@ -188,14 +188,14 @@ category_id: com.canonical.plainbox::stress
 id: power-management/suspend-30-cycles-time-check-with-reboots
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles_with_reboots
-command: [ -e $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log
+command: [ -e $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log
 _summary: 30 suspend/resume cycles and 1 reboot, 3 times (check logs for timing issues)
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold (warm boots)
 _siblings: [
     { "id": "power-management/suspend-30-cycles-time-check-with-coldboots",
       "depends": "power-management/suspend_30_cycles_with_coldboots",
-      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
       "_description": "Checks the sleep times to ensure that a machine suspends and resumes within a given threshold (cold boots)",
       "_summary": "30 suspend/resume cycles and 1 poweroff, 3 times (check logs for timing issues)"
     }
@@ -259,7 +259,7 @@ plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/suspend-250-cycles-time-check
 estimated_duration: 1.0
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 

@@ -351,7 +351,7 @@ _verification:
 plugin: user-verify
 user: root
 flags: also-after-suspend
-command: test_bt_keyboard
+command: test_bt_keyboard.py
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 1m
 

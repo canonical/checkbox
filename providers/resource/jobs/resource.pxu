@@ -75,7 +75,7 @@ id: cdimage
 estimated_duration: 0.61
 plugin: resource
 user: root
-command: cdimage_resource
+command: cdimage_resource.py
 _summary: Collect information about installation media (casper)
 _description: Gets installation info from casper.log and media-info
 

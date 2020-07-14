@@ -26,7 +26,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: dpkg (>= 1.13)
 
-# This is for bin/lsb_resource
+# This is for bin/lsb_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: lsb-release
@@ -89,7 +89,7 @@ _description: Gets info on the version of dpkg installed
 id: lsb
 estimated_duration: 1.63
 plugin: resource
-command: lsb_resource
+command: lsb_resource.py
 _description: Generates release info based on /etc/lsb-release
 _summary: Collect information about installed system (lsb-release)
 

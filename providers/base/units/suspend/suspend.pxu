@@ -407,7 +407,7 @@ id: suspend/network_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced suspend/network_before_suspend
 _description: Test the network after resuming.
-command: network_wait; gateway_ping_test | diff $PLAINBOX_SESSION_SHARE/network_before_suspend.txt -
+command: network_wait.py; gateway_ping_test | diff $PLAINBOX_SESSION_SHARE/network_before_suspend.txt -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

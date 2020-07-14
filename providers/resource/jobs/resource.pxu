@@ -104,7 +104,7 @@ id: module
 estimated_duration: 0.13
 plugin: resource
 user: root
-command: module_resource
+command: module_resource.py
 _description: Generates resources info on running kernel modules
 _summary: Collect information about kernel modules
 

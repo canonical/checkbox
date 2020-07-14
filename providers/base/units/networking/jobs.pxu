@@ -75,7 +75,7 @@ plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/printer
 requires: package.name == 'cups-client'
-command: network_printer_test -s $CHECKBOX_SERVER
+command: network_printer_test.sh -s $CHECKBOX_SERVER
 _description: Try to enable a remote printer on the network and print a test page.
 
 plugin: shell

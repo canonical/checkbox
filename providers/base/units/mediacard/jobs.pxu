@@ -7,7 +7,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -53,7 +53,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -76,7 +76,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -124,7 +124,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _summary: Test that removal of an SD card is detected
@@ -179,7 +179,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -228,7 +228,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _summary: Test that removal of an SDHC card is detected
@@ -252,7 +252,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -298,7 +298,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -321,7 +321,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -369,7 +369,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _summary: Test that removal of an SDXC card is detected
@@ -393,7 +393,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -439,7 +439,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -462,7 +462,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 user: root
 imports: from com.canonical.plainbox import manifest
@@ -508,7 +508,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -531,7 +531,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -577,7 +577,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:

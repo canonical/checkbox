@@ -1496,7 +1496,7 @@ id: suspend/usb_insert_after_suspend
 estimated_duration: 30.0
 depends:
  suspend/suspend_advanced
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _description:
  PURPOSE:
      This test will check that the system correctly detects the insertion of
@@ -1517,7 +1517,7 @@ requires:
  usb.usb3 == 'supported'
 depends:
  suspend/suspend_advanced
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _description:
  PURPOSE:
      This test will check that the system correctly detects the insertion of
@@ -1536,7 +1536,7 @@ id: suspend/usb_remove_after_suspend
 estimated_duration: 30.0
 depends:
  suspend/usb_insert_after_suspend
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal of
@@ -1556,7 +1556,7 @@ depends:
  suspend/usb3_insert_after_suspend
 requires:
  usb.usb3 == 'supported'
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal of
@@ -1651,7 +1651,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -1681,7 +1681,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/mmc-remove-after-suspend
 depends: suspend/mmc-insert-after-suspend
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal
@@ -1702,7 +1702,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -1733,7 +1733,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/sd-remove-after-suspend
 estimated_duration: 30.0
 depends: suspend/sd-insert-after-suspend
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects
@@ -1755,7 +1755,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -1786,7 +1786,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/sdhc-remove-after-suspend
 estimated_duration: 30.0
 depends: suspend/sdhc-insert-after-suspend
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal
@@ -1807,7 +1807,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -1837,7 +1837,7 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/cf-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/cf-insert-after-suspend
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal
@@ -1858,7 +1858,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -1888,7 +1888,7 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/sdxc-remove-after-suspend
 depends: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal
@@ -1909,7 +1909,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -1939,7 +1939,7 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/ms-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/ms-insert-after-suspend
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal
@@ -1960,7 +1960,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -1990,7 +1990,7 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/msp-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/msp-insert-after-suspend
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal
@@ -2011,7 +2011,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-command: removable_storage_watcher --memorycard insert sdio usb scsi
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the systems media card reader can
@@ -2041,7 +2041,7 @@ category_id: com.canonical.plainbox::suspend
 id: mediacard/xd-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/xd-insert-after-suspend
-command: removable_storage_watcher --memorycard remove sdio usb scsi
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _description:
  PURPOSE:
      This test will check that the system correctly detects the removal

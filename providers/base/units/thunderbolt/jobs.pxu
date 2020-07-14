@@ -4,7 +4,7 @@ id: thunderbolt/insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 20.0
-command: removable_storage_watcher insert --timeout 40 scsi
+command: removable_storage_watcher.py insert --timeout 40 scsi
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt/insert",
       "_summary": "thunderbolt/insert after suspend",
@@ -49,7 +49,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert
 estimated_duration: 10.0
-command: removable_storage_watcher remove scsi
+command: removable_storage_watcher.py remove scsi
 _summary: Storage removal detection on Thunderbolt
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt/remove",
@@ -96,7 +96,7 @@ id: thunderbolt3/insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 20.0
-command: removable_storage_watcher insert --timeout 40 scsi
+command: removable_storage_watcher.py insert --timeout 40 scsi
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt3/insert",
       "_summary": "thunderbolt3/insert after suspend",
@@ -155,7 +155,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 10.0
-command: removable_storage_watcher remove scsi
+command: removable_storage_watcher.py remove scsi
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt3/remove",
       "_summary": "thunderbolt3/remove after suspend",

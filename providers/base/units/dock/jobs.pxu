@@ -626,7 +626,7 @@ id: dock/usb-insert
 category_id: dock-usb
 estimated_duration: 10.0
 _summary: USB drive insertion test
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock
@@ -646,7 +646,7 @@ id: dock/usb3-insert
 category_id: dock-usb
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device
@@ -666,7 +666,7 @@ category_id: dock-usb
 depends: dock/usb-insert
 estimated_duration: 10.0
 _summary: USB drive removal test
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device
@@ -683,7 +683,7 @@ category_id: dock-usb
 depends: dock/usb3-insert
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device
@@ -726,7 +726,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock using a
@@ -748,7 +748,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock
@@ -770,7 +770,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
@@ -791,7 +791,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port.
@@ -841,7 +841,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock using a
@@ -864,7 +864,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock after suspend
@@ -886,7 +886,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
@@ -907,7 +907,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port after suspend.
@@ -997,7 +997,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug
 estimated_duration: 10.0
 _summary: USB drive insertion test
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock
@@ -1018,7 +1018,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after dock hot plugged in
@@ -1060,7 +1060,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb-insert
 estimated_duration: 10.0
 _summary: USB drive removal test
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device
@@ -1077,7 +1077,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb3-insert
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after dock hot plugged in
@@ -1239,7 +1239,7 @@ category_id: dock-usb
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
 _summary: USB drive insertion after resuming
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock after suspend
@@ -1274,7 +1274,7 @@ category_id: dock-usb
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
 _summary: USB3 drive insertion after resuming
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend
@@ -1294,7 +1294,7 @@ category_id: dock-usb
 depends: dock/usb-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB drive removal after resuming
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device after suspend
@@ -1311,7 +1311,7 @@ category_id: dock-usb
 depends: dock/usb3-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB3 drive removal after resuming
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after suspend
@@ -1711,7 +1711,7 @@ category_id: suspend-undock-resume
 depends: dock/suspend-undock-resume
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend, undocked, resume.
@@ -1742,7 +1742,7 @@ category_id: suspend-undock-resume
 depends: dock/usb3-insert-after-suspend-undock-resume
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after suspend, undocked, resume.
@@ -1803,7 +1803,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: FireWire HDD insertion test
 depends: dock/cold-plug
-command: removable_storage_watcher insert firewire
+command: removable_storage_watcher.py insert firewire
 _purpose:
     This test will check the system can detect the insertion of a FireWire HDD on the dock
 _steps:
@@ -1833,7 +1833,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: FireWire HDD removal test
 depends: dock/firewire-insert
-command: removable_storage_watcher remove firewire
+command: removable_storage_watcher.py remove firewire
 _purpose:
     This test will check the system can detect the removal of a FireWire HDD
 _steps:
@@ -1851,7 +1851,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: eSATA HDD insertion test
 depends: dock/cold-plug
-command: removable_storage_watcher insert ata_serial_esata
+command: removable_storage_watcher.py insert ata_serial_esata
 _purpose:
     This test will check the system can detect the insertion of an eSATA HDD on the dock
 _steps:
@@ -1881,7 +1881,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: eSATA HDD removal test
 depends: dock/esata-insert
-command: removable_storage_watcher remove ata_serial_esata
+command: removable_storage_watcher.py remove ata_serial_esata
 _purpose:
     This test will check the system can detect the removal of an eSATA HDD from the dock
 _steps:
@@ -1932,7 +1932,7 @@ depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual
-command: removable_storage_watcher insert --timeout 40 scsi
+command: removable_storage_watcher.py insert --timeout 40 scsi
 _summary: Thunderbolt3 storage insertion detection
 _purpose:
     This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
@@ -1968,7 +1968,7 @@ depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual
-command: removable_storage_watcher remove scsi
+command: removable_storage_watcher.py remove scsi
 _summary: Thunderbolt3 storage removal detection
 _purpose:
     This test will check the system can detect the removal of a Thunderbolt3 HDD
@@ -2040,7 +2040,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug-after-suspend
 estimated_duration: 10.0
 _summary: USB drive insertion after resuming
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock after suspend
@@ -2061,7 +2061,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug-after-suspend
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after dock hot plugged in
@@ -2103,7 +2103,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB drive removal after resuming
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device after suspend
@@ -2120,7 +2120,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb3-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after dock hot plugged in
@@ -2169,7 +2169,7 @@ category_id: suspend-dock-resume
 depends: dock/suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB drive insertion after resuming
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock after suspend
@@ -2190,7 +2190,7 @@ category_id: suspend-dock-resume
 depends: dock/suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend, undocked, docked, resume.
@@ -2232,7 +2232,7 @@ category_id: suspend-dock-resume
 depends: dock/usb-insert-after-suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB drive removal after resuming
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device after suspend
@@ -2249,7 +2249,7 @@ category_id: suspend-dock-resume
 depends: dock/usb3-insert-after-suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after suspend, undocked, docked, resume.

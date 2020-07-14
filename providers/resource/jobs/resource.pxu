@@ -9,7 +9,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
 
-# This is for bin/display_resource
+# This is for bin/display_resource.py
 unit: packaging meta-data
 os-id: debian
 # NOTE: This is not a hard dependency so that
@@ -213,7 +213,7 @@ _summary: Create resource info for removable block devices
 id: display
 estimated_duration: 0.43
 plugin: resource
-command: display_resource
+command: display_resource.py
 requires: package.name == "x11-xserver-utils"
 _summary: Creates display resource info from xrandr output
 

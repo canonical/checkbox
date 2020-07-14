@@ -1007,11 +1007,12 @@ class MyArgumentParser():
 
         # Log filename shows clearly the type of test (pm_operation)
         # and the times it was repeated (repetitions)
-        args.log_filename = os.path.join(args.log_dir,
-                                         ('{0}.{1}.{2}.log'
-                                          .format(os.path.basename(__file__),
-                                                  args.pm_operation,
-                                                  args.total)))
+        args.log_filename = os.path.join(
+            args.log_dir,
+            '{0}.{1}.{2}.log'.format(
+                os.path.splitext(os.path.basename(__file__))[0],
+                args.pm_operation,
+                args.total)))
         return args, extra_args
 
 

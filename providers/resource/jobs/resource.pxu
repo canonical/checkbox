@@ -184,7 +184,7 @@ _summary: Collect information about the EFI configuration
 id: uname
 estimated_duration: 0.09
 plugin: resource
-command: uname_resource
+command: uname_resource.py
 _description: Creates resource info from uname output
 _summary: Collect information about the running kernel
 

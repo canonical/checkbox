@@ -16,7 +16,7 @@ os-id: debian
 # plainbox-provider-resource-generic has minimalistic dependencies.
 Suggests: x11-server-utils
 
-# This is for bin/dmi_resource
+# This is for bin/dmi_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: dmidecode [!arm64 !armel !mips !mipsel !powerpc !ppc64el !s390x !alpha !hppa !m68k !mips64el !ppc64 !sh4 !sparc64]
@@ -171,7 +171,7 @@ plugin: resource
 requires:
   dmi_present.state == 'supported'
 user: root
-command: dmi_resource
+command: dmi_resource.py
 _summary: Collect information about hardware devices (DMI)
 
 id: efi

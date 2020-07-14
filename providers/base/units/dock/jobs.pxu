@@ -701,7 +701,7 @@ depends: dock/usb-insert
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb_insert test is run.
 
@@ -712,7 +712,7 @@ depends: dock/usb3-insert
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -812,7 +812,7 @@ requires:
 depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/c-to-a-adapter/insert test
  is run.
@@ -827,7 +827,7 @@ requires:
 depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/insert test
  is run.
@@ -928,7 +928,7 @@ requires:
 depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/c-to-a-adapter/insert test
  is run.
@@ -943,7 +943,7 @@ requires:
 depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/insert test
  is run.
@@ -1039,7 +1039,7 @@ depends: dock/hotplug-usb-insert
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb_insert test is run.
 
@@ -1050,7 +1050,7 @@ depends: dock/hotplug-usb3-insert
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -1329,7 +1329,7 @@ depends: dock/usb-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test after resuming
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb-insert test is run.
 
@@ -1340,7 +1340,7 @@ depends: dock/usb3-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test after resuming
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3-insert test is run.
 
@@ -1732,7 +1732,7 @@ depends: dock/usb3-insert-after-suspend-undock-resume
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -1822,7 +1822,7 @@ estimated_duration: 45.0
 _summary: FireWire HDD storage test
 depends: dock/cold-plug dock/firewire-insert
 user: root
-command: removable_storage_test -s 268400000 firewire
+command: removable_storage_test.py -s 268400000 firewire
 _description:
  This is an automated test which performs read/write operations on an attached
  FireWire HDD
@@ -1870,7 +1870,7 @@ estimated_duration: 20.0
 _summary: eSATA HDD storage test
 user: root
 depends: dock/esata-insert
-command: removable_storage_test -s 268400000 ata_serial_esata
+command: removable_storage_test.py -s 268400000 ata_serial_esata
 _description:
  This is an automated test which performs read/write operations on an attached
  eSATA HDD
@@ -1954,7 +1954,7 @@ depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _summary: Thunderbolt3 storage test
 _description:
  This is an automated test which performs read/write operations on an attached
@@ -1987,7 +1987,7 @@ flags: also-after-suspend-manual
 estimated_duration: 45.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt 3 storage and display device
 _description:
 _purpose:
@@ -2082,7 +2082,7 @@ depends: dock/hotplug-usb-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test after resuming
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb-insert test is run.
 
@@ -2093,7 +2093,7 @@ depends: dock/hotplug-usb3-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -2211,7 +2211,7 @@ depends: dock/usb-insert-after-suspend-dock-resume
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test after resuming
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb-insert test is run.
 
@@ -2222,7 +2222,7 @@ depends: dock/usb3-insert-after-suspend-dock-resume
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 

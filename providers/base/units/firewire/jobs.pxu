@@ -20,7 +20,7 @@ id: firewire/storage-test
 user: root
 require: device.category == 'FIREWIRE'
 depends: firewire/insert
-command: removable_storage_test -s 268400000 firewire
+command: removable_storage_test.py -s 268400000 firewire
 _description:
  This is an automated test which performs read/write operations on an attached
  FireWire HDD

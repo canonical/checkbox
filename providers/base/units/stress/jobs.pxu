@@ -452,7 +452,7 @@ category_id: com.canonical.plainbox::stress
 id: stress/usb
 estimated_duration: 710.0
 user: root
-command: removable_storage_test -s 10240000 -c 100 -i 3 usb
+command: removable_storage_test.py -s 10240000 -c 100 -i 3 usb
 _description: Runs a test that transfers 100 10MB files 3 times to usb.
 
 plugin: user-interact
@@ -461,7 +461,7 @@ id: stress/sdhc
 user: root
 _summary: Stress test for SDHC card
 estimated_duration: 780.0
-command: removable_storage_test -s 10240000 -c 100 -i 3 sdio scsi usb --memorycard
+command: removable_storage_test.py -s 10240000 -c 100 -i 3 sdio scsi usb --memorycard
 _description:
  PURPOSE:
      This test will transfers 100 10MB files 3 times to a SDHC card, to

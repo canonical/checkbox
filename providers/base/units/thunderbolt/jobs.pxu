@@ -31,7 +31,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt/storage-test",
       "_summary": "thunderbolt/storage-test after suspend",
@@ -74,7 +74,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 flags: also-after-suspend-manual
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt storage and display device
 _description:
  PURPOSE:
@@ -123,7 +123,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt3/storage-test",
       "_summary": "thunderbolt3/storage-test after suspend",
@@ -141,7 +141,7 @@ user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 flags: also-after-suspend
 _summary: Storage test on Thunderbolt 3 -preinserted
 _description:
@@ -180,7 +180,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt 3 storage and display device
 _description:
  PURPOSE:

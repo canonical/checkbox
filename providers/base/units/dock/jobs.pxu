@@ -571,7 +571,7 @@ plugin: user-interact-verify
 depends: dock/cold-plug
 requires: package.name == 'ntpdate'
 user: root
-command: network_ntp_test
+command: network_ntp_test.py
 estimated_duration: 10.00
 _summary: NTP sync test using dock's Ethernet connectivity
 _purpose:

@@ -61,7 +61,7 @@ category_id: com.canonical.plainbox::networking
 id: networking/ntp
 requires: package.name == 'ntpdate'
 user: root
-command: network_ntp_test
+command: network_ntp_test.py
 _description: Test to see if we can sync local clock to an NTP server
 
 plugin: shell

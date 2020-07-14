@@ -17,4 +17,4 @@ git clone git://git.launchpad.net/plainbox-provider-resource $TMPDIR/plainbox-pr
 python3 $TMPDIR/plainbox-provider-resource/manage.py develop --force
 
 ./manage.py validate
-./manage.py test
+./manage.py test -u

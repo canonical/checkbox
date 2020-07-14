@@ -278,7 +278,7 @@ depends:
  {%- endif %}
 command:
  source graphics_env.sh {{ driver }} {{ index }}
- rotation_test
+ rotation_test.py
 estimated_duration: 20.000
 _summary: Test rotation for {{ vendor }} {{ product }} after suspend
 _description:

@@ -611,7 +611,7 @@ class CountdownDialog(Gtk.Dialog):
         command = Command('fwts -r stdout klog oops').run()
         if command.process.returncode != 0:
             # Don't abort the test loop,
-            # errors can be retrieved by pm_log_check
+            # errors can be retrieved by pm_log_check.py
             logging.error('Problem found in logs by fwts')
 
     def on_system_info_timeout_cb(self):

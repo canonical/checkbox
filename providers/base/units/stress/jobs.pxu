@@ -363,7 +363,7 @@ category_id: com.canonical.plainbox::stress
 id: stress/reboot_30_check
 estimated_duration: 1.0
 depends: stress/reboot_30
-command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.30.log $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log
+command: pm_log_check.py --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.30.log $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log
 _description: Check logs for the stress reboot (30 cycles) test case
 
 plugin: attachment
@@ -380,7 +380,7 @@ category_id: com.canonical.plainbox::stress
 id: stress/poweroff_30_check
 estimated_duration: 1.0
 depends: stress/poweroff_30
-command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.poweroff.30.log $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log
+command: pm_log_check.py --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.poweroff.30.log $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log
 _description: Check logs for the stress poweroff (30 cycles) test case
 
 plugin: attachment
@@ -397,7 +397,7 @@ category_id: com.canonical.plainbox::stress
 id: stress/reboot_check
 estimated_duration: 1.0
 depends: stress/reboot
-command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.100.log $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log
+command: pm_log_check.py --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.100.log $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log
 _description: Check logs for the stress reboot (100 cycles) test case
 
 plugin: attachment
@@ -414,7 +414,7 @@ category_id: com.canonical.plainbox::stress
 id: stress/poweroff_check
 estimated_duration: 1.0
 depends: stress/poweroff
-command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.poweroff.100.log $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log
+command: pm_log_check.py --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.poweroff.100.log $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log
 _description: Check logs for the stress poweroff (100 cycles) test case
 
 plugin: attachment

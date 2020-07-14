@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# window_test
+# window_test.py
 #
 # This file is part of Checkbox.
 #

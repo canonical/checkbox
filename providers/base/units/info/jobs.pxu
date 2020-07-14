@@ -184,9 +184,9 @@ _summary: Attach dump of udev database
 id: udev_resource_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: udev_resource
+command: udev_resource.py
 estimated_duration: 0.432
-_description: Attaches the output of udev_resource, for debugging purposes
+_description: Attaches the output of udev_resource.py, for debugging purposes
 
 id: lsblk_attachment
 estimated_duration: 0.1

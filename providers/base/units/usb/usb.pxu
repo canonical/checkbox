@@ -298,7 +298,7 @@ category_id: com.canonical.plainbox::usb
 plugin: shell
 _summary: Detect storage partitions on a device on the USB bus
 command:
-  udev_resource -f PARTITION | grep "bus: usb"
+  udev_resource.py -f PARTITION | grep "bus: usb"
 estimated_duration: 1.0
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest

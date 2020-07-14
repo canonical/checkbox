@@ -11,8 +11,8 @@ id: udev_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command: udevadm info --export-db | python3 -m plainbox dev parse udevadm
-_description: Attaches json dumps of udev_resource
-_summary: Attaches json dumps of udev_resource
+_description: Attaches json dumps of udev_resource.py
+_summary: Attaches json dumps of udev_resource.py
 
 id: raw_devices_dmi_json
 plugin: attachment
@@ -26,7 +26,7 @@ command:
  jq '[.[] | ._attributes + {"category": .category}]'
 estimated_duration: 1
 _description: Attaches dmidecode output
-_summary: Attaches json dumps of udev_resource raw dmi devices
+_summary: Attaches json dumps of raw dmi devices
 
 id: modprobe_json
 plugin: attachment

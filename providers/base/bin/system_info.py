@@ -224,7 +224,8 @@ def main():
         'Touchpad': 'TOUCHPAD'
     }
     for section, udev_category in extra_sections.items():
-        section_info = _run_cmd('udev_resource -l {} -s'.format(udev_category))
+        section_info = _run_cmd(
+            'udev_resource.py -l {} -s'.format(udev_category))
         if section_info:
             sys_info[section] = section_info.splitlines()
     print(json.dumps(sys_info, indent=4))

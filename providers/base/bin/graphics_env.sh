@@ -12,7 +12,7 @@ INDEX=$2
 # We only want to set the DRI_PRIME env variable on systems with more than
 # 1 GPU running the amdgpu/radeon drivers.
 if [[ $DRIVER == "amdgpu" || $DRIVER == "radeon" ]]; then
-    NB_GPU=`udev_resource -l VIDEO | grep -oP -m1 '\d+'`
+    NB_GPU=`udev_resource.py -l VIDEO | grep -oP -m1 '\d+'`
     if [ $NB_GPU -gt 1 ]; then
         if [ $INDEX -gt 1 ]; then
             # See https://wiki.archlinux.org/index.php/PRIME

@@ -15,7 +15,7 @@ category_id: com.canonical.plainbox::optical
 id: optical/read_{name}
 estimated_duration: 120.0
 user: root
-command: optical_read_test /dev/{name}
+command: optical_read_test.py /dev/{name}
 flags: also-after-suspend-manual
 _description:
  PURPOSE:
@@ -35,7 +35,7 @@ category_id: com.canonical.plainbox::optical
 id: optical/read-automated_{name}
 estimated_duration: 120.0
 user: root
-command: optical_read_test /dev/{name}
+command: optical_read_test.py /dev/{name}
 _summary:
  Tests read functionality of optical drive {name}
 _description:
@@ -164,7 +164,7 @@ estimated_duration: 120.0
 requires:
  optical_drive_{name}.bd_read == "supported"
 user: root
-command: optical_read_test /dev/{name}
+command: optical_read_test.py /dev/{name}
 flags: also-after-suspend-manual
 _description:
  PURPOSE:

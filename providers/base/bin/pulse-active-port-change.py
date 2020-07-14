@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-pulse-active-port-change
+pulse-active-port-change.py
 ========================
 
 This script checks if the active port on either sinks (speakers or headphones)

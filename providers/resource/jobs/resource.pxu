@@ -3,8 +3,8 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3 (>= 3.2)
 
-# This is for bin/efi_resource, bin/cpuinfo_resource.py, bin/meminfo_resource,
-# bin/udev_resource and bin/xinput_resource
+# This is for bin/efi_resource.py, bin/cpuinfo_resource.py,
+# bin/meminfo_resource, bin/udev_resource and bin/xinput_resource
 unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
@@ -178,7 +178,7 @@ id: efi
 estimated_duration: 0.56
 plugin: resource
 user: root
-command: efi_resource
+command: efi_resource.py
 _summary: Collect information about the EFI configuration
 
 id: uname

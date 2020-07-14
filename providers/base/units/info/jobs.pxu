@@ -236,7 +236,7 @@ _description: Bootchart information.
 requires: package.name == 'bootchart' or package.name == 'pybootchartgui'
 user: root
 command:
- process_wait -u root bootchart collector ureadahead; \
+ process_wait.py -u root bootchart collector ureadahead; \
  [ `ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l` -lt 2 ] && reboot && sleep 100
 
 unit: template

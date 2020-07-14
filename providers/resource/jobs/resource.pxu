@@ -3,7 +3,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3 (>= 3.2)
 
-# This is for bin/efi_resource, bin/cpuinfo_resource, bin/meminfo_resource,
+# This is for bin/efi_resource, bin/cpuinfo_resource.py, bin/meminfo_resource,
 # bin/udev_resource and bin/xinput_resource
 unit: packaging meta-data
 os-id: debian
@@ -67,7 +67,7 @@ Depends: iw (>= 5.3)
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
-command: cpuinfo_resource
+command: cpuinfo_resource.py
 _summary: Collect information about the CPU
 _description: Gets CPU resource info from /proc/cpuinfo
 

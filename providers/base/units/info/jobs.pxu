@@ -290,7 +290,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/touchpad_driver
 requires: device.category == 'TOUCHPAD'
-command: touchpad_driver_info
+command: touchpad_driver_info.py
 estimated_duration: 0.384
 _description:
  Returns the name, driver name and driver version of any touchpad discovered on

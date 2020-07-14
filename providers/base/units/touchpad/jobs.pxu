@@ -189,7 +189,7 @@ id: touchpad/detected-as-mouse
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 1.2
 command:
-    info=`touchpad_driver_info`
+    info=`touchpad_driver_info.py`
     if [ $? -eq 0 ]; then
         echo -e "touchpad detected with:\n$info"
     else

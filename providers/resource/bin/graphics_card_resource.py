@@ -85,7 +85,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Resource to filter and "
                                                  "enumerate graphics cards.")
     parser.add_argument("-c", "--command",
-                        default='udev_resource',
+                        default='udev_resource.py',
                         help="""udev_resource command to run. Defaults
                         to %(default)s.""")
     return parser.parse_args()

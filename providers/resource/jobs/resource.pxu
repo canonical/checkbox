@@ -4,7 +4,7 @@ os-id: debian
 Depends: python3 (>= 3.2)
 
 # This is for bin/efi_resource.py, bin/cpuinfo_resource.py,
-# bin/meminfo_resource.py, bin/udev_resource and bin/xinput_resource
+# bin/meminfo_resource.py, bin/udev_resource.py and bin/xinput_resource
 unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
@@ -36,7 +36,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: network-manager
 
-# This is for bin/optical_resource.py and bin/udev_resource
+# This is for bin/optical_resource.py and bin/udev_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: udev
@@ -130,14 +130,14 @@ command:
 id: device
 estimated_duration: 0.48
 plugin: resource
-command: udev_resource
+command: udev_resource.py
 _description: Creates resource info from udev
 _summary: Collect information about hardware devices (udev)
 
 id: removable_partition
 estimated_duration: 0.48
 plugin: resource
-command: udev_resource -f PARTITION || true
+command: udev_resource.py -f PARTITION || true
 _description: Creates removable partitions info from udev
 _summary: Collect removable partitions info from udev
 

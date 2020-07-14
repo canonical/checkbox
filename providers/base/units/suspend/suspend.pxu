@@ -46,7 +46,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/memory_before_suspend
 estimated_duration: 1.2
 _summary: Dumps memory info to a file for comparison after suspend
-command: meminfo_resource > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
+command: meminfo_resource.py > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
 
 unit: template
 template-resource: device
@@ -575,7 +575,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/memory_before_suspend
 _description:
  Verify that all memory is available after resuming from suspend.
-command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
+command: meminfo_resource.py | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -584,7 +584,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
 _description:
  Verify that all memory is available after resuming from suspend.
-command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
+command: meminfo_resource.py | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
 plugin: manual
 category_id: com.canonical.plainbox::suspend

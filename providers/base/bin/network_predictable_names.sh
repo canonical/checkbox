@@ -26,7 +26,7 @@ set -e
 #   https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/
 #
 # Usage:
-#   network_predictable_names
+#   network_predictable_names.sh
 #
 # Parameters:
 #   None

@@ -82,7 +82,7 @@ plugin: shell
 category_id: com.canonical.plainbox::networking
 template-engine: jinja2
 id: networking/predictable_names
-command: network_predictable_names
+command: network_predictable_names.sh
 _summary: Verify that all network interfaces have predictable names.
 _description: Verify that all network interfaces have predictable names.
 requires:

@@ -54,6 +54,7 @@ from plainbox.impl.providers.special import get_categories
 from plainbox.impl.providers.special import get_manifest
 from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
+from plainbox.impl.resource import Resource
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import ValidationError \
     as ConfigValidationError
@@ -1326,6 +1327,29 @@ class PackagingCommand(ManageCommand):
             driver.modify_packaging_tree()
 
 
+class InlineShellcheckTests(unittest.TestCase):
+    """
+    Holder of inline pxu job commands shellcheck test cases.
+
+    If candidates for shellcheck testing are found when TestCommand is invoked,
+    this class will have member functions monkey patched in to place that
+    represent an individual test case for each pxu file job command.
+    """
+    pass
+
+
+def create_inline_shellcheck_test(command):
+    """Creates the target for the monkey patched methods in ShellcheckTests"""
+
+    def run_inline_shellcheck(self):
+        result = subprocess.run(
+            ['shellcheck', '-', '--shell=bash'],
+            input=command,
+            encoding='ascii')
+        self.assertEqual(result.returncode, 0)
+    return run_inline_shellcheck
+
+
 class ShellcheckTests(unittest.TestCase):
     """
     Holder of shellcheck test cases.
@@ -1337,13 +1361,33 @@ class ShellcheckTests(unittest.TestCase):
     pass
 
 
-def create_test(shellfile):
+def create_shellcheck_test(shellfile):
     """Creates the target for the monkey patched methods in ShellcheckTests"""
 
     def run_shellcheck(self):
         result = subprocess.run(['shellcheck', shellfile])
         self.assertEqual(result.returncode, 0)
     return run_shellcheck
+
+
+class Flake8Tests(unittest.TestCase):
+    """
+    Holder of Flake8 test cases.
+
+    If candidates for Flake8 testing are found when TestCommand is invoked,
+    this class will have member functions monkey patched in to place that
+    represent an individual test case for each file.
+    """
+    pass
+
+
+def create_flake8_test(pyfile):
+    """Creates the target for the monkey patched methods in Flake8Tests"""
+
+    def run_flake8(self):
+        result = subprocess.run(['flake8', pyfile])
+        self.assertEqual(result.returncode, 0)
+    return run_flake8
 
 
 class TestCommand(ManageCommand):
@@ -1360,26 +1404,109 @@ class TestCommand(ManageCommand):
         return os.path.join(self.definition.location, 'bin')
 
     def register_parser(self, subparsers):
-        self.add_subcommand(subparsers)
+        """
+        Overridden method of CommandBase.
+
+        :param subparsers:
+            The argparse subparsers objects in which command line argument
+            specification should be created.
+
+        This method is invoked by the command line handling code to register
+        arguments specific to this sub-command. It must also register itself as
+        the command class with the ``command`` default.
+        """
+        parser = self.add_subcommand(subparsers)
+        group = parser.add_argument_group(title=_("test options"))
+        group.add_argument(
+            '-i', '--inline', action='store_true',
+            help=_("Only job inline commands"))
+        group.add_argument(
+            '-f', '--flake8', action='store_true',
+            help=_("Only Flake8"))
+        group.add_argument(
+            '-s', '--shellcheck', action='store_true',
+            help=_("Only ShellCheck"))
+        group.add_argument(
+            '-u', '--unittest', action='store_true',
+            help=_("Only unittest from tests/ dir"))
 
     def invoked(self, ns):
         sys.path.insert(0, self.scripts_dir)
         runner = TextTestRunner(verbosity=2)
+        provider = self.get_provider()
 
         # create unittest for each bin/*.sh file
         for file in glob.glob(self.scripts_dir + "/*.sh"):
-            test_method = create_test(file)
-            test_method.__name__ = 'test_shellcheck_{}'.format(
-                os.path.splitext(file)[0])
+            test_method = create_shellcheck_test(file)
+            test_method.__name__ = 'test_shellcheck_{}'.format(file)
             setattr(ShellcheckTests, test_method.__name__, test_method)
+
         shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
             ShellcheckTests)
 
-        # find tests defined in tests/
-        tests_dir_suite = defaultTestLoader.discover(self.tests_dir)
+        # create unittest for each bin/*.py file
+        for file in glob.glob(self.scripts_dir + "/*.py"):
+            test_method = create_flake8_test(file)
+            test_method.__name__ = 'test_flake8_{}'.format(file)
+            setattr(Flake8Tests, test_method.__name__, test_method)
 
-        result = runner.run(unittest.TestSuite(
-            [shellcheck_suite, tests_dir_suite]))
+        flake8_suite = defaultTestLoader.loadTestsFromTestCase(
+            Flake8Tests)
+
+        # create unittest for each job unit command
+        unit_list = provider.unit_list
+        for unit in unit_list:
+            if unit.Meta.name == 'template':
+                unit._fake_resources = True
+                accessed_parameters = unit.get_accessed_parameters(
+                    force=True, template_engine=unit.template_engine)
+                resource = Resource({
+                    key: key.upper()
+                    for key in set(
+                        itertools.chain(*accessed_parameters.values()))
+                })
+                command = unit.instantiate_one(resource).command
+                if command:
+                    test_method = create_inline_shellcheck_test(command)
+                    test_method.__name__ = 'test_job_command_{}_{}'.format(
+                        unit.origin.relative_to(self.definition.location),
+                        unit.partial_id)
+                    setattr(
+                        InlineShellcheckTests,
+                        test_method.__name__, test_method)
+            elif unit.Meta.name == 'job' and unit.command:
+                test_method = create_inline_shellcheck_test(unit.command)
+                test_method.__name__ = 'test_job_command_{}_{}'.format(
+                    unit.origin.relative_to(self.definition.location),
+                    unit.partial_id)
+                setattr(
+                    InlineShellcheckTests,
+                    test_method.__name__, test_method)
+
+        inline_shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
+            InlineShellcheckTests)
+
+        # find tests defined in tests/
+        if os.path.exists(self.tests_dir):
+            tests_dir_suite = defaultTestLoader.discover(self.tests_dir)
+        else:
+            tests_dir_suite = unittest.TestSuite()
+
+        if ns.inline:
+            result = runner.run(unittest.TestSuite([inline_shellcheck_suite]))
+        elif ns.flake8:
+            result = runner.run(unittest.TestSuite([flake8_suite]))
+        elif ns.unittest:
+            result = runner.run(unittest.TestSuite([tests_dir_suite]))
+        elif ns.shellcheck:
+            result = runner.run(unittest.TestSuite([shellcheck_suite]))
+        else:
+            result = runner.run(unittest.TestSuite([
+                inline_shellcheck_suite,
+                shellcheck_suite,
+                flake8_suite,
+                tests_dir_suite
+            ]))
         if not result.wasSuccessful():
             return 1
 

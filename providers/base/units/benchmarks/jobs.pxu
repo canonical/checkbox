@@ -65,7 +65,7 @@ plugin: shell
 category_id: com.canonical.plainbox::benchmarks
 id: benchmarks/network/wifi_time_to_reconnect
 requires: device.category == 'WIRELESS'
-command: wifi_time2reconnect
+command: wifi_time2reconnect.py
 _description: Check the time needed to reconnect to a WIFI access point
 
 plugin: shell

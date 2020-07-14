@@ -327,8 +327,9 @@ def configure_logging(log_level, output):
         logger.addHandler(log_handler)
 
     # Log to rotating file using DEBUG log level
-    log_filename = os.path.join(output,
-                                '{0}.log'.format(os.path.basename(__file__)))
+    log_filename = os.path.join(
+        output,
+        '{0}.log'.format(os.path.splitext(os.path.basename(__file__))[0]))
     rollover = os.path.exists(log_filename)
     log_handler = logging.handlers.RotatingFileHandler(log_filename, mode='a+',
                                                        backupCount=3)

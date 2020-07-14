@@ -137,7 +137,7 @@ requires:
  device.category == 'DISK'
  package.name == 'smartmontools'
 user: root
-command: spindown
+command: spindown.sh
 _description:
  Some new hard drives include a feature that parks the drive heads after a short period of inactivity. This is a power-saving feature, but it can have a bad interaction with the operating system that results in the drive constantly parked then activated. This produces excess wear on the drive, potentially leading to early failures.
 

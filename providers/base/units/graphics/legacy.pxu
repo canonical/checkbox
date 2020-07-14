@@ -29,7 +29,7 @@ id: graphics/resolution
 requires:
  device.category == 'VIDEO'
 flags: deprecated
-command: resolution_test
+command: resolution_test.py
 estimated_duration: 0.750
 _summary: Test default resolution (for old checkbox)
 _description:
@@ -64,7 +64,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/minimum_resolution
 requires:
  device.category == 'VIDEO'
-command: resolution_test --horizontal 800 --vertical 600
+command: resolution_test.py --horizontal 800 --vertical 600
 estimated_duration: 0.331
 _summary: Test that system meets minimum resolution requirement
 _description:

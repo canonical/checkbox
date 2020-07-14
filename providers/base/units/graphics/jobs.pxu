@@ -68,7 +68,7 @@ id: graphics/{index}_resolution_{product_slug}
 requires:
  device.category == 'VIDEO'
  package.name == 'zenity'
-command: resolution_test | zenity --text-info
+command: resolution_test.py | zenity --text-info
 estimated_duration: 10.00
 _summary: Test default resolution for {vendor} {product}
 _description:
@@ -109,7 +109,7 @@ requires:
  device.category == 'VIDEO'
 command:
  source graphics_env.sh {driver} {index}
- resolution_test --horizontal 800 --vertical 600
+ resolution_test.py --horizontal 800 --vertical 600
 estimated_duration: 0.331
 _summary: Test that {vendor} {product} meets minimum resolution requirement
 _description:

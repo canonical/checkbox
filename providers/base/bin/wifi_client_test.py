@@ -8,7 +8,7 @@
 """
 This script will run wireless network test automatically.
 
-To see how to use, please run "./wifi_client_test --help"
+To see how to use, please run "./wifi_client_test.py --help"
 """
 import argparse
 import os

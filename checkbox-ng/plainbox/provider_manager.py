@@ -1404,7 +1404,31 @@ class TestCommand(ManageCommand):
         return os.path.join(self.definition.location, 'bin')
 
     def register_parser(self, subparsers):
-        self.add_subcommand(subparsers)
+        """
+        Overridden method of CommandBase.
+
+        :param subparsers:
+            The argparse subparsers objects in which command line argument
+            specification should be created.
+
+        This method is invoked by the command line handling code to register
+        arguments specific to this sub-command. It must also register itself as
+        the command class with the ``command`` default.
+        """
+        parser = self.add_subcommand(subparsers)
+        group = parser.add_argument_group(title=_("test options"))
+        group.add_argument(
+            '-i', '--inline', action='store_true',
+            help=_("Only job inline commands"))
+        group.add_argument(
+            '-f', '--flake8', action='store_true',
+            help=_("Only Flake8"))
+        group.add_argument(
+            '-s', '--shellcheck', action='store_true',
+            help=_("Only ShellCheck"))
+        group.add_argument(
+            '-u', '--unittest', action='store_true',
+            help=_("Only unittest from tests/ dir"))
 
     def invoked(self, ns):
         sys.path.insert(0, self.scripts_dir)
@@ -1468,12 +1492,21 @@ class TestCommand(ManageCommand):
         else:
             tests_dir_suite = unittest.TestSuite()
 
-        result = runner.run(unittest.TestSuite([
-            inline_shellcheck_suite,
-            shellcheck_suite,
-            flake8_suite,
-            tests_dir_suite
-        ]))
+        if ns.inline:
+            result = runner.run(unittest.TestSuite([inline_shellcheck_suite]))
+        elif ns.flake8:
+            result = runner.run(unittest.TestSuite([flake8_suite]))
+        elif ns.unittest:
+            result = runner.run(unittest.TestSuite([tests_dir_suite]))
+        elif ns.shellcheck:
+            result = runner.run(unittest.TestSuite([shellcheck_suite]))
+        else:
+            result = runner.run(unittest.TestSuite([
+                inline_shellcheck_suite,
+                shellcheck_suite,
+                flake8_suite,
+                tests_dir_suite
+            ]))
         if not result.wasSuccessful():
             return 1
 

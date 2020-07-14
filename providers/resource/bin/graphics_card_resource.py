@@ -101,7 +101,7 @@ def bus_ordering(record):
 
 def main():
     """
-    graphics_card_resource was done as a script to be able to reuse it in
+    graphics_card_resource.py was done as a script to be able to reuse it in
     graphics tests that need to be generated per-card.
     It does two things in addition to what filtering the resources by
     category=VIDEO would achieve:

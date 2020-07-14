@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-udev2resource -- udev to plainbox resource converter
-====================================================
+udev2resource.py -- udev to plainbox resource converter
+=======================================================
 
 This script converts the output of 'udev info --export-db' into a RFC822-esque
 PlainBox resource syntax. It handles the P:, N:, E:, S: and L: "directives"

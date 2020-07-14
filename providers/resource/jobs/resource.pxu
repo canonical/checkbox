@@ -145,7 +145,7 @@ id: staging/udev
 estimated_duration: 1.1
 plugin: resource
 shell: /bin/sh
-command: udevadm info --export-db | udev2resource
+command: udevadm info --export-db | udev2resource.py
 _summary: Collect unfiltered udev data
 _description:
  This job collects the udev database in mostly raw format. The only

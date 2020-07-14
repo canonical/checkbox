@@ -39,7 +39,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/cpu_before_suspend
 estimated_duration: 1.2
 _summary: Verify that all the CPUs are online before suspending
-command: cpuinfo_resource > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
+command: cpuinfo_resource.py > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -558,7 +558,7 @@ id: suspend/cpu_after_suspend
 estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
-command: cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
+command: cpuinfo_resource.py | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -566,7 +566,7 @@ id: suspend/cpu_after_suspend_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
-command: cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
+command: cpuinfo_resource.py | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

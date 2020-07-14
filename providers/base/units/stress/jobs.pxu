@@ -5,7 +5,7 @@ estimated_duration: 7200.0
 requires:
  package.name == 'stress'
 user: root
-command: num_vm=$(awk '/MemTotal/ {x=$2/262144; print ((x == int(x)) ? x : int(x) +1)}' /proc/meminfo); vm_bytes=$(($(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)/$num_vm/4))M; stress --cpu `cpuinfo_resource | awk '/count:/ {print $2}'` --vm $num_vm --vm-bytes $vm_bytes --timeout 7200s
+command: num_vm=$(awk '/MemTotal/ {x=$2/262144; print ((x == int(x)) ? x : int(x) +1)}' /proc/meminfo); vm_bytes=$(($(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)/$num_vm/4))M; stress --cpu `cpuinfo_resource.py | awk '/count:/ {print $2}'` --vm $num_vm --vm-bytes $vm_bytes --timeout 7200s
 _description:
  Simulate high system load using the 'stress' tool to exercise the CPU for
  several hours. The test is considered passed if the system does not freeze or

@@ -170,10 +170,10 @@ category_id: com.canonical.plainbox::cpu
 id: cpu/cpuinfo_before_suspend
 estimated_duration: 1.2
 _summary: Verify that all the CPUs are online before suspending
-command: cpuinfo_resource > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
+command: cpuinfo_resource.py > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
 _siblings: [
     { "id": "after-suspend-cpu/cpuinfo_after_suspend",
       "_summary": "Verify that all the CPUs are online after suspending",
-      "command": "cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -",
+      "command": "cpuinfo_resource.py | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -",
       "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}
  ]

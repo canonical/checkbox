@@ -20,7 +20,7 @@ id: touchpad/horizontal
 requires:
   dmi.product in ['Notebook','Laptop','Portable','Convertible']
   'Button Horiz Wheel Left' in xinput.button_labels and 'Button Horiz Wheel Right' in xinput.button_labels
-command: touchpad_test right left --edge-scroll
+command: touchpad_test.py right left --edge-scroll
 estimated_duration: 120.0
 _purpose:
      Touchpad horizontal scroll verification
@@ -39,7 +39,7 @@ id: touchpad/vertical
 requires:
   dmi.product in ['Notebook','Laptop','Portable','Convertible']
   'Button Wheel Up' in xinput.button_labels and 'Button Wheel Down' in xinput.button_labels
-command: touchpad_test up down --edge-scroll
+command: touchpad_test.py up down --edge-scroll
 estimated_duration: 120.0
 _purpose:
      Touchpad vertical scroll verification
@@ -104,7 +104,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-horizontal
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-command: touchpad_test right left
+command: touchpad_test.py right left
 estimated_duration: 120.0
 _purpose:
      Touchpad 2-touch horizontal scroll verification
@@ -121,7 +121,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-vertical
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-command: touchpad_test up down
+command: touchpad_test.py up down
 estimated_duration: 120.0
 _purpose:
      Touchpad 2-touch vertical scroll verification

@@ -36,7 +36,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: network-manager
 
-# This is for bin/optical_resource and bin/udev_resource
+# This is for bin/optical_resource.py and bin/udev_resource
 unit: packaging meta-data
 os-id: debian
 Depends: udev
@@ -199,7 +199,7 @@ template-resource: device
 template-filter: device.category == 'CDROM'
 id: optical_drive_{name}
 plugin: resource
-command: optical_resource /dev/{name}
+command: optical_resource.py /dev/{name}
 estimated_duration: 0.5
 _summary: Create resource info for supported optical actions ({name})
 

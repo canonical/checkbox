@@ -4,7 +4,7 @@ os-id: debian
 Depends: python3 (>= 3.2)
 
 # This is for bin/efi_resource.py, bin/cpuinfo_resource.py,
-# bin/meminfo_resource.py, bin/udev_resource.py and bin/xinput_resource
+# bin/meminfo_resource.py, bin/udev_resource.py and bin/xinput_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
@@ -41,7 +41,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: udev
 
-# This is for bin/xinput_resource
+# This is for bin/xinput_resource.py
 unit: packaging meta-data
 os-id: debian
 # NOTE: This is not a hard dependency so that
@@ -236,7 +236,7 @@ command:
 id: xinput
 estimated_duration: 0.19
 plugin: resource
-command: xinput_resource
+command: xinput_resource.py
 requires: package.name == "xinput"
 _summary: Creates resource info from xinput output.
 

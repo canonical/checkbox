@@ -220,7 +220,7 @@ requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
 command:
  source graphics_env.sh {driver} {index}
- xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
+ xrandr_cycle.py --screenshot-dir $PLAINBOX_SESSION_SHARE
 estimated_duration: 250.000
 _summary: Test resolution cycling for {vendor} {product}
 _description:

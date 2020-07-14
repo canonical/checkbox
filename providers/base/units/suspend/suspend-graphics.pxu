@@ -90,7 +90,7 @@ depends:
 estimated_duration: 120.0
 command:
  source graphics_env.sh {{ driver }} {{ index }}
- xrandr_cycle --keyword={{ index }}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+ xrandr_cycle.py --keyword={{ index }}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
      This test will cycle through the detected display modes

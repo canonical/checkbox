@@ -11,8 +11,8 @@ command:
   echo "Calling fwts"
   checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
-  echo "Calling sleep_test"
-  sleep_test -s disk -w 120
+  echo "Calling sleep_test.py"
+  sleep_test.py -s disk -w 120
  fi
 estimated_duration: 300.00
 _description:
@@ -56,8 +56,8 @@ command:
   echo "Calling fwts"
   checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/{index}_hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
-  echo "Calling sleep_test"
-  sleep_test -s disk -w 120
+  echo "Calling sleep_test.py"
+  sleep_test.py -s disk -w 120
  fi
 _purpose:
     This test will check to make sure your system can successfully hibernate (if supported)

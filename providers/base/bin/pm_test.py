@@ -194,7 +194,7 @@ class PowerManagementOperation():
                     self.args.log_dir) + command_tpl
             command_tpl = '{} ' + command_tpl
         else:
-            script_name = 'sleep_test'
+            script_name = 'sleep_test.py'
             command_tpl = '{} -s mem -p -i {} -w 10'
             script_path = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), script_name)
@@ -208,9 +208,9 @@ class PowerManagementOperation():
             input()
         else:
             try:
-                # We call sleep_test or fwts_test script and log its output as
-                # it contains average times we need to compute global average
-                # times later.
+                # We call sleep_test.py or fwts_test script and log its output
+                # as it contains average times we need to compute global
+                # average times later.
                 logging.info(subprocess.check_output(
                     command_str, universal_newlines=True, shell=True))
             except subprocess.CalledProcessError as e:

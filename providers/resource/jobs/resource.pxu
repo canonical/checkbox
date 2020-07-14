@@ -31,7 +31,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: lsb-release
 
-# This is for bin/mobilebroadband_resource
+# This is for bin/mobilebroadband_resource.sh
 unit: packaging meta-data
 os-id: debian
 Depends: network-manager
@@ -254,7 +254,7 @@ id: mobilebroadband
 estimated_duration: 0.38
 plugin: resource
 _summary: Create resource for mobile broadband devices
-command: mobilebroadband_resource
+command: mobilebroadband_resource.sh
 
 id: virtualization
 estimated_duration: 0.13

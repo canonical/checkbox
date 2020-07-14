@@ -532,7 +532,7 @@ id: graphics/nvlink-status-check
 requires:
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
  graphics_card.driver == 'nvidia'
-command: nvidia_nvlink_check
+command: nvidia_nvlink_check.sh
 _summary: Check NVIDIA NVLINK status
 _description: Check NVLINK are supported and NVLINK are connected properly on system, please make sure below items before testing:
     1. More than one NVIDIA Graphic card are installed.

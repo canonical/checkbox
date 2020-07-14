@@ -4,7 +4,7 @@ os-id: debian
 Depends: python3 (>= 3.2)
 
 # This is for bin/efi_resource.py, bin/cpuinfo_resource.py,
-# bin/meminfo_resource, bin/udev_resource and bin/xinput_resource
+# bin/meminfo_resource.py, bin/udev_resource and bin/xinput_resource
 unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
@@ -96,7 +96,7 @@ _summary: Collect information about installed system (lsb-release)
 id: meminfo
 estimated_duration: 0.1
 plugin: resource
-command: meminfo_resource
+command: meminfo_resource.py
 _description: Generates resource info based on /proc/meminfo
 _summary: Collect information about system memory (/proc/meminfo)
 

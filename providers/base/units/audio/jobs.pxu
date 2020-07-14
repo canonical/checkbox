@@ -378,7 +378,7 @@ estimated_duration: 1.0
 requires:
  package.name == 'pulseaudio-utils'
  device.category == 'AUDIO'
-command: volume_test --minvol 1 --maxvol 100
+command: volume_test.py --minvol 1 --maxvol 100
 _description:
  This test will verify that the volume levels are at an acceptable level on
  your local system.  The test will validate that the volume is greater than
@@ -595,7 +595,7 @@ depends: power-management/suspend_30_cycles
 requires:
  package.name == 'pulseaudio-utils'
  device.category == 'AUDIO'
-command: volume_test --minvol 1 --maxvol 100
+command: volume_test.py --minvol 1 --maxvol 100
 _description:
  This test will verify that the volume levels are at an acceptable level on
  your local system.  The test will validate that the volume is greater than

@@ -84,13 +84,13 @@ class StressNg():
                   "parallel for {:.0f}".format(time_str, self.sng_timeout))
             print("seconds...")
         try:
-            self.results = check_output(shlex.split(command),
-                                        timeout=self.wrapper_timeout). \
-                           decode(encoding="utf-8")
+            self.results = check_output(
+                shlex.split(command), timeout=self.wrapper_timeout).decode(
+                    encoding=sys.stdout.encoding)
         except CalledProcessError as err:
             print("** stress-ng exited with code {}".format(err.returncode))
             self.results = err.stdout.decode(encoding="utf-8")
-            self.returncode = self.returncode | err.returncode
+            self.returncode = err.returncode
         except TimeoutExpired:
             print("** stress-ng timed out and was forcefully terminated")
             self.results = ""
@@ -135,21 +135,11 @@ def stress_cpu(args):
 def num_numa_nodes():
     """Return the number of NUMA nodes supported by the CPU."""
 
-    if shutil.which("numactl") is None:
-        return 1
-
-    command = "numactl --hardware"
-    numactl = Popen(shlex.split(command), stderr=STDOUT, stdout=PIPE)
-    local_results = numactl.communicate()[0].split()
-    # local_results[1] will sometimes hold the number of NUMA nodes;
-    # but "numactl --hardware" sometimes returns the error message
-    # "No NUMA available on this system", so if this (or some other)
-    # error message appears, assume one NUMA node....
     try:
-        num_nodes = int(local_results[1])
-    except ValueError:
-        num_nodes = 1
-    return num_nodes
+        return int(run(['numactl', '--hardware'],
+                       stdout=PIPE).stdout.split()[1])
+    except:
+        return 1
 
 
 def swap_space_ok(args):
@@ -220,7 +210,7 @@ def stress_memory(args):
     vrt = args.base_time + total_mem_in_gb * args.time_per_gig
     print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
     print("Constant run time is {} seconds per stressor".format(
-          args.base_time))
+        args.base_time))
     print("Variable run time is {:.0f} seconds per stressor".format(vrt))
     print("Number of NUMA nodes is {}".format(num_numa_nodes()))
 
@@ -350,21 +340,21 @@ def main():
 
     if shutil.which("stress-ng") is None:
         print("** The stress-ng utility is not installed; exiting!")
-        return(1)
+        return 1
     if not os.geteuid() == 0:
         print("** This program must be run as root (or via sudo); exiting!")
-        return(1)
+        return 1
 
     retval = args.func(args)
     print("retval is {}".format(retval))
-    print("**************************************************************")
+    print("*" * 62)
     if retval == 0:
         print("* stress-ng test passed!")
     else:
         print("** stress-ng test failed!")
-    print("**************************************************************")
+    print("*" * 62)
 
-    return(retval)
+    return retval
 
 
 sys.exit(main())

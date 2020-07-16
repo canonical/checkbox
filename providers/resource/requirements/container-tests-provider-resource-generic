@@ -14,4 +14,4 @@ echo "I: running 'develop' on checkbox-support"
 ( cd $TMPDIR/checkbox-support/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
 
 ./manage.py validate
-./manage.py test -u
+./manage.py test

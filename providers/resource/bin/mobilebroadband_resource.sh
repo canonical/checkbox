@@ -18,19 +18,16 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-MMCLI_PATH=$(which mmcli)
+MMCLI_PATH=$(command -v mmcli)
 
 if [ -x "$MMCLI_PATH" ]; then
     # Use mmcli to query for modem capabilities
     for i in $(mmcli --simple-status -L 2>/dev/null || mmcli -L | \
                awk '/freedesktop\/ModemManager1\/Modem/ {print $1;}'); do
-        mmcli -m $i |grep -q "supported: .*gsm-umts.*" && GSM=yes
-        mmcli -m $i |grep -q "supported: .*cdma.*" && CDMA=yes
+        mmcli -m "$i" | grep -q "supported: .*gsm-umts.*" && GSM=yes
+        mmcli -m "$i" | grep -q "supported: .*cdma.*" && CDMA=yes
     done
-    # force final exit status to true in case the test fails,
-    # as it's a resource and we don't want it to fail unless it
-    # really failed :D
-    [ "$GSM" = "yes" ] && echo "gsm: supported" || true
-    [ "$CDMA" = "yes" ] && echo "cdma: supported" || true
+    [ "$GSM" = "yes" ] && echo "gsm: supported"
+    [ "$CDMA" = "yes" ] && echo "cdma: supported"
 fi
-
+exit 0

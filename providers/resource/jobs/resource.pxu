@@ -3,45 +3,45 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3 (>= 3.2)
 
-# This is for bin/efi_resource, bin/cpuinfo_resource, bin/meminfo_resource,
-# bin/udev_resource and bin/xinput_resource
+# This is for bin/efi_resource.py, bin/cpuinfo_resource.py,
+# bin/meminfo_resource.py, bin/udev_resource.py and bin/xinput_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
 
-# This is for bin/display_resource
+# This is for bin/display_resource.py
 unit: packaging meta-data
 os-id: debian
 # NOTE: This is not a hard dependency so that
 # plainbox-provider-resource-generic has minimalistic dependencies.
 Suggests: x11-server-utils
 
-# This is for bin/dmi_resource
+# This is for bin/dmi_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: dmidecode [!arm64 !armel !mips !mipsel !powerpc !ppc64el !s390x !alpha !hppa !m68k !mips64el !ppc64 !sh4 !sparc64]
 
-# This is for bin/dpkg_resource
+# This is for bin/dpkg_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: dpkg (>= 1.13)
 
-# This is for bin/lsb_resource
+# This is for bin/lsb_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: lsb-release
 
-# This is for bin/mobilebroadband_resource
+# This is for bin/mobilebroadband_resource.sh
 unit: packaging meta-data
 os-id: debian
 Depends: network-manager
 
-# This is for bin/optical_resource and bin/udev_resource
+# This is for bin/optical_resource.py and bin/udev_resource.py
 unit: packaging meta-data
 os-id: debian
 Depends: udev
 
-# This is for bin/xinput_resource
+# This is for bin/xinput_resource.py
 unit: packaging meta-data
 os-id: debian
 # NOTE: This is not a hard dependency so that
@@ -67,7 +67,7 @@ Depends: iw (>= 5.3)
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
-command: cpuinfo_resource
+command: cpuinfo_resource.py
 _summary: Collect information about the CPU
 _description: Gets CPU resource info from /proc/cpuinfo
 
@@ -75,28 +75,28 @@ id: cdimage
 estimated_duration: 0.61
 plugin: resource
 user: root
-command: cdimage_resource
+command: cdimage_resource.py
 _summary: Collect information about installation media (casper)
 _description: Gets installation info from casper.log and media-info
 
 id: dpkg
 estimated_duration: 0.19
 plugin: resource
-command: dpkg_resource
+command: dpkg_resource.py
 _summary: Collect information about dpkg version
 _description: Gets info on the version of dpkg installed
 
 id: lsb
 estimated_duration: 1.63
 plugin: resource
-command: lsb_resource
+command: lsb_resource.py
 _description: Generates release info based on /etc/lsb-release
 _summary: Collect information about installed system (lsb-release)
 
 id: meminfo
 estimated_duration: 0.1
 plugin: resource
-command: meminfo_resource
+command: meminfo_resource.py
 _description: Generates resource info based on /proc/meminfo
 _summary: Collect information about system memory (/proc/meminfo)
 
@@ -104,7 +104,7 @@ id: module
 estimated_duration: 0.13
 plugin: resource
 user: root
-command: module_resource
+command: module_resource.py
 _description: Generates resources info on running kernel modules
 _summary: Collect information about kernel modules
 
@@ -130,14 +130,14 @@ command:
 id: device
 estimated_duration: 0.48
 plugin: resource
-command: udev_resource
+command: udev_resource.py
 _description: Creates resource info from udev
 _summary: Collect information about hardware devices (udev)
 
 id: removable_partition
 estimated_duration: 0.48
 plugin: resource
-command: udev_resource -f PARTITION || true
+command: udev_resource.py -f PARTITION || true
 _description: Creates removable partitions info from udev
 _summary: Collect removable partitions info from udev
 
@@ -145,7 +145,7 @@ id: staging/udev
 estimated_duration: 1.1
 plugin: resource
 shell: /bin/sh
-command: udevadm info --export-db | udev2resource
+command: udevadm info --export-db | udev2resource.py
 _summary: Collect unfiltered udev data
 _description:
  This job collects the udev database in mostly raw format. The only
@@ -171,20 +171,20 @@ plugin: resource
 requires:
   dmi_present.state == 'supported'
 user: root
-command: dmi_resource
+command: dmi_resource.py
 _summary: Collect information about hardware devices (DMI)
 
 id: efi
 estimated_duration: 0.56
 plugin: resource
 user: root
-command: efi_resource
+command: efi_resource.py
 _summary: Collect information about the EFI configuration
 
 id: uname
 estimated_duration: 0.09
 plugin: resource
-command: uname_resource
+command: uname_resource.py
 _description: Creates resource info from uname output
 _summary: Collect information about the running kernel
 
@@ -199,7 +199,7 @@ template-resource: device
 template-filter: device.category == 'CDROM'
 id: optical_drive_{name}
 plugin: resource
-command: optical_resource /dev/{name}
+command: optical_resource.py /dev/{name}
 estimated_duration: 0.5
 _summary: Create resource info for supported optical actions ({name})
 
@@ -207,13 +207,13 @@ id: block_device
 estimated_duration: 0.08
 plugin: resource
 user: root
-command: block_device_resource
+command: block_device_resource.py
 _summary: Create resource info for removable block devices
 
 id: display
 estimated_duration: 0.43
 plugin: resource
-command: display_resource
+command: display_resource.py
 requires: package.name == "x11-xserver-utils"
 _summary: Creates display resource info from xrandr output
 
@@ -236,7 +236,7 @@ command:
 id: xinput
 estimated_duration: 0.19
 plugin: resource
-command: xinput_resource
+command: xinput_resource.py
 requires: package.name == "xinput"
 _summary: Creates resource info from xinput output.
 
@@ -254,7 +254,7 @@ id: mobilebroadband
 estimated_duration: 0.38
 plugin: resource
 _summary: Create resource for mobile broadband devices
-command: mobilebroadband_resource
+command: mobilebroadband_resource.sh
 
 id: virtualization
 estimated_duration: 0.13
@@ -339,7 +339,7 @@ id: graphics_card
 estimated_duration: 0.05
 plugin: resource
 _summary: Generate an entry for each graphics card present in the system.
-command: graphics_card_resource
+command: graphics_card_resource.py
 
 id: fwts
 estimated_duration: 0.5

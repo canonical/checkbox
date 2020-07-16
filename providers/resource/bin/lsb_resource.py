@@ -20,8 +20,6 @@
 import re
 import sys
 
-from subprocess import Popen, PIPE
-
 
 def get_lsb_release():
     lsb_release_map = {
@@ -41,7 +39,7 @@ def get_lsb_release():
                     key = lsb_release_map[key]
                     # Strip out quotes and newlines
                     lsb_release[key] = re.sub('["\n]', '', value)
-    except:
+    except OSError:
         # Missing file or permissions? Return the default lsb_release
         pass
 

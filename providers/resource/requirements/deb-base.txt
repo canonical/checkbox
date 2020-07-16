@@ -4,3 +4,4 @@ libnl-genl-3-200
 libnl-genl-3-dev
 pkg-config
 shellcheck
+flake8

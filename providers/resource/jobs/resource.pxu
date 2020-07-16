@@ -112,6 +112,7 @@ id: package
 estimated_duration: 1.16
 plugin: resource
 command:
+    # shellcheck disable=SC2016
     dpkg-query -W -f='name: ${Package}\nversion: ${Version}\nmodalias: ${Modaliases}\n\n' || \
     echo -e 'name: plainbox\nversion: 0.1\nmodalias:  \n\n' |\
     awk 'BEGIN {RS = ""; FS = "\n"}{print $1; print $2; if ($3 ~ /^modalias: .+$/) {print $3}; print "" }'
@@ -124,7 +125,7 @@ plugin: resource
 _summary: Enumerate available system executables
 _description: Generates a resource for all available executables
 command:
-    find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -xtype f -executable -printf "name: %f\nlocation: %h\n\n"
+    xargs -n1 -d: <<< "$PATH" | xargs -I{} find -H {} -maxdepth 1 -xtype f -executable -printf "name: %f\nlocation: %h\n\n"
     true
 
 id: device
@@ -191,7 +192,8 @@ _summary: Collect information about the running kernel
 id: sleep
 estimated_duration: 0.03
 plugin: resource
-command: for state in `cat /sys/power/state`; do echo "$state: supported"; done
+command:
+  tr ' ' '\n' < /sys/power/state | while IFS= read -r state; do echo "$state: supported"; done
 _summary: Create resource info for supported sleep states
 
 unit: template
@@ -246,8 +248,8 @@ plugin: resource
 _summary: Create resource info for environment variables
 command:
  IFS=$'\n'
- for e in `env | sed 's/=/:/g'`; do
-     echo $e | awk -F':' '{print $1 ": " $2}'
+ for e in $(env | sed 's/=/:/g'); do
+     echo "$e" | awk -F':' '{print $1 ": " $2}'
  done
 
 id: mobilebroadband
@@ -282,9 +284,11 @@ _summary: Resource job to identify Wi-Fi STA supported protocols
 _description:
  Job listing STA supported 802.11 protocols per interfaces.
 command:
- for i in `iw dev | grep -oP 'Interface\s+\K\w+'`; do iw phy phy$(iw dev $i info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'VHT' && echo $i"_ac: supported" || echo $i"_ac: unsupported"; done
+ # shellcheck disable=SC2046
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'VHT' && echo "$i""_ac: supported" || echo "$i""_ac: unsupported"; done
  # MCS 10 and 11 if present support the ax only 1024-QAM 
- for i in `iw dev | grep -oP 'Interface\s+\K\w+'`; do iw phy phy$(iw dev $i info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'MCS 0-11' && echo $i"_ax: supported" || echo $i"_ax: unsupported"; done
+ # shellcheck disable=SC2046
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'MCS 0-11' && echo "$i""_ax: supported" || echo "$i""_ax: unsupported"; done
 estimated_duration: 0.5
 flags: preserve-locale
 
@@ -304,8 +308,8 @@ id: requirements
 estimated_duration: 0.01
 plugin: resource
 command:
- if [ -f $PLAINBOX_SESSION_SHARE/requirements_docs.txt ];then
-    cat $PLAINBOX_SESSION_SHARE/requirements_docs.txt
+ if [ -f "$PLAINBOX_SESSION_SHARE"/requirements_docs.txt ];then
+    cat "$PLAINBOX_SESSION_SHARE"/requirements_docs.txt
  else
     true
  fi
@@ -347,7 +351,7 @@ plugin: resource
 requires: executable.name == "fwts"
 _summary: Generate an entry for each FWTS test available
 command:
- for test in `checkbox-support-fwts_test --list`; do echo "name: $test"; echo ""; done
+ for test in $(checkbox-support-fwts_test --list); do echo "name: $test"; echo ""; done
 
 id: mir
 estimated_duration: 0.5
@@ -355,17 +359,18 @@ plugin: resource
 requires: package.name == "mir-test-tools"
 _summary: Generate an entry for each MIR integration tests
 command:
- for test in `mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: integration"; echo "name: $test"; echo ""; done
- for test in `mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: acceptance"; echo "name: $test"; echo ""; done
+ for test in $(mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'); do echo "category: integration"; echo "name: $test"; echo ""; done
+ for test in $(mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'); do echo "category: acceptance"; echo "name: $test"; echo ""; done
 
 id: wifi_interface_mode
 estimated_duration: 0.1
 plugin: resource
 command:
- for i in `iw dev | grep -oP 'Interface\s+\K\w+'`;
- do iw phy phy$(iw dev $i info | grep -oP 'wiphy\s+\K\d+') info |
+ # shellcheck disable=SC2046
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+');
+ do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info |
  grep -Pzo '(?s)Supported interface modes:\n\K(\s+\*\s.*?\n)+' |
- sed "s/.*\* \(.*\)/"$i"_\1: supported/" | tr -d '\000';
+ sed "s/.*\* \(.*\)/""$i""_\1: supported/" | tr -d '\000';
  done
 _summary: Create resource info for supported wifi interface modes
 

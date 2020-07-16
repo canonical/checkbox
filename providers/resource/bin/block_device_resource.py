@@ -33,7 +33,7 @@ def usb_support(name, version):
     path = rootdir_pattern.sub('', os.readlink('/sys/block/%s' % name))
 
     # Remove the usb config.interface part of the path
-    m = re.match('((.*usb\d+).*\/)\d-[\d\.:\-]+\/.*', path)
+    m = re.match('((.*usb\d+).*\/)\d-[\d\.:\-]+\/.*', path)  # noqa: W605
     if m:
         device_path = m.group(1)
         hub_port_path = m.group(2)
@@ -137,8 +137,9 @@ def smart_support(name):
                     break
     return supported
 
+
 for path in glob('/sys/block/*/device') + glob('/sys/block/*/dm'):
-    name = re.sub('.*/(.*?)/(device|dm)', '\g<1>', path)
+    name = re.sub('.*/(.*?)/(device|dm)', '\g<1>', path)  # noqa: W605
     state = device_state(name)
     usb2 = usb_support(name, 2.00)
     usb3 = usb_support(name, 3.00)

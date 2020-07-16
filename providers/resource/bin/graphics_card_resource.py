@@ -31,6 +31,7 @@ def slugify(_string):
         "-_.{}{}".format(string.ascii_letters, string.digits))
     return ''.join(c if c in valid_chars else '_' for c in _string)
 
+
 def subprocess_lines_generator(command):
     """
     Generator that opens a subprocess and spits out lines
@@ -118,8 +119,9 @@ def main():
 
     # udev_devices generates one dict per device, the list shown
     # below filters that to only VIDEO ones
-    video_devices = list(r for r in udev_devices(udev_output)
-                               if r.get("category", "") == 'VIDEO')
+    video_devices = list(
+        r for r in udev_devices(udev_output) if r.get(
+            "category", "") == 'VIDEO')
     video_devices.sort(key=lambda r: bus_ordering(r))
 
     # commands needed to switch to and from particular GPU,
@@ -187,6 +189,7 @@ def main():
     except OSError as err:
         raise SystemExit(err)
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

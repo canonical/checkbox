@@ -62,7 +62,8 @@ class UdevResultLister:
         for c, devices in self._data.items():
             if short:
                 for d in devices:
-                    print("{}".format(d.replace('None ', '').replace(' None', '')))
+                    print("{}".format(
+                        d.replace('None ', '').replace(' None', '')))
             else:
                 print("{} ({}):".format(c, len(devices)))
                 for d in devices:
@@ -107,13 +108,13 @@ def main():
                         metavar=("CATEGORY"), default=(),
                         help="""List devices found under the requested
                         categories.
-                        Acceptable categories to list are: 
+                        Acceptable categories to list are:
                         {}""".format(', '.join(categories)))
     parser.add_argument('-f', '--filter', nargs='+', choices=categories,
                         metavar=("CATEGORY"), default=(),
                         help="""Filter devices found under the requested
                         categories.
-                        Acceptable categories to list are: 
+                        Acceptable categories to list are:
                         {}""".format(', '.join(categories)))
     parser.add_argument('-s', '--short', action='store_true')
     args = parser.parse_args()

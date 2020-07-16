@@ -8,6 +8,22 @@ requires:
 command: cat /proc/asound/cards
 _description: Test to detect audio devices
 
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/valid-sof-firmware-sig
+requires:
+ device.category == 'AUDIO'
+ package.name == 'linux-firmware'
+command:
+ for fw in /lib/firmware/intel/sof/sof-*.ri;
+ do
+     # shellcheck disable=SC2016
+     if xxd "${fw}" | grep -q '$CPD'; then
+         sof_ri_info.py --valid "${fw}"
+     fi
+ done
+_description: Valid sof firmware signature
+
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_auto

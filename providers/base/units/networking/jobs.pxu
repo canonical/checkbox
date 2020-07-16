@@ -27,7 +27,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::networking
 id: networking/modem_connection
-command: network_check
+command: network_check.py
 _description:
  PURPOSE:
     This test will check that a DSL modem can be configured and connected.
@@ -61,7 +61,7 @@ category_id: com.canonical.plainbox::networking
 id: networking/ntp
 requires: package.name == 'ntpdate'
 user: root
-command: network_ntp_test
+command: network_ntp_test.py
 _description: Test to see if we can sync local clock to an NTP server
 
 plugin: shell
@@ -75,14 +75,14 @@ plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/printer
 requires: package.name == 'cups-client'
-command: network_printer_test -s $CHECKBOX_SERVER
+command: network_printer_test.sh -s $CHECKBOX_SERVER
 _description: Try to enable a remote printer on the network and print a test page.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
 template-engine: jinja2
 id: networking/predictable_names
-command: network_predictable_names
+command: network_predictable_names.sh
 _summary: Verify that all network interfaces have predictable names.
 _description: Verify that all network interfaces have predictable names.
 requires:

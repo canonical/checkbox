@@ -151,11 +151,11 @@ _description:
      {% endif %}
 command:
     {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
-    manage_compiz_plugin unityshell disable
+    manage_compiz_plugin.py unityshell disable
     qmlscene -qt5 3 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
-    manage_compiz_plugin unityshell enable
+    manage_compiz_plugin.py unityshell enable
     {%- else %}
     timeout 20 multitap_test.py 3 || (>&2 echo "FAILED TO DETECT TAP"; false)
     EXIT=$?
@@ -186,11 +186,11 @@ _description:
      {% endif %}
 command:
     {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
-    manage_compiz_plugin unityshell disable
+    manage_compiz_plugin.py unityshell disable
     qmlscene -qt5 4 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
-    manage_compiz_plugin unityshell enable
+    manage_compiz_plugin.py unityshell enable
     {%- else %}
     timeout 20 multitap_test.py 4 || (>&2 echo "FAILED TO DETECT TAP"; false)
     EXIT=$?

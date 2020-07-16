@@ -1,7 +1,7 @@
 plugin: user-interact
 category_id: com.canonical.plainbox::esata
 id: esata/insert
-command: removable_storage_watcher insert ata_serial_esata
+command: removable_storage_watcher.py insert ata_serial_esata
 _description:
  PURPOSE:
      This test will check the system can detect the insertion of an eSATA HDD
@@ -18,7 +18,7 @@ category_id: com.canonical.plainbox::esata
 id: esata/storage-test
 user: root
 depends: esata/insert
-command: removable_storage_test -s 268400000 ata_serial_esata
+command: removable_storage_test.py -s 268400000 ata_serial_esata
 _description:
  This is an automated test which performs read/write operations on an attached
  eSATA HDD
@@ -27,7 +27,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::esata
 id: esata/remove
 depends: esata/insert
-command: removable_storage_watcher remove ata_serial_esata
+command: removable_storage_watcher.py remove ata_serial_esata
 _description:
  PURPOSE:
      This test will check the system can detect the removal of an eSATA HDD

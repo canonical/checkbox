@@ -21,7 +21,7 @@ depends: usb/detect
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
 estimated_duration: 1.0
-command: removable_storage_test -l usb
+command: removable_storage_test.py -l usb
 _description:
  PURPOSE:
      This test will check that your system detects USB storage devices.
@@ -36,7 +36,7 @@ category_id: com.canonical.plainbox::usb
 id: usb/HID
 depends: usb/detect
 estimated_duration: 1.0
-command: keyboard_test
+command: keyboard_test.py
 _description:
  PURPOSE:
      This test will check that you can use a USB HID device
@@ -66,7 +66,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion usb2
  {%- else %}
-     removable_storage_watcher --unmounted insert usb
+     removable_storage_watcher.py --unmounted insert usb
  {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -92,7 +92,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion usb3
  {%- else %}
-     removable_storage_watcher --unmounted -m 500000000 insert usb
+     removable_storage_watcher.py --unmounted -m 500000000 insert usb
  {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -117,7 +117,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal usb2
  {%- else %}
-     removable_storage_watcher --unmounted remove usb
+     removable_storage_watcher.py --unmounted remove usb
  {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -142,7 +142,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal usb3
  {%- else %}
-     removable_storage_watcher --unmounted -m 500000000 remove usb
+     removable_storage_watcher.py --unmounted -m 500000000 remove usb
  {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
@@ -153,7 +153,7 @@ id: usb/storage-transfer
 depends: usb/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  PURPOSE:
      This test will check your USB connection.
@@ -173,7 +173,7 @@ requires:
 depends: usb3/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb
+command: removable_storage_test.py -s 268400000 -m 500000000 usb
 _description:
  PURPOSE:
      This test will check your USB 3.0 connection.
@@ -202,7 +202,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 usb
+     removable_storage_test.py -s 268400000 usb
  {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 300
@@ -224,7 +224,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
  {% endif -%}
 category_id: com.canonical.plainbox::usb
 estimated_duration: 300
@@ -234,7 +234,7 @@ category_id: com.canonical.plainbox::usb
 id: usb/storage-preinserted
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -l usb && timeout 300 removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 usb
 flags: also-after-suspend preserve-cwd
 requires:
  cpuinfo.platform != 's390x'
@@ -258,7 +258,7 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
 estimated_duration: 45.0
-command: removable_storage_test -l usb && timeout 300 removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _summary: 
  Test USB 3.0 or 3.1 ports
 _description:
@@ -288,7 +288,7 @@ id: usb/performance
 depends: usb/insert
 user: root
 estimated_duration: 45.00
-command: removable_storage_test -s 268400000 -p 15 usb
+command: removable_storage_test.py -s 268400000 -p 15 usb
 _description:
  This test will check that your USB 2.0 port transfers data at a
  minimum expected speed.
@@ -298,7 +298,7 @@ category_id: com.canonical.plainbox::usb
 plugin: shell
 _summary: Detect storage partitions on a device on the USB bus
 command:
-  udev_resource -f PARTITION | grep "bus: usb"
+  udev_resource.py -f PARTITION | grep "bus: usb"
 estimated_duration: 1.0
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest

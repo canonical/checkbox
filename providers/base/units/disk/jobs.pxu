@@ -7,7 +7,7 @@ _summary: Gathers information about each disk detected
 _description:
  Uses lsblk to gather information about each disk detected on the system
  under test.
-command: disk_info
+command: disk_info.py
 estimated_duration: 0.25
 
 unit: template
@@ -20,7 +20,7 @@ id: disk/stats_{name}
 flags: deprecated
 user: root
 estimated_duration: 10.0
-command: disk_stats_test {name}
+command: disk_stats_test.sh {name}
 _summary: Disk statistics for {product_slug}
 _description:
  This test checks disk stats, generates some activity and rechecks stats to
@@ -48,7 +48,7 @@ _summary:
 _description:
  This tests the SMART capabilities for {product_slug} (Note that this test may not work against hardware RAID)
 user: root
-command: disk_smart -b /dev/{name} -s 130 -t 530
+command: disk_smart.py -b /dev/{name} -s 130 -t 530
 
 unit: template
 template-resource: device
@@ -62,7 +62,7 @@ _summary: Disk performance test for {product_slug}
 _description: Verify that disk storage performs at or above baseline performance
 user: root
 environ: DISK_READ_PERF
-command: disk_read_performance_test {name}
+command: disk_read_performance_test.sh {name}
 
 unit: template
 template-resource: device
@@ -89,7 +89,7 @@ requires:
  block_device.rotation == 'no' and block_device.name == '{name}'
 _summary: Filesystem TRIM check for {product_slug}
 _description: Take the path of the storage device and test its TRIM capabilities
-command: fstrim_test --device-file {name}
+command: fstrim_test.py --device-file {name}
 
 unit: template
 template-resource: device
@@ -108,10 +108,10 @@ command:
   if [ -n "$STRESS_NG_DISK_TIME" ]
   then
     echo "Found STRESS_NG_DISK_TIME env var, stress_ng disk running time is now: $STRESS_NG_DISK_TIME seconds"
-    stress_ng_test disk --device {name} --base-time $STRESS_NG_DISK_TIME
+    stress_ng_test.py disk --device {name} --base-time $STRESS_NG_DISK_TIME
   else
     echo "STRESS_NG_DISK_TIME env var is not found, stress_ng disk running time is default value"
-    stress_ng_test disk --device {name} --base-time 240
+    stress_ng_test.py disk --device {name} --base-time 240
   fi
 
 unit: template
@@ -127,7 +127,7 @@ requires:
  package.name == 'bc' or executable.name == 'bc'
 _summary: Check of CPU load imposed by {product_slug}
 _description: Check to ensure CPU load of {product_slug} is not too high
-command: disk_cpu_load {name}
+command: disk_cpu_load.sh {name}
 
 plugin: shell
 category_id: com.canonical.plainbox::disk
@@ -137,7 +137,7 @@ requires:
  device.category == 'DISK'
  package.name == 'smartmontools'
 user: root
-command: spindown
+command: spindown.sh
 _description:
  Some new hard drives include a feature that parks the drive heads after a short period of inactivity. This is a power-saving feature, but it can have a bad interaction with the operating system that results in the drive constantly parked then activated. This produces excess wear on the drive, potentially leading to early failures.
 
@@ -150,7 +150,7 @@ requires:
     executable.name == 'hdapsd'
 depends: input/accelerometer
 user: root
-command: hdd_parking
+command: hdd_parking.py
 _description:
  PURPOSE:
   This test checks that a systems drive protection mechanism works properly.

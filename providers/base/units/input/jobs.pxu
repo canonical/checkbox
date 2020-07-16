@@ -30,7 +30,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::input
 id: input/keyboard
 estimated_duration: 30.0
-command: keyboard_test
+command: keyboard_test.py
 requires: device.category == 'KEYBOARD'
 _description:
  PURPOSE:
@@ -47,7 +47,7 @@ id: input/accelerometer
 estimated_duration: 60.0
 user: root
 requires: device.category == 'ACCELEROMETER'
-command: accelerometer_test -m
+command: accelerometer_test.py -m
 _description:
  PURPOSE:
      This test will test your accelerometer to see if it is detected

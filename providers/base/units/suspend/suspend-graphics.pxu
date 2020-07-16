@@ -8,7 +8,7 @@ after: graphics/{index}_auto_switch_card_{product_slug}
 estimated_duration: 1.2
 _description: Record the current resolution before suspending.
 command:
- source graphics_env {driver} {index}
+ source graphics_env.sh {driver} {index}
  xrandr -q | grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
 
 unit: template
@@ -48,7 +48,7 @@ depends:
  {%- endif %}
 _description: Test to see that we have the same resolution after resuming as before.
 command:
- source graphics_env {{ driver }} {{ index }}
+ source graphics_env.sh {{ driver }} {{ index }}
  xrandr -q | grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/{{ index }}_resolution_before_suspend.txt -
 
 unit: template
@@ -89,8 +89,8 @@ depends:
  {%- endif %}
 estimated_duration: 120.0
 command:
- source graphics_env {{ driver }} {{ index }}
- xrandr_cycle --keyword={{ index }}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+ source graphics_env.sh {{ driver }} {{ index }}
+ xrandr_cycle.py --keyword={{ index }}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
      This test will cycle through the detected display modes
@@ -124,8 +124,8 @@ depends:
  {%- endif %}
 requires: package.name == 'nux-tools'
 command:
- source graphics_env {{ driver }} {{ index }}
- ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+ source graphics_env.sh {{ driver }} {{ index }}
+ ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
 estimated_duration: 0.130
 _description: Check that {{ product }} hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support for {{ product }} after suspend
@@ -144,7 +144,7 @@ depends:
  {%- endif %}
 requires: executable.name == 'glxgears'
 command:
- source graphics_env {{ driver }} {{ index }}
+ source graphics_env.sh {{ driver }} {{ index }}
  glxgears
  true
 _summary: Test that glxgears works for {{ vendor }} {{ product }} after suspend
@@ -174,8 +174,8 @@ requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command:
- source graphics_env {{ driver }} {{ index }}
- gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+ source graphics_env.sh {{ driver }} {{ index }}
+ gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed after suspend with {{ vendor }} {{ product }}
 _description:
  PURPOSE:
@@ -199,8 +199,8 @@ depends:
   suspend/suspend_advanced
  {%- endif %}
 command:
- source graphics_env {{ driver }} {{ index }}
- graphics_driver
+ source graphics_env.sh {{ driver }} {{ index }}
+ graphics_driver.py
 estimated_duration: 0.500
 _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {{ vendor }} {{ product }} graphics card
 _summary: Test X driver/version after suspend for {{ vendor }} {{ product }}
@@ -236,7 +236,7 @@ depends:
   suspend/suspend_advanced
  {%- endif %}
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single_times.log
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 unit: template
@@ -257,8 +257,8 @@ command:
   echo "Calling fwts"
   set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
  else
-  echo "Calling sleep_test"
-  set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+  echo "Calling sleep_test.py"
+  set -o pipefail; sleep_test.py -p | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
  fi
 _purpose:
  Suspend SUT 30 times while using {product_slug} graphics card
@@ -277,8 +277,8 @@ depends:
   suspend/suspend_advanced
  {%- endif %}
 command:
- source graphics_env {{ driver }} {{ index }}
- rotation_test
+ source graphics_env.sh {{ driver }} {{ index }}
+ rotation_test.py
 estimated_duration: 20.000
 _summary: Test rotation for {{ vendor }} {{ product }} after suspend
 _description:

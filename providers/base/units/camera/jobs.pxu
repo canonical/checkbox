@@ -5,7 +5,7 @@ estimated_duration: 1.2
 requires:
  device.category == 'CAPTURE'
 command:
-  camera_test detect
+  camera_test.py detect
 _summary: This Automated test attempts to detect a camera.
 user: root
 
@@ -17,7 +17,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_rpi_camera == 'True'
 command:
-  udev_resource -f MMAL | grep "category: MMAL"
+  udev_resource.py -f MMAL | grep "category: MMAL"
 _summary: Detect presence of a MMAL camera.
 
 unit: template
@@ -32,7 +32,7 @@ _summary: Webcam video display test for {product_slug}
 estimated_duration: 120.0
 depends: camera/detect
 command:
-  camera_test display -d /dev/{name}
+  camera_test.py display -d /dev/{name}
 _description:
  PURPOSE:
      This test will check that the {product_slug} camera works
@@ -52,7 +52,7 @@ _summary: Webcam LED test for {product_slug}
 estimated_duration: 120.0
 depends: camera/detect
 command:
-  camera_test led -d /dev/{name}
+  camera_test.py led -d /dev/{name}
 _description:
  PURPOSE:
      This test will check that the {product_slug} camera LED works
@@ -84,7 +84,7 @@ requires:
  package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
  {% endif -%}
 command:
-  camera_test still -d /dev/{{ name }}
+  camera_test.py still -d /dev/{{ name }}
 _description:
  PURPOSE:
      This test will check that the {{ product_slug }} works
@@ -111,7 +111,7 @@ requires:
  package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
  {% endif -%}
 command:
-  camera_test resolutions -d /dev/{{ name }}
+  camera_test.py resolutions -d /dev/{{ name }}
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.

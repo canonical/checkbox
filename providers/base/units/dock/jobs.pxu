@@ -245,11 +245,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock HDMI audio interface verification
@@ -273,11 +273,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock DisplayPort audio interface verification
@@ -300,11 +300,11 @@ _summary: HDMI audio test
 plugin: user-interact-verify
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock USB Type-C HDMI audio interface verification
@@ -328,11 +328,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock USB Type-C Displayport audio interface verification
@@ -358,11 +358,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock Thunderbolt3 audio interface verification
@@ -387,11 +387,11 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
-  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _purpose:
     This test will check that headphones connector works correctly.
@@ -416,11 +416,11 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 command:
- audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --device=pci --volume=50
- alsa_record_playback
+ audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --device=pci --volume=50
+ alsa_record_playback.sh
  EXIT_CODE=$?
- audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     This test will check that recording sound using an external microphone works correctly
@@ -484,11 +484,11 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
-  alsa_record_playback
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  alsa_record_playback.sh
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _purpose:
     Check that external line-in connection works correctly
@@ -509,7 +509,7 @@ _summary: Headphones recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
  package.name == 'pulseaudio-utils'
-command: pulse-active-port-change sinks
+command: pulse-active-port-change.py sinks
 _purpose:
     Check that system detects speakers or headphones being plugged in
     (Skip this test if the dock does not have headphones connector)
@@ -532,7 +532,7 @@ _summary: Microphone recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
  package.name == 'pulseaudio-utils'
-command: pulse-active-port-change sources
+command: pulse-active-port-change.py sources
 _purpose:
     Check that system detects a microphone being plugged in
     (Skip this test if the dock does not have a microphone connector)
@@ -571,7 +571,7 @@ plugin: user-interact-verify
 depends: dock/cold-plug
 requires: package.name == 'ntpdate'
 user: root
-command: network_ntp_test
+command: network_ntp_test.py
 estimated_duration: 10.00
 _summary: NTP sync test using dock's Ethernet connectivity
 _purpose:
@@ -611,7 +611,7 @@ id: dock/usb-HID
 category_id: dock-usb
 estimated_duration: 20.0
 _summary: USB HID device test
-command: keyboard_test
+command: keyboard_test.py
 _purpose:
     This test will check that you can use a USB HID device
 _steps:
@@ -626,7 +626,7 @@ id: dock/usb-insert
 category_id: dock-usb
 estimated_duration: 10.0
 _summary: USB drive insertion test
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock
@@ -646,7 +646,7 @@ id: dock/usb3-insert
 category_id: dock-usb
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device
@@ -666,7 +666,7 @@ category_id: dock-usb
 depends: dock/usb-insert
 estimated_duration: 10.0
 _summary: USB drive removal test
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device
@@ -683,7 +683,7 @@ category_id: dock-usb
 depends: dock/usb3-insert
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device
@@ -701,7 +701,7 @@ depends: dock/usb-insert
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb_insert test is run.
 
@@ -712,7 +712,7 @@ depends: dock/usb3-insert
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -726,7 +726,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock using a
@@ -748,7 +748,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock
@@ -770,7 +770,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
@@ -791,7 +791,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port.
@@ -812,7 +812,7 @@ requires:
 depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/c-to-a-adapter/insert test
  is run.
@@ -827,7 +827,7 @@ requires:
 depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/insert test
  is run.
@@ -841,7 +841,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock using a
@@ -864,7 +864,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector on the dock after suspend
@@ -886,7 +886,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
@@ -907,7 +907,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usb_type_c == 'True'
 estimated_duration: 10.0
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
      a USB 3 storage device connected to a USB Type-C port after suspend.
@@ -928,7 +928,7 @@ requires:
 depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/c-to-a-adapter/insert test
  is run.
@@ -943,7 +943,7 @@ requires:
 depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the usb-c/insert test
  is run.
@@ -980,7 +980,7 @@ plugin: user-interact-verify
 category_id: dock-hotplug
 id: dock/hotplug-ethernet
 depends: dock/hot-plug
-command: network_check
+command: network_check.py
 estimated_duration: 10
 _description:
  PURPOSE:
@@ -997,7 +997,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug
 estimated_duration: 10.0
 _summary: USB drive insertion test
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock
@@ -1018,7 +1018,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after dock hot plugged in
@@ -1039,7 +1039,7 @@ depends: dock/hotplug-usb-insert
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb_insert test is run.
 
@@ -1050,7 +1050,7 @@ depends: dock/hotplug-usb3-insert
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -1060,7 +1060,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb-insert
 estimated_duration: 10.0
 _summary: USB drive removal test
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device
@@ -1077,7 +1077,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb3-insert
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after dock hot plugged in
@@ -1101,11 +1101,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock USB Type-C Displayport audio interface verification
@@ -1129,11 +1129,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock Thunderbolt3 audio interface verification
@@ -1157,11 +1157,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock DisplayPort audio interface verification
@@ -1185,11 +1185,11 @@ plugin: user-interact-verify
 flags: also-after-suspend-manual
 estimated_duration: 30.0
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ audio_settings.py store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
  EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
  exit $EXIT_CODE
 _purpose:
     Dock HDMI audio interface verification
@@ -1220,7 +1220,7 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
 _description: Record mixer settings before suspending.
-command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_before_suspend
+command: audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/audio_settings_before_suspend
 
 
 
@@ -1239,7 +1239,7 @@ category_id: dock-usb
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
 _summary: USB drive insertion after resuming
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock after suspend
@@ -1274,7 +1274,7 @@ category_id: dock-usb
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
 _summary: USB3 drive insertion after resuming
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend
@@ -1294,7 +1294,7 @@ category_id: dock-usb
 depends: dock/usb-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB drive removal after resuming
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device after suspend
@@ -1311,7 +1311,7 @@ category_id: dock-usb
 depends: dock/usb3-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB3 drive removal after resuming
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after suspend
@@ -1329,7 +1329,7 @@ depends: dock/usb-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test after resuming
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb-insert test is run.
 
@@ -1340,7 +1340,7 @@ depends: dock/usb3-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test after resuming
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3-insert test is run.
 
@@ -1350,7 +1350,7 @@ category_id: dock-usb
 depends: suspend/suspend_advanced
 estimated_duration: 20.0
 _summary: USB HID device test after resuming
-command: keyboard_test
+command: keyboard_test.py
 _purpose:
     This test will check that you can use a USB HID device
 _steps:
@@ -1540,7 +1540,7 @@ user: root
 environ: WPA_BG_SSID WPA_BG_PSK
 command:
     trap "nmcli con delete id $WPA_BG_SSID" EXIT
-    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+    if create_connection.py wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1564,7 +1564,7 @@ user: root
 environ: OPEN_BG_SSID
 command:
     trap "nmcli con delete id $OPEN_BG_SSID" EXIT
-    if create_connection wifi $OPEN_BG_SSID; then
+    if create_connection.py wifi $OPEN_BG_SSID; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1588,7 +1588,7 @@ user: root
 environ: WPA_N_SSID WPA_N_PSK
 command:
     trap "nmcli con delete id $WPA_N_SSID" EXIT
-    if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
+    if create_connection.py wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1612,7 +1612,7 @@ user: root
 environ: OPEN_N_SSID
 command:
     trap "nmcli con delete id $OPEN_N_SSID" EXIT
-    if create_connection wifi $OPEN_N_SSID; then
+    if create_connection.py wifi $OPEN_N_SSID; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1637,7 +1637,7 @@ user: root
 environ: WPA_AC_SSID WPA_AC_PSK
 command:
     trap "nmcli con delete id $WPA_AC_SSID" EXIT
-    if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
+    if create_connection.py wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1662,7 +1662,7 @@ user: root
 environ: OPEN_AC_SSID
 command:
     trap "nmcli con delete id $OPEN_AC_SSID" EXIT
-    if create_connection wifi $OPEN_AC_SSID; then
+    if create_connection.py wifi $OPEN_AC_SSID; then
         INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
@@ -1684,7 +1684,7 @@ requires:
 depends: dock/suspend-undock-resume dock/audio-before-suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
   diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
 plugin: shell
@@ -1701,7 +1701,7 @@ requires:
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
  device.category == 'AUDIO'
-command: audio_test
+command: audio_test.py
 _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
@@ -1711,7 +1711,7 @@ category_id: suspend-undock-resume
 depends: dock/suspend-undock-resume
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend, undocked, resume.
@@ -1732,7 +1732,7 @@ depends: dock/usb3-insert-after-suspend-undock-resume
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -1742,7 +1742,7 @@ category_id: suspend-undock-resume
 depends: dock/usb3-insert-after-suspend-undock-resume
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after suspend, undocked, resume.
@@ -1803,7 +1803,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: FireWire HDD insertion test
 depends: dock/cold-plug
-command: removable_storage_watcher insert firewire
+command: removable_storage_watcher.py insert firewire
 _purpose:
     This test will check the system can detect the insertion of a FireWire HDD on the dock
 _steps:
@@ -1822,7 +1822,7 @@ estimated_duration: 45.0
 _summary: FireWire HDD storage test
 depends: dock/cold-plug dock/firewire-insert
 user: root
-command: removable_storage_test -s 268400000 firewire
+command: removable_storage_test.py -s 268400000 firewire
 _description:
  This is an automated test which performs read/write operations on an attached
  FireWire HDD
@@ -1833,7 +1833,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: FireWire HDD removal test
 depends: dock/firewire-insert
-command: removable_storage_watcher remove firewire
+command: removable_storage_watcher.py remove firewire
 _purpose:
     This test will check the system can detect the removal of a FireWire HDD
 _steps:
@@ -1851,7 +1851,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: eSATA HDD insertion test
 depends: dock/cold-plug
-command: removable_storage_watcher insert ata_serial_esata
+command: removable_storage_watcher.py insert ata_serial_esata
 _purpose:
     This test will check the system can detect the insertion of an eSATA HDD on the dock
 _steps:
@@ -1870,7 +1870,7 @@ estimated_duration: 20.0
 _summary: eSATA HDD storage test
 user: root
 depends: dock/esata-insert
-command: removable_storage_test -s 268400000 ata_serial_esata
+command: removable_storage_test.py -s 268400000 ata_serial_esata
 _description:
  This is an automated test which performs read/write operations on an attached
  eSATA HDD
@@ -1881,7 +1881,7 @@ category_id: dock
 estimated_duration: 20.0
 _summary: eSATA HDD removal test
 depends: dock/esata-insert
-command: removable_storage_watcher remove ata_serial_esata
+command: removable_storage_watcher.py remove ata_serial_esata
 _purpose:
     This test will check the system can detect the removal of an eSATA HDD from the dock
 _steps:
@@ -1932,7 +1932,7 @@ depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual
-command: removable_storage_watcher insert --timeout 40 scsi
+command: removable_storage_watcher.py insert --timeout 40 scsi
 _summary: Thunderbolt3 storage insertion detection
 _purpose:
     This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
@@ -1954,7 +1954,7 @@ depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _summary: Thunderbolt3 storage test
 _description:
  This is an automated test which performs read/write operations on an attached
@@ -1968,7 +1968,7 @@ depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual
-command: removable_storage_watcher remove scsi
+command: removable_storage_watcher.py remove scsi
 _summary: Thunderbolt3 storage removal detection
 _purpose:
     This test will check the system can detect the removal of a Thunderbolt3 HDD
@@ -1987,7 +1987,7 @@ flags: also-after-suspend-manual
 estimated_duration: 45.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-command: removable_storage_test -s 268400000 scsi
+command: removable_storage_test.py -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt 3 storage and display device
 _description:
 _purpose:
@@ -2023,7 +2023,7 @@ plugin: user-interact-verify
 category_id: dock-hotplug
 id: dock/hotplug-ethernet-after-suspend
 depends: suspend/suspend_advanced
-command: network_check
+command: network_check.py
 estimated_duration: 10
 _description:
  PURPOSE:
@@ -2040,7 +2040,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug-after-suspend
 estimated_duration: 10.0
 _summary: USB drive insertion after resuming
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock after suspend
@@ -2061,7 +2061,7 @@ category_id: dock-hotplug
 depends: dock/hot-plug-after-suspend
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after dock hot plugged in
@@ -2082,7 +2082,7 @@ depends: dock/hotplug-usb-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test after resuming
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb-insert test is run.
 
@@ -2093,7 +2093,7 @@ depends: dock/hotplug-usb3-insert-after-suspend
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -2103,7 +2103,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB drive removal after resuming
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device after suspend
@@ -2120,7 +2120,7 @@ category_id: dock-hotplug
 depends: dock/hotplug-usb3-insert-after-suspend
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after dock hot plugged in
@@ -2152,7 +2152,7 @@ plugin: user-interact-verify
 category_id: suspend-dock-resume
 id: dock/ethernet-after-suspend-dock-resume
 depends: dock/suspend-dock-resume
-command: network_check
+command: network_check.py
 estimated_duration: 10
 _description:
  PURPOSE:
@@ -2169,7 +2169,7 @@ category_id: suspend-dock-resume
 depends: dock/suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB drive insertion after resuming
-command: removable_storage_watcher insert usb
+command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB storage device plugged on the dock after suspend
@@ -2190,7 +2190,7 @@ category_id: suspend-dock-resume
 depends: dock/suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB3 drive insertion test
-command: removable_storage_watcher -m 500000000 insert usb
+command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend, undocked, docked, resume.
@@ -2211,7 +2211,7 @@ depends: dock/usb-insert-after-suspend-dock-resume
 user: root
 estimated_duration: 45.0
 _summary: USB drive storage test after resuming
-command: removable_storage_test -s 268400000 usb
+command: removable_storage_test.py -s 268400000 usb
 _description:
  This test is automated and executes after the dock/usb-insert test is run.
 
@@ -2222,7 +2222,7 @@ depends: dock/usb3-insert-after-suspend-dock-resume
 user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
-command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the dock/usb3_insert test is run.
 
@@ -2232,7 +2232,7 @@ category_id: suspend-dock-resume
 depends: dock/usb-insert-after-suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB drive removal after resuming
-command: removable_storage_watcher remove usb
+command: removable_storage_watcher.py remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB storage device after suspend
@@ -2249,7 +2249,7 @@ category_id: suspend-dock-resume
 depends: dock/usb3-insert-after-suspend-dock-resume
 estimated_duration: 10.0
 _summary: USB3 drive removal test
-command: removable_storage_watcher -m 500000000 remove usb
+command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
     This test will check that the system correctly detects the removal of
     a USB 3.0 storage device after suspend, undocked, docked, resume.

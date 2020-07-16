@@ -2,7 +2,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::firewire
 id: firewire/insert
 require: device.category == 'FIREWIRE'
-command: removable_storage_watcher insert firewire
+command: removable_storage_watcher.py insert firewire
 _description:
  PURPOSE:
      This test will check the system can detect the insertion of a FireWire HDD
@@ -20,7 +20,7 @@ id: firewire/storage-test
 user: root
 require: device.category == 'FIREWIRE'
 depends: firewire/insert
-command: removable_storage_test -s 268400000 firewire
+command: removable_storage_test.py -s 268400000 firewire
 _description:
  This is an automated test which performs read/write operations on an attached
  FireWire HDD
@@ -30,7 +30,7 @@ category_id: com.canonical.plainbox::firewire
 id: firewire/remove
 depends: firewire/insert
 require: device.category == 'FIREWIRE'
-command: removable_storage_watcher remove firewire
+command: removable_storage_watcher.py remove firewire
 _description:
  PURPOSE:
      This test will check the system can detect the removal of a FireWire HDD

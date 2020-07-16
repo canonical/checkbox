@@ -19,9 +19,9 @@ category_id: com.canonical.plainbox::info
 user: root
 command:
  if [ -e /var/log/dmesg ]; then
-  cat /var/log/dmesg | ansi_parser
+  cat /var/log/dmesg | ansi_parser.py
  else
-  dmesg | ansi_parser
+  dmesg | ansi_parser.py
  fi
 estimated_duration: 0.640
 _description: Attaches a copy of /var/log/dmesg or the current dmesg buffer to the test results
@@ -184,9 +184,9 @@ _summary: Attach dump of udev database
 id: udev_resource_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: udev_resource
+command: udev_resource.py
 estimated_duration: 0.432
-_description: Attaches the output of udev_resource, for debugging purposes
+_description: Attaches the output of udev_resource.py, for debugging purposes
 
 id: lsblk_attachment
 estimated_duration: 0.1
@@ -202,13 +202,13 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 requires: package.name == 'lcov'
 user: root
-command: gcov_tarball
+command: gcov_tarball.sh
 _description: Attaches a tarball of gcov data if present.
 
 id: lsmod_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: lsmod_info
+command: lsmod_info.py
 estimated_duration: 0.5
 _description: Attaches a list of the currently running kernel modules.
 _summary: Attach a list of currently running kernel modules
@@ -236,7 +236,7 @@ _description: Bootchart information.
 requires: package.name == 'bootchart' or package.name == 'pybootchartgui'
 user: root
 command:
- process_wait -u root bootchart collector ureadahead; \
+ process_wait.py -u root bootchart collector ureadahead; \
  [ `ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l` -lt 2 ] && reboot && sleep 100
 
 unit: template
@@ -290,7 +290,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/touchpad_driver
 requires: device.category == 'TOUCHPAD'
-command: touchpad_driver_info
+command: touchpad_driver_info.py
 estimated_duration: 0.384
 _description:
  Returns the name, driver name and driver version of any touchpad discovered on
@@ -303,7 +303,7 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'kmod' or package.name == 'module-init-tools'
  device.category == 'AUDIO'
-command: audio_driver_info
+command: audio_driver_info.py
 estimated_duration: 0.177
 _description: Lists the device driver and version for all audio devices.
 
@@ -317,7 +317,7 @@ _description: Provides information about network devices
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/mobile_broadband_info
-command: broadband_info
+command: broadband_info.sh
 estimated_duration: 0.5
 _description: Provides information about wwan/mobile broadband devices
 
@@ -458,7 +458,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.2
 _summary: attach network configuration
-command: network_configs
+command: network_configs.sh
 
 id: parts_meta_info_attachment
 plugin: attachment

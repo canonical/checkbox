@@ -11,7 +11,7 @@ environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
 command:
   if [ -n "${GSM_APN}" ]; then
       trap "nmcli con delete id $GSM_CONN_NAME" EXIT
-      create_connection mobilebroadband gsm \
+      create_connection.py mobilebroadband gsm \
       `[ -n "${GSM_APN}" ] && echo "--apn=$GSM_APN"` \
       `[ -n "${GSM_CONN_NAME}" ] &&  echo "--name=$GSM_CONN_NAME"` \
       `[ -n "${GSM_USERNAME}" ] && echo "--username=$GSM_USERNAME"` \
@@ -41,7 +41,7 @@ environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
 command:
   if [ -n "${CDMA_USERNAME}" ]; then
       trap "nmcli con delete id $CDMA_CONN_NAME" EXIT
-      create_connection mobilebroadband cdma \
+      create_connection.py mobilebroadband cdma \
       `[ -n "${CDMA_CONN_NAME}" ] &&  echo "--name=$CDMA_CONN_NAME"` \
       `[ -n "${CDMA_USERNAME}" ] && echo "--username=$CDMA_USERNAME"` \
       `[ -n "${CDMA_PASSWORD}" ] && echo "--password=$CDMA_PASSWORD"` || exit 1
@@ -70,7 +70,7 @@ requires:
  package.name == 'iperf'
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 user: root
-command: network test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw {interface}'
+command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw {interface}'
 _purpose:
  User verification of whether the observed transfer throughput is acceptable
  for the type and maximum speed of device {__index__} ({interface}).
@@ -94,7 +94,7 @@ requires:
  package.name == 'iperf'
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 user: root
-command: network test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw {interface}'
+command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw {interface}'
 _purpose:
  User verification of whether the observed transfer throughput is acceptable
  for the type and maximum speed of device {__index__} ({interface}).

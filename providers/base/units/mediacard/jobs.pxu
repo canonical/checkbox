@@ -7,7 +7,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -37,7 +37,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 67120000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 67120000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _description:
  This test is automated and executes after the mediacard/mmc-insert
@@ -53,7 +53,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -76,7 +76,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -107,7 +107,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _summary: Test reading & writing to a SD Card
 _description:
@@ -124,7 +124,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _summary: Test that removal of an SD card is detected
@@ -145,7 +145,7 @@ id: mediacard/sd-preinserted
 estimated_duration: 30.0
 user: root
 flags: preserve-cwd
-command: removable_storage_test -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test --memorycard sdio usb scsi
+command: removable_storage_test.py -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test.py --memorycard sdio usb scsi
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -162,7 +162,7 @@ id: mediacard/sd-preinserted-server
 estimated_duration: 30.0
 user: root
 flags: preserve-cwd
-command: removable_storage_test -s 268400000 --memorycard -l sdio usb && removable_storage_test --memorycard sdio usb
+command: removable_storage_test.py -s 268400000 --memorycard -l sdio usb && removable_storage_test.py --memorycard sdio usb
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
 _summary: Automated test of SD Card reading & writing (udisk2) for servers
@@ -179,7 +179,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -211,7 +211,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _summary: Test that insertion of an SDHC card is detected
 _description:
@@ -228,7 +228,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _summary: Test that removal of an SDHC card is detected
@@ -252,7 +252,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -282,7 +282,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _description:
  This test is automated and executes after the mediacard/cf-insert
@@ -298,7 +298,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -321,7 +321,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -352,7 +352,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _summary: Test reading & writing to a SDXC Card
 _description:
@@ -369,7 +369,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _summary: Test that removal of an SDXC card is detected
@@ -393,7 +393,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -423,7 +423,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _description:
  This test is automated and executes after the mediacard/ms-insert
@@ -439,7 +439,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -462,7 +462,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 user: root
 imports: from com.canonical.plainbox import manifest
@@ -492,7 +492,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _description:
  This test is automated and executes after the mediacard/msp-insert
@@ -508,7 +508,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -531,7 +531,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher insertion mediacard
  {%- else %}
-     removable_storage_watcher --memorycard insert sdio usb scsi
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
  {% endif -%}
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -561,7 +561,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 _description:
  This test is automated and executes after the mediacard/xd-insert
@@ -577,7 +577,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher removal mediacard
  {%- else %}
-     removable_storage_watcher --memorycard remove sdio usb scsi
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
 _description:
@@ -603,7 +603,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
@@ -627,7 +627,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
@@ -651,7 +651,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 209715200 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 209715200 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
@@ -675,7 +675,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
@@ -699,7 +699,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
@@ -723,7 +723,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
@@ -747,7 +747,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:
@@ -771,7 +771,7 @@ command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
  {%- else %}
-     removable_storage_test -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
 environ: LD_LIBRARY_PATH GI_TYPELIB_PATH
 _description:

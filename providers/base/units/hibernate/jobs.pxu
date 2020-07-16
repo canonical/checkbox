@@ -11,8 +11,8 @@ command:
   echo "Calling fwts"
   checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
-  echo "Calling sleep_test"
-  sleep_test -s disk -w 120
+  echo "Calling sleep_test.py"
+  sleep_test.py -s disk -w 120
  fi
 estimated_duration: 300.00
 _description:
@@ -56,8 +56,8 @@ command:
   echo "Calling fwts"
   checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/{index}_hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
-  echo "Calling sleep_test"
-  sleep_test -s disk -w 120
+  echo "Calling sleep_test.py"
+  sleep_test.py -s disk -w 120
  fi
 _purpose:
     This test will check to make sure your system can successfully hibernate (if supported)
@@ -72,7 +72,7 @@ _verification:
 plugin: shell
 category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-check
-command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && sleep_test_log_check -v s4 $PLAINBOX_SESSION_SHARE/hibernate-single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && sleep_test_log_check.py -v s4 $PLAINBOX_SESSION_SHARE/hibernate-single.log
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 

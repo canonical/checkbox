@@ -98,14 +98,14 @@ id: bluetooth/audio-a2dp
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 command:
-  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   idx=`pactl list cards short | awk '/bluez/{print $1}'`
   bt_sink=`pactl list sinks short | awk '/bluez/{print $2}'`
   pactl set-card-profile $idx a2dp
   pactl set-default-sink $bt_sink
-  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -123,7 +123,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio
 depends: bluetooth/detect-output
 estimated_duration: 120.0
-command: audio_bluetooth_loopback_test
+command: audio_bluetooth_loopback_test.sh
 _description:
  PURPOSE:
      This test will check the Telephony Duplex capability of your bluetooth device,
@@ -145,7 +145,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/HID
 depends: bluetooth/detect-output
 estimated_duration: 120.0
-command: keyboard_test
+command: keyboard_test.py
 _description:
  PURPOSE:
      This test will check that you can use a BlueTooth HID device
@@ -183,7 +183,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  bluetooth_transfer_stress $BTDEVADDR
+  bluetooth_transfer_stress.sh $BTDEVADDR
 _description:
  This is an automated Bluetooth file transfer test. It sends a large file
  to the device specified by the BTDEVADDR environment variable, then
@@ -199,7 +199,7 @@ requires:
  manifest.has_bt_smart == 'True'
  package.name == 'bluez' and package.version >= '5.37'
 estimated_duration: 30.0
-command: bt_connect --mouse
+command: bt_connect.py --mouse
 _purpose:
      This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart mouse.
 _steps:
@@ -218,7 +218,7 @@ requires:
  manifest.has_bt_smart == 'True'
  package.name == 'bluez' and package.version >= '5.37'
 estimated_duration: 30.0
-command: bt_connect --keyboard
+command: bt_connect.py --keyboard
 _purpose:
      This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart keyboard.
 _steps:
@@ -351,7 +351,7 @@ _verification:
 plugin: user-verify
 user: root
 flags: also-after-suspend
-command: test_bt_keyboard
+command: test_bt_keyboard.py
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 1m
 

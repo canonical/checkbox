@@ -24,7 +24,8 @@ from checkbox_support.parsers.efi import EfiParser
 
 
 # Command to retrieve efi information.
-COMMAND = "[ -d /sys/firmware/efi ] && cat /var/log/kern.log* | grep -m 1 -o --color=never 'EFI v.*' || true"
+COMMAND = ("[ -d /sys/firmware/efi ] && cat /var/log/kern.log* | "
+           "grep -m 1 -o --color=never 'EFI v.*' || true")
 
 
 class EfiResult:

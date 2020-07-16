@@ -76,5 +76,6 @@ def main():
             if cap in cdrom_id:
                 print(CAP_MAP[cap] + ": supported")
 
+
 if __name__ == "__main__":
     sys.exit(main())

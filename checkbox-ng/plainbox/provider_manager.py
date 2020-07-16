@@ -1345,7 +1345,7 @@ def create_inline_shellcheck_test(command):
         result = subprocess.run(
             ['shellcheck', '-', '--shell=bash'],
             input=command,
-            encoding='ascii')
+            universal_newlines=True)
         self.assertEqual(result.returncode, 0)
     return run_inline_shellcheck
 

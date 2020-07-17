@@ -2,12 +2,9 @@ id: client-cert-18-04
 _name: 18.04 Client Certification Tests
 unit: test plan
 _description:
- This test plan is intended for use inside Canonical's test labs. The tests
- contained in this list are the same as those contained in the
- client-selftest test plan that OEMs may use. The difference here is that
- some of these tests depend on a specific network environment and may not run
- properly in your test environment. To avoid false failures, please use the
- client-selftest test plan instead.
+ This test plan is intended for use inside Canonical's test labs. It will be
+ used to certify Desktop devices on behalf of OEM customers as part of
+ commercial engagements.
 include:
 nested_part:
     submission-cert-full

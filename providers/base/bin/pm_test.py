@@ -20,7 +20,7 @@ from configparser import ConfigParser
 from datetime import datetime, timedelta
 from time import localtime, time
 gi.require_version("Gtk", "3.0")
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk  # noqa: E402
 
 
 def main():
@@ -266,9 +266,9 @@ class PowerManagementOperation():
                     count = count_s3 + count_s2idle
                     if count != total_suspends_expected:
                         problems = (
-                            "Found {} occurrences of '{}'. Expected {}".format(
-                                count, magic_line.strip(),
-                                total_suspends_expected))
+                            "Found {} occurrences of S3/S2idle."
+                            " Expected {}".format(
+                                count, total_suspends_expected))
             except FileNotFoundError:
                 problems = "Error opening {}".format(fwts_log_path)
             if problems:
@@ -367,13 +367,13 @@ class WakeUpAlarm():
         with open(cls.ALARM_FILENAME) as alarm_file:
             wakeup_time_stored_str = alarm_file.read()
 
-            if not re.match('\d+', wakeup_time_stored_str):
+            if not re.match(r'\d+', wakeup_time_stored_str):
                 subprocess.check_call('echo "+%d" > %s'
                                       % (timeout, cls.ALARM_FILENAME),
                                       shell=True)
                 with open(cls.ALARM_FILENAME) as alarm_file2:
                     wakeup_time_stored_str = alarm_file2.read()
-                if not re.match('\d+', wakeup_time_stored_str):
+                if not re.match(r'\d+', wakeup_time_stored_str):
                     logging.error('Invalid wakeup time format: {0!r}'
                                   .format(wakeup_time_stored_str))
                     sys.exit(1)
@@ -396,7 +396,7 @@ class WakeUpAlarm():
                 sys.exit(1)
 
         with open(cls.RTC_FILENAME) as rtc_file:
-            separator_regex = re.compile('\s+:\s+')
+            separator_regex = re.compile(r'\s+:\s+')
             rtc_data = dict([separator_regex.split(line.rstrip())
                              for line in rtc_file])
             logging.debug('RTC data:\n{0}'
@@ -582,14 +582,15 @@ class CountdownDialog(Gtk.Dialog):
                                        .run().stdout),
                               ethernet=(Command('lspci | grep Ethernet')
                                         .run().stdout),
-                              ifconfig=(Command("ifconfig -a | grep -A1 '^\w'")
+                              ifconfig=(Command(
+                                        r"ifconfig -a | grep -A1 '^\w'")
                                         .run().stdout),
-                              iwconfig=(Command("iwconfig | grep -A1 '^\w'")
+                              iwconfig=(Command(r"iwconfig | grep -A1 '^\w'")
                                         .run().stdout)))
         logging.debug('Bluetooth Device:\n'
                       '{hciconfig}'
-                      .format(hciconfig=(Command("hciconfig -a "
-                                                 "| grep -A2 '^\w'")
+                      .format(hciconfig=(Command(r"hciconfig -a "
+                                                 r"| grep -A2 '^\w'")
                                          .run().stdout)))
         logging.debug('Video Card:\n'
                       '{lspci}'
@@ -770,7 +771,7 @@ Exec=sudo {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay
 Type=Application
 X-GNOME-Autostart-enabled=true
 Hidden=false
-"""
+"""  # noqa: E501
 
     def __init__(self, args, user=None):
         self.args = args
@@ -1012,7 +1013,7 @@ class MyArgumentParser():
             '{0}.{1}.{2}.log'.format(
                 os.path.splitext(os.path.basename(__file__))[0],
                 args.pm_operation,
-                args.total)))
+                args.total))
         return args, extra_args
 
 

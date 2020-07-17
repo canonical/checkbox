@@ -21,7 +21,7 @@ def check_resolution():
     output = subprocess.check_output('xdpyinfo')
     for line in output.decode(sys.stdout.encoding).splitlines():
         if 'dimensions' in line:
-            match = re.search('(\d+)x(\d+)\ pixels', line)
+            match = re.search(r'(\d+)x(\d+)\ pixels', line)
             if match and len(match.groups()) == 2:
                 return '{}x{}'.format(*match.groups())
 
@@ -29,7 +29,8 @@ def check_resolution():
 def change_edid(host, edid_file):
     with open(edid_file, 'rb') as f:
         cmd = ['ssh', host, '/snap/bin/pigbox', 'run',
-               '\'v4l2-ctl --set-edid=file=-,format=raw --fix-edid-checksums\'']
+               '\'v4l2-ctl --set-edid=file=-,'
+               'format=raw --fix-edid-checksums\'']
         subprocess.check_output(cmd, input=f.read())
 
 
@@ -51,6 +52,7 @@ def main():
         else:
             print('PASS')
     return failed
+
 
 if __name__ == '__main__':
     raise SystemExit(main())

@@ -9,16 +9,21 @@ import sys
 
 import gi
 gi.require_version('GUdev', '1.0')
-from gi.repository import GObject, GUdev
+from gi.repository import GObject, GUdev  # noqa: E402
 
-from checkbox_support.dbus import connect_to_system_bus
-from checkbox_support.dbus.udisks2 import UDisks2Model, UDisks2Observer
-from checkbox_support.dbus.udisks2 import is_udisks2_supported
-from checkbox_support.dbus.udisks2 import lookup_udev_device
-from checkbox_support.dbus.udisks2 import map_udisks1_connection_bus
-from checkbox_support.heuristics.udisks2 import is_memory_card
-from checkbox_support.parsers.udevadm import CARD_READER_RE, GENERIC_RE, FLASH_RE
-from checkbox_support.udev import get_interconnect_speed, get_udev_block_devices
+from checkbox_support.dbus import connect_to_system_bus         # noqa: E402
+from checkbox_support.dbus.udisks2 import UDisks2Model          # noqa: E402
+from checkbox_support.dbus.udisks2 import UDisks2Observer       # noqa: E402
+from checkbox_support.dbus.udisks2 import is_udisks2_supported  # noqa: E402
+from checkbox_support.dbus.udisks2 import lookup_udev_device    # noqa: E402
+from checkbox_support.dbus.udisks2 import (
+    map_udisks1_connection_bus)  # noqa: E402
+from checkbox_support.heuristics.udisks2 import is_memory_card  # noqa: E402
+from checkbox_support.parsers.udevadm import CARD_READER_RE     # noqa: E402
+from checkbox_support.parsers.udevadm import GENERIC_RE         # noqa: E402
+from checkbox_support.parsers.udevadm import FLASH_RE           # noqa: E402
+from checkbox_support.udev import get_interconnect_speed        # noqa: E402
+from checkbox_support.udev import get_udev_block_devices        # noqa: E402
 
 # Record representing properties of a UDisks1 Drive object needed by the
 # UDisks1 version of the watcher implementation
@@ -121,19 +126,24 @@ class UDisks1StorageDeviceListener:
         logging.debug("Desired bus devices: %s", desired_bus_devices)
         for dev in desired_bus_devices:
             if self._memorycard:
-                if (dev.bus != 'sdio'
+                if (
+                    dev.bus != 'sdio'
                     and not FLASH_RE.search(dev.media)
                     and not CARD_READER_RE.search(dev.model)
-                    and not GENERIC_RE.search(dev.vendor)):
-                    logging.debug("The device does not seem to be a memory"
-                                  " card (bus: %r, model: %r), skipping",
-                                 dev.bus, dev.model)
+                    and not GENERIC_RE.search(dev.vendor)
+                ):
+                    logging.debug(
+                        "The device does not seem to be a memory"
+                        " card (bus: %r, model: %r), skipping",
+                        dev.bus, dev.model)
                     return
                 print(message % {'bus': 'memory card', 'file': dev.file})
             else:
-                if (FLASH_RE.search(dev.media)
+                if (
+                    FLASH_RE.search(dev.media)
                     or CARD_READER_RE.search(dev.model)
-                    or GENERIC_RE.search(dev.vendor)):
+                    or GENERIC_RE.search(dev.vendor)
+                ):
                     logging.debug("The device seems to be a memory"
                                   " card (bus: %r (model: %r), skipping",
                                   dev.bus, dev.model)
@@ -180,8 +190,7 @@ class UDisks1StorageDeviceListener:
                 message = "Expected memory card device %(file)s inserted"
             else:
                 message = "Expected %(bus)s device %(file)s inserted"
-            self.verify_device_change(inserted_devices,
-                      message=message)
+            self.verify_device_change(inserted_devices, message=message)
 
     def add_detected(self, added_path):
         logging.debug("UDisks1 reports device has been added: %s", added_path)
@@ -205,8 +214,9 @@ class UDisks1StorageDeviceListener:
         removed_devices = list(set(self._starting_devices) -
                                set(current_devices))
         logging.debug("Computed removed devices: %s", removed_devices)
-        self.verify_device_change(removed_devices,
-                  message="Removable %(bus)s device %(file)s has been removed")
+        self.verify_device_change(
+            removed_devices,
+            message="Removable %(bus)s device %(file)s has been removed")
 
     def get_existing_devices(self):
         logging.debug("Getting existing devices from UDisks1")
@@ -221,12 +231,9 @@ class UDisks1StorageDeviceListener:
                 device_props = dbus.Interface(device_obj,
                                               dbus.PROPERTIES_IFACE)
                 udisks = 'org.freedesktop.UDisks.Device'
-                _device_file = device_props.Get(udisks,
-                                           "DeviceFile")
-                _bus = device_props.Get(udisks,
-                                           "DriveConnectionInterface")
-                _speed = device_props.Get(udisks,
-                                                "DriveConnectionSpeed")
+                _device_file = device_props.Get(udisks, "DeviceFile")
+                _bus = device_props.Get(udisks, "DriveConnectionInterface")
+                _speed = device_props.Get(udisks, "DriveConnectionSpeed")
                 _parent_model = ''
                 _parent_media = ''
                 _parent_vendor = ''
@@ -411,7 +418,7 @@ class UDisks2StorageDeviceListener:
     UDISKS2_DRIVE_PROPERTY_CONNECTION_BUS = "ConnectionBus"
 
     def __init__(self, system_bus, loop, action, devices, minimum_speed,
-                 memorycard, unmounted = False):
+                 memorycard, unmounted=False):
         # Store the desired minimum speed of the device in Mbit/s. The argument
         # is passed as the number of bits per second so let's fix that.
         self._desired_minimum_speed = minimum_speed / 10 ** 6
@@ -581,24 +588,30 @@ class UDisks2StorageDeviceListener:
                     continue
                 # For devices with empty "ConnectionBus" property, don't
                 # require the device to be mounted
-                if (record.value.iface_name ==
+                if (
+                    record.value.iface_name ==
                     "org.freedesktop.UDisks2.Drive"
                     and record.value.delta_type == DELTA_TYPE_PROP
                     and record.value.prop_name == "ConnectionBus"
-                    and record.value.prop_value == ""):
+                    and record.value.prop_value == ""
+                ):
                     needs.remove('mounted')
                 # Detect block devices designated for filesystems
-                if (record.value.iface_name ==
+                if (
+                    record.value.iface_name ==
                     "org.freedesktop.UDisks2.Block"
                     and record.value.delta_type == DELTA_TYPE_PROP
                     and record.value.prop_name == "IdUsage"
-                    and record.value.prop_value == "filesystem"):
+                    and record.value.prop_value == "filesystem"
+                ):
                     found.add('block-fs')
                 # Memorize the block device path
-                elif (record.value.iface_name ==
+                elif (
+                    record.value.iface_name ==
                     "org.freedesktop.UDisks2.Block"
                     and record.value.delta_type == DELTA_TYPE_PROP
-                    and record.value.prop_name == "PreferredDevice"):
+                    and record.value.prop_name == "PreferredDevice"
+                ):
                     object_block_device = record.value.prop_value
                 # Ensure the device is a partition
                 elif (record.value.iface_name ==
@@ -845,8 +858,9 @@ def main():
     description = "Wait for the specified device to be inserted or removed."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('action', choices=['insert', 'remove'])
-    parser.add_argument('device', choices=['usb', 'sdio', 'firewire', 'scsi',
-                                 'ata_serial_esata'], nargs="+")
+    parser.add_argument(
+        'device', choices=['usb', 'sdio', 'firewire', 'scsi',
+                           'ata_serial_esata'], nargs="+")
     memorycard_help = ("Memory cards devices on bus other than sdio require "
                        "this parameter to identify them as such")
     parser.add_argument('--memorycard', action="store_true",
@@ -901,6 +915,7 @@ def main():
         return listener.check(args.timeout)
     except KeyboardInterrupt:
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

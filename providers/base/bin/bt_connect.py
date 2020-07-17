@@ -131,5 +131,6 @@ def main():
     # capture all other silence failures
     return 1
 
+
 if __name__ == "__main__":
     sys.exit(main())

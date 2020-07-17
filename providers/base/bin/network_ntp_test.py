@@ -84,13 +84,13 @@ def StartStopNTPD(state, pid=0):
         SilentCall('/etc/init.d/ntp start')
         ntpd_status = CheckNTPD()
 
-        if status == 0:
+        if ntpd_status == 0:
             logging.debug('ntpd restarted with PID: %s' % ntpd_status[1])
         else:
             logging.error('ntpd restart failed for some reason')
     else:
-        logging.error('%s is an unknown state, unable to start/stop ntpd' %
-                        state)
+        logging.error(
+            '%s is an unknown state, unable to start/stop ntpd' % state)
 
 
 def SyncTime(server):
@@ -141,7 +141,8 @@ def SkewTime():
 
 
 def main():
-    description = 'Tests the ability to skew and sync the clock with an NTP server'
+    description = (
+        'Tests the ability to skew and sync the clock with an NTP server')
     parser = ArgumentParser(description=description)
     parser.add_argument('--server',
                         action='store',
@@ -173,7 +174,7 @@ def main():
     if args.debug:
         logger.setLevel(logging.DEBUG)
     logger.addHandler(handler)
-    
+
     # Make sure NTP is installed
     if not os.access('/usr/sbin/ntpdate', os.F_OK):
         logging.error('NTP is not installed!')
@@ -207,6 +208,7 @@ def main():
         return 0
     else:
         return 1
+
 
 if __name__ == '__main__':
     sys.exit(main())

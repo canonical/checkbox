@@ -43,16 +43,17 @@ def get_wifi_reconnect_times():
     Returns a list of all the timestamps for wifi reconnects.
     """
     data = subprocess.check_output(['dmesg'], universal_newlines=True)
-    syntax = re.compile("\[(.*)\] wlan.* associated")
+    syntax = re.compile(r"\[(.*)\] wlan.* associated")
     results = re.findall(syntax, data)
     return map(float, results)
+
 
 def get_wired_reconnect_times():
     """
     Returns a list of all the timestamps for wired reconnects.
     """
     data = subprocess.check_output(['dmesg'], universal_newlines=True)
-    syntax = re.compile("\[(.*)\].*eth.* Link is [uU]p")
+    syntax = re.compile(r"\[(.*)\].*eth.* Link is [uU]p")
     results = re.findall(syntax, data)
     return map(float, results)
 
@@ -63,7 +64,7 @@ def get_resume_time():
     If no resume is found, None is returned.
     """
     data = subprocess.check_output(['dmesg'], universal_newlines=True)
-    syntax = re.compile("\[(.*)\].ACPI: Waking up from system sleep state S3")
+    syntax = re.compile(r"\[(.*)\].ACPI: Waking up from system sleep state S3")
     results = re.findall(syntax, data)
     if not results:
         return None
@@ -85,7 +86,7 @@ def main():
     args = parser.parse_args()
 
     timedif = get_time_difference(args.device)
-    
+
     if not timedif:
         return 0
 
@@ -97,6 +98,7 @@ def main():
     else:
         print("PASS: the network connected within the allotted time")
         return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

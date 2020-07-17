@@ -278,7 +278,7 @@ class ThreeGppConnection():
             _wwan_radio_on()
             time.sleep(args.wwan_setup_time)
             ret_code = _ping_test(args.wwan_net_if)
-        except:
+        except subprocess.SubprocessError:
             pass
         _destroy_3gpp_connection()
         _wwan_radio_off()
@@ -312,29 +312,6 @@ class Resources():
             mm = MMDbus()
         for m in mm.get_modem_ids():
             print("mm_id: {}".format(m))
-            # Removed ability to fetch supported RATs when adding CLI support
-            # to this script. It is somewhat messy to scrape this from mmcli
-            # output and it wasn't actually used in test definitions.
-            #
-            # cap_bits = mm.get_rat_support(m)
-            # if cap_bits != 0:
-            #     if (cap_bits & MMModemCapability['MM_MODEM_CAPABILITY_POTS']):
-            #         print("pots: supported")
-            #     if (cap_bits &
-            #             MMModemCapability['MM_MODEM_CAPABILITY_CDMA_EVDO']):
-            #         print("cdma_evdo: supported")
-            #     if (cap_bits &
-            #             MMModemCapability['MM_MODEM_CAPABILITY_GSM_UMTS']):
-            #         print("gsm_umts: supported")
-            #     if (cap_bits &
-            #             MMModemCapability['MM_MODEM_CAPABILITY_LTE']):
-            #         print("lte: supported")
-            #     if (cap_bits &
-            #             MMModemCapability['MM_MODEM_CAPABILITY_LTE_ADVANCED']):
-            #         print("lte_advanced: supported")
-            #     if (cap_bits &
-            #             MMModemCapability['MM_MODEM_CAPABILITY_IRIDIUM']):
-            #         print("iridium: supported")
             print("hw_id: {}".format(mm.get_equipment_id(m)))
             print("manufacturer: {}".format(mm.get_manufacturer(m)))
             print("model: {}".format(mm.get_model_name(m)))

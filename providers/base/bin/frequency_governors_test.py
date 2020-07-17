@@ -8,7 +8,8 @@ import time
 import argparse
 import logging
 
-from subprocess import check_output, check_call, CalledProcessError, PIPE
+from subprocess import check_output, check_call, CalledProcessError
+
 
 class CPUScalingTest(object):
 
@@ -37,11 +38,11 @@ class CPUScalingTest(object):
         for subdirectory in os.listdir(self.sysCPUDirectory):
             match = pattern.search(subdirectory)
             if match and match.group("cpuNumber"):
-                cpufreqDirectory = os.path.join(self.sysCPUDirectory,
-                    subdirectory, "cpufreq")
+                cpufreqDirectory = os.path.join(
+                    self.sysCPUDirectory, subdirectory, "cpufreq")
                 if not os.path.exists(cpufreqDirectory):
-                    logging.error("CPU %s has no cpufreq directory %s" 
-                        % (match.group("cpuNumber"), cpufreqDirectory))
+                    logging.error("CPU %s has no cpufreq directory %s" % (
+                        match.group("cpuNumber"), cpufreqDirectory))
                     return None
                 # otherwise
                 self.cpufreqDirectories.append(cpufreqDirectory)
@@ -59,7 +60,8 @@ class CPUScalingTest(object):
         for cpufreqDirectory in self.cpufreqDirectories:
             parameters = self.getParameters(cpufreqDirectory, file)
             if not parameters:
-                logging.error("Error: could not determine cpu parameters from %s" 
+                logging.error(
+                    "Error: could not determine cpu parameters from %s"
                     % os.path.join(cpufreqDirectory, file))
                 return None
             if not current:
@@ -91,7 +93,7 @@ class CPUScalingTest(object):
                         return rf
             return None
 
-        logging.debug("Setting %s to %s" % (setFile,value))
+        logging.debug("Setting %s to %s" % (setFile, value))
         path = None
         if not skip:
             if automatch:
@@ -115,8 +117,9 @@ class CPUScalingTest(object):
         parameterFile = open(path)
         line = parameterFile.readline()
         if not line or line.strip() != str(value):
-            logging.error("Error: could not verify that %s was set to %s"
-                   % (path, value))
+            logging.error(
+                "Error: could not verify that %s was set to %s" % (
+                    path, value))
             if line:
                 logging.error("Actual Value: %s" % line)
             else:
@@ -127,6 +130,7 @@ class CPUScalingTest(object):
 
     def checkSelectorExecutable(self):
         logging.debug("Determining if %s is executable" % self.selectorExe)
+
         def is_exe(fpath):
             return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
@@ -179,8 +183,9 @@ class CPUScalingTest(object):
             parameterFile = open(parameterFilePath)
             line = parameterFile.readline()
             if not line:
-                logging.error("Error: failed to get %s for %s"
-                       % (parameter, self.cpufreqDirectory))
+                logging.error(
+                    "Error: failed to get %s for %s" % (
+                        parameter, self.cpufreqDirectory))
                 return None
             value = line.strip()
             return value
@@ -198,8 +203,9 @@ class CPUScalingTest(object):
             parameterFile = open(path)
             line = parameterFile.readline()
             if not line:
-                logging.error("Error: failed to get %s for %s"
-                       % (parameter, cpufreqDirectory))
+                logging.error(
+                    "Error: failed to get %s for %s" % (
+                        parameter, cpufreqDirectory))
                 return None
             values.append(line.strip())
         logging.debug("Found parameters:")
@@ -231,15 +237,18 @@ class CPUScalingTest(object):
                 runTime = stop_elapsed_time - start_elapsed_time
             else:
                 thisTime = stop_elapsed_time - start_elapsed_time
-                if ((abs(thisTime - runTime) / runTime) * 100
-                    < self.retryTolerance):
+                if (
+                    (abs(thisTime - runTime) / runTime) * 100
+                    < self.retryTolerance
+                ):
                     return runTime
                 else:
                     runTime = thisTime
             tries += 1
 
-        logging.error("Could not repeat load test times within %.1f%%"
-               % self.retryTolerance)
+        logging.error(
+            "Could not repeat load test times within %.1f%%" %
+            self.retryTolerance)
         return None
 
     def pi(self):
@@ -262,9 +271,11 @@ class CPUScalingTest(object):
         logging.info("Done.")
         minimumFrequency = self.getParameter("scaling_min_freq")
         currentFrequency = self.getParameter("scaling_cur_freq")
-        if (not minimumFrequency
+        if (
+            not minimumFrequency
             or not currentFrequency
-            or (minimumFrequency != currentFrequency)):
+            or (minimumFrequency != currentFrequency)
+        ):
             return False
 
         # otherwise
@@ -310,7 +321,8 @@ class CPUScalingTest(object):
                 logging.info("    cpu%u: %s" % (i, g))
                 i += 1
         else:
-            logging.error("Error: could not determine current governor settings")
+            logging.error(
+                "Error: could not determine current governor settings")
             return False
 
         self.getCPUFlags()
@@ -333,7 +345,7 @@ class CPUScalingTest(object):
             logging.debug("Found the following CPU Flags:")
             for line in self.cpuFlags:
                 logging.debug("    %s" % line)
-        except:
+        except OSError:
             logging.warning("Could not read CPU flags")
 
     def runUserSpaceTests(self):
@@ -356,52 +368,66 @@ class CPUScalingTest(object):
 
             # Set the the CPU speed to it's lowest value
             frequency = self.minFreq
-            logging.info("Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
+            logging.info(
+                "Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
             if not self.setFrequency(frequency):
                 success = False
 
             # Verify the speed is set to the lowest value
             minimumFrequency = self.getParameter("scaling_min_freq")
             currentFrequency = self.getParameter("scaling_cur_freq")
-            if (not minimumFrequency
+            if (
+                not minimumFrequency
                 or not currentFrequency
-                or (minimumFrequency != currentFrequency)):
-                logging.error("Could not verify that cpu frequency is set to the minimum value of %s"
-                       % minimumFrequency)
+                or (minimumFrequency != currentFrequency)
+            ):
+                logging.error(
+                    "Could not verify that cpu frequency is set to the minimum"
+                    " value of %s" % minimumFrequency)
                 success = False
 
             # Run Load Test
             self.minimumFrequencyTestTime = self.runLoadTest()
             if not self.minimumFrequencyTestTime:
-                logging.error("Could not retrieve the minimum frequency test's execution time.")
+                logging.error(
+                    "Could not retrieve the minimum frequency test's"
+                    " execution time.")
                 success = False
             else:
-                logging.info("Minimum frequency load test time: %.2f"
-                       % self.minimumFrequencyTestTime)
+                logging.info(
+                    "Minimum frequency load test time: %.2f"
+                    % self.minimumFrequencyTestTime)
 
             # Set the CPU speed to it's highest value as above.
             frequency = self.maxFreq
-            logging.info("Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
+            logging.info(
+                "Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
             if not self.setFrequency(frequency):
                 success = False
 
             maximumFrequency = self.getParameter("scaling_max_freq")
             currentFrequency = self.getParameter("scaling_cur_freq")
-            if (not maximumFrequency
+            if (
+                not maximumFrequency
                 or not currentFrequency
-                or (maximumFrequency != currentFrequency)):
-                logging.error("Could not verify that cpu frequency is set to the maximum value of %s"
-                       % maximumFrequency)
+                or (maximumFrequency != currentFrequency)
+            ):
+                logging.error(
+                    "Could not verify that cpu frequency is set to the"
+                    " maximum value of %s" % maximumFrequency)
                 success = False
 
             # Repeat workload test
             self.maximumFrequencyTestTime = self.runLoadTest()
             if not self.maximumFrequencyTestTime:
-                logging.error("Could not retrieve the maximum frequency test's execution time.")
+                logging.error(
+                    "Could not retrieve the maximum frequency test's "
+                    "execution time.")
                 success = False
             else:
-                logging.info("Maximum frequency load test time: %.2f"
-                       % self.maximumFrequencyTestTime)
+                logging.info(
+                    "Maximum frequency load test time: %.2f"
+                    % self.maximumFrequencyTestTime)
 
             # Verify MHz increase is comparable to time % decrease
             predictedSpeedup = (float(maximumFrequency)
@@ -409,8 +435,9 @@ class CPUScalingTest(object):
 
             # If "ida" turbo thing, increase the expectation by 8%
             if self.cpuFlags and self.idaFlag in self.cpuFlags:
-                logging.info("Found %s flag, increasing expected speedup by %.1f%%"
-                       % (self.idaFlag, self.idaSpeedupFactor))
+                logging.info(
+                    "Found %s flag, increasing expected speedup by %.1f%%"
+                    % (self.idaFlag, self.idaSpeedupFactor))
                 predictedSpeedup = \
                     (predictedSpeedup
                      * (1.0 / (1.0 - (self.idaSpeedupFactor / 100.0))))
@@ -420,18 +447,24 @@ class CPUScalingTest(object):
                                    / self.maximumFrequencyTestTime)
                 logging.info("CPU Frequency Speed Up: %.2f" % predictedSpeedup)
                 logging.info("Measured Speed Up: %.2f" % measuredSpeedup)
-                differenceSpeedUp = (((measuredSpeedup - predictedSpeedup) / predictedSpeedup) * 100)
-                logging.info("Percentage Difference %.1f%%" % differenceSpeedUp)
+                differenceSpeedUp = (
+                    ((measuredSpeedup - predictedSpeedup) / predictedSpeedup)
+                    * 100)
+                logging.info(
+                    "Percentage Difference %.1f%%" % differenceSpeedUp)
                 if differenceSpeedUp > self.speedUpTolerance:
-                    logging.error("Measured speedup vs expected speedup is %.1f%% and is not within %.1f%% margin."
-                           % (differenceSpeedUp, self.speedUpTolerance))
+                    logging.error(
+                        "Measured speedup vs expected speedup is %.1f%% "
+                        "and is not within %.1f%% margin."
+                        % (differenceSpeedUp, self.speedUpTolerance))
                     success = False
                 elif differenceSpeedUp < 0:
-                    logging.info("""
-                                 Measured speed up %.2f exceeded expected speedup %.2f
-                                 """ % (measuredSpeedup, predictedSpeedup))
+                    logging.info(
+                        "Measured speed up %.2f exceeded expected speedup %.2f"
+                        % (measuredSpeedup, predictedSpeedup))
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences.")
 
         return success
 
@@ -453,7 +486,9 @@ class CPUScalingTest(object):
             # Wait a fixed period of time, then verify current speed
             # is the slowest in as before
             if not self.verifyMinimumFrequency():
-                logging.error("Could not verify that cpu frequency has settled to the minimum value")
+                logging.error(
+                    "Could not verify that cpu frequency has settled to the "
+                    "minimum value")
                 success = False
 
             # Repeat workload test
@@ -462,7 +497,8 @@ class CPUScalingTest(object):
                 logging.warning("No On Demand load test time available.")
                 success = False
             else:
-                logging.info("On Demand load test time: %.2f" % onDemandTestTime)
+                logging.info(
+                    "On Demand load test time: %.2f" % onDemandTestTime)
 
             if onDemandTestTime and self.maximumFrequencyTestTime:
                 # Compare the timing to the max results from earlier,
@@ -470,19 +506,24 @@ class CPUScalingTest(object):
                 differenceOnDemandVsMaximum = \
                     (abs(onDemandTestTime - self.maximumFrequencyTestTime)
                      / self.maximumFrequencyTestTime) * 100
-                logging.info("Percentage Difference vs. maximum frequency: %.1f%%"
-                       % differenceOnDemandVsMaximum)
+                logging.info(
+                    "Percentage Difference vs. maximum frequency: %.1f%%"
+                    % differenceOnDemandVsMaximum)
                 if differenceOnDemandVsMaximum > self.speedUpTolerance:
-                    logging.error("On demand performance vs maximum of %.1f%% is not within %.1f%% margin"
-                           % (differenceOnDemandVsMaximum,
-                              self.speedUpTolerance))
+                    logging.error(
+                        "On demand performance vs maximum of %.1f%% is not "
+                        "within %.1f%% margin"
+                        % (differenceOnDemandVsMaximum, self.speedUpTolerance))
                     success = False
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences.")
 
             # Verify the current speed has returned to the lowest speed again
             if not self.verifyMinimumFrequency():
-                logging.error("Could not verify that cpu frequency has settled to the minimum value")
+                logging.error(
+                    "Could not verify that cpu frequency has settled to the "
+                    "minimum value")
                 success = False
 
         return success
@@ -504,11 +545,14 @@ class CPUScalingTest(object):
             # Verify the current speed is the same as scaling_max_freq
             maximumFrequency = self.getParameter("scaling_max_freq")
             currentFrequency = self.getParameter("scaling_cur_freq")
-            if (not maximumFrequency
+            if (
+                not maximumFrequency
                 or not currentFrequency
-                or (maximumFrequency != currentFrequency)):
-                logging.error("Current cpu frequency of %s is not set to the maximum value of %s"
-                       % (currentFrequency, maximumFrequency))
+                or (maximumFrequency != currentFrequency)
+            ):
+                logging.error(
+                    "Current cpu frequency of %s is not set to the maximum "
+                    "value of %s" % (currentFrequency, maximumFrequency))
                 success = False
 
             # Repeat work load test
@@ -517,22 +561,27 @@ class CPUScalingTest(object):
                 logging.error("No Performance load test time available.")
                 success = False
             else:
-                logging.info("Performance load test time: %.2f" % performanceTestTime)
+                logging.info(
+                    "Performance load test time: %.2f" % performanceTestTime)
 
             if performanceTestTime and self.maximumFrequencyTestTime:
                 # Compare the timing to the max results
                 differencePerformanceVsMaximum = \
                     (abs(performanceTestTime - self.maximumFrequencyTestTime)
                      / self.maximumFrequencyTestTime) * 100
-                logging.info("Percentage Difference vs. maximum frequency: %.1f%%"
-                       % differencePerformanceVsMaximum)
+                logging.info(
+                    "Percentage Difference vs. maximum frequency: %.1f%%"
+                    % differencePerformanceVsMaximum)
                 if differencePerformanceVsMaximum > self.speedUpTolerance:
-                    logging.error("Performance setting vs maximum of %.1f%% is not within %.1f%% margin"
-                           % (differencePerformanceVsMaximum,
-                              self.speedUpTolerance))
+                    logging.error(
+                        "Performance setting vs maximum of %.1f%% is not "
+                        "within %.1f%% margin"
+                        % (differencePerformanceVsMaximum,
+                           self.speedUpTolerance))
                     success = False
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences.")
 
         return success
 
@@ -559,7 +608,9 @@ class CPUScalingTest(object):
             # Wait a fixed period of time,
             # then verify current speed is the slowest in as before
             if not self.verifyMinimumFrequency(10):
-                logging.error("Could not verify that cpu frequency has settled to the minimum value")
+                logging.error(
+                    "Could not verify that cpu frequency has settled "
+                    "to the minimum value")
                 success = False
 
             # Set the frequency step to 0,
@@ -573,28 +624,34 @@ class CPUScalingTest(object):
                 logging.error("No Conservative load test time available.")
                 success = False
             else:
-                logging.info("Conservative load test time: %.2f"
-                       % conservativeTestTime)
+                logging.info(
+                    "Conservative load test time: %.2f"
+                    % conservativeTestTime)
 
             if conservativeTestTime and self.minimumFrequencyTestTime:
                 # Compare the timing to the max results
                 differenceConservativeVsMinimum = \
                     (abs(conservativeTestTime - self.minimumFrequencyTestTime)
                      / self.minimumFrequencyTestTime) * 100
-                logging.info("Percentage Difference vs. minimum frequency: %.1f%%"
-                       % differenceConservativeVsMinimum)
+                logging.info(
+                    "Percentage Difference vs. minimum frequency: %.1f%%"
+                    % differenceConservativeVsMinimum)
                 if differenceConservativeVsMinimum > self.speedUpTolerance:
-                    logging.error("Performance setting vs minimum of %.1f%% is not within %.1f%% margin"
-                           % (differenceConservativeVsMinimum,
-                              self.speedUpTolerance))
+                    logging.error(
+                        "Performance setting vs minimum of %.1f%% is not "
+                        "within %.1f%% margin"
+                        % (differenceConservativeVsMinimum,
+                           self.speedUpTolerance))
                     success = False
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences.")
 
         return success
 
     def restoreGovernors(self):
-        logging.info("Restoring original governor to %s" % (self.originalGovernors[0]))
+        logging.info(
+            "Restoring original governor to %s" % (self.originalGovernors[0]))
         self.setGovernor(self.originalGovernors[0])
 
 
@@ -604,8 +661,9 @@ def main():
                         help="Suppress output.")
     parser.add_argument("-c", "--capabilities", action="store_true",
                         help="Only output CPU capabilities.")
-    parser.add_argument("-d", "--debug", action="store_true",
-                        help="Turn on debug level output for extra info during test run.")
+    parser.add_argument(
+        "-d", "--debug", action="store_true",
+        help="Turn on debug level output for extra info during test run.")
     args = parser.parse_args()
 
     # Set up the logging system (unless we don't want ANY logging)
@@ -614,11 +672,11 @@ def main():
         logger.setLevel(logging.DEBUG)
         format = '%(asctime)s %(levelname)-8s %(message)s'
         date_format = '%Y-%m-%d %H:%M:%S'
-    
+
     # If we DO want console output
     if not args.quiet:
-        console_handler = logging.StreamHandler() #logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter(format,date_format))
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(logging.Formatter(format, date_format))
         console_handler.setLevel(logging.INFO)
         logger.addHandler(console_handler)
 

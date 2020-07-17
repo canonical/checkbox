@@ -61,5 +61,6 @@ def main():
                 raise SystemExit('Did not get prompted ("{}")'.format(prompt))
             wizard.writeline(response)
 
+
 if __name__ == '__main__':
     main()

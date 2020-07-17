@@ -9,9 +9,9 @@ import sys
 import time
 gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
-from gi.repository import Gst
-from gi.repository import GLib
-from subprocess import check_output
+from gi.repository import Gst        # noqa: E402
+from gi.repository import GLib       # noqa: E402
+from subprocess import check_output  # noqa: E402
 
 
 def check_state(device):
@@ -22,8 +22,11 @@ def check_state(device):
 
     data = sink_info.split("\n")
     try:
-        device_name = re.findall(".*Name:\s.*%s.*" % device, sink_info, re.IGNORECASE)[0].lstrip()
-        sink = re.findall(".*Name:\s(.*%s.*)" % device, sink_info, re.IGNORECASE)[0].lstrip()
+        device_name = re.findall(
+            r".*Name:\s.*%s.*" % device, sink_info, re.IGNORECASE)[0].lstrip()
+        sink = re.findall(
+            r".*Name:\s(.*%s.*)" % device, sink_info,
+            re.IGNORECASE)[0].lstrip()
         status = data[data.index("\t" + device_name) - 1]
     except (IndexError, ValueError):
         logging.error("Failed to find status for device: %s" % device)
@@ -32,22 +35,26 @@ def check_state(device):
     os.environ['PULSE_SINK'] = sink
     logging.info("[ Pulse sink ]".center(80, '='))
     logging.info("Device: %s %s" % (device_name.strip(), status.strip()))
-    return status 
+    return status
 
 
 def main():
     parser = ArgumentParser(description='Simple GStreamer pipeline player')
-    parser.add_argument('PIPELINE',
+    parser.add_argument(
+        'PIPELINE',
         help='Quoted GStreamer pipeline to launch')
-    parser.add_argument('-t', '--timeout',
+    parser.add_argument(
+        '-t', '--timeout',
         type=int, required=True,
         help='Timeout for running the pipeline')
-    parser.add_argument('-d', '--device',
+    parser.add_argument(
+        '-d', '--device',
         type=str,
         help="Device to check for status")
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO,
+    logging.basicConfig(
+        format='%(levelname)s:%(message)s', level=logging.INFO,
         stream=sys.stdout)
 
     exit_code = 0
@@ -63,7 +70,7 @@ def main():
     except GLib.GError as error:
         print("Specified pipeline couldn't be processed.")
         print("Error when processing pipeline: {}".format(error))
-        #Exit harmlessly
+        # Exit harmlessly
         return(2)
 
     print("Pipeline initialized, now starting playback.")

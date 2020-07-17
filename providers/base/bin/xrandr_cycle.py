@@ -117,11 +117,11 @@ if 'PLAINBOX_PROVIDER_DATA' in os.environ:
     shutter_xml_template = os.path.join(os.environ['PLAINBOX_PROVIDER_DATA'],
                                         "settings", "shutter.xml")
 else:
-    shutter_xml_template = os.path.join(os.path.split(os.path.dirname(
-                                        os.path.realpath(__file__)))[0],
-                                       "data",
-                                        "settings",
-                                        "shutter.xml")
+    shutter_xml_template = os.path.join(
+        os.path.split(os.path.dirname(os.path.realpath(__file__)))[0],
+        "data",
+        "settings",
+        "shutter.xml")
 
 if args.keyword:
     screenshot_path = screenshot_path + '_' + args.keyword
@@ -167,7 +167,7 @@ try:
                              'folder="%s"' % screenshot_path, content))
     new_profile.close()
     old_profile.close()
-except:
+except (IOError, OSError):
     raise SystemExit("ERROR: While updating folder name "
                      "in shutter profile: {}".format(sys.exc_info()))
 
@@ -198,7 +198,7 @@ for mode in highest_modes:
                 print("""Could not capture screenshot -
                          you may need to install the package 'shutter'.""")
 
-        except:
+        except (IOError, OSError):
             print("""Could not configure screenshot tool -
                      you may need to install the package 'shutter',
                      or check that {}/{} exists and is writable.""".format(
@@ -220,7 +220,7 @@ try:
     with tarfile.open(screenshot_path + '.tgz', 'w:gz') as screen_tar:
         for screen in os.listdir(screenshot_path):
             screen_tar.add(screenshot_path + '/' + screen, screen)
-except:
+except (IOError, OSError):
     pass
 
 # Output some fun facts and knock off for the day

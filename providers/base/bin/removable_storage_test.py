@@ -15,26 +15,30 @@ import time
 
 import gi
 gi.require_version('GUdev', '1.0')
-from gi.repository import GUdev
+from gi.repository import GUdev                                 # noqa: E402
 
-from checkbox_support.dbus import connect_to_system_bus
-from checkbox_support.dbus.udisks2 import UDISKS2_BLOCK_INTERFACE
-from checkbox_support.dbus.udisks2 import UDISKS2_DRIVE_INTERFACE
-from checkbox_support.dbus.udisks2 import UDISKS2_FILESYSTEM_INTERFACE
-from checkbox_support.dbus.udisks2 import UDISKS2_LOOP_INTERFACE
-from checkbox_support.dbus.udisks2 import UDisks2Model, UDisks2Observer
-from checkbox_support.dbus.udisks2 import is_udisks2_supported
-from checkbox_support.dbus.udisks2 import lookup_udev_device
-from checkbox_support.dbus.udisks2 import map_udisks1_connection_bus
-from checkbox_support.heuristics.udisks2 import is_memory_card
-from checkbox_support.helpers.human_readable_bytes import HumanReadableBytes
-from checkbox_support.parsers.udevadm import CARD_READER_RE
-from checkbox_support.parsers.udevadm import GENERIC_RE
-from checkbox_support.parsers.udevadm import FLASH_RE
-from checkbox_support.parsers.udevadm import find_pkname_is_root_mountpoint
-from checkbox_support.udev import get_interconnect_speed
-from checkbox_support.udev import get_udev_block_devices
-from checkbox_support.udev import get_udev_xhci_devices
+from checkbox_support.dbus import connect_to_system_bus         # noqa: E402
+from checkbox_support.dbus.udisks2 import (
+    UDISKS2_BLOCK_INTERFACE,
+    UDISKS2_DRIVE_INTERFACE,
+    UDISKS2_FILESYSTEM_INTERFACE,
+    UDISKS2_LOOP_INTERFACE,
+    UDisks2Model,
+    UDisks2Observer,
+    is_udisks2_supported,
+    lookup_udev_device,
+    map_udisks1_connection_bus)                                 # noqa: E402
+from checkbox_support.heuristics.udisks2 import is_memory_card  # noqa: E402
+from checkbox_support.helpers.human_readable_bytes import (
+    HumanReadableBytes)                                         # noqa: E402
+from checkbox_support.parsers.udevadm import (
+    CARD_READER_RE,
+    GENERIC_RE,
+    FLASH_RE,
+    find_pkname_is_root_mountpoint)                             # noqa: E402
+from checkbox_support.udev import get_interconnect_speed        # noqa: E402
+from checkbox_support.udev import get_udev_block_devices        # noqa: E402
+from checkbox_support.udev import get_udev_xhci_devices         # noqa: E402
 
 
 class ActionTimer():
@@ -109,8 +113,8 @@ def on_ubuntucore():
     snap = os.getenv("SNAP")
     if snap:
         with open(os.path.join(snap, 'meta/snap.yaml')) as f:
-            for l in f.readlines():
-                if l == "confinement: classic\n":
+            for line in f.readlines():
+                if line == "confinement: classic\n":
                     return False
         return True
     return False
@@ -855,7 +859,6 @@ def main():
                             # controller drivers.
                             # This will raise KeyError for no
                             # associated disk device was found.
-                            xhci_disks = test.get_disks_xhci()
                             if test.get_disks_xhci().get(disk, '') != 'xhci':
                                 raise SystemExit(
                                     "\t\tDisk does not use xhci_hcd.")

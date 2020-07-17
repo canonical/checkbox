@@ -36,14 +36,17 @@ def main(args):
 
     usage = "Usage: %prog PROCESS [PROCESS...]"
     parser = OptionParser(usage=usage)
-    parser.add_option("-s", "--sleep",
+    parser.add_option(
+        "-s", "--sleep",
         type="int",
         default=default_sleep,
         help="Number of seconds to sleep between checks.")
-    parser.add_option("-t", "--timeout",
+    parser.add_option(
+        "-t", "--timeout",
         type="int",
         help="Number of seconds to timeout from sleeping.")
-    parser.add_option("-u", "--uid",
+    parser.add_option(
+        "-u", "--uid",
         help="Effective user name or id of the running processes")
     (options, processes) = parser.parse_args(args)
 

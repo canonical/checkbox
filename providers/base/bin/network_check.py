@@ -6,7 +6,9 @@ ubuntu.com
 from subprocess import call
 from argparse import ArgumentParser
 import http.client
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import sys
 
 
@@ -61,12 +63,14 @@ def main():
         try:
             call(command)
         except OSError:
-            print("Zenity missing; unable to report test result:\n %s" % message)
+            print(
+                "Zenity missing; unable to report test result:\n %s" % message)
 
     if any(results.values()):
         return 0
     else:
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -34,6 +34,7 @@ class FanMonitor:
         if not self._fan_paths:
             print('Fan monitoring interface not found in SysFS')
             raise SystemExit(0)
+
     def get_rpm(self):
         result = {}
         for p in self._fan_paths:
@@ -44,6 +45,7 @@ class FanMonitor:
             except OSError:
                 print('Fan SysFS node dissappeared ({})'.format(p))
         return result
+
     def get_average_rpm(self, period):
         acc = self.get_rpm()
         for i in range(period):
@@ -83,13 +85,14 @@ class Stressor:
     def _stress_fun(self):
         """Actual stress function."""
         # generate some random data
-        data =  bytes(random.getrandbits(8) for _ in range(1024))
-        hasher =  hashlib.sha256()
+        data = bytes(random.getrandbits(8) for _ in range(1024))
+        hasher = hashlib.sha256()
         hasher.update(data)
         while True:
             new_digest = hasher.digest()
             # use the newly obtained digest as the new data to the hasher
             hasher.update(new_digest)
+
 
 def main():
     """Entry point."""
@@ -152,6 +155,7 @@ def main():
     # inverse logic, returning True would mean return code of 1
     if not (rpm_rose_during_stress and rpm_dropped_during_cooling):
         raise SystemExit("Fans did not react to stress expectedly")
+
 
 if __name__ == '__main__':
     main()

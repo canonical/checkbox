@@ -32,7 +32,7 @@ from checkbox_support.contrib import xrandr
 def print_modes_info(screen):
     """Print some information about the detected screen and its outputs"""
     xrandr._check_required_version((1, 0))
-    print("Screen %s: minimum %s x %s, current %s x %s, maximum %s x %s" %\
+    print("Screen %s: minimum %s x %s, current %s x %s, maximum %s x %s" %
           (screen._screen,
            screen._width_min, screen._height_min,
            screen._width, screen._height,
@@ -50,10 +50,9 @@ def print_modes_info(screen):
             for m in range(len(modes)):
                 mode = modes[m]
                 refresh = mode.dotClock / (mode.hTotal * mode.vTotal)
-                print("      [%s] %s x %s @ %s Hz" % (m,
-                                                   mode.width,
-                                                   mode.height,
-                                                   refresh), end=' ')
+                print(
+                    "      [%s] %s x %s @ %s Hz" %
+                    (m, mode.width, mode.height, refresh), end=' ')
                 if mode.id == output._mode:
                     print("(current)", end=' ')
                 if m == output.get_preferred_mode():
@@ -69,6 +68,7 @@ def main():
         print_modes_info(screen)
     except(xrandr.UnsupportedRRError):
         print('Error: RandR version lower than 1.0', file=sys.stderr)
+
 
 if __name__ == '__main__':
     main()

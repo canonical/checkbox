@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 
-import os.path
 import shlex
 from subprocess import check_output
+
 
 def print_header(value):
     print("{}:".format(value))
 
+
 def print_data(key, value):
     print("  {}: {}".format(key, value))
 
+
 def run_cmd(option):
     cmd = "lshw -C " + option
-    out = check_output(shlex.split(cmd),
-                       universal_newlines = True)
+    out = check_output(shlex.split(cmd), universal_newlines=True)
     return out.split('\n')
+
 
 def main():
     keys = {'Manufacturer': 'vendor',
             'Model': 'product',
             'Version': 'version'}
-    lshw_classes = {'system': 'System', 
+    lshw_classes = {'system': 'System',
                     'bus': 'Mainboard'}
 
     for lshw_class in lshw_classes:
@@ -38,6 +40,6 @@ def main():
         for key in data:
             print_data(key, data[key])
 
+
 if __name__ == "__main__":
     raise SystemExit(main())
-

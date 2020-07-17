@@ -29,7 +29,7 @@ import termios
 
 from gettext import gettext as _
 
-from gi.repository import GObject
+from gi.repository import GLib
 from optparse import OptionParser
 
 
@@ -81,7 +81,7 @@ class Reporter(object):
         self.scancodes = scancodes
 
         self.fileno = os.open("/dev/console", os.O_RDONLY)
-        GObject.io_add_watch(self.fileno, GObject.IO_IN, self.on_key)
+        GLib.io_add_watch(self.fileno, GLib.IO_IN, self.on_key)
 
         # Set terminal attributes
         self.saved_attributes = termios.tcgetattr(self.fileno)
@@ -324,7 +324,8 @@ class GtkReporter(Reporter):
 
     def found_key(self, key):
         super(GtkReporter, self).found_key(key)
-        self.icons[key].set_from_stock(self.ICON_TESTED, size=self.ICON_SIZE)
+        self.icons[key].set_from_icon_name(
+            self.ICON_TESTED, size=self.ICON_SIZE)
 
         self.check_keys()
 
@@ -334,7 +335,7 @@ class GtkReporter(Reporter):
             stock_icon = self.ICON_UNTESTED
         else:
             stock_icon = self.ICON_NOT_REQUIRED
-        self.icons[key].set_from_stock(stock_icon, self.ICON_SIZE)
+        self.icons[key].set_from_icon_name(stock_icon, self.ICON_SIZE)
 
         self.check_keys()
 
@@ -394,10 +395,10 @@ Hint to find codes:
         key = Key(codes, name)
         keys.append(key)
 
-    main_loop = GObject.MainLoop()
+    main_loop = GLib.MainLoop()
     try:
         reporter = reporter_factory(main_loop, keys, options.scancodes)
-    except:
+    except OSError:
         parser.error("Failed to initialize interface: %s" % options.interface)
 
     try:
@@ -407,6 +408,7 @@ Hint to find codes:
         reporter.quit()
 
     return reporter.exit_code
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

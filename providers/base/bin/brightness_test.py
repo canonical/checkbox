@@ -28,7 +28,6 @@ import sys
 import os
 import time
 
-from sys import stdout, stderr
 from glob import glob
 
 
@@ -42,7 +41,7 @@ class Brightness(object):
         # See if the source is a file or a file object
         # and act accordingly
         file = path
-        if file == None:
+        if file is None:
             lines_list = []
         else:
             # It's a file
@@ -102,8 +101,10 @@ class Brightness(object):
         Note: this doesn't guarantee that screen brightness
               changed.
         '''
-        if (abs(self.get_actual_brightness(interface) -
-            self.get_last_set_brightness(interface)) > 1):
+        if (
+            abs(self.get_actual_brightness(interface) -
+                self.get_last_set_brightness(interface)) > 1
+        ):
             return 1
         else:
             return 0
@@ -132,9 +133,9 @@ def main():
         max_brightness = brightness.get_max_brightness(interface)
 
         # Set the brightness to half the max value
-        brightness.write_value(max_brightness / 2,
-                               os.path.join(interface,
-                               'brightness'))
+        brightness.write_value(
+            max_brightness / 2,
+            os.path.join(interface, 'brightness'))
 
         # Check that "actual_brightness" reports the same value we
         # set "brightness" to
@@ -144,9 +145,9 @@ def main():
         time.sleep(2)
 
         # Set the brightness back to its original value
-        brightness.write_value(current_brightness,
-                               os.path.join(interface,
-                               'brightness'))
+        brightness.write_value(
+            current_brightness,
+            os.path.join(interface, 'brightness'))
 
     exit(exit_status)
 

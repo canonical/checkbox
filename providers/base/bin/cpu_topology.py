@@ -21,8 +21,8 @@ class proc_cpuinfo():
         finally:
             cpu_fh.close()
 
-        r_s390 = re.compile("processor [0-9]")
-        r_x86 = re.compile("processor\s+:")
+        r_s390 = re.compile(r"processor [0-9]")
+        r_x86 = re.compile(r"processor\s+:")
         for i in temp:
             # Handle s390 first
             if r_s390.match(i):
@@ -110,6 +110,7 @@ def main():
         return 1
     else:
         return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

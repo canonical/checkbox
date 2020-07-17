@@ -6,9 +6,8 @@ import time
 
 from subprocess import check_call, check_output, CalledProcessError
 try:
-    from subprocess import DEVNULL # >= python3.3
+    from subprocess import DEVNULL  # >= python3.3
 except ImportError:
-    import os
     DEVNULL = open(os.devnull, 'wb')
 
 from uuid import uuid4
@@ -154,7 +153,7 @@ def block_until_created(connection, retries, interval):
         sys.exit(1)
     else:
         try:
-            nmcli_con_up = check_call(['nmcli', 'con', 'up', 'id', connection])
+            check_call(['nmcli', 'con', 'up', 'id', connection])
             print("Connection %s activated." % connection)
         except CalledProcessError as error:
             print("Failed to activate %s." % connection, file=sys.stderr)
@@ -216,7 +215,7 @@ def create_mobilebroadband_connection(args):
                                                                args.apn,
                                                                args.username,
                                                                args.password,
-							       args.pin)
+                                                               args.pin)
 
     if args.type == 'cdma':
         mobilebroadband_connection += mobilebroadband_ppp_section()
@@ -287,6 +286,7 @@ def main():
     connection_name = args.func(args)
     # Make sure we don't exit until the connection is fully created
     block_until_created(connection_name, args.retries, args.interval)
+
 
 if __name__ == "__main__":
     main()

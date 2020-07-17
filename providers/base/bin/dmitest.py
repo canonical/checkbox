@@ -146,26 +146,26 @@ def standard_tests(args, stream, dmi_data):
     if find_in_section(stream, dmi_data, 'Chassis Information',
                        'Manufacturer:',
                        ['empty', 'chassis manufacture', 'null', 'insyde',
-                        'to be filled by o\.e\.m\.', 'no enclosure',
-                        '\.\.\.\.\.'], True):
+                        r'to be filled by o\.e\.m\.', 'no enclosure',
+                        r'\.\.\.\.\.'], True):
         dmi_data['Chassis Information']['Manufacturer'] += \
                 " *** Invalid chassis manufacturer!"
         retval += 1
     if find_in_section(stream, dmi_data, 'System Information', 'Manufacturer:',
                        ['system manufacture', 'insyde', 'standard',
-                        'to be filled by o\.e\.m\.', 'no enclosure'], True):
+                        r'to be filled by o\.e\.m\.', 'no enclosure'], True):
         dmi_data['System Information']['Manufacturer'] += \
                 " *** Invalid system manufacturer!"
         retval += 1
     if find_in_section(stream, dmi_data, 'Base Board Information',
                        'Manufacturer:',
-                       ['to be filled by o\.e\.m\.'], True):
+                       [r'to be filled by o\.e\.m\.'], True):
         dmi_data['Base Board Information']['Manufacturer'] += \
                 " *** Invalid base board manufacturer!"
         retval += 1
     if find_in_section(stream, dmi_data, 'System Information',
                        'Product Name:',
-                       ['system product name', 'to be filled by o\.e\.m\.'],
+                       ['system product name', r'to be filled by o\.e\.m\.'],
                        False):
         dmi_data['System Information']['Product Name'] += \
                 " *** Invalid system product name!"
@@ -173,7 +173,7 @@ def standard_tests(args, stream, dmi_data):
     if find_in_section(stream, dmi_data, 'Base Board Information',
                        'Product Name:',
                        ['base board product name',
-                        'to be filled by o\.e\.m\.'], False):
+                        r'to be filled by o\.e\.m\.'], False):
         dmi_data['Base Board Information']['Product Name'] += \
                 " *** Invalid base board product name!"
         retval += 1
@@ -193,21 +193,21 @@ def version_tests(args, stream, dmi_data):
     """
     retval = 0
     if find_in_section(stream, dmi_data, 'Chassis Information', 'Version:',
-                       ['to be filled by o\.e\.m\.', 'empty', 'x\.x'],
+                       [r'to be filled by o\.e\.m\.', 'empty', r'x\.x'],
                        False):
         dmi_data['Chassis Information']['Version'] += \
                 " *** Invalid chassis version!"
         retval += 1
     if find_in_section(stream, dmi_data, 'System Information', 'Version:',
-                       ['to be filled by o\.e\.m\.', '\(none\)',
+                       [r'to be filled by o\.e\.m\.', r'\(none\)',
                         'null', 'system version', 'not applicable',
-                        '\.\.\.\.\.'], False):
+                        r'\.\.\.\.\.'], False):
         dmi_data['System Information']['Version'] += \
                 " *** Invalid system information version!"
         retval += 1
     if find_in_section(stream, dmi_data, 'Base Board Information', 'Version:',
-                       ['base board version', 'x\.x',
-                        'empty', 'to be filled by o\.e\.m\.'], False):
+                       ['base board version', r'x\.x',
+                        'empty', r'to be filled by o\.e\.m\.'], False):
         dmi_data['Base Board Information']['Version'] += \
                 " *** Invalid base board version!"
         retval += 1
@@ -228,8 +228,8 @@ def serial_tests(args, stream, dmi_data):
     retval = 0
     if find_in_section(stream, dmi_data, 'System Information',
                        'Serial Number:',
-                       ['to be filled by o\.e\.m\.',
-                        'system serial number', '\.\.\.\.\.'],
+                       [r'to be filled by o\.e\.m\.',
+                        'system serial number', r'\.\.\.\.\.'],
                        False):
         dmi_data['System Information']['Serial Number'] += \
                 " *** Invalid system information serial number!"
@@ -237,8 +237,8 @@ def serial_tests(args, stream, dmi_data):
     if find_in_section(stream, dmi_data, 'Base Board Information',
                        'Serial Number:',
                        ['n/a', 'base board serial number',
-                        'to be filled by o\.e\.m\.',
-                        'empty', '\.\.\.'],
+                        r'to be filled by o\.e\.m\.',
+                        'empty', r'\.\.\.'],
                        False):
         dmi_data['Base Board Information']['Serial Number'] += \
                 " *** Invalid base board serial number!"
@@ -306,7 +306,7 @@ def main():
     if args.test_serials:
         retval += serial_tests(args, stream, dmi_data)
     if find_in_section(stream, dmi_data, 'Processor Information', 'Version:',
-                       ['sample', 'Genuine Intel\(R\) CPU 0000'], False):
+                       ['sample', r'Genuine Intel\(R\) CPU 0000'], False):
         dmi_data['Processor Information']['Version'] += \
             " *** Invalid processor information!"
         retval += 1

@@ -129,7 +129,7 @@ class XorgLog(object):
                 gathering_module = False
                 module = None
                 m = re.search(
-                    '\(II\) Loading.*modules\/drivers\/(.+)_drv\.so', line)
+                    r'\(II\) Loading.*modules\/drivers\/(.+)_drv\.so', line)
                 if m:
                     found_ddx = True
                     continue
@@ -207,7 +207,8 @@ class XorgLog(object):
             # For NVIDIA
             m = re.search(r'\(II\) (.*)\(\d+\): Setting mode "(.*?):', line)
             if not m:
-                m = re.search(r'\(II\) (.*)\(\d+\): Setting mode "(NULL)"', line)
+                m = re.search(
+                    r'\(II\) (.*)\(\d+\): Setting mode "(NULL)"', line)
             if m:
                 self.displays[display_name] = display
                 self.video_driver = m.group(1)
@@ -314,8 +315,8 @@ def is_laptop():
 
 def hybrid_graphics_check(xlog):
     '''Check for Hybrid Graphics'''
-    card_id1 = re.compile('.*0300: *(.+):(.+) \(.+\)')
-    card_id2 = re.compile('.*03..: *(.+):(.+)')
+    card_id1 = re.compile(r'.*0300: *(.+):(.+) \(.+\)')
+    card_id2 = re.compile(r'.*03..: *(.+):(.+)')
     cards_dict = {'8086': 'Intel', '10de': 'NVIDIA', '1002': 'AMD'}
     cards = []
     drivers = []
@@ -371,6 +372,7 @@ def main():
     results.append(hybrid_graphics_check(xlog))
 
     return 1 if 1 in results else 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

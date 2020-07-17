@@ -168,5 +168,6 @@ def main():
         device = None
     return(actions[args.action](args.duration, device))
 
+
 if __name__ == '__main__':
     sys.exit(main())

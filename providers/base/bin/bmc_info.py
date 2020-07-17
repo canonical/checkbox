@@ -4,6 +4,7 @@ import sys
 import shlex
 from subprocess import check_output, CalledProcessError
 
+
 def main():
     # First, we need to get output
     cmd = "ipmitool mc info"
@@ -14,7 +15,7 @@ def main():
               file=sys.stderr)
         return 1
     except CalledProcessError as e:
-        print("Problem running %s.  Error was %s" % (cmd,e),file=sys.stderr)
+        print("Problem running %s.  Error was %s" % (cmd, e), file=sys.stderr)
         return 1
     result = result.split('\n')
 
@@ -47,12 +48,11 @@ def main():
         if type(data[field]) is list:
             # Sometimes the first item in the list is ''.  This will remove it
             data[field].remove('')
-            print(field.ljust(30),':',data[field].pop(0))
+            print(field.ljust(30), ':', data[field].pop(0))
             for item in data[field]:
-                print(' '.ljust(32),item)
+                print(' '.ljust(32), item)
         else:
-            print(field.ljust(30),":",data[field])
-            #print("{}:\t{}".format(field, data[field]))
+            print(field.ljust(30), ":", data[field])
 
     return 0
 

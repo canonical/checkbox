@@ -30,9 +30,9 @@ import subprocess
 import sys
 import time
 gi.require_version('Gio', '2.0')
-from gi.repository import Gio
-from math import cos, sin
-from threading import Thread
+from gi.repository import Gio  # noqa: E402
+from math import cos, sin      # noqa: E402
+from threading import Thread   # noqa: E402
 
 
 class GlxThread(Thread):
@@ -44,13 +44,12 @@ class GlxThread(Thread):
 
         try:
             self.process = subprocess.Popen(
-                ["glxgears","-geometry", "400x400"],
+                ["glxgears", "-geometry", "400x400"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
             self.process.communicate()
         except (subprocess.CalledProcessError, FileNotFoundError) as er:
             print("WARNING: Unable to start glxgears (%s)" % er)
-
 
     def terminate(self):
         if not hasattr(self, 'id'):
@@ -121,8 +120,8 @@ class Html5VideoThread(Thread):
     def html5_path(self):
         if os.getenv('PLAINBOX_PROVIDER_DATA'):
             return os.path.join(
-            os.getenv('PLAINBOX_PROVIDER_DATA'),
-            'websites/html5_video.html')
+                os.getenv('PLAINBOX_PROVIDER_DATA'),
+                'websites/html5_video.html')
 
     def run(self):
         if self.html5_path and os.path.isfile(self.html5_path):
@@ -136,8 +135,8 @@ class Html5VideoThread(Thread):
             print("WARNING: test results may be invalid.")
 
     def terminate(self):
-            if self.html5_path and os.path.isfile(self.html5_path):
-                subprocess.call("pkill firefox", shell=True)
+        if self.html5_path and os.path.isfile(self.html5_path):
+            subprocess.call("pkill firefox", shell=True)
 
 
 def check_gpu(log=None):
@@ -172,10 +171,10 @@ def main():
             print("WARNING: Got an exception %s" % er)
             windows = ""
         for app in sorted(windows.splitlines(), reverse=True):
-            if not b'glxgears' in app:
+            if b'glxgears' not in app:
                 continue
             GlxWindows[i].id = str(
-                re.match(b'^(0x\w+)', app).group(0), 'utf-8')
+                re.match(b'^(0x\w+)', app).group(0), 'utf-8')  # noqa: W605
             break
         if hasattr(GlxWindows[i], "id"):
             rotator = RotateGlxThread(GlxWindows[i].id, i + 1)
@@ -204,7 +203,7 @@ def main():
             'gconftool --get /apps/compiz-1/general/screen0/options/vsize',
             shell=True))
     (x_res, y_res) = re.search(
-        b'DG:\s+(\d+)x(\d+)',
+        b'DG:\s+(\d+)x(\d+)',  # noqa: W605
         subprocess.check_output('wmctrl -d', shell=True)).groups()
     DesktopSwitch = ChangeWorkspace(
         hsize, vsize, int(x_res) // hsize, int(y_res) // vsize)
@@ -229,6 +228,7 @@ def main():
         settings.set_int("hsize", hsize_ori)
         settings.set_int("vsize", vsize_ori)
         Gio.Settings.sync()
+
 
 if __name__ == '__main__':
     sys.exit(main())

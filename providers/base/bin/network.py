@@ -255,14 +255,15 @@ class IPerfPerformanceTest(object):
             logging.warning("The network test against {} failed because:".
                             format(self.target))
             if percent < self.fail_threshold:
-                logging.error("  Transfer speed: {} Mb/s".
-                                format(throughput))
-                logging.error("  {:03.2f}% of theoretical max {} Mb/s\n".
-                                format(percent, int(self.iface.max_speed)))
+                logging.error("  Transfer speed: {} Mb/s".format(throughput))
+                logging.error(
+                    "  {:03.2f}% of theoretical max {} Mb/s\n".format(
+                        percent, int(self.iface.max_speed)))
             if cpu_load > self.cpu_load_fail_threshold:
                 logging.error("  CPU load: {}%".format(cpu_load))
-                logging.error("  CPU load is above {}% maximum\n".
-                                format(self.cpu_load_fail_threshold))
+                logging.error(
+                    "  CPU load is above {}% maximum\n".format(
+                        self.cpu_load_fail_threshold))
             return 30
 
         logging.debug("Passed benchmark against {}".format(self.target))
@@ -277,9 +278,11 @@ class StressPerformanceTest:
 
     def run(self):
         if self.iperf3:
-            iperf_cmd = 'timeout -k 1 320 iperf3 -c {} -t 300'.format(self.target)
+            iperf_cmd = 'timeout -k 1 320 iperf3 -c {} -t 300'.format(
+                self.target)
         else:
-            iperf_cmd = 'timeout -k 1 320 iperf -c {} -t 300'.format(self.target)
+            iperf_cmd = 'timeout -k 1 320 iperf -c {} -t 300'.format(
+                self.target)
         print("Running iperf...")
         iperf = subprocess.Popen(shlex.split(iperf_cmd))
 
@@ -365,14 +368,14 @@ class Interface(socket.socket):
             ethinfo = check_output(['ethtool', self.interface],
                                    universal_newlines=True,
                                    stderr=STDOUT).split(' ')
-            expression = '(\\d+)(base)([A-Z]+)|(\d+)(Mb/s)'
+            expression = r'(\\d+)(base)([A-Z]+)|(\d+)(Mb/s)'
 
             regex = re.compile(expression)
             if ethinfo:
                 for i in ethinfo:
                     hit = regex.search(i)
                     if hit:
-                        speeds.append(int(re.sub("\D", "", hit.group(0))))
+                        speeds.append(int(re.sub(r"\D", "", hit.group(0))))
         except CalledProcessError as e:
             logging.error('ethtool returned an error!')
             logging.error(e.output)
@@ -391,7 +394,7 @@ class Interface(socket.socket):
                     for s in line.split(' '):
                         hit = regex.search(s)
                         if hit:
-                            speeds.append(int(re.sub("\D", "", hit.group(0))))
+                            speeds.append(int(re.sub(r"\D", "", hit.group(0))))
             except FileNotFoundError:
                 logging.warning('mii-tool not found! Unable to get max speed')
             except CalledProcessError as e:

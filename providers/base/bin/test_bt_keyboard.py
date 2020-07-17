@@ -5,7 +5,7 @@
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 
-import checkbox_support.bt_helper
+import checkbox_support.bt_helper as bt_helper
 
 
 def main():

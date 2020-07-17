@@ -41,7 +41,6 @@ class PacmdAudioDevice():
             print("Error running %s:" % cmd, file=sys.stderr)
             print(err.output, file=sys.stderr)
             return None
-        
         if not stream:
             print("Error: modinfo returned nothing", file=sys.stderr)
             return None
@@ -74,7 +73,8 @@ def list_device_info():
             pacmd_entries = check_output(["pacmd", "list-%ss" % vtype],
                                          universal_newlines=True)
         except Exception as e:
-            print("Error when running pacmd list-%ss: %s" % (vtype, e),
+            print(
+                "Error when running pacmd list-%ss: %s" % (vtype, e),
                 file=sys.stderr)
             return 1
 
@@ -102,8 +102,9 @@ def list_device_info():
 
 def main():
     parser = ArgumentParser("List audio device and driver information")
-    args = parser.parse_args()
+    parser.parse_args()
     return list_device_info()
+
 
 if __name__ == "__main__":
     sys.exit(main())

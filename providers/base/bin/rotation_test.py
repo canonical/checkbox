@@ -27,7 +27,8 @@ import time
 import subprocess
 
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk
+from gi.repository import Gdk  # noqa: E402
+
 
 def main():
     """Run rotation cycling by running xrandr command."""
@@ -40,6 +41,7 @@ def main():
         subprocess.check_call(
             ['xrandr', '--output', output, '--rotation', rotation])
         time.sleep(4)
+
 
 if __name__ == '__main__':
     exit(main())

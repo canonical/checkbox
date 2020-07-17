@@ -67,8 +67,8 @@ def main():
     if attributes:
         modinfo = TouchpadDriver(attributes['driver'])
         attributes['version'] = modinfo.driver_version
-        print("%s: %s\n%s: %s\n%s: %s\n" %
-                ('Device', attributes['product'],
+        print("%s: %s\n%s: %s\n%s: %s\n" % (
+                 'Device', attributes['product'],
                  'Driver', attributes['driver'],
                  'Driver Version', attributes['version']))
     else:

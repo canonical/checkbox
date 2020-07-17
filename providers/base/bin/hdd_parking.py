@@ -25,7 +25,7 @@
 """
 This script verifies that a systems HDD protection capabilities
 are triggered when appropriate. There are many implementations
-of HDD protection from different OEMs, each implemented in a 
+of HDD protection from different OEMs, each implemented in a
 different way, so this script can only support implementations
 which are known to work and are testable. Currently the list
 of supported implementations is:
@@ -42,10 +42,12 @@ from subprocess import Popen, PIPE
 
 TIMEOUT = 15.0
 
+
 def hdaps_test(run_time):
     try:
-        hdapsd = Popen(['/usr/sbin/hdapsd'], stdout=PIPE, stderr=PIPE,
-                   universal_newlines=True)
+        hdapsd = Popen(
+            ['/usr/sbin/hdapsd'], stdout=PIPE, stderr=PIPE,
+            universal_newlines=True)
     except OSError as err:
         print("Unable to start hdapsd: {}".format(err))
         return 1
@@ -59,6 +61,7 @@ def hdaps_test(run_time):
             return 0
     return 1
 
+
 def main():
     # First establish the driver used
     parser = ArgumentParser("Tests a systems HDD protection capabilities. "
@@ -69,6 +72,7 @@ def main():
     print('Starting HDD protection test - move the system around on '
           'all axis. No particular force should be required.')
     return hdaps_test(parser.parse_args().timeout)
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -38,7 +38,7 @@ def main():
         with open(namef, 'r') as f:
             name = f.read().strip()
         print(rfdev, name)
-    if found_adatper == False:
+    if found_adatper is False:
         raise SystemExit('No bluetooth adatpers registered with rfkill')
 
 

@@ -36,5 +36,6 @@ def main():
         print('%s: %s' % (module, version))
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())

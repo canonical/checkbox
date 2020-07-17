@@ -138,8 +138,9 @@ def main():
 
     logging.basicConfig(level=args.debug)
 
-    #Create a generator and get our lines
-    log = (line.rstrip() for line in open(args.logfile, 'rt', encoding="UTF-8"))
+    # Create a generator and get our lines
+    log = (
+        line.rstrip() for line in open(args.logfile, 'rt', encoding="UTF-8"))
 
     # End result will be a dictionary with a key per level, value is another
     # dictionary with a key per test (s3, s4, ...) and a list of all failures
@@ -166,9 +167,8 @@ def main():
 
     # Report what I found
     for level in sorted(results.keys()):
-        if results[level]:  # Yes, we can have an empty level. We may have
-                            # seen the levelheader but had it report no
-                            # failures.
+        if results[level]:  # Yes, we can have an empty level.
+            # We may have seen the levelheader but had it report no failures.
             print("{} failures:".format(level))
             for test in results[level].keys():
                 print("  {}: {} failures".format(test,
@@ -184,8 +184,8 @@ def main():
         logging.error("No fwts test summaries found, "
                       "possible malformed fwts log file")
         return_code = 2
-    elif not results.keys():  # If it has no keys, means we didn't see any
-                              # FWTS levels
+    elif not results.keys():
+        # If it has no keys, means we didn't see any FWTS levels
         logging.error("None of the summaries contained failure levels, "
                       "possible malformed fwts log file")
         return_code = 2
@@ -196,6 +196,7 @@ def main():
         return_code = 0
 
     return return_code
+
 
 if __name__ == '__main__':
     sys.exit(main())

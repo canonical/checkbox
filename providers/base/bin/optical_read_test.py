@@ -7,7 +7,7 @@ import filecmp
 import shutil
 
 from argparse import ArgumentParser
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, SubprocessError
 
 DEFAULT_DIR = '/tmp/checkbox.optical'
 DEFAULT_DEVICE_DIR = 'device'
@@ -18,11 +18,7 @@ CDROM_ID = '/lib/udev/cdrom_id'
 
 
 def _command(command, shell=True):
-    proc = Popen(command,
-                   shell=shell,
-                   stdout=PIPE,
-                   stderr=PIPE
-                   )
+    proc = Popen(command, shell=shell, stdout=PIPE, stderr=PIPE)
     return proc
 
 
@@ -33,7 +29,7 @@ def _command_out(command, shell=True):
 
 def compare_tree(source, target):
     for dirpath, dirnames, filenames in os.walk(source):
-        #if both tree are empty return false
+        # if both tree are empty return false
         if dirpath == source and dirnames == [] and filenames == []:
             return False
         for name in filenames:
@@ -64,21 +60,21 @@ def read_test(device):
         mount = _command("mount -o ro %s %s" % (device, device_dir))
         mount.communicate()
         if mount.returncode != 0:
-            print("Unable to mount %s to %s" % 
-                    (device, device_dir), file=sys.stderr)
+            print("Unable to mount %s to %s" %
+                  (device, device_dir), file=sys.stderr)
             return False
 
         file_copy = _command("cp -dpR %s %s" % (device_dir, image_dir))
         file_copy.communicate()
         if file_copy.returncode != 0:
-            print("Failed to copy files from %s to %s" % 
-                    (device_dir, image_dir), file=sys.stderr)
+            print("Failed to copy files from %s to %s" %
+                  (device_dir, image_dir), file=sys.stderr)
             return False
         if compare_tree(device_dir, image_dir):
             passed = True
-    except:
-        print("File Comparison failed while testing %s" % device, 
-                file=sys.stderr)
+    except (SubprocessError, OSError):
+        print("File Comparison failed while testing %s" % device,
+              file=sys.stderr)
         passed = False
     finally:
         _command("umount %s" % device_dir).communicate(3)
@@ -88,7 +84,7 @@ def read_test(device):
 
     if passed:
         print("File Comparison passed (%s)" % device)
-    
+
     return passed
 
 
@@ -127,8 +123,9 @@ def main():
             print("Testing %s on %s ... " % (test, device), file=sys.stdout)
             tester = "%s_test" % test
             return_values.append(globals()[tester](device))
-    
+
     return False in return_values
+
 
 if __name__ == "__main__":
     sys.exit(main())

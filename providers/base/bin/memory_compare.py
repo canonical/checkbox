@@ -25,7 +25,6 @@
 import os
 import sys
 import re
-from math import log, copysign
 from subprocess import check_output, CalledProcessError, PIPE
 
 from checkbox_support.helpers.human_readable_bytes import HumanReadableBytes
@@ -44,7 +43,7 @@ class LshwJsonResult:
     desc_regex = re.compile('System Memory', re.IGNORECASE)
 
     def addHardware(self, hardware):
-        if self.desc_regex.match(str(hardware.get('description',0))):
+        if self.desc_regex.match(str(hardware.get('description', 0))):
             self.memory_reported += int(hardware.get('size', 0))
         elif 'bank' in hardware['id']:
             self.banks_reported += int(hardware.get('size', 0))
@@ -133,6 +132,7 @@ def main():
               "reported memory is allowed." %
               (difference, percentage, threshold), file=sys.stderr)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

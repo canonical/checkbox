@@ -277,8 +277,7 @@ def print_move_window(iterations, timeout, *args):
 
     for it in range(iterations):
         print('Iteration %d of %d:' % (it + 1, iterations))
-        exit_status = move_window('glxgears',
-                                  timeout)
+        status = move_window('glxgears', timeout)
 
     print('')
     return status
@@ -290,7 +289,8 @@ def main():
              'open-close-multi': print_open_close_multi,
              'move': print_move_window}
 
-    parser = ArgumentParser(description='Script that performs window operation')
+    parser = ArgumentParser(
+        description='Script that performs window operation')
     parser.add_argument('-t', '--test',
                         default='all',
                         help='The name of the test to run. \
@@ -337,6 +337,7 @@ def main():
                          '%s, all' % (', '.join(tests)))
 
     return status
+
 
 if __name__ == '__main__':
     exit(main())

@@ -71,20 +71,21 @@ class AudioPlugDetection:
         doc = parse_pactl_output(text)
         cfg = set()
         for record in doc.record_list:
-             active_port = None
-             port_availability = None
-             # We go through the attribute list once to try to find an active port
-             for attr in record.attribute_list:
-                 if attr.name == "Active Port":
-                     active_port = attr.value
-             # If there is one, we retrieve its availability flag
-             if active_port:
-                 for attr in record.attribute_list:
-                     if attr.name == "Ports":
-                         for port in attr.value:
-                             if port.name == active_port:
-                                 port_availability = port.availability
-                 cfg.add((record.name, active_port, port_availability))
+            active_port = None
+            port_availability = None
+            # We go through the attribute list once to try to find
+            # an active port
+            for attr in record.attribute_list:
+                if attr.name == "Active Port":
+                    active_port = attr.value
+            # If there is one, we retrieve its availability flag
+            if active_port:
+                for attr in record.attribute_list:
+                    if attr.name == "Ports":
+                        for port in attr.value:
+                            if port.name == active_port:
+                                port_availability = port.availability
+                cfg.add((record.name, active_port, port_availability))
         return cfg
 
     def on_timeout(self, signum, frame):

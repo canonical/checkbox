@@ -7,9 +7,8 @@ import time
 import subprocess
 from datetime import datetime
 try:
-    from subprocess import DEVNULL # >= python3.3
+    from subprocess import DEVNULL  # >= python3.3
 except ImportError:
-    import os
     DEVNULL = open(os.devnull, 'wb')
 
 IFACE = None
@@ -21,7 +20,7 @@ def main():
     Check the time needed to reconnect an active WIFI connection
     """
     devices = subprocess.getoutput('nmcli dev')
-    match = re.search('(\w+)\s+(802-11-wireless|wifi)\s+connected', devices)
+    match = re.search(r'(\w+)\s+(802-11-wireless|wifi)\s+connected', devices)
     if match:
         IFACE = match.group(1)
     else:
@@ -46,7 +45,7 @@ def main():
         return 1
 
     subprocess.call(
-        'nmcli dev disconnect iface %s' %IFACE,
+        'nmcli dev disconnect iface %s' % IFACE,
         stdout=open(os.devnull, 'w'),
         stderr=subprocess.STDOUT,
         shell=True)
@@ -55,13 +54,13 @@ def main():
     start = datetime.now()
 
     subprocess.call(
-        'nmcli con up uuid %s --timeout %s' %(uuid, TIMEOUT),
+        'nmcli con up uuid %s --timeout %s' % (uuid, TIMEOUT),
         stdout=open(os.devnull, 'w'),
         stderr=subprocess.STDOUT,
         shell=True)
 
     delta = datetime.now() - start
-    print('%.2f Seconds' %delta.total_seconds())
+    print('%.2f Seconds' % delta.total_seconds())
     return 0
 
 

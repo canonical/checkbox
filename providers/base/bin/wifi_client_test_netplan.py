@@ -21,8 +21,6 @@ import subprocess as sp
 import textwrap
 import time
 import shutil
-from struct import pack
-from socket import inet_ntoa
 import sys
 
 print = functools.partial(print, flush=True)
@@ -135,7 +133,8 @@ def generate_test_config(interface, ssid, psk, address, dhcp):
           nameservers: {}
 
     Static IP no dhcp:
-    >>> print(generate_test_config("eth0", "my_ap", "s3cr3t", "192.168.1.1", False))
+    >>> print(generate_test_config(
+        "eth0", "my_ap", "s3cr3t", "192.168.1.1", False))
     # This is the network config written by checkbox
     network:
       version: 2
@@ -162,7 +161,8 @@ def generate_test_config(interface, ssid, psk, address, dhcp):
         password = "password: " + psk
     else:
         password = ""
-    return textwrap.dedent(np_cfg.format(interface, ssid, password, address, dhcp))
+    return textwrap.dedent(
+        np_cfg.format(interface, ssid, password, address, dhcp))
 
 
 def write_test_config(config):

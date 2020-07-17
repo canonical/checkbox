@@ -8,8 +8,8 @@ from gettext import gettext as _
 gi.require_version('Gdk', '3.0')
 gi.require_version('Gio', '2.0')
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gio, Gtk, Gdk
-from optparse import OptionParser
+from gi.repository import Gio, Gtk, Gdk  # noqa: E402
+from optparse import OptionParser        # noqa: E402
 
 
 EXIT_WITH_FAILURE = 1
@@ -204,6 +204,7 @@ def main(args):
         scroller.quit()
 
     return scroller.exit_code
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

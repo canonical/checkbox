@@ -36,8 +36,8 @@ class Parser(object):
     """
     Reboot test log file parser
     """
-    is_logging_line = (re.compile('^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}')
-                       .search)
+    is_logging_line = (re.compile(
+        r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}').search)
     is_getting_info_line = (re.compile('Gathering hardware information...$')
                             .search)
     is_executing_line = (re.compile("Executing: '(?P<command>.*)'...$")
@@ -103,8 +103,10 @@ class Parser(object):
             if self.is_output_line(line):
                 command_output = {}
                 break
-            if (self.is_executing_line(line)
-                or self.is_getting_info_line(line)):
+            if (
+                self.is_executing_line(line) or
+                self.is_getting_info_line(line)
+            ):
                 # Skip commands with no output
                 iterator.unnext(line)
                 return None
@@ -132,8 +134,10 @@ class Parser(object):
         # for the field value
         value = []
         for line in iterator:
-            if (self.is_logging_line(line)
-                or self.is_field_line(line)):
+            if (
+                self.is_logging_line(line) or
+                self.is_field_line(line)
+            ):
                 iterator.unnext(line)
                 break
 
@@ -205,8 +209,8 @@ def compare_results(results):
             result_output = result[command]
 
             error_messages = []
-            fields = (set(baseline_output.keys())
-                      | set(result_output.keys()))
+            fields = (set(baseline_output.keys()) |
+                      set(result_output.keys()))
             for field in fields:
                 baseline_field = baseline_output.get(field, '')
                 result_field = result_output.get(field, '')

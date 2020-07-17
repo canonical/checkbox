@@ -75,8 +75,8 @@ class MemoryTest():
         self.process_memory = self.free_memory
         try:
             arch = self._command_out("arch").decode()
-            if (re.match(r"(i[0-9]86|s390|arm.*)", arch)
-                    and self.free_memory > 1024):
+            if (re.match(r"(i[0-9]86|s390|arm.*)", arch) and
+                    self.free_memory > 1024):
                 self.is_process_limited = True
                 self.process_memory = 1024  # MB, due to 32-bit address space
                 print("%s arch, Limiting Process Memory: %u" % (

@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
 import gi
-import os
 import time
 import re
 import subprocess
 import sys
 import argparse
 gi.require_version('Gio', '2.0')
-from gi.repository import Gio
+from gi.repository import Gio  # noqa: E402
 
 
 class Battery():
@@ -89,10 +88,10 @@ def get_battery_state():
 
 def validate_battery_info(battery):
     if battery is None:
-        print ("Error obtaining battery info")
+        print("Error obtaining battery info")
         return False
     if battery._state != "discharging":
-        print ("Error: battery is not discharging, test will not be valid")
+        print("Error: battery is not discharging, test will not be valid")
         return False
     return True
 
@@ -172,6 +171,7 @@ def main():
     print(battery_after)
 
     return(battery_life(battery_before, battery_after, test_time))
+
 
 if __name__ == "__main__":
     sys.exit(main())

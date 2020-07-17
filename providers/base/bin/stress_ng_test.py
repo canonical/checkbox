@@ -138,7 +138,7 @@ def num_numa_nodes():
     try:
         return int(run(['numactl', '--hardware'],
                        stdout=PIPE).stdout.split()[1])
-    except:
+    except (ValueError, OSError, IndexError):
         return 1
 
 

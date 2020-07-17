@@ -67,7 +67,7 @@ class WifiMasterMode():
                         logging.info(output)
                         logging.info("AP successfully established.")
                         child.terminate()
-                if child.poll() is not 0:
+                if child.poll() != 0:
                     output = child.stdout.read()
                     logging.error(log + output)
                     logging.error('AP failed to start')

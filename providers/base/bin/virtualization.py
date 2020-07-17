@@ -330,7 +330,7 @@ class KVMTest(object):
 
         # Attempt download
         try:
-            resp = urllib.request.urlretrieve(full_url, cloud_iso)
+            urllib.request.urlretrieve(full_url, cloud_iso)
         except (IOError,
                 OSError,
                 urllib.error.HTTPError,
@@ -400,25 +400,6 @@ class KVMTest(object):
         Generate Cloud meta data and creates an iso object
         to be mounted as virtual device to instance during boot.
         """
-
-        user_data = """\
-#cloud-config
-
-runcmd:
- - [ sh, -c, echo "========= CERTIFICATION TEST =========" ]
-
-power_state:
-    mode: halt
-    message: Bye
-    timeout: 480
-
-final_message: CERTIFICATION BOOT COMPLETE
-"""
-
-        meta_data = """\
-{ echo instance-id: iid-local01; echo local-hostname, certification; }
-"""
-
         for file in ['user-data', 'meta-data']:
             logging.debug("Creating cloud %s", file)
             with open(file, "wt") as data_file:
@@ -427,11 +408,11 @@ final_message: CERTIFICATION BOOT COMPLETE
 
         # Create Data ISO hosting user & meta cloud config data
         try:
-            iso_build = check_output(
+            check_output(
                 ['genisoimage', '-output', 'seed.iso', '-volid',
                  'cidata', '-joliet', '-rock', 'user-data', 'meta-data'],
                 universal_newlines=True)
-        except CalledProcessError as exception:
+        except CalledProcessError:
             logging.exception("Cloud data disk creation failed")
 
     def log_check(self, stream):
@@ -483,7 +464,7 @@ final_message: CERTIFICATION BOOT COMPLETE
                     self.create_cloud_disk()
 
                 # Boot Virtual Machine
-                instance = self.boot_image(self.image)
+                self.boot_image(self.image)
 
                 # If running in console, reset console window to regain
                 # control from VM Serial I/0
@@ -659,7 +640,7 @@ class LXDTest(object):
         logging.debug("Attempting download of {} from {}".format(filename,
                                                                  url))
         try:
-            resp = urllib.request.urlretrieve(url, filename)
+            urllib.request.urlretrieve(url, filename)
         except (IOError,
                 OSError,
                 urllib.error.HTTPError,

@@ -184,19 +184,19 @@ class SuspendTest():
         if perf:
             for idx in range(0, len(loglist)):
                 if 'PM: Syncing filesystems' in loglist[idx]:
-                    sleep_start_time = re.split('[\[\]]',
+                    sleep_start_time = re.split(r'[\[\]]',
                                                 loglist[idx])[1].strip()
                     logging.debug('Sleep started at %s' % sleep_start_time)
                 if 'ACPI: Low-level resume complete' in loglist[idx]:
-                    sleep_end_time = re.split('[\[\]]',
+                    sleep_end_time = re.split(r'[\[\]]',
                                               loglist[idx - 1])[1].strip()
                     logging.debug('Sleep ended at %s' % sleep_end_time)
-                    resume_start_time = re.split('[\[\]]',
+                    resume_start_time = re.split(r'[\[\]]',
                                                  loglist[idx])[1].strip()
                     logging.debug('Resume started at %s' % resume_start_time)
                     idx += 1
                 if 'Restarting tasks' in loglist[idx]:
-                    resume_end_time = re.split('[\[\]]',
+                    resume_end_time = re.split(r'[\[\]]',
                                                loglist[idx])[1].strip()
                     logging.debug('Resume ended at %s' % resume_end_time)
                 if self.end_marker in loglist[idx]:
@@ -394,6 +394,7 @@ def main():
         logging.info('Successfully completed %s sleep iterations' %
                      options.iterations)
         return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

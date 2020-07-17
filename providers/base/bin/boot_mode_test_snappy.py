@@ -14,7 +14,6 @@ import tempfile
 
 import yaml
 
-from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
 from checkbox_support.snap_utils.system import get_lk_bootimg_path
 
 

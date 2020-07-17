@@ -45,7 +45,7 @@ class VtWrapper(object):
         vt = 0
         proc = Popen(['ps', 'aux'], stdout=PIPE, universal_newlines=True)
         proc_output = proc.communicate()[0].split('\n')
-        proc_line = re.compile('.*tty(\d+).+/usr/bin/X.*')
+        proc_line = re.compile(r'.*tty(\d+).+/usr/bin/X.*')
         for line in proc_output:
             match = proc_line.match(line)
             if match:
@@ -55,6 +55,7 @@ class VtWrapper(object):
     def set_vt(self, vt):
         retcode = call(['chvt', '%d' % vt])
         return retcode
+
 
 class SuspendWrapper(object):
     def __init__(self):
@@ -132,6 +133,7 @@ class SuspendWrapper(object):
 
         return status
 
+
 class RotationWrapper(object):
 
     def __init__(self):
@@ -177,6 +179,7 @@ class RotationWrapper(object):
                               % (elem, status, error))
                 result = 1
         return result
+
 
 class RenderCheckWrapper(object):
     """A simple class to run the rendercheck suites"""
@@ -234,14 +237,15 @@ class RenderCheckWrapper(object):
                     passed = int(match_output.group(1).strip())
                     total = int(match_output.group(2).strip())
                     logging.info('Results:')
-                    logging.info('    %d tests passed out of %d.'
-                                  % (passed, total))
+                    logging.info(
+                        '    %d tests passed out of %d.' % (passed, total))
                 if show_errors and match_errors:
                     error = match_errors.group(0).strip()
                     if first_error:
-                        logging.debug('Rendercheck %s suite errors '
-                                      'from iteration %d:'
-                                       % (suites, iteration))
+                        logging.debug(
+                            'Rendercheck %s suite errors '
+                            'from iteration %d:'
+                            % (suites, iteration))
                         first_error = False
                     logging.debug('    %s' % error)
 
@@ -254,17 +258,17 @@ class RenderCheckWrapper(object):
         exit_status = 0
         for suite in suites:
             for it in range(iterations):
-                logging.info('Iteration %d of Rendercheck %s suite...'
-                              % (it + 1, suite))
-                (status, passed, total) = \
-                self._print_test_info(suites=suite,
-                                      iteration=it + 1,
-                                      show_errors=show_errors)
+                logging.info(
+                    'Iteration %d of Rendercheck %s suite...'
+                    % (it + 1, suite))
+                (status, passed, total) = self._print_test_info(
+                    suites=suite, iteration=it + 1, show_errors=show_errors)
                 if status != 0:
                     # Make sure to catch a non-zero exit status
-                    logging.info('Iteration %d of Rendercheck %s suite '
-                                  'exited with status %d.'
-                                  % (it + 1, suite, status))
+                    logging.info(
+                        'Iteration %d of Rendercheck %s suite '
+                        'exited with status %d.'
+                        % (it + 1, suite, status))
                     exit_status = status
                 it += 1
 
@@ -372,7 +376,6 @@ def main():
 
         logfile_handler.setFormatter(logging.Formatter(format))
         logger.addHandler(logfile_handler)
-        log_path = os.path.abspath(logfile)
 
     # Write only to stdout
     else:
@@ -402,16 +405,18 @@ def main():
             logging.info('Iteration %d...', it)
             retcode = vt_wrap.set_vt(target_vt)
             if retcode != 0:
-                logging.error('Error: switching to tty%d failed with code %d '
-                      'on iteration %d' % (target_vt, retcode, it))
+                logging.error(
+                    'Error: switching to tty%d failed with code %d '
+                    'on iteration %d' % (target_vt, retcode, it))
                 status = 1
             else:
                 logging.info('Switching to tty%d: passed' % (target_vt))
             time.sleep(2)
             retcode = vt_wrap.set_vt(vt_wrap.x_vt)
             if retcode != 0:
-                logging.error('Error: switching to tty%d failed with code %d '
-                      'on iteration %d' % (vt_wrap.x_vt, retcode, it))
+                logging.error(
+                    'Error: switching to tty%d failed with code %d '
+                    'on iteration %d' % (vt_wrap.x_vt, retcode, it))
             else:
                 logging.info('Switching to tty%d: passed' % (vt_wrap.x_vt))
                 status = 1
@@ -462,6 +467,7 @@ def main():
         status = 1
 
     return status
+
 
 if __name__ == '__main__':
     exit(main())

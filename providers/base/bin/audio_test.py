@@ -13,7 +13,7 @@ import time
 try:
     import gi
     gi.require_version('GLib', '2.0')
-    gi.require_version('Gst','1.0')
+    gi.require_version('Gst', '1.0')
     from gi.repository import GObject
     from gi.repository import Gst
     from gi.repository import GLib
@@ -29,25 +29,26 @@ try:
 except ImportError:
     from collections import Callable  # backward compatible
 
-#Frequency bands for FFT
+# Frequency bands for FFT
 BINS = 256
-#How often to take a sample and do FFT on it.
+# How often to take a sample and do FFT on it.
 FFT_INTERVAL = 100000000  # In nanoseconds, so this is every 1/10th second
-#Sampling frequency. The effective maximum frequency we can analyze is
-#half of this (see Nyquist's theorem)
+# Sampling frequency. The effective maximum frequency we can analyze is
+# half of this (see Nyquist's theorem)
 SAMPLING_FREQUENCY = 44100
-#The default test frequency is in the middle of the band that contains 5000Hz
-#This frequency was determined experimentally to be high enough but more
-#reliable than others we tried.
+# The default test frequency is in the middle of the band that contains 5000Hz
+# This frequency was determined experimentally to be high enough but more
+# reliable than others we tried.
 DEFAULT_TEST_FREQUENCY = 5035
-#only sample a signal when peak level is in this range (in dB attenuation,
-#0 means no attenuation (and horrible clipping).
+# only sample a signal when peak level is in this range (in dB attenuation,
+# 0 means no attenuation (and horrible clipping).
 REC_LEVEL_RANGE = (-2.0, -12.0)
-#For our test signal to be considered present, it has to be this much higher
-#than the base level (minimum magnitude). This is in dB.
+# For our test signal to be considered present, it has to be this much higher
+# than the base level (minimum magnitude). This is in dB.
 MAGNITUDE_THRESHOLD = 2.5
-#Volume for the sample tone (in %)
+# Volume for the sample tone (in %)
 PLAY_VOLUME = 70
+
 
 class PIDController(object):
     """ A Proportional-Integrative-Derivative controller (PID) controls a
@@ -141,7 +142,7 @@ class PAVolumeController(object):
                    'set-%s-volume' % (self.pa_types[self.type]),
                    str(self.identifier[0]),
                    str(int(volume)) + "%"]
-        if False == self.method(command):
+        if not self.method(command):
             return False
         self._volume = volume
         return True
@@ -159,7 +160,7 @@ class PAVolumeController(object):
                    'set-%s-mute' % (self.pa_types[self.type]),
                    str(self.identifier[0]),
                    mute]
-        if False == self.method(command):
+        if not self.method(command):
             return False
         return True
 
@@ -187,10 +188,10 @@ class PAVolumeController(object):
             return None
         command = ['pactl', 'list', self.pa_types[type] + "s", 'short']
 
-        #Expect lines of this form (field separator is tab):
-        #<ID>\t<NAME>\t<MODULE>\t<SAMPLE_SPEC_WITH_SPACES>\t<STATE>
-        #What we need to return is the ID for the first element on this list
-        #that does not contain auto_null or monitor.
+        # Expect lines of this form (field separator is tab):
+        # <ID>\t<NAME>\t<MODULE>\t<SAMPLE_SPEC_WITH_SPACES>\t<STATE>
+        # What we need to return is the ID for the first element on this list
+        # that does not contain auto_null or monitor.
         pa_info = self.method(command)
         valid_elements = None
 
@@ -203,17 +204,17 @@ class PAVolumeController(object):
                 self.logger.error("No valid PulseAudio elements"
                                   " for %s" % (self.type))
             return None
-        #We only need the pulseaudio numeric ID and long name for each element
+        # We only need the pulseaudio numeric ID and long name for each element
         valid_elements = [(int(e.split()[0]), e.split()[1])
                           for e in valid_elements]
         return valid_elements[0]
 
     def _pactl_output(self, command):
-        #This method mainly calls pactl (hence the name). Since pactl may
-        #return a failure if the audio layer is not yet initialized, we will
-        #try running a few times in case of failure. All our invocations of
-        #pactl should be "idempotent" so repeating them should not have
-        #any bad effects.
+        # This method mainly calls pactl (hence the name). Since pactl may
+        # return a failure if the audio layer is not yet initialized, we will
+        # try running a few times in case of failure. All our invocations of
+        # pactl should be "idempotent" so repeating them should not have
+        # any bad effects.
         for attempt in range(0, 3):
             try:
                 return subprocess.check_output(command,
@@ -242,8 +243,8 @@ class SpectrumAnalyzer(object):
         self.number_of_samples = 0
         self.wanted_samples = wanted_samples
         self.sampling_frequency = sampling_frequency
-        #Frequencies should contain *real* frequency which is half of
-        #the sampling frequency
+        # Frequencies should contain *real* frequency which is half of
+        # the sampling frequency
         self.frequencies = [((sampling_frequency / 2.0) / points) * i
                             for i in range(points)]
 
@@ -259,14 +260,14 @@ class SpectrumAnalyzer(object):
         self.number_of_samples += 1
 
     def frequencies_with_peak_magnitude(self, threshold=1.0):
-        #First establish the base level
+        # First establish the base level
         per_magnitude_bins = collections.defaultdict(int)
         for magnitude in self.spectrum:
             per_magnitude_bins[magnitude] += 1
         base_level = max(per_magnitude_bins,
                          key=lambda x: per_magnitude_bins[x])
-        #Now return all values that are higher (more positive)
-        #than base_level + threshold
+        # Now return all values that are higher (more positive)
+        # than base_level + threshold
         peaks = []
         for i in range(1, len(self.spectrum) - 1):
             first_index = i - 1
@@ -282,10 +283,10 @@ class SpectrumAnalyzer(object):
         """Convenience function to tell me which band
            a frequency is contained in
         """
-        #Note that actual frequencies are half of what the sampling
-        #frequency would tell us. If SF is 44100 then maximum actual
-        #frequency is 22050, and if I have 10 frequency bins each will
-        #contain only 2205 Hz, not 4410 Hz.
+        # Note that actual frequencies are half of what the sampling
+        # frequency would tell us. If SF is 44100 then maximum actual
+        # frequency is 22050, and if I have 10 frequency bins each will
+        # contain only 2205 Hz, not 4410 Hz.
         max_frequency = self.sampling_frequency / 2
         if frequency > max_frequency or frequency < 0:
             return None
@@ -339,34 +340,33 @@ class GStreamerMessageHandler(object):
         if message.type == Gst.MessageType.ELEMENT:
             message_name = message.get_structure().get_name()
             if message_name == 'spectrum':
-                #TODO: Due to an upstream bug, a structure's get_value method
-                #doesn't work if the value in question is an array (as is the
-                #case with the magnitudes).
-                #https://bugzilla.gnome.org/show_bug.cgi?id=693168
-                #We have to resort to parsing the string representation of the
-                #structure. It's an ugly hack but it works.
-                #Ideally we'd be able to say this to get fft_magnitudes:
-                #message.get_structure.get_value('magnitude').
-                #If an upstream fix ever makes it into gstreamer,
-                #remember to remove this hack and the parse_spectrum
-                #method
+                # TODO: Due to an upstream bug, a structure's get_value method
+                # doesn't work if the value in question is an array (as is the
+                # case with the magnitudes).
+                # https://bugzilla.gnome.org/show_bug.cgi?id=693168
+                # We have to resort to parsing the string representation of the
+                # structure. It's an ugly hack but it works.
+                # Ideally we'd be able to say this to get fft_magnitudes:
+                # message.get_structure.get_value('magnitude').
+                # If an upstream fix ever makes it into gstreamer,
+                # remember to remove this hack and the parse_spectrum method
                 struct_string = message.get_structure().to_string()
                 structure = parse_spectrum_message_structure(struct_string)
                 fft_magnitudes = structure['magnitude']
                 self.spectrum_method(self.spectrum_analyzer, fft_magnitudes)
 
             if message_name == 'level':
-                #peak_value is our process feedback
-                #It's returned as an array, so I need the first (and only)
-                #element
+                # peak_value is our process feedback
+                # It's returned as an array, so I need the first (and only)
+                # element
                 peak_value = message.get_structure().get_value('peak')[0]
                 self.level_method(peak_value, self.pid_controller,
                                   self.volume_controller)
 
-    #Adjust recording level
+    # Adjust recording level
     def level_method(self, level, pid_controller, volume_controller):
-        #If volume controller doesn't return a valid volume,
-        #we can't control it :(
+        # If volume controller doesn't return a valid volume,
+        # we can't control it :(
         current_volume = volume_controller.get_volume()
         if current_volume is None:
             self.logger.error("Unable to control recording volume."
@@ -375,19 +375,20 @@ class GStreamerMessageHandler(object):
         self.current_level = level
         change = pid_controller.input_change(level, 0.10)
         if self.logger:
-            self.logger.debug("Peak level: %(peak_level).2f, "
-                         "volume: %(volume)d%%, Volume change: %(change)f%%" %
-                      {'peak_level': level,
-                       'change': change,
-                       'volume': current_volume})
+            self.logger.debug(
+                        "Peak level: %(peak_level).2f, "
+                        "volume: %(volume)d%%, Volume change: %(change)f%%" % {
+                            'peak_level': level,
+                            'change': change,
+                            'volume': current_volume})
         volume_controller.set_volume(current_volume + change)
 
-    #Only sample if level is within the threshold
+    # Only sample if level is within the threshold
     def spectrum_method(self, analyzer, spectrum):
         if self.rec_level_range[1] <= self.current_level \
            or self.current_level <= self.rec_level_range[0]:
-            self.logger.debug("Sampling, recorded %d samples" %
-                               analyzer.number_of_samples)
+            self.logger.debug(
+                "Sampling, recorded %d samples" % analyzer.number_of_samples)
             analyzer.sample(spectrum)
         if analyzer.sampling_complete() and self._quit_method:
             self.logger.info("Sampling complete, ending process")
@@ -414,10 +415,11 @@ class GstAudioObject(object):
 class Player(GstAudioObject):
     def __init__(self, frequency=DEFAULT_TEST_FREQUENCY, logger=None):
         super(Player, self).__init__()
-        self.pipeline_description = ("audiotestsrc wave=sine freq=%s "
-                                "! audioconvert "
-                                "! audioresample "
-                                "! autoaudiosink" % int(frequency))
+        self.pipeline_description = (
+            "audiotestsrc wave=sine freq=%s "
+            "! audioconvert "
+            "! audioresample "
+            "! autoaudiosink" % int(frequency))
         self.logger = logger
         if self.logger:
             self.logger.debug(self.pipeline_description)
@@ -437,11 +439,11 @@ class Recorder(GstAudioObject):
         ! audioresample
         ! spectrum interval=%(fft_interval)s bands = %(bands)s
         ! wavenc
-        ! filesink location=%(file)s''' %
-        {'bands': bins,
-         'rate': sampling_frequency,
-         'fft_interval': fft_interval,
-         'file': output_file})
+        ! filesink location=%(file)s''' % {
+            'bands': bins,
+            'rate': sampling_frequency,
+            'fft_interval': fft_interval,
+            'file': output_file})
         self.logger = logger
         if self.logger:
             self.logger.debug(pipeline_description)
@@ -457,25 +459,25 @@ class Recorder(GstAudioObject):
 
 
 def parse_spectrum_message_structure(struct_string):
-    #First let's jsonize this
-    #This is the message name, which we don't need
+    # First let's jsonize this
+    # This is the message name, which we don't need
     text = struct_string.replace("spectrum, ", "")
-    #name/value separator in json is : and not =
-    text = text.replace("=",": ")
-    #Mutate the {} array notation from the structure to
-    #[] notation for json.
-    text = text.replace("{","[")
-    text = text.replace("}","]")
-    #Remove a few stray semicolons that aren't needed
-    text = text.replace(";","")
-    #Remove the data type fields, as json doesn't need them
+    # name/value separator in json is : and not =
+    text = text.replace("=", ": ")
+    # Mutate the {} array notation from the structure to
+    # [] notation for json.
+    text = text.replace("{", "[")
+    text = text.replace("}", "]")
+    # Remove a few stray semicolons that aren't needed
+    text = text.replace(";", "")
+    # Remove the data type fields, as json doesn't need them
     text = re.sub(r"\(.+?\)", "", text)
-    #double-quote the identifiers
+    # double-quote the identifiers
     text = re.sub(r"([\w-]+):", r'"\1":', text)
-    #Wrap the whole thing in brackets
+    # Wrap the whole thing in brackets
     text = ("{"+text+"}")
-    #Try to parse and return something sensible here, even if
-    #the data was unparsable.
+    # Try to parse and return something sensible here, even if
+    # the data was unparsable.
     try:
         return json.loads(text)
     except ValueError:
@@ -489,32 +491,38 @@ def process_arguments():
         presence of the played frequency, if present it exits with success.
     """
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("-t", "--time",
+    parser.add_argument(
+            "-t", "--time",
             dest='test_duration',
             action='store',
             default=30,
             type=int,
             help="""Maximum test duration, default %(default)s seconds.
                     It may exit sooner if it determines it has enough data.""")
-    parser.add_argument("-a", "--audio",
+    parser.add_argument(
+            "-a", "--audio",
             action='store',
             default="/dev/null",
             type=str,
             help="File to save recorded audio in .wav format")
-    parser.add_argument("-q", "--quiet",
+    parser.add_argument(
+            "-q", "--quiet",
             action='store_true',
             default=False,
             help="Be quiet, no output unless there's an error.")
-    parser.add_argument("-d", "--debug",
+    parser.add_argument(
+            "-d", "--debug",
             action='store_true',
             default=False,
             help="Debugging output")
-    parser.add_argument("-f", "--frequency",
+    parser.add_argument(
+            "-f", "--frequency",
             action='store',
             default=DEFAULT_TEST_FREQUENCY,
             type=int,
             help="Frequency for test signal, default %(default)s Hz")
-    parser.add_argument("-u", "--spectrum",
+    parser.add_argument(
+            "-u", "--spectrum",
             action='store',
             type=str,
             help="""File to save spectrum information for plotting
@@ -524,10 +532,10 @@ def process_arguments():
 
 #
 def main():
-    #Get arguments.
+    # Get arguments.
     args = process_arguments()
 
-    #Setup logging
+    # Setup logging
     level = logging.INFO
     if args.debug:
         level = logging.DEBUG
@@ -535,56 +543,57 @@ def main():
         level = logging.ERROR
     logging.basicConfig(level=level)
     try:
-        #Launches recording pipeline. I need to hook up into the gst
-        #messages.
+        # Launches recording pipeline. I need to hook up into the gst
+        # messages.
         recorder = Recorder(output_file=args.audio, logger=logging)
-        #Just launches the playing pipeline
+        # Just launches the playing pipeline
         player = Player(frequency=args.frequency, logger=logging)
     except GObject.GError as excp:
         logging.critical("Unable to initialize GStreamer pipelines: %s", excp)
         sys.exit(127)
 
-    #This just receives a process feedback and tells me how much to change to
-    #achieve the setpoint
+    # This just receives a process feedback and tells me how much to change to
+    # achieve the setpoint
     pidctrl = PIDController(Kp=0.7, Ki=.01, Kd=0.01,
                             setpoint=REC_LEVEL_RANGE[0])
     pidctrl.set_change_limit(5)
-    #This  gathers spectrum data.
+    # This  gathers spectrum data.
     analyzer = SpectrumAnalyzer(points=BINS,
                                 sampling_frequency=SAMPLING_FREQUENCY)
 
-    #Volume controllers actually set volumes for their device types.
-    #we should at least issue a warning
+    # Volume controllers actually set volumes for their device types.
+    # we should at least issue a warning
     recorder.volumecontroller = PAVolumeController(type='input',
                                                    logger=logging)
     if not recorder.volumecontroller.get_identifier():
-        logging.warning("Unable to get input volume control identifier. "
-                       "Test results will probably be invalid")
+        logging.warning(
+            "Unable to get input volume control identifier. "
+            "Test results will probably be invalid")
     recorder.volumecontroller.set_volume(0)
     recorder.volumecontroller.mute(False)
 
     player.volumecontroller = PAVolumeController(type='output',
                                                  logger=logging)
     if not player.volumecontroller.get_identifier():
-        logging.warning("Unable to get output volume control identifier. "
-                       "Test results will probably be invalid")
+        logging.warning(
+            "Unable to get output volume control identifier. "
+            "Test results will probably be invalid")
     player.volumecontroller.set_volume(PLAY_VOLUME)
     player.volumecontroller.mute(False)
 
-    #This handles the messages from gstreamer and orchestrates
-    #the passed volume controllers, pid controller and spectrum analyzer
-    #accordingly.
+    # This handles the messages from gstreamer and orchestrates
+    # the passed volume controllers, pid controller and spectrum analyzer
+    # accordingly.
     gmh = GStreamerMessageHandler(rec_level_range=REC_LEVEL_RANGE,
                                   logger=logging,
                                   volumecontroller=recorder.volumecontroller,
                                   pidcontroller=pidctrl,
                                   spectrum_analyzer=analyzer)
 
-    #I need to tell the recorder which method will handle messages.
+    # I need to tell the recorder which method will handle messages.
     recorder.register_message_handler(gmh.bus_message_handler)
 
-    #Create the loop and add a few triggers
-#    GObject.threads_init() #Not needed?
+    # Create the loop and add a few triggers
     loop = GLib.MainLoop()
     GLib.timeout_add_seconds(0, player.start)
     GLib.timeout_add_seconds(0, recorder.start)
@@ -595,29 +604,32 @@ def main():
 
     loop.run()
 
-    #When the loop ends, set things back to reasonable states
+    # When the loop ends, set things back to reasonable states
     player.stop()
     recorder.stop()
     player.volumecontroller.set_volume(50)
     recorder.volumecontroller.set_volume(10)
 
-    #See if data gathering was successful.
+    # See if data gathering was successful.
     test_band = analyzer.frequency_band_for(args.frequency)
-    candidate_bands = analyzer.frequencies_with_peak_magnitude(MAGNITUDE_THRESHOLD)
+    candidate_bands = analyzer.frequencies_with_peak_magnitude(
+        MAGNITUDE_THRESHOLD)
     for band in candidate_bands:
         logging.debug("Band (%.2f,%.2f) contains a magnitude peak" %
                       analyzer.frequencies_for_band(band))
     if test_band in candidate_bands:
         freqs_for_band = analyzer.frequencies_for_band(test_band)
-        logging.info("PASS: Test frequency of %s in band (%.2f, %.2f) "
-              "which contains a magnitude peak" %
+        logging.info(
+            "PASS: Test frequency of %s in band (%.2f, %.2f) "
+            "which contains a magnitude peak" %
             ((args.frequency,) + freqs_for_band))
         return_value = 0
     else:
-        logging.info("FAIL: Test frequency of %s is not in one of the "
-              "bands with magnitude peaks" % args.frequency)
+        logging.info(
+            "FAIL: Test frequency of %s is not in one of the "
+            "bands with magnitude peaks" % args.frequency)
         return_value = 1
-    #Is the microphone broken?
+    # Is the microphone broken?
     if len(set(analyzer.spectrum)) <= 1:
         logging.info("WARNING: Microphone seems broken, didn't even "
                      "record ambient noise")
@@ -625,14 +637,17 @@ def main():
     if args.spectrum:
         logging.info("Saving spectrum data for plotting as %s" %
                      args.spectrum)
-        if not FileDumper().write_to_file(args.spectrum,
-                                       ["%s,%s" % t for t in
-                                        zip(analyzer.frequencies,
-                                            analyzer.spectrum)]):
+        if (
+            not FileDumper().write_to_file(
+                args.spectrum,
+                ["%s,%s" % t for t in zip(
+                    analyzer.frequencies, analyzer.spectrum)])
+        ):
             logging.error("Couldn't save spectrum data for plotting",
                           file=sys.stderr)
 
     return return_value
+
 
 if __name__ == "__main__":
     sys.exit(main())

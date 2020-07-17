@@ -53,7 +53,7 @@ while True:
         for e in dev.read():
             tap = args.xfingers
             if tap == 1:
-                if (e.type == 3 and e.code == 47  and e.value > 0):
+                if (e.type == 3 and e.code == 47 and e.value > 0):
                     raise SystemExit(
                         "Multitouch Event detected but Single was expected")
                 # type 1 is evdev.ecodes.EV_KEY

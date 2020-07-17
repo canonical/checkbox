@@ -23,6 +23,7 @@ The purpose of this script is to simply interact with an onboard
 accelerometer, and check to be sure that the x, y, z axis respond
 to physical movement of hardware.
 '''
+
 from argparse import ArgumentParser
 import gi
 import logging
@@ -34,9 +35,10 @@ import time
 gi.require_version('Gdk', '3.0')
 gi.require_version('GLib', '2.0')
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gdk, GLib, Gtk
-from subprocess import Popen, PIPE, check_output, STDOUT, CalledProcessError
-from checkbox_support.parsers.modinfo import ModinfoParser
+from gi.repository import Gdk, GLib, Gtk                    # noqa: E402
+from subprocess import Popen, PIPE, check_output, STDOUT    # noqa: E402
+from subprocess import CalledProcessError                   # noqa: E402
+from checkbox_support.parsers.modinfo import ModinfoParser  # noqa: E402
 
 handler = logging.StreamHandler()
 logger = logging.getLogger()
@@ -86,8 +88,8 @@ class AccelerometerUI(Gtk.Window):
 
     def update_axis_icon(self, direction):
         """Change desired directional icon to checkmark"""
-        exec('self.%s_icon.set_from_stock' % (direction) \
-             + '(Gtk.STOCK_YES, size=Gtk.IconSize.BUTTON)')
+        exec('self.%s_icon.set_from_stock' % (direction) +
+             '(Gtk.STOCK_YES, size=Gtk.IconSize.BUTTON)')
 
     def update_debug_label(self, text):
         """Update axis information in center of UI"""
@@ -131,7 +133,7 @@ class AxisData(threading.Thread):
         self.x_test_pool = ["up", "down"]
         self.y_test_pool = ["left", "right"]
 
-        if self.ui == None:
+        if self.ui is None:
             self.ui.enabled = False
 
     def grab_current_readings(self):
@@ -223,8 +225,8 @@ class AxisData(threading.Thread):
 def insert_supported_module(oem_module):
     """Try and insert supported module to see if we get any init errors"""
     try:
-        stream = check_output(['modinfo', oem_module], stderr=STDOUT,
-                               universal_newlines=True)
+        stream = check_output(
+            ['modinfo', oem_module], stderr=STDOUT, universal_newlines=True)
     except CalledProcessError as err:
         print("Error accessing modinfo for %s: " % oem_module, file=sys.stderr)
         print(err.output, file=sys.stderr)
@@ -232,7 +234,7 @@ def insert_supported_module(oem_module):
 
     parser = ModinfoParser(stream)
     module = os.path.basename(parser.get_field('filename'))
-    
+
     insmod_output = Popen(['insmod %s' % module], stderr=PIPE,
                           shell=True, universal_newlines=True)
 
@@ -259,10 +261,10 @@ def check_module_status():
     if "Permission denied" in error:
         raise PermissionException(error)
 
-    vendor_data = re.findall("Vendor:\s.*", output)
+    vendor_data = re.findall(r"Vendor:\s.*", output)
     try:
         manufacturer = vendor_data[0].split(":")[1].strip()
-    except IndexError as exception:
+    except IndexError:
         logging.error("Failed to find Manufacturing data")
         return
 
@@ -275,8 +277,8 @@ def check_module_status():
             oem_module = oem_driver_pool.get(vendor)
             break  # We've found our desired module to probe.
 
-    if oem_module != None:
-        if insert_supported_module(oem_module) != None:
+    if oem_module is not None:
+        if insert_supported_module(oem_module) is not None:
             logging.error("Failed module insertion")
         # Check dmesg status for supported module
         driver_status = Popen(['dmesg'], stdout=PIPE, universal_newlines=True)
@@ -347,5 +349,6 @@ def main():
         # Reading is not instant.
         time.sleep(5)
 
+
 if __name__ == '__main__':
-    main();
+    main()

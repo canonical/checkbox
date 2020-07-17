@@ -20,8 +20,8 @@ import dbus
 import gi
 from dbus.mainloop.glib import DBusGMainLoop
 gi.require_version('GLib', '2.0')
-from gi.repository import GObject
-from gi.repository import GLib
+from gi.repository import GObject  # noqa: E402
+from gi.repository import GLib     # noqa: E402
 
 
 def filter_cb(bus, message):
@@ -40,6 +40,7 @@ def filter_cb(bus, message):
 def on_timeout_expired():
     print("You have failed to perform the required manipulation in time")
     raise SystemExit(1)
+
 
 DBusGMainLoop(set_as_default=True)
 bus = dbus.SessionBus()

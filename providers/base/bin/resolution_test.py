@@ -5,7 +5,7 @@ import sys
 
 from argparse import ArgumentParser
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk
+from gi.repository import Gdk  # noqa: E402
 
 
 def check_resolution():
@@ -28,11 +28,13 @@ def compare_resolution(min_h, min_v):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("--horizontal",
+    parser.add_argument(
+        "--horizontal",
         type=int,
         default=0,
         help="Minimum acceptable horizontal resolution.")
-    parser.add_argument("--vertical",
+    parser.add_argument(
+        "--vertical",
         type=int,
         default=0,
         help="Minimum acceptable vertical resolution.")

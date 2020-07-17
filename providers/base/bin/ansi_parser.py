@@ -128,7 +128,8 @@ def parse_filename(filename):
 def main(args):
     usage = "Usage: %prog [OPTIONS] [FILE...]"
     parser = OptionParser(usage=usage)
-    parser.add_option("-o", "--output",
+    parser.add_option(
+        "-o", "--output",
         metavar="FILE",
         help="File where to output the result.")
     (options, args) = parser.parse_args(args)

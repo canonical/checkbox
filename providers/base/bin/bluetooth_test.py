@@ -145,5 +145,6 @@ def main():
         format='%(levelname)s: %(message)s')
     return getattr(ObexFTPTest(args.file.name, args.btaddr), args.action)()
 
+
 if __name__ == "__main__":
     sys.exit(main())

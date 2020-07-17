@@ -96,7 +96,8 @@ class GtkApplication(Application):
     def __init__(self, address, times):
         Application.__init__(self, address, times)
 
-        dialog = Gtk.Dialog(title='Network restart',
+        dialog = Gtk.Dialog(
+            title='Network restart',
             buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
         dialog.set_default_size(300, 100)
 
@@ -187,7 +188,8 @@ def ping(address):
     """
     logging.info('Pinging {0!r}...'.format(address))
     try:
-        check_call('ping -c 1 -w 5 {0}'.format(address),
+        check_call(
+            'ping -c 1 -w 5 {0}'.format(address),
             stdout=open(os.devnull, 'w'), stderr=STDOUT, shell=True)
     except CalledProcessError:
         return False
@@ -209,8 +211,9 @@ class Networking:
         """
         output = check_output(['/sbin/ifconfig', '-s', '-a'])
         lines = output.splitlines()[1:]
-        interfaces = ([interface for interface in
-            [line.split()[0] for line in lines] if interface != 'lo'])
+        interfaces = (
+            [interface for interface in
+                [line.split()[0] for line in lines] if interface != 'lo'])
         return interfaces
 
     def restart(self):
@@ -287,21 +290,24 @@ def parse_args():
     """
     Parse command line options
     """
-    parser = ArgumentParser('Reboot networking interface '
-        'and verify that is up again afterwards')
-    parser.add_argument('-a', '--address', default='ubuntu.com',
+    parser = ArgumentParser(
+        'Reboot networking interface and verify that is up again afterwards')
+    parser.add_argument(
+        '-a', '--address', default='ubuntu.com',
         help=('Address to ping to verify that network connection is up '
               "('%(default)s' by default)"))
     parser.add_argument('-o', '--output',
                         default='/var/log',
                         help='The path to the log directory. \
                               Default is /var/log')
-    parser.add_argument('-t', '--times',
+    parser.add_argument(
+        '-t', '--times',
         type=int, default=1,
         help=('Number of times that the network interface has to be restarted '
               '(%(default)s by default)'))
     log_levels = ['notset', 'debug', 'info', 'warning', 'error', 'critical']
-    parser.add_argument('--log-level', dest='log_level_str', default='notset',
+    parser.add_argument(
+        '--log-level', dest='log_level_str', default='notset',
         choices=log_levels,
         help=('Log level. '
               'One of {0} or {1} (%(default)s by default)'

@@ -53,13 +53,18 @@ def main():
             print(e)
             return 1
 
-    if (sleep_time is None or resume_time is None) or \
-    (len(sleep_times) != len(resume_times)):
+    if (
+        (sleep_time is None or resume_time is None) or
+        (len(sleep_times) != len(resume_times))
+    ):
         print("ERROR: One or more times was not reported correctly")
         return 1
 
-    print("Average time to enter sleep state: %.4f seconds" % mean(sleep_times))
-    print("Average time to resume from sleep state: %.4f seconds" % mean(resume_times))
+    print(
+        "Average time to enter sleep state: %.4f seconds" % mean(sleep_times))
+    print(
+        "Average time to resume from sleep state: %.4f seconds" % mean(
+            resume_times))
 
     failed = 0
     if sleep_time > args.sleep_threshold:
@@ -75,6 +80,7 @@ def main():
         failed = 1
 
     return failed
+
 
 if __name__ == "__main__":
     sys.exit(main())

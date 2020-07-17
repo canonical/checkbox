@@ -554,5 +554,6 @@ def main():
     if failed:
         raise SystemExit('Some test failed!')
 
+
 if __name__ == '__main__':
     main()

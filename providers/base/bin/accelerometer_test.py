@@ -88,8 +88,8 @@ class AccelerometerUI(Gtk.Window):
 
     def update_axis_icon(self, direction):
         """Change desired directional icon to checkmark"""
-        exec('self.%s_icon.set_from_stock' % (direction)
-             + '(Gtk.STOCK_YES, size=Gtk.IconSize.BUTTON)')
+        exec('self.%s_icon.set_from_stock' % (direction) +
+             '(Gtk.STOCK_YES, size=Gtk.IconSize.BUTTON)')
 
     def update_debug_label(self, text):
         """Update axis information in center of UI"""

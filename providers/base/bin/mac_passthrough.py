@@ -53,8 +53,8 @@ def get_pass_through_mac():
             for line in dsdt:
                 if 'AUXMAC' in line:
                     bios_mac = line.split('#')[1]
-                    print('Pass-through MAC address from DSDT table: '
-                          + bios_mac.lower())
+                    print('Pass-through MAC address from DSDT table: ' +
+                          bios_mac.lower())
                     return bios_mac.lower()
         raise SystemExit('No AUXMAC is found in DSDT table, '
                          'MAC address pass-through is not working.')

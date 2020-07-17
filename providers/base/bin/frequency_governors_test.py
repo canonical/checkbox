@@ -238,8 +238,8 @@ class CPUScalingTest(object):
             else:
                 thisTime = stop_elapsed_time - start_elapsed_time
                 if (
-                    (abs(thisTime - runTime) / runTime) * 100
-                    < self.retryTolerance
+                    (abs(thisTime - runTime) / runTime) * 100 <
+                    self.retryTolerance
                 ):
                     return runTime
                 else:
@@ -272,9 +272,9 @@ class CPUScalingTest(object):
         minimumFrequency = self.getParameter("scaling_min_freq")
         currentFrequency = self.getParameter("scaling_cur_freq")
         if (
-            not minimumFrequency
-            or not currentFrequency
-            or (minimumFrequency != currentFrequency)
+            not minimumFrequency or
+            not currentFrequency or
+            (minimumFrequency != currentFrequency)
         ):
             return False
 
@@ -377,9 +377,9 @@ class CPUScalingTest(object):
             minimumFrequency = self.getParameter("scaling_min_freq")
             currentFrequency = self.getParameter("scaling_cur_freq")
             if (
-                not minimumFrequency
-                or not currentFrequency
-                or (minimumFrequency != currentFrequency)
+                not minimumFrequency or
+                not currentFrequency or
+                (minimumFrequency != currentFrequency)
             ):
                 logging.error(
                     "Could not verify that cpu frequency is set to the minimum"
@@ -408,9 +408,9 @@ class CPUScalingTest(object):
             maximumFrequency = self.getParameter("scaling_max_freq")
             currentFrequency = self.getParameter("scaling_cur_freq")
             if (
-                not maximumFrequency
-                or not currentFrequency
-                or (maximumFrequency != currentFrequency)
+                not maximumFrequency or
+                not currentFrequency or
+                (maximumFrequency != currentFrequency)
             ):
                 logging.error(
                     "Could not verify that cpu frequency is set to the"
@@ -430,8 +430,8 @@ class CPUScalingTest(object):
                     % self.maximumFrequencyTestTime)
 
             # Verify MHz increase is comparable to time % decrease
-            predictedSpeedup = (float(maximumFrequency)
-                                / float(minimumFrequency))
+            predictedSpeedup = (float(maximumFrequency) /
+                                float(minimumFrequency))
 
             # If "ida" turbo thing, increase the expectation by 8%
             if self.cpuFlags and self.idaFlag in self.cpuFlags:
@@ -439,17 +439,17 @@ class CPUScalingTest(object):
                     "Found %s flag, increasing expected speedup by %.1f%%"
                     % (self.idaFlag, self.idaSpeedupFactor))
                 predictedSpeedup = \
-                    (predictedSpeedup
-                     * (1.0 / (1.0 - (self.idaSpeedupFactor / 100.0))))
+                    (predictedSpeedup *
+                        (1.0 / (1.0 - (self.idaSpeedupFactor / 100.0))))
 
             if self.minimumFrequencyTestTime and self.maximumFrequencyTestTime:
-                measuredSpeedup = (self.minimumFrequencyTestTime
-                                   / self.maximumFrequencyTestTime)
+                measuredSpeedup = (self.minimumFrequencyTestTime /
+                                   self.maximumFrequencyTestTime)
                 logging.info("CPU Frequency Speed Up: %.2f" % predictedSpeedup)
                 logging.info("Measured Speed Up: %.2f" % measuredSpeedup)
                 differenceSpeedUp = (
-                    ((measuredSpeedup - predictedSpeedup) / predictedSpeedup)
-                    * 100)
+                    ((measuredSpeedup - predictedSpeedup) / predictedSpeedup) *
+                    100)
                 logging.info(
                     "Percentage Difference %.1f%%" % differenceSpeedUp)
                 if differenceSpeedUp > self.speedUpTolerance:
@@ -504,8 +504,8 @@ class CPUScalingTest(object):
                 # Compare the timing to the max results from earlier,
                 # again time should be within self.speedUpTolerance
                 differenceOnDemandVsMaximum = \
-                    (abs(onDemandTestTime - self.maximumFrequencyTestTime)
-                     / self.maximumFrequencyTestTime) * 100
+                    (abs(onDemandTestTime - self.maximumFrequencyTestTime) /
+                     self.maximumFrequencyTestTime) * 100
                 logging.info(
                     "Percentage Difference vs. maximum frequency: %.1f%%"
                     % differenceOnDemandVsMaximum)
@@ -546,9 +546,9 @@ class CPUScalingTest(object):
             maximumFrequency = self.getParameter("scaling_max_freq")
             currentFrequency = self.getParameter("scaling_cur_freq")
             if (
-                not maximumFrequency
-                or not currentFrequency
-                or (maximumFrequency != currentFrequency)
+                not maximumFrequency or
+                not currentFrequency or
+                (maximumFrequency != currentFrequency)
             ):
                 logging.error(
                     "Current cpu frequency of %s is not set to the maximum "
@@ -567,8 +567,8 @@ class CPUScalingTest(object):
             if performanceTestTime and self.maximumFrequencyTestTime:
                 # Compare the timing to the max results
                 differencePerformanceVsMaximum = \
-                    (abs(performanceTestTime - self.maximumFrequencyTestTime)
-                     / self.maximumFrequencyTestTime) * 100
+                    (abs(performanceTestTime - self.maximumFrequencyTestTime) /
+                     self.maximumFrequencyTestTime) * 100
                 logging.info(
                     "Percentage Difference vs. maximum frequency: %.1f%%"
                     % differencePerformanceVsMaximum)
@@ -631,8 +631,9 @@ class CPUScalingTest(object):
             if conservativeTestTime and self.minimumFrequencyTestTime:
                 # Compare the timing to the max results
                 differenceConservativeVsMinimum = \
-                    (abs(conservativeTestTime - self.minimumFrequencyTestTime)
-                     / self.minimumFrequencyTestTime) * 100
+                    (abs(conservativeTestTime -
+                         self.minimumFrequencyTestTime) /
+                     self.minimumFrequencyTestTime) * 100
                 logging.info(
                     "Percentage Difference vs. minimum frequency: %.1f%%"
                     % differenceConservativeVsMinimum)

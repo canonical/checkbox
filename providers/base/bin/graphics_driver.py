@@ -351,12 +351,12 @@ def hybrid_graphics_check(xlog):
             drivers.append(module['name'])
     print('Loaded DDX Drivers: %s' % ', '.join(drivers))
 
-    has_hybrid_graphics = (len(cards) > 1 and is_laptop()
-                           and (cards_dict.get('8086') in formatted_cards
-                                or cards_dict.get('1002') in formatted_cards))
+    has_hybrid_graphics = (len(cards) > 1 and is_laptop() and
+                           (cards_dict.get('8086') in formatted_cards or
+                            cards_dict.get('1002') in formatted_cards))
 
-    print('Hybrid Graphics: %s' % (has_hybrid_graphics
-                                   and 'yes' or 'no'))
+    print('Hybrid Graphics: %s' % (has_hybrid_graphics and
+                                   'yes' or 'no'))
 
     return 0
 

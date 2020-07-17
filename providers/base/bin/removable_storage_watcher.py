@@ -127,10 +127,10 @@ class UDisks1StorageDeviceListener:
         for dev in desired_bus_devices:
             if self._memorycard:
                 if (
-                    dev.bus != 'sdio'
-                    and not FLASH_RE.search(dev.media)
-                    and not CARD_READER_RE.search(dev.model)
-                    and not GENERIC_RE.search(dev.vendor)
+                    dev.bus != 'sdio' and
+                    not FLASH_RE.search(dev.media) and
+                    not CARD_READER_RE.search(dev.model) and
+                    not GENERIC_RE.search(dev.vendor)
                 ):
                     logging.debug(
                         "The device does not seem to be a memory"
@@ -140,9 +140,9 @@ class UDisks1StorageDeviceListener:
                 print(message % {'bus': 'memory card', 'file': dev.file})
             else:
                 if (
-                    FLASH_RE.search(dev.media)
-                    or CARD_READER_RE.search(dev.model)
-                    or GENERIC_RE.search(dev.vendor)
+                    FLASH_RE.search(dev.media) or
+                    CARD_READER_RE.search(dev.model) or
+                    GENERIC_RE.search(dev.vendor)
                 ):
                     logging.debug("The device seems to be a memory"
                                   " card (bus: %r (model: %r), skipping",
@@ -590,47 +590,47 @@ class UDisks2StorageDeviceListener:
                 # require the device to be mounted
                 if (
                     record.value.iface_name ==
-                    "org.freedesktop.UDisks2.Drive"
-                    and record.value.delta_type == DELTA_TYPE_PROP
-                    and record.value.prop_name == "ConnectionBus"
-                    and record.value.prop_value == ""
+                    "org.freedesktop.UDisks2.Drive" and
+                    record.value.delta_type == DELTA_TYPE_PROP and
+                    record.value.prop_name == "ConnectionBus" and
+                    record.value.prop_value == ""
                 ):
                     needs.remove('mounted')
                 # Detect block devices designated for filesystems
                 if (
                     record.value.iface_name ==
-                    "org.freedesktop.UDisks2.Block"
-                    and record.value.delta_type == DELTA_TYPE_PROP
-                    and record.value.prop_name == "IdUsage"
-                    and record.value.prop_value == "filesystem"
+                    "org.freedesktop.UDisks2.Block" and
+                    record.value.delta_type == DELTA_TYPE_PROP and
+                    record.value.prop_name == "IdUsage" and
+                    record.value.prop_value == "filesystem"
                 ):
                     found.add('block-fs')
                 # Memorize the block device path
                 elif (
                     record.value.iface_name ==
-                    "org.freedesktop.UDisks2.Block"
-                    and record.value.delta_type == DELTA_TYPE_PROP
-                    and record.value.prop_name == "PreferredDevice"
+                    "org.freedesktop.UDisks2.Block" and
+                    record.value.delta_type == DELTA_TYPE_PROP and
+                    record.value.prop_name == "PreferredDevice"
                 ):
                     object_block_device = record.value.prop_value
                 # Ensure the device is a partition
                 elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Partition"
-                      and record.value.delta_type == DELTA_TYPE_IFACE):
+                      "org.freedesktop.UDisks2.Partition" and
+                      record.value.delta_type == DELTA_TYPE_IFACE):
                     found.add('partition')
                 # Ensure the device is not empty
                 elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Block"
-                      and record.value.delta_type == DELTA_TYPE_PROP
-                      and record.value.prop_name == "Size"
-                      and record.value.prop_value > 0):
+                      "org.freedesktop.UDisks2.Block" and
+                      record.value.delta_type == DELTA_TYPE_PROP and
+                      record.value.prop_name == "Size" and
+                      record.value.prop_value > 0):
                     found.add('non-empty')
                 # Ensure the filesystem is mounted
                 elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Filesystem"
-                      and record.value.delta_type == DELTA_TYPE_PROP
-                      and record.value.prop_name == "MountPoints"
-                      and record.value.prop_value != []):
+                      "org.freedesktop.UDisks2.Filesystem" and
+                      record.value.delta_type == DELTA_TYPE_PROP and
+                      record.value.prop_name == "MountPoints" and
+                      record.value.prop_value != []):
                     found.add('mounted')
                     # On some systems partition are reported as mounted
                     # filesystems, without 'partition' record
@@ -638,9 +638,9 @@ class UDisks2StorageDeviceListener:
                         needs.remove('partition')
                 # Finally memorize the drive the block device belongs to
                 elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Block"
-                      and record.value.delta_type == DELTA_TYPE_PROP
-                      and record.value.prop_name == "Drive"):
+                      "org.freedesktop.UDisks2.Block" and
+                      record.value.delta_type == DELTA_TYPE_PROP and
+                      record.value.prop_name == "Drive"):
                     drive_object_path = record.value.prop_value
             logging.debug("Finished analyzing %s, found: %s, needs: %s"
                           " drive_object_path: %s", object_path, found, needs,

@@ -167,8 +167,8 @@ def write_connection_file(name, connection_info):
         os.fchmod(connection_file.fileno(), 0o600)
         connection_file.close()
     except IOError:
-        print("Can't write to " + CONNECTIONS_PATH + name
-              + ". Is this command being run as root?", file=sys.stderr)
+        print("Can't write to " + CONNECTIONS_PATH + name +
+              ". Is this command being run as root?", file=sys.stderr)
         sys.exit(1)
 
 

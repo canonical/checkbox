@@ -122,9 +122,9 @@ class Reporter(object):
         index = 0
         length = len(raw_bytes)
         while index < length:
-            if (index + 2 < length and (raw_bytes[index] & 0x7f) == 0
-                    and (raw_bytes[index + 1] & 0x80) != 0
-                    and (raw_bytes[index + 2] & 0x80) != 0):
+            if (index + 2 < length and (raw_bytes[index] & 0x7f) == 0 and
+                    (raw_bytes[index + 1] & 0x80) != 0 and
+                    (raw_bytes[index + 2] & 0x80) != 0):
                 code = (((raw_bytes[index + 1] & 0x7f) << 7) |
                         (raw_bytes[2] & 0x7f))
                 index += 3

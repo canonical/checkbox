@@ -104,8 +104,8 @@ class Parser(object):
                 command_output = {}
                 break
             if (
-                self.is_executing_line(line)
-                or self.is_getting_info_line(line)
+                self.is_executing_line(line) or
+                self.is_getting_info_line(line)
             ):
                 # Skip commands with no output
                 iterator.unnext(line)
@@ -135,8 +135,8 @@ class Parser(object):
         value = []
         for line in iterator:
             if (
-                self.is_logging_line(line)
-                or self.is_field_line(line)
+                self.is_logging_line(line) or
+                self.is_field_line(line)
             ):
                 iterator.unnext(line)
                 break
@@ -209,8 +209,8 @@ def compare_results(results):
             result_output = result[command]
 
             error_messages = []
-            fields = (set(baseline_output.keys())
-                      | set(result_output.keys()))
+            fields = (set(baseline_output.keys()) |
+                      set(result_output.keys()))
             for field in fields:
                 baseline_field = baseline_output.get(field, '')
                 result_field = result_output.get(field, '')

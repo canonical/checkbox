@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Checkbox
-==========
+.. image:: _images/checkbox.png
+   :align: center
 
 Checkbox is a flexible test automation software.
 It's the main tool used in Ubuntu Certification program.

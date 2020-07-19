@@ -19,3 +19,4 @@ python3 $TMPDIR/plainbox-provider-resource/manage.py develop --force
 ./manage.py validate
 ./manage.py test -u
 ./manage.py test -f
+./manage.py test -i

@@ -4,14 +4,14 @@ id: suspend/network_before_suspend
 depends: ethernet/detect
 estimated_duration: 1.2
 _summary: Record the current network before suspending.
-command: set -o pipefail; gateway_ping_test | tee $PLAINBOX_SESSION_SHARE/network_before_suspend.txt
+command: set -o pipefail; gateway_ping_test | tee "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/resolution_before_suspend
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
-command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt
+command: xrandr -q | grep "[*]" | awk '{print $1}' > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
 
 unit: template
 template-resource: graphics_card
@@ -22,7 +22,7 @@ id: suspend/{index}_resolution_before_suspend_{product_slug}
 depends: graphics/{index}_switch_card_{product_slug}
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
-command: xrandr -q |grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
+command: xrandr -q | grep "[*]" | awk '{{print $1}}' > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -32,21 +32,21 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
 _summary: Record mixer settings before suspending.
-command: audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/audio_settings_before_suspend
+command: audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cpu_before_suspend
 estimated_duration: 1.2
 _summary: Verify that all the CPUs are online before suspending
-command: cpuinfo_resource.py > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
+command: cpuinfo_resource.py > "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/memory_before_suspend
 estimated_duration: 1.2
 _summary: Dumps memory info to a file for comparison after suspend
-command: meminfo_resource.py > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
+command: meminfo_resource.py > "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend
 
 unit: template
 template-resource: device
@@ -73,9 +73,9 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
- INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
- [ -z $INTERFACE ] && exit 1
- network.py test -i $INTERFACE -t iperf
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
 _summary: Before suspend iperf test GSM mobilebroadband
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
@@ -88,9 +88,9 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
- INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
- [ -z $INTERFACE ] && exit 1
- network.py test -i $INTERFACE -t iperf
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
 _summary: Before suspend iperf test CDMA mobilebroadband
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
@@ -119,7 +119,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
 _summary: Bluetooth OBEX send before suspend
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
@@ -148,7 +148,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
 _summary: Bluetooth OBEX browse before suspend
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
@@ -177,7 +177,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
 _summary: Bluetooth OBEX get before suspend
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
@@ -196,10 +196,10 @@ command:
   if [[ -v SNAP ]]; then
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
   fi
-  set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
+  set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
  else
   echo "Calling sleep_test.py"
-  set -o pipefail; sleep_test.py -p | tee $PLAINBOX_SESSION_SHARE/2_suspend_single_times.log
+  set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/2_suspend_single_times.log
  fi
 estimated_duration: 90.0
 _summary: Manual test of suspend function
@@ -233,10 +233,10 @@ command:
   if [[ -v SNAP ]]; then
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
   fi
-  set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+  set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
  else
   echo "Calling sleep_test.py"
-  set -o pipefail; sleep_test.py -p | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+  set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
  fi
 estimated_duration: 90.0
 _summary: Test suspend/resume after switching to {vendor} {product}
@@ -271,7 +271,7 @@ command:
  # fwts s3 is not available on all architectures (i.e ARM)
  if fwts --show-tests-categories | grep -q 's3 '; then
      echo "Calling fwts"
-     set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
+     set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
  else
      echo "Calling rtcwake"
      rtcwake -m mem -s 30
@@ -288,7 +288,7 @@ command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
  fi
- set -o pipefail; checkbox-support-fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single_times.log
+ set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single_times.log
 estimated_duration: 90.0
 _summary: This test will check hybrid sleep and resume
 _description:
@@ -307,14 +307,14 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-check
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && sleep_test_log_check.py -v s3 $PLAINBOX_SESSION_SHARE/suspend_single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_single.log
 _summary: Automated check of the suspend log for errors reported by fwts
 
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-attach
 depends: suspend/suspend_advanced_auto
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_single.log
 _summary: Attaches the log from the single suspend/resume test
 
 unit: template
@@ -324,7 +324,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log
 _summary: Attaches the log from the single suspend/resume test
 
 unit: template
@@ -334,7 +334,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-check
 depends: suspend/{index}_hybrid_sleep_{product_slug}
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v s3 $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
 _summary: Automated check of the hybrid sleep log for errors reported by fwts
 
 unit: template
@@ -343,14 +343,14 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
 depends: suspend/{index}_hybrid_sleep_{product_slug}
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
 _summary: Attaches the log from the single hybrid sleep/resume test
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-time-check
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/suspend_single_times.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
 _summary: Ensure time to suspend/resume is under threshold
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
@@ -363,7 +363,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-time-check_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
 _summary: Ensure time to suspend/resume is under threshold
 _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
@@ -407,7 +407,7 @@ id: suspend/network_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced suspend/network_before_suspend
 _description: Test the network after resuming.
-command: network_wait.py; gateway_ping_test | diff $PLAINBOX_SESSION_SHARE/network_before_suspend.txt -
+command: network_wait.py; gateway_ping_test | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -415,7 +415,7 @@ id: suspend/resolution_after_suspend
 depends: suspend/suspend_advanced suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Test to see that we have the same resolution after resuming as before.
-command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt -
+command: xrandr -q | grep "[*]" | awk '{print $1}' | diff "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt -
 
 unit: template
 template-resource: graphics_card
@@ -426,7 +426,7 @@ id: suspend/{index}_resolution_after_suspend_{product_slug}
 estimated_duration: 1.2
 depends: suspend/{index}_resolution_before_suspend_{product_slug}
 _description: Test to see that we have the same resolution after resuming as before.
-command: xrandr -q |grep '*'| awk '{{print $1}}' | diff $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt -
+command: xrandr -q | grep "[*]" | awk '{{print $1}}' | diff "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -438,8 +438,8 @@ requires:
 depends: suspend/suspend_advanced suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
-  diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -451,8 +451,8 @@ requires:
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
-  diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
 
 plugin: user-interact
 category_id: com.canonical.plainbox::suspend
@@ -510,11 +510,11 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
-  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
   audio_settings.py set --device=pci --volume=50
   gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -536,11 +536,11 @@ requires:
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 command:
- audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --device=pci --volume=50
  alsa_record_playback.sh
  EXIT_CODE=$?
- audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -558,7 +558,7 @@ id: suspend/cpu_after_suspend
 estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
-command: cpuinfo_resource.py | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
+command: cpuinfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -566,7 +566,7 @@ id: suspend/cpu_after_suspend_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
-command: cpuinfo_resource.py | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
+command: cpuinfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -575,7 +575,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/memory_before_suspend
 _description:
  Verify that all memory is available after resuming from suspend.
-command: meminfo_resource.py | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
+command: meminfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend -
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -584,7 +584,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
 _description:
  Verify that all memory is available after resuming from suspend.
-command: meminfo_resource.py | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
+command: meminfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend -
 
 plugin: manual
 category_id: com.canonical.plainbox::suspend
@@ -655,9 +655,9 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
- INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
- [ -z $INTERFACE ] && exit 1
- network.py test -i $INTERFACE -t iperf
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 
@@ -669,9 +669,9 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:
- INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
- [ -z $INTERFACE ] && exit 1
- network.py test -i $INTERFACE -t iperf
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 
@@ -686,17 +686,18 @@ requires:
 user: root
 environ: ROUTER_SSID ROUTER_PSK
 command:
+    # shellcheck disable=SC2064
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection.py wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
         connect_wireless.sh # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
         fi
         exit $STATUS
     else
@@ -726,17 +727,18 @@ requires:
 user: root
 environ: ROUTER_SSID
 command:
+    # shellcheck disable=SC2064
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection.py wifi $ROUTER_SSID; then
+    if create_connection.py wifi "$ROUTER_SSID"; then
         connect_wireless.sh # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
         fi
         exit $STATUS
     else
@@ -766,17 +768,18 @@ requires:
 user: root
 environ: ROUTER_SSID ROUTER_PSK
 command:
+    # shellcheck disable=SC2064
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection.py wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
         connect_wireless.sh # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
         fi
         exit $STATUS
     else
@@ -806,17 +809,18 @@ requires:
 user: root
 environ: ROUTER_SSID
 command:
+    # shellcheck disable=SC2064
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection.py wifi $ROUTER_SSID; then
+    if create_connection.py wifi "$ROUTER_SSID"; then
         connect_wireless.sh # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
         fi
         exit $STATUS
     else
@@ -846,17 +850,18 @@ requires:
 user: root
 environ: ROUTER_SSID ROUTER_PSK
 command:
+    # shellcheck disable=SC2064
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection.py wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
         connect_wireless.sh # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
         fi
         exit $STATUS
     else
@@ -886,17 +891,18 @@ requires:
 user: root
 environ: ROUTER_SSID
 command:
+    # shellcheck disable=SC2064
     trap "nmcli con delete id $ROUTER_SSID" EXIT
-    if create_connection.py wifi $ROUTER_SSID; then
+    if create_connection.py wifi "$ROUTER_SSID"; then
         connect_wireless.sh # lp:1471663
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
-        iw dev $INTERFACE link
-        gateway_ping_test --interface=$INTERFACE
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
-        if [[ ! -z $WIRED ]]; then
-            nmcli c up uuid $WIRED
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
         fi
         exit $STATUS
     else
@@ -933,7 +939,7 @@ command:
    sleep 3
  fi
  output=$(hcitool dev | tail -n+2 | awk '{print $2}')
- echo $output | diff $PLAINBOX_SESSION_SHARE/bluetooth_address -
+ echo "$output" | diff "$PLAINBOX_SESSION_SHARE"/bluetooth_address -
  if [ -z "$output" ]; then
      echo "BT hardware not available"
      exit 1
@@ -966,7 +972,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -995,7 +1001,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -1024,7 +1030,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -1053,7 +1059,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -1082,7 +1088,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -1111,7 +1117,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test.py $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser.py
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -1121,7 +1127,7 @@ id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
 depends: suspend/suspend_advanced
-command: xrandr_cycle.py --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+command: xrandr_cycle.py --keyword=after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
 _description:
  PURPOSE:
      This test will cycle through the detected display modes
@@ -1139,7 +1145,7 @@ id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
 requires: package.name == 'xorg'
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 120.0
-command: xrandr_cycle.py --keyword={index}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+command: xrandr_cycle.py --keyword={index}_after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
 _description:
  PURPOSE:
      This test will cycle through the detected display modes
@@ -1157,13 +1163,13 @@ depends: suspend/suspend_advanced_auto
 _description:
  This test will check to make sure supported video modes work after a suspend and resume.
  This is done automatically by taking screenshots and uploading them as an attachment.
-command: xrandr_cycle.py --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+command: xrandr_cycle.py --keyword=after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
 
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/xrandr_screens_after_suspend.tar.gz
 depends: suspend/cycle_resolutions_after_suspend
-command: [ -f $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
+command: [ -f "$PLAINBOX_SESSION_SHARE"/xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 unit: template
@@ -1173,7 +1179,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
 depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
-command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
+command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 plugin: shell
@@ -1213,7 +1219,7 @@ _description:
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-auto-single-log-attach
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_auto_single_log ] && cat $PLAINBOX_SESSION_SHARE/suspend_auto_single_log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -1223,7 +1229,7 @@ id: suspend/screenshot_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser.py
+command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f "${PLAINBOX_SESSION_SHARE}"/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser.py
 _description:
  PURPOSE:
      Take a screengrab of the current screen after suspend (logged on Unity desktop)
@@ -1236,7 +1242,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: screenshot_after_suspend.jpg
 depends: suspend/screenshot_after_suspend
-command: cat ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg
+command: cat "${PLAINBOX_SESSION_SHARE}"/screenshot_after_suspend.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 
 plugin: shell
@@ -2123,7 +2129,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_gl_support_after_suspend_{product_slug}
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
+command: /usr/lib/nux/unity_support_test -p 2>&1
 estimated_duration: 0.130
 _description: Check that {product} hardware is able to run a desktop session (OpenGL) after suspend
 _summary: Test OpenGL support for {product} after suspend
@@ -2133,7 +2139,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/gl_support_after_suspend
 depends: suspend/suspend_advanced
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
+command: /usr/lib/nux/unity_support_test -p 2>&1
 estimated_duration: 0.130
 _description: Check that the hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support after suspend
@@ -2248,12 +2254,12 @@ command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
  fi
- checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results_after_s3.log -t oops
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_oops_results_after_s3.log -t oops
 
 id: suspend/oops_results_after_suspend.log
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 estimated_duration: 0.5
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log
+ [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log
 _description: Attaches the FWTS oops results log to the submission after suspend

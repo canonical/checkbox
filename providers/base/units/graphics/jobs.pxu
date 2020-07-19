@@ -5,6 +5,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_driver_version_{product_slug}
 command:
+ # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
  graphics_driver.py
 estimated_duration: 0.5
@@ -88,7 +89,7 @@ id: graphics/{index}_screen_resolution_{product_slug}
 requires:
  device.category == 'VIDEO'
  executable.name == 'qmlscene'
-command: qmlscene -qt5 --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
+command: qmlscene -qt5 --transparent --fullscreen "$PLAINBOX_PROVIDER_DATA"/resolution_test.qml
 estimated_duration: 10.0
 _summary: Test default resolution for {vendor} {product}
 _description:
@@ -108,6 +109,7 @@ id: graphics/{index}_minimum_resolution_{product_slug}
 requires:
  device.category == 'VIDEO'
 command:
+ # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
  resolution_test.py --horizontal 800 --vertical 600
 estimated_duration: 0.331
@@ -127,6 +129,7 @@ requires:
  device.category == 'VIDEO'
  package.name == 'zenity'
 command:
+   # shellcheck disable=SC1091
    source graphics_env.sh {driver} {index}
    maxi="$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{{print $1}}')"
    now="$(python3 -c 'from gi.repository import Gdk; screen=Gdk.Screen.get_default(); geo = screen.get_monitor_geometry(screen.get_primary_monitor()); print(geo.width, "x", geo.height, sep="")')"
@@ -191,6 +194,7 @@ requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command:
+ # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
  gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed with {vendor} {product}
@@ -219,8 +223,9 @@ id: graphics/{index}_cycle_resolution_{product_slug}
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
 command:
+ # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
- xrandr_cycle.py --screenshot-dir $PLAINBOX_SESSION_SHARE
+ xrandr_cycle.py --screenshot-dir "$PLAINBOX_SESSION_SHARE"
 estimated_duration: 250.000
 _summary: Test resolution cycling for {vendor} {product}
 _description:
@@ -239,6 +244,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
 depends: graphics/xorg-version
 command:
+ # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
  rotation_test.py
 estimated_duration: 20.000
@@ -258,7 +264,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
+command: /usr/lib/nux/unity_support_test -p 2>&1
 estimated_duration: 0.131
 _description: Check that {vendor} {product} hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support for {vendor} {product}
@@ -271,9 +277,9 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_opengl_renderer_{product_slug}
 requires: executable.name == 'glxinfo'
 command:
- renderer=`DRI_PRIME=1 glxinfo | grep "OpenGL re"`
- echo $renderer
- if grep -qi 'Intel' <<<$renderer; then
+ renderer=$(DRI_PRIME=1 glxinfo | grep "OpenGL re")
+ echo "$renderer"
+ if grep -qi 'Intel' <<<"$renderer"; then
      echo 'ERROR: renderer is Intel when DRI_PRIME=1'
      exit 1
  fi
@@ -286,6 +292,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_glxgears_{product_slug}
 requires: executable.name == 'glxgears'
 command:
+ # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
  glxgears
  true
@@ -307,6 +314,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_glxgears_fullscreen_{product_slug}
 requires: executable.name == 'glxgears'
 command:
+ # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
  glxgears -fullscreen
  true
@@ -373,7 +381,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screenshot_{product_slug}
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg -q 2>&1 | ansi_parser.py
+command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f "$PLAINBOX_SESSION_SHARE"/screenshot_{index}.jpg -q 2>&1 | ansi_parser.py
 _summary: Test grabbing a screenshot for {vendor} {product}
 _description:
  PURPOSE:
@@ -389,7 +397,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screenshot_{product_slug}.jpg
 depends: graphics/{index}_screenshot_{product_slug}
-command: cat $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg
+command: cat "$PLAINBOX_SESSION_SHARE"/screenshot_{index}.jpg
 _description: Attaches the screenshot captured in graphics/screenshot for the {vendor} {product} graphics card.
 _summary: Attach results of screenshot test for {vendor} {product}
 
@@ -400,11 +408,11 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screenshot_fullscreen_video_{product_slug}
 requires: package.name == 'fswebcam'
 command:
- [ -f $PLAINBOX_PROVIDER_DATA/video/Ogg_Theora_Video.ogv ] || {{ echo "Video file not found"; exit 1; }}
+ [ -f "$PLAINBOX_PROVIDER_DATA"/video/Ogg_Theora_Video.ogv ] || {{ echo "Video file not found"; exit 1; }}
  gsettings set org.gnome.totem repeat true
- totem --fullscreen $PLAINBOX_PROVIDER_DATA/video/Ogg_Theora_Video.ogv 2>/dev/null &
+ totem --fullscreen "$PLAINBOX_PROVIDER_DATA"/video/Ogg_Theora_Video.ogv 2>/dev/null &
  set -o pipefail
- sleep 15 && camera_test.py still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg -q 2>&1 | ansi_parser.py
+ sleep 15 && camera_test.py still --device=/dev/external_webcam -f "$PLAINBOX_SESSION_SHARE"/screenshot_fullscreen_video_{index}.jpg -q 2>&1 | ansi_parser.py
  sleep 5 && pkill totem
  gsettings set org.gnome.totem repeat false
 _summary: Test FSV screenshot for {vendor} {product}
@@ -466,7 +474,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screenshot_fullscreen_video_{product_slug}.jpg
 depends: graphics/{index}_screenshot_fullscreen_video_{product_slug}
-command: cat $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg
+command: cat "$PLAINBOX_SESSION_SHARE"/screenshot_fullscreen_video_{index}.jpg
 _summary: Attach results of FSV screenshot test for {vendor} {product}
 _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video for the {vendor} {product} graphics card
 
@@ -476,7 +484,7 @@ id: graphics/screen-capture-internal
 _summary: Obtains a simple screen capture
 estimated_duration: 1.0
 requires: package.name == 'gnome-screenshot'
-command: gnome-screenshot --file ${PLAINBOX_SESSION_SHARE}/screen-capture.png
+command: gnome-screenshot --file "${PLAINBOX_SESSION_SHARE}"/screen-capture.png
 _description: Obtains a simple screen capture using gnome-screenshot if present
 
 plugin: attachment
@@ -485,7 +493,7 @@ id: screen-capture-internal.png
 _summary: Attaches a simple screen capture
 estimated_duration: 1.0
 depends: graphics/screen-capture-internal
-command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && cat ${PLAINBOX_SESSION_SHARE}/screen-capture.png
+command: [ -f "${PLAINBOX_SESSION_SHARE}"/screen-capture.png ] && cat "${PLAINBOX_SESSION_SHARE}"/screen-capture.png
 _description: Attaches the simple screen capture file
 
 unit: template
@@ -496,7 +504,7 @@ id: graphics/{index}_screen-capture-internal_{product_slug}
 _summary: Obtains a simple screen capture of {vendor} {product}
 estimated_duration: 1.0
 requires: package.name == 'gnome-screenshot'
-command: gnome-screenshot --file $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
+command: gnome-screenshot --file "$PLAINBOX_SESSION_SHARE"/screen-capture-{index}.png
 _description: Obtains a simple screen capture of {vendor} {product} using gnome-screenshot if present
 
 unit: template
@@ -507,7 +515,7 @@ id: graphics/{index}_screen-capture-internal_{product_slug}.png
 depends: graphics/{index}_screen-capture-internal_{product_slug}
 _summary: Attaches a simple screen capture of {vendor} {product}
 estimated_duration: 1.0
-command: [ -f $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png ] && cat $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
+command: [ -f "$PLAINBOX_SESSION_SHARE"/screen-capture-{index}.png ] && cat "$PLAINBOX_SESSION_SHARE"/screen-capture-{index}.png
 _description: Attaches the simple screen capture file of {vendor} {product}
 
 unit: template
@@ -523,7 +531,7 @@ plugin: shell
 user: root
 command:
  {switch_to_cmd}
- pm_test.py --silent --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
+ pm_test.py --silent --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox reboot --log-level=debug --log-dir="$PLAINBOX_SESSION_SHARE"
 flags: noreturn preserve-locale also-after-suspend
 
 plugin: shell

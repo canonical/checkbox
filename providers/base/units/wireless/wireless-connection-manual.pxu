@@ -181,16 +181,15 @@ environ:
  WPA_BG_PSK
  TEST_TARGET_IPERF
 command:
-    nmcli g > /dev/null
-    if [ $? -ne 0 ]; then
+    if ! nmcli g > /dev/null; then
         exit 1
     fi
     trap "nmcli dev disconnect {{ interface }}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
     nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
     nmcli dev wifi rescan
-    nmcli dev wifi connect $WPA_BG_SSID password $WPA_BG_PSK ifname {{ interface }} name WIFI_TEST_CREATED_BY_CHECKBOX
+    nmcli dev wifi connect "$WPA_BG_SSID" password "$WPA_BG_PSK" ifname {{ interface }} name WIFI_TEST_CREATED_BY_CHECKBOX
     iw dev {{ interface }} link
-    iperf3 -c $TEST_TARGET_IPERF -t 300 -i 30 -u -b 100m -p 5050
+    iperf3 -c "$TEST_TARGET_IPERF" -t 300 -i 30 -u -b 100m -p 5050
     exit $?
 estimated_duration: 330.0
 _summary: Wireless connection iperf3 test

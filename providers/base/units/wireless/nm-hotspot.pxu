@@ -7,7 +7,7 @@ template-unit: job
 id: wireless/nmcli_wifi_ap_bg_{{ interface }}
 _summary: Create 802.11b/g Wi-Fi AP on {{ interface }} using NetworkManager
 command:
-  net_driver_info.py $NET_DRIVER_INFO
+  net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py ap {{ interface }} bg
 plugin: shell
 category_id: com.canonical.plainbox::wireless
@@ -28,7 +28,7 @@ template-unit: job
 id: wireless/nmcli_wifi_ap_a_{{ interface }}
 _summary: Create 802.11a Wi-Fi AP on {{ interface }} using NetworkManager
 command:
-  net_driver_info.py $NET_DRIVER_INFO
+  net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py ap {{ interface }} a
 plugin: shell
 category_id: com.canonical.plainbox::wireless

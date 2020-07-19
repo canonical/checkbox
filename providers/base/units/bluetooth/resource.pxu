@@ -7,7 +7,7 @@ _description:
  collects a list of the provided rfcomm tests.
 requires: device.category == 'BLUETOOTH'
 command:
- rfcomm-tester -l | while read i
+ rfcomm-tester -l | while read -r i
  do
    echo "bluez-internal-rfcomm-test: $i"
    echo
@@ -24,7 +24,7 @@ _description:
  collects a list of the provided hci tests.
 requires: device.category == 'BLUETOOTH'
 command:
- hci-tester -l | while read i
+ hci-tester -l | while read -r i
  do
    echo "bluez-internal-hci-test: $i"
    echo
@@ -41,7 +41,7 @@ _description:
  collects a list of the provided mgmt tests.
 requires: device.category == 'BLUETOOTH'
 command:
- mgmt-tester -l | while read i
+ mgmt-tester -l | while read -r i
  do
    echo "bluez-internal-mgmt-test: $i"
    echo
@@ -58,7 +58,7 @@ _description:
  collects a list of the provided user channel tests.
 requires: device.category == 'BLUETOOTH'
 command:
- userchan-tester -l | while read i
+ userchan-tester -l | while read -r i
  do
    echo "bluez-internal-uc-test: $i"
    echo
@@ -75,7 +75,7 @@ _description:
  collects a list of the provided bnep tests.
 requires: device.category == 'BLUETOOTH'
 command:
- bnep-tester -l | while read i
+ bnep-tester -l | while read -r i
  do
    echo "bluez-internal-bnep-test: $i"
    echo

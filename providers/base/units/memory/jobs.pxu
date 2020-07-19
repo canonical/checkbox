@@ -31,7 +31,7 @@ category_id: com.canonical.plainbox::memory
 id: memory/meminfo_before_suspend
 estimated_duration: 1.2
 _summary: Store memory info before suspending
-command: meminfo_resource.py > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
+command: meminfo_resource.py > "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend
 _siblings: [
     { "id": "after-suspend-memory/meminfo_after_suspend",
       "_summary": "Compare memory info to the state prior to suspend",

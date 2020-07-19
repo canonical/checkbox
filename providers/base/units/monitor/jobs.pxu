@@ -406,7 +406,7 @@ _description:
   Use chamleon board to simulate connection/disconnection of an HDMI monitor.
 environ: HDMI_PORT CHAMELEON_IP
 command:
-  chameleon_hdmi_hotplug.py $HDMI_PORT $CHAMELEON_IP
+  chameleon_hdmi_hotplug.py "$HDMI_PORT" "$CHAMELEON_IP"
 
 id: monitor/edid-stress-automated
 estimated_duration: 30m
@@ -415,4 +415,4 @@ category_id: com.canonical.plainbox::monitor
 _summary: Stress DUT by switching through large EDID set
 environ: HDMI_PORT CHAMELEON_IP
 command:
-  chameleon_edid_stress.py $HDMI_PORT $CHAMELEON_IP
+  chameleon_edid_stress.py "$HDMI_PORT" "$CHAMELEON_IP"

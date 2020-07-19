@@ -32,7 +32,7 @@ id: modprobe_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
- find /etc/modprobe.* -name \*.conf | xargs cat | python3 -m plainbox dev parse modprobe |
+ find /etc/modprobe.* -name \*.conf -exec cat {} + | python3 -m plainbox dev parse modprobe |
  jq 'to_entries | map({"module": .key, "options": .value})'
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.

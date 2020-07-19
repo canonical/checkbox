@@ -41,7 +41,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=a
@@ -50,10 +50,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_a_open
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_a_open)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_a_open)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -112,7 +112,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=b
@@ -121,10 +121,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_b_open
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_b_open)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_b_open)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -183,7 +183,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=g
@@ -192,10 +192,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_g_open
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_g_open)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_open)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -254,7 +254,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=ad
@@ -263,10 +263,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_ad_open
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_ad_open)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_ad_open)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -326,7 +326,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=a
@@ -336,10 +336,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_a_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_a_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_a_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -399,7 +399,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=b
@@ -409,10 +409,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_b_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_b_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_b_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -472,7 +472,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=g
@@ -482,10 +482,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_g_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -545,7 +545,7 @@ _description:
  then checking status of the interface using `iw` command.
 user: root
 command:
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=ad
@@ -555,10 +555,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_ad_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_ad_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_ad_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -589,7 +589,7 @@ estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
 command:
  nmcli dev wifi rescan
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
 user: root
 _purpose:
   Check that the system can create a WPA2 802.11a Access Point with an already active STA connection
@@ -629,13 +629,13 @@ command:
  echo "Scanning for existing networks"
  nmcli dev wifi rescan
  echo "Connecting to existing network"
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
  trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
  if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
     echo "FAILED to connect to STA before setting up AP"
     exit 1
  fi
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=a
@@ -645,10 +645,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_a_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_a_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_a_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -672,10 +672,10 @@ requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'
 estimated_duration: 120.0
-environ: LD_LIBRARY_PATH $OPEN_BG_SSID
+environ: LD_LIBRARY_PATH OPEN_BG_SSID
 command:
  nmcli dev wifi rescan
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
 user: root
 _purpose:
   Check that the system can create a WPA2 802.11b Access Point with an already active STA connection
@@ -715,13 +715,13 @@ command:
  echo "Scanning for existing networks"
  nmcli dev wifi rescan
  echo "Connecting to existing network"
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
  trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
  if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
     echo "FAILED to connect to STA before setting up AP"
     exit 1
  fi
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=b
@@ -731,10 +731,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_b_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_b_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_b_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -761,7 +761,7 @@ estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
 command:
  nmcli dev wifi rescan
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
 user: root
 _purpose:
   Check that the system can create a WPA2 802.11g Access Point with an already active STA connection
@@ -801,13 +801,13 @@ command:
  echo "Scanning for existing networks"
  nmcli dev wifi rescan
  echo "Connecting to existing network"
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
  trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
  if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
     echo "FAILED to connect to STA before setting up AP"
     exit 1
  fi
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=g
@@ -817,10 +817,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_g_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -847,7 +847,7 @@ estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
 command:
  nmcli dev wifi rescan
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
 user: root
 _purpose:
   Check that the system can create a WPA2 802.11ad Access Point with an already active STA connection
@@ -887,13 +887,13 @@ command:
  echo "Scanning for existing networks"
  nmcli dev wifi rescan
  echo "Connecting to existing network"
- nmcli dev wifi connect $OPEN_BG_SSID ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
  trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
  if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
     echo "FAILED to connect to STA before setting up AP"
     exit 1
  fi
- BEGIN_AP_TEST_TS=`date '+%Y-%m-%d %H:%M:%S'`
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
  echo "Setting up AP"
  wifi-ap.config set wifi.interface={interface}
  wifi-ap.config set wifi.operation-mode=ad
@@ -903,10 +903,10 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_ad_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_ad_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_ad_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -938,11 +938,11 @@ command:
  wifi-ap.config set wifi.ssid=DISABLED
  wifi-ap.config set disabled=true
  wifi_ap_wizard.py {interface} eth0
- sleep ${{WIFI_AP_SETUPTIME:-10}}
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
  echo "Running AP setup wizard"
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_Wizard)" |wc -l`
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_Wizard)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then exit 0; else exit 1; fi
+ if [ "$RES" -eq 2 ]; then exit 0; else exit 1; fi
 _description:
   Check that the system can create a WPA2 802.11g Access Point using
   wifi-ap.setup-wizard command on {interface}.
@@ -971,7 +971,7 @@ command:
  wifi-ap.config set disabled=false
  wifi-ap.config set wifi.ssid=Ubuntu_g_wpa2
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
  echo "Rebooting"
  reboot
 requires:
@@ -1006,7 +1006,7 @@ command:
  unsnap-wifi-ap.sh config set wifi.security-passphrase=Test1234
  unsnap-wifi-ap.sh config set disabled=0
  unsnap-wifi-ap.sh config set wifi.ssid=Ubuntu_g_wpa2
- sleep ${{WIFI_AP_SETUPTIME:-10}}
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
  reboot
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
@@ -1029,10 +1029,10 @@ _description:
 user: root
 command:
  echo "Waiting for AP to become available"
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then
+ if [ "$RES" -eq 2 ]; then
     echo "Network detected"
     exit 0
  else
@@ -1060,10 +1060,10 @@ _description:
  This job checks if AP still works.
 user: root
 command:
- sleep ${{WIFI_AP_SETUPTIME:-10}}
- RES=`iw {interface} info |grep -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)" |wc -l`
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
  wifi-ap.config set disabled=true
- if [ $RES -eq 2 ]; then exit 0; else exit 1; fi
+ if [ "$RES" -eq 2 ]; then exit 0; else exit 1; fi
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  snap.name == 'wifi-ap'

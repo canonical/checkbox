@@ -29,7 +29,7 @@ plugin: resource
 environ: STRESS_BOOT_ITERATIONS
 command:
   ITERATIONS=${STRESS_BOOT_ITERATIONS:-2}
-  for i in $(seq 2 $ITERATIONS); do
+  for i in $(seq 2 "$ITERATIONS"); do
     echo "reboot_id: $i"
     echo "reboot_id_previous: $((i-1))"
     echo
@@ -46,9 +46,9 @@ _description: This creates baseline data sets which be considered the master
 unit: job
 plugin: shell
 command:
-  lspci -i $SNAP/usr/share/misc/pci.ids > $PLAINBOX_SESSION_SHARE/lspci_original || true
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > $PLAINBOX_SESSION_SHARE/wifi_original || true
-  checkbox-support-lsusb -f $CHECKBOX_RUNTIME/var/lib/usbutils/usb.ids -s | sort > $PLAINBOX_SESSION_SHARE/lsusb_original || true
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_original || true
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_original || true
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_original || true
 environ: LD_LIBRARY_PATH
 user: root
 estimated_duration: 1s
@@ -63,7 +63,7 @@ _description: This is a template that will be used to generate a stress test
 unit: job
 plugin: shell
 environ: STRESS_BOOT_WAKEUP_DELAY
-command: rtcwake --mode off -s ${STRESS_BOOT_WAKEUP_DELAY:-120}
+command: rtcwake --mode off -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
@@ -81,8 +81,8 @@ template-unit: job
 plugin: shell
 environ: STRESS_BOOT_WAKEUP_DELAY STRESS_BOOT_WAIT_DELAY
 command:
- sleep ${{STRESS_BOOT_WAIT_DELAY:-120}}
- rtcwake --mode off -s ${{STRESS_BOOT_WAKEUP_DELAY:-120}}
+ sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
+ rtcwake --mode off -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
@@ -99,21 +99,18 @@ unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  lspci -i $SNAP/usr/share/misc/pci.ids > $PLAINBOX_SESSION_SHARE/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > $PLAINBOX_SESSION_SHARE/wifi_test
-  checkbox-support-lsusb -f $CHECKBOX_RUNTIME/var/lib/usbutils/usb.ids -s | sort > $PLAINBOX_SESSION_SHARE/lsusb_test
-  diff -u $PLAINBOX_SESSION_SHARE/lspci_original $PLAINBOX_SESSION_SHARE/lspci_test
-  if [ $? -ne 0 ] ; then
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle 1"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/wifi_original $PLAINBOX_SESSION_SHARE/wifi_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
     echo "wifi mismatch during cycle 1"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/lsusb_original $PLAINBOX_SESSION_SHARE/lsusb_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
     echo "lsusb mismatch during cycle 1"
     exit 1
   fi
@@ -134,21 +131,18 @@ template-unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  lspci -i $SNAP/usr/share/misc/pci.ids > $PLAINBOX_SESSION_SHARE/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > $PLAINBOX_SESSION_SHARE/wifi_test
-  checkbox-support-lsusb -f $CHECKBOX_RUNTIME/var/lib/usbutils/usb.ids -s | sort > $PLAINBOX_SESSION_SHARE/lsusb_test
-  diff -u $PLAINBOX_SESSION_SHARE/lspci_original $PLAINBOX_SESSION_SHARE/lspci_test
-  if [ $? -ne 0 ] ; then
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle {reboot_id}"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/wifi_original $PLAINBOX_SESSION_SHARE/wifi_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
     echo "wifi mismatch during cycle {reboot_id}"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/lsusb_original $PLAINBOX_SESSION_SHARE/lsusb_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
     echo "lsusb mismatch during cycle {reboot_id}"
     exit 1
   fi
@@ -185,7 +179,7 @@ template-unit: job
 plugin: shell
 environ: STRESS_BOOT_WAIT_DELAY
 command:
- sleep ${{STRESS_BOOT_WAIT_DELAY:-120}}
+ sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
  reboot
 user: root
 flags: preserve-locale noreturn autorestart
@@ -203,21 +197,18 @@ unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  lspci -i $SNAP/usr/share/misc/pci.ids > $PLAINBOX_SESSION_SHARE/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > $PLAINBOX_SESSION_SHARE/wifi_test
-  checkbox-support-lsusb -f $CHECKBOX_RUNTIME/var/lib/usbutils/usb.ids -s | sort > $PLAINBOX_SESSION_SHARE/lsusb_test
-  diff -u $PLAINBOX_SESSION_SHARE/lspci_original $PLAINBOX_SESSION_SHARE/lspci_test
-  if [ $? -ne 0 ] ; then
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle 1"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/wifi_original $PLAINBOX_SESSION_SHARE/wifi_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
     echo "wifi mismatch during cycle 1"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/lsusb_original $PLAINBOX_SESSION_SHARE/lsusb_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
     echo "lsusb mismatch during cycle 1"
     exit 1
   fi
@@ -238,21 +229,18 @@ template-unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  lspci -i $SNAP/usr/share/misc/pci.ids > $PLAINBOX_SESSION_SHARE/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > $PLAINBOX_SESSION_SHARE/wifi_test
-  checkbox-support-lsusb -f $CHECKBOX_RUNTIME/var/lib/usbutils/usb.ids -s | sort > $PLAINBOX_SESSION_SHARE/lsusb_test
-  diff -u $PLAINBOX_SESSION_SHARE/lspci_original $PLAINBOX_SESSION_SHARE/lspci_test
-  if [ $? -ne 0 ] ; then
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle {reboot_id}"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/wifi_original $PLAINBOX_SESSION_SHARE/wifi_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
     echo "wifi mismatch during cycle {reboot_id}"
     exit 1
   fi
-  diff -u $PLAINBOX_SESSION_SHARE/lsusb_original $PLAINBOX_SESSION_SHARE/lsusb_test
-  if [ $? -ne 0 ] ; then
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
     echo "lsusb mismatch during cycle {reboot_id}"
     exit 1
   fi

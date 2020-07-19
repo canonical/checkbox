@@ -2,7 +2,7 @@ plugin: shell
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/detect
 user: root
-command: fprintd-list ${SUDO_UID:-$NORMAL_USER}
+command: fprintd-list "${SUDO_UID:-$NORMAL_USER}"
 estimated_duration: 1.0
 _summary: Check if at least one fingerprint reader is detected
 imports: from com.canonical.plainbox import manifest
@@ -16,9 +16,9 @@ user: root
 command:
   set -e
   echo 'Removing existing signatures...'
-  fprintd-delete ${SUDO_UID:-$NORMAL_USER} > /dev/null
+  fprintd-delete "${SUDO_UID:-$NORMAL_USER}" > /dev/null
   sleep 3
-  fprintd-enroll ${SUDO_UID:-$NORMAL_USER}
+  fprintd-enroll "${SUDO_UID:-$NORMAL_USER}"
 estimated_duration: 20.0
 _summary: Enroll a fingerprint
 _purpose:
@@ -40,7 +40,7 @@ depends: fingerprint/enroll
 user: root
 command:
   sleep 2
-  fprintd-verify ${SUDO_UID:-$NORMAL_USER} | tee /dev/stderr | grep -o verify-no-match
+  fprintd-verify "${SUDO_UID:-$NORMAL_USER}" | tee /dev/stderr | grep -o verify-no-match
 estimated_duration: 20.0
 _summary: Fingerprint negative match
 _purpose:
@@ -64,9 +64,10 @@ command:
   sleep 2
   for i in {1..3}
   do
-      fprintd-verify ${SUDO_UID:-$NORMAL_USER} | tee /dev/stderr | grep -o verify-match && break || sleep 3
+      # shellcheck disable=SC2015
+      fprintd-verify "${SUDO_UID:-$NORMAL_USER}" | tee /dev/stderr | grep -o verify-match && break || sleep 3
       [[ $i -eq 3 ]] && exit 1
-      echo "Attempts left: $((3-$i))"
+      echo "Attempts left: $((3-i))"
   done
 estimated_duration: 20.0
 _summary: Fingerprint positive match
@@ -119,7 +120,7 @@ category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/delete
 after: fingerprint/unlock
 user: root
-command: fprintd-delete ${SUDO_UID:-$NORMAL_USER}
+command: fprintd-delete "${SUDO_UID:-$NORMAL_USER}"
 estimated_duration: 1.0
 _summary: Remove existing fingerprint signatures
 imports: from com.canonical.plainbox import manifest

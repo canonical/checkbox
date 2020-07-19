@@ -9,7 +9,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
   echo "Calling sleep_test.py"
   sleep_test.py -s disk -w 120
@@ -34,7 +34,7 @@ requires:
   rtc.state == 'supported'
 environ: PLAINBOX_SESSION_SHARE
 user: root
-command: checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+command: checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
 estimated_duration: 300.00
 _description:
  This is the automated version of suspend/hibernate_advanced.
@@ -54,7 +54,7 @@ estimated_duration: 300.00
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/{index}_hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/{index}_hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
   echo "Calling sleep_test.py"
   sleep_test.py -s disk -w 120
@@ -72,7 +72,7 @@ _verification:
 plugin: shell
 category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-check
-command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && sleep_test_log_check.py -v s4 $PLAINBOX_SESSION_SHARE/hibernate-single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate-single.log ] && sleep_test_log_check.py -v s4 "$PLAINBOX_SESSION_SHARE"/hibernate-single.log
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 
@@ -80,7 +80,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-attach
 depends: power-management/hibernate_advanced
-command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate-single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate-single.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate-single.log
 estimated_duration: 0.5
 _description: attaches log from single hibernate/resume test to results
 
@@ -92,6 +92,6 @@ category_id: com.canonical.plainbox::hibernate
 id: power-management/{index}_hibernate-single-log-attach_{product_slug}
 depends: power-management/{index}_hibernate_advanced_{vendor_slug}_{product_slug}
 estimated_duration: 0.5
-command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_hibernate-single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hibernate-single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_hibernate-single.log
 _description: attaches log from single hibernate/resume test to results
 

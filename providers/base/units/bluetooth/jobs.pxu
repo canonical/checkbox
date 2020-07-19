@@ -43,7 +43,7 @@ command:
    rfkill unblock bluetooth
    sleep 3
  fi
- output=$(hcitool dev | tail -n+2 | awk '{print $2}' | tee $PLAINBOX_SESSION_SHARE/bluetooth_address)
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}' | tee "$PLAINBOX_SESSION_SHARE"/bluetooth_address)
  echo "$output"
  if [ -z "$output" ]; then
      echo "BT hardware not available"
@@ -98,14 +98,14 @@ id: bluetooth/audio-a2dp
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 command:
-  audio_settings.py store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  idx=`pactl list cards short | awk '/bluez/{print $1}'`
-  bt_sink=`pactl list sinks short | awk '/bluez/{print $2}'`
-  pactl set-card-profile $idx a2dp
-  pactl set-default-sink $bt_sink
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  idx=$(pactl list cards short | awk '/bluez/{print $1}')
+  bt_sink=$(pactl list sinks short | awk '/bluez/{print $2}')
+  pactl set-card-profile "$idx" a2dp
+  pactl set-default-sink "$bt_sink"
   gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
-  audio_settings.py restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -183,7 +183,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  bluetooth_transfer_stress.sh $BTDEVADDR
+  bluetooth_transfer_stress.sh "$BTDEVADDR"
 _description:
  This is an automated Bluetooth file transfer test. It sends a large file
  to the device specified by the BTDEVADDR environment variable, then
@@ -237,7 +237,7 @@ id: bluetooth4/beacon_notification_{{ path }}
 _summary: Test system can get beacon notifications on the {{ path.split('/')[-1] }} adapter
 environ: ADV_SVC_UUID SVC_UUID MSRMT_UUID
 command:
- gatt-notify-test.py {{ path.split('/')[-1] }} $ADV_SVC_UUID $SVC_UUID $MSRMT_UUID
+ gatt-notify-test.py {{ path.split('/')[-1] }} "$ADV_SVC_UUID" "$SVC_UUID $MSRMT_UUID"
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::bluetooth

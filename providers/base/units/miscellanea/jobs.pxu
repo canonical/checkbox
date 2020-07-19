@@ -75,14 +75,14 @@ _description:
  Run Firmware Test Suite (fwts) automated tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_results.log
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_results.log
 
 plugin: attachment
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/fwts_results.log
 requires: executable.name == 'fwts'
 command:
- [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_results.log ]] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_results.log
+ [[ -e "${PLAINBOX_SESSION_SHARE}"/fwts_results.log ]] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_results.log
 _description: Attaches the miscellanes/fwts_test results log to the submission.
 
 plugin: attachment
@@ -91,7 +91,7 @@ estimated_duration: 0.5
 id: miscellanea/fwts_results_hwe.log.gz
 requires: executable.name == 'fwts'
 command:
- [ -f $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log
+ [ -f "$PLAINBOX_SESSION_SHARE"/fwts_results_hwe.log ] && gzip -c "$PLAINBOX_SESSION_SHARE"/fwts_results_hwe.log
 _description: Attaches the FWTS results log to the submission (to HWE)
 _summary: Attach FWTS log to submission (to HWE)
 
@@ -264,14 +264,14 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/apport-directory
 requires: package.name == 'apport'
-command: if [ -d /var/crash ]; then if [ $(find /var/crash -type f | grep -v .lock | wc -l) -eq 0 ]; then echo "/var/crash is empty"; else echo `ls /var/crash`; false; fi; else echo "/var/crash does not exist"; fi
+command: if [ -d /var/crash ]; then if [ "$(find /var/crash -type f | grep -c -v .lock)" -eq 0 ]; then echo "/var/crash is empty"; else ls /var/crash; false; fi; else echo "/var/crash does not exist"; fi
 _description:
  Test that the /var/crash directory doesn't contain anything. Lists the files contained within if it does, or echoes the status of the directory (doesn't exist/is empty)
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/sources-list
-command: sources_test.sh $SOURCES_LIST "$REPOSITORIES"
+command: sources_test.sh "$SOURCES_LIST" "$REPOSITORIES"
 _description: Checks that a specified sources list file contains the requested repositories
 
 unit: template
@@ -334,14 +334,14 @@ _summary:
  Run FWTS OOPs check
 environ: PLAINBOX_SESSION_SHARE
 command:
- checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results.log -t oops
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_oops_results.log -t oops
 
 plugin: attachment
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/oops_results.log
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log
+ [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results.log
 _description: Attaches the FWTS oops results log to the submission
 
 plugin:shell
@@ -358,14 +358,14 @@ _summary:
  Run FWTS OLOG check on ppc64el
 environ: PLAINBOX_SESSION_SHARE
 command:
- checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_olog_results.log -t olog
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_olog_results.log -t olog
 
 plugin: attachment
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/olog_results.log
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_olog_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_olog_results.log
+ [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_olog_results.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_olog_results.log
 _description: Attaches the FWTS olog results log to the submission
 
 plugin:shell
@@ -380,14 +380,14 @@ _summary:
  Run FWTS Kernel Log check
 environ: PLAINBOX_SESSION_SHARE
 command:
- checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_klog_results.log -t oops
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_klog_results.log -t oops
 
 plugin: attachment
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/klog_results.log
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_klog_results.log ] && xz -c ${PLAINBOX_SESSION_SHARE}/fwts_klog_results.log
+ [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_klog_results.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_klog_results.log
 _description: Attaches the FWTS klog results log to the submission
 
 plugin: shell
@@ -429,7 +429,7 @@ estimated_duration: 20.0
 id: miscellanea/sosreport
 user: root
 requires: executable.name == 'sosreport'
-command: sosreport --batch -n lxd --tmp-dir $PLAINBOX_SESSION_SHARE
+command: sosreport --batch -n lxd --tmp-dir "$PLAINBOX_SESSION_SHARE"
 _summary: Generate baseline sosreport
 _description: Generates a baseline sosreport of logs and system data
 
@@ -440,7 +440,8 @@ id: miscellanea/sosreport_attachment
 depends: miscellanea/sosreport
 user: root
 command:
- SOSFILE=`ls -t $PLAINBOX_SESSION_SHARE/sosreport*xz | head -1`; [ -e ${SOSFILE} ] && cat $SOSFILE
+ # shellcheck disable=SC2012
+ SOSFILE=$(ls -t "$PLAINBOX_SESSION_SHARE"/sosreport*xz | head -1); [ -e "${SOSFILE}" ] && cat "$SOSFILE"
 _summary: Attach the baseline sosreport file
 
 plugin: shell

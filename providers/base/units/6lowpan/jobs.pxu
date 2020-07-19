@@ -4,7 +4,7 @@ id: 6lowpan/kconfig
 estimated_duration: 1.2
 command:
  for config in CONFIG_6LOWPAN CONFIG_IEEE802154 CONFIG_IEEE802154_6LOWPAN CONFIG_MAC802154; do
-    zcat /proc/config.gz | egrep "$config=(y|m)" || exit 1
+    grep -E "$config=(y|m)" /boot/config-"$(uname -r)" || exit 1
  done
 _summary: kernel config options for 6LoWPAN
 _description:

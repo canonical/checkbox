@@ -12,7 +12,7 @@ command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH=$SNAP/usr/lib/fwts:$LD_LIBRARY_PATH
  fi
- checkbox-support-fwts_test -t cpufreq -l ${PLAINBOX_SESSION_SHARE}/scaling_test.log
+ checkbox-support-fwts_test -t cpufreq -l "${PLAINBOX_SESSION_SHARE}"/scaling_test.log
 _summary:
  Test the CPU scaling capabilities
 _description:
@@ -24,7 +24,7 @@ category_id: com.canonical.plainbox::cpu
 id: cpu/scaling_test-log-attach
 estimated_duration: 1.0
 depends: cpu/scaling_test
-command: [[ -e ${PLAINBOX_SESSION_SHARE}/scaling_test.log ]] && cat ${PLAINBOX_SESSION_SHARE}/scaling_test.log
+command: [[ -e "${PLAINBOX_SESSION_SHARE}"/scaling_test.log ]] && cat "${PLAINBOX_SESSION_SHARE}"/scaling_test.log
 _summary:
  Attach CPU scaling capabilities log
 _description:
@@ -42,7 +42,7 @@ command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH=$SNAP/usr/lib/fwts:$LD_LIBRARY_PATH
  fi
- checkbox-support-fwts_test -t maxfreq -l $PLAINBOX_SESSION_SHARE/maxfreq_test.log
+ checkbox-support-fwts_test -t maxfreq -l "$PLAINBOX_SESSION_SHARE"/maxfreq_test.log
 _summary:
  Test that the CPU can run at its max frequency
 _description:
@@ -54,7 +54,7 @@ category_id: com.canonical.plainbox::cpu
 id: cpu/maxfreq_test-log-attach
 estimated_duration: 1.0
 depends: cpu/maxfreq_test
-command: [ -e $PLAINBOX_SESSION_SHARE/maxfreq_test.log ] && cat $PLAINBOX_SESSION_SHARE/maxfreq_test.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/maxfreq_test.log ] && cat "$PLAINBOX_SESSION_SHARE"/maxfreq_test.log
 _summary:
  Attach CPU max frequency log
 _description:
@@ -151,7 +151,7 @@ command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH=$SNAP/usr/lib/fwts:$LD_LIBRARY_PATH
  fi
- checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_cstates_results.log -t cstates
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_cstates_results.log -t cstates
 
 plugin: attachment
 category_id: com.canonical.plainbox::cpu
@@ -159,7 +159,7 @@ estimated_duration: 0.5
 id: cpu/cstates_results.log
 after: cpu/cstates
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_cstates_results.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_cstates_results.log
+ [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_cstates_results.log ] && cat "${PLAINBOX_SESSION_SHARE}"/fwts_cstates_results.log
 _summary:
  Attach C-States test log
 _description:
@@ -170,7 +170,7 @@ category_id: com.canonical.plainbox::cpu
 id: cpu/cpuinfo_before_suspend
 estimated_duration: 1.2
 _summary: Verify that all the CPUs are online before suspending
-command: cpuinfo_resource.py > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
+command: cpuinfo_resource.py > "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend
 _siblings: [
     { "id": "after-suspend-cpu/cpuinfo_after_suspend",
       "_summary": "Verify that all the CPUs are online after suspending",

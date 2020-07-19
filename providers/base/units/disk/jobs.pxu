@@ -108,7 +108,7 @@ command:
   if [ -n "$STRESS_NG_DISK_TIME" ]
   then
     echo "Found STRESS_NG_DISK_TIME env var, stress_ng disk running time is now: $STRESS_NG_DISK_TIME seconds"
-    stress_ng_test.py disk --device {name} --base-time $STRESS_NG_DISK_TIME
+    stress_ng_test.py disk --device {name} --base-time "$STRESS_NG_DISK_TIME"
   else
     echo "STRESS_NG_DISK_TIME env var is not found, stress_ng disk running time is default value"
     stress_ng_test.py disk --device {name} --base-time 240
@@ -128,18 +128,6 @@ requires:
 _summary: Check of CPU load imposed by {product_slug}
 _description: Check to ensure CPU load of {product_slug} is not too high
 command: disk_cpu_load.sh {name}
-
-plugin: shell
-category_id: com.canonical.plainbox::disk
-id: disk/spindown
-estimated_duration: 875.0
-requires:
- device.category == 'DISK'
- package.name == 'smartmontools'
-user: root
-command: spindown.sh
-_description:
- Some new hard drives include a feature that parks the drive heads after a short period of inactivity. This is a power-saving feature, but it can have a bad interaction with the operating system that results in the drive constantly parked then activated. This produces excess wear on the drive, potentially leading to early failures.
 
 plugin: user-interact
 category_id: com.canonical.plainbox::disk

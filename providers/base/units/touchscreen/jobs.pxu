@@ -67,7 +67,7 @@ id: touchscreen/multitouch-zoom
 _summary: Check touchscreen pinch gesture for zoom
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
-command: qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_zoom_test.qml 2>&1 |grep -o PASS
+command: qmlscene -qt5 "$PLAINBOX_PROVIDER_DATA"/touch_zoom_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -85,7 +85,7 @@ id: touchscreen/multitouch-rotate
 _summary: Check touchscreen pinch gesture for rotate
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
-command: qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_rotate_test.qml 2>&1 |grep -o PASS
+command: qmlscene -qt5 "$PLAINBOX_PROVIDER_DATA"/touch_rotate_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -152,7 +152,7 @@ _description:
 command:
     {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
     manage_compiz_plugin.py unityshell disable
-    qmlscene -qt5 3 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
+    qmlscene -qt5 3 "$PLAINBOX_PROVIDER_DATA"/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
     manage_compiz_plugin.py unityshell enable
@@ -187,7 +187,7 @@ _description:
 command:
     {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
     manage_compiz_plugin.py unityshell disable
-    qmlscene -qt5 4 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml 2>&1 | grep -o PASS
+    qmlscene -qt5 4 "$PLAINBOX_PROVIDER_DATA"/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?
     sleep 5
     manage_compiz_plugin.py unityshell enable

@@ -48,7 +48,7 @@ id: graphics/screen-resolution
 requires:
  device.category == 'VIDEO'
  executable.name == 'qmlscene'
-command: qmlscene -qt5 --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
+command: qmlscene -qt5 --transparent --fullscreen "$PLAINBOX_PROVIDER_DATA"/resolution_test.qml
 estimated_duration: 10.0
 _summary: Test default resolution
 _description:
@@ -126,7 +126,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/cycle_resolution
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
-command: xrandr_cycle.py --screenshot-dir $PLAINBOX_SESSION_SHARE
+command: xrandr_cycle.py --screenshot-dir "$PLAINBOX_SESSION_SHARE"
 estimated_duration: 250.000
 _summary: Test resolution cycling
 _description:
@@ -157,7 +157,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/gl_support
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser.py | grep -e ":\(\s\+\)no$" -ie "error"
+command: /usr/lib/nux/unity_support_test -p 2>&1
 estimated_duration: 0.131
 _description: Check that hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support
@@ -218,7 +218,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/screenshot
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser.py
+command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f "${PLAINBOX_SESSION_SHARE}"/screenshot.jpg -q 2>&1 | ansi_parser.py
 _summary: Test grabbing a screenshot
 _description:
  PURPOSE:
@@ -232,7 +232,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: screenshot.jpg
 depends: graphics/screenshot
-command: cat ${PLAINBOX_SESSION_SHARE}/screenshot.jpg
+command: cat "${PLAINBOX_SESSION_SHARE}"/screenshot.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 _summary: Attach results of screenshot test
 
@@ -241,11 +241,11 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/screenshot_fullscreen_video
 requires: package.name == 'fswebcam'
 command:
- [ -f ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
+ [ -f "${PLAINBOX_PROVIDER_DATA}"/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
  gsettings set org.gnome.totem repeat true
- totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
+ totem --fullscreen "${PLAINBOX_PROVIDER_DATA}"/video/Ogg_Theora_Video.ogv 2>/dev/null &
  set -o pipefail
- sleep 15 && camera_test.py still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser.py
+ sleep 15 && camera_test.py still --device=/dev/external_webcam -f "${PLAINBOX_SESSION_SHARE}"/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser.py
  sleep 5 && totem --quit 2>/dev/null
  gsettings set org.gnome.totem repeat false
 _summary: Test FSV screenshot
@@ -262,6 +262,6 @@ plugin: attachment
 category_id: com.canonical.plainbox::graphics
 id: screenshot_fullscreen_video.jpg
 depends: graphics/screenshot_fullscreen_video
-command: cat ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg
+command: cat "${PLAINBOX_SESSION_SHARE}"/screenshot_fullscreen_video.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video.
 _summary: Attach results of FSV screenshot test

@@ -281,7 +281,7 @@ _steps:
  2. Begin test.
 plugin: user-interact
 command:
-  if [ $(cat /sys/class/net/{{ interface }}/carrier) -ne 0 ]; then
+  if [ "$(cat /sys/class/net/{{ interface }}/carrier)" -ne 0 ]; then
     # carrier indicating cable present
     exit 1
   fi
@@ -310,13 +310,13 @@ plugin: user-interact
 command:
  LOOP=0
  CABLE_DETECT=0
- while [ $LOOP -lt 10 ] && [ $CABLE_DETECT -eq 0 ]
+ while [ $LOOP -lt 10 ] && [ "$CABLE_DETECT" -eq 0 ]
  do
   sleep 1
   CABLE_DETECT=$(cat /sys/class/net/{interface}/carrier)
   LOOP=$((LOOP=LOOP+1))
  done
- if [ $CABLE_DETECT -eq 0 ]; then
+ if [ "$CABLE_DETECT" -eq 0 ]; then
   echo "Didn't detect a cable insertion"
   exit 1
  fi
@@ -364,13 +364,13 @@ plugin: user-interact
 command:
  LOOP=0
  CABLE_DETECT=1
- while [ $LOOP -lt 10 ] && [ $CABLE_DETECT -ne 0 ]
+ while [ $LOOP -lt 10 ] && [ "$CABLE_DETECT" -ne 0 ]
  do
   sleep 1
   CABLE_DETECT=$(cat /sys/class/net/{interface}/carrier)
   LOOP=$((LOOP=LOOP+1))
  done
- if [ $CABLE_DETECT -ne 0 ]; then
+ if [ "$CABLE_DETECT" -ne 0 ]; then
   echo "Didn't detect a cable removal"
   exit 1
  fi

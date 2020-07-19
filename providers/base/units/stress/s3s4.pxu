@@ -54,7 +54,7 @@ environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LI
 user: root
 command:
  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
- set -o pipefail; checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/suspend_{s3_iterations}_cycles -f none -s s3 --s3-device-check --s3-device-check-delay=${{STRESS_S3_WAIT_DELAY:-45}} --s3-sleep-delay=${{STRESS_S3_SLEEP_DELAY:-30}} --s3-multiple={s3_iterations} -j $SNAP/share/fwts | tee $PLAINBOX_SESSION_SHARE/suspend_{s3_iterations}_cycles_times.log
+ set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles -f none -s s3 --s3-device-check --s3-device-check-delay="${{STRESS_S3_WAIT_DELAY:-45}}" --s3-sleep-delay="${{STRESS_S3_SLEEP_DELAY:-30}}" --s3-multiple={s3_iterations} -j "$SNAP"/share/fwts | tee "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles_times.log
 _description:
  PURPOSE:
     This is an automated stress test that will force the system to suspend/resume for {s3_iterations} cycles.
@@ -68,7 +68,7 @@ category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-log-check
 after: stress-tests/suspend_{s3_iterations}_cycles
 estimated_duration: 1.0
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v s3 $PLAINBOX_SESSION_SHARE/suspend_{s3_iterations}_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
 _description:
  Automated check of the {s3_iterations} cycles suspend log for errors detected by fwts.
 
@@ -81,7 +81,7 @@ category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-log-attach
 estimated_duration: 1.0
 after: stress-tests/suspend_{s3_iterations}_cycles
-command: [ -e $PLAINBOX_SESSION_SHARE/suspend_{s3_iterations}_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_{s3_iterations}_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
 _description:
  Attaches the log from the {s3_iterations} cycles Suspend/Resume test if it exists
 
@@ -104,7 +104,7 @@ environ: PLAINBOX_SESSION_SHARE STRESS_S4_SLEEP_DELAY STRESS_S4_WAIT_DELAY LD_LI
 user: root
 command:
  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
- checkbox-support-fwts_test -l $PLAINBOX_SESSION_SHARE/hibernate_{s4_iterations}_cycles -f none -s s4 --s4-device-check --s4-device-check-delay=${{STRESS_S4_WAIT_DELAY:-45}} --s4-sleep-delay=${{STRESS_S4_SLEEP_DELAY:-120}} --s4-multiple={s4_iterations} -j $SNAP/share/fwts
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles -f none -s s4 --s4-device-check --s4-device-check-delay="${{STRESS_S4_WAIT_DELAY:-45}}" --s4-sleep-delay="${{STRESS_S4_SLEEP_DELAY:-120}}" --s4-multiple={s4_iterations} -j "$SNAP"/share/fwts
 _description:
  PURPOSE:
     This is an automated stress test that will force the system to hibernate/resume for {s4_iterations} cycles
@@ -118,7 +118,7 @@ category_id: stress-tests/hibernate
 id: stress-tests/hibernate-{s4_iterations}-cycles-log-check
 after: stress-tests/hibernate_{s4_iterations}_cycles
 estimated_duration: 1.0
-command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v s4 $PLAINBOX_SESSION_SHARE/hibernate_{s4_iterations}_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v s4 "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
 _description:
  Automated check of the {s4_iterations} cycles hibernate log for errors detected by fwts.
 
@@ -131,6 +131,6 @@ category_id: stress-tests/hibernate
 id: stress-tests/hibernate-{s4_iterations}-cycles-log-attach
 estimated_duration: 1.0
 after: stress-tests/hibernate_{s4_iterations}_cycles
-command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_{s4_iterations}_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate_{s4_iterations}_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
 _description:
  Attaches the log from the {s4_iterations} cycles Hibernate/Resume test if it exists

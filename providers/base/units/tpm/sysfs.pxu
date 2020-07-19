@@ -12,7 +12,7 @@ _summary: Count the number of visible TPM chips in sysfs
 _description:
  This job just counts the number of visible TPM chips in as reported by
  tpm_sysfs_resource.py tool. The only resource attribute is 'count'
-command: echo "count: $(tpm_sysfs_resource.py | grep -F 'x-sysfs-device-name' | wc -l)"
+command: echo "count: $(tpm_sysfs_resource.py | grep -c -F 'x-sysfs-device-name')"
 estimated_duration: 2s
 flags: preserve-locale
 

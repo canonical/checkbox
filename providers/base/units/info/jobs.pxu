@@ -19,7 +19,7 @@ category_id: com.canonical.plainbox::info
 user: root
 command:
  if [ -e /var/log/dmesg ]; then
-  cat /var/log/dmesg | ansi_parser.py
+  ansi_parser.py < /var/log/dmesg
  else
   dmesg | ansi_parser.py
  fi
@@ -30,7 +30,9 @@ _summary: Attach a copy of dmesg
 id: dmi_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: [ -d /sys/class/dmi/id/ ] && (grep -r . /sys/class/dmi/id/ 2>/dev/null || true) || false
+command:
+  # shellcheck disable=SC2015
+  [ -d /sys/class/dmi/id/ ] && (grep -r . /sys/class/dmi/id/ 2>/dev/null || true) || false
 estimated_duration: 0.044
 _description: Attaches info on DMI
 _summary: Attach a copy of /sys/class/dmi/id/*
@@ -62,7 +64,9 @@ id: efi_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
 user: root
-command: [ -d /sys/firmware/efi ] && grep -m 1 -o --color=never 'EFI v.*' /var/log/kern.log* || true
+command:
+  # shellcheck disable=SC2015
+  [ -d /sys/firmware/efi ] && grep -m 1 -o --color=never 'EFI v.*' /var/log/kern.log* || true
 estimated_duration: 0.5
 _summary: Attaches firmware version info
 _description: Attaches the firmware version
@@ -72,7 +76,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
  if [[ -v SNAP ]]; then
-     lspci -i $SNAP/usr/share/misc/pci.ids -vvnn
+     lspci -i "$SNAP"/usr/share/misc/pci.ids -vvnn
  else
      lspci -vvnn | iconv -t 'utf-8' -c
  fi
@@ -103,7 +107,7 @@ category_id: com.canonical.plainbox::info
 user: root
 command:
  if [[ -v SNAP ]]; then
-     checkbox-support-lsusb -f $CHECKBOX_RUNTIME/var/lib/usbutils/usb.ids
+     checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids
  else
      lsusb -vv | iconv -t 'utf-8' -c
  fi
@@ -123,7 +127,7 @@ _description: Attaches info on system memory as seen in /proc/meminfo.
 id: modprobe_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: find /etc/modprobe.* -name \*.conf | xargs cat
+command: find /etc/modprobe.* -name \*.conf -exec cat {} +
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
 _summary: Attach the contents of /etc/modprobe.*
@@ -136,7 +140,7 @@ command:
     for mod in $(lsmod | cut -f 1 -d " ")
     do
         printf "%-16s%s\n" "name:" "$mod"
-        modinfo $mod
+        modinfo "$mod"
         echo
     done
 estimated_duration: 1.5
@@ -153,7 +157,7 @@ _summary: Attach the contents of /etc/modules
 id: sysctl_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: find /etc/sysctl.* -name \*.conf | xargs cat
+command: find /etc/sysctl.* -name \*.conf -exec cat {} +
 estimated_duration: 0.014
 _description: Attaches the contents of various sysctl config files.
 _summary: Attach sysctl configuration files.
@@ -163,9 +167,9 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 _description: Attaches a report of sysfs attributes.
 command:
- for i in `udevadm info --export-db | sed -n 's/^P: //p'`; do
+ for i in $(udevadm info --export-db | sed -n 's/^P: //p'); do
   echo "P: $i"
-  udevadm info --attribute-walk --path=/sys$i 2>/dev/null | sed -n 's/    ATTR{\(.*\)}=="\(.*\)"/A: \1=\2/p'
+  udevadm info --attribute-walk --path=/sys"$i" 2>/dev/null | sed -n 's/    ATTR{\(.*\)}=="\(.*\)"/A: \1=\2/p'
   echo
  done
 estimated_duration: 6.344
@@ -237,7 +241,8 @@ requires: package.name == 'bootchart' or package.name == 'pybootchartgui'
 user: root
 command:
  process_wait.py -u root bootchart collector ureadahead; \
- [ `ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l` -lt 2 ] && reboot && sleep 100
+ # shellcheck disable=SC2012
+ [ "$(ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l)" -lt 2 ] && reboot && sleep 100
 
 unit: template
 template-resource: device
@@ -260,7 +265,8 @@ depends: info/bootchart
 requires: package.name == 'pybootchartgui'
 _description: Attaches the bootchart png file for bootchart runs
 command:
- file=`ls /var/log/bootchart/*.png 2>/dev/null | tail -1`; \
+ # shellcheck disable=SC2012
+ file=$(ls /var/log/bootchart/*.png 2>/dev/null | tail -1); \
  [ -e "$file" ] && cat "$file"
 
 plugin: attachment
@@ -269,7 +275,8 @@ id: bootchart.tgz
 depends: info/bootchart
 _description: Attaches the bootchart log for bootchart test runs.
 command:
- file=`ls /var/log/bootchart/*.tgz 2>/dev/null | tail -1`; \
+ # shellcheck disable=SC2012
+ file=$(ls /var/log/bootchart/*.tgz 2>/dev/null | tail -1); \
  [ -e "$file" ] && cat "$file"
 
 plugin: attachment
@@ -415,7 +422,7 @@ _summary:
 _description:
  Attaches the debug log from the virtualization/kvm_check_vm test
  to the results submission.
-command: [ -f $PLAINBOX_SESSION_SHARE/virt_debug ] && cat $PLAINBOX_SESSION_SHARE/virt_debug
+command: [ -f "$PLAINBOX_SESSION_SHARE"/virt_debug ] && cat "$PLAINBOX_SESSION_SHARE"/virt_debug
 
 id: kernel_cmdline_attachment
 plugin: attachment
@@ -449,7 +456,7 @@ requires: package.name == 'hwloc' or executable.name == 'lstopo'
 _description: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo
 command:
- lstopo $PLAINBOX_SESSION_SHARE/lstopo_visual.png; \
+ lstopo "$PLAINBOX_SESSION_SHARE"/lstopo_visual.png; \
  [ -e "$PLAINBOX_SESSION_SHARE/lstopo_visual.png" ] && \
  cat "$PLAINBOX_SESSION_SHARE/lstopo_visual.png"
 
@@ -465,9 +472,9 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
   # some top-level snaps don't bother with parts
-  cat $SNAP/parts_meta_info || true
+  cat "$SNAP"/parts_meta_info || true
   # should always have parts info from content snap
-  cat $CHECKBOX_RUNTIME/parts_meta_info
+  cat "$CHECKBOX_RUNTIME"/parts_meta_info
 environ: SNAP
 estimated_duration: 0.02
 _summary: Attaches an information about all parts that constituted this snap

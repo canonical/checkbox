@@ -22,5 +22,5 @@ _summary: Test that {interface} has an IPv6 link local address
 plugin: shell
 category_id: com.canonical.plainbox::networking
 command:
-  [ $(ip -6 -o addr show dev {interface} scope link | wc -l) -eq 1 ]
+  [ "$(ip -6 -o addr show dev {interface} scope link | wc -l)" -eq 1 ]
 flags: also-after-suspend

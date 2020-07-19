@@ -18,7 +18,7 @@ command:
  if [ -z ${I2C_BUS_NUMBER+x} ]; then
      i2c_driver_test.py bus
  else
-     i2c_driver_test.py bus -b $I2C_BUS_NUMBER
+     i2c_driver_test.py bus -b "$I2C_BUS_NUMBER"
  fi
 user: root
 plugin: shell

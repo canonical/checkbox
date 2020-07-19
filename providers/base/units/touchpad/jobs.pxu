@@ -189,8 +189,7 @@ id: touchpad/detected-as-mouse
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 1.2
 command:
-    info=`touchpad_driver_info.py`
-    if [ $? -eq 0 ]; then
+    if info=$(touchpad_driver_info.py); then
         echo -e "touchpad detected with:\n$info"
     else
         echo "$info"
@@ -207,7 +206,7 @@ category_id: com.canonical.plainbox::touchpad
 id: touchpad/continuous-move
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 12
-command: qmlscene -qt5 --fullscreen $PLAINBOX_PROVIDER_DATA/touch_continuous_move_test.qml 2>&1 | grep -o PASS
+command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/touch_continuous_move_test.qml 2>&1 | grep -o PASS
 _purpose:
      Touchpad continuous move verification
 _steps:
@@ -222,7 +221,7 @@ _siblings:
 id: touchpad/palm-rejection
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
-command: qmlscene -qt5 --fullscreen $PLAINBOX_PROVIDER_DATA/palm_rejection.qml 2>&1 | grep -o PASS
+command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/palm_rejection.qml 2>&1 | grep -o PASS
 _purpose:
  This test checks if touchpad ignores palm touches
 _steps:

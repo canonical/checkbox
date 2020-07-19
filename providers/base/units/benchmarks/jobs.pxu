@@ -36,7 +36,7 @@ plugin: shell
 category_id: com.canonical.plainbox::benchmarks
 id: benchmarks/graphics/render-bench
 requires: package.name == 'render-bench'
-command: /usr/bin/time -f "%e Seconds" render_bench 2>&1 >/dev/null
+command: /usr/bin/time -f "%e Seconds" render_bench > /dev/null 2>&1
 estimated_duration: 52.000
 _description: Run Render-Bench XRender/Imlib2 benchmark
 

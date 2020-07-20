@@ -105,6 +105,8 @@ class Submit():
         if ctx.args.staging:
             url = ('https://certification.staging.canonical.com/'
                    'api/v1/submission/{}/'.format(ctx.args.secure_id))
+        elif os.getenv('C3_URL'):
+            url = ('{}/{}/'.format(os.getenv('C3_URL'), ctx.args.secure_id))
         from checkbox_ng.certification import SubmissionServiceTransport
         transport_cls = SubmissionServiceTransport
         transport = transport_cls(url, options_string)

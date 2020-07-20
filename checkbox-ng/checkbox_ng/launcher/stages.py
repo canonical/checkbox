@@ -415,6 +415,9 @@ class ReportsStage(CheckboxUiStage):
             if self.sa.config.transports[transport].get('staging', False):
                 url = ('https://certification.staging.canonical.com/'
                        'api/v1/submission/{}/'.format(secure_id))
+            elif os.getenv('C3_URL'):
+                url = (
+                    '{}/{}/'.format(os.getenv('C3_URL'), ctx.args.secure_id))
             else:
                 url = ('https://certification.canonical.com/'
                        'api/v1/submission/{}/'.format(secure_id))

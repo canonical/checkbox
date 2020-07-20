@@ -1,10 +1,10 @@
-id: client-cert-20-04
-_name: 20.04 Client Certification Tests
+id: client-cert-odm-desktop-20-04
+_name: ODM Client Certification for Desktop 20.04
 unit: test plan
 _description:
- This test plan is intended for use inside Canonical's test labs. It will be
- used to certify Desktop devices on behalf of OEM customers as part of
- commercial engagements.
+ This test plan is intended for use by ODMs in their own facilities as part of
+ the ODM Certification programme. This test plan should be used when certifying
+ Desktop images.
 include:
 nested_part:
     submission-cert-full

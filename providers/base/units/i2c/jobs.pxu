@@ -15,7 +15,7 @@ _steps:
  2. If expected i2c bus number is not set, this job will pass if system
     detected there's at least one i2c bus.
 command:
- if [ -z ${I2C_BUS_NUMBER+x} ]; then
+ if [ -z "${I2C_BUS_NUMBER+x}" ]; then
      i2c_driver_test.py bus
  else
      i2c_driver_test.py bus -b "$I2C_BUS_NUMBER"

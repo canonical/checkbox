@@ -227,7 +227,7 @@ command:
         connect_wireless.sh # lp:1471663
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
@@ -267,7 +267,7 @@ command:
         connect_wireless.sh # lp:1471663
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
@@ -308,7 +308,7 @@ command:
         connect_wireless.sh # lp:1471663
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
@@ -349,7 +349,7 @@ command:
         connect_wireless.sh # lp:1471663
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
@@ -390,7 +390,7 @@ command:
         connect_wireless.sh # lp:1471663
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
@@ -431,7 +431,7 @@ command:
         connect_wireless.sh # lp:1471663
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
         STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
         WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")

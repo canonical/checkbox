@@ -23,6 +23,8 @@ import time
 import shutil
 import sys
 
+from gateway_ping_test import ping
+
 print = functools.partial(print, flush=True)
 
 
@@ -161,8 +163,8 @@ def generate_test_config(interface, ssid, psk, address, dhcp):
         password = "password: " + psk
     else:
         password = ""
-    return textwrap.dedent(
-        np_cfg.format(interface, ssid, password, address, dhcp))
+    return textwrap.dedent(np_cfg.format(interface, ssid, password,
+                                         address, dhcp))
 
 
 def write_test_config(config):
@@ -204,7 +206,7 @@ def _get_networkctl_state(interface):
             return val
 
 
-def wait_for_routable(interface, max_wait=15):
+def wait_for_routable(interface, max_wait=30):
     routable = False
     attempts = 0
     while not routable and attempts < max_wait:
@@ -218,15 +220,47 @@ def wait_for_routable(interface, max_wait=15):
     if routable:
         print("Reached routable state")
     else:
-        print("WARN: did not reach routable state")
+        if "degraded" in state:
+            print("ERROR: degraded state, no IP address assigned")
+        else:
+            print("ERROR: did not reach routable state")
+    print()
+    return routable
+
+
+def print_address_info(interface):
+    cmd = 'ip address show dev {}'.format(interface)
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+    print()
+
+
+def print_route_info():
+    cmd = 'ip route'
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
     print()
 
 
 def perform_ping_test(interface):
-    cmd = 'gateway_ping_test -v --interface={}'.format(interface)
+    target = None
+    cmd = 'networkctl status --no-pager --no-legend {}'.format(interface)
     print_cmd(cmd)
-    retcode = sp.call(cmd, shell=True)
-    return retcode == 0
+    output = sp.check_output(cmd, shell=True)
+    for line in output.decode(sys.stdout.encoding).splitlines():
+        vals = line.strip().split(' ')
+        if len(vals) >= 2:
+            if vals[0] == 'Gateway:':
+                target = vals[1]
+                print('Got gateway address: {}'.format(target))
+
+    if target:
+        count = 5
+        result = ping(target, interface, count, 4, True)
+        if result['received'] == count:
+            return True
+
+    return False
 
 
 def print_journal_entries(start):
@@ -292,15 +326,23 @@ def main():
     time.sleep(20)
 
     print_head("Wait for interface to be routable")
-    wait_for_routable(args.interface)
+    reached_routable = wait_for_routable(args.interface)
 
-    # Check connection by ping or link status
-    print_head("Perform a ping test")
-    test_result = perform_ping_test(args.interface)
-    if test_result:
-        print("Connection test passed\n")
-    else:
-        print("Connection test failed\n")
+    test_result = False
+    if reached_routable:
+        print_head("Display address")
+        print_address_info(args.interface)
+
+        print_head("Display route table")
+        print_route_info()
+
+        # Check connection by ping or link status
+        print_head("Perform a ping test")
+        test_result = perform_ping_test(args.interface)
+        if test_result:
+            print("Connection test passed\n")
+        else:
+            print("Connection test failed\n")
 
     delete_test_config()
     netplan_config_restore()
@@ -312,6 +354,8 @@ def main():
     if not test_result:
         print_journal_entries(start_time)
         raise SystemExit(1)
+
+    print_journal_entries(start_time)
 
 
 if __name__ == "__main__":

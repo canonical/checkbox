@@ -17,6 +17,7 @@ import subprocess as sp
 import sys
 import time
 
+from gateway_ping_test import ping
 
 print = functools.partial(print, flush=True)
 
@@ -82,41 +83,146 @@ def list_aps(args):
     return count
 
 
-def open_connection(args):
-    print_head("Connection attempt")
-    cmd = "nmcli d wifi connect {} ifname {} name TEST_CON".format(
-        args.essid, args.device)
+def print_address_info(interface):
+    cmd = 'ip address show dev {}'.format(interface)
     print_cmd(cmd)
     sp.call(cmd, shell=True)
-    cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(
-        args.device)
+    print()
+
+
+def print_route_info():
+    cmd = 'ip route'
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+    print()
+
+
+def perform_ping_test(interface):
+    target = None
+    cmd = 'nmcli -g IP4.GATEWAY c show TEST_CON'
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
-    state = output.decode(sys.stdout.encoding).strip()
-    print(state)
-    rc = 1
-    if state.startswith('100'):
-        rc = 0
+    target = output.decode(sys.stdout.encoding).strip()
+    print('Got gateway address: {}'.format(target))
+
+    if target:
+        count = 5
+        result = ping(target, interface, count, 4, True)
+        if result['received'] == count:
+            return True
+
+    return False
+
+
+def wait_for_connected(interface, max_wait=5):
+    connected = False
+    attempts = 0
+    while not connected and attempts < max_wait:
+        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(
+            args.device)
+        print_cmd(cmd)
+        output = sp.check_output(cmd, shell=True)
+        state = output.decode(sys.stdout.encoding).strip()
+        print(state)
+
+        if state.startswith('100'):
+            connected = True
+            break
+        time.sleep(1)
+        attempts += 1
+    if connected:
+        print("Reached connected state")
+    else:
+        print("ERROR: did not reach connected state")
     print()
+    return connected
+
+
+def open_connection(args):
+    # Configure the connection
+    # ipv4.dhcp-timeout 30 : ensure plenty of time to get address
+    # ipv6.method ignore : I believe that NM can report the device as Connected
+    #                      if an IPv6 address is setup. This should ensure in
+    #                      this test we are using IPv4
+    print_head("Connection attempt")
+    cmd = ("nmcli c add con-name TEST_CON "
+           "ifname {} "
+           "type wifi "
+           "ssid {} "
+           "ipv4.dhcp-timeout 30 "
+           "ipv6.method ignore".format(args.device, args.essid))
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+
+    # Make sure the connection is brought up
+    cmd = "nmcli c up TEST_CON"
+    print_cmd(cmd)
+    sp.call(cmd, shell=True)
+    print()
+
+    print_head("Ensure interface is connected")
+    reached_connected = wait_for_connected(args.device)
+
+    rc = 1
+    if reached_connected:
+        print_head("Display address")
+        print_address_info(args.device)
+
+        print_head("Display route table")
+        print_route_info()
+
+        print_head("Perform a ping test")
+        test_result = perform_ping_test(args.device)
+        if test_result:
+            rc = 0
+            print("Connection test passed\n")
+        else:
+            print("Connection test failed\n")
     return rc
 
 
 def secured_connection(args):
+    # Configure the connection
+    # ipv4.dhcp-timeout 30 : ensure plenty of time to get address
+    # ipv6.method ignore : I believe that NM can report the device as Connected
+    #                      if an IPv6 address is setup. This should ensure in
+    #                      this test we are using IPv4
     print_head("Connection attempt")
-    cmd = ("nmcli --wait 180 d wifi connect {} password {} ifname {} name "
-           "TEST_CON".format(args.essid, args.psk, args.device))
+    cmd = ("nmcli c add con-name TEST_CON "
+           "ifname {} "
+           "type wifi "
+           "ssid {} "
+           "wifi-sec.key-mgmt wpa-psk "
+           "wifi-sec.psk {} "
+           "ipv4.dhcp-timeout 30 "
+           "ipv6.method ignore".format(args.device, args.essid, args.psk))
     print_cmd(cmd)
     sp.call(cmd, shell=True)
-    cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(
-        args.device)
+
+    # Make sure the connection is brought up
+    cmd = "nmcli c up TEST_CON"
     print_cmd(cmd)
-    output = sp.check_output(cmd, shell=True)
-    state = output.decode(sys.stdout.encoding).strip()
-    print(state)
-    rc = 1
-    if state.startswith('100'):
-        rc = 0
+    sp.call(cmd, shell=True)
     print()
+
+    print_head("Ensure interface is connected")
+    reached_connected = wait_for_connected(args.device)
+
+    rc = 1
+    if reached_connected:
+        print_head("Display address")
+        print_address_info(args.device)
+
+        print_head("Display route table")
+        print_route_info()
+
+        print_head("Perform a ping test")
+        test_result = perform_ping_test(args.device)
+        if test_result:
+            rc = 0
+            print("Connection test passed\n")
+        else:
+            print("Connection test failed\n")
     return rc
 
 

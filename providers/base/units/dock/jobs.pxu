@@ -553,7 +553,7 @@ id: dock/networking-gateway-ping
 plugin: user-interact-verify
 category_id: dock-network
 depends: dock/cold-plug ethernet/detect
-command: gateway_ping_test
+command: gateway_ping_test.py
 estimated_duration: 10.00
 _summary: Ping test using dock's Ethernet connectivity
 _purpose:
@@ -1209,7 +1209,7 @@ depends: ethernet/detect
 estimated_duration: 1.2
 _summary: Network status before suspend
 _description: Record the current network before suspending.
-command: set -o pipefail; gateway_ping_test | tee "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt
+command: set -o pipefail; gateway_ping_test.py | tee "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt
 
 plugin: shell
 id: dock/audio-before-suspend
@@ -1228,7 +1228,7 @@ id: dock/networking-gateway-ping-after-suspend
 category_id: dock-network
 plugin: shell
 depends: suspend/suspend_advanced ethernet/detect
-command: gateway_ping_test
+command: gateway_ping_test.py
 estimated_duration: 2.00
 _summary: Network gateway ping after suspend
 _description: Tests whether the system has a working Internet connection.
@@ -1544,7 +1544,7 @@ command:
     if create_connection.py wifi "$WPA_BG_SSID" --security=wpa --key="$WPA_BG_PSK"; then
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
     else
         exit 1
     fi
@@ -1569,7 +1569,7 @@ command:
     if create_connection.py wifi "$OPEN_BG_SSID"; then
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
     else
         exit 1
     fi
@@ -1594,7 +1594,7 @@ command:
     if create_connection.py wifi "$WPA_N_SSID" --security=wpa --key="$WPA_N_PSK"; then
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
     else
         exit 1
     fi
@@ -1619,7 +1619,7 @@ command:
     if create_connection.py wifi "$OPEN_N_SSID"; then
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
     else
         exit 1
     fi
@@ -1645,7 +1645,7 @@ command:
     if create_connection.py wifi "$WPA_AC_SSID" --security=wpa --key="$WPA_AC_PSK"; then
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
     else
         exit 1
     fi
@@ -1671,7 +1671,7 @@ command:
     if create_connection.py wifi "$OPEN_AC_SSID"; then
         INTERFACE=$(nmcli dev status | awk '/802-11-wireless/ {print $1}')
         iw dev "$INTERFACE" link
-        gateway_ping_test --interface="$INTERFACE"
+        gateway_ping_test.py --interface="$INTERFACE"
     else
         exit 1
     fi

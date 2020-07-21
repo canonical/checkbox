@@ -109,7 +109,7 @@ number of the stock ones. In launchers version 1 there are 4 stock reports you
 may use:
 
     * ``text`` - print results as text on standard output
-    * ``submission_files`` - write ``html``, ``xlsx``, ``json`` and ``tar.xz``
+    * ``submission_files`` - write ``html``, ``json`` and ``tar.xz``
       files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
       ``$XDG_DATA_HOME`` is not defined.
     * ``certification`` - send results to certification site

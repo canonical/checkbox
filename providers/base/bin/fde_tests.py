@@ -93,11 +93,11 @@ def main():
     print(cryptinfo, '\n')
 
     # use the type as the final arbiter of success
-    regexp = re.compile(r'type:\ *LUKS\d$')
+    regexp = re.compile(r'type:\ *LUKS\d$', re.MULTILINE)
     if regexp.search(cryptinfo):
         print('Full Disk Encryption is operational on this device')
     else:
-        raise SystemExit('ERROR: cryptsetup did not report LUKS1 in use')
+        raise SystemExit('ERROR: cryptsetup did not report LUKS in use')
 
 
 if __name__ == "__main__":

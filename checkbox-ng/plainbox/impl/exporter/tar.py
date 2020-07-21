@@ -32,7 +32,6 @@ from tempfile import SpooledTemporaryFile
 
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
-from plainbox.impl.exporter.xlsx import XLSXSessionStateExporter
 from plainbox.impl.providers import get_providers
 from plainbox.impl.unit.exporter import ExporterUnitSupport
 
@@ -66,19 +65,10 @@ class TARSessionStateExporter(SessionStateExporterBase):
 
         job_state_map = manager.default_device_context.state.job_state_map
         with tarfile.TarFile.open(None, 'w:xz', stream, preset=preset) as tar:
-            for fmt in ('html', 'json', 'junit', 'xlsx'):
-                if fmt == 'xlsx':
-                    options_list = [
-                        XLSXSessionStateExporter.OPTION_WITH_SYSTEM_INFO,
-                        XLSXSessionStateExporter.OPTION_WITH_SUMMARY,
-                        XLSXSessionStateExporter.OPTION_WITH_DESCRIPTION,
-                        XLSXSessionStateExporter.OPTION_WITH_TEXT_ATTACHMENTS,
-                    ]
-                    exporter = XLSXSessionStateExporter(options_list)
-                else:
-                    unit = self._get_all_exporter_units()[
-                        'com.canonical.plainbox::{}'.format(fmt)]
-                    exporter = Jinja2SessionStateExporter(exporter_unit=unit)
+            for fmt in ('html', 'json', 'junit'):
+                unit = self._get_all_exporter_units()[
+                    'com.canonical.plainbox::{}'.format(fmt)]
+                exporter = Jinja2SessionStateExporter(exporter_unit=unit)
                 with SpooledTemporaryFile(max_size=102400, mode='w+b') as _s:
                     exporter.dump_from_session_manager(manager, _s)
                     tarinfo = tarfile.TarInfo(name="submission.{}".format(fmt))

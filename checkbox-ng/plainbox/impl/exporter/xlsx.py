@@ -31,8 +31,9 @@ from base64 import standard_b64decode
 from collections import defaultdict, OrderedDict
 import re
 
-from xlsxwriter.workbook import Workbook
-from xlsxwriter.utility import xl_rowcol_to_cell
+# Lazy load these modules
+# from xlsxwriter.workbook import Workbook
+# from xlsxwriter.utility import xl_rowcol_to_cell
 
 from plainbox import get_version_string
 from plainbox.abc import IJobResult
@@ -541,6 +542,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     self._lineno, max_level + 1, result_map[job]['summary'],
                     self.format08 if self._lineno % 2 else self.format09)
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
+                    from xlsxwriter.utility import xl_rowcol_to_cell
                     link_cell = xl_rowcol_to_cell(self._lineno, max_level + 1)
                     self.worksheet3.write_url(
                         self._lineno, max_level + 1,
@@ -792,6 +794,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         """
         Public method to dump the XLSX report to a stream
         """
+        from xlsxwriter.workbook import Workbook
         self.workbook = Workbook(stream, {'constant_memory': True})
         self._set_formats()
         if self.OPTION_WITH_SYSTEM_INFO in self._option_list:

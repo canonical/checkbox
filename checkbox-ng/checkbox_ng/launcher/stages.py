@@ -351,7 +351,7 @@ class ReportsStage(CheckboxUiStage):
                 os.makedirs(self.base_dir)
             for exporter, file_ext in [('html', '.html'),
                                        ('junit', '.junit.xml'),
-                                       ('xlsx', '.xlsx'), ('tar', '.tar.xz')]:
+                                       ('tar', '.tar.xz')]:
                 path = os.path.join(self.base_dir, ''.join(
                     ['submission_', timestamp, file_ext]))
                 self.sa.config.transports['{}_file'.format(exporter)] = {

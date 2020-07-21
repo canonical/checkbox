@@ -74,6 +74,15 @@ _CDECL_32_OPC = [
 
 is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
 
+# EAX bitmap explaination
+# [31:28] Reserved
+# [27:20] Extended Family
+# [19:16] Extended Model
+# [15:14] Reserved
+# [13:12] Processor Type
+# [11:8]  Family
+# [7:4]   Model
+# [3:0]   Stepping
 CPUIDS = {
         "Amber Lake":       ['0x806e9'],
         "AMD EPYC":         ['0x800f12'],
@@ -96,6 +105,7 @@ CPUIDS = {
         "Penryn":           ['0x1067a'],
         "Sandy Bridge":     ['0x206a', '0x206d6', '0x206d7'],
         "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
+        "Tiger Lake":       ['0x806c1'],
         "Westmere":         ['0x2065', '0x206c', '0x206f'],
         "Whisky Lake":      ['0x806eb', '0x806ec'],
         }

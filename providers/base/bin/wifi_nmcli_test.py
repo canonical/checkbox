@@ -99,7 +99,7 @@ def print_route_info():
 
 def perform_ping_test(interface):
     target = None
-    cmd = 'nmcli -g IP4.GATEWAY c show TEST_CON'
+    cmd = 'nmcli --mode tabular --terse --fields IP4.GATEWAY c show TEST_CON'
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     target = output.decode(sys.stdout.encoding).strip()
@@ -107,7 +107,7 @@ def perform_ping_test(interface):
 
     if target:
         count = 5
-        result = ping(target, interface, count, 4, True)
+        result = ping(target, interface, count, 10, True)
         if result['received'] == count:
             return True
 
@@ -149,6 +149,8 @@ def open_connection(args):
            "ifname {} "
            "type wifi "
            "ssid {} "
+           "-- "
+           "ipv4.method auto "
            "ipv4.dhcp-timeout 30 "
            "ipv6.method ignore".format(args.device, args.essid))
     print_cmd(cmd)
@@ -192,8 +194,10 @@ def secured_connection(args):
            "ifname {} "
            "type wifi "
            "ssid {} "
+           "-- "
            "wifi-sec.key-mgmt wpa-psk "
            "wifi-sec.psk {} "
+           "ipv4.method auto "
            "ipv4.dhcp-timeout 30 "
            "ipv6.method ignore".format(args.device, args.essid, args.psk))
     print_cmd(cmd)

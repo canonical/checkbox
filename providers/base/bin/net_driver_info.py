@@ -25,11 +25,12 @@ for interface in Path("/sys/class/net").iterdir():
 # Add user requested modules to the list. Create "unknown" interfaces if none
 # of the identified interfaces above are using it
 for user_driver in sys.argv[1:]:
-    if Path("/sys/module/{}".format(user_driver)).exists():
-        if not any(x[1] == user_driver for x in driver_list):
-            driver_list.append(("unknown", user_driver))
-    else:
-        print("Requested driver {} not loaded\n".format(user_driver))
+    if user_driver:
+        if Path("/sys/module/{}".format(user_driver)).exists():
+            if not any(x[1] == user_driver for x in driver_list):
+                driver_list.append(("unknown", user_driver))
+        else:
+            print("Requested driver {} not loaded\n".format(user_driver))
 
 # Produce the output
 for interface, driver in driver_list:

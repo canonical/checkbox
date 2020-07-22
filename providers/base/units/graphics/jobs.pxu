@@ -14,8 +14,20 @@ _summary: Test X driver/version for {vendor} {product}
 
 plugin: shell
 category_id: com.canonical.plainbox::graphics
+id: graphics/xorg-process
+requires:
+ package.name == 'xorg'
+ package.name == 'procps'
+command: pgrep -a -f '/usr/lib/xorg/Xorg'
+estimated_duration: 0.100
+_description: Test that the X process is running.
+_summary: Test that the X process is running.
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
 id: graphics/xorg-version
 requires: package.name == "x11-utils"
+depends: graphics/xorg-process
 command: set -o pipefail; xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
 estimated_duration: 0.018
 _description: Test to output the Xorg version
@@ -40,17 +52,6 @@ _description:
      6. Click on Apply
  VERIFICATION:
      Did the resolution on the {vendor} {product} graphics card change as expected?
-
-plugin: shell
-category_id: com.canonical.plainbox::graphics
-id: graphics/xorg-process
-requires:
- package.name == 'xorg'
- package.name == 'procps'
-command: pgrep -a -f '/usr/lib/xorg/Xorg'
-estimated_duration: 0.100
-_description: Test that the X process is running.
-_summary: Test that the X process is running.
 
 plugin: shell
 category_id: com.canonical.plainbox::graphics

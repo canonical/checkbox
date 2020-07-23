@@ -44,7 +44,6 @@ set -e
 
 get_params() {
     disk_device="/dev/sda"
-    short_device="sda"
     verbose=0
     max_load=30
     xfer=4096
@@ -59,9 +58,8 @@ get_params() {
             --verbose) verbose=1
                 ;;
             *) disk_device="/dev/$1"
-               disk_device=`echo $disk_device | sed "s/\/dev\/\/dev/\/dev/g"`
-               short_device=$(echo $disk_device | sed "s/\/dev//g")
-               if [ ! -b $disk_device ] ; then
+               disk_device=$(echo "$disk_device" | sed "s/\/dev\/\/dev/\/dev/g")
+               if [ ! -b "$disk_device" ] ; then
                    echo "Unknown block device \"$disk_device\""
                    echo "Usage: $0 [ --max-load <load> ] [ --xfer <mebibytes> ]"
                    echo "             [ device-file ]"
@@ -82,8 +80,8 @@ get_params() {
 sum_array() {
     local array=("${@}")
     total=0
-    for i in ${array[@]}; do
-        let total+=$i
+    for i in "${array[@]}"; do
+        (( total+=i ))
     done
 } # sum_array()
 
@@ -98,10 +96,10 @@ sum_array() {
 compute_cpu_load() {
     local start_use
     local end_use
-    IFS=' ' read -r -a start_use <<< $1
-    IFS=' ' read -r -a end_use <<< $2
+    IFS=' ' read -r -a start_use <<< "$1"
+    IFS=' ' read -r -a end_use <<< "$2"
     local diff_idle
-    let diff_idle=${end_use[3]}-${start_use[3]}
+    (( diff_idle=end_use[3]-start_use[3] ))
 
     sum_array "${start_use[@]}"
     local start_total=$total
@@ -110,8 +108,8 @@ compute_cpu_load() {
 
     local diff_total
     local diff_used
-    let diff_total=${end_total}-${start_total}
-    let diff_used=$diff_total-$diff_idle
+    (( diff_total=end_total-start_total ))
+    (( diff_used=diff_total-diff_idle ))
 
     if [ "$verbose" == "1" ] ; then
         echo "Start CPU time = $start_total"
@@ -136,7 +134,7 @@ get_params "$@"
 retval=0
 echo "Testing CPU load when reading $xfer MiB from $disk_device"
 echo "Maximum acceptable CPU load is $max_load"
-blockdev --flushbufs $disk_device
+blockdev --flushbufs "$disk_device"
 start_load="$(grep "cpu " /proc/stat | tr -s " " | cut -d " " -f 2-)"
 if [ "$verbose" == "1" ] ; then
     echo "Beginning disk read...."

@@ -4,7 +4,7 @@ set -o errexit
 
 # NB: This script must be run with root privileges in order to have any effect!
 
-CURRENT_VT=`/bin/fgconsole`
+CURRENT_VT=$(/bin/fgconsole)
 
 if [ "$CURRENT_VT" == "" ]
 then
@@ -24,7 +24,7 @@ chvt "$CURRENT_VT"
 sleep 2
 
 # make sure we switched back
-END_VT=`/bin/fgconsole`
+END_VT=$(/bin/fgconsole)
 if [ "$END_VT" -ne "$CURRENT_VT" ]
 then
     echo "didn't get back to the original VT" >&2

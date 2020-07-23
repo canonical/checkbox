@@ -11,7 +11,7 @@ create_working_dirs(){
     # First, create the temp dir and cd there
     echo "Creating Temp directory and moving there ..."
     mkdir -p $TEMP_DIR || return 1
-    cd $TEMP_DIR
+    cd $TEMP_DIR || return 1
     echo "Now working in $PWD ..."
     }
 
@@ -26,18 +26,18 @@ generate_md5(){
     # Generate the md5sum
     echo "Generating md5sums of sample files ..."
     CUR_DIR=$PWD
-    cd $SAMPLE_FILE
-    md5sum * > $TEMP_DIR/$MD5SUM_FILE
+    cd $SAMPLE_FILE || return 1
+    md5sum -- * > $TEMP_DIR/$MD5SUM_FILE
     # Check the sums for paranoia sake
     check_md5 $TEMP_DIR/$MD5SUM_FILE
     rt=$?
-    cd $CUR_DIR
+    cd "$CUR_DIR" || exit 1
     return $rt
 }
 
 check_md5(){
     echo "Checking md5sums ..."
-    md5sum -c $1
+    md5sum -c "$1"
     return $?
 }
 
@@ -55,10 +55,10 @@ burn_iso(){
     echo "Beginning image burn ..."
     if [ "$OPTICAL_TYPE" == 'cd' ]
     then
-        wodim -eject dev=$OPTICAL_DRIVE $ISO_NAME
+        wodim -eject dev="$OPTICAL_DRIVE" $ISO_NAME
     elif [ "$OPTICAL_TYPE" == 'dvd' ] || [ "$OPTICAL_TYPE" == 'bd' ]
     then
-        growisofs -dvd-compat -Z $OPTICAL_DRIVE=$ISO_NAME
+        growisofs -dvd-compat -Z "$OPTICAL_DRIVE=$ISO_NAME"
     else
         echo "Invalid type specified '$OPTICAL_TYPE'"
         exit 1
@@ -76,9 +76,9 @@ check_disk(){
     echo "Waiting up to 5 minutes for drive to be mounted ..."
     while true; do
         sleep $INTERVAL
-        SLEEP_COUNT=`expr $SLEEP_COUNT + $INTERVAL`
+        SLEEP_COUNT=$((SLEEP_COUNT + INTERVAL))
         
-        mount $OPTICAL_DRIVE 2>&1 |egrep -q "already mounted"
+        mount "$OPTICAL_DRIVE" 2>&1 | grep -E -q "already mounted"
         rt=$?
         if [ $rt -eq 0 ]; then
             echo "Drive appears to be mounted now"
@@ -96,8 +96,8 @@ check_disk(){
         
     echo "Deleting original data files ..."
     rm -rf $SAMPLE_FILE
-    if [ -n "$(mount | grep $OPTICAL_DRIVE)" ]; then
-        MOUNT_PT=$(mount | grep $OPTICAL_DRIVE | awk '{print $3}')
+    if mount | grep -q "$OPTICAL_DRIVE"; then
+        MOUNT_PT=$(mount | grep "$OPTICAL_DRIVE" | awk '{print $3}')
         echo "Disk is mounted to $MOUNT_PT"
     else
         echo "Attempting best effort to mount $OPTICAL_DRIVE on my own"
@@ -105,7 +105,7 @@ check_disk(){
         echo "Creating temp mount point: $MOUNT_PT ..."
         mkdir $MOUNT_PT
         echo "Mounting disk to mount point ..."
-        mount $OPTICAL_DRIVE $MOUNT_PT
+        mount "$OPTICAL_DRIVE" $MOUNT_PT
         rt=$?
         if [ $rt -ne 0 ]; then
             echo "ERROR: Unable to re-mount $OPTICAL_DRIVE!" >&2
@@ -120,24 +120,24 @@ check_disk(){
 
 cleanup(){
     echo "Moving back to original location"
-    cd $START_DIR
+    cd "$START_DIR" || exit 1
     echo "Now residing in $PWD"
     echo "Cleaning up ..."
     umount "$MOUNT_PT"
     rm -fr $TEMP_DIR
     echo "Ejecting spent media ..."
-    eject $OPTICAL_DRIVE
+    eject "$OPTICAL_DRIVE"
 }
 
 failed(){
-    echo $1
+    echo "$1"
     echo "Attempting to clean up ..."
     cleanup
     exit 1
 }
 
-if [ -e $1 ]; then
-    OPTICAL_DRIVE=$(readlink -f $1)
+if [ -e "$1" ]; then
+    OPTICAL_DRIVE=$(readlink -f "$1")
 else
     OPTICAL_DRIVE='/dev/sr0'
 fi    

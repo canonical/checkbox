@@ -31,18 +31,18 @@ DESTINATION=$(mktemp --tmpdir bluetooth-stress.XXXXXX)
 REMOTE=$RANDOM
 SIZEKB=10240
 echo "Creating ${SIZEKB}KB  file to test transfer"
-dd if=/dev/urandom of=$ORIGIN count=$SIZEKB bs=1024
-ORIGIN_SUM=$(sha256sum $ORIGIN | cut -f 1 -d ' ')
+dd if=/dev/urandom of="$ORIGIN" count=$SIZEKB bs=1024
+ORIGIN_SUM=$(sha256sum "$ORIGIN" | cut -f 1 -d ' ')
 set -o pipefail
 echo "Sending file using Bluetooth"
-time obexftp -v -b $BTDEVADDR -o $REMOTE --put $ORIGIN 2>&1 | ansi_parser.py
+time obexftp -v -b "$BTDEVADDR" -o $REMOTE --put "$ORIGIN" 2>&1 | ansi_parser.py
 sleep 5
 echo "Receiving file using Bluetooth"
-time obexftp -v -b $BTDEVADDR -o $DESTINATION --get $REMOTE 2>&1 | ansi_parser.py
+time obexftp -v -b "$BTDEVADDR" -o "$DESTINATION" --get $REMOTE 2>&1 | ansi_parser.py
 # Now checksum destination and compare
-DESTINATION_SUM=$(sha256sum $DESTINATION | cut -f 1 -d ' ')
+DESTINATION_SUM=$(sha256sum "$DESTINATION" | cut -f 1 -d ' ')
 # Clean up before reporting
-rm $ORIGIN $DESTINATION
+rm "$ORIGIN" "$DESTINATION"
 if [ "$ORIGIN_SUM" = "$DESTINATION_SUM" ]; then
   echo "Checksums match, file transfer succeeded"
   exit 0

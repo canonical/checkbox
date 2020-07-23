@@ -47,7 +47,7 @@ for disk in "$@"; do
             MIN_BUF_READ=7
             
             # Increase MIN_BUF_READ if a USB3 device is plugged in a USB3 hub port
-            if  [[ $dev_path =~ ((.*usb[0-9]+).*\/)[0-9]-[0-9\.:\-]+\/.* ]]; then
+            if  [[ $dev_path =~ ((.*usb[0-9]+).*\/)[0-9]-[0-9\.:-]+/.* ]]; then
                 device_version=$(cat '/sys/'"${BASH_REMATCH[1]}"'/version')
                 hub_port_version=$(cat '/sys/'"${BASH_REMATCH[2]}"'/version')
                 if [ "$(echo "$device_version >= 3.00"|bc -l)" -eq 1 ] && [ "$(echo "$hub_port_version >= 3.00"|bc -l)" -eq 1 ]; then

@@ -2,15 +2,15 @@
 
 # Establish the system type based on DMI info
 TYPE=$(dmidecode -t 3 | awk '/Type:/ { print $2 }')
-echo "Type: " $TYPE
+echo "Type: " "$TYPE"
 
 BATTERY="NO"
-for device in `find /sys -name "type"`
+while IFS= read -r -d '' device
 do
-    if [ "$(cat $device)" == "Battery" ]; then
+    if [ "$(cat "$device")" == "Battery" ]; then
         BATTERY="YES"
     fi
-done
+done <   <(find /sys -name "type" -print0)
 
 echo "Battery: " $BATTERY
 

@@ -23,8 +23,8 @@
 # human validate that record/playback is working, human can speak into
 # microphone and just ensure the speech can be heard instantly in the headset.
 
-[ -x "`which pactl`" ] || exit 1
-[ -x "`which pacat`" ] || exit 1
+[ -x "$(command -v pactl)" ] || exit 1
+[ -x "$(command -v pacat)" ] || exit 1
 
 SINK=$(pactl list | sed -n '/monitor/d;s/Name: \(bluez_sink\.\)/\1/p')
 SOURCE=$(pactl list | sed -n '/monitor/d;s/Name: \(bluez_source\.\)/\1/p')
@@ -33,6 +33,7 @@ SOURCE=$(pactl list | sed -n '/monitor/d;s/Name: \(bluez_source\.\)/\1/p')
 if [ -n "$SINK" ] && [ -n "$SOURCE" ]; then
    PLAYBACK_LOG=$(mktemp --tmpdir audio_bluetooth_loopback.XXXXX)
    RECORD_LOG=$(mktemp --tmpdir audio_bluetooth_loopback.XXXXX)
+   # shellcheck disable=SC2064
    trap "rm $PLAYBACK_LOG $RECORD_LOG" EXIT
    # ensure we exit with failure if parec fails, and not with pacat
    # --playback's error code
@@ -43,14 +44,14 @@ if [ -n "$SINK" ] && [ -n "$SOURCE" ]; then
    # time out after 6 seconds, forcibly kill after 8 seconds if pacat didn't
    # respond
    echo "Recording and playing back, please speak into bluetooth microphone"
-   timeout -k 8 6 pacat $LATENCY --record -v -d $SOURCE 2>$RECORD_LOG | \
-    pacat $LATENCY --playback -v -d $SINK 2>$PLAYBACK_LOG
+   timeout -k 8 6 pacat $LATENCY --record -v -d "$SOURCE" 2>"$RECORD_LOG" | \
+    pacat $LATENCY --playback -v -d "$SINK" 2>"$PLAYBACK_LOG"
 
    echo "RECORD LOG"
-   cat $RECORD_LOG
+   cat "$RECORD_LOG"
    echo ""
    echo "PLAYBACK LOG"
-   cat $PLAYBACK_LOG
+   cat "$PLAYBACK_LOG"
 else
   echo "No bluetooth audio device found"
   exit 1

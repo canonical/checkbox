@@ -19,7 +19,7 @@ while [ $# -gt 0 ]
 do
     case "$1" in
         -p)
-            if echo ${2} | grep -q -c '^-'; then
+            if echo "${2}" | grep -q -c '^-'; then
                 usage
                 exit 1
             fi
@@ -27,7 +27,7 @@ do
             shift
             ;;
         -s)
-            if echo ${2} | grep -q -c '^-'; then
+            if echo "${2}" | grep -q -c '^-'; then
                 usage
                 exit 1
             fi
@@ -42,16 +42,16 @@ do
     shift
 done
 
-if [ -z $server ]; then
+if [ -z "$server" ]; then
     echo "Nothing to do with no server defined. (See $0 --usage)"
     exit 0
 fi
 
 printer=${printer:-PDF}
 
-lpadmin -E -v ipp://${server}/printers/${printer}
-cupsenable ${printer}
-cupsaccept ${printer}
+lpadmin -E -v ipp://"${server}"/printers/"${printer}"
+cupsenable "${printer}"
+cupsaccept "${printer}"
 
-lsb_release -a | lp -t "lsb_release" -d ${printer}
+lsb_release -a | lp -t "lsb_release" -d "${printer}"
 

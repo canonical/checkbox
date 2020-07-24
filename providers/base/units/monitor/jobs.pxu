@@ -395,24 +395,3 @@ _steps:
 _verification:
      Was the interface displayed correctly on the screen?
 flags: also-after-suspend
-
-id: monitor/hdmi-hotplug-automated
-flags: also-after-suspend
-estimated_duration: 15.0
-plugin: shell
-category_id: com.canonical.plainbox::monitor
-_summary: Automated HDMI hotplug test
-_description:
-  Use chamleon board to simulate connection/disconnection of an HDMI monitor.
-environ: HDMI_PORT CHAMELEON_IP
-command:
-  chameleon_hdmi_hotplug.py "$HDMI_PORT" "$CHAMELEON_IP"
-
-id: monitor/edid-stress-automated
-estimated_duration: 30m
-plugin: shell
-category_id: com.canonical.plainbox::monitor
-_summary: Stress DUT by switching through large EDID set
-environ: HDMI_PORT CHAMELEON_IP
-command:
-  chameleon_edid_stress.py "$HDMI_PORT" "$CHAMELEON_IP"

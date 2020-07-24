@@ -262,7 +262,6 @@ _description: QA monitor tests for Snappy Ubuntu Core devices
 include:
 nested_part:
     monitor-manual
-    monitor-automated
 
 id: monitor-manual
 unit: test plan
@@ -275,14 +274,6 @@ include:
     monitor/hdmi-to-vga
     monitor/displayport_hotplug
 
-id: monitor-automated
-unit: test plan
-_name: Automated monitor tests
-_description: Automated monitor tests for Snappy Ubuntu Core devices
-include:
-    monitor/hdmi-hotplug-automated
-    monitor/edid-stress-automated
-
 id: after-suspend-monitor-full
 unit: test plan
 _name: Monitor tests (after suspend)
@@ -290,7 +281,6 @@ _description: QA monitor tests for Snappy Ubuntu Core devices
 include:
 nested_part:
     after-suspend-monitor-manual
-    after-suspend-monitor-automated
 
 id: after-suspend-monitor-manual
 unit: test plan
@@ -302,10 +292,3 @@ include:
     after-suspend-monitor/dvi-to-vga
     after-suspend-monitor/hdmi-to-vga
     after-suspend-monitor/displayport_hotplug
-
-id: after-suspend-monitor-automated
-unit: test plan
-_name: Automated monitor tests (after suspend)
-_description: Automated monitor tests for Snappy Ubuntu Core devices
-include:
-    after-suspend-monitor/hdmi-hotplug-automated

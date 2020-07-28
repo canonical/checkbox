@@ -68,11 +68,10 @@ id: mobilebroadband/maximum_bandwidth_gsm_device{__index__}_{interface}
 depends: mobilebroadband/gsm_connection
 estimated_duration: 330.0
 requires:
- package.name == 'zenity'
  package.name == 'iperf'
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 user: root
-command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw {interface}'
+command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result of the test...")
 _purpose:
  User verification of whether the observed transfer throughput is acceptable
  for the type and maximum speed of device {__index__} ({interface}).
@@ -92,11 +91,10 @@ id: mobilebroadband/maximum_bandwidth_cdma_device{__index__}_{interface}
 depends: mobilebroadband/cdma_connection
 estimated_duration: 330.0
 requires:
- package.name == 'zenity'
  package.name == 'iperf'
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 user: root
-command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw {interface}'
+command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result of the test...")
 _purpose:
  User verification of whether the observed transfer throughput is acceptable
  for the type and maximum speed of device {__index__} ({interface}).

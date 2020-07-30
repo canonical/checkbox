@@ -190,10 +190,7 @@ class Launcher(MainLoopStage, ReportsStage):
             # exited by now, so validation passed
             print(_("Launcher seems valid."))
             return
-        if ctx.args.launcher:
-            self.launcher = load_configs(ctx.args.launcher)
-        else:
-            self.launcher = DefaultLauncherDefinition()
+        self.launcher = load_configs(ctx.args.launcher)
         logging_level = {
             'normal': logging.WARNING,
             'verbose': logging.INFO,

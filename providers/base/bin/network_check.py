@@ -3,7 +3,6 @@
 Check that it's possible to establish a http connection against
 ubuntu.com
 """
-from subprocess import call
 from argparse import ArgumentParser
 import http.client
 import urllib.request
@@ -51,20 +50,11 @@ def main():
                % dict([(protocol, bool2str[value])
                        for protocol, value in results.items()]))
 
-    command = ["zenity", "--title=Network",
-               "--text=%s" % message]
-
-    if all(results.values()):
-        command.append("--info")
-    else:
-        command.append("--error")
-
     if not args.auto:
-        try:
-            call(command)
-        except OSError:
-            print(
-                "Zenity missing; unable to report test result:\n %s" % message)
+        if all(results.values()):
+            print(message)
+        else:
+            print(message, file=sys.stderr)
 
     if any(results.values()):
         return 0

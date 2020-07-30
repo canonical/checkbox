@@ -78,8 +78,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/maximum_resolution
 requires:
  device.category == 'VIDEO'
- package.name == 'zenity'
-command: zenity --info --text "Maximum resolution: $(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
+command: echo "Maximum resolution: $(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
 estimated_duration: 10
 _summary: Test maximum supported resolution
 _description:

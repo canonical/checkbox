@@ -76,3 +76,21 @@ mandatory_include:
     miscellanea/sosreport
     miscellanea/sosreport_attachment
 include:
+
+id: server-miscellaneous-regression
+unit: test plan
+_name: Miscellaneous server cert tests
+_description:
+ Miscellaneous server tests (log checks, dmi data, etc)
+mandatory_include:
+    miscellanea/submission-resources
+    miscellanea/cpuid
+    miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/reboot_firmware
+    miscellanea/efi_pxeboot
+    miscellanea/kernel_taint_test
+    miscellanea/cpus_are_not_samples
+    miscellanea/ipmi_test                      certification-status=blocker
+    miscellanea/bmc_info
+    miscellanea/dmitest_server
+include:

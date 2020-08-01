@@ -37,6 +37,7 @@
 import re
 import sys
 import os
+import glob
 
 from subprocess import Popen, PIPE, check_output, CalledProcessError
 
@@ -362,10 +363,30 @@ def hybrid_graphics_check(xlog):
 
 
 def main():
-    if os.path.isfile("/var/log/Xorg.0.log"):
-        xlog = XorgLog("/var/log/Xorg.0.log")
+    usr_xorg_dir = os.path.expanduser("~/.local/share/xorg/")
+    root_xorg_dir = "/var/log/"
+    xlog = None
+    xorg_owner = []
+    tgt_dir = ""
+
+    # Output the Xorg owner
+    xorg_owner = check_output("ps -o user= -p $(pidof Xorg)",
+                              shell=True,
+                              universal_newlines=True).split()
+
+    # Check the Xorg owner and then judge the Xorg log location
+    if "root" in xorg_owner:
+        tgt_dir = root_xorg_dir
+    elif xorg_owner:
+        tgt_dir = usr_xorg_dir
     else:
-        xlog = XorgLog(os.path.expanduser("~/.local/share/xorg/Xorg.0.log"))
+        print("ERROR: No Xorg process found!", file=sys.stderr)
+
+    if tgt_dir:
+        xorg_file_paths = list(glob.iglob(tgt_dir + 'Xorg.*.log'))
+        target_file = xorg_file_paths[0]
+        xlog = XorgLog(target_file)
+
     results = []
 
     results.append(get_driver_info(xlog))

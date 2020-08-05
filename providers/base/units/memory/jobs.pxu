@@ -46,7 +46,7 @@ estimated_duration: 11000.0
 user: root
 environ: STRESS_NG_MIN_SWAP_SIZE
 requires:
- package.name == 'stress-ng' or executable.name == 'stress-ng'
+ executable.name == 'stress-ng'
 command: stress_ng_test.py memory
 _summary: Stress test of system memory
 _description:

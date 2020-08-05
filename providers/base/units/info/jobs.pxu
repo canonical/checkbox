@@ -43,7 +43,7 @@ id: dmidecode_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
 requires:
-  package.name == 'dmidecode' or executable.name == 'dmidecode'
+  executable.name == 'dmidecode'
   dmi_present.state == 'supported'
 user: root
 command: dmidecode | iconv -t 'utf-8' -c
@@ -54,7 +54,7 @@ _summary: Attach output of dmidecode
 id: lshw_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-requires: package.name == 'lshw' or executable.name == 'lshw'
+requires: executable.name == 'lshw'
 user: root
 command: lshw | iconv -t 'utf-8' -c
 _summary: Attach lshw output
@@ -197,7 +197,7 @@ estimated_duration: 0.1
 plugin: attachment
 command: lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT
 requires:
- package.name == "util-linux" or executable.name == 'lsblk'
+ executable.name == 'lsblk'
 _description: Attaches disk block devices mount points
 _summary: Attach info block devices and their mount points
 
@@ -252,7 +252,7 @@ category_id: com.canonical.plainbox::info
 id: info/hdparm_{name}.txt
 estimated_duration: 1.0
 requires:
- package.name == 'hdparm' or executable.name == 'hdparm'
+ executable.name == 'hdparm'
  block_device.state != 'removable' and block_device.name == '{name}'
 user: root
 command: hdparm -I /dev/{name}
@@ -446,7 +446,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command: lstopo -v 
 estimated_duration: 0.015
-requires: package.name == 'hwloc' or executable.name == 'lstopo'
+requires: executable.name == 'lstopo'
 _description: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo
 
@@ -454,7 +454,7 @@ id: lstopo_visual_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.015
-requires: package.name == 'hwloc' or executable.name == 'lstopo'
+requires: executable.name == 'lstopo'
 _description: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo
 command:

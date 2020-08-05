@@ -347,7 +347,9 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
 id: power-management/light_sensor
 estimated_duration: 10.0
-requires: dmi.product in ['Notebook','Laptop','Portable'] and executable.name == 'monitor-sensor'
+requires:
+  dmi.product in ['Notebook','Laptop','Portable']
+  executable.name == 'monitor-sensor'
 flags: also-after-suspend-manual
 command: light_sensor_test.sh
 _description:

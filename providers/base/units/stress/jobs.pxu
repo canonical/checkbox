@@ -16,7 +16,7 @@ category_id: com.canonical.plainbox::stress
 id: stress/cpu_stress_ng_test
 estimated_duration: 7200.0
 requires:
- package.name == 'stress-ng' or executable.name == 'stress-ng'
+ executable.name == 'stress-ng'
 user: root
 command:
   if [ -n "$STRESS_NG_CPU_TIME" ]

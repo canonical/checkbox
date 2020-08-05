@@ -21,7 +21,7 @@ id: virtualization/verify_lxd
 environ: LXD_TEMPLATE LXD_ROOTFS
 estimated_duration: 30.0
 requires:
- package.name == 'lxd-client' or executable.name == 'lxc'
+ executable.name == 'lxc'
  package.name == 'lxd' or snap.name == 'lxd'
 command: virtualization.py --debug lxd
 _description:

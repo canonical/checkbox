@@ -42,6 +42,7 @@ _summary: Connect to WPA-encrypted 802.11b/g Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11b/g AP with wpa security
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py secured {{ interface }} "$WPA_BG_SSID" "$WPA_BG_PSK"
@@ -64,6 +65,7 @@ _summary: Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11b/g AP
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py open {{ interface }} "$OPEN_BG_SSID"
@@ -86,6 +88,7 @@ _summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11n AP with wpa security
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py secured {{ interface }} "$WPA_N_SSID" "$WPA_N_PSK"
@@ -108,6 +111,7 @@ _summary: Connect to unencrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11n AP
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py open {{ interface }} "$OPEN_N_SSID"
@@ -130,6 +134,7 @@ _summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ac AP with wpa security
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py secured {{ interface }} "$WPA_AC_SSID" "$WPA_AC_PSK"
@@ -153,6 +158,7 @@ _summary: Connect to unencrypted 802.11ac Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11ac AP
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py open {{ interface }} "$OPEN_AC_SSID"
@@ -176,6 +182,7 @@ _summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ax AP with wpa security
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py secured {{ interface }} "$WPA_AX_SSID" "$WPA_AX_PSK"
@@ -199,6 +206,7 @@ _summary: Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11ax AP
 plugin: shell
+user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py open {{ interface }} "$OPEN_AX_SSID"

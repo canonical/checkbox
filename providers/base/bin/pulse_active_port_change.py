@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-pulse-active-port-change.py
+pulse_active_port_change.py
 ========================
 
 This script checks if the active port on either sinks (speakers or headphones)
@@ -47,6 +47,7 @@ import signal
 import subprocess
 
 from checkbox_support.parsers.pactl import parse_pactl_output
+from checkbox_support.snap_utils.system import in_classic_snap
 
 
 class AudioPlugDetection:
@@ -60,6 +61,10 @@ class AudioPlugDetection:
         env[b'LANG'] = b''
         env[b'LANGUAGE'] = b''
         env[b'LC_ALL'] = b'C.UTF-8'
+        if in_classic_snap():
+            prp = '/run/user/{}/snap.{}/../pulse'.format(
+                os.geteuid(), os.getenv('SNAP_NAME'))
+            env[b'PULSE_RUNTIME_PATH'] = prp
         self.unlocalized_env = env
         # set SIGALRM handler
         signal.signal(signal.SIGALRM, self.on_timeout)
@@ -120,7 +125,8 @@ class AudioPlugDetection:
         # Get the initial / baseline configuration
         initial_cfg = self.get_sound_config()
         print("Starting with config: {}".format(initial_cfg))
-        print("You have {} seconds to plug something".format(self.timeout))
+        print("You have {} seconds to plug the item in".format(
+            self.timeout), flush=True)
         # Start the timer
         signal.alarm(self.timeout)
         # run subscribe in a pty as it doesn't fflush() after every event

@@ -99,7 +99,7 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/ipmi_test
 requires:
- package.name == 'ipmitool' or executable.name == 'ipmitool'
+ executable.name == 'ipmitool'
  cpuinfo.platform != 's390x'
 user: root
 command: ipmi_test.py
@@ -199,7 +199,7 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/bmc_info
 requires:
- package.name == 'ipmitool' or executable.name == 'ipmitool'
+ executable.name == 'ipmitool'
  cpuinfo.platform != 's390x'
 estimated_duration: 0.5
 user: root
@@ -214,7 +214,7 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/cpus_are_not_samples
 requires:
-  package.name == 'dmidecode' or executable.name == 'dmidecode'
+  executable.name == 'dmidecode'
   dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root
@@ -228,7 +228,7 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dmitest_server
 requires:
-  package.name == 'dmidecode' or executable.name == 'dmidecode'
+  executable.name == 'dmidecode'
   dmi_present.state == 'supported'
 estimated_duration: 0.5
 user: root

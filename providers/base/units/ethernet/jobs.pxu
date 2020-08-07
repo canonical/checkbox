@@ -63,9 +63,9 @@ id: ethernet/multi_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
- package.name == 'iperf' or executable.name == 'iperf'
- package.name == 'ethtool' or executable.name == 'ethtool'
- package.name == 'nmap' or executable.name == 'nmap'
+ executable.name == 'iperf'
+ executable.name == 'ethtool'
+ executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
 command: network.py test -i {interface} -t iperf --scan-timeout 3600 --fail-threshold 80 --runtime 900 --num_runs 4
@@ -82,9 +82,9 @@ id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
 _summary: Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
- package.name == 'iperf3' or executable.name == 'iperf3'
- package.name == 'ethtool' or executable.name == 'ethtool'
- package.name == 'nmap' or executable.name == 'nmap'
+ executable.name == 'iperf3'
+ executable.name == 'ethtool'
+ executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
@@ -101,9 +101,9 @@ id: ethernet/multi_iperf3_nic_underspeed_device{__index__}_{interface}
 _summary: Underspeed Enabled Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
- package.name == 'iperf3' or executable.name == 'iperf3'
- package.name == 'ethtool' or executable.name == 'ethtool'
- package.name == 'nmap' or executable.name == 'nmap'
+ executable.name == 'iperf3'
+ executable.name == 'ethtool'
+ executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4 --underspeed-ok
@@ -120,7 +120,7 @@ id: ethernet/ethertool_check_device{__index__}_{interface}
 _summary: ethtool check for NIC {interface}
 estimated_duration: 330.0
 requires:
- package.name == 'ethtool' or executable.name == 'ethtool'
+ executable.name == 'ethtool'
 user: root
 command: ethtool {interface}
 _description:
@@ -135,7 +135,7 @@ id: ethernet/ethertool_eee_check_device_{interface}
 _summary: Check ethtool EEE status for NIC {interface}
 estimated_duration: 330.0
 requires:
- package.name == 'ethtool' or executable.name == 'ethtool'
+ executable.name == 'ethtool'
 user: root
 command: ethtool --show-eee {interface} | grep "EEE status: enabled - active"
 _description:

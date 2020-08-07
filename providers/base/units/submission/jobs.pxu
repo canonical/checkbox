@@ -18,7 +18,7 @@ id: raw_devices_dmi_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
 requires:
- package.name == 'dmidecode' or executable.name == 'dmidecode'
+ executable.name == 'dmidecode'
  dmi_present.state == 'supported'
 user: root
 command:

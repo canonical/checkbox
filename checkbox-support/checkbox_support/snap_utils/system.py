@@ -30,8 +30,7 @@ def in_classic_snap():
         with open(os.path.join(snap, 'meta/snap.yaml')) as f:
             for l in f.readlines():
                 if l == "confinement: classic\n":
-                    return False
-        return True
+                    return True
     return False
 
 

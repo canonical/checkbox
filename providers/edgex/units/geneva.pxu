@@ -53,3 +53,10 @@ command: $PLAINBOX_PROVIDER_DATA/geneva/test-sys-mgmt-agent.sh
 user: root
 category_id: edgex
 flags: simple
+
+id: edgex/geneva/network-interfaces
+_summary: Test that services are not listening on external network interfaces
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-network-interfaces.sh
+user: root
+category_id: edgex
+flags: simple

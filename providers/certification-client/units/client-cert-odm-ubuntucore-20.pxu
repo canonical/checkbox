@@ -43,7 +43,6 @@ nested_part:
     mediacard-full
     rtc-full
     serial-full
-    snappy-snap-full
     usb-c-full
     usb-full
     usb3-full
@@ -56,6 +55,7 @@ nested_part:
     i2c-full
     memory-automated
     networking-automated
+    snappy-snap-automated
     wireless-automated
     wireless-wifi-master-mode-auto
     tpm2.0_4.1.1-automated
@@ -76,3 +76,4 @@ exclude:
     mediacard/ms-.*
     mediacard/msp-.*
     mediacard/xd-.*
+    rtc/battery

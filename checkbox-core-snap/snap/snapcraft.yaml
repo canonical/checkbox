@@ -251,6 +251,7 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - lsb-release
       - lshw
       - mesa-utils
       - mokutil

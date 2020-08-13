@@ -131,9 +131,7 @@ class SessionManagerTests(SignalTestCase):
 
     @mock.patch.multiple(
         "plainbox.impl.session.manager", spec_set=True,
-        SessionStorageRepository=mock.DEFAULT,
-        SessionStorage=mock.DEFAULT,
-        WellKnownDirsHelper=mock.DEFAULT)
+        SessionStorage=mock.DEFAULT)
     def test_create(self, **mocks):
         """
         verify that SessionManager.create() correctly sets up
@@ -143,28 +141,18 @@ class SessionManagerTests(SignalTestCase):
             spec_set=SessionStorage)
         # Create the new manager
         manager = SessionManager.create()
-        # Ensure that a default repository was created
-        mocks['SessionStorageRepository'].assert_called_with()
-        repo = mocks['SessionStorageRepository']()
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with(
-            repo.location, 'pbox-')
+        mocks['SessionStorage'].create.assert_called_with('pbox-')
         storage = mocks['SessionStorage'].create()
-        # Ensure that a default directories were created
-        mocks['WellKnownDirsHelper'].assert_called_with(storage)
-        helper = mocks['WellKnownDirsHelper']()
-        helper.populate.assert_called_with()
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(manager.device_context_list, [])
         self.assertEqual(manager.storage, storage)
 
     @mock.patch.multiple(
         "plainbox.impl.session.manager", spec_set=True,
-        SessionStorageRepository=mock.DEFAULT,
         SessionState=mock.DEFAULT,
-        SessionStorage=mock.DEFAULT,
-        WellKnownDirsHelper=mock.DEFAULT)
+        SessionStorage=mock.DEFAULT)
     def test_create_with_unit_list(self, **mocks):
         """
         verify that SessionManager.create_with_unit_list() correctly sets up
@@ -179,28 +167,19 @@ class SessionManagerTests(SignalTestCase):
         # Ensure that a state object was created
         mocks['SessionState'].assert_called_with(unit_list)
         state = mocks['SessionState']()
-        # Ensure that a default repository was created
-        mocks['SessionStorageRepository'].assert_called_with()
-        repo = mocks['SessionStorageRepository']()
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with(repo.location)
+        mocks['SessionStorage'].create.assert_called_with()
         storage = mocks['SessionStorage'].create()
-        # Ensure that a default directories were created
-        mocks['WellKnownDirsHelper'].assert_called_with(storage)
-        helper = mocks['WellKnownDirsHelper']()
-        helper.populate.assert_called_with()
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(manager.state, state)
         self.assertEqual(manager.storage, storage)
 
     @mock.patch.multiple(
         "plainbox.impl.session.manager", spec_set=True,
-        SessionStorageRepository=mock.DEFAULT,
         SessionState=mock.DEFAULT,
         SessionStorage=mock.DEFAULT,
-        SessionDeviceContext=mock.DEFAULT,
-        WellKnownDirsHelper=mock.DEFAULT)
+        SessionDeviceContext=mock.DEFAULT)
     def test_create_with_state(self, **mocks):
         """
         verify that SessionManager.create_with_state() correctly sets up
@@ -212,17 +191,10 @@ class SessionManagerTests(SignalTestCase):
         self.state.unit_list = []
         # Create the new manager
         manager = SessionManager.create_with_state(self.state)
-        # Ensure that a default repository was created
-        mocks['SessionStorageRepository'].assert_called_with()
-        repo = mocks['SessionStorageRepository']()
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with(repo.location)
+        mocks['SessionStorage'].create.assert_called_with()
         storage = mocks['SessionStorage'].create()
-        # Ensure that a default directories were created
-        mocks['WellKnownDirsHelper'].assert_called_with(storage)
-        helper = mocks['WellKnownDirsHelper']()
-        helper.populate.assert_called_with()
         # Ensure that the device context was created with the right state
         # object
         mocks['SessionDeviceContext'].assert_called_with(self.state)

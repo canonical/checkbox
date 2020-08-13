@@ -542,17 +542,20 @@ class CPUScalingTest(object):
             if not self.setGovernor(governor):
                 success = False
 
-            # Verify the current speed is the same as scaling_max_freq
+            # let's run a warm-up task so the CPU can raise its freq
+            performanceTestTime = self.runLoadTest()
+            # Verify the current speed is close to scaling_max_freq
             maximumFrequency = self.getParameter("scaling_max_freq")
             currentFrequency = self.getParameter("scaling_cur_freq")
             if (
                 not maximumFrequency or
                 not currentFrequency or
-                (maximumFrequency != currentFrequency)
+                (float(currentFrequency) < 0.99 * float(maximumFrequency))
             ):
                 logging.error(
-                    "Current cpu frequency of %s is not set to the maximum "
-                    "value of %s" % (currentFrequency, maximumFrequency))
+                    "Current cpu frequency of %s is not close enough to the "
+                    "maximum value of %s" % (
+                        currentFrequency, maximumFrequency))
                 success = False
 
             # Repeat work load test

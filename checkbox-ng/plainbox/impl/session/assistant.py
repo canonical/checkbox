@@ -62,7 +62,7 @@ from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.restart import IRestartStrategy
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import RemoteDebRestartStrategy
-from plainbox.impl.session.storage import SessionStorageRepository
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
 from plainbox.impl.unit.exporter import ExporterError
@@ -119,10 +119,6 @@ class SessionAssistant:
     * The application calls :meth:`__init__()` to create a new session
       assistant object with its own identifier as the only argument. This lets
       multiple programs that use the plainbox APIs co-exists without clashes.
-    * (optionally) The application can call :meth:`use_alternate_repository()`
-      to change the location of the session storage repository. This is where
-      various files are created so if you don't want to use the default
-      location for any reason this is the only chance you have.
     """
 
     # TODO: create a flowchart of possible states
@@ -166,7 +162,6 @@ class SessionAssistant:
         self._app_version = app_version
         self._api_version = api_version
         self._api_flags = api_flags
-        self._repo = SessionStorageRepository()
         self._config = PlainBoxConfig().get()
         Unit.config = self._config
         self._execution_ctrl_list = None  # None is "default"
@@ -190,8 +185,6 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = {
             self.start_new_session: "create a new session from scratch",
             self.get_resumable_sessions: "get resume candidates",
-            self.use_alternate_repository: (
-                "use an alternate storage repository"),
             self.use_alternate_configuration: (
                 "use an alternate configuration system"),
             self.use_alternate_execution_controllers: (
@@ -211,8 +204,6 @@ class SessionAssistant:
                 "configure automatic restart capability")
             allowed_calls[self.use_alternate_restart_strategy] = (
                 "configure automatic restart capability")
-        # Manifest
-        self._manifest_path = '/var/tmp/checkbox-ng/machine-manifest.json'
 
     @property
     def config(self):
@@ -299,35 +290,6 @@ class SessionAssistant:
         self._restart_strategy = strategy
         del UsageExpectation.of(self).allowed_calls[
             self.use_alternate_restart_strategy]
-
-    @raises(UnexpectedMethodCall)
-    def use_alternate_repository(self, pathname: str) -> None:
-        """
-        Setup an alternate location for the session storage repository.
-
-        :param pathname:
-            Directory name (that is created on demand) where sessions are
-            supposed to be stored.
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
-
-        This method can be used to use a non-standard repository location. This
-        is useful for testing, where it is good to separate test sessions from
-        any real data that the user may be using.
-
-        On some platforms, this can be also used to use a better default
-        location. If you have to call this in your application then please open
-        a bug. Plainbox should integrate with all the platforms correctly out
-        of the box.
-        """
-        UsageExpectation.of(self).enforce()
-        self._repo = SessionStorageRepository(pathname)
-        _logger.debug("Using alternate repository: %r", pathname)
-        # NOTE: We expect applications to call this at most once.
-        del UsageExpectation.of(self).allowed_calls[
-            self.use_alternate_repository]
 
     @raises(UnexpectedMethodCall)
     def use_alternate_configuration(self, config):
@@ -417,9 +379,9 @@ class SessionAssistant:
         _logger.debug("Provider selected: %r", provider)
 
     @raises(UnexpectedMethodCall)
-    def get_old_sessions(self, flags: 'Set[str]'={
+    def get_old_sessions(self, flags: 'Set[str]' = {
         SessionMetaData.FLAG_SUBMITTED, SessionMetaData.FLAG_BOOTSTRAPPING},
-            allow_not_flagged: bool=True) -> 'List[Tuple[str, Set[str]]]':
+            allow_not_flagged: bool = True) -> 'List[Tuple[str, Set[str]]]':
         """
         Get the list of previously run sessions.
 
@@ -438,7 +400,7 @@ class SessionAssistant:
             is the likely cause.
         """
         UsageExpectation.of(self).enforce()
-        for storage in self._repo.get_storage_list():
+        for storage in WellKnownDirsHelper.get_storage_list():
             data = storage.load_checkpoint()
             if len(data) == 0:
                 continue
@@ -469,7 +431,7 @@ class SessionAssistant:
             repository, it is silently ignored.
         """
         UsageExpectation.of(self).enforce()
-        for storage in self._repo.get_storage_list():
+        for storage in WellKnownDirsHelper.get_storage_list():
             if storage.id in session_ids:
                 storage.remove()
 
@@ -498,7 +460,7 @@ class SessionAssistant:
         methods to see if session should be resumed instead.
         """
         UsageExpectation.of(self).enforce()
-        self._manager = SessionManager.create(self._repo, prefix=title + '-')
+        self._manager = SessionManager.create(prefix=title + '-')
         self._context = self._manager.add_local_device_context()
         for provider in self._selected_providers:
             if provider.problem_list:
@@ -520,8 +482,6 @@ class SessionAssistant:
             self.get_test_plan: "to get particular test plan object",
             self.select_test_plan: "select the test plan to execute",
             self.get_session_id: "to get the id of currently running session",
-            self.get_session_dir: ("to get the path where current session is"
-                                   "stored"),
             self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
             self.finalize_session: "to finalize session",
         }
@@ -586,7 +546,8 @@ class SessionAssistant:
         self.session_available(self._manager.storage.id)
         _logger.info("Session resumed: %s", session_id)
         if SessionMetaData.FLAG_TESTPLANLESS in self._metadata.flags:
-            UsageExpectation.of(self).allowed_calls = self._get_allowed_calls_in_normal_state()
+            UsageExpectation.of(
+                self).allowed_calls = self._get_allowed_calls_in_normal_state()
         else:
             UsageExpectation.of(self).allowed_calls = {
                 self.select_test_plan: "to save test plan selection",
@@ -618,7 +579,7 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         # let's keep resume_candidates, so we don't have to load data again
         self._resume_candidates = {}
-        for storage in self._repo.get_storage_list():
+        for storage in WellKnownDirsHelper.get_storage_list():
             data = storage.load_checkpoint()
             if len(data) == 0:
                 continue
@@ -647,7 +608,8 @@ class SessionAssistant:
         if self._context.state.metadata.app_blob == b'':
             updated_blob = app_blob
         else:
-            current_dict = json.loads(self._context.state.metadata.app_blob.decode('UTF-8'))
+            current_dict = json.loads(
+                self._context.state.metadata.app_blob.decode('UTF-8'))
             current_dict.update(json.loads(app_blob.decode('UTF-8')))
             updated_blob = json.dumps(current_dict).encode('UTF-8')
         self._context.state.metadata.app_blob = updated_blob
@@ -670,11 +632,6 @@ class SessionAssistant:
         later. Certain tools will allow the user to operate on a session as
         long as the identifier is known. You can use this signal to obtain this
         identifier.
-
-        .. note::
-            The identifier is unique within the storage repository. If you made
-            use of :meth:`use_alternate_repository() then please keep this in
-            mind.
         """
         _logger.debug("Session is now available: %s", session_id)
 
@@ -699,29 +656,6 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         return self._manager.storage.id
-
-    @raises(UnexpectedMethodCall)
-    def get_session_dir(self):
-        """
-        Get the pathname of the session directory.
-
-        :returns:
-            The string that represents the absolute pathname of the session
-            directory. All of the files and directories inside that directory
-            constitute session state.
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
-
-        .. note::
-            The layout of the session is documented but is considered volatile
-            at this stage. The only thing that can be done reliably is a
-            complete archive (backup) of the directory. This is guaranteed to
-            work.
-        """
-        UsageExpectation.of(self).enforce()
-        return self._manager.storage.location
 
     @raises(UnexpectedMethodCall)
     def get_test_plans(self) -> 'List[str]':
@@ -823,7 +757,7 @@ class SessionAssistant:
         desired_job_list = select_jobs(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans] +
-                self._exclude_qualifiers)
+            self._exclude_qualifiers)
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
@@ -910,9 +844,9 @@ class SessionAssistant:
         desired_job_list = select_jobs(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans] +
-                self._exclude_qualifiers +
-                [JobIdQualifier(
-                    'com.canonical.plainbox::collect-manifest', None, False)])
+            self._exclude_qualifiers +
+            [JobIdQualifier(
+                'com.canonical.plainbox::collect-manifest', None, False)])
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
@@ -1258,11 +1192,12 @@ class SessionAssistant:
         for e in expression_list:
             manifest_id_set.update(e.manifest_id_list)
         manifest_list = [unit for unit in self._context.unit_list
-                        if unit.Meta.name == 'manifest entry'
-                        and unit.id in manifest_id_set]
+                         if unit.Meta.name == 'manifest entry'
+                         and unit.id in manifest_id_set]
         manifest_cache = {}
-        if os.path.isfile(self._manifest_path):
-            with open(self._manifest_path, 'rt', encoding='UTF-8') as stream:
+        manifest = WellKnownDirsHelper.manifest_file()
+        if os.path.isfile(manifest):
+            with open(manifest, 'rt', encoding='UTF-8') as stream:
                 manifest_cache = json.load(stream)
         if self._config is not None and self._config.manifest is not Unset:
             for manifest_id in self._config.manifest:
@@ -1310,13 +1245,13 @@ class SessionAssistant:
         Record the manifest on disk.
         """
         manifest_cache = dict()
-        if os.path.isfile(self._manifest_path):
-            with open(self._manifest_path, 'rt', encoding='UTF-8') as stream:
+        manifest = WellKnownDirsHelper.manifest_file()
+        if os.path.isfile(manifest):
+            with open(manifest, 'rt', encoding='UTF-8') as stream:
                 manifest_cache = json.load(stream)
-        os.makedirs(os.path.dirname(self._manifest_path), exist_ok=True)
         manifest_cache.update(manifest_answers)
-        print("Saving manifest to {}".format(self._manifest_path))
-        with open(self._manifest_path, 'wt', encoding='UTF-8') as stream:
+        print("Saving manifest to {}".format(manifest))
+        with open(manifest, 'wt', encoding='UTF-8') as stream:
             json.dump(manifest_cache, stream, sort_keys=True, indent=2)
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
@@ -1410,14 +1345,10 @@ class SessionAssistant:
                 # 'share' the information how to respawn the application
                 # once all the test actions are performed.
                 # tests can read this from $PLAINBOX_PROVIDER_SHARE envvar
-                checkbox_data_dir = os.path.join(
-                    self.get_session_dir(), 'CHECKBOX_DATA')
-                if not os.path.exists(checkbox_data_dir):
-                    oldmask = os.umask(000)
-                    os.mkdir(checkbox_data_dir)
-                    os.umask(oldmask)
+                session_share = WellKnownDirsHelper.session_share(
+                    self.get_session_id)
                 respawn_cmd_file = os.path.join(
-                    checkbox_data_dir, '__respawn_checkbox')
+                    session_share, '__respawn_checkbox')
                 if self._restart_cmd_callback:
                     with open(respawn_cmd_file, 'wt') as f:
                         if isinstance(self._restart_strategy,
@@ -1480,7 +1411,7 @@ class SessionAssistant:
 
     @raises(UnexpectedMethodCall)
     def use_job_result(self, job_id: str, result: 'IJobResult',
-            override_last: bool=False) -> None:
+                       override_last: bool = False) -> None:
         """
         Feed job result back to the session.
 
@@ -1669,7 +1600,7 @@ class SessionAssistant:
             self,
             exporter_id: str,
             transport: ISessionStateTransport,
-            options: 'Sequence[str]'=()
+            options: 'Sequence[str]' = ()
     ) -> dict:
         """
         Export the session using given exporter ID and transport object.
@@ -1718,7 +1649,7 @@ class SessionAssistant:
     @raises(KeyError, OSError)
     def export_to_file(
         self, exporter_id: str, option_list: 'list[str]', dir_path: str,
-        filename: str=None
+        filename: str = None
     ) -> str:
         """
         Export the session to file using given exporter ID.
@@ -1840,8 +1771,6 @@ class SessionAssistant:
             self.export_to_stream: "to export the results to a stream",
             self.finalize_session: "to mark the session as complete",
             self.get_session_id: "to get the id of currently running session",
-            self.get_session_dir: ("to get the path where current session is"
-                                   "stored"),
             self.finish_bootstrap: "to finish bootstrapping",
         }
 
@@ -1850,14 +1779,14 @@ class SessionAssistant:
         for ctrl_cls, args, kwargs in self._ctrl_setup_list:
             self._execution_ctrl_list.append(
                 ctrl_cls(self._context.provider_list, *args, **kwargs))
-        runner_kwargs['jobs_io_log_dir'] = os.path.join(
-            self._manager.storage.location, 'io-logs')
+        runner_kwargs['jobs_io_log_dir'] = WellKnownDirsHelper.io_logs(
+            self._manager.storage.id)
         runner_kwargs['command_io_delegate'] = self._command_io_delegate
         runner_kwargs['execution_ctrl_list'] = (
             self._execution_ctrl_list or None)
 
         self._runner = runner_cls(
-            self._manager.storage.location,
+            self._manager.storage.id,
             self._context.provider_list,
             **runner_kwargs)
         return

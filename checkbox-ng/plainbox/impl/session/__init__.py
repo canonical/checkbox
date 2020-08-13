@@ -53,15 +53,7 @@ of each module and class for additional details though.
 
     This class knows how properly to save and load bytes and manages a
     directory for all the filesystem entries associated with a particular
-    session.  It holds no references to a session though. Typically the class
-    is not instantiated directly but instead comes from helper methods of
-    :class:`SessionStorageRepository`.
-
-:class:`SessionStorageRepository`
-
-    This class knows how to enumerate possible instances of
-    :class:`SessionStorage` from a given location in the filesystem. It also
-    knows how to obtain a default location using XDG standards.
+    session. It holds no references to a session though.
 """
 
 from plainbox.impl.session.jobs import InhibitionCause
@@ -74,7 +66,6 @@ from plainbox.impl.session.resume import SessionResumeError
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.storage import SessionStorage
-from plainbox.impl.session.storage import SessionStorageRepository
 
 __all__ = (
     'JobReadinessInhibitor',
@@ -85,7 +76,6 @@ __all__ = (
     'SessionResumeError',
     'SessionState',
     'SessionStorage',
-    'SessionStorageRepository',
     'UndesiredJobReadinessInhibitor',
     'InhibitionCause',
 )

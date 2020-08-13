@@ -45,6 +45,7 @@ from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.runner import slugify
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.vendor import extcmd
 
 logger = logging.getLogger("plainbox.unified")
@@ -58,14 +59,13 @@ class UnifiedRunner(IJobRunner):
     environment for job's command can run in.
     """
 
-    def __init__(self, session_dir, provider_list, jobs_io_log_dir,
+    def __init__(self, session_id, provider_list, jobs_io_log_dir,
                  command_io_delegate=None, dry_run=False,
                  execution_ctrl_list=None, stdin=False,
                  normal_user_provider=lambda: None,
                  password_provider=sudo_password_provider.get_sudo_password,
                  extra_env=None):
-        self._session_dir = session_dir
-        self._session_dir = session_dir
+        self._session_id = session_id
         self._provider_list = provider_list
         if execution_ctrl_list is not None:
             logger.info("Using custom execution controllers is deprecated")
@@ -264,19 +264,14 @@ class UnifiedRunner(IJobRunner):
             # Notify that the process has finished
             extcmd_popen._delegate.on_end(proc.returncode)
             return proc.returncode
-        if not os.path.isdir(os.path.join(self._session_dir, "CHECKBOX_DATA")):
-            oldmask = os.umask(000)
-            os.makedirs(os.path.join(self._session_dir, "CHECKBOX_DATA"))
-            os.umask(oldmask)
         # Setup the executable nest directory
         with self.configured_filesystem(job) as nest_dir:
             # Get the command and the environment.
             # of this execution controller
-            cmd = get_execution_command(
-                job, environ, self._session_dir, nest_dir, target_user,
-                self._extra_env)
-            env = get_execution_environment(
-                job, environ, self._session_dir, nest_dir)
+            cmd = get_execution_command(job, environ, self._session_id,
+                                        nest_dir, target_user, self._extra_env)
+            env = get_execution_environment(job, environ, self._session_id,
+                                            nest_dir)
             if self._user_provider():
                 env['NORMAL_USER'] = self._user_provider()
             # run the command
@@ -416,7 +411,7 @@ class FakeJobRunner(UnifiedRunner):
         return builder.get_result()
 
 
-def get_execution_environment(job, environ, session_dir, nest_dir):
+def get_execution_environment(job, environ, session_id, nest_dir):
     """
     Get the environment required to execute the specified job:
 
@@ -427,10 +422,9 @@ def get_execution_environment(job, environ, session_dir, nest_dir):
         environment definitions that apply to all jobs. It is used to provide
         values for missing environment variables that are required by the job
         (as expressed by the environ key in the job definition file).
-    :param session_dir:
-        Base directory of the session this job will execute in.  This directory
-        is used to co-locate some data that is unique to this execution as well
-        as data that is shared by all executions.
+    :param session_id:
+        ID of the session that will be used to retrieve the location of session
+        data
     :param nest_dir:
         A directory with a nest of symlinks to all executables required to
         execute the specified job. This argument may or may not be used,
@@ -472,7 +466,8 @@ def get_execution_environment(job, environ, session_dir, nest_dir):
     env['PATH'] = os.pathsep.join(
         [nest_dir] + env.get("PATH", "").split(os.pathsep))
     # Add per-session shared state directory
-    env['PLAINBOX_SESSION_SHARE'] = os.path.join(session_dir, "CHECKBOX_DATA")
+    env['PLAINBOX_SESSION_SHARE'] = WellKnownDirsHelper.session_share(
+        session_id)
 
     def set_if_not_none(envvar, source):
         """Update env if the source variable is not None"""
@@ -495,7 +490,7 @@ def get_execution_environment(job, environ, session_dir, nest_dir):
     return env
 
 
-def get_differential_execution_environment(job, environ, session_dir, nest_dir,
+def get_differential_execution_environment(job, environ, session_id, nest_dir,
                                            extra_env=None):
     """
     Get the environment required to execute the specified job:
@@ -508,10 +503,9 @@ def get_differential_execution_environment(job, environ, session_dir, nest_dir,
         provide values for missing environment variables that are required
         by the job (as expressed by the environ key in the job definition
         file).
-    :param session_dir:
-        Base directory of the session this job will execute in.
-        This directory is used to co-locate some data that is unique to
-        this execution as well as data that is shared by all executions.
+    :param session_id:
+        ID of the session that will be used to retrieve the location of session
+        data
     :param nest_dir:
         A directory with a nest of symlinks to all executables required to
         execute the specified job. This is simply passed to
@@ -527,7 +521,7 @@ def get_differential_execution_environment(job, environ, session_dir, nest_dir,
     are always retained.
     """
     base_env = os.environ
-    target_env = get_execution_environment(job, environ, session_dir, nest_dir)
+    target_env = get_execution_environment(job, environ, session_id, nest_dir)
     delta_env = {
         key: value
         for key, value in target_env.items()
@@ -550,7 +544,7 @@ def get_differential_execution_environment(job, environ, session_dir, nest_dir,
     return delta_env
 
 
-def get_execution_command(job, environ, session_dir,
+def get_execution_command(job, environ, session_id,
                           nest_dir, target_user=None, extra_env=None):
     """Generate a command argv to run in the shell."""
     cmd = []
@@ -566,9 +560,9 @@ def get_execution_command(job, environ, session_dir,
     cmd += ['env']
     if target_user:
         env = get_differential_execution_environment(
-            job, environ, session_dir, nest_dir, extra_env)
+            job, environ, session_id, nest_dir, extra_env)
     else:
-        env = get_execution_environment(job, environ, session_dir, nest_dir)
+        env = get_execution_environment(job, environ, session_id, nest_dir)
         if extra_env:
             env.update(extra_env)
     cmd += ["{key}={value}".format(key=key, value=value)

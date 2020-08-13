@@ -24,8 +24,7 @@
 This module contains glue code that allows one to create and manage sessions
 and their filesystem presence. It allows
 :class:`~plainbox.impl.session.state.SessionState` to be de-coupled
-from :class:`~plainbox.impl.session.storage.SessionStorageRepository`,
-:class:`~plainbox.impl.session.storage.SessionStorage`,
+from :class:`~plainbox.impl.session.storage.SessionStorage`,
 :class:`~plainbox.impl.session.suspend.SessionSuspendHelper`
 and :class:`~plainbox.impl.session.suspend.SessionResumeHelper`.
 """
@@ -35,9 +34,6 @@ import atexit
 import contextlib
 import errno
 import logging
-import os
-import shutil
-import tempfile
 
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl import pod
@@ -47,51 +43,11 @@ from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.storage import LockedStorageError
 from plainbox.impl.session.storage import SessionStorage
-from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.session.suspend import SessionSuspendHelper
 from plainbox.impl.unit.testplan import TestPlanUnit
 from plainbox.vendor import morris
 
 logger = logging.getLogger("plainbox.session.manager")
-
-
-class WellKnownDirsHelper(pod.POD):
-    """
-    Helper class that knows about well known directories for SessionStorage.
-
-    This class simply gets rid of various magic directory names that we
-    associate with session storage. It also provides a convenience utility
-    method :meth:`populate()` to create all of those directories, if needed.
-    """
-
-    storage = pod.Field(
-        doc="SessionStorage associated with this helper",
-        type=SessionStorage,
-        initial=pod.MANDATORY,
-        assign_filter_list=[pod.const, pod.typed])
-
-    def populate(self):
-        """
-        Create all of the well known directories that are expected to exist
-        inside a freshly created session storage directory
-        """
-        for dirname in self.all_directories:
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-
-    @property
-    def all_directories(self):
-        """
-        a list of all well-known directories
-        """
-        return [self.io_log_pathname]
-
-    @property
-    def io_log_pathname(self):
-        """
-        full path of the directory where per-job IO logs are stored
-        """
-        return os.path.join(self.storage.location, "io-logs")
 
 
 def at_most_one_context_filter(
@@ -191,7 +147,7 @@ class SessionManager(pod.POD):
             return self.default_device_context.state
 
     @classmethod
-    def create(cls, repo=None, prefix='pbox-'):
+    def create(cls, prefix='pbox-'):
         """
         Create an empty session manager.
 
@@ -203,24 +159,15 @@ class SessionManager(pod.POD):
         and populates the session storage with all of the well known
         directories (using :meth:`WellKnownDirsHelper.populate()`).
 
-        :param repo:
-            If specified then this particular repository will be used to create
-            the storage for this session. If left out, a new repository is
-            constructed with the default location.
-        :ptype repo:
-            :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
         :return:
             fresh :class:`SessionManager` instance
         """
         logger.debug("SessionManager.create()")
-        if repo is None:
-            repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location, prefix)
-        WellKnownDirsHelper(storage).populate()
+        storage = SessionStorage.create(prefix)
         return cls([], storage)
 
     @classmethod
-    def create_with_state(cls, state, repo=None):
+    def create_with_state(cls, state):
         """
         Create a session manager by wrapping existing session state.
 
@@ -229,25 +176,16 @@ class SessionManager(pod.POD):
 
         :param stage:
             A pre-existing SessionState object.
-        :param repo:
-            If specified then this particular repository will be used to create
-            the storage for this session. If left out, a new repository is
-            constructed with the default location.
-        :ptype repo:
-            :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
         :return:
             fresh :class:`SessionManager` instance
         """
         logger.debug("SessionManager.create_with_state()")
-        if repo is None:
-            repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location)
-        WellKnownDirsHelper(storage).populate()
+        storage = SessionStorage.create()
         context = SessionDeviceContext(state)
         return cls([context], storage)
 
     @classmethod
-    def create_with_unit_list(cls, unit_list=None, repo=None):
+    def create_with_unit_list(cls, unit_list=None):
         """
         Create a session manager with a fresh session.
 
@@ -257,12 +195,6 @@ class SessionManager(pod.POD):
         :param unit_list:
             If specified then this will be the initial list of units known by
             the session state object.
-        :param repo:
-            If specified then this particular repository will be used to create
-            the storage for this session. If left out, a new repository is
-            constructed with the default location.
-        :ptype repo:
-            :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
         :return:
             fresh :class:`SessionManager` instance
         """
@@ -270,11 +202,8 @@ class SessionManager(pod.POD):
         if unit_list is None:
             unit_list = []
         state = SessionState(unit_list)
-        if repo is None:
-            repo = SessionStorageRepository()
-        storage = SessionStorage.create(repo.location)
+        storage = SessionStorage.create()
         context = SessionDeviceContext(state)
-        WellKnownDirsHelper(storage).populate()
         return cls([context], storage)
 
     @classmethod
@@ -534,12 +463,10 @@ class SessionManager(pod.POD):
         if not cls._throwaway_managers.get(key):
             # for safety let's create more persistent tempdir than
             # the TemporaryDirectory context_manager
-            tmp = tempfile.mkdtemp()
-            atexit.register(lambda: shutil.rmtree(tmp))
-            repo = SessionStorageRepository(tmp)
             if provider_list is None:
                 provider_list = get_providers()
-            manager = cls.create(repo=repo)
+            manager = cls.create(prefix="throwaway-")
+            atexit.register(lambda: manager.destroy())
             manager.add_local_device_context()
             device_context = manager.default_device_context
             cls._throwaway_managers[key] = manager

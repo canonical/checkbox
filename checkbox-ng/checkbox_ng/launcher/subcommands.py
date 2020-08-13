@@ -24,7 +24,6 @@ from collections import defaultdict
 from string import Formatter
 from tempfile import TemporaryDirectory
 import copy
-import datetime
 import fnmatch
 import gettext
 import json
@@ -32,7 +31,6 @@ import logging
 import operator
 import os
 import re
-import socket
 import sys
 import tarfile
 import time
@@ -42,19 +40,14 @@ from plainbox.i18n import ngettext
 from plainbox.impl.color import Colorizer
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.providers import get_providers
-from plainbox.impl.providers.embedded_providers import (
-    EmbeddedProvider1PlugInCollection)
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
-from plainbox.impl.session.assistant import SessionAssistant, SA_RESTARTABLE
-from plainbox.impl.session.jobs import InhibitionCause
+from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import TransportError
-from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
 
@@ -444,8 +437,9 @@ class Launcher(MainLoopStage, ReportsStage):
                 'outcome': IJobResult.OUTCOME_PASS,
                 'comments': _("Automatically passed after resuming execution"),
             }
-            result_path = os.path.join(
-                self.ctx.sa.get_session_dir(), 'CHECKBOX_DATA', '__result')
+            session_share = WellKnownDirsHelper.session_share(
+                self.ctx.sa.get_session_id())
+            result_path = os.path.join(session_share, '__result')
             if os.path.exists(result_path):
                 try:
                     with open(result_path, 'rt') as f:

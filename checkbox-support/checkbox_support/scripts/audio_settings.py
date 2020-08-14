@@ -1,7 +1,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2020 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -31,6 +31,7 @@ import re
 import sys
 
 from checkbox_support.parsers.pactl import parse_pactl_output
+from checkbox_support.snap_utils.system import in_classic_snap
 
 TYPES = ("source", "sink")
 DIRECTIONS = {"source": "input", "sink": "output"}
@@ -54,6 +55,10 @@ def unlocalized_env(reset={"LANG": "POSIX.UTF-8"}):
     """
     env = dict(os.environ)
     env.update(reset)
+    if in_classic_snap():
+        prp = '/run/user/{}/snap.{}/../pulse'.format(
+            os.geteuid(), os.getenv('SNAP_NAME'))
+        env['PULSE_RUNTIME_PATH'] = prp
     return env
 
 

@@ -509,7 +509,7 @@ _summary: Headphones recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
  package.name == 'pulseaudio-utils'
-command: pulse-active-port-change.py sinks
+command: pulse_active_port_change.py sinks
 _purpose:
     Check that system detects speakers or headphones being plugged in
     (Skip this test if the dock does not have headphones connector)
@@ -532,7 +532,7 @@ _summary: Microphone recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
  package.name == 'pulseaudio-utils'
-command: pulse-active-port-change.py sources
+command: pulse_active_port_change.py sources
 _purpose:
     Check that system detects a microphone being plugged in
     (Skip this test if the dock does not have a microphone connector)

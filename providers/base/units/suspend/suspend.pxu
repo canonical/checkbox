@@ -462,7 +462,7 @@ estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
  package.name == 'pulseaudio-utils'
-command: pulse-active-port-change.py sinks
+command: pulse_active_port_change.py sinks
 _description:
  PURPOSE:
      Check that system detects speakers or headphones being plugged in after suspend
@@ -484,7 +484,7 @@ estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
  package.name == 'pulseaudio-utils'
-command: pulse-active-port-change.py sources
+command: pulse_active_port_change.py sources
 _description:
  PURPOSE:
      Check that system detects a microphone being plugged in after suspend

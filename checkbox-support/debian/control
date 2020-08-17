@@ -20,7 +20,7 @@ Build-Depends:
  python3-setuptools,
  python3-yaml
 Standards-Version: 3.9.6
-X-Python3-Version: >= 3.2
+X-Python3-Version: >= 3.5
 XS-Testsuite: autopkgtest
 Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/checkbox-support.git
 Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/checkbox-support.git

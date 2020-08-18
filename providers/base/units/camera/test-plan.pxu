@@ -82,7 +82,7 @@ _name: Automated camera tests
 _description: Automated camera tests for Ubuntu Core devices
 estimated_duration: 1h30m
 include:
-    camera/multiple-resolution-images-_.*
+    camera/multiple-resolution-images_.*
     camera/multiple-resolution-images-rpi_.*
     camera/roundtrip-qrcode_.*
 bootstrap_include:

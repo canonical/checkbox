@@ -46,6 +46,7 @@ include:
     audio/alsa_info_collect
     audio/alsa_info_attachment
     audio/list_devices
+    audio/valid-sof-firmware-sig
 
 id: audio-cert-blockers
 unit: test plan

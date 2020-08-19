@@ -30,6 +30,7 @@ from subprocess import CalledProcessError, check_output
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
@@ -245,7 +246,7 @@ class RemoteSessionAssistant():
                 return {
                     'DISPLAY': p_environ['DISPLAY'],
                     'XAUTHORITY': p_environ['XAUTHORITY']
-                    }
+                }
 
     @allowed_when(Idle)
     def start_session(self, configuration):
@@ -274,11 +275,11 @@ class RemoteSessionAssistant():
                 self._normal_user = pwd.getpwuid(1000).pw_name
                 _logger.warning(
                     ("normal_user not supplied via config(s). "
-                    "non-root jobs will run as %s"), self._normal_user)
+                     "non-root jobs will run as %s"), self._normal_user)
             except KeyError:
                 raise SystemExit(
                     ("normal_user not supplied via config(s). "
-                    "Username for uid 1000 not found"))
+                     "Username for uid 1000 not found"))
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
@@ -625,8 +626,9 @@ class RemoteSessionAssistant():
             'outcome': IJobResult.OUTCOME_PASS,
             'comments': _("Automatically passed after resuming execution"),
         }
-        result_path = os.path.join(
-            self._sa.get_session_dir(), 'CHECKBOX_DATA', '__result')
+        session_share = WellKnownDirsHelper.session_share(
+            self._sa._manager.storage.id)
+        result_path = os.path.join(session_share, '__result')
         if os.path.exists(result_path):
             try:
                 with open(result_path, 'rt') as f:

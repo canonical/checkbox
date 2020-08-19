@@ -21,11 +21,10 @@
 :mod:`plainbox.impl.session.storage` -- storage for sessions
 ============================================================
 
-This module contains storage support code for handling sessions. Using the
-:class:`SessionStorageRepository` one can enumerate sessions at a particular
-location. Each location is wrapped by a :class:`SessionStorage` instance. That
-latter class be used to create (allocate) and remove all of the files
-associated with a particular session.
+This module contains storage support code for handling sessions. Each location
+is wrapped by a :class:`SessionStorage` instance. That latter class be used to
+create (allocate) and remove all of the files associated with a particular
+session.
 """
 
 import datetime
@@ -34,8 +33,6 @@ import logging
 import os
 import shutil
 import stat
-import sys
-import tempfile
 
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl.runner import slugify
@@ -43,36 +40,75 @@ from plainbox.impl.runner import slugify
 logger = logging.getLogger("plainbox.session.storage")
 
 
-class SessionStorageRepository:
+class WellKnownDirsHelper():
     """
-    Helper class to enumerate filesystem artefacts of current or past Sessions
+    Helper class that knows about well known directories and paths.
 
-    This class collaborates with :class:`SessionStorage`. The basic
-    use-case is to open a well-known location and enumerate all the sessions
-    that are stored there. This allows to create :class:`SessionStorage`
-    instances to further manage each session (such as remove them by calling
-    :meth:SessionStorage.remove()`)
+    This class simply gets rid of various magic path names that are used during
+    an checkbox invocation. The methods :meth:`populate_base()` and
+    :meth:`populate_session()` are convenience utilities to create the
+    directory structure and ensure permissions are correct.
     """
 
-    def __init__(self, location=None):
-        """
-        Initialize new repository at the specified location.
+    base_of_everything = '/var/tmp/checkbox-ng'
 
-        The location does not have to be an existing directory. It will be
-        created on demand. Typically it should be instantiated with the default
-        location.
+    @classmethod
+    def populate_base(cls):
         """
-        if location is None:
-            location = self.get_default_location()
-        self._location = location
+        Create all of the well known static directories that are not session
+        specific
+        """
+        oldmask = os.umask(000)
+        for dirname in cls._base_directories():
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+                # TODO: test that is 0o777 and if not attempt to fix?
+        os.umask(oldmask)
 
-    @property
-    def location(self):
+    @classmethod
+    def populate_session(cls, session_id):
         """
-        pathname of the repository
+        Create the session specific directories
         """
-        return self._location
+        oldmask = os.umask(000)
+        for dirname in cls._session_directories(session_id):
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+        os.umask(oldmask)
+        return cls.session_dir(session_id)
 
+    @classmethod
+    def _base_directories(cls):
+        return [cls.base_of_everything, cls.session_repository()]
+
+    @classmethod
+    def _session_directories(cls, session_id):
+        return [cls.session_dir(session_id),
+                cls.session_share(session_id),
+                cls.io_logs(session_id)]
+
+    @classmethod
+    def session_repository(cls):
+        return os.path.join(cls.base_of_everything, "sessions")
+
+    @classmethod
+    def session_dir(cls, session_id):
+        return os.path.join(cls.session_repository(),
+                            "{}.{}".format(session_id, "session"))
+
+    @classmethod
+    def io_logs(cls, session_id):
+        return os.path.join(cls.session_dir(session_id), "io-logs")
+
+    @classmethod
+    def session_share(cls, session_id):
+        return os.path.join(cls.session_dir(session_id), "session-share")
+
+    @classmethod
+    def manifest_file(cls):
+        return os.path.join(cls.base_of_everything, "machine-manifest.json")
+
+    @classmethod
     def get_storage_list(self):
         """
         Enumerate stored sessions in the repository.
@@ -84,12 +120,13 @@ class SessionStorageRepository:
             list of :class:`SessionStorage` representing discovered sessions
             sorted by their age (youngest first)
         """
-        logger.debug(_("Enumerating sessions in %s"), self._location)
+        repo = WellKnownDirsHelper().session_repository()
+        logger.debug(_("Enumerating sessions in %s"), repo)
         try:
             # Try to enumerate the directory
-            item_list = sorted(os.listdir(self._location),
-                key=lambda x: os.stat(os.path.join(
-                    self._location, x)).st_mtime, reverse=True)
+            item_list = sorted(os.listdir(repo),
+                               key=lambda x: os.stat(os.path.join(
+                                   repo, x)).st_mtime, reverse=True)
         except OSError as exc:
             # If the directory does not exist,
             # silently return empty collection
@@ -100,63 +137,17 @@ class SessionStorageRepository:
         session_list = []
         # Check each item by looking for directories
         for item in item_list:
-            pathname = os.path.join(self.location, item)
+            pathname = os.path.join(repo, item)
             # Make sure not to follow any symlinks here
             stat_result = os.lstat(pathname)
             # Consider non-hidden directories that end with the word .session
             if (not item.startswith(".") and item.endswith(".session")
                     and stat.S_ISDIR(stat_result.st_mode)):
                 logger.debug(_("Found possible session in %r"), pathname)
-                session = SessionStorage(pathname)
+                session = SessionStorage(os.path.splitext(item)[0])
                 session_list.append(session)
         # Return the full list
         return session_list
-
-    def __iter__(self):
-        """
-        Same as :meth:`get_storage_list()`
-        """
-        return iter(self.get_storage_list())
-
-    @classmethod
-    def get_default_location(cls):
-        """
-        Get the default location of the session state repository
-
-        The default location is defined by ``$PLAINBOX_SESSION_REPOSITORY``
-        which must be a writable directory (created if needed) where plainbox
-        will keep its session data. The default location, if the environment
-        variable is not provided, is
-        ``${XDG_CACHE_HOME:-$HOME/.cache}/plainbox/sessions``
-        """
-        repo_dir = os.environ.get('PLAINBOX_SESSION_REPOSITORY')
-        if repo_dir is not None:
-            repo_dir = os.path.abspath(repo_dir)
-        else:
-            # Pick XDG_CACHE_HOME from environment
-            xdg_cache_home = os.environ.get('XDG_CACHE_HOME')
-            # If not set or empty use the default ~/.cache/
-            if not xdg_cache_home:
-                xdg_cache_home = os.path.join(
-                    os.path.expanduser('~'), '.cache')
-            # Use a directory relative to XDG_CACHE_HOME
-            repo_dir = os.path.join(xdg_cache_home, 'plainbox', 'sessions')
-        if (repo_dir is not None and os.path.exists(repo_dir)
-                and not os.path.isdir(repo_dir)):
-            logger.warning(
-                _("Session repository %s it not a directory"), repo_dir)
-            repo_dir = None
-        if (repo_dir is not None and os.path.exists(repo_dir)
-                and not os.access(repo_dir, os.W_OK)):
-            logger.warning(
-                _("Session repository %s is read-only"), repo_dir)
-            repo_dir = None
-        if repo_dir is None:
-            repo_dir = tempfile.mkdtemp()
-            logger.warning(
-                _("Using temporary directory %s as session repository"),
-                repo_dir)
-        return repo_dir
 
 
 class LockedStorageError(IOError):
@@ -185,14 +176,14 @@ class SessionStorage:
 
     _SESSION_FILE_NEXT = 'session.next'
 
-    def __init__(self, location):
+    def __init__(self, id):
         """
         Initialize a :class:`SessionStorage` with the given location.
 
         The location is not created. If you want to ensure that it exists
         call :meth:`create()` instead.
         """
-        self._location = location
+        self._id = id
 
     def __repr__(self):
         return "<{} location:{!r}>".format(
@@ -203,64 +194,59 @@ class SessionStorage:
         """
         location of the session storage
         """
-        return self._location
+        return WellKnownDirsHelper.session_dir(self.id)
 
     @property
     def id(self):
         """
         identifier of the session storage (name of the random directory)
         """
-        return os.path.splitext(os.path.basename(self.location))[0]
+        return self._id
 
     @property
     def session_file(self):
         """
         pathname of the session state file
         """
-        return os.path.join(self._location, self._SESSION_FILE)
+        return os.path.join(self.location, self._SESSION_FILE)
 
     @classmethod
-    def create(cls, base_dir, prefix='pbox-'):
+    def create(cls, prefix='pbox-'):
         """
-        Create a new :class:`SessionStorage` in a random subdirectory
-        of the specified base directory. The base directory is also
-        created if necessary.
-
-        :param base_dir:
-            Directory in which a random session directory will be created.
-            Typically the base directory should be obtained from
-            :meth:`SessionStorageRepository.get_default_location()`
+        Create a new :class:`SessionStorage` in a subdirectory of the base
+        directory. The directory structure will be created if it does not exist
+        and will writable by any user.
 
         :param prefix:
             String which should prefix all session filenames. The prefix is
             sluggified before use.
         """
-        if not os.path.exists(base_dir):
-            os.makedirs(base_dir)
+        WellKnownDirsHelper.populate_base()
+
         isoformat = "%Y-%m-%dT%H.%M.%S"
         timestamp = datetime.datetime.utcnow().strftime(isoformat)
-        location = os.path.join(base_dir, "{prefix}{timestamp}{suffix}".format(
-            prefix=slugify(prefix), timestamp=timestamp, suffix='.session'))
+        session_id = "{prefix}{timestamp}".format(prefix=slugify(prefix),
+                                                  timestamp=timestamp)
         uniq = 1
-        while os.path.exists(location):
-            location = os.path.join(
-                base_dir, "{prefix}{timestamp}_({uniq}){suffix}".format(
-                    prefix=slugify(prefix), timestamp=timestamp,
-                    uniq=uniq, suffix='.session'))
+        while os.path.exists(WellKnownDirsHelper.session_dir(session_id)):
+            session_id = "{prefix}{timestamp}_({uniq})".format(
+                prefix=slugify(prefix), timestamp=timestamp, uniq=uniq)
             uniq += 1
-        os.mkdir(location)
-        logger.debug(_("Created new storage in %r"), location)
-        self = cls(location)
+        session_dir = WellKnownDirsHelper.populate_session(session_id)
+
+        logger.debug(_("Created new storage in %r"), session_dir)
+        self = cls(session_id)
         return self
 
     def remove(self):
         """
         Remove all filesystem entries associated with this instance.
         """
-        logger.debug(_("Removing session storage from %r"), self._location)
+        logger.debug(_("Removing session storage from %r"), self.location)
+
         def error_handler(function, path, excinfo):
             logger.warning(_("Cannot remove %s"), path)
-        shutil.rmtree(self._location, onerror=error_handler)
+        shutil.rmtree(self.location, onerror=error_handler)
 
     def load_checkpoint(self):
         """
@@ -273,7 +259,7 @@ class SessionStorage:
             on various problems related to accessing the filesystem
         """
         # Open the location directory
-        location_fd = os.open(self._location, os.O_DIRECTORY)
+        location_fd = os.open(self.location, os.O_DIRECTORY)
         try:
             # Open the current session file in the location directory
             session_fd = os.open(
@@ -329,9 +315,9 @@ class SessionStorage:
             len(data)), len(data), "UNIX, python 3.3 or newer")
         # Open the location directory, we need to fsync that later
         # XXX: this may fail, maybe we should keep the fd open all the time?
-        location_fd = os.open(self._location, os.O_DIRECTORY)
+        location_fd = os.open(self.location, os.O_DIRECTORY)
         logger.debug(
-            _("Opened %r as descriptor %d"), self._location, location_fd)
+            _("Opened %r as descriptor %d"), self.location, location_fd)
         try:
             # Open the "next" file in the location_directory
             #
@@ -429,7 +415,7 @@ class SessionStorage:
                 os.fsync(location_fd)
             except OSError as exc:
                 logger.warning(_("Cannot synchronize directory %r: %s"),
-                               self._location, exc)
+                               self.location, exc)
         finally:
             # Close the location directory
             logger.debug(_("Closing descriptor %d"), location_fd)
@@ -445,7 +431,7 @@ class SessionStorage:
         for atomic rename.
         """
         _next_session_pathname = os.path.join(
-            self._location, self._SESSION_FILE_NEXT)
+            self.location, self._SESSION_FILE_NEXT)
         logger.debug(
             # TRANSLATORS: unlinking as in deleting a file
             # Please keep the 'next' string untranslated

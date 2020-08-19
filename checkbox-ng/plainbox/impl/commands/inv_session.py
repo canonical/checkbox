@@ -34,7 +34,7 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
-from plainbox.impl.session import SessionStorageRepository
+from plainbox.impl.session.storage import WellKnownDirsHelper
 
 
 logger = getLogger("plainbox.commands.session")
@@ -66,9 +66,8 @@ class SessionInvocation:
             self.export_session()
 
     def list_sessions(self):
-        repo = SessionStorageRepository()
         storage = None
-        for storage in repo.get_storage_list():
+        for storage in WellKnownDirsHelper.get_storage_list():
             if self.ns.only_ids:
                 print(storage.id)
                 continue
@@ -195,7 +194,6 @@ class SessionInvocation:
         return manager.create_exporter(self.ns.output_format, option_list)
 
     def _lookup_storage(self, session_id):
-        repo = SessionStorageRepository()
-        for storage in repo.get_storage_list():
+        for storage in WellKnownDirsHelper.get_storage_list():
             if storage.id == session_id:
                 return storage

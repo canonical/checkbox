@@ -19,8 +19,6 @@
 
 """Tests for the session assistant module class."""
 
-import tempfile
-
 from plainbox.impl.providers.special import get_stubbox
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.session.assistant import SessionAssistant
@@ -43,18 +41,6 @@ class SessionAssistantTests(morris.SignalTestCase):
         """Common set-up code."""
         self.sa = SessionAssistant(
             self.APP_ID, self.APP_VERSION, self.API_VERSION, self.API_FLAGS)
-        # NOTE: setup a custom repository so that all tests are done in
-        # isolation from the user account. While we're doing that, let's check
-        # that this this function is allowed just after setting up the session.
-        # We cannot really do that in tests later.
-        self.repo_dir = tempfile.TemporaryDirectory()
-        self.assertIn(
-            self.sa.use_alternate_repository,
-            UsageExpectation.of(self.sa).allowed_calls)
-        self.sa.use_alternate_repository(self.repo_dir.name)
-        self.assertNotIn(
-            self.sa.use_alternate_repository,
-            UsageExpectation.of(self.sa).allowed_calls)
         # Monitor the provider_selected signal since some tests check it
         self.watchSignal(self.sa.provider_selected)
         # Create a few mocked providers that tests can use.
@@ -72,10 +58,6 @@ class SessionAssistantTests(morris.SignalTestCase):
         self.p3.name = 'com.canonical.certification:stuff'
         # The stubbox provider, non-mocked, with lots of useful jobs
         self.stubbox = get_stubbox()
-
-    def tearDown(self):
-        """Common tear-down code."""
-        self.repo_dir.cleanup()
 
     def _get_mock_providers(self):
         """Get some mocked provides for testing."""
@@ -99,3 +81,6 @@ class SessionAssistantTests(morris.SignalTestCase):
         # SessionAssistant.select_test_plan() must now be allowed
         self.assertIn(self.sa.select_test_plan,
                       UsageExpectation.of(self.sa).allowed_calls)
+        # Use the manager to tidy up after the tests when normally you wouldnt
+        # be allowed to
+        self.sa._manager.destroy()

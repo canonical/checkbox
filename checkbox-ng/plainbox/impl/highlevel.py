@@ -23,14 +23,9 @@
 """
 
 from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor
-from io import BytesIO
 import logging
 
-from plainbox.impl.applogic import run_job_if_possible
-from plainbox.impl.session import SessionStorageRepository
-from plainbox.impl.transport import TransportError
-from plainbox.impl.transport import get_all_transports
+from plainbox.impl.session.storage import WellKnownDirsHelper
 
 
 logger = logging.getLogger("plainbox.highlevel")
@@ -127,24 +122,17 @@ class Explorer:
     Class simplifying discovery of various PlainBox objects.
     """
 
-    def __init__(self, provider_list=None, repository_list=None):
+    def __init__(self, provider_list=None):
         """
         Initialize a new Explorer
 
         :param provider_list:
             List of providers that this explorer will know about.
             Defaults to nothing (BYOP - bring your own providers)
-        :param repository_list:
-            List of session storage repositories. Defaults to the
-            single default repository.
         """
         if provider_list is None:
             provider_list = []
         self.provider_list = provider_list
-        if repository_list is None:
-            repo = SessionStorageRepository()
-            repository_list = [repo]
-        self.repository_list = repository_list
 
     def get_object_tree(self):
         """
@@ -192,23 +180,16 @@ class Explorer:
             for unit in provider.unit_list:
                 provider_obj.children.append(self._unit_to_obj(unit))
             service_obj.children.append(provider_obj)
-        # Milk each repository for session storage data
-        for repo in self.repository_list:
-            repo_obj = PlainBoxObject(
-                repo,
-                group='repository',
-                name=repo.location)
-            service_obj.children.append(repo_obj)
-            for storage in repo.get_storage_list():
-                storage_obj = PlainBoxObject(
-                    storage,
-                    group="storage",
-                    name=storage.location,
-                    attrs=OrderedDict((
-                        ('location', storage.location),
-                        ('session_file', storage.session_file),
-                    )))
-                repo_obj.children.append(storage_obj)
+        for storage in WellKnownDirsHelper.get_storage_list():
+            storage_obj = PlainBoxObject(
+                storage,
+                group="storage",
+                name=storage.location,
+                attrs=OrderedDict((
+                    ('location', storage.location),
+                    ('session_file', storage.session_file),
+                )))
+            service_obj.children.append(storage_obj)
         return service_obj
 
     def _unit_to_obj(self, unit):

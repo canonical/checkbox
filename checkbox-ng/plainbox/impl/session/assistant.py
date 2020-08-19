@@ -1346,7 +1346,7 @@ class SessionAssistant:
                 # once all the test actions are performed.
                 # tests can read this from $PLAINBOX_PROVIDER_SHARE envvar
                 session_share = WellKnownDirsHelper.session_share(
-                    self.get_session_id)
+                    self.get_session_id())
                 respawn_cmd_file = os.path.join(
                     session_share, '__respawn_checkbox')
                 if self._restart_cmd_callback:

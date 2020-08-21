@@ -18,17 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 MAAS_FILE="/etc/installed-by-maas"
-MIN_VERSION="2.0"
 
 # Is the file there?
 if [ -s $MAAS_FILE ]; then
     maas_version=$(cat $MAAS_FILE)
     echo "$maas_version"
+    exit 0
 else
     echo "ERROR: This system does not appear to have been installed by MAAS"
     echo "ERROR: " "$(ls -l $MAAS_FILE 2>&1)"
     exit 1
 fi
-
-#is the version appropriate
-exit "$(dpkg --compare-versions "$maas_version" "ge" $MIN_VERSION)"

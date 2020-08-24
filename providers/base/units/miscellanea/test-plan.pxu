@@ -63,6 +63,7 @@ mandatory_include:
     miscellanea/cpuid
     miscellanea/get_make_and_model
     miscellanea/get_maas_version               certification-status=blocker
+    miscellanea/maas_user_check
     miscellanea/efi_boot_mode                  certification-status=blocker
     miscellanea/secure_boot_mode
     miscellanea/reboot_firmware

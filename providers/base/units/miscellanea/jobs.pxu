@@ -471,3 +471,26 @@ requires: package.name == 'debsums'
 command: debsums -c
 _summary: Check the MD5 sums of installed Debian packages
 _description: Verify installed Debian package files against MD5 checksum lists from /var/lib/dpkg/info/*.md5sums.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/maas_user_check
+requires:
+ executable.name == 'ipmitool'
+ cpuinfo.platform != 's390x'
+estimated_duration: 0.5
+user: root
+command:
+ CHAN=0
+ FOUND="false"
+ while [ $CHAN -le 15 ]; do
+  if ipmitool user list $CHAN 2>/dev/null |grep -E "maas.*ADMINISTRATOR"; then
+   break
+  fi
+  let "CHAN+=1"
+ done
+_description:
+ This will verify that the maas user was successfully created with admin
+ privileges
+_summary:
+ Verify BMC user called 'maas' was successfully created

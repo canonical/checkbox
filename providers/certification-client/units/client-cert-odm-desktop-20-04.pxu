@@ -18,7 +18,7 @@ nested_part:
     monitor-discrete-gpu-cert-full
     input-cert-full
     disk-cert-manual
-    fingerprint-full
+    # fingerprint-full
     keys-cert-full
     led-cert-full
     mediacard-cert-full
@@ -26,8 +26,8 @@ nested_part:
     networking-cert-full
     optical-cert-full
     power-management-precheck-cert
-    touchpad-cert-full
-    touchscreen-cert-full
+    # touchpad-cert-full
+    # touchscreen-cert-full
     usb-cert-full
     usb3-cert-full
     usb-c-cert-full
@@ -50,8 +50,8 @@ nested_part:
     after-suspend-led-cert-full
     after-suspend-mediacard-cert-full
     after-suspend-optical-cert-full
-    after-suspend-touchpad-cert-full
-    after-suspend-touchscreen-cert-full
+    # after-suspend-touchpad-cert-full
+    # after-suspend-touchscreen-cert-full
     after-suspend-usb-cert-full
     after-suspend-usb3-cert-full
     after-suspend-usb-c-cert-full
@@ -68,7 +68,7 @@ nested_part:
     cpu-cert-full
     disk-cert-automated
     stress-iperf3-automated
-    #stress-cert-full
+    # stress-cert-full
     stress-suspend-30-cycles-with-reboots-automated
     stress-ng-cert-automated
     stress-30-reboot-poweroff-automated
@@ -77,3 +77,36 @@ nested_part:
     info-attachment-cert-full
 exclude:
     com.canonical.certification::keys/hibernate
+    com.canonical.certification::keys/lock-screen
+    com.canonical.certification::keys/brightness
+    com.canonical.certification::keys/media-control
+    com.canonical.certification::keys/mute
+    com.canonical.certification::keys/volume
+    com.canonical.certification::keys/video-out
+    com.canonical.certification::keys/wireless
+    com.canonical.certification::keys/keyboard-backlight
+    com.canonical.certification::keys/microphone-mute
+    com.canonical.certification::keys/fn-lock
+    com.canonical.certification::after-suspend-manual-keys/hibernate
+    com.canonical.certification::after-suspend-manual-keys/lock-screen
+    com.canonical.certification::after-suspend-manual-keys/brightness
+    com.canonical.certification::after-suspend-manual-keys/media-control
+    com.canonical.certification::after-suspend-manual-keys/mute
+    com.canonical.certification::after-suspend-manual-keys/volume
+    com.canonical.certification::after-suspend-manual-keys/video-out
+    com.canonical.certification::after-suspend-manual-keys/wireless
+    com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
+    com.canonical.certification::after-suspend-manual-keys/microphone-mute
+    com.canonical.certification::after-suspend-manual-keys/fn-lock
+    com.canonical.certification::led/bluetooth
+    com.canonical.certification::led/wlan
+    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/fn
+    com.canonical.certification::led/mute
+    com.canonical.certification::led/microphone-mute
+    com.canonical.certification::suspend/led_after_suspend/bluetooth
+    com.canonical.certification::suspend/led_after_suspend/wlan
+    com.canonical.certification::suspend/led_after_suspend/wlan-disabled
+    com.canonical.certification::after-suspend-manual-led/fn
+    com.canonical.certification::after-suspend-manual-led/mute
+    com.canonical.certification::after-suspend-manual-led/microphone-mute

@@ -30,6 +30,7 @@ from subprocess import CalledProcessError, check_output
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.result import JobResultBuilder
@@ -381,6 +382,32 @@ class RemoteSessionAssistant():
         self._currently_running_job = job_id
         self._current_comments = ""
         job = self._sa.get_job(job_id)
+        job_state = self._sa.get_job_state(job_id)
+
+        if not job_state.can_start():
+            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if (
+                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE and
+                    'fail-on-resource' in job.get_flag_set()
+                ):
+                    outcome = IJobResult.OUTCOME_FAIL
+                    break
+                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
+                    continue
+                related_job_state = self._sa._context.state.job_state_map[
+                    inhibitor.related_job.id]
+                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
+                    outcome = IJobResult.OUTCOME_SKIP
+
+            def cant_start_builder(*args, **kwargs):
+                result_builder = JobResultBuilder(
+                    outcome=outcome,
+                    comments=job_state.get_readiness_description())
+                return result_builder
+            self._be = BackgroundExecutor(self, job_id, cant_start_builder)
+            yield from self.interact(Interaction('skip', None, self._be))
+
         if job.plugin in [
                 'manual', 'user-interact-verify', 'user-interact']:
             may_comment = True

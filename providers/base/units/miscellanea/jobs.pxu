@@ -482,12 +482,11 @@ estimated_duration: 0.5
 user: root
 command:
  CHAN=0
- FOUND="false"
  while [ $CHAN -le 15 ]; do
   if ipmitool user list $CHAN 2>/dev/null |grep -E "maas.*ADMINISTRATOR"; then
    break
   fi
-  let "CHAN+=1"
+  (( CHAN+=1 ))
  done
 _description:
  This will verify that the maas user was successfully created with admin

@@ -142,6 +142,7 @@ command: hdd_parking.py
 _description:
  PURPOSE:
   This test checks that a systems drive protection mechanism works properly.
+  Which also known as free fall sensor checking in terms of laptop PC.
  STEPS:
   1. Click on Test
   2. Move the system under test around, ensuring it is raised and lowered at some point.

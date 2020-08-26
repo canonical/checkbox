@@ -58,6 +58,8 @@ parts:
     source-depth: 1
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts
+    autotools-configure-parameters:
+      - --prefix=/
     stage-packages:
       - libfdt1
       - libbsd0

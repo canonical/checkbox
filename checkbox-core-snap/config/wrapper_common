@@ -36,3 +36,9 @@ fi
 # make sure we always know where the content snap is especially for classic
 # checkbox snaps where the checkbox-runtime bind mount does not exist
 export CHECKBOX_RUNTIME=$(findmnt -oTARGET -n $(findmnt -oSOURCE -n $RUNTIME) | grep -P "^\/snap\/checkbox(|\d{2})\/")
+
+# Tell GStreamer where to find its plugins
+export GST_PLUGIN_PATH=$RUNTIME/usr/lib/$ARCH/gstreamer-1.0
+export GST_PLUGIN_SYSTEM_PATH=$RUNTIME/usr/lib/$ARCH/gstreamer-1.0
+# gst plugin scanner doesn't install in the correct path: https://github.com/ubuntu/snapcraft-desktop-helpers/issues/43
+export GST_PLUGIN_SCANNER=$RUNTIME/usr/lib/$ARCH/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner

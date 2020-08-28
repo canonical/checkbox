@@ -22,6 +22,9 @@ apps:
   geneva:
     command: bin/geneva
     plugs: *standard
+  hanoi:
+    command: bin/hanoi
+    plugs: *standard
   test-runner:
     command: bin/test-runner
     plugs: *standard

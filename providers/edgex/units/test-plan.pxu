@@ -11,3 +11,10 @@ _name: EdgeX Geneva
 _description: EdgeX Geneva tests
 include:
     edgex/geneva/.*
+
+id: edgex-hanoi-tp
+unit: test plan
+_name: EdgeX Hanoi
+_description: EdgeX Hanoi tests
+include:
+    edgex/hanoi/.*

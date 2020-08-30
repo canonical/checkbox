@@ -198,6 +198,7 @@ class CpuFreqTest:
                 new_inner_val.append(int(_inner_val))
             else:
                 new_inner_val = ['<=0%', 'Fail', _inner_val]
+                self.fail_count += 1
             return new_inner_val
 
         # create master result table with dict comprehension

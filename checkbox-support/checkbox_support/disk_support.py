@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-
-# Disk information/support features
-#
 # Copyright (C) 2020 Canonical Ltd.
 #
 # Authors:
@@ -25,14 +21,14 @@ Support functions related to disk devices for Checkbox.
 
 
 from subprocess import (
-    check_output,
-    PIPE,
-    STDOUT,
+    CalledProcessError,
+    check_output
 )
 import logging
 import os
 import shlex
 import stat
+import sys
 import uuid
 
 
@@ -50,9 +46,12 @@ def get_partition_data(file):
     # Get filesystem type....
     part_data['fs_type'] = ""
     command = "blkid /dev/{} -o export".format(file)
-    local_results = check_output(shlex.split(command)).split()
+    try:
+        local_results = check_output(shlex.split(command)).split()
+    except CalledProcessError:
+        local_results = []
     for result in local_results:
-        result_str = result.decode(encoding="utf-8", errors="ignore")
+        result_str = result.decode(sys.stdout.encoding, errors="ignore")
         if "TYPE" in result_str:
             part_data['fs_type'] = result_str.split("=")[1]
     return part_data

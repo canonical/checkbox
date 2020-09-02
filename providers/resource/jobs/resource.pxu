@@ -67,6 +67,7 @@ Depends: iw (>= 5.3)
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
+user: root
 command: cpuinfo_resource.py
 _summary: Collect information about the CPU
 _description: Gets CPU resource info from /proc/cpuinfo

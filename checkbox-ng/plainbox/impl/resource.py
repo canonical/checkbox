@@ -636,7 +636,7 @@ class ResourceExpression:
         # if parenthesis are used in the expression then there's a high chance
         # we'll break the syntax with a bruteforce split on operator. Let's
         # not do a split on exprs with parenthesis
-        if not '(' in self._text and ')' in self._text:
+        if not '(' in self._text:
             or_pos = self._text.rfind(' or ')
             if or_pos > 0:
                 lhs, rhs = self._split_and_evaluate(' or ', resource_map)

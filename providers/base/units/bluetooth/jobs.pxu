@@ -197,7 +197,7 @@ depends: bluetooth/detect-output
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
- package.name == 'bluez' and package.version >= '5.37'
+ package.name == 'bluez'
 estimated_duration: 30.0
 command: bt_connect.py --mouse
 _purpose:
@@ -216,7 +216,7 @@ depends: bluetooth/detect-output
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
- package.name == 'bluez' and package.version >= '5.37'
+ package.name == 'bluez'
 estimated_duration: 30.0
 command: bt_connect.py --keyboard
 _purpose:

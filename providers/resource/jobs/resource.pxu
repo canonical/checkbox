@@ -112,10 +112,8 @@ id: package
 estimated_duration: 1.16
 plugin: resource
 command:
-    # shellcheck disable=SC2016
-    dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n' || \
-    echo -e 'name: plainbox\nversion: 0.1\n\n' |\
-    awk 'BEGIN {RS = ""; FS = "\n"}{print $1; print $2; print "" }'
+  # shellcheck disable=SC2016
+  dpkg-query -W -f='name: ${Package}\n\n' || true
 _description: Generates a list of packages
 _summary: Collect information about installed software packages
 

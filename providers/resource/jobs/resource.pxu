@@ -125,8 +125,7 @@ plugin: resource
 _summary: Enumerate available system executables
 _description: Generates a resource for all available executables
 command:
-    xargs -n1 -d: <<< "$PATH" | xargs -I{} find -H {} -maxdepth 1 -xtype f -executable -printf "name: %f\nlocation: %h\n\n"
-    true
+  xargs -n1 -d: <<< "$PATH" | xargs -I{} find -H {} -maxdepth 1 -xtype f -executable -printf "name: %f\n\n" | sort -u | awk '{print}' ORS='\n\n' || true
 
 id: device
 estimated_duration: 0.48

@@ -112,10 +112,8 @@ id: package
 estimated_duration: 1.16
 plugin: resource
 command:
-    # shellcheck disable=SC2016
-    dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n' || \
-    echo -e 'name: plainbox\nversion: 0.1\n\n' |\
-    awk 'BEGIN {RS = ""; FS = "\n"}{print $1; print $2; print "" }'
+  # shellcheck disable=SC2016
+  dpkg-query -W -f='name: ${Package}\n\n' || true
 _description: Generates a list of packages
 _summary: Collect information about installed software packages
 
@@ -125,8 +123,7 @@ plugin: resource
 _summary: Enumerate available system executables
 _description: Generates a resource for all available executables
 command:
-    xargs -n1 -d: <<< "$PATH" | xargs -I{} find -H {} -maxdepth 1 -xtype f -executable -printf "name: %f\nlocation: %h\n\n"
-    true
+  xargs -n1 -d: <<< "$PATH" | xargs -I{} find -H {} -maxdepth 1 -xtype f -executable -printf "name: %f\n\n" | sort -u | awk '{print}' ORS='\n\n' || true
 
 id: device
 estimated_duration: 0.48
@@ -141,17 +138,6 @@ plugin: resource
 command: udev_resource.py -f PARTITION || true
 _description: Creates removable partitions info from udev
 _summary: Collect removable partitions info from udev
-
-id: staging/udev
-estimated_duration: 1.1
-plugin: resource
-shell: /bin/sh
-command: udevadm info --export-db | udev2resource.py
-_summary: Collect unfiltered udev data
-_description:
- This job collects the udev database in mostly raw format. The only
- transformations applied are basic changes to make the format compatible with
- RFC822 syntax required by PlainBox.
 
 id: dmi_present
 estimated_duration: 0.02

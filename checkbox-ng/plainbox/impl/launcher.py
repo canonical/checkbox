@@ -135,7 +135,7 @@ class LauncherDefinition1(LauncherDefinition):
 
     session_desc = config.Variable(
         section='launcher',
-        default='session description',
+        default='',
         help_text=_("A string that can be applied to sessions created using "
                     "this launcher. Useful for storing some contextual "
                     "infomation about the session"))

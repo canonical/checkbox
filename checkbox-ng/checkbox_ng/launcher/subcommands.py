@@ -337,11 +337,8 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _start_new_session(self):
         print(_("Preparing..."))
-        title = self.launcher.app_id
-        if self.ctx.args.title:
-            title = self.ctx.args.title
-        elif self.ctx.args.launcher:
-            title = os.path.basename(self.ctx.args.launcher)
+        title = self.ctx.args.title or self.launcher.session_title
+        title = title or self.launcher.app_id
         if self.launcher.app_version:
             title += ' {}'.format(self.launcher.app_version)
         runner_kwargs = {

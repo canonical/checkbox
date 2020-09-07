@@ -42,10 +42,10 @@ nested_part:
     # restart of checkbox.
     after-suspend-graphics-integrated-gpu-cert-full
     after-suspend-monitor-integrated-gpu-cert-full
-    suspend-key-led-oops-check-cert    
+    suspend-key-led-oops-check-cert
     after-suspend-audio-cert-full
     after-suspend-camera-cert-full
-    after-suspend-input-cert-full    
+    after-suspend-input-cert-full
     after-suspend-keys-cert-full
     after-suspend-led-cert-full
     after-suspend-mediacard-cert-full
@@ -56,10 +56,6 @@ nested_part:
     after-suspend-usb3-cert-full
     after-suspend-usb-c-cert-full
     after-suspend-wireless-cert-full
-    # The following tests should run BEFORE the automated tests. The reboot and
-    # power off tests will also give us a clean system to start the stress run
-    # with.
-    power-management-reboot-poweroff-cert
     # Automated Tests
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
@@ -68,11 +64,10 @@ nested_part:
     cpu-cert-full
     disk-cert-automated
     stress-iperf3-automated
-    # stress-cert-full
-    stress-suspend-30-cycles-with-reboots-automated
+    warm-boot-stress-test
+    cold-boot-stress-test
+    suspend-stress-test
     stress-ng-cert-automated
-    stress-30-reboot-poweroff-automated
-    stress-pm-graph
     tpm2.0_4.1.1-automated
     info-attachment-cert-full
 exclude:

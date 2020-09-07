@@ -22,7 +22,7 @@ _description:
      1. Click on Test
      2. The system will hibernate and should wake itself within 5 minutes
      3. If your system does not wake itself after 5 minutes, please press the power button to wake the system manually
-     4. If the system fails to resume from hibernate, please restart System Testing and mark this test as Failed
+     4. If the system fails to resume from hibernate, please restart Checkbox and mark this test as Failed
  VERIFICATION:
      Did the system successfully hibernate and did it work properly after waking up?
 
@@ -65,7 +65,7 @@ _steps:
     1. Click on Test
     2. The system will hibernate and should wake itself within 5 minutes
     3. If your system does not wake itself after 5 minutes, please press the power button to wake the system manually
-    4. If the system fails to resume from hibernate, please restart System Testing and mark this test as Failed
+    4. If the system fails to resume from hibernate, please restart Checkbox and mark this test as Failed
 _verification:
     Did the system successfully hibernate and did it work properly after waking up?
 

@@ -210,7 +210,7 @@ _description:
      1. Click "Test" and your system will suspend for about 30 - 60 seconds
      2. Observe the Power LED to see if it blinks or changes color during suspend
      3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
-     4. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+     4. If your system fails to wake at all and must be rebooted, restart Checkbox after reboot and mark this test as Failed
  VERIFICATION:
      Did your system suspend and resume correctly?
      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
@@ -248,7 +248,7 @@ _description:
      2. Click "Test" and your system will suspend for about 30 - 60 seconds
      3. Observe the Power LED to see if it blinks or changes color during suspend
      4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
-     5. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+     5. If your system fails to wake at all and must be rebooted, restart Checkbox after reboot and mark this test as Failed
  VERIFICATION:
      Did your system suspend and resume correctly after switching to {vendor} {product} graphics card?
      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
@@ -298,7 +298,7 @@ _description:
      1. Click "Test" and your system will go into hybrid sleep mode for about 30 - 60 seconds
      2. Observe the Power LED to see if it blinks or changes color during suspend
      3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
-     4. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+     4. If your system fails to wake at all and must be rebooted, restart Checkbox after reboot and mark this test as Failed
  VERIFICATION:
      Did your system enter hybrid sleep and then resume correctly?
 

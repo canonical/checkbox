@@ -32,6 +32,8 @@ include:
     cpu/offlining_test                             certification-status=blocker
     cpu/topology                                   certification-status=blocker
     cpu/clocktest
+    power-management/cpu-low-power-idle
+    power-management/system-low-power-idle
 
 id: cpu-cert-blockers
 unit: test plan

@@ -32,7 +32,7 @@ id: ethernet/info_automated_server
 requires:
  device.category == 'NETWORK'
 user: root
-command: network_device_info.py info NETWORK --no-nm
+command: network_device_info.py info NETWORK --no-nm --fail-on-disconnected
 estimated_duration: 2.0
 _summary:
  Provide information about detected ethernet devices

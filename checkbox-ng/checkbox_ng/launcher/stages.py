@@ -361,6 +361,9 @@ class ReportsStage(CheckboxUiStage):
                     self.sa.config.exporters[exporter] = {
                         'unit': 'com.canonical.plainbox::{}'.format(
                             exporter)}
+                if not self.sa.config.exporters[exporter].get('unit'):
+                    unit = 'com.canonical.plainbox::{}'.format(exporter)
+                    self.sa.config.exporters[exporter]['unit'] = unit
                 self.sa.config.reports['2_{}_file'.format(exporter)] = {
                     'transport': '{}_file'.format(exporter),
                     'exporter': '{}'.format(exporter),

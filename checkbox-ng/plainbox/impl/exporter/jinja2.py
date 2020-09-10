@@ -78,7 +78,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
 
     """Session state exporter that renders output using jinja2 template."""
 
-    supported_option_list = ()
+    supported_option_list = ('without-session-desc')
 
     def __init__(self, option_list=None, system_id="", timestamp=None,
                  client_version=None, client_name='plainbox',

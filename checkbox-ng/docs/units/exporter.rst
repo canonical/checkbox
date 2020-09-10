@@ -73,7 +73,7 @@ Following fields may be used by an exporter unit.
         - with-unit-categories
 
     jinja2:
-        No options available
+        - without-session-desc
 
 ``data``:
     (optional) - Extra data sent to the exporter code, to allow all kind of

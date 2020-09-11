@@ -114,7 +114,7 @@ estimated_duration: 1.16
 plugin: resource
 command:
   # shellcheck disable=SC2016
-  dpkg-query -W -f='name: ${Package}\n\n' || true
+  dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n' || true
 _description: Generates a list of packages
 _summary: Collect information about installed software packages
 

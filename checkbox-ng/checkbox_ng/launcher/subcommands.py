@@ -337,11 +337,8 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _start_new_session(self):
         print(_("Preparing..."))
-        title = self.launcher.app_id
-        if self.ctx.args.title:
-            title = self.ctx.args.title
-        elif self.ctx.args.launcher:
-            title = os.path.basename(self.ctx.args.launcher)
+        title = self.ctx.args.title or self.launcher.session_title
+        title = title or self.launcher.app_id
         if self.launcher.app_version:
             title += ' {}'.format(self.launcher.app_version)
         runner_kwargs = {
@@ -367,9 +364,10 @@ class Launcher(MainLoopStage, ReportsStage):
             if tp_id is None:
                 raise SystemExit(_("No test plan selected."))
         self.ctx.sa.select_test_plan(tp_id)
+        description = self.ctx.args.message or self.launcher.session_desc
         self.ctx.sa.update_app_blob(json.dumps(
             {'testplan_id': tp_id,
-             'description': self.ctx.args.message, }).encode("UTF-8"))
+             'description': description}).encode("UTF-8"))
         bs_jobs = self.ctx.sa.get_bootstrap_todo_list()
         self._run_bootstrap_jobs(bs_jobs)
         self.ctx.sa.finish_bootstrap()

@@ -78,7 +78,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
 
     """Session state exporter that renders output using jinja2 template."""
 
-    supported_option_list = ()
+    supported_option_list = ('without-session-desc')
 
     def __init__(self, option_list=None, system_id="", timestamp=None,
                  client_version=None, client_name='plainbox',
@@ -86,6 +86,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         """
         Initialize a new Jinja2SessionStateExporter with given arguments.
         """
+        super().__init__((), exporter_unit=exporter_unit)
         self._unit = exporter_unit
         self._system_id = system_id
         # Generate a time-stamp if needed
@@ -107,7 +108,8 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             paths.append(exporter_unit.data_dir)
         if "extra_paths" in self.data:
             paths.extend(self.data["extra_paths"])
-        self.option_list = exporter_unit.option_list
+        self.option_list = tuple(exporter_unit.option_list or ()) + tuple(
+                option_list or ())
         loader = FileSystemLoader(paths)
         env = Environment(loader=loader, extensions=['jinja2.ext.autoescape'])
         self.customize_environment(env)

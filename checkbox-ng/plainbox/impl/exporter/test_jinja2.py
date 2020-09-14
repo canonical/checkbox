@@ -71,6 +71,7 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter_unit.file_extension = 'html'
             exporter_unit.data_dir = tmp
             exporter_unit.template = template_filename
+            exporter_unit.option_list = ()
             with open(pathname, 'w') as f:
                 f.write(tmpl)
             exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
@@ -91,6 +92,7 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter_unit.file_extension = 'json'
             exporter_unit.data_dir = tmp
             exporter_unit.template = template_filename
+            exporter_unit.option_list = ()
             exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
             exporter.validate_json = mock.Mock(return_value=[])
             stream = BytesIO()
@@ -109,6 +111,7 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter_unit.file_extension = 'json'
             exporter_unit.data_dir = tmp
             exporter_unit.template = template_filename
+            exporter_unit.option_list = ()
             exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
             stream = BytesIO()
             exporter.dump_from_session_manager(self.manager_single_job, stream)
@@ -125,6 +128,7 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter_unit.file_extension = 'json'
             exporter_unit.data_dir = tmp
             exporter_unit.template = template_filename
+            exporter_unit.option_list = ()
             exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
             stream = BytesIO()
             with self.assertRaises(ExporterError):

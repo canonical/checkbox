@@ -361,6 +361,9 @@ class ReportsStage(CheckboxUiStage):
                     self.sa.config.exporters[exporter] = {
                         'unit': 'com.canonical.plainbox::{}'.format(
                             exporter)}
+                if not self.sa.config.exporters[exporter].get('unit'):
+                    unit = 'com.canonical.plainbox::{}'.format(exporter)
+                    self.sa.config.exporters[exporter]['unit'] = unit
                 self.sa.config.reports['2_{}_file'.format(exporter)] = {
                     'transport': '{}_file'.format(exporter),
                     'exporter': '{}'.format(exporter),
@@ -464,6 +467,8 @@ class ReportsStage(CheckboxUiStage):
             if cmd == 'n':
                 continue
             exporter_id = self.sa.config.exporters[params['exporter']]['unit']
+            exporter_options = self.sa.config.exporters[
+                    params['exporter']].get('options', '').split()
             done_sending = False
             while not done_sending:
                 try:
@@ -474,7 +479,7 @@ class ReportsStage(CheckboxUiStage):
                     else:
                         try:
                             result = self.sa.export_to_transport(
-                                exporter_id, transport)
+                                exporter_id, transport, exporter_options)
                         except ExporterError as exc:
                             _logger.warning(
                                 _("Problem occured when preparing %s report:"

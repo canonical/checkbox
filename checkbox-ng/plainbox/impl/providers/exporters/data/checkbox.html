@@ -73,6 +73,9 @@
                     {%- if manager.test_plans %}
                     <p>Test plan: {{ manager.test_plans[0] }}</p>
                     {%- endif %}
+                    {%- if not 'without-session-desc' in options and app_blob['description'] %}
+                    <p> {{ app_blob['description']|replace("\\n", "<br />")|replace("\n", "<br />")|safe }} </p>
+                    {%- endif %}
                     <div id="canvas-holder" style="width:300px">
                         <canvas id="chart-area"></canvas>
                     </div>

@@ -148,6 +148,10 @@ class NetworkDeviceInfo():
         self._interface_populate()
 
     @property
+    def carrier_status(self):
+        return self._carrier_status
+
+    @property
     def driver(self):
         return self._driver
 
@@ -342,9 +346,13 @@ if __name__ == "__main__":
                         help='Don\'t attempt to get info from network manager')
     parser.add_argument('--interface',
                         help='Restrict info action to specified interface')
+    parser.add_argument('--fail-on-disconnected', action='store_true',
+                        help=('Script will exit with a non-zero return code if'
+                              ' any interface is not connected'))
     args = parser.parse_args()
 
     udev = UdevDevices(args.category)
+    disconnected_ifaces = []
 
     # The detect action should indicate presence of a device belonging to the
     # category and cause the job to fail if none present
@@ -371,6 +379,8 @@ if __name__ == "__main__":
         print("[ Devices found by udev ]".center(80, '-'))
         for device in udev.devices():
             print(device)
+            if device.carrier_status == "Disconnected":
+                disconnected_ifaces.append(device.interface)
 
         # Attempt to report devices found by NetworkManager. This can be
         # skipped as doesn't make sense for server installs
@@ -379,3 +389,11 @@ if __name__ == "__main__":
             print("[ Devices found by Network Manager ]".center(80, '-'))
             for device in nm.devices():
                 print(device)
+
+        if disconnected_ifaces and args.fail_on_disconnected:
+            print("WARNING: The following interfaces are not connected:")
+            for iface in disconnected_ifaces:
+                print(iface)
+            sys.exit(1)
+
+    sys.exit(0)

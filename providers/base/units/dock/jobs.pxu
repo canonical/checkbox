@@ -629,7 +629,9 @@ _summary: USB drive insertion test
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock
+    a USB storage device plugged on the dock.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB storage device, preferably a HDD,
        in one of the dock's port.
@@ -649,7 +651,9 @@ _summary: USB3 drive insertion test
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB 3.0 storage device
+    a USB 3.0 storage device.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
        in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
@@ -728,17 +732,19 @@ requires:
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB 3 storage device in a USB Type-C connector on the dock using a
-     "Type-C to Type-A" adapter
+    This test will check that the system correctly detects the insertion of
+    a USB 3 storage device in a USB Type-C connector on the dock using a
+    "Type-C to Type-A" adapter.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
-     1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
-        on the dock using a "USB Type-C to Type-A" adapter.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not unplug the device after the test.
+    1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
+       on the dock using a "USB Type-C to Type-A" adapter.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
 _verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 
 plugin: user-interact
 category_id: dock-usb
@@ -750,16 +756,18 @@ requires:
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB 3 storage device in a USB Type-C connector on the dock
+    This test will check that the system correctly detects the insertion of
+    a USB 3 storage device in a USB Type-C connector on the dock.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
-     1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
-        on the dock.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not unplug the device after the test.
+    1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
+       on the dock.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
 _verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 
 plugin: user-interact
 category_id: dock-usb
@@ -843,17 +851,19 @@ requires:
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB 3 storage device in a USB Type-C connector on the dock using a
-     "Type-C to Type-A" adapter after suspend
+    This test will check that the system correctly detects the insertion of
+    a USB 3 storage device in a USB Type-C connector on the dock using a
+    "Type-C to Type-A" adapter after suspend.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
-     1. Click "Test" and insert a USB 3 storage device in a USB Type-C port on
-        the dock using a "USB Type-C to Type-A" adapter.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not unplug the device after the test.
+    1. Click "Test" and insert a USB 3 storage device in a USB Type-C port on
+       the dock using a "USB Type-C to Type-A" adapter.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
 _verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 
 plugin: user-interact
 category_id: dock-usb
@@ -866,16 +876,18 @@ requires:
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB 3 storage device in a USB Type-C connector on the dock after suspend
+    This test will check that the system correctly detects the insertion of
+    a USB 3 storage device in a USB Type-C connector on the dock after suspend
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
-     1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
-        on the dock.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not unplug the device after the test.
+    1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
+       on the dock.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
 _verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 
 plugin: user-interact
 category_id: dock-usb
@@ -1000,7 +1012,9 @@ _summary: USB drive insertion test
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock
+    a USB storage device plugged on the dock.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB storage device, preferably a HDD,
        in one of the dock's port.
@@ -1021,7 +1035,9 @@ _summary: USB3 drive insertion test
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB 3.0 storage device after dock hot plugged in
+    a USB 3.0 storage device after dock hot plugged in.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
        in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
@@ -1242,7 +1258,9 @@ _summary: USB drive insertion after resuming
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock after suspend
+    a USB storage device plugged on the dock after suspend.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB storage device, preferably a HDD,
        in one of the dock's port.
@@ -1277,7 +1295,9 @@ _summary: USB3 drive insertion after resuming
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB 3.0 storage device after suspend
+    a USB 3.0 storage device after suspend.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
        in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
@@ -1721,6 +1741,8 @@ command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend, undocked, resume.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
        in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
@@ -2049,7 +2071,9 @@ _summary: USB drive insertion after resuming
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock after suspend
+    a USB storage device plugged on the dock after suspend.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB storage device, preferably a HDD,
        in one of the dock's port.
@@ -2070,7 +2094,9 @@ _summary: USB3 drive insertion test
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB 3.0 storage device after dock hot plugged in
+    a USB 3.0 storage device after dock hot plugged in.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
        in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
@@ -2178,7 +2204,9 @@ _summary: USB drive insertion after resuming
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock after suspend
+    a USB storage device plugged on the dock after suspend.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB storage device, preferably a HDD,
        in one of the dock's port.
@@ -2200,6 +2228,8 @@ command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3.0 storage device after suspend, undocked, docked, resume.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
        in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may

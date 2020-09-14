@@ -1503,15 +1503,16 @@ estimated_duration: 30.0
 depends:
  suspend/suspend_advanced
 command: removable_storage_watcher.py insert usb
-_description:
- PURPOSE:
+_purpose:
      This test will check that the system correctly detects the insertion of
      a USB storage device after suspend and resume.
- STEPS:
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
+_steps:
      1. Click "Test" and insert a USB storage device (pen-drive/HDD).
         (Note: this test will time-out after 20 seconds.)
      2. Do not unplug the device after the test.
- VERIFICATION:
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 
@@ -1524,15 +1525,16 @@ requires:
 depends:
  suspend/suspend_advanced
 command: removable_storage_watcher.py -m 500000000 insert usb
-_description:
- PURPOSE:
+_purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3.0 storage device after suspend and resume.
- STEPS:
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
+_steps:
      1. Click "Test" and insert a USB 3.0 storage device (pen-drive/HDD) in
         a USB 3.0 port. (Note: this test will time-out after 20 seconds.)
      2. Do not unplug the device after the test.
- VERIFICATION:
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 

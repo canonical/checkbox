@@ -20,11 +20,13 @@ id: usb-c/c-to-a-adapter/insert
 _purpose:
      This test will check that the system correctly detects the insertion of
      a USB 3 storage device in a USB Type-C connector using a "Type-C to Type-A"
-     adapter
+     adapter.
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
 _steps:
      1. Commence the test
      2. Connect a USB 3 storage device to a USB Type-C port using a
-        "Type-C to Type-A" adapter
+        "Type-C to Type-A" adapter.
      3. Do not unplug the device after the test.
 _verification:
      The verification of this test is automated. Do not change the
@@ -115,10 +117,12 @@ id: usb-c/insert
 _summary: USB 3.0 storage device insertion detected on USB Type-C port
 _purpose:
      This test will check that the system correctly detects the insertion of
-     a USB 3 storage device in a USB Type-C connector
+     a USB 3 storage device in a USB Type-C connector.
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
 _steps:
-     1. Commence the test
-     2. Connect a USB 3 storage device to a USB Type-C port
+     1. Commence the test.
+     2. Connect a USB 3 storage device to a USB Type-C port.
      3. Do not unplug the device after the test.
 _verification:
      The verification of this test is automated. Do not change the

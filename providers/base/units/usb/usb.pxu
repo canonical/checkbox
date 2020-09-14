@@ -51,7 +51,9 @@ id: usb/insert
 template-engine: jinja2
 _summary: USB 2.0 storage device insertion detected
 _purpose:
- Check system can detect USB 2.0 storage when inserted
+ Check system can detect USB 2.0 storage when inserted.
+ NOTE: Make sure the USB storage device has a partition before starting
+ the test.
 _steps:
  1. Press continue
  2. Wait until the message "INSERT NOW" is printed on the screen
@@ -77,7 +79,9 @@ requires:
  usb.usb3 == 'supported'
 _summary: USB 3.0 storage device insertion detected
 _purpose:
- Check system can detect insertion of a USB 3.0 storage device
+ Check system can detect insertion of a USB 3.0 storage device.
+ NOTE: Make sure the USB storage device has a partition before starting
+ the test.
 _steps:
  1. Press continue
  2. Wait until the message "INSERT NOW" is printed on the screen

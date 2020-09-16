@@ -142,7 +142,7 @@ snap_check_hanoi_svcs()
     done
 
     # disabled services
-    for svc in app-service-configurable device-virtual edgex-mongo support-notifications support-scheduler sys-mgmt-agent; do
+    for svc in app-service-configurable device-virtual support-notifications support-scheduler sys-mgmt-agent; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "disabled" != "$svcStatus" ]; then
             echo "service $svc has status \"$svcStatus\" but should be disabled"

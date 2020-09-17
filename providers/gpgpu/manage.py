@@ -33,7 +33,7 @@ class SourceDistributionCommandExt(SourceDistributionCommand):
     # Overridden version of SourceDistributionCommand that handles launcher/
     __doc__ = SourceDistributionCommand.__doc__
     _INCLUDED_ITEMS = SourceDistributionCommand._INCLUDED_ITEMS + [
-        'COPYING', 'launcher']
+        'launcher']
 
 
 @manage_py_extension

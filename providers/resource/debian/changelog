@@ -1,4 +1,4 @@
-plainbox-provider-resource-generic (0.45.0-1) UNRELEASED; urgency=medium
+plainbox-provider-resource-generic (0.46.0~rc1-1) UNRELEASED; urgency=medium
 
   [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
@@ -43,8 +43,9 @@ plainbox-provider-resource-generic (0.45.0-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@open-joey-201506-18558.maas>  Thu, 23 Apr 2020 13:58:45 +0000
+ -- Jenkins <jenkins@real-cod-201406-15260>  Thu, 17 Sep 2020 10:23:33 +0000
 
 plainbox-provider-resource-generic (0.28) unstable; urgency=medium
 

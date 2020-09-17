@@ -46,7 +46,7 @@ snap_check_hanoi_svcs
 
 # ensure the release config item is set to hanoi
 snapRelease=$(snap get edgexfoundry release)
-if [ "$snapRelease" != "hannoi" ]; then
+if [ "$snapRelease" != "hanoi" ]; then
     echo "missing or invalid config item for snap release: \"$snapRelease\""
     snap_remove
     exit 1

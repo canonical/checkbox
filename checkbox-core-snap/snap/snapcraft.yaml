@@ -122,7 +122,6 @@ parts:
     source: git://git.launchpad.net/checkbox-support
     stage-packages:
       # actual requirements
-      - lsb-release
       - python3-requests-unixsocket
       - python3-systemd
       # added to stage python:

@@ -21,16 +21,21 @@ class TestSnapctlConfig(unittest.TestCase):
         self.assertEqual(get_snapctl_config([]), dict())
 
     def test_one_key(self):
-        with patch('subprocess.check_output', return_value=b'bar\n') as p:
+        SNAPCTL_OUT = dedent("""
+        {
+        \t"foo": "bar"
+        }
+        """).lstrip().encode(sys.stdout.encoding)
+        with patch('subprocess.check_output', return_value=SNAPCTL_OUT) as p:
             expected = {'foo': 'bar'}
             self.assertEqual(get_snapctl_config(['foo']), expected)
-            p.assert_called_with(['snapctl', 'get', 'foo'])
+            p.assert_called_with(['snapctl', 'get', '-d', 'foo'])
 
     def test_not_set_key(self):
-        with patch('subprocess.check_output', return_value=b'\n') as p:
-            expected = {'foo': ''}
+        with patch('subprocess.check_output', return_value=b'{}\n') as p:
+            expected = {}
             self.assertEqual(get_snapctl_config(['foo']), expected)
-            p.assert_called_with(['snapctl', 'get', 'foo'])
+            p.assert_called_with(['snapctl', 'get', '-d', 'foo'])
 
     def test_two_keys(self):
         SNAPCTL_OUT = dedent("""
@@ -42,7 +47,7 @@ class TestSnapctlConfig(unittest.TestCase):
         with patch('subprocess.check_output', return_value=SNAPCTL_OUT) as p:
             expected = {'foo': 'bar', 'biz': 'baz'}
             self.assertEqual(get_snapctl_config(['foo', 'biz']), expected)
-            p.assert_called_with(['snapctl', 'get', 'foo', 'biz'])
+            p.assert_called_with(['snapctl', 'get', '-d', 'foo', 'biz'])
 
     def test_two_keys_one_missing(self):
         SNAPCTL_OUT = dedent("""
@@ -53,12 +58,12 @@ class TestSnapctlConfig(unittest.TestCase):
         with patch('subprocess.check_output', return_value=SNAPCTL_OUT) as p:
             expected = {'foo': 'bar'}
             self.assertEqual(get_snapctl_config(['foo', 'biz']), expected)
-            p.assert_called_with(['snapctl', 'get', 'foo', 'biz'])
+            p.assert_called_with(['snapctl', 'get', '-d', 'foo', 'biz'])
 
     def test_two_keys_both_missing(self):
         with patch('subprocess.check_output', return_value=b'{}\n') as p:
             self.assertEqual(get_snapctl_config(['foo', 'biz']), dict())
-            p.assert_called_with(['snapctl', 'get', 'foo', 'biz'])
+            p.assert_called_with(['snapctl', 'get', '-d', 'foo', 'biz'])
 
 
 class TestConfigSet(unittest.TestCase):
@@ -149,7 +154,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         self.assertFalse(mock_run.called)
 
     @patch('checkbox_support.snap_utils.config.get_configuration_set')
-    @patch('subprocess.check_output', return_value=b'\n')
+    @patch('subprocess.check_output', return_value=b'{}\n')
     @patch('subprocess.run')
     def test_one_value(self, mock_run, mock_subproc, mock_conf_set):
         """ FOO=bar in config_vars,
@@ -181,7 +186,11 @@ class ConfigIntegrationTests(unittest.TestCase):
             "FOO=bar"
         """
         mock_conf_set.return_value = {'foo': 'default'}
-        mock_subproc.return_value = b'bar\n'
+        mock_subproc.return_value = dedent("""
+        {
+        \t"foo": "bar"
+        }
+        """).lstrip().encode(sys.stdout.encoding)
         m = mock_open()
         with patch('builtins.open', m):
             refresh_configuration()

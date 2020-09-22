@@ -45,7 +45,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 _description: Test to see that we have the same resolution after resuming as before.
 command:
@@ -123,7 +123,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 requires: package.name == 'nux-tools'
 command:
@@ -202,7 +202,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 command:
  # shellcheck disable=SC1091
@@ -223,7 +223,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 command: [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log
 _description:
@@ -240,7 +240,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 estimated_duration: 1.2
 command: [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log

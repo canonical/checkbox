@@ -44,13 +44,13 @@ unit: test plan
 _name: After suspend reference tests (automated)
 _description: After suspend reference tests (automated)
 include:
-    suspend/network_after_suspend                  certification-status=blocker
-    suspend/audio_after_suspend                    certification-status=blocker
-    suspend/cpu_after_suspend                      certification-status=blocker
-    suspend/memory_after_suspend                   certification-status=blocker
-    suspend/bluetooth_detect_after_suspend         certification-status=blocker
-    suspend/bluetooth_obex_send_after_suspend      certification-status=blocker
-    after-suspend-manual-bluetooth4/beacon_eddystone_url_.*  certification-status=blocker
+    suspend/network_after_suspend_auto                  certification-status=blocker
+    suspend/audio_after_suspend_auto                    certification-status=blocker
+    suspend/cpu_after_suspend_auto                      certification-status=blocker
+    suspend/memory_after_suspend_auto                   certification-status=blocker
+    suspend/bluetooth_detect_after_suspend_auto         certification-status=blocker
+    suspend/bluetooth_obex_send_after_suspend_auto      certification-status=blocker
+    after-suspend-bluetooth4/beacon_eddystone_url_.*    certification-status=blocker
 bootstrap_include:
     device
 
@@ -73,13 +73,13 @@ unit: test plan
 _name: After suspend reference tests (certification blockers only)
 _description: After suspend reference tests (certification blockers only)
 include:
-    suspend/network_after_suspend                  certification-status=blocker
-    suspend/audio_after_suspend                    certification-status=blocker
-    suspend/cpu_after_suspend                      certification-status=blocker
-    suspend/memory_after_suspend                   certification-status=blocker
-    suspend/bluetooth_detect_after_suspend         certification-status=blocker
-    suspend/bluetooth_obex_send_after_suspend      certification-status=blocker
-    after-suspend-manual-bluetooth4/beacon_eddystone_url_.*  certification-status=blocker
+    suspend/network_after_suspend_auto                  certification-status=blocker
+    suspend/audio_after_suspend_auto                    certification-status=blocker
+    suspend/cpu_after_suspend_auto                      certification-status=blocker
+    suspend/memory_after_suspend_auto                   certification-status=blocker
+    suspend/bluetooth_detect_after_suspend_auto         certification-status=blocker
+    suspend/bluetooth_obex_send_after_suspend_auto      certification-status=blocker
+    after-suspend-bluetooth4/beacon_eddystone_url_.*    certification-status=blocker
 bootstrap_include:
     device
 

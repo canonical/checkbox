@@ -411,6 +411,14 @@ command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
+id: suspend/network_after_suspend_auto
+estimated_duration: 20.0
+depends: suspend/suspend_advanced_auto suspend/network_before_suspend
+_description: Test the network after resuming.
+command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
 id: suspend/resolution_after_suspend
 depends: suspend/suspend_advanced suspend/resolution_before_suspend
 estimated_duration: 1.2
@@ -925,6 +933,32 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_detect_after_suspend
 depends: suspend/suspend_advanced bluetooth/detect-output
+estimated_duration: 1.2
+requires:
+ package.name == 'bluez'
+ device.category == 'BLUETOOTH'
+command:
+ if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then
+   echo "rfkill shows BT is hard blocked"
+ fi
+ if rfkill list bluetooth | grep -q 'Soft blocked: yes'; then
+   echo "rfkill shows BT is soft blocked, removing before testing"
+   rfkill unblock bluetooth
+   sleep 3
+ fi
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}')
+ echo "$output" | diff "$PLAINBOX_SESSION_SHARE"/bluetooth_address -
+ if [ -z "$output" ]; then
+     echo "BT hardware not available"
+     exit 1
+ fi
+_description:
+ This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address grabbed before suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_detect_after_suspend_auto
+depends: suspend/suspend_advanced_auto bluetooth/detect-output
 estimated_duration: 1.2
 requires:
  package.name == 'bluez'

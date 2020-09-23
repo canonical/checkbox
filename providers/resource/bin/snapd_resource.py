@@ -15,6 +15,7 @@ from checkbox_support.snap_utils.asserts import model_to_resource
 from checkbox_support.snap_utils.asserts import serial_to_resource
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.system import get_kernel_snap
+from checkbox_support.snap_utils.system import get_series
 
 from collections import namedtuple
 
@@ -176,6 +177,10 @@ class Features():
         encryption as it ensures that the kernel.img is available to the
         bootloader prior to decrypting the writable partition.
         '''
+        # UC 20 no longer requires file presence
+        if int(get_series()) >= 20:
+            print('force_kernel_extraction: True')
+            return
         snap = get_kernel_snap()
         if snap is not None:
             feature_f = '/snap/{}/current/meta/force-kernel-extraction'.format(

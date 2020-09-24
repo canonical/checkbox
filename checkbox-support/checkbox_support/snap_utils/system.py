@@ -4,7 +4,6 @@
 # Written by:
 #    Jonathan Cave <jonathan.cave@canonical.com>
 
-import io
 import os
 import re
 import subprocess as sp
@@ -13,6 +12,8 @@ import yaml
 import distro
 
 from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
+from checkbox_support.snap_utils.asserts import decode
+from checkbox_support.snap_utils.asserts import model_to_resource
 from checkbox_support.snap_utils.snapd import Snapd
 
 
@@ -28,44 +29,28 @@ def in_classic_snap():
     snap = os.getenv("SNAP")
     if snap:
         with open(os.path.join(snap, 'meta/snap.yaml')) as f:
-            for l in f.readlines():
-                if l == "confinement: classic\n":
+            for line in f.readlines():
+                if line == "confinement: classic\n":
                     return True
     return False
 
 
 def get_kernel_snap():
-    snap = None
-    assertion_stream = Snapd().get_assertions('model')
-    count = int(assertion_stream.headers['X-Ubuntu-Assertions-Count'])
-    if count > 0:
-        for line in io.StringIO(assertion_stream.text):
-            if line.count(':') == 1:
-                key, val = [x.strip() for x in line.split(':')]
-                if key == 'kernel':
-                    if '=' in val:
-                        snap, _ = [x.strip() for x in val.split('=')]
-                    else:
-                        snap = val
-                    break
-    return snap
+    model = next(decode(Snapd().get_assertions('model')), None)
+    if model:
+        # convert to resource to handle presence of track info
+        resource = model_to_resource(model)
+        return resource.get('kernel')
+    return None
 
 
 def get_gadget_snap():
-    snap = None
-    assertion_stream = Snapd().get_assertions('model')
-    count = int(assertion_stream.headers['X-Ubuntu-Assertions-Count'])
-    if count > 0:
-        for line in io.StringIO(assertion_stream.text):
-            if line.count(':') == 1:
-                key, val = [x.strip() for x in line.split(':')]
-                if key == 'gadget':
-                    if '=' in val:
-                        snap, _ = [x.strip() for x in val.split('=')]
-                    else:
-                        snap = val
-                    break
-    return snap
+    model = next(decode(Snapd().get_assertions('model')), None)
+    if model:
+        # convert to resource to handle presence of track info
+        resource = model_to_resource(model)
+        return resource.get('gadget')
+    return None
 
 
 def get_bootloader():

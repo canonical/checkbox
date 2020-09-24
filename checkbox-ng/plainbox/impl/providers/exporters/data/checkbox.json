@@ -120,9 +120,11 @@
 {%- set dkms_info_json = '{' + state.job_state_map[ns ~ 'dkms_info_json'].result.io_log_as_text_attachment.split('{', 1)[-1] %}
     "dkms_info": {{ dkms_info_json | indent(4, false) | safe }}
 {%- endif %}
-{%- if ns ~ 'udev_json' in state.job_state_map and state.job_state_map[ns ~ 'udev_json'].result.outcome == 'pass' %},
+{%- if ns ~ 'udev_json' in state.job_state_map and state.job_state_map[ns ~ 'udev_json'].result.outcome == 'pass' %}
 {%- set udev_json = state.job_state_map[ns ~ 'udev_json'].result.io_log_as_text_attachment %}
+{%- if udev_json %},
     "devices": {{ udev_json | indent(4, false) | safe }}
+{%- endif %}
 {%- endif %}
 {%- if ns ~ 'raw_devices_dmi_json' in state.job_state_map and state.job_state_map[ns ~ 'raw_devices_dmi_json'].result.outcome == 'pass' %},
 {%- set raw_devices_dmi_json = state.job_state_map[ns ~ 'raw_devices_dmi_json'].result.io_log_as_text_attachment %}

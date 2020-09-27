@@ -999,6 +999,16 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "MMAL"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
 
+    def test_RPI3B_NO_M2M_CAPTURE(self):
+        devices = self.parse("RPI3B")
+        self.assertEqual(self.count(devices, "MMAL"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+
+    def test_RPI4B4G_NO_M2M_CAPTURE(self):
+        devices = self.parse("RPI4B4G")
+        self.assertEqual(self.count(devices, "MMAL"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+
     def test_CAPTURE_METADATA(self):
         devices = self.parse("CAPTURE_METADATA")
         self.assertEqual(len(devices), 111)

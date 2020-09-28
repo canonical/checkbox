@@ -993,6 +993,8 @@ E: UDEV_LOG=3
         devices = self.parse("RPI2_WITH_CAMERA")
         self.assertEqual(self.count(devices, "MMAL"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "DRI"), 0)
 
     def test_RPI2_WITH_CAMERA_V4L2(self):
         devices = self.parse("RPI2_WITH_CAMERA_V4L2")
@@ -1003,11 +1005,20 @@ E: UDEV_LOG=3
         devices = self.parse("RPI3B")
         self.assertEqual(self.count(devices, "MMAL"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "DRI"), 0)
 
     def test_RPI4B4G_NO_M2M_CAPTURE(self):
         devices = self.parse("RPI4B4G")
         self.assertEqual(self.count(devices, "MMAL"), 1)
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "VIDEO"), 2)
+        self.assertEqual(self.count(devices, "DRI"), 0)
+
+    def test_ZCU104(self):
+        devices = self.parse("ZCU104")
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "DRI"), 0)
 
     def test_CAPTURE_METADATA(self):
         devices = self.parse("CAPTURE_METADATA")

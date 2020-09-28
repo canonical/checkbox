@@ -20,7 +20,10 @@ def decode(assertion_stream):
         for assertion in assertion_stream.text.split('\n\n\n\n'):
             # split to remove signature
             content = assertion.split('\n\n')[0]
-            yield yaml.load(content, Loader=yaml.FullLoader)
+            if int(yaml.__version__.split('.')[0]) < 5:
+                yield yaml.load(content)
+            else:
+                yield yaml.load(content, Loader=yaml.FullLoader)
 
 
 def model_to_resource(model_assertion):

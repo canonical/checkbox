@@ -288,12 +288,12 @@ class RemoteSessionAssistant():
             'extra_env': self.prepare_extra_env(),
         }
         self._sa.start_new_session(session_title, UnifiedRunner, runner_kwargs)
-        self._sa.update_app_blob(json.dumps(
-            {'description': session_desc, }).encode("UTF-8"))
-        self._sa.update_app_blob(json.dumps(
-            {'type': session_type, }).encode("UTF-8"))
-        self._sa.update_app_blob(json.dumps(
-            {'launcher': configuration['launcher'], }).encode("UTF-8"))
+        new_blob = json.dumps({
+            'description': session_desc,
+            'type': session_type,
+            'launcher': configuration['launcher'],
+        }).encode("UTF-8")
+        self._sa.update_app_blob(new_blob)
         self._sa.configure_application_restart(self._cmd_callback)
 
         self._session_id = self._sa.get_session_id()

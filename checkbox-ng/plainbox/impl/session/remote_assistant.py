@@ -267,20 +267,21 @@ class RemoteSessionAssistant():
 
         self._sa.use_alternate_configuration(self._launcher)
 
-        self._normal_user = self._launcher.normal_user
         if configuration['normal_user']:
             self._normal_user = configuration['normal_user']
         else:
-            import pwd
-            try:
-                self._normal_user = pwd.getpwuid(1000).pw_name
-                _logger.warning(
-                    ("normal_user not supplied via config(s). "
-                     "non-root jobs will run as %s"), self._normal_user)
-            except KeyError:
-                raise SystemExit(
-                    ("normal_user not supplied via config(s). "
-                     "Username for uid 1000 not found"))
+            self._normal_user = self._launcher.normal_user
+            if not self._normal_user:
+                import pwd
+                try:
+                    self._normal_user = pwd.getpwuid(1000).pw_name
+                    _logger.warning(
+                        ("normal_user not supplied via config(s). "
+                        "non-root jobs will run as %s"), self._normal_user)
+                except KeyError:
+                    raise RuntimeError(
+                        ("normal_user not supplied via config(s). "
+                        "Username for uid 1000 not found"))
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,

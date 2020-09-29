@@ -266,7 +266,10 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         configuration['launcher'] = self._launcher_text
         configuration['normal_user'] = self._normal_user
 
-        tps = self.sa.start_session(configuration)
+        try:
+            tps = self.sa.start_session(configuration)
+        except RuntimeError as exc:
+            raise SystemExit(exc.args[0]) from exc
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)

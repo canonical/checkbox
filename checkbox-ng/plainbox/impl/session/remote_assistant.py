@@ -292,6 +292,7 @@ class RemoteSessionAssistant():
             'description': session_desc,
             'type': session_type,
             'launcher': configuration['launcher'],
+            'effective_normal_user': self._normal_user,
         }).encode("UTF-8")
         self._sa.update_app_blob(new_blob)
         self._sa.configure_application_restart(self._cmd_callback)
@@ -642,7 +643,9 @@ class RemoteSessionAssistant():
         launcher = app_blob['launcher']
         self._launcher.read_string(launcher, False)
         self._sa.use_alternate_configuration(self._launcher)
-        self._normal_user = self._launcher.normal_user
+
+        self._normal_user = app_blob.get(
+            'effective_normal_user', self._launcher.normal_user)
         _logger.info(
             "normal_user after loading metadata: %r", self._normal_user)
         test_plan_id = app_blob['testplan_id']

@@ -631,8 +631,6 @@ class RemoteSessionAssistant():
             print("Requested session not found")
             return
         _logger.warning("Resuming session: %r", session_id)
-        self._normal_user = self._launcher.normal_user
-        _logger.info("normal_user: %r", self._normal_user)
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,

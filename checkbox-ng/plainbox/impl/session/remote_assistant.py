@@ -267,32 +267,34 @@ class RemoteSessionAssistant():
 
         self._sa.use_alternate_configuration(self._launcher)
 
-        self._normal_user = self._launcher.normal_user
         if configuration['normal_user']:
             self._normal_user = configuration['normal_user']
         else:
-            import pwd
-            try:
-                self._normal_user = pwd.getpwuid(1000).pw_name
-                _logger.warning(
-                    ("normal_user not supplied via config(s). "
-                     "non-root jobs will run as %s"), self._normal_user)
-            except KeyError:
-                raise SystemExit(
-                    ("normal_user not supplied via config(s). "
-                     "Username for uid 1000 not found"))
+            self._normal_user = self._launcher.normal_user
+            if not self._normal_user:
+                import pwd
+                try:
+                    self._normal_user = pwd.getpwuid(1000).pw_name
+                    _logger.warning(
+                        ("normal_user not supplied via config(s). "
+                        "non-root jobs will run as %s"), self._normal_user)
+                except KeyError:
+                    raise RuntimeError(
+                        ("normal_user not supplied via config(s). "
+                        "Username for uid 1000 not found"))
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
             'extra_env': self.prepare_extra_env(),
         }
         self._sa.start_new_session(session_title, UnifiedRunner, runner_kwargs)
-        self._sa.update_app_blob(json.dumps(
-            {'description': session_desc, }).encode("UTF-8"))
-        self._sa.update_app_blob(json.dumps(
-            {'type': session_type, }).encode("UTF-8"))
-        self._sa.update_app_blob(json.dumps(
-            {'launcher': configuration['launcher'], }).encode("UTF-8"))
+        new_blob = json.dumps({
+            'description': session_desc,
+            'type': session_type,
+            'launcher': configuration['launcher'],
+            'effective_normal_user': self._normal_user,
+        }).encode("UTF-8")
+        self._sa.update_app_blob(new_blob)
         self._sa.configure_application_restart(self._cmd_callback)
 
         self._session_id = self._sa.get_session_id()
@@ -629,8 +631,6 @@ class RemoteSessionAssistant():
             print("Requested session not found")
             return
         _logger.warning("Resuming session: %r", session_id)
-        self._normal_user = self._launcher.normal_user
-        _logger.info("normal_user: %r", self._normal_user)
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
@@ -641,7 +641,9 @@ class RemoteSessionAssistant():
         launcher = app_blob['launcher']
         self._launcher.read_string(launcher, False)
         self._sa.use_alternate_configuration(self._launcher)
-        self._normal_user = self._launcher.normal_user
+
+        self._normal_user = app_blob.get(
+            'effective_normal_user', self._launcher.normal_user)
         _logger.info(
             "normal_user after loading metadata: %r", self._normal_user)
         test_plan_id = app_blob['testplan_id']

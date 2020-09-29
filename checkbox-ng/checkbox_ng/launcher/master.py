@@ -138,10 +138,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             with open(expanded_path, 'rt') as f:
                 self._launcher_text = f.read()
             self.launcher.read_string(self._launcher_text)
-        if 'local' in ctx.args.host:
-            ctx.args.host = '127.0.0.1'
-            if ipaddress.ip_address(ctx.args.host).is_loopback:
-                self._normal_user = getpass.getuser()
         if ctx.args.user:
             self._normal_user = ctx.args.user
         timeout = 600
@@ -266,7 +262,10 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         configuration['launcher'] = self._launcher_text
         configuration['normal_user'] = self._normal_user
 
-        tps = self.sa.start_session(configuration)
+        try:
+            tps = self.sa.start_session(configuration)
+        except RuntimeError as exc:
+            raise SystemExit(exc.args[0]) from exc
         if self.launcher.test_plan_forced:
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)

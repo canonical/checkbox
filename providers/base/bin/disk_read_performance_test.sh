@@ -32,6 +32,9 @@ for disk in "$@"; do
   if [[ $dev_path =~ pmem ]]; then
     disk_type="nvdimm"
   fi
+  if [[ $dev_path =~ mtd ]]; then
+    disk_type="mtd"
+  fi
   if [[ ($disk_type == "scsi" || $disk_type == "ata") && $rotational == 0 ]]; then
     disk_type="ssd"
   fi
@@ -58,6 +61,7 @@ for disk in "$@"; do
     "devmapper" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
     "ide" ) MIN_BUF_READ=40;;
     "mmc" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
+    "mtd" ) MIN_BUF_READ=1;;
     "nvme" ) MIN_BUF_READ=200;;
     "nvdimm" ) MIN_BUF_READ=500;;
     "mdadm" ) MIN_BUF_READ=80;;

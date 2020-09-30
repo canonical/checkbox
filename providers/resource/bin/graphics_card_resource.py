@@ -140,7 +140,7 @@ def main():
         for index, record in enumerate(video_devices, 1):
             record['index'] = index
             record['gpu_count'] = len(video_devices)
-            if record['vendor_id'] == '4098':  # vendor == amd/ati
+            if record.get('vendor_id', '') == '4098':  # vendor == amd/ati
                 if subprocess.call(
                         ['dpkg-query', '-W', 'vulkan-amdgpu-pro'],
                         stderr=subprocess.STDOUT,

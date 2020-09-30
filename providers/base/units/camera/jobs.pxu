@@ -2,8 +2,9 @@ plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/detect
 estimated_duration: 1.2
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'CAPTURE'
+  manifest.has_camera == 'True'
 command:
   camera_test.py detect
 _summary: This Automated test attempts to detect a camera.

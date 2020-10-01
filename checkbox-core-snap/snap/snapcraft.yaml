@@ -1,7 +1,7 @@
 name: checkbox20
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-version: '1.17.dev'
+version: '1.18.dev'
 grade: stable
 
 base: core20

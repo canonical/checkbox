@@ -9,8 +9,9 @@ import hashlib
 import os
 import sys
 
-from checkbox_support.snap_utils.system import (
-    get_kernel_snap, add_hostfs_prefix)
+from checkbox_support.snap_utils.system import get_kernel_snap
+from checkbox_support.snap_utils.system import get_series
+from checkbox_support.snap_utils.system import add_hostfs_prefix
 
 # 64kb buffer, hopefully suitable for all devices that might run this test
 BUF_SIZE = 65536
@@ -20,7 +21,10 @@ def get_snap_kernel_path():
     kernel = get_kernel_snap()
     if kernel is None:
         raise SystemExit('ERROR: failed to get kernel snap')
-    path = '/snap/{}/current/kernel.img'.format(kernel)
+    if int(get_series()) >= 20:
+        path = '/snap/{}/current/kernel.efi'.format(kernel)
+    else:
+        path = '/snap/{}/current/kernel.img'.format(kernel)
     return path
 
 

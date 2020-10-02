@@ -19,3 +19,15 @@ nested_part:
     com.canonical.certification::dock-cert-full
     com.canonical.certification::after-suspend-dock-cert-full
 
+id: touchpad
+_name: Touchpad Tests
+unit: test plan
+_description:
+ This test plan is used for customers and independent hardware vendors (IHV)
+ to test and verify the behavior of touchpads on tested devices.
+include:
+nested_part:
+    submission-cert-full
+    touchpad-cert-full
+    after-suspend-touchpad-cert-full
+    info-attachment-cert-full

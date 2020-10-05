@@ -163,14 +163,14 @@ include:
     wireless/wireless_connection_wpa_ac_nm_.*
     wireless/wireless_connection_wpa_bg_nm_.*
     wireless/wireless_connection_wpa_n_nm_.*
-    # wireless/wireless_connection_open_ax_np_.*
-    # wireless/wireless_connection_open_ac_np_.*
-    # wireless/wireless_connection_open_bg_np_.*
-    # wireless/wireless_connection_open_n_np_.*
-    # wireless/wireless_connection_wpa_ax_np_.*
-    # wireless/wireless_connection_wpa_ac_np_.*
-    # wireless/wireless_connection_wpa_bg_np_.*
-    # wireless/wireless_connection_wpa_n_np_.*
+    wireless/wireless_connection_open_ax_np_.*
+    wireless/wireless_connection_open_ac_np_.*
+    wireless/wireless_connection_open_bg_np_.*
+    wireless/wireless_connection_open_n_np_.*
+    wireless/wireless_connection_wpa_ax_np_.*
+    wireless/wireless_connection_wpa_ac_np_.*
+    wireless/wireless_connection_wpa_bg_np_.*
+    wireless/wireless_connection_wpa_n_np_.*
 bootstrap_include:
     device
 
@@ -182,15 +182,15 @@ _description:
  networks using netplan.
 include:
     wireless/detect
-    # wireless/wireless_scanning_.*
-    # wireless/wireless_connection_open_ax_nm_.*
-    # wireless/wireless_connection_open_ac_nm_.*
-    # wireless/wireless_connection_open_bg_nm_.*
-    # wireless/wireless_connection_open_n_nm_.*
-    # wireless/wireless_connection_wpa_ax_nm_.*
-    # wireless/wireless_connection_wpa_ac_nm_.*
-    # wireless/wireless_connection_wpa_bg_nm_.*
-    # wireless/wireless_connection_wpa_n_nm_.*
+    wireless/wireless_scanning_.*
+    wireless/wireless_connection_open_ax_nm_.*
+    wireless/wireless_connection_open_ac_nm_.*
+    wireless/wireless_connection_open_bg_nm_.*
+    wireless/wireless_connection_open_n_nm_.*
+    wireless/wireless_connection_wpa_ax_nm_.*
+    wireless/wireless_connection_wpa_ac_nm_.*
+    wireless/wireless_connection_wpa_bg_nm_.*
+    wireless/wireless_connection_wpa_n_nm_.*
     wireless/wireless_connection_open_ax_np_.*
     wireless/wireless_connection_open_ac_np_.*
     wireless/wireless_connection_open_bg_np_.*
@@ -366,14 +366,14 @@ include:
     after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
     after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
     after-suspend-wireless/wireless_connection_wpa_n_nm_.*
-    # after-suspend-wireless/wireless_connection_open_ax_np_.*
-    # after-suspend-wireless/wireless_connection_open_ac_np_.*
-    # after-suspend-wireless/wireless_connection_open_bg_np_.*
-    # after-suspend-wireless/wireless_connection_open_n_np_.*
-    # after-suspend-wireless/wireless_connection_wpa_ax_np_.*
-    # after-suspend-wireless/wireless_connection_wpa_ac_np_.*
-    # after-suspend-wireless/wireless_connection_wpa_bg_np_.*
-    # after-suspend-wireless/wireless_connection_wpa_n_np_.*
+    after-suspend-wireless/wireless_connection_open_ax_np_.*
+    after-suspend-wireless/wireless_connection_open_ac_np_.*
+    after-suspend-wireless/wireless_connection_open_bg_np_.*
+    after-suspend-wireless/wireless_connection_open_n_np_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_np_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_np_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_np_.*
+    after-suspend-wireless/wireless_connection_wpa_n_np_.*
 bootstrap_include:
     device
 
@@ -384,15 +384,15 @@ _description:
  Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
  networks using netplan.
 include:
-    # after-suspend-wireless/wireless_scanning_.*
-    # after-suspend-wireless/wireless_connection_open_ax_nm_.*
-    # after-suspend-wireless/wireless_connection_open_ac_nm_.*
-    # after-suspend-wireless/wireless_connection_open_bg_nm_.*
-    # after-suspend-wireless/wireless_connection_open_n_nm_.*
-    # after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
-    # after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
-    # after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
-    # after-suspend-wireless/wireless_connection_wpa_n_nm_.*
+    after-suspend-wireless/wireless_scanning_.*
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*
+    after-suspend-wireless/wireless_connection_open_bg_nm_.*
+    after-suspend-wireless/wireless_connection_open_n_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
     after-suspend-wireless/wireless_connection_open_ax_np_.*
     after-suspend-wireless/wireless_connection_open_ac_np_.*
     after-suspend-wireless/wireless_connection_open_bg_np_.*

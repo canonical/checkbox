@@ -47,7 +47,7 @@ user: root
 environ: STRESS_NG_MIN_SWAP_SIZE
 requires:
  executable.name == 'stress-ng'
-command: stress_ng_test.py memory
+command: systemd-inhibit stress_ng_test.py memory
 _summary: Stress test of system memory
 _description:
  Test to perform some basic stress and exercise of system memory via the

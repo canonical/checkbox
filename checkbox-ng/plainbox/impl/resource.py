@@ -116,7 +116,7 @@ class Resource:
         if attr in data:
             return data[attr]
         else:
-            raise AttributeError(attr, "don't poke at %r" % attr)
+            return ''
 
     def __getattribute__(self, attr):
         if attr != "_data":

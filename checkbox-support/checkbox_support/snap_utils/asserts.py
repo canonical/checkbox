@@ -48,12 +48,13 @@ def model_to_resource(model_assertion):
         # older formats
         for key in ('kernel', 'gadget'):
             val = model_assertion.get(key)
-            if '=' in val:
-                snap, track = [x.strip() for x in val.split('=')]
-                resource[key] = snap
-                resource['{}_track'.format(key)] = track
-            else:
-                resource[key] = val
+            if val:
+                if '=' in val:
+                    snap, track = [x.strip() for x in val.split('=')]
+                    resource[key] = snap
+                    resource['{}_track'.format(key)] = track
+                else:
+                    resource[key] = val
     return resource
 
 

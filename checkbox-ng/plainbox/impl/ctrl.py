@@ -317,7 +317,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                     try:
                         check_result = new_unit.check()
                     except MissingParam as m:
-                        logger.warning(_("Ignoring %s with missing "
+                        logger.debug(_("Ignoring %s with missing "
                                          "template parameter %s"),
                                          new_unit._raw_data.get('id'),
                                          m.parameter)

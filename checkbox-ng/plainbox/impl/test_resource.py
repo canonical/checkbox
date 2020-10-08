@@ -78,7 +78,6 @@ class ResourceTests(TestCase):
 
     def test_private_data_is_somewhat_protected(self):
         res = Resource()
-        self.assertRaises(AttributeError, getattr, res, "_data")
         self.assertRaises(AttributeError, delattr, res, "_data")
         self.assertRaises(AttributeError, setattr, res, "_data", None)
 
@@ -91,7 +90,7 @@ class ResourceTests(TestCase):
 
     def test_getattr(self):
         res = Resource()
-        self.assertRaises(AttributeError, getattr, res, "attr")
+        self.assertEqual(getattr(res, 'attr'), '')
         res = Resource({'attr': 'value'})
         self.assertEqual(getattr(res, 'attr'), 'value')
 
@@ -120,8 +119,8 @@ class ResourceTests(TestCase):
         self.assertRaises(AttributeError, delattr, res, "attr")
         res = Resource({'attr': 'value'})
         del res.attr
-        self.assertRaises(AttributeError, getattr, res, "attr")
-        self.assertRaises(AttributeError, lambda res: res.attr, res)
+        self.assertEqual(getattr(res, 'attr'), '')
+        self.assertEqual(res.attr, '')
 
     def test_delitem(self):
         res = Resource()

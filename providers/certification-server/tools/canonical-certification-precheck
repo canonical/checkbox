@@ -174,17 +174,23 @@ fi
 LVM_Check(){
 name="LVM Check"
 echoname
-local lvmCount=$(sudo lvmdiskscan | awk '/[0-9] LVM/ {print $1}' | tr -d -c 0-9)
-local lvmList=($(sudo lvmdiskscan | awk '/] LVM/ {print $1}'))
-if [ "$lvmCount" -eq "0" ]; then
-    echo -e " LVM not present."
-    pass
+if [ -x "$(command -v lvmdiskscan)" ]; then
+    local lvmCount=$(sudo lvmdiskscan | awk '/[0-9] LVM/ {print $1}' | tr -d -c 0-9)
+    local lvmList=($(sudo lvmdiskscan | awk '/] LVM/ {print $1}'))
+    if [ "$lvmCount" -eq "0" ]; then
+        echo -e " LVM not present."
+        pass
+    else
+        echo -e " LVM members found:"
+        for element in "${lvmList[@]}"; do
+            echo -e " ${element}"
+        done
+        fail
+    fi
 else
-    echo -e " LVM members found:"
-    for element in "${lvmList[@]}"; do
-        echo -e " ${element}"
-    done
-    fail
+   echo -e " lvmdiskscan command not found. Skipping this check."
+   echo -e " You should manually verify that LVM volumes are not present."
+   fail
 fi
 }
 

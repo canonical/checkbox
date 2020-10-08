@@ -31,7 +31,7 @@ def model_to_resource(model_assertion):
     resource = {}
     # list keys that can just be copied over
     wanted_keys = ('type', 'authority-id', 'brand-id', 'model', 'architecture',
-                   'base', 'grade', 'sign-key-sha3-384')
+                   'base', 'grade', 'sign-key-sha3-384', 'store')
     for key, val in model_assertion.items():
         if key in wanted_keys:
             resource[key] = val

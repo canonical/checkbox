@@ -31,7 +31,7 @@ def model_to_resource(model_assertion):
     resource = {}
     # list keys that can just be copied over
     wanted_keys = ('type', 'authority-id', 'brand-id', 'model', 'architecture',
-                   'base', 'grade', 'sign-key-sha3-384')
+                   'base', 'grade', 'sign-key-sha3-384', 'store')
     for key, val in model_assertion.items():
         if key in wanted_keys:
             resource[key] = val
@@ -48,12 +48,13 @@ def model_to_resource(model_assertion):
         # older formats
         for key in ('kernel', 'gadget'):
             val = model_assertion.get(key)
-            if '=' in val:
-                snap, track = [x.strip() for x in val.split('=')]
-                resource[key] = snap
-                resource['{}_track'.format(key)] = track
-            else:
-                resource[key] = val
+            if val:
+                if '=' in val:
+                    snap, track = [x.strip() for x in val.split('=')]
+                    resource[key] = snap
+                    resource['{}_track'.format(key)] = track
+                else:
+                    resource[key] = val
     return resource
 
 

@@ -18,6 +18,9 @@ model_focal_desktop = 'snap_utils/tests/asserts_data/MODEL_FOCAL_DESKTOP.txt'
 serial_focal_desktop = 'snap_utils/tests/asserts_data/SERIAL_FOCAL_DESKTOP.txt'
 model_uc18 = 'snap_utils/tests/asserts_data/MODEL_UC18.txt'
 model_uc20 = 'snap_utils/tests/asserts_data/MODEL_UC20.txt'
+model_bionic_server = 'snap_utils/tests/asserts_data/MODEL_BIONIC_SERVER.txt'
+model_focal_server = 'snap_utils/tests/asserts_data/MODEL_FOCAL_SERVER.txt'
+model_uc16_brandstore = 'snap_utils/tests/asserts_data/MODEL_UC16_BRANDSTORE.txt'
 
 
 def create_mock_response(assert_path):
@@ -102,6 +105,94 @@ class TestModelAsserts(unittest.TestCase):
             'gadget_track': '20/edge',
             'kernel': 'pc-kernel',
             'kernel_track': '20/edge'
+        }
+        self.assertDictEqual(correct_resource, model_to_resource(a))
+        with self.assertRaises(StopIteration):
+            next(iter)
+
+    def test_decode_bionic_server(self):
+        assertion_stream = create_mock_response(model_bionic_server)
+        iter = decode(assertion_stream)
+        a = next(iter)
+        self.assertIn('type', a)
+        self.assertEqual(a['type'], 'model')
+        self.assertIn('model', a)
+        self.assertEqual(a['model'], 'generic-classic')
+        with self.assertRaises(StopIteration):
+            next(iter)
+
+    def test_model_to_resource_bionic_server(self):
+        assertion_stream = create_mock_response(model_bionic_server)
+        iter = decode(assertion_stream)
+        a = next(iter)
+        correct_resource = {
+            'type': 'model',
+            'authority-id': 'generic',
+            'brand-id': 'generic',
+            'model': 'generic-classic',
+            'sign-key-sha3-384': 'd-JcZF9nD9eBw7bwMnH61x-bklnQOhQud1Is6o_cn2wTj8EYDi9musrIT9z2MdAa'
+        }
+        self.assertDictEqual(correct_resource, model_to_resource(a))
+        self.assertNotIn('kernel', model_to_resource(a))
+        with self.assertRaises(StopIteration):
+            next(iter)
+
+    def test_decode_focal_server(self):
+        assertion_stream = create_mock_response(model_focal_server)
+        iter = decode(assertion_stream)
+        a = next(iter)
+        self.assertIn('type', a)
+        self.assertEqual(a['type'], 'model')
+        self.assertIn('model', a)
+        self.assertEqual(a['model'], 'generic-classic')
+        with self.assertRaises(StopIteration):
+            next(iter)
+
+    def test_model_to_resource_focal_server(self):
+        assertion_stream = create_mock_response(model_focal_server)
+        iter = decode(assertion_stream)
+        a = next(iter)
+        correct_resource = {
+            'type': 'model',
+            'authority-id': 'generic',
+            'brand-id': 'generic',
+            'model': 'generic-classic',
+            'sign-key-sha3-384': 'd-JcZF9nD9eBw7bwMnH61x-bklnQOhQud1Is6o_cn2wTj8EYDi9musrIT9z2MdAa'
+        }
+        self.assertDictEqual(correct_resource, model_to_resource(a))
+        self.assertNotIn('kernel', model_to_resource(a))
+        with self.assertRaises(StopIteration):
+            next(iter)
+
+    def test_decode_uc16_brandstore(self):
+        assertion_stream = create_mock_response(model_uc16_brandstore)
+        iter = decode(assertion_stream)
+        a = next(iter)
+        self.assertIn('type', a)
+        self.assertEqual(a['type'], 'model')
+        self.assertIn('model', a)
+        self.assertEqual(a['model'], 'devicemodel')
+        self.assertIn('store', a)
+        self.assertEqual(a['store'], 'aaaaabbbbbccccc12345')
+        self.assertIn('brand-id', a)
+        self.assertEqual(a['brand-id'], 'acmeinc')
+        with self.assertRaises(StopIteration):
+            next(iter)
+
+    def test_model_to_resource_uc16_brandstore(self):
+        assertion_stream = create_mock_response(model_uc16_brandstore)
+        iter = decode(assertion_stream)
+        a = next(iter)
+        correct_resource = {
+            'type': 'model',
+            'authority-id': 'acmeinc',
+            'brand-id': 'acmeinc',
+            'model': 'devicemodel',
+            'sign-key-sha3-384': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            'architecture': 'amd64',
+            'gadget': 'device',
+            'kernel': 'device-kernel',
+            'store': 'aaaaabbbbbccccc12345'
         }
         self.assertDictEqual(correct_resource, model_to_resource(a))
         with self.assertRaises(StopIteration):

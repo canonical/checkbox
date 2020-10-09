@@ -23,12 +23,13 @@ from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
 from checkbox_support.snap_utils.system import get_lk_bootimg_path
 from checkbox_support.snap_utils.system import add_hostfs_prefix
 from checkbox_support.snap_utils.system import get_series
+from checkbox_support.snap_utils.system import on_ubuntucore
 
 
 # Supported bootloaders and detected files taken from:
 # https://github.com/snapcore/snapd/blob/master/bootloader/bootloader.go
 # name = [root dir, config file]
-if int(get_series()) >= 20:
+if on_ubuntucore() and int(get_series()) >= 20:
     bootloaders = {
         'uboot': ['/boot/uboot', 'boot.sel'],
         'grub': ['/boot/grub', 'grub.cfg'],
@@ -62,7 +63,7 @@ def booted_kernel_location(bl_name):
     If either is not indentifiable currently use value 'unknown'.
     """
     if bl_name == 'grub':
-        if int(get_series()) >= 20:
+        if on_ubuntucore() and int(get_series()) >= 20:
             symlink = '/boot/grub/kernel.efi'
             prefixed = add_hostfs_prefix(symlink)
             path = os.path.realpath(prefixed)

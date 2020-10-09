@@ -73,9 +73,9 @@ class CpuFreqTest:
                                  'scaling_max_freq')
             path_min = path.join('cpu0', 'cpufreq',
                                  'scaling_min_freq')
-            scaling_freqs.append(
+            freq_table.append(
                 self._read_sysfs(path_max).rstrip('\n'))
-            scaling_freqs.append(
+            freq_table.append(
                 self._read_sysfs(path_min).rstrip('\n'))
             return freq_table
 

@@ -229,7 +229,7 @@ class UsbDevice(dict):
         ]
         for field in hex_int_fields:
             self[field] = int(read_entry(sysfs_path, field), 16)
-        int_fields = ['maxchild', 'bNumInterfaces']
+        int_fields = ['maxchild', 'bNumInterfaces', 'busnum', 'devnum']
         for field in int_fields:
             self[field] = int(read_entry(sysfs_path, field))
         str_fields = ['version', 'speed', 'bMaxPower']
@@ -282,6 +282,24 @@ class UsbDevice(dict):
         children_strs = [c.to_str() for c in self.children]
         ifaces_strs = [i.to_str() for i in self.interfaces]
         return '\n'.join([line] + children_strs + ifaces_strs)
+
+    def to_short_str(self):
+        """Generate a short string representation of this USB Device."""
+        template = 'ID {idVendor:04x}:{idProduct:04x} {name}'
+        return '\n'.join([template.format(**self)] + [
+            c.to_short_str() for c in self.children])
+
+    def to_legacy_str(self):
+        """
+        Generate a string representation similar to early versions of lsusb.py
+        written for python2.
+        """
+        template = (
+            'Bus {busnum:03} Device {devnum:03} '
+            'ID {idVendor:04x}:{idProduct:04x} {name}'
+        )
+        return '\n'.join([template.format(**self)] + [
+            c.to_legacy_str() for c in self.children])
 
 
 def get_usb_devices(usb_ids=UsbIds()):

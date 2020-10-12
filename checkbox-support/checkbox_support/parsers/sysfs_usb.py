@@ -45,7 +45,8 @@ class UsbIds:
 
     def decode_product(self, vid, pid):
         """Transate vendor ID and product ID to a device name."""
-        return self._products[vid, pid]
+        return '{} {}'.format(
+            self._vendors[vid], self._products[vid, pid])
 
     def decode_protocol(self, cid, scid, prid):
         """

@@ -61,18 +61,21 @@ class UsbIds:
             ''
         )
 
-    def __init__(self):
+    def __init__(self, usb_ids_path=None):
         self._vendors = OrderedDict()
         self._products = OrderedDict()
         self._classes = OrderedDict()
         self._subclasses = OrderedDict()
         self._protocols = OrderedDict()
-        paths = [
-            # focal, bionic, xenial, and debian(s)
-            '/var/lib/usbutils/usb.ids',
-            # fallback - used in kernel maintainer's repos
-            '/usr/share/usb.ids',
-        ]
+        if usb_ids_path:
+            paths = [usb_ids_path]
+        else:
+            paths = [
+                # focal, bionic, xenial, and debian(s)
+                '/var/lib/usbutils/usb.ids',
+                # fallback - used in kernel maintainer's repos
+                '/usr/share/usb.ids',
+            ]
         for path in paths:
             if os.path.isfile(path):
                 # at the time of writing this the usb_ids has one line that
@@ -164,7 +167,7 @@ class UsbInterface(dict):
     """
     A proxy to sysfs entry for a USB Interface.
     """
-    def __init__(self, sysfs_path, parent):
+    def __init__(self, sysfs_path, usb_ids, parent):
         super().__init__(self)
         self.sysfs_path = sysfs_path
         self._parent = parent
@@ -210,7 +213,7 @@ class UsbDevice(dict):
     Attributes can be read as dictionary keys.
     Sub-devices are available from the `children` property.
     """
-    def __init__(self, sysfs_path, parent=None):
+    def __init__(self, sysfs_path, usb_ids, parent=None):
         super().__init__(self)
         self.sysfs_path = sysfs_path
         self.parent = parent
@@ -261,10 +264,10 @@ class UsbDevice(dict):
             sub_path = os.path.join(sysfs_path, node)
             if os.path.exists(os.path.join(sub_path, 'bInterfaceClass')):
                 # interface information
-                self.interfaces.append(UsbInterface(sub_path, self))
+                self.interfaces.append(UsbInterface(sub_path, usb_ids, self))
             else:
                 # 'real' USB device
-                self.children.append(UsbDevice(sub_path, self))
+                self.children.append(UsbDevice(sub_path, usb_ids, self))
 
     def to_str(self):
         """Generate a string representation of this USB Device."""
@@ -281,13 +284,12 @@ class UsbDevice(dict):
         return '\n'.join([line] + children_strs + ifaces_strs)
 
 
-def get_usb_devices():
-    """Get dict-like objects representing USB devices."""
+def get_usb_devices(usb_ids=UsbIds()):
+    """
+    Get dict-like objects representing USB devices.
+
+    `usb_ids` argument should be an instance to UsbIds object. If not supplied
+    one with default settings will be created.
+    """
     for node in glob.glob("/sys/bus/usb/devices/usb*"):
-        yield UsbDevice(node)
-
-# REVIEW : wonder if the database creation should be done when it's first
-#          accessed. Left it simple for, um, simplicity :)
-
-
-usb_ids = UsbIds()
+        yield UsbDevice(node, usb_ids)

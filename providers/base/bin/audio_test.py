@@ -24,10 +24,6 @@ except ImportError:
     print((sys.version), file=sys.stderr)
     sys.exit(127)
 
-try:
-    from collections.abc import Callable
-except ImportError:
-    from collections import Callable  # backward compatible
 
 # Frequency bands for FFT
 BINS = 256
@@ -115,22 +111,16 @@ class PIDController(object):
 class PAVolumeController(object):
     pa_types = {'input': 'source', 'output': 'sink'}
 
-    def __init__(self, type, method=None, logger=None):
+    def __init__(self, type, logger=None):
         """Initializes the volume controller.
 
            Arguments:
            type: either input or output
-           method: a method that will run a command and return pulseaudio
-           information in the described format, as a single string with
-           line breaks (to be processed with str.splitlines())
 
         """
         self.type = type
         self._volume = None
         self.identifier = None
-        self.method = method
-        if not isinstance(method, Callable):
-            self.method = self._pactl_output
         self.logger = logger
 
     def set_volume(self, volume):
@@ -142,8 +132,7 @@ class PAVolumeController(object):
                    'set-%s-volume' % (self.pa_types[self.type]),
                    str(self.identifier[0]),
                    str(int(volume)) + "%"]
-        if not self.method(command):
-            return False
+        self._pactl_output(command)
         self._volume = volume
         return True
 
@@ -160,8 +149,7 @@ class PAVolumeController(object):
                    'set-%s-mute' % (self.pa_types[self.type]),
                    str(self.identifier[0]),
                    mute]
-        if not self.method(command):
-            return False
+        self._pactl_output(command)
         return True
 
     def get_identifier(self):
@@ -192,7 +180,7 @@ class PAVolumeController(object):
         # <ID>\t<NAME>\t<MODULE>\t<SAMPLE_SPEC_WITH_SPACES>\t<STATE>
         # What we need to return is the ID for the first element on this list
         # that does not contain auto_null or monitor.
-        pa_info = self.method(command)
+        pa_info = self._pactl_output(command)
         valid_elements = None
 
         if pa_info:
@@ -221,7 +209,8 @@ class PAVolumeController(object):
                                                universal_newlines=True)
             except (subprocess.CalledProcessError):
                 time.sleep(5)
-        return False
+        self.logger.error("Fail to execute: {}".format(command))
+        sys.exit(1)
 
 
 class FileDumper(object):
@@ -369,7 +358,7 @@ class GStreamerMessageHandler(object):
         # we can't control it :(
         current_volume = volume_controller.get_volume()
         if current_volume is None:
-            self.logger.error("Unable to control recording volume."
+            self.logger.error("Unable to control recording volume. "
                               "Test results may be wrong")
             return
         self.current_level = level

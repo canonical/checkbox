@@ -82,6 +82,9 @@ class CpuFreqTest:
         self.fail_count = 0
         self.path_root = '/sys/devices/system/cpu'
         self.__proc_list = []  # track spawned processes
+        # catalog known cpufreq driver types
+        # used to determine logic flow control
+        self.driver_types = ['-cpufreq', 'cpufreq-']
         # chainmap object for dict of dicts
         self.freq_chainmap = collections.ChainMap()
         # cpufreq driver
@@ -99,7 +102,7 @@ class CpuFreqTest:
             path_startup_governor).rstrip('\n')
 
         # ensure the correct freq table is populated
-        if 'acpi-cpufreq' in self.scaling_driver:
+        if any(drvr in self.scaling_driver for drvr in self.driver_types):
             path_scaling_freqs = path.join('cpu0', 'cpufreq',
                                            'scaling_available_frequencies')
             scaling_freqs = self._read_sysfs(
@@ -320,7 +323,7 @@ class CpuFreqTest:
         enable_off_cores()
 
         # reset sysfs for non-acpi_cpufreq systems
-        if 'acpi-cpufreq' not in self.scaling_driver:
+        if not any(drvr in self.scaling_driver for drvr in self.driver_types):
             if 'intel_' in self.scaling_driver:
                 reset_intel_driver()
             else:
@@ -364,7 +367,7 @@ class CpuFreqTest:
 
         logging.info('* configuring cpu governors:')
         # userspace governor required for scaling_setspeed
-        if 'acpi-cpufreq' in self.scaling_driver:
+        if any(drvr in self.scaling_driver for drvr in self.driver_types):
             self.set_governors('userspace')
         else:
             self.set_governors('performance')
@@ -542,6 +545,7 @@ class CpuFreqCoreTest(CpuFreqTest):
             if self.thread_timer:
                 # event loop end
                 self.thread_timer.cancel()
+            # logic reinforcement
             self.timer_running = False
 
     # as we may instantiate many instances
@@ -662,8 +666,8 @@ class CpuFreqCoreTest(CpuFreqTest):
             # map freq results to core
             map_observed_freqs(_freq)
 
-        # acpi supports full freq table scaling via scaling_setspeed
-        if 'acpi-cpufreq' in self.scaling_driver:
+        # cpufreq class driver (non-intel) supports full freq table scaling
+        if any(drvr in self.scaling_driver for drvr in self.driver_types):
             fpath = path.join(self.__instance_cpu,
                               'cpufreq', 'scaling_setspeed')
         # others support max, min freq scaling
@@ -675,8 +679,6 @@ class CpuFreqCoreTest(CpuFreqTest):
         for idx, freq in enumerate(self.scaling_freqs):
             # re-init some attributes after 1st pass
             if idx:
-                # 200ms sync-up for aligning output
-                time.sleep(.2)
                 # reset freq list
                 self.__observed_freqs = []
                 # reset signal.signal() event loop bit
@@ -723,7 +725,7 @@ def parse_args_logging():
     # only allow one arg to be passed
     parser_mutex_grp = parser.add_mutually_exclusive_group()
     parser_mutex_grp.add_argument(
-        '-d', '--debug',
+        '-d', '-D', '--debug',
         dest='log_level',
         action='store_const',
         const=logging.DEBUG,
@@ -731,14 +733,14 @@ def parse_args_logging():
         default=logging.INFO,
         help='debug/verbose output')
     parser_mutex_grp.add_argument(
-        '-q', '--quiet',
+        '-q', '-Q', '--quiet',
         dest='log_level',
         action='store_const',
         # repurpose built-in logging level
         const=logging.WARNING,
         help='suppress output')
     parser_mutex_grp.add_argument(
-        '-r', '--reset',
+        '-r', '-R', '--reset',
         action='store_true',
         help='reset cpufreq sysfs parameters (all cores):'
         ' (governor, thread siblings, max/min freqs, pstate)')

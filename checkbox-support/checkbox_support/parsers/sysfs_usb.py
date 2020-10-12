@@ -190,7 +190,7 @@ class UsbInterface(dict):
         template = (
             '{padded_name:16}(IF) {bInterfaceClass:02x}:'
             '{bInterfaceSubClass:02x}:{bInterfaceProtocol:02x} '
-            '{bNumEndpoints}EPs ({protocol_name} {driver} {name}'
+            '{bNumEndpoints}EPs ({protocol_name}) {driver} {name}'
         )
         padded_name = ' ' * self._level + os.path.basename(self.sysfs_path)
         half_done = partial(template.format, padded_name=padded_name)

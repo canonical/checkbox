@@ -152,15 +152,6 @@ def read_entry(sysfs_path, field):
         return fentry.readline().strip('\n')
 
 
-def trim_hci(name):
-    """Make a simpler string for HCI Host controllers."""
-    regex = r"Linux [^ ]* (.hci_hcd) .HCI Host Controller ([0-9a-f:\.]*)"
-    matches = re.match(regex, name)
-    if matches:
-        return "{} {}".format(matches.group(1), matches.group(2))
-    return name
-
-
 # REVIEW : the next two classes share a lot of functionality, I kept them
 #          separate as there are just two and it helps with readibility
 class UsbInterface(dict):
@@ -244,9 +235,12 @@ class UsbDevice(dict):
             self['name'] = read_entry(sysfs_path, 'manufacturer')
             self['name'] += ' ' + read_entry(sysfs_path, 'product')
             self['name'] += ' ' + read_entry(sysfs_path, 'serial')
-            # for HCI host controller entry we may want to trim the name bit
-            if self['name'].startswith('Linux'):
-                self['name'] = trim_hci(self['name'])
+        # for HCI host controller entry we may want to trim the name bit
+        if self['name'].startswith('Linux'):
+            regex = r"Linux [^ ]* .hci[-_]hcd"
+            if re.search(regex, self['name']):
+                self['name'] = "Linux Foundation {:.2f} root hub".format(
+                    float(self['version']))
         # if nothing got read from sysfs we need to consult the USB IDS DB
         if not self['name']:
             with contextlib.suppress(Exception):

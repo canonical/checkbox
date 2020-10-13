@@ -27,9 +27,7 @@ def main():
     parser.add_argument(
         '-l', '--long', action='store_true',
         help="Use the new output format")
-    parser.add_argument(
-        '-f', '--file', action='store_true',
-        help="Path to the usb.ids file")
+    parser.add_argument('-f', '--file', help="Path to the usb.ids file")
     args = parser.parse_args()
 
     usb_ids = sysfs_usb.UsbIds(args.file)

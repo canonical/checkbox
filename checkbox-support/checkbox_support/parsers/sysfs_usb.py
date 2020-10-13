@@ -297,12 +297,13 @@ class UsbDevice(dict):
             c.to_legacy_str() for c in self.children])
 
 
-def get_usb_devices(usb_ids=UsbIds()):
+def get_usb_devices(usb_ids=None):
     """
     Get dict-like objects representing USB devices.
 
     `usb_ids` argument should be an instance to UsbIds object. If not supplied
     one with default settings will be created.
     """
+    usb_ids = usb_ids or UsbIds()
     for node in glob.glob("/sys/bus/usb/devices/usb*"):
         yield UsbDevice(node, usb_ids)

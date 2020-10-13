@@ -93,6 +93,8 @@ setup(
                 "checkbox_support.scripts.eddystone_scanner:main"),
             ("checkbox-support-lsusb="
                 "checkbox_support.scripts.lsusb:main"),
+            ("checkbox-support-lsusb3="
+                "checkbox_support.scripts.lsusb3:main"),
         ],
     },
 )

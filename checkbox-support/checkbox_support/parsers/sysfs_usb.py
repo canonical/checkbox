@@ -153,8 +153,6 @@ def read_entry(sysfs_path, field):
         return fentry.readline().strip('\n')
 
 
-# REVIEW : the next two classes share a lot of functionality, I kept them
-#          separate as there are just two and it helps with readibility
 class UsbInterface(dict):
     """
     A proxy to sysfs entry for a USB Interface.
@@ -167,8 +165,6 @@ class UsbInterface(dict):
         while parent:
             self._level += 1
             parent = parent.parent
-        # REVIEW : If this is too 'hucky' then I could just go with explicit
-        #          assigment of the fields. May be more readible that way.
         hex_int_fields = [
             'bInterfaceClass', 'bInterfaceSubClass', 'bInterfaceProtocol']
         for field in hex_int_fields:
@@ -183,8 +179,6 @@ class UsbInterface(dict):
             self['bInterfaceClass'], self['bInterfaceSubClass'],
             self['bInterfaceProtocol'])
 
-    # REVIEW: I was tempted to overload __str__, but I went with an explicit
-    #         function.
     def to_str(self):
         """Generate a string representation of this Interface."""
         template = (

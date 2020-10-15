@@ -68,8 +68,10 @@ class TestUsbIds(TestCase):
                 ids.decode_product(42, 42)
             self.assertEqual(ids.decode_protocol(42, 42, 42), '')
 
-    def test_full_product(self):
+    @patch('os.path.isfile')
+    def test_full_product(self, m_isfile):
         """Test good entry."""
+        m_isfile.return_value = True
         usb_ids_content = textwrap.dedent("""
             0042  ACME
             \t0042  Seafourium
@@ -79,8 +81,10 @@ class TestUsbIds(TestCase):
             ids = UsbIds()
             self.assertEqual(ids.decode_product(0x42, 0x42), 'ACME Seafourium')
 
-    def test_vendor_only(self):
+    @patch('os.path.isfile')
+    def test_vendor_only(self, m_isfile):
         """Test entry with vendor only."""
+        m_isfile.return_value = True
         usb_ids_content = textwrap.dedent("""
             0042  ACME
         """)
@@ -89,8 +93,10 @@ class TestUsbIds(TestCase):
             ids = UsbIds()
             self.assertEqual(ids.decode_vendor(0x42), 'ACME')
 
-    def test_full_protocol(self):
+    @patch('os.path.isfile')
+    def test_full_protocol(self, m_isfile):
         """Test full protocol triplet."""
+        m_isfile.return_value = True
         usb_ids_content = textwrap.dedent("""
             C 42  Explosives
             \t06  Bomb
@@ -102,8 +108,10 @@ class TestUsbIds(TestCase):
             self.assertEqual(ids.decode_protocol(0x42, 0x06, 0x01),
                              'Explosives:Bomb:Boom')
 
-    def test_class_and_subclass_only(self):
+    @patch('os.path.isfile')
+    def test_class_and_subclass_only(self, m_isfile):
         """Test fallback to cid and scid."""
+        m_isfile.return_value = True
         usb_ids_content = textwrap.dedent("""
             C 42  Explosives
             \t06  Bomb
@@ -114,8 +122,10 @@ class TestUsbIds(TestCase):
             self.assertEqual(ids.decode_protocol(0x42, 0x06, 0x01),
                              'Explosives:Bomb')
 
-    def test_class_only(self):
+    @patch('os.path.isfile')
+    def test_class_only(self, m_isfile):
         """Test fallback to cid."""
+        m_isfile.return_value = True
         usb_ids_content = textwrap.dedent("""
             C 42  Explosives
         """)

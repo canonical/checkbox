@@ -62,7 +62,7 @@ class TestUsbIds(TestCase):
     def test_empty(self):
         """Test empty database."""
         mopen = mock_open(read_data='')
-        with patch('checkbox_support.parsers.sysfs_usb.open', mopen):
+        with patch('builtins.open', mopen):
             ids = UsbIds()
             with self.assertRaises(KeyError):
                 ids.decode_product(42, 42)
@@ -75,7 +75,7 @@ class TestUsbIds(TestCase):
             \t0042  Seafourium
         """)
         mopen = mock_open(read_data=usb_ids_content)
-        with patch('checkbox_support.parsers.sysfs_usb.open', mopen):
+        with patch('builtins.open', mopen):
             ids = UsbIds()
             self.assertEqual(ids.decode_product(0x42, 0x42), 'ACME Seafourium')
 
@@ -85,7 +85,7 @@ class TestUsbIds(TestCase):
             0042  ACME
         """)
         mopen = mock_open(read_data=usb_ids_content)
-        with patch('checkbox_support.parsers.sysfs_usb.open', mopen):
+        with patch('builtins.open', mopen):
             ids = UsbIds()
             self.assertEqual(ids.decode_vendor(0x42), 'ACME')
 
@@ -97,7 +97,7 @@ class TestUsbIds(TestCase):
             \t\t01  Boom
         """)
         mopen = mock_open(read_data=usb_ids_content)
-        with patch('checkbox_support.parsers.sysfs_usb.open', mopen):
+        with patch('builtins.open', mopen):
             ids = UsbIds()
             self.assertEqual(ids.decode_protocol(0x42, 0x06, 0x01),
                              'Explosives:Bomb:Boom')
@@ -109,7 +109,7 @@ class TestUsbIds(TestCase):
             \t06  Bomb
         """)
         mopen = mock_open(read_data=usb_ids_content)
-        with patch('checkbox_support.parsers.sysfs_usb.open', mopen):
+        with patch('builtins.open', mopen):
             ids = UsbIds()
             self.assertEqual(ids.decode_protocol(0x42, 0x06, 0x01),
                              'Explosives:Bomb')
@@ -120,7 +120,7 @@ class TestUsbIds(TestCase):
             C 42  Explosives
         """)
         mopen = mock_open(read_data=usb_ids_content)
-        with patch('checkbox_support.parsers.sysfs_usb.open', mopen):
+        with patch('builtins.open', mopen):
             ids = UsbIds()
             self.assertEqual(ids.decode_protocol(0x42, 0x06, 0x01),
                              'Explosives')

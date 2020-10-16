@@ -299,6 +299,7 @@ parts:
       - uuid-runtime
       - wget
       - wmctrl
+      - xz-utils
     build-packages:
       - libasound2-dev
       - libcap-dev

@@ -290,6 +290,30 @@ _steps:
 _verification:
     Did the power management prompt pop up when press power button?
 
+plugin: user-interact
+category_id: com.canonical.plainbox::keys
+_summary:
+  Check power button event filtering
+id: keys/power-button-event
+estimated_duration: 15.0
+requires:
+  package.name == 'acpid'
+  package.name == 'libglib2.0-bin'
+command:
+  action=$(gsettings get org.gnome.settings-daemon.plugins.power power-button-action)
+  gsettings set org.gnome.settings-daemon.plugins.power power-button-action nothing
+  acpi_listen -t 10 | tee "$PLAINBOX_SESSION_SHARE"/power-button-event.log
+  gsettings set org.gnome.settings-daemon.plugins.power power-button-action "$action"
+  [[ $(grep -c "PBTN.*00000080" "$PLAINBOX_SESSION_SHARE"/power-button-event.log) -eq 1 ]] || \
+  [[ $(grep -c "PWRB.*00000080" "$PLAINBOX_SESSION_SHARE"/power-button-event.log) -eq 1 ]]
+purpose:
+  This test will check if power button event has reported correctly, the listener will
+  wait for 10 seconds.
+steps:
+  1. Single press and release the power button in 10 seconds, some platforms might need long-press
+     to trigger the PBTN or PWRB event
+  2. Check the number of output PBTN/PWRB event
+
 plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/fn-lock

@@ -25,6 +25,7 @@ include:
  keys/keyboard-backlight                        certification-status=blocker
  keys/microphone-mute                           certification-status=blocker
  keys/power-button                              certification-status=blocker
+ keys/power-button-event                        certification-status=blocker
  keys/fn-lock                                   certification-status=non-blocker
 
 id: keys-cert-automated
@@ -72,6 +73,7 @@ include:
     keys/keyboard-backlight                        certification-status=blocker
     keys/microphone-mute                           certification-status=blocker
     keys/power-button                              certification-status=blocker
+    keys/power-button-event                        certification-status=blocker
 
 id: after-suspend-keys-cert-blockers
 unit: test plan

@@ -30,6 +30,7 @@ _description:
  Touchpad tests (Automated)
 include:
  touchpad/detected-as-mouse                     certification-status=blocker
+ touchpad/palm-rejection-firmware-labeling_.*   certification-status=blocker
 
 
 id: after-suspend-touchpad-cert-full

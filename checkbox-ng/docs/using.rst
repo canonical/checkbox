@@ -115,8 +115,8 @@ Example::
 checkbox-cli list-bootstrapped
 ``````````````````````````````
 
-This special command list all the jobs that would be run on the device after
-the boostrapping phase, i.e. after all the resource jobs are run, and all
+This special command lists all the jobs that would be run on the device after
+the bootstrapping phase, i.e. after all the resource jobs are run, and all
 of the templates were instantiated.
 
 It requires an argument being the test plan for which the bootstrapping should
@@ -136,7 +136,7 @@ checkbox-cli tp-export
 
 ``tp-export`` exports a test plan as a spreadsheet document. Tests are grouped
 by categories and ordered alphabetically with the full description (or the job
-summary if there's no description). I addition to the description, the
+summary if there's no description). In addition to the description, the
 certification status (blocker/non-blocker) is exported.
 
 The session is similar to ``list-bootstrapped`` but all resource jobs are
@@ -193,7 +193,6 @@ with id matching the expression will be run, e.g.::
 
 .. note::
     The command above runs all jobs which id begins with ``com.acme:``
-    will be run
 
 You can use multiple patterns to match against, e.g.::
 

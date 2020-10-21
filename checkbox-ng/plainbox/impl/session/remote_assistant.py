@@ -21,6 +21,7 @@ import json
 import gettext
 import logging
 import os
+import pwd
 import time
 from collections import namedtuple
 from tempfile import SpooledTemporaryFile
@@ -219,7 +220,14 @@ class RemoteSessionAssistant():
                 'strings /proc/*/environ 2>/dev/null | '
                 'grep -m 1 -oP "(?<=XAUTHORITY=).*"',
                 shell=True, universal_newlines=True).rstrip()
-            return {'DISPLAY': display_value, 'XAUTHORITY': xauth_value}
+            uid = pwd.getpwnam(self._normal_user).pw_uid
+            return {
+                'DISPLAY': display_value,
+                'XAUTHORITY': xauth_value,
+                'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
+                'DBUS_SESSION_BUS_ADDRESS':
+                    'unix:path=/run/user/{}/bus'.format(uid)
+            }
         except CalledProcessError:
             return None
 
@@ -244,9 +252,13 @@ class RemoteSessionAssistant():
                 "XAUTHORITY" in p_environ and
                 p_user != 'gdm'
             ):  # gdm uses :1024
+                uid = pwd.getpwnam(self._normal_user).pw_uid
                 return {
                     'DISPLAY': p_environ['DISPLAY'],
-                    'XAUTHORITY': p_environ['XAUTHORITY']
+                    'XAUTHORITY': p_environ['XAUTHORITY'],
+                    'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
+                    'DBUS_SESSION_BUS_ADDRESS':
+                        'unix:path=/run/user/{}/bus'.format(uid)
                 }
 
     @allowed_when(Idle)
@@ -272,16 +284,15 @@ class RemoteSessionAssistant():
         else:
             self._normal_user = self._launcher.normal_user
             if not self._normal_user:
-                import pwd
                 try:
                     self._normal_user = pwd.getpwuid(1000).pw_name
                     _logger.warning(
                         ("normal_user not supplied via config(s). "
-                        "non-root jobs will run as %s"), self._normal_user)
+                         "non-root jobs will run as %s"), self._normal_user)
                 except KeyError:
                     raise RuntimeError(
                         ("normal_user not supplied via config(s). "
-                        "Username for uid 1000 not found"))
+                         "Username for uid 1000 not found"))
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
@@ -668,7 +679,7 @@ class RemoteSessionAssistant():
                     if result_dict.get('outcome') not in [
                             'pass', 'fail', 'skip']:
                         result_dict['outcome'] = IJobResult.OUTCOME_PASS
-            except json.JSONDecodeError as e:
+            except json.JSONDecodeError:
                 pass
         result = MemoryJobResult(result_dict)
         if self._last_job:

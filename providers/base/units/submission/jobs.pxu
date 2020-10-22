@@ -22,8 +22,10 @@ requires:
  dmi_present.state == 'supported'
 user: root
 command:
+ BOOT_MODE=$(inxi_snapshot -M --output json --output-file print | grep -oP '(?<=\d#)(UEFI|BIOS)(\s+\[Legacy\])?')
+ # shellcheck disable=SC2016
  dmidecode | python3 -m plainbox dev parse dmidecode | \
- jq '[.[] | ._attributes + {"category": .category}]'
+ jq --arg BOOT_MODE "$BOOT_MODE" '[.[] | ._attributes + {"category": .category} + (if .category == "BIOS" then {boot_mode: $BOOT_MODE} else {} end)]'
 estimated_duration: 1
 _description: Attaches dmidecode output
 _summary: Attaches json dumps of raw dmi devices

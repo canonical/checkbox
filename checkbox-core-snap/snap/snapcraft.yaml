@@ -1,7 +1,7 @@
 name: checkbox20
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-version: '1.18'
+version: '1.19.dev'
 grade: stable
 
 base: core20
@@ -66,7 +66,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V20.09.00"
+    source-tag: ""
     source-depth: 1
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts
@@ -92,7 +92,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.11.22-rc2"
+    source-tag: ""
     source-depth: 1
     plugin: make
     source: git://kernel.ubuntu.com/cking/stress-ng
@@ -114,7 +114,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
-    source-tag: "R09_25_20"
+    source-tag: ""
     source-depth: 1
     plugin: make
     source: https://github.com/acpica/acpica.git
@@ -128,7 +128,7 @@ parts:
     after: [stress-ng]
 ################################################################################
   checkbox-support:
-    source-tag: "snap-2020-10-20T1735"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/checkbox-support
@@ -163,7 +163,7 @@ parts:
       sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/distro.py
 ################################################################################
   checkbox-ng:
-    source-tag: "snap-2020-10-20T1735"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/checkbox-ng
@@ -201,7 +201,7 @@ parts:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
 ################################################################################
   plainbox-provider-resource:
-    source-tag: "snap-2020-10-20T1735"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-resource
@@ -236,7 +236,7 @@ parts:
     after: [checkbox-ng]
 ################################################################################
   plainbox-provider-checkbox:
-    source-tag: "snap-2020-10-20T1735"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-checkbox
@@ -319,7 +319,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-checkbox --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   plainbox-provider-ipdt:
-    source-tag: "snap-2020-05-29T0924"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-ipdt
@@ -341,7 +341,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-ipdt --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   plainbox-provider-docker:
-    source-tag: "snap-2020-07-22T1032"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-docker
@@ -363,7 +363,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-docker --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   plainbox-provider-tpm2:
-    source-tag: "snap-2020-07-22T1032"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-tpm2
@@ -385,7 +385,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-tpm2 --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   plainbox-provider-sru:
-    source-tag: "snap-2020-10-01T0725"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-sru
@@ -405,7 +405,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-sru --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   checkbox-provider-edgex:
-    source-tag: "snap-2020-09-24T0652"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/checkbox-provider-edgex
@@ -427,7 +427,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-edgex --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   plainbox-provider-snappy:
-    source-tag: "snap-2020-07-22T1032"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-snappy
@@ -447,7 +447,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-snappy --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   checkbox-provider-gpgpu:
-    source-tag: "snap-2020-10-20T1731"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/checkbox-provider-gpgpu
@@ -467,7 +467,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-gpgpu --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   plainbox-provider-certification-client:
-    source-tag: "snap-2020-10-20T1731"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-certification-client
@@ -487,7 +487,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-certification-client --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
   plainbox-provider-certification-server:
-    source-tag: "snap-2020-10-20T1731"
+    source-tag: ""
     source-depth: 1
     plugin: python
     source: git://git.launchpad.net/plainbox-provider-certification-server

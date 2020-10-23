@@ -84,7 +84,11 @@ class CpuFreqTest:
         self.__proc_list = []  # track spawned processes
         # catalog known cpufreq driver types
         # used to determine logic flow control
-        self.driver_types = ['-cpufreq', 'cpufreq-']
+        self.driver_types = (
+            '-cpufreq',
+            'cpufreq-',
+            'arm-big-little'
+        )
         # chainmap object for dict of dicts
         self.freq_chainmap = collections.ChainMap()
         # cpufreq driver

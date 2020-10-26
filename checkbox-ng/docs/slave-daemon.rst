@@ -84,7 +84,7 @@ If it's not running, make sure the service and the Daemon are enabled.
 Master connects but I'm seeing wrong test plans
 -----------------------------------------------
 
-There is a chance that you have to services running that compete to listen
+There is a chance that you have two services running that compete to listen
 on the default port.
 
 Try listing statuses of all Checkbox Slave services and make sure only one is

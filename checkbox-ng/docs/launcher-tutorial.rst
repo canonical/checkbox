@@ -99,7 +99,7 @@ be used to identify a stored sessions and can be used in report generation.
 ``session_desc``
 
 A string that can be applied to sessions created using this launcher. Useful
-for storing some contextual infomation about the session.
+for storing some contextual information about the session.
 
 ``stock_reports``
 
@@ -123,7 +123,7 @@ This field is a list; use commas or spaces to separate stock reports. The
 default value: ``text, certification, submission_files``.
 
 When using ``certification`` stock report, the ``secure_id`` variable may be
-overriden by the launcher.
+overridden by the launcher.
 To do this define ``secure_id`` in a ``transport:c3`` section (this is the
 transport that's used by the ``certification`` stock reports).
 
@@ -135,7 +135,7 @@ Launcher section example:
     app_id = com.foobar:system-testing
     launcher_version = 1
     stock_reports = text
-    session_title = MegaCorp Thingy Alpha-1 
+    session_title = MegaCorp Thingy Alpha-1
     session_desc = Testing the alpha-1 release of MegaCorp Thingy including feature X
 
 Launcher using all defaults with overridden secure_id:
@@ -182,7 +182,7 @@ If set to ``yes``, test plan selection screen will be skipped. Requires
 
 Test selection section
 ======================
-This section provides lets forcing of test selection.
+This section provides control over test selection.
 
 ``[test selection]``
 
@@ -217,8 +217,8 @@ with ``com.canonical.certification::dock/wireless``:
     [test selection]
     exclude = .*bluetooth.* com.canonical.certification::dock/wireless.*
 
-Note: Exclude field set in launcher can be overriden in a config, following
-Checkbox values resolution order. see :doc:`configs</configs>` for more info.
+Note: Exclude field set in launcher can be overridden in a config, following
+Checkbox values resolution order. See :doc:`configs</configs>` for more info.
 
 Note: To clear the exclude list use...
 
@@ -317,13 +317,13 @@ have not been reached. Default value: ``3``.
 
 ``delay_before_retry``
 The number of seconds to wait before retrying the failed jobs at the end of
-the testing session. This can be useful when the jobs relying on external
+the testing session. This can be useful when the jobs rely on external
 factors (e.g. a WiFi access point) and you want to wait before retrying the
 same job. Default value: ``1``.
 
 .. warning::
 
-    When ``auto_retry`` is set to ``yes``, **every** failing jobs will be retried.
+    When ``auto_retry`` is set to ``yes``, **every** failing job will be retried.
     This can be a problem, for instance, for jobs that take a really long time
     to run. To avoid this, you can use the ``auto-retry=no`` inline override
     in the test plan to explicitly mark each job you do not wish to see
@@ -354,7 +354,7 @@ Beginning of the restart section
 
 Override the restart strategy that should be used. Currently supported
 strategies are ``XDG`` and ``Snappy``. By default the best strategy is
-determined in runtime.
+determined at runtime.
 
 Environment section
 ===================
@@ -381,7 +381,7 @@ Daemon-specific configuration
 ``[daemon]``
 
 Beginning of the daemon-specific section.
-Setting in this section only apply to sessions that are run by checkbox-slave
+Settings in this section only apply to sessions that are run by checkbox-slave
 spawned as a daemon.
 
 ``normal_user``
@@ -389,7 +389,7 @@ spawned as a daemon.
 Username to use when job doesn't specify which user to run as.
 
 Checkbox-slave daemon is run by root so in order to run some jobs as an
-unpriviledged user this variable can be used.
+unprivileged user this variable can be used.
 
 
 Manifest section
@@ -399,7 +399,7 @@ Manifest section
 
 Beginning of the manifest section.
 
-Each variable present in the ``manifest`` section will be used a a preset value
+Each variable present in the ``manifest`` section will be used as a preset value
 for the system manifest, taking precedence over the disk cache.
 
 Example:
@@ -415,7 +415,7 @@ Example:
 Generating reports
 ==================
 
-Creation of reports is govern by three sections: ``report``, ``exporter``, and
+Creation of reports is governed by three sections: ``report``, ``exporter``, and
 ``transport``. Each of those sections might be specified multiple times to
 provide more than one report.
 
@@ -429,7 +429,7 @@ replaced with something meaningful, like ``html``.
 
 ``unit``
 
-ID of an exporter to use. To get the list of available exporter in your system
+ID of an exporter to use. To get the list of available exporters on your system
 run ``$ plainbox dev list exporter``.
 
 ``options``
@@ -498,7 +498,7 @@ Report
 
 ``[report:report_name]``
 
-Beginning of a report  declaration. Note that ``report_name`` should be
+Beginning of a report declaration. Note that ``report_name`` should be
 replaced with something meaningful, like ``to_screen``.
 
 ``exporter``
@@ -608,7 +608,7 @@ staging version of certification site and saved to /tmp/submission.tar.xz
 
 3) A typical launcher to run a desktop SRU test plan automatically.
 The launcher will automatically retry the failed test jobs. Besides,
-this launcher include another launcher ``launcher.conf`` as its
+this launcher includes another launcher ``launcher.conf`` as its
 customized environment configuration.
 
 The launcher

@@ -14,7 +14,7 @@ This is especially useful on headless devices.
 Comparison with SSH
 ===================
 
-It's easy to lose SSH connection with the SUT, and if the device doesn't offer
+It's easy to lose SSH connection with the DUT, and if the device doesn't offer
 screen-like funcitonality then the Checkbox session has to be started over.
 
 When a UI is drawn a lot of data is transmitted through the network. Checkbox

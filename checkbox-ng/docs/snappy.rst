@@ -14,7 +14,7 @@ wherever possible.
 Brief anatomy of a Checkbox test tool
 `````````````````````````````````````
 
-Checkbox test tools consist of a number components falling into three categories:
+Checkbox test tools consist of a number of components falling into three categories:
 
     * Core testing framework (known as Plainbox)
     * UI and launchers
@@ -67,10 +67,10 @@ a test run. Lets look in more detail at the test provider::
 |           | specify unique identifiers.                                     |
 +-----------+-----------------------------------------------------------------+
 | po        | Translation support, files here are used to provide translations|
-|           | for tests fields in to other languages.                         |
+|           | for tests fields into other languages.                          |
 +-----------+-----------------------------------------------------------------+
 | src       | Source files and accompanying build scripts e.g. C source code  |
-|           | and a Makefile, that are compiled in to binaries and packaged   |
+|           | and a Makefile, that are compiled into binaries and packaged    |
 |           | with the provider for use as part of the test (refer to command |
 |           | field below)                                                    |
 +-----------+-----------------------------------------------------------------+
@@ -119,7 +119,7 @@ An overview of the fields in this example test:
 |           |                                                                 |
 |           | * user-interact-verify - Ask the user to perform an action, then|
 |           |   run the command field, and then ask the user to determine the |
-|           |   test result .g. by examining the command output or observing  |
+|           |   test result e.g. by examining the command output or observing |
 |           |   some physical behaviour                                       |
 |           |                                                                 |
 |           | * manual - The last resort, just asks the user to both carry out|
@@ -167,7 +167,7 @@ abbreviated::
 +-----------+-----------------------------------------------------------------+
 | _name     | A human readable name for the test plan                         |
 +-----------+-----------------------------------------------------------------+
-| estimated\| A estimate of the time taken to execute the test plan.          |
+| estimated\| An estimate of the time taken to execute the test plan.         |
 | _duration | Uses hours(h), minutes(m) and seconds(s) format e.g. 1h 23m 4s  |
 +-----------+-----------------------------------------------------------------+
 | include   | The list of tests that make up the test plan. It can be         |
@@ -214,14 +214,14 @@ Clone the snapcraft packaging branch::
 
     $ git clone https://git.launchpad.net/~checkbox-dev/plainbox-provider-snappy/+git/packaging
 
-Further instructions will assume these were cloned in to your user’s home
+Further instructions will assume these were cloned into your user’s home
 directory.
 
 3. Make your changes
 ````````````````````
 
 The units folder contains a number of files named after categories. This is not
-a requirement, but has been used here too make finding tests a bit easier.
+a requirement, but has been used here to make finding tests a bit easier.
 Either create a new file or edit an existing category.::
 
     $ git checkout -b <NEW-BRANCH>
@@ -242,7 +242,7 @@ your modifications::
     $ cd ~/plainbox-provider-snappy/plainbox-provider-snappy
     $ ./manage.py validate
 
-The validate tool will provide advisories to indicate places where you provider
+The validate tool will provide advisories to indicate places where your provider
 does not follow best practices, warnings to indicate places where runtime
 issues could arise, and errors to indicate things which must be fixed for the
 provider to be parsed and run correctly by Checkbox. This validation result is
@@ -266,7 +266,7 @@ examine this file for the source sections of the provider parts::
     ...
 
 
-Modify these so the point to your local providers:[a][b]::
+Modify these so they point to your local providers:[a][b]::
 
     ...
         plainbox-provider-snappy:
@@ -298,7 +298,7 @@ https://login.launchpad.net/
 
 
 Once you have an account you will be able to push code up to Launchpad. You can
-they request a merge in to the master repository. To get the code to Launchpad
+then request a merge into the master repository. To get the code to Launchpad
 follow these steps::
 
     $ git add <file>

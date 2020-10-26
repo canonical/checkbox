@@ -179,7 +179,7 @@ The final test plan will only contain nested parts:
         foo_tp_part2
 
 Note: Always keep the ``include`` section (even empty) as this field is 
-mandatory and validation would failed otherwise (and the test plan never loaded 
+mandatory and validation would fail otherwise (and the test plan would never be loaded 
 by checkbox)
 
 The jobs execution order is:
@@ -290,7 +290,7 @@ Is it possible to have multiple levels of nesting?
 --------------------------------------------------
 
 Yes, it's possible to have multiple levels of nesting, a nested part being 
-built from another nested parts, each level bringing its own set of new tests.
+built from another nested part, each level bringing its own set of new tests.
 
 Let's add a new test plan to provider Baz:
 

@@ -99,7 +99,7 @@ Commands to select the tests to rerun are the same used to select tests in the
 first selection screen. Here you can re-run your selection with ``R`` or finish
 the session by pressing ``F``.
 
-Checkbox will then print the the test results in the terminal and save them in
+Checkbox will then print the test results in the terminal and save them in
 different formats locally on the device (and print their respective filenames):
 
 .. image:: _images/checkbox-snappy-6-test-results.png

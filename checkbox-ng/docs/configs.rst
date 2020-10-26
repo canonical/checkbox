@@ -16,10 +16,11 @@ Invoking launcher
 -----------------
 The file name to look for is specified using ``config_filename`` variable from
 launcher, from the ``[config]`` section. If it's not present, ``checkbox.conf``
-' is used.
+is used.
 
-Note that if same configuration variable is defined in more then one place, the
+Note that if same configuration variable is defined in more than one place, the
 value resolution is as follows:
+
 1. config file from ``~/.config``
 2. launcher being invoked (only the new syntax launchers)
 3. config file from ``/etc/xdg``

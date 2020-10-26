@@ -218,6 +218,36 @@ _siblings:
     [{ "id": "touchpad/continuous-move-after-suspend",
        "depends": "suspend/suspend_advanced touchpad/continuous-move" }]
 
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHPAD'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/palm-rejection-firmware-labeling_{product_slug}
+requires: device.driver == 'hid-multitouch'
+estimated_duration: 5.0
+command:
+ abs_caps=$(cat </sys{path}/capabilities/abs)
+ abs_caps_hex=$((16#"$abs_caps"))
+ tool_type_bit=$((abs_caps_hex >> 55))
+ support=$((tool_type_bit & 1))
+ if [ $support -eq 1 ]; then
+     exit 0
+ else
+     echo "Touchapd info:"
+     cat </sys{path}/name
+     cat </sys{path}/modalias
+     echo "Touchpad EV_ABS capabilities:"
+     echo "$abs_caps"
+     exit 1
+ fi
+_summary: Touchpad EV_ABS capability check
+_description:
+ Libinput firmware/labeling palm detection rely on touchpad ABS_MT_TOOL_TYPE
+ capability. This test checks touchpad's EV_ABS capability to
+ make sure that firmware/labeling bit is set in touchpad firmware.
+
 id: touchpad/palm-rejection
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad

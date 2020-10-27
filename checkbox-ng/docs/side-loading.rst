@@ -19,7 +19,7 @@ on the number of new providers supplied with side-loading.
     Don't use it *in production*. Also remember to empty (or delete) the
     `~/provider` directory once you're done developing, so you don't get nasty
     surprises down the line.
-    Checkbox will not submit any reports to Certificaiton website if
+    Checkbox will not submit any reports to Certification website if
     side-loaded providers have been used.
 
 Example scenario

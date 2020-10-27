@@ -38,7 +38,7 @@ Glossary
     Job
 
         Jobs are smallest units of testing that can be performed by Checkbox.
-        All jobs have an unique name. There are many types of jobs, some are
+        All jobs have a unique name. There are many types of jobs, some are
         fully automated others are fully manual. Some jobs are only an
         implementation detail and a part of the internal architecture of
         Checkbox.
@@ -101,5 +101,5 @@ Glossary
     PyPI
 
         The Python Package Index where any developer can share their python
-        programs and libraries. Pypi is available at:
+        programs and libraries. PyPI is available at:
         https://pypi.org/.

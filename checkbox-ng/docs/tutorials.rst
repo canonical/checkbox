@@ -153,7 +153,7 @@ Purpose as the name suggest should describe the purpose of the test.
     plugin: shell
 
 Plugin tells Checkbox what kind of job is it. ``shell`` means it's a automated
-test that runs a command and uses it's return code to determine jobs outcome.
+test that runs a command and uses its return code to determine job's outcome.
 
 ::
 

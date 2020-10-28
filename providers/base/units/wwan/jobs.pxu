@@ -24,7 +24,6 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
-  snap.name == 'core' and int(snap.revision) >= 1804 or package.name == 'modemmanager'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -53,7 +52,6 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
-  snap.name == 'core' and int(snap.revision) >= 1804 or package.name == 'modemmanager'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -73,7 +71,6 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
-  snap.name == 'core' and int(snap.revision) >= 1804 or package.name == 'modemmanager'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -99,7 +96,6 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
-  snap.name == 'core' and int(snap.revision) >= 1804 or package.name == 'modemmanager'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 id: wwan/detect-manual

@@ -53,6 +53,7 @@ class Context:
         self.args = args
         self.sa = sa
 
+
 def main():
     import argparse
     commands = {
@@ -66,13 +67,28 @@ def main():
         'merge-reports': MergeReports,
         'merge-submissions': MergeSubmissions,
         'tp-export': TestPlanExport,
-        'slave': RemoteSlave,
-        'master': RemoteMaster,
+        'service': RemoteSlave,
+        'remote': RemoteMaster,
     }
+    deprecated_commands = {
+        'slave': 'service',
+        'master': 'remote',
+    }
+
     known_cmds = list(commands.keys())
+    known_cmds += list(deprecated_commands.keys())
     known_cmds += ['-h', '--help']
     if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
+
+    for i, arg in enumerate(sys.argv):
+        if arg in deprecated_commands:
+            sys.argv[i] = deprecated_commands[arg]
+            print()
+            print('WARNING: "{}" deprecated'.format(arg), end='')
+            print(' please use "{}" instead.'.format(
+                deprecated_commands[arg]), end='\n\n')
+
     top_parser = argparse.ArgumentParser()
     top_parser.add_argument('-v', '--verbose', action='store_true', help=_(
         'print more logging from checkbox'))
@@ -85,7 +101,7 @@ def main():
     top_parser.add_argument('--version', action='store_true', help=_(
         "show program's version information and exit"))
     top_parser.add_argument('subcommand', help=_("subcommand to run"),
-            choices=commands.keys())
+                            choices=commands.keys())
     # parse all the cli invocation until a subcommand is found
     # subcommand doesn't start with a '-'
     subcmd_index = 1
@@ -99,15 +115,15 @@ def main():
     subcmd.register_arguments(subcmd_parser)
     sub_args = subcmd_parser.parse_args(sys.argv[subcmd_index + 1:])
     sa = SessionAssistant(
-            "com.canonical:checkbox-cli",
-            "0.99",
-            "0.99",
-            ["restartable"],
-        )
+        "com.canonical:checkbox-cli",
+        "0.99",
+        "0.99",
+        ["restartable"],
+    )
     ctx = Context(sub_args, sa)
     try:
         socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
-    except Exception as exc:
+    except Exception:
         pass
     if '--clear-cache' in sys.argv:
         ResourceJobCache().clear()

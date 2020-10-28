@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-This module contains implementation of the slave end of the remote execution
+This module contains implementation of the service end of the remote execution
 functionality.
 """
 import gettext
@@ -32,7 +32,7 @@ from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
 
 _ = gettext.gettext
-_logger = logging.getLogger("slave")
+_logger = logging.getLogger("service")
 
 
 class SessionAssistantSlave(rpyc.Service):
@@ -84,18 +84,18 @@ class SessionAssistantSlave(rpyc.Service):
 
 class RemoteSlave():
     """
-    Run checkbox instance as a slave
+    Run checkbox instance as a service
 
     RemoteSlave implements functionality for the half that's actually running
-    the tests - the one that was summoned using `checkbox-cli slave`. This
+    the tests - the one that was summoned using `checkbox-cli service`. This
     part should be run on system-under-test.
     """
 
-    name = 'slave'
+    name = 'service'
 
     def invoked(self, ctx):
         if os.geteuid():
-            raise SystemExit(_("Checkbox Slave must be run by root!"))
+            raise SystemExit(_("Checkbox service must be run by root!"))
         if not is_passwordless_sudo():
             raise SystemExit(
                 _("System is not configured to run sudo without a password!"))
@@ -110,11 +110,11 @@ class RemoteSlave():
             sock.close()
             return result
         if slave_port_open() == 0:
-            raise SystemExit(_("Found port {} is open. Is Checkbox slave"
+            raise SystemExit(_("Found port {} is open. Is Checkbox service"
                                " already running?").format(slave_port))
 
         SessionAssistantSlave.session_assistant = RemoteSessionAssistant(
-            lambda s: [sys.argv[0] + 'slave'])
+            lambda s: [sys.argv[0] + 'service'])
         snap_data = os.getenv('SNAP_DATA')
         remote_restart_strategy_debug = os.getenv('REMOTE_RESTART_DEBUG')
         if snap_data or remote_restart_strategy_debug or ctx.args.resume:

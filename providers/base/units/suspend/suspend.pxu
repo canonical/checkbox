@@ -1645,6 +1645,8 @@ _description:
  This is an automated version of usb/storage-automated and assumes that the
  server has usb storage devices plugged in prior to checkbox execution. It
  is intended for servers and SRU automated testing.
+requires:
+  manifest.has_usb_storage == 'True'
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

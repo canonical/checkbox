@@ -50,3 +50,6 @@ class CheckConfig():
         else:
             print(_("No validation problems found"))
             return 0
+
+    def register_arguments(self, parser):
+        pass

@@ -1,3 +1,5 @@
+.. _nested-test-plan:
+
 Checkbox nested test plans tutorial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

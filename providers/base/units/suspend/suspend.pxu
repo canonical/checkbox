@@ -1636,34 +1636,6 @@ _description:
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/usb_storage_preinserted_after_suspend
-estimated_duration: 1.2
-user: root
-depends: suspend/suspend_advanced_auto
-command: removable_storage_test.py -l usb && removable_storage_test.py -s 268400000 usb
-_description:
- This is an automated version of usb/storage-automated and assumes that the
- server has usb storage devices plugged in prior to checkbox execution. It
- is intended for servers and SRU automated testing.
-requires:
-  manifest.has_usb_storage == 'True'
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb3_storage_preinserted_after_suspend
-estimated_duration: 1.2
-user: root
-requires:
- usb.usb3 == 'supported'
-depends: suspend/suspend_advanced_auto
-command: removable_storage_test.py -l usb && removable_storage_test.py -s 268400000 -m 500000000  usb --driver xhci_hcd
-_description:
- This is an automated version of usb3/storage-automated and assumes that the
- server has usb 3.0 storage devices plugged in prior to checkbox execution. It
- is intended for servers and SRU automated testing.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
 id: suspend/usb_performance_after_suspend
 depends: suspend/usb_insert_after_suspend
 user: root

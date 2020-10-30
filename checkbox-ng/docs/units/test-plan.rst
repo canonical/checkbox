@@ -141,6 +141,13 @@ copy such constructs when working on a new test plan from scratch
     identifier and cannot be a regular expression pattern.
     Also note that only resource jobs are allowed in this section.
 
+``nested_part``:
+   A multi-line list of test-plan identifiers whose contents will become part
+   of this test-plan. This is a method of creating a tree of test plans,
+   something that can be useful for organisation and de-duplication of test plan
+   definitions. For a full discussion of this capability see
+   :ref:`nested-test-plan`
+
 ``exclude``:
     A multi-line list of job identifiers or patterns matching such identifiers
     that should be excluded from execution.

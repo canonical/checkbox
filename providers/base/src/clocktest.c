@@ -72,8 +72,8 @@ int test_clock_jitter(){
 #endif
 
     	if (jitter > MAX_JITTER || jitter < -MAX_JITTER){
-	        printf ("ERROR, jitter = %f\n",jitter);
-	        printf ("iter = %u, cpus = %u,%u\n",iter,slow_cpu,fast_cpu);
+	        printf ("ERROR: jitter = %f Jitter must be < 0.2 to pass\n",jitter);
+	        printf ("ERROR: Failed Iteration = %u, Slowest CPU: %u Fastest CPU: %u\n",iter,slow_cpu,fast_cpu);
             failures++;
     	}
 	    if (jitter > largest_jitter)

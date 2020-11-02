@@ -51,7 +51,7 @@ include:
     suspend/audio_after_suspend_auto
     suspend/network_resume_time_auto
     suspend/wifi_resume_time_auto
-    suspend/usb_storage_preinserted_after_suspend
+    after-suspend-usb/storage-preinserted
     suspend/record_playback_after_suspend_auto
     after-suspend-bluetooth4/beacon_eddystone_url_.*
     suspend/cpu_after_suspend_auto

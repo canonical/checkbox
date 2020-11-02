@@ -390,7 +390,7 @@ else
         fi
     fi
 fi
-kvmurl="http://cloud-images.ubuntu.com/$codename/current/$codename-server-cloudimg-$arch-disk1.img"
+kvmurl="http://cloud-images.ubuntu.com/$codename/current/$codename-server-cloudimg-$arch.img"
 if curl --output /dev/null --silent --head -fail "$kvmurl"; then
     echo -e " We can get our image from $kvmurl.\n Continuing to use this image"
     pass

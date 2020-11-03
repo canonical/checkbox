@@ -22,9 +22,11 @@
 ============================================================
 """
 
+import os
 import time
 
 from gettext import gettext as _
+import urwid.raw_display
 import urwid
 
 from plainbox.abc import IJobResult
@@ -33,6 +35,26 @@ from plainbox.abc import IJobResult
 _widget_cache = {}
 test_info_list = ()
 show_job_ids = False
+
+
+class ASCIIScreen(urwid.raw_display.Screen):
+    def draw_screen(self, size, r):
+        _trans_table = "?" * 32 + "".join([chr(x) for x in range(32, 256)])
+        line = []
+        for row in r.content():
+            for a, cs, run in row:
+                line.append(run.decode().translate(_trans_table))
+            line.append("\n")
+        print("".join(line))
+
+    def get_cols_rows(self):
+        return 80, 24
+
+
+if os.getenv("DISABLE_URWID_ESCAPE_CODES"):
+    Screen = ASCIIScreen
+else:
+    Screen = urwid.raw_display.Screen
 
 
 class FlagUnitWidget(urwid.TreeWidget):
@@ -250,7 +272,7 @@ class CategoryNode(urwid.ParentNode):
         else:
             value = next(
                 (job['partial_id'], job['name']) for job in test_info_list
-                    if job["id"] == key)
+                if job["id"] == key)
             return JobNode(
                 value, parent=self, key=key, depth=self.get_depth() + 1)
 
@@ -351,7 +373,7 @@ class CategoryBrowser:
         """Run the urwid MainLoop."""
         self.loop = urwid.MainLoop(
             self.view, self.palette, unhandled_input=self.unhandled_input,
-            handle_mouse=False)
+            handle_mouse=False, screen=Screen())
         self.loop.run()
         selection = []
         global test_info_list, _widget_cache
@@ -651,7 +673,7 @@ class TestPlanBrowser():
     def run(self):
         self.loop = urwid.MainLoop(
             self.frame, self.palette, unhandled_input=self.unhandled_input,
-            handle_mouse=False)
+            handle_mouse=False, screen=Screen())
         self.loop.run()
         try:
             return next(i.tp_id for i in self.radio_button_group if i.state)
@@ -712,7 +734,7 @@ def interrupt_dialog(host):
             raise urwid.ExitMainLoop()
 
     urwid.MainLoop(frame, palette, unhandled_input=unhandled,
-                   handle_mouse=False).run()
+                   handle_mouse=False, screen=Screen()).run()
     try:
         index = next(
             radio_button_group.index(i) for i in radio_button_group if i.state)
@@ -852,7 +874,7 @@ class ManifestBrowser:
         """Run the urwid MainLoop."""
         self.loop = urwid.MainLoop(
             self.frame, self.palette, unhandled_input=self.unhandled_input,
-            handle_mouse=False)
+            handle_mouse=False, screen=Screen())
         self.loop.run()
         for w in self._widget_cache:
             self._manifest_out.update({w.id: w.value})
@@ -901,7 +923,8 @@ def resume_dialog(duration):
         if timer.update():
             loop.set_alarm_in(0.1, update_timer, timer)
 
-    loop = urwid.MainLoop(frame, palette, handle_mouse=False)
+    loop = urwid.MainLoop(
+        frame, palette, handle_mouse=False, screen=Screen())
     update_timer(loop, timer)
     loop.run()
 

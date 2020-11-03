@@ -13,3 +13,9 @@ To install all dependencies run:
 ## Adding providers to the venv
 
     /your/provider/directory/manage.py develop -d $PROVIDERPATH
+
+## Building the documentation
+
+    sudo apt install python3-sphinx
+    ./setup.py build_sphinx -b html
+

@@ -240,10 +240,12 @@ user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 usb
 flags: also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform != 's390x'
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+ manifest.has_usb_storage == 'True'
 _summary:
  Test USB 2.0 or 1.1 ports
 _description:
@@ -256,11 +258,13 @@ category_id: com.canonical.plainbox::usb
 id: usb3/storage-preinserted
 user: root
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform != 's390x'
  usb.usb3 == 'supported'
  package.name == 'udisks2' or snap.name == 'udisks2'
  package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
+ manifest.has_usb_storage == 'True'
 estimated_duration: 45.0
 command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _summary: 

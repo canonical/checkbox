@@ -240,6 +240,7 @@ user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 usb
 flags: also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform != 's390x'
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -257,6 +258,7 @@ category_id: com.canonical.plainbox::usb
 id: usb3/storage-preinserted
 user: root
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform != 's390x'
  usb.usb3 == 'supported'

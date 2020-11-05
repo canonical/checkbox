@@ -191,6 +191,7 @@ parts:
       - python3.8-minimal
     python-packages:
       - tqdm
+      - picamera # p-p-c dep that wouldnt install in another part
     after: [checkbox-support]
     stage:
       - -pyvenv.cfg
@@ -199,6 +200,7 @@ parts:
       - -**/__pycache__
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
+      - READTHEDOCS: 'True' # simplifies picamera install
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""
@@ -300,6 +302,10 @@ parts:
       - wget
       - wmctrl
       - xz-utils
+      - on armhf:
+        - python3-rpi.gpio # only in focal
+      - on arm64:
+        - python3-rpi.gpio # only in focal
     build-packages:
       - libasound2-dev
       - libcap-dev
@@ -506,30 +512,23 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-certification-server --root=${SNAPCRAFT_PART_INSTALL}
 ################################################################################
-  # This module is a dependency for the job gpio/gpiomem_loopback_pairs_{model}
-  # in plainbox-provider-snappy only available in pypi and so can't be addded
-  # to stage-packages
-  # rpi-support-libs:
-  #   plugin: python
-  #   python-packages:
-  #     - RPi.GPIO
-  #     - picamera
-  #   build-environment:
-  #     - READTHEDOCS: 'True'
-  # rpi-ppa:
-  #   plugin: nil
-  #   override-pull: |
-  #     sudo add-apt-repository ppa:ubuntu-raspi2/ppa
-  #     sudo apt-get update
-  #   build-packages:
-  #     - software-properties-common
-  # rpi-support-binaries:
-  #   after: [rpi-ppa]
-  #   plugin: nil
-  #   stage-packages:
-  #     - try: [libraspberrypi0] # optional as only available on arm
-  #   organize:
-  #     usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
+  rpi-ppa:
+    plugin: nil
+    override-pull: |
+      sudo add-apt-repository ppa:ubuntu-raspi2/ppa-nightly
+      sudo apt-get update
+    build-packages:
+      - software-properties-common
+  rpi-support-binaries:
+    after: [rpi-ppa]
+    plugin: nil
+    stage-packages:
+      - on armhf:
+        - libraspberrypi0
+      - on arm64:
+        - libraspberrypi0
+    organize:
+      usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
 ################################################################################
   lk-boot-env:
     plugin: nil

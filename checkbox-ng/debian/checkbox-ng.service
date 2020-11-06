@@ -1,10 +1,10 @@
 [Unit]
-Description=Checkbox remote slave service
+Description=Checkbox Remote Service
 Wants=network.target
 
 [Service]
-ExecStart=/usr/bin/checkbox-cli slave
-SyslogIdentifier=checkbox-ng.remote-slave
+ExecStart=/usr/bin/checkbox-cli service
+SyslogIdentifier=checkbox-ng.service
 Environment="XDG_CACHE_HOME=/var/cache/"
 Restart=on-failure
 TimeoutStopSec=30

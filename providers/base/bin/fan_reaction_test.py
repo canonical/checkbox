@@ -29,9 +29,28 @@ import time
 class FanMonitor:
     """Device that reports fan RPM or something correlating to that."""
     def __init__(self):
-        """Use heuristics to find something that we can read."""
-        self._fan_paths = glob.glob('/sys/class/hwmon/hwmon*/fan*_input')
-        if not self._fan_paths:
+        """Looking for all system controllable fan(s)."""
+        hwmons = []
+        for i in glob.glob('/sys/class/hwmon/hwmon*/fan*_enable'):
+            with open(i, 'r') as _file:
+                enable = _file.read().splitlines()
+            # Make sure the sensor of the fan is readable.
+            if enable[0] == '0':
+                continue
+            # Get the class of pci device of hwmon.
+            device = os.path.join(os.path.dirname(i), 'device')
+            pci_addr = os.path.basename(os.readlink(device))
+            pci_class_path = '/sys/bus/pci/devices/%s/class' % pci_addr
+            with open(pci_class_path, 'r') as _file:
+                pci_class = _file.read().splitlines()
+            pci_device_class = (int(pci_class[0], base=16) >> 16) & 0xff
+            """Make sure the fan is not on graphic card"""
+            if pci_device_class == 3:
+                continue
+            # TODO: Check the control method by reading pwm[1-*]_enable
+            # It is a controlable fan.
+            hwmons.append(i)
+        if not hwmons:
             print('Fan monitoring interface not found in SysFS')
             raise SystemExit(0)
 
@@ -43,7 +62,7 @@ class FanMonitor:
                     fan_mon_name = os.path.relpath(p, '/sys/class/hwmon')
                     result[fan_mon_name] = int(f.read())
             except OSError:
-                print('Fan SysFS node dissappeared ({})'.format(p))
+                print('Fan SysFS node disappeared ({})'.format(p))
         return result
 
     def get_average_rpm(self, period):

@@ -27,51 +27,34 @@ import itertools
 import logging
 import os
 
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.launcher import LauncherDefinition
+from plainbox.impl.config import Configuration
 
 
 _ = gettext.gettext
 
 _logger = logging.getLogger("config")
 
+
+SEARCH_DIRS = [
+        '$SNAP_DATA',
+        '/etc/xdg/',
+        '~/.config/',
+    ]
+
 def expand_all(path):
     return os.path.expandvars(os.path.expanduser(path))
 
 def load_configs(launcher_file=None):
-    # launcher can override the default name of config files to look for
-    # so first we need to establish the filename to look for
-    configs = []
-    config_filename = 'checkbox.conf'
-    launcher = DefaultLauncherDefinition()
+    cfg = Configuration()
+    for d in SEARCH_DIRS:
+        # ATM the only supported filename for config is checkbox.conf
+        config = expand_all(os.path.join(d, 'checkbox.conf'))
+        if os.path.exists(config):
+            cfg.update_from_another(
+                Configuration.from_path(config),
+                'config file: {}'.format(config))
     if launcher_file:
-        configs.append(launcher_file)
-        generic_launcher = LauncherDefinition()
-        if not os.path.exists(launcher_file):
-            _logger.error(_(
-                "Unable to load launcher '%s'. File not found!"),
-                launcher_file)
-            raise SystemExit(1)
-        generic_launcher.read(launcher_file)
-        config_filename = os.path.expandvars(os.path.expanduser(
-            generic_launcher.config_filename))
-        launcher = generic_launcher.get_concrete_launcher()
-    if os.path.isabs(config_filename):
-        configs.append(config_filename)
-    else:
-        search_dirs = [
-            '$SNAP_DATA',
-            '/etc/xdg/',
-            '~/.config/',
-        ]
-        for d in search_dirs:
-            config = expand_all(os.path.join(d, config_filename))
-            if os.path.exists(config):
-                configs.append(config)
-    launcher.read(configs)
-    if launcher.problem_list:
-        _logger.error(_("Unable to start launcher because of errors:"))
-        for problem in launcher.problem_list:
-            _logger.error("%s", str(problem))
-        raise SystemExit(1)
-    return launcher
+        cfg.update_from_another(
+            Configuration.from_path(launcher_file),
+            'Launcher file: {}'.format(launcher_file))
+    return cfg

@@ -27,8 +27,6 @@ import subprocess
 import sys
 
 from plainbox.impl.jobcache import ResourceJobCache
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.launcher import LauncherDefinition
 from plainbox.impl.session.assistant import SessionAssistant
 
 from checkbox_ng.config import load_configs

@@ -28,6 +28,7 @@ from contextlib import suppress
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
 
+from plainbox.impl.config import Configuration
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
@@ -273,20 +274,20 @@ class RemoteSessionAssistant():
 
         self._launcher = load_configs()
         if configuration['launcher']:
-            self._launcher.read_string(configuration['launcher'], False)
-            if self._launcher.session_title:
-                session_title = self._launcher.session_title
-            if self._launcher.session_desc:
-                session_desc = self._launcher.session_desc
+            self._launcher = Configuration.from_text(
+                configuration['launcher'], 'Remote launcher')
+            session_title = self._launcher.get_value(
+                'launcher', 'session_title') or session_title
+            session_desc = self._launcher.get_value(
+                'launcher', 'session_desc') or session_desc
 
         self._sa.use_alternate_configuration(self._launcher)
 
         if configuration['normal_user']:
             self._normal_user = configuration['normal_user']
         else:
-            self._normal_user = self._launcher.normal_user
-            if not self._normal_user:
-                self._normal_user = _guess_normal_user()
+            self._normal_user = self._launcher.get_value(
+                    'daemon', 'normal_user') or _guess_normal_user()
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
@@ -305,7 +306,7 @@ class RemoteSessionAssistant():
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
         filtered_tps = set()
-        for filter in self._launcher.test_plan_filters:
+        for filter in self._launcher.get_value('test plan', 'filter'):
             filtered_tps.update(fnmatch.filter(tps, filter))
         filtered_tps = list(filtered_tps)
         response = zip(filtered_tps, [self._sa.get_test_plan(
@@ -335,10 +336,11 @@ class RemoteSessionAssistant():
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
         self._state = Bootstrapped
-        if self._launcher.auto_retry:
+        if self._launcher.get_value('ui', 'auto_retry'):
             for job_id in self._sa.get_static_todo_list():
                 job_state = self._sa.get_job_state(job_id)
-                job_state.attempts = self._launcher.max_attempts
+                job_state.attempts = self._launcher.get_value(
+                        'ui', 'max_attempts')
         return self._sa.get_static_todo_list()
 
     def get_manifest_repr(self):
@@ -363,10 +365,12 @@ class RemoteSessionAssistant():
 
     def _get_ui_for_job(self, job):
         show_out = True
-        if self._launcher.output == 'hide-resource-and-attachment':
+        if self._launcher.get_value(
+                'ui', 'output') == 'hide-resource-and-attachment':
             if job.plugin in ('local', 'resource', 'attachment'):
                 show_out = False
-        elif self._launcher.output in ['hide', 'hide-automated']:
+        elif self._launcher.get_value(
+                'ui', 'output') in ['hide', 'hide-automated']:
             if job.plugin in ('shell', 'local', 'resource', 'attachment'):
                 show_out = False
         if 'suppress-output' in job.get_flag_set():
@@ -558,7 +562,7 @@ class RemoteSessionAssistant():
         if self._state != Bootstrapping:
             if not self._sa.get_dynamic_todo_list():
                 if (
-                    self._launcher.auto_retry and
+                    self._launcher.get_value('ui', 'auto_retry') and
                     self.get_rerun_candidates('auto')
                 ):
                     self._state = TestsSelected
@@ -644,11 +648,12 @@ class RemoteSessionAssistant():
         meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
         launcher = app_blob['launcher']
-        self._launcher.read_string(launcher, False)
+        self._launcher = Configuration.from_text(launcher, 'Remote launcher')
         self._sa.use_alternate_configuration(self._launcher)
 
         self._normal_user = app_blob.get(
-            'effective_normal_user', self._launcher.normal_user)
+            'effective_normal_user', self._launcher.get_value(
+                'daemon', 'normal_user'))
         _logger.info(
             "normal_user after loading metadata: %r", self._normal_user)
         test_plan_id = app_blob['testplan_id']
@@ -684,12 +689,12 @@ class RemoteSessionAssistant():
 
         # some jobs have already been run, so we need to update the attempts
         # count for future auto-rerunning
-        if self._launcher.auto_retry:
+        if self._launcher.get_value('ui', 'auto_retry'):
             for job_id in [
                     job.id for job in self.get_rerun_candidates('auto')]:
                 job_state = self._sa.get_job_state(job_id)
-                job_state.attempts = self._launcher.max_attempts - len(
-                    job_state.result_history)
+                job_state.attempts = self._launcher.get_value(
+                        'ui', 'max_attempts') - len(job_state.result_history)
 
         self._state = TestsSelected
 

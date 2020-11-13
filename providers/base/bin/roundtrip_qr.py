@@ -61,8 +61,14 @@ def generate_qr_code(data):
     return pyqrcode.create(data)
 
 
-def display_code(qr):
-    with open('/dev/tty1', 'wb+', buffering=0) as term:
+def get_active_tty():
+    with open('/sys/class/tty/tty0/active', 'r') as active_f:
+        return active_f.read().strip()
+
+
+def display_code(qr, tty):
+    device = '/dev/{}'.format(tty)
+    with open(device, 'wb+', buffering=0) as term:
         # clear the tty so the qr is always printed at the top of the sceen
         term.write(str.encode('\033c'))
         # print the qr code
@@ -98,8 +104,15 @@ def main():
     print('Generating QR code...', flush=True)
     qr = generate_qr_code(test_str)
 
+    tty = 'tty1'
+    try:
+        tty = get_active_tty()
+        print('Identified {} as the active vt'.format(tty))
+    except IOError:
+        print('Failed to read active tty, using default {}'.format(tty))
+
     print('Displaying on screen', flush=True)
-    display_code(qr)
+    display_code(qr, tty)
 
     print('Capture image of screen', flush=True)
     if name == 'vchiq':

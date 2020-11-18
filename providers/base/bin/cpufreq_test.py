@@ -42,8 +42,7 @@ class CpuFreqTestError(Exception):
         super().__init__()
         if 'scaling_driver' in message:
             logging.error(
-                '%s\n## Fatal: scaling via cpufeq unsupported ##',
-                message)
+                '%s\n## Fatal: scaling via cpufeq unsupported ##')
         # exempt systems unable to change intel_pstate driver mode
         elif 'intel_pstate/status' in message:
             pass

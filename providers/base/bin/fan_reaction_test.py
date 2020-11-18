@@ -31,12 +31,12 @@ class FanMonitor:
     def __init__(self):
         """Looking for all system controllable fan(s)."""
         hwmons = []
-        for i in glob.glob('/sys/class/hwmon/hwmon*/fan*_enable'):
-            with open(i, 'r') as _file:
-                enable = _file.read().splitlines()
-            # Make sure the sensor of the fan is readable.
-            if enable[0] == '0':
-                continue
+        # All entries (except name) under /sys/class/hwmon/hwmon/* are optional,
+        # and should only be created in a given driver if the chip has the feature.
+        # Use fan*_input is because the "thinkpad_hwmon" driver is report
+        # fan_input only. If there is any driver has different implementation
+        # then may need to check other entries in the future.
+        for i in glob.glob('/sys/class/hwmon/hwmon*/fan*_input'):
             # Get the class of pci device of hwmon.
             device = os.path.join(os.path.dirname(i), 'device')
             pci_addr = os.path.basename(os.readlink(device))
@@ -47,8 +47,6 @@ class FanMonitor:
             """Make sure the fan is not on graphic card"""
             if pci_device_class == 3:
                 continue
-            # TODO: Check the control method by reading pwm[1-*]_enable
-            # It is a controlable fan.
             hwmons.append(i)
         if not hwmons:
             print('Fan monitoring interface not found in SysFS')

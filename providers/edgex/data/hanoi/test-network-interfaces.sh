@@ -20,10 +20,10 @@ else
 fi
 
 
-if  sudo lsof -i -P -n | grep "TCP \*:48080 (LISTEN)" ; then
+if lsof -i -P -n | grep "TCP \*:48080 (LISTEN)" ; then
     echo "fail - listening on 0.0.0.0"
     exit 1
-elif  sudo lsof -i -P -n | grep "TCP 127.0.0.1:48080 (LISTEN)" ; then
+elif lsof -i -P -n | grep "TCP 127.0.0.1:48080 (LISTEN)" ; then
     echo "pass - listening on 127.0.0.1"
 else
     echo "fail - did not find service on port 48080 - is edgexfoundry running?"

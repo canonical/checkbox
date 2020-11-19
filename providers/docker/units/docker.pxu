@@ -52,17 +52,6 @@ flags: simple preserve-cwd
 unit: template
 template-resource: docker_resource
 template-unit: job
-id: docker/hello-world_{arch}
-user: root
-category_id: docker
-requires: snap.name == 'docker'
-command: docker run --rm hello-world
-_summary: Download and run trivial hello-world container
-flags: simple preserve-cwd
-
-unit: template
-template-resource: docker_resource
-template-unit: job
 id: docker/run_{arch}
 user: root
 category_id: docker
@@ -161,7 +150,7 @@ category_id: docker
 requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -d redis)
+ ID=$(docker run -d ubuntu sleep 100)
  [ `docker inspect -f {status} $ID` != running ] && exit 1
  docker stop $ID
  [ `docker wait $ID` != 0 ] && exit 1

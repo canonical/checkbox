@@ -31,7 +31,6 @@ estimated_duration: 120
 include:
     docker/info
     docker/version
-    docker/hello-world_.*
     docker/run_.*
     docker/interative_.*
     docker/diff_.*

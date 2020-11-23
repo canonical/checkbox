@@ -102,7 +102,12 @@ class Snapd():
         path = self._snaps
         if snap is not None:
             path += '/' + snap
-        return self._get(path)['result']
+        try:
+            return self._get(path)['result']
+        except SnapdRequestError as exc:
+            if exc.kind == 'snap-not-found':
+                return None
+            raise
 
     def install(self, snap, channel='stable', revision=None):
         path = self._snaps + '/' + snap

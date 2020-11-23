@@ -37,16 +37,22 @@ class FanMonitor:
         # fan_input only. If there is any driver has different implementation
         # then may need to check other entries in the future.
         for i in glob.glob('/sys/class/hwmon/hwmon*/fan*_input'):
-            # Get the class of pci device of hwmon.
             device = os.path.join(os.path.dirname(i), 'device')
-            pci_addr = os.path.basename(os.readlink(device))
-            pci_class_path = '/sys/bus/pci/devices/%s/class' % pci_addr
-            with open(pci_class_path, 'r') as _file:
-                pci_class = _file.read().splitlines()
-            pci_device_class = (int(pci_class[0], base=16) >> 16) & 0xff
-            """Make sure the fan is not on graphic card"""
-            if pci_device_class == 3:
-                continue
+            device_path = os.path.realpath(device)
+            # Get the class of pci device of hwmon whether is GPU.
+            if "pci" in device_path:
+                pci_addr = os.path.basename(device_path)
+                pci_class_path = '/sys/bus/pci/devices/%s/class' % pci_addr
+                try:
+                    with open(pci_class_path, 'r') as _file:
+                        pci_class = _file.read().splitlines()
+                        pci_device_class = (int(pci_class[0], base=16) >> 16) & 0xff
+                        """Make sure the fan is not on graphic card"""
+                        if pci_device_class == 3:
+                            continue
+                except OSError:
+                    print('Not able to access {}'.format(pci_class_path))
+                    continue
             hwmons.append(i)
         if not hwmons:
             print('Fan monitoring interface not found in SysFS')

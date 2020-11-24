@@ -46,7 +46,6 @@ plugin: shell
 command: snap_tests.py remove
 category_id: snappy
 estimated_duration: 10s
-depends: snappy/snap-install
 flags: preserve-locale
 user: root
 environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
@@ -83,7 +82,6 @@ _steps:
 _verification:
  Check hello version is back to its stable version
 plugin: manual
-depends: snappy/snap-refresh
 category_id: snappy
 estimated_duration: 60
 
@@ -101,7 +99,6 @@ _steps:
 _verification:
  Check hello version is again the one from the beta channel
 plugin: manual
-depends: snappy/snap-revert
 category_id: snappy
 estimated_duration: 60
 
@@ -109,12 +106,12 @@ id: snappy/snap-refresh-automated
 template-engine: jinja2
 _summary: Test the snap refresh command is working.
 _description:
- The snap {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} should
- be installed from the stable channel prior to starting the test. The job
- refreshes to edge and compares the revision before and after.
+ The test will install the
+ {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap from the
+ stable channel and then refreshes it to edge and compares the revision before
+ and after the refresh.
 plugin: shell
 command: snap_tests.py refresh
-depends: snappy/snap-install
 category_id: snappy
 estimated_duration: 10s
 user: root
@@ -124,12 +121,11 @@ id: snappy/snap-revert-automated
 template-engine: jinja2
 _summary: Test the snap revert command is working.
 _description:
- Runs after snap-refresh-automated and should revert the installed edge channel
- snap {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} leftover
- from that test to the one from stable.
+ Checks if the edge channel
+ {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap is reverted
+ back to the one from stable.
 plugin: shell
 command: snap_tests.py revert
-depends: snappy/snap-refresh-automated
 category_id: snappy
 estimated_duration: 10s
 user: root
@@ -143,7 +139,6 @@ _description:
  snap can be refreshed after removal of the blacklisted revision.
 plugin: shell
 command: snap_tests.py reupdate
-depends: snappy/snap-revert-automated
 category_id: snappy
 estimated_duration: 10s
 user: root

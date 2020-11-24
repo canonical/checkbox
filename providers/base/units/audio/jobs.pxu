@@ -341,6 +341,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_automated
+depends: audio/detect_sinks_sources
 estimated_duration: 10.0
 requires:
  package.name == 'python3-gi'
@@ -354,6 +355,17 @@ command: audio_test.py
 _description:
  Play back a sound on the default output and listen for it on the
  default input.
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/detect_sinks_sources
+estimated_duration: 1.0
+requires:
+  package.name == 'pulseaudio-utils'
+command:
+  pactl_list.sh
+_description:
+  Test to detect if there's available sources and sinks.
 
 plugin: shell
 category_id: com.canonical.plainbox::audio
@@ -590,7 +602,7 @@ plugin: shell
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_automated_after_suspend_30_cycles
 estimated_duration: 10.0
-depends: power-management/suspend_30_cycles
+depends: power-management/suspend_30_cycles audio/detect_sinks_sources_after_suspend_30_cycles
 requires:
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
@@ -603,6 +615,17 @@ command: audio_test.py
 _description:
  Play back a sound on the default output and listen for it on the
  default input, after suspending 30 times.
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/detect_sinks_sources_after_suspend_30_cycles
+estimated_duration: 1.0
+requires:
+  package.name == 'pulseaudio-utils'
+command:
+  pactl_list.sh
+_description:
+  Test to detect if there's available sources and sinks after suspending 30 times.
 
 plugin: shell
 category_id: com.canonical.plainbox::audio

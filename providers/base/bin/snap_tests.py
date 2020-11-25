@@ -37,7 +37,7 @@ class SnapList():
         """snap list should show the core package is installed."""
         data = Snapd().list()
         for snap in data:
-            if snap['name'] in ('core', 'core16', 'core18'):
+            if snap['name'] in ('core', 'core16', 'core18', 'core20'):
                 print("Found a core snap")
                 print(snap['name'], snap['version'], snap['revision'])
                 return 0
@@ -189,8 +189,8 @@ class Snap():
         parser = argparse.ArgumentParser()
         parser.add_argument('subcommand', type=str, choices=sub_commands)
         args = parser.parse_args(sys.argv[1:2])
-        sub_commands[args.subcommand]().invoked()
+        return sub_commands[args.subcommand]().invoked()
 
 
 if __name__ == '__main__':
-    Snap().main()
+    sys.exit(Snap().main())

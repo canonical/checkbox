@@ -7,6 +7,8 @@
 import json
 import time
 
+from requests.exceptions import HTTPError
+
 import requests_unixsocket
 
 
@@ -15,6 +17,17 @@ class AsyncException(Exception):
     def __init__(self, message, abort_message=''):
         self.message = message
         self.abort_message = abort_message
+
+class SnapdRequestError(Exception):
+    def __init__(self, message, kind):
+        self.message = message
+        self.kind = kind
+
+    @classmethod
+    def from_http_error(cls, http_error):
+        response = http_error.response.json()['result']
+        return cls(
+            response['message'], response.get('kind', ''))
 
 
 class Snapd():
@@ -40,16 +53,22 @@ class Snapd():
 
     def _get(self, path, params=None, decode=True):
         r = self._session.get(self._url + path, params=params)
-        r.raise_for_status()
-        if decode:
-            return r.json()
+        try:
+            r.raise_for_status()
+            if decode:
+                return r.json()
+        except HTTPError as exc:
+            raise SnapdRequestError.from_http_error(exc) from exc
         return r
 
     def _post(self, path, data=None, decode=True):
         r = self._session.post(self._url + path, data=data)
-        r.raise_for_status()
-        if decode:
-            return r.json()
+        try:
+            r.raise_for_status()
+            if decode:
+                return r.json()
+        except HTTPError as exc:
+            raise SnapdRequestError.from_http_error(exc) from exc
         return r
 
     def _put(self, path, data=None, decode=True):
@@ -83,7 +102,12 @@ class Snapd():
         path = self._snaps
         if snap is not None:
             path += '/' + snap
-        return self._get(path)['result']
+        try:
+            return self._get(path)['result']
+        except SnapdRequestError as exc:
+            if exc.kind == 'snap-not-found':
+                return None
+            raise
 
     def install(self, snap, channel='stable', revision=None):
         path = self._snaps + '/' + snap

@@ -185,7 +185,8 @@ def ping(host, interface, count, deadline, verbose=False):
     if interface:
         command.append("-I{}".format(interface))
     reg = re.compile(
-        r"(\d+) packets transmitted, (\d+) received, (\d+)% packet loss")
+        r"(\d+) packets transmitted, (\d+) received,"
+        r".*([0-9]*\.?[0-9]*.)% packet loss")
     ping_summary = {'transmitted': 0, 'received': 0, 'pct_loss': 0}
     try:
         output = subprocess.check_output(command, universal_newlines=True)

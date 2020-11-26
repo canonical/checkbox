@@ -12,7 +12,6 @@ import sys
 from checkbox_support.snap_utils.snapd import Snapd
 
 # Requirements for the test snap:
-#  - the snap must not be installed at the start of the nested test plan
 #  - the snap must be strictly confined (no classic or devmode flags)
 #  - there must be different revisions on the stable & edge channels
 try:
@@ -70,6 +69,9 @@ class SnapInstall():
         args = parser.parse_args(sys.argv[2:])
         print('Install {}...'.format(TEST_SNAP))
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL, verbose=True)
+        if s.list(TEST_SNAP):
+            print('{} already installed. Removing'.format(TEST_SNAP))
+            s.remove(TEST_SNAP)
         s.install(TEST_SNAP, args.channel)
         print('Confirm in snap list...')
         data = s.list()
@@ -87,11 +89,12 @@ class SnapRefresh():
     def invoked(self):
         """Test refresh of test-snapd-tools snap."""
         def get_rev():
-            data = Snapd().list()
-            for snap in data:
-                if snap['name'] == TEST_SNAP:
-                    return snap['revision']
-        print('Get starting revision...')
+            return Snapd().list(TEST_SNAP)['revision']
+        if Snapd().list(TEST_SNAP):
+            print('Remove previously installed revision')
+            Snapd().remove(TEST_SNAP)
+        print('Install starting revision...')
+        Snapd().install(TEST_SNAP, 'stable')
         start_rev = get_rev()
         print('  revision:', start_rev)
         print('Refresh to edge...')
@@ -112,10 +115,15 @@ class SnapRevert():
     def invoked(self):
         """Test revert of test-snapd-tools snap."""
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
+        if s.list(TEST_SNAP):
+            s.remove(TEST_SNAP)
+        print('Install stable revision')
+        s.install(TEST_SNAP)
+        print('Refresh to edge')
+        s.refresh(TEST_SNAP, 'edge')
         print('Get stable channel revision from store...')
         r = s.info(TEST_SNAP)
         stable_rev = r['channels']['latest/stable']['revision']
-        print('Get current installed revision...')
         r = s.list(TEST_SNAP)
         installed_rev = r['revision']  # should be edge revision
         print('Reverting snap {}...'.format(TEST_SNAP))
@@ -140,6 +148,11 @@ class SnapReupdate():
         """Test re-update of test-snapd-tools snap."""
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
         print('Get edge channel revision from store...')
+        if s.list(TEST_SNAP):
+            s.remove(TEST_SNAP)
+        s.install(TEST_SNAP)
+        s.refresh(TEST_SNAP, 'edge')
+        s.revert(TEST_SNAP)
         r = s.info(TEST_SNAP)
         edge_rev = r['channels']['latest/edge']['revision']
         print('Remove edge revision...')
@@ -160,8 +173,11 @@ class SnapRemove():
 
     def invoked(self):
         """Test remove of test-snapd-tools snap."""
-        print('Install {}...'.format(TEST_SNAP))
+        print('Remove {}...'.format(TEST_SNAP))
         s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
+        if not s.list(TEST_SNAP):
+            print('{} not found. Installing'.format(TEST_SNAP))
+            s.install(TEST_SNAP)
         s.remove(TEST_SNAP)
         print('Check not in snap list')
         data = s.list()

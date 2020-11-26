@@ -140,6 +140,7 @@ nested_part:
   # monitor-automated
   networking-automated
   power-automated
+  serial-automated
   snappy-snap-automated
   socketcan-auto-local
   socketcan-auto-remote
@@ -154,6 +155,7 @@ nested_part:
   after-suspend-ethernet-automated
   after-suspend-gpio-automated
   after-suspend-location-automated
+  after-suspend-serial-automated
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated

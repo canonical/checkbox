@@ -29,14 +29,15 @@ import time
 class FanMonitor:
     """Device that reports fan RPM or something correlating to that."""
     def __init__(self):
-        """Looking for all system controllable fan(s)."""
+        """Use heuristics to find something that we can read."""
         hwmons = []
+        self._fan_paths = glob.glob('/sys/class/hwmon/hwmon*/fan*_input')
         # All entries (except name) under /sys/class/hwmon/hwmon/* are optional,
         # and should only be created in a given driver if the chip has the feature.
         # Use fan*_input is because the "thinkpad_hwmon" driver is report
         # fan_input only. If there is any driver has different implementation
         # then may need to check other entries in the future.
-        for i in glob.glob('/sys/class/hwmon/hwmon*/fan*_input'):
+        for i in self._fan_paths:
             device = os.path.join(os.path.dirname(i), 'device')
             device_path = os.path.realpath(device)
             # Get the class of pci device of hwmon whether is GPU.

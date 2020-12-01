@@ -535,6 +535,7 @@ parts:
     source: .
     override-pull: |
       snapcraftctl pull
+      wget https://raw.githubusercontent.com/snapcore/snapd/master/include/lk/snappy_boot_common.h
       wget https://github.com/snapcore/snapd/raw/master/include/lk/snappy_boot_v1.h
       wget https://raw.githubusercontent.com/kubiko/if6640-gadget/18/snap-boot-sel/lk-boot-env.c
     build-packages:

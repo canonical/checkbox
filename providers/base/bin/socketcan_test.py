@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import ctypes
 import os
 import socket
 import struct
@@ -112,7 +113,7 @@ def echo_test(args):
     id_flags = 0
     if args.effid:
         print('Setting EFF CAN ID flag')
-        id_flags = socket.CAN_EFF_FLAG
+        id_flags = ctypes.c_ulong(socket.CAN_EFF_FLAG).value
 
     # Whether to enable local loopback, required for local only test
     # but only want to parse packets from other end if remote

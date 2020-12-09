@@ -87,3 +87,47 @@ command:
  [ -f "$PLAINBOX_SESSION_SHARE"/fwts_server_results.log ] && gzip -c "$PLAINBOX_SESSION_SHARE"/fwts_server_results.log
 _description: Attaches the FWTS Server Cert results log to the submission
 _summary: Attach FWTS Server Cert test log to submission
+
+
+id: firmware/tcglog-required-algs-sha256
+category_id: com.canonical.plainbox::firmware
+summary: Test that the SHA256 algorithm is present in the TCG event log
+description:
+  Presence of support for the SHA256 algorithm is a requirement for enabling FDE
+  support in Ubuntu Core 20 systems
+plugin: shell
+user: root
+command: tcglog-check -required-algs sha256
+imports: from com.canonical.plainbox import manifest
+requires:
+  cpuinfo.platform == 'x86_64'
+  manifest.has_tpm2_chip == 'True'
+  executable.name == 'tcglog-check'
+
+id: firmware/tcglog-require-pe-image-digests
+category_id: com.canonical.plainbox::firmware
+summary: Test format of digests for EV_EFI_BOOT_SERVICES_APPLICATION events
+description:
+  Digests for EV_EFI_BOOT_SERVICES_APPLICATION events associated with PE images
+  must be PE image digests rather than file digests. This test is a requirement
+  for enabling FDE support in Ubuntu Core 20 systems
+plugin: shell
+user: root
+command: tcglog-check -require-pe-image-digests
+imports: from com.canonical.plainbox import manifest
+requires:
+  cpuinfo.platform == 'x86_64'
+  manifest.has_tpm2_chip == 'True'
+  executable.name == 'tcglog-check'
+
+id: firmware/tcglog-dump-attachment
+category_id: com.canonical.plainbox::firmware
+summary: Attach a dump of the TCG Event log for debugging
+plugin: attachment
+user: root
+command: tcglog-dump
+imports: from com.canonical.plainbox import manifest
+requires:
+  cpuinfo.platform == 'x86_64'
+  manifest.has_tpm2_chip == 'True'
+  executable.name == 'tcglog-dump'

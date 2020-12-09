@@ -105,7 +105,7 @@ _siblings: [
 _summary: Storage insert detection on Thunderbolt 3 port
 _description:
  PURPOSE:
-     This test will check if the insertion of a Thunderbolt HDD could be detected
+     This test will check if the insertion of a Thunderbolt 3 HDD could be detected
  STEPS:
      1. Click 'Test' to begin the test. This test will
         timeout and fail if the insertion has not been detected within 40 seconds.
@@ -164,7 +164,7 @@ _siblings: [
 _summary: Storage removal detection on Thunderbolt 3 port
 _description:
  PURPOSE:
-     This test will check the system can detect the removal of a Thunderbolt HDD
+     This test will check the system can detect the removal of a Thunderbolt 3 HDD
  STEPS:
      1. Click 'Test' to begin the test. This test will timeout and fail if
         the removal has not been detected within 20 seconds.
@@ -176,6 +176,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::disk
 id: thunderbolt3/daisy-chain
+user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend-manual

@@ -20,6 +20,7 @@ mandatory_include:
   alsa_resource
   dmi
   dmi_attachment
+  dmesg_attachment
   dpkg
   interface
   lsb
@@ -96,6 +97,7 @@ mandatory_include:
   alsa_resource
   dmi
   dmi_attachment
+  dmesg_attachment
   dpkg
   interface
   lsb

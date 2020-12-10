@@ -395,3 +395,18 @@ _steps:
 _verification:
      Was the interface displayed correctly on the screen?
 flags: also-after-suspend
+
+id: monitor/vga
+_summary: Monitor works (VGA)
+_purpose:
+ Check output to display through VGA port
+_steps:
+ 1. Connect display to VGA port
+ 2. Check the display
+_verification:
+ Output to display works
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+estimated_duration: 300
+flags: also-after-suspend
+

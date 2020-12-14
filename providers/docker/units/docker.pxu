@@ -150,7 +150,7 @@ category_id: docker
 requires: snap.name == 'docker'
 command:
  set -e
- ID=$(docker run -d ubuntu sleep 100)
+ ID=$(docker run -d ubuntu bash -c "trap 'exit 0' SIGTERM ; while true; do :; done")
  [ `docker inspect -f {status} $ID` != running ] && exit 1
  docker stop $ID
  [ `docker wait $ID` != 0 ] && exit 1

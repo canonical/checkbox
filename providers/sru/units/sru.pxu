@@ -41,6 +41,26 @@ command: [ -f ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg ] && ca
 _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
 _summary: Attach the screenshot captured for the automatically validated screenshot test
 
+id: after-suspend-sru-server
+_name: All SRU Tests (Ubuntu Server) to run after suspend
+unit: test plan
+_description:
+    After suspend SRU jobs
+include:
+    suspend/suspend-single-log-attach
+    suspend/audio_after_suspend_auto
+    suspend/network_resume_time_auto
+    suspend/wifi_resume_time_auto
+    suspend/usb_storage_preinserted_after_suspend
+    suspend/record_playback_after_suspend_auto
+    after-suspend-bluetooth4/beacon_eddystone_url_.*
+    suspend/cpu_after_suspend_auto
+    suspend/memory_after_suspend_auto
+    suspend/gpu_lockup_after_suspend
+    disk/disk_stress_ng_.*
+    stress/cpu_stress_ng_test
+    after-suspend-thunderbolt3/storage-preinserted
+
 id: after-suspend-sru
 _name: All SRU Tests (Ubuntu Desktop) to run after suspend
 unit: test plan
@@ -62,6 +82,56 @@ include:
     disk/disk_stress_ng_.*
     stress/cpu_stress_ng_test
     after-suspend-thunderbolt3/storage-preinserted
+
+id: sru-server
+_name: All SRU Tests (Ubuntu Server)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
+    recommended for, nor will it be accepted for self-testing purposes.
+include:
+    # Following jobs all run first before the nested parts
+    # Please keep it short and avoid jobs triggering suspend or reboots
+    # Whenever possible prefer the use of nested parts instead
+    miscellanea/submission-resources
+    info/systemd-analyze
+    net_if_management_attachment
+    audio/alsa_record_playback_automated
+    install/apt-get-gets-updates
+    miscellanea/dkms_build_validation
+    miscellanea/fan_stress_reaction
+    networking/http
+    networking/gateway_ping
+    thunderbolt3/storage-preinserted
+nested_part:
+    info-attachment-cert-full
+    bluetooth-cert-automated
+    camera-cert-automated
+    cpu-cert-automated
+    disk-automated
+    ethernet-automated
+    mediacard-automated
+    memory-automated
+    power-management-precheck-cert-automated
+    usb-automated
+    wireless-automated
+    before-suspend-reference-cert-automated
+    suspend-tp
+    after-suspend-sru-server
+    after-suspend-wireless-automated
+    pts
+    stress-pm-graph
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management
+exclude:
+    cpu/clocktest
+    disk/stats_.*
+    disk/storage_device_.*
+    suspend/bluetooth_obex_send_before_suspend
+    installer_debug.gz
 
 id: sru
 _name: All SRU Tests (Ubuntu Desktop)

@@ -23,6 +23,7 @@ _description:
  QA test plan that includes automated watchdog tests
 estimated_duration: 1s
 include:
+    watchdog/detect
     watchdog/systemd-config
     watchdog/trigger-system-reset-auto
     watchdog/post-trigger-system-reset-auto

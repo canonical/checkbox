@@ -313,13 +313,6 @@ class CpuFreqTest:
                     path_min, self.startup_min_freq)
 
         logging.info('* restoring startup governor:')
-        # in case test ends prematurely from prior run
-        # and facilitate reset() called from args
-        if 'userspace' in self.startup_governor:
-            # may need to validate these assumptions
-            self.startup_governor = 'ondemand'
-        elif 'performance' in self.startup_governor:
-            self.startup_governor = 'powersave'
         self.set_governors(self.startup_governor)
 
         # enable offline cores

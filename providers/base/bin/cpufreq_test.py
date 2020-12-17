@@ -59,7 +59,7 @@ class CpuFreqTest:
     # max, min percentage of avg freq allowed to pass
     # values relative to target freq
     # ex: max = 110, min = 90 is 20% passing tolerance
-    max_freq_pct = 110
+    max_freq_pct = 150
     min_freq_pct = 90
 
     def __init__(self):

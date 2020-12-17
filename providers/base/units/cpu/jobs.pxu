@@ -182,7 +182,7 @@ plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/cpufreq_test-server
 user: root
-command: cpufreq_test.py
+command: cpufreq_test.py -q
 _summary:
  cpufreq scaling test
 _description:

@@ -18,6 +18,7 @@ estimated_duration: 7200.0
 requires:
  executable.name == 'stress-ng'
 user: root
+environ: STRESS_NG_CPU_TIME
 command:
   if [ -n "$STRESS_NG_CPU_TIME" ]
   then

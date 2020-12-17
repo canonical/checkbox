@@ -273,6 +273,7 @@ include:
     monitor/dvi-to-vga
     monitor/hdmi-to-vga
     monitor/displayport_hotplug
+    monitor/vga
 
 id: after-suspend-monitor-full
 unit: test plan
@@ -292,3 +293,4 @@ include:
     after-suspend-monitor/dvi-to-vga
     after-suspend-monitor/hdmi-to-vga
     after-suspend-monitor/displayport_hotplug
+    after-suspend-monitor/vga

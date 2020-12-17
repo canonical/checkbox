@@ -17,9 +17,21 @@ import subprocess as sp
 import sys
 import time
 
+from distutils.version import LooseVersion
 from gateway_ping_test import ping
 
 print = functools.partial(print, flush=True)
+
+
+def legacy_nmcli():
+    cmd = "nmcli -v"
+    output = sp.check_output(cmd, shell=True)
+    version = LooseVersion(output.strip().split()[-1].decode())
+    # check if using the 16.04 nmcli because of this bug
+    # https://bugs.launchpad.net/plano/+bug/1896806
+    if version < LooseVersion("1.9.9"):
+        return True
+    return False
 
 
 def print_head(txt):
@@ -159,7 +171,10 @@ def open_connection(args):
     # Make sure the connection is brought up
     cmd = "nmcli c up TEST_CON"
     print_cmd(cmd)
-    sp.call(cmd, shell=True)
+    try:
+        sp.call(cmd, shell=True, timeout=200 if legacy_nmcli() else None)
+    except sp.TimeoutExpired:
+        print("Connection activation failed\n")
     print()
 
     print_head("Ensure interface is connected")
@@ -206,7 +221,10 @@ def secured_connection(args):
     # Make sure the connection is brought up
     cmd = "nmcli c up TEST_CON"
     print_cmd(cmd)
-    sp.call(cmd, shell=True)
+    try:
+        sp.call(cmd, shell=True, timeout=200 if legacy_nmcli() else None)
+    except sp.TimeoutExpired:
+        print("Connection activation failed\n")
     print()
 
     print_head("Ensure interface is connected")

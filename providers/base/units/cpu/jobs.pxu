@@ -177,3 +177,13 @@ _siblings: [
       "command": "cpuinfo_resource.py | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -",
       "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}
  ]
+
+plugin: shell
+category_id: com.canonical.plainbox::cpu
+id: cpu/cpufreq_test-server
+user: root
+command: cpufreq_test.py -q
+_summary:
+ cpufreq scaling test
+_description:
+ Comprehensive testing of cpu scaling capabilities and directives via cpufreq.

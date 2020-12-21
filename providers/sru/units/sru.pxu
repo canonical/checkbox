@@ -120,7 +120,6 @@ nested_part:
     suspend-tp
     after-suspend-sru-server
     after-suspend-wireless-automated
-    pts
     stress-pm-graph
 bootstrap_include:
     device

@@ -42,8 +42,7 @@ class FanMonitor:
             device_path = os.path.realpath(device)
             # Get the class of pci device of hwmon whether is GPU.
             if "pci" in device_path:
-                pci_addr = os.path.basename(device_path)
-                pci_class_path = '/sys/bus/pci/devices/%s/class' % pci_addr
+                pci_class_path = os.path.join(device, 'class')
                 try:
                     with open(pci_class_path, 'r') as _file:
                         pci_class = _file.read().splitlines()

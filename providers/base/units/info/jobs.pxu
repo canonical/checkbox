@@ -352,6 +352,10 @@ _summary: Attaches the buildstamp identifier for the OS
 command:
     if [ -s /etc/buildstamp ]; then
       cat /etc/buildstamp
+    elif [ -s /run/mnt/ubuntu-seed/.disk/info ]; then
+      cat /run/mnt/ubuntu-seed/.disk/info
+    elif [ -s /var/lib/ubuntu_dist_channel ]; then
+      cat /var/lib/ubuntu_dist_channel
     elif [ -s /etc/media-info ]; then
       cat /etc/media-info
     elif [ -s /writable/system-data/etc/buildstamp ]; then

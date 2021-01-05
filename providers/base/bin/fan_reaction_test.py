@@ -30,10 +30,11 @@ class FanMonitor:
     """Device that reports fan RPM or something correlating to that."""
     def __init__(self):
         """Use heuristics to find something that we can read."""
-        hwmons = []
+        self.hwmons = []
         self._fan_paths = glob.glob('/sys/class/hwmon/hwmon*/fan*_input')
-        # All entries (except name) under /sys/class/hwmon/hwmon/* are optional,
-        # and should only be created in a given driver if the chip has the feature.
+        # All entries (except name) under /sys/class/hwmon/hwmon/* are optional
+        # and should only be created in a given driver if the chip has
+        # the feature.
         # Use fan*_input is because the "thinkpad_hwmon" driver is report
         # fan_input only. If there is any driver has different implementation
         # then may need to check other entries in the future.
@@ -46,21 +47,22 @@ class FanMonitor:
                 try:
                     with open(pci_class_path, 'r') as _file:
                         pci_class = _file.read().splitlines()
-                        pci_device_class = (int(pci_class[0], base=16) >> 16) & 0xff
+                        pci_device_class = (
+                            int(pci_class[0], base=16) >> 16) & 0xff
                         """Make sure the fan is not on graphic card"""
                         if pci_device_class == 3:
                             continue
                 except OSError:
                     print('Not able to access {}'.format(pci_class_path))
                     continue
-            hwmons.append(i)
-        if not hwmons:
+            self.hwmons.append(i)
+        if not self.hwmons:
             print('Fan monitoring interface not found in SysFS')
             raise SystemExit(0)
 
     def get_rpm(self):
         result = {}
-        for p in self._fan_paths:
+        for p in self.hwmons:
             try:
                 with open(p, 'rt') as f:
                     fan_mon_name = os.path.relpath(p, '/sys/class/hwmon')

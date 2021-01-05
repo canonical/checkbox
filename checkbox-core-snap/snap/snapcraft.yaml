@@ -515,7 +515,7 @@ parts:
   rpi-ppa:
     plugin: nil
     override-pull: |
-      sudo add-apt-repository ppa:ubuntu-raspi2/ppa-nightly
+      sudo add-apt-repository ppa:sylvain-pineau/ppa-rpi
       sudo apt-get update
     build-packages:
       - software-properties-common

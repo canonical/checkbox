@@ -9,8 +9,8 @@ include:
     com.canonical.certification::audio/alsa_record_playback_automated
     com.canonical.certification::recovery_info_attachment
 nested_part:
-    com.canonical.certification::submission-cert-full
-    com.canonical.certification::info-attachment-cert-full
+    com.canonical.certification::submission-cert-automated
+    com.canonical.certification::info-attachment-cert-automated
     com.canonical.certification::bluetooth-cert-automated
     com.canonical.certification::camera-cert-automated
     com.canonical.certification::cpu-cert-automated

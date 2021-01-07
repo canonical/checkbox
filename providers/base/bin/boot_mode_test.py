@@ -68,7 +68,8 @@ def reboot_to_firmware_check():
         "OsIndicationsSupported-8be4df61-93ca-11d2-aa0d-00e098032b8c"
     if os.path.isdir(osis_dir):
         if os.path.isfile(osis_var):
-            fw_info = open(osis_var).read()
+            with open(osis_var) as fh:
+                fw_info = fh.read()
             if ord(fw_info[4]) & 1:
                 logging.info("PASS: Reboot-to-firmware feature is present.")
                 return 0
@@ -95,7 +96,8 @@ def secure_boot_check():
     sb_var = sb_dir + "SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c"
     if os.path.isdir(sb_dir):
         if os.path.isfile(sb_var):
-            sb_info = open(sb_var).read()
+            with open(sb_var) as fh:
+                sb_info = fh.read()
             if ord(sb_info[4]) == 1:
                 logging.info("PASS: System booted with Secure Boot active.")
                 return 0

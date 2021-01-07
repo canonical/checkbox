@@ -9,6 +9,8 @@ cleanup() {
     # the onerror trap.
     tpm2_evictcontrol -Q -C o -c 0x81010005 2>/dev/null || true
 
+    tpm2_flushcontext -s
+
     if [ "$1" != "no-shut-down" ]; then
       shut_down
     fi

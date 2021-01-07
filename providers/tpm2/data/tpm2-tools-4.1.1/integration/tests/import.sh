@@ -11,6 +11,8 @@ cleanup() {
     ecc.ctx private.ecc.pem public.ecc.pem passfile aes.key policy.dat \
     aes.priv aes.pub
 
+    tpm2_flushcontext -s
+
     if [ "$1" != "no-shut-down" ]; then
           shut_down
     fi

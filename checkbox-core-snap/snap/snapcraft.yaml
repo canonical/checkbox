@@ -555,6 +555,12 @@ parts:
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
 ################################################################################
+  tcglog-parser:
+    plugin: go
+    source: https://github.com/jocave/tcglog-parser.git
+    source-type: git
+    source-branch: use-go-mod
+################################################################################
   parts-meta-info:
     plugin: nil
     override-build: |

@@ -50,6 +50,9 @@ class USBWatcher:
         self.MOUNTED_PARTITION = None
         signal.signal(signal.SIGALRM, self._no_usb_timeout)
         signal.alarm(self.USB_ACTION_TIMEOUT)
+        if self.args.usb_type == "mediacard":
+            # Match something like "mmcblk0: p1".
+            self.PART_RE = re.compile("mmcblk\d+: (?P<part_name>p\d+)")
 
     def run(self):
         j = journal.Reader()

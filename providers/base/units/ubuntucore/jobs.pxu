@@ -1,0 +1,53 @@
+id: ubuntucore/os-recovery-mode
+_summary: Reboot into recovery mode and log into the system using prior credentials.
+_purpose:
+ Check if system will reboot to recovery mode successfully
+requires:
+ lsb.release >= '20'
+_steps:
+ 1. Send unix socket command to reboot system into recovery mode
+    $ sudo http --pretty=format POST snapd:///v2/systems/$(ls /run/mnt/ubuntu-seed/systems/) action=do mode=recover
+    If 'http' is not installed, run the following command first
+    $ sudo snap install http
+ 2. System should respond to the unix socket command and reboot itself
+ 3. Wait until system completes the reboot process
+ 4. Check if system is running in recovery mode through kernel cmdline
+    $ cat /proc/cmdline
+ 5. Reboot the system and check again if system goes back to normal run mode
+    $ cat /proc/cmdline
+_verification:
+ Check if kernel cmdline when system in recovery mode includes:
+  'snapd_recovery_mode=recover'
+ Check if kernel cmdline when system in normal run mode includes:
+  'snapd_recovery_mode=run'
+plugin: manual
+category_id: ubuntucore
+
+id: ubuntucore/os-reinstall-mode
+_summary: Reboot into reinstall mode and trigger a factory reset on the device.
+_purpose:
+ Check if system will reboot to reinstall mode and reinitialise the device with fresh factory reset
+requires:
+ lsb.release >= '20'
+_steps:
+ WARNING: ALL EXISTING DATA ON THIS DEVICE WILL BE WIPED!!
+ 1. Check the current serial-assertion device-key
+    $ ls /var/lib/snapd/save/device/private-keys-v1
+ 2. Clear TPM first if this device has enabled secure boot & FDE
+    For x86-based platforms:
+    $ sudo su
+    $ echo 5 > /sys/class/tpm/tpm0/ppi/request
+    For ARM-based platforms:
+    There is no generic command for ARM-based platforms, please refer to device user manual
+ 3. Send unix socket command to reboot system into reinstall mode
+    $ sudo http --pretty=format POST snapd:///v2/systems/$(ls /run/mnt/ubuntu-seed/systems/) action=do mode=install
+    If 'http' is not installed, run the following command first
+    $ sudo snap install http
+ 4. System should respond to the unix socket command and reboot itself
+ 5. Wait until system completes the installation and initialization process
+ 6. Check serial-assertion device-key after installation completes
+    $ ls /var/lib/snapd/save/device/private-keys-v1
+_verification:
+ Check if a new serial-assertion device-key got generated after reinstallation completes
+plugin: manual
+category_id: ubuntucore

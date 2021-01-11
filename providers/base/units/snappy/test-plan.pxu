@@ -29,9 +29,6 @@ _description:
  QA test that includes manual tests for the snap command for Snappy Ubuntu
  Core devices.
 include:
-    snappy/snap-refresh
-    snappy/snap-revert
-    snappy/snap-reupdate
     snappy/os-refresh
     snappy/os-revert
     snappy/os-fail-boot
@@ -48,9 +45,6 @@ _description:
  QA test that includes manual tests for the snap command for Snappy Ubuntu
  Core devices.
 include:
-    snappy/snap-refresh
-    snappy/snap-revert
-    snappy/snap-reupdate
     snappy/os-refresh-with-refresh-control
     snappy/os-revert-with-refresh-control
     snappy/os-fail-boot-with-refresh-control

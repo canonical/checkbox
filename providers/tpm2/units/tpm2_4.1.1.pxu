@@ -746,3 +746,15 @@ user: root
 command:
  fwupdmgr get-devices
  fwupdmgr get-devices | ( grep 'TPM PCR0 differs from reconstruction' || exit 0 && exit 1)
+
+id: tpm2.0_4.1.1/context_gap_max_check
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: Check the CONTEXT_GAP_MAX value
+user: root
+command:
+ tpm2_getcap properties-fixed | grep -A 1 "TPM2_PT_CONTEXT_GAP_MAX:"
+ tpm2_getcap properties-fixed | (grep -zPq "TPM2_PT_CONTEXT_GAP_MAX:\s*raw: 0xFFFF" || exit 1 && exit 0)

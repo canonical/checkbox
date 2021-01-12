@@ -40,9 +40,11 @@ class CpuFreqTestError(Exception):
     """Exception handling."""
     def __init__(self, message):
         super().__init__()
+        # warn and exit if cpufreq scaling non-supported
         if 'scaling_driver' in message:
-            logging.error(
-                '%s\n## Fatal: scaling via cpufeq unsupported ##')
+            logging.warning(
+                '## Warning: scaling via CpuFreq non-supported ##')
+            sys.exit()
         # exempt systems unable to change intel_pstate driver mode
         elif 'intel_pstate/status' in message:
             pass
@@ -675,6 +677,8 @@ class CpuFreqCoreTest(CpuFreqTest):
         for idx, freq in enumerate(self.scaling_freqs):
             # re-init some attributes after 1st pass
             if idx:
+                # time buffer ensure all prior freq intervals processed
+                time.sleep(1)
                 # reset freq list
                 self.__observed_freqs = []
                 # reset signal.signal() event loop bit
@@ -685,7 +689,7 @@ class CpuFreqCoreTest(CpuFreqTest):
             load_observe_map(freq)
 
 
-def parse_args_logging():
+def parse_arg_logging():
     """ Ingest arguments and init logging."""
     def init_logging(_user_arg):
         """ Pass user arg and configure logging module."""
@@ -732,7 +736,7 @@ def parse_args_logging():
         '-q', '-Q', '--quiet',
         dest='log_level',
         action='store_const',
-        # repurpose built-in logging level
+        # allow visible warnings in quiet mode
         const=logging.WARNING,
         help='suppress output')
     parser_mutex_grp.add_argument(
@@ -747,7 +751,7 @@ def parse_args_logging():
 
 def main():
     # configure and start logging
-    user_arg = parse_args_logging()
+    user_arg = parse_arg_logging()
     # instantiate CpuFreqTest as cpu_freq_test
     cpu_freq_test = CpuFreqTest()
     # provide access to reset() method

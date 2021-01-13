@@ -29,7 +29,7 @@ from checkbox_support.parsers.udevadm import UdevadmParser
 categories = ("ACCELEROMETER", "AUDIO", "BLUETOOTH", "CAPTURE", "CARDREADER",
               "CDROM", "DISK", "KEYBOARD", "INFINIBAND", "MMAL", "MOUSE",
               "NETWORK", "OTHER", "PARTITION", "TOUCHPAD", "TOUCHSCREEN",
-              "USB", "VIDEO", "WIRELESS", "WWAN")
+              "USB", "VIDEO", "WATCHDOG", "WIRELESS", "WWAN")
 
 attributes = ("path", "name", "bus", "category", "driver", "product_id",
               "vendor_id", "subproduct_id", "subvendor_id", "product",

@@ -560,6 +560,13 @@ parts:
     source: https://github.com/jocave/tcglog-parser.git
     source-type: git
     source-branch: use-go-mod
+    override-build: |
+      # 64bit arch support only
+      if [ "${SNAPCRAFT_ARCH_TRIPLET}" = "arm-linux-gnueabihf" ]; then
+        exit 0
+      else
+        snapcraftctl build
+      fi
 ################################################################################
   parts-meta-info:
     plugin: nil

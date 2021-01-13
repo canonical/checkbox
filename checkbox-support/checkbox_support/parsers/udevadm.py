@@ -557,6 +557,8 @@ class UdevadmDevice(object):
             # special device for PiCamera
             if self._environment["SUBSYSTEM"] == "vchiq":
                 return "MMAL"
+            if self._environment["SUBSYSTEM"] == "watchdog":
+                return "WATCHDOG"
 
         if ('RFKILL_TYPE' in self._environment and
                 'RFKILL_NAME' in self._environment):
@@ -1106,6 +1108,9 @@ class UdevadmParser(object):
         # Do not ignore PiCamera
         if device.bus == "vchiq":
             return False
+
+        if device.category == "WATCHDOG":
+            return "virtual" in device.path
 
         # Ignore devices without bus information
         if not device.bus:

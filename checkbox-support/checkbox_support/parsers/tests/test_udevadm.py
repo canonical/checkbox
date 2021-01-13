@@ -67,6 +67,7 @@ class UdevadmDataMixIn(object):
         except (IOError, OSError):
             return None
 
+
 class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def getParser(self, string):
@@ -364,7 +365,7 @@ E: UDEV_LOG=3
 
     def test_TOSHIBA_NVME(self):
         devices = self.parse("TOSHIBA_NVME")
-        self.assertEqual(len(devices), 132)
+        self.assertEqual(len(devices), 133)
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -529,7 +530,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "AUDIO"), 4)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
         self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
-        self.assertEqual(self.count(devices, "CARDREADER"), 1) # rtsx
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)  # rtsx
         self.assertEqual(self.count(devices, "CDROM"), 1)
         self.assertEqual(self.count(devices, "FIREWIRE"), 0)
         self.assertEqual(self.count(devices, "MOUSE"), 1)
@@ -631,9 +632,10 @@ E: UDEV_LOG=3
 
     def test_EMMC_INTEL_NUC_SNAPPY(self):
         devices = self.parse("INTEL_NUC_SNAPPY")
-        self.assertEqual(len(devices), 77)
+        self.assertEqual(len(devices), 78)
         # Check that the eMMC drive is reported as a DISK
         self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 
     def test_EMMC_NOT_AS_MAIN_DRIVE(self):
         devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=False)
@@ -865,13 +867,13 @@ E: UDEV_LOG=3
             (None, "VIDEO", "pci", 0x10de, 0x1049),
             ("RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller",
              "NETWORK", "pci", 0x10EC, 0x8168),
-            ]
+        ]
         self.verify_devices(devices, expected_devices)
 
     def test_CARA_T(self):
         # A Snappy system with CANBus
         devices = self.parse("CARA_T")
-        self.assertEqual(len(devices), 78)
+        self.assertEqual(len(devices), 79)
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -885,11 +887,12 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "CANBUS"), 1)
+        self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 
     def test_CARA_T_SOCKETCAN(self):
         # A Snappy system with a SocketCAN device
         devices = self.parse("CARA_T_SOCKETCAN")
-        self.assertEqual(len(devices), 78)
+        self.assertEqual(len(devices), 79)
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -904,6 +907,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "CANBUS"), 0)
         self.assertEqual(self.count(devices, "SOCKETCAN"), 1)
+        self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 
     def test_IBM_s390x_DASD(self):
         devices = self.parse("IBM_s390x_DASD")
@@ -920,7 +924,7 @@ E: UDEV_LOG=3
 
     def test_VESTA_300(self):
         devices = self.parse("VESTA_300")
-        self.assertEqual(len(devices), 14)
+        self.assertEqual(len(devices), 15)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.assertEqual(self.count(devices, "CARDREADER"), 0)

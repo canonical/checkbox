@@ -371,6 +371,22 @@ parts:
     source: git://git.launchpad.net/plainbox-provider-certification-server
     after: [plainbox-provider-certification-client]
 ################################################################################
+  glmark2:
+    source: https://github.com/glmark2/glmark2.git
+    plugin: meson
+    build-packages:
+      - libpng-dev
+      - libjpeg-dev
+      - libdrm-dev
+      - libgbm-dev
+      - libudev-dev
+      - libx11-dev
+      - meson
+    meson-parameters:
+      #- -Dflavors=drm-gl,drm-glesv2,wayland-gl,wayland-glesv2,x11-gl,x11-glesv2
+      - -Dflavors=x11-glesv2
+      - --prefix=/usr
+################################################################################
   rpi-ppa:
     plugin: nil
     override-pull: |

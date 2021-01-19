@@ -30,7 +30,8 @@ class USBWatcher:
     USB_ACTION_TIMEOUT = 30  # sec
     FLAG_DETECTION = {"device": {
                       "new high-speed USB device number": False,
-                      "new SuperSpeed USB device number": False
+                      "new SuperSpeed USB device number": False,
+                      "new SuperSpeed Gen 1 USB device number": False
                       },
                       "driver": {
                           "using ehci_hcd": False,
@@ -121,8 +122,12 @@ class USBWatcher:
                 self._write_usb_info()
                 sys.exit()
             if (
-                self.args.usb_type == 'usb3' and
-                device == "new SuperSpeed USB device number"
+                self.args.usb_type == 'usb3' and (
+                    device in (
+                        "new SuperSpeed USB device number",
+                        "new SuperSpeed Gen 1 USB device number"
+                        )
+                    )
             ):
                 logger.info("USB3 insertion test passed.")
                 self._write_usb_info()

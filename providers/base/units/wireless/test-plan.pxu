@@ -134,17 +134,6 @@ unit: test plan
 _name: Manual tests for wireless
 _description: Manual tests wireless
 include:
-    # following matchers may also include some automated jobs, this could be
-    # fixed with some regex magic, but the lesser evil seems to be just to
-    # include them as well; XXX: the test plan is not really manual-only
-    wireless/wireless_connection_open_ax_.*
-    wireless/wireless_connection_open_ac_.*
-    wireless/wireless_connection_open_bg_.*
-    wireless/wireless_connection_open_n_.*
-    wireless/wireless_connection_wpa_ax_.*
-    wireless/wireless_connection_wpa_ac_.*
-    wireless/wireless_connection_wpa_bg_.*
-    wireless/wireless_connection_wpa_n_.*
 
 id: wireless-automated
 unit: test plan
@@ -337,18 +326,6 @@ unit: test plan
 _name: Manual tests for wireless (after suspend)
 _description: Manual tests wireless
 include:
-    # following matchers may also include some automated jobs, this could be
-    # fixed with some regex magic, but the lesser evil seems to be just to
-    # include them as well; XXX: the test plan is not really manual-only
-    after-suspend-wireless/wireless_connection_open_ax_.*
-    after-suspend-wireless/wireless_connection_open_ac_.*
-    after-suspend-wireless/wireless_connection_open_bg_.*
-    after-suspend-wireless/wireless_connection_open_n_.*
-    after-suspend-wireless/wireless_connection_wpa_ax_.*
-    after-suspend-wireless/wireless_connection_wpa_ac_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_.*
-    after-suspend-wireless/wireless_connection_wpa_n_.*
-    after-suspend-wireless/wifi_ap_.*
 
 id: after-suspend-wireless-automated
 unit: test plan

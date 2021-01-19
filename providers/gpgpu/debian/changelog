@@ -1,4 +1,4 @@
-checkbox-provider-gpgpu (0.2.0-1) UNRELEASED; urgency=medium
+checkbox-provider-gpgpu (0.3.0~rc1-1) UNRELEASED; urgency=medium
 
   [ Jeff Lane ]
   * Moved the GPGPU launcher, testplan and other stuff in from
@@ -8,7 +8,10 @@ checkbox-provider-gpgpu (0.2.0-1) UNRELEASED; urgency=medium
   [ Sylvain Pineau ]
   * "new upstream version"
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Thu, 24 Sep 2020 15:20:28 +0200
+  [ Jenkins ]
+  * "new upstream version"
+
+ -- Jenkins <jenkins@open-joey-201506-18558.maas>  Tue, 19 Jan 2021 09:46:46 +0000
 
 checkbox-provider-gpgpu (0.1-1) bionic; urgency=medium
 

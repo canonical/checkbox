@@ -17,6 +17,8 @@ include:
     ethernet/wol_S4_.*
     ethernet/wol_S3_.*
     ethernet/hotplug-.*
+bootstrap_include:
+    device
 
 id: ethernet-automated
 unit: test plan

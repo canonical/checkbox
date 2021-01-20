@@ -270,6 +270,24 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-engine: jinja2
+id: ethernet/hotplug-{{ interface }}
+_summary: Ensure hotplugging works on port {{ interface }}
+_purpose:
+ Check that hotplugging works on port {{ interface }}
+_steps:
+ 1. Begin the test.
+ 2. Follow the instructions on the screen.
+plugin: user-interact
+command:
+ eth_hotplugging.py {{ interface }} && gateway_ping_test.py -v --interface {{ interface }}
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 1.0
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-engine: jinja2
 id: ethernet/hotplug-{{ interface }}-check-disconnected
 _summary: Ensure ethernet port {{ interface }} is physically disconnected
 _purpose:

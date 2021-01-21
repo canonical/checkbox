@@ -5,15 +5,15 @@ _purpose:
 requires:
  lsb.release >= '20'
 _steps:
- 1. Send unix socket command to reboot system into recovery mode
-    $ sudo http --pretty=format POST snapd:///v2/systems/$(ls /run/mnt/ubuntu-seed/systems/) action=do mode=recover
-    If 'http' is not installed, run the following command first
-    $ sudo snap install http
- 2. System should respond to the unix socket command and reboot itself
+ 1. Reboot the system to recovery mode
+    $ sudo snap reboot --recover
+ 2. System should respond to the command and reboot itself
  3. Wait until system completes the reboot process
- 4. Check if system is running in recovery mode through kernel cmdline
+ 4. Check if system is running in recovery mode
     $ cat /proc/cmdline
- 5. Reboot the system and check again if system goes back to normal run mode
+ 5. Reboot the system back to normal run mode
+    $ sudo snap reboot
+ 6. Check again if system is running in run mode
     $ cat /proc/cmdline
 _verification:
  Check if kernel cmdline when system in recovery mode includes:
@@ -39,11 +39,9 @@ _steps:
     $ echo 5 > /sys/class/tpm/tpm0/ppi/request
     For ARM-based platforms:
     There is no generic command for ARM-based platforms, please refer to device user manual
- 3. Send unix socket command to reboot system into reinstall mode
-    $ sudo http --pretty=format POST snapd:///v2/systems/$(ls /run/mnt/ubuntu-seed/systems/) action=do mode=install
-    If 'http' is not installed, run the following command first
-    $ sudo snap install http
- 4. System should respond to the unix socket command and reboot itself
+ 3. Reboot the system to reinstall mode
+    $ sudo snap reboot --install
+ 4. System should respond to the command and reboot itself
  5. Wait until system completes the installation and initialization process
  6. Check serial-assertion device-key after installation completes
     $ ls /var/lib/snapd/save/device/private-keys-v1

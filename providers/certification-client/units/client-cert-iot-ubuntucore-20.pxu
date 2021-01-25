@@ -47,6 +47,7 @@ bootstrap_include:
   net_if_management
 nested_part:
   self-manual
+  ubuntucore-manual
   audio-manual
   bluetooth-manual
   camera-manual
@@ -124,6 +125,7 @@ bootstrap_include:
   net_if_management
 nested_part:
   self-automated
+  ubuntucore-automated
   com.intel.ipdt::ipdt-plan
   audio-automated
   bluez-automated

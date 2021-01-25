@@ -18,6 +18,9 @@ include:
 nested_part:
   # until there is reason to diverge, nest these plans
   client-cert-iot-ubuntucore-20-manual
+exclude:
+  ubuntucore/os-.*
+  snappy/os-.*
 
 
 id: client-cert-iot-server-20-04-automated

@@ -127,6 +127,7 @@ nested_part:
   self-automated
   ubuntucore-automated
   com.intel.ipdt::ipdt-plan
+  iot-fwts-automated
   audio-automated
   bluez-automated
   camera-automated
@@ -166,7 +167,7 @@ nested_part:
 
 
 id: client-cert-iot-ubuntucore-20-stress
-_name: IoT Client Certification for Ubuntu Core 20 (Automated Tests)
+_name: IoT Client Certification for Ubuntu Core 20 (Stress Tests)
 unit: test plan
 _description:
   This is UC20

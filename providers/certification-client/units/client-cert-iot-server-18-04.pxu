@@ -33,7 +33,7 @@ nested_part:
 
 
 id: client-cert-iot-server-18-04-stress
-_name: IoT Client Certification for 18.04 classic images (Automated Tests)
+_name: IoT Client Certification for 18.04 classic images (Stress Tests)
 unit: test plan
 _description:
   This is classic 18.04

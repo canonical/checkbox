@@ -88,20 +88,18 @@ class SnapRefresh():
 
     def invoked(self):
         """Test refresh of test-snapd-tools snap."""
-        def get_rev():
-            return Snapd().list(TEST_SNAP)['revision']
-        if Snapd().list(TEST_SNAP):
+        s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
+        if s.list(TEST_SNAP):
             print('Remove previously installed revision')
-            Snapd().remove(TEST_SNAP)
+            s.remove(TEST_SNAP)
         print('Install starting revision...')
-        Snapd().install(TEST_SNAP, 'stable')
-        start_rev = get_rev()
+        s.install(TEST_SNAP, 'stable')
+        start_rev = s.list(TEST_SNAP)['revision']
         print('  revision:', start_rev)
         print('Refresh to edge...')
-        s = Snapd(SNAPD_TASK_TIMEOUT, SNAPD_POLL_INTERVAL)
         s.refresh(TEST_SNAP, 'edge')
         print('Get new revision...')
-        new_rev = get_rev()
+        new_rev = s.list(TEST_SNAP)['revision']
         print('  revision:', new_rev)
         if new_rev == start_rev:
             return 1

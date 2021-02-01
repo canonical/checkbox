@@ -22,7 +22,6 @@ mandatory_include:
   dmi_attachment
   dmesg_attachment
   dpkg
-  interface
   lsb
   lspci_attachment
   lsusb_attachment
@@ -44,6 +43,7 @@ bootstrap_include:
   bootloader
   cpuinfo
   device
+  interface
   net_if_management
 nested_part:
   self-manual
@@ -99,7 +99,6 @@ mandatory_include:
   dmi_attachment
   dmesg_attachment
   dpkg
-  interface
   lsb
   lspci_attachment
   lsusb_attachment
@@ -121,6 +120,7 @@ bootstrap_include:
   bootloader
   cpuinfo
   device
+  interface
   net_if_management
 nested_part:
   self-automated

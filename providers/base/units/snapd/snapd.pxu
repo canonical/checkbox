@@ -4,7 +4,7 @@ _purpose: If snap list command is working then should at least find the
  ubuntu-core package.
 plugin: shell
 command: snap_tests.py list
-category_id: snappy
+category_id: snapd
 estimated_duration: 10s
 flags: preserve-locale
 
@@ -16,7 +16,7 @@ _purpose:
  {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} in the store.
 plugin: shell
 command: snap_tests.py search
-category_id: snappy
+category_id: snapd
 estimated_duration: 10s
 flags: preserve-locale
 
@@ -29,7 +29,7 @@ _purpose:
  makes sure this can be downloaded and installed on the system.
 plugin: shell
 command: snap_tests.py install stable
-category_id: snappy
+category_id: snapd
 estimated_duration: 10s
 flags: preserve-locale
 user: root
@@ -44,7 +44,7 @@ _purpose:
  can removed.
 plugin: shell
 command: snap_tests.py remove
-category_id: snappy
+category_id: snapd
 estimated_duration: 10s
 flags: preserve-locale
 user: root
@@ -67,7 +67,7 @@ _verification:
  Check hello version is newer using the beta channel
 plugin: manual
 after: snappy/snap-remove
-category_id: snappy
+category_id: snapd
 estimated_duration: 60
 
 id: snappy/snap-revert
@@ -82,7 +82,7 @@ _steps:
 _verification:
  Check hello version is back to its stable version
 plugin: manual
-category_id: snappy
+category_id: snapd
 estimated_duration: 60
 
 id: snappy/snap-reupdate
@@ -99,7 +99,7 @@ _steps:
 _verification:
  Check hello version is again the one from the beta channel
 plugin: manual
-category_id: snappy
+category_id: snapd
 estimated_duration: 60
 
 id: snappy/snap-refresh-automated
@@ -112,7 +112,7 @@ _description:
  and after the refresh.
 plugin: shell
 command: snap_tests.py refresh
-category_id: snappy
+category_id: snapd
 estimated_duration: 10s
 user: root
 environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
@@ -126,7 +126,7 @@ _description:
  back to the one from stable.
 plugin: shell
 command: snap_tests.py revert
-category_id: snappy
+category_id: snapd
 estimated_duration: 10s
 user: root
 environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
@@ -139,7 +139,7 @@ _description:
  snap can be refreshed after removal of the blacklisted revision.
 plugin: shell
 command: snap_tests.py reupdate
-category_id: snappy
+category_id: snapd
 estimated_duration: 10s
 user: root
 environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
@@ -160,7 +160,7 @@ _steps:
 _verification:
  Check core version is newer using the edge channel
 plugin: manual
-category_id: snappy
+category_id: snapd
 estimated_duration: 400
 
 id: snappy/os-refresh-with-refresh-control
@@ -179,7 +179,7 @@ _steps:
 _verification:
  Check core version is newer using the edge channel
 plugin: manual
-category_id: snappy
+category_id: snapd
 estimated_duration: 400
 
 id: snappy/os-revert
@@ -199,7 +199,7 @@ _verification:
  Check core version is back to its stable version
 plugin: manual
 depends: snappy/os-refresh
-category_id: snappy
+category_id: snapd
 estimated_duration: 400
 
 id: snappy/os-revert-with-refresh-control
@@ -219,7 +219,7 @@ _verification:
  Check core version is back to its stable version
 plugin: manual
 depends: snappy/os-refresh-with-refresh-control
-category_id: snappy
+category_id: snapd
 estimated_duration: 400
 
 id: snappy/os-fail-boot
@@ -242,7 +242,7 @@ _steps:
 _verification:
  Check system is currently booting the stable core version
 plugin: manual
-category_id: snappy
+category_id: snapd
 depends: snappy/os-revert
 estimated_duration: 500
 
@@ -266,7 +266,7 @@ _steps:
 _verification:
  Check system is currently booting the stable core version
 plugin: manual
-category_id: snappy
+category_id: snapd
 depends: snappy/os-revert-with-refresh-control
 estimated_duration: 500
 
@@ -281,7 +281,7 @@ _steps:
 _verification:
  Can log into system through ssh from other machine
 plugin: manual
-category_id: snappy
+category_id: snapd
 estimated_duration: 120
 
 id: snappy/test-store-install-beta
@@ -292,7 +292,7 @@ _purpose:
 plugin: shell
 command: snap_tests.py install beta && snap_tests.py remove
 user: root
-category_id: com.canonical.certification::snappy
+category_id: snapd
 estimated_duration: 30s
 flags: preserve-locale
 
@@ -304,7 +304,7 @@ _purpose:
 plugin: shell
 command: snap_tests.py install edge && snap_tests.py remove
 user: root
-category_id: com.canonical.certification::snappy
+category_id: snapd
 estimated_duration: 30s
 flags: preserve-locale
 
@@ -325,6 +325,6 @@ command:
  echo "Store ID in model assertion:"
  echo "{store}"
  [ "$STORE_ID" == "{store}" ]
-category_id: com.canonical.certification::snappy
+category_id: snapd
 estimated_duration: 1.0
 flags: preserve-locale

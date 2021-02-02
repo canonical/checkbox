@@ -44,7 +44,7 @@ def find_taints(taint_file):
         f = open(taint_file, "r")
         taints = int(f.read())
     except OSError:
-        taints = 2**(max_taints+1)  # Set so we have a non-0 value to return
+        taints = -1
         print("Kernel taint file ({}) not found!".format(taint_file))
     print("Kernel taint value is {}".format(taints))
     return(taints)
@@ -61,22 +61,22 @@ def get_modules():
 
 
 def print_out_of_tree_modules(modules):
-    print("    Modules not in-tree:")
+    print("*   Modules not in-tree:")
     for mod in modules:
         cmd = 'modinfo -F intree %s' % mod
         if not check_output(shlex.split(cmd),
                             universal_newlines=True):
-            print("        %s" % mod)
+            print("     %s" % mod)
 
 
 def print_GPL_incompatible_modules(modules):
-    print("    Modules with GPL Incompatible Licenses:")
+    print("*   Modules with GPL Incompatible Licenses:")
     for mod in modules:
         cmd = 'modinfo -F license %s' % mod
         license = check_output(shlex.split(cmd),
                                universal_newlines=True).strip()
         if "GPL" not in license and "MIT" not in license:
-            print("        %s: %s" % (mod, license))
+            print("     %s: %s" % (mod, license))
 
 
 def report_failures(taints):
@@ -101,6 +101,7 @@ def report_failures(taints):
                       "kernel has been live patched",
                       "auxiliary taint, defined for and used by distros",
                       "kernel was built with the struct randomization plugin"]
+    count = 0
     for i in range(max_taints+1):
         if (taints & (2 ** i)):
             modules = get_modules()
@@ -109,8 +110,19 @@ def report_failures(taints):
                 print_GPL_incompatible_modules(modules)
             if i == 12:  # List out-of-tree modules
                 print_out_of_tree_modules(modules)
+            if i == 11:
+                print("*   Firmware workarounds are expected and OK")
+                continue
+            count += 1
+
     if taints == 0:
         print("No kernel taints detected.")
+
+    if taints and count == 0:
+        # we found only taint 11
+        return count
+    else:
+        return taints
 
 
 def main():
@@ -120,8 +132,10 @@ def main():
                         help='The file that holds the taint information')
     args = parser.parse_args()
     taints = find_taints(args.taint_file)
-    report_failures(taints)
-    return(taints > 0)
+    if taints < 0:
+        return taints
+
+    return(report_failures(taints))
 
 
 if __name__ == '__main__':

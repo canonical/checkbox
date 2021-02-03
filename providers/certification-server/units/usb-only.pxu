@@ -10,11 +10,9 @@ nested_part:
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-usb
 include:
     info/hdparm_.*.txt
-    usb/detect
-    usb/storage-preinserted                    certification-status=blocker
-    usb3/storage-preinserted                   certification-status=blocker
     miscellanea/oops                           certification-status=non-blocker
     miscellanea/oops_results.log               certification-status=non-blocker
     miscellanea/olog                           certification-status=blocker

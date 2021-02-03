@@ -15,6 +15,7 @@ trap cleanup EXIT
 
 start_up
 
+if is_sha1_pcr0_supported; then
 declare -A digestlengths=\
 ([sha1]=20
  [sha256]=32)
@@ -23,6 +24,13 @@ declare -A expected_policy_digest=\
  [sha256]=33e36e786c878632494217c3f490e74ca0a3a122a8a4f3c5302500df3b32b3b8)
 
 tpm2_pcrread -V sha1
+
+else
+declare -A digestlengths=\
+([sha256]=32)
+declare -A expected_policy_digest=\
+([sha256]=33e36e786c878632494217c3f490e74ca0a3a122a8a4f3c5302500df3b32b3b8)
+fi
 
 for halg in ${!digestlengths[@]}
 do

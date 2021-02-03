@@ -66,6 +66,7 @@ tpm2_create -Q -g $alg_create_obj -G $alg_create_key -u $file_quote_key_pub \
 tpm2_load -Q -C $file_primary_key_ctx -u $file_quote_key_pub \
 -r $file_quote_key_priv -n $file_quote_key_name -c $file_quote_key_ctx
 
+if is_sha1_pcr0_supported; then
 tpm2_quote -c $file_quote_key_ctx -l $alg_quote:16,17,18 -q $nonce \
 -m $toss_out -s $toss_out -o $toss_out -g $alg_primary_obj > $out
 
@@ -74,23 +75,38 @@ yaml_verify $out
 tpm2_quote -Q -c $file_quote_key_ctx \
 -l $alg_quote:16,17,18+$alg_quote1:16,17,18 -q $nonce -m $toss_out \
 -s $toss_out -o $toss_out -g $alg_primary_obj
+else
+tpm2_quote -c $file_quote_key_ctx -l $alg_quote1:16,17,18 -q $nonce \
+-m $toss_out -s $toss_out -o $toss_out -g $alg_primary_obj > $out
 
+yaml_verify $out
+
+fi
 #####handle testing
 tpm2_evictcontrol -Q -C o -c $file_quote_key_ctx $Handle_ak_quote
 
+if is_sha1_pcr0_supported; then
 tpm2_quote -Q -c $Handle_ak_quote -l $alg_quote:16,17,18 -q $nonce \
 -m $toss_out -s $toss_out -o $toss_out -g $alg_primary_obj
 
 tpm2_quote -Q -c $Handle_ak_quote -l $alg_quote:16,17,18+$alg_quote1:16,17,18 \
 -q $nonce -m $toss_out -s $toss_out -o $toss_out -g $alg_primary_obj
+else
+tpm2_quote -Q -c $Handle_ak_quote -l $alg_quote1:16,17,18 -q $nonce \
+-m $toss_out -s $toss_out -o $toss_out -g $alg_primary_obj
 
+fi
 #####AK
 tpm2_createek -Q -c $Handle_ek_quote -G 0x01
 
 tpm2_createak -Q -C $Handle_ek_quote -c $ak2_ctx -u ak.pub2 -n ak.name_2
 tpm2_evictcontrol -Q -C o -c $ak2_ctx $Handle_ak_quote2
 
+if is_sha1_pcr0_supported; then
 tpm2_quote -Q -c $Handle_ak_quote -l $alg_quote:16,17,18 -q $nonce \
 -m $toss_out -s $toss_out -o $toss_out -g $alg_primary_obj
-
+else
+tpm2_quote -Q -c $Handle_ak_quote -l $alg_quote1:16,17,18 -q $nonce \
+-m $toss_out -s $toss_out -o $toss_out -g $alg_primary_obj
+fi
 exit 0

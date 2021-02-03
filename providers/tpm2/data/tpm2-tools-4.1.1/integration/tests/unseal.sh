@@ -5,7 +5,11 @@ source helpers.sh
 alg_primary_obj=sha256
 alg_primary_key=ecc
 alg_create_obj=sha256
+if is_sha1_pcr0_supported; then
 pcr_specification=sha256:0,1,2,3+sha1:0,1,2,3
+else
+pcr_specification=sha256:0,1,2,3
+fi
 file_pcr_value=pcr.bin
 file_input_data=secret.data
 file_policy=policy.data
@@ -100,9 +104,11 @@ if [ $? != 1 ]; then
 fi
 
 # Test that unseal fails if PCR state isn't the same as the defined PCR policy
-
+if is_sha1_pcr0_supported; then
 tpm2_pcrextend 0:sha1=6c10289a8da7f774cf67bd2fc8502cd4b585346a
-
+else
+tpm2_pcrextend 0:sha256=6c10289a8da7f774cf67bd2fc8502cd4b585346a010203040506070809101112
+fi
 tpm2_unseal -c $file_unseal_key_ctx -p pcr:$pcr_specification 2> /dev/null
 if [ $? != 1 ]; then
   echo "tpm2_unseal didn't fail with a PCR state different than the policy!"

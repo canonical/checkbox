@@ -372,7 +372,7 @@ class UdevadmDevice(object):
                 # usb controller was identified by the old heuristic, so here
                 # we need to match all three fields to avoid duplicating
                 # devices.  See http://pad.lv/1210405
-                    return "BLUETOOTH"
+                return "BLUETOOTH"
 
         if 'ID_INPUT_KEYBOARD' in self._environment:
             return "KEYBOARD"
@@ -1133,13 +1133,13 @@ class UdevadmParser(object):
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
         if ("ID_PART_TABLE_TYPE" in device._environment and
-           device.driver == 'mmcblk' and
-           device._mmc_type == 'MMC'):
+            device.driver == 'mmcblk' and
+                device._mmc_type == 'MMC'):
             return False
         # Do not ignore QEMU/KVM virtio disks
         if ("DEVTYPE" in device._environment and
-           device.bus == "virtio" and
-           device.driver == "virtio_blk"):
+            device.bus == "virtio" and
+                device.driver == "virtio_blk"):
             return False
         # Do not ignore MTD disks
         if device.category == "DISK" and device.bus == "mtd":

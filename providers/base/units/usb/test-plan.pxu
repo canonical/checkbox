@@ -332,3 +332,11 @@ include:
 bootstrap_include:
     removable_partition
 
+id: server-usb
+unit: test plan
+_name: USB Server tests
+_description: USB tests for Server Cert
+include:
+    usb/detect
+    usb/storage-server      certification-status=blocker
+    usb3/storage-server     certification-status=blocker

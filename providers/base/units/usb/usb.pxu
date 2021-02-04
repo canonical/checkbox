@@ -244,7 +244,6 @@ imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform != 's390x'
  package.name == 'udisks2' or snap.name == 'udisks2'
- package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
  manifest.has_usb_storage == 'True'
 _summary:
  Test USB 2.0 or 1.1 ports
@@ -252,6 +251,9 @@ _description:
  Tests USB 2.0 or 1.1 ports on a system by doing write/read/compare tests on
  randomly created data.  It requires that a USB stick is plugged into an
  available USB port before running the certification suite.
+_siblings:
+    [{ "id": "usb/storage-server",
+       "requires": "cpuinfo.platform != 's390x'\npackage.name == 'udisks2' or snap.name == 'udisks2'" }]
 
 plugin: shell
 category_id: com.canonical.plainbox::usb
@@ -263,7 +265,6 @@ requires:
  cpuinfo.platform != 's390x'
  usb.usb3 == 'supported'
  package.name == 'udisks2' or snap.name == 'udisks2'
- package.name == 'udisks2' or (snap.name == 'core' and int(snap.revision) >= 1804)
  manifest.has_usb_storage == 'True'
 estimated_duration: 45.0
 command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
@@ -274,6 +275,9 @@ _description:
  randomly created data. It requires that a USB stick is plugged into an
  available USB port before running the certification suite. Additionally, it
  will only work with USB sticks and ports rated for USB 3.0 speeds or faster.
+_siblings:
+    [{ "id": "usb3/storage-server",
+       "requires": "cpuinfo.platform != 's390x'\nusb.usb3 == 'supported'\npackage.name == 'udisks2' or snap.name == 'udisks2'" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::usb

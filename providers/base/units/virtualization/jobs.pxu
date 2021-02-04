@@ -2,13 +2,13 @@ plugin: shell
 category_id: com.canonical.plainbox::virtualization
 id: virtualization/kvm_check_vm
 user: root
-environ: KVM_TIMEOUT KVM_IMAGE http_proxy https_proxy
+environ: UVT_IMAGE_OR_SOURCE http_proxy https_proxy
 estimated_duration: 300.0
 requires:
- package.name == 'qemu-system'
- package.name == 'qemu-utils'
+ package.name == 'uvtool'
+ package.name == 'uvtool-libvirt'
  virtualization.kvm == 'supported'
-command: virtualization.py --debug kvm --log-file="$PLAINBOX_SESSION_SHARE"/virt_debug
+command: virtualization.py --debug uvt
 _description:
  Verifies that a KVM guest can be created and booted using an Ubuntu Server
  cloud image.

@@ -993,6 +993,10 @@ E: UDEV_LOG=3
         # The symlink should follow the device
         self.assertEqual(symlink_pre, symlink_post)
 
+    def test_SHUTTLE_DH270_WITH_CORAL(self):
+        devices = self.parse("SHUTTLE_DH270_WITH_CORAL")
+        self.assertEqual(self.count(devices, "TPU"), 1)
+
     def test_RPI2_WITH_CAMERA(self):
         devices = self.parse("RPI2_WITH_CAMERA")
         self.assertEqual(self.count(devices, "MMAL"), 1)

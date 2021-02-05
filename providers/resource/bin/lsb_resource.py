@@ -2,7 +2,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2009 Canonical Ltd.
+# Copyright 2009-2021 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -18,37 +18,49 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 import re
+import subprocess
 import sys
 
 
-def get_lsb_release():
-    lsb_release_map = {
-        "DISTRIB_ID": "distributor_id",
-        "DISTRIB_DESCRIPTION": "description",
-        "DISTRIB_RELEASE": "release",
-        "DISTRIB_CODENAME": "codename"}
-
-    # Create a default lsb_release() dict in case something goes wrong
-    lsb_release = dict((k, 'unknown') for k in lsb_release_map.values())
+def get_info():
+    lsb_release = {}
 
     try:
-        with open('/etc/lsb-release', 'r') as lsb:
-            for line in lsb.readlines():
-                (key, value) = line.split("=", 1)
-                if key in lsb_release_map:
-                    key = lsb_release_map[key]
-                    # Strip out quotes and newlines
-                    lsb_release[key] = re.sub('["\n]', '', value)
-    except OSError:
-        # Missing file or permissions? Return the default lsb_release
-        pass
+        import distro
+        lsb_release = {
+            "distributor_id": distro.name(pretty=False) or "unknown",
+            "description": distro.name(pretty=True) or "unknown",
+            "release": distro.version() or "unknown",
+            "codename": distro.codename() or "unknown"
+        }
+    except (ImportError, subprocess.CalledProcessError):
+        lsb_release_map = {
+            "DISTRIB_ID": "distributor_id",
+            "DISTRIB_DESCRIPTION": "description",
+            "DISTRIB_RELEASE": "release",
+            "DISTRIB_CODENAME": "codename"}
+
+        # Create a default lsb_release() dict in case something goes wrong
+        lsb_release = dict((k, 'unknown') for k in lsb_release_map.values())
+
+        try:
+            with open('/etc/lsb-release', 'r') as lsb:
+                for line in lsb.readlines():
+                    (key, value) = line.split("=", 1)
+                    if key in lsb_release_map:
+                        key = lsb_release_map[key]
+                        # Strip out quotes and newlines
+                        lsb_release[key] = re.sub('["\n]', '', value)
+        except OSError:
+            # Missing file or permissions? Return the default lsb_release
+            pass
 
     return lsb_release
 
 
 def main():
-    lsb_release = get_lsb_release()
-    for key, value in lsb_release.items():
+    release_info = get_info()
+    for key, value in release_info.items():
         print("%s: %s" % (key, value))
 
     return 0

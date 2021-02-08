@@ -704,6 +704,9 @@ class RemoteSessionAssistant():
         self._reset_sa()
 
     def transmit_input(self, text):
+        if not text:
+            self._pipe_from_master.close()
+            return
         self._pipe_from_master.write(text)
         self._pipe_from_master.flush()
 

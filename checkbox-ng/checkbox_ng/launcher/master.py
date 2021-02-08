@@ -453,8 +453,10 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     if not res[0]:
                         break
                     # XXX: this assumes that sys.stdin is chunked in lines
-                    self.sa.transmit_input(res[0][0].readline())
-
+                    buff = res[0][0].readline()
+                    self.sa.transmit_input(buff)
+                    if not buff:
+                        break
             else:
                 if dont_finish:
                     return

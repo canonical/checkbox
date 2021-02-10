@@ -1,7 +1,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2011-2018 Canonical Ltd.
+# Copyright 2011-2021 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -372,7 +372,7 @@ class UdevadmDevice(object):
                 # usb controller was identified by the old heuristic, so here
                 # we need to match all three fields to avoid duplicating
                 # devices.  See http://pad.lv/1210405
-                    return "BLUETOOTH"
+                return "BLUETOOTH"
 
         if 'ID_INPUT_KEYBOARD' in self._environment:
             return "KEYBOARD"
@@ -546,6 +546,9 @@ class UdevadmDevice(object):
         if self.bus == "tty":
             return "OTHER"
 
+        if self.bus == "apex":
+            return "TPU"
+
         if "SUBSYSTEM" in self._environment:
             if self._environment["SUBSYSTEM"] == "hidraw":
                 return "HIDRAW"
@@ -678,6 +681,10 @@ class UdevadmDevice(object):
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
             parent = self._stack[-2]
             return parent.product_id
+        # tpu
+        if self.bus == 'apex' and self._stack:
+            parent = self._stack[-1]
+            return parent.product_id
         # canbus
         if "DEVLINKS" in self._environment:
             if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
@@ -732,6 +739,10 @@ class UdevadmDevice(object):
             return parent.vendor_id
         elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
             parent = self._stack[-2]
+            return parent.vendor_id
+        # tpu
+        if self.bus == 'apex' and self._stack:
+            parent = self._stack[-1]
             return parent.vendor_id
         # canbus
         if "DEVLINKS" in self._environment:
@@ -1133,13 +1144,13 @@ class UdevadmParser(object):
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
         if ("ID_PART_TABLE_TYPE" in device._environment and
-           device.driver == 'mmcblk' and
-           device._mmc_type == 'MMC'):
+            device.driver == 'mmcblk' and
+                device._mmc_type == 'MMC'):
             return False
         # Do not ignore QEMU/KVM virtio disks
         if ("DEVTYPE" in device._environment and
-           device.bus == "virtio" and
-           device.driver == "virtio_blk"):
+            device.bus == "virtio" and
+                device.driver == "virtio_blk"):
             return False
         # Do not ignore MTD disks
         if device.category == "DISK" and device.bus == "mtd":

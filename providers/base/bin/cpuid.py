@@ -83,6 +83,24 @@ is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
 # [11:8]  Family
 # [7:4]   Model
 # [3:0]   Stepping
+
+# Intel CPUID Hex Mapping
+# 0x[1][2][3][4][5]
+# [1] Extended Model
+# [2] Extended Family
+# [3] Family
+# [4] Model
+# [5] Stepping
+
+# AMD CPUID Hex Mapping
+# 0x[1][2][3][4][5][6]
+# [1] Extended Family
+# [2] Extended Model
+# [3] Reserved
+# [4] Base Family
+# [5] Base Model
+# [6] Stepping
+
 CPUIDS = {
         "Amber Lake":       ['0x806e9'],
         "AMD EPYC":         ['0x800f12'],
@@ -97,7 +115,7 @@ CPUIDS = {
             '0x806ea', '0x906ea', '0x906eb', '0x906ec', '0x906ed'],
         "Cooper Lake":      ['0x5065a', '0x5065b'],
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
-        "Ice Lake":         ['0x706e'],
+        "Ice Lake":         ['0x606e6', '0x606e8', '0x706e'],
         "Ivy Bridge":       ['0x306a', '0x306e'],
         "Kaby Lake":        ['0x806e9', '0x906e9'],
         "Knights Landing":  ['0x5067'],

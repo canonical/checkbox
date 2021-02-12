@@ -240,6 +240,7 @@ parts:
       - dmidecode
       - dmsetup
       - ethtool
+      - freeipmi-tools
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -298,6 +299,8 @@ parts:
     build-packages:
       - libasound2-dev
       - libcap-dev
+    organize:
+      usr/lib/lib*.so*: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
     after: [plainbox-provider-resource]
 ################################################################################
   plainbox-provider-ipdt:

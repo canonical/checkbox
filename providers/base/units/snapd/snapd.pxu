@@ -19,6 +19,7 @@ command: snap_tests.py search
 category_id: snapd
 estimated_duration: 10s
 flags: preserve-locale
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 id: snappy/snap-install
 template-engine: jinja2
@@ -33,7 +34,7 @@ category_id: snapd
 estimated_duration: 10s
 flags: preserve-locale
 user: root
-environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 id: snappy/snap-remove
 template-engine: jinja2
@@ -48,7 +49,7 @@ category_id: snapd
 estimated_duration: 10s
 flags: preserve-locale
 user: root
-environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 id: snappy/snap-refresh
 _summary: Test the snap refresh command is able to update the hello snap.
@@ -115,7 +116,7 @@ command: snap_tests.py refresh
 category_id: snapd
 estimated_duration: 10s
 user: root
-environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 id: snappy/snap-revert-automated
 template-engine: jinja2
@@ -129,7 +130,7 @@ command: snap_tests.py revert
 category_id: snapd
 estimated_duration: 10s
 user: root
-environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 id: snappy/snap-reupdate-automated
 template-engine: jinja2
@@ -142,7 +143,7 @@ command: snap_tests.py reupdate
 category_id: snapd
 estimated_duration: 10s
 user: root
-environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 id: snappy/os-refresh
 _summary: Refresh the system using the snap tool
@@ -295,6 +296,7 @@ user: root
 category_id: snapd
 estimated_duration: 30s
 flags: preserve-locale
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 id: snappy/test-store-install-edge
 _summary: Snappy install command - edge channel store
@@ -307,6 +309,7 @@ user: root
 category_id: snapd
 estimated_duration: 30s
 flags: preserve-locale
+environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 
 unit: template
 template-resource: com.canonical.certification::model_assertion

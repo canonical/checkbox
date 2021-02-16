@@ -1,9 +1,14 @@
 id: dkms_info_json
+template-engine: jinja2
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
+ {%- if __on_ubuntucore__ %}
+ echo "{}"
+ {%- else %}
  dkms_info.py  --format json | python3 -m plainbox dev parse dkms-info | \
  jq '.dkms_info'
+ {% endif -%}
 _description: Attaches json dumps of installed dkms package information.
 _summary: Attaches json dumps of installed dkms package information.
 

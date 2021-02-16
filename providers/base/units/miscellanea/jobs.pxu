@@ -184,6 +184,8 @@ _description:
  Test to verify that the system uses production, rather
  than pre-release, versions of the kernel and the OS.
 command: check-prerelease.py
+requires:
+  "Ubuntu Core" not in lsb.description
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

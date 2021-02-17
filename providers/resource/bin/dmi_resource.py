@@ -30,7 +30,7 @@ COMMAND = "dmidecode"
 class DmiResult:
 
     attributes = ("path", "category", "product", "vendor", "serial",
-                  "version", "size", "form",)
+                  "version", "size", "form", "sku",)
 
     def addDmiDevice(self, device):
         for attribute in self.attributes:

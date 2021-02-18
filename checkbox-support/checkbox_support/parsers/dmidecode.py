@@ -64,6 +64,7 @@ class DmidecodeParser(object):
         "Type": "type",
         "Vendor": "vendor",
         "Version": "version",
+        "SKU Number": "sku",
     }
 
     def __init__(self, stream):

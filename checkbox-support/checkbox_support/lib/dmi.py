@@ -247,6 +247,11 @@ class DmiDevice:
         return self._attributes.get(attribute)
 
     @property
+    def sku(self):
+        attribute = "%s_sku" % self.category.lower()
+        return self._attributes.get(attribute)
+
+    @property
     def raw_attributes(self):
         """
         Access "raw" non-collapsed DMI data.

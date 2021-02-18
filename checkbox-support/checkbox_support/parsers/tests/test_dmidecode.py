@@ -160,7 +160,7 @@ class TestDmidecodeRealParser(TestCase):
         self.assertEqual(device.product, "20AMOS3")
         self.assertEqual(device.vendor, "LENOVO")
         self.assertEqual(device.serial, "PF04B4D")
-        self.assertEqual(device.raw_attributes['sku_number'], "LENOVO_MT_20AM")
+        self.assertEqual(device.sku, "LENOVO_MT_20AM")
         self.assertEqual(device.raw_attributes['uuid'],
                          "170AFF01-52A1-11CB-A7A6-EB7272884401")
 
@@ -187,6 +187,6 @@ class TestLenovoSystemX(TestCase):
             'serial': '06EEEAR',
             'uuid': '7b75005c-d029-11e4-9aa6-40f2e9b938a0',
             'wake_up_type': 'Power Switch',
-            'sku_number': '(none)',
+            'sku': '(none)',
             'family': 'System X'}
         self.assertDictEqual(dmi_device.raw_attributes, correct_values)

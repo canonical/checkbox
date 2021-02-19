@@ -533,7 +533,7 @@ def get_differential_execution_environment(job, environ, session_id, nest_dir,
         delta_env['LANGUAGE'] = ''
         delta_env['LC_ALL'] = 'C.UTF-8'
     if extra_env:
-        delta_env.update(extra_env)
+        delta_env.update(extra_env())
     # Preserve the copy_vars variables + those prefixed with SNAP on Snappy
     if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
         copy_vars = ['PYTHONHOME', 'PYTHONUSERBASE', 'LD_LIBRARY_PATH',
@@ -564,7 +564,7 @@ def get_execution_command(job, environ, session_id,
     else:
         env = get_execution_environment(job, environ, session_id, nest_dir)
         if extra_env:
-            env.update(extra_env)
+            env.update(extra_env())
     cmd += ["{key}={value}".format(key=key, value=value)
             for key, value in sorted(env.items())]
     cmd += [job.shell, '-c', job.command]

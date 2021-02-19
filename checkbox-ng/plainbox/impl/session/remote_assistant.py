@@ -296,7 +296,7 @@ class RemoteSessionAssistant():
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
-            'extra_env': self.prepare_extra_env(),
+            'extra_env': self.prepare_extra_env,
         }
         self._sa.start_new_session(session_title, UnifiedRunner, runner_kwargs)
         new_blob = json.dumps({
@@ -645,7 +645,7 @@ class RemoteSessionAssistant():
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
-            'extra_env': self.prepare_extra_env(),
+            'extra_env': self.prepare_extra_env,
         }
         meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))

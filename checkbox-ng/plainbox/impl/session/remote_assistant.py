@@ -229,7 +229,7 @@ class RemoteSessionAssistant():
                     'unix:path=/run/user/{}/bus'.format(uid)
             }
         except CalledProcessError:
-            return None
+            return {}
 
     def prepare_extra_env(self):
         # If possible also set the DISPLAY env var
@@ -260,6 +260,7 @@ class RemoteSessionAssistant():
                     'DBUS_SESSION_BUS_ADDRESS':
                         'unix:path=/run/user/{}/bus'.format(uid)
                 }
+        return {}
 
     @allowed_when(Idle)
     def start_session(self, configuration):

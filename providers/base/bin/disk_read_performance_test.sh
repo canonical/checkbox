@@ -5,6 +5,8 @@
 
 #Default to a lower bound of 15 MB/s
 DEFAULT_BUF_READ=${DISK_READ_PERF:-15}
+DEFAULT_NVME_READ=${DISK_NVME_READ_PERF:-200}
+DEFAULT_MDADM_READ=${DISK_MDADM_READ_PERF:-80}
 
 for disk in "$@"; do
 
@@ -62,9 +64,9 @@ for disk in "$@"; do
     "ide" ) MIN_BUF_READ=40;;
     "mmc" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
     "mtd" ) MIN_BUF_READ=1;;
-    "nvme" ) MIN_BUF_READ=200;;
+    "nvme" ) MIN_BUF_READ=$DEFAULT_NVME_READ;;
     "nvdimm" ) MIN_BUF_READ=500;;
-    "mdadm" ) MIN_BUF_READ=80;;
+    "mdadm" ) MIN_BUF_READ=$DEFAULT_MDADM_READ;;
     "ata" ) MIN_BUF_READ=80;;
     "scsi" ) MIN_BUF_READ=100;;
     "ssd" ) MIN_BUF_READ=200;;

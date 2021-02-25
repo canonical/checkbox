@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
 
 while getopts "i" opt; do
   case $opt in
@@ -191,6 +191,35 @@ else
    echo -e " lvmdiskscan command not found. Skipping this check."
    echo -e " You should manually verify that LVM volumes are not present."
    fail
+fi
+}
+
+# Check that the minimum acceptable speed overrides for the
+# disk_read_performance_test.sh script are set in
+# /etc/xdg/canonical_certification.conf
+Disk_Speed_Check(){
+name="Disk Speed Check"
+echoname
+local nvme_present
+local mdadm_present
+if grep "^DISK_NVME_READ_PERF =" /etc/xdg/canonical-certification.conf >/dev/null; then
+    nvme_present=1
+else
+    nvme_present=0
+fi
+if grep "^DISK_MDADM_READ_PERF =" /etc/xdg/canonical-certification.conf >/dev/null; then
+    mdadm_present=1
+else
+    mdadm_present=0
+fi
+if [ "$nvme_present" -eq 1 ] && [ "$mdadm_present" -eq 1 ]; then
+    echo "Disk hdparm speed test overrides are set."
+    pass
+else
+    echo "Disk hdparm speed test overrides NOT set."
+    echo "Check /etc/xdg/canonical_certification.conf for DISK_NVME_READ_PERF and"
+    echo "DISK_MDADM_READ_PERF lines in the [environment] section."
+    fail
 fi
 }
 

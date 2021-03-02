@@ -188,7 +188,7 @@ _summary: Rollback system update using the snap tool
 _purpose:
  Check core can be reverted by snap revert
 _steps:
- 1. Check version number
+ 1. Check version number (Note the version number)
     snap list core
  2. Revert
     snap revert core
@@ -196,8 +196,10 @@ _steps:
     sudo reboot
  4. Check version number
     snap list core
+ 5. Remove reverted version (and associated data) to make system clean
+    snap remove core --revision=<edge_revision>
 _verification:
- Check core version is back to its stable version
+ Check core version at step4 is back to its stable version
 plugin: manual
 depends: snappy/os-refresh
 category_id: snapd
@@ -208,7 +210,7 @@ _summary: Rollback system update using the snap tool
 _purpose:
  Check core can be reverted by snap revert
 _steps:
- 1. Check version number
+ 1. Check version number (Note the version number)
     snap list core
  2. Revert
     snap revert core
@@ -216,8 +218,10 @@ _steps:
     sudo reboot
  4. Check version number
     snap list core
+ 5. Remove reverted version (and associated data) to make system clean
+    snap remove core --revision=<edge_revision>
 _verification:
- Check core version is back to its stable version
+ Check core version at step4 is back to its stable version
 plugin: manual
 depends: snappy/os-refresh-with-refresh-control
 category_id: snapd

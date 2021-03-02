@@ -223,68 +223,6 @@ depends: snappy/os-refresh-with-refresh-control
 category_id: snapd
 estimated_duration: 400
 
-id: snappy/os-fail-boot
-_summary: Automatically rollback after failed boot after upgrade
-_purpose:
- Check system will rollback to original core snap if failed to boot the updated one
-_steps:
- 1. Remove reverted version (and associated data)
-    snap remove core --revision=<edge_revision>
- 2. Check that the edge revision is back in the refresh list
-    snap refresh --list core
- 3. Update
-    snap refresh core --edge
- 4. Modify the GRUB Environment Block to simulate a failed boot
-    sudo /usr/bin/grub-editenv /boot/grub/grubenv set snap_mode=trying
- 5. Reboot the system and log in
-    sudo reboot
- 6. Check version number
-    snap list core
-_verification:
- Check system is currently booting the stable core version
-plugin: manual
-category_id: snapd
-depends: snappy/os-revert
-estimated_duration: 500
-
-id: snappy/os-fail-boot-with-refresh-control
-_summary: Automatically rollback after failed boot after upgrade
-_purpose:
- Check system will rollback to original core snap if failed to boot the updated one
-_steps:
- 1. Remove reverted version (and associated data)
-    snap remove core --revision=<edge_revision>
- 2. Check that the edge revision is back in the refresh list
-    snap refresh --list core
- 3. Update
-    snap refresh core --edge --ignore-validation
- 4. Modify the GRUB Environment Block to simulate a failed boot
-    sudo /usr/bin/grub-editenv /boot/grub/grubenv set snap_mode=trying
- 5. Reboot the system and log in
-    sudo reboot
- 6. Check version number
-    snap list core
-_verification:
- Check system is currently booting the stable core version
-plugin: manual
-category_id: snapd
-depends: snappy/os-revert-with-refresh-control
-estimated_duration: 500
-
-id: snappy/sshd
-_summary: SSH is enabled and operational
-_purpose:
- Check if user can access the system through ssh from other machine
-_steps:
- 1. Execute following command on other machine in same network
-     ssh [user id]@[ip address of the testing system]
- 2. Enter password to login
-_verification:
- Can log into system through ssh from other machine
-plugin: manual
-category_id: snapd
-estimated_duration: 120
-
 id: snappy/test-store-install-beta
 _summary: Snappy install command - beta channel store
 _purpose:

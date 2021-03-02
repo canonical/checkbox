@@ -55,18 +55,18 @@ _summary: Automatically rollback after failed boot after upgrade
 _purpose:
  Check system will rollback to original core snap if failed to boot the updated one
 _steps:
- 1. Remove reverted version (and associated data)
-    snap remove core --revision=<edge_revision>
- 2. Check that the edge revision is back in the refresh list
-    snap refresh --list core
- 3. Update
-    snap refresh core --edge
- 4. Modify the GRUB Environment Block to simulate a failed boot
-    sudo /usr/bin/grub-editenv /boot/grub/grubenv set snap_mode=trying
- 5. Reboot the system and log in
-    sudo reboot
- 6. Check version number
-    snap list core
+ 1. Update to edge. 
+    Note that system will automatically reboot in 1 minute after doing this command.
+    Please execute the command in step4 in 1 minute to stop the automatic reboot.
+    $ sudo snap refresh core<version> --edge
+ 2. Cancel the automatic shutdown
+    $ sudo shutdown -c
+ 3. Simulate a failed boot by the following command
+    $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
+ 4. Reboot the system and log in
+    $ sudo reboot
+ 5. Check the version number
+    $ snap list core<version>
 _verification:
  Check system is currently booting the stable core version
 plugin: manual
@@ -78,18 +78,18 @@ _summary: Automatically rollback after failed boot after upgrade
 _purpose:
  Check system will rollback to original core snap if failed to boot the updated one
 _steps:
- 1. Remove reverted version (and associated data)
-    snap remove core --revision=<edge_revision>
- 2. Check that the edge revision is back in the refresh list
-    snap refresh --list core
- 3. Update
-    snap refresh core --edge --ignore-validation
- 4. Modify the GRUB Environment Block to simulate a failed boot
-    sudo /usr/bin/grub-editenv /boot/grub/grubenv set snap_mode=trying
- 5. Reboot the system and log in
-    sudo reboot
- 6. Check version number
-    snap list core
+ 1. Update to edge.
+    Note that system will automatically reboot in 1 minute after doing this command.
+    Please execute the command in step4 in 1 minute to stop the automatic reboot.
+    $ sudo snap refresh core<version> --edge --ignore-validation
+ 2. Cancel the automatic shutdown
+    $ sudo shutdown -c
+ 3. Simulate a failed boot by the following command
+    $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
+ 4. Reboot the system and log in
+    $ sudo reboot
+ 5. Check the version number
+    $ snap list core<version>
 _verification:
  Check system is currently booting the stable core version
 plugin: manual
@@ -102,7 +102,7 @@ _purpose:
  Check if user can access the system through ssh from other machine
 _steps:
  1. Execute following command on other machine in same network
-     ssh [user id]@[ip address of the testing system]
+    $ ssh [user id]@[ip address of the testing system]
  2. Enter password to login
 _verification:
  Can log into system through ssh from other machine

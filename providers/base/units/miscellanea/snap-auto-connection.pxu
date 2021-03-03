@@ -7,7 +7,7 @@ template-engine: jinja2
 template-resource: interface
 template-filter: interface.type == 'plug'
 id: miscellanea/check-plug_{{ snap }}_{{ name }}
-_summary: Ensure the snap {{ snap }}'s plug {{ name }} is connected 
+_summary: Ensure the {{ snap }} snap's {{ name }} plug is connected
 plugin: shell
 command:
   plug_connected_test.py {{ snap }} {{ name }}

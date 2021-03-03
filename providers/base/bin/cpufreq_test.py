@@ -20,7 +20,7 @@
 """Test and validate SUT CPU scaling capabilities via CPUFreq."""
 
 
-from os import path
+from os import path, geteuid
 import multiprocessing
 import collections
 import threading
@@ -752,6 +752,10 @@ def parse_arg_logging():
 def main():
     # configure and start logging
     user_arg = parse_arg_logging()
+    # Make sure we're running with root permissions
+    if geteuid() != 0:
+        logging.error('You must be root to run this script')
+        return 1
     # instantiate CpuFreqTest as cpu_freq_test
     cpu_freq_test = CpuFreqTest()
     # provide access to reset() method

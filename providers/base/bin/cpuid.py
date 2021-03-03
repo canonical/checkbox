@@ -115,7 +115,8 @@ CPUIDS = {
             '0x806ea', '0x906ea', '0x906eb', '0x906ec', '0x906ed'],
         "Cooper Lake":      ['0x5065a', '0x5065b'],
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
-        "Ice Lake":         ['0x606e6', '0x606e8', '0x706e'],
+        "Ice Lake":         [
+            '0x606e6', '0x606e8', '0x606a6', '0x606a8', '0x706e'],
         "Ivy Bridge":       ['0x306a', '0x306e'],
         "Kaby Lake":        ['0x806e9', '0x906e9'],
         "Knights Landing":  ['0x5067'],

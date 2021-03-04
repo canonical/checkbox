@@ -36,3 +36,30 @@ include:
   firmware/tcglog-required-algs-sha256
   firmware/tcglog-require-pe-image-digests
   firmware/tcglog-dump-attachment
+
+
+id: iot-fwts-full
+unit: test plan
+_name: Test fwts diagnosis with iot project
+_description: Test fwts diagnosis with iot project
+include:
+nested_part:
+    iot-fwts-manual
+    iot-fwts-automated
+
+
+id: iot-fwts-manual
+unit: test plan
+_name: Test fwts diagnosis with iot project (manual)
+_description: Test fwts diagnosis with project (manual)
+include:
+
+
+id: iot-fwts-automated
+unit: test plan
+_name: Test fwts diagnosis with iot project (automated)
+_description: Test fwts diagnosis with iot project (automated)
+include:
+    firmware/fwts_desktop_diagnosis
+    firmware/fwts_desktop_diagnosis_results.log.gz
+

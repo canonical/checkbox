@@ -107,7 +107,7 @@ def main():
     elif action == 'model-authority':
         modelinfo.test_model_authority()
     elif action == 'model-brand':
-        modelinfo.test_model_authority()
+        modelinfo.test_model_brand()
     else:
         raise SystemExit('ERROR: unrecognised action')
 

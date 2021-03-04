@@ -731,7 +731,6 @@ def parse_arg_logging():
     parser_mutex_grp = parser.add_mutually_exclusive_group()
     parser_mutex_grp.add_argument(
         '-d', '-D', '--debug',
-        '-v', '-V', '--verbose',
         dest='log_level',
         action='store_const',
         const=logging.DEBUG,

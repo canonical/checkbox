@@ -199,7 +199,7 @@ _steps:
  5. Remove reverted version (and associated data) to make system clean
     snap remove core --revision=<edge_revision>
 _verification:
- Check core version at step4 is back to its stable version
+ Check core version at step 4 is back to its stable version
 plugin: manual
 depends: snappy/os-refresh
 category_id: snapd
@@ -221,7 +221,7 @@ _steps:
  5. Remove reverted version (and associated data) to make system clean
     snap remove core --revision=<edge_revision>
 _verification:
- Check core version at step4 is back to its stable version
+ Check core version at step 4 is back to its stable version
 plugin: manual
 depends: snappy/os-refresh-with-refresh-control
 category_id: snapd

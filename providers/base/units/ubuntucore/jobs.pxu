@@ -55,20 +55,22 @@ _summary: Automatically rollback after failed boot after upgrade
 _purpose:
  Check system will rollback to original core snap if failed to boot the updated one
 _steps:
- 1. Update to edge. 
+ 1. Check the current revision of core<version>
+    $ snap list core<version>
+ 2. Update to edge. 
     Note that system will automatically reboot in 1 minute after doing this command.
-    Please execute the command in step4 in 1 minute to stop the automatic reboot.
+    Please execute the command in step 3 in 1 minute to stop the automatic reboot.
     $ sudo snap refresh core<version> --edge
- 2. Cancel the automatic shutdown
+ 3. Cancel the automatic shutdown
     $ sudo shutdown -c
- 3. Simulate a failed boot by the following command
+ 4. Simulate a failed boot by the following command
     $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
- 4. Reboot the system and log in
+ 5. Reboot the system and log in
     $ sudo reboot
- 5. Check the version number
+ 6. Check the revision of core<version> again
     $ snap list core<version>
 _verification:
- Check system is currently booting the stable core version
+ Check system is still booting the stable core version (original revision)
 plugin: manual
 category_id: ubuntucore
 estimated_duration: 500
@@ -78,20 +80,22 @@ _summary: Automatically rollback after failed boot after upgrade
 _purpose:
  Check system will rollback to original core snap if failed to boot the updated one
 _steps:
- 1. Update to edge.
+ 1. Check the current revision of core<version>
+    $ snap list core<version>
+ 2. Update to edge.
     Note that system will automatically reboot in 1 minute after doing this command.
-    Please execute the command in step4 in 1 minute to stop the automatic reboot.
+    Please execute the command in step 3 in 1 minute to stop the automatic reboot.
     $ sudo snap refresh core<version> --edge --ignore-validation
- 2. Cancel the automatic shutdown
+ 3. Cancel the automatic shutdown
     $ sudo shutdown -c
- 3. Simulate a failed boot by the following command
+ 4. Simulate a failed boot by the following command
     $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
- 4. Reboot the system and log in
+ 5. Reboot the system and log in
     $ sudo reboot
- 5. Check the version number
+ 6. Check the revision of core<version> again
     $ snap list core<version>
 _verification:
- Check system is currently booting the stable core version
+ Check system is still booting the stable core version (original revision)
 plugin: manual
 category_id: ubuntucore
 estimated_duration: 500

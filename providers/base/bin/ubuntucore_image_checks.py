@@ -65,6 +65,7 @@ class ModelInfo():
     def __init__(self):
         self.authority = None
         self.brand = None
+        self.grade = None
         for line in io.StringIO(Snapd().get_assertions('model').text):
             if ':' in line:
                 entry = line.split(':', maxsplit=1)
@@ -72,6 +73,8 @@ class ModelInfo():
                     self.authority = entry[1].strip()
                 if entry[0] == 'brand-id':
                     self.brand = entry[1].strip()
+                if entry[0] == 'grade':
+                    self.grade = entry[1].strip()
 
     def test_model_authority(self):
         if not self.authority:
@@ -85,6 +88,13 @@ class ModelInfo():
             raise SystemExit('ERROR: failed to get model brand info')
         if self.brand != 'canonical':
             raise SystemExit('ERROR: model brand must be canonical')
+        print('PASS')
+
+    def test_model_grade(self):
+        if not self.grade:
+            raise SystemExit('ERROR: failed to get model grade info')
+        if self.grade == 'dangerous':
+            raise SystemExit('ERROR: model grade must not be dangerous')
         print('PASS')
 
 
@@ -108,6 +118,8 @@ def main():
         modelinfo.test_model_authority()
     elif action == 'model-brand':
         modelinfo.test_model_brand()
+    elif action == 'model-grade':
+        modelinfo.test_model_grade()
     else:
         raise SystemExit('ERROR: unrecognised action')
 

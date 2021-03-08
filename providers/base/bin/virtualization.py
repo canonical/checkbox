@@ -566,7 +566,7 @@ class UVTKVMTest(object):
         """
         url = urlparse(self.image)
 
-        if url.scheme == 'file':
+        if url.scheme == 'file' or os.path.isfile(url.path):
             logging.debug("Cloud image exists locally at %s" % url.path)
             self.image = url.path
         else:
@@ -621,7 +621,13 @@ class UVTKVMTest(object):
         logging.debug("Creating VM")
         cmd = ('uvt-kvm create {} arch={}'.format(self.name, self.arch))
 
-        if self.image.find(".img") > 0:
+        logging.debug("Checking for local image")
+        try:
+            self.image.find(".img") > 0
+        except AttributeError:
+            logging.debug("No user provided image found.")
+            logging.debug("I will attempt to sync the image from ubuntu.com")
+        else:
             cmd = cmd + " --backing-image-file {} ".format(self.image)
 
         if not self.run_command(cmd):
@@ -815,9 +821,13 @@ class LXDTest(object):
 
 def test_uvtkvm(args):
     logging.debug("Executing UVT KVM Test")
-
-    image = args.image or os.environ['UVT_IMAGE_OR_SOURCE']
-
+    # if args.image is not set and UVT_IMAGE_OR_SOURCE does not exist, a key
+    # error is generated we need to handle.
+    try:
+        image = args.image or os.environ['UVT_IMAGE_OR_SOURCE']
+    except KeyError:
+        logging.warning("UVT_IMAGE_OR_SOURCE is not set")
+        image = None
     uvt_test = UVTKVMTest(image)
     uvt_test.get_image_or_source()
     result = uvt_test.start()

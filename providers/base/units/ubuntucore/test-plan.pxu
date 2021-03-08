@@ -20,5 +20,5 @@ _description: Manual OS feature tests for Ubuntu Core devices
 include:
     ubuntucore/os-reinstall-mode
     ubuntucore/os-recovery-mode
-    ubuntucore/os-fail-boot
+    ubuntucore/os-fail-boot-(?!with-refresh-control).*
     ubuntucore/sshd

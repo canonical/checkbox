@@ -7,7 +7,12 @@ nv_test_index=0x1500018
 large_file_name="nv.test_large_w"
 large_file_read_name="nv.test_large_r"
 
+if is_sha1_pcr0_supported; then
 pcr_specification=sha256:0,1,2,3+sha1:0,1,2,3
+else
+pcr_specification=sha256:0,1,2,3
+fi
+
 file_pcr_value=pcr.bin
 file_policy=policy.data
 

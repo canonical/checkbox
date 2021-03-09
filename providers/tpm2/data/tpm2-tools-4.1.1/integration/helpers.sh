@@ -12,6 +12,14 @@ is_simulator() {
     | grep -zP "TPM2_PT_VENDOR_STRING_1:\s*raw: 0x53572020" &>/dev/null
 }
 
+# Return 0 if run by a sha1 PCR0 supported, return 1 otherwise
+is_sha1_pcr0_supported() {
+    #sha1:
+    #  0 : 0xE14EBDC555FB0F8B6181015320250DBA2EB86FD4
+    tpm2_pcrread sha1:0 \
+    | grep -zP "sha1:\s*0\s*:\s*0x" &>/dev/null
+}
+
 # Return 0 if algorithm is supported, return 1 otherwise
 # Error if TPM is simulator and algorithm is unsupported
 is_alg_supported() {

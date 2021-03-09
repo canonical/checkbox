@@ -390,24 +390,29 @@ class CpuFreqTest:
         # prove that we are single-threaded again
         logging.info('* active threads: %i\n', threading.active_count())
 
-        # display results
-        logging.warning('[CpuFreqTest Results]')  # for --quiet mode
+        # process, then display results
+        results = self._process_results()
+        # provide time under test for debug/verbose output
+        end_time = time.time() - start_time
+
+        print('[CpuFreqTest Results]')
+        logging.debug('[Test Took: %.3fs]', end_time)
         logging.info(
             ' - legend:\n'
             '   {core: {target_freq:'
             '[sampled_med_%, P/F, sampled_median],:.\n')
-        # format result dict for human consumption
-        logging.info(
-            pprint.pformat(self._process_results()))
-        # provide time under test for debug/verbose output
-        end_time = time.time() - start_time
-        logging.debug('[Test Took: %.3fs]', end_time)
+
         if self.fail_count:
+            print(
+                pprint.pformat(results))
             print('\n[Test Failed]\n'
                   '* core fail_count =', self.fail_count)
             return 1
 
+        logging.info(
+            pprint.pformat(results))
         print('\n[Test Passed]')
+
         return 0
 
     def spawn_core_test(self):
@@ -762,6 +767,7 @@ def main():
     if user_arg.reset:
         print('[Reset CpuFreq Sysfs]')
         return cpu_freq_test.reset()
+
     return cpu_freq_test.execute_test()
 
 

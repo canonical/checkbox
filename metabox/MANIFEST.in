@@ -1,0 +1,2 @@
+recursive-include metabox/metabox-provider/ *
+recursive-include metabox/lxd_profiles/ *

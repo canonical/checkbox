@@ -1,0 +1,6 @@
+__pycache__/
+metabox.egg-info/
+venv
+build
+dist
+.tox

@@ -1,0 +1,39 @@
+unit: test plan
+id: basic-automated
+_name: Basic Automated
+include:
+ basic-shell-passing
+ basic-shell-failing
+ basic-environ-printing
+
+unit: test plan
+id: basic-automated-passing
+_name: Basic Automated Passing
+include:
+ basic-shell-passing
+
+unit: test plan
+id: basic-automated-failing
+_name: Basic Automated Failing
+include:
+ basic-shell-failing
+
+unit: test plan
+id: basic-manual
+_name: Basic Manual
+include:
+ stub/user-interact
+ stub/user-verify
+ stub/user-interact-verify
+
+unit: test plan
+id: display-manual
+_name: Display Manual
+include:
+  graphics/glxgears
+
+unit: test plan
+id: audio-manual
+_name: Audio Manual
+include:
+  com.canonical.certification::audio/playback_auto

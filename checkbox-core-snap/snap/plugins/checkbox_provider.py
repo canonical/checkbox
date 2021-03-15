@@ -38,18 +38,11 @@ class PluginImpl(PluginV2):
         return set()
 
     def get_build_environment(self) -> Dict[str, str]:
-        provider_dirs = []
-        provider_stage_dir = os.path.join(self.project.stage_dir, "providers")
-        if os.path.exists(provider_stage_dir):
-            provider_dirs += [
-                os.path.join(provider_stage_dir, provider)
-                for provider in os.listdir(provider_stage_dir)
-            ]
-        return {"PROVIDERPATH": ":".join(provider_dirs),
-                "PYTHONPATH": "$SNAPCRAFT_STAGE/lib/python3.8/site-packages"}
+        return {"PYTHONPATH": "$SNAPCRAFT_STAGE/lib/python3.8/site-packages"}
 
     def get_build_commands(self) -> List[str]:
         build_commands = [
+            'for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done',
             'python3 manage.py validate',
             'python3 manage.py build',
             'python3 manage.py install '

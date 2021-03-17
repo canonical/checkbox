@@ -49,3 +49,83 @@ _verification:
  Check if a new serial-assertion device-key got generated after reinstallation completes
 plugin: manual
 category_id: ubuntucore
+
+unit: template
+template-resource: lsb
+template-filter: lsb.distributor_id == 'Ubuntu Core'
+template-engine: jinja2
+template-unit: job
+id: ubuntucore/os-fail-boot-{{description}}
+_summary: Automatically rollback after failed boot after upgrade
+_purpose:
+ Check system will rollback to original core snap if failed to boot the updated one
+_steps:
+ {% if release == '16' -%}
+   {% set release = '' -%}
+ {% endif -%}
+ 1. Check the current revision of core{{release}}
+    $ snap list core{{release}}
+ 2. Update to edge. 
+    Note that system will automatically reboot in 1 minute after doing this command.
+    Please execute the command in step 3 in 1 minute to stop the automatic reboot.
+    $ sudo snap refresh core{{release}} --edge
+ 3. Cancel the automatic shutdown
+    $ sudo shutdown -c
+ 4. Simulate a failed boot by the following command
+    $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
+ 5. Reboot the system and log in
+    $ sudo reboot
+ 6. Check the revision of core{{release}} again
+    $ snap list core{{release}}
+_verification:
+ Check system is still booting the stable core version (original revision)
+plugin: manual
+category_id: ubuntucore
+estimated_duration: 500
+
+unit: template
+template-resource: lsb
+template-filter: lsb.distributor_id == 'Ubuntu Core'
+template-engine: jinja2
+template-unit: job
+id: ubuntucore/os-fail-boot-with-refresh-control-{{description}}
+_summary: Automatically rollback after failed boot after upgrade
+_purpose:
+ Check system will rollback to original core snap if failed to boot the updated one
+_steps:
+ {% if release == '16' -%}
+   {% set release = '' -%}
+ {% endif -%}
+ 1. Check the current revision of core{{release}}
+    $ snap list core{{release}}
+ 2. Update to edge. 
+    Note that system will automatically reboot in 1 minute after doing this command.
+    Please execute the command in step 3 in 1 minute to stop the automatic reboot.
+    $ sudo snap refresh core{{release}} --edge --ignore-validation
+ 3. Cancel the automatic shutdown
+    $ sudo shutdown -c
+ 4. Simulate a failed boot by the following command
+    $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
+ 5. Reboot the system and log in
+    $ sudo reboot
+ 6. Check the revision of core{{release}} again
+    $ snap list core{{release}}
+_verification:
+ Check system is still booting the stable core version (original revision)
+plugin: manual
+category_id: ubuntucore
+estimated_duration: 500
+
+id: ubuntucore/sshd
+_summary: SSH is enabled and operational
+_purpose:
+ Check if user can access the system through ssh from other machine
+_steps:
+ 1. Execute following command on other machine in same network
+    $ ssh [user id]@[ip address of the testing system]
+ 2. Enter password to login
+_verification:
+ Can log into system through ssh from other machine
+plugin: manual
+category_id: ubuntucore
+estimated_duration: 120

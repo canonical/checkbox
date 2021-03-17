@@ -31,8 +31,6 @@ _description:
 include:
     snappy/os-refresh
     snappy/os-revert
-    snappy/os-fail-boot
-    snappy/sshd
 mandatory_include:
     snap
 bootstrap_include:
@@ -47,8 +45,6 @@ _description:
 include:
     snappy/os-refresh-with-refresh-control
     snappy/os-revert-with-refresh-control
-    snappy/os-fail-boot-with-refresh-control
-    snappy/sshd
 mandatory_include:
     snap
 bootstrap_include:

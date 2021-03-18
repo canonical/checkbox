@@ -53,7 +53,7 @@ class USBWatcher:
         signal.alarm(self.USB_ACTION_TIMEOUT)
         if self.args.usb_type == "mediacard":
             # Match something like "mmcblk0: p1".
-            self.PART_RE = re.compile("mmcblk\d+: (?P<part_name>p\d+)")
+            self.PART_RE = re.compile("mmcblk(?P<dev_num>\d)+: (?P<part_name>p\d+)")
 
     def run(self):
         j = journal.Reader()
@@ -81,7 +81,10 @@ class USBWatcher:
         # looking for string like "sdb: sdb1"
         match = re.search(self.PART_RE, line_str)
         if match:
-            self.MOUNTED_PARTITION = match.group('part_name')
+            if self.args.usb_type == "mediacard":
+                self.MOUNTED_PARTITION = 'mmcblk'+match.group('dev_num')+match.group('part_name')
+            else:
+                self.MOUNTED_PARTITION = match.group('part_name')
 
     def _refresh_detection(self, line_str):
         """

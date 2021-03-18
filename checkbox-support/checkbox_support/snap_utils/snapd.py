@@ -18,6 +18,7 @@ class AsyncException(Exception):
         self.message = message
         self.abort_message = abort_message
 
+
 class SnapdRequestError(Exception):
     def __init__(self, message, kind):
         self.message = message
@@ -193,3 +194,6 @@ class Snapd():
     def get_assertions(self, assertion_type):
         path = self._assertions + '/' + assertion_type
         return self._get(path, decode=False)
+
+    def get_system_info(self):
+        return self._get(self._system_info)['result']

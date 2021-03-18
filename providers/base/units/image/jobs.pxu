@@ -75,7 +75,7 @@ id: image/model-grade-not-dangerous
 category_id: image
 summary: Check that the model grade is not missing or set to dangerous
 requires:
- lsb.release >= '20' and lsb.distributor_id == "Ubuntu Core"
+ lsb.distributor_id == "Ubuntu Core" and int(lsb.release) >= 20
 description:
   Images with the 'dangerous' grade (the lowest of all available grades)
   results in certain security measures to be relaxed.

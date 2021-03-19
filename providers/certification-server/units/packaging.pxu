@@ -1,7 +1,12 @@
 # This is for 'virtualization/kvm_check_vm'
 unit: packaging meta-data
 os-id: debian
-Depends: genisoimage
+Depends: uvtool
+
+# This is for 'virtualization/kvm_check_vm'
+unit: packaging meta-data
+os-id: debian
+Depends: uvtool-libvirt
 
 # The 'memory/memory_stress_ng' job requires numactl
 unit: packaging meta-data

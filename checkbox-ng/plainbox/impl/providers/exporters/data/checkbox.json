@@ -175,10 +175,6 @@
 {%- endif %}
 {%- if ns ~ 'info/buildstamp' in state.job_state_map and state.job_state_map[ns ~ 'info/buildstamp'].result.outcome == 'pass' %},
 {%- set buildstamp = state.job_state_map[ns ~ 'info/buildstamp'].result.io_log_as_text_attachment.rstrip().splitlines() %}
-{%- if buildstamp|length >= 2 %}
-    "buildstamp": {{ buildstamp[1] | jsonify | safe }}
-{%- else %}
-    "buildstamp": ""
-{%- endif %}
+    "buildstamp": {{ buildstamp[-1] | jsonify | safe }}
 {%- endif %}
 }

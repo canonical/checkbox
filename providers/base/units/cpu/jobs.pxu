@@ -181,8 +181,10 @@ _siblings: [
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/cpufreq_test-server
+estimated_duration: 3.0
 user: root
 command: cpufreq_test.py -q
+requires: cpuinfo.scaling == 'supported'
 _summary:
  cpufreq scaling test
 _description:

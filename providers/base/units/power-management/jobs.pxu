@@ -342,6 +342,7 @@ plugin: shell
 requires:
  cpuinfo.cpu_lpi_file in ('low_power_idle_cpu_residency_us', 'package_cstate_show')
  package.name == 'x11-xserver-utils'
+ sleep.mem_sleep == 's2idle'
 command:
  cpu_lpi_file=$(cpuinfo_resource.py | grep cpu_lpi_file | awk '{ print $2 }')
  if [ "$cpu_lpi_file" == "low_power_idle_cpu_residency_us" ]; then
@@ -382,6 +383,7 @@ unit: job
 plugin: shell
 requires:
  cpuinfo.sys_lpi_file in ('low_power_idle_system_residency_us', 'slp_s0_residency_usec')
+ sleep.mem_sleep == 's2idle'
 command:
  sys_lpi_file=$(cpuinfo_resource.py | grep sys_lpi_file | awk '{ print $2 }')
  echo "mem_sleep: $(cat /sys/power/mem_sleep)"

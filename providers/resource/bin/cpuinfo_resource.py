@@ -43,6 +43,10 @@ CPULPICHECK_FILENAMES = (
     "/sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us",
     "/sys/kernel/debug/pmc_core/package_cstate_show")
 
+# Filename for cpufreq driver.
+CPUFREQ_DRIVER_FILENAME = (
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver")
+
 
 class CpuinfoResult:
 
@@ -69,6 +73,11 @@ class CpuinfoResult:
             if posixpath.exists(fname):
                 print("sys_lpi_file: %s" % os.path.basename(fname))
                 break
+
+        if posixpath.exists(CPUFREQ_DRIVER_FILENAME):
+            print("scaling: supported")
+        else:
+            print("scaling: non-supported")
 
 
 def main():

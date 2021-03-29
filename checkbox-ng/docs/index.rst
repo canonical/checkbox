@@ -72,6 +72,7 @@ Table of contents
    snappy.rst
    testing-snappy.rst
    custom-app.rst
+   contributing.rst
    glossary.rst
 
 Indices and tables

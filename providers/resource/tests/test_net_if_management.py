@@ -34,6 +34,7 @@ class NetIfMngrTest():
 
     has_netplan = True
     has_nm = True
+    has_wifiap = False
 
     @staticmethod
     def get_text(filename):
@@ -53,7 +54,8 @@ class NetIfMngrTest():
                                                    self.has_netplan,
                                                    self.netplan_yaml,
                                                    self.has_nm,
-                                                   self.nm_device_state)
+                                                   self.nm_device_state,
+                                                   self.has_wifiap)
 
 
 class Test_CARA_T(unittest.TestCase, NetIfMngrTest):
@@ -68,10 +70,14 @@ class Test_CARA_T(unittest.TestCase, NetIfMngrTest):
     nm_device_state = NetIfMngrTest.get_text('CARA_T_nmcli.txt')
 
     def test(self):
+        self.has_wifiap = True
         res = self.get_results()
-        self.assertEqual(res['eth0'].value, 'NetworkManager')
-        self.assertEqual(res['eth1'].value, 'NetworkManager')
-        self.assertEqual(res['wlan0'].value, 'NetworkManager')
+        self.assertEqual(res['eth0']['manager'].value, 'NetworkManager')
+        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
+        self.assertEqual(res['eth1']['manager'].value, 'NetworkManager')
+        self.assertEqual(res['eth1']['mastermode'].value, 'not-applicable')
+        self.assertEqual(res['wlan0']['manager'].value, 'NetworkManager')
+        self.assertEqual(res['wlan0']['mastermode'].value, 'wifi-ap')
 
 
 class Test_XENIAL_DESKTOP(unittest.TestCase, NetIfMngrTest):
@@ -87,8 +93,10 @@ class Test_XENIAL_DESKTOP(unittest.TestCase, NetIfMngrTest):
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0'].value, 'NetworkManager')
-        self.assertEqual(res['wlan0'].value, 'NetworkManager')
+        self.assertEqual(res['eth0']['manager'].value, 'NetworkManager')
+        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
+        self.assertEqual(res['wlan0']['manager'].value, 'NetworkManager')
+        self.assertEqual(res['wlan0']['mastermode'].value, 'NetworkManager')
 
 
 class Test_CASCADE_500(unittest.TestCase, NetIfMngrTest):
@@ -104,8 +112,8 @@ class Test_CASCADE_500(unittest.TestCase, NetIfMngrTest):
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0'].value, 'NetworkManager')
-        self.assertEqual(res['wlan0'].value, 'NetworkManager')
+        self.assertEqual(res['eth0']['manager'].value, 'NetworkManager')
+        self.assertEqual(res['wlan0']['manager'].value, 'NetworkManager')
 
 
 class Test_RPI2_UC16_CCONF(unittest.TestCase, NetIfMngrTest):
@@ -121,7 +129,8 @@ class Test_RPI2_UC16_CCONF(unittest.TestCase, NetIfMngrTest):
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0'].value, 'networkd')
+        self.assertEqual(res['eth0']['manager'].value, 'networkd')
+        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
 
 
 class Test_RPI3B_UC16_CLOUDINIT(unittest.TestCase, NetIfMngrTest):
@@ -137,5 +146,7 @@ class Test_RPI3B_UC16_CLOUDINIT(unittest.TestCase, NetIfMngrTest):
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0'].value, 'networkd')
-        self.assertEqual(res['wlan0'].value, 'networkd')
+        self.assertEqual(res['eth0']['manager'].value, 'networkd')
+        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
+        self.assertEqual(res['wlan0']['manager'].value, 'networkd')
+        self.assertEqual(res['wlan0']['mastermode'].value, 'unspecified')

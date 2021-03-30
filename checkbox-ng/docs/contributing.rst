@@ -24,7 +24,7 @@ Testing
 Hacking on Checkbox and/or its providers
 ````````````````````````````````````````
 
-If you want to hack on Checkbox or its providers[e], one method is to install everything you need in a Python virtual environment:
+If you want to hack on Checkbox or its providers, one method is to install everything you need in a Python virtual environment:
 
 .. code-block:: bash
 
@@ -187,7 +187,7 @@ Follow these steps to make a change to a Checkbox-related project. We will use t
 
 6. Push your changes to your Launchpad repository::
 
-    $ git push pieq
+    $ git push perso
     Enumerating objects: 741, done.
     Counting objects: 100% (612/612), done.
     Delta compression using up to 4 threads

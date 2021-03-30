@@ -229,6 +229,7 @@ _name: Automated tests for wifi master mode
 _description:
  Automated tests for using System as Access Point
 include:
+    # wifi-ap set (see net-if-management resource)
     wireless/wifi_ap_open_b_no_sta_.*_auto
     wireless/wifi_ap_open_g_no_sta_.*_auto
     wireless/wifi_ap_wpa_b_no_sta_.*_auto
@@ -236,6 +237,8 @@ include:
     wireless/wifi_ap_wpa_b_with_sta_.*_auto
     wireless/wifi_ap_wpa_g_with_sta_.*_auto
     wireless/wifi_ap_setup_wizard_.*_auto
+    # NetworkManager set (see net-if-management resource)
+    wireless/nmcli_wifi_ap_.*
 bootstrap_include:
     device
     wifi_interface_mode
@@ -273,6 +276,7 @@ _name: QA tests for wifi master mode (after suspend)
 _description:
  System as Access Point tests
 include:
+    # wifi-ap set (see net-if-management resource)
     after-suspend-wireless/wifi_ap_open_b_no_sta_.*_auto
     after-suspend-wireless/wifi_ap_open_g_no_sta_.*_auto
     after-suspend-wireless/wifi_ap_wpa_b_no_sta_.*_auto
@@ -280,6 +284,8 @@ include:
     after-suspend-wireless/wifi_ap_wpa_b_with_sta_.*_auto
     after-suspend-wireless/wifi_ap_wpa_g_with_sta_.*_auto
     after-suspend-wireless/wifi_ap_setup_wizard_.*_auto
+    # NetworkManager set (see net-if-management resource)
+    after-suspend-wireless/nmcli_wifi_ap_.*
 bootstrap_include:
     device
     wifi_interface_mode

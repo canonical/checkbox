@@ -207,7 +207,7 @@ for mode in highest_modes:
 
         message = 'Set mode ' + mode[1] + ' for output ' + mode[0]
         success_messages.append(message)
-    time.sleep(3)  # let the hardware recover a bit
+    time.sleep(8)  # let the hardware recover a bit
 
 # Put things back the way we found them
 

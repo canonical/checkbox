@@ -42,7 +42,7 @@ class USBWatcher:
                           },
                       "removal": {
                           "USB disconnect, device number": False,
-                          "Aborting journal on device": False
+                          "card 1234 removed": False
                           }
                       }
 
@@ -155,7 +155,7 @@ class USBWatcher:
         elif (
             self.args.testcase == "removal" and
             self.args.usb_type == "mediacard" and
-            self.FLAG_DETECTION["removal"]["Aborting journal on device"]
+            self.FLAG_DETECTION["removal"]["card 1234 removed"]
         ):
             logger.info("Removal test passed.")
             self._remove_usb_info()

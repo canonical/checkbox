@@ -40,7 +40,7 @@ def main():
         print("Changing rotation to: {}".format(rotation))
         subprocess.check_call(
             ['xrandr', '--output', output, '--rotation', rotation])
-        time.sleep(4)
+        time.sleep(8)
 
 
 if __name__ == '__main__':

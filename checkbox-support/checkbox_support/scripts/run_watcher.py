@@ -41,8 +41,7 @@ class USBWatcher:
                           "USB Mass Storage device detected": False
                           },
                       "removal": {
-                          "USB disconnect, device number": False,
-                          "card 1234 removed": False
+                          "USB disconnect, device number": False
                           }
                       }
 
@@ -74,7 +73,7 @@ class USBWatcher:
             line_str = str(line)
             self._refresh_detection(line_str)
             self._get_partition_info(line_str)
-            self._report_detection()
+            self._report_detection(line_str)
 
     def _get_partition_info(self, line_str):
         """get partition info."""
@@ -97,7 +96,7 @@ class USBWatcher:
                 if sub_key in line_str:
                     self.FLAG_DETECTION[key][sub_key] = True
 
-    def _report_detection(self):
+    def _report_detection(self, line_str):
         """report detection status."""
         # insertion detection
         if (
@@ -145,6 +144,11 @@ class USBWatcher:
             self._write_usb_info()
             sys.exit()
         # removal detection
+
+        MMC_RE = re.compile("card \w\w\w\w removed")
+        # since the mmc addr in kernel message is not static, so use regex to judge it
+        match = re.search(MMC_RE, line_str)
+
         if (
             self.args.testcase == "removal" and
             self.FLAG_DETECTION["removal"]["USB disconnect, device number"]
@@ -155,7 +159,7 @@ class USBWatcher:
         elif (
             self.args.testcase == "removal" and
             self.args.usb_type == "mediacard" and
-            self.FLAG_DETECTION["removal"]["card 1234 removed"]
+            match
         ):
             logger.info("Removal test passed.")
             self._remove_usb_info()

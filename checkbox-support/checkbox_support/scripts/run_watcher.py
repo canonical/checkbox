@@ -145,7 +145,7 @@ class USBWatcher:
             sys.exit()
         # removal detection
 
-        MMC_RE = re.compile("card \w\w\w\w removed")
+        MMC_RE = re.compile("card [0-9a-fA-F]+ removed")
         # since the mmc addr in kernel message is not static, so use regex to judge it
         match = re.search(MMC_RE, line_str)
 

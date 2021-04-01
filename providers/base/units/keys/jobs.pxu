@@ -306,10 +306,10 @@ command:
   gsettings set org.gnome.settings-daemon.plugins.power power-button-action "$action"
   [[ $(grep -c "PBTN.*00000080" "$PLAINBOX_SESSION_SHARE"/power-button-event.log) -eq 1 ]] || \
   [[ $(grep -c "PWRB.*00000080" "$PLAINBOX_SESSION_SHARE"/power-button-event.log) -eq 1 ]]
-purpose:
+_purpose:
   This test will check if power button event has reported correctly, the listener will
   wait for 10 seconds.
-steps:
+_steps:
   1. Single press and release the power button in 10 seconds, some platforms might need long-press
      to trigger the PBTN or PWRB event
   2. Check the number of output PBTN/PWRB event

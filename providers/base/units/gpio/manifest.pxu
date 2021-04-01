@@ -1,5 +1,5 @@
 unit: manifest entry
 id: gpio_loopback
-prompt: Does this device have the following?:
+_prompt: Does this device have the following?:
 _name: GPIO Loopback Connector
 value-type: bool

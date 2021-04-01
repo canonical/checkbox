@@ -17,6 +17,8 @@ id: ubuntucore-manual
 unit: test plan
 _name: Manual Ubuntu Core OS feature tests
 _description: Manual OS feature tests for Ubuntu Core devices
+bootstrap_include:
+    lsb
 include:
     ubuntucore/os-reinstall-mode
     ubuntucore/os-recovery-mode

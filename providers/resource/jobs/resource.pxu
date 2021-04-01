@@ -31,11 +31,6 @@ unit: packaging meta-data
 os-id: debian
 Depends: lsb-release
 
-# This is for bin/mobilebroadband_resource.sh
-unit: packaging meta-data
-os-id: debian
-Depends: network-manager
-
 # This is for bin/optical_resource.py and bin/udev_resource.py
 unit: packaging meta-data
 os-id: debian

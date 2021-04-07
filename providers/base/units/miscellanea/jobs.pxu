@@ -495,3 +495,22 @@ _description:
  privileges
 _summary:
  Verify BMC user called 'maas' was successfully created
+
+id: miscellanea/ubuntu_drivers_list_oem_check
+category_id: com.canonical.plainbox::miscellanea
+_summary: Test the command to list-oem packages runs successfully
+flags: simple
+requires: executable.name == 'ubuntu-drivers'
+command:
+  ubuntu-drivers list-oem --package-list="$PLAINBOX_SESSION_SHARE/ubuntu_drivers_list_oem_check"
+
+id: miscellanea/ubuntu_drivers_list_oem_check_attachment
+category_id: com.canonical.plainbox::miscellanea
+_summary: Attach the ubuntu-drivers output file if it exists
+plugin: attachment
+depends: miscellanea/ubuntu_drivers_list_oem_check
+command:
+  if test -f "$PLAINBOX_SESSION_SHARE/ubuntu_drivers_list_oem_check"; then
+    cat "$PLAINBOX_SESSION_SHARE/ubuntu_drivers_list_oem_check"
+  fi
+  true

@@ -7,6 +7,7 @@
 DEFAULT_BUF_READ=${DISK_READ_PERF:-15}
 DEFAULT_NVME_READ=${DISK_NVME_READ_PERF:-200}
 DEFAULT_MDADM_READ=${DISK_MDADM_READ_PERF:-80}
+DEFAULT_SSD_READ=${DISK_SSD_READ_PERF:-200}
 
 for disk in "$@"; do
 
@@ -69,7 +70,7 @@ for disk in "$@"; do
     "mdadm" ) MIN_BUF_READ=$DEFAULT_MDADM_READ;;
     "ata" ) MIN_BUF_READ=80;;
     "scsi" ) MIN_BUF_READ=100;;
-    "ssd" ) MIN_BUF_READ=200;;
+    "ssd" ) MIN_BUF_READ=$DEFAULT_SSD_READ;;
     *     ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
   esac
   echo "INFO: $disk_type: Using $MIN_BUF_READ MB/sec as the minimum throughput speed"

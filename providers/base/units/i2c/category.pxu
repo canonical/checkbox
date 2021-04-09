@@ -6,4 +6,4 @@
 
 unit: category
 id: i2c
-_name: I2C (Inter-Integrated Circuit)
+_name: I²C (Inter-Integrated Circuit)

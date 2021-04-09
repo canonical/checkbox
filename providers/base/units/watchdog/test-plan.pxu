@@ -1,27 +1,23 @@
 id: watchdog-full
 unit: test plan
 _name: Watchdog tests
-_description:
- QA test plan that includes watchdog tests
-estimated_duration: 1m
+_description: Watchdog tests for Ubuntu Core devices
 include:
 nested_part:
     watchdog-manual
+    watchdog-automated
 
 id: watchdog-manual
 unit: test plan
 _name: Manual watchdog tests
-_description: Manual watchdog tests for Snappy Ubuntu Core devices
+_description: Manual watchdog tests for Ubuntu Core devices
 include:
-    watchdog/systemd-config
     watchdog/trigger-system-reset
 
 id: watchdog-automated
 unit: test plan
 _name: Automated watchdog tests
-_description:
- QA test plan that includes automated watchdog tests
-estimated_duration: 1s
+_description: Automated watchdog tests for Ubuntu Core devices
 include:
     watchdog/detect
     watchdog/systemd-config

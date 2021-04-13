@@ -25,15 +25,18 @@ def mountpoint(device):
 
 
 def find_largest_partition(device):
-    BlkDev = namedtuple('BlkDev', ['name', 'size', 'type'])
-    cmd = 'lsblk -b -l -n -o NAME,SIZE,TYPE {}'.format(device)
+    BlkDev = namedtuple(
+        'BlkDev', ['name', 'size', 'type', 'fstype'],
+        defaults=[None, None, None, None])
+    cmd = 'lsblk -b -l -n -o NAME,SIZE,TYPE,FSTYPE {}'.format(device)
     out = sp.check_output(cmd, shell=True)
     blk_devs = [BlkDev(*p.strip().split())
                 for p in out.decode(sys.stdout.encoding).splitlines()]
-    blk_devs[:] = [bd for bd in blk_devs if bd.type in ('part', 'md')]
+    blk_devs[:] = [bd for bd in blk_devs if (
+        bd.type in ('part', 'md') and bd.fstype is not None)]
     if not blk_devs:
         raise SystemExit(
-            'ERROR: No partitions found on device {}'.format(device))
+            'ERROR: No suitable partitions found on device {}'.format(device))
     blk_devs.sort(key=lambda bd: int(bd.size))
     return blk_devs[-1].name
 

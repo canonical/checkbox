@@ -35,7 +35,7 @@ Depends: apt-file,
          opencl-headers,
          python3,
          unzip,
-         vulkan-utils,
+         vulkan-utils | vulkan-tools,
          xorg-dev
          ${misc:Depends},
          ${plainbox:Depends}

@@ -1,5 +1,5 @@
-id: client-cert-odm-desktop-20-04
-_name: ODM Client Certification for Desktop 20.04
+id: client-cert-odm-desktop-20-04-manual
+_name: ODM Client Certification for Desktop 20.04 - (1/2) Manual tests
 unit: test plan
 _description:
  This test plan is intended for use by ODMs in their own facilities as part of
@@ -56,19 +56,6 @@ nested_part:
     after-suspend-usb3-cert-full
     after-suspend-usb-c-cert-full
     after-suspend-wireless-cert-full
-    # Automated Tests
-    # The following tests are purely automated and/or lenghty stress tests.
-    # They have been moved to the end of the test run to improve the testing
-    # process.
-    misc-client-cert-full
-    cpu-cert-full
-    disk-cert-automated
-    stress-iperf3-automated
-    warm-boot-stress-test
-    cold-boot-stress-test
-    suspend-stress-test
-    stress-ng-cert-automated
-    tpm2.0_4.1.1-automated
     info-attachment-cert-full
 exclude:
     com.canonical.certification::keys/hibernate
@@ -105,3 +92,31 @@ exclude:
     com.canonical.certification::after-suspend-manual-led/fn
     com.canonical.certification::after-suspend-manual-led/mute
     com.canonical.certification::after-suspend-manual-led/microphone-mute
+
+id: client-cert-odm-desktop-20-04-automated
+_name: ODM Client Certification for Desktop 20.04 - (2/2) Automated tests
+unit: test plan
+_description:
+ This test plan is intended for use by ODMs in their own facilities as part of
+ the ODM Certification programme. This test plan should be used when certifying
+ Desktop images.
+include:
+nested_part:
+    submission-cert-full
+    misc-client-cert-full
+    cpu-cert-full
+    disk-cert-automated
+    stress-iperf3-automated
+    warm-boot-stress-test
+    cold-boot-stress-test
+    suspend-stress-test
+    stress-ng-cert-automated
+    tpm2.0_4.1.1-automated
+
+id: client-cert-odm-desktop-20-04
+_name: DONT USE - desktop-20-04 - placeholder to establish that total number of tests has not changed
+unit: test plan
+include:
+nested_part:
+    client-cert-odm-desktop-20-04-manual
+    client-cert-odm-desktop-20-04-automated

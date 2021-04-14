@@ -6,5 +6,5 @@
 
 unit: manifest entry
 id: has_i2c
-_name: An I2C bus
+_name: An I²C bus
 value-type: bool

@@ -201,15 +201,16 @@ include:
 id: usb-full
 unit: test plan
 _name: USB tests
-_description: QA USB tests for Snappy Ubuntu Core devices
+_description: QA USB tests for Ubuntu Core devices
 include:
 nested_part:
     usb-manual
+    usb-automated
 
 id: usb-manual
 unit: test plan
 _name: Manual USB tests
-_description: Manual USB tests for Snappy Ubuntu Core devices
+_description: Manual USB tests for Ubuntu Core devices
 include:
     usb/hid
     usb/insert
@@ -219,7 +220,7 @@ include:
 id: usb-automated
 unit: test plan
 _name: Automated USB tests
-_description: Automated USB tests for Snappy Ubuntu Core devices
+_description: Automated USB tests for Ubuntu Core devices
 include:
     usb/storage-detect
     usb/storage-preinserted-.*
@@ -229,7 +230,7 @@ bootstrap_include:
 id: usb3-full
 unit: test plan
 _name: USB3 tests
-_description: QA USB3 tests for Snappy Ubuntu Core devices
+_description: QA USB3 tests for Ubuntu Core devices
 include:
 nested_part:
     usb3-manual
@@ -237,24 +238,45 @@ nested_part:
 id: usb3-manual
 unit: test plan
 _name: Manual USB3 tests
-_description: Manual USB3 tests for Snappy Ubuntu Core devices
+_description: Manual USB3 tests for Ubuntu Core devices
 include:
     usb3/insert
     usb3/storage-automated # depends on manual one, so not automated
     usb3/remove
 
+id: usb3-automated
+unit: test plan
+_name: Automated USB3 tests
+_description: Manual USB3 tests for Ubuntu Core devices
+include:
+
 id: usb-c-full
 unit: test plan
 _name: USB-C tests
-_description: QA USB-C tests for Snappy Ubuntu Core devices
+_description: QA USB-C tests for Ubuntu Core devices
 include:
 nested_part:
     usb-c-manual
+    usb-c-automated
 
 id: usb-c-manual
 unit: test plan
 _name: Manual USB-C tests
-_description: Manual USB-C tests for Snappy Ubuntu Core devices
+_description: Manual USB-C tests for Ubuntu Core devices
+include:
+    usb-c/c-to-a-adapter/hid
+    usb-c/c-to-a-adapter/insert
+    usb-c/c-to-a-adapter/storage-automated
+    usb-c/c-to-a-adapter/remove
+    usb-c/hid
+    usb-c/insert
+    usb-c/storage-automated
+    usb-c/remove
+
+id: usb-c-automated
+unit: test plan
+_name: Automated USB-C tests
+_description: Automated USB-C tests for Ubuntu Core devices
 include:
     usb-c/c-to-a-adapter/hid
     usb-c/c-to-a-adapter/insert
@@ -268,7 +290,7 @@ include:
 id: after-suspend-usb-full
 unit: test plan
 _name: USB tests (after suspend)
-_description: QA USB tests for Snappy Ubuntu Core devices
+_description: QA USB tests for Ubuntu Core devices
 include:
 nested_part:
     after-suspend-usb-manual
@@ -276,7 +298,7 @@ nested_part:
 id: after-suspend-usb-manual
 unit: test plan
 _name: Manual USB tests (after suspend)
-_description: Manual USB tests for Snappy Ubuntu Core devices
+_description: Manual USB tests for Ubuntu Core devices
 include:
     after-suspend-usb/hid
     after-suspend-usb/insert
@@ -286,7 +308,7 @@ include:
 id: after-suspend-usb3-full
 unit: test plan
 _name: USB3 tests (after suspend)
-_description: QA USB3 tests for Snappy Ubuntu Core devices
+_description: QA USB3 tests for Ubuntu Core devices
 include:
 nested_part:
     after-suspend-usb3-manual
@@ -294,16 +316,22 @@ nested_part:
 id: after-suspend-usb3-manual
 unit: test plan
 _name: Manual USB3 tests (after suspend)
-_description: Manual USB3 tests for Snappy Ubuntu Core devices
+_description: Manual USB3 tests for Ubuntu Core devices
 include:
     after-suspend-usb3/insert
     after-suspend-usb3/storage-automated # depends on manual one, so not automated
     after-suspend-usb3/remove
 
+id: after-suspend-usb3-automated
+unit: test plan
+_name: Automated USB3 tests (after suspend)
+_description: Automated USB3 tests for Ubuntu Core devices
+include:
+
 id: after-suspend-usb-c-full
 unit: test plan
 _name: USB-C tests (after suspend)
-_description: QA USB-C tests for Snappy Ubuntu Core devices
+_description: QA USB-C tests for Ubuntu Core devices
 include:
 nested_part:
     after-suspend-usb-c-manual
@@ -311,7 +339,7 @@ nested_part:
 id: after-suspend-usb-c-manual
 unit: test plan
 _name: Manual USB-C tests (after suspend)
-_description: Manual USB-C tests for Snappy Ubuntu Core devices
+_description: Manual USB-C tests for Ubuntu Core devices
 include:
     after-suspend-usb-c/c-to-a-adapter/hid
     after-suspend-usb-c/c-to-a-adapter/insert
@@ -322,10 +350,16 @@ include:
     after-suspend-usb-c/storage-automated
     after-suspend-usb-c/remove
 
+id: after-suspend-usb-c-automated
+unit: test plan
+_name: Automated USB-C tests (after suspend)
+_description: Automated USB-C tests for Ubuntu Core devices
+include:
+
 id: after-suspend-usb-automated
 unit: test plan
 _name: Automated USB tests
-_description: Automated USB tests for Snappy Ubuntu Core devices
+_description: Automated USB tests for Ubuntu Core devices
 include:
     after-suspend-usb/storage-detect
     after-suspend-usb/storage-preinserted-.*

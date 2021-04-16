@@ -67,6 +67,7 @@ nested_part:
   usb-manual
   usb-c-manual
   usb3-manual
+  thunderbolt-cert-manual
   watchdog-manual
   wireless-manual
   wireless-wifi-master-mode-manual
@@ -82,6 +83,7 @@ nested_part:
   after-suspend-usb-manual
   after-suspend-usb-c-manual
   after-suspend-usb3-manual
+  after-suspend-thunderbolt-cert-manual
   after-suspend-wireless-manual
   after-suspend-wireless-wifi-master-mode-manual
   after-suspend-wwan-manual
@@ -151,6 +153,7 @@ nested_part:
   socketcan-auto-remote
   tpm2.0_4.1.1-automated
   usb-automated
+  thunderbolt-cert-automated
   watchdog-automated
   wireless-automated
   wireless-wifi-master-mode-auto

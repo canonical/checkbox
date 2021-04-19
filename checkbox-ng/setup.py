@@ -48,7 +48,7 @@ else:
         'requests >= 1.0',
         'urwid >= 1.1.1',
         'Jinja2 >= 2.7',
-        'xlsxwriter >= 0.3',
+        'xlsxwriter',
     ]
 
 setup(

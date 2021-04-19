@@ -264,17 +264,12 @@ def hotspot(args):
     if retcode != 0:
         print("Set band failed\n")
         return retcode
-    cmd = "nmcli c modify TEST_CON wifi-sec.key-mgmt wpa-psk"
+    cmd = ("nmcli c modify TEST_CON wifi-sec.key-mgmt wpa-psk "
+           "wifi-sec.psk \"ubuntu1234\"")
     print_cmd(cmd)
     retcode = sp.call(cmd, shell=True)
     if retcode != 0:
-        print("Set key-mgmt failed\n")
-        return retcode
-    cmd = "nmcli connection modify TEST_CON wifi-sec.psk \"ubuntu1234\""
-    print_cmd(cmd)
-    retcode = sp.call(cmd, shell=True)
-    if retcode != 0:
-        print("Set PSK failed\n")
+        print("Setting up wifi security failed\n")
         return retcode
     cmd = "nmcli connection up TEST_CON"
     print_cmd(cmd)

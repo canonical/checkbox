@@ -189,7 +189,8 @@ def ping(host, interface, count, deadline, verbose=False):
         r".*([0-9]*\.?[0-9]*.)% packet loss")
     ping_summary = {'transmitted': 0, 'received': 0, 'pct_loss': 0}
     try:
-        output = subprocess.check_output(command, universal_newlines=True)
+        output = subprocess.check_output(
+            command, universal_newlines=True, stderr=subprocess.PIPE)
     except OSError as exc:
         if exc.errno == errno.ENOENT:
             # No ping command present;
@@ -200,6 +201,11 @@ def ping(host, interface, count, deadline, verbose=False):
     except subprocess.CalledProcessError as excp:
         # Ping returned fail exit code
         print(_("ERROR: ping result: {0}").format(excp))
+        if excp.stderr:
+            print(excp.stderr)
+            if 'SO_BINDTODEVICE' in excp.stderr:
+                ping_summary['cause'] = (
+                    "Could not bind to the {} interface.".format(interface))
     else:
         if verbose:
             print(output)
@@ -277,6 +283,8 @@ def main(args):
                             args.deadline, args.verbose)
     if ping_summary is None or ping_summary['received'] == 0:
         print(_("No Internet connection"))
+        if ping_summary.get('cause'):
+            print("Possible cause: {}".format(ping_summary['cause']))
         return 1
     elif ping_summary['transmitted'] != ping_summary['received']:
         print(_("Connection established, but lost {0}% of packets").format(

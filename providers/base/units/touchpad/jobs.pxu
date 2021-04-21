@@ -220,30 +220,14 @@ _siblings:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'TOUCHPAD'
+template-filter:
+ device.category == 'TOUCHPAD' and device.driver == 'hid-multitouch'
 template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/palm-rejection-firmware-labeling_{product_slug}
-requires: device.driver == 'hid-multitouch'
 estimated_duration: 5.0
-command:
- dev_path=$(udev_resource.py -f TOUCHPAD | grep "path" | cut -d" " -f2)
- abs_path="/sys$dev_path/capabilities/abs"
- abs_caps=$(cat <"$abs_path")
- abs_caps_hex=$((16#"$abs_caps"))
- tool_type_bit=$((abs_caps_hex >> 55))
- support=$((tool_type_bit & 1))
- if [ $support -eq 1 ]; then
-     exit 0
- else
-     echo "Touchapd info:"
-     cat <"/sys$dev_path/name"
-     cat <"/sys$dev_path/modalias"
-     echo "Touchpad EV_ABS capabilities:"
-     echo "$abs_caps"
-     exit 1
- fi
+command: touchpad_confidence_bit.py {product_slug}
 _summary: Touchpad EV_ABS capability check
 _description:
  Libinput firmware/labeling palm detection rely on touchpad ABS_MT_TOOL_TYPE

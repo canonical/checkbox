@@ -88,6 +88,24 @@ command:
 _description: Attaches the FWTS Server Cert results log to the submission
 _summary: Attach FWTS Server Cert test log to submission
 
+id: firmware/fwts_dump
+category_id: com.canonical.plainbox::firmware
+_summary: Run the FTWS dump command
+plugin: shell
+user: root
+requires: executable.name == 'fwts'
+command:
+  pushd "$PLAINBOX_SESSION_SHARE" > /dev/null || exit
+  fwts -d
+
+id: firmware/fwts_dump_acpi_attachment.gz
+category_id: com.canonical.plainbox::firmware
+_summary: Collect the ACPI tables dump from FWTS
+plugin: attachment
+depends: firmware/fwts_dump
+command:
+  [ -f "$PLAINBOX_SESSION_SHARE/acpidump.log" ] && gzip -c "$PLAINBOX_SESSION_SHARE/acpidump.log"
+
 
 id: firmware/tcglog-required-algs-sha256
 category_id: com.canonical.plainbox::firmware

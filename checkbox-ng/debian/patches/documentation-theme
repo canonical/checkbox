@@ -1,4 +1,4 @@
-From 5eacb8cbc6b447df1fd9df833c63263809937a7d Mon Sep 17 00:00:00 2001
+From 946270bcdd1c1f08a027b02550606b3284cab99d Mon Sep 17 00:00:00 2001
 From: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Date: Thu, 8 Oct 2015 08:38:22 -0700
 Subject: Revert the documentation theme back to default
@@ -16,7 +16,7 @@ Patch-Name: documentation-theme
  1 file changed, 2 insertions(+), 22 deletions(-)
 
 diff --git a/docs/conf.py b/docs/conf.py
-index 7ce5d41..57c7cf0 100644
+index 9806b35..29643a6 100644
 --- a/docs/conf.py
 +++ b/docs/conf.py
 @@ -127,20 +127,7 @@ pygments_style = 'sphinx'

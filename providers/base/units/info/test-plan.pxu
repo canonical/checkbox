@@ -52,6 +52,7 @@ include:
  sysctl_attachment
  sysfs_attachment
  udev_attachment
+ firmware/fwts_dump_acpi_attachment.gz
 bootstrap_include:
     device
 

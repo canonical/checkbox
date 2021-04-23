@@ -59,6 +59,10 @@ def is_netplan_available():
     return which('netplan') is not None
 
 
+def is_wifiap_available():
+    return which('wifi-ap.config') is not None
+
+
 class NmInterfaceState():
 
     def __init__(self):
@@ -80,13 +84,40 @@ class States(Enum):
     nm = 'NetworkManager'
 
 
+class MasterMode(Enum):
+    na = 'not-applicable'
+    unspecified = 'unspecified'
+    error = 'error'
+    wifiap = 'wifi-ap'
+    nm = 'NetworkManager'
+
+
 def identify_managers(interfaces=None,
                       has_netplan=True, netplan_yaml=None,
-                      has_nm=True, nm_device_state=None):
+                      has_nm=True, nm_device_state=None,
+                      has_wifiap=False):
+    results = {}
     if interfaces is None:
-        interfaces = UdevInterfaceLister(['NETWORK', 'WIRELESS']).names
-
-    results = dict.fromkeys(interfaces, States.unspecified)
+        # normal operation
+        wired = UdevInterfaceLister(['NETWORK']).names
+        results.update(dict.fromkeys(wired, {
+            'manager': States.unspecified,
+            'mastermode': MasterMode.na
+        }))
+        wireless = UdevInterfaceLister(['WIRELESS']).names
+        results.update(dict.fromkeys(wireless, {
+            'manager': States.unspecified,
+            'mastermode': MasterMode.unspecified
+        }))
+    else:
+        # testing
+        for i in interfaces:
+            if i.startswith('e'):
+                results[i] = {'manager': States.unspecified,
+                              'mastermode': MasterMode.na}
+            elif i.startswith('w'):
+                results[i] = {'manager': States.unspecified,
+                              'mastermode': MasterMode.unspecified}
 
     if has_nm:
         nm_conf = NmInterfaceState()
@@ -113,6 +144,10 @@ def identify_managers(interfaces=None,
                 category_scope_manager = netplan_conf.ethernets.get(
                     'renderer', States.unspecified.value)
 
+        if results[n]['mastermode'] != MasterMode.na and has_wifiap:
+            log('has wifi-ap')
+            results[n]['mastermode'] = MasterMode.wifiap
+
         # Netplan config indcates NM
         if (global_scope_manager == States.nm.value or
                 category_scope_manager == States.nm.value or
@@ -122,35 +157,46 @@ def identify_managers(interfaces=None,
             if not has_nm:
                 log('error: netplan defines NM or there is no netplan, '
                     'but NM unavailable')
-                results[n] = States.error
+                results[n]['manager'] = States.error
                 continue
             # NM does not know the interface
             if nm_conf.devices.get(n) is None:
                 log('error: netplan defines NM or there is no netplan, '
                     'but interface unknown to NM')
-                results[n] = States.error
+                results[n]['manager'] = States.error
                 continue
             # NM thinks it doesnt manage the device despite netplan config
             if nm_conf.devices.get(n) == 'unmanaged':
                 log('error: netplan defines NM or there is no netplan, '
                     'but NM reports unmanaged')
-                results[n] = States.unspecified
+                results[n]['manager'] = States.unspecified
                 continue
-            results[n] = States.nm
+
+            results[n]['manager'] = States.nm
+
+            # if NM is managing the interface for wireless connections and
+            # wifi-ap is not installed, NM should be considered for managing
+            # master mode
+            if results[n]['mastermode'] != MasterMode.na and not has_wifiap:
+                # version check?
+                results[n]['mastermode'] = MasterMode.nm
+
             continue
 
         # has netplan but no renderer specified
         if has_netplan:
-            results[n] = States.networkd
+            results[n]['manager'] = States.networkd
     return results
 
 
 def main():
     results = identify_managers(has_netplan=is_netplan_available(),
-                                has_nm=is_nm_available())
-    for interface, state in results.items():
+                                has_nm=is_nm_available(),
+                                has_wifiap=is_wifiap_available())
+    for interface, data in results.items():
         print('device: {}'.format(interface))
-        print('managed_by: {}'.format(state.value))
+        print('managed_by: {}'.format(data['manager'].value))
+        print('master_mode_managed_by: {}'.format(data['mastermode'].value))
         print()
 
 

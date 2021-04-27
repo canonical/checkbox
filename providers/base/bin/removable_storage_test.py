@@ -6,6 +6,7 @@ import dbus
 import hashlib
 import logging
 import os
+import platform
 import re
 import shlex
 import subprocess
@@ -476,14 +477,24 @@ class DiskTest():
         udev_devices = get_udev_block_devices(udev_client)
         # Get a collection of all udev devices corresponding to xhci devices
         udev_devices_xhci = get_udev_xhci_devices(udev_client)
+        if platform.machine() in ("aarch64", "armv7l"):
+            enumerator = GUdev.Enumerator(client=udev_client)
+            udev_devices_xhci = [
+                device for device in enumerator.execute()
+                if (device.get_driver() == 'xhci-hcd')]
         for udev_device_xhci in udev_devices_xhci:
             pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
+            xhci_devpath = udev_device_xhci.get_property('DEVPATH')
             for udev_device in udev_devices:
                 devpath = udev_device.get_property('DEVPATH')
                 if (self._compare_pci_slot_from_devpath(devpath,
                                                         pci_slot_name)):
                     self.rem_disks_xhci[
                         udev_device.get_property('DEVNAME')] = 'xhci'
+                if platform.machine() in ("aarch64", "armv7l"):
+                    if xhci_devpath in devpath:
+                        self.rem_disks_xhci[
+                            udev_device.get_property('DEVNAME')] = 'xhci'
         return self.rem_disks_xhci
 
     def mount(self):

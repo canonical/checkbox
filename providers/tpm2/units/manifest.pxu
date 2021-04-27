@@ -6,5 +6,5 @@
 
 unit: manifest entry
 id: has_tpm2_chip
-_name: TPM2 chip
+_name: TPM 2.0 Support
 value-type: bool

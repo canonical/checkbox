@@ -75,6 +75,10 @@ id: lspci_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
+ if [[ ! -d "/proc/bus/pci" ]]; then
+   echo "No PCI bus found"
+   exit 0
+ fi
  if [[ -v SNAP ]]; then
      lspci -i "$SNAP"/usr/share/misc/pci.ids -vvnn
  else

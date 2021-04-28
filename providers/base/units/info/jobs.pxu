@@ -490,6 +490,7 @@ command:
   cat "$SNAP"/parts_meta_info || true
   # should always have parts info from content snap
   cat "$CHECKBOX_RUNTIME"/parts_meta_info
-environ: SNAP
+environ: SNAP CHECKBOX_RUNTIME
+user: root
 estimated_duration: 0.02
 _summary: Attaches an information about all parts that constituted this snap

@@ -227,7 +227,7 @@ parts:
     after: [checkbox-ng]
 ################################################################################
   plainbox-provider-checkbox:
-    source-tag: "snap-2021-04-26T1358"
+    source-tag: "snap-2021-04-28T1002"
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/plainbox-provider-checkbox
@@ -322,7 +322,7 @@ parts:
     after: [plainbox-provider-ipdt]
 ################################################################################
   plainbox-provider-tpm2:
-    source-tag: "snap-2021-04-26T1358"
+    source-tag: "snap-2021-04-28T1002"
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/plainbox-provider-tpm2

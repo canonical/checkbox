@@ -1,4 +1,4 @@
-checkbox-ng (1.13.0~rc1-1) UNRELEASED; urgency=medium
+checkbox-ng (1.13.0-1) UNRELEASED; urgency=medium
 
   [ Sylvain Pineau ]
   * Open for development (remove this message before releasing)
@@ -35,8 +35,9 @@ checkbox-ng (1.13.0~rc1-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@open-joey-201506-18558.maas>  Fri, 23 Apr 2021 08:42:07 +0000
+ -- Jenkins <jenkins@open-joey-201506-18558.maas>  Fri, 30 Apr 2021 07:11:06 +0000
 
 checkbox-ng (1.0.0-1) UNRELEASED; urgency=medium
 

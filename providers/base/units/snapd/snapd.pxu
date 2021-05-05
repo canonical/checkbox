@@ -273,3 +273,14 @@ command:
 category_id: snapd
 estimated_duration: 1.0
 flags: preserve-locale
+
+id: snappy/test-snap-confinement-mode
+_summary: Test if the snap confinement mode is strict
+_purpose:
+ Test if the snap confinement mode is `strict`
+ If not, list the missing features
+plugin: shell
+command: snap_confinement_test.py
+user: root
+category_id: snapd
+estimated_duration: 1s

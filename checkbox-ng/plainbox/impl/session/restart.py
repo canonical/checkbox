@@ -111,6 +111,9 @@ class XDGRestartStrategy(IRestartStrategy):
     def prime_application_restart(self, app_id: str,
                                   session_id: str, cmd: str) -> None:
         filename = self.get_desktop_filename(app_id)
+        # Prefix the command with sh -c to comply with the Exec spec
+        # See https://askubuntu.com/a/1242773/32239
+        cmd = "sh -c " + cmd
         if self.app_terminal:
             cmd += ';$SHELL'
         self.config.set('Desktop Entry', 'Exec', cmd)

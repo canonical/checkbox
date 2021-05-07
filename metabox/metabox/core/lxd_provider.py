@@ -110,6 +110,11 @@ class LxdMachineProvider():
     def _create_machine(self, config):
         name = 'metabox-{}'.format(config)
         base_profiles = ["default", "checkbox"]
+        alias = config.alias
+        server = 'https://cloud-images.ubuntu.com/releases'
+        if alias.endswith('-daily'):
+            server = 'https://cloud-images.ubuntu.com/daily'
+            alias = alias.replace('-daily', '')
         if config.origin == 'snap':
             base_profiles.append('snap')
         lxd_config = {
@@ -117,9 +122,9 @@ class LxdMachineProvider():
             "profiles": base_profiles + config.profiles,
             "source": {
                 "type": "image",
-                "alias": config.alias,
+                "alias": alias,
                 'protocol': 'simplestreams',
-                'server': 'https://cloud-images.ubuntu.com/releases'
+                'server': server
             }
         }
         try:

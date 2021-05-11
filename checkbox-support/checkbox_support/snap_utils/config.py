@@ -9,17 +9,17 @@ import configparser
 import json
 import os
 import re
-import subprocess
+import subprocess as sp
 import sys
 
 
-def get_snapctl_config(keys):
-    """Query snapctl for given keys."""
-    if len(keys) == 0:
-        return dict()
-    out = subprocess.check_output(['snapctl', 'get', '-d'] + keys).decode(
-        sys.stdout.encoding)
-    return json.loads(out)
+def get_snapctl_config():
+    """Query snapctl for config file variables"""
+    out = sp.check_output(['snapctl', 'get', 'conf']).decode(
+        sys.stdout.encoding).strip()
+    if out:
+        return json.loads(out)
+    return {}
 
 
 def get_configuration_set():
@@ -77,27 +77,32 @@ def print_checkbox_conf():
     config = configparser.ConfigParser()
     config.optionxform = str
     config.read(checkbox_conf_path)
-    for key in config['environment']:
-        print('{}={}'.format(key, config['environment'][key]))
+    if config.has_section('environment'):
+        for key in config['environment']:
+            print('{}={}'.format(key, config['environment'][key]))
 
 
 def refresh_configuration():
     """
     Read config_vars, write the ones missing in snapd
     and call update configuration in both, snapd and checkbox.conf.
+
+    This is called from the snap configure hook.
     """
-    conf_set = get_configuration_set()
-    if conf_set:
-        current = get_snapctl_config(list(conf_set.keys()))
-        for key in conf_set.keys():
+    config_vars = get_configuration_set()
+    if config_vars:
+        current = get_snapctl_config()
+        for key in config_vars.keys():
             if key not in current.keys() or not current[key]:
-                current[key] = conf_set[key]
+                current[key] = config_vars[key]
         update_configuration(current)
 
 
 def update_configuration(updated_entries):
     """
     Update snapd configuration and write checkbox.conf file
+
+    The is called from the configure snap app.
 
     :param updated_entries:
         A dict containing the configuration to set.
@@ -108,7 +113,7 @@ def update_configuration(updated_entries):
     for k, v in updated_entries.items():
         if not key_re.match(k):
             raise ValueError("'%s' is not a valid key" % k)
-        vars_to_set.append('{}={}'.format(k.replace('_', '-').lower(), v))
-    subprocess.run(['snapctl', 'set'] + sorted(vars_to_set))
-    write_checkbox_conf(
-        get_snapctl_config(list(get_configuration_set().keys())))
+        vars_to_set.append('conf.{}={}'.format(
+            k.replace('_', '-').lower(), v))
+    sp.run(['snapctl', 'set'] + sorted(vars_to_set))
+    write_checkbox_conf(get_snapctl_config())

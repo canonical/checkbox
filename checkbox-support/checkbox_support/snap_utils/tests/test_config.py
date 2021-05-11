@@ -8,7 +8,7 @@ import unittest
 import sys
 
 from textwrap import dedent
-from unittest.mock import mock_open, patch
+from unittest.mock import call, mock_open, patch
 
 from checkbox_support.snap_utils.config import get_configuration_set
 from checkbox_support.snap_utils.config import get_snapctl_config
@@ -17,53 +17,23 @@ from checkbox_support.snap_utils.config import write_checkbox_conf
 
 
 class TestSnapctlConfig(unittest.TestCase):
-    def test_no_keys(self):
-        self.assertEqual(get_snapctl_config([]), dict())
 
-    def test_one_key(self):
-        SNAPCTL_OUT = dedent("""
-        {
-        \t"foo": "bar"
-        }
-        """).lstrip().encode(sys.stdout.encoding)
-        with patch('subprocess.check_output', return_value=SNAPCTL_OUT) as p:
-            expected = {'foo': 'bar'}
-            self.assertEqual(get_snapctl_config(['foo']), expected)
-            p.assert_called_with(['snapctl', 'get', '-d', 'foo'])
+    @patch('subprocess.check_output')
+    def test_no_config(self, mock_output):
+        SNAPCTL_NO_CONFIG = "\n".encode(sys.stdout.encoding)
+        mock_output.return_value = SNAPCTL_NO_CONFIG
+        self.assertEqual(get_snapctl_config(), dict())
 
-    def test_not_set_key(self):
-        with patch('subprocess.check_output', return_value=b'{}\n') as p:
-            expected = {}
-            self.assertEqual(get_snapctl_config(['foo']), expected)
-            p.assert_called_with(['snapctl', 'get', '-d', 'foo'])
-
-    def test_two_keys(self):
-        SNAPCTL_OUT = dedent("""
+    @patch('subprocess.check_output')
+    def test_some_config(self, mock_output):
+        SNAPCTL_EXISTING_CONFIG = dedent("""
         {
         \t"foo": "bar",
-        \t"biz": "baz"
+        \t"bar": "baz"
         }
         """).lstrip().encode(sys.stdout.encoding)
-        with patch('subprocess.check_output', return_value=SNAPCTL_OUT) as p:
-            expected = {'foo': 'bar', 'biz': 'baz'}
-            self.assertEqual(get_snapctl_config(['foo', 'biz']), expected)
-            p.assert_called_with(['snapctl', 'get', '-d', 'foo', 'biz'])
-
-    def test_two_keys_one_missing(self):
-        SNAPCTL_OUT = dedent("""
-        {
-        \t"foo": "bar"
-        }
-        """).lstrip().encode(sys.stdout.encoding)
-        with patch('subprocess.check_output', return_value=SNAPCTL_OUT) as p:
-            expected = {'foo': 'bar'}
-            self.assertEqual(get_snapctl_config(['foo', 'biz']), expected)
-            p.assert_called_with(['snapctl', 'get', '-d', 'foo', 'biz'])
-
-    def test_two_keys_both_missing(self):
-        with patch('subprocess.check_output', return_value=b'{}\n') as p:
-            self.assertEqual(get_snapctl_config(['foo', 'biz']), dict())
-            p.assert_called_with(['snapctl', 'get', '-d', 'foo', 'biz'])
+        mock_output.return_value = SNAPCTL_EXISTING_CONFIG
+        self.assertEqual(get_snapctl_config(), {'foo': 'bar', 'bar': 'baz'})
 
 
 class TestConfigSet(unittest.TestCase):
@@ -110,6 +80,7 @@ class TestConfigSet(unittest.TestCase):
 
 
 class TestWriteCheckboxConf(unittest.TestCase):
+
     def test_smoke(self):
         m = mock_open()
         with patch('builtins.open', m):
@@ -154,7 +125,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         self.assertFalse(mock_run.called)
 
     @patch('checkbox_support.snap_utils.config.get_configuration_set')
-    @patch('subprocess.check_output', return_value=b'{}\n')
+    @patch('subprocess.check_output')
     @patch('subprocess.run')
     def test_one_value(self, mock_run, mock_subproc, mock_conf_set):
         """ FOO=bar in config_vars,
@@ -165,14 +136,22 @@ class ConfigIntegrationTests(unittest.TestCase):
             foo=bar
         """
         mock_conf_set.return_value = {'foo': 'bar'}
+        mock_subproc.side_effect = [b'\n', dedent("""
+        {
+        \t"foo": "bar"
+        }
+        """).lstrip().encode(sys.stdout.encoding)]
         m = mock_open()
         with patch('builtins.open', m):
             refresh_configuration()
-        m().write.called_once_with('[environ]\n')
-        m().write.called_once_with('FOO = bar\n')
-        m().write.called_once_with('\n')
+        m.assert_called_with("$SNAP_DATA/checkbox.conf", "wt")
+        m.return_value.write.assert_has_calls([
+            call('[environment]\n'),
+            call('FOO = bar\n'),
+            call('\n')
+        ])
         self.assertTrue(mock_conf_set.called)
-        mock_run.assert_called_once_with(['snapctl', 'set', 'foo=bar'])
+        mock_run.assert_called_once_with(['snapctl', 'set', 'conf.foo=bar'])
 
     @patch('checkbox_support.snap_utils.config.get_configuration_set')
     @patch('subprocess.check_output')
@@ -186,18 +165,28 @@ class ConfigIntegrationTests(unittest.TestCase):
             "FOO=bar"
         """
         mock_conf_set.return_value = {'foo': 'default'}
-        mock_subproc.return_value = dedent("""
-        {
-        \t"foo": "bar"
-        }
-        """).lstrip().encode(sys.stdout.encoding)
+        mock_subproc.side_effect = [
+            dedent("""
+            {
+            \t"foo": "bar"
+            }
+            """).lstrip().encode(sys.stdout.encoding),
+            dedent("""
+            {
+            \t"foo": "bar"
+            }
+            """).lstrip().encode(sys.stdout.encoding)
+        ]
         m = mock_open()
         with patch('builtins.open', m):
             refresh_configuration()
-        m().write.called_once_with('[environ]\n')
-        m().write.called_once_with('FOO = bar\n')
-        m().write.called_once_with('\n')
-        mock_run.assert_called_once_with(['snapctl', 'set', 'foo=bar'])
+        m.assert_called_with("$SNAP_DATA/checkbox.conf", "wt")
+        m.return_value.write.assert_has_calls([
+            call('[environment]\n'),
+            call('FOO = bar\n'),
+            call('\n')
+        ])
+        mock_run.assert_called_once_with(['snapctl', 'set', 'conf.foo=bar'])
 
     @patch('checkbox_support.snap_utils.config.get_configuration_set')
     @patch('subprocess.check_output')
@@ -211,17 +200,28 @@ class ConfigIntegrationTests(unittest.TestCase):
             "FOO=old and BIZ=baz"
         """
         mock_conf_set.return_value = {'foo': 'bar', 'biz': 'baz'}
-        mock_subproc.return_value = dedent("""
-        {
-        \t"foo": "old"
-        }
-        """).lstrip().encode(sys.stdout.encoding)
+        mock_subproc.side_effect = [
+            dedent("""
+            {
+            \t"foo": "old"
+            }
+            """).lstrip().encode(sys.stdout.encoding),
+            dedent("""
+            {
+            \t"biz": "baz",
+            \t"foo": "old"
+            }
+            """).lstrip().encode(sys.stdout.encoding)
+        ]
         m = mock_open()
         with patch('builtins.open', m):
             refresh_configuration()
-        m().write.called_once_with('[environ]\n')
-        m().write.called_once_with('FOO = old\n')
-        m().write.called_once_with('BIZ = baz\n')
-        m().write.called_once_with('\n')
+        m.assert_called_with("$SNAP_DATA/checkbox.conf", "wt")
+        m.return_value.write.assert_has_calls([
+            call('[environment]\n'),
+            call('BIZ = baz\n'),
+            call('FOO = old\n'),
+            call('\n')
+        ])
         mock_run.assert_called_once_with(
-            ['snapctl', 'set', 'biz=baz', 'foo=old'])
+            ['snapctl', 'set', 'conf.biz=baz', 'conf.foo=old'])

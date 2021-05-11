@@ -453,7 +453,7 @@ def get_execution_environment(job, environ, session_id, nest_dir):
                 job.provider.locale_dir
         if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
             copy_vars = ['PYTHONHOME', 'PYTHONUSERBASE', 'LD_LIBRARY_PATH',
-                         'GI_TYPELIB_PATH']
+                         'GI_TYPELIB_PATH', 'PERL5LIB']
             for key, value in env.items():
                 if key in copy_vars or key.startswith('SNAP'):
                     env[key] = value
@@ -537,7 +537,8 @@ def get_differential_execution_environment(job, environ, session_id, nest_dir,
     # Preserve the copy_vars variables + those prefixed with SNAP on Snappy
     if (os.getenv("SNAP") or os.getenv("SNAP_APP_PATH")):
         copy_vars = ['PYTHONHOME', 'PYTHONUSERBASE', 'LD_LIBRARY_PATH',
-                     'GI_TYPELIB_PATH', 'PROVIDERPATH', 'PYTHONPATH']
+                     'GI_TYPELIB_PATH', 'PROVIDERPATH', 'PYTHONPATH',
+                     'PERL5LIB']
         for key, value in base_env.items():
             if key in copy_vars or key.startswith('SNAP'):
                 delta_env[key] = value

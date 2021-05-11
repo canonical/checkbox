@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from argparse import ArgumentParser
 import os
 import logging
-import lsb_release
 import requests
 import shlex
 from subprocess import (
@@ -125,6 +124,33 @@ QEMU_ARCH_CONFIG = {
 }
 
 
+def get_release_to_test():
+    try:
+        import distro
+        if distro.id() == 'ubuntu-core':
+            return '{}.04'.format(distro.version())
+        return distro.version()
+    except (ImportError, CalledProcessError):
+        import lsb_release
+        return lsb_release.get_distro_information()["RELEASE"]
+
+
+def get_codename_to_test():
+    try:
+        import distro
+        if distro.id() == 'ubuntu-core':
+            codename = 'focal'
+            if distro.version() == '18':
+                codename = 'bionic'
+            elif distro.version() == '16':
+                codename = 'xenial'
+            return codename
+        return distro.codename()
+    except (ImportError, CalledProcessError):
+        import lsb_release
+        lsb_release.get_distro_information()["CODENAME"]
+
+
 class QemuRunner(object):
     def __init__(self, arch):
         self.arch = arch
@@ -197,7 +223,7 @@ class KVMTest(object):
         self.arch = check_output(['dpkg', '--print-architecture'],
                                  universal_newlines=True).strip()
         self.qemu_config = QEMU_ARCH_CONFIG[self.arch]
-        self.release = lsb_release.get_distro_information()["CODENAME"]
+        self.release = get_codename_to_test()
 
     def url_to_path(self, image_path):
         """
@@ -287,7 +313,7 @@ class KVMTest(object):
                     url.path == '' or
                     not (url.path.endswith(".img") or
                          url.path.endswith(".tar.gz"))
-                    ):
+            ):
                 # If we have a relative URL (local copies of official images)
                 # http://192.168.0.1/ or http://192.168.0.1/images/
                 cloud_iso = _construct_filename()
@@ -535,7 +561,7 @@ class UVTKVMTest(object):
 
     def __init__(self, image=None):
         self.image = image
-        self.release = lsb_release.get_distro_information()["CODENAME"]
+        self.release = get_codename_to_test()
         self.arch = check_output(['dpkg', '--print-architecture'],
                                  universal_newlines=True).strip()
         self.name = tempfile.mktemp()[5:]
@@ -664,7 +690,7 @@ class LXDTest(object):
         self.name = 'testbed'
         self.image_alias = uuid4().hex
         self.default_remote = "ubuntu:"
-        self.os_version = lsb_release.get_distro_information()["RELEASE"]
+        self.os_version = get_release_to_test()
 
     def run_command(self, cmd):
         task = RunCommand(cmd)

@@ -239,6 +239,7 @@ parts:
       - dbus
       - dmidecode
       - dmsetup
+      - efibootmgr
       - ethtool
       - freeipmi-tools
       - fswebcam

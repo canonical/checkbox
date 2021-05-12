@@ -8,7 +8,6 @@ id: pts
 _name: Phoronix Test Suite
 include:
  pts-prepare-nest
- pts/cpuminer-opt
  pts/encode-mp3
  pts/fs-mark
  pts/john-the-ripper
@@ -41,9 +40,6 @@ requires:
  cpuinfo.platform == "x86_64"
  environment.PTS_CACHE_URL != ''
 command:
- echo id: pts/cpuminer-opt
- echo "name: Cpuminer benchmark."
- echo
  echo id: pts/encode-mp3
  echo "name: This test measures the time required to encode a WAV file to MP3 format."
  echo

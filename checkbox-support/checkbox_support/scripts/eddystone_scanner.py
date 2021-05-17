@@ -58,7 +58,7 @@ def beacon_scan(hci_device):
     while not beacon_packet and time.time() - start < TIMEOUT:
         time.sleep(1)
     scanner.stop()
-    if beacon_packet and 'ubuntu' in beacon_packet.url:
+    if beacon_packet:
         print('Eddystone beacon detected: URL: {} <mac: {}> '
               '<rssi: {}>'.format(beacon_packet.url, beacon_mac, beacon_rssi))
         return 0

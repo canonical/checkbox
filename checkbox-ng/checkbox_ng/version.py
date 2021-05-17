@@ -25,7 +25,6 @@ from collections import OrderedDict
 from plainbox.impl.providers import get_providers
 
 import checkbox_ng
-import checkbox_support
 
 _ = gettext.gettext
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
@@ -47,11 +46,14 @@ def get_stack_version():
     info = OrderedDict()
     info['checkbox-ng'] = checkbox_ng.__version__
     try:
+        import checkbox_support
         support_ver = checkbox_support.__version__
     except AttributeError:
         import pkg_resources
         support_ver = pkg_resources.get_distribution(
             "checkbox-support").version
+    except ModuleNotFoundError:
+        support_ver = 'not available'
     info['checkbox-support'] = support_ver
     ignored_providers = [
         'com.canonical.plainbox:manifest',

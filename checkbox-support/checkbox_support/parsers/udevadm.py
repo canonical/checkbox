@@ -95,6 +95,8 @@ GENERIC_RE = re.compile(r"Generic", re.I)
 FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
+ROOT_MOUNTPOINT = re.compile(
+    r'MOUNTPOINT=.*/(writable|hostfs|ubuntu-seed|ubuntu-boot)')
 
 
 def slugify(_string):
@@ -118,7 +120,7 @@ def find_pkname_is_root_mountpoint(devname, lsblk=None):
             ):
                 return True
             if (
-                re.search('MOUNTPOINT=.*/(writable|hostfs)', line) and
+                ROOT_MOUNTPOINT.search(line) and
                 line.startswith('KNAME="{}'.format(devname))
             ):
                 return True

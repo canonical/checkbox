@@ -1053,6 +1053,11 @@ E: UDEV_LOG=3
         self.assertEqual(len(devices), 107)
         self.assertEqual(self.count(devices, "CDROM"), 0)
 
+    def test_CRYPTO_FDE_UC20(self):
+        devices = self.parse("CRYPTO_FDE", with_partitions=True)
+        self.assertEqual(len(devices), 93)
+        self.assertEqual(self.count(devices, "PARTITION"), 1)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

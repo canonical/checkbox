@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
-# Copyright (c) 2018 Canonical Ltd.
+# Copyright (c) 2021 Canonical Ltd.
 #
 # Authors:
 #     Sylvain Pineau <sylvain.pineau@canonical.com>
+#     Paul Larson <paul.larson@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,88 +20,82 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import asyncio
-import logging
-import sys
 import time
 
+from checkbox_support.vendor.beacontools import (
+    BeaconScanner, EddystoneURLFrame)
 from checkbox_support.interactive_cmd import InteractiveCommand
-from checkbox_support.vendor.aioblescan import create_bt_socket
-from checkbox_support.vendor.aioblescan import BLEScanRequester
-from checkbox_support.vendor.aioblescan import HCI_Cmd_LE_Advertise
-from checkbox_support.vendor.aioblescan import HCI_Event
-from checkbox_support.vendor.aioblescan.eddystone import EddyStone
+
+
+def init_bluetooth():
+    # Power on the bluetooth controller
+    with InteractiveCommand('bluetoothctl') as btctl:
+        btctl.writeline('power on')
+        time.sleep(3)
+        btctl.writeline('scan on')
+        time.sleep(3)
+        btctl.writeline('exit')
+        btctl.kill()
+
+
+def beacon_scan(hci_device):
+    TIMEOUT = 10
+
+    beacon_mac = beacon_rssi = beacon_packet = ''
+
+    def callback(bt_addr, rssi, packet, additional_info):
+        nonlocal beacon_mac, beacon_rssi, beacon_packet
+        beacon_mac, beacon_rssi, beacon_packet = bt_addr, rssi, packet
+
+    scanner = BeaconScanner(
+        callback,
+        bt_device_id=hci_device,
+        packet_filter=EddystoneURLFrame
+    )
+
+    scanner.start()
+    start = time.time()
+    while not beacon_packet and time.time() - start < TIMEOUT:
+        time.sleep(1)
+    scanner.stop()
+    if beacon_packet:
+        print('Eddystone beacon detected: URL: {} <mac: {}> '
+              '<rssi: {}>'.format(beacon_packet.url, beacon_mac, beacon_rssi))
+        return 0
+    print('No EddyStone URL advertisement detected!')
+    return 1
 
 
 def main():
-    logger = logging.getLogger(__file__)
-    logger.setLevel(logging.DEBUG)
-    h1 = logging.StreamHandler(sys.stdout)
-    h1.setLevel(logging.DEBUG)
-    h1.addFilter(lambda record: record.levelno <= logging.INFO)
-    h2 = logging.StreamHandler()
-    h2.setLevel(logging.WARNING)
-    logger.addHandler(h1)
-    logger.addHandler(h2)
+    init_bluetooth()
+
     parser = argparse.ArgumentParser(
         description="Track BLE advertised packets")
     parser.add_argument("-D", "--device", default='hci0',
                         help="Select the hciX device to use "
                              "(default hci0).")
-
-    @asyncio.coroutine
-    def timeout():
-        yield from asyncio.sleep(10)
-
-    def ble_process(data):
-        ev = HCI_Event()
-        ev.decode(data)
-        advertisement = EddyStone().decode(ev)
-        if advertisement:
-            logger.info("EddyStone URL: %s" % advertisement['url'])
-            for task in asyncio.Task.all_tasks():
-                task.cancel()
+    args = parser.parse_args()
 
     try:
-        opts = parser.parse_args()
-    except Exception as e:
-        parser.error("Error: " + str(e))
-        return 1
-    with InteractiveCommand('bluetoothctl') as btctl:
-        btctl.writeline('power on')
-        time.sleep(3)
-        btctl.writeline('exit')
-        btctl.kill()
-    event_loop = asyncio.get_event_loop()
-    # First create and configure a STREAM socket
-    try:
-        mysocket = create_bt_socket(int(opts.device.replace('hci', '')))
-    except OSError as e:
-        logger.error('%s' % e)
-        return 1
-    # Create a connection with the STREAM socket
-    fac = event_loop._create_connection_transport(
-        mysocket, BLEScanRequester, None, None)
-    # Start it
-    conn, btctrl = event_loop.run_until_complete(fac)
-    # Attach processing
-    btctrl.process = ble_process
-    # Probe
-    btctrl.send_scan_request()
-    try:
-        event_loop.run_until_complete(timeout())
-        logger.error('No EddyStone URL advertisement detected!')
-        return 1
-    except asyncio.CancelledError:
-        return 0
-    except KeyboardInterrupt:
-        return 1
-    finally:
-        btctrl.stop_scan_request()
-        command = HCI_Cmd_LE_Advertise(enable=False)
-        btctrl.send_command(command)
-        conn.close()
-        event_loop.close()
+        hci_device = int(args.device.replace('hci', ''))
+    except ValueError:
+        print('Bad device argument, defaulting to hci0')
+        hci_device = 0
+
+    # Newer bluetooth controllers and bluez versions allow extended commands
+    # supported by newer versions of beacontools. But with older controllers,
+    # especially when running on bionic, core18, bluez < 5.51, etc. they
+    # only work correctly with legacy commands, and need an older version
+    # of beacontools to work properly.
+    # Try the newest one first, then the older one if that doesn't work
+    rc = beacon_scan(hci_device)
+    if rc:
+        print('Trying again with older beacontools version...')
+        global BeaconScanner, EddystoneURLFrame
+        from checkbox_support.vendor.beacontools_2_0_2 import (
+            BeaconScanner, EddystoneURLFrame)
+        rc = beacon_scan(hci_device)
+    return rc
 
 
 if __name__ == '__main__':

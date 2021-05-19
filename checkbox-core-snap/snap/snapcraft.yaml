@@ -161,6 +161,7 @@ parts:
       - -**/RECORD
       - -**/__pycache__
     build-environment:
+      - C_INCLUDE_PATH: /usr/include/python3.8
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
     override-stage: |
       snapcraftctl stage

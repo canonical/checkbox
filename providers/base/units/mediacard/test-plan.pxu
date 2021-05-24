@@ -71,35 +71,27 @@ include:
     mediacard/cf-insert
     mediacard/cf-storage
     mediacard/cf-remove
-    mediacard/cf-performance-manual
     mediacard/mmc-insert
     mediacard/mmc-storage
     mediacard/mmc-remove
-    mediacard/mmc-performance-manual
     mediacard/ms-insert
     mediacard/ms-storage
     mediacard/ms-remove
-    mediacard/ms-performance-manual
     mediacard/msp-insert
     mediacard/msp-storage
     mediacard/msp-remove
-    mediacard/msp-performance-manual
     mediacard/sd-insert
     mediacard/sd-storage
     mediacard/sd-remove
-    mediacard/sd-performance-manual
     mediacard/sdhc-insert
     mediacard/sdhc-storage
     mediacard/sdhc-remove
-    mediacard/sdhc-performance-manual
     mediacard/sdxc-insert
     mediacard/sdxc-storage
     mediacard/sdxc-remove
-    mediacard/sdxc-performance-manual
     mediacard/xd-insert
     mediacard/xd-storage
     mediacard/xd-remove
-    mediacard/xd-performance-manual
 
 id: mediacard-automated
 unit: test plan

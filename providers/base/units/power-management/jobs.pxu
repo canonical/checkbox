@@ -331,6 +331,31 @@ plugin: shell
 command: failed_service_check.sh
 estimated_duration: 1.0
 
+id: power-management/idle-screen-on-residency-check
+category_id: com.canonical.plainbox::power-management
+_summary: Test if CPU records time in desired low power C-state when idle
+_description:
+ When the system has the screen on, but the CPU is idle, it should enter deeper idle state
+ to reduce power consumption. The expected states are identified as PC8, PC9 and PC10.
+ For more detail refer to https://01.org/blogs/qwang59/2020/linux-s0ix-troubleshooting
+unit: job
+plugin: shell
+requires:
+ cpuinfo.type == 'GenuineIntel'
+ package.name == 'msr-tools'
+ sleep.mem_sleep == 's2idle'
+command:
+ short-idle-check.sh -s 20
+ RET=$?
+ if [ $RET -ne 0 ]; then
+     echo "The CPU package target idle state residency is 0."
+     echo "It will consume more power when the system has the screen on, but the CPU is idle."
+     echo "More detail is in https://01.org/blogs/qwang59/2020/linux-s0ix-troubleshooting."
+     exit 1
+ fi
+user: root
+estimated_duration: 22
+
 id: power-management/cpu-low-power-idle
 category_id: com.canonical.plainbox::power-management
 _summary: CPU low power idle residency check

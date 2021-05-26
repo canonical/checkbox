@@ -234,7 +234,7 @@ id: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
-depends: suspend/suspend_advanced graphics/{index}_switch_card_{product_slug}
+depends: suspend/suspend_advanced_auto graphics/{index}_switch_card_{product_slug}
 user: root
 environ: PLAINBOX_SESSION_SHARE
 command:
@@ -385,7 +385,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: power-management/usb_wakeup_keyboard
 user: root
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 command: pm-suspend
 _description:
@@ -402,7 +402,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: power-management/usb_wakeup_mouse
 user: root
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 command: pm-suspend
 _description:
@@ -419,7 +419,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/network_after_suspend
 estimated_duration: 20.0
-depends: suspend/suspend_advanced suspend/network_before_suspend
+depends: suspend/suspend_advanced_auto suspend/network_before_suspend
 _description: Test the network after resuming.
 command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
 
@@ -434,7 +434,7 @@ command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/resolution_after_suspend
-depends: suspend/suspend_advanced suspend/resolution_before_suspend
+depends: suspend/suspend_advanced_auto suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Test to see that we have the same resolution after resuming as before.
 command: xrandr -q | grep "[*]" | awk '{print $1}' | diff "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt -
@@ -457,7 +457,7 @@ estimated_duration: 1.0
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
-depends: suspend/suspend_advanced suspend/audio_before_suspend
+depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
   audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -479,7 +479,7 @@ command:
 plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: suspend/speaker-headphone-plug-detection-after-suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
@@ -501,7 +501,7 @@ _description:
 plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: suspend/microphone-plug-detection-after-suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
@@ -525,7 +525,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/playback_headphones-after-suspend
 estimated_duration: 20.0
-depends: audio/list_devices suspend/suspend_advanced
+depends: audio/list_devices suspend/suspend_advanced_auto
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
@@ -551,7 +551,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/alsa_record_playback_external-after-suspend
 estimated_duration: 20.0
-depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced
+depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced_auto
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
@@ -578,7 +578,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cpu_after_suspend
 estimated_duration: 1.2
-depends: suspend/suspend_advanced suspend/cpu_before_suspend
+depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
 command: cpuinfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend -
 
@@ -594,7 +594,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/memory_after_suspend
 estimated_duration: 1.2
-depends: suspend/suspend_advanced suspend/memory_before_suspend
+depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
 _description:
  Verify that all memory is available after resuming from suspend.
 command: meminfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend -
@@ -612,7 +612,7 @@ plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/display_after_suspend
 estimated_duration: 120.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 _description:
  PURPOSE:
      This test will check that the display is correct after suspend and resume
@@ -643,7 +643,7 @@ template-filter: device.category == 'NETWORK'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_ether_auto_device{__index__}_{interface}
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 requires:
  package.name == 'iperf'
@@ -659,7 +659,7 @@ template-filter: device.category == 'WIRELESS'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_wifi_auto_device{__index__}_{interface}
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 requires:
  package.name == 'iperf'
@@ -700,7 +700,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_bg_manual
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires:
  device.category == 'WIRELESS'
@@ -741,7 +741,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_bg_manual
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires:
  device.category == 'WIRELESS'
@@ -782,7 +782,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_n_manual
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires:
  device.category == 'WIRELESS'
@@ -823,7 +823,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_n_manual
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires:
  device.category == 'WIRELESS'
@@ -864,7 +864,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_ac_manual
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires:
  device.category == 'WIRELESS'
@@ -905,7 +905,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_ac_manual
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires:
  device.category == 'WIRELESS'
@@ -946,7 +946,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_detect_after_suspend
-depends: suspend/suspend_advanced bluetooth/detect-output
+depends: suspend/suspend_advanced_auto bluetooth/detect-output
 estimated_duration: 1.2
 requires:
  package.name == 'bluez'
@@ -998,7 +998,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_send_after_suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
@@ -1056,7 +1056,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_after_suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
@@ -1115,7 +1115,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_after_suspend
 estimated_duration: 20.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 requires:
  package.name == 'bluez'
  executable.name == 'obexftp'
@@ -1174,7 +1174,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 command: xrandr_cycle.py --keyword=after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
 _description:
  PURPOSE:
@@ -1234,7 +1234,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend
 estimated_duration: 10.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 requires:
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
@@ -1317,7 +1317,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/wifi_resume_time
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 requires:
    device.category == 'WIRELESS'
 command: network_reconnect_resume_test.py -t 90 -d wifi
@@ -1341,7 +1341,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/network_resume_time
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
    device.category == 'NETWORK'
@@ -1365,7 +1365,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/power
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1379,7 +1379,7 @@ plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-charging
 estimated_duration: 120.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 _description:
  PURPOSE:
      Validate that the battery light shows charging status after resuming from suspend
@@ -1392,7 +1392,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-charged
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1407,7 +1407,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-low
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1421,7 +1421,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/hdd
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 command: led_hdd_test.sh
 _description:
@@ -1437,7 +1437,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/numeric-keypad
 estimated_duration: 120.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 command: keyboard_test.py
 _description:
  PURPOSE:
@@ -1453,7 +1453,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/caps-lock
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1467,7 +1467,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wlan
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1481,7 +1481,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wlan-disabled
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1497,7 +1497,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/bluetooth
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1513,7 +1513,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/touchpad
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1529,7 +1529,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wireless
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -1549,7 +1549,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/usb_insert_after_suspend
 estimated_duration: 30.0
 depends:
- suspend/suspend_advanced
+ suspend/suspend_advanced_auto
 command: removable_storage_watcher.py insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
@@ -1571,7 +1571,7 @@ estimated_duration: 30.0
 requires:
  usb.usb3 == 'supported'
 depends:
- suspend/suspend_advanced
+ suspend/suspend_advanced_auto
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
      This test will check that the system correctly detects the insertion of
@@ -1676,7 +1676,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: suspend/mmc-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -1727,7 +1727,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: suspend/sd-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -1780,7 +1780,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: suspend/sdhc-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -1832,7 +1832,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: mediacard/cf-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -1883,7 +1883,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -1934,7 +1934,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: mediacard/ms-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -1985,7 +1985,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: mediacard/msp-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -2036,7 +2036,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::suspend
 id: mediacard/xd-insert-after-suspend
 estimated_duration: 30.0
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
@@ -2116,7 +2116,7 @@ template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or 
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/pointing-after-suspend_{product_slug}_{category}_{__index__}
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 _description:
  PURPOSE:
      This will test your {product} device after suspend.
@@ -2132,7 +2132,7 @@ plugin: manual
 category_id: com.canonical.plainbox::suspend
 estimated_duration: 30.0
 id: suspend/clicking-after-suspend_{product_slug}_{category}_{__index__}
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 _summary: Check post suspend button functionality for {product}
 _description:
  PURPOSE:
@@ -2161,7 +2161,7 @@ _summary: Test OpenGL support for {product} after suspend
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/gl_support_after_suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 requires: package.name == 'nux-tools'
 command: /usr/lib/nux/unity_support_test -p 2>&1
 estimated_duration: 0.130
@@ -2190,7 +2190,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/glxgears_after_suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 requires:
  executable.name == 'glxgears'
  device.category == 'VIDEO'
@@ -2228,7 +2228,7 @@ _description:
 id: suspend/video_after_suspend
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 requires:
  device.category == 'VIDEO'
  package.name == 'xorg'
@@ -2257,7 +2257,7 @@ _summary: Test X driver/version after suspend for {vendor} {product}
 
 id: suspend/driver_version_after_suspend
 requires: device.category == 'VIDEO'
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 command: graphics_driver
@@ -2266,7 +2266,7 @@ _description: Parses Xorg.0.Log and discovers the running X driver and version a
 _summary: Test X driver/version after suspend
 
 id: suspend/oops_after_suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 plugin:shell
 estimated_duration: 10.0
 requires: executable.name == 'fwts'

@@ -126,7 +126,7 @@ _description:
   execution order, by placing it between before-suspend-tp and after-suspend-tp
   in the nested_part section of the surrounding test plan.
 include:
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
 
 id: hibernate-tp-manual
 unit: test plan

@@ -103,7 +103,7 @@ include:
   # Do power on/off to clean up the test environment
   power-management/poweroff                        certification-status=blocker
   power-management/poweroff-log-attach
-  suspend/suspend_advanced                         certification-status=blocker
+  suspend/suspend_advanced_auto                    certification-status=blocker
   dock/power-button-after-suspend                  certification-status=blocker
   dock/networking-gateway-ping-after-suspend       certification-status=blocker
   dock/usb-HID-after-suspend                       certification-status=blocker
@@ -235,7 +235,7 @@ include:
   # Do power on/off to clean up the test environment
   power-management/poweroff                        certification-status=blocker
   power-management/poweroff-log-attach
-  suspend/suspend_advanced                         certification-status=blocker
+  suspend/suspend_advanced_auto                    certification-status=blocker
   dock/power-button-after-suspend                  certification-status=blocker
   dock/networking-gateway-ping-after-suspend       certification-status=blocker
   after-suspend-manual-dock/audio-playback-headphones              certification-status=blocker

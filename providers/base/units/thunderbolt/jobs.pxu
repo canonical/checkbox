@@ -8,7 +8,7 @@ command: removable_storage_watcher.py insert --timeout 40 scsi
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt/insert",
       "_summary": "thunderbolt/insert after suspend",
-      "depends": "suspend/suspend_advanced"}
+      "depends": "suspend/suspend_advanced_auto"}
     ]
 _summary: Storage insert detection on Thunderbolt
 _description:
@@ -100,7 +100,7 @@ command: removable_storage_watcher.py insert --timeout 40 scsi
 _siblings: [
     { "id": "after-suspend-manual-thunderbolt3/insert",
       "_summary": "thunderbolt3/insert after suspend",
-      "depends": "suspend/suspend_advanced"}
+      "depends": "suspend/suspend_advanced_auto"}
     ]
 _summary: Storage insert detection on Thunderbolt 3 port
 _description:

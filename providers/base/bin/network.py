@@ -631,18 +631,19 @@ def interface_test(args):
 
     error_number = 0
     # Stop all other interfaces
-    extra_interfaces = \
-        [iface for iface in os.listdir("/sys/class/net")
-         if iface != "lo" and iface != args.interface]
+    if not args.dont_toggle_ifaces:
+        extra_interfaces = \
+            [iface for iface in os.listdir("/sys/class/net")
+             if iface != "lo" and iface != args.interface]
 
-    for iface in extra_interfaces:
-        logging.debug("Shutting down interface:%s", iface)
-        try:
-            check_call(["ip", "link", "set", "dev", iface, "down"])
-        except CalledProcessError as interface_failure:
-            logging.error("Failed to shut down %s:%s",
-                          iface, interface_failure)
-            error_number = 3
+        for iface in extra_interfaces:
+            logging.debug("Shutting down interface:%s", iface)
+            try:
+                check_call(["ip", "link", "set", "dev", iface, "down"])
+            except CalledProcessError as interface_failure:
+                logging.error("Failed to shut down %s:%s",
+                              iface, interface_failure)
+                error_number = 3
 
     if error_number == 0:
         start_time = datetime.datetime.now()
@@ -664,14 +665,16 @@ def interface_test(args):
                 time.sleep(30)
                 first_loop = False
 
-    for iface in extra_interfaces:
-        logging.debug("Restoring interface:%s", iface)
-        try:
-            check_call(["ip", "link", "set", "dev", iface, "up"])
-            wait_for_iface_up(iface, args.iface_timeout)
-        except CalledProcessError as interface_failure:
-            logging.error("Failed to restore %s:%s", iface, interface_failure)
-            error_number = 3
+    if not args.dont_toggle_ifaces:
+        for iface in extra_interfaces:
+            logging.debug("Restoring interface:%s", iface)
+            try:
+                check_call(["ip", "link", "set", "dev", iface, "up"])
+                wait_for_iface_up(iface, args.iface_timeout)
+            except CalledProcessError as interface_failure:
+                logging.error(
+                    "Failed to restore %s:%s", iface, interface_failure)
+                error_number = 3
 
     # Restore routing table to original state
     temp.seek(0)
@@ -833,6 +836,9 @@ TEST_TARGET_IPERF = iperf-server.example.com
     test_parser.add_argument(
         '--reverse', default=False, action="store_true",
         help="Run in reverse mode (server sends, client receives)")
+    test_parser.add_argument(
+        '--dont-toggle-ifaces', default=False, action="store_true",
+        help="Do not turn of other interfaces while testing.")
 
     # Sub info options
     info_parser.add_argument(

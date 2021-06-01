@@ -16,7 +16,6 @@ the desktop installer.
 """
 
 import os
-import re
 import subprocess as sp
 import sys
 
@@ -91,15 +90,9 @@ def main():
         cryptinfo = sp.check_output(cmd, shell=True).decode(
             sys.stdout.encoding).strip()
     except sp.CalledProcessError:
-        raise SystemExit('ERROR: dmsetup failed')
-    print(cryptinfo, '\n')
-
-    # use the type as the final arbiter of success
-    regexp = re.compile(r'type:\ *LUKS\d$', re.MULTILINE)
-    if regexp.search(cryptinfo):
-        print('Full Disk Encryption is operational on this device')
-    else:
-        raise SystemExit('ERROR: cryptsetup did not report LUKS in use')
+        raise SystemExit('ERROR: cryptsetup check failed')
+    print(cryptinfo)
+    print('\nFull Disk Encryption is operational on this device')
 
 
 if __name__ == "__main__":

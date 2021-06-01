@@ -55,8 +55,11 @@ _description:
  PURPOSE:
      Check touchscreen drag & drop
  STEPS:
-     1. Tap and hold an object on the desktop
-     2. Drag and drop the object in a different location
+     1. Press 'PrtScn' key to create a screenshot
+     2. Tap 'Files' on dock(launcher bar) to open Home folder
+     3. Double Tap 'Pictures' folder to open Pictures folder
+     4. Tap and hold the Screenshot* files on the Pictures folder
+     5. Drag and drop the Screenshot* files to Home folder
  VERIFICATION:
      Does drag and drop work?
 flags: also-after-suspend-manual

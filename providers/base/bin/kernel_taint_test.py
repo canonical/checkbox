@@ -60,23 +60,45 @@ def get_modules():
     return(modules)
 
 
-def print_out_of_tree_modules(modules):
-    print("*   Modules not in-tree:")
+def process_out_of_tree_modules(modules):
+    mod_list = []
+    modules = remove_ignored_modules(modules)
     for mod in modules:
         cmd = 'modinfo -F intree %s' % mod
         if not check_output(shlex.split(cmd),
                             universal_newlines=True):
-            print("     %s" % mod)
+            mod_list.append(mod)
+    return(mod_list)
 
 
-def print_GPL_incompatible_modules(modules):
-    print("*   Modules with GPL Incompatible Licenses:")
+def process_GPL_incompatible_modules(modules):
+    mod_list = []
+    modules = remove_ignored_modules(modules)
     for mod in modules:
         cmd = 'modinfo -F license %s' % mod
         license = check_output(shlex.split(cmd),
                                universal_newlines=True).strip()
         if "GPL" not in license and "MIT" not in license:
-            print("     %s: %s" % (mod, license))
+            mod_list.append((mod, license))
+    return(mod_list)
+
+
+def remove_ignored_modules(modules):
+    # Remove modules we know will fail, but accept
+    ignored_modules = ['zfs',
+                       'zunicode',
+                       'zlua',
+                       'zavl',
+                       'icp',
+                       'zcommon',
+                       'znvpair',
+                       'spl']
+    for ignore_mod in ignored_modules:
+        try:
+            modules.remove(ignore_mod)
+        except ValueError:
+            pass
+    return(modules)
 
 
 def report_failures(taints):
@@ -107,14 +129,30 @@ def report_failures(taints):
             modules = get_modules()
             print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
             if i == 0:  # List GPL incompatible modules and licenses
-                print_GPL_incompatible_modules(modules)
-            if i == 12:  # List out-of-tree modules
-                print_out_of_tree_modules(modules)
-            if i == 11:
+                proprietary_modules = process_GPL_incompatible_modules(modules)
+                if proprietary_modules:
+                    print("*   Modules with GPL Incompatible Licenses:")
+                    for mod in proprietary_modules:
+                        print("     %s: %s" % (mod[0], mod[1]))
+                    count += 1
+                else:
+                    print("*   Proprietary modules found, "
+                          "but they are expected and OK")
+            elif i == 11:
                 print("*   Firmware workarounds are expected and OK")
-                continue
-            count += 1
-
+            elif i == 12:  # List out-of-tree modules
+                out_of_tree_modules = process_out_of_tree_modules(modules)
+                if len(out_of_tree_modules) > 0:
+                    print("*   Modules not in-tree:")
+                    for mod in out_of_tree_modules:
+                        print("     %s" % mod)
+                    count += 1
+                else:
+                    print("*   Out of Tree modules found, "
+                          "but they are expected and OK")
+            else:
+                print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
+                count += 1
     if taints == 0:
         print("No kernel taints detected.")
 

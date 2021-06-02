@@ -86,3 +86,12 @@ _description: Manual power tests for Snappy Ubuntu Core devices
 include:
     power-management/poweroff-manual
     power-management/reboot-manual
+
+id: power-management-cpu-cstate-cert-automated
+unit: test plan
+_name: CPU package cstate tests
+_description: CPU package cstate tests for Ubuntu PC devices
+include:
+    power-management/idle-screen-on-residency-check
+    power-management/cpu-low-power-idle
+    power-management/system-low-power-idle

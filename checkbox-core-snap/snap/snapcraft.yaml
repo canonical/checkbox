@@ -333,7 +333,7 @@ parts:
     plugin: checkbox-provider
     source: git://git.launchpad.net/plainbox-provider-tpm2
     stage-packages:
-      - tpm2-tools
+      - clevis-tpm2
     after: [plainbox-provider-docker]
 ################################################################################
   plainbox-provider-sru:

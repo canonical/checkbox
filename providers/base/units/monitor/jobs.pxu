@@ -158,9 +158,10 @@ command: brightness_test.py
 _purpose:
     This test will test changes to screen brightness
 _steps:
-    1. Click "Test" to try to dim the screen.
-    2. Check if the screen was dimmed approximately to half of the maximum brightness.
-    3. The screen will go back to the original brightness in 2 seconds.
+    1. Change screen brightness to maximum.
+    2. Click "Test" to try to dim the screen.
+    3. Check if the screen was dimmed approximately to half of the maximum brightness.
+    4. The screen will go back to the original brightness in 2 seconds.
 _verification:
     Was your screen dimmed approximately to half of the maximum brightness?
 

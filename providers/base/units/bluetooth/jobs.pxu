@@ -224,7 +224,7 @@ _purpose:
 _steps:
      1. Enable a Bluetooth Smart keyboard, and put it into paring mode.
      2. Commence the test to do the auto-pairing, you will be asked to select targeting keyboard from the list.
-     3. After it's paired and connected, enter some text with your keyboard and close the small input test tool.
+     3. After it's paired and connected, enter some text with your keyboard.
 _verification:
      Did the Bluetooth Smart keyboard work as expected?
 

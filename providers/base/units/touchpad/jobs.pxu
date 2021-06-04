@@ -142,11 +142,12 @@ estimated_duration: 120.0
 _purpose:
      Determine that the drag and drop function is working as expected.
 _steps:
-    1. Browse to the examples folder in the current user's home directory
-    2. Double tap and hold to select the "Ubuntu_Free_Culture_Showcase" folder
-    3. Drag the selected folder to the desktop and remove finger from touchpad.
+    1. Press 'PrtScn' key to take a screenshot
+    2. Tap 'Files' on dock(launcher bar) to open Home\Pictures folder
+    3. Double tap and hold the Screenshot* file
+    4. Drag the selected file to the Home folder and remove finger from touchpad.
 _verification:
-     Did a selected folder move to the desktop?
+     Does drag and drop work on Touchpad?
 _siblings:
     [{ "id": "touchpad/drag-and-drop-after-suspend",
        "depends": "suspend/suspend_advanced touchpad/drag-and-drop" }]

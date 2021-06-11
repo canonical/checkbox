@@ -310,9 +310,9 @@ _purpose:
   This test will check if power button event has reported correctly, the listener will
   wait for 10 seconds.
 _steps:
-  1. Single press and release the power button in 10 seconds, some platforms might need long-press
-     to trigger the PBTN or PWRB event
-  2. Check the number of output PBTN/PWRB event
+  1. Run the test (you have 10 seconds from now on)
+  2. Long-press power button about 3~4 seconds one time (the PBTN/PWRB event will show below)
+  3. Check the number of output PBTN/PWRB event should be Once.
 
 plugin: manual
 category_id: com.canonical.plainbox::keys

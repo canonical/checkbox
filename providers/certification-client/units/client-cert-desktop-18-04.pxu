@@ -1,10 +1,21 @@
-id: client-cert-18-04
-_name: 18.04 Client Certification Tests
+id: client-cert-desktop-18-04
+_name: Desktop Preload Certification Tests for 18.04
 unit: test plan
 _description:
  This test plan is intended for use inside Canonical's test labs. It will be
  used to certify Desktop devices on behalf of OEM customers as part of
  commercial engagements.
+include:
+nested_part:
+    client-cert-desktop-18-04-manual
+    client-cert-desktop-18-04-automated
+
+
+id: client-cert-desktop-18-04-manual
+_name: Desktop Preload Certification Tests for 18.04 (Manual Tests)
+unit: test plan
+_description:
+ Includes tests that require input from an operator to complete.
 include:
 nested_part:
     submission-cert-full
@@ -78,3 +89,38 @@ nested_part:
     info-attachment-cert-full
 exclude:
     com.canonical.certification::keys/hibernate
+
+
+id: client-cert-desktop-18-04-automated
+_name: Desktop Preload Certification Tests for 18.04 (Automated Tests)
+unit: test plan
+_description:
+ Includes tests that do not require operator input.
+include:
+    audio/alsa_record_playback_automated
+    recovery_info_attachment
+nested_part:
+    submission-cert-automated
+    info-attachment-cert-automated
+    bluetooth-cert-automated
+    camera-cert-automated
+    cpu-cert-automated
+    disk-automated
+    graphics-integrated-gpu-cert-automated
+    graphics-discrete-gpu-cert-automated
+    misc-client-cert-automated
+    memory-automated
+    networking-cert-automated
+    power-management-precheck-cert-automated
+    mediacard-automated
+    usb-automated
+    wireless-cert-automated
+    before-suspend-reference-cert-blockers
+    suspend-tp
+    after-suspend-reference-cert-blockers
+    after-suspend-graphics-discrete-gpu-cert-automated
+    after-suspend-graphics-integrated-gpu-cert-automated
+    after-suspend-wireless-cert-automated
+bootstrap_include:
+    device
+    graphics_card

@@ -1,4 +1,4 @@
-id: client-cert-regression
+id: client-cert-desktop-regression
 _name: Regression Tests
 unit: test plan
 include:

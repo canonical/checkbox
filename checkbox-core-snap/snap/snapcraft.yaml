@@ -66,7 +66,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V21.03.00"
+    source-tag: ""
     source-depth: 1
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts
@@ -92,7 +92,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.12.07"
+    source-tag: ""
     source-depth: 1
     plugin: make
     source: git://kernel.ubuntu.com/cking/stress-ng
@@ -103,13 +103,13 @@ parts:
       - make
       - zlib1g-dev
       - libbsd-dev
-      - libattr1-dev
       - libgcrypt20-dev
       - libkeyutils-dev
       - libapparmor-dev
       - libaio-dev
       - libcap-dev
       - libsctp-dev
+      - libjudy-dev
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml

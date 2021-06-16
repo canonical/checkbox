@@ -36,3 +36,12 @@ command:
      echo tpmrm: unsupported
      echo encryptdecrypt: unsupported
  fi
+
+id: tpm2_cap
+category_id: tpm2
+plugin: resource
+estimated_duration: 1
+_summary: tpm2 capabilities (algorithms and pcr banks)
+user: root
+command:
+ tpm2_capabilities.py

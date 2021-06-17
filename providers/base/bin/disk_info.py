@@ -62,6 +62,9 @@ def main():
             find_pkname_is_root_mountpoint(m.group('KNAME'), lsblk)
         ):
             continue
+        # Don't consider any block dev mounted as snapd save partition
+        if 'snapd/save' in m.group('MOUNTPOINT'):
+            continue
         disks += 1
         model = m.group('MODEL')
         if not model:

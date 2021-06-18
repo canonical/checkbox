@@ -439,19 +439,6 @@ parts:
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
 ################################################################################
-  tcglog-parser:
-    plugin: go
-    source: https://github.com/jocave/tcglog-parser.git
-    source-type: git
-    source-branch: use-go-mod
-    override-build: |
-      # 64bit arch support only
-      if [ "${SNAPCRAFT_ARCH_TRIPLET}" = "arm-linux-gnueabihf" ]; then
-        exit 0
-      else
-        snapcraftctl build
-      fi
-################################################################################
   parts-meta-info:
     plugin: nil
     override-build: |

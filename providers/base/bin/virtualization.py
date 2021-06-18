@@ -145,7 +145,7 @@ def get_codename_to_test():
             elif distro.version() == '16':
                 codename = 'xenial'
             return codename
-        return distro.codename()
+        return distro.codename().split()[0].lower()
     except (ImportError, CalledProcessError):
         import lsb_release
         lsb_release.get_distro_information()["CODENAME"]

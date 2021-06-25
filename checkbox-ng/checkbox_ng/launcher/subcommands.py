@@ -41,6 +41,7 @@ from plainbox.impl.color import Colorizer
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.assistant import SA_RESTARTABLE
@@ -885,7 +886,7 @@ class TestPlanExport():
         path = self.sa.export_to_file(
             'com.canonical.plainbox::tp-export', [],
             self.sa._manager.storage.location,
-            self.sa._manager.test_plans[0].name)
+            slugify(self.sa._manager.test_plans[0].name))
         print(path)
 
 

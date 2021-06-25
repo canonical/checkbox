@@ -648,54 +648,54 @@ class UVTKVMTest(object):
 
     def start(self):
         # Generate ssh key if needed
-        tmp_dir = tempfile.mkdtemp(
-            dir=os.path.expandvars("$PLAINBOX_SESSION_SHARE"))
-        ssh_private_key_file = "{}/id_rsa".format(tmp_dir)
-        ssh_public_key_file = "{}/id_rsa.pub".format(tmp_dir)
+        with tempfile.TemporaryDirectory(
+                dir=os.path.expandvars("$PLAINBOX_SESSION_SHARE")) as tmp_dir:
+            ssh_private_key_file = "{}/id_rsa".format(tmp_dir)
+            ssh_public_key_file = "{}/id_rsa.pub".format(tmp_dir)
 
-        if not os.path.exists(ssh_private_key_file):
-            self.run_command("mkdir -p {}".format(tmp_dir))
-            cmd = ('ssh-keygen -f {} -t rsa -N \'\''.format(
-                ssh_private_key_file))
+            if not os.path.exists(ssh_private_key_file):
+                cmd = ('ssh-keygen -f {} -t rsa -N \'\''.format(
+                    ssh_private_key_file))
+                if not self.run_command(cmd):
+                    return False
+
+            # Create vm
+            logging.debug("Creating VM")
+            cmd = ('uvt-kvm create --ssh-public-key-file {} {} arch={}'.format(
+                ssh_public_key_file, self.name, self.arch))
+
+            logging.debug("Checking for local image")
+            try:
+                self.image.find(".img") > 0
+            except AttributeError:
+                logging.debug("No user provided image found.")
+                logging.debug(
+                    "I will attempt to sync the image from ubuntu.com")
+            else:
+                cmd = cmd + " --backing-image-file {} ".format(self.image)
+
             if not self.run_command(cmd):
                 return False
 
-        # Create vm
-        logging.debug("Creating VM")
-        cmd = ('uvt-kvm create --ssh-public-key-file {} {} arch={}'.format(
-            ssh_public_key_file, self.name, self.arch))
+            logging.debug("Wait for VM to complete creation")
+            cmd = 'uvt-kvm wait --ssh-private-key-file {} {}'.format(
+                ssh_private_key_file, self.name)
+            if not self.run_command(cmd):
+                return False
 
-        logging.debug("Checking for local image")
-        try:
-            self.image.find(".img") > 0
-        except AttributeError:
-            logging.debug("No user provided image found.")
-            logging.debug("I will attempt to sync the image from ubuntu.com")
-        else:
-            cmd = cmd + " --backing-image-file {} ".format(self.image)
+            logging.debug("List newly created vm")
+            cmd = ("uvt-kvm list")
+            if not self.run_command(cmd):
+                return False
 
-        if not self.run_command(cmd):
-            return False
+            logging.debug("Verify VM was created with ssh")
+            if not self.ssh_command(ssh_private_key_file, ""):
+                return False
 
-        logging.debug("Wait for VM to complete creation")
-        cmd = 'uvt-kvm wait --ssh-private-key-file {} {}'.format(
-            ssh_private_key_file, self.name)
-        if not self.run_command(cmd):
-            return False
-
-        logging.debug("List newly created vm")
-        cmd = ("uvt-kvm list")
-        if not self.run_command(cmd):
-            return False
-
-        logging.debug("Verify VM was created with ssh")
-        if not self.ssh_command(ssh_private_key_file, ""):
-            return False
-
-        logging.debug("Verify VM was created with ssh and run a command")
-        cmd = "lsb_release -a"
-        if not self.ssh_command(ssh_private_key_file, cmd):
-            return False
+            logging.debug("Verify VM was created with ssh and run a command")
+            cmd = "lsb_release -a"
+            if not self.ssh_command(ssh_private_key_file, cmd):
+                return False
 
         return True
 

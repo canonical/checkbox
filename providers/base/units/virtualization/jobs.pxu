@@ -5,8 +5,10 @@ user: root
 environ: UVT_IMAGE_OR_SOURCE http_proxy https_proxy
 estimated_duration: 300.0
 requires:
- package.name == 'uvtool'
- package.name == 'uvtool-libvirt'
+ executable.name == 'uvt-kvm'
+ executable.name == 'uvt-simplestreams-libvirt'
+ executable.name == 'virsh'
+ executable.name == 'ssh-keygen'
  virtualization.kvm == 'supported'
 command: virtualization.py --debug uvt
 _description:

@@ -14,9 +14,6 @@ _name: Mobile broadband tests (Manual)
 _description:
  Mobile broadband tests (Manual)
 include:
-nested_part:
-    mobilebroadband-cert-automated
-
 
 id: mobilebroadband-cert-automated
 unit: test plan

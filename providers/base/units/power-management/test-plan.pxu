@@ -1,18 +1,26 @@
-id: power-management-precheck-cert
+id: power-management-precheck-cert-full
 unit: test plan
 _name: Power Management precheck tests
 _description: Power Management precheck tests
 include:
 nested_part:
+    power-management-precheck-cert-manual
     power-management-precheck-cert-automated
 
-id: power-management-reboot-poweroff-cert
+id: power-management-reboot-poweroff-cert-full
 unit: test plan
 _name: Power Management reboot and power off tests
 _description: Power Management reboot and power off tests
 include:
 nested_part:
+    power-management-reboot-poweroff-cert-manual
     power-management-reboot-poweroff-cert-automated
+
+id: power-management-precheck-cert-manual
+unit: test plan
+_name: Power Management precheck tests (Manual)
+_description: Power Management precheck tests (Manual)
+include:
 
 id: power-management-precheck-cert-automated
 unit: test plan
@@ -23,6 +31,12 @@ include:
     power-management/tickless_idle                 certification-status=blocker
     power-management/fwts_wakealarm                certification-status=blocker
     power-management/fwts_wakealarm-log-attach
+
+id: power-management-reboot-poweroff-cert-manual
+unit: test plan
+_name: Power Management reboot and power off tests (Manual
+_description: Power Management reboot and power off tests (Manual)
+include:
 
 id: power-management-reboot-poweroff-cert-automated
 unit: test plan

@@ -14,9 +14,6 @@ _name: CPU tests (Manual)
 _description:
  CPU tests (Manual)
 include:
-nested_part:
-    cpu-cert-automated
-
 
 id: cpu-cert-automated
 unit: test plan

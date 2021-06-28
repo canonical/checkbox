@@ -13,7 +13,6 @@ _name: Networking tests (manual)
 _description: Networking tests (manual)
 include:
     networking/info_device.*                       certification-status=blocker
-    ethernet/hotplug-.*                            certification-status=blocker
 bootstrap_include:
     device
 
@@ -22,7 +21,6 @@ unit: test plan
 _name: Networking tests (automated)
 _description: Networking tests (automated)
 include:
-    ethernet/detect                                certification-status=blocker
     networking/gateway_ping                        certification-status=blocker
     networking/ntp                                 certification-status=blocker
 
@@ -31,11 +29,9 @@ unit: test plan
 _name: Networking tests (certification blockers only)
 _description: Networking tests (certification blockers only)
 include:
-    ethernet/detect                                certification-status=blocker
     networking/gateway_ping                        certification-status=blocker
     networking/info_device.*                       certification-status=blocker
     networking/ntp                                 certification-status=blocker
-    ethernet/hotplug-.*                            certification-status=blocker
 bootstrap_include:
     device
 

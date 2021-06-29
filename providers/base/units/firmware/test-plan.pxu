@@ -11,33 +11,6 @@ bootstrap_include:
     fwts
 
 
-id: firmware-uc20-fde-full
-unit: test plan
-_name: Test firmware compatibility with UC20 FDE
-_description: Test firmware compatibility with UC20 FDE
-include:
-nested_part:
-    firmware-uc20-fde-manual
-    firmware-uc20-fde-automated
-
-
-id: firmware-uc20-fde-manual
-unit: test plan
-_name: Test firmware compatibility with UC20 FDE (manual)
-_description: Test firmware compatibility with UC20 FDE (manual)
-include:
-
-
-id: firmware-uc20-fde-automated
-unit: test plan
-_name: Test firmware compatibility with UC20 FDE (automated)
-_description: Test firmware compatibility with UC20 FDE (automated)
-include:
-  firmware/tcglog-required-algs-sha256
-  firmware/tcglog-require-pe-image-digests
-  firmware/tcglog-dump-attachment
-
-
 id: iot-fwts-full
 unit: test plan
 _name: Test fwts diagnosis with iot project

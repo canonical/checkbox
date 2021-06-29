@@ -174,7 +174,7 @@
     "image-version": {{ recovery | indent(8, false) | safe }}
 {%- endif %}
 {%- if ns ~ 'info/buildstamp' in state.job_state_map and state.job_state_map[ns ~ 'info/buildstamp'].result.outcome == 'pass' %},
-{%- set buildstamp = state.job_state_map[ns ~ 'info/buildstamp'].result.io_log_as_text_attachment.rstrip().splitlines() %}
+{%- set buildstamp = state.job_state_map[ns ~ 'info/buildstamp'].result.io_log_as_text_attachment.rstrip().splitlines() or ['Unknown'] %}
     "buildstamp": {{ buildstamp[-1] | jsonify | safe }}
 {%- endif %}
 }

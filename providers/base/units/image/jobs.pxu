@@ -71,16 +71,18 @@ command:
 estimated_duration: 2.0
 flags: preserve-locale
 
-id: image/model-grade-not-dangerous
+id: image/model-grade
 category_id: image
-_summary: Check that the model grade is not missing or set to dangerous
+_summary: Check that the model grade is correctly set
 requires:
  lsb.distributor_id == "Ubuntu Core" and int(lsb.release) >= 20
 _description:
   Images with the 'dangerous' grade (the lowest of all available grades)
   results in certain security measures to be relaxed.
   Images that require strict security related implementations must
-  have the model grade set to a grade higher than 'dangerous'.
+  have the model grade set to non-dangerous grades - either the highest
+  grade of 'secured', or a grade passed to checkbox for checking via the
+  MODEL_GRADE configuration variable.
 plugin: shell
 command:
   ubuntucore_image_checks.py model-grade

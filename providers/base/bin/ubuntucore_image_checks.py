@@ -6,6 +6,7 @@
 #   Jonathan Cave <jonathan.cave@canonical.com>
 
 import io
+import os
 import sys
 
 from checkbox_support.snap_utils.snapd import Snapd
@@ -91,10 +92,14 @@ class ModelInfo():
         print('PASS')
 
     def test_model_grade(self):
+        MODEL_GRADE = os.environ.get('MODEL_GRADE', 'secured')
         if not self.grade:
             raise SystemExit('ERROR: failed to get model grade info')
         if self.grade == 'dangerous':
             raise SystemExit('ERROR: model grade must not be dangerous')
+        if self.grade != MODEL_GRADE:
+            raise SystemExit('ERROR: model grade is "{}",'.format(self.grade) +
+                             ' but "{}" is expected'.format(MODEL_GRADE))
         print('PASS')
 
 

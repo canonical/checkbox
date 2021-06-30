@@ -80,3 +80,15 @@ include:
     tpm2.0_4.1.1/.*
 mandatory_include:
     com.canonical.plainbox::manifest
+
+unit: test plan
+id: clevis-automated
+_name:
+ TPM 2.0 (Trusted Platform Module) Clevis encryption tests
+_description:
+ Clevis encryption tests
+estimated_duration: 1m
+include:
+    clevis.*
+mandatory_include:
+    com.canonical.plainbox::manifest

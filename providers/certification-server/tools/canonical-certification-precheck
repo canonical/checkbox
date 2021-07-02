@@ -30,14 +30,13 @@ while getopts "i" opt; do
 done
 
 echoname(){
-    echo -e "\n\e[1;33m============\e[m \e[1;34m$name\e[m \e[1;33m============\e[m"
+    echo -e "\n\e[1;33m============\e[m \e[1;34m$1\e[m \e[1;33m============\e[m"
 }
 
 # Some packages can be left installed but unconfigured by curtin;
 # fix this....
 Fix_APT_Issues() {
-  name="Fix APT issues"
-  echoname
+  echoname "Fix APT issues"
   sudo apt-get install -f -y
   if [ $? = "0" ] ; then
     pass
@@ -48,8 +47,7 @@ Fix_APT_Issues() {
 
 # Check architecture
 Arch(){
- name="Check architecture"
- echoname
+ echoname "Check architecture"
  echo -e " Architecture: $arch"
  eval info${i}=\"$arch\"
  if [ $arch = i386 ] ; then
@@ -61,8 +59,7 @@ Arch(){
 
 # Check for valid section headers in xdg config file
 XDG_Check(){
- name="XDG Config file Check"
- echoname
+ echoname "XDG Config file Check"
  failstatus=0
  prevstatus=0
  for section in common transport:c3 environment
@@ -104,8 +101,7 @@ XDG_Check(){
 
 # Display version of canonical-certification-server package installed
 CCS_Version(){
-name="canonical-certification-server version"
-echoname
+echoname "canonical-certification-server version"
 ccs=$(apt-cache policy canonical-certification-server|grep Installed|awk '{print $2}')
 eval info${i}=\"$ccs\"
 
@@ -141,8 +137,7 @@ configure_SID(){
 
 # Check for Secure ID config
 SID_Check(){
-name="Secure ID Check"
-echoname
+echoname "Secure ID Check"
 if grep "^secure_id =" /etc/xdg/canonical-certification.conf >/dev/null ; then
 	secureid=$(grep "^secure_id =" /etc/xdg/canonical-certification.conf|awk '{print $3}')
     echo " Secure ID is configured as '$secureid'."
@@ -185,8 +180,7 @@ fi
 }
 
 LVM_Check(){
-name="LVM Check"
-echoname
+echoname "LVM Check"
 if [ -x "$(command -v lvmdiskscan)" ]; then
     local lvmCount=$(sudo lvmdiskscan | awk '/[0-9] LVM/ {print $1}' | tr -d -c 0-9)
     local lvmList=($(sudo lvmdiskscan | awk '/] LVM/ {print $1}'))
@@ -211,8 +205,7 @@ fi
 # disk_read_performance_test.sh script are set in
 # /etc/xdg/canonical_certification.conf
 Disk_Speed_Check(){
-name="Disk Speed Check"
-echoname
+echoname "Disk Speed Check"
 local nvme_present
 local mdadm_present
 if grep "^DISK_NVME_READ_PERF =" /etc/xdg/canonical-certification.conf >/dev/null; then
@@ -238,8 +231,7 @@ fi
 
 # Check for valid filesystem
 Hard_Disks(){
-name="Hard Disk Filesystem Check"
-echoname
+echoname "Hard Disk Filesystem Check"
 local all_ok="Y"
 local disk_UUIDs=()
 local show_UUIDs="N"
@@ -294,8 +286,7 @@ fi
 
 # Check for USB storage devices
 USB_Disks(){
-name="USB Disks Check"
-echoname
+echoname "USB Disks Check"
 local all_ok="Y"
 local usb2_disks=()
 local usb3_disks=()
@@ -358,8 +349,7 @@ fi
 
 # Check local availability of UVT KVM image or source
 UVT_KVM_Image_Check(){
-name="UVT_KVM Image Check"
-echoname
+echoname "UVT_KVM Image Check"
 if grep "^UVT_IMAGE_OR_SOURCE =" /etc/xdg/canonical-certification.conf >/dev/null; then
     kvmurl=$(grep ^UVT_IMAGE_OR_SOURCE /etc/xdg/canonical-certification.conf|awk '{print $3}')
     echo $kvmurl
@@ -396,8 +386,7 @@ fi
 
 # Check local availability of KVM image or pull from Internet, which tends to be slow
 KVM_Image_Check(){
-name="KVM Image Check"
-echoname
+echoname "KVM Image Check"
 if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
     kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
     if [[ "$kvmurl" =~ .*\.img$ ]] ; then
@@ -482,8 +471,7 @@ fi
 
 # Check local availability of LXD images or pull from Internet, which tends to be slow
 LXD_Image_Check(){
-name="LXD Image Check"
-echoname
+echoname "LXD Image Check"
 
 #Check template image
 if grep "^LXD_TEMPLATE =" /etc/xdg/canonical-certification.conf >/dev/null; then
@@ -618,8 +606,7 @@ fi
 
 # Correct Ubuntu version installed (could be tricky to determine, so maybe too much effort -- or maybe just display the Ubuntu version and, if the script is interactive, ask the user to verify that it’s what was intended)
 Ubuntu_Version(){
- name="Ubuntu Version"
- echoname
+ echoname "Ubuntu Version"
  release=$(/usr/bin/lsb_release -s -d)
  eval info${i}=\"$release\"
  if [[ $release == *LTS* ]] ; then
@@ -635,8 +622,7 @@ ALL_NICS=$(cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.
 
 # All NICs are on the same network segment, to flag cabling, switch, or configuration errors (??)
 Network_Subnets(){
-name="Network Subnets"
-echoname
+echoname "Network Subnets"
 check_bcast=$(for nic in $ALL_NICS
 	do
 		ip addr show dev $nic | grep "inet "|awk '{print $4}'
@@ -674,8 +660,7 @@ fi
 
 # Check if iperf3 is available on server specified in /etc/xdg/canonical-certification.conf 
 IPERF(){
-name="Iperf"
-echoname
+echoname "Iperf"
 if [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 1 ];then
 	echo " IPERF is configured"
 	pass
@@ -745,8 +730,7 @@ fi
 
 # Check that jumbo frames are enabled on all >10Gbps NICs
 Jumbo_Frames(){
-name="Jumbo frames are enabled on fast network devices"
-echoname
+echoname "Jumbo frames are enabled on fast network devices"
 local worst_status=0
 for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`; do
     local current_speed=$(cat /sys/class/net/$nic/speed 2> /dev/null)
@@ -801,8 +785,7 @@ esac
 
 # All NICs are enabled and set to maximum speed
 NICs_enabled(){
-name="All NICs enabled and at maximum supported speed"
-echoname
+echoname "All NICs enabled and at maximum supported speed"
 local worst_status=0
 for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`; do
     local state=$(cat /sys/class/net/$nic/operstate)
@@ -850,8 +833,7 @@ esac
 
 # Installed RAM (STG says 4GiB minimum)
 Installed_Ram(){
-name="Check Installed Ram"
-echoname
+echoname "Check Installed Ram"
 mem=$(cat /proc/meminfo |grep MemTotal|awk '{print $2}')
 eval info${i}="$mem "
 if [ $mem -lt 4096000 ] ; then
@@ -865,8 +847,7 @@ fi
 
 # CPU virtualization support (VMX/SVM)
 Virtualization_Support(){
-name="Virtualization Support"
-echoname
+echoname "Virtualization Support"
 /usr/sbin/kvm-ok >/dev/null
 if [ $? = 0 ]; then
  echo " System has virtualization support"
@@ -879,8 +860,7 @@ fi
 
 # EFI-mode installation (redundant with Checkbox test for same, but maybe good to warn about this issue before running Checkbox)
 EFI_Mode(){
-name="EFI-mode installation"
-echoname
+echoname "EFI-mode installation"
 if [ -d /sys/firmware/efi ]; then
 	efi='This is an EFI Mode installation'
 	echo " $efi"
@@ -896,8 +876,7 @@ fi
 
 # Detect NVDIMMs in the system and prompt user to configure before testing
 NVDIMM_Detection(){
-name="NVDIMM Detection"
-echoname
+echoname "NVDIMM Detection"
 if [ ! -c /dev/nmem0 ]; then
     nvdimm="NVDIMMs NOT detected"
     echo " $nvdimm"
@@ -919,8 +898,7 @@ fi
 # Quick check to identify most/many GPGPUs and let user know of special steps
 # needed to test.
 GPGPU_Check() {
-name="GPGPU Identification"
-echoname
+echoname "GPGPU Identification"
 if lspci | grep "3D controller [0302]"; then
     gpu="GPGPU Detected"
     echo " $gpu"
@@ -939,8 +917,7 @@ fi
 }
 
 CPUFreq_Check() {
-name="CPUFreq Support Check"
-echoname
+echoname "CPUFreq Support Check"
 if [ -z "$(ls -A /sys/devices/system/cpu/cpufreq 2>/dev/null)" ]; then
    echo " CPUFreq directory empty or not present."
    fail

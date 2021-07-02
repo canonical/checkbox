@@ -1,0 +1,4 @@
+# The LED IDs as presented by sysfs to test
+led:0:
+led:1:
+led:2:

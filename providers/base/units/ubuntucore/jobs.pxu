@@ -65,7 +65,7 @@ _steps:
  {% endif -%}
  1. Check the current revision of core{{release}}
     $ snap list core{{release}}
- 2. Update to edge. 
+ 2. Update to edge.
     Note that system will automatically reboot in 1 minute after doing this command.
     Please execute the command in step 3 in 1 minute to stop the automatic reboot.
     $ sudo snap refresh core{{release}} --edge
@@ -98,7 +98,7 @@ _steps:
  {% endif -%}
  1. Check the current revision of core{{release}}
     $ snap list core{{release}}
- 2. Update to edge. 
+ 2. Update to edge.
     Note that system will automatically reboot in 1 minute after doing this command.
     Please execute the command in step 3 in 1 minute to stop the automatic reboot.
     $ sudo snap refresh core{{release}} --edge --ignore-validation
@@ -129,3 +129,26 @@ _verification:
 plugin: manual
 category_id: ubuntucore
 estimated_duration: 120
+
+unit: template
+template-resource: model_assertion
+template-unit: job
+plugin: manual
+id: ubuntucore/kernel-failboot-{kernel}
+_summary: Reboot with failboot kernel to verify system rollback function
+_purpose:
+ Check if system will rollback to previous(functional) kernel
+_description:
+ This test checks the kernel rollback function.
+ When booting a kernel that fails to boot, system should be able to rollback
+ to previous one.
+ To perform this test, a failboot kernel should be in edge/kernel-failboot-test
+ for testing.
+_steps:
+ 1. Refresh kernel to the failboot branch
+    sudo snap refresh {kernel} --channel=edge/kernel-failboot-test
+ 2. Wait for system reboot after kernel snap refresh
+_verification:
+ Check if system could boot, and kernel version is the one before switched to
+ "failboot" kernel
+category_id: ubuntucore

@@ -21,7 +21,7 @@ info(){
 
 
 
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check UVT_KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
+steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Fix_APT_Issues Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check UVT_KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
 
 while getopts "i" opt; do
   case $opt in
@@ -31,6 +31,19 @@ done
 
 echoname(){
     echo -e "\n\e[1;33m============\e[m \e[1;34m$name\e[m \e[1;33m============\e[m"
+}
+
+# Some packages can be left installed but unconfigured by curtin;
+# fix this....
+Fix_APT_Issues() {
+  name="Fix APT issues"
+  echoname
+  sudo apt-get install -f -y
+  if [ $? = "0" ] ; then
+    pass
+  else
+    fail
+  fi
 }
 
 # Check architecture

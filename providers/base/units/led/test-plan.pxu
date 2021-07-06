@@ -115,5 +115,7 @@ include:
     led/bluetooth
     led/serial
     led/fn
-
-
+    led/sysfs_led_brightness_on_.*
+    led/sysfs_led_brightness_off_.*
+bootstrap_include:
+    dmi

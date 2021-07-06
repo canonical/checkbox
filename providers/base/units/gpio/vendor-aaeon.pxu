@@ -1,0 +1,16 @@
+
+unit: template
+template-resource: dmi
+template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01')
+template-unit: job
+id: gpio/sysfs_loopback_pairs_{vendor}_{product}
+_summary: Test GPIO lines exposed on headers can be controlled via sysfs
+plugin: shell
+user: root
+category_id: gpio
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.gpio_loopback == 'True'
+command:
+  gpio_sysfs_loopback.py {product}

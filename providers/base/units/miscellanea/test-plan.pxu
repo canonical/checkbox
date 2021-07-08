@@ -85,7 +85,6 @@ _description:
 mandatory_include:
     miscellanea/submission-resources
     miscellanea/cpuid
-    miscellanea/efi_boot_mode                  certification-status=blocker
     miscellanea/ipmi_test                      certification-status=blocker
     miscellanea/bmc_info
     miscellanea/dmitest_server

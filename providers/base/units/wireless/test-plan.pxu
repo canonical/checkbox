@@ -44,6 +44,7 @@ include:
     wireless/wireless_connection_wpa_ax_nm_.*      certification-status=blocker
     wireless/wireless_connection_open_ax_nm_.*     certification-status=blocker
     wireless/nm_connection_restore_.*
+    wireless/check_iwlwifi_microcode_crash_.*
 
 id: after-suspend-wireless-cert-automated
 unit: test plan
@@ -62,6 +63,7 @@ include:
     after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
     after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
     after-suspend-wireless/nm_connection_restore_.*
+    after-suspend-wireless/check_iwlwifi_microcode_crash_.*
 
 id: after-suspend-manual-wireless-cert-automated
 unit: test plan
@@ -160,6 +162,7 @@ include:
     wireless/wireless_connection_wpa_ac_np_.*
     wireless/wireless_connection_wpa_bg_np_.*
     wireless/wireless_connection_wpa_n_np_.*
+    wireless/check_iwlwifi_microcode_crash_.*
 bootstrap_include:
     device
 
@@ -357,6 +360,7 @@ include:
     after-suspend-wireless/wireless_connection_wpa_ac_np_.*
     after-suspend-wireless/wireless_connection_wpa_bg_np_.*
     after-suspend-wireless/wireless_connection_wpa_n_np_.*
+    after-suspend-wireless/check_iwlwifi_microcode_crash_.*
 bootstrap_include:
     device
 

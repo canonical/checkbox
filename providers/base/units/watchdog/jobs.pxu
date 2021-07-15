@@ -9,32 +9,7 @@ command: udev_resource.py -f WATCHDOG
 id: watchdog/systemd-config
 _summary: Check if the hardware watchdog is properly configured
 template-engine: jinja2
-command:
-  inbuilt=$(systemctl show -p RuntimeWatchdogUSec | awk -F= '{print $2}')
-  external=$(systemctl is-active watchdog.service)
-  {%- if __on_ubuntucore__ %}
-  if [ "$inbuilt" == "0" ]; then
-    echo "systemd watchdog should be enabled but reset timeout: $inbuilt"
-    exit 1
-  fi
-  if [ "$external" == "active" ]; then
-    echo "found unexpected active watchdog.service unit"
-    exit 1
-  fi
-  echo "systemd watchdog enabled, reset timeout: $inbuilt"
-  echo "watchdog.service is not active"
-  {%- else %}
-  if [ "$inbuilt" != "0" ]; then
-    echo "systemd watchdog should not be enabled but reset timeout: $inbuilt"
-    exit 1
-  fi
-  if [ "$external" != "active" ]; then
-    echo "watchdog.service unit does not report as active"
-    exit 1
-  fi
-  echo "systemd watchdog disabled"
-  echo "watchdog.service active"
-  {% endif -%}
+command: watchdog_config_test.py
 category_id: com.canonical.plainbox::power-management
 flags: simple
 imports: from com.canonical.plainbox import manifest

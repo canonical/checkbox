@@ -9,6 +9,7 @@ include:
 nested_part:
     client-cert-desktop-18-04-manual
     client-cert-desktop-18-04-automated
+    client-cert-desktop-18-04-stress
 
 
 id: client-cert-desktop-18-04-manual
@@ -129,7 +130,19 @@ nested_part:
     # power off tests will also give us a clean system to start the stress run
     # with.
     power-management-reboot-poweroff-cert
-    # Automated Tests
+    tpm2.0_3.0.4
+bootstrap_include:
+    device
+    graphics_card
+
+id: client-cert-desktop-18-04-stress
+_name: Desktop Preload Certification Tests for 18.04 (Stress Tests)
+unit: test plan
+_description:
+ Includes tests that are long running device stress tests.
+include:
+nested_part:
+    submission-cert-automated
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
@@ -139,7 +152,3 @@ nested_part:
     stress-ng-cert-automated
     stress-30-reboot-poweroff-automated
     stress-pm-graph
-    tpm2.0_3.0.4
-bootstrap_include:
-    device
-    graphics_card

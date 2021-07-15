@@ -4,7 +4,7 @@ id: keys/lock-screen
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: lock_screen_watcher.py
 _description:
  PURPOSE:
@@ -24,7 +24,7 @@ id: keys/brightness
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
      This test will test the brightness key
@@ -39,7 +39,7 @@ id: keys/volume
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe02e,0xe0ae:Volume Down' '0xe030,0xe0b0:Volume Up'
 _description:
@@ -58,7 +58,7 @@ id: keys/mute
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe020,0xe0a0:Mute'
 _description:
@@ -76,7 +76,7 @@ id: keys/sleep
 estimated_duration: 90.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
      This test will test the sleep key
@@ -92,7 +92,7 @@ id: keys/battery-info
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe071,0xef1:Battery Info'
 _description:
@@ -112,7 +112,7 @@ id: keys/wireless
 estimated_duration: 90.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
      This test will test the wireless key
@@ -134,7 +134,7 @@ id: keys/media-control
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command: key_test.py -s 0xe010,0xe090:Previous 0xe024,0xe0a4:Stop 0xe019,0xe099:Next 0xe022,0xe0a2:Play
 _description:
@@ -153,7 +153,7 @@ id: keys/super
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe05b,0xe0db:Left Super Key'
 _description:
@@ -171,7 +171,7 @@ id: keys/video-out
 estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
      Validate that the External Video hot key is working as expected
@@ -187,7 +187,7 @@ id: keys/touchpad
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
      Verify touchpad hotkey toggles touchpad functionality on and off
@@ -204,7 +204,7 @@ id: keys/keyboard-backlight
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
      Verify that the keyboard backlight toggle key works properly
@@ -227,7 +227,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command:
  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --device=pci --volume=50
@@ -281,7 +281,7 @@ plugin: manual
 category_id: com.canonical.plainbox::keys
 id: keys/power-button
 estimated_duration: 30.0
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _purpose:
     This test will test the power button
 _steps:
@@ -320,7 +320,7 @@ id: keys/fn-lock
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_special_keys == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _purpose:
      This test will test the Fn Lock key
 _steps:

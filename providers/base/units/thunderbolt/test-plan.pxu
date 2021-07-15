@@ -50,15 +50,15 @@ _name: Thunderbolt tests (after suspend Manual)
 _description:
  Thunderbolt tests (after suspend Manual)
 include:
- after-suspend-manual-thunderbolt3/insert                        certification-status=blocker
- after-suspend-manual-thunderbolt3/storage-test                  certification-status=blocker
- after-suspend-manual-thunderbolt3/remove                        certification-status=blocker
+ after-suspend-thunderbolt3/insert                        certification-status=blocker
+ after-suspend-thunderbolt3/storage-test                  certification-status=blocker
+ after-suspend-thunderbolt3/remove                        certification-status=blocker
 
 id: after-suspend-thunderbolt-cert-blockers
 unit: test plan
 _name: Thunderbolt tests (after suspend - certification blockers only)
 _description: Thunderbolt tests (after suspend - certification blockers only)
 include:
- after-suspend-manual-thunderbolt3/insert                        certification-status=blocker
- after-suspend-manual-thunderbolt3/storage-test                  certification-status=blocker
- after-suspend-manual-thunderbolt3/remove                        certification-status=blocker
+ after-suspend-thunderbolt3/insert                        certification-status=blocker
+ after-suspend-thunderbolt3/storage-test                  certification-status=blocker
+ after-suspend-thunderbolt3/remove                        certification-status=blocker

@@ -25,7 +25,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 6
 _description:
  Check system can find a wireless network AP nearby
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -48,7 +48,7 @@ command:
   wifi_nmcli_test.py secured {{ interface }} "$WPA_BG_SSID" "$WPA_BG_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -71,7 +71,7 @@ command:
   wifi_nmcli_test.py open {{ interface }} "$OPEN_BG_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -94,7 +94,7 @@ command:
   wifi_nmcli_test.py secured {{ interface }} "$WPA_N_SSID" "$WPA_N_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -117,7 +117,7 @@ command:
   wifi_nmcli_test.py open {{ interface }} "$OPEN_N_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -140,7 +140,7 @@ command:
   wifi_nmcli_test.py secured {{ interface }} "$WPA_AC_SSID" "$WPA_AC_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  {%- if __on_ubuntucore__ %}
@@ -164,7 +164,7 @@ command:
   wifi_nmcli_test.py open {{ interface }} "$OPEN_AC_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  {%- if __on_ubuntucore__ %}
@@ -188,7 +188,7 @@ command:
   wifi_nmcli_test.py secured {{ interface }} "$WPA_AX_SSID" "$WPA_AX_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
  {%- if __on_ubuntucore__ %}
@@ -212,7 +212,7 @@ command:
   wifi_nmcli_test.py open {{ interface }} "$OPEN_AX_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
  {%- if __on_ubuntucore__ %}
@@ -536,7 +536,7 @@ user: root
 command:
     wifi_nmcli_backup.py save
 estimated_duration: 2.0
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device
@@ -550,16 +550,4 @@ command:
     wifi_nmcli_backup.py restore
 estimated_duration: 2.0
 depends: wireless/nm_connection_save_{interface}
-flags: preserve-locale also-after-suspend also-after-suspend-manual
-
-unit: template
-template-resource: device
-template-filter: device.driver == 'iwlwifi'
-id: wireless/check_iwlwifi_microcode_crash_{interface}
-_summary: Check there have been no iwlwifi crashes
-plugin: shell
-command: check-iwlwifi-microcode-sw-error.sh
-category_id: com.canonical.plainbox::wireless
-estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
-requires: package.name == 'systemd'

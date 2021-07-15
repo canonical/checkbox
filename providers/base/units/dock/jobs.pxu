@@ -242,7 +242,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -270,7 +270,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -325,7 +325,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -355,7 +355,7 @@ requires:
  manifest.has_thunderbolt3 == 'True'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -377,7 +377,7 @@ _verification:
 id: dock/audio-playback-headphones
 category_id: dock-audio
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 _summary: Headphones output test
 depends: dock/audio-list-devices
@@ -407,7 +407,7 @@ plugin: user-interact-verify
 category_id: dock-audio
 id: dock/audio-alsa-record-playback-external
 estimated_duration: 30.0
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _summary: External microphone plugged to the dock to record sound test
 depends: dock/audio-playback-headphones
 requires:
@@ -1114,7 +1114,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1142,7 +1142,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1170,7 +1170,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1198,7 +1198,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1959,7 +1959,7 @@ estimated_duration: 40.0
 depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: removable_storage_watcher.py insert --timeout 40 scsi
 _summary: Thunderbolt3 storage insertion detection
 _purpose:
@@ -1981,7 +1981,7 @@ user: root
 depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: removable_storage_test.py -s 268400000 scsi
 _summary: Thunderbolt3 storage test
 _description:
@@ -1995,7 +1995,7 @@ estimated_duration: 20.0
 depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: removable_storage_watcher.py remove scsi
 _summary: Thunderbolt3 storage removal detection
 _purpose:
@@ -2011,7 +2011,7 @@ _verification:
 plugin: user-interact-verify
 category_id: dock
 id: dock/thunderbolt3-daisy-chain
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 45.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'

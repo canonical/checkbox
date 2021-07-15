@@ -16,7 +16,7 @@ id: optical/read_{name}
 estimated_duration: 120.0
 user: root
 command: optical_read_test.py /dev/{name}
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
      This test will check your {product} device's ability to read CD media
@@ -165,7 +165,7 @@ requires:
  optical_drive_{name}.bd_read == "supported"
 user: root
 command: optical_read_test.py /dev/{name}
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _description:
  PURPOSE:
   This test will check your {product} device's ability to read Blu-Ray (BD) media

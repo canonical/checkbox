@@ -6,7 +6,7 @@ requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 20.0
 command: removable_storage_watcher.py insert --timeout 40 scsi
 _siblings: [
-    { "id": "after-suspend-manual-thunderbolt/insert",
+    { "id": "after-suspend-thunderbolt/insert",
       "_summary": "thunderbolt/insert after suspend",
       "depends": "suspend/suspend_advanced_auto"}
     ]
@@ -33,9 +33,9 @@ depends: thunderbolt/insert
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 scsi
 _siblings: [
-    { "id": "after-suspend-manual-thunderbolt/storage-test",
+    { "id": "after-suspend-thunderbolt/storage-test",
       "_summary": "thunderbolt/storage-test after suspend",
-      "depends": "after-suspend-manual-thunderbolt/insert"}
+      "depends": "after-suspend-thunderbolt/insert"}
     ]
 _summary: Storage test on Thunderbolt
 _description:
@@ -52,9 +52,9 @@ estimated_duration: 10.0
 command: removable_storage_watcher.py remove scsi
 _summary: Storage removal detection on Thunderbolt
 _siblings: [
-    { "id": "after-suspend-manual-thunderbolt/remove",
+    { "id": "after-suspend-thunderbolt/remove",
       "_summary": "thunderbolt/remove after suspend",
-      "depends": "after-suspend-manual-thunderbolt/insert"}
+      "depends": "after-suspend-thunderbolt/insert"}
     ]
 _description:
  PURPOSE:
@@ -72,7 +72,7 @@ category_id: com.canonical.plainbox::disk
 id: thunderbolt/daisy-chain
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt storage and display device
@@ -98,7 +98,7 @@ requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 20.0
 command: removable_storage_watcher.py insert --timeout 40 scsi
 _siblings: [
-    { "id": "after-suspend-manual-thunderbolt3/insert",
+    { "id": "after-suspend-thunderbolt3/insert",
       "_summary": "thunderbolt3/insert after suspend",
       "depends": "suspend/suspend_advanced_auto"}
     ]
@@ -125,9 +125,9 @@ depends: thunderbolt3/insert
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 scsi
 _siblings: [
-    { "id": "after-suspend-manual-thunderbolt3/storage-test",
+    { "id": "after-suspend-thunderbolt3/storage-test",
       "_summary": "thunderbolt3/storage-test after suspend",
-      "depends": "after-suspend-manual-thunderbolt3/insert"}
+      "depends": "after-suspend-thunderbolt3/insert"}
     ]
 _summary: Storage test on Thunderbolt 3
 _description:
@@ -157,9 +157,9 @@ depends: thunderbolt3/insert
 estimated_duration: 10.0
 command: removable_storage_watcher.py remove scsi
 _siblings: [
-    { "id": "after-suspend-manual-thunderbolt3/remove",
+    { "id": "after-suspend-thunderbolt3/remove",
       "_summary": "thunderbolt3/remove after suspend",
-      "depends": "after-suspend-manual-thunderbolt3/insert"}
+      "depends": "after-suspend-thunderbolt3/insert"}
     ]
 _summary: Storage removal detection on Thunderbolt 3 port
 _description:
@@ -179,7 +179,7 @@ id: thunderbolt3/daisy-chain
 user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 scsi
 _summary: Daisy-chain testing for Thunderbolt 3 storage and display device

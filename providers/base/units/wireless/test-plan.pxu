@@ -21,7 +21,7 @@ _name: Wireless tests (after suspend)
 _description: Wireless connection tests (after suspend)
 include:
 nested_part:
-    after-suspend-manual-wireless-cert-automated
+    after-suspend-wireless-cert-automated
 
 id: wireless-cert-automated
 unit: test plan
@@ -62,24 +62,6 @@ include:
     after-suspend-wireless/nm_connection_restore_.*
     after-suspend-wireless/check_iwlwifi_microcode_crash_.*
 
-id: after-suspend-manual-wireless-cert-automated
-unit: test plan
-_name: Wireless tests (after manual suspend, automated)
-_description: Wireless connection tests (after manual suspend, automated)
-bootstrap_include:
-    device
-include:
-    after-suspend-manual-wireless/nm_connection_save_.*
-    after-suspend-manual-wireless/wireless_connection_wpa_bg_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_bg_nm_.*   certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_wpa_n_nm_.*     certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
-    after-suspend-manual-wireless/nm_connection_restore_.*
-
 id: wireless-cert-blockers
 unit: test plan
 _name: Wireless tests (certification blockers only)
@@ -107,16 +89,16 @@ _description:
 bootstrap_include:
     device
 include:
-    after-suspend-manual-wireless/nm_connection_save_.*
-    after-suspend-manual-wireless/wireless_connection_wpa_bg_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_bg_nm_.*   certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_wpa_n_nm_.*     certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
-    after-suspend-manual-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
-    after-suspend-manual-wireless/nm_connection_restore_.*
+    after-suspend-wireless/nm_connection_save_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_bg_nm_.*   certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_n_nm_.*     certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
+    after-suspend-wireless/nm_connection_restore_.*
 
 id: wireless-full
 unit: test plan

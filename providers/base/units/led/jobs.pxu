@@ -218,7 +218,6 @@ _description:
  VERIFICATION:
      Did the Audio LED turn on and off or change color as expected?
 flags: also-after-suspend
-       also-after-suspend-manual
 
 plugin: manual
 category_id: led
@@ -235,7 +234,6 @@ _description:
  VERIFICATION:
      Did the Microphone Mute LED turn on and off or change color as expected?
 flags: also-after-suspend
-       also-after-suspend-manual
 
 id: led/serial
 _summary: Serial ports LED behavior
@@ -255,7 +253,7 @@ plugin: manual
 category_id: led
 id: led/fn
 estimated_duration: 30.0
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _purpose:
      This test will test Fn key LED
 _steps:

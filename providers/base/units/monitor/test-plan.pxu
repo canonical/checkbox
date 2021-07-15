@@ -16,7 +16,7 @@ _name: Monitor tests (after suspend, integrated GPU)
 _description: Monitor tests (after suspend, integrated GPU)
 include:
 nested_part:
-    after-suspend-manual-monitor-integrated-gpu-cert-manual
+    after-suspend-monitor-integrated-gpu-cert-manual
 
 id: monitor-integrated-gpu-cert-manual
 unit: test plan
@@ -45,30 +45,30 @@ include:
 bootstrap_include:
     graphics_card
 
-id: after-suspend-manual-monitor-integrated-gpu-cert-manual
+id: after-suspend-monitor-integrated-gpu-cert-manual
 unit: test plan
-_name: Monitor tests (after manual suspend, integrated GPU) (Manual)
+_name: Monitor tests (after suspend, integrated GPU) (Manual)
 _description:
- Monitor tests (after manual suspend, integrated GPU) (Manual)
+ Monitor tests (after suspend, integrated GPU) (Manual)
 include:
- after-suspend-manual-monitor/1_powersaving_.*                   certification-status=blocker
- after-suspend-manual-power-management/light_sensor
- after-suspend-manual-monitor/1_dim_brightness_.*                certification-status=blocker
- after-suspend-manual-monitor/1_displayport_.*                   certification-status=blocker
- after-suspend-manual-audio/1_playback_displayport_.*            certification-status=blocker
- after-suspend-manual-monitor/1_type-c_displayport_.*            certification-status=blocker
- after-suspend-manual-audio/1_playback_type-c_displayport_.*     certification-status=blocker
- after-suspend-manual-monitor/1_type-c_hdmi_.*                   certification-status=blocker
- after-suspend-manual-audio/1_playback_type-c_hdmi_.*            certification-status=blocker
- after-suspend-manual-monitor/1_type-c_vga_.*                    certification-status=blocker
- after-suspend-manual-monitor/1_dvi_.*                           certification-status=blocker
- after-suspend-manual-monitor/1_hdmi_.*                          certification-status=blocker
- after-suspend-manual-audio/1_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/1_thunderbolt3_.*                  certification-status=non-blocker
- after-suspend-manual-audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
- after-suspend-manual-thunderbolt3/daisy-chain                   certification-status=non-blocker
- after-suspend-manual-monitor/1_vga_.*                           certification-status=blocker
- after-suspend-manual-monitor/1_multi-head_.*                    certification-status=blocker
+ after-suspend-monitor/1_powersaving_.*                   certification-status=blocker
+ after-suspend-power-management/light_sensor
+ after-suspend-monitor/1_dim_brightness_.*                certification-status=blocker
+ after-suspend-monitor/1_displayport_.*                   certification-status=blocker
+ after-suspend-audio/1_playback_displayport_.*            certification-status=blocker
+ after-suspend-monitor/1_type-c_displayport_.*            certification-status=blocker
+ after-suspend-audio/1_playback_type-c_displayport_.*     certification-status=blocker
+ after-suspend-monitor/1_type-c_hdmi_.*                   certification-status=blocker
+ after-suspend-audio/1_playback_type-c_hdmi_.*            certification-status=blocker
+ after-suspend-monitor/1_type-c_vga_.*                    certification-status=blocker
+ after-suspend-monitor/1_dvi_.*                           certification-status=blocker
+ after-suspend-monitor/1_hdmi_.*                          certification-status=blocker
+ after-suspend-audio/1_playback_hdmi_.*                   certification-status=blocker
+ after-suspend-monitor/1_thunderbolt3_.*                  certification-status=non-blocker
+ after-suspend-audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
+ after-suspend-thunderbolt3/daisy-chain                   certification-status=non-blocker
+ after-suspend-monitor/1_vga_.*                           certification-status=blocker
+ after-suspend-monitor/1_multi-head_.*                    certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -127,33 +127,33 @@ _name: Monitor tests (after suspend, integrated GPU)
 _description: Monitor tests (after suspend, integrated GPU)
 include:
 nested_part:
-    after-suspend-manual-monitor-discrete-gpu-cert-manual
+    after-suspend-monitor-discrete-gpu-cert-manual
 
 
-id: after-suspend-manual-monitor-discrete-gpu-cert-manual
+id: after-suspend-monitor-discrete-gpu-cert-manual
 unit: test plan
-_name: Monitor tests (after manual suspend, discrete GPU) (Manual)
+_name: Monitor tests (after suspend, discrete GPU) (Manual)
 _description:
- Monitor tests (after manual suspend, discrete GPU) (Manual)
+ Monitor tests (after suspend, discrete GPU) (Manual)
 include:
- after-suspend-manual-monitor/2_powersaving_.*                   certification-status=blocker
- after-suspend-manual-power-management/light_sensor
- after-suspend-manual-monitor/2_dim_brightness_.*                certification-status=blocker
- after-suspend-manual-monitor/2_displayport_.*                   certification-status=blocker
- after-suspend-manual-audio/2_playback_displayport_.*            certification-status=blocker
- after-suspend-manual-monitor/2_type-c_displayport_.*            certification-status=blocker
- after-suspend-manual-audio/2_playback_type-c_displayport_.*     certification-status=blocker
- after-suspend-manual-monitor/2_type-c_hdmi_.*                   certification-status=blocker
- after-suspend-manual-audio/2_playback_type-c_hdmi_.*            certification-status=blocker
- after-suspend-manual-monitor/2_type-c_vga_.*                    certification-status=blocker 
- after-suspend-manual-monitor/2_dvi_.*                           certification-status=blocker
- after-suspend-manual-monitor/2_hdmi_.*                          certification-status=blocker
- after-suspend-manual-audio/2_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/2_thunderbolt3_.*                  certification-status=non-blocker
- after-suspend-manual-audio/2_playback_thunderbolt3_.*           certification-status=non-blocker
- after-suspend-manual-thunderbolt3/daisy-chain                   certification-status=non-blocker
- after-suspend-manual-monitor/2_vga_.*                           certification-status=blocker
- after-suspend-manual-monitor/2_multi-head_.*                    certification-status=blocker
+ after-suspend-monitor/2_powersaving_.*                   certification-status=blocker
+ after-suspend-power-management/light_sensor
+ after-suspend-monitor/2_dim_brightness_.*                certification-status=blocker
+ after-suspend-monitor/2_displayport_.*                   certification-status=blocker
+ after-suspend-audio/2_playback_displayport_.*            certification-status=blocker
+ after-suspend-monitor/2_type-c_displayport_.*            certification-status=blocker
+ after-suspend-audio/2_playback_type-c_displayport_.*     certification-status=blocker
+ after-suspend-monitor/2_type-c_hdmi_.*                   certification-status=blocker
+ after-suspend-audio/2_playback_type-c_hdmi_.*            certification-status=blocker
+ after-suspend-monitor/2_type-c_vga_.*                    certification-status=blocker
+ after-suspend-monitor/2_dvi_.*                           certification-status=blocker
+ after-suspend-monitor/2_hdmi_.*                          certification-status=blocker
+ after-suspend-audio/2_playback_hdmi_.*                   certification-status=blocker
+ after-suspend-monitor/2_thunderbolt3_.*                  certification-status=non-blocker
+ after-suspend-audio/2_playback_thunderbolt3_.*           certification-status=non-blocker
+ after-suspend-thunderbolt3/daisy-chain                   certification-status=non-blocker
+ after-suspend-monitor/2_vga_.*                           certification-status=blocker
+ after-suspend-monitor/2_multi-head_.*                    certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -189,25 +189,25 @@ include:
 bootstrap_include:
     graphics_card
 
-id: after-suspend-manual-monitor-integrated-gpu-cert-blockers
+id: after-suspend-monitor-integrated-gpu-cert-blockers
 unit: test plan
-_name: Monitor tests (after manual suspend, integrated GPU, certification blockers only)
-_description: Monitor tests (after manual suspend, integrated GPU, certification blockers only)
+_name: Monitor tests (after suspend, integrated GPU, certification blockers only)
+_description: Monitor tests (after suspend, integrated GPU, certification blockers only)
 include:
- after-suspend-manual-monitor/1_powersaving_.*                   certification-status=blocker
- after-suspend-manual-monitor/1_dim_brightness_.*                certification-status=blocker
- after-suspend-manual-monitor/1_displayport_.*                   certification-status=blocker
- after-suspend-manual-audio/1_playback_displayport_.*            certification-status=blocker
- after-suspend-manual-monitor/1_type-c_displayport_.*            certification-status=blocker
- after-suspend-manual-audio/1_playback_type-c_displayport_.*     certification-status=blocker
- after-suspend-manual-monitor/1_type-c_hdmi_.*                   certification-status=blocker
- after-suspend-manual-audio/1_playback_type-c_hdmi_.*            certification-status=blocker
- after-suspend-manual-monitor/1_type-c_vga_.*                    certification-status=blocker
- after-suspend-manual-monitor/1_dvi_.*                           certification-status=blocker
- after-suspend-manual-monitor/1_hdmi_.*                          certification-status=blocker
- after-suspend-manual-audio/1_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/1_vga_.*                           certification-status=blocker
- after-suspend-manual-monitor/1_multi-head_.*                    certification-status=blocker
+ after-suspend-monitor/1_powersaving_.*                   certification-status=blocker
+ after-suspend-monitor/1_dim_brightness_.*                certification-status=blocker
+ after-suspend-monitor/1_displayport_.*                   certification-status=blocker
+ after-suspend-audio/1_playback_displayport_.*            certification-status=blocker
+ after-suspend-monitor/1_type-c_displayport_.*            certification-status=blocker
+ after-suspend-audio/1_playback_type-c_displayport_.*     certification-status=blocker
+ after-suspend-monitor/1_type-c_hdmi_.*                   certification-status=blocker
+ after-suspend-audio/1_playback_type-c_hdmi_.*            certification-status=blocker
+ after-suspend-monitor/1_type-c_vga_.*                    certification-status=blocker
+ after-suspend-monitor/1_dvi_.*                           certification-status=blocker
+ after-suspend-monitor/1_hdmi_.*                          certification-status=blocker
+ after-suspend-audio/1_playback_hdmi_.*                   certification-status=blocker
+ after-suspend-monitor/1_vga_.*                           certification-status=blocker
+ after-suspend-monitor/1_multi-head_.*                    certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -233,25 +233,25 @@ include:
 bootstrap_include:
     graphics_card
 
-id: after-suspend-manual-monitor-discrete-gpu-cert-blockers
+id: after-suspend-monitor-discrete-gpu-cert-blockers
 unit: test plan
-_name: Monitor tests (after manual suspend, discrete GPU, certification blockers only)
-_description: Monitor tests (after manual suspend, discrete GPU, certification blockers only)
+_name: Monitor tests (after suspend, discrete GPU, certification blockers only)
+_description: Monitor tests (after suspend, discrete GPU, certification blockers only)
 include:
- after-suspend-manual-monitor/2_powersaving_.*                   certification-status=blocker
- after-suspend-manual-monitor/2_dim_brightness_.*                certification-status=blocker
- after-suspend-manual-monitor/2_displayport_.*                   certification-status=blocker
- after-suspend-manual-audio/2_playback_displayport_.*            certification-status=blocker
- after-suspend-manual-monitor/2_type-c_displayport_.*            certification-status=blocker
- after-suspend-manual-audio/2_playback_type-c_displayport_.*     certification-status=blocker
- after-suspend-manual-monitor/2_type-c_hdmi_.*                   certification-status=blocker
- after-suspend-manual-audio/2_playback_type-c_hdmi_.*            certification-status=blocker
- after-suspend-manual-monitor/2_type-c_vga_.*                    certification-status=blocker
- after-suspend-manual-monitor/2_dvi_.*                           certification-status=blocker
- after-suspend-manual-monitor/2_hdmi_.*                          certification-status=blocker
- after-suspend-manual-audio/2_playback_hdmi_.*                   certification-status=blocker
- after-suspend-manual-monitor/2_vga_.*                           certification-status=blocker
- after-suspend-manual-monitor/2_multi-head_.*                    certification-status=blocker
+ after-suspend-monitor/2_powersaving_.*                   certification-status=blocker
+ after-suspend-monitor/2_dim_brightness_.*                certification-status=blocker
+ after-suspend-monitor/2_displayport_.*                   certification-status=blocker
+ after-suspend-audio/2_playback_displayport_.*            certification-status=blocker
+ after-suspend-monitor/2_type-c_displayport_.*            certification-status=blocker
+ after-suspend-audio/2_playback_type-c_displayport_.*     certification-status=blocker
+ after-suspend-monitor/2_type-c_hdmi_.*                   certification-status=blocker
+ after-suspend-audio/2_playback_type-c_hdmi_.*            certification-status=blocker
+ after-suspend-monitor/2_type-c_vga_.*                    certification-status=blocker
+ after-suspend-monitor/2_dvi_.*                           certification-status=blocker
+ after-suspend-monitor/2_hdmi_.*                          certification-status=blocker
+ after-suspend-audio/2_playback_hdmi_.*                   certification-status=blocker
+ after-suspend-monitor/2_vga_.*                           certification-status=blocker
+ after-suspend-monitor/2_multi-head_.*                    certification-status=blocker
 bootstrap_include:
     graphics_card
 

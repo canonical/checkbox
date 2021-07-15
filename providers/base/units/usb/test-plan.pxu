@@ -94,15 +94,15 @@ unit: test plan
 _name: USB Type-C tests (after suspend)
 _description: USB Type-C tests (after suspend)
 include:
-    after-suspend-manual-usb-c/c-to-a-adapter/hid                   certification-status=blocker
-    after-suspend-manual-usb-c/c-to-a-adapter/insert                certification-status=blocker
-    after-suspend-manual-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
-    after-suspend-manual-usb-c/c-to-a-adapter/remove                certification-status=blocker
-    after-suspend-manual-usb-c/hid                                  certification-status=blocker
-    after-suspend-manual-usb-c/insert                               certification-status=blocker
-    after-suspend-manual-usb-c/storage-automated                    certification-status=blocker
-    after-suspend-manual-usb-c/remove                               certification-status=blocker
-    after-suspend-manual-usb-c/c-to-ethernet-adapter-insert
+    after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/insert                certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/remove                certification-status=blocker
+    after-suspend-usb-c/hid                                  certification-status=blocker
+    after-suspend-usb-c/insert                               certification-status=blocker
+    after-suspend-usb-c/storage-automated                    certification-status=blocker
+    after-suspend-usb-c/remove                               certification-status=blocker
+    after-suspend-usb-c/c-to-ethernet-adapter-insert
 
 id: usb-cert-blockers
 unit: test plan
@@ -161,14 +161,14 @@ unit: test plan
 _name: USB Type-C tests (after suspend, certification blockers only)
 _description: USB Type-C tests (after suspend, certification blockers only)
 include:
-    after-suspend-manual-usb-c/c-to-a-adapter/hid                   certification-status=blocker
-    after-suspend-manual-usb-c/c-to-a-adapter/insert                certification-status=blocker
-    after-suspend-manual-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
-    after-suspend-manual-usb-c/c-to-a-adapter/remove                certification-status=blocker
-    after-suspend-manual-usb-c/hid                                  certification-status=blocker
-    after-suspend-manual-usb-c/insert                               certification-status=blocker
-    after-suspend-manual-usb-c/storage-automated                    certification-status=blocker
-    after-suspend-manual-usb-c/remove                               certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/insert                certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/remove                certification-status=blocker
+    after-suspend-usb-c/hid                                  certification-status=blocker
+    after-suspend-usb-c/insert                               certification-status=blocker
+    after-suspend-usb-c/storage-automated                    certification-status=blocker
+    after-suspend-usb-c/remove                               certification-status=blocker
 
 id: usb-preinserted
 unit: test plan

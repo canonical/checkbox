@@ -52,16 +52,16 @@ unit: test plan
 _name: LED tests (after suspend)
 _description: LED tests (after suspend)
 include:
-    after-suspend-manual-camera/led_.*          certification-status=blocker
+    after-suspend-camera/led_.*                 certification-status=blocker
     suspend/led_after_suspend/caps-lock         certification-status=blocker
     suspend/led_after_suspend/numeric-keypad    certification-status=blocker
     suspend/led_after_suspend/power             certification-status=blocker
-    after-suspend-manual-led/mute               certification-status=blocker
-    after-suspend-manual-led/microphone-mute    certification-status=blocker
+    after-suspend-led/mute                      certification-status=blocker
+    after-suspend-led/microphone-mute           certification-status=blocker
     suspend/led_after_suspend/bluetooth         certification-status=non-blocker
     suspend/led_after_suspend/wlan              certification-status=non-blocker
     suspend/led_after_suspend/wlan-disabled     certification-status=non-blocker
-    after-suspend-manual-led/fn                 certification-status=non-blocker
+    after-suspend-led/fn                        certification-status=non-blocker
 bootstrap_include:
     device
 
@@ -86,12 +86,12 @@ unit: test plan
 _name: LED tests (after suspend, certification blockers only)
 _description: LED tests (after suspend, certification blockers only)
 include:
-    after-suspend-manual-camera/led_.*          certification-status=blocker
+    after-suspend-camera/led_.*                 certification-status=blocker
     suspend/led_after_suspend/caps-lock         certification-status=blocker
     suspend/led_after_suspend/numeric-keypad    certification-status=blocker
     suspend/led_after_suspend/power             certification-status=blocker
-    after-suspend-manual-led/mute               certification-status=blocker
-    after-suspend-manual-led/microphone-mute    certification-status=blocker
+    after-suspend-led/mute                      certification-status=blocker
+    after-suspend-led/microphone-mute           certification-status=blocker
 bootstrap_include:
     device
 

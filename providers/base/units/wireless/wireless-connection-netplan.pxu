@@ -16,7 +16,7 @@ user: root
 environ: LD_LIBRARY_PATH OPEN_AX_SSID NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
@@ -40,7 +40,7 @@ user: root
 environ: LD_LIBRARY_PATH OPEN_AC_SSID NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
@@ -65,7 +65,7 @@ user: root
 environ: LD_LIBRARY_PATH OPEN_BG_SSID NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
@@ -88,7 +88,7 @@ user: root
 environ: LD_LIBRARY_PATH OPEN_N_SSID NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
@@ -111,7 +111,7 @@ user: root
 environ: LD_LIBRARY_PATH WPA_AX_SSID WPA_AX_PSK NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
@@ -135,7 +135,7 @@ user: root
 environ: LD_LIBRARY_PATH WPA_AC_SSID WPA_AC_PSK NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
@@ -159,7 +159,7 @@ user: root
 environ: LD_LIBRARY_PATH WPA_BG_SSID WPA_BG_PSK NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
@@ -182,6 +182,6 @@ user: root
 environ: LD_LIBRARY_PATH WPA_N_SSID WPA_N_PSK NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 15
-flags: preserve-locale also-after-suspend also-after-suspend-manual
+flags: preserve-locale also-after-suspend
 requires:
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'

@@ -109,7 +109,7 @@ _name: Manual Bluetooth tests
 _description: Manual QA tests for Bluetooth
 estimated_duration: 5m
 include:
-    after-suspend-manual-bluetooth/keyboard-manual
+    after-suspend-bluetooth/keyboard-manual
 
 id: after-suspend-bluez-automated
 unit: test plan

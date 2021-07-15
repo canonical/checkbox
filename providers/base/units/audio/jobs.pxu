@@ -70,7 +70,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
@@ -99,7 +99,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
@@ -129,7 +129,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
@@ -159,7 +159,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
@@ -190,7 +190,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50
@@ -221,7 +221,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
  audio_settings.py set --verbose --device=hdmi --volume=50

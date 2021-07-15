@@ -598,4 +598,4 @@ command:
  done
 environ: WPA_N_SSID WPA_N_PSK
 category_id: com.canonical.plainbox::stress
-flags: preserve-locale also-after-suspend-manual
+flags: preserve-locale also-after-suspend

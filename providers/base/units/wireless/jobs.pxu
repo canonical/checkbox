@@ -551,3 +551,15 @@ command:
 estimated_duration: 2.0
 depends: wireless/nm_connection_save_{interface}
 flags: preserve-locale also-after-suspend also-after-suspend-manual
+
+unit: template
+template-resource: device
+template-filter: device.driver == 'iwlwifi'
+id: wireless/check_iwlwifi_microcode_crash_{interface}
+_summary: Check there have been no iwlwifi crashes
+plugin: shell
+command: check-iwlwifi-microcode-sw-error.sh
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires: package.name == 'systemd'

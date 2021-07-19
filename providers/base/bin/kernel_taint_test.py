@@ -153,14 +153,13 @@ def report_failures(taints):
             else:
                 print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
                 count += 1
-    if taints == 0:
-        print("No kernel taints detected.")
-
-    if taints and count == 0:
-        # we found only taint 11
-        return count
+    if count == 0:
+        # else case below contains expected issue in case 0 / 11 / 12
+        if not taints:
+            print("No kernel taints detected.")
+        return 0
     else:
-        return taints
+        return 1
 
 
 def main():

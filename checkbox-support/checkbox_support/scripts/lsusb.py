@@ -31,7 +31,7 @@ def main():
     args = parser.parse_args()
 
     usb_ids = sysfs_usb.UsbIds(args.file)
-    for dev in sysfs_usb.get_usb_devices(usb_ids):
+    for dev in sysfs_usb.get_root_devices(usb_ids):
         if args.short:
             print(dev.to_short_str())
         elif args.long:

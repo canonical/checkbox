@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2020 Canonical Ltd.
+# Copyright 2020-2021 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -160,6 +160,7 @@ class UsbInterface(dict):
     def __init__(self, sysfs_path, usb_ids, parent):
         super().__init__(self)
         self.sysfs_path = sysfs_path
+        self.address = os.path.basename(self.sysfs_path)
         self._parent = parent
         self._level = 0
         while parent:
@@ -186,10 +187,13 @@ class UsbInterface(dict):
             '{bInterfaceSubClass:02x}:{bInterfaceProtocol:02x} '
             '{bNumEndpoints}EPs ({protocol_name}) {driver} {name}'
         )
-        padded_name = ' ' * self._level + os.path.basename(self.sysfs_path)
+        padded_name = ' ' * self._level + self.address
         half_done = partial(template.format, padded_name=padded_name)
         line = half_done(**self)
         return line
+
+    def __hash__(self):
+        return hash(frozenset(self.items()))
 
 
 class UsbDevice(dict):
@@ -202,6 +206,7 @@ class UsbDevice(dict):
     def __init__(self, sysfs_path, usb_ids, parent=None):
         super().__init__(self)
         self.sysfs_path = sysfs_path
+        self.address = os.path.basename(self.sysfs_path)
         self.parent = parent
         self._level = 0
         while parent:
@@ -265,7 +270,7 @@ class UsbDevice(dict):
             '{bDeviceClass:02x} {version} {speed:3}MBit/s {bMaxPower} '
             '{bNumInterfaces}IFs ({name})'
         )
-        padded_name = ' ' * self._level + os.path.basename(self.sysfs_path)
+        padded_name = ' ' * self._level + self.address
         half_done = partial(template.format, padded_name=padded_name)
         line = half_done(**self)
         children_strs = [c.to_str() for c in self.children]
@@ -290,8 +295,15 @@ class UsbDevice(dict):
         return '\n'.join([template.format(**self)] + [
             c.to_legacy_str() for c in self.children])
 
+    def get_all_devices(self):
+        """Return a flat list of USB devices (this one + children)."""
+        return [self] + self.children + self.interfaces
 
-def get_usb_devices(usb_ids=None):
+    def __hash__(self):
+        return hash(frozenset(self.items()))
+
+
+def get_root_devices(usb_ids=None):
     """
     Get dict-like objects representing USB devices.
 
@@ -301,3 +313,11 @@ def get_usb_devices(usb_ids=None):
     usb_ids = usb_ids or UsbIds()
     for node in glob.glob("/sys/bus/usb/devices/usb*"):
         yield UsbDevice(node, usb_ids)
+
+
+def get_all_usb_devices():
+    """Get all USB devices available in the system."""
+    roots = get_root_devices()
+    for root in roots:
+        for dev in root.get_all_devices():
+            yield dev

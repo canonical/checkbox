@@ -44,10 +44,10 @@ def find_taints(taint_file):
         f = open(taint_file, "r")
         taints = int(f.read())
     except OSError:
-        taints = -1
-        print("Kernel taint file ({}) not found!".format(taint_file))
+        raise SystemExit(
+            "Kernel taint file ({}) not found!".format(taint_file))
     print("Kernel taint value is {}".format(taints))
-    return(taints)
+    return taints
 
 
 def get_modules():
@@ -57,7 +57,7 @@ def get_modules():
     for line in lsmod_output:
         if line and 'Module' not in line:
             modules.append(line.split()[0])
-    return(modules)
+    return modules
 
 
 def process_out_of_tree_modules(modules):
@@ -68,7 +68,7 @@ def process_out_of_tree_modules(modules):
         if not check_output(shlex.split(cmd),
                             universal_newlines=True):
             mod_list.append(mod)
-    return(mod_list)
+    return mod_list
 
 
 def process_GPL_incompatible_modules(modules):
@@ -80,7 +80,7 @@ def process_GPL_incompatible_modules(modules):
                                universal_newlines=True).strip()
         if "GPL" not in license and "MIT" not in license:
             mod_list.append((mod, license))
-    return(mod_list)
+    return mod_list
 
 
 def remove_ignored_modules(modules):
@@ -98,11 +98,18 @@ def remove_ignored_modules(modules):
             modules.remove(ignore_mod)
         except ValueError:
             pass
-    return(modules)
+    return modules
 
 
-def report_failures(taints):
-    """Report the failure code and its meaning(s)."""
+def main():
+    """Print out the tainted state code and its meaning(s)."""
+    parser = ArgumentParser()
+    parser.add_argument('--taint-file',
+                        default="/proc/sys/kernel/tainted",
+                        help='The file that holds the taint information')
+    args = parser.parse_args()
+    taints = find_taints(args.taint_file)
+
     # Below meaning strings are taken from
     # https://www.kernel.org/doc/html/latest/admin-guide/tainted-kernels.html
     taint_meanings = ["proprietary module was loaded",
@@ -151,8 +158,8 @@ def report_failures(taints):
                     print("*   Out of Tree modules found, "
                           "but they are expected and OK")
             else:
-                print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
                 count += 1
+
     if count == 0:
         # else case below contains expected issue in case 0 / 11 / 12
         if not taints:
@@ -160,19 +167,6 @@ def report_failures(taints):
         return 0
     else:
         return 1
-
-
-def main():
-    parser = ArgumentParser()
-    parser.add_argument('--taint-file',
-                        default="/proc/sys/kernel/tainted",
-                        help='The file that holds the taint information')
-    args = parser.parse_args()
-    taints = find_taints(args.taint_file)
-    if taints < 0:
-        return taints
-
-    return(report_failures(taints))
 
 
 if __name__ == '__main__':

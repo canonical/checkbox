@@ -17,10 +17,13 @@ _description:
  Configure docker compose command and docker inspect json fields
 command:
  echo arch: $SNAP_ARCH
- if [[ -z $SNAP ]]; then
-     echo 'compose_command: docker-compose'
+ if command -v docker.compose > /dev/null ; then
+    echo 'compose_command: docker.compose'
+    #A readable&writable path for docker snap
+    echo 'root_dir: /var/snap/docker/common'
  else
-     echo 'compose_command: docker.compose'
+    echo 'compose_command: docker-compose'
+    echo 'root_dir: /var/lib/docker'
  fi
  #avoid escape '{}' in docker inspect
  echo 'path: {{.Path}}'
@@ -36,7 +39,7 @@ flags: preserve-locale
 id: docker/version
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command: docker version
 _summary: Display docker version information
 flags: simple preserve-cwd
@@ -44,7 +47,7 @@ flags: simple preserve-cwd
 id: docker/info
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command: docker info
 _summary: Display system-wide information about docker
 flags: simple preserve-cwd
@@ -55,7 +58,7 @@ template-unit: job
 id: docker/run_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command: docker run --rm ubuntu echo 'Hello world'
 _summary: Download and run ubuntu container
 flags: simple preserve-cwd
@@ -66,7 +69,7 @@ template-unit: job
 id: docker/interative_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command: docker run --rm -i ubuntu bash <<< "echo 'Hello world'"
 _summary: Test an interactive shell in Ubuntu container
 flags: simple preserve-cwd
@@ -77,7 +80,7 @@ template-unit: job
 id: docker/diff_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run -dit ubuntu mkdir /home/test)
@@ -92,13 +95,12 @@ template-unit: job
 id: docker/copy_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run -dit ubuntu touch /home/file)
  docker diff $ID | grep 'A /home/file'
- #A readable&writable path for docker snap
- file_path=/var/snap/docker/common/
+ file_path={root_dir}/
  docker cp $ID:/home/file $file_path
  docker cp $file_path/file $ID:/home/new_file
  docker diff $ID | grep 'A /home/new_file'
@@ -112,7 +114,7 @@ template-unit: job
 id: docker/inspect_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run -dit ubuntu bash)
@@ -130,7 +132,7 @@ template-unit: job
 id: docker/kill_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run -dit --name test ubuntu bash)
@@ -147,7 +149,7 @@ template-unit: job
 id: docker/start-stop_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run -d ubuntu bash -c "trap 'exit 0' SIGTERM ; while true; do :; done")
@@ -166,7 +168,7 @@ template-unit: job
 id: docker/build-single_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  dockerfile=$(cat <<EOF
@@ -188,12 +190,11 @@ template-unit: job
 id: docker/export-and-import_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run -dit ubuntu bash)
- #A readable&writable path for docker snap
- tarball_file=/var/snap/docker/common/ubuntu.tar
+ tarball_file={root_dir}/ubuntu.tar
  docker export $ID > $tarball_file
  cat $tarball_file | sudo docker import - plainbox/ubuntu:v1.0
  docker images -a | grep 'plainbox/ubuntu'
@@ -208,7 +209,7 @@ template-unit: job
 id: docker/commit_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run -dit --name test ubuntu mkdir /home/test)
@@ -227,12 +228,12 @@ template-unit: job
 id: docker/save-and-load_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  docker pull ubuntu
- docker save ubuntu > /var/snap/docker/common/ubuntu.tar
- docker load < /var/snap/docker/common/ubuntu.tar
+ docker save ubuntu > {root_dir}/ubuntu.tar
+ docker load < {root_dir}/ubuntu.tar
  docker images -a | grep ubuntu
 _summary: Test docker save and load a docker image
 flags: simple preserve-cwd
@@ -243,12 +244,11 @@ template-unit: job
 id: docker/compose-single_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
- #A readable&writable path for docker snap
- compose_file=/var/snap/docker/common/docker-compose.yaml
+ compose_file={root_dir}/docker-compose.yaml
  echo "test:
    image: ubuntu
    command: bash
@@ -268,7 +268,7 @@ template-unit: job
 id: docker/compose-and-basic_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
@@ -308,12 +308,11 @@ id: docker/deploy-registry_{arch}
 user: root
 category_id: docker
 requires:
- snap.name == 'docker'
+ executable.name == 'docker'
  executable.name == 'htpasswd'
 command:
  set -e
- #A readable&writable path for docker snap
- auth_folder=/var/snap/docker/common/auth
+ auth_folder={root_dir}/auth
  mkdir -p $auth_folder
  htpasswd -Bbn user passwd > $auth_folder/htpasswd
  docker run -d -p 5000:5000 --restart=always --name registry \
@@ -338,7 +337,7 @@ template-unit: job
 id: docker/restart-on-failure_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  dockerfile=$(cat <<EOF
@@ -365,7 +364,7 @@ template-unit: job
 id: docker/restart-always_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  dockerfile=$(cat <<EOF
@@ -390,7 +389,7 @@ template-unit: job
 id: docker/update_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  set -e
  ID=$(docker run --restart always -dit ubuntu bash)
@@ -409,12 +408,11 @@ template-unit: job
 id: docker/compose-restart_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
  set -e
- #A readable&writable path for docker snap
- compose_file=/var/snap/docker/common/docker-compose.yaml
+ compose_file={root_dir}/docker-compose.yaml
  echo "test:
    image: ubuntu
    command: sleep 1
@@ -436,12 +434,11 @@ template-unit: job
 id: docker/edgex_compose_{arch}
 user: root
 category_id: docker
-requires: snap.name == 'docker'
+requires: executable.name == 'docker'
 command:
   export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
   set -ex
-  #A readable&writable path for docker snap
-  compose_file=/var/snap/docker/common/docker-compose-california-0.6.1.yml
+  compose_file={root_dir}/docker-compose-california-0.6.1.yml
   wget https://raw.githubusercontent.com/edgexfoundry/developer-scripts/04c933f2c03bb9b212e1035505fed0a386f4d43e/compose-files/docker-compose-california-0.6.1.yml -O $compose_file
   for svc in volume config-seed mongo logging notifications metadata data command scheduler export-client export-distro rulesengine device-virtual; do 
     {compose_command} --file $compose_file up -d $svc

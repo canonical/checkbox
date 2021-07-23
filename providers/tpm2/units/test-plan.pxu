@@ -92,3 +92,33 @@ include:
     clevis.*
 mandatory_include:
     com.canonical.plainbox::manifest
+
+
+unit: test plan
+id: tpm-cert-full
+_name: TPM tests
+_description:
+  TPM tests that should be run as part of Certification. This could be a
+  collection of tests using a variety of tools
+include:
+nested_part:
+    tpm-cert-manual
+    tpm-cert-automated
+
+unit: test plan
+id: tpm-cert-manual
+_name: TPM tests (Manual)
+_description:
+  TPM tests that should be run as part of Certification. This could be a
+  collection of tests using a variety of tools
+include:
+
+unit: test plan
+id: tpm-cert-automated
+_name: TPM tests (Automated)
+_description:
+  TPM tests that should be run as part of Certification. This could be a
+  collection of tests using a variety of tools
+include:
+nested_part:
+    tpm2.0_4.1.1-automated

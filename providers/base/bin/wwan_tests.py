@@ -282,7 +282,7 @@ class ThreeGppConnection():
             pass
         _destroy_3gpp_connection()
         _wwan_radio_off()
-        return ret_code
+        sys.exit(ret_code)
 
 
 class CountModems():
@@ -334,7 +334,7 @@ class SimPresent():
             mm = MMDbus()
         mm_id = mm.equipment_id_to_mm_id(args.hw_id)
         if not mm.sim_present(mm_id):
-            return 1
+            sys.exit(1)
 
 
 class SimInfo():

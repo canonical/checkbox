@@ -73,7 +73,7 @@ class FreeIpmiTest:
         # min. ipmi version to pass
         self._ipmi_ver = 2.0
         # subprocess call timeout (s)
-        self._subproc_timeout = 10
+        self._subproc_timeout = 15
         # raised subproc exceptions to handle
         # (decoupled from self._process_exc())
         self._sub_process_excs = (

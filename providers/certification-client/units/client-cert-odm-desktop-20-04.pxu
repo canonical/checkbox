@@ -111,7 +111,7 @@ nested_part:
     cold-boot-stress-test
     suspend-stress-test
     stress-ng-cert-automated
-    tpm2.0_4.1.1-automated
+    tpm-cert-automated
 
 id: client-cert-odm-desktop-20-04
 _name: DONT USE - desktop-20-04 - placeholder to establish that total number of tests has not changed

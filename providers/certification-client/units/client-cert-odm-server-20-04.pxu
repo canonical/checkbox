@@ -124,7 +124,7 @@ nested_part:
     snappy-snap-automated
     wireless-automated
     wireless-wifi-master-mode-auto
-    tpm2.0_4.1.1-automated
+    tpm-cert-automated
     suspend-tp
     after-suspend-bluez-automated
     after-suspend-ethernet-automated

@@ -120,5 +120,7 @@ _description:
   TPM tests that should be run as part of Certification. This could be a
   collection of tests using a variety of tools
 include:
+    tpm2/fwts-event-log-dump
 nested_part:
     tpm2.0_4.1.1-automated
+    clevis-automated

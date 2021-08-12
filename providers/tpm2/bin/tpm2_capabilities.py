@@ -2,6 +2,7 @@
 
 import yaml
 import subprocess
+import sys
 
 
 # From TCG Algorithm Registry: Definition of TPM2_ALG_ID Constants
@@ -186,5 +187,19 @@ for pcr in pcrs_list['selected-pcrs']:
         if set(range(24)).issubset(set(pcr_ids)):
             TPM2_CAP['pcr_banks'].add(pcr_bank)
 
-for k, v in TPM2_CAP.items():
-    print("{}: {}".format(k, ' '.join(sorted(v))))
+if len(sys.argv) == 1:
+    # with no args print as resource unit
+    for k, v in TPM2_CAP.items():
+        print("{}: {}".format(k, ' '.join(sorted(v))))
+    sys.exit(0)
+
+if len(sys.argv) != 3:
+    raise SystemExit('ERROR: use [capability] [supported-values] to test')
+
+try:
+    if sys.argv[2] in TPM2_CAP[sys.argv[1]]:
+        print('{} supports {}'.format(*sys.argv[-2:]))
+    else:
+        raise SystemExit('{} does not support {}'.format(*sys.argv[-2:]))
+except KeyError:
+    raise SystemExit('Unknown capability "{}"'.format(sys.argv[1]))

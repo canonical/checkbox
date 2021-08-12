@@ -27,17 +27,23 @@ _summary: clevis encrypt/decrypt precheck
 flags: simple
 command: true
 
-id: clevis-encrypt-tpm2/rsa
+id: clevis-encrypt-tpm2/detect-rsa-capabilities
 category_id: tpm2
 plugin: shell
 depends: clevis-encrypt-tpm2/precheck
-requires:
- 'sha256' in tpm2_cap.hash
- 'sha256' in tpm2_cap.pcr_banks
- 'rsa' in tpm2_cap.assymetric
+user: root
+_summary: Ensure the TPM has required capabilities for clevis RSA test
+command:
+  tpm2_capabilities.py hash sha256 && \
+  tpm2_capabilities.py pcr_banks sha256 && \
+  tpm2_capabilities.py assymetric rsa
+
+id: clevis-encrypt-tpm2/rsa
+category_id: tpm2
+plugin: shell
+depends: clevis-encrypt-tpm2/detect-rsa-capabilities
 estimated_duration: 30
 _summary: clevis encrypt/decrypt key rsa
-flags: simple fail-on-resource
 user: root
 command:
  echo "+ Generate a random string"
@@ -47,17 +53,23 @@ command:
  echo "+ Compare with the original string"
  [[ $result == $rand ]]
 
-id: clevis-encrypt-tpm2/ecc
+id: clevis-encrypt-tpm2/detect-ecc-capabilities
 category_id: tpm2
 plugin: shell
 depends: clevis-encrypt-tpm2/precheck
-requires:
- 'sha256' in tpm2_cap.hash
- 'sha256' in tpm2_cap.pcr_banks
- 'ecc' in tpm2_cap.assymetric
+user: root
+_summary: Ensure the TPM has required capabilities for clevis ECC test
+command:
+  tpm2_capabilities.py hash sha256 && \
+  tpm2_capabilities.py pcr_banks sha256 && \
+  tpm2_capabilities.py assymetric ecc
+
+id: clevis-encrypt-tpm2/ecc
+category_id: tpm2
+plugin: shell
+depends: clevis-encrypt-tpm2/detect-ecc-capabilities
 estimated_duration: 30
 _summary: clevis encrypt/decrypt key ecc
-flags: simple fail-on-resource
 user: root
 command:
  echo "+ Generate a random string"

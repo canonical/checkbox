@@ -263,7 +263,7 @@ _summary: Automated test of suspend function
 _description:
  This is the automated version of suspend/suspend_advanced.
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE RTC_DEVICE_FILE
 command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"

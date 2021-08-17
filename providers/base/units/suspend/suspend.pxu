@@ -274,7 +274,11 @@ command:
      set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
  else
      echo "Calling rtcwake"
-     rtcwake -m mem -s 30
+     if [ -z "$RTC_DEVICE_FILE" ]; then
+         rtcwake -m mem -s 30
+     else
+         rtcwake -d $RTC_DEVICE_FILE -m mem -s 30
+     fi
  fi
 estimated_duration: 90.000
 

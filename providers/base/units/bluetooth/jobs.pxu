@@ -4,7 +4,7 @@ category_id: com.canonical.plainbox::bluetooth
 _summary: Make sure at least one bluetooth device is detected
 plugin: shell
 command:
-  bt_list_adapters.py
+  bt_list_adapters.py && udev_resource.py -f BLUETOOTH
 estimated_duration: 2s
 flags: preserve-locale
 requires: manifest.has_bt_adapter

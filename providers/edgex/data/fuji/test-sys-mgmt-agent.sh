@@ -66,14 +66,14 @@ fi
 
 # issue a bogus start command to the SMA to check that it returns an error message
 set +e
-fail_response=edgexfoundry.curl \
+fail_response=$(edgexfoundry.curl \
     --fail \
     --header "Content-Type: application/json" \
     --request POST \
     --data '{"action":"start","services":["NOT-A-REAL-SERVICE"]}' \
-    localhost:48090/api/v1/operation | edgexfoundry.jq '.[0].Success'
+    localhost:48090/api/v1/operation | edgexfoundry.jq '.[0].Success')
 
-if [ "$fail_response" == "false" ]; then
+if [ "$fail_response" == "true" ]; then
     echo
     echo "SMA erronously reports starting a non-existent service"
     snap_remove

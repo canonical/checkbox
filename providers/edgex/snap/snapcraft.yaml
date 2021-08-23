@@ -33,6 +33,9 @@ apps:
   hanoi:
     command: bin/hanoi
     plugs: *standard
+  ireland:
+    command: bin/ireland
+    plugs: *standard
   test-runner:
     command: bin/test-runner
     plugs: *standard

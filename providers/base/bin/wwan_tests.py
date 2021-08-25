@@ -43,6 +43,17 @@ MMModemCapability = {
     'MM_MODEM_CAPABILITY_ANY': 0xFFFFFFFF}
 
 
+def print_head(txt):
+    print("##", txt, flush=True)
+
+
+def print_cmd(cmd):
+    if isinstance(cmd, list):
+        print("+", *cmd, sep=' ', flush=True)
+    else:
+        print("+", cmd, flush=True)
+
+
 class MMDbus():
     def __init__(self):
         self._bus = dbus.SystemBus()
@@ -229,33 +240,55 @@ class MMCLI():
 
 
 def _create_3gpp_connection(wwan_if, apn):
-    subprocess.check_call(["nmcli", "c", "add",
-                           "con-name", GSM_CON_ID,
-                           "type", "gsm",
-                           "ifname", wwan_if,
-                           "apn", apn])
+    print_head("Creating 3GPP Connection")
+    cmd = ["nmcli", "c", "add",
+           "con-name", GSM_CON_ID,
+           "type", "gsm",
+           "ifname", wwan_if,
+           "apn", apn]
+    print_cmd(cmd)
+    subprocess.check_call(cmd)
+    print()
 
 
 def _wwan_radio_on():
-    subprocess.check_call(["nmcli", "r", "wwan", "on"])
+    print_head("Turn radio on")
+    cmd = ["nmcli", "r", "wwan", "on"]
+    print_cmd(cmd)
+    subprocess.check_call(cmd)
+    print()
 
 
 def _wwan_radio_off():
-    subprocess.check_call(["nmcli", "r", "wwan", "off"])
+    print_head("Turn radio off")
+    cmd = ["nmcli", "r", "wwan", "off"]
+    print_cmd(cmd)
+    subprocess.check_call(cmd)
+    print()
 
 
 def _destroy_3gpp_connection():
-    subprocess.check_call(["nmcli", "c",
-                           "delete", GSM_CON_ID])
+    print_head("Destroy 3GPP Connection")
+    cmd = ["nmcli", "c", "delete", GSM_CON_ID]
+    print_cmd(cmd)
+    subprocess.check_call(cmd)
+    print()
 
 
 def _ping_test(if_name):
+    print_head("Perfrom ping test")
     ret_code = 1
-    route = subprocess.call(["ip", "route", "add", TEST_IP, "dev", if_name])
+    cmd = ["ip", "route", "add", TEST_IP, "dev", if_name]
+    print_cmd(cmd)
+    route = subprocess.call(cmd)
     if route == 0:
-        ret_code = subprocess.check_call(["ping", "-c", "4",
-                                          "-I", if_name, TEST_IP])
-        subprocess.call(["ip", "route", "del", TEST_IP, "dev", if_name])
+        cmd = ["ping", "-c", "4", "-I", if_name, TEST_IP]
+        print_cmd(cmd)
+        ret_code = subprocess.check_call(cmd)
+        cmd = ["ip", "route", "del", TEST_IP, "dev", if_name]
+        print_cmd(cmd)
+        subprocess.call(cmd)
+    print()
     return ret_code
 
 

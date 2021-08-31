@@ -85,14 +85,15 @@ def process_GPL_incompatible_modules(modules):
 
 def remove_ignored_modules(modules):
     # Remove modules we know will fail, but accept
-    ignored_modules = ['zfs',
-                       'zunicode',
-                       'zlua',
+    ignored_modules = ['icp',
+                       'spl',
                        'zavl',
-                       'icp',
                        'zcommon',
+                       'zfs',
+                       'zlua',
                        'znvpair',
-                       'spl']
+                       'zunicode',
+                       'zzstd']
     for ignore_mod in ignored_modules:
         try:
             modules.remove(ignore_mod)

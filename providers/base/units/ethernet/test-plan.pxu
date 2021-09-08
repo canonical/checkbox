@@ -1,3 +1,38 @@
+id: ethernet-cert-full
+unit: test plan
+_name: Ethernet tests
+_description: Ethernet tests
+include:
+nested_part:
+    ethernet-cert-automated
+    ethernet-cert-manual
+
+id: ethernet-cert-manual
+unit: test plan
+_name: Ethernet tests (manual)
+_description: Ethernet tests (manual)
+include:
+    ethernet/hotplug-.*                            certification-status=blocker
+bootstrap_include:
+    device
+
+id: ethernet-cert-automated
+unit: test plan
+_name: Ethernet tests (automated)
+_description: Ethernet tests (automated)
+include:
+    ethernet/detect                                certification-status=blocker
+
+id: ethernet-cert-blockers
+unit: test plan
+_name: Ethernet tests (certification blockers only)
+_description: Ethernet tests (certification blockers only)
+include:
+    ethernet/detect                                certification-status=blocker
+    ethernet/hotplug-.*                            certification-status=blocker
+bootstrap_include:
+    device
+
 id: ethernet-full
 unit: test plan
 _name: QA tests for ethernet

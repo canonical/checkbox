@@ -15,7 +15,6 @@ _description:
  Miscellaneous client tests (fwts, dmi, oops) (Manual)
 include:
 nested_part:
-    misc-client-cert-automated
 
 
 id: misc-client-cert-automated

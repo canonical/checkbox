@@ -14,9 +14,6 @@ _name: Wireless tests (Manual)
 _description:
  Wireless connection tests (Manual)
 include:
-nested_part:
-    wireless-cert-automated
-
 
 id: after-suspend-wireless-cert-full
 unit: test plan

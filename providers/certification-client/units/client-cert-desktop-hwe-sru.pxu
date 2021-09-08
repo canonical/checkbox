@@ -1,4 +1,4 @@
-id: client-hwe-sru
+id: client-cert-desktop-hwe-sru
 _name: HWE SRU
 unit: test plan
 include:

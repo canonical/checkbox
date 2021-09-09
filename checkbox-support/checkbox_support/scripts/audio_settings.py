@@ -39,10 +39,11 @@ DIRECTIONS = {"source": "input", "sink": "output"}
 default_pattern = "(?<=Default %s: ).*"
 index_regex = re.compile("(?<=Sink Input #)[0-9]*")
 muted_regex = re.compile("(?<=Mute: ).*")
-volume_regex = re.compile("Volume: (?:0|front-left):[\s\/0-9]*\s([0-9]*)")
 name_regex = re.compile("(?<=Name:).*")
+channel_map_regex = re.compile("(?<=Channel Map: ).*")
 
 entry_pattern = "Name: %s.*?(?=Properties)"
+volume_pattern = r"Volume: .*(?:%s):[\s\/0-9]*\s([0-9]*)"
 
 
 def unlocalized_env(reset={"LANG": "POSIX.UTF-8"}):
@@ -206,6 +207,39 @@ def move_sinks(name):
             sys.exit(1)
 
 
+def get_audio_settings(type, name="default"):
+    if name == "default":
+        pactl_status = check_output(["pactl", "info"],
+                                universal_newlines=True,
+                                env=unlocalized_env())
+        default_regex = re.compile(default_pattern % type.title())
+        name = default_regex.search(pactl_status).group()
+
+    pactl_list = check_output(["pactl", "list", type + 's'],
+                              universal_newlines=True,
+                              env=unlocalized_env())
+    entry_regex = re.compile(entry_pattern % name, re.DOTALL)
+    entry = entry_regex.search(pactl_list).group()
+
+    muted = muted_regex.search(entry).group()
+
+    volumes = {}
+    max_volume = 0
+    channels = channel_map_regex.search(entry).group()
+    for channel in channels.split(","):
+        volume_regex = re.compile(volume_pattern % channel, re.DOTALL)
+        _volume = int(volume_regex.search(entry).group(1).strip())
+        volumes.update({channel: _volume})
+        max_volume = max(_volume, max_volume)
+
+    return {
+        "name": name,
+        "muted": muted,
+        "volumes": volumes,
+        "max_volume": max_volume
+    }
+
+
 def store_audio_settings(file):
     logging.info("[ Saving audio settings ]".center(80, '='))
     try:
@@ -215,29 +249,14 @@ def store_audio_settings(file):
         sys.exit(1)
 
     for type in TYPES:
-        pactl_status = check_output(["pactl", "info"],
-                                    universal_newlines=True,
-                                    env=unlocalized_env())
-        default_regex = re.compile(default_pattern % type.title())
-        default = default_regex.search(pactl_status).group()
-
-        print("default_%s: %s" % (type, default), file=settings_file)
-
-        pactl_list = check_output(["pactl", "list", type + 's'],
-                                  universal_newlines=True,
-                                  env=unlocalized_env())
-
-        entry_regex = re.compile(entry_pattern % default, re.DOTALL)
-        entry = entry_regex.search(pactl_list).group()
-
-        muted = muted_regex.search(entry)
-        print("%s_muted: %s" % (type, muted.group().strip()),
+        audio_settings = get_audio_settings(type)
+        print("default_%s: %s" % (type, audio_settings["name"]),
+              file=settings_file)
+        print("%s_muted: %s" % (type, audio_settings["muted"].strip()),
+              file=settings_file)
+        print("%s_volume: %s%%" % (type, str(audio_settings["max_volume"])),
               file=settings_file)
 
-        volume = int(volume_regex.search(entry).group(1).strip())
-
-        print("%s_volume: %s%%" % (type, str(volume)),
-              file=settings_file)
     settings_file.close()
 
 

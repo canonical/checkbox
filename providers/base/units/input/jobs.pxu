@@ -75,3 +75,19 @@ _steps:
     4. Double-click the left button with your {product}.
 _verification:
     Did these buttons work as expected?
+
+unit: template
+template-resource: dmi
+template-filter: dmi.category == 'CHASSIS' and dmi.product not in ('Tablet', 'Convertible', 'Detachable')
+plugin: shell
+category_id: com.canonical.plainbox::input
+estimated_duration: 2
+id: input/fixed_screen_orientation_on_{product}_{__index__}
+user: root
+requires:
+ executable.name == 'udevadm'
+ executable.name == 'dbus-send'
+command: fixed_screen_orientation.sh
+_summary: Check whether screen orientation is fixed on {product}
+_purpose:
+    This tests whether the display orientation of {product} is fixed, and cannot be altered by tilting {product}.

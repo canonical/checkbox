@@ -454,7 +454,11 @@ category_id: com.canonical.plainbox::info
 id: info/systemd-analyze
 estimated_duration: 0.2
 _summary: System boot-up performance statistics
-command: systemd-analyze
+command:
+ # Wait for boot to complete
+ # https://github.com/systemd/systemd/pull/9796
+ timeout 60 systemctl is-system-running --wait > /dev/null
+ systemd-analyze
 
 id: lstopo_verbose_attachment
 plugin: attachment

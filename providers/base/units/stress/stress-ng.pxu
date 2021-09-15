@@ -30,4 +30,11 @@ estimated_duration: 1200.0
 environ: STRESS_NG_CLASSES_TIMEOUT
 command:
  cd /var/tmp || exit $?
- stress-ng --sequential 0 --class {stress-ng-class} --timeout "${{STRESS_NG_CLASSES_TIMEOUT:-30}}"
+ stress-ng --sequential 0 --class {stress-ng-class} --timeout "${{STRESS_NG_CLASSES_TIMEOUT:-30}}" --skip-silent --verbose
+ # Error code definition - 3(no resource), 4(not implemented)
+ EXIT_CODE=$?
+ echo "EXIT_CODE="$EXIT_CODE
+ case $EXIT_CODE in
+    0|3|4) exit 0;;
+    *)     exit 1;;
+ esac

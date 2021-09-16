@@ -42,7 +42,6 @@ Recommends: bonnie++,
             python3-apt,
             python3-dbus,
             python3-gi,
-            python3-guacamole,
             smartmontools,
             sysstat,
             ${plainbox:Recommends}

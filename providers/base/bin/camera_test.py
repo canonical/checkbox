@@ -248,6 +248,8 @@ class CameraTest:
                 supported_resolutions[key] = set()
             supported_resolutions[key].add(
                 caps.get_structure(i).get_int('height').value)
+        if not supported_resolutions:
+            raise SystemExit("No supported resolutions found!")
         width = min(supported_resolutions.keys(),
                     key=lambda x: abs(x - self._width))
         height = min(supported_resolutions[width],

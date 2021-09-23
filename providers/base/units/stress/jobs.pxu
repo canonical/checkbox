@@ -524,6 +524,8 @@ id: stress/s2idle_pm-graph_30.tar.xz
 estimated_duration: 1
 requires: 
  sleep.mem_sleep == 's2idle'
+after:
+ stress/s2idle_pm-graph_30
 user: root
 _summary: Attach pm-graph logs (s2idle)
 command:
@@ -547,6 +549,8 @@ id: stress/s3_pm-graph_30.tar.xz
 estimated_duration: 1
 requires:
  sleep.mem_sleep == 'deep'
+after:
+ stress/s3_pm-graph_30
 user: root
 _summary: Attach pm-graph logs (s3)
 command:

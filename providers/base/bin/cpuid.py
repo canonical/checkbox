@@ -123,6 +123,7 @@ CPUIDS = {
         "Nehalem":          ['0x106a', '0x106e5', '0x206e'],
         "Pineview":         ['0x106ca'],
         "Penryn":           ['0x1067a'],
+        "Rocket Lake":      ['0xa0671'],
         "Sandy Bridge":     ['0x206a', '0x206d6', '0x206d7'],
         "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
         "Tiger Lake":       ['0x806c1'],

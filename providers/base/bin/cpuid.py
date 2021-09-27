@@ -113,6 +113,7 @@ CPUIDS = {
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
         "Coffee Lake":      [
             '0x806ea', '0x906ea', '0x906eb', '0x906ec', '0x906ed'],
+        "Comet Lake":       ['0x806ec', '0xa065'],
         "Cooper Lake":      ['0x5065a', '0x5065b'],
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
         "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6'],

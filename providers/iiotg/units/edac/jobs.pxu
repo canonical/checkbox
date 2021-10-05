@@ -1,0 +1,19 @@
+
+id: edac/detect
+_summary: Detect if the EDAC drivers are loaded and Memory Controllers are found
+category_id: edac
+requires:
+  exectuable.name == 'edac-util'
+flags: simple
+command:
+  # TODO: check out returncode and output
+  edac-util --status
+
+id: edac/default-report
+_summary: Attach the default report from EDAC util
+category_id: edac
+requires:
+  exectuable.name == 'edac-util'
+plugin: attachment
+command:
+  edac-util --report=default

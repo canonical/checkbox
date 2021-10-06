@@ -15,13 +15,18 @@ requires:
  device.category == 'AUDIO'
  package.name == 'linux-firmware'
 command:
+ fail=0
  for fw in /lib/firmware/intel/sof/sof-*.ri;
  do
      # shellcheck disable=SC2016
      if xxd "${fw}" | grep -q '$CPD'; then
-         sof_ri_info.py --valid "${fw}"
+         if ! sof_ri_info.py --valid "${fw}";
+         then
+             fail=1
+         fi
      fi
  done
+ exit $fail
 _description: Valid sof firmware signature
 
 plugin: user-interact-verify

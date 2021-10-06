@@ -510,7 +510,9 @@ plugin:shell
 category_id: com.canonical.plainbox::stress
 id: stress/s2idle_pm-graph_30
 estimated_duration: 10m
-requires: executable.name == 'sleepgraph'
+requires: 
+ executable.name == 'sleepgraph'
+ sleep.mem_sleep == 's2idle'
 user: root
 _summary: Resume from idle by using Intel pm-graph
 command:
@@ -520,6 +522,10 @@ plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s2idle_pm-graph_30.tar.xz
 estimated_duration: 1
+requires: 
+ sleep.mem_sleep == 's2idle'
+after:
+ stress/s2idle_pm-graph_30
 user: root
 _summary: Attach pm-graph logs (s2idle)
 command:
@@ -529,7 +535,9 @@ plugin:shell
 category_id: com.canonical.plainbox::stress
 id: stress/s3_pm-graph_30
 estimated_duration: 10m
-requires: executable.name == 'sleepgraph'
+requires:
+ executable.name == 'sleepgraph'
+ sleep.mem_sleep == 'deep'
 user: root
 _summary: Resume from suspend by using Intel pm-graph
 command:
@@ -539,6 +547,10 @@ plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s3_pm-graph_30.tar.xz
 estimated_duration: 1
+requires:
+ sleep.mem_sleep == 'deep'
+after:
+ stress/s3_pm-graph_30
 user: root
 _summary: Attach pm-graph logs (s3)
 command:

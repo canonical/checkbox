@@ -36,6 +36,9 @@ apps:
   ireland:
     command: bin/ireland
     plugs: *standard
+  jakarta:
+    command: bin/jakarta
+    plugs: *standard
   test-runner:
     command: bin/test-runner
     plugs: *standard

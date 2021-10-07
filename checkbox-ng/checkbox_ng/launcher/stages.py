@@ -490,7 +490,7 @@ class ReportsStage(CheckboxUiStage):
                         print(result['status_url'])
                 except TransportError as exc:
                     _logger.warning(
-                        _("Problem occured when submitting %s report: %s"),
+                        _("Problem occured when submitting '%s' report: %s"),
                         name, exc)
                     if self._retry_dialog():
                         # let's remove current transport, so in next

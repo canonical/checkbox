@@ -25,6 +25,7 @@ import gettext
 import json
 import logging
 import os
+import time
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
@@ -76,6 +77,15 @@ class MainLoopStage(CheckboxUiStage):
         super().__init__()
         self._sudo_password = None
         self._passwordless_sudo = False
+        self._reset_auto_submission_retries()
+
+    def _reset_auto_submission_retries(self):
+        """
+        This is outlined so both, __init__ and later part of the logic
+        can set the same value.
+        """
+        self._auto_submission_retries = 3
+
 
     def _run_single_job_with_ui_loop(self, job, ui):
         print(self.C.header(job.tr_summary(), fill='-'))
@@ -490,7 +500,7 @@ class ReportsStage(CheckboxUiStage):
                         print(result['status_url'])
                 except TransportError as exc:
                     _logger.warning(
-                        _("Problem occured when submitting %s report: %s"),
+                        _("Problem occured when submitting '%s' report: %s"),
                         name, exc)
                     if self._retry_dialog():
                         # let's remove current transport, so in next
@@ -509,6 +519,7 @@ class ReportsStage(CheckboxUiStage):
                         _("Problem with a '%s' report using '%s' exporter "
                           "sent to '%s' transport."),
                         name, exporter_id, transport.url)
+                self._reset_auto_submission_retries()
                 done_sending = True
 
     def _retry_dialog(self):
@@ -520,4 +531,13 @@ class ReportsStage(CheckboxUiStage):
             ], message)
             if cmd == 'y':
                 return True
+        else:
+            if self._auto_submission_retries:
+                self._auto_submission_retries -= 1
+                # let's double the sleep length with each retry
+                sleep_length = [120, 60, 30][self._auto_submission_retries]
+                print("Retrying in {}s".format(sleep_length))
+                time.sleep(sleep_length)
+                return True
+
         return False

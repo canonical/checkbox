@@ -33,3 +33,22 @@ imports:
   from com.canonical.certification import ubuntu_core_features
 requires:
   ubuntu_core_features.force_kernel_extraction == 'True'
+
+unit: template
+template-resource: bootloader
+template-filter: bootloader.name == 'uboot'
+id: kernel-snap/booted-dtbs-match-current-{name}
+requires:
+  lsb.description == 'Ubuntu Core 18'
+  snap.name == 'snapd' and int(snap.revision) >= 11841
+category_id: kernel-snap
+_summary: The dtbs in the bootloader match those in current kernel snap
+_description:
+  Since snapd version 2.50 DTB files can be distributed in the kernel snap and
+  the extracted in to the boot partition. This checks that if the DTBs are in
+  sync.
+plugin: shell
+user: root
+estimated_duration: 2.0
+command:
+  booted_dtb_tests.py {name}

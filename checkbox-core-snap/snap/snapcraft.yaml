@@ -242,6 +242,7 @@ parts:
       - bonnie++
       - cryptsetup-bin
       - dbus
+      - debsums
       - dmidecode
       - dmsetup
       - efibootmgr

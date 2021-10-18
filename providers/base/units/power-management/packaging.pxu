@@ -1,0 +1,4 @@
+# This is to install evemu-tools for the screen lock key event simulation
+unit: packaging meta-data
+os-id: debian
+Depends: evemu-tools

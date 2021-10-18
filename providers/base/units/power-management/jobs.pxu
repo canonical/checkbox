@@ -366,15 +366,13 @@ unit: job
 plugin: shell
 requires:
  cpuinfo.cpu_lpi_file in ('low_power_idle_cpu_residency_us', 'package_cstate_show')
- package.name == 'x11-xserver-utils'
  sleep.mem_sleep == 's2idle'
+ package.name == 'evemu-tools'
 command:
  cpu_lpi_file=$(cpuinfo_resource.py | grep cpu_lpi_file | awk '{ print $2 }')
  if [ "$cpu_lpi_file" == "low_power_idle_cpu_residency_us" ]; then
      before=$(cat /sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us)
-     xset dpms force off
-     sleep 20
-     xset dpms force on
+     screenoff.sh 20
      after=$(cat /sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us)
      residency=$((after-before))
      echo "/sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us after/before screen off is $residency"
@@ -382,9 +380,7 @@ command:
      echo "The system doesn't have hardware-based residency counter."
      echo "please check https://www.uefi.org/sites/default/files/resources/Intel_ACPI_Low_Power_S0_Idle.pdf"
      before=$(cat < /sys/kernel/debug/pmc_core/package_cstate_show | grep C10 | awk '{ print $4 }')
-     xset dpms force off
-     sleep 20
-     xset dpms force on
+     screenoff.sh 20
      after=$(cat < /sys/kernel/debug/pmc_core/package_cstate_show | grep C10 | awk '{ print $4 }')
      residency=$((after-before))
      echo "/sys/kernel/debug/pmc_core/package_cstate_show after/before screen off is $residency"

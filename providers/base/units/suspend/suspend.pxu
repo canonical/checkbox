@@ -189,17 +189,27 @@ requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
 user: root
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE RTC_DEVICE_FILE
 command:
  if type -P fwts >/dev/null; then
-  echo "Calling fwts"
-  if [[ -v SNAP ]]; then
-      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
-  fi
-  set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
+     echo "Calling fwts"
+     if [[ -v SNAP ]]; then
+         export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+     fi
+     if fwts --show-tests-categories | grep -q 's3 '; then
+         echo "Calling fwts"
+         set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
+     else
+         echo "Calling rtcwake"
+         if [ -z "$RTC_DEVICE_FILE" ]; then
+             rtcwake -m mem -s 30
+         else
+             rtcwake -d "$RTC_DEVICE_FILE" -m mem -s 30
+         fi
+     fi
  else
-  echo "Calling sleep_test.py"
-  set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/2_suspend_single_times.log
+     echo "Calling sleep_test.py"
+     set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/2_suspend_single_times.log
  fi
 estimated_duration: 90.0
 _summary: Manual test of suspend function

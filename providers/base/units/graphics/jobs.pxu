@@ -263,7 +263,6 @@ template-resource: graphics_card
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
-requires: package.name == 'nux-tools'
 command: /usr/lib/nux/unity_support_test -p 2>&1
 estimated_duration: 0.131
 _description: Check that {vendor} {product} hardware is able to run a desktop session (OpenGL)

@@ -80,10 +80,13 @@ for line in output:
                 current_modes.append((device_context, foo[0]))
 # let's create a dict of aspect_ratio:largest_width for each display
 # (width, because it's easier to compare simple ints when looking for the
-# highest value).
+# highest value). Ignore Interlaced modes that are indicated by presence of a
+# trailing 'i' character.
 top_res_per_aspect = OrderedDict()
 for adapter, mode in modes:
     try:
+        if mode[-1] == 'i':
+            continue
         width, height = [int(x) for x in mode.split('x')]
         aspect = Fraction(width, height)
         if adapter not in top_res_per_aspect:

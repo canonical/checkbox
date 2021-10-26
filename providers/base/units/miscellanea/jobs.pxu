@@ -183,7 +183,7 @@ _summary: Test that system is not a pre-release version
 _description:
  Test to verify that the system uses production, rather
  than pre-release, versions of the kernel and the OS.
-command: check-prerelease.py
+command: check_prerelease.py
 requires:
   "Ubuntu Core" not in lsb.description
 

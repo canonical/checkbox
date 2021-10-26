@@ -66,7 +66,7 @@ mandatory_include:
     miscellanea/efi_boot_mode                  certification-status=blocker
     miscellanea/reboot_firmware
     miscellanea/efi_pxeboot
-    miscellanea/check_prerelease
+    miscellanea/check_prerelease               certification-status=blocker
     miscellanea/kernel_taint_test
     miscellanea/cpus_are_not_samples
     miscellanea/ipmi_test                      certification-status=blocker

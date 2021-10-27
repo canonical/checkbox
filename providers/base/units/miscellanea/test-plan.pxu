@@ -32,7 +32,8 @@ include:
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
     miscellanea/fan_stress_reaction
-    miscellanea/debsums
+    miscellanea/debsums                            certification-status=blocker
+    miscellanea/check_prerelease                   certification-status=blocker
 bootstrap_include:
     fwts
 
@@ -49,6 +50,8 @@ include:
     firmware/fwts_uefirtvariable.*                 certification-status=blocker
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
+    miscellanea/debsums                            certification-status=blocker
+    miscellanea/check_prerelease                   certification-status=blocker
 bootstrap_include:
     fwts
 

@@ -120,6 +120,7 @@ nested_part:
     disk-automated
     ethernet-automated
     i2c-automated
+    iot-cert-image-automated
     memory-automated
     networking-automated
     snappy-snap-automated

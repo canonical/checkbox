@@ -278,14 +278,6 @@ unit: test plan
 _name: Automated USB-C tests
 _description: Automated USB-C tests for Ubuntu Core devices
 include:
-    usb-c/c-to-a-adapter/hid
-    usb-c/c-to-a-adapter/insert
-    usb-c/c-to-a-adapter/storage-automated
-    usb-c/c-to-a-adapter/remove
-    usb-c/hid
-    usb-c/insert
-    usb-c/storage-automated
-    usb-c/remove
 
 id: after-suspend-usb-full
 unit: test plan

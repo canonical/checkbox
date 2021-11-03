@@ -36,14 +36,16 @@ from checkbox_support.snap_utils.system import in_classic_snap
 TYPES = ("source", "sink")
 DIRECTIONS = {"source": "input", "sink": "output"}
 
-default_pattern = "(?<=Default {}: ).*"
+# use %s string format to compatible with other python version
+default_pattern = "(?<=Default %s: ).*"
 index_regex = re.compile("(?<=Sink Input #)[0-9]*")
 muted_regex = re.compile("(?<=Mute: ).*")
 name_regex = re.compile("(?<=Name:).*")
 channel_map_regex = re.compile("(?<=Channel Map: ).*")
 
-entry_pattern = "Name: {}.*?(?=Properties)"
-volume_pattern = r"Volume: .*(?:{}):[\s\/0-9]*\s([0-9]*)"
+# use %s string format to compatible with other python version
+entry_pattern = "Name: %s.*?(?=Properties)"
+volume_pattern = r"Volume: .*(?:%s):[\w\/0-9 ]* ([0-9]*)%%"
 
 
 def unlocalized_env(reset={"LANG": "POSIX.UTF-8"}):
@@ -212,13 +214,13 @@ def get_audio_settings(type, name="default"):
         pactl_status = check_output(["pactl", "info"],
                                 universal_newlines=True,
                                 env=unlocalized_env())
-        default_regex = re.compile(default_pattern.format(type.title()))
+        default_regex = re.compile(default_pattern % type.title())
         name = default_regex.search(pactl_status).group()
 
     pactl_list = check_output(["pactl", "list", "{}s".format(type)],
                               universal_newlines=True,
                               env=unlocalized_env())
-    entry_regex = re.compile(entry_pattern.format(name), re.DOTALL)
+    entry_regex = re.compile(entry_pattern % name, re.DOTALL)
     entry = entry_regex.search(pactl_list).group()
 
     muted = muted_regex.search(entry).group()
@@ -227,7 +229,7 @@ def get_audio_settings(type, name="default"):
     max_volume = 0
     channels = channel_map_regex.search(entry).group()
     for channel in channels.split(","):
-        volume_regex = re.compile(volume_pattern.format(channel), re.DOTALL)
+        volume_regex = re.compile(volume_pattern % channel, re.DOTALL)
         _volume = int(volume_regex.search(entry).group(1).strip())
         volumes.update({channel: _volume})
         max_volume = max(_volume, max_volume)

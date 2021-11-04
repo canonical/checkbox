@@ -22,9 +22,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import re
 import unittest
 
-from checkbox_support.scripts.audio_settings import _guess_hdmi_profile, volume_regex
+from checkbox_support.scripts.audio_settings import _guess_hdmi_profile, volume_pattern
 from checkbox_support.parsers.tests.test_pactl import PactlDataMixIn
 
 
@@ -171,10 +172,11 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
             ('0', 'Hdmi2'))
 
 class RegexTest(unittest.TestCase):
-    
+
     def test_volume_regex_trusty(self):
         """Testing pactl 4.0 output"""
         pactl_volume = "    Volume: 0:  47% 1:  47%"
+        volume_regex = re.compile(volume_pattern % "0", re.DOTALL)
         volume = int(volume_regex.search(pactl_volume).group(1).strip())
         self.assertEqual(volume, 47)
 
@@ -182,5 +184,6 @@ class RegexTest(unittest.TestCase):
         """Testing pactl 8.0 output"""
         # See lp:1595380 for more info
         pactl_volume = "    Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB"
+        volume_regex = re.compile(volume_pattern % "front-left", re.DOTALL)
         volume = int(volume_regex.search(pactl_volume).group(1).strip())
         self.assertEqual(volume, 100)

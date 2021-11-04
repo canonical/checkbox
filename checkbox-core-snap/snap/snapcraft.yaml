@@ -2,7 +2,7 @@ name: checkbox22
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
 version: '1.25.dev'
-grade: stable
+grade: devel # switch to stable when core22 is stable
 
 base: core22
 
@@ -398,23 +398,23 @@ parts:
       - -Dflavors=x11-glesv2
       - --prefix=/usr
 ################################################################################
-  rpi-ppa:
-    plugin: nil
-    override-pull: |
-      sudo add-apt-repository ppa:sylvain-pineau/ppa-rpi
-      sudo apt-get update
-    build-packages:
-      - software-properties-common
-  rpi-support-binaries:
-    after: [rpi-ppa]
-    plugin: nil
-    stage-packages:
-      - on armhf:
-        - libraspberrypi0
-      - on arm64:
-        - libraspberrypi0
-    organize:
-      usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
+  # rpi-ppa:
+  #   plugin: nil
+  #   override-pull: |
+  #     sudo add-apt-repository ppa:sylvain-pineau/ppa-rpi
+  #     sudo apt-get update
+  #   build-packages:
+  #     - software-properties-common
+  # rpi-support-binaries:
+  #   after: [rpi-ppa]
+  #   plugin: nil
+  #   stage-packages:
+  #     - on armhf:
+  #       - libraspberrypi0
+  #     - on arm64:
+  #       - libraspberrypi0
+  #   organize:
+  #     usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
 ################################################################################
   lk-boot-env:
     plugin: nil

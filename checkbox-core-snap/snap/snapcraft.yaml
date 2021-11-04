@@ -17,10 +17,6 @@ slots:
     interface: content
     read:
       - $SNAP/providers/plainbox-provider-checkbox
-  provider-snappy:
-    interface: content
-    read:
-      - $SNAP/providers/plainbox-provider-snappy
   provider-ipdt:
     interface: content
     read:
@@ -365,19 +361,12 @@ parts:
       - curl
     after: [plainbox-provider-sru]
 ################################################################################
-  plainbox-provider-snappy:
-    source-tag: ""
-    source-depth: 1
-    plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-snappy
-    after: [checkbox-provider-edgex]
-################################################################################
   checkbox-provider-gpgpu:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/checkbox-provider-gpgpu
-    after: [plainbox-provider-snappy]
+    after: [checkbox-provider-edgex]
 ################################################################################
   plainbox-provider-certification-client:
     source-tag: ""

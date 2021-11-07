@@ -107,6 +107,20 @@ bootstrap_include:
     device
     executable
 
+id: server-ethernet-sru
+unit: test plan
+_name: Server Ethernet SRU Tests
+_description: Automated ethernet tests for server regression testing
+estimated_duration: 4h
+include:
+    ethernet/info_automated_server
+    ethernet/ethtool_info
+    ethernet/ethertool_check_.*
+    ethernet/multi_iperf3_nic_device_server_sru.*
+bootstrap_include:
+    device
+    executable
+
 id: server-ethernet-underspeed
 unit: test plan
 _name: Server Ethernet Tests (Speed Check Disabled)

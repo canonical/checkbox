@@ -97,6 +97,26 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
+id: ethernet/multi_iperf3_nic_device_server_sru{__index__}_{interface}
+_summary: Multi-NIC Iperf3 SRU testing for NIC {interface}
+estimated_duration: 1200.0
+requires:
+ executable.name == 'iperf3'
+ executable.name == 'ethtool'
+ executable.name == 'nmap'
+user: root
+environ: TEST_TARGET_IPERF
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 1200
+_description:
+ This is a shorter SRU version of the standard iperf3 based network test for
+ servers.  It is intended to ONLY be used for SRU and is not valid for offical
+ certification.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+plugin: shell
+category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_iperf3_nic_underspeed_device{__index__}_{interface}
 _summary: Underspeed Enabled Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0

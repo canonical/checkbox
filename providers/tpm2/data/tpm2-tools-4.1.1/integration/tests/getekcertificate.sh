@@ -33,8 +33,8 @@ if [ -z "$(curl -V 2>/dev/null)" ]; then
 else
     if [ "$(curl --silent --output /dev/null --write-out %{http_code} \
     'https://ekop.intel.com/')" != '200' ]; then
-        echo 'No connection to https://ekop.intel.com/'
-        exit 77
+        echo 'No connection to https://ekop.intel.com/. Skip the test.'
+        exit 0
     fi
 fi
 

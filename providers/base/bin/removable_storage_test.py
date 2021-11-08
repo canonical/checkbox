@@ -481,7 +481,8 @@ class DiskTest():
             enumerator = GUdev.Enumerator(client=udev_client)
             udev_devices_xhci = [
                 device for device in enumerator.execute()
-                if (device.get_driver() == 'xhci-hcd')]
+                if (device.get_driver() == 'xhci-hcd' or
+                    device.get_driver() == 'xhci_hcd')]
         for udev_device_xhci in udev_devices_xhci:
             pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
             xhci_devpath = udev_device_xhci.get_property('DEVPATH')

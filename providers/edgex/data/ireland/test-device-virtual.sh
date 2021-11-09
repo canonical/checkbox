@@ -30,7 +30,7 @@ snap start edgexfoundry.device-virtual
 # wait 120 seconds as device-virtual takes close to ~2:30 before devices are created
 sleep 120
 
-# ensure redis is running
+# ensure device-virtual is running
 if [ "$(snap services edgexfoundry.device-virtual | grep -o inactive)" = "inactive" ]; then
     echo "failed to start device-virtual"
     exit 1
@@ -58,11 +58,11 @@ num_tries=0
 
 # check to see if we can find the device created by device-virtual
 while true; do
-    if ! (edgexfoundry.curl -s localhost:48081/api/v1/device | $JQ '.'); then
+    if ! (edgexfoundry.curl -s localhost:59881/api/v2/device | $JQ '.'); then
         # not json - something's wrong
         echo "invalid JSON response from core-metadata"
         exit 1
-    elif [ "$(edgexfoundry.curl -s localhost:48081/api/v1/device | $JQ 'map(select(.name == "Random-Boolean-Device")) | length')" -lt 1 ]; then
+    elif [ "$(edgexfoundry.curl -s localhost:59881/api/v2/device | $JQ 'map(select(.name == "Random-Boolean-Device")) | length')" -lt 1 ]; then
         # increment number of tries
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then
@@ -80,7 +80,7 @@ done
 # reset the number of tries
 num_tries=0
 
-if ! (edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Device/10 | $JQ '.'); then
+if ! (edgexfoundry.curl -s localhost:59880/api/v2/reading/device/Random-Boolean-Device/10 | $JQ '.'); then
     # not json - something's wrong
     echo "invalid JSON response from core-data"
     exit 1
@@ -88,7 +88,7 @@ fi
 
 # check to see if we can get a reading from the Random-Boolean-Device
 while true; do
-    retval="$(edgexfoundry.curl -s localhost:48080/api/v1/reading/device/Random-Boolean-Device/10 | $JQ 'length')"
+    retval="$(edgexfoundry.curl -s localhost:59880/api/v2/reading/device/Random-Boolean-Device/10 | $JQ 'length')"
     echo "retval: $retval"
 
     if [ "$retval" -le 1 ]; then

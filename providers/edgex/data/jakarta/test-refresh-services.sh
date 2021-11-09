@@ -12,28 +12,28 @@ DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
 
-echo "skipping test until snap with epoch 1 is released to edge"
-exit 0
-
 for channel in edge; do 
     # first make sure that the snap installs correctly from the channel
-    # use locally cached version of stable and delhi
+    # use locally cached version of ireland and jakarta
     case "$channel" in 
-        delhi)
-            if [ -n "$EDGEX_EDINBURGH_SNAP_FILE" ]; then
-                snap_install "$EDGEX_EDINBURGH_SNAP_FILE"
+        jakarta)
+            echo "installing jakarta channel snap"
+            if [ -n "$EDGEX_JAKARTA_SNAP_FILE" ]; then
+                snap_install "$EDGEX_JAKARTA_SNAP_FILE"
             else
-                snap_install edgexfoundry edinburgh
+                snap_install edgexfoundry jakarta
             fi
             ;;
-        stable)
-            if [ -n "$EDGEX_STABLE_SNAP_FILE" ]; then
-                snap_install "$EDGEX_STABLE_SNAP_FILE"
+        ireland)
+            echo "installing ireland channel snap"
+            if [ -n "$EDGEX_IRELAND_SNAP_FILE" ]; then
+                snap_install "$EDGEX_IRELAND_SNAP_FILE"
             else
-                snap_install edgexfoundry stable
+                snap_install edgexfoundry 2.0
             fi
             ;;
         *)
+            echo "installing $channel channel snap"
             snap_install edgexfoundry "$channel"
             ;;
     esac
@@ -59,3 +59,4 @@ for channel in edge; do
     # remove the snap to run the next channel upgrade
     snap_remove
 done
+

@@ -30,9 +30,9 @@ sleep 120
 echo "checking for files with snap revision $SNAP_REVISION"
 
 # check that all files in $SNAP_DATA don't reference the previous revision
-# except for binary files, cassandra log files, and an errant comment I 
-# put in the vault hcl file which the install hook from previous revisions
-# also ends up putting the path including the old revision number inside
+# except for binary files and an errant comment I put in the vault hcl file 
+# which the install hook from previous revisions also ends up putting the path
+# including the old revision number inside
 cd /var/snap/edgexfoundry/current
 set +e
 notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | \
@@ -48,3 +48,4 @@ fi
 set -e
 
 snap_remove
+

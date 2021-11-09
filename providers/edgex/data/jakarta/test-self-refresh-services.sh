@@ -44,12 +44,13 @@ sleep 120
 
 snap_check_jakarta_svcs
 
-# ensure the release config item is set to hanoi
+# ensure the release config item is set to jakarta
 snapRelease=$(snap get edgexfoundry release)
-if [ "$snapRelease" != "hanoi" ]; then
+if [ "$snapRelease" != "jakarta" ]; then
     echo "missing or invalid config item for snap release: \"$snapRelease\""
     snap_remove
     exit 1
 fi
 
 snap_remove
+

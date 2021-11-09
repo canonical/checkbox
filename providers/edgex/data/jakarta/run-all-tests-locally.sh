@@ -27,16 +27,17 @@ snap_download_and_ack()
 
 snap_download_stable_and_last()
 {
-    # download and ack the stable and edinburgh channels as we have tests to ensure
+    # download and ack the ireland and jakarta channels as we have tests to ensure
     # there's a smooth upgrade between those channels and this one that is
     # under consideration
     # this also saves in download bandwidth and time
-    EDGEX_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --stable)
-    EDGEX_EDINBURGH_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=edinburgh)
+    # --edge needs to be replaced by --jakarta, once jakarta has been released
+    EDGEX_IRELAND_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=2.0)
+    EDGEX_JAKARTA_SNAP_FILE=$(snap_download_and_ack edgexfoundry --edge)
 
-    # export the names of the stable and delhi snap files
-    export EDGEX_STABLE_SNAP_FILE
-    export EDGEX_EDINBURGH_SNAP_FILE
+    # export the names of the ireland and jakarta snap files
+    export EDGEX_IRELAND_SNAP_FILE
+    export EDGEX_JAKARTA_SNAP_FILE
 }
 
 # parse arguments - adapted from https://stackoverflow.com/a/14203146/10102404
@@ -152,3 +153,4 @@ fi
 
 # finally remove the snap if it's still there
 snap_remove 2>/dev/null > /dev/null
+

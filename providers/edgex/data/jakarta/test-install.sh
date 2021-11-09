@@ -21,3 +21,4 @@ fi
 
 # remove the snap to run again
 snap_remove
+

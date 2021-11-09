@@ -29,3 +29,4 @@ snap_check_jakarta_svcs
 
 # remove the snap to run the next test
 snap_remove
+

@@ -50,9 +50,6 @@ if [ -z "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | 
     exit 1
 fi
 
-# TODO: enable these other tests for Edinburgh where they will actually work
-# for delhi, only stopping services works with the SMA
-
 # issue a start command to the SMA for core-data
 edgexfoundry.curl \
     --fail \
@@ -86,3 +83,4 @@ fi
 set -e
 
 snap_remove
+

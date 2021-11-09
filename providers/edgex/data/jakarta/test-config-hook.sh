@@ -174,12 +174,12 @@ test_base_services()
 # ADD_PROXY_ROUTE is a csv list of URLs to be added to the
 # API Gateway (aka Kong). For references:
 #
-# https://docs.edgexfoundry.org/1.3/microservices/security/Ch-APIGateway/
+# https://docs.edgexfoundry.org/2.1/security/Ch-APIGateway/
 #
 # NOTE - this setting is not a configuration override, it's a top-level
 # environment variable used by the security-proxy-setup.
 #
-# KONGAUTH_NAME can be "jwt" (default) or "oauth2"
+# KONGAUTH_NAME can be "jwt" (default) or "acl"
 test_proxy()
 {
     snap set edgexfoundry "env.security-proxy.add-proxy-route=myservice.http://localhost:2112"
@@ -194,9 +194,9 @@ test_proxy()
 	exit 1
     fi
 
-    snap set edgexfoundry "env.security-proxy.kongauth.name=oauth2"
+    snap set edgexfoundry "env.security-proxy.kongauth.name=jwt"
     set +e
-    match=$(grep "export KONGAUTH_NAME=oauth2" \
+    match=$(grep "export KONGAUTH_NAME=jwt" \
 	 /var/snap/edgexfoundry/current/config/security-proxy-setup/res/security-proxy-setup.env)
     set -e
 
@@ -204,6 +204,18 @@ test_proxy()
 	snap_remove
 	echo "security-proxy-setup.env file missing correct KONGAUTH_NAME env export."
 	exit 1
+    fi
+
+    snap set edgexfoundry "env.security-proxy.kongauth.name=acl"
+    set +e
+    match=$(grep "export KONGAUTH_NAME=acl" \
+     /var/snap/edgexfoundry/current/config/security-proxy-setup/res/security-proxy-setup.env)
+    set -e
+
+    if [ -z "$match" ]; then
+    snap_remove
+    echo "security-proxy-setup.env file missing correct KONGAUTH_NAME env export."
+    exit 1
     fi
 }
 
@@ -238,3 +250,4 @@ test_secret-store
 
 # remove the snap to run the next test
 snap_remove
+

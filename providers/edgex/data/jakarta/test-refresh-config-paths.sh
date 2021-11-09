@@ -12,26 +12,24 @@ DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
 
-echo "skipping test until snap with epoch 1 is released to edge"
-exit 0
-
 for channel in edge; do 
     # first make sure that the snap installs correctly from the channel
+    # use locally cached version of ireland and jakarta
     case "$channel" in 
-        delhi)
-            echo "installing delhi channel snap"
-            if [ -n "$EDGEX_EDINBURGH_SNAP_FILE" ]; then
-                snap_install "$EDGEX_EDINBURGH_SNAP_FILE"
+        jakarta)
+            echo "installing jakarta channel snap"
+            if [ -n "$EDGEX_JAKARTA_SNAP_FILE" ]; then
+                snap_install "$EDGEX_JAKARTA_SNAP_FILE"
             else
-                snap_install edgexfoundry edinburgh
+                snap_install edgexfoundry jakarta
             fi
             ;;
-        stable)
-            echo "installing stable channel snap"
-            if [ -n "$EDGEX_STABLE_SNAP_FILE" ]; then
-                snap_install "$EDGEX_STABLE_SNAP_FILE"
+        ireland)
+            echo "installing ireland channel snap"
+            if [ -n "$EDGEX_IRELAND_SNAP_FILE" ]; then
+                snap_install "$EDGEX_IRELAND_SNAP_FILE"
             else
-                snap_install edgexfoundry stable
+                snap_install edgexfoundry 2.0
             fi
             ;;
         *)
@@ -63,14 +61,13 @@ for channel in edge; do
     echo "checking for files with previous snap revision $SNAP_REVISION"
 
     # check that all files in $SNAP_DATA don't reference the previous revision
-    # except for binary files, cassandra log files, and an errant comment I 
-    # put in the vault hcl file which the install hook from previous revisions
-    # also ends up putting the path including the old revision number inside
+    # except for binary files and an errant comment I gput in the vault hcl file 
+    # which the install hook from previous revisions also ends up putting the path 
+    # including the old revision number inside
     pushd /var/snap/edgexfoundry/current > /dev/null
     set +e
     notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | \
         grep -v "Binary file" | \
-        grep -v "cassandra/logs" | \
         grep -v "and the location of the files uses reference")
     popd > /dev/null
     if [ -n "$notUpgradedFiles" ]; then
@@ -85,3 +82,4 @@ for channel in edge; do
     # remove the snap to run the next channel upgrade
     snap_remove
 done
+

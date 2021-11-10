@@ -44,7 +44,7 @@ fi
 
 # create a stream
 if [ -z "$(edgexfoundry.kuiper-cli create stream stream1 '()WITH(FORMAT="JSON",TYPE="edgex")' | grep '\bStream stream1 is created\b')" ] ; then
-    echo "can not create kuiper stream"
+    echo "cannot create kuiper stream"
     snap_remove
     exit 1
 fi
@@ -61,10 +61,17 @@ if [ -z "$(edgexfoundry.kuiper-cli create rule rule1 '
       }
    ]
 }' | grep '\bRule rule1 was created successfully\b')" ] ; then
-    echo "can not create kuiper rule (action: log)"
+    echo "cannot create kuiper rule (action: log)"
     snap_remove
     exit 1
 fi
+
+# install edgex-device-mqtt for rule-mqtt's export
+snap install edgex-device-mqtt --channel=2.0
+snap install edgex-app-service-configurable --channel=2.0
+snap set edgex-app-service-configurable profile=mqtt-export
+snap start --enable edgex-device-mqtt.device-mqtt
+snap start --enable edgex-app-service-configurable.app-service-configurable 
 
 # create a rule-mqtt
 if [ -z "$(edgexfoundry.kuiper-cli create rule rule2 '
@@ -75,48 +82,48 @@ if [ -z "$(edgexfoundry.kuiper-cli create rule rule2 '
          "mqtt":{
             "clientId": "stream1",
             "protocolVersion": "3.1",
-            "server": "tcp://localhost:6379",
+            "server": "tcp://localhost:1883",
             "topic": "sink-result"
          }
       }
    ]
 }' | grep '\bRule rule2 was created successfully\b')" ] ; then
-    echo "can not create kuiper rule (action: mqtt)"
+    echo "cannot create kuiper rule (action: mqtt)"
     snap_remove
     exit 1
 fi
 
 # get rule's status to check if rule (action: log) works
 if [ -n "$(edgexfoundry.kuiper-cli getstatus rule rule1 | grep '\bStopped: canceled manually or by error\b')" ] ; then
-    echo "can not run rule's action - log"
+    echo "cannot run rule's action - log"
     snap_remove
     exit 1
 fi
 
 # get rule's status to check if rule (action: mqtt) works
 if [ -n "$(edgexfoundry.kuiper-cli getstatus rule rule2 | grep '\bStopped: canceled manually or by error\b')" ] ; then
-    echo "can not run rule's action - mqtt"
+    echo "cannot run rule's action - mqtt"
     snap_remove
     exit 1
 fi
 
 # stop a rule
 if [ -z "$(edgexfoundry.kuiper-cli stop rule rule1 | grep '\bRule rule1 was stopped\b')" || -z "$(edgexfoundry.kuiper-cli stop rule rule2 | grep '\bRule rule2 was stopped\b')" ] ; then
-    echo "can not stop rule"
+    echo "cannot stop rule"
     snap_remove
     exit 1
 fi
 
 # drop a rule
 if [ -z "$(edgexfoundry.kuiper-cli drop rule rule1 | grep '\bRule rule1 is dropped\b')" || -z "$(edgexfoundry.kuiper-cli drop rule rule2 | grep '\bRule rule2 is dropped\b')" ] ; then
-    echo "can not drop rule"
+    echo "cannot drop rule"
     snap_remove
     exit 1
 fi
 
 # drop a stream
 if [ -z "$(edgexfoundry.kuiper-cli drop stream stream1 | grep '\bStream stream1 is dropped\b')" ] ; then
-    echo "can not drop stream"
+    echo "cannot drop stream"
     snap_remove
     exit 1
 fi

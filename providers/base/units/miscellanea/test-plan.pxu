@@ -67,6 +67,7 @@ mandatory_include:
     miscellanea/get_maas_version               certification-status=blocker
     miscellanea/maas_user_check
     miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/secure_boot_mode
     miscellanea/reboot_firmware
     miscellanea/efi_pxeboot
     miscellanea/check_prerelease               certification-status=blocker

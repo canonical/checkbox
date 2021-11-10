@@ -7,7 +7,7 @@ command:
   bt_list_adapters.py && udev_resource.py -f BLUETOOTH
 estimated_duration: 2s
 flags: preserve-locale
-requires: manifest.has_bt_adapter
+requires: manifest.has_bt_adapter == 'True'
 imports: from com.canonical.plainbox import manifest
 
 id: bluetooth/bluez-controller-detect

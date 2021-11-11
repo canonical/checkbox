@@ -61,11 +61,11 @@ for channel in edge; do
     echo "checking for files with previous snap revision $SNAP_REVISION"
 
     # check that all files in $SNAP_DATA don't reference the previous revision
-    # except for "Binary file consul/data/raft/raft.db" and two postmaster files 
+    # except for "Binary file consul/data/raft/raft.db" 
     # ends up putting the path including the old revision number inside
     pushd /var/snap/edgexfoundry/current > /dev/null
     set +e
-    notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | grep -v "postgresql" | grep -v "raft.db")
+    notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | grep -v "raft.db")
          
     popd > /dev/null
     if [ -n "$notUpgradedFiles" ]; then

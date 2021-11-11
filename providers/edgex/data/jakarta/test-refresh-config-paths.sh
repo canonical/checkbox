@@ -56,19 +56,17 @@ for channel in edge; do
     # wait for services to come online
     # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
     # to accomodate time for everything to come online
-    sleep 120
+    sleep 240
 
     echo "checking for files with previous snap revision $SNAP_REVISION"
 
     # check that all files in $SNAP_DATA don't reference the previous revision
-    # except for binary files and an errant comment I gput in the vault hcl file 
-    # which the install hook from previous revisions also ends up putting the path 
-    # including the old revision number inside
+    # except for "Binary file consul/data/raft/raft.db" and two postmaster files 
+    # ends up putting the path including the old revision number inside
     pushd /var/snap/edgexfoundry/current > /dev/null
     set +e
-    notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | \
-        grep -v "Binary file" | \
-        grep -v "and the location of the files uses reference")
+    notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | grep -v "postgresql" | grep -v "raft.db")
+         
     popd > /dev/null
     if [ -n "$notUpgradedFiles" ]; then
         echo "files not upgraded to use \"current\" symlink in config files:"
@@ -82,4 +80,3 @@ for channel in edge; do
     # remove the snap to run the next channel upgrade
     snap_remove
 done
-

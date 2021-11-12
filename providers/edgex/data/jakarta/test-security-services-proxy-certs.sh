@@ -91,10 +91,6 @@ fi
 # fi
 
 # check if edgeca missing, then install it
-#  We are running the test script with 'sudo' and although the edgeca snap has the home interface, 
-#  which allows access to the home directory, when running as sudo, the user is root, 
-# so it has a different home directory and doesn't have write access to your home directory. 
-# The simplest fix: snap install edgeca --devmode
 if [ -z "$(snap list edgeca)" ]; then
     snap install edgeca
     edgeca_is_installed=true
@@ -104,6 +100,10 @@ fi
 sleep 60
 
 # generate CA-signed TLS certificate
+# We are running the test script with 'sudo' and although the edgeca snap has the home interface, 
+# which allows access to the home directory, when running as sudo, the user is root, 
+# so it has a different home directory and doesn't have write access to your home directory. 
+# The simplest fix: use `su - "$USER" -c "command"`
 su - "$USER" -c "edgeca gencsr --cn localhost --csr csrfile --key csrkeyfile"
 su - "$USER" -c "edgeca gencert -o localhost.cert -i csrfile -k localhost.key"
 snap set edgexfoundry env.security-proxy.tls-certificate="$(cat localhost.cert)"

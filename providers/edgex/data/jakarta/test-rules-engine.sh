@@ -11,6 +11,8 @@ source "$SCRIPT_DIR/utils.sh"
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
+snap remove --purge edgex-device-mqtt 
+snap remove --purge edgex-app-service-configurable 
 
 # install the snap to make sure it installs
 if [ -n "$REVISION_TO_TEST" ]; then
@@ -72,6 +74,13 @@ snap install edgex-app-service-configurable --channel=2.0
 snap set edgex-app-service-configurable profile=mqtt-export
 snap start --enable edgex-device-mqtt.device-mqtt
 snap start --enable edgex-app-service-configurable.app-service-configurable 
+
+# if mqtt broker not exit, then install it
+if [ -z "$(lsof -i -P -n | grep 1883)" ]; then
+    snap install mosquitto
+    mqtt_broker_is_installed=true
+    echo "mosquitto installed"
+fi
 
 # create a rule-mqtt
 if [ -z "$(edgexfoundry.kuiper-cli create rule rule2 '
@@ -146,6 +155,14 @@ if [ -z "$(snap services edgexfoundry.app-service-configurable | grep edgexfound
     exit 1
 fi
 
-# remove the snap to run the next test
+# remove snaps to run the next test
 snap_remove
+snap remove --purge edgex-device-mqtt 
+snap remove --purge edgex-app-service-configurable
+
+# remove the MQTT broker if we installed it
+if [ "$mqtt_broker_is_installed" = true ] ; then
+    snap remove --purge mosquitto
+    echo "mosquitto removed"
+fi
 

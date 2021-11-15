@@ -232,7 +232,7 @@ parts:
     after: [checkbox-ng]
 ################################################################################
   plainbox-provider-checkbox:
-    source-tag: "snap-2021-11-05T1552"
+    source-tag: "snap-2021-11-15T1744"
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/plainbox-provider-checkbox

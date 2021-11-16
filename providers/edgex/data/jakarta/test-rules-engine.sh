@@ -1,5 +1,14 @@
 #!/bin/bash -e
 
+# This test validates the rules engine (aka Kuiper) that is supported by
+# the edgexfoundry snap. There are four test scenarios:
+# 1. when enable/disable Kuiper and ensures that both 
+# Kuiper and app-service-configurable are started/stopped;
+# 2. ensure Kuiper can create a stream from edgex source;
+# 3. ensure Kuiper can create a type of rule with log sink, 
+# or a type of rule with MQTT sink;
+# 4. validate the operation of stream and rule (status, stop, delete).
+
 # get the directory of this script
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
@@ -11,8 +20,6 @@ source "$SCRIPT_DIR/utils.sh"
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
-snap remove --purge edgex-device-mqtt 
-snap remove --purge edgex-app-service-configurable 
 
 # install the snap to make sure it installs
 if [ -n "$REVISION_TO_TEST" ]; then
@@ -67,13 +74,6 @@ if [ -z "$(edgexfoundry.kuiper-cli create rule rule1 '
     snap_remove
     exit 1
 fi
-
-# install edgex-device-mqtt for rule-mqtt's export
-snap install edgex-device-mqtt --channel=2.0
-snap install edgex-app-service-configurable --channel=2.0
-snap set edgex-app-service-configurable profile=mqtt-export
-snap start --enable edgex-device-mqtt.device-mqtt
-snap start --enable edgex-app-service-configurable.app-service-configurable 
 
 # if mqtt broker not exit, then install it
 if [ -z "$(lsof -i -P -n | grep 1883)" ]; then
@@ -155,10 +155,8 @@ if [ -z "$(snap services edgexfoundry.app-service-configurable | grep edgexfound
     exit 1
 fi
 
-# remove snaps to run the next test
+# remove the snap to run the next test
 snap_remove
-snap remove --purge edgex-device-mqtt 
-snap remove --purge edgex-app-service-configurable
 
 # remove the MQTT broker if we installed it
 if [ "$mqtt_broker_is_installed" = true ] ; then

@@ -64,8 +64,21 @@ def get_insecure_PROVIDERPATH_list():
         * `/usr/local/share/plainbox-providers-1`
         * `/usr/share/plainbox-providers-1`
         * `$XDG_DATA_HOME/plainbox-providers-1`
+        * `/var/tmp/checkbox-providers-develop`
     """
-    return get_secure_PROVIDERPATH_list() + [get_user_PROVIDERPATH_entry()]
+    return get_secure_PROVIDERPATH_list() + [
+        get_user_PROVIDERPATH_entry(), get_universal_PROVIDERPATH_entry()]
+
+
+def get_universal_PROVIDERPATH_entry():
+    """
+    Returns the path to a PROVIDERPATH that's available to all users.
+    This way "developed" provider can be found and read by the remote service.
+
+    :returns:
+        `/var/tmp/checkbox-providers-develop`
+    """
+    return '/var/tmp/checkbox-providers-develop'
 
 
 class InsecureProvider1PlugInCollection(FsPlugInCollection):

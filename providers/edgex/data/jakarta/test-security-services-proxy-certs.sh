@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+# This test validates that the API gateway (aka Kong) is supported by
+# the edgexfoundry snap. There are two test scenarios:
+# 1. validate that by default a self-signed cert is being used for TLS;
+# 2. validate CA-signed TLS certificate can be used for TLS.
+
 # get the directory of this script
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
@@ -79,7 +84,7 @@ fi
 # snap enable edgexfoundry > /dev/null
 
 # sleep 240
-
+# # recheck
 # code=$(curl --insecure --silent --include \
 #     --output /dev/null --write-out "%{http_code}" \
 #     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
@@ -117,8 +122,8 @@ code=$(curl --insecure --silent --include \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
     echo "CA-signed Kong TLS verification cannot be implemented"
-    # snap_remove
-    # exit 1
+    snap_remove
+    exit 1
 fi
 
 # enable this recheck, once this issue has been solved: https://warthogs.atlassian.net/browse/EDGEX-237?focusedCommentId=26353
@@ -126,7 +131,7 @@ fi
 # snap disable edgexfoundry > /dev/null
 # snap enable edgexfoundry > /dev/null
 
-# # sleep 240
+# sleep 240
 
 # # recheck
 # code=$(curl --insecure --silent --include \

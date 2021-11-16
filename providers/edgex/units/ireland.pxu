@@ -70,6 +70,14 @@ environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION
 category_id: edgex
 flags: simple
 
+id: edgex/ireland/edgex-141-JWT
+_summary: Test that a JWT token can be generated and used to access Kong
+command: $PLAINBOX_PROVIDER_DATA/ireland/test-regression-edgex-141-jwt-token.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
 id: edgex/ireland/rules-engine
 _summary: Test that the rules engine works with the snap
 command: $PLAINBOX_PROVIDER_DATA/ireland/test-rules-engine.sh
@@ -77,3 +85,4 @@ user: root
 environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
 category_id: edgex
 flags: simple
+

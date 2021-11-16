@@ -92,6 +92,9 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
         if PROVIDERPATH is None:
             dir_list = get_insecure_PROVIDERPATH_list()
         else:
+            logger.warning((
+                "$PROVIDERPATH is defined, so following provider sources are "
+                "ignored %s ") % get_insecure_PROVIDERPATH_list())
             dir_list = PROVIDERPATH.split(os.path.pathsep)
         return dir_list
 

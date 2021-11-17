@@ -24,7 +24,7 @@ nested_part:
     mobilebroadband-cert-manual
     networking-cert-manual
     optical-cert-manual
-    power-management-precheck-cert
+    power-management-precheck-cert-manual
     # touchpad-cert-manual
     # touchscreen-cert-manual
     usb-cert-manual
@@ -118,7 +118,7 @@ nested_part:
     mobilebroadband-cert-automated
     networking-cert-automated
     optical-cert-automated
-    power-management-precheck-cert
+    power-management-precheck-cert-automated
     # touchpad-cert-automated
     # touchscreen-cert-automated
     usb-cert-automated

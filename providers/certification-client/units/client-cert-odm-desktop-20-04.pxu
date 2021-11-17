@@ -25,7 +25,7 @@ nested_part:
     mobilebroadband-cert-full
     networking-cert-full
     optical-cert-full
-    power-management-precheck-cert
+    # power-management-precheck-cert-full
     # touchpad-cert-full
     # touchscreen-cert-full
     usb-cert-full
@@ -107,6 +107,7 @@ nested_part:
     cpu-cert-full
     disk-cert-automated
     stress-iperf3-automated
+    power-management-precheck-cert-automated
     warm-boot-stress-test
     cold-boot-stress-test
     suspend-stress-test

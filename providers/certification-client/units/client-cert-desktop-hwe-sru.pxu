@@ -93,7 +93,6 @@ include:
     # tell the user to just do nothing.
     graphics/1_switch_card_.*                              certification-status=blocker
     suspend/resolution_before_suspend                      certification-status=blocker
-    suspend/suspend_advanced                               certification-status=blocker
     suspend/resolution_after_suspend                       certification-status=blocker
     suspend/display_after_suspend                          certification-status=blocker
     suspend/cycle_resolutions_after_suspend                certification-status=blocker

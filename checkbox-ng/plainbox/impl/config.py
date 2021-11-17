@@ -298,6 +298,11 @@ class DynamicSection(dict):
 # where the first value is the name of the section and the other is a dict
 # of variable specs.
 CONFIG_SPEC = [
+    ('config', {
+        'config_filename': VarSpec(
+            str, 'checkbox.conf',
+            'Name of the configuration file to look for.'),
+    }),
     ('launcher', {
         'launcher_version': VarSpec(
             int, 1, "Version of launcher to use"),

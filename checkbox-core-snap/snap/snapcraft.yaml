@@ -368,7 +368,7 @@ parts:
     after: [plainbox-provider-snappy]
 ################################################################################
   plainbox-provider-certification-client:
-    source-tag: "snap-2021-11-05T1552"
+    source-tag: "snap-2021-11-17T2206"
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/plainbox-provider-certification-client

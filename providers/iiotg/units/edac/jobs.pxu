@@ -7,7 +7,7 @@ requires:
 flags: simple
 command:
   # TODO: check out returncode and output
-  edac-util --status
+  edac-util -v --status
 
 id: edac/default-report
 _summary: Attach the default report from EDAC util
@@ -16,4 +16,4 @@ requires:
   executable.name == 'edac-util'
 plugin: attachment
 command:
-  edac-util --report=default
+  edac-util -v

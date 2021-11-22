@@ -25,7 +25,7 @@ from plainbox.provider_manager import N_
 setup(
     name='plainbox-provider-tpm2',
     namespace='com.canonical.certification',
-    version="1.18.0rc1",
+    version="1.18.0",
     description=N_("Plainbox Provider for TPM 2.0 (trusted platform module)"),
     gettext_domain='plainbox-provider-tpm2',
 )

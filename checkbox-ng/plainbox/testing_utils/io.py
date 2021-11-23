@@ -25,6 +25,7 @@ Implementation of context managers for observing IO
 """
 
 from io import StringIO
+import os
 import sys
 
 
@@ -36,8 +37,13 @@ class TestIO:
     def __init__(self, *, input=None, combined=False):
         self._combined = combined
         self._input = input
+        self._original_columns = None
 
     def __enter__(self):
+        # Remember the number of columns the terminal uses
+        self._original_columns = os.environ.get('COLUMNS', os.terminal_size.columns)
+        # change the COLUMNS envvar to 80, so we get predictible outputs
+        os.environ['COLUMNS'] = '80'
         # Remember the real objects that we'll replace
         self._real_stdin = sys.stdin
         self._real_stdout = sys.stdout
@@ -85,6 +91,8 @@ class TestIO:
         sys.stdin = self._real_stdin
         sys.stdout = self._real_stdout
         sys.stderr = self._real_stderr
+        # Set COLUMNS back to original value
+        os.environ['COLUMNS'] = str(self._original_columns)
 
     @property
     def stdout(self):

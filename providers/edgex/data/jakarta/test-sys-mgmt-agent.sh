@@ -20,13 +20,11 @@ else
 fi
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 # enable sys-mgmt-agent, as it's disabled by default
 snap set edgexfoundry sys-mgmt-agent=on
-sleep 15
+snap_wait_port_status 58890 open
 
 # make sure that core-data is running
 if [ -n "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | grep inactive)" ]; then

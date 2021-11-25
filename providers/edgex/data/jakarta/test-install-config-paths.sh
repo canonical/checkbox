@@ -23,9 +23,7 @@ fi
 SNAP_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 echo "checking for files with snap revision $SNAP_REVISION"
 

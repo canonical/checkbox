@@ -56,9 +56,7 @@ else
 fi
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 # generate JWT Token
 openssl ecparam -genkey -name prime256v1 -noout -out private.pem
@@ -78,22 +76,23 @@ if [[ $code != 200 ]]; then
     exit 1
 fi
 
-# enable this recheck, once this issue has been solved: https://warthogs.atlassian.net/browse/EDGEX-237?focusedCommentId=26353
 # restart all of EdgeX (including the security-services) and make sure the same certificate still works
-# snap disable edgexfoundry > /dev/null
-# snap enable edgexfoundry > /dev/null
+snap disable edgexfoundry > /dev/null
+snap enable edgexfoundry > /dev/null
 
-# sleep 240
-# # recheck
-# code=$(curl --insecure --silent --include \
-#     --output /dev/null --write-out "%{http_code}" \
-#     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
-#     -H "Authorization: Bearer $TOKEN")
-# if [[ $code != 200 ]]; then
-#     echo "self-signed Kong TLS verification cannot be implemented"
-#     snap_remove
-#     exit 1
-# fi
+# wait for services to come online
+snap_wait_all_services_online
+
+# recheck
+code=$(curl --insecure --silent --include \
+    --output /dev/null --write-out "%{http_code}" \
+    -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
+    -H "Authorization: Bearer $TOKEN")
+if [[ $code != 200 ]]; then
+    echo "self-signed Kong TLS verification cannot be implemented"
+    snap_remove
+    exit 1
+fi
 
 # check if edgeca missing, then install it
 if [ -z "$(snap list edgeca)" ]; then
@@ -102,7 +101,8 @@ if [ -z "$(snap list edgeca)" ]; then
     echo "edgeca installed"
 fi
 
-sleep 60
+# wait for edgeca service to come online
+snap_wait_port_status 50025 open
 
 # generate CA-signed TLS certificate
 # We are running the test script with 'sudo' and although the edgeca snap has the home interface, 
@@ -126,24 +126,24 @@ if [[ $code != 200 ]]; then
     exit 1
 fi
 
-# enable this recheck, once this issue has been solved: https://warthogs.atlassian.net/browse/EDGEX-237?focusedCommentId=26353
 # restart all of EdgeX (including the security-services) and make sure the same certificate still works
-# snap disable edgexfoundry > /dev/null
-# snap enable edgexfoundry > /dev/null
+snap disable edgexfoundry > /dev/null
+snap enable edgexfoundry > /dev/null
 
-# sleep 240
+# wait for services to come online
+snap_wait_all_services_online
 
-# # recheck
-# code=$(curl --insecure --silent --include \
-#     --output /dev/null --write-out "%{http_code}" \
-#     --cacert /var/snap/edgeca/current/CA.pem \
-#     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
-#     -H "Authorization: Bearer $TOKEN")
-# if [[ $code != 200 ]]; then
-#     echo "CA-signed Kong TLS verification cannot be implemented"
-#     snap_remove
-#     exit 1
-# fi
+# recheck
+code=$(curl --insecure --silent --include \
+    --output /dev/null --write-out "%{http_code}" \
+    --cacert /var/snap/edgeca/current/CA.pem \
+    -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
+    -H "Authorization: Bearer $TOKEN")
+if [[ $code != 200 ]]; then
+    echo "CA-signed Kong TLS verification cannot be implemented"
+    snap_remove
+    exit 1
+fi
 
 # remove the snap to run the next test
 snap_remove

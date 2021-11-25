@@ -21,9 +21,7 @@ else
 fi
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 # now install the same snap version we are testing to test the pre-refresh
 # and post-refresh logic in this revision
@@ -38,9 +36,7 @@ else
 fi
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 snap_check_jakarta_svcs
 

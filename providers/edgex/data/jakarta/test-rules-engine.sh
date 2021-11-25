@@ -29,13 +29,12 @@ else
 fi
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 # enable kuiper/rules engine, as it's disabled by default
 snap set edgexfoundry kuiper=on
-sleep 15
+snap_wait_port_status 59720 open
+
 
 # make sure that kuiper/rules engine is started
 if [ -n "$(snap services edgexfoundry.kuiper | grep edgexfoundry.kuiper | grep inactive)" ] ; then
@@ -139,7 +138,7 @@ fi
 
 # disable the kuiper for app-service-configurable
 snap set edgexfoundry kuiper=off
-sleep 15
+snap_wait_port_status 59720 close
 
 # check that kuiper/rules engine is no longer running 
 if [ -z "$(snap services edgexfoundry.kuiper | grep edgexfoundry.kuiper | grep inactive)" ]; then

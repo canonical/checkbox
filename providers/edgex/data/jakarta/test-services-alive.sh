@@ -20,9 +20,7 @@ else
 fi
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 # check services
 snap_check_jakarta_svcs

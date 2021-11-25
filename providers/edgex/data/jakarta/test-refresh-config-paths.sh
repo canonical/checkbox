@@ -42,9 +42,7 @@ for channel in edge; do
     SNAP_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
     
     # wait for services to come online
-    # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-    # to accomodate time for everything to come online
-    sleep 120
+    snap_wait_all_services_online
 
     # now install the snap version we are testing and check again
     if [ -n "$REVISION_TO_TEST" ]; then
@@ -56,7 +54,7 @@ for channel in edge; do
     # wait for services to come online
     # NOTE: this may have to be significantly increased on arm64 or low RAM platforms
     # to accomodate time for everything to come online
-    sleep 240
+    snap_wait_all_services_online
 
     echo "checking for files with previous snap revision $SNAP_REVISION"
 

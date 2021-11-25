@@ -20,9 +20,7 @@ else
 fi
 
 # wait for services to come online
-# NOTE: this may have to be significantly increased on arm64 or low RAM platforms
-# to accomodate time for everything to come online
-sleep 120
+snap_wait_all_services_online
 
 # edgex's core-data service listens by default on port 59880. Ensure that
 # it's not listening on all interfaces (e.g. *:59880), and can only be

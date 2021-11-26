@@ -32,7 +32,6 @@ import shutil
 from plainbox.abc import IJobResult
 from plainbox.abc import IProvider1
 from plainbox.abc import IProviderBackend1
-from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.ctrl import CheckBoxSessionStateController
 from plainbox.impl.ctrl import SymLinkNest
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log

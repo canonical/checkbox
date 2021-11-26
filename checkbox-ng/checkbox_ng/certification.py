@@ -1,14 +1,14 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2021 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Daniel Manrique <roadmr@ubuntu.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,7 +30,6 @@ from gettext import gettext as _
 from logging import getLogger
 import re
 
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.impl.transport import TransportBase
@@ -72,14 +71,9 @@ class SubmissionServiceTransport(TransportBase):
             If this is a file-like object, it will be read and streamed "on
             the fly".
         :param config:
-             Optional PlainBoxConfig object. If http_proxy and https_proxy
-             values are set in this config object, they will be used to send
-             data via the specified protocols. Note that the transport also
-             honors the http_proxy and https_proxy environment variables.
-             Proxy string format is http://[user:password@]<proxy-ip>:port
+            This is here only to to implement the interface.
         :param session_state:
-            The session for which this transport is associated with
-            the data being sent (optional)
+            This is here only to to implement the interface.
         :returns:
             A dictionary with responses from the server if submission
             was successful. This should contain an 'id' key, however
@@ -93,29 +87,14 @@ class SubmissionServiceTransport(TransportBase):
         :raises requests.exceptions.HTTPError:
             If the server returned a non-success result code
         """
-        proxies = None
-        if config and config.environment is not Unset:
-            proxies = {
-                proto[:-len("_proxy")]: config.environment[proto]
-                for proto in ['http_proxy', 'https_proxy']
-                if proto in config.environment
-            }
-        # Find the effective value of secure_id:
-        # - use the configuration object (if available)
-        # - override with secure_id= option (if defined)
-        secure_id = None
-        if config is not None and hasattr(config, 'secure_id'):
-            secure_id = config.secure_id
-        if self._secure_id is not None:
-            secure_id = self._secure_id
+        secure_id = self._secure_id
         if secure_id is None:
             raise InvalidSecureIDError(_("Secure ID not specified"))
         self._validate_secure_id(secure_id)
         logger.debug(
             _("Sending to %s, Secure ID is %s"), self.url, secure_id)
         try:
-            response = requests.post(
-                self.url, data=data, proxies=proxies)
+            response = requests.post(self.url, data=data)
         except requests.exceptions.Timeout as exc:
             raise TransportError(
                 _("Request to {0} timed out: {1}").format(self.url, exc))
@@ -130,7 +109,7 @@ class SubmissionServiceTransport(TransportBase):
                 # This will raise HTTPError for status != 20x
                 response.raise_for_status()
             except requests.exceptions.RequestException as exc:
-                raise TransportError(str(exc))
+                raise TransportError(" ".join([str(exc), exc.response.text]))
             logger.debug("Success! Server said %s", response.text)
             try:
                 return response.json()

@@ -58,7 +58,7 @@ conf_to_env[clients_support-scheduler_port]="CLIENTS_SUPPORTSCHEDULER_PORT/14"
 # [MessageQueue] -- core-data & device-virtual
 conf_to_env[messagequeue_publish-topic-prefix]="MESSAGEQUEUE_PUBLISHTOPICPREFIX/'fubar'"
 
-# load the utils
+# load the jakarta release utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 

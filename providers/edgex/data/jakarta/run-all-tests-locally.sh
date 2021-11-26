@@ -9,7 +9,7 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-# load the utils
+# load the jakarta release utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 

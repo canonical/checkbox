@@ -13,7 +13,7 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-# load the utils
+# load the jakarta release utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
@@ -75,7 +75,7 @@ if [ -z "$(edgexfoundry.kuiper-cli create rule rule1 '
 fi
 
 # if mqtt broker not exit, then install it
-if [ -z "$(lsof -i -P -n | grep 1883)" ]; then
+if [ -z "$(lsof -i -P -n -S 2 | grep 1883)" ]; then
     snap install mosquitto
     mqtt_broker_is_installed=true
     echo "mosquitto installed"

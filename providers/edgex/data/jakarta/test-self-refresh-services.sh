@@ -4,7 +4,7 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-# load the utils
+# load the jakarta release utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
@@ -38,7 +38,7 @@ fi
 # wait for services to come online
 snap_wait_all_services_online
 
-snap_check_jakarta_svcs
+snap_check_svcs
 
 # ensure the release config item is set to jakarta
 snapRelease=$(snap get edgexfoundry release)

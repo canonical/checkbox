@@ -141,6 +141,11 @@ def main():
               "indicate a firmware")
         print("problem.")
         retval = 3
+    if boot_current == "":
+        print("FAIL: The EFI BootCurrent variable is missing. This may "
+              "indicate a firmware")
+        print("problem.")
+        retval = 4
     if (retval == 0):
         retval = is_pxe_booted(boot_entries, boot_order, boot_current)
     return(retval)

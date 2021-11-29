@@ -39,7 +39,6 @@ import sys
 from plainbox.abc import ISessionStateTransport
 from plainbox.i18n import gettext as _
 from plainbox.impl.exporter import ByteStringStreamTranslator
-from plainbox.impl.secure.config import Unset
 
 import requests
 

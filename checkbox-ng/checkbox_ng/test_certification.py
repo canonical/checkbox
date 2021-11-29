@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2017 Canonical Ltd.
+# Copyright 2013-2021 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Daniel Manrique <roadmr@ubuntu.com>
@@ -9,7 +9,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,7 +29,6 @@ from io import BytesIO
 from unittest import TestCase
 
 from pkg_resources import resource_string
-from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.vendor import mock
@@ -88,7 +86,7 @@ class SubmissionServiceTransportTests(TestCase):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
         requests.post.assert_called_with(
-            self.invalid_url, data=dummy_data, proxies=None)
+            self.invalid_url, data=dummy_data)
 
     @mock.patch('checkbox_ng.certification.logger')
     def test_valid_url_cant_connect(self, mock_logger):
@@ -100,8 +98,7 @@ class SubmissionServiceTransportTests(TestCase):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
         requests.post.assert_called_with(self.unreachable_url,
-                                         data=dummy_data,
-                                         proxies=None)
+                                         data=dummy_data)
 
     def test_send_success(self):
         transport = SubmissionServiceTransport(
@@ -120,44 +117,9 @@ class SubmissionServiceTransportTests(TestCase):
         requests.post.return_value.text = 'Some error'
         # Oops, raise_for_status doesn't get fooled by my mocking,
         # so I have to mock *that* method as well..
+        response = requests.Response()
+        error = HTTPError(response=response)
         requests.post.return_value.raise_for_status = MagicMock(
-            side_effect=HTTPError)
+            side_effect=error)
         with self.assertRaises(TransportError):
             transport.send(self.sample_archive)
-
-    def proxy_test(self, environment, proxies):
-        test_environment = environment
-        test_proxies = proxies
-        test_config = PlainBoxConfig()
-        test_config.environment = test_environment
-
-        transport = SubmissionServiceTransport(
-            self.valid_url, self.valid_option_string)
-        dummy_data = BytesIO(b"some data to send")
-
-        requests.post.return_value = MagicMock(name='response')
-        requests.post.return_value.status_code = 200
-        requests.post.return_value.text = '{"id": 768}'
-        result = transport.send(dummy_data, config=test_config)
-        self.assertTrue(result)
-        requests.post.assert_called_with(
-            self.valid_url, data=dummy_data,
-            proxies=test_proxies)
-
-    def test_set_only_one_proxy(self):
-        test_environment = {'http_proxy': "http://1.2.3.4:5"}
-        test_proxies = {'http': "http://1.2.3.4:5"}
-        self.proxy_test(test_environment, test_proxies)
-
-    def test_set_two_proxies(self):
-        test_environment = {'http_proxy': "http://1.2.3.4:5",
-                            'https_proxy': "http://1.2.3.4:6"}
-        test_proxies = {'http': "http://1.2.3.4:5",
-                        'https': "http://1.2.3.4:6"}
-        self.proxy_test(test_environment, test_proxies)
-
-    def test_behavior_with_extraneous_environment(self):
-        test_environment = {'http_proxy': "http://1.2.3.4:5",
-                            'weird_value': 'What is this'}
-        test_proxies = {'http': "http://1.2.3.4:5"}
-        self.proxy_test(test_environment, test_proxies)

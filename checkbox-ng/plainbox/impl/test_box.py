@@ -30,7 +30,6 @@ import warnings
 from plainbox import __version__ as version
 from plainbox.abc import IProvider1
 from plainbox.impl.box import main
-from plainbox.impl.box import stubbox_main
 from plainbox.impl.clitools import ToolBase
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
@@ -47,13 +46,6 @@ def tearDownModule():
 
 
 class TestMain(TestCase):
-
-    def test_version(self):
-        with TestIO(combined=True) as io:
-            with self.assertRaises(SystemExit) as call:
-                stubbox_main(['--version'])
-            self.assertEqual(call.exception.args, (0,))
-        self.assertEqual(io.combined, "{}\n".format(version))
 
     @suppress_warnings
     # Temporarily supress warnings (i.e. ResourceWarning) to work around

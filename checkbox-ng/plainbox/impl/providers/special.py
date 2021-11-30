@@ -37,25 +37,6 @@ from plainbox.impl.secure.providers.v1 import Provider1Definition
 logger = logging.getLogger("plainbox.providers.special")
 
 
-def get_stubbox_def():
-    """
-    Get a Provider1Definition for stubbox
-    """
-    stubbox_def = Provider1Definition()
-    stubbox_def.name = "com.canonical.plainbox:stubbox"
-    stubbox_def.version = "1.0"
-    stubbox_def.description = N_("StubBox (dummy data for development)")
-    stubbox_def.secure = False
-    stubbox_def.gettext_domain = "plainbox-provider-stubbox"
-    stubbox_def.location = os.path.join(
-        get_plainbox_dir(), "impl/providers/stubbox")
-    return stubbox_def
-
-
-def get_stubbox(**kwargs):
-    return Provider1.from_definition(get_stubbox_def(), secure=False, **kwargs)
-
-
 def get_categories_def():
     """
     Get a Provider1Definition for the provider that knows all the categories

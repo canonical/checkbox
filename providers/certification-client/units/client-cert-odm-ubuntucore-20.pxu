@@ -39,6 +39,7 @@ nested_part:
     audio-manual
     bluetooth-manual
     camera-manual
+    edac-manual
     led-manual
     mediacard-manual
     rtc-manual
@@ -106,6 +107,7 @@ nested_part:
     self-automated
     bluez-automated
     camera-automated
+    edac-automated
     mediacard-automated
     rtc-automated
     serial-automated

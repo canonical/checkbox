@@ -301,7 +301,8 @@ plugin: user-interact
 command:
  eth_hotplugging.py {{ interface }} && gateway_ping_test.py -v --interface {{ interface }}
 category_id: com.canonical.plainbox::ethernet
-estimated_duration: 1.0
+estimated_duration: 60.0
+user: root
 flags: preserve-locale
 
 unit: template

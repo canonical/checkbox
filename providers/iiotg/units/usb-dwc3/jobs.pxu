@@ -1,4 +1,3 @@
-
 id: usb-dwc3/driver-detect
 _summary: Detect if the USB DWC3 drivers are loaded
 category_id: usb-dwc3
@@ -48,7 +47,7 @@ command:
   modprobe g_mass_storage file="${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img stall=0
 user: root
 category_id: usb-dwc3
-estimated_duration: 120s
+estimated_duration: 5m
 flags: preserve-locale
 
 id: usb-dwc3/mass-storage-cleanup
@@ -58,8 +57,10 @@ after: usb-dwc3/mass-storage
 command:
   echo "Removing g_mass_storage module..."
   modprobe -r g_mass_storage
-  echo "Removing image file..."
-  rm "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
+  if [ -f "${PLAINBOX_SESSION_SHARE}/checkbox-mass-storage-test.img" ]; then
+    echo "Removing image file..."
+    rm "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
+  fi
 user: root
 estimated_duration: 1s
 

@@ -337,12 +337,20 @@ parts:
       - clevis-tpm2
     after: [plainbox-provider-docker]
 ################################################################################
+  checkbox-provider-iiotg:
+    source-tag: ""
+    source-depth: 1
+    plugin: checkbox-provider
+    source: git://git.launchpad.net/checkbox-provider-iiotg
+    source-branch: main
+    after: [plainbox-provider-tpm2]
+################################################################################
   plainbox-provider-sru:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/plainbox-provider-sru
-    after: [plainbox-provider-tpm2]
+    after: [checkbox-provider-iiotg]
 ################################################################################
   checkbox-provider-edgex:
     source-tag: ""

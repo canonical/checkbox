@@ -33,6 +33,10 @@ slots:
     interface: content
     read:
       - $SNAP/providers/plainbox-provider-tpm2
+  provider-iiotg:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-iiotg
   provider-engineering-tests:
     interface: content
     read:

@@ -114,6 +114,7 @@ nested_part:
     usb-c-automated
     usb-automated
     usb3-automated
+    usb-dwc3-automated
     watchdog-automated
     wwan-automated
     com.intel.ipdt::ipdt-plan

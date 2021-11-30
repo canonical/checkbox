@@ -32,6 +32,7 @@ nested_part:
     usb-cert-manual
     usb3-cert-manual
     usb-c-cert-full # no manual only
+    usb-dwc3-manual
     wireless-cert-manual
     # start of suspend related tests
     before-suspend-reference-cert-full
@@ -130,6 +131,7 @@ nested_part:
     usb-cert-automated
     usb3-cert-automated
     # usb-c-cert-automated # only usb-c-cert-full
+    usb-dwc3-automated
     wireless-cert-automated
     # start of suspend related tests
     before-suspend-reference-cert-full

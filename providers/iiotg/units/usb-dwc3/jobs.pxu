@@ -2,8 +2,10 @@
 id: usb-dwc3/driver-detect
 _summary: Detect if the USB DWC3 drivers are loaded
 category_id: usb-dwc3
+imports: from com.canonical.plainbox import manifest
 requires:
   device.driver == 'dwc3-pci'
+  manifest.has_usb_dwc3_controller == 'True'
 flags: simple fail-on-resource
 command:
   echo "dwc3-pci driver loaded"
@@ -11,8 +13,10 @@ command:
 id: usb-dwc3/module-detect
 _summary: Detect if the USB DWC3 module is loaded
 category_id: usb-dwc3
+imports: from com.canonical.plainbox import manifest
 requires:
   module.name == 'dwc3_pci'
+  manifest.has_usb_dwc3_controller == 'True'
 flags: simple fail-on-resource
 command:
   echo "dwc3_pci module loaded"

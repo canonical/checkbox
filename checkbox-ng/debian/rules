@@ -16,7 +16,6 @@ override_dh_auto_build:
 	# Build translations
 	python3 setup.py build_i18n --merge-po
 	# Build translations for the bundled provider
-	PYTHONPATH=. ./plainbox/impl/providers/stubbox/manage.py i18n --dont-update-pot --dont-merge-po
 	PYTHONPATH=. ./plainbox/impl/providers/categories/manage.py i18n --dont-update-pot --dont-merge-po
 	PYTHONPATH=. ./plainbox/impl/providers/manifest/manage.py i18n --dont-update-pot --dont-merge-po
 	PYTHONPATH=. ./plainbox/impl/providers/exporters/manage.py i18n --dont-update-pot --dont-merge-po
@@ -38,7 +37,6 @@ override_dh_install:
 # Override dh_clean to remove provider build artefacts
 override_dh_clean:
 	dh_clean
-	rm -rf plainbox/impl/providers/stubbox/build
 	rm -rf plainbox/impl/providers/categories/build
 
 # Drop the empty python-3.4 directory

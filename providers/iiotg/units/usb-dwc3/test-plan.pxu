@@ -1,0 +1,27 @@
+id: usb-dwc3-full
+_name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests
+unit: test plan
+include:
+nested_part:
+    usb-dwc3-manual
+    usb-dwc3-automated
+
+id: usb-dwc3-manual
+_name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests (manual)
+unit: test plan
+include:
+    usb-dwc3/mass-storage
+    usb-dwc3/mass-storage-cleanup
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::module
+
+id: usb-dwc3-automated
+_name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests (automated)
+unit: test plan
+include:
+    usb-dwc3/driver-detect
+    usb-dwc3/module-detect
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::module

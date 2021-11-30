@@ -19,7 +19,6 @@
 
 """Tests for the session assistant module class."""
 
-from plainbox.impl.providers.special import get_stubbox
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import UsageExpectation
@@ -56,20 +55,14 @@ class SessionAssistantTests(morris.SignalTestCase):
         self.p3 = mock.Mock(spec_set=Provider1, name='p3')
         self.p3.namespace = 'com.canonical.certification'
         self.p3.name = 'com.canonical.certification:stuff'
-        # The stubbox provider, non-mocked, with lots of useful jobs
-        self.stubbox = get_stubbox()
 
     def _get_mock_providers(self):
         """Get some mocked provides for testing."""
         return [self.p1, self.p2, self.p3]
 
-    def _get_test_providers(self):
-        """Get the stubbox provider, it's fully functional."""
-        return [self.stubbox]
-
     def test_expected_call_sequence(self, mock_get_providers):
         """Track the sequence of allowed method calls."""
-        mock_get_providers.return_value = self._get_test_providers()
+        mock_get_providers.return_value = self._get_mock_providers()
         # SessionAssistant.start_new_session() must now be allowed
         self.assertIn(self.sa.start_new_session,
                       UsageExpectation.of(self.sa).allowed_calls)

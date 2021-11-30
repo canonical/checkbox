@@ -9,7 +9,8 @@ do
         sysfs="${line:9}"
 	break
     fi
-    if [ "$name" = "AT Translated Set 2 keyboard" ]; then
+    if [ "$name" = "AT Translated Set 2 keyboard" ] ||
+       [ "${name:0:26}" = "Logitech Wireless Keyboard" ]; then
         keyboard=1
     else
         keyboard=0

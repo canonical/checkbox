@@ -29,15 +29,6 @@ include plainbox/impl/providers/manifest/po/*.pot
 include plainbox/impl/providers/manifest/po/POTFILES.in
 include plainbox/impl/providers/manifest/units/*.pxu
 
-include plainbox/impl/providers/stubbox/bin/*
-include plainbox/impl/providers/stubbox/data/*
-include plainbox/impl/providers/stubbox/manage.py
-include plainbox/impl/providers/stubbox/po/*.po
-include plainbox/impl/providers/stubbox/po/*.pot
-include plainbox/impl/providers/stubbox/po/POTFILES.in
-include plainbox/impl/providers/stubbox/units/jobs/*.pxu
-include plainbox/impl/providers/stubbox/units/testplans/*.pxu
-
 recursive-exclude daily-package-testing *
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf

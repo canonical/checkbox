@@ -11,6 +11,7 @@ nested_part:
     audio-cert-manual
     bluetooth-cert-manual
     camera-cert-manual
+    edac-manual
     thunderbolt-cert-manual
     monitor-integrated-gpu-cert-manual
     graphics-integrated-gpu-cert-manual
@@ -31,6 +32,7 @@ nested_part:
     usb-cert-manual
     usb3-cert-manual
     usb-c-cert-full # no manual only
+    usb-dwc3-manual
     wireless-cert-manual
     # start of suspend related tests
     before-suspend-reference-cert-full
@@ -108,6 +110,7 @@ nested_part:
     audio-cert-automated
     bluetooth-cert-automated
     camera-cert-automated
+    edac-automated
     thunderbolt-cert-automated
     monitor-integrated-gpu-cert-automated
     graphics-integrated-gpu-cert-automated
@@ -128,6 +131,7 @@ nested_part:
     usb-cert-automated
     usb3-cert-automated
     # usb-c-cert-automated # only usb-c-cert-full
+    usb-dwc3-automated
     wireless-cert-automated
     # start of suspend related tests
     before-suspend-reference-cert-full

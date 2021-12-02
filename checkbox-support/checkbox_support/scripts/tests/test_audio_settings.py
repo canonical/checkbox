@@ -171,6 +171,15 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
             _guess_hdmi_profile(self.get_text("desktop-bionic-x13")),
             ('0', 'Hdmi2'))
 
+    def test_displayport_monitor_hifi(self):
+        """
+        Displayport profiles can be exposed using Hifi
+        """
+        self.assertEqual(
+            _guess_hdmi_profile(self.get_text("displayport-monitor-hifi")),
+            ('0', 'HiFi'))
+
+
 class RegexTest(unittest.TestCase):
 
     def test_volume_regex_trusty(self):

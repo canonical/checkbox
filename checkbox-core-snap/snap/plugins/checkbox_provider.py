@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 from textwrap import dedent
 from typing import Any, Dict, List, Set
 
@@ -38,7 +37,11 @@ class PluginImpl(PluginV2):
         return set()
 
     def get_build_environment(self) -> Dict[str, str]:
-        return {"PYTHONPATH": "$SNAPCRAFT_STAGE/lib/python3.8/site-packages"}
+        if self.project._get_build_base() == "core22":
+            site_pkg_path = "$SNAPCRAFT_STAGE/lib/python3.9/site-packages"
+        else:
+            site_pkg_path = "$SNAPCRAFT_STAGE/lib/python3.8/site-packages"
+        return {"PYTHONPATH": site_pkg_path}
 
     def get_build_commands(self) -> List[str]:
         build_commands = [

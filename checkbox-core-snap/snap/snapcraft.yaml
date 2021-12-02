@@ -1,10 +1,10 @@
-name: checkbox20
+name: checkbox22
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
 version: '1.25.dev'
-grade: stable
+grade: devel # switch to stable when core22 is stable
 
-base: core20
+base: core22
 
 # Don't forget to add a new slot if a new provider part is added in the parts
 # section below.
@@ -17,10 +17,6 @@ slots:
     interface: content
     read:
       - $SNAP/providers/plainbox-provider-checkbox
-  provider-snappy:
-    interface: content
-    read:
-      - $SNAP/providers/plainbox-provider-snappy
   provider-ipdt:
     interface: content
     read:
@@ -142,8 +138,8 @@ parts:
       - python3-systemd
       # added to stage python:
       - libpython3-stdlib
-      - libpython3.8-stdlib
-      - libpython3.8-minimal
+      - libpython3.9-stdlib
+      - libpython3.9-minimal
       - python3-pip
       - python3-setuptools
       - python3-wheel
@@ -151,7 +147,7 @@ parts:
       - python3-minimal
       - python3-distutils
       - python3-pkg-resources
-      - python3.8-minimal
+      - python3.9-minimal
     build-packages:
       - libbluetooth-dev
       - python3-dev
@@ -165,7 +161,7 @@ parts:
       - -**/RECORD
       - -**/__pycache__
     build-environment:
-      - C_INCLUDE_PATH: /usr/include/python3.8
+      - C_INCLUDE_PATH: /usr/include/python3.9
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
     override-stage: |
       snapcraftctl stage
@@ -188,8 +184,8 @@ parts:
       - python3-xlsxwriter
       # added to stage python:
       - libpython3-stdlib
-      - libpython3.8-stdlib
-      - libpython3.8-minimal
+      - libpython3.9-stdlib
+      - libpython3.9-minimal
       - python3-pip
       - python3-setuptools
       - python3-wheel
@@ -197,7 +193,7 @@ parts:
       - python3-minimal
       - python3-distutils
       - python3-pkg-resources
-      - python3.8-minimal
+      - python3.9-minimal
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
@@ -365,19 +361,12 @@ parts:
       - curl
     after: [plainbox-provider-sru]
 ################################################################################
-  plainbox-provider-snappy:
-    source-tag: ""
-    source-depth: 1
-    plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-snappy
-    after: [checkbox-provider-edgex]
-################################################################################
   checkbox-provider-gpgpu:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/checkbox-provider-gpgpu
-    after: [plainbox-provider-snappy]
+    after: [checkbox-provider-edgex]
 ################################################################################
   plainbox-provider-certification-client:
     source-tag: ""
@@ -409,23 +398,23 @@ parts:
       - -Dflavors=x11-glesv2
       - --prefix=/usr
 ################################################################################
-  rpi-ppa:
-    plugin: nil
-    override-pull: |
-      sudo add-apt-repository ppa:sylvain-pineau/ppa-rpi
-      sudo apt-get update
-    build-packages:
-      - software-properties-common
-  rpi-support-binaries:
-    after: [rpi-ppa]
-    plugin: nil
-    stage-packages:
-      - on armhf:
-        - libraspberrypi0
-      - on arm64:
-        - libraspberrypi0
-    organize:
-      usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
+  # rpi-ppa:
+  #   plugin: nil
+  #   override-pull: |
+  #     sudo add-apt-repository ppa:sylvain-pineau/ppa-rpi
+  #     sudo apt-get update
+  #   build-packages:
+  #     - software-properties-common
+  # rpi-support-binaries:
+  #   after: [rpi-ppa]
+  #   plugin: nil
+  #   stage-packages:
+  #     - on armhf:
+  #       - libraspberrypi0
+  #     - on arm64:
+  #       - libraspberrypi0
+  #   organize:
+  #     usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
 ################################################################################
   lk-boot-env:
     plugin: nil

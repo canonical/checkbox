@@ -141,7 +141,7 @@ _description:
      Validate that 3-touch tap is operating as expected
  STEPS:
      1. Commence the test
-     {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
+     {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
      2. Tap the screen within the test area with 3 fingers simultaneously.
      3. Once 3 fingers are on the screen you should see the indicator they are recognized.
  VERIFICATION:
@@ -153,7 +153,7 @@ _description:
      Was the tap detected?
      {% endif %}
 command:
-    {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
+    {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
     manage_compiz_plugin.py unityshell disable
     qmlscene -qt5 3 "$PLAINBOX_PROVIDER_DATA"/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?

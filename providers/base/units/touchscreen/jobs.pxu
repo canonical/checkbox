@@ -178,7 +178,7 @@ _description:
      Validate that 4-touch tap is operating as expected
  STEPS:
      1. Commence the test
-     {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
+     {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
      2. Tap the screen within the test area with 4 fingers simultaneously.
      3. Once 4 fingers are on the screen you should see the indicator they are recognized.
  VERIFICATION:
@@ -188,7 +188,7 @@ _description:
      3. If the tap is not detected the test will time out after 20 seconds.
      {% endif %}
 command:
-    {%- if 'Unity' in __system_env__["XDG_CURRENT_DESKTOP"] %}
+    {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
     manage_compiz_plugin.py unityshell disable
     qmlscene -qt5 4 "$PLAINBOX_PROVIDER_DATA"/touch_tap_test.qml 2>&1 | grep -o PASS
     EXIT=$?

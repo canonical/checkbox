@@ -395,6 +395,7 @@ parts:
       #- -Dflavors=drm-gl,drm-glesv2,wayland-gl,wayland-glesv2,x11-gl,x11-glesv2
       - -Dflavors=x11-glesv2
       - --prefix=/usr
+    after: [plainbox-provider-certification-server]
 ################################################################################
   # rpi-ppa:
   #   plugin: nil

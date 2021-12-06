@@ -18,12 +18,12 @@ esac
 # Launcher common exports for any checkbox app #
 ################################################
 
-RUNTIME=/snap/checkbox20/current
+RUNTIME=/snap/checkbox22/current
 if [ ! -d "$RUNTIME" ]; then
-    echo "You need to install the checkbox20 snap."
+    echo "You need to install the checkbox22 snap."
     echo ""
     echo "You can do this with this command:"
-    echo "snap install checkbox20"
+    echo "snap install checkbox22"
     exit 1
 fi
 

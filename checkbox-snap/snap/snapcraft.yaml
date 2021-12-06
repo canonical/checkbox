@@ -4,10 +4,10 @@ description: |
   Checkbox is a flexible test automation software.
   It’s the main tool used in Ubuntu Certification program.
 version: '2.1.dev'
-grade: stable
+grade: devel  # switch to stable when core22 is stable
 confinement: classic
 
-base: core20
+base: core22
 
 apps:
   checkbox-cli:

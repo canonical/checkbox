@@ -95,7 +95,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: make
-    source: git://kernel.ubuntu.com/cking/stress-ng
+    source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1
     build-packages:

@@ -134,7 +134,6 @@ parts:
     source: git://git.launchpad.net/checkbox-support
     stage-packages:
       # actual requirements
-      - python3-distro
       - python3-requests-unixsocket
       - python3-systemd
       # added to stage python:
@@ -396,6 +395,8 @@ parts:
       - -Dflavors=x11-glesv2
       - --prefix=/usr
     after: [plainbox-provider-certification-server]
+    stage-packages:
+      - python3-distro
 ################################################################################
   # rpi-ppa:
   #   plugin: nil

@@ -134,6 +134,7 @@ parts:
     source: git://git.launchpad.net/checkbox-support
     stage-packages:
       # actual requirements
+      - python3-distro
       - python3-requests-unixsocket
       - python3-systemd
       # added to stage python:
@@ -163,9 +164,6 @@ parts:
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.9
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
-    override-stage: |
-      snapcraftctl stage
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/distro.py
 ################################################################################
   checkbox-ng:
     source-tag: ""

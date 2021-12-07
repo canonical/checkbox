@@ -1,0 +1,218 @@
+id: client-cert-odm-desktop-22-04-manual
+_name: [DRAFT] ODM Client Certification for Desktop 22.04 - (1/2) Manual tests
+unit: test plan
+_description:
+ This test plan is intended for use by ODMs in their own facilities as part of
+ the ODM Certification programme. This test plan should be used when certifying
+ Desktop images.
+include:
+nested_part:
+    submission-cert-full
+    audio-cert-manual
+    bluetooth-cert-manual
+    camera-cert-manual
+    edac-manual
+    thunderbolt-cert-manual
+    monitor-integrated-gpu-cert-manual
+    graphics-integrated-gpu-cert-manual
+    graphics-discrete-gpu-cert-manual
+    monitor-discrete-gpu-cert-manual
+    input-cert-manual
+    disk-cert-manual
+    keys-cert-manual
+    led-cert-manual
+    mediacard-cert-manual
+    mobilebroadband-cert-manual
+    ethernet-cert-manual
+    networking-cert-manual
+    optical-cert-manual
+    power-management-precheck-cert-manual
+    # touchpad-cert-manual
+    # touchscreen-cert-manual
+    usb-cert-manual
+    usb3-cert-manual
+    usb-c-cert-full # no manual only
+    usb-dwc3-manual
+    wireless-cert-manual
+    # start of suspend related tests
+    before-suspend-reference-cert-full
+    # suspend point
+    after-suspend-reference-cert-full
+    # Test discrete card first, if present, since it's the one we will be using
+    # after coming back from suspend if the system has hybrid graphics.
+    after-suspend-graphics-discrete-gpu-cert-manual
+    after-suspend-monitor-discrete-gpu-cert-full
+    # Now we ask to switch to the integrated graphics card. This requires a
+    # restart of checkbox.
+    after-suspend-graphics-integrated-gpu-cert-manual
+    after-suspend-monitor-integrated-gpu-cert-full
+    suspend-key-led-oops-check-cert
+    after-suspend-audio-cert-full # no-manual only
+    after-suspend-camera-cert-full # no-manual only
+    after-suspend-input-cert-full # no-manual only
+    after-suspend-keys-cert-full # no-manual only
+    after-suspend-led-cert-full # no-manual only
+    after-suspend-mediacard-cert-full # no-manual only
+    after-suspend-optical-cert-full # no-manual only
+    # after-suspend-touchpad-cert-manual
+    # after-suspend-touchscreen-cert-manual
+    after-suspend-usb-cert-full # no-manual only
+    after-suspend-usb3-cert-full # no-manual only
+    after-suspend-usb-c-cert-full # no manual only
+    # after-suspend-wireless-cert-full # auto only
+    info-attachment-cert-full
+exclude:
+    com.canonical.certification::keys/hibernate
+    com.canonical.certification::keys/lock-screen
+    com.canonical.certification::keys/brightness
+    com.canonical.certification::keys/media-control
+    com.canonical.certification::keys/mute
+    com.canonical.certification::keys/volume
+    com.canonical.certification::keys/video-out
+    com.canonical.certification::keys/wireless
+    com.canonical.certification::keys/keyboard-backlight
+    com.canonical.certification::keys/microphone-mute
+    com.canonical.certification::keys/fn-lock
+    com.canonical.certification::after-suspend-manual-keys/hibernate
+    com.canonical.certification::after-suspend-manual-keys/lock-screen
+    com.canonical.certification::after-suspend-manual-keys/brightness
+    com.canonical.certification::after-suspend-manual-keys/media-control
+    com.canonical.certification::after-suspend-manual-keys/mute
+    com.canonical.certification::after-suspend-manual-keys/volume
+    com.canonical.certification::after-suspend-manual-keys/video-out
+    com.canonical.certification::after-suspend-manual-keys/wireless
+    com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
+    com.canonical.certification::after-suspend-manual-keys/microphone-mute
+    com.canonical.certification::after-suspend-manual-keys/fn-lock
+    com.canonical.certification::led/bluetooth
+    com.canonical.certification::led/wlan
+    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/fn
+    com.canonical.certification::led/mute
+    com.canonical.certification::led/microphone-mute
+    com.canonical.certification::suspend/led_after_suspend/bluetooth
+    com.canonical.certification::suspend/led_after_suspend/wlan
+    com.canonical.certification::suspend/led_after_suspend/wlan-disabled
+    com.canonical.certification::after-suspend-manual-led/fn
+    com.canonical.certification::after-suspend-manual-led/mute
+    com.canonical.certification::after-suspend-manual-led/microphone-mute
+
+id: client-cert-odm-desktop-22-04-automated
+_name: [DRAFT] ODM Client Certification for Desktop 22.04 - (2/2) Automated tests
+unit: test plan
+_description:
+ This test plan is intended for use by ODMs in their own facilities as part of
+ the ODM Certification programme. This test plan should be used when certifying
+ Desktop images.
+include:
+nested_part:
+    submission-cert-full
+    audio-cert-automated
+    bluetooth-cert-automated
+    camera-cert-automated
+    edac-automated
+    thunderbolt-cert-automated
+    monitor-integrated-gpu-cert-automated
+    graphics-integrated-gpu-cert-automated
+    graphics-discrete-gpu-cert-automated
+    monitor-discrete-gpu-cert-automated
+    input-cert-automated
+    disk-cert-manual
+    keys-cert-automated
+    led-cert-automated
+    mediacard-cert-automated
+    mobilebroadband-cert-automated
+    ethernet-cert-automated
+    networking-cert-automated
+    optical-cert-automated
+    power-management-precheck-cert-automated
+    # touchpad-cert-automated
+    # touchscreen-cert-automated
+    usb-cert-automated
+    usb3-cert-automated
+    # usb-c-cert-automated # only usb-c-cert-full
+    usb-dwc3-automated
+    wireless-cert-automated
+    # start of suspend related tests
+    before-suspend-reference-cert-full
+    # suspend point
+    after-suspend-reference-cert-full
+    # Test discrete card first, if present, since it's the one we will be using
+    # after coming back from suspend if the system has hybrid graphics.
+    after-suspend-graphics-discrete-gpu-cert-automated
+    # after-suspend-monitor-discrete-gpu-cert-automated # not defined
+    # Now we ask to switch to the integrated graphics card. This requires a
+    # restart of checkbox.
+    after-suspend-graphics-integrated-gpu-cert-automated
+    # after-suspend-monitor-integrated-gpu-cert-automated # not defined
+    suspend-key-led-oops-check-cert
+    # after-suspend-audio-cert-automated
+    # after-suspend-camera-cert-automated
+    # after-suspend-input-cert-automated
+    # after-suspend-keys-cert-automated
+    # after-suspend-led-cert-automated
+    # after-suspend-mediacard-cert-automated
+    # after-suspend-optical-cert-automated
+    # after-suspend-touchpad-cert-automated
+    # after-suspend-touchscreen-cert-automated
+    # after-suspend-usb-cert-automated
+    # after-suspend-usb3-cert-automated
+    # after-suspend-usb-c-cert-automated # only usb-c-cert-full
+    after-suspend-wireless-cert-automated
+    # Automated Tests
+    # The following tests are purely automated and/or lenghty stress tests.
+    # They have been moved to the end of the test run to improve the testing
+    # process.
+    misc-client-cert-full
+    cpu-cert-automated
+    disk-cert-automated
+    stress-iperf3-automated
+    warm-boot-stress-test
+    cold-boot-stress-test
+    suspend-stress-test
+    stress-ng-cert-automated
+    tpm-cert-automated
+    info-attachment-cert-full
+exclude:
+    com.canonical.certification::keys/hibernate
+    com.canonical.certification::keys/lock-screen
+    com.canonical.certification::keys/brightness
+    com.canonical.certification::keys/media-control
+    com.canonical.certification::keys/mute
+    com.canonical.certification::keys/volume
+    com.canonical.certification::keys/video-out
+    com.canonical.certification::keys/wireless
+    com.canonical.certification::keys/keyboard-backlight
+    com.canonical.certification::keys/microphone-mute
+    com.canonical.certification::keys/fn-lock
+    com.canonical.certification::after-suspend-manual-keys/hibernate
+    com.canonical.certification::after-suspend-manual-keys/lock-screen
+    com.canonical.certification::after-suspend-manual-keys/brightness
+    com.canonical.certification::after-suspend-manual-keys/media-control
+    com.canonical.certification::after-suspend-manual-keys/mute
+    com.canonical.certification::after-suspend-manual-keys/volume
+    com.canonical.certification::after-suspend-manual-keys/video-out
+    com.canonical.certification::after-suspend-manual-keys/wireless
+    com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
+    com.canonical.certification::after-suspend-manual-keys/microphone-mute
+    com.canonical.certification::after-suspend-manual-keys/fn-lock
+    com.canonical.certification::led/bluetooth
+    com.canonical.certification::led/wlan
+    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/fn
+    com.canonical.certification::led/mute
+    com.canonical.certification::led/microphone-mute
+    com.canonical.certification::suspend/led_after_suspend/bluetooth
+    com.canonical.certification::suspend/led_after_suspend/wlan
+    com.canonical.certification::suspend/led_after_suspend/wlan-disabled
+    com.canonical.certification::after-suspend-manual-led/fn
+    com.canonical.certification::after-suspend-manual-led/mute
+    com.canonical.certification::after-suspend-manual-led/microphone-mute
+
+id: client-cert-odm-desktop-22-04
+_name: [DRAFT] DONT USE - desktop-22-04 - placeholder to establish that total number of tests has not changed
+unit: test plan
+include:
+nested_part:
+    client-cert-odm-desktop-22-04-manual
+    client-cert-odm-desktop-22-04-automated

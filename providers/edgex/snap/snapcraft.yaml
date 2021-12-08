@@ -8,15 +8,15 @@ plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
-    default-provider: checkbox
+    default-provider: checkbox16
   provider-resource:
     interface: content
     target: $SNAP/providers/plainbox-provider-resource
-    default-provider: checkbox
+    default-provider: checkbox16
   provider-checkbox:
     interface: content
     target: $SNAP/providers/plainbox-provider-checkbox
-    default-provider: checkbox
+    default-provider: checkbox16
 
 apps:
   checkbox-cli:

@@ -74,7 +74,7 @@ def main():
             'ERROR: failed to find gadget.yaml at {}'.format(gadget_yaml))
 
     with open(gadget_yaml) as f:
-        data = yaml.load(f)
+        data = yaml.load(f, Loader=yaml.SafeLoader)
         for k in data['volumes'].keys():
             if 'bootloader' not in data['volumes'][k]:
                 continue

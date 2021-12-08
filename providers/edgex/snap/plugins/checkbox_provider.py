@@ -26,7 +26,7 @@ class CheckboxProvider(plainbox_provider.PlainboxProviderPlugin):
         super().__init__(name, options, project)
         self.build_snaps.append("checkbox-provider-tools")
         if project.info.base in (None, "core16"):
-            self.build_snaps.append("checkbox")
+            self.build_snaps.append("checkbox16")
         if project.info.base == "core18":
             self.build_snaps.append("checkbox18")
 

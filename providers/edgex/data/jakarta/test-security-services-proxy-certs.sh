@@ -108,14 +108,15 @@ snap_wait_port_status 50025 open
 # We are running the test script with 'sudo' and although the edgeca snap has the home interface, 
 # which allows access to the home directory, when running as sudo, the user is root, 
 # so it has a different home directory and doesn't have write access to your home directory. 
-# The simplest fix: use `su - "$USER" -c "command"`
-su - "$USER" -c "edgeca gencsr --cn localhost --csr csrfile --key csrkeyfile"
-su - "$USER" -c "edgeca gencert -o localhost.cert -i csrfile -k localhost.key"
-snap set edgexfoundry env.security-proxy.tls-certificate="$(cat localhost.cert)"
-snap set edgexfoundry env.security-proxy.tls-private-key="$(cat localhost.key)"
+# It's therefore easiest to use the $SNAP_DATA directory of the EdgeCA snap:
+EDGECA_DIR="/var/snap/edgeca/current/"
+edgeca gencsr --cn localhost --csr $EDGECA_DIR/csrfile --key $EDGECA_DIR/csrkeyfile
+edgeca gencert -o $EDGECA_DIR/localhost.cert -i $EDGECA_DIR/csrfile -k $EDGECA_DIR/localhost.key
+snap set edgexfoundry env.security-proxy.tls-certificate="$(cat $EDGECA_DIR/localhost.cert)"
+snap set edgexfoundry env.security-proxy.tls-private-key="$(cat $EDGECA_DIR/localhost.key)"
 
-# verify CA-signed TLS certificate
-code=$(curl --insecure --silent --include \
+# verify CA-signed TLS certificate - note, this should not use "--insecure" as we are providing a cacert
+code=$(curl --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     --cacert /var/snap/edgeca/current/CA.pem \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
@@ -124,6 +125,8 @@ if [[ $code != 200 ]]; then
     echo "CA-signed Kong TLS verification cannot be implemented"
     snap_remove
     exit 1
+else
+    echo "CA-signed Kong TLS verification test succeeded"
 fi
 
 # restart all of EdgeX (including the security-services) and make sure the same certificate still works
@@ -134,7 +137,7 @@ snap enable edgexfoundry > /dev/null
 snap_wait_all_services_online
 
 # recheck
-code=$(curl --insecure --silent --include \
+code=$(curl --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     --cacert /var/snap/edgeca/current/CA.pem \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
@@ -143,6 +146,8 @@ if [[ $code != 200 ]]; then
     echo "CA-signed Kong TLS verification cannot be implemented"
     snap_remove
     exit 1
+else
+    echo "CA-signed Kong TLS verification test 2 succeeded"
 fi
 
 # remove the snap to run the next test

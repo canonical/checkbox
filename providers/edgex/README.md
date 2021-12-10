@@ -1,67 +1,72 @@
 # edgex-checkbox-provider
 
+This project contains the [Checkbox](https://checkbox.readthedocs.io/en/latest/) tests of the [Edgex Foundry](https://docs.edgexfoundry.org/) snaps.
 
-This project contains the checkbox tests of the [Edgex Foundry](https://docs.edgexfoundry.org/) snaps.
-[Checkbox](https://checkbox.readthedocs.io/en/latest/) is a test automation software performed by the Canonical certification team. 
-The [upstream repository](https://github.com/canonical/edgex-checkbox-provider) is hosted on Github; 
-The tests run via the [Launchpad mirror](https://code.launchpad.net/checkbox-provider-edgex).
+The upstream repository is hosted on Github: https://github.com/canonical/edgex-checkbox-provider
 
-When edgexfoundry snap is released to a `$TRACK/beta` channel, the corresponding checkbox test will be triggered. 
+A mirror is available on Launchpad: https://code.launchpad.net/checkbox-provider-edgex
+
+When a snap is released to a `$TRACK/beta` channel, the corresponding checkbox tests are triggered on [Ubuntu certified hardware](https://ubuntu.com/certified). The tests reference the mirror that is available on Launchpad.
 
 ## Usage
-- ### Run tests using checkbox-edgexfoundry snap
-    This is the recommended method as it runs all the tests in isolation.
+### Run tests using checkbox-edgexfoundry snap
+This is the recommended method as it runs all the tests in isolation.
 
-    This snap is published in the snap store at https://snapcraft.io/checkbox-edgexfoundry, 
-and built by launchpad at https://launchpad.net/~ce-certification-qa/+snap/checkbox-edgexfoundry-edge.
+This snap is built on
+[launchpad](https://launchpad.net/~ce-certification-qa/+snap/checkbox-edgexfoundry-edge)
+and published as
+[checkbox-edgexfoundry](https://snapcraft.io/checkbox-edgexfoundry).
 
-    The checkbox-edgexfoundry snap should be installed in [developer mode](https://snapcraft.io/docs/install-modes#heading--developer) to have full access. 
-    Here is an example:
-    ```bash
-    sudo snap install checkbox-edgexfoundry --devmode --channel=latest/edge
-    ```
-    checkbox-edgexfoundry snap depends on extra environment variables, so setting test channel and release name:
-    ```bash
-    sudo DEFAULT_TEST_CHANNEL=<"channel"> checkbox-edgexfoundry.<release name>
-    ```
-    Here is an example:
-    ```bash
-    sudo DEFAULT_TEST_CHANNEL="2.1/beta" checkbox-edgexfoundry.jakarta
+The checkbox-edgexfoundry snap should be installed in [developer mode](https://snapcraft.io/docs/install-modes#heading--developer) to have full access. 
 
-    ```
-- ### Run tests using checkbox CLI
-  ```bash
-  cd edgex-checkbox-provider/
-  sudo ./manage.py install
-  checkbox-cli
-  ```
-  Scroll down and press SPACE to select the desired test plan:
-  ```
-   Select test plan
-  ┌─────────────────────────────────────────────────┐
-  │    ( ) Dock Hot Plug tests                      │
-  │    ( ) EdgeX Fuji                               │
-  │    ( ) EdgeX Geneva                             │
-  │    ( ) EdgeX Hanoi                              │
-  │    (X) EdgeX Ireland                            │
-  │    ( ) EdgeX Jakarta                            │
-  │    ( ) Firewire tests                           │
-  └─────────────────────────────────────────────────┘
-   Press <Enter> to continue                (H) Help
-  ```
+To install:
+```bash
+sudo snap install checkbox-edgexfoundry --devmode --channel=latest/edge
+```
 
-- ### Run test scripts directly
+Set `DEFAULT_TEST_CHANNEL` to snap channel, and CLI name to the EdgeX release name:
+```bash
+sudo DEFAULT_TEST_CHANNEL="<channel>" checkbox-edgexfoundry.<release name>
+```
 
-  Enter the desired test directory, then get a list of available options:
+For example:
+```bash
+sudo DEFAULT_TEST_CHANNEL="2.1/beta" checkbox-edgexfoundry.jakarta
+```
 
-  ```bash
-  sudo ./run-all-tests-locally.sh -h
-  ```
-  For example, to run a single test with a local snap:
+### Run tests using checkbox CLI
+```bash
+cd edgex-checkbox-provider/
+sudo ./manage.py install
+checkbox-cli
+```
 
-  ```bash
-  sudo ./run-all-tests-locally.sh -s edgexfoundry.snap -t test-rules-engine.sh
-  ```
+Scroll down and press SPACE to select the desired test plan:
+```
+Select test plan
+┌─────────────────────────────────────────────────┐
+│    ( ) Dock Hot Plug tests                      │
+│    ( ) EdgeX Fuji                               │
+│    ( ) EdgeX Geneva                             │
+│    ( ) EdgeX Hanoi                              │
+│    (X) EdgeX Ireland                            │
+│    ( ) EdgeX Jakarta                            │
+│    ( ) Firewire tests                           │
+└─────────────────────────────────────────────────┘
+Press <Enter> to continue                (H) Help
+```
+
+### Run test scripts directly
+Enter the desired test directory, then get a list of available options:
+
+```bash
+sudo ./run-all-tests-locally.sh -h
+```
+For example, to run a single test with a local snap:
+
+```bash
+sudo ./run-all-tests-locally.sh -s edgexfoundry.snap -t test-rules-engine.sh
+```
 
 ## Testing coverage
 - Test the installation of edgexfoundry snap
@@ -79,4 +84,3 @@ and built by launchpad at https://launchpad.net/~ce-certification-qa/+snap/check
 ## Limitations
 - The current tests plan only covers the [edgexfoundry](https://snapcraft.io/edgexfoundry) snap. It does not cover any of the device or app service snaps.
 - edgex-secretstore-token content interface is not be covered by tests.
-

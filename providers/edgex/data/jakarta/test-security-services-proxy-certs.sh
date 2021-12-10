@@ -112,18 +112,10 @@ snap_wait_port_status 50025 open
 EDGECA_DIR="/var/snap/edgeca/current"
 edgeca gencsr --cn localhost --csr $EDGECA_DIR/csrfile --key $EDGECA_DIR/csrkeyfile
 edgeca gencert -o $EDGECA_DIR/localhost.cert -i $EDGECA_DIR/csrfile -k $EDGECA_DIR/localhost.key
-
-if [[ -f "$EDGECA_DIR/localhost.cert" && -f "$EDGECA_DIR/localhost.key" ]]; then
-
-    EDGECA_CERT=$(< $EDGECA_DIR/localhost.cert)
-    EDGECA_KEY=$(< $EDGECA_DIR/localhost.key)
-
-    snap set edgexfoundry env.security-proxy.tls-certificate="$EDGECA_CERT"
-    snap set edgexfoundry env.security-proxy.tls-private-key="$EDGECA_KEY"
-else
-    echo "Could not generate certificate and key"
-    exit 1
-fi
+EDGECA_CERT=$(< $EDGECA_DIR/localhost.cert)
+EDGECA_KEY=$(< $EDGECA_DIR/localhost.key)
+snap set edgexfoundry env.security-proxy.tls-certificate="$EDGECA_CERT"
+snap set edgexfoundry env.security-proxy.tls-private-key="$EDGECA_KEY" 
 
 
 # verify CA-signed TLS certificate - note, this should not use "--insecure" as we are providing a cacert

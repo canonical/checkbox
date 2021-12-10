@@ -19,7 +19,10 @@ from checkbox_support.snap_utils.system import get_lk_bootimg_path
 
 def fitdumpimage(filename):
     cmd = 'dumpimage -l {}'.format(filename)
-    out = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+    try:
+        out = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+    except Exception:
+        raise SystemExit(1)
     buf = io.StringIO(out)
 
     # first line should identify FIT file
@@ -71,8 +74,10 @@ def main():
             'ERROR: failed to find gadget.yaml at {}'.format(gadget_yaml))
 
     with open(gadget_yaml) as f:
-        data = yaml.load(f)
+        data = yaml.load(f, Loader=yaml.SafeLoader)
         for k in data['volumes'].keys():
+            if 'bootloader' not in data['volumes'][k]:
+                continue
             bootloader = data['volumes'][k]['bootloader']
     if not bootloader:
         raise SystemExit('ERROR: could not find name of bootloader')
@@ -162,7 +167,10 @@ def main():
     if bootloader == 'grub':
         cmd = 'mokutil --sb-state'
         print('+', cmd, flush=True)
-        out = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+        try:
+            out = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+        except Exception:
+            raise SystemExit(1)
         print(out, flush=True)
         if out != 'SecureBoot enabled\n':
             raise SystemExit('ERROR: mokutil reports Secure Boot not in use')

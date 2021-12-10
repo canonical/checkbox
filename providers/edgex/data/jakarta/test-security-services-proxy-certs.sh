@@ -109,11 +109,22 @@ snap_wait_port_status 50025 open
 # which allows access to the home directory, when running as sudo, the user is root, 
 # so it has a different home directory and doesn't have write access to your home directory. 
 # It's therefore easiest to use the $SNAP_DATA directory of the EdgeCA snap:
-EDGECA_DIR="/var/snap/edgeca/current/"
+EDGECA_DIR="/var/snap/edgeca/current"
 edgeca gencsr --cn localhost --csr $EDGECA_DIR/csrfile --key $EDGECA_DIR/csrkeyfile
 edgeca gencert -o $EDGECA_DIR/localhost.cert -i $EDGECA_DIR/csrfile -k $EDGECA_DIR/localhost.key
-snap set edgexfoundry env.security-proxy.tls-certificate="$(cat $EDGECA_DIR/localhost.cert)"
-snap set edgexfoundry env.security-proxy.tls-private-key="$(cat $EDGECA_DIR/localhost.key)"
+
+if [[ -f "$EDGECA_DIR/localhost.cert" && -f "$EDGECA_DIR/localhost.key" ]]; then
+
+    EDGECA_CERT=$(< $EDGECA_DIR/localhost.cert)
+    EDGECA_KEY=$(< $EDGECA_DIR/localhost.key)
+
+    snap set edgexfoundry env.security-proxy.tls-certificate="$EDGECA_CERT"
+    snap set edgexfoundry env.security-proxy.tls-private-key="$EDGECA_KEY"
+else
+    echo "Could not generate certificate and key"
+    exit 1
+fi
+
 
 # verify CA-signed TLS certificate - note, this should not use "--insecure" as we are providing a cacert
 code=$(curl --silent --include \
@@ -147,7 +158,7 @@ if [[ $code != 200 ]]; then
     snap_remove
     exit 1
 else
-    echo "CA-signed Kong TLS verification test 2 succeeded"
+    echo "CA-signed Kong TLS verification recheck test succeeded"
 fi
 
 # remove the snap to run the next test

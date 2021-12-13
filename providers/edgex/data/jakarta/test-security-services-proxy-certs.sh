@@ -58,14 +58,22 @@ fi
 # wait for services to come online
 snap_wait_all_services_online
 
-# generate JWT Token
+echo "Generating private key"
 openssl ecparam -genkey -name prime256v1 -noout -out private.pem
+echo "Generating public key"
 openssl ec -in private.pem -pubout -out public.pem
+PUBLIC_KEY=$(< public.pem)
+
+echo "Setting security-proxy user"
 snap set edgexfoundry env.security-proxy.user=user01,USER_ID,ES256
-snap set edgexfoundry env.security-proxy.public-key="$(cat public.pem)"
+echo "Setting security-proxy public key"
+snap set edgexfoundry env.security-proxy.public-key="$PUBLIC_KEY"
+
+# generate JWT Token
+echo "Generating JWT"
 TOKEN=`edgexfoundry.secrets-config proxy jwt --algorithm ES256 --private_key private.pem --id USER_ID --expiration=1h`
 
-# verify self-signed TLS certificate
+echo "Verifying self-signed TLS certificate"
 code=$(curl --insecure --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
@@ -76,7 +84,9 @@ if [[ $code != 200 ]]; then
     exit 1
 fi
 
+
 # restart all of EdgeX (including the security-services) and make sure the same certificate still works
+echo "Restarting (disable+enable) edgexfoundry"
 snap disable edgexfoundry > /dev/null
 snap enable edgexfoundry > /dev/null
 
@@ -84,6 +94,7 @@ snap enable edgexfoundry > /dev/null
 snap_wait_all_services_online
 
 # recheck
+echo "Re-verifying the self-signed TLS certificate"
 code=$(curl --insecure --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
@@ -94,7 +105,8 @@ if [[ $code != 200 ]]; then
     exit 1
 fi
 
-# check if edgeca missing, then install it
+
+echo "Installing edgeca if missing"
 if [ -z "$(snap list edgeca)" ]; then
     snap install edgeca
     edgeca_is_installed=true
@@ -110,15 +122,21 @@ snap_wait_port_status 50025 open
 # so it has a different home directory and doesn't have write access to your home directory. 
 # It's therefore easiest to use the $SNAP_DATA directory of the EdgeCA snap:
 EDGECA_DIR="/var/snap/edgeca/current"
+echo "Generating CSR"
 edgeca gencsr --cn localhost --csr $EDGECA_DIR/csrfile --key $EDGECA_DIR/csrkeyfile
+echo "Generating certificate"
 edgeca gencert -o $EDGECA_DIR/localhost.cert -i $EDGECA_DIR/csrfile -k $EDGECA_DIR/localhost.key
 EDGECA_CERT=$(< $EDGECA_DIR/localhost.cert)
 EDGECA_KEY=$(< $EDGECA_DIR/localhost.key)
+
+echo "Setting security-proxy certificate "
 snap set edgexfoundry env.security-proxy.tls-certificate="$EDGECA_CERT"
+echo "Setting security-proxy certificate private key"
 snap set edgexfoundry env.security-proxy.tls-private-key="$EDGECA_KEY" 
 
 
-# verify CA-signed TLS certificate - note, this should not use "--insecure" as we are providing a cacert
+echo "Verifying CA-signed TLS certificate"
+# this should not use "--insecure" as we are providing a cacert
 code=$(curl --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     --cacert /var/snap/edgeca/current/CA.pem \
@@ -133,6 +151,7 @@ else
 fi
 
 # restart all of EdgeX (including the security-services) and make sure the same certificate still works
+echo "Restarting (disable+enable) edgexfoundry"
 snap disable edgexfoundry > /dev/null
 snap enable edgexfoundry > /dev/null
 
@@ -140,6 +159,7 @@ snap enable edgexfoundry > /dev/null
 snap_wait_all_services_online
 
 # recheck
+echo "Re-verifying CA-signed TLS certificate"
 code=$(curl --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     --cacert /var/snap/edgeca/current/CA.pem \
@@ -153,6 +173,7 @@ else
     echo "CA-signed Kong TLS verification recheck test succeeded"
 fi
 
+echo "All done. Cleaning up"
 # remove the snap to run the next test
 snap_remove
 

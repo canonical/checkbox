@@ -9,7 +9,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate-single.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
   echo "Calling sleep_test.py"
   sleep_test.py -s disk -w 120
@@ -34,7 +34,7 @@ requires:
   rtc.state == 'supported'
 environ: PLAINBOX_SESSION_SHARE
 user: root
-command: checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+command: checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate-single.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
 estimated_duration: 300.00
 _description:
  This is the automated version of suspend/hibernate_advanced.
@@ -54,7 +54,7 @@ estimated_duration: 300.00
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/{index}_hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/{index}_hibernate-single.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
   echo "Calling sleep_test.py"
   sleep_test.py -s disk -w 120

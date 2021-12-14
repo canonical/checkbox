@@ -28,7 +28,7 @@ command:
  if [[ -v SNAP ]]; then
      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
  fi
- set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
+ set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
 estimated_duration: 1m30s
 _summary: Test auto suspend/resume after switching to {vendor} {product}
 
@@ -262,7 +262,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
+  set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
  else
   echo "Calling sleep_test.py"
   set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log

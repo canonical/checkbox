@@ -49,7 +49,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=30
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=30
  else
   echo "Calling sleep_test.py"
   set -o pipefail; sleep_test.py -s disk -i 30 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
@@ -112,7 +112,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles -f none -s s3 --s3-device-check --s3-device-check-delay=60 --s3-sleep-delay=60 --s3-multiple=30 | tee "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles_times.log
+  set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log -f none -s s3 --s3-device-check --s3-device-check-delay=60 --s3-sleep-delay=60 --s3-multiple=30 | tee "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles_times.log
  else
   echo "Calling sleep_test.py"
   set -o pipefail; sleep_test.py -p -s mem -i 30 | tee "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log
@@ -212,7 +212,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=250
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=250
  else
   echo "Calling sleep_test.py"
   set -o pipefail; sleep_test.py -s disk -i 250 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log
@@ -239,7 +239,7 @@ user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles -s s3 --s3-device-check --s3-device-check-delay=45 --s3-sleep-delay=30 --s3-multiple=250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles_times.log
+  set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log -s s3 --s3-device-check --s3-device-check-delay=45 --s3-sleep-delay=30 --s3-multiple=250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles_times.log
  else
   echo "Calling sleep_test.py"
   set -o pipefail; sleep_test.py -p -s mem -i 250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log

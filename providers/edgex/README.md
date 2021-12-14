@@ -21,7 +21,7 @@ The checkbox-edgexfoundry snap should be installed in [developer mode](https://s
 
 To install:
 ```bash
-sudo snap install checkbox-edgexfoundry --devmode --channel=latest/edge
+sudo snap install checkbox-edgexfoundry --devmode --edge
 ```
 
 Set `DEFAULT_TEST_CHANNEL` to snap channel, and CLI name to the EdgeX release name:
@@ -31,6 +31,29 @@ sudo DEFAULT_TEST_CHANNEL="<channel>" checkbox-edgexfoundry.<release name>
 
 For example:
 ```bash
+sudo DEFAULT_TEST_CHANNEL="2.1/beta" checkbox-edgexfoundry.jakarta
+```
+
+#### Modify snapped tests
+The checkbox-edgexfoundry snap packages all the test files inside during the build.
+To modify those test files without rebuilding the snap, 
+get the checkbox-edgexfoundry snap and unsquash it:
+
+```
+snap download checkbox-edgexfoundry --edge
+unsquashfs checkbox-edgexfoundry_99.snap 
+```
+
+Update the test you are working on in `./squashfs-root/providers/checkbox-provider-edgex/data/`.
+
+Optionally, to save time, modify jakarta.pxu to remove all tests other than the one you are testing.
+
+Once done, run the tests with:
+
+```
+mksquashfs ./squashfs-root checkbox-edgexfoundry.snap  -noappend -comp xz -all-root -no-xattrs -no-fragments
+sudo snap install ./checkbox-edgexfoundry.snap --devmode
+snap connect checkbox-edgexfoundry:checkbox-runtime checkbox16:checkbox-runtime
 sudo DEFAULT_TEST_CHANNEL="2.1/beta" checkbox-edgexfoundry.jakarta
 ```
 

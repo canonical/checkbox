@@ -120,7 +120,7 @@ snap_wait_port_status()
             do
                 #max retry avoids forever waiting
                 ((i=i+1))
-                echo "check port "$1" status "$2" services timed out, reached max retry count of $i/300"
+                echo "check port "$1" status "$2" services timed out, current retry count: $i/300"
 
                 if [ "$i" -ge 300 ]; then
                     echo "check port "$1" status "$2" services timed out, reached maximum retry count of 300"
@@ -135,7 +135,7 @@ snap_wait_port_status()
             do
                 #max retry avoids forever waiting
                 ((i=i+1))
-                echo "check port "$1" status "$2" services timed out, reached max retry count of $i/300"
+                echo "check port "$1" status "$2" services timed out, current retry count: $i/300"
 
                 if [ "$i" -ge 300 ]; then
                     echo "check port "$1" status "$2" services timed out, reached maximum retry count of 300"
@@ -146,5 +146,11 @@ snap_wait_port_status()
             done
         fi
     fi
+}
+
+print_snap_version()
+{
+    local snap_name=$1
+    snap list $snap_name | sed -n 2p
 }
 

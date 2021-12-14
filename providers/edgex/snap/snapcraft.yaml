@@ -39,6 +39,9 @@ apps:
   jakarta:
     command: bin/jakarta
     plugs: *standard
+  latest:
+    command: bin/latest
+    plugs: *standard
   test-runner:
     command: bin/test-runner
     plugs: *standard

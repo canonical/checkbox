@@ -58,12 +58,16 @@ fi
 # wait for services to come online
 snap_wait_all_services_online
 
-echo "Generating private key"
-openssl ecparam -genkey -name prime256v1 -noout -out private.pem
-echo "Generating public key"
-openssl ec -in private.pem -pubout -out public.pem
-PUBLIC_KEY=$(< public.pem)
+# Due to confinement issues when running this test, we write the private key to SNAP_DATA
+EDGEXFOUNDRY_SNAP_DATA="/var/snap/edgexfoundry/current/checkbox"
+mkdir -p $EDGEXFOUNDRY_SNAP_DATA
 
+echo "Generating private key"
+openssl ecparam -genkey -name prime256v1 -noout -out $EDGEXFOUNDRY_SNAP_DATA/private.pem
+echo "Generating public key"
+openssl ec -in $EDGEXFOUNDRY_SNAP_DATA/private.pem -pubout -out public.pem
+PUBLIC_KEY=$(< public.pem)
+ 
 echo "Setting security-proxy user"
 snap set edgexfoundry env.security-proxy.user=user01,USER_ID,ES256
 echo "Setting security-proxy public key"
@@ -71,12 +75,14 @@ snap set edgexfoundry env.security-proxy.public-key="$PUBLIC_KEY"
 
 echo "Generating JWT"
 # this command doesn't write errors to stderr. Check the exit code before using the output:
-if ! OUT=$(edgexfoundry.secrets-config proxy jwt --algorithm ES256 --private_key private.pem --id USER_ID --expiration=1h)
+if ! OUT=$(edgexfoundry.secrets-config proxy jwt --algorithm ES256 --private_key $EDGEXFOUNDRY_SNAP_DATA/private.pem --id USER_ID --expiration=1h)
 then
     >&2 echo $OUT
     exit 1
 fi
 TOKEN=$OUT
+
+echo "Got Token: $TOKEN"
 
 echo "Verifying self-signed TLS certificate"
 code=$(curl --insecure --silent --include \
@@ -84,9 +90,11 @@ code=$(curl --insecure --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN") 
 if [[ $code != 200 ]]; then
-    echo "self-signed Kong TLS verification cannot be implemented"
+    >&2 echo "self-signed Kong TLS verification test failed"
     snap_remove
     exit 1
+else
+    echo "Self-signed TLS verification test succeeded"
 fi
 
 
@@ -105,10 +113,13 @@ code=$(curl --insecure --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
-    echo "self-signed Kong TLS verification cannot be implemented"
+    >&2 echo "self-signed Kong TLS verification test failed"
     snap_remove
     exit 1
+else
+    echo "Self-signed TLS verification recheck test succeeded"
 fi
+
 
 
 echo "Installing edgeca if missing"
@@ -148,7 +159,7 @@ code=$(curl --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
-    echo "CA-signed Kong TLS verification cannot be implemented"
+    >&2 echo "CA-signed Kong TLS verification test failed"
     snap_remove
     exit 1
 else
@@ -171,7 +182,7 @@ code=$(curl --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
-    echo "CA-signed Kong TLS verification cannot be implemented"
+    >&2 echo "CA-signed Kong TLS verification test failed"
     snap_remove
     exit 1
 else

@@ -84,19 +84,20 @@ TOKEN=$OUT
 
 echo "Got Token: $TOKEN"
 
+# note: we need to use "edgexfoundry.curl", not "curl" to correctly support TLS 1.2
+
 echo "Verifying self-signed TLS certificate"
-code=$(curl --insecure --silent --include \
+code=$(edgexfoundry.curl --insecure --show-error --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN") 
 if [[ $code != 200 ]]; then
-    >&2 echo "self-signed Kong TLS verification test failed"
+    >&2 echo "self-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1
 else
     echo "Self-signed TLS verification test succeeded"
 fi
-
 
 # restart all of EdgeX (including the security-services) and make sure the same certificate still works
 echo "Restarting (disable+enable) edgexfoundry"
@@ -108,12 +109,12 @@ snap_wait_all_services_online
 
 # recheck
 echo "Re-verifying the self-signed TLS certificate"
-code=$(curl --insecure --silent --include \
+code=$(edgexfoundry.curl --insecure --show-error --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
-    >&2 echo "self-signed Kong TLS verification test failed"
+    >&2 echo "self-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1
 else
@@ -150,16 +151,19 @@ snap set edgexfoundry env.security-proxy.tls-certificate="$EDGECA_CERT"
 echo "Setting security-proxy certificate private key"
 snap set edgexfoundry env.security-proxy.tls-private-key="$EDGECA_KEY" 
 
+# the CA certificate needs to be where edgexfoundry.curl can read it
+echo "Copying CA certificate"
+cp $EDGECA_DIR/CA.pem $EDGEXFOUNDRY_SNAP_DATA/
 
 echo "Verifying CA-signed TLS certificate"
 # this should not use "--insecure" as we are providing a cacert
-code=$(curl --silent --include \
+code=$(edgexfoundry.curl --show-error --silent --include \
     --output /dev/null --write-out "%{http_code}" \
-    --cacert /var/snap/edgeca/current/CA.pem \
+    --cacert $EDGEXFOUNDRY_SNAP_DATA/CA.pem \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
-    >&2 echo "CA-signed Kong TLS verification test failed"
+    >&2 echo "CA-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1
 else
@@ -176,13 +180,13 @@ snap_wait_all_services_online
 
 # recheck
 echo "Re-verifying CA-signed TLS certificate"
-code=$(curl --silent --include \
+code=$(edgexfoundry.curl --show-error --silent --include \
     --output /dev/null --write-out "%{http_code}" \
-    --cacert /var/snap/edgeca/current/CA.pem \
+    --cacert $EDGEXFOUNDRY_SNAP_DATA/CA.pem \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
-    >&2 echo "CA-signed Kong TLS verification test failed"
+    >&2 echo "CA-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1
 else

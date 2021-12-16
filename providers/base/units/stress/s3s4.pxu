@@ -58,7 +58,7 @@ user: root
 command:
  {%- if fwts == "supported" %}
  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
- set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_{{ s3_iterations }}_cycles -f none -s s3 --s3-device-check --s3-device-check-delay="${STRESS_S3_WAIT_DELAY:-45}" --s3-sleep-delay="${STRESS_S3_SLEEP_DELAY:-30}" --s3-multiple={{ s3_iterations }} -j "$SNAP"/share/fwts | tee "$PLAINBOX_SESSION_SHARE"/suspend_{{ s3_iterations }}_cycles_times.log
+ set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_{{ s3_iterations }}_cycles.log -f none -s s3 --s3-device-check --s3-device-check-delay="${STRESS_S3_WAIT_DELAY:-45}" --s3-sleep-delay="${STRESS_S3_SLEEP_DELAY:-30}" --s3-multiple={{ s3_iterations }} -j "$SNAP"/share/fwts | tee "$PLAINBOX_SESSION_SHARE"/suspend_{{ s3_iterations }}_cycles_times.log
  {%- else %}
  for i in {1..{{ s3_iterations }}};
  do
@@ -118,7 +118,7 @@ environ: PLAINBOX_SESSION_SHARE STRESS_S4_SLEEP_DELAY STRESS_S4_WAIT_DELAY LD_LI
 user: root
 command:
  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
- checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_{{ s4_iterations }}_cycles -f none -s s4 --s4-device-check --s4-device-check-delay="${STRESS_S4_WAIT_DELAY:-45}" --s4-sleep-delay="${STRESS_S4_SLEEP_DELAY:-120}" --s4-multiple={{ s4_iterations }} -j "$SNAP"/share/fwts
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_{{ s4_iterations }}_cycles.log -f none -s s4 --s4-device-check --s4-device-check-delay="${STRESS_S4_WAIT_DELAY:-45}" --s4-sleep-delay="${STRESS_S4_SLEEP_DELAY:-120}" --s4-multiple={{ s4_iterations }} -j "$SNAP"/share/fwts
 _description:
  PURPOSE:
     This is an automated stress test that will force the system to hibernate/resume for {{ s4_iterations }} cycles

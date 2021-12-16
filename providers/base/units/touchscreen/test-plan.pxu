@@ -43,11 +43,11 @@ _name: Touchscreen tests (Manual)
 _description:
  Touchscreen tests (Manual)
 include:
- after-suspend-manual-touchscreen/drag-n-drop       certification-status=blocker
- after-suspend-manual-touchscreen/multitouch-zoom   certification-status=blocker
- after-suspend-manual-touchscreen/multitouch-rotate
- after-suspend-manual-touchscreen/3-touch-tap       certification-status=blocker
- after-suspend-manual-touchscreen/4-touch-tap       certification-status=blocker
+ after-suspend-touchscreen/drag-n-drop       certification-status=blocker
+ after-suspend-touchscreen/multitouch-zoom   certification-status=blocker
+ after-suspend-touchscreen/multitouch-rotate
+ after-suspend-touchscreen/3-touch-tap       certification-status=blocker
+ after-suspend-touchscreen/4-touch-tap       certification-status=blocker
 
 id: after-suspend-touchscreen-cert-automated
 unit: test plan
@@ -71,10 +71,10 @@ unit: test plan
 _name: Touchscreen tests (after suspend, certification blockers only)
 _description: Touchscreen tests (after suspend, certification blockers only)
 include:
-    after-suspend-manual-touchscreen/drag-n-drop        certification-status=blocker
-    after-suspend-manual-touchscreen/multitouch-zoom    certification-status=blocker
-    after-suspend-manual-touchscreen/3-touch-tap        certification-status=blocker
-    after-suspend-manual-touchscreen/4-touch-tap        certification-status=blocker
+    after-suspend-touchscreen/drag-n-drop        certification-status=blocker
+    after-suspend-touchscreen/multitouch-zoom    certification-status=blocker
+    after-suspend-touchscreen/3-touch-tap        certification-status=blocker
+    after-suspend-touchscreen/4-touch-tap        certification-status=blocker
 
 id: touchscreen-evdev
 unit: test plan

@@ -242,7 +242,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -270,7 +270,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -325,7 +325,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -355,7 +355,7 @@ requires:
  manifest.has_thunderbolt3 == 'True'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -377,7 +377,7 @@ _verification:
 id: dock/audio-playback-headphones
 category_id: dock-audio
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 _summary: Headphones output test
 depends: dock/audio-list-devices
@@ -407,7 +407,7 @@ plugin: user-interact-verify
 category_id: dock-audio
 id: dock/audio-alsa-record-playback-external
 estimated_duration: 30.0
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _summary: External microphone plugged to the dock to record sound test
 depends: dock/audio-playback-headphones
 requires:
@@ -843,7 +843,7 @@ _description:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/c-to-a-adapter/insert-after-suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
@@ -868,7 +868,7 @@ _verification:
 plugin: user-interact
 category_id: dock-usb
 id: dock/usb-c/insert-after-suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
@@ -1114,7 +1114,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1142,7 +1142,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1170,7 +1170,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1198,7 +1198,7 @@ requires:
  package.name == 'pulseaudio-utils'
 _summary: HDMI audio test
 plugin: user-interact-verify
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -1243,7 +1243,7 @@ command: audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings
 id: dock/networking-gateway-ping-after-suspend
 category_id: dock-network
 plugin: shell
-depends: suspend/suspend_advanced ethernet/detect
+depends: suspend/suspend_advanced_auto ethernet/detect
 command: gateway_ping_test.py
 estimated_duration: 2.00
 _summary: Network gateway ping after suspend
@@ -1252,7 +1252,7 @@ _description: Tests whether the system has a working Internet connection.
 plugin: user-interact
 id: dock/usb-insert-after-suspend
 category_id: dock-usb
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
 _summary: USB drive insertion after resuming
 command: removable_storage_watcher.py insert usb
@@ -1274,7 +1274,7 @@ _verification:
 
 id: dock/power-button-after-suspend
 category_id: dock
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 plugin: manual
 estimated_duration: 30.00
 _summary: Docking test
@@ -1289,7 +1289,7 @@ _verification:
 plugin: user-interact
 id: dock/usb3-insert-after-suspend
 category_id: dock-usb
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
 _summary: USB3 drive insertion after resuming
 command: removable_storage_watcher.py -m 500000000 insert usb
@@ -1367,7 +1367,7 @@ _description:
 plugin: user-interact-verify
 id: dock/usb-HID-after-suspend
 category_id: dock-usb
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 _summary: USB HID device test after resuming
 command: keyboard_test.py
@@ -1382,7 +1382,7 @@ _verification:
 
 id: dock/monitor-displayport-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _summary: DisplayPort test on the dock after resuming
 plugin: manual
@@ -1397,7 +1397,7 @@ _verification:
 
 id: dock/monitor-dvi-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _summary: DVI port test on the dock after resuming
 plugin: manual
@@ -1412,7 +1412,7 @@ _verification:
 
 id: dock/monitor-hdmi-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _summary: HDMI port test on the dock after resuming
 plugin: manual
@@ -1427,7 +1427,7 @@ _verification:
 
 id: dock/monitor-vga-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _summary: VGA port test on the dock after resuming
 plugin: manual
@@ -1442,7 +1442,7 @@ _verification:
 
 id: dock/monitor_type-c_displayport-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120
 plugin: manual
 _summary: Display connected via DisplayPort using an USB Type-C port after resuming
@@ -1460,7 +1460,7 @@ _verification:
 
 id: dock/monitor_type-c_hdmi-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120
 plugin: manual
 _summary: Display connected via HDMI using an USB Type-C port after resuming
@@ -1478,7 +1478,7 @@ _verification:
 
 id: dock/monitor_type-c_vga-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120
 plugin: manual
 _summary: Display connected via VGA using an USB Type-C port after resuming
@@ -1496,7 +1496,7 @@ _verification:
 
 id: dock/monitor-dual-head-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _summary: Dual monitors test while docked after suspend
 plugin: manual
@@ -1513,7 +1513,7 @@ _verification:
 
 id: dock/monitor-triple-head-after-suspend
 category_id: dock-display
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 _summary: Tripple monitors test while docked after suspend
 plugin: manual
@@ -1959,7 +1959,7 @@ estimated_duration: 40.0
 depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: removable_storage_watcher.py insert --timeout 40 scsi
 _summary: Thunderbolt3 storage insertion detection
 _purpose:
@@ -1981,7 +1981,7 @@ user: root
 depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: removable_storage_test.py -s 268400000 scsi
 _summary: Thunderbolt3 storage test
 _description:
@@ -1995,7 +1995,7 @@ estimated_duration: 20.0
 depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: removable_storage_watcher.py remove scsi
 _summary: Thunderbolt3 storage removal detection
 _purpose:
@@ -2011,7 +2011,7 @@ _verification:
 plugin: user-interact-verify
 category_id: dock
 id: dock/thunderbolt3-daisy-chain
-flags: also-after-suspend-manual
+flags: also-after-suspend
 estimated_duration: 45.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
@@ -2036,7 +2036,7 @@ _purpose:
 id: dock/hot-plug-after-suspend
 category_id: dock-hotplug
 plugin: manual
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 estimated_duration: 30.00
 _summary: Docking test
 _purpose:
@@ -2050,7 +2050,7 @@ _verification:
 plugin: user-interact-verify
 category_id: dock-hotplug
 id: dock/hotplug-ethernet-after-suspend
-depends: suspend/suspend_advanced
+depends: suspend/suspend_advanced_auto
 command: network_check.py
 estimated_duration: 10
 _description:

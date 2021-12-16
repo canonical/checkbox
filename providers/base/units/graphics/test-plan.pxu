@@ -103,7 +103,7 @@ include:
     suspend/1_suspend_after_switch_to_card_.*_auto           certification-status=blocker
     # The following after suspend jobs will automatically select the right suspend job
     # depending on the amount of graphic cards available on the SUT:
-    # suspend/suspend_advanced (one GPU)
+    # suspend/suspend_advanced_auto (one GPU)
     # or suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto (two GPUs)
     suspend/1_suspend-time-check_.*_auto                     certification-status=non-blocker
     suspend/1_suspend-single-log-attach_.*_auto              certification-status=non-blocker
@@ -118,7 +118,7 @@ _description: After suspend tests (integrated GPU manual)
 include:
     # The following after suspend jobs will automatically select the right suspend job
     # depending on the amount of graphic cards available on the SUT:
-    # suspend/suspend_advanced (one GPU)
+    # suspend/suspend_advanced_auto (one GPU)
     # or suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto (two GPUs)
     power-management/lid                                     certification-status=blocker
     power-management/lid_close                               certification-status=blocker

@@ -110,7 +110,7 @@ _steps:
 _verification:
  Check the output. Was the modem listed?
 estimated_duration: 60s
-flags:  also-after-suspend-manual
+flags:  also-after-suspend
 imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
@@ -128,7 +128,7 @@ _steps:
 _verification:
  Check the output. Was the SIM information printed?
 estimated_duration: 60s
-flags:  also-after-suspend-manual
+flags:  also-after-suspend
 imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
@@ -160,7 +160,7 @@ _steps:
 _verification:
  Did the ping came back?
 estimated_duration: 120s
-flags:  also-after-suspend-manual
+flags:  also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -180,7 +180,7 @@ _steps:
 _verification:
  Were available networks listed?
 estimated_duration: 120s
-flags:  also-after-suspend-manual
+flags:  also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -220,7 +220,7 @@ _steps:
 _verification:
  Was the connection revived after plugging back in the antennae?
 estimate_duration: 120s
-flags:  also-after-suspend-manual
+flags:  also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:

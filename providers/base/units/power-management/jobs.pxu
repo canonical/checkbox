@@ -458,7 +458,7 @@ estimated_duration: 10.0
 requires:
   dmi.product in ['Notebook','Laptop','Portable']
   executable.name == 'monitor-sensor'
-flags: also-after-suspend-manual
+flags: also-after-suspend
 command: light_sensor_test.sh
 _description:
 _purpose:

@@ -10,7 +10,7 @@ _steps:
 _verification:
      Did the device work as expected?
 plugin: manual
-flags: also-after-suspend-manual
+flags: also-after-suspend
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'
@@ -32,7 +32,7 @@ _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 plugin: user-interact
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command:
  if [[ -v SNAP ]]; then
@@ -52,7 +52,7 @@ _description:
  This test is automated and executes after the usb-c/c-to-a-adapter/insert test
  is run.
 plugin: shell
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command:
  if [[ -v SNAP ]]; then
@@ -80,7 +80,7 @@ _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 plugin: user-interact
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command:
  if [[ -v SNAP ]]; then
@@ -107,7 +107,7 @@ _steps:
 _verification:
      Did the device work as expected?
 plugin: manual
-flags: also-after-suspend-manual
+flags: also-after-suspend
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'
@@ -128,7 +128,7 @@ _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 plugin: user-interact
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command:
  if [[ -v SNAP ]]; then
@@ -149,7 +149,7 @@ _description:
  This test is automated and executes after the usb-c/insert test
  is run.
 plugin: shell
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command:
  if [[ -v SNAP ]]; then
@@ -176,7 +176,7 @@ _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 plugin: user-interact
-flags: also-after-suspend-manual
+flags: also-after-suspend
 user: root
 command:
  if [[ -v SNAP ]]; then
@@ -193,7 +193,7 @@ estimated_duration: 30
 
 id: usb-c/c-to-ethernet-adapter-insert
 plugin: user-interact
-flags: also-after-suspend-manual
+flags: also-after-suspend
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usb_type_c == 'True'

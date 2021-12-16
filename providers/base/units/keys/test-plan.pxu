@@ -42,18 +42,18 @@ _name: Special keys tests (after suspend)
 _description:
  Special keys tests (after suspend)
 include:
-    after-suspend-manual-keys/lock-screen          certification-status=blocker
-    after-suspend-manual-keys/super                certification-status=blocker
-    after-suspend-manual-keys/brightness           certification-status=blocker
-    after-suspend-manual-keys/media-control        certification-status=blocker
-    after-suspend-manual-keys/mute                 certification-status=blocker
-    after-suspend-manual-keys/volume               certification-status=blocker
-    after-suspend-manual-keys/video-out            certification-status=blocker
-    after-suspend-manual-keys/wireless             certification-status=blocker
-    after-suspend-manual-keys/keyboard-backlight   certification-status=blocker
-    after-suspend-manual-keys/microphone-mute      certification-status=blocker
-    after-suspend-manual-keys/power-button         certification-status=blocker
-    after-suspend-manual-keys/fn-lock              certification-status=non-blocker
+    after-suspend-keys/lock-screen              certification-status=blocker
+    after-suspend-keys/super                    certification-status=blocker
+    after-suspend-keys/brightness               certification-status=blocker
+    after-suspend-keys/media-control            certification-status=blocker
+    after-suspend-keys/mute                     certification-status=blocker
+    after-suspend-keys/volume                   certification-status=blocker
+    after-suspend-keys/video-out                certification-status=blocker
+    after-suspend-keys/wireless                 certification-status=blocker
+    after-suspend-keys/keyboard-backlight       certification-status=blocker
+    after-suspend-keys/microphone-mute          certification-status=blocker
+    after-suspend-keys/power-button             certification-status=blocker
+    after-suspend-keys/fn-lock                  certification-status=non-blocker
 
 id: keys-cert-blockers
 unit: test plan
@@ -81,14 +81,14 @@ _name: Special keys tests (certification blockers only, after suspend)
 _description:
  Special keys tests (certification blockers only, after suspend)
 include:
-    after-suspend-manual-keys/lock-screen          certification-status=blocker
-    after-suspend-manual-keys/super                certification-status=blocker
-    after-suspend-manual-keys/brightness           certification-status=blocker
-    after-suspend-manual-keys/media-control        certification-status=blocker
-    after-suspend-manual-keys/mute                 certification-status=blocker
-    after-suspend-manual-keys/volume               certification-status=blocker
-    after-suspend-manual-keys/video-out            certification-status=blocker
-    after-suspend-manual-keys/wireless             certification-status=blocker
-    after-suspend-manual-keys/keyboard-backlight   certification-status=blocker
-    after-suspend-manual-keys/microphone-mute      certification-status=blocker
-    after-suspend-manual-keys/power-button         certification-status=blocker
+    after-suspend-keys/lock-screen                 certification-status=blocker
+    after-suspend-keys/super                       certification-status=blocker
+    after-suspend-keys/brightness                  certification-status=blocker
+    after-suspend-keys/media-control               certification-status=blocker
+    after-suspend-keys/mute                        certification-status=blocker
+    after-suspend-keys/volume                      certification-status=blocker
+    after-suspend-keys/video-out                   certification-status=blocker
+    after-suspend-keys/wireless                    certification-status=blocker
+    after-suspend-keys/keyboard-backlight          certification-status=blocker
+    after-suspend-keys/microphone-mute             certification-status=blocker
+    after-suspend-keys/power-button                certification-status=blocker

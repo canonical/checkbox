@@ -106,7 +106,7 @@ id: power-management/suspend_30_cycles
 estimated_duration: 2400.0
 depends:
  power-management/rtc
- suspend/suspend_advanced
+ suspend/suspend_advanced_auto
 environ: PLAINBOX_SESSION_SHARE
 user: root
 command:
@@ -598,4 +598,4 @@ command:
  done
 environ: WPA_N_SSID WPA_N_PSK
 category_id: com.canonical.plainbox::stress
-flags: preserve-locale also-after-suspend-manual
+flags: preserve-locale also-after-suspend

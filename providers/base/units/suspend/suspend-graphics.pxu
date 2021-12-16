@@ -64,7 +64,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 _summary: Test display function after suspend for {{ vendor }} {{ product }}
 _description:
@@ -87,7 +87,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 estimated_duration: 120.0
 command:
@@ -144,7 +144,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 requires: executable.name == 'glxgears'
 command:
@@ -171,7 +171,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
@@ -255,7 +255,7 @@ category_id: com.canonical.plainbox::stress
 estimated_duration: 5400.0
 depends:
  power-management/rtc
- suspend/suspend_advanced
+ suspend/suspend_advanced_auto
  graphics/{index}_auto_switch_card_{product_slug}
 flags: noreturn autorestart
 user: root
@@ -281,7 +281,7 @@ depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
  {%- else %}
-  suspend/suspend_advanced
+  suspend/suspend_advanced_auto
  {%- endif %}
 command:
  # shellcheck disable=SC1091

@@ -258,7 +258,7 @@ command:
  checkbox-support-eddystone_scanner -D {interface}
 plugin: shell
 user: root
-flags: also-after-suspend also-after-suspend-manual
+flags: also-after-suspend
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 10
 
@@ -389,6 +389,6 @@ _steps:
 _verification:
  Confirm characters from Bluetooth input device are displayed correctly
 plugin: manual
-flags: also-after-suspend-manual
+flags: also-after-suspend
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 5m

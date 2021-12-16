@@ -103,7 +103,7 @@ include:
   # Do power on/off to clean up the test environment
   power-management/poweroff                        certification-status=blocker
   power-management/poweroff-log-attach
-  suspend/suspend_advanced                         certification-status=blocker
+  suspend/suspend_advanced_auto                    certification-status=blocker
   dock/power-button-after-suspend                  certification-status=blocker
   dock/networking-gateway-ping-after-suspend       certification-status=blocker
   dock/usb-HID-after-suspend                       certification-status=blocker
@@ -119,23 +119,23 @@ include:
   dock/usb-c/insert-after-suspend
   dock/usb-c/storage-automated-after-suspend
   dock/usb-c/remove-after-suspend
-  after-suspend-manual-dock/audio-playback-headphones              certification-status=blocker
-  after-suspend-manual-dock/audio-alsa-record-playback-external    certification-status=blocker
+  after-suspend-dock/audio-playback-headphones              certification-status=blocker
+  after-suspend-dock/audio-alsa-record-playback-external    certification-status=blocker
   dock/monitor-displayport-after-suspend                  certification-status=blocker
-  after-suspend-manual-dock/audio-playback-displayport    certification-status=blocker
+  after-suspend-dock/audio-playback-displayport    certification-status=blocker
   dock/monitor-dvi-after-suspend                          certification-status=blocker
   dock/monitor-hdmi-after-suspend                         certification-status=blocker
-  after-suspend-manual-dock/audio-playback-hdmi           certification-status=blocker
+  after-suspend-dock/audio-playback-hdmi           certification-status=blocker
   dock/monitor-vga-after-suspend                          certification-status=blocker
   dock/monitor_type-c_displayport-after-suspend
-  after-suspend-manual-dock/audio-playback-type-c-displayport
+  after-suspend-dock/audio-playback-type-c-displayport
   dock/monitor_type-c_hdmi-after-suspend
   dock/monitor_type-c_vga-after-suspend
-  after-suspend-manual-dock/thunderbolt3-insert
-  after-suspend-manual-dock/thunderbolt3-storage-test
-  after-suspend-manual-dock/thunderbolt3-remove
-  after-suspend-manual-dock/thunderbolt3-daisy-chain
-  after-suspend-manual-dock/audio-playback-thunderbolt3
+  after-suspend-dock/thunderbolt3-insert
+  after-suspend-dock/thunderbolt3-storage-test
+  after-suspend-dock/thunderbolt3-remove
+  after-suspend-dock/thunderbolt3-daisy-chain
+  after-suspend-dock/audio-playback-thunderbolt3
   dock/monitor-dual-head-after-suspend                    certification-status=blocker
   dock/monitor-triple-head-after-suspend
 
@@ -155,10 +155,10 @@ include:
   dock/hotplug-usb3-remove-after-suspend
   dock/hotplug-monitor-displayport-after-suspend
   dock/hotplug-monitor-hdmi-after-suspend
-  after-suspend-manual-dock/hotplug-playback-displayport
-  after-suspend-manual-dock/hotplug-playback-hdmi
-  after-suspend-manual-dock/hotplug-playback-type-c-displayport
-  after-suspend-manual-dock/hotplug-playback-thumderbolt3
+  after-suspend-dock/hotplug-playback-displayport
+  after-suspend-dock/hotplug-playback-hdmi
+  after-suspend-dock/hotplug-playback-type-c-displayport
+  after-suspend-dock/hotplug-playback-thumderbolt3
 
 id: suspend-dock-resume-test
 unit: test plan
@@ -235,11 +235,11 @@ include:
   # Do power on/off to clean up the test environment
   power-management/poweroff                        certification-status=blocker
   power-management/poweroff-log-attach
-  suspend/suspend_advanced                         certification-status=blocker
+  suspend/suspend_advanced_auto                    certification-status=blocker
   dock/power-button-after-suspend                  certification-status=blocker
   dock/networking-gateway-ping-after-suspend       certification-status=blocker
-  after-suspend-manual-dock/audio-playback-headphones              certification-status=blocker
-  after-suspend-manual-dock/audio-alsa-record-playback-external    certification-status=blocker
+  after-suspend-dock/audio-playback-headphones              certification-status=blocker
+  after-suspend-dock/audio-alsa-record-playback-external    certification-status=blocker
   dock/usb-HID-after-suspend                       certification-status=blocker
   dock/usb-insert-after-suspend                    certification-status=blocker
   dock/usb-storage-automated-after-suspend         certification-status=blocker
@@ -248,9 +248,9 @@ include:
   dock/usb3-storage-automated-after-suspend        certification-status=blocker
   dock/usb3-remove-after-suspend                   certification-status=blocker
   dock/monitor-displayport-after-suspend           certification-status=blocker
-  after-suspend-manual-dock/audio-playback-displayport             certification-status=blocker
+  after-suspend-dock/audio-playback-displayport             certification-status=blocker
   dock/monitor-dvi-after-suspend                   certification-status=blocker
   dock/monitor-hdmi-after-suspend                  certification-status=blocker
-  after-suspend-manual-dock/audio-playback-hdmi                    certification-status=blocker
+  after-suspend-dock/audio-playback-hdmi                    certification-status=blocker
   dock/monitor-vga-after-suspend                   certification-status=blocker
   dock/monitor-dual-head-after-suspend             certification-status=blocker

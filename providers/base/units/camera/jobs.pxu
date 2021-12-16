@@ -28,7 +28,7 @@ template-unit: job
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::camera
 id: camera/display_{name}
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _summary: Webcam video display test for {product_slug}
 estimated_duration: 120.0
 depends: camera/detect
@@ -62,7 +62,7 @@ _description:
      2. Camera LED should light for a few seconds
  VERIFICATION:
      Did the camera LED light?
-flags: also-after-suspend-manual
+flags: also-after-suspend
 
 unit: template
 template-resource: device
@@ -72,7 +72,7 @@ plugin: user-interact-verify
 template-engine: jinja2
 category_id: com.canonical.plainbox::camera
 id: camera/still_{{ name }}
-flags: also-after-suspend-manual
+flags: also-after-suspend
 _summary: Webcam still image capture test for {{ product_slug }}
 estimated_duration: 120.0
 depends: camera/detect

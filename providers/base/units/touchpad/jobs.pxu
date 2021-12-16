@@ -12,7 +12,7 @@ _verification:
     Did the cursor move?
 _siblings:
     [{ "id": "touchpad/basic-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/basic" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/basic" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -31,7 +31,7 @@ _verification:
      Could you scroll right and left?
 _siblings:
     [{ "id": "touchpad/horizontal-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/horizontal" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/horizontal" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -50,7 +50,7 @@ _verification:
      Could you scroll up and down?
 _siblings:
     [{ "id": "touchpad/vertical-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/vertical" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/vertical" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -65,7 +65,7 @@ _verification:
      Is the touchpad supposed to be multitouch?
 _siblings:
     [{ "id": "touchpad/multitouch-manual-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/multitouch-manual" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-manual" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -81,7 +81,7 @@ _verification:
      Did a selection window open and were several files selected?
 _siblings:
     [{ "id": "touchpad/singletouch-selection-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/singletouch-selection" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/singletouch-selection" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -98,7 +98,7 @@ _verification:
      Did the right click pop up menu appear?
 _siblings:
     [{ "id": "touchpad/multitouch-rightclick-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/multitouch-rightclick" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-rightclick" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -115,7 +115,7 @@ _verification:
      Could you scroll right and left?
 _siblings:
     [{ "id": "touchpad/multitouch-horizontal-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/multitouch-horizontal" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-horizontal" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -132,7 +132,7 @@ _verification:
      Could you scroll up and down?
 _siblings:
     [{ "id": "touchpad/multitouch-vertical-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/multitouch-vertical" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-vertical" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -150,7 +150,7 @@ _verification:
      Does drag and drop work on Touchpad?
 _siblings:
     [{ "id": "touchpad/drag-and-drop-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/drag-and-drop" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/drag-and-drop" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -181,7 +181,7 @@ _verification:
      Did the tap open the Dash?
 _siblings:
     [{ "id": "touchpad/multitouch-dash-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/multitouch-dash",
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-dash",
        "_summary": "Check 4-finger tap gesture after suspend (S3)" }]
 
 plugin: shell
@@ -200,7 +200,7 @@ _purpose:
  This test will check if your touchpad was detected as a mouse.
 _siblings:
     [{ "id": "touchpad/detected-as-mouse-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/detected-as-mouse" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/detected-as-mouse" }]
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -217,7 +217,7 @@ _verification:
      Did the mouse cursor move without interruption?
 _siblings:
     [{ "id": "touchpad/continuous-move-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/continuous-move" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/continuous-move" }]
 
 unit: template
 template-resource: device
@@ -247,5 +247,5 @@ _verification:
  Cursor should not have moved.
 _siblings:
     [{ "id": "touchpad/palm-rejection-after-suspend",
-       "depends": "suspend/suspend_advanced touchpad/palm-rejection" }]
+       "depends": "suspend/suspend_advanced_auto touchpad/palm-rejection" }]
 estimated_duration: 40

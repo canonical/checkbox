@@ -420,14 +420,14 @@ def main():
                 skipped.append(test)
             else:
                 return 1
+
     if critical_fails:
         print("Critical Failures: %d" % len(critical_fails))
         if ((args.quiet and fail_priority <= fail_levels['FAILED_CRITICAL'])
             or not args.quiet):
             print(" WARNING: The following test cases were reported as"
                   " critical\n"
-                  " level failures by fwts. Please review the log at\n"
-                  " %s for more information." % args.log)
+                  " level failures by fwts:")
             for test in critical_fails:
                 print("  - " + test)
     if high_fails:
@@ -435,8 +435,7 @@ def main():
         if ((args.quiet and fail_priority <= fail_levels['FAILED_HIGH'])
             or not args.quiet):
             print(" WARNING: The following test cases were reported as high\n"
-                  " level failures by fwts. Please review the log at\n"
-                  " %s for more information." % args.log)
+                  " level failures by fwts:")
             for test in high_fails:
                 print("  - " + test)
     if medium_fails:
@@ -445,8 +444,7 @@ def main():
             or not args.quiet):
             print(" WARNING: The following test cases were reported as"
                   " medium\n"
-                  " level failures by fwts. Please review the log at\n"
-                  " %s for more information." % args.log)
+                  " level failures by fwts:")
             for test in medium_fails:
                 print("  - " + test)
     if low_fails:
@@ -454,8 +452,7 @@ def main():
         if ((args.quiet and fail_priority <= fail_levels['FAILED_LOW'])
             or not args.quiet):
             print(" WARNING: The following test cases were reported as low\n"
-                  " level failures by fwts. Please review the log at\n"
-                  " %s for more information." % args.log)
+                  " level failures by fwts:")
             for test in low_fails:
                 print("  - " + test)
     if passed:
@@ -467,9 +464,7 @@ def main():
     if skipped:
         print("Skipped Tests: %d" % len(skipped))
         if not args.quiet:
-            print(" WARNING: The following test cases were skipped by fwts\n"
-                  " Please review the log at %s for more information."
-                  % args.log)
+            print(" WARNING: The following test cases were skipped by fwts:")
             for test in skipped:
                 print("  - " + test)
     if unavailable:
@@ -483,19 +478,21 @@ def main():
     if warnings:
         print("WARNINGS: %d" % len(warnings))
         if not args.quiet:
-            print(" Please review the log at %s for more information."
-                  % args.log)
             for test in warnings:
                 print("  - " + test)
     if aborted:
         print("Aborted Tests: %d" % len(aborted))
         if ((args.quiet and fail_priority <= fail_levels['FAILED_ABORTED'])
             or not args.quiet):
-            print(" WARNING: The following test cases were aborted by fwts\n"
-                  " Please review the log at %s for more information."
-                  % args.log)
+            print(" WARNING: The following test cases were aborted by fwts:")
             for test in aborted:
                 print("  - " + test)
+    # Append content of the log file to stdout for easier review
+    print()
+    print(" Please review the following log for more information:")
+    print()
+    with open(args.log) as f:
+	    print(f.read())
 
     if args.fail_level != 'none':
         if fail_priority == fail_levels['FAILED_CRITICAL']:

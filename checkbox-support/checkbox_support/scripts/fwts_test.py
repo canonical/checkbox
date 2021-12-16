@@ -323,15 +323,14 @@ def main():
                                        stdin=PIPE, stderr=DEVNULL)
         for iteration in range(1, iterations+1):
             marker = '{:=^80}\n'.format(' Iteration {} '.format(iteration))
-            with open(args.log + '.log', 'a') as f:
+            with open(args.log, 'a') as f:
                 f.write(marker)
             command = ('fwts -q --stdout-summary -r %s %s'
                        % (args.log, ' '.join(tests)))
             results['sleep'] = (Popen(command, stdout=PIPE, shell=True)
                                 .communicate()[0].strip()).decode()
             if 's4' not in args.sleep:
-                suspend_time, resume_time = get_sleep_times(args.log + '.log',
-                                                            marker)
+                suspend_time, resume_time = get_sleep_times(args.log, marker)
                 iteration_results[iteration] = (suspend_time, resume_time)
                 if not suspend_time or not resume_time:
                     progress_string = (

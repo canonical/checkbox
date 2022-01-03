@@ -113,7 +113,6 @@ nested_part:
     tpm-cert-automated
     pts
     stress-pm-graph
-    stress-suspend-30-cycles-with-reboots-automated
     stress-ng-cert-automated
     stress-30-reboot-poweroff-automated
 bootstrap_include:
@@ -210,7 +209,6 @@ nested_part:
     tpm-cert-automated
     pts
     stress-pm-graph
-    stress-suspend-30-cycles-with-reboots-automated
     stress-ng-cert-automated
     stress-30-reboot-poweroff-automated
 bootstrap_include:

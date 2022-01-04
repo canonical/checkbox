@@ -34,6 +34,7 @@ include:
     miscellanea/fan_stress_reaction
     miscellanea/debsums                            certification-status=blocker
     miscellanea/check_prerelease                   certification-status=blocker
+    miscellanea/ubuntu-desktop-recommends          certification-status=blocker
 bootstrap_include:
     fwts
 

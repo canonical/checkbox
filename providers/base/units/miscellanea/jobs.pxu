@@ -476,6 +476,15 @@ _description: Verify installed Debian package files against MD5 checksum lists f
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 60
+id: miscellanea/ubuntu-desktop-recommends
+requires: package.name == 'ubuntu-desktop'
+command: check-ubuntu-desktop-recommends.sh
+_summary: Check if Debian packages in Recommends of ubuntu-desktop are installed
+_description: Check if Debian packages in Recommends of ubuntu-desktop are installed
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/maas_user_check
 requires:
  executable.name == 'ipmitool'

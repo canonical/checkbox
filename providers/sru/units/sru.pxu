@@ -126,6 +126,10 @@ exclude:
     suspend/bluetooth_obex_send_before_suspend
     graphics/1_auto_switch_card_.*
     installer_debug.gz
+    memory/memory_stress_ng
+    audio/valid-sof-firmware-sig
+    miscellanea/check_prerelease
+    suspend/bluetooth_obex_.*
 
 id: sru
 _name: All SRU Tests (Ubuntu Desktop)
@@ -222,3 +226,7 @@ exclude:
     suspend/bluetooth_obex_send_before_suspend
     graphics/1_auto_switch_card_.*
     installer_debug.gz
+    memory/memory_stress_ng
+    audio/valid-sof-firmware-sig
+    miscellanea/check_prerelease
+    suspend/bluetooth_obex_.*

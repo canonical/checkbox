@@ -105,7 +105,7 @@ nested_part:
     pts
     stress-pm-graph
     stress-ng-cert-automated
-    stress-30-reboot-poweroff-automated
+    stress-10-reboot-poweroff-automated
 bootstrap_include:
     device
     graphics_card

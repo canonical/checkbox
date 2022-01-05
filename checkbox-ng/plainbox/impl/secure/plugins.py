@@ -612,7 +612,7 @@ class FsPlugInCollection(PlugInCollectionBase):
                 if isinstance(self._ext, str):
                     if not entry.endswith(self._ext):
                         continue
-                elif isinstance(self._ext, collections.Sequence):
+                elif isinstance(self._ext, collections.abc.Sequence):
                     for ext in self._ext:
                         if entry.endswith(ext):
                             break

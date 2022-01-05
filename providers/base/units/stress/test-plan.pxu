@@ -72,13 +72,27 @@ include:
 
 id: stress-30-reboot-poweroff-automated
 unit: test plan
-_name: Power Management reboot and power off stress tests (automated)
-_description: Power Management reboot and power off stress tests (automated)
+_name: Power Management reboot and power off 30 cycles stress tests (automated)
+_description: Power Management reboot and power off 30 cycles stress tests (automated)
 include:
     stress/reboot_30        certification-status=blocker
     stress/reboot_30_log
     stress/poweroff_30      certification-status=blocker
     stress/poweroff_30_log
+
+id: stress-10-reboot-poweroff-automated
+unit: test plan
+_name: Power Management reboot and power off 10 cycles stress tests (automated)
+_description: Power Management reboot and power off 10 cycles stress tests (automated)
+include:
+    stress/reboot_10        certification-status=blocker
+    stress/reboot_10_log
+    stress/reboot_10_check
+    stress/reboot_10_check_log
+    stress/poweroff_10      certification-status=blocker
+    stress/poweroff_10_log
+    stress/poweroff_10_check
+    stress/poweroff_10_check_log
 
 id: stress-ng-cert-automated
 unit: test plan

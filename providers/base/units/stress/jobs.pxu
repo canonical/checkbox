@@ -312,6 +312,29 @@ command:
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
+id: stress/reboot_10
+requires: executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 10 --silent --log-level=notset reboot --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 1800
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress reboot system (10 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_10_log
+depends: stress/reboot_10
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*reboot.10.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
 id: stress/poweroff
 estimated_duration: 4500.0
 requires:
@@ -361,6 +384,30 @@ command:
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10
+requires:
+ executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 10 --wakeup 150 --silent --log-level=notset poweroff --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 3600
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress poweroff system (10 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10_log
+depends: stress/poweroff_10
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*poweroff.10.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
 id: stress/reboot_30_check
 estimated_duration: 1.0
 depends: stress/reboot_30
@@ -378,6 +425,23 @@ command:
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
+id: stress/reboot_10_check
+estimated_duration: 1.0
+depends: stress/reboot_10
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.10.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.10.log
+_description: Check logs for the stress reboot (10 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_10_check_log
+estimated_duration: 1.0
+depends: stress/reboot_10_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.10.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
 id: stress/poweroff_30_check
 estimated_duration: 1.0
 depends: stress/poweroff_30
@@ -392,6 +456,23 @@ depends: stress/poweroff_30_check
 command:
  set -o pipefail
  cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.30.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10_check
+estimated_duration: 1.0
+depends: stress/poweroff_10
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.10.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.10.log
+_description: Check logs for the stress poweroff (10 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10_check_log
+estimated_duration: 1.0
+depends: stress/poweroff_10_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.10.log
 
 plugin: shell
 category_id: com.canonical.plainbox::stress

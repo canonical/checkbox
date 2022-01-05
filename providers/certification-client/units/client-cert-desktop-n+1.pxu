@@ -165,7 +165,6 @@ include:
     # of checkbox.
     graphics/1_switch_card_.*                              certification-status=blocker
     suspend/resolution_before_suspend                      certification-status=blocker
-    suspend/suspend_advanced                               certification-status=blocker
     suspend/suspend-time-check                             certification-status=non-blocker
     suspend/suspend-single-log-attach
     power-management/lid                                   certification-status=blocker

@@ -62,7 +62,6 @@ include:
     usb/storage-automated
     usb/remove
     wireless/wireless_scanning
-    suspend/suspend_advanced
     suspend/suspend-time-check
     suspend/suspend-single-log-attach
     suspend/hybrid_sleep

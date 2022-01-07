@@ -38,6 +38,7 @@ from plainbox.provider_manager import InstallCommand
 from plainbox.provider_manager import ManageCommand
 from plainbox.provider_manager import ProviderManagerTool
 from plainbox.provider_manager import manage_py_extension
+from plainbox.testing_utils.argparse_compat import optionals_section
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
 
@@ -79,7 +80,7 @@ class ProviderManagerToolTests(TestCase):
                 packaging           generate packaging meta-data
                 test                run tests defined for this provider
 
-            optional arguments:
+            {}:
               -h, --help            show this help message and exit
               --version             show program's version number and exit
 
@@ -93,7 +94,7 @@ class ProviderManagerToolTests(TestCase):
               -P, --pdb             jump into pdb (python debugger) when a command crashes
               -I, --debug-interrupt
                                     crash on SIGINT/KeyboardInterrupt, useful with --pdb
-            """.format(os.path.basename(sys.argv[0]))
+            """.format(os.path.basename(sys.argv[0]), optionals_section)
         self.assertEqual(test_io.stdout, inspect.cleandoc(help_str) + '\n')
 
     def assert_common_flat_install(self, prefix="/foo"):

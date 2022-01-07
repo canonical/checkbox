@@ -32,6 +32,7 @@ from plainbox.abc import IProvider1
 from plainbox.impl.box import main
 from plainbox.impl.clitools import ToolBase
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
+from plainbox.testing_utils.argparse_compat import optionals_section
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor.mock import Mock
 
@@ -61,11 +62,11 @@ class TestMain(TestCase):
         usage: plainbox [--help] [--version] | [options] <command> ...
 
         positional arguments:
-          {session,dev}
+          {{session,dev}}
             session             session management commands
             dev                 development commands
 
-        optional arguments:
+        {}:
           -h, --help            show this help message and exit
           --version             show program's version number and exit
 
@@ -80,7 +81,7 @@ class TestMain(TestCase):
           -I, --debug-interrupt
                                 crash on SIGINT/KeyboardInterrupt, useful with --pdb
 
-        """
+        """.format(optionals_section)
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
     def test_run_without_args(self):

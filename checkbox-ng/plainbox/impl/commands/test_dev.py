@@ -26,6 +26,7 @@ from inspect import cleandoc
 from unittest import TestCase
 
 from plainbox.impl.commands.dev import DevCommand
+from plainbox.testing_utils.argparse_compat import optionals_section
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
 
@@ -60,10 +61,10 @@ class TestDevCommand(TestCase):
                 usage: plainbox dev <subcommand> ...
 
                 positional arguments:
-                  {parse}
+                  {{parse}}
                     parse     parse stdin with the specified parser
 
-                optional arguments:
+                {}:
                   -h, --help  show this help message and exit
-                """)
+                """.format(optionals_section))
             + "\n")

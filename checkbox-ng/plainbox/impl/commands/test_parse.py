@@ -28,6 +28,7 @@ from unittest import TestCase
 from plainbox.impl.commands.cmd_parse import ParseCommand
 from plainbox.impl.parsers import ParserPlugIn
 from plainbox.impl.parsers import all_parsers
+from plainbox.testing_utils.argparse_compat import optionals_section
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
 
@@ -52,11 +53,11 @@ variable LANG to "C".
 positional arguments:
   PARSER-NAME  Name of the parser to use
 
-optional arguments:
+{}:
   -h, --help   show this help message and exit
 
 Example: LANG=C pactl list | plainbox dev parse pactl-list
-"""
+""".format(optionals_section)
 
     maxDiff = None
 

@@ -1,4 +1,4 @@
-plainbox-provider-ipdt (0.5.0~rc1-1) UNRELEASED; urgency=medium
+plainbox-provider-ipdt (0.5.0-1) UNRELEASED; urgency=medium
 
   [ Sylvain Pineau ]
   * "new upstream version"
@@ -9,8 +9,9 @@ plainbox-provider-ipdt (0.5.0~rc1-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Wed, 05 Jan 2022 09:23:10 +0000
+ -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Mon, 10 Jan 2022 16:25:46 +0000
 
 plainbox-provider-ipdt (0.1) bionic; urgency=medium
 

@@ -88,7 +88,6 @@
 ./plainbox/impl/session/test_suspend.py
 ./plainbox/impl/symbol.py
 ./plainbox/impl/test_applogic.py
-./plainbox/impl/test_box.py
 ./plainbox/impl/test_buildsystems.py
 ./plainbox/impl/test_clitools.py
 ./plainbox/impl/test_color.py

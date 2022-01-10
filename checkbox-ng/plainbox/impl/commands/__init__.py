@@ -47,7 +47,6 @@ class PlainBoxToolBase(ToolBase):
     1. :meth:`get_exec_name()` -- to know how the command will be called
     2. :meth:`get_exec_version()` -- to know how the version of the tool
     3. :meth:`add_subcommands()` -- to add some actual commands to execute
-    4. :meth:`get_config_cls()` -- to know which config to use
 
     This class has some complex control flow to support important and
     interesting use cases. There are some concerns to people that subclass this
@@ -68,16 +67,6 @@ class PlainBoxToolBase(ToolBase):
     might change when full multi-provider is available but details are not
     known yet.
     """
-
-    @classmethod
-    @abc.abstractmethod
-    def get_config_cls(cls):
-        """
-        Get the Config class that is used by this implementation.
-
-        This can be overridden by subclasses to use a different config class
-        that is suitable for the particular application.
-        """
 
     def _load_config(self):
         return self.get_config_cls().get()

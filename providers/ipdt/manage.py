@@ -12,7 +12,7 @@ from plainbox.provider_manager import N_
 setup(
     name='plainbox-provider-ipdt',
     namespace='com.intel.ipdt',
-    version="0.5.0rc1",
+    version="0.5.0",
     description=N_("Plainbox Provider for IPDT"),
     gettext_domain='plainbox-provider-ipdt',
 )

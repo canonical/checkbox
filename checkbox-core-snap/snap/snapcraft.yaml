@@ -339,7 +339,6 @@ parts:
     source-depth: 1
     plugin: checkbox-provider
     source: git://git.launchpad.net/checkbox-provider-iiotg
-    source-branch: main
     after: [plainbox-provider-tpm2]
 ################################################################################
   plainbox-provider-sru:

@@ -73,7 +73,7 @@ class NmInterfaceState():
             cmd = 'nmcli -t -f DEVICE,STATE d'
             data = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
         for line in data.splitlines():
-            dev, state = line.strip().split(':')
+            dev, state = line.strip().rsplit(':', maxsplit=1)
             self.devices[dev] = state
 
 

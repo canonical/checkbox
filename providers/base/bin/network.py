@@ -88,15 +88,31 @@ class IPerfPerformanceTest(object):
         variable."""
         cmd = cmd + " -p {}".format(port_num)
         logging.debug("Executing command {}".format(cmd))
+        logging.info("Connecting to port {} on server....".format(port_num))
         try:
             iperf_return = check_output(
-                shlex.split(cmd), universal_newlines=True)
+                shlex.split(cmd), stderr=subprocess.STDOUT,
+                universal_newlines=True)
         except CalledProcessError as iperf_exception:
             if iperf_exception.returncode != 124:
                 # timeout command will return 124 if iperf timed out, so any
                 # other return value means something did fail
-                logging.error("Failed executing iperf: {}".
-                              format(iperf_exception.output))
+                if "unable to connect to server" in iperf_exception.output:
+                    logging.error("Unable to connect to server on port {}".
+                                  format(port_num))
+                    if port_num == 5202:
+                        # 5202 is 2nd port in high-speed configs
+                        logging.warning("Your iperf3 server is not configured")
+                        logging.warning("for high-speed network testing. See")
+                        logging.warning("the Self-Test Guide's 'Network")
+                        logging.warning("Performance Tuning' appendix for")
+                        logging.warning("more information.")
+                else:
+                    # Unknown error; log it....
+                    logging.error("Failed executing iperf on port {}.".
+                                  format(port_num))
+                    logging.error("Output is '{}'".
+                                  format(iperf_exception.output))
                 return iperf_exception.returncode
             else:
                 # this is normal so we "except" this exception and we
@@ -451,11 +467,8 @@ def can_ping(the_interface, test_target):
                 check_call(["ping", "-I", the_interface,
                             "-c", "1", test_target],
                            stdout=DEVNULL, stderr=DEVNULL)
-        except CalledProcessError as excp:
+        except CalledProcessError:
             working_interface = False
-            if num_loops == 0:
-                logging.warning("Ping failure on {} ({})".
-                                format(the_interface, excp))
 
         if not working_interface:
             time.sleep(5)
@@ -467,7 +480,11 @@ def can_ping(the_interface, test_target):
 def run_test(args, test_target):
     # Ensure that interface is fully up by waiting until it can
     # ping the test server
-    if not can_ping(args.interface, test_target):
+    logging.info("Testing {} against {}".format(args.interface, test_target))
+    if can_ping(args.interface, test_target):
+        logging.info("Have successfully pinged {} on {}".
+                     format(test_target, args.interface))
+    else:
         logging.error("Can't ping test server {} on {}".format(test_target,
                                                                args.interface))
         return 1
@@ -533,19 +550,24 @@ def make_target_list(iface, test_targets, log_warnings):
             test_target_ip = socket.gethostbyname(test_target)
         except OSError:
             test_target_ip = test_target
-        try:
-            target = ipaddress.IPv4Address(test_target_ip)
-            if (target < first_addr) or (target > last_addr):
+        if (test_target_ip != "0.0.0.0"):
+            try:
+                target = ipaddress.IPv4Address(test_target_ip)
+                if (target < first_addr) or (target > last_addr):
+                    if log_warnings:
+                        logging.warning("Removing iperf server {} ({}) from ".
+                                        format(test_target, target))
+                        logging.warning("test list since it's not within {}.".
+                                        format(net))
+                        return_list.remove(test_target)
+            except ValueError:
                 if log_warnings:
-                    logging.warning("Test server {} ({}) is NOT within {}".
-                                    format(test_target, target, net))
-                    logging.warning("This may cause test issues")
-        except ValueError:
-            if log_warnings:
-                logging.warning("Invalid address: {}; skipping".
-                                format(test_target))
-            return_list.remove(test_target)
+                    logging.warning("Invalid address: {}; skipping".
+                                    format(test_target))
+                return_list.remove(test_target)
     return_list.reverse()
+    if (return_list == ['']):
+        del(return_list[0])
     return return_list
 
 
@@ -592,9 +614,9 @@ def interface_test(args):
         logging.error("1- If calling the script directly, pass the --target "
                       "option")
         logging.error("2- Define the TEST_TARGET_IPERF environment variable")
-        logging.error("3- (If running the test via checkbox/plainbox, define "
+        logging.error("3- If running the test via checkbox/plainbox, define "
                       "the ")
-        logging.error("target in /etc/xdg/canonical-certification.conf)")
+        logging.error("target in /etc/xdg/canonical-certification.conf")
         logging.error("Please run this script with -h to see more details on "
                       "how to configure")
         sys.exit(1)
@@ -634,7 +656,8 @@ def interface_test(args):
     if not args.dont_toggle_ifaces:
         extra_interfaces = \
             [iface for iface in os.listdir("/sys/class/net")
-             if iface != "lo" and iface != args.interface]
+             if iface != "lo" and iface != args.interface and
+             not iface.startswith("virbr")]
 
         for iface in extra_interfaces:
             logging.debug("Shutting down interface:%s", iface)
@@ -662,7 +685,7 @@ def interface_test(args):
                 test_targets_list = make_target_list(args.interface,
                                                      test_targets,
                                                      False)
-                time.sleep(30)
+                time.sleep(30)   # Wait to give server(s) time to come online
                 first_loop = False
 
     if not args.dont_toggle_ifaces:
@@ -683,8 +706,11 @@ def interface_test(args):
         with open(os.devnull, 'wb') as DEVNULL:
             check_call(["ip", "route", "restore"], stdin=temp,
                        stderr=DEVNULL)
-    except CalledProcessError as restore_failure:
-        logging.warning("Unable to restore routing table: %s", restore_failure)
+    except CalledProcessError:
+        # This always errors out -- but it works!
+        # The problem is virb0, which has the "linkdown" flag, which the
+        # "ip route restore" command can't handle.
+        pass
     temp.close()
 
     return error_number

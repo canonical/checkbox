@@ -741,6 +741,10 @@ def _guess_normal_user():
         user = pwd.getpwuid(1000).pw_name
         _logger.warning("Using `%s` user", user)
         return user
+    with suppress(KeyError):
+        user = pwd.getpwuid(1001).pw_name
+        _logger.warning("Using `%s` user", user)
+        return user
     raise RuntimeError(
         ("normal_user not supplied via config(s). "
-            "User `ubuntu` and username for uid 1000 were not found"))
+            "User `ubuntu` and username for uid 1000 or 1001 were not found"))

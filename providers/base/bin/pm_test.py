@@ -190,7 +190,7 @@ class PowerManagementOperation():
             command_tpl = '-s s3 --s3-device-check ' \
                           '--s3-sleep-delay=30 --s3-multiple={}'
             if self.args.log_dir:
-                command_tpl = '--log={}/fwts '.format(
+                command_tpl = '--log={}/fwts.log '.format(
                     self.args.log_dir) + command_tpl
             command_tpl = '{} ' + command_tpl
         else:

@@ -203,6 +203,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto
 requires:
   device.category == 'WIRELESS'
+user: root
 command: network_reconnect_resume_test.py -t 90 -d wifi
 _summary: Network reconnect resume test (wifi)
 _description:

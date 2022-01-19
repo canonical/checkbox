@@ -394,6 +394,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
    device.category == 'NETWORK'
+user: root
 command: network_reconnect_resume_test.py -t 10 -d wired
 _summary: Network reconnect resume test (wired)
 _description:

@@ -42,7 +42,7 @@ def get_wifi_reconnect_times():
     """
     Returns a list of all the timestamps for wifi reconnects.
     """
-    data = subprocess.check_output(['sudo','dmesg'], universal_newlines=True)
+    data = subprocess.check_output(['dmesg'], universal_newlines=True)
     syntax = re.compile(r"\[(.*)\] wlan.* associated")
     results = re.findall(syntax, data)
     return map(float, results)
@@ -52,7 +52,7 @@ def get_wired_reconnect_times():
     """
     Returns a list of all the timestamps for wired reconnects.
     """
-    data = subprocess.check_output(['sudo','dmesg'], universal_newlines=True)
+    data = subprocess.check_output(['dmesg'], universal_newlines=True)
     syntax = re.compile(r"\[(.*)\].*eth.* Link is [uU]p")
     results = re.findall(syntax, data)
     return map(float, results)

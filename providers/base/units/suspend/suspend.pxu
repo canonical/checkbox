@@ -1320,6 +1320,7 @@ id: suspend/wifi_resume_time
 depends: suspend/suspend_advanced_auto
 requires:
    device.category == 'WIRELESS'
+user: root
 command: network_reconnect_resume_test.py -t 90 -d wifi
 estimated_duration: 0.530
 _description:
@@ -1333,6 +1334,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto
 requires:
    device.category == 'WIRELESS'
+user: root
 command: network_reconnect_resume_test.py -t 90 -d wifi
 _description:
  Checks the length of time it takes to reconnect an existing wifi connection
@@ -1345,6 +1347,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
    device.category == 'NETWORK'
+user: root
 command: network_reconnect_resume_test.py -t 10 -d wired
 _description:
  Checks the length of time it takes to reconnect an existing wired connection
@@ -1357,6 +1360,7 @@ depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
    device.category == 'NETWORK'
+user: root
 command: network_reconnect_resume_test.py -t 10 -d wired
 _description:
  Checks the length of time it takes to reconnect an existing wired connection

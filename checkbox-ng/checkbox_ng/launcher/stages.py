@@ -511,6 +511,11 @@ class ReportsStage(CheckboxUiStage):
                         continue
                 except InvalidSecureIDError:
                     _logger.warning(_("Invalid secure_id"))
+                    if not self.is_interactive:
+                        # secure_id will not magically change if the session
+                        # is a non-interactive one, so let's stop trying
+                        done_sending = True
+                        continue
                     if self._retry_dialog():
                         self.sa.config.transports['c3'].pop('secure_id')
                         continue

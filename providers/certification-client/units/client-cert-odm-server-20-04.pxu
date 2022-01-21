@@ -9,32 +9,23 @@ include:
 mandatory_include:
     com.canonical.plainbox::manifest
     executable
-    dmi
-    dmi_attachment
-    dpkg
     interface
-    lsb
-    lspci_attachment
-    lsusb_attachment
-    meminfo
-    package
-    rtc
-    sleep
-    snap
-    sysfs_attachment
-    udev_attachment
-    udev_json
-    uname
     connections
     model_assertion
     serial_assertion
     net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+    parts_meta_info_attachment
 bootstrap_include:
     bootloader
     cpuinfo
     device
     net_if_management
 nested_part:
+    submission-cert-full
     self-manual
     audio-manual
     bluetooth-manual
@@ -78,32 +69,23 @@ include:
 mandatory_include:
     com.canonical.plainbox::manifest
     executable
-    dmi
-    dmi_attachment
-    dpkg
     interface
-    lsb
-    lspci_attachment
-    lsusb_attachment
-    meminfo
-    package
-    rtc
-    sleep
-    snap
-    sysfs_attachment
-    udev_attachment
-    udev_json
-    uname
     connections
     model_assertion
     serial_assertion
     net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+    parts_meta_info_attachment
 bootstrap_include:
     bootloader
     cpuinfo
     device
     net_if_management
 nested_part:
+    submission-cert-automated
     self-automated
     bluez-automated
     camera-automated

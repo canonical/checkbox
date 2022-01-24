@@ -41,6 +41,7 @@ import tarfile
 from unittest import TextTestRunner
 from unittest.loader import defaultTestLoader
 
+import plainbox
 from plainbox import __version__ as version
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
@@ -541,9 +542,11 @@ class DevelopCommand(ManageCommand):
         parser.add_argument(
             "-f", "--force", default=False, action="store_true",
             help=_("overwrite existing provider files"))
+        # this is done here so the mock can work in the UT
+        path = plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry()
         parser.add_argument(
             "-d", "--directory", action="store",
-            default=get_user_PROVIDERPATH_entry(),
+            default=path,
             help=_("directory to use (defaults to user's home provider path)"))
 
     def invoked(self, ns):

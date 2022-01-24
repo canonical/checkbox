@@ -86,7 +86,7 @@ class Tests(TestCase):
         mock_gsPl.return_value = ["system-wide"]
         self.assertEqual(
             get_insecure_PROVIDERPATH_list(),
-            ["system-wide", "per-user"])
+            ["system-wide", "per-user", "/var/tmp/checkbox-providers-develop"])
 
 
 class InsecureProvider1PlugInCollectionTests(TestCase):

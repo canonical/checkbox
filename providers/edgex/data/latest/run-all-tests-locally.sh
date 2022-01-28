@@ -140,6 +140,10 @@ if [ -n "$SINGLE_TEST" ]; then
 else
     snap_download_stable_and_latest
 
+    for file in "$SCRIPT_DIR"/manual-test-*.sh; do
+        printf "manual test: %s...\t\tSKIPPED\n" "$file"
+    done
+
     # run all the tests (except this file obviously)
     for file in "$SCRIPT_DIR"/test-*.sh; do 
         printf "running test: %s..." "$file"

@@ -366,7 +366,9 @@ command:
             exit 1
         fi
     {% else -%}
-        if [ -s /.disk/info ]; then  # Ubuntu Classic
+        if [ -s /var/log/installer/media-info ]; then  # Stock installer info
+            cat /var/log/installer/media-info
+        elif [ -s /.disk/info ]; then
             cat /.disk/info
         elif [ -s /etc/media-info ]; then
             cat /etc/media-info

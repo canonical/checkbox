@@ -8,7 +8,6 @@ Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
 Build-Depends: debhelper (>= 9),
                dh-python,
                python3-all,
-               python3-crypto,
                python3-distutils-extra,
                python3-docutils,
                python3-jinja2,
@@ -46,8 +45,7 @@ Description: CheckBoxNG test runner
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: python3-crypto,
-         python3-jinja2,
+Depends: python3-jinja2,
          python3-padme,
          python3-pkg-resources,
          python3-psutil,

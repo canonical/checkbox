@@ -129,6 +129,7 @@ snap_wait_port_status()
                 if [ "$i" -ge 300 ]; then
                     print_error_logs
                     echo "check port "$1" status "$2" services timed out, reached maximum retry count of 300"
+                    print_error_logs
                     exit 1
                 else
                     sleep 1
@@ -145,6 +146,7 @@ snap_wait_port_status()
                 if [ "$i" -ge 300 ]; then
                     print_error_logs
                     echo "check port "$1" status "$2" services timed out, reached maximum retry count of 300"
+                    print_error_logs
                     exit 1
                 else
                     sleep 1

@@ -82,12 +82,13 @@ snap_wait_all_services_online()
 
     while [ "$all_services_online" = "false" ];
     do
+        ((i=i+1))
         echo "waiting for all services to come online. Current retry count: $i/300"
         #max retry avoids forever waiting
-        ((i=i+1))
         if [ "$i" -ge 300 ]; then
             print_error_logs
             echo "services timed out, reached max retry count of 300"
+            print_error_logs
             exit 1
         fi
 
@@ -115,6 +116,7 @@ snap_wait_all_services_online()
         fi
 
         if [[ "$core_data_status_code" == 200 ]] \
+            && [[ "$(edgexfoundry.vault-cli status -format=json | jq -r '.initialized')" == true ]] \
             && [[ "$core_metadata_status_code" == 200 ]] \
             && [[ "$core_command_status_code" == 200 ]] \
             && snap_wait_port_status 8000 open \

@@ -86,6 +86,7 @@ snap_wait_all_services_online()
         #max retry avoids forever waiting
         ((i=i+1))
         if [ "$i" -ge 300 ]; then
+            print_error_logs
             echo "services timed out, reached max retry count of 300"
             exit 1
         fi

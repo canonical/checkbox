@@ -8,6 +8,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+
 # remove the snap if it's already installed
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
@@ -43,6 +45,7 @@ snap_check_svcs
 # ensure the release config item is set to jakarta
 snapRelease=$(snap get edgexfoundry release)
 if [ "$snapRelease" != "jakarta" ]; then
+    print_error_logs
     echo "missing or invalid config item for snap release: \"$snapRelease\""
     snap_remove
     exit 1

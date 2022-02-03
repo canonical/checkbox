@@ -8,6 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
@@ -28,6 +29,7 @@ snap_wait_port_status 58890 open
 
 # make sure that core-data is running
 if [ -n "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | grep inactive)" ]; then
+    print_error_logs
     echo "core-data is not running"
     snap_remove
     exit 1
@@ -43,6 +45,7 @@ edgexfoundry.curl \
 
 # check that core-data is no longer running
 if [ -z "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | grep inactive)" ]; then
+    print_error_logs
     echo "SMA failed to stop core-data"
     snap_remove
     exit 1
@@ -58,6 +61,7 @@ edgexfoundry.curl \
 
 # check that core-data is now running
 if [ -n "$(snap services edgexfoundry.core-data | grep edgexfoundry.core-data | grep inactive)" ]; then
+    print_error_logs
     echo "SMA failed to start core-data"
     snap_remove
     exit 1
@@ -73,7 +77,7 @@ status_code=$(edgexfoundry.curl \
     localhost:58890/api/v2/system/operation | edgexfoundry.jq '.[0].statusCode')
 
 if [ "$status_code" != "500" ]; then
-    echo
+    print_error_logs
     echo "SMA erronously reports starting a non-existent service"
     snap_remove
     exit 1

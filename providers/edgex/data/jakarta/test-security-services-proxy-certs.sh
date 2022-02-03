@@ -13,6 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 
@@ -77,6 +78,7 @@ echo "Generating JWT"
 # this command doesn't write errors to stderr. Check the exit code before using the output:
 if ! OUT=$(edgexfoundry.secrets-config proxy jwt --algorithm ES256 --private_key $EDGEXFOUNDRY_SNAP_DATA/private.pem --id USER_ID --expiration=1h)
 then
+    print_error_logs
     >&2 echo $OUT
     exit 1
 fi
@@ -92,6 +94,7 @@ code=$(edgexfoundry.curl --insecure --show-error --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN") 
 if [[ $code != 200 ]]; then
+    print_error_logs
     >&2 echo "self-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1
@@ -114,6 +117,7 @@ code=$(edgexfoundry.curl --insecure --show-error --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
+    print_error_logs
     >&2 echo "self-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1
@@ -163,6 +167,7 @@ code=$(edgexfoundry.curl --show-error --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
+    print_error_logs
     >&2 echo "CA-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1
@@ -186,6 +191,7 @@ code=$(edgexfoundry.curl --show-error --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
+    print_error_logs
     >&2 echo "CA-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1

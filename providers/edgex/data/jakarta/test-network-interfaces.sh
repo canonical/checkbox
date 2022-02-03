@@ -10,6 +10,7 @@ source "$SCRIPT_DIR/utils.sh"
 
 snap_remove
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 # install the snap to make sure it installs
@@ -27,12 +28,14 @@ snap_wait_all_services_online
 # reached via localhost
 core_data_socket=`lsof -nPi :59880`
 if echo "$core_data_socket" | grep "TCP \*:59880 (LISTEN)" ; then
+    print_error_logs
     echo "fail - listening on 0.0.0.0"
     exit 1
 elif echo "$core_data_socket" | grep "TCP 127.0.0.1:59880 (LISTEN)" ; then
 
     echo "pass - listening on 127.0.0.1"
 else
+    print_error_logs
     echo "fail - did not find service on port 59880 - is edgexfoundry running?"
     exit 1
 fi

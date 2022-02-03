@@ -8,6 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove

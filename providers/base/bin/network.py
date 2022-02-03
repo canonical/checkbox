@@ -559,7 +559,7 @@ def make_target_list(iface, test_targets, log_warnings):
                                         format(test_target, target))
                         logging.warning("test list since it's not within {}.".
                                         format(net))
-                        return_list.remove(test_target)
+                    return_list.remove(test_target)
             except ValueError:
                 if log_warnings:
                     logging.warning("Invalid address: {}; skipping".
@@ -657,7 +657,7 @@ def interface_test(args):
         extra_interfaces = \
             [iface for iface in os.listdir("/sys/class/net")
              if iface != "lo" and iface != args.interface and
-             not iface.startswith("virbr")]
+             not iface.startswith("virbr") and not iface.startswith("lxdbr")]
 
         for iface in extra_interfaces:
             logging.debug("Shutting down interface:%s", iface)
@@ -708,7 +708,7 @@ def interface_test(args):
                        stderr=DEVNULL)
     except CalledProcessError:
         # This always errors out -- but it works!
-        # The problem is virb0, which has the "linkdown" flag, which the
+        # The problem is virbr0, which has the "linkdown" flag, which the
         # "ip route restore" command can't handle.
         pass
     temp.close()

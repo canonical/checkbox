@@ -54,6 +54,7 @@ check_enabled_services()
     for svc in $1; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "enabled" != "$svcStatus" ]; then
+            print_error_logs
             echo "service $svc has status \"$svcStatus\" but should be enabled"
             exit 1
         fi
@@ -65,6 +66,7 @@ check_active_services()
     for svc in $1; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
         if [ "active" != "$svcStatus" ]; then
+            print_error_logs
             echo "service $svc has status \"$svcStatus\" but should be active"
             exit 1
         fi
@@ -76,6 +78,7 @@ check_disabled_services()
     for svc in $1; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $2}')"
         if [ "disabled" != "$svcStatus" ]; then
+            print_error_logs
             echo "service $svc has status \"$svcStatus\" but should be disabled"
             exit 1
         fi
@@ -87,6 +90,7 @@ check_inactive_services()
     for svc in $1; do
         svcStatus="$(snap services edgexfoundry.$svc | grep $svc | awk '{print $3}')"
         if [ "inactive" != "$svcStatus" ]; then
+            print_error_logs
             echo "service $svc has status \"$svcStatus\" but should be inactive"
             exit 1
         fi
@@ -123,6 +127,7 @@ snap_wait_port_status()
                 echo "check port "$1" status "$2" services timed out, current retry count: $i/300"
 
                 if [ "$i" -ge 300 ]; then
+                    print_error_logs
                     echo "check port "$1" status "$2" services timed out, reached maximum retry count of 300"
                     exit 1
                 else
@@ -138,6 +143,7 @@ snap_wait_port_status()
                 echo "check port "$1" status "$2" services timed out, current retry count: $i/300"
 
                 if [ "$i" -ge 300 ]; then
+                    print_error_logs
                     echo "check port "$1" status "$2" services timed out, reached maximum retry count of 300"
                     exit 1
                 else
@@ -154,3 +160,8 @@ print_snap_version()
     snap list $snap_name | sed -n 2p
 }
 
+print_error_logs()
+{
+    echo "Error logs:"
+    journalctl --since "$START_TIME" --no-pager | grep "edgexfoundry" | grep --ignore-case "error" | grep --invert-match "error=-1"
+}

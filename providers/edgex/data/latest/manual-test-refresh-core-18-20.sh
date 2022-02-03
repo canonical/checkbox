@@ -44,6 +44,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # load the latest release utils
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
+
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
  
 # install EdgeXFoundry 2.0
 sudo snap remove --purge edgexfoundry
@@ -80,6 +82,7 @@ code=$(edgexfoundry.curl --insecure --show-error --silent --include \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN") 
 if [[ $code != 200 ]]; then
+    print_error_logs
     >&2 echo "self-signed Kong TLS verification test failed with $code"
     snap_remove
     exit 1

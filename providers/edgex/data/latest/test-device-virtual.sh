@@ -8,6 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
@@ -30,6 +31,7 @@ snap_wait_port_status 59900 open
 
 # ensure device-virtual is running
 if [ "$(snap services edgexfoundry.device-virtual | grep -o inactive)" = "inactive" ]; then
+    print_error_logs
     echo "failed to start device-virtual"
     exit 1
 fi
@@ -58,12 +60,14 @@ num_tries=0
 while true; do
     if ! (edgexfoundry.curl -s localhost:59881/api/v2/device/all | $JQ '.'); then
         # not json - something's wrong
+        print_error_logs
         echo "invalid JSON response from core-metadata"
         exit 1
     elif [ "$(edgexfoundry.curl -s localhost:59881/api/v2/device/all | $JQ 'map(select(.name == "Random-Boolean-Device")) | length')" -lt 1 ]; then
         # increment number of tries
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then
+            print_error_logs
             echo "max tries attempting to get device-virtual readings"
             exit 1
         fi
@@ -80,6 +84,7 @@ num_tries=0
 
 if ! (edgexfoundry.curl -s localhost:59880/api/v2/reading/device/name/Random-Boolean-Device | $JQ '.'); then
     # not json - something's wrong
+    print_error_logs
     echo "invalid JSON response from core-data"
     exit 1
 fi
@@ -93,6 +98,7 @@ while true; do
         # increment number of tries
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then
+            print_error_logs
             echo "max tries attempting to get device-virtual readings"
             exit 1
         fi

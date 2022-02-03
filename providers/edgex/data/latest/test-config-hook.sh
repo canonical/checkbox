@@ -15,6 +15,8 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+
 declare services
 services[0]=core-data
 services[1]=core-metadata

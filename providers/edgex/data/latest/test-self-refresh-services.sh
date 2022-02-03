@@ -10,6 +10,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
@@ -42,6 +43,7 @@ snap_wait_all_services_online
 
 snapRelease=$(snap get edgexfoundry release)
 if [ "$snapRelease" != "jakarta" ]; then
+    print_error_logs
     echo "missing or invalid config item for snap release: \"$snapRelease\""
     snap_remove
     exit 1

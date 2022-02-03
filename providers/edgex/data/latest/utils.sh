@@ -86,6 +86,7 @@ snap_wait_all_services_online()
         #max retry avoids forever waiting
         ((i=i+1))
         if [ "$i" -ge 300 ]; then
+            print_error_logs
             echo "services timed out, reached max retry count of 300"
             exit 1
         fi
@@ -108,6 +109,7 @@ snap_wait_all_services_online()
         if [[ $core_data_status_code =~ $http_error_code_regex ]] \
             || [[ $core_metadata_status_code =~ $http_error_code_regex ]] \
             || [[ $core_command_status_code =~ $http_error_code_regex ]]; then
+            print_error_logs
             echo "core service(s) received status code 4xx or 5xx"
             exit 1
         fi

@@ -8,6 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
@@ -39,6 +40,7 @@ notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | \
     grep -v "lua" | \
     grep -v "and the location of the files uses reference")
 if [ -n "$notUpgradedFiles" ]; then
+    print_error_logs
     echo "files not upgraded to use \"current\" symlink in config files:"
     echo "$notUpgradedFiles"
     exit 1

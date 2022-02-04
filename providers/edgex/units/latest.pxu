@@ -79,7 +79,7 @@ category_id: edgex
 flags: simple
 
 id: edgex/latest/refresh-core-18-20
-_summary: Test that the Kong configuration is migrated correctly when upgrading from core 18 to 20
+_summary: Test that Kong configuration is migrated when upgrading from core 18 to 20
 command: $PLAINBOX_PROVIDER_DATA/latest/test-refresh-core-18-20.sh
 user: root
 environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT

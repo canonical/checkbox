@@ -14,7 +14,9 @@ fi
 source "$SCRIPT_DIR/utils.sh"
 
 EDGEX_STABLE_CHANNEL="2.1/stable"
-EDGEX_LATEST_CHANNEL="latest/beta"
+if [ -z "$DEFAULT_TEST_CHANNEL" ]; then
+    DEFAULT_TEST_CHANNEL="latest/beta"
+fi
 
 
 # helper function to download the snap, ack the assertion and return the
@@ -29,14 +31,13 @@ snap_download_and_ack()
     echo "$(pwd)"/"$(echo "$snap_download_output" | grep -Po 'edgexfoundry_[0-9]+\.snap')"
 }
 
-snap_download_stable_and_latest()
+snap_download_stable_and_default()
 {
-    # download and ack the stable and latest channels as we have tests to ensure
-    # there's a smooth upgrade between those channels and this one that is
-    # under consideration
+    # download and ack the stable and default test channels as we have tests to ensure
+    # there's a smooth upgrade between those channels
     # this also saves in download bandwidth and time
     EDGEX_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=$EDGEX_STABLE_CHANNEL)
-    EDGEX_LATEST_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=$EDGEX_LATEST_CHANNEL)
+    EDGEX_LATEST_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=$DEFAULT_TEST_CHANNEL)
 
 
     # export the names of the stable and latest snap files
@@ -87,7 +88,8 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 # if an argument was provided to the script, it's supposed to be a local snap
 # file to test - confirm that the file exists
-# otherwise if we didn't get any arguments assume to test the snap from beta
+# otherwise if we didn't get any arguments assume to test the snap from 
+# default test channel
 if [[ -n $LOCAL_SNAP ]]; then
     if [ -f "$LOCAL_SNAP" ]; then
         echo "testing local snap: $LOCAL_SNAP"
@@ -101,7 +103,8 @@ if [[ -n $LOCAL_SNAP ]]; then
         exit 1
     fi
 else 
-    REVISION_TO_TEST=$(snap_download_and_ack edgexfoundry --channel=$EDGEX_LATEST_CHANNEL)
+    echo "testing snap from channel: $DEFAULT_TEST_CHANNEL"
+    REVISION_TO_TEST=""
     REVISION_TO_TEST_CHANNEL=""
     REVISION_TO_TEST_CONFINEMENT=""
 fi
@@ -118,13 +121,13 @@ set +e
 if [ -n "$SINGLE_TEST" ]; then
     printf "running single test: %s ..." "$SINGLE_TEST"
     if [ "$SINGLE_TEST" == "test-refresh-services.sh" ]; then
-        snap_download_stable_and_latest
+        snap_download_stable_and_default
     fi
 
     if [ "$SINGLE_TEST" == "test-refresh-config-paths.sh" ]; then
         EDGEX_PREV_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=2.0/stable)
         export EDGEX_PREV_STABLE_SNAP_FILE
-        snap_download_stable_and_latest
+        snap_download_stable_and_default
     fi
 
     if stdout="$("$SCRIPT_DIR/$SINGLE_TEST" 2>&1)"; then
@@ -138,7 +141,7 @@ if [ -n "$SINGLE_TEST" ]; then
         exit 1
     fi
 else
-    snap_download_stable_and_latest
+    snap_download_stable_and_default
 
     for file in "$SCRIPT_DIR"/manual-test-*.sh; do
         printf "manual test: %s...\t\tSKIPPED\n" "$file"

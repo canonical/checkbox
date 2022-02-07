@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2011-2015 Canonical Ltd.
+# Copyright 2011-2022 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -25,11 +25,6 @@ There are 3 possible attachments containing data relevant to OEM images::
 
 A class is provided to parse each of these.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import io
 from xml.dom import minidom

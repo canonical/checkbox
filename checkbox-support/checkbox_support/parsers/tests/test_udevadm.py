@@ -1,12 +1,10 @@
-#
 # This file is part of Checkbox.
 #
-# Copyright 2012-2013 Canonical Ltd.
+# Copyright 2012-2022 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,35 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from io import StringIO
-from io import open
 from unittest import TestCase
+from textwrap import dedent
 
 from pkg_resources import resource_filename
 
 from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
 from checkbox_support.parsers.udevadm import parse_udevadm_output
-
-
-class DeviceResult(object):
-
-    def __init__(self):
-        self.devices = []
-
-    def addDevice(self, device):
-        self.devices.append(device)
-
-    def getDevice(self, category):
-        for device in self.devices:
-            if device.category == category:
-                return device
-
-        return None
 
 
 class UdevadmDataMixIn(object):
@@ -70,16 +47,6 @@ class UdevadmDataMixIn(object):
 
 class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
-    def getParser(self, string):
-        stream = StringIO(string)
-        return UdevadmParser(stream)
-
-    def getResult(self, string):
-        parser = self.getParser(string)
-        result = DeviceResult()
-        parser.run(result)
-        return result
-
     def parse(self, name, with_lsblk=True, with_partitions=False):
         # Uncomment only for debugging purpose
         """
@@ -100,27 +67,29 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         return len([d for d in devices if d.category == category])
 
     def test_openfirmware_network(self):
-        result = self.getResult("""
-P: /devices/soc.0/ffe64000.ethernet
-E: DEVPATH=/devices/soc.0/ffe64000.ethernet
-E: DRIVER=XXXXX
-E: MODALIAS=of:NethernetTXXXXXCXXXXX,XXXXX
-E: OF_COMPATIBLE_0=XXXXX,XXXXX
-E: OF_COMPATIBLE_N=1
-E: OF_NAME=ethernet
-E: OF_TYPE=XXXXX
-E: SUBSYSTEM=platform
-E: UDEV_LOG=3
+        stream = StringIO(dedent("""
+            P: /devices/soc.0/ffe64000.ethernet
+            E: DEVPATH=/devices/soc.0/ffe64000.ethernet
+            E: DRIVER=XXXXX
+            E: MODALIAS=of:NethernetTXXXXXCXXXXX,XXXXX
+            E: OF_COMPATIBLE_0=XXXXX,XXXXX
+            E: OF_COMPATIBLE_N=1
+            E: OF_NAME=ethernet
+            E: OF_TYPE=XXXXX
+            E: SUBSYSTEM=platform
+            E: UDEV_LOG=3
 
-P: /devices/soc.0/ffe64000.ethernet/net/eth1
-E: DEVPATH=/devices/soc.0/ffe64000.ethernet/net/eth1
-E: IFINDEX=3
-E: INTERFACE=eth1
-E: SUBSYSTEM=net
-E: UDEV_LOG=3
-""")
-        device = result.getDevice("NETWORK")
-        self.assertTrue(device)
+            P: /devices/soc.0/ffe64000.ethernet/net/eth1
+            E: DEVPATH=/devices/soc.0/ffe64000.ethernet/net/eth1
+            E: IFINDEX=3
+            E: INTERFACE=eth1
+            E: SUBSYSTEM=net
+            E: UDEV_LOG=3
+            """))
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(devices[0].category, "NETWORK")
+
 
     def test_DELL_INSPIRON3521_TOUCHSCREEN(self):
         """

@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-#
 # Python-XRandR provides a high level API for the XRandR extension of the
 # X.org server. XRandR allows to configure resolution, refresh rate, rotation
 # of the screen and multiple outputs of graphics cards.
@@ -35,11 +32,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301  USA
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from ctypes import (
     POINTER,

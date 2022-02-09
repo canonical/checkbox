@@ -14,7 +14,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
-DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 # FIXME: The Ireland release no longer initializes an EdgeX CA used to
 # sign the TLS certificates for Kong or Vault. As of Ireland, TLS is no

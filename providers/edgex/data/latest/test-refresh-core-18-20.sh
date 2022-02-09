@@ -13,8 +13,6 @@ source "$SCRIPT_DIR/utils.sh"
 
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 
-DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
-
 # remove the current snap
 snap_remove
 

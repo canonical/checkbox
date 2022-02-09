@@ -64,8 +64,6 @@ conf_to_env[messagequeue_publish-topic-prefix]="MESSAGEQUEUE_PUBLISHTOPICPREFIX/
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/utils.sh"
 
-DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
-
 snap_remove
 
 # install the snap to make sure it installs

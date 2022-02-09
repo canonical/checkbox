@@ -4,20 +4,11 @@
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [ "$(id -u)" != "0" ]; then
-    echo "script must be run as root"
-    exit 1
-fi
-
-# load the latest release utils
+# load the generic utils utils
 # shellcheck source=/dev/null
-source "$SCRIPT_DIR/utils.sh"
+source "$(dirname "$SCRIPT_DIR")/utils.sh"
 
 EDGEX_STABLE_CHANNEL="2.1/stable"
-if [ -z "$DEFAULT_TEST_CHANNEL" ]; then
-    DEFAULT_TEST_CHANNEL="latest/beta"
-fi
-
 
 # helper function to download the snap, ack the assertion and return the
 # name of the file
@@ -93,26 +84,19 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 if [[ -n $LOCAL_SNAP ]]; then
     if [ -f "$LOCAL_SNAP" ]; then
         echo "testing local snap: $LOCAL_SNAP"
-        REVISION_TO_TEST=$LOCAL_SNAP
-        REVISION_TO_TEST_CHANNEL=""
+        export REVISION_TO_TEST=$LOCAL_SNAP
+        export REVISION_TO_TEST_CHANNEL=""
         # for now always need to test edgexfoundry locally with devmode
         # because we can't auto-connect interfaces that are needed
-        REVISION_TO_TEST_CONFINEMENT="--devmode"
+        export REVISION_TO_TEST_CONFINEMENT="--devmode"
     else
         echo "local snap to test: \"$LOCAL_SNAP\" does not exist"
         exit 1
     fi
 else 
-    echo "testing snap from channel: $DEFAULT_TEST_CHANNEL"
-    REVISION_TO_TEST=""
-    REVISION_TO_TEST_CHANNEL=""
-    REVISION_TO_TEST_CONFINEMENT=""
+    # default channel is handled in test suite's util script
+    echo "testing snap from default test channel"
 fi
-
-# export the revision to test env vars
-export REVISION_TO_TEST
-export REVISION_TO_TEST_CHANNEL
-export REVISION_TO_TEST_CONFINEMENT
 
 # make sure to remove the snap if it's installed before running
 snap_remove 2>/dev/null > /dev/null

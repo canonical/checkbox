@@ -94,7 +94,7 @@ sudo ./run-all-tests-locally.sh -s edgexfoundry.snap -t test-rules-engine.sh
 
 To run tests against a snap from a specific channel:
 ```bash
-DEFAULT_TEST_CHANNEL="<channel>" sudo ./run-all-tests-locally.sh
+sudo DEFAULT_TEST_CHANNEL="<channel>" ./run-all-tests-locally.sh
 ```
 
 ## Testing coverage

@@ -6,7 +6,7 @@ command:
  {%- if __on_ubuntucore__ %}
  echo "{}"
  {%- else %}
- dkms_info.py  --format json | python3 -m plainbox dev parse dkms-info | \
+ dkms_info.py  --format json | checkbox-support-parse dkms-info | \
  jq '.dkms_info'
  {% endif -%}
 _description: Attaches json dumps of installed dkms package information.
@@ -15,7 +15,7 @@ _summary: Attaches json dumps of installed dkms package information.
 id: udev_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: udevadm info --export-db | python3 -m plainbox dev parse udevadm
+command: udevadm info --export-db | checkbox-support-parse udevadm
 _description: Attaches json dumps of udev_resource.py
 _summary: Attaches json dumps of udev_resource.py
 
@@ -29,7 +29,7 @@ user: root
 command:
  BOOT_MODE=$(inxi_snapshot -M --output json --output-file print | grep -oP '(?<=\d#)(UEFI|BIOS)(\s+\[Legacy\])?')
  # shellcheck disable=SC2016
- dmidecode | python3 -m plainbox dev parse dmidecode | \
+ dmidecode | checkbox-support-parse dmidecode | \
  jq --arg BOOT_MODE "$BOOT_MODE" '[.[] | ._attributes + {"category": .category} + (if .category == "BIOS" then {boot_mode: $BOOT_MODE} else {} end)]'
 estimated_duration: 1
 _description: Attaches dmidecode output
@@ -39,7 +39,7 @@ id: modprobe_json
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
- find /etc/modprobe.* -name \*.conf -exec cat {} + | python3 -m plainbox dev parse modprobe |
+ find /etc/modprobe.* -name \*.conf -exec cat {} + | checkbox-support-parse modprobe |
  jq 'to_entries | map({"module": .key, "options": .value})'
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
@@ -50,7 +50,7 @@ _summary: Attach PCI configuration space hex dump
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
- lspci -x | python3 -m plainbox dev parse pci-subsys-id | \
+ lspci -x | checkbox-support-parse pci-subsys-id | \
  jq '.pci_subsystem_id'
 estimated_duration: 0.1
 _description: Attaches a hex dump of the standard part of the PCI configuration
@@ -69,7 +69,7 @@ _description:
  The information include:
   - fish packages
   - dell recovery stage 2 boot log
-command: recovery_info.py file bto.xml | python3 -m plainbox dev parse bto
+command: recovery_info.py file bto.xml | checkbox-support-parse bto
 
 id: recovery_info_attachment_json
 plugin: attachment
@@ -86,7 +86,7 @@ _description:
  Example:
  image_version: somerville-trusty-amd64-20140620-0
  bto_version: A00_dell-bto-trusty-houston-15-A11-iso-20141203-0.iso
-command: recovery_info.py version | python3 -m plainbox dev parse recovery-info
+command: recovery_info.py version | checkbox-support-parse recovery-info
 
 id: system_info_json
 plugin: attachment

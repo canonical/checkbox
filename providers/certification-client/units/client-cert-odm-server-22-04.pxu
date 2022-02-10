@@ -1,10 +1,10 @@
-id: client-cert-odm-ubuntucore-20-manual
-_name: ODM Client Certification for Ubuntu Core 20 - (1/2) Manual tests
+id: client-cert-odm-server-22-04-manual
+_name: [DRAFT] ODM Client Certification for Server 22.04 - (1/2) Manual tests
 unit: test plan
 _description:
  This test plan is intended for use by ODMs in their own facilities as part of
  the ODM Certification programme. This test plan should be used when certifying
- Ubuntu Core images.
+ Server images.
 include:
 mandatory_include:
     com.canonical.plainbox::manifest
@@ -18,6 +18,7 @@ mandatory_include:
     lsusb_attachment
     rtc
     sleep
+    parts_meta_info_attachment
 bootstrap_include:
     bootloader
     cpuinfo
@@ -58,13 +59,13 @@ exclude:
     mediacard/xd-.*
     rtc/battery
 
-id: client-cert-odm-ubuntucore-20-automated
-_name: ODM Client Certification for Ubuntu Core 20 - (2/2) Automated tests
+id: client-cert-odm-server-22-04-automated
+_name: [DRAFT] ODM Client Certification for Server 22.04 - (2/2) Automated tests
 unit: test plan
 _description:
  This test plan is intended for use by ODMs in their own facilities as part of
  the ODM Certification programme. This test plan should be used when certifying
- Ubuntu Core images.
+ Server images.
 include:
 mandatory_include:
     com.canonical.plainbox::manifest
@@ -78,6 +79,7 @@ mandatory_include:
     lsusb_attachment
     rtc
     sleep
+    parts_meta_info_attachment
 bootstrap_include:
     bootloader
     cpuinfo
@@ -128,11 +130,3 @@ exclude:
     mediacard/msp-.*
     mediacard/xd-.*
     rtc/battery
-
-id: client-cert-odm-ubuntucore-20
-_name: DONT USE - uc20 - placeholder to establish that total number of tests has not changed
-unit: test plan
-include:
-nested_part:
-    client-cert-odm-ubuntucore-20-manual
-    client-cert-odm-ubuntucore-20-automated

@@ -24,7 +24,7 @@ import subprocess as sp
 import sys
 
 from checkbox_support.parsers.netplan import Netplan
-from checkbox_support.parsers.udevadm import UdevadmParser, UdevResult
+from checkbox_support.parsers.udevadm import UdevadmParser
 
 
 def log(msg):
@@ -33,22 +33,17 @@ def log(msg):
         f.write(msg + '\n')
 
 
-class UdevInterfaceLister(UdevResult):
-
-    def __init__(self, categories):
-        self.categories = categories
-        self.names = []
-        cmd = 'udevadm info --export-db'
-        output = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
-        udev = UdevadmParser(output)
-        udev.run(self)
-
-    def addDevice(self, device):
-        c = getattr(device, "category", None)
-        if c in self.categories:
+def get_network_interfaces(category):
+    names = []
+    cmd = 'udevadm info --export-db'
+    output = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+    udev = UdevadmParser(output)
+    for device in udev.run():
+        if category == getattr(device, "category", None):
             p = getattr(device, "interface", None)
             if p is not None:
-                self.names.append(p)
+                names.append(p)
+    return names
 
 
 def is_nm_available():
@@ -99,12 +94,12 @@ def identify_managers(interfaces=None,
     results = {}
     if interfaces is None:
         # normal operation
-        wired = UdevInterfaceLister(['NETWORK']).names
+        wired = get_network_interfaces('NETWORK')
         results.update(dict.fromkeys(wired, {
             'manager': States.unspecified,
             'mastermode': MasterMode.na
         }))
-        wireless = UdevInterfaceLister(['WIRELESS']).names
+        wireless = get_network_interfaces('WIRELESS')
         results.update(dict.fromkeys(wireless, {
             'manager': States.unspecified,
             'mastermode': MasterMode.unspecified

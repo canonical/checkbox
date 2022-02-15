@@ -307,12 +307,10 @@ class UdevDevices():
             sys.stderr.write(err)
             return
         udev = UdevadmParser(output)
-        udev.run(self)
-
-    def addDevice(self, device):
-        """Callback for UdevadmParser"""
-        if device.category == self.category and device.interface != 'UNKNOWN':
-            self._devices.append(device)
+        for device in udev.run():
+            if (device.category == self.category and
+                    device.interface != 'UNKNOWN'):
+                self._devices.append(device)
 
     def devices(self):
         """Convert to list of NetworkDevice with UDev derived attrs set"""

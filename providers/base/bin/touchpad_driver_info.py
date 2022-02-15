@@ -6,19 +6,6 @@ from subprocess import Popen, PIPE, check_output, STDOUT, CalledProcessError
 from checkbox_support.parsers.udevadm import UdevadmParser
 from checkbox_support.parsers.modinfo import ModinfoParser
 
-# Command to retrieve udev information.
-COMMAND = 'udevadm info --export-db'
-
-
-class TouchResult:
-
-    attributes = {}
-
-    def addDevice(self, device):
-        if getattr(device, 'category') == 'TOUCHPAD':
-            self.attributes['driver'] = getattr(device, 'driver')
-            self.attributes['product'] = getattr(device, 'product')
-
 
 class TouchpadDriver():
 
@@ -48,18 +35,20 @@ class TouchpadDriver():
 
 
 def get_touch_attributes():
-    output, err = Popen(COMMAND, stdout=PIPE, shell=True).communicate()
+    cmd = 'udevadm info --export-db'
+    output, err = Popen(cmd, stdout=PIPE, shell=True).communicate()
     if err:
-        print("Error running $s" % ' '.join(COMMAND))
+        print("Error running $s" % ' '.join(cmd))
         print(err)
         return None
 
     udev = UdevadmParser(StringIO(output.decode("unicode-escape")))
-
-    result = TouchResult()
-    udev.run(result)
-
-    return result.attributes
+    attributes = {}
+    for device in udev.run():
+        if getattr(device, 'category') == 'TOUCHPAD':
+            attributes['driver'] = getattr(device, 'driver')
+            attributes['product'] = getattr(device, 'product')
+    return attributes
 
 
 def main():
@@ -68,9 +57,9 @@ def main():
         modinfo = TouchpadDriver(attributes['driver'])
         attributes['version'] = modinfo.driver_version
         print("%s: %s\n%s: %s\n%s: %s\n" % (
-                 'Device', attributes['product'],
-                 'Driver', attributes['driver'],
-                 'Driver Version', attributes['version']))
+            'Device', attributes['product'],
+            'Driver', attributes['driver'],
+            'Driver Version', attributes['version']))
     else:
         print("No Touchpad Detected")
         return 1

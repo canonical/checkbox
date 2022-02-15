@@ -19,7 +19,6 @@
 #
 import argparse
 import shlex
-import sys
 
 from collections import OrderedDict
 from subprocess import check_output, CalledProcessError
@@ -37,9 +36,8 @@ attributes = ("path", "name", "bus", "category", "driver", "product_id",
               "symlink_uuid")
 
 
-class UdevResultDump:
-
-    def addDevice(self, device):
+def dump_udev_db(udev):
+    for device in udev.run():
         for attribute in attributes:
             value = getattr(device, attribute)
             if value is not None:
@@ -47,51 +45,48 @@ class UdevResultDump:
         print()
 
 
-class UdevResultLister:
-
-    def __init__(self, categories):
-        self.categories = categories
-        self._data = OrderedDict()
-        self._devices = []
-        for c in categories:
-            self._data[c] = []
-
-    def display(self, short=False):
-        if not self._devices:
-            return 1
-        for c, devices in self._data.items():
-            if short:
-                for d in devices:
-                    print("{}".format(
-                        d.replace('None ', '').replace(' None', '')))
-            else:
-                print("{} ({}):".format(c, len(devices)))
-                for d in devices:
-                    print(" - {}".format(d))
-                print()
-
-    def filter(self):
-        if not self._devices:
-            return 1
-        for device in self._devices:
+def filter_by_categories(udev, categories):
+    count = 0
+    for device in udev.run():
+        c = getattr(device, "category", None)
+        if c in categories:
+            count += 1
             for attribute in attributes:
                 value = getattr(device, attribute)
                 if value is not None:
                     print("%s: %s" % (attribute, value))
             print()
+    return count
 
-    def addDevice(self, device):
+
+def display_by_categories(udev, categories, short=False):
+    count = 0
+    data = OrderedDict()
+    for category in categories:
+        data[category] = []
+    for device in udev.run():
         c = getattr(device, "category", None)
-        if c in self.categories:
-            self._devices.append(device)
+        if c in categories:
+            count += 1
             p = getattr(device, "product", "Unknow product")
             v = getattr(device, "vendor", "Unknow vendor")
             vid = device.vendor_id if device.vendor_id else 0
             pid = device.product_id if device.product_id else 0
             if not p:
                 p = getattr(device, "interface", "Unknow product")
-            self._data[c].append(
+            data[c].append(
                 "{} {} [{:04x}:{:04x}]".format(v, p, vid, pid))
+    for c, devices in data.items():
+        if short:
+            for d in devices:
+                print("{}".format(
+                    d.replace('None ', '').replace(' None', '')))
+        else:
+            print("{} ({}):".format(c, len(devices)))
+            for d in devices:
+                print(" - {}".format(d))
+            print()
+    return count
 
 
 def main():
@@ -132,17 +127,14 @@ def main():
         list_partitions = True
     udev = UdevadmParser(output, lsblk=lsblk, list_partitions=list_partitions)
     if args.list:
-        result = UdevResultLister(args.list)
-        udev.run(result)
-        return result.display(args.short)
+        if display_by_categories(udev, args.list, args.short) == 0:
+            raise SystemExit("No devices found")
     elif args.filter:
-        result = UdevResultLister(args.filter)
-        udev.run(result)
-        return result.filter()
+        if filter_by_categories(udev, args.filter) == 0:
+            raise SystemExit("No devices found")
     else:
-        result = UdevResultDump()
-        udev.run(result)
+        dump_udev_db(udev)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

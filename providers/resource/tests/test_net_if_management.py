@@ -22,7 +22,7 @@ import tempfile
 import unittest
 
 from checkbox_support.parsers.netplan import Netplan
-from checkbox_support.parsers.udevadm import UdevadmParser, UdevResult
+from checkbox_support.parsers.udevadm import UdevadmParser
 
 import net_if_management
 

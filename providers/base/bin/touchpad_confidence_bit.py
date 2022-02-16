@@ -19,12 +19,10 @@ class TouchpadDevices:
             sys.stderr.write(err)
             return
         udev = UdevadmParser(output)
-        udev.run(self)
-
-    def addDevice(self, device):
-        if getattr(device, 'category') == 'TOUCHPAD':
-            self.devices[getattr(device, 'product_slug')
-                         ] = getattr(device, 'path')
+        for device in udev.run():
+            if getattr(device, 'category') == 'TOUCHPAD':
+                self.devices[getattr(device, 'product_slug')
+                             ] = getattr(device, 'path')
 
 
 def main():

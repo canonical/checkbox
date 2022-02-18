@@ -11,7 +11,6 @@ source "$SCRIPT_DIR/utils.sh"
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 
 # remove the snap if it's already installed
-DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
 

@@ -1,10 +1,5 @@
 #!/bin/bash -e
 
-if [ "$(id -u)" != "0" ]; then
-    echo "script must be run as root"
-    exit 1
-fi
-
 # get the directory of this script
 # snippet from https://stackoverflow.com/a/246128/10102404
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
@@ -12,6 +7,15 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # load the generic utils
 # shellcheck source=/dev/null
 source "$(dirname "$SCRIPT_DIR")/utils.sh"
+
+# if default is not given, we use beta risk level of this track
+TRACK_BETA=2.1/beta
+if [ -n "$DEFAULT_TEST_CHANNEL" ]; then
+    echo "DEFAULT_TEST_CHANNEL set to $DEFAULT_TEST_CHANNEL"
+else
+    echo "DEFAULT_TEST_CHANNEL not set. Setting to $TRACK_BETA"
+    export DEFAULT_TEST_CHANNEL=$TRACK_BETA
+fi
 
 snap_check_svcs()
 {
@@ -82,9 +86,9 @@ snap_wait_all_services_online()
 
     while [ "$all_services_online" = "false" ];
     do
+        ((i=i+1))
         echo "waiting for all services to come online. Current retry count: $i/300"
         #max retry avoids forever waiting
-        ((i=i+1))
         if [ "$i" -ge 300 ]; then
             print_error_logs
             echo "services timed out, reached max retry count of 300"

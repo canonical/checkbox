@@ -10,7 +10,6 @@ source "$SCRIPT_DIR/utils.sh"
 
 snap_remove
 
-DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 # install the snap to make sure it installs
 if [ -n "$REVISION_TO_TEST" ]; then

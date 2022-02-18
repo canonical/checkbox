@@ -63,7 +63,6 @@ conf_to_env[messagequeue_publish-topic-prefix]="MESSAGEQUEUE_PUBLISHTOPICPREFIX/
 source "$SCRIPT_DIR/utils.sh"
 
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
-DEFAULT_TEST_CHANNEL=${DEFAULT_TEST_CHANNEL:-beta}
 
 snap_remove
 

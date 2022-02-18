@@ -85,3 +85,20 @@ user: root
 environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
 category_id: edgex
 flags: simple
+
+id: edgex/latest/config-hook
+_summary: Test that snap configure hook settings are supported by the edgexfoundry snap
+command: $PLAINBOX_PROVIDER_DATA/latest/test-config-hook.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/latest/device-virtual
+_summary: Test that device-virtual creates devices and produces readings
+command: $PLAINBOX_PROVIDER_DATA/latest/test-device-virtual.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+

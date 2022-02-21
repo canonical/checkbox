@@ -57,17 +57,20 @@ num_tries=0
 
 # check to see if we can find the device created by device-virtual
 while true; do
-    if ! (edgexfoundry.curl -s localhost:59881/api/v2/device/all | $JQ '.'); then
-        # not json - something's wrong
+    FIND_DEVICE=$(edgexfoundry.curl -s localhost:59881/api/v2/device/all | $JQ '[.devices[] | select(.name == "Random-Boolean-Device")] | length')
+    EXIT_CODE=$?
+    if [ "$EXIT_CODE" -ne 0 ] ; then
         print_error_logs
-        echo "invalid JSON response from core-metadata"
+        echo "Error finding the device created by device-virtual"
         exit 1
-    elif [ "$(edgexfoundry.curl -s localhost:59881/api/v2/device/all | $JQ 'map(select(.name == "Random-Boolean-Device")) | length')" -lt 1 ]; then
+    fi
+    
+    if [ "$FIND_DEVICE" -lt 1 ]; then
         # increment number of tries
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then
             print_error_logs
-            echo "max tries attempting to get device-virtual readings"
+            echo "max tries attempting to get device-virtual devices"
             exit 1
         fi
         # no readings yet, keep waiting
@@ -81,19 +84,18 @@ done
 # reset the number of tries
 num_tries=0
 
-if ! (edgexfoundry.curl -s localhost:59880/api/v2/reading/device/name/Random-Boolean-Device | $JQ '.'); then
-    # not json - something's wrong
-    print_error_logs
-    echo "invalid JSON response from core-data"
-    exit 1
-fi
-
 # check to see if we can get a reading from the Random-Boolean-Device
 while true; do
-    retval="$(edgexfoundry.curl -s localhost:59880/api/v2/reading/device/name/Random-Boolean-Device | $JQ 'length')"
-    echo "retval: $retval"
+    FIND_READING=$(edgexfoundry.curl -s localhost:59880/api/v2/reading/device/name/Random-Boolean-Device | $JQ 'length')
+    EXIT_CODE=$?
+    if [ "$EXIT_CODE" -ne 0 ] ; then
+        print_error_logs
+        echo "Error getting a reading produced by device-virtual"
+        exit 1
+    fi
 
-    if [ "$retval" -le 1 ]; then
+    if [ "$FIND_READING" -le 1 ]; then
+        EXIT_CODE=$?
         # increment number of tries
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then

@@ -69,7 +69,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: autotools
-    source: https://github.com/ColinIanKing/fwts.git
+    source: git://kernel.ubuntu.com/hwe/fwts
     autotools-configure-parameters:
       - --prefix=/
     stage-packages:

@@ -169,3 +169,24 @@ print_error_logs()
     echo "Error logs:"
     journalctl --since "$START_TIME" --no-pager | grep "edgexfoundry" | grep --ignore-case "error" | grep --invert-match "error=-1"
 }
+
+
+openssl_generate_certificate()
+{
+    SERVER_CERT_FILE=$1
+    SERVER_KEY_FILE=$2
+    SERVER_CSR_FILE=$3
+    CA_CERT_FILE=$4
+    CA_KEY_FILE=$5
+
+    # Generate the Certificate Authority (CA) Private Key
+    openssl ecparam -name prime256v1 -genkey -noout -out $CA_KEY_FILE
+    # Generate the Certificate Authority Certificate
+    openssl req -new -x509 -sha256 -key $CA_KEY_FILE -out $CA_CERT_FILE -subj "/CN=checkbox-test-ca"
+    # Generate the Server Certificate Private Key
+    openssl ecparam -name prime256v1 -genkey -noout -out $SERVER_KEY_FILE
+    # Generate the Server Certificate Signing Request
+    openssl req -new -sha256 -key $SERVER_KEY_FILE -out $SERVER_CSR_FILE -subj "/CN=localhost"
+    # Generate the Server Certificate
+    openssl x509 -req -in $SERVER_CSR_FILE -CA $CA_CERT_FILE -CAkey $CA_KEY_FILE -CAcreateserial -out $SERVER_CERT_FILE -days 1000 -sha256
+}

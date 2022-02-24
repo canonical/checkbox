@@ -15,6 +15,7 @@ source "$SCRIPT_DIR/utils.sh"
 
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 
+
 # FIXME: The Ireland release no longer initializes an EdgeX CA used to
 # sign the TLS certificates for Kong or Vault. As of Ireland, TLS is no
 # longer used for connections to Vault per:
@@ -44,6 +45,10 @@ START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 
 snap_remove
 
+# remove keys if exist
+rm -rf ca.crt ca.key ca.srl server.crt server.csr server.key public.pem
+
+# install the snap to make sure it installs
 if [ -n "$REVISION_TO_TEST" ]; then
     echo "Installing snap from locally cached version"
     snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
@@ -62,8 +67,8 @@ mkdir -p $EDGEXFOUNDRY_SNAP_DATA
 echo "Generating private key"
 openssl ecparam -genkey -name prime256v1 -noout -out $EDGEXFOUNDRY_SNAP_DATA/private.pem
 echo "Generating public key"
-openssl ec -in $EDGEXFOUNDRY_SNAP_DATA/private.pem -pubout -out $EDGEXFOUNDRY_SNAP_DATA/public.pem
-PUBLIC_KEY=$(< $EDGEXFOUNDRY_SNAP_DATA/public.pem)
+openssl ec -in $EDGEXFOUNDRY_SNAP_DATA/private.pem -pubout -out public.pem
+PUBLIC_KEY=$(< public.pem)
  
 echo "Setting security-proxy user"
 snap set edgexfoundry env.security-proxy.user=user01,USER_ID,ES256
@@ -121,43 +126,40 @@ else
     echo "Self-signed TLS verification recheck test succeeded"
 fi
 
-echo "Installing edgeca if missing"
-if [ -z "$(snap list edgeca)" ]; then
-    snap install edgeca
-    edgeca_is_installed=true
-    echo "edgeca installed"
-fi
 
-# wait for edgeca service to come online
-snap_wait_port_status 50025 open
+openssl_generate_certificate server.crt server.key server.csr ca.crt ca.key
 
-# generate CA-signed TLS certificate
-# We are running the test script with 'sudo' and although the edgeca snap has the home interface, 
-# which allows access to the home directory, when running as sudo, the user is root, 
-# so it has a different home directory and doesn't have write access to your home directory. 
-# It's therefore easiest to use the $SNAP_DATA directory of the EdgeCA snap:
-EDGECA_DIR="/var/snap/edgeca/current"
-echo "Generating CSR"
-edgeca gencsr --cn localhost --csr $EDGECA_DIR/csrfile --key $EDGECA_DIR/csrkeyfile
-echo "Generating certificate"
-edgeca gencert -o $EDGECA_DIR/localhost.cert -i $EDGECA_DIR/csrfile -k $EDGECA_DIR/localhost.key
-EDGECA_CERT=$(< $EDGECA_DIR/localhost.cert)
-EDGECA_KEY=$(< $EDGECA_DIR/localhost.key)
+TEST_CERT=$(< server.crt)
+TEST_KEY=$(< server.key)
 
-echo "Setting security-proxy certificate "
-snap set edgexfoundry env.security-proxy.tls-certificate="$EDGECA_CERT"
+echo "Setting security-proxy certificate"
+snap set edgexfoundry env.security-proxy.tls-certificate="$TEST_CERT"
 echo "Setting security-proxy certificate private key"
-snap set edgexfoundry env.security-proxy.tls-private-key="$EDGECA_KEY" 
+snap set edgexfoundry env.security-proxy.tls-private-key="$TEST_KEY"
 
 # the CA certificate needs to be where edgexfoundry.curl can read it
 echo "Copying CA certificate"
-cp $EDGECA_DIR/CA.pem $EDGEXFOUNDRY_SNAP_DATA/
+cp ca.crt $EDGEXFOUNDRY_SNAP_DATA/
+
+echo "Checking that Kong is using new certificate"
+max_iter=10
+until [[ $(edgexfoundry.curl --silent http://localhost:8001/certificates | edgexfoundry.jq -r ".data[0].key") == $TEST_KEY ]]; do
+    sleep 1
+    iter_num=$(( iter_num + 1 ))
+    echo "Checking Kong TLS certificate...$iter_num/$max_iter"
+    if [ $iter_num -gt $max_iter ]; then
+        print_error_logs
+        >&2 echo "Failed to set Kong TLS certificate"
+        snap_remove
+        exit 1
+    fi
+done
 
 echo "Verifying CA-signed TLS certificate"
 # this should not use "--insecure" as we are providing a cacert
 code=$(edgexfoundry.curl --show-error --silent --include \
     --output /dev/null --write-out "%{http_code}" \
-    --cacert $EDGEXFOUNDRY_SNAP_DATA/CA.pem \
+    --cacert $EDGEXFOUNDRY_SNAP_DATA/ca.crt \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
@@ -181,7 +183,7 @@ snap_wait_all_services_online
 echo "Re-verifying CA-signed TLS certificate"
 code=$(edgexfoundry.curl --show-error --silent --include \
     --output /dev/null --write-out "%{http_code}" \
-    --cacert $EDGEXFOUNDRY_SNAP_DATA/CA.pem \
+    --cacert $EDGEXFOUNDRY_SNAP_DATA/ca.crt \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \
     -H "Authorization: Bearer $TOKEN")
 if [[ $code != 200 ]]; then
@@ -197,9 +199,5 @@ echo "All done. Cleaning up"
 # remove the snap to run the next test
 snap_remove
 
-# remove the edgeca if we installed it
-if [ "$edgeca_is_installed" = true ] ; then
-    snap remove --purge edgeca
-    echo "edgeca removed"
-fi
-
+# remove keys if we generated
+rm -rf ca.crt ca.key ca.srl server.crt server.csr server.key public.pem

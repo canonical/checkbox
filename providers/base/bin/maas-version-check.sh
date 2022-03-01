@@ -41,11 +41,11 @@ get_maas_datasource() {
 # done by the get_maas_datasource() function.
 verify_maas_ip() {
     if [[ $RETVAL == 0 ]]; then
-        MAAS_HOSTNAME=$(echo $MAAS_DATASOURCE | cut -d "/" -f 3 | cut -d ":" -f 1)
-        HOST_OUTPUT=$(host $MAAS_HOSTNAME | grep "has address")
+        MAAS_HOSTNAME=$(echo "$MAAS_DATASOURCE" | cut -d "/" -f 3 | cut -d ":" -f 1)
+        HOST_OUTPUT=$(host "$MAAS_HOSTNAME" | grep "has address")
         status=$?
         if [[ $status -eq 0 ]]; then
-            MAAS_IP=$(echo $HOST_OUTPUT | cut -d " " -f 4)
+            MAAS_IP=$(echo "$HOST_OUTPUT" | cut -d " " -f 4)
             echo "MAAS server's IP address is $MAAS_IP"
         else
             echo "ERROR: Unable to determine MAAS server's IP address"

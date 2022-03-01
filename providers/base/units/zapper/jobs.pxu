@@ -1,8 +1,7 @@
-id: monitor/pig-edid
+id: monitor/zapper-edid
 category_id: com.canonical.plainbox::monitor
 plugin: shell
 estimated_duration: 60
 _summary: Check if the system automatically changes the resolution based on EDID
-requires: pig.hdmi_bridge == 'installed'
-environ: PIG_HOST
-command: edid_cycle.py "$PIG_HOST"
+environ: ZAPPER_HOST
+command: edid_cycle.py "$ZAPPER_HOST"

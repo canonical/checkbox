@@ -1,0 +1,16 @@
+id: zapper-enabled-full
+unit: test plan
+_name: Tests using Zapper
+_description: Tests using Zapper
+include:
+nested_part:
+  zapper-enabled-automated
+
+id: zapper-enabled-automated
+unit: test plan
+_name: Tests using Zapper
+_description: Tests using Zapper
+include:
+  monitor/pig-edid
+bootstrap_include:
+  pig

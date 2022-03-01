@@ -3,12 +3,10 @@
 This program tests whether the system changes the resolution automatically
 when supplied with a new EDID information.
 
-To run the test RaspberryPi equipped with a HDMI->CSI-2 bridge is needed.  See
-here for details:
-https://docs.google.com/document/d/1kjgaazt2IMskn_HPjN7adXYx1O5zXc39DRayZ0PYh9Y
+To run the test you need Zapper board connected and set up.
 
 The command-line argument for the program is the address of the RaspberryPi
-Host (optionally with a username), e.g.: pi@192.168.1.100
+Host (optionally with a username), e.g.: ubuntu@192.168.1.100
 """
 import os
 import re
@@ -28,8 +26,7 @@ def check_resolution():
 
 def change_edid(host, edid_file):
     with open(edid_file, 'rb') as f:
-        cmd = ['ssh', host, '/snap/bin/pigbox', 'run',
-               '\'v4l2-ctl --set-edid=file=-,'
+        cmd = ['ssh', host, '\'v4l2-ctl --set-edid=file=-,'
                'format=raw --fix-edid-checksums\'']
         subprocess.check_output(cmd, input=f.read())
 

@@ -77,10 +77,7 @@ if [ -n "$(snap services edgexfoundry.app-service-configurable | grep edgexfound
 fi
 
 # create a stream
-# setting SHARED="true" in rules is currently necessary to avoid a number of issues in Kuiper 
-# that look like race conditions (e.g. incomplete JSON payload, slice bounds out of range).
-# We are investigating further and would create an issue once we have more information.
-if [ -z "$(edgexfoundry.kuiper-cli create stream stream1 '()WITH(FORMAT="JSON",TYPE="edgex",SHARED="true")' | grep '\bStream stream1 is created\b')" ] ; then
+if [ -z "$(edgexfoundry.kuiper-cli create stream stream1 '()WITH(FORMAT="JSON",TYPE="edgex")' | grep '\bStream stream1 is created\b')" ] ; then
     echo "cannot create kuiper stream"
     print_error_logs
     snap_remove

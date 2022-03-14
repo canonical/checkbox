@@ -2,6 +2,7 @@
 
 codename=$(/usr/bin/lsb_release -s -c) 
 arch=$(dpkg --print-architecture)
+configfile="/etc/xdg/canonical-certification.conf"
 
 pass(){
  eval pass${i}=1
@@ -19,9 +20,7 @@ info(){
  eval pass${i}=3
 }
 
-
-
-steps="Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Fix_APT_Issues Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check UVT_KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
+steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check UVT_KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
 
 while getopts "i" opt; do
   case $opt in
@@ -45,6 +44,15 @@ Fix_APT_Issues() {
   fi
 }
 
+Verify_Config_File() {
+    if [ ! -f $configfile ]; then
+        echo "ERROR: Configuration file $configfile was not found"
+        echo "Please check your installation and apt logs for errors"
+        exit 1
+    fi
+    pass
+}
+
 # Check architecture
 Arch(){
  echoname "Check architecture"
@@ -63,7 +71,7 @@ XDG_Check(){
  failstatus=0
  prevstatus=0
  for section in common transport:c3 environment
-     do grep ^'\['$section'\]' /etc/xdg/canonical-certification.conf >/dev/null 2>&1
+     do grep ^'\['$section'\]' $configfile >/dev/null 2>&1
       exitstatus=$?
       printf "%15s" " [$section] "
       printf "%0.1s" " "{1..5}
@@ -124,22 +132,22 @@ else
 fi
 }
 
-# Secure ID is set in /etc/xdg/canonical-certification.conf (?)
+# Secure ID is set in $configfile (?)
 configure_SID(){
     read -e -p " Please enter the secure_id of your SUT: " sid 
-    if grep "#secure_id" /etc/xdg/canonical-certification.conf >/dev/null ; then
-        sudo sed -i "s/#\[transport:c3\]/\[transport:c3\]/g" /etc/xdg/canonical-certification.conf
-	    sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" /etc/xdg/canonical-certification.conf
+    if grep "#secure_id" $configfile >/dev/null ; then
+        sudo sed -i "s/#\[transport:c3\]/\[transport:c3\]/g" $configfile
+	    sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" $configfile
     else
-	    sudo sed -i "s/secure_id =.*/secure_id = $sid/g" /etc/xdg/canonical-certification.conf
+	    sudo sed -i "s/secure_id =.*/secure_id = $sid/g" $configfile
     fi
 }
 
 # Check for Secure ID config
 SID_Check(){
 echoname "Secure ID Check"
-if grep "^secure_id =" /etc/xdg/canonical-certification.conf >/dev/null ; then
-	secureid=$(grep "^secure_id =" /etc/xdg/canonical-certification.conf|awk '{print $3}')
+if grep "^secure_id =" $configfile >/dev/null ; then
+	secureid=$(grep "^secure_id =" $configfile|awk '{print $3}')
     echo " Secure ID is configured as '$secureid'."
     echo " Is this correct? [Y/n]"
     read -s -N1 a
@@ -208,12 +216,12 @@ Disk_Speed_Check(){
 echoname "Disk Speed Check"
 local nvme_present
 local mdadm_present
-if grep "^DISK_NVME_READ_PERF =" /etc/xdg/canonical-certification.conf >/dev/null; then
+if grep "^DISK_NVME_READ_PERF =" $configfile >/dev/null; then
     nvme_present=1
 else
     nvme_present=0
 fi
-if grep "^DISK_MDADM_READ_PERF =" /etc/xdg/canonical-certification.conf >/dev/null; then
+if grep "^DISK_MDADM_READ_PERF =" $configfile >/dev/null; then
     mdadm_present=1
 else
     mdadm_present=0
@@ -350,8 +358,8 @@ fi
 # Check local availability of UVT KVM image or source
 UVT_KVM_Image_Check(){
 echoname "UVT_KVM Image Check"
-if grep "^UVT_IMAGE_OR_SOURCE =" /etc/xdg/canonical-certification.conf >/dev/null; then
-    kvmurl=$(grep ^UVT_IMAGE_OR_SOURCE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+if grep "^UVT_IMAGE_OR_SOURCE =" $configfile >/dev/null; then
+    kvmurl=$(grep ^UVT_IMAGE_OR_SOURCE $configfile|awk '{print $3}')
     echo $kvmurl
     if [[ "$kvmurl" =~ .*\.img$ ]] ; then
         /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
@@ -375,7 +383,7 @@ if grep "^UVT_IMAGE_OR_SOURCE =" /etc/xdg/canonical-certification.conf >/dev/nul
     else
         echo -e " This is not a valid image or source"
         echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-        sudo sed -i '/^UVT_IMAGE_OR_SOURCE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+        sudo sed -i '/^UVT_IMAGE_OR_SOURCE/ s/^#*/#/' $configfile
         fail
     fi
 else
@@ -387,8 +395,8 @@ fi
 # Check local availability of KVM image or pull from Internet, which tends to be slow
 KVM_Image_Check(){
 echoname "KVM Image Check"
-if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
-    kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+if grep "^KVM_IMAGE =" /etc/xdg/$configfile >/dev/null; then
+    kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
     if [[ "$kvmurl" =~ .*\.img$ ]] ; then
         /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
         if [ $? = "0" ]; then
@@ -400,8 +408,8 @@ if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
             read -s -N1 a
             if [[ $a == "Y" || $a == "y" || -z $a ]]; then
                 read -e -p " Enter the path of your KVM Image: " kvm
-                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
-                kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
+                kvmurl=$(grep ^KVM_IMAGE $configfilen|awk '{print $3}')
                 /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
                 if [ $? = "0" ]; then
                     echo -e " $kvmurl is a valid image.\n Continuing to use this image"
@@ -414,7 +422,7 @@ if grep "^KVM_IMAGE =" /etc/xdg/canonical-certification.conf >/dev/null; then
                 fi
             else
                 echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' $configfile
             fi
         fi
     else # URL does not end in ".img". No way to test, so pass it and hope for the best....
@@ -429,8 +437,8 @@ else
     read -s -N1 a
     if [[ $a == "Y" || $a == "y" || -z $a ]]; then
         read -e -p " Enter the path of your KVM Image: " kvm
-        sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
-        kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+        sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile 
+        kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
         /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
         if [ $? = "0" ]; then
             echo -e " $kvmurl is a valid image.\n Continuing to use this image"
@@ -441,8 +449,8 @@ else
             read -s -N1 a
             if [[ $a == "Y" || $a == "y" || -z $a ]]; then
                 read -e -p " Enter the path of your KVM Image: " kvm
-                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" /etc/xdg/canonical-certification.conf
-                kvmurl=$(grep ^KVM_IMAGE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
+                kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
                 /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
                 if [ $? = "0" ]; then
                     echo -e " $kvmurl is a valid image.\n Continuing to use this image"
@@ -450,11 +458,11 @@ else
                     return 0
                 else
                     echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-                    sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+                    sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' $configfile
                 fi
             else
                 echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' $configfile
             fi
         fi
     fi
@@ -474,8 +482,8 @@ LXD_Image_Check(){
 echoname "LXD Image Check"
 
 #Check template image
-if grep "^LXD_TEMPLATE =" /etc/xdg/canonical-certification.conf >/dev/null; then
-    templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+if grep "^LXD_TEMPLATE =" $configfile >/dev/null; then
+    templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
     if curl --output /dev/null --silent --head -fail "$templateurl"; then
         echo -e " $templateurl is a valid url.\n Continuing to use this template file"
         pass
@@ -486,8 +494,8 @@ if grep "^LXD_TEMPLATE =" /etc/xdg/canonical-certification.conf >/dev/null; then
         read -s -N1 a
         if [[ $a == "Y" || $a == "y" || -z $a ]]; then
             read -e -p " Enter the URL of your LXD Template File: " template
-            sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" /etc/xdg/canonical-certification.conf
-            templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+            sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
+            templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
             if curl --output /dev/null --silent --head -fail "$templateurl"; then
                 echo -e " $templateurl is a valid url.\n Continuing to use this template file"
                 pass
@@ -497,7 +505,7 @@ if grep "^LXD_TEMPLATE =" /etc/xdg/canonical-certification.conf >/dev/null; then
             fi
         else
 		    echo -e " Leaving configuration but commenting out."
-	        sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+	        sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' $configfile
         fi
     fi
 else
@@ -507,8 +515,8 @@ else
         echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
         echo -e "       https://, or file://"
         read -e -p " Enter the URL of your LXD Template File: " template
-        sudo sed -i "s,#LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" /etc/xdg/canonical-certification.conf
-        templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+        sudo sed -i "s,#LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
+        templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
         if curl --output /dev/null --silent --head -fail "$templateurl"; then
             echo -e " $templateurl is a valid url.\n Continuing to use this template file"
             pass
@@ -517,8 +525,8 @@ else
             read -s -N1 a
             if [[ $a == "Y" || $a == "y" || -z $a ]]; then
                 read -e -p " Enter the URL of your LXD Template File: " template
-                sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" /etc/xdg/canonical-certification.conf
-                templateurl=$(grep ^LXD_TEMPLATE /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
+                templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
                 if curl --output /dev/null --silent --head -fail "$templateurl"; then
                     echo -e " $templateurl is a valid url.\n Continuing to use this template file"
                     pass
@@ -528,7 +536,7 @@ else
                 fi
             else
 		        echo -e " Leaving configuration but commenting out."
-	            sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+	            sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' $configfile
             fi
         fi
     else
@@ -537,8 +545,8 @@ else
     fi
 fi
 # Check RootFS
-if grep "^LXD_ROOTFS =" /etc/xdg/canonical-certification.conf >/dev/null; then
-    rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+if grep "^LXD_ROOTFS =" $configfile >/dev/null; then
+    rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
     if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
         echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
         pass
@@ -549,8 +557,8 @@ if grep "^LXD_ROOTFS =" /etc/xdg/canonical-certification.conf >/dev/null; then
         read -s -N1 a
         if [[ $a == "Y" || $a == "y" || -z $a ]]; then
             read -e -p " Enter the path of your ROOTFS File: " rootfs
-            sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" /etc/xdg/canonical-certification.conf
-            rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+            sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
+            rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
             if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
                 echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
                 pass
@@ -560,7 +568,7 @@ if grep "^LXD_ROOTFS =" /etc/xdg/canonical-certification.conf >/dev/null; then
             fi
         else
 		    echo -e " Leaving configuration but commenting out."
-	        sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+	        sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' $configfile
             fail
         fi
     fi
@@ -571,8 +579,8 @@ else
         echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
         echo -e "       https://, or file://"
         read -e -p " Enter the URL of your ROOTFS File: " rootfs
-        sudo sed -i "s,#LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" /etc/xdg/canonical-certification.conf
-        rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+        sudo sed -i "s,#LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
+        rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/$configfile|awk '{print $3}')
         if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
             echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
             pass
@@ -581,8 +589,8 @@ else
             read -s -N1 a
             if [[ $a == "Y" || $a == "y" || -z $a ]]; then
                 read -e -p " Enter the path of your ROOTFS Template File: " rootfs
-                sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" /etc/xdg/canonical-certification.conf
-                rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/canonical-certification.conf|awk '{print $3}')
+                sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
+                rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
                 if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
                     echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
                     pass
@@ -592,7 +600,7 @@ else
                 fi
             else
 		        echo -e " Leaving configuration but commenting out."
-	            sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' /etc/xdg/canonical-certification.conf
+	            sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' $configfile
                 fail
             fi
         fi
@@ -658,18 +666,18 @@ if [ $routable == 'dev' ]; then
 fi
 }
 
-# Check if iperf3 is available on server specified in /etc/xdg/canonical-certification.conf 
+# Check if iperf3 is available on server specified in $configfile 
 IPERF(){
 echoname "Iperf"
-if [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 1 ];then
+if [ $(grep ^TEST_TARGET_IPERF $configfile|wc -l) = 1 ];then
 	echo " IPERF is configured"
 	pass
-elif [ $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf|wc -l) = 0 ];then
+elif [ $(grep ^TEST_TARGET_IPERF $configfile|wc -l) = 0 ];then
 	echo -e " TEST_TARGET_IPERF is not configured.\n Would you like to configure it now? [Y/n]"
 	read -s -N1 a
    	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
 		read -e -p " Please enter the IP Address of the Iperf server: " ip
-		sudo sed -i "s/#TEST_TARGET_IPERF = .*/TEST_TARGET_IPERF = $ip/g" /etc/xdg/canonical-certification.conf
+		sudo sed -i "s/#TEST_TARGET_IPERF = .*/TEST_TARGET_IPERF = $ip/g" $configfile
 	IPERF
    	elif [[ $a == "N" || $a == "n" ]]; then
 		fail
@@ -694,7 +702,7 @@ for nic in $ALL_NICS; do
 done
 
 # Report on presence of individual configured iperf3 servers....
-for iperfserver in $(grep ^TEST_TARGET_IPERF /etc/xdg/canonical-certification.conf | cut -d = -f 2 | sed s/,/\\n/g)
+for iperfserver in $(grep ^TEST_TARGET_IPERF $configfile | cut -d = -f 2 | sed s/,/\\n/g)
     do
         timeout 5 iperf3 -c $iperfserver -n 1 >/dev/null 2>&1
         if [ $? = 0 ]; then

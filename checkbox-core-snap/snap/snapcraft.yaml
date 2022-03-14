@@ -134,12 +134,13 @@ parts:
     source: git://git.launchpad.net/checkbox-support
     stage-packages:
       # actual requirements
+      - python3-bluez
       - python3-requests-unixsocket
       - python3-systemd
       # added to stage python:
       - libpython3-stdlib
-      - libpython3.9-stdlib
-      - libpython3.9-minimal
+      - libpython3.10-stdlib
+      - libpython3.10-minimal
       - python3-pip
       - python3-setuptools
       - python3-wheel
@@ -147,13 +148,12 @@ parts:
       - python3-minimal
       - python3-distutils
       - python3-pkg-resources
-      - python3.9-minimal
+      - python3.10-minimal
     build-packages:
       - libbluetooth-dev
       - python3-dev
     python-packages:
       - pynmea2
-      - pybluez
     after: [acpi-tools]
     stage:
       - -pyvenv.cfg
@@ -161,7 +161,7 @@ parts:
       - -**/RECORD
       - -**/__pycache__
     build-environment:
-      - C_INCLUDE_PATH: /usr/include/python3.9
+      - C_INCLUDE_PATH: /usr/include/python3.10
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
 ################################################################################
   checkbox-ng:
@@ -181,8 +181,8 @@ parts:
       - python3-xlsxwriter
       # added to stage python:
       - libpython3-stdlib
-      - libpython3.9-stdlib
-      - libpython3.9-minimal
+      - libpython3.10-stdlib
+      - libpython3.10-minimal
       - python3-pip
       - python3-setuptools
       - python3-wheel
@@ -190,7 +190,7 @@ parts:
       - python3-minimal
       - python3-distutils
       - python3-pkg-resources
-      - python3.9-minimal
+      - python3.10-minimal
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part

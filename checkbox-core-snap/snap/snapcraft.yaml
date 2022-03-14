@@ -134,6 +134,7 @@ parts:
     source: git://git.launchpad.net/checkbox-support
     stage-packages:
       # actual requirements
+      - python3-bluez
       - python3-requests-unixsocket
       - python3-systemd
       # added to stage python:
@@ -153,7 +154,6 @@ parts:
       - python3-dev
     python-packages:
       - pynmea2
-      - pybluez
     after: [acpi-tools]
     stage:
       - -pyvenv.cfg

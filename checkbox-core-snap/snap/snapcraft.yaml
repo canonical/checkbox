@@ -131,7 +131,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: python
-    source: git://git.launchpad.net/checkbox-support
+    source: https://git.launchpad.net/checkbox-support
     stage-packages:
       # actual requirements
       - python3-bluez
@@ -168,7 +168,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: python
-    source: git://git.launchpad.net/checkbox-ng
+    source: https://git.launchpad.net/checkbox-ng
     build-packages:
       - zlib1g-dev
       - build-essential
@@ -208,7 +208,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-resource
+    source: https://git.launchpad.net/plainbox-provider-resource
     stage-packages:
       - cpu-checker
       - dpkg
@@ -232,7 +232,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-checkbox
+    source: https://git.launchpad.net/plainbox-provider-checkbox
     stage-packages:
       - bc
       - bluez-tests
@@ -311,7 +311,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-ipdt
+    source: https://git.launchpad.net/plainbox-provider-ipdt
     stage-packages:
       - util-linux
     after: [plainbox-provider-checkbox]
@@ -320,7 +320,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-docker
+    source: https://git.launchpad.net/plainbox-provider-docker
     stage-packages:
       - apache2-utils
     after: [plainbox-provider-ipdt]
@@ -329,7 +329,7 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-tpm2
+    source: https://git.launchpad.net/plainbox-provider-tpm2
     stage-packages:
       - clevis-tpm2
     after: [plainbox-provider-docker]
@@ -338,21 +338,21 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/checkbox-provider-iiotg
+    source: https://git.launchpad.net/checkbox-provider-iiotg
     after: [plainbox-provider-tpm2]
 ################################################################################
   plainbox-provider-sru:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-sru
+    source: https://git.launchpad.net/plainbox-provider-sru
     after: [checkbox-provider-iiotg]
 ################################################################################
   checkbox-provider-edgex:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/checkbox-provider-edgex
+    source: https://git.launchpad.net/checkbox-provider-edgex
     stage-packages:
       - curl
     after: [plainbox-provider-sru]
@@ -361,21 +361,21 @@ parts:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/checkbox-provider-gpgpu
+    source: https://git.launchpad.net/checkbox-provider-gpgpu
     after: [checkbox-provider-edgex]
 ################################################################################
   plainbox-provider-certification-client:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-certification-client
+    source: https://git.launchpad.net/plainbox-provider-certification-client
     after: [checkbox-provider-gpgpu]
 ################################################################################
   plainbox-provider-certification-server:
     source-tag: ""
     source-depth: 1
     plugin: checkbox-provider
-    source: git://git.launchpad.net/plainbox-provider-certification-server
+    source: https://git.launchpad.net/plainbox-provider-certification-server
     after: [plainbox-provider-certification-client]
 ################################################################################
   glmark2:

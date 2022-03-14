@@ -97,7 +97,7 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
-id: ethernet/multi_iperf3_nic_device_server_sru{__index__}_{interface}
+id: ethernet/sru_iperf3_stress_device-{__index__}_{interface}
 _summary: Multi-NIC Iperf3 SRU testing for NIC {interface}
 estimated_duration: 1200.0
 requires:

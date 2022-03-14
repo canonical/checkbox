@@ -116,7 +116,7 @@ include:
     ethernet/info_automated_server
     ethernet/ethtool_info
     ethernet/ethertool_check_.*
-    ethernet/multi_iperf3_nic_device_server_sru.*
+    ethernet/sru_iperf3_stress_device-.*
 bootstrap_include:
     device
     executable

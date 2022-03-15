@@ -140,7 +140,7 @@ id: cpu/cstates
 estimated_duration: 10.0
 requires:
  executable.name == 'fwts'
- cpuinfo.platform not in ("aarch64", "armv7l")
+ cpuinfo.platform not in ("aarch64", "armv7l", "s390x")
 user: root
 _summary:
  Run C-States tests
@@ -157,7 +157,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::cpu
 estimated_duration: 0.5
 id: cpu/cstates_results.log
-requires: cpuinfo.platform not in ("aarch64", "armv7l")
+requires: cpuinfo.platform not in ("aarch64", "armv7l", "s390x")
 after: cpu/cstates
 command:
  [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_cstates_results.log ] && cat "${PLAINBOX_SESSION_SHARE}"/fwts_cstates_results.log

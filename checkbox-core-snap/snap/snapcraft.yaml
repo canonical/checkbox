@@ -411,6 +411,10 @@ parts:
     stage-packages:
       - python3-distro
 ################################################################################
+  gnome-randr:
+    source: https://github.com/maxwellainatchi/gnome-randr-rust.git
+    plugin: rust
+################################################################################
   # rpi-ppa:
   #   plugin: nil
   #   override-pull: |

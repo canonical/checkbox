@@ -38,7 +38,7 @@ class PluginImpl(PluginV2):
 
     def get_build_environment(self) -> Dict[str, str]:
         if self.project._get_build_base() == "core22":
-            site_pkg_path = "$SNAPCRAFT_STAGE/local/lib/python3.10/dist-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages"
+            site_pkg_path = "$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages"
         else:
             site_pkg_path = "$SNAPCRAFT_STAGE/lib/python3.8/site-packages"
         return {"PYTHONPATH": site_pkg_path}

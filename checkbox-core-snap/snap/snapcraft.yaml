@@ -414,6 +414,8 @@ parts:
   gnome-randr:
     source: https://github.com/maxwellainatchi/gnome-randr-rust.git
     plugin: rust
+    build-packages:
+      - libdbus-1-dev
 ################################################################################
   # rpi-ppa:
   #   plugin: nil

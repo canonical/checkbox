@@ -1,3 +1,8 @@
 unit: packaging meta-data
 os-id: debian
 Depends: kmod
+
+# This is needed by network_device_info.py
+unit: packaging meta-data
+os-id: debian
+Depends: python3-natsort

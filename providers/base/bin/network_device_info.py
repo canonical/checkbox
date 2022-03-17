@@ -21,6 +21,7 @@
 
 import argparse
 import fcntl
+from natsort import natsorted
 import os
 import socket
 import struct
@@ -36,6 +37,37 @@ from checkbox_support.parsers.udevadm import UdevadmParser
 class Utils():
 
     sys_path = '/sys/class/net'
+
+    @staticmethod
+    def get_ethtool_info(interface, key):
+        """Return ethtool information identified by key"""
+        cmd = ['/sbin/ethtool', interface]
+        try:
+            output = check_output(cmd, stderr=STDOUT, universal_newlines=True)
+        except CalledProcessError:
+            return "ethtool returned error"
+        except FileNotFoundError:
+            return "ethtool not installed"
+        if not output:
+            return "ethtool returned no output"
+        data = []
+        output_line = False
+        for line in iter(output.splitlines()):
+            if key in line:
+                label_start = line.find(key)
+                data_start = label_start + len(key)
+                output_line = True
+            if (output_line is True and line[label_start] != ' ' and
+                    key not in line):
+                output_line = False
+            if output_line:
+                data.append(line[data_start:].strip())
+                if len(data) == 0:
+                    data.append("Not reported")
+            result = ("\n" + "".join(["\t" + item + "\n"
+                                      for item in natsorted(data)]))
+        result = result.rstrip()
+        return result
 
     @classmethod
     def is_iface_connected(cls, iface):
@@ -128,6 +160,9 @@ class NetworkDeviceInfo():
         self._ipv4 = None
         self._ipv6 = None
         self._speed = None
+        self._supported_modes = None
+        self._advertised_modes = None
+        self._partner_modes = None
 
     def __str__(self):
         ret = ""
@@ -221,11 +256,17 @@ class NetworkDeviceInfo():
         if self.interface is None:
             return
         self._mac = Utils.get_mac_address(self.interface)
+        self._supported_modes = (Utils.get_ethtool_info(
+            self.interface, "Supported link modes:"))
+        self._advertised_modes = (Utils.get_ethtool_info(
+            self.interface, "Advertised link modes:"))
         if Utils.is_iface_connected(self.interface):
             self._carrier_status = 'Connected'
             self._ipv4 = Utils.get_ipv4_address(self.interface)
             self._ipv6 = Utils.get_ipv6_address(self.interface)
             self._speed = Utils.get_speed(self.interface)
+            self._partner_modes = (Utils.get_ethtool_info(
+                self.interface, "Link partner advertised link modes:"))
         else:
             self._carrier_status = 'Disconnected'
 

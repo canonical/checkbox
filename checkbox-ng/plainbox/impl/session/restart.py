@@ -269,6 +269,16 @@ def detect_restart_strategy(session=None) -> IRestartStrategy:
     :raises LookupError:
         When no such object can be found.
     """
+    # debian and unconfined checkbox-ng.service
+    if session_type == "checkbox-slave":
+        try:
+            subprocess.run(
+                ['systemctl', 'is-active', '--quiet', 'checkbox-ng.service'],
+                check=True)
+            return RemoteDebRestartStrategy()
+        except subprocess.CalledProcessError:
+                pass
+
     # XXX: RemoteSnappyRestartStrategy debug
     remote_restart_stragegy_debug = os.getenv('REMOTE_RESTART_DEBUG')
     if remote_restart_stragegy_debug:
@@ -312,16 +322,6 @@ def detect_restart_strategy(session=None) -> IRestartStrategy:
         # Classic snaps w/o remote service
         else:
             return SnappyRestartStrategy()
-
-    # debian checkbox-ng.service
-    if session_type == "checkbox-slave":
-        try:
-            subprocess.run(
-                ['systemctl', 'is-active', '--quiet', 'checkbox-ng.service'],
-                check=True)
-            return RemoteDebRestartStrategy()
-        except subprocess.CalledProcessError:
-                pass
 
     if os.path.isdir('/etc/xdg/autostart'):
         # NOTE: Assume this is a terminal application

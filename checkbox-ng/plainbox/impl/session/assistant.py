@@ -245,7 +245,23 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         if self._restart_strategy is None:
-            self._restart_strategy = detect_restart_strategy(self)
+            # 'checkbox-slave' is deprecated, it's here so people can resume
+            # old session, the next if statement can be changed to just checking
+            # for 'remote' title
+            # session_type = 'remote' if self._metadata.title == 'remote'
+            #                         else 'local'
+            # with the next release or when we do inclusive naming refactor
+            # or roughly after April of 2022
+            # TODO: REMOTE API RAPI:
+            # this heuristic of guessing session type from the title
+            # should be changed to a proper arg/flag with the Remote API bump
+            remote_titles = ('remote', 'checkbox-slave')
+            if self._metadata and self._metadata.title in remote_titles:
+                session_type = 'remote'
+            else:
+                session_type = 'local'
+            self._restart_strategy = detect_restart_strategy(
+                self, session_type=session_type)
         self._restart_cmd_callback = cmd_callback
         # Prevent second call to this method and to the
         # use_alternate_restart_strategy() method.

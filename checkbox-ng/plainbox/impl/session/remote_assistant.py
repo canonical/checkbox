@@ -267,9 +267,9 @@ class RemoteSessionAssistant():
     def start_session(self, configuration):
         self._reset_sa()
         _logger.info("start_session: %r", configuration)
-        session_title = 'checkbox-slave'
-        session_desc = 'checkbox-slave session'
-        session_type = 'checkbox-slave'
+        session_title = 'remote'
+        session_desc = 'remote session'
+        session_type = 'remote'
 
         self._launcher = load_configs()
         if configuration['launcher']:

@@ -258,13 +258,13 @@ class Launcher(MainLoopStage, ReportsStage):
                 _logger.warning(_(
                     'Using automatically detected restart strategy'))
                 try:
-                    strategy = detect_restart_strategy()
+                    strategy = detect_restart_strategy(session_type='local')
                 except LookupError as exc:
                     _logger.warning(exc)
                     _logger.warning(_('Automatic restart disabled!'))
                     strategy = None
         else:
-            strategy = detect_restart_strategy()
+            strategy = detect_restart_strategy(session_type='local')
         if strategy:
             # gluing the command with pluses b/c the middle part
             # (launcher path) is optional
@@ -737,7 +737,7 @@ class Run(MainLoopStage):
             self.exporter, transport, self.exporter_opts)
 
     def _configure_restart(self):
-        strategy = detect_restart_strategy()
+        strategy = detect_restart_strategy(session_type='local')
         snap_name = os.getenv('SNAP_NAME')
         if snap_name:
             # NOTE: This implies that any snap wishing to include a

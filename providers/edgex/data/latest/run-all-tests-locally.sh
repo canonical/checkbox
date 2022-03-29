@@ -114,6 +114,11 @@ if [ -n "$SINGLE_TEST" ]; then
         snap_download_stable_and_default
     fi
 
+    if [ "$SINGLE_TEST" == "test-config-hook.sh" ]; then
+        TESTFILE="./test-files"
+        export TESTFILE
+    fi
+
     if stdout="$("$SCRIPT_DIR/$SINGLE_TEST" 2>&1)"; then
         printf -- "\tPASSED\n"
         if [ -n "$VERBOSE" ]; then

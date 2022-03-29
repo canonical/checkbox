@@ -257,6 +257,9 @@ class UdevadmDevice(object):
                     return "WIRELESS"
                 if (self._environment["INTERFACE"].startswith('can')):
                     return "SOCKETCAN"
+            if "ID_MODEL" in self._environment:
+                if (self._environment["ID_MODEL"].startswith('XClarity')):
+                    return "BMC_NETWORK"
             if self._stack:
                 parent = self._stack[-1]
                 if "PCI_CLASS" in parent._environment:

@@ -116,8 +116,9 @@ class RemoteSlave():
         SessionAssistantSlave.session_assistant = RemoteSessionAssistant(
             lambda s: [sys.argv[0] + 'service'])
         snap_data = os.getenv('SNAP_DATA')
+        snap_rev = os.getenv('SNAP_REVISION')
         remote_restart_strategy_debug = os.getenv('REMOTE_RESTART_DEBUG')
-        if snap_data or remote_restart_strategy_debug or ctx.args.resume:
+        if (snap_data and snap_rev) or ctx.args.resume:
             if remote_restart_strategy_debug:
                 strategy = RemoteSnappyRestartStrategy(debug=True)
             else:

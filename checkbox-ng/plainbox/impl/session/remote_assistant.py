@@ -27,7 +27,6 @@ from collections import namedtuple
 from contextlib import suppress
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
-from subprocess import CalledProcessError, check_output
 
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
@@ -211,26 +210,26 @@ class RemoteSessionAssistant():
         self._last_response = response
         self._state = Running
 
+    def _set_envvar_from_proc(self, name):
+        for path in os.listdir('/proc/'):
+            with suppress(Exception):
+                env = open(
+                    os.path.join('/proc/', path, 'environ')).read().split('\0')
+                for key, val in [item.split('=') for item in env]:
+                    if key == name:
+                        return val
+        return ''
+
     def _prepare_display_without_psutil(self):
-        try:
-            display_value = check_output(
-                'strings /proc/*/environ 2>/dev/null | '
-                'grep -m 1 -oP "(?<=DISPLAY=).*"',
-                shell=True, universal_newlines=True).rstrip()
-            xauth_value = check_output(
-                'strings /proc/*/environ 2>/dev/null | '
-                'grep -m 1 -oP "(?<=XAUTHORITY=).*"',
-                shell=True, universal_newlines=True).rstrip()
-            uid = pwd.getpwnam(self._normal_user).pw_uid
-            return {
-                'DISPLAY': display_value,
-                'XAUTHORITY': xauth_value,
-                'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
-                'DBUS_SESSION_BUS_ADDRESS':
-                    'unix:path=/run/user/{}/bus'.format(uid)
-            }
-        except CalledProcessError:
-            return {}
+        uid = pwd.getpwnam(self._normal_user).pw_uid
+        return {
+            'DISPLAY': self._set_envvar_from_proc('DISPLAY'),
+            'XAUTHORITY': self._set_envvar_from_proc('XAUTHORITY'),
+            'XDG_SESSION_TYPE': self._set_envvar_from_proc('XDG_SESSION_TYPE'),
+            'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
+            'DBUS_SESSION_BUS_ADDRESS':
+                'unix:path=/run/user/{}/bus'.format(uid)
+        }
 
     def prepare_extra_env(self):
         # If possible also set the DISPLAY env var
@@ -257,6 +256,7 @@ class RemoteSessionAssistant():
                 return {
                     'DISPLAY': p_environ['DISPLAY'],
                     'XAUTHORITY': p_environ['XAUTHORITY'],
+                    'XDG_SESSION_TYPE': p_environ['XDG_SESSION_TYPE'],
                     'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
                     'DBUS_SESSION_BUS_ADDRESS':
                         'unix:path=/run/user/{}/bus'.format(uid)

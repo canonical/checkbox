@@ -286,12 +286,21 @@ class PowerManagementOperation():
             title = '{0} test'.format(self.args.pm_operation.capitalize())
             MessageDialog(title, message).run()
         if self.args.checkbox_respawn_cmd:
-            subprocess.run(
-                r'unset LD_LIBRARY_PATH;'
-                r'unset PYTHONPATH; unset PYTHONHOME;'
-                r'DISPLAY=:0 x-terminal-emulator -e "sudo -u '
-                r'{} bash -c \"source {}; exec bash\""'.format(
-                    self.user, self.args.checkbox_respawn_cmd), shell=True)
+            try:
+                subprocess.run(
+                    r'unset LD_LIBRARY_PATH;'
+                    r'unset PYTHONPATH; unset PYTHONHOME;'
+                    r'DISPLAY=:0 x-terminal-emulator -e "sudo -u '
+                    r'{} bash -c \"source {}; exec bash\""'.format(
+                        self.user, self.args.checkbox_respawn_cmd),
+                    shell=True,
+                    check=True)
+            # x-terminal-emulator command does not work on Wayland
+            # Run the checkbox_respawn_cmd via subprocess.run instead
+            except subprocess.CalledProcessError:
+                with open(self.args.checkbox_respawn_cmd, 'rt') as f:
+                    for l in f:
+                        subprocess.run(l, shell=True)
 
     def teardown(self):
         """

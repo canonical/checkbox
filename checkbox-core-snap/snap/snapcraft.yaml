@@ -285,6 +285,7 @@ parts:
       - python3-dbus
       - python3-evdev
       - python3-gi
+      - python3-natsort
       - python3-pil
       - python3-psutil
       - python3-pyqrcode

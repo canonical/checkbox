@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import re
 import sys
 import subprocess
@@ -15,8 +16,12 @@ DP_RE = re.compile(r"dp|displayport", re.I)
 
 def main():
     try:
-        xrandr_output = subprocess.check_output(
-            ["xrandr", "-q", "--verbose"], universal_newlines=True)
+        if os.getenv('XDG_SESSION_TYPE') == 'wayland':
+            xrandr_output = subprocess.check_output(
+                ["gnome-randr"], universal_newlines=True)
+        else:
+            xrandr_output = subprocess.check_output(
+                ["xrandr", "-q", "--verbose"], universal_newlines=True)
     except subprocess.CalledProcessError:
         return 0
 

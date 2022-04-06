@@ -42,7 +42,7 @@ from checkbox_support.parsers import udevadm
 AVAILABLE_PARSERS = {
     'bto': image_info.parse_bto_attachment_output,
     'buildstamp': image_info.parse_buildstamp_attachment_output,
-    'dkms': dkms_info.parse_dkms_info,
+    'dkms-info': dkms_info.parse_dkms_info,
     'dmidecode': dmidecode.parse_dmidecode_output,
     'kernelcmdline': kernel_cmdline.parse_kernel_cmdline,
     'modinfo': modinfo.parse_modinfo_attachment_output,

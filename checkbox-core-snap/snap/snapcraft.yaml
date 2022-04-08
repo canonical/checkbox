@@ -255,6 +255,7 @@ parts:
       - gir1.2-clutter-1.0
       - gir1.2-gst-plugins-base-1.0
       - gir1.2-gudev-1.0
+      - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-pulseaudio
       - try: [hdapsd] # optional as not available for arm

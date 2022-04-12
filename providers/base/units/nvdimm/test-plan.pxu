@@ -3,5 +3,5 @@ unit: test plan
 _name: NVDIM Specific Tests
 _description: NVDIMM related tests
 include:
- nvdimm/info
- nvdimm/health
+ nvdimm/info    certification-status=blocker
+ nvdimm/health  certification-status=blocker

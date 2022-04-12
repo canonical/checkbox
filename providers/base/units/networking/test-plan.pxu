@@ -85,3 +85,13 @@ include:
   after-suspend-ipv6_link_local_address_.*
 bootstrap_include:
   device
+
+id: server-networking
+unit: test plan
+_name: Networking tests for Server
+_description: Networking tests for Server Cert
+include:
+    networking/predictable_names    certification-status=blocker
+    networking/ntp                  certification-status=non-blocker
+
+

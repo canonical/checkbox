@@ -7,7 +7,7 @@ _description:
     envrionement. Please use this whitelist for the Ubuntu Certification 
     self-testing programme.
 nested_part:
-    com.canonical.certification::cpu-server
+    com.canonical.certification::server-cpu
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous

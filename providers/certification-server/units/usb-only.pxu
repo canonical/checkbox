@@ -8,7 +8,6 @@ _description:
     requried.
 nested_part:
     com.canonical.certification::server-info-attachment-automated
-    com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
     com.canonical.certification::server-usb
 include:

@@ -8,11 +8,10 @@ _description:
     requried.
 nested_part:
     com.canonical.certification::server-info-attachment-automated
-    com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
     com.canonical.certification::server-ethernet
+    com.canonical.certification::server-networking
 include:
-    networking/predictable_names            certification-status=non-blocker
     miscellanea/oops                        certification-status=non-blocker
     miscellanea/oops_results.log            certification-status=non-blocker
     miscellanea/olog                        certification-status=blocker

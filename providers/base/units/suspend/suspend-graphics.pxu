@@ -208,6 +208,12 @@ command:
  # shellcheck disable=SC1091
  source graphics_env.sh {{ driver }} {{ index }}
  graphics_driver.py
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   inxi_snapshot -Gazy
+ else
+   graphics_driver.py
+ fi
 estimated_duration: 0.500
 _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {{ vendor }} {{ product }} graphics card
 _summary: Test X driver/version after suspend for {{ vendor }} {{ product }}

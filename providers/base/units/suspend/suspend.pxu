@@ -2247,28 +2247,6 @@ _description:
  VERIFICATION:
      Do you see color bars and static?
 
-unit: template
-template-resource: graphics_card
-template-filter: graphics_card.prime_gpu_offload == 'Off'
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/{index}_driver_version_after_suspend_{product_slug}
-depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
-command: graphics_driver
-estimated_duration: 0.500
-_description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {vendor} {product} graphics card
-_summary: Test X driver/version after suspend for {vendor} {product}
-
-id: suspend/driver_version_after_suspend
-requires: device.category == 'VIDEO'
-depends: suspend/suspend_advanced_auto
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-command: graphics_driver
-estimated_duration: 0.500
-_description: Parses Xorg.0.Log and discovers the running X driver and version after suspend
-_summary: Test X driver/version after suspend
-
 id: suspend/oops_after_suspend
 depends: suspend/suspend_advanced_auto
 plugin:shell

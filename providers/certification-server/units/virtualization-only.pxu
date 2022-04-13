@@ -8,7 +8,6 @@ _description:
     of virtualization capabilites is requried.
 nested_part:
     com.canonical.certification::server-info-attachment-automated
-    com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker

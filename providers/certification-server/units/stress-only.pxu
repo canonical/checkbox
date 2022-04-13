@@ -9,8 +9,8 @@ _description:
     loading.
 nested_part:
     com.canonical.certification::server-info-attachment-automated
-    com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-memory
 include:
     stress/cpu_stress_ng_test                  certification-status=blocker
 bootstrap_include:

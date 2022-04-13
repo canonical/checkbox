@@ -7,12 +7,10 @@ _description:
     memory related certification tests.
 nested_part:
     com.canonical.certification::server-info-attachment-automated
-    com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-memory
     com.canonical.certification::nvdimm-full
 include:
-    memory/info                                certification-status=blocker
-    memory/memory_stress_ng                    certification-status=blocker
 bootstrap_include:
     device
     fwts

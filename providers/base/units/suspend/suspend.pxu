@@ -1175,7 +1175,13 @@ id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
 depends: suspend/suspend_advanced_auto
-command: xrandr_cycle.py --keyword=after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
+command:
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   gnome_randr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
 _description:
  PURPOSE:
      This test will cycle through the detected display modes
@@ -1193,7 +1199,13 @@ id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
 requires: package.name == 'xorg'
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 120.0
-command: xrandr_cycle.py --keyword={index}_after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
+command:
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   gnome_randr_cycle.py --keyword={index}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --keyword={index}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
 _description:
  PURPOSE:
      This test will cycle through the detected display modes
@@ -1211,7 +1223,13 @@ depends: suspend/suspend_advanced_auto
 _description:
  This test will check to make sure supported video modes work after a suspend and resume.
  This is done automatically by taking screenshots and uploading them as an attachment.
-command: xrandr_cycle.py --keyword=after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
+command:
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   gnome_randr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
 
 plugin: attachment
 category_id: com.canonical.plainbox::suspend

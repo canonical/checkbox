@@ -93,7 +93,12 @@ estimated_duration: 120.0
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {{ driver }} {{ index }}
- xrandr_cycle.py --keyword={{ index }}_after_suspend --screenshot-dir "$PLAINBOX_SESSION_SHARE"
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   gnome_randr_cycle.py --keyword={{ index }}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --keyword={{ index }}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
 _description:
  PURPOSE:
      This test will cycle through the detected display modes

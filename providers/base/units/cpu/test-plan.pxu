@@ -74,13 +74,13 @@ include:
     cpu/cstates
     cpu/cstates_results.log
 
-id: cpu-server
+id: server-cpu
 unit: test plan
 _name: CPU Tests (Server)
 _description: CPU Tests (Server)
 include:
     cpu/clocktest                               certification-status=blocker
-    cpu/cpufreq_test-server                     certification-status=blocker
+    cpu/cpufreq_test-server                     certification-status=non-blocker
     cpu/maxfreq_test                            certification-status=blocker
     cpu/maxfreq_test-log-attach                 certification-status=non-blocker
     cpu/topology                                certification-status=blocker

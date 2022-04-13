@@ -99,10 +99,10 @@ _name: Server Ethernet Tests
 _description: Automated ethernet tests for server certification
 estimated_duration: 4h
 include:
-    ethernet/info_automated_server
-    ethernet/ethtool_info
-    ethernet/ethertool_check_.*
-    ethernet/multi_iperf3_nic_device.*
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
+    ethernet/ethertool_check_.*             certification-status=non-blocker
+    ethernet/multi_iperf3_nic_device.*      certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -113,10 +113,10 @@ _name: Server Ethernet SRU Tests
 _description: Automated ethernet tests for server regression testing
 estimated_duration: 4h
 include:
-    ethernet/info_automated_server
-    ethernet/ethtool_info
-    ethernet/ethertool_check_.*
-    ethernet/sru_iperf3_stress_device-.*
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
+    ethernet/ethertool_check_.*             certification-status=non-blocker
+    ethernet/sru_iperf3_stress_device-.*    certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -127,10 +127,10 @@ _name: Server Ethernet Tests (Speed Check Disabled)
 _description: Automated ethernet tests for server certification without speed check
 estimated_duration: 4h
 include:
-    ethernet/info_automated_server
-    ethernet/ethtool_info
-    ethernet/ethertool_check_.*
-    ethernet/multi_iperf3_nic_underspeed_device.*
+    ethernet/info_automated_server                  certification-status=non-blocker
+    ethernet/ethtool_info                           certification-status=non-blocker
+    ethernet/ethertool_check_.*                     certification-status=non-blocker
+    ethernet/multi_iperf3_nic_underspeed_device.*   certification-status=non-blocker
 bootstrap_include:
     device
     executable

@@ -18,3 +18,11 @@ _name: Automated memory tests
 _description: Automated memory tests for Ubuntu Core devices
 include:
     memory/info
+
+id: server-memory
+unit: test plan
+_name: Automated memory tests
+_desctiption: Automated memory tests for Server Cert
+include:
+    memory/info                 certification-status=blocker
+    memory/memory_stress_ng     certification-status=blocker

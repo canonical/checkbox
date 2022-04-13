@@ -42,7 +42,7 @@ include:
  lsmod_attachment
  lspci_attachment
  lspci_standard_config_attachment
- lstopo_verbose_attachment
+ lstpo_verbose_attachment
  lstopo_visual_attachment
  lsusb_attachment
  meminfo_attachment
@@ -69,6 +69,7 @@ include:
  dmi_attachment
  dmidecode_attachment
  efi_attachment
+ info/buildstamp
  info/disk_partitions
  info/hdparm_.*.txt
  info/network-config
@@ -78,6 +79,7 @@ include:
  lshw_attachment
  lsmod_attachment
  lspci_attachment
+ lspci_network_attachment
  lstopo_verbose_attachment
  lstopo_visual_attachment
  lsusb_attachment

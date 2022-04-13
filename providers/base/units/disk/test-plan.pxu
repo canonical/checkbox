@@ -54,3 +54,17 @@ include:
     disk/storage_device_.*
 bootstrap_include:
     device
+
+id: server-disk
+unit: test plan
+_name: Server Disk Tests
+_Description: AUtomated disk tests for Ubuntu Server
+include:
+    disk/detect                                certification-status=blocker
+    disk/stats_.*                              certification-status=blocker
+    disk/read_performance_.*                   certification-status=blocker
+    disk/smart_.*                              certification-status=non-blocker
+    disk/fstrim_.*                             certification-status=non-blocker
+    disk/disk_stress_ng_.*                     certification-status=blocker
+    disk/disk_cpu_load_.*                      certification-status=blocker
+    disk/apste_support_on_.*                   certification-status=non-blocker

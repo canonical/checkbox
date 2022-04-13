@@ -62,23 +62,25 @@ _name: Miscellaneous server cert tests
 _description:
  Miscellaneous server tests (log checks, dmi data, etc)
 mandatory_include:
-    miscellanea/submission-resources
-    miscellanea/cpuid
-    miscellanea/get_make_and_model
-    miscellanea/get_maas_version               certification-status=blocker
-    miscellanea/maas_user_check
-    miscellanea/efi_boot_mode                  certification-status=blocker
-    miscellanea/secure_boot_mode
-    miscellanea/reboot_firmware
-    miscellanea/efi_pxeboot
+    miscellanea/apport-directory               certification-status=non-blocker
+    miscellanea/bmc_info                       certification-status=non-blocker
     miscellanea/check_prerelease               certification-status=blocker
-    miscellanea/kernel_taint_test
-    miscellanea/cpus_are_not_samples
+    miscellanea/cpuid                          certification-status=non-blocker
+    miscellanea/cpus_are_not_samples           certification-status=blocker
+    miscellanea/debsums                        certification-status=non-blocker
+    miscellanea/dmitest_server                 certification-status=blocker
+    miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/efi_pxeboot                    certification-status=non-blocker
+    miscellanea/get_make_and_model             certification-status=non-blocker
+    miscellanea/get_maas_version               certification-status=blocker
     miscellanea/ipmi_test                      certification-status=blocker
-    miscellanea/bmc_info
-    miscellanea/dmitest_server
-    miscellanea/sosreport
-    miscellanea/sosreport_attachment
+    miscellanea/kernel_taint_test              certification-status=blocker
+    miscellanea/maas_user_check                certification-status=blocker
+    miscellanea/reboot_firmware                certification-status=non-blocker
+    miscellanea/secure_boot_mode               certification-status=non-blocker
+    miscellanea/sosreport                      certification-status=non-blocker
+    miscellanea/sosreport_attachment           certification-status=non-blocker
+    miscellanea/submission-resources           certification-status=non-blocker
 include:
 
 id: server-miscellaneous-regression
@@ -87,10 +89,7 @@ _name: Miscellaneous server cert tests
 _description:
  Miscellaneous server tests (log checks, dmi data, etc)
 mandatory_include:
-    miscellanea/submission-resources
-    miscellanea/cpuid
+    miscellanea/apport-directory               certification-status=non-blocker
     miscellanea/ipmi_test                      certification-status=blocker
-    miscellanea/bmc_info
-    miscellanea/dmitest_server
-    miscellanea/maas_user_check
+    info/systemd-analyze                       certification-status=non-blocker
 include:

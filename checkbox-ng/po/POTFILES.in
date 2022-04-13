@@ -68,7 +68,6 @@
 ./plainbox/impl/secure/providers/v1.py
 ./plainbox/impl/secure/qualifiers.py
 ./plainbox/impl/secure/rfc822.py
-./plainbox/impl/secure/test_config.py
 ./plainbox/impl/secure/test_origin.py
 ./plainbox/impl/secure/test_plugins.py
 ./plainbox/impl/secure/test_qualifiers.py

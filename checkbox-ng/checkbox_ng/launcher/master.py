@@ -185,21 +185,9 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     nonlocal keep_running
                     keep_running = False
                     server_msg = msg
-                with contextlib.suppress(AttributeError):
-                    # TODO: REMOTE_API
-                    # when bumping the remote api make this bit obligatory
-                    # i.e. remove the suppressing
-                    conn.root.register_master_blaster(quitter)
+                conn.root.register_master_blaster(quitter)
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
-                # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-                # the check and bailout is not needed if the slave as up to
-                # date as this master, so after bumping RAPI we can assume
-                # that slave is always passwordless
-                if not self.sa.passwordless_sudo:
-                    raise SystemExit(
-                        _("This version of Checkbox requires the service"
-                          " to be run as root"))
                 try:
                     slave_api_version = self.sa.get_remote_api_version()
                 except AttributeError:

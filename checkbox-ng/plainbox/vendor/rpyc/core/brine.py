@@ -175,7 +175,7 @@ def _dump_tuple(obj, stream):
 
 
 def _undumpable(obj, stream):
-    raise TypeError(f"cannot dump {obj}")
+    raise TypeError("cannot dump {}".format((obj)))
 
 
 def _dump(obj, stream):

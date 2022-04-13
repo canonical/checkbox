@@ -140,7 +140,7 @@ class Connection(object):
         self._config = DEFAULT_CONFIG.copy()
         self._config.update(config)
         if self._config["connid"] is None:
-            self._config["connid"] = f"conn{next(_connection_id_generator)}"
+            self._config["connid"] = "conn{}".format((next(_connection_id_generator)))
 
         self._HANDLERS = self._request_handlers()
         self._channel = channel
@@ -169,7 +169,7 @@ class Connection(object):
 
     def __repr__(self):
         a, b = object.__repr__(self).split(" object ")
-        return f"{a} {self._config['connid']!r} object {b}"
+        return "{} {!r} object {}".format((a), (self._config['connid']), (b))
 
     def _cleanup(self, _anyway=True):  # IO
         if self._closed and not _anyway:
@@ -298,7 +298,7 @@ class Connection(object):
                 proxy = self._netref_factory(id_pack)
                 self._proxy_cache[id_pack] = proxy
             return proxy
-        raise ValueError(f"invalid label {label!r}")
+        raise ValueError("invalid label {!r}".format((label)))
 
     def _netref_factory(self, id_pack):  # boxing
         """id_pack is for remote, so when class id fails to directly match """
@@ -367,7 +367,7 @@ class Connection(object):
             obj = self._unbox_exc(args)
             self._seq_request_callback(msg, seq, True, obj)
         else:
-            raise ValueError(f"invalid message type: {msg!r}")
+            raise ValueError("invalid message type: {!r}".format((msg)))
 
     def serve(self, timeout=1, wait_for_lock=True):  # serving
         """Serves a single request or reply that arrives within the given
@@ -509,7 +509,7 @@ class Connection(object):
     def _check_attr(self, obj, name, perm):  # attribute access
         config = self._config
         if not config[perm]:
-            raise AttributeError(f"cannot access {name!r}")
+            raise AttributeError("cannot access {!r}".format((name)))
         prefix = config["allow_exposed_attrs"] and config["exposed_prefix"]
         plain = config["allow_all_attrs"]
         plain |= config["allow_exposed_attrs"] and name.startswith(prefix)
@@ -522,7 +522,7 @@ class Connection(object):
             return prefix + name
         if plain:
             return name  # chance for better traceback
-        raise AttributeError(f"cannot access {name!r}")
+        raise AttributeError("cannot access {!r}".format((name)))
 
     def _access_attr(self, obj, name, args, overrider, param, default):  # attribute access
         if type(name) is bytes:

@@ -278,7 +278,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 respawn_cmd += os.path.abspath(ctx.args.launcher) + ' '
             respawn_cmd += '--resume {}'  # interpolate with session_id
             ctx.sa.configure_application_restart(
-                lambda session_id: [respawn_cmd.format(session_id)])
+                lambda session_id: [respawn_cmd.format(session_id)], 'local')
 
     def _maybe_resume_session(self):
         resume_candidates = list(self.ctx.sa.get_resumable_sessions())
@@ -751,7 +751,7 @@ class Run(MainLoopStage):
             respawn_cmd = sys.argv[0]  # entry-point to checkbox
         respawn_cmd += ' --resume {}'  # interpolate with session_id
         self.sa.configure_application_restart(
-            lambda session_id: [respawn_cmd.format(session_id)])
+            lambda session_id: [respawn_cmd.format(session_id)], 'local')
 
 
 class List():

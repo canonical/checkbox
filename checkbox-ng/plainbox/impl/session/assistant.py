@@ -210,7 +210,8 @@ class SessionAssistant:
 
     @raises(UnexpectedMethodCall, LookupError)
     def configure_application_restart(
-            self, cmd_callback: 'Callable[[str], List[str]]') -> None:
+            self, cmd_callback, session_type:
+            'Callable[[str], List[str]], str') -> None:
         """
         Configure automatic restart capability.
 
@@ -218,6 +219,8 @@ class SessionAssistant:
             A callable (function or lambda) that when called with a single
             string argument, session_id, returns a list of strings describing
             how to execute the tool in order to restart a particular session.
+        :param session_type:
+            Kind of the session we're running. Either 'local' or 'remote'
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -244,25 +247,6 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         if self._restart_strategy is None:
-            # 'checkbox-slave' is deprecated, it's here so people can resume
-            # old session, the next if statement can be changed to just checking
-            # for 'remote' type
-            # session_type = 'remote' if self._metadata.title == 'remote'
-            #                         else 'local'
-            # with the next release or when we do inclusive naming refactor
-            # or roughly after April of 2022
-            # TODO: REMOTE API RAPI:
-            # this heuristic of guessing session type from the title
-            # should be changed to a proper arg/flag with the Remote API bump
-            remote_types = ('remote', 'checkbox-slave')
-            session_type = 'local'
-            try:
-                app_blob = json.loads(self._metadata.app_blob.decode("UTF-8"))
-                session_type = app_blob['type']
-                if session_type in remote_types:
-                    session_type = 'remote'
-            except (AttributeError, ValueError, KeyError):
-                session_type = 'local'
             self._restart_strategy = detect_restart_strategy(
                 self, session_type=session_type)
         self._restart_cmd_callback = cmd_callback

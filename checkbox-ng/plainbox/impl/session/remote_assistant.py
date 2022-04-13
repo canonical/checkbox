@@ -301,7 +301,8 @@ class RemoteSessionAssistant():
             'effective_normal_user': self._normal_user,
         }).encode("UTF-8")
         self._sa.update_app_blob(new_blob)
-        self._sa.configure_application_restart(self._cmd_callback)
+        self._sa.configure_application_restart(
+            self._cmd_callback, session_type='remote')
 
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()

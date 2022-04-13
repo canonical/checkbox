@@ -23,55 +23,62 @@
 =====================================================
 """
 import gettext
-import itertools
 import logging
 import os
 
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.launcher import LauncherDefinition
+from plainbox.impl.config import Configuration
 
 
 _ = gettext.gettext
 
 _logger = logging.getLogger("config")
 
+
+SEARCH_DIRS = [
+        '$SNAP_DATA',
+        '/etc/xdg/',
+        '~/.config/',
+    ]
+
+
 def expand_all(path):
+    """Expand both: envvars and ~ in `path`."""
     return os.path.expandvars(os.path.expanduser(path))
 
-def load_configs(launcher_file=None):
-    # launcher can override the default name of config files to look for
-    # so first we need to establish the filename to look for
-    configs = []
-    config_filename = 'checkbox.conf'
-    launcher = DefaultLauncherDefinition()
-    if launcher_file:
-        configs.append(launcher_file)
-        generic_launcher = LauncherDefinition()
-        if not os.path.exists(launcher_file):
-            _logger.error(_(
-                "Unable to load launcher '%s'. File not found!"),
-                launcher_file)
-            raise SystemExit(1)
-        generic_launcher.read(launcher_file)
-        config_filename = os.path.expandvars(os.path.expanduser(
-            generic_launcher.config_filename))
-        launcher = generic_launcher.get_concrete_launcher()
-    if os.path.isabs(config_filename):
-        configs.append(config_filename)
+
+def load_configs(launcher_file=None, cfg=None):
+    """
+    Read a chain of configs/launchers.
+
+    In theory there can be a very long list of configs that are linked by
+    specifying config_filename in each. Each time this happen we need to
+    consider the new one and override all the values contained therein.
+    And after this chain is exhausted the values in the launcher should
+    take precedence over the previously read.
+    Warning: some recursion ahead.
+    """
+    if not cfg:
+        cfg = Configuration()
+    previous_cfg_name = cfg.get_value('config', 'config_filename')
+    if os.path.isabs(expand_all(previous_cfg_name)):
+        cfg.update_from_another(
+            Configuration.from_path(expand_all(previous_cfg_name)),
+            'config file: {}'.format(previous_cfg_name))
     else:
-        search_dirs = [
-            '$SNAP_DATA',
-            '/etc/xdg/',
-            '~/.config/',
-        ]
-        for d in search_dirs:
-            config = expand_all(os.path.join(d, config_filename))
+        for sdir in SEARCH_DIRS:
+            config = expand_all(os.path.join(sdir, previous_cfg_name))
             if os.path.exists(config):
-                configs.append(config)
-    launcher.read(configs)
-    if launcher.problem_list:
-        _logger.error(_("Unable to start launcher because of errors:"))
-        for problem in launcher.problem_list:
-            _logger.error("%s", str(problem))
-        raise SystemExit(1)
-    return launcher
+                cfg.update_from_another(
+                    Configuration.from_path(config),
+                    'config file: {}'.format(config))
+            else:
+                _logger.info(
+                    "Referenced config file doesn't exist: %s", config)
+    new_cfg_filename = cfg.get_value('config', 'config_filename')
+    if new_cfg_filename != previous_cfg_name:
+        load_configs(launcher_file, cfg)
+    if launcher_file:
+        cfg.update_from_another(
+            Configuration.from_path(launcher_file),
+            'Launcher file: {}'.format(launcher_file))
+    return cfg

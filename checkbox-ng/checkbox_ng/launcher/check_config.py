@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2018-2019 Canonical Ltd.
+# Copyright 2018-2021 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -15,41 +15,38 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-from plainbox.impl.secure.config import ValidationError
-from plainbox.i18n import gettext as _
+"""This module contains the implementation of the `check-config` subcmd."""
 
 from checkbox_ng.config import load_configs
 
 
 class CheckConfig():
-    def invoked(self, ctx):
+    """Implementation of the `check-config` sub-command."""
+    @staticmethod
+    def invoked(_):
+        """Function that's run with `check-config` invocation."""
         config = load_configs()
-        print(_("Configuration files:"))
-        for filename in config.filename_list:
-            print(" - {}".format(filename))
-        for variable in config.Meta.variable_list:
-            print("   [{0}]".format(variable.section))
-            print("   {0}={1}".format(
-                variable.name,
-                variable.__get__(config, config.__class__)))
-        for section in config.Meta.section_list:
-            print("   [{0}]".format(section.name))
-            section_value = section.__get__(config, config.__class__)
-            if section_value:
-                for key, value in sorted(section_value.items()):
-                    print("   {0}={1}".format(key, value))
-        if config.problem_list:
-            print(_("Problems:"))
-            for problem in config.problem_list:
-                if isinstance(problem, ValidationError):
-                    print(_(" - variable {0}: {1}").format(
-                        problem.variable.name, problem.message))
-                else:
-                    print(" - {0}".format(problem.message))
-            return 1
-        else:
-            print(_("No validation problems found"))
+        print("Configuration files:")
+        for source in config.sources:
+            print(" - {}".format(source))
+        for sect_name, section in config.sections.items():
+            print("   [{0}]".format(sect_name))
+            for var_name in section.keys():
+                value = config.get_value(sect_name, var_name)
+                if isinstance(value, list):
+                    value = ', '.join(value)
+                origin = config.get_origin(sect_name, var_name)
+                origin = "From {}".format(origin) if origin else "(Default)"
+                key_val = "{}={}".format(var_name, value)
+                print("     {0: <34} {1}".format(key_val, origin))
+        problems = config.get_problems()
+        if not problems:
+            print("No problems with config(s) found!")
             return 0
+        print('Problems:')
+        for problem in problems:
+            print('- ', problem)
+        return 1
 
     def register_arguments(self, parser):
-        pass
+        """Register extra args for this subcmd. No extra args ATM."""

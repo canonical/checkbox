@@ -4,7 +4,7 @@ of *magic*, so beware.
 import sys
 import types
 from plainbox.vendor.rpyc.lib import get_methods, get_id_pack
-from plainbox.vendor.rpyc.lib.compat import pickle, is_py_3k, maxint, with_metaclass
+from plainbox.vendor.rpyc.lib.compat import pickle, maxint, with_metaclass
 from plainbox.vendor.rpyc.core import consts
 
 
@@ -16,6 +16,7 @@ DELETED_ATTRS = frozenset([
     '__array_struct__', '__array_interface__',
 ])
 
+"""the set of attributes that are local to the netref object"""
 LOCAL_ATTRS = frozenset([
     '____conn__', '____id_pack__', '____refcount__', '__class__', '__cmp__', '__del__', '__delattr__',
     '__dir__', '__doc__', '__getattr__', '__getattribute__', '__hash__', '__instancecheck__',
@@ -24,39 +25,25 @@ LOCAL_ATTRS = frozenset([
     '__weakref__', '__dict__', '__methods__', '__exit__',
     '__eq__', '__ne__', '__lt__', '__gt__', '__le__', '__ge__',
 ]) | DELETED_ATTRS
-"""the set of attributes that are local to the netref object"""
 
+"""a list of types considered built-in (shared between connections)
+this is needed because iterating the members of the builtins module is not enough,
+some types (e.g NoneType) are not members of the builtins module.
+TODO: this list is not complete.
+"""
 _builtin_types = [
     type, object, bool, complex, dict, float, int, list, slice, str, tuple, set,
-    frozenset, Exception, type(None), types.BuiltinFunctionType, types.GeneratorType,
+    frozenset, BaseException, Exception, type(None), types.BuiltinFunctionType, types.GeneratorType,
     types.MethodType, types.CodeType, types.FrameType, types.TracebackType,
-    types.ModuleType, types.FunctionType,
+    types.ModuleType, types.FunctionType, types.MappingProxyType,
 
     type(int.__add__),      # wrapper_descriptor
     type((1).__add__),      # method-wrapper
     type(iter([])),         # listiterator
     type(iter(())),         # tupleiterator
     type(iter(set())),      # setiterator
+    bytes, bytearray, type(iter(range(10))), memoryview
 ]
-"""a list of types considered built-in (shared between connections)"""
-
-try:
-    BaseException
-except NameError:
-    pass
-else:
-    _builtin_types.append(BaseException)
-
-if is_py_3k:
-    _builtin_types.extend([
-        bytes, bytearray, type(iter(range(10))), memoryview,
-    ])
-    xrange = range
-else:
-    _builtin_types.extend([
-        basestring, unicode, long, xrange, type(iter(xrange(10))), file,  # noqa
-        types.InstanceType, types.ClassType, types.DictProxyType,
-    ])
 _normalized_builtin_types = {}
 
 
@@ -101,9 +88,9 @@ class NetrefMetaclass(type):
 
     def __repr__(self):
         if self.__module__:
-            return "<netref class '%s.%s'>" % (self.__module__, self.__name__)
+            return "<netref class '{}.{}'>".format((self.__module__), (self.__name__))
         else:
-            return "<netref class '%s'>" % (self.__name__,)
+            return "<netref class '{}'>".format((self.__name__))
 
 
 class BaseNetref(with_metaclass(NetrefMetaclass, object)):
@@ -316,19 +303,24 @@ def class_factory(id_pack, methods):
     name_pack = id_pack[0]
     class_descriptor = None
     if name_pack is not None:
-        # attempt to resolve __class__ using sys.modules (i.e. builtins and imported modules)
-        _module = None
-        cursor = len(name_pack)
-        while cursor != -1:
-            _module = sys.modules.get(name_pack[:cursor])
-            if _module is None:
-                cursor = name_pack[:cursor].rfind('.')
-                continue
-            _class_name = name_pack[cursor + 1:]
-            _class = getattr(_module, _class_name, None)
-            if _class is not None and hasattr(_class, '__class__'):
-                class_descriptor = NetrefClass(_class)
-            break
+        # attempt to resolve __class__ using normalized builtins first
+        _builtin_class = _normalized_builtin_types.get(name_pack)
+        if _builtin_class is not None:
+            class_descriptor = NetrefClass(_builtin_class)
+        # then by imported modules (this also tries all builtins under "builtins")
+        else:
+            _module = None
+            cursor = len(name_pack)
+            while cursor != -1:
+                _module = sys.modules.get(name_pack[:cursor])
+                if _module is None:
+                    cursor = name_pack[:cursor].rfind('.')
+                    continue
+                _class_name = name_pack[cursor + 1:]
+                _class = getattr(_module, _class_name, None)
+                if _class is not None and hasattr(_class, '__class__'):
+                    class_descriptor = NetrefClass(_class)
+                break
     ns['__class__'] = class_descriptor
     netref_name = class_descriptor.owner.__name__ if class_descriptor is not None else name_pack
     # create methods that must perform a syncreq

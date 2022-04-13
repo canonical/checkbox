@@ -37,8 +37,7 @@ from functools import partial
 from tempfile import SpooledTemporaryFile
 
 from plainbox.impl.color import Colorizer
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.secure.config import Unset
+from plainbox.impl.config import Configuration
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from checkbox_ng.urwid_ui import TestPlanBrowser
@@ -111,7 +110,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
     @property
     def is_interactive(self):
-        return (self.launcher.ui_type == 'interactive' and
+        return (self.launcher.get_value('ui', 'type') == 'interactive' and
                 sys.stdin.isatty() and sys.stdout.isatty())
 
     @property
@@ -129,7 +128,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._normal_user = ''
-        self.launcher = DefaultLauncherDefinition()
+        self.launcher = Configuration()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
             if not os.path.exists(expanded_path):
@@ -137,7 +136,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     expanded_path))
             with open(expanded_path, 'rt') as f:
                 self._launcher_text = f.read()
-            self.launcher.read_string(self._launcher_text)
+            self.launcher = Configuration.from_text(
+                    self._launcher_text, 'Remote:{}'.format(expanded_path))
         if ctx.args.user:
             self._normal_user = ctx.args.user
         timeout = 600
@@ -185,21 +185,9 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     nonlocal keep_running
                     keep_running = False
                     server_msg = msg
-                with contextlib.suppress(AttributeError):
-                    # TODO: REMOTE_API
-                    # when bumping the remote api make this bit obligatory
-                    # i.e. remove the suppressing
-                    conn.root.register_master_blaster(quitter)
+                conn.root.register_master_blaster(quitter)
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
-                # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-                # the check and bailout is not needed if the slave as up to
-                # date as this master, so after bumping RAPI we can assume
-                # that slave is always passwordless
-                if not self.sa.passwordless_sudo:
-                    raise SystemExit(
-                        _("This version of Checkbox requires the service"
-                          " to be run as root"))
                 try:
                     slave_api_version = self.sa.get_remote_api_version()
                 except AttributeError:
@@ -267,8 +255,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             tps = self.sa.start_session(configuration)
         except RuntimeError as exc:
             raise SystemExit(exc.args[0]) from exc
-        if self.launcher.test_plan_forced:
-            self.select_tp(self.launcher.test_plan_default_selection)
+        if self.launcher.get_value('test plan', 'forced'):
+            self.select_tp(self.launcher.get_value('test plan', 'unit'))
             self.select_jobs(self.jobs)
         else:
             self.interactively_choose_tp(tps)
@@ -311,8 +299,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         return val.lower() in ('y', 'yes', 't', 'true', 'on', '1')
 
     def select_jobs(self, all_jobs):
-        if self.launcher.test_selection_forced:
-            if self.launcher.manifest is not Unset:
+        if self.launcher.get_value('test selection', 'forced'):
+            if self.launcher.manifest:
                 self.sa.save_manifest(
                     {manifest_id:
                      self._strtobool(self.launcher.manifest[manifest_id]) for
@@ -352,7 +340,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         Returns True if the remote should keep running.
         And False if it should quit.
         """
-        if self.launcher.ui_type == 'silent':
+        if self.launcher.get_value('ui', 'type'):
             self._sa.terminate()
             return False
         response = interrupt_dialog(self._target_host)
@@ -372,7 +360,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
     def finish_session(self):
         print(self.C.header("Results"))
-        if self.launcher.local_submission:
+        if self.launcher.get_value('launcher', 'local_submission'):
             # Disable SIGINT while we save local results
             with contextlib.ExitStack() as stack:
                 tmp_sig = signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -390,7 +378,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self.run_jobs()
 
     def _handle_last_job_after_resume(self, resumed_session_info):
-        if self.launcher.ui_type == 'silent':
+        if self.launcher.get_value('ui', 'type') == 'silent':
             time.sleep(20)
         else:
             resume_dialog(10)
@@ -420,11 +408,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._run_jobs(jobs_repr, total_num)
         rerun_candidates = self.sa.get_rerun_candidates('manual')
         if rerun_candidates:
-            if self.launcher.ui_type == 'interactive':
+            if self.launcher.get_value('ui', 'type') == 'interactive':
                 while True:
                     if not self._maybe_manual_rerun_jobs():
                         break
-        if self.launcher.auto_retry:
+        if self.launcher.get_value('ui', 'auto_retry'):
             while True:
                 if not self._maybe_auto_rerun_jobs():
                     break
@@ -510,7 +498,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         if not rerun_candidates:
             return False
         # we wait before retrying
-        delay = self.launcher.delay_before_retry
+        delay = self.launcher.get_value('ui', 'delay_before_retry')
         _logger.info(_("Waiting {} seconds before retrying failed"
                        " jobs...".format(delay)))
         time.sleep(delay)

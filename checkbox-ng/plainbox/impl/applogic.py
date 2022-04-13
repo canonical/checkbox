@@ -31,7 +31,6 @@ import os
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.secure import config
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session.jobs import InhibitionCause
@@ -78,23 +77,6 @@ def run_job_if_possible(session, runner, config, job, update=True, ui=None):
     if update:
         session.update_job_result(job, job_result)
     return job_state, job_result
-
-
-class PlainBoxConfig(config.Config):
-    """
-    Configuration for PlainBox itself
-    """
-
-    environment = config.Section(
-        help_text=_("Environment variables for scripts and jobs"))
-
-    class Meta:
-
-        # TODO: properly depend on xdg and use real code that also handles
-        # XDG_CONFIG_HOME.
-        filename_list = [
-            '/etc/xdg/plainbox.conf',
-            os.path.expanduser('~/.config/plainbox.conf')]
 
 
 def get_all_exporter_names():

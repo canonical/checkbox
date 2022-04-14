@@ -130,7 +130,7 @@ class Configuration:
         self.sections[section][name] = value
         self._origins[section][name] = origin
 
-    def set_value(self, section, name, value, origin):
+    def set_value(self, section, name, value, origin, parser):
         """Set a new value for variable and update its origin."""
         # we are kind off guaranteed that section will be found in the spec
         # but let's make linters happy
@@ -170,6 +170,12 @@ class Configuration:
         try:
             if kind == list:
                 value = shlex.split(value.replace(',', ' '))
+            elif kind == bool:
+                value = parser.getboolean(section, name)
+            elif kind == float:
+                value = parser.getfloat(section, name)
+            elif kind == int:
+                value = parser.getint(section, name)
             else:
                 value = kind(value)
             if parametrized:
@@ -256,7 +262,7 @@ class Configuration:
                 continue
             if ':' in sect_name:
                 for var_name, var in section.items():
-                    cfg.set_value(sect_name, var_name, var, origin)
+                    cfg.set_value(sect_name, var_name, var, origin, parser)
                 continue
             if sect_name not in cfg.sections:
                 problem = "Unexpected section [{}]. Origin: {}".format(
@@ -271,7 +277,7 @@ class Configuration:
                         "Origin: {}").format(var_name, sect_name, origin)
                     cfg.notice_problem(problem)
                     continue
-                cfg.set_value(sect_name, var_name, var, origin)
+                cfg.set_value(sect_name, var_name, var, origin, parser)
         return cfg
 
     _DYNAMIC_SECTIONS = ('environment', 'manifest')

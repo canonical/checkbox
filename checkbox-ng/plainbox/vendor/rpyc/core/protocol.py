@@ -8,7 +8,7 @@ import gc  # noqa: F401
 
 from threading import Lock, Condition
 from plainbox.vendor.rpyc.lib import spawn, Timeout, get_methods, get_id_pack
-from plainbox.vendor.rpyc.lib.compat import pickle, next, maxint, select_error, acquire_lock  # noqa: F401
+from plainbox.vendor.rpyc.lib.compat import pickle, next, is_py_3k, maxint, select_error, acquire_lock  # noqa: F401
 from plainbox.vendor.rpyc.lib.colls import WeakValueDict, RefCountingColl
 from plainbox.vendor.rpyc.core import consts, brine, vinegar, netref
 from plainbox.vendor.rpyc.core.async_ import AsyncResult
@@ -39,7 +39,7 @@ DEFAULT_CONFIG = dict(
                     '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__',
                     '__rxor__', '__setitem__', '__setslice__', '__str__', '__sub__',
                     '__truediv__', '__xor__', 'next', '__length_hint__', '__enter__',
-                    '__exit__', '__next__', '__format__']),
+                    '__exit__', '__next__', ]),
     exposed_prefix="exposed_",
     allow_getattr=True,
     allow_setattr=False,
@@ -60,8 +60,6 @@ DEFAULT_CONFIG = dict(
     endpoints=None,
     logger=None,
     sync_request_timeout=30,
-    before_closed=None,
-    close_catchall=False,
 )
 """
 The default configuration dictionary of the protocol. You can override these parameters
@@ -140,7 +138,7 @@ class Connection(object):
         self._config = DEFAULT_CONFIG.copy()
         self._config.update(config)
         if self._config["connid"] is None:
-            self._config["connid"] = "conn{}".format((next(_connection_id_generator)))
+            self._config["connid"] = "conn%d" % (next(_connection_id_generator),)
 
         self._HANDLERS = self._request_handlers()
         self._channel = channel
@@ -169,7 +167,7 @@ class Connection(object):
 
     def __repr__(self):
         a, b = object.__repr__(self).split(" object ")
-        return "{} {!r} object {}".format((a), (self._config['connid']), (b))
+        return "%s %r object %s" % (a, self._config["connid"], b)
 
     def _cleanup(self, _anyway=True):  # IO
         if self._closed and not _anyway:
@@ -188,19 +186,17 @@ class Connection(object):
         # self._config.clear()
         del self._HANDLERS
 
-    def close(self):  # IO
+    def close(self, _catchall=True):  # IO
         """closes the connection, releasing all held resources"""
         if self._closed:
             return
+        self._closed = True
         try:
-            self._closed = True
-            if self._config.get("before_closed"):
-                self._config["before_closed"](self.root)
             self._async_request(consts.HANDLE_CLOSE)
         except EOFError:
             pass
         except Exception:
-            if not self._config["close_catchall"]:
+            if not _catchall:
                 raise
         finally:
             self._cleanup(_anyway=True)
@@ -298,7 +294,7 @@ class Connection(object):
                 proxy = self._netref_factory(id_pack)
                 self._proxy_cache[id_pack] = proxy
             return proxy
-        raise ValueError("invalid label {!r}".format((label)))
+        raise ValueError("invalid label %r" % (label,))
 
     def _netref_factory(self, id_pack):  # boxing
         """id_pack is for remote, so when class id fails to directly match """
@@ -367,7 +363,7 @@ class Connection(object):
             obj = self._unbox_exc(args)
             self._seq_request_callback(msg, seq, True, obj)
         else:
-            raise ValueError("invalid message type: {!r}".format((msg)))
+            raise ValueError("invalid message type: %r" % (msg,))
 
     def serve(self, timeout=1, wait_for_lock=True):  # serving
         """Serves a single request or reply that arrives within the given
@@ -492,7 +488,7 @@ class Connection(object):
         """
         timeout = kwargs.pop("timeout", None)
         if kwargs:
-            raise TypeError("got unexpected keyword argument(s) {list(kwargs.keys()}")
+            raise TypeError("got unexpected keyword argument(s) %s" % (list(kwargs.keys()),))
         res = AsyncResult(self)
         self._async_request(handler, args, res)
         if timeout is not None:
@@ -509,7 +505,7 @@ class Connection(object):
     def _check_attr(self, obj, name, perm):  # attribute access
         config = self._config
         if not config[perm]:
-            raise AttributeError("cannot access {!r}".format((name)))
+            raise AttributeError("cannot access %r" % (name,))
         prefix = config["allow_exposed_attrs"] and config["exposed_prefix"]
         plain = config["allow_all_attrs"]
         plain |= config["allow_exposed_attrs"] and name.startswith(prefix)
@@ -522,13 +518,18 @@ class Connection(object):
             return prefix + name
         if plain:
             return name  # chance for better traceback
-        raise AttributeError("cannot access {!r}".format((name)))
+        raise AttributeError("cannot access %r" % (name,))
 
     def _access_attr(self, obj, name, args, overrider, param, default):  # attribute access
-        if type(name) is bytes:
-            name = str(name, "utf8")
-        elif type(name) is not str:
-            raise TypeError("name must be a string")
+        if is_py_3k:
+            if type(name) is bytes:
+                name = str(name, "utf8")
+            elif type(name) is not str:
+                raise TypeError("name must be a string")
+        else:
+            if type(name) not in (str, unicode):  # noqa
+                raise TypeError("name must be a string")
+            name = str(name)  # IronPython issue #10 + py3k issue
         accessor = getattr(type(obj), overrider, None)
         if accessor is None:
             accessor = default
@@ -637,7 +638,7 @@ class Connection(object):
             # since __mro__ is not a safe attribute the request is forwarded using the proxy connection
             # relates to issue #346 or tests.test_netref_hierachy.Test_Netref_Hierarchy.test_StandardError
             conn = obj.____conn__
-            return conn.sync_request(consts.HANDLE_INSPECT, other_id_pack)
+            return conn.sync_request(consts.HANDLE_INSPECT, id_pack)
         # Create a name pack which would be familiar here and see if there is a hit
         other_id_pack2 = (other_id_pack[0], other_id_pack[1], 0)
         if other_id_pack[0] in netref.builtin_classes_cache:

@@ -36,6 +36,7 @@ from jinja2 import Template
 from plainbox.i18n import gettext as _
 from plainbox.impl.decorators import cached_property
 from plainbox.impl.decorators import instance_method_lru_cache
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.symbol import Symbol
@@ -608,7 +609,7 @@ class Unit(metaclass=UnitType):
 
     @instance_method_lru_cache(maxsize=None)
     def _checkbox_env(self):
-        if self.config is not None and self.config.environment:
+        if self.config is not None and self.config.environment is not Unset:
             return self.config.environment
         else:
             return {}

@@ -55,7 +55,7 @@ $EXTRA_SETUP$
 t = ServerCls(SlaveService, hostname = "localhost", port = 0, reuse_addr = True, logger = logger)
 thd = t._start_in_thread()
 
-sys.stdout.write(f"{t.port}\n")
+sys.stdout.write("%s\n" % (t.port,))
 sys.stdout.flush()
 
 try:
@@ -111,7 +111,7 @@ class DeployedServer(object):
             major = sys.version_info[0]
             minor = sys.version_info[1]
             cmd = None
-            for opt in [f"python{major}.{minor}", f"python{major}"]:
+            for opt in ["python%s.%s" % (major, minor), "python%s" % (major,)]:
                 try:
                     cmd = remote_machine[opt]
                 except CommandNotFound:
@@ -155,26 +155,15 @@ class DeployedServer(object):
         if self.proc is not None:
             try:
                 self.proc.terminate()
-                self.proc.communicate()
             except Exception:
                 pass
             self.proc = None
         if self.tun is not None:
             try:
-                self.tun._session.proc.terminate()
-                self.tun._session.proc.communicate()
                 self.tun.close()
             except Exception:
                 pass
             self.tun = None
-        if self.remote_machine is not None:
-            try:
-                self.remote_machine._session.proc.terminate()
-                self.remote_machine._session.proc.communicate()
-                self.remote_machine.close()
-            except Exception:
-                pass
-            self.remote_machine = None
         if self._tmpdir_ctx is not None:
             try:
                 self._tmpdir_ctx.__exit__(None, None, None)

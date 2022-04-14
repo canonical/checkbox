@@ -50,6 +50,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
+from plainbox.impl.secure.config import Unset
 from plainbox.vendor import extcmd
 from plainbox.vendor import morris
 

@@ -60,6 +60,7 @@ from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import ResourceProgramError
 from plainbox.impl.resource import Resource
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError

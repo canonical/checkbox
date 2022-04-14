@@ -2,11 +2,10 @@ from __future__ import with_statement
 import sys
 import os
 import inspect
-from plainbox.vendor.rpyc.lib.compat import pickle, execute
+from plainbox.vendor.rpyc.lib.compat import pickle, execute, is_py_3k  # noqa: F401
 from plainbox.vendor.rpyc.core.service import ClassicService, Slave
 from plainbox.vendor.rpyc.utils import factory
 from plainbox.vendor.rpyc.core.service import ModuleNamespace  # noqa: F401
-from plainbox.vendor.rpyc.core.consts import STREAM_CHUNK
 from contextlib import contextmanager
 
 
@@ -172,7 +171,7 @@ def connect_multiprocess(args={}):
 # remoting utilities
 # ===============================================================================
 
-def upload(conn, localpath, remotepath, filter=None, ignore_invalid=False, chunk_size=STREAM_CHUNK):
+def upload(conn, localpath, remotepath, filter=None, ignore_invalid=False, chunk_size=16000):
     """uploads a file or a directory to the given remote path
 
     :param localpath: the local file or directory
@@ -187,10 +186,10 @@ def upload(conn, localpath, remotepath, filter=None, ignore_invalid=False, chunk
         upload_file(conn, localpath, remotepath, chunk_size)
     else:
         if not ignore_invalid:
-            raise ValueError("cannot upload {!r}".format((localpath)))
+            raise ValueError("cannot upload %r" % (localpath,))
 
 
-def upload_file(conn, localpath, remotepath, chunk_size=STREAM_CHUNK):
+def upload_file(conn, localpath, remotepath, chunk_size=16000):
     with open(localpath, "rb") as lf:
         with conn.builtin.open(remotepath, "wb") as rf:
             while True:
@@ -200,7 +199,7 @@ def upload_file(conn, localpath, remotepath, chunk_size=STREAM_CHUNK):
                 rf.write(buf)
 
 
-def upload_dir(conn, localpath, remotepath, filter=None, chunk_size=STREAM_CHUNK):
+def upload_dir(conn, localpath, remotepath, filter=None, chunk_size=16000):
     if not conn.modules.os.path.isdir(remotepath):
         conn.modules.os.makedirs(remotepath)
     for fn in os.listdir(localpath):
@@ -210,7 +209,7 @@ def upload_dir(conn, localpath, remotepath, filter=None, chunk_size=STREAM_CHUNK
             upload(conn, lfn, rfn, filter=filter, ignore_invalid=True, chunk_size=chunk_size)
 
 
-def download(conn, remotepath, localpath, filter=None, ignore_invalid=False, chunk_size=STREAM_CHUNK):
+def download(conn, remotepath, localpath, filter=None, ignore_invalid=False, chunk_size=16000):
     """
     download a file or a directory to the given remote path
 
@@ -221,15 +220,15 @@ def download(conn, remotepath, localpath, filter=None, ignore_invalid=False, chu
     :param chunk_size: the IO chunk size
     """
     if conn.modules.os.path.isdir(remotepath):
-        download_dir(conn, remotepath, localpath, filter, chunk_size)
+        download_dir(conn, remotepath, localpath, filter)
     elif conn.modules.os.path.isfile(remotepath):
         download_file(conn, remotepath, localpath, chunk_size)
     else:
         if not ignore_invalid:
-            raise ValueError("cannot download {!r}".format((remotepath)))
+            raise ValueError("cannot download %r" % (remotepath,))
 
 
-def download_file(conn, remotepath, localpath, chunk_size=STREAM_CHUNK):
+def download_file(conn, remotepath, localpath, chunk_size=16000):
     with conn.builtin.open(remotepath, "rb") as rf:
         with open(localpath, "wb") as lf:
             while True:
@@ -239,17 +238,17 @@ def download_file(conn, remotepath, localpath, chunk_size=STREAM_CHUNK):
                 lf.write(buf)
 
 
-def download_dir(conn, remotepath, localpath, filter=None, chunk_size=STREAM_CHUNK):
+def download_dir(conn, remotepath, localpath, filter=None, chunk_size=16000):
     if not os.path.isdir(localpath):
         os.makedirs(localpath)
     for fn in conn.modules.os.listdir(remotepath):
         if not filter or filter(fn):
             rfn = conn.modules.os.path.join(remotepath, fn)
             lfn = os.path.join(localpath, fn)
-            download(conn, rfn, lfn, filter=filter, ignore_invalid=True, chunk_size=chunk_size)
+            download(conn, rfn, lfn, filter=filter, ignore_invalid=True)
 
 
-def upload_package(conn, module, remotepath=None, chunk_size=STREAM_CHUNK):
+def upload_package(conn, module, remotepath=None, chunk_size=16000):
     """
     uploads a module or a package to the remote party
 
@@ -385,17 +384,12 @@ def teleport_function(conn, func, globals=None, def_=True):
             import os
             return (os.getpid() + y) * x
 
-    .. note:: While it is not forbidden to "teleport" functions across different Python
-              versions, it *may* result in errors due to Python bytecode differences. It is
-              recommended to ensure both the client and the server are of the same Python
-              version when using this function.
-
     :param conn: the RPyC connection
     :param func: the function object to be delivered to the other party
     """
     if globals is None:
         globals = conn.namespace
-    from rpyc.utils.teleportation import export_function
+    from plainbox.vendor.rpyc.utils.teleportation import export_function
     exported = export_function(func)
     return conn.modules["rpyc.utils.teleportation"].import_function(
         exported, globals, def_)

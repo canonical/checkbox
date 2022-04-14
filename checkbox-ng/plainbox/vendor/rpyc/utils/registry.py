@@ -1,8 +1,13 @@
 """
-RPyC Registry Server maintains service information on RPyC services for *Service Registry and Discovery patterns*. Service Registry and Discovery patterns solve the connectivity problem for communication between services and external consumers. RPyC services will register with the server when :code:`auto_register` is :code:`True`.
+RPyC **registry server** implementation. The registry is much like
+`Avahi <http://en.wikipedia.org/wiki/Avahi_(software)>`_ or
+`Bonjour <http://en.wikipedia.org/wiki/Bonjour_(software)>`_, but tailored to
+the needs of RPyC. Also, neither of them supports (or supported) Windows,
+and Bonjour has a restrictive license. Moreover, they are too "powerful" for
+what RPyC needed and required too complex a setup.
 
-Service registries such as `Avahi <http://en.wikipedia.org/wiki/Avahi_(software)>`_ and
-`Bonjour <http://en.wikipedia.org/wiki/Bonjour_(software)>`_ are alternatives to the RPyC Registry Server. These alternatives do no support Windows and have more restrictive licensing.
+If anyone wants to implement the RPyC registry using Avahi, Bonjour, or any
+other zeroconf implementation -- I'll be happy to include them.
 
 Refer to :file:`rpyc/scripts/rpyc_registry.py` for more info.
 """
@@ -26,7 +31,7 @@ REGISTRY_PORT = 18811
 class RegistryServer(object):
     """Base registry server"""
 
-    def __init__(self, listenersock, pruning_timeout=None, logger=None, allow_listing=False):
+    def __init__(self, listenersock, pruning_timeout=None, logger=None):
         self.sock = listenersock
         self.port = self.sock.getsockname()[1]
         self.active = False
@@ -36,7 +41,6 @@ class RegistryServer(object):
         self.pruning_timeout = pruning_timeout
         if logger is None:
             logger = self._get_logger()
-        self.allow_listing = allow_listing
         self.logger = logger
 
     def _get_logger(self):
@@ -75,7 +79,7 @@ class RegistryServer(object):
     def cmd_query(self, host, name):
         """implementation of the ``query`` command"""
         name = name.upper()
-        self.logger.debug("querying for {!r}".format((name)))
+        self.logger.debug("querying for %r", name)
         if name not in self.services:
             self.logger.debug("no such service")
             return ()
@@ -85,35 +89,24 @@ class RegistryServer(object):
         servers = []
         for addrinfo, t in all_servers:
             if t < oldest:
-                self.logger.debug("discarding stale {}:{}".format((addrinfo[0]), (addrinfo[1])))
+                self.logger.debug("discarding stale %s:%s", *addrinfo)
                 self._remove_service(name, addrinfo)
             else:
                 servers.append(addrinfo)
 
-        self.logger.debug("replying with {!r}".format((servers)))
+        self.logger.debug("replying with %r", servers)
         return tuple(servers)
-
-    def cmd_list(self, host):
-        """implementation for the ``list`` command"""
-        self.logger.debug("querying for services list:")
-        if not self.allow_listing:
-            self.logger.debug("listing is disabled")
-            return None
-        services = tuple(self.services.keys())
-        self.logger.debug("replying with {}".format((services)))
-
-        return services
 
     def cmd_register(self, host, names, port):
         """implementation of the ``register`` command"""
-        self.logger.debug("registering {}:{} as {}".format((host), (port), (', '.join(names))))
+        self.logger.debug("registering %s:%s as %s", host, port, ", ".join(names))
         for name in names:
             self._add_service(name.upper(), (host, port))
         return "OK"
 
     def cmd_unregister(self, host, port):
         """implementation of the ``unregister`` command"""
-        self.logger.debug("unregistering {}:{}".format((host), (port)))
+        self.logger.debug("unregistering %s:%s", host, port)
         for name in list(self.services.keys()):
             self._remove_service(name, (host, port))
         return "OK"
@@ -135,11 +128,11 @@ class RegistryServer(object):
             except Exception:
                 continue
             if magic != "RPYC":
-                self.logger.warn("invalid magic: {!r}".format((magic)))
+                self.logger.warn("invalid magic: %r", magic)
                 continue
-            cmdfunc = getattr(self, "cmd_{}".format((cmd.lower())), None)
+            cmdfunc = getattr(self, "cmd_%s" % (cmd.lower(),), None)
             if not cmdfunc:
-                self.logger.warn("unknown command: {!r}".format((cmd)))
+                self.logger.warn("unknown command: %r", cmd)
                 continue
 
             try:
@@ -155,8 +148,7 @@ class RegistryServer(object):
             raise ValueError("server is already running")
         if self.sock is None:
             raise ValueError("object disposed")
-        addrinfo = self.sock.getsockname()[:2]
-        self.logger.debug("server started on {}:{}".format((addrinfo[0]), (addrinfo[1])))
+        self.logger.debug("server started on %s:%s", *self.sock.getsockname()[:2])
         try:
             self.active = True
             self._work()
@@ -182,17 +174,17 @@ class UDPRegistryServer(RegistryServer):
 
     TIMEOUT = 1.0
 
-    def __init__(self, host="0.0.0.0", port=REGISTRY_PORT, pruning_timeout=None, logger=None, allow_listing=False):
+    def __init__(self, host="0.0.0.0", port=REGISTRY_PORT, pruning_timeout=None, logger=None):
         family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, 0,
                                                                   socket.SOCK_DGRAM)[0]
         sock = socket.socket(family, socktype, proto)
         sock.bind(sockaddr)
         sock.settimeout(self.TIMEOUT)
         RegistryServer.__init__(self, sock, pruning_timeout=pruning_timeout,
-                                logger=logger, allow_listing=allow_listing)
+                                logger=logger)
 
     def _get_logger(self):
-        return logging.getLogger("REGSRV/UDP/{}".format((self.port)))
+        return logging.getLogger("REGSRV/UDP/%d" % (self.port,))
 
     def _recv(self):
         return self.sock.recvfrom(MAX_DGRAM_SIZE)
@@ -212,9 +204,10 @@ class TCPRegistryServer(RegistryServer):
     TIMEOUT = 3.0
 
     def __init__(self, host="0.0.0.0", port=REGISTRY_PORT, pruning_timeout=None,
-                 logger=None, reuse_addr=True, allow_listing=False):
+                 logger=None, reuse_addr=True):
 
-        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)[0]
+        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, 0,
+                                                                  socket.SOCK_STREAM)[0]
         sock = socket.socket(family, socktype, proto)
         if reuse_addr and sys.platform != "win32":
             # warning: reuseaddr is not what you expect on windows!
@@ -223,11 +216,11 @@ class TCPRegistryServer(RegistryServer):
         sock.listen(10)
         sock.settimeout(self.TIMEOUT)
         RegistryServer.__init__(self, sock, pruning_timeout=pruning_timeout,
-                                logger=logger, allow_listing=allow_listing)
+                                logger=logger)
         self._connected_sockets = {}
 
     def _get_logger(self):
-        return logging.getLogger("REGSRV/TCP/{}".format((self.port)))
+        return logging.getLogger("REGSRV/TCP/%d" % (self.port,))
 
     def _recv(self):
         sock2, _ = self.sock.accept()
@@ -274,13 +267,6 @@ class RegistryClient(object):
         """
         raise NotImplementedError()
 
-    def list(self):
-        """
-        Send a query for the full lists of exposed servers
-        :returns: a list of `` service_name ``
-        """
-        raise NotImplementedError()
-
     def register(self, aliases, port):
         """Registers the given service aliases with the given TCP port. This
         API is intended to be called only by an RPyC server.
@@ -307,7 +293,6 @@ class UDPRegistryClient(RegistryClient):
     Example::
 
         registrar = UDPRegistryClient()
-        list_of_services = registrar.list()
         list_of_servers = registrar.discover("foo")
 
     .. note::
@@ -349,26 +334,8 @@ class UDPRegistryClient(RegistryClient):
                 servers = brine.load(data)
         return servers
 
-    def list(self):
-        sock = socket.socket(self.sock_family, socket.SOCK_DGRAM)
-
-        with closing(sock):
-            if self.bcast:
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)
-            data = brine.dump(("RPYC", "LIST", ()))
-            sock.sendto(data, (self.ip, self.port))
-            sock.settimeout(self.timeout)
-
-            try:
-                data, _ = sock.recvfrom(MAX_DGRAM_SIZE)
-            except (socket.error, socket.timeout):
-                services = ()
-            else:
-                services = brine.load(data)
-        return services
-
     def register(self, aliases, port, interface=""):
-        self.logger.info("registering on {}:{}".format((self.ip), (self.port)))
+        self.logger.info("registering on %s:%s", self.ip, self.port)
         sock = socket.socket(self.sock_family, socket.SOCK_DGRAM)
         with closing(sock):
             sock.bind((interface, 0))
@@ -393,14 +360,14 @@ class UDPRegistryClient(RegistryClient):
                 except Exception:
                     continue
                 if reply == "OK":
-                    self.logger.info("registry {}:{} acknowledged".format((rip), (rport)))
+                    self.logger.info("registry %s:%s acknowledged", rip, rport)
                     return True
             else:
                 self.logger.warn("no registry acknowledged")
                 return False
 
     def unregister(self, port):
-        self.logger.info("unregistering from {}:{}".format((self.ip), (self.port)))
+        self.logger.info("unregistering from %s:%s", self.ip, self.port)
         sock = socket.socket(self.sock_family, socket.SOCK_DGRAM)
         with closing(sock):
             if self.bcast:
@@ -416,7 +383,6 @@ class TCPRegistryClient(RegistryClient):
     Example::
 
         registrar = TCPRegistryClient("localhost")
-        list_of_services = registrar.list()
         list_of_servers = registrar.discover("foo")
 
     .. note::
@@ -446,24 +412,8 @@ class TCPRegistryClient(RegistryClient):
                 servers = brine.load(data)
         return servers
 
-    def list(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        with closing(sock):
-            sock.settimeout(self.timeout)
-            data = brine.dump(("RPYC", "LIST", ()))
-            sock.connect((self.ip, self.port))
-            sock.send(data)
-
-            try:
-                data = sock.recv(MAX_DGRAM_SIZE)
-            except (socket.error, socket.timeout):
-                servers = ()
-            else:
-                servers = brine.load(data)
-        return servers
-
     def register(self, aliases, port, interface=""):
-        self.logger.info("registering on {}:{}".format((self.ip), (self.port)))
+        self.logger.info("registering on %s:%s", self.ip, self.port)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         with closing(sock):
             sock.bind((interface, 0))
@@ -486,12 +436,12 @@ class TCPRegistryClient(RegistryClient):
                 self.logger.warn("received corrupted data from registry")
                 return False
             if reply == "OK":
-                self.logger.info("registry {}:{} acknowledged".format((self.ip), (self.port)))
+                self.logger.info("registry %s:%s acknowledged", self.ip, self.port)
 
             return True
 
     def unregister(self, port):
-        self.logger.info("unregistering from {}:{}".format((self.ip), (self.port)))
+        self.logger.info("unregistering from %s:%s", self.ip, self.port)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         with closing(sock):
             sock.settimeout(self.timeout)

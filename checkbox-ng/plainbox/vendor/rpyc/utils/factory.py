@@ -5,7 +5,7 @@ cases)
 from __future__ import with_statement
 import socket
 from contextlib import closing
-from functools import partial
+
 import threading
 try:
     from thread import interrupt_main
@@ -19,17 +19,13 @@ except ImportError:
 
 from plainbox.vendor.rpyc.core.channel import Channel
 from plainbox.vendor.rpyc.core.stream import SocketStream, TunneledSocketStream, PipeStream
-from plainbox.vendor.rpyc.core.service import VoidService, MasterService, SlaveService
+from plainbox.vendor.rpyc.core.service import VoidService
 from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient
 from plainbox.vendor.rpyc.lib import safe_import, spawn
 ssl = safe_import("ssl")
 
 
 class DiscoveryError(Exception):
-    pass
-
-
-class ForbiddenError(Exception):
     pass
 
 
@@ -220,26 +216,16 @@ def discover(service_name, host=None, registrar=None, timeout=2):
         registrar = UDPRegistryClient(timeout=timeout)
     addrs = registrar.discover(service_name)
     if not addrs:
-        raise DiscoveryError("no servers exposing {!r} were found".format((service_name)))
+        raise DiscoveryError("no servers exposing %r were found" % (service_name,))
     if host:
         ips = socket.gethostbyname_ex(host)[2]
         addrs = [(h, p) for h, p in addrs if h in ips]
     if not addrs:
-        raise DiscoveryError("no servers exposing {} were found on {}".format((service_name), (host)))
+        raise DiscoveryError("no servers exposing %r were found on %r" % (service_name, host))
     return addrs
 
 
-def list_services(registrar=None, timeout=2):
-    services = ()
-    if registrar is None:
-        registrar = UDPRegistryClient(timeout=timeout)
-    services = registrar.list()
-    if services is None:
-        raise ForbiddenError("Registry doesn't allow listing")
-    return services
-
-
-def connect_by_service(service_name, host=None, registrar=None, timeout=2, service=VoidService, config={}):
+def connect_by_service(service_name, host=None, service=VoidService, config={}):
     """create a connection to an arbitrary server that exposes the requested service
 
     :param service_name: the service to discover
@@ -254,13 +240,13 @@ def connect_by_service(service_name, host=None, registrar=None, timeout=2, servi
     # some of which could be dead. We iterate over the list returned and return the first
     # one we could connect to. If none of the registered servers is responsive we re-throw
     # the exception
-    addrs = discover(service_name, host=host, registrar=registrar, timeout=timeout)
+    addrs = discover(service_name, host=host)
     for host, port in addrs:
         try:
             return connect(host, port, service, config=config)
         except socket.error:
             pass
-    raise DiscoveryError("All services are down: {}".format((addrs)))
+    raise DiscoveryError("All services are down: %s" % (addrs,))
 
 
 def connect_subproc(args, service=VoidService, config={}):
@@ -278,27 +264,6 @@ def connect_subproc(args, service=VoidService, config={}):
     return conn
 
 
-def _server(listener, remote_service, remote_config, args=None):
-    try:
-        with closing(listener):
-            client = listener.accept()[0]
-        conn = connect_stream(SocketStream(client), service=remote_service, config=remote_config)
-        if isinstance(args, dict):
-            _oldstyle = (MasterService, SlaveService)
-            is_newstyle = isinstance(remote_service, type) and not issubclass(remote_service, _oldstyle)
-            is_newstyle |= not isinstance(remote_service, type) and not isinstance(remote_service, _oldstyle)
-            is_voidservice = isinstance(remote_service, type) and issubclass(remote_service, VoidService)
-            is_voidservice |= not isinstance(remote_service, type) and isinstance(remote_service, VoidService)
-            if is_newstyle and not is_voidservice:
-                conn._local_root.exposed_namespace.update(args)
-            elif not is_voidservice:
-                conn._local_root.namespace.update(args)
-
-        conn.serve_all()
-    except KeyboardInterrupt:
-        interrupt_main()
-
-
 def connect_thread(service=VoidService, config={}, remote_service=VoidService, remote_config={}):
     """starts an rpyc server on a new thread, bound to an arbitrary port,
     and connects to it over a socket.
@@ -311,8 +276,18 @@ def connect_thread(service=VoidService, config={}, remote_service=VoidService, r
     listener = socket.socket()
     listener.bind(("localhost", 0))
     listener.listen(1)
-    remote_server = partial(_server, listener, remote_service, remote_config)
-    spawn(remote_server)
+
+    def server(listener=listener):
+        with closing(listener):
+            client = listener.accept()[0]
+        conn = connect_stream(SocketStream(client), service=remote_service,
+                              config=remote_config)
+        try:
+            conn.serve_all()
+        except KeyboardInterrupt:
+            interrupt_main()
+
+    spawn(server)
     host, port = listener.getsockname()
     return connect(host, port, service=service, config=config)
 
@@ -336,8 +311,19 @@ def connect_multiprocess(service=VoidService, config={}, remote_service=VoidServ
     listener = socket.socket()
     listener.bind(("localhost", 0))
     listener.listen(1)
-    remote_server = partial(_server, listener, remote_service, remote_config, args)
-    t = Process(target=remote_server)
+
+    def server(listener=listener, args=args):
+        with closing(listener):
+            client = listener.accept()[0]
+        conn = connect_stream(SocketStream(client), service=remote_service, config=remote_config)
+        try:
+            for k in args:
+                conn._local_root.exposed_namespace[k] = args[k]
+            conn.serve_all()
+        except KeyboardInterrupt:
+            interrupt_main()
+
+    t = Process(target=server)
     t.start()
     host, port = listener.getsockname()
     return connect(host, port, service=service, config=config)

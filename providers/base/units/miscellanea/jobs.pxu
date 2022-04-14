@@ -396,9 +396,17 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.1
 id: miscellanea/get_maas_version
-command: maas-version-check.sh
+command: install-method-check.sh --maas
 _description: If system was installed via MAAS from a cert server, the MAAS version used should be contained in /etc/installed-by-maas
 _summary: Verify MAAS version used to deploy the SUT
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.1
+id: miscellanea/test_iso_install
+command: install-method-check.sh --iso
+_description: Test that the system was installed via a Subiquity ISO image
+_summary: Test that the system was installed via a Subiquity ISO image
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

@@ -14,7 +14,8 @@ Build-Depends: checkbox-ng,
 
 Package: plainbox-provider-certification-client
 Architecture: all
-Depends: plainbox-provider-checkbox (>= 0.27~),
+Depends: dbus-x11,
+         plainbox-provider-checkbox (>= 0.27~),
          plainbox-provider-resource-generic (>= 0.25~),
          plainbox-provider-tpm2,
          pyotherside,

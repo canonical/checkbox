@@ -28,7 +28,6 @@ from contextlib import suppress
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
 
-from plainbox.impl.config import Configuration
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
@@ -141,7 +140,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant():
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 12
+    REMOTE_API_VERSION = 11
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -274,20 +273,20 @@ class RemoteSessionAssistant():
 
         self._launcher = load_configs()
         if configuration['launcher']:
-            self._launcher = Configuration.from_text(
-                configuration['launcher'], 'Remote launcher')
-            session_title = self._launcher.get_value(
-                'launcher', 'session_title') or session_title
-            session_desc = self._launcher.get_value(
-                'launcher', 'session_desc') or session_desc
+            self._launcher.read_string(configuration['launcher'], False)
+            if self._launcher.session_title:
+                session_title = self._launcher.session_title
+            if self._launcher.session_desc:
+                session_desc = self._launcher.session_desc
 
         self._sa.use_alternate_configuration(self._launcher)
 
         if configuration['normal_user']:
             self._normal_user = configuration['normal_user']
         else:
-            self._normal_user = self._launcher.get_value(
-                    'daemon', 'normal_user') or _guess_normal_user()
+            self._normal_user = self._launcher.normal_user
+            if not self._normal_user:
+                self._normal_user = _guess_normal_user()
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
@@ -301,13 +300,12 @@ class RemoteSessionAssistant():
             'effective_normal_user': self._normal_user,
         }).encode("UTF-8")
         self._sa.update_app_blob(new_blob)
-        self._sa.configure_application_restart(
-            self._cmd_callback, session_type='remote')
+        self._sa.configure_application_restart(self._cmd_callback)
 
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
         filtered_tps = set()
-        for filter in self._launcher.get_value('test plan', 'filter'):
+        for filter in self._launcher.test_plan_filters:
             filtered_tps.update(fnmatch.filter(tps, filter))
         filtered_tps = list(filtered_tps)
         response = zip(filtered_tps, [self._sa.get_test_plan(
@@ -324,6 +322,11 @@ class RemoteSessionAssistant():
         self._sa.update_app_blob(json.dumps(
             {'testplan_id': test_plan_id, }).encode("UTF-8"))
         self._sa.select_test_plan(test_plan_id)
+        # TODO: REMOTE API RAPI: Change this API on the next RAPI bump
+        # previously the function returned bool signifying the need for sudo
+        # password. With slave being guaranteed to never need it anymor
+        # we can make this funciton return nothing
+        return False
 
     @allowed_when(Started)
     def get_bootstrapping_todo_list(self):
@@ -332,11 +335,10 @@ class RemoteSessionAssistant():
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
         self._state = Bootstrapped
-        if self._launcher.get_value('ui', 'auto_retry'):
+        if self._launcher.auto_retry:
             for job_id in self._sa.get_static_todo_list():
                 job_state = self._sa.get_job_state(job_id)
-                job_state.attempts = self._launcher.get_value(
-                        'ui', 'max_attempts')
+                job_state.attempts = self._launcher.max_attempts
         return self._sa.get_static_todo_list()
 
     def get_manifest_repr(self):
@@ -361,12 +363,10 @@ class RemoteSessionAssistant():
 
     def _get_ui_for_job(self, job):
         show_out = True
-        if self._launcher.get_value(
-                'ui', 'output') == 'hide-resource-and-attachment':
+        if self._launcher.output == 'hide-resource-and-attachment':
             if job.plugin in ('local', 'resource', 'attachment'):
                 show_out = False
-        elif self._launcher.get_value(
-                'ui', 'output') in ['hide', 'hide-automated']:
+        elif self._launcher.output in ['hide', 'hide-automated']:
             if job.plugin in ('shell', 'local', 'resource', 'attachment'):
                 show_out = False
         if 'suppress-output' in job.get_flag_set():
@@ -522,6 +522,27 @@ class RemoteSessionAssistant():
             "todo": self._sa.get_dynamic_todo_list(),
         }
 
+    def get_master_public_key(self):
+        # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+        # this key is only for RAPI compliance. It will never be used as
+        # this master requires slave to be completely sudoless
+        return (
+            b'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMII'
+            b'BCgKCAQEA5r0bjOA+IH5lDKkW3OYb\nDuEjf5VKgUlDSJJuyBlfLTBIXZ8j3s98'
+            b'6AbV0zB62rAcgiFrBOzx51IzBDBmHI8V\nYYpEa+q4OP4yprYpSg6xzX6LRQapC'
+            b'Iv9BAqN4MWrKBukGMzJyemIVEPv4BSHL5L/\nLY98Mwh4dAXxj5ZdsoVPqgeMo8'
+            b'dxfYEOwVRJvSkseIhxRL6tvgP37c48ApUyjdUO\n3C2YgqJRx7mKKDyLOvhDVEl'
+            b'MqkAfp6qS/8xcGBTEqn08dDQIgPl8KofpC9GXMGbK\nV9FGP+c1bpA3vMOfnpsE'
+            b'WCju2qDoTSKJTm3VMZj88mqH7nOpbk7JI/Yz0EmtNXOM\n6QIDAQAB\n-----EN'
+            b'D PUBLIC KEY-----')
+
+    def save_password(self, password):
+        """Store sudo password"""
+        # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+        # if the slave is running it means we don't need password
+        # so we can consider call to this function as passing
+        return True
+
     def finish_job(self, result=None):
         # assert the thread completed
         self.session_change_lock.acquire(blocking=False)
@@ -537,7 +558,7 @@ class RemoteSessionAssistant():
         if self._state != Bootstrapping:
             if not self._sa.get_dynamic_todo_list():
                 if (
-                    self._launcher.get_value('ui', 'auto_retry') and
+                    self._launcher.auto_retry and
                     self.get_rerun_candidates('auto')
                 ):
                     self._state = TestsSelected
@@ -623,12 +644,11 @@ class RemoteSessionAssistant():
         meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
         launcher = app_blob['launcher']
-        self._launcher = Configuration.from_text(launcher, 'Remote launcher')
+        self._launcher.read_string(launcher, False)
         self._sa.use_alternate_configuration(self._launcher)
 
         self._normal_user = app_blob.get(
-            'effective_normal_user', self._launcher.get_value(
-                'daemon', 'normal_user'))
+            'effective_normal_user', self._launcher.normal_user)
         _logger.info(
             "normal_user after loading metadata: %r", self._normal_user)
         test_plan_id = app_blob['testplan_id']
@@ -664,12 +684,12 @@ class RemoteSessionAssistant():
 
         # some jobs have already been run, so we need to update the attempts
         # count for future auto-rerunning
-        if self._launcher.get_value('ui', 'auto_retry'):
+        if self._launcher.auto_retry:
             for job_id in [
                     job.id for job in self.get_rerun_candidates('auto')]:
                 job_state = self._sa.get_job_state(job_id)
-                job_state.attempts = self._launcher.get_value(
-                        'ui', 'max_attempts') - len(job_state.result_history)
+                job_state.attempts = self._launcher.max_attempts - len(
+                    job_state.result_history)
 
         self._state = TestsSelected
 
@@ -693,6 +713,12 @@ class RemoteSessionAssistant():
     @property
     def manager(self):
         return self._sa._manager
+
+    @property
+    def passwordless_sudo(self):
+        # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+        # if the slave is still running it means it's very passwordless
+        return True
 
     @property
     def sideloaded_providers(self):

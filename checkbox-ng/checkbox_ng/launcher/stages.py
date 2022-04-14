@@ -26,11 +26,9 @@ import json
 import logging
 import os
 import time
-import textwrap
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
-from plainbox.impl.config import Configuration
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import tr_outcome
 from plainbox.impl.transport import InvalidSecureIDError
@@ -318,44 +316,42 @@ class ReportsStage(CheckboxUiStage):
         self._export_fn = export_fn
 
     def _prepare_stock_report(self, report):
-
-        new_origin = 'stock_reports'
+        # this is purposefully not using pythonic dict-keying for better
+        # readability
+        if not self.sa.config.transports:
+            self.sa.config.transports = dict()
+        if not self.sa.config.exporters:
+            self.sa.config.exporters = dict()
+        if not self.sa.config.reports:
+            self.sa.config.reports = dict()
         if report == 'text':
-            additional_config = Configuration.from_text(textwrap.dedent("""
-                [exporter:text]
-                unit = com.canonical.plainbox::text
-                [transport:stdout]
-                stream = stdout
-                type = stream
-                [report:1_text_to_screen]
-                exporter = text
-                forced = yes
-                transport = stdout
-            """), new_origin)
-            self.sa.config.update_from_another(additional_config, new_origin)
+            self.sa.config.exporters['text'] = {
+                'unit': 'com.canonical.plainbox::text'}
+            self.sa.config.transports['stdout'] = {
+                'type': 'stream', 'stream': 'stdout'}
+            # '1_' prefix ensures ordering amongst other stock reports. This
+            # report name does not appear anywhere (because of forced: yes)
+            self.sa.config.reports['1_text_to_screen'] = {
+                'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
         elif report == 'certification':
-            additional_config = Configuration.from_text(textwrap.dedent("""
-                [exporter:tar]
-                unit = com.canonical.plainbox::tar
-                [transport:c3]
-                type = submission-service
-                [report:upload to certification]
-                exporter = tar
-                transport = c3
-            """), new_origin)
-            self.sa.config.update_from_another(additional_config, new_origin)
+            self.sa.config.exporters['tar'] = {
+                'unit': 'com.canonical.plainbox::tar'}
+            self.sa.config.transports['c3'] = {
+                'type': 'submission-service',
+                'secure_id': self.sa.config.transports.get('c3', {}).get(
+                    'secure_id', None)}
+            self.sa.config.reports['upload to certification'] = {
+                'transport': 'c3', 'exporter': 'tar'}
         elif report == 'certification-staging':
-            additional_config = Configuration.from_text(textwrap.dedent("""
-                [exporter:tar]
-                unit = com.canonical.plainbox::tar
-                [transport:c3]
-                staging = yes
-                type = submission-service
-                [report:upload to certification-staging]
-                exporter = tar
-                transport = c3
-            """), new_origin)
-            self.sa.config.update_from_another(additional_config, new_origin)
+            self.sa.config.exporters['tar'] = {
+                'unit': 'com.canonical.plainbox::tar'}
+            self.sa.config.transports['c3-staging'] = {
+                'type': 'submission-service',
+                'secure_id': self.sa.config.transports.get('c3', {}).get(
+                    'secure_id', None),
+                'staging': 'yes'}
+            self.sa.config.reports['upload to certification-staging'] = {
+                'transport': 'c3-staging', 'exporter': 'tar'}
         elif report == 'submission_files':
             # LP:1585326 maintain isoformat but removing ':' chars that cause
             # issues when copying files.
@@ -368,21 +364,21 @@ class ReportsStage(CheckboxUiStage):
                                        ('tar', '.tar.xz')]:
                 path = os.path.join(self.base_dir, ''.join(
                     ['submission_', timestamp, file_ext]))
-                template = textwrap.dedent("""
-                    [transport:{exporter}_file]
-                    path = {path}
-                    type = file
-                    [exporter:{exporter}]
-                    unit = com.canonical.plainbox::{exporter}
-                    [report:2_{exporter}_file]
-                    exporter = {exporter}
-                    forced = yes
-                    transport = {exporter}_file
-                """)
-                additional_config = Configuration.from_text(
-                    template.format(exporter=exporter, path=path), new_origin)
-                self.sa.config.update_from_another(
-                    additional_config, new_origin)
+                self.sa.config.transports['{}_file'.format(exporter)] = {
+                    'type': 'file',
+                    'path': path}
+                if exporter not in self.sa.config.exporters:
+                    self.sa.config.exporters[exporter] = {
+                        'unit': 'com.canonical.plainbox::{}'.format(
+                            exporter)}
+                if not self.sa.config.exporters[exporter].get('unit'):
+                    unit = 'com.canonical.plainbox::{}'.format(exporter)
+                    self.sa.config.exporters[exporter]['unit'] = unit
+                self.sa.config.reports['2_{}_file'.format(exporter)] = {
+                    'transport': '{}_file'.format(exporter),
+                    'exporter': '{}'.format(exporter),
+                    'forced': 'yes'
+                }
 
     def _prepare_transports(self):
         self.base_dir = os.path.join(
@@ -398,9 +394,7 @@ class ReportsStage(CheckboxUiStage):
         # depending on the type of transport we need to pick variable that
         # serves as the 'where' param for the transport. In case of
         # certification site the URL is supplied here
-        transport_cfg = self.sa.config.get_parametric_sections(
-            'transport')[transport]
-        tr_type = transport_cfg['type']
+        tr_type = self.sa.config.transports[transport]['type']
         if tr_type not in self._available_transports:
             _logger.error(_("Unrecognized type '%s' of transport '%s'"),
                           tr_type, transport)
@@ -408,11 +402,14 @@ class ReportsStage(CheckboxUiStage):
         cls = self._available_transports[tr_type]
         if tr_type == 'file':
             self.transports[transport] = cls(
-                os.path.expanduser(transport_cfg['path']))
+                os.path.expanduser(
+                    self.sa.config.transports[transport]['path']))
         elif tr_type == 'stream':
-            self.transports[transport] = cls(transport_cfg['stream'])
+            self.transports[transport] = cls(
+                self.sa.config.transports[transport]['stream'])
         elif tr_type == 'submission-service':
-            secure_id = transport_cfg.get('secure_id', None)
+            secure_id = self.sa.config.transports[transport].get(
+                'secure_id', None)
             if self.is_interactive:
                 new_description = input(self.C.BLUE(_(
                     'Enter submission description (press Enter to skip): ')))
@@ -428,7 +425,7 @@ class ReportsStage(CheckboxUiStage):
                 options = "secure_id={}".format(secure_id)
             else:
                 options = ""
-            if transport_cfg.get('staging', False):
+            if self.sa.config.transports[transport].get('staging', False):
                 url = ('https://certification.staging.canonical.com/'
                        'api/v1/submission/{}/'.format(secure_id))
             elif os.getenv('C3_URL'):
@@ -440,15 +437,14 @@ class ReportsStage(CheckboxUiStage):
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):
-        stock_reports = self.sa.config.get_value('launcher', 'stock_reports')
-        if 'none' not in stock_reports:
-            for report in stock_reports:
+        if 'none' not in self.sa.config.stock_reports:
+            for report in self.sa.config.stock_reports:
                 if report in ['certification', 'certification-staging']:
                     # skip stock c3 report if secure_id is not given from
                     # config files or launchers, and the UI is non-interactive
                     # (silent)
-                    if ('transport:c3' not in self.sa.config.sections.keys()
-                            and not self.is_interactive):
+                    if ('c3' not in self.sa.config.transports and
+                            not self.is_interactive):
                         continue
                     # don't generate stock c3 reports if sideloaded providers
                     # were in use, something that should only be done during
@@ -461,9 +457,7 @@ class ReportsStage(CheckboxUiStage):
         # reports are stored in an ordinary dict(), so sorting them ensures
         # the same order of submitting them between runs, and if they
         # share common prefix, they are next to each other
-        for name, params in sorted(
-                self.sa.config.get_parametric_sections('report').items()):
-
+        for name, params in sorted(self.sa.config.reports.items()):
             # don't generate stock c3 reports if sideloaded providers
             # were in use, something that should only be done during
             # development
@@ -482,10 +476,8 @@ class ReportsStage(CheckboxUiStage):
                 cmd = 'y'
             if cmd == 'n':
                 continue
-            all_exporters = self.sa.config.get_parametric_sections('exporter')
-            exporter_id = self.sa.config.get_parametric_sections('exporter')[
-                    params['exporter']]['unit']
-            exp_options = self.sa.config.get_parametric_sections('exporter')[
+            exporter_id = self.sa.config.exporters[params['exporter']]['unit']
+            exporter_options = self.sa.config.exporters[
                     params['exporter']].get('options', '').split()
             done_sending = False
             while not done_sending:
@@ -497,7 +489,7 @@ class ReportsStage(CheckboxUiStage):
                     else:
                         try:
                             result = self.sa.export_to_transport(
-                                exporter_id, transport, exp_options)
+                                exporter_id, transport, exporter_options)
                         except ExporterError as exc:
                             _logger.warning(
                                 _("Problem occured when preparing %s report:"
@@ -525,14 +517,14 @@ class ReportsStage(CheckboxUiStage):
                         done_sending = True
                         continue
                     if self._retry_dialog():
-                        self.sa.config.sections['transports']['c3'].pop(
-                            'secure_id')
+                        self.sa.config.transports['c3'].pop('secure_id')
                         continue
-                except Exception as exc:
+                except Exception:
                     _logger.error(
                         _("Problem with a '%s' report using '%s' exporter "
-                          "sent to '%s' transport. Reason %s"),
-                        name, exporter_id, transport.url, exc)
+                          "sent to '%s' transport."),
+                        name, exporter_id, transport.url)
+                self._reset_auto_submission_retries()
                 done_sending = True
 
     def _retry_dialog(self):
@@ -554,14 +546,3 @@ class ReportsStage(CheckboxUiStage):
                 return True
 
         return False
-
-template = textwrap.dedent("""
-    [transport:{exporter}_file]
-    type = file
-    path = {path}
-    [exporter:{exporter}]
-    unit = com.canonical.plainbox::{exporter}
-    [report:2_{exporter}_file]
-    transport = {exporter}_file
-    exporter = {exporter}
-    forced = yes""")

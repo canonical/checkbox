@@ -42,6 +42,7 @@ from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import slugify
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.restart import detect_restart_strategy
@@ -167,10 +168,10 @@ class Launcher(MainLoopStage, ReportsStage):
         return self._C
 
     def get_sa_api_version(self):
-        return '0.99'
+        return self.launcher.api_version
 
     def get_sa_api_flags(self):
-        return [SA_RESTARTABLE]
+        return self.launcher.api_flags
 
     def invoked(self, ctx):
         if ctx.args.version:
@@ -183,12 +184,12 @@ class Launcher(MainLoopStage, ReportsStage):
             # exited by now, so validation passed
             print(_("Launcher seems valid."))
             return
-        self.configuration = load_configs(ctx.args.launcher)
+        self.launcher = load_configs(ctx.args.launcher)
         logging_level = {
             'normal': logging.WARNING,
             'verbose': logging.INFO,
             'debug': logging.DEBUG,
-        }[self.configuration.get_value('ui', 'verbosity')]
+        }[self.launcher.verbosity]
         if not ctx.args.verbose and not ctx.args.debug:
             # Command line args take precendence
             logging.basicConfig(level=logging_level)
@@ -199,28 +200,25 @@ class Launcher(MainLoopStage, ReportsStage):
             # replace the previously built SA with the defaults
             self._configure_restart(ctx)
             self._prepare_transports()
-            ctx.sa.use_alternate_configuration(self.configuration)
+            ctx.sa.use_alternate_configuration(self.launcher)
             if not self._maybe_resume_session():
                 self._start_new_session()
                 self._pick_jobs_to_run()
             if not self.ctx.sa.get_static_todo_list():
                 return 0
-            if 'submission_files' in self.configuration.get_value(
-                    'launcher', 'stock_reports'):
+            if 'submission_files' in self.launcher.stock_reports:
                 print("Reports will be saved to: {}".format(self.base_dir))
             # we initialize the nb of attempts for all the selected jobs...
             for job_id in self.ctx.sa.get_dynamic_todo_list():
                 job_state = self.ctx.sa.get_job_state(job_id)
-                job_state.attempts = self.configuration.get_value(
-                    'ui', 'max_attempts')
+                job_state.attempts = self.launcher.max_attempts
             # ... before running them
             self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
-            if self.is_interactive and not self.configuration.get_value(
-                'ui', 'auto_retry'):
+            if self.is_interactive and not self.launcher.auto_retry:
                 while True:
                     if not self._maybe_rerun_jobs():
                         break
-            elif self.configuration.get_value('ui', 'auto_retry'):
+            elif self.launcher.auto_retry:
                 while True:
                     if not self._maybe_auto_rerun_jobs():
                         break
@@ -237,18 +235,23 @@ class Launcher(MainLoopStage, ReportsStage):
 
         We can then interact with the user when we encounter OUTCOME_UNDECIDED.
         """
-        return (self.configuration.get_value('ui', 'type')  == 'interactive'
-                and sys.stdin.isatty() and sys.stdout.isatty())
+        return (self.launcher.ui_type == 'interactive' and
+                sys.stdin.isatty() and sys.stdout.isatty())
 
     def _configure_restart(self, ctx):
         if SA_RESTARTABLE not in self.get_sa_api_flags():
             return
-        if self.configuration.get_value('restart', 'strategy'):
+        if self.launcher.restart_strategy:
             try:
                 cls = get_strategy_by_name(
-                    self.configuration.get_value('restart', 'strategy'))
-                strategy = cls(**self.configuration.get_strategy_kwargs())
+                    self.launcher.restart_strategy)
+                kwargs = copy.deepcopy(self.launcher.restart)
+                # [restart] section has the kwargs for the strategy initializer
+                # and the 'strategy' which is not one, let's pop it
+                kwargs.pop('strategy')
+                strategy = cls(**kwargs)
                 ctx.sa.use_alternate_restart_strategy(strategy)
+
             except KeyError:
                 _logger.warning(_('Unknown restart strategy: %s', (
                     self.launcher.restart_strategy)))
@@ -278,7 +281,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 respawn_cmd += os.path.abspath(ctx.args.launcher) + ' '
             respawn_cmd += '--resume {}'  # interpolate with session_id
             ctx.sa.configure_application_restart(
-                lambda session_id: [respawn_cmd.format(session_id)], 'local')
+                lambda session_id: [respawn_cmd.format(session_id)])
 
     def _maybe_resume_session(self):
         resume_candidates = list(self.ctx.sa.get_resumable_sessions())
@@ -335,21 +338,18 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _start_new_session(self):
         print(_("Preparing..."))
-        title = self.ctx.args.title or self.configuration.get_value(
-            'launcher', 'session_title')
-        title = title or self.configuration.get_value('launcher', 'app_id')
-        if self.configuration.get_value('launcher', 'app_version'):
-            title += ' {}'.format(self.configuration.get_value(
-                'launcher', 'app_version'))
+        title = self.ctx.args.title or self.launcher.session_title
+        title = title or self.launcher.app_id
+        if self.launcher.app_version:
+            title += ' {}'.format(self.launcher.app_version)
         runner_kwargs = {
-            'normal_user_provider': lambda: self.configuration.get_value(
-                'daemon', 'normal_user'),
+            'normal_user_provider': lambda: self.launcher.normal_user,
             'password_provider': sudo_password_provider.get_sudo_password,
             'stdin': None,
         }
         self.ctx.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
-        if self.configuration.get_value('test plan', 'forced'):
-            tp_id = self.configuration.get_value('test plan', 'unit')
+        if self.launcher.test_plan_forced:
+            tp_id = self.launcher.test_plan_default_selection
             if tp_id not in self.ctx.sa.get_test_plans():
                 _logger.error(_(
                     'The test plan "%s" is not available!'), tp_id)
@@ -365,8 +365,7 @@ class Launcher(MainLoopStage, ReportsStage):
             if tp_id is None:
                 raise SystemExit(_("No test plan selected."))
         self.ctx.sa.select_test_plan(tp_id)
-        description = self.ctx.args.message or self.configuration.get_value(
-                'launcher', 'session_desc')
+        description = self.ctx.args.message or self.launcher.session_desc
         self.ctx.sa.update_app_blob(json.dumps(
             {'testplan_id': tp_id,
              'description': description}).encode("UTF-8"))
@@ -381,7 +380,7 @@ class Launcher(MainLoopStage, ReportsStage):
     def _interactively_pick_test_plan(self):
         test_plan_ids = self.ctx.sa.get_test_plans()
         filtered_tp_ids = set()
-        for filter in self.configuration.get_value('test plan', 'filter'):
+        for filter in self.launcher.test_plan_filters:
             filtered_tp_ids.update(fnmatch.filter(test_plan_ids, filter))
         tp_info_list = self._generate_tp_infos(filtered_tp_ids)
         if not tp_info_list:
@@ -389,20 +388,19 @@ class Launcher(MainLoopStage, ReportsStage):
             return
         selected_tp = TestPlanBrowser(
             _("Select test plan"), tp_info_list,
-            self.configuration.get_value('test plan', 'unit')).run()
+            self.launcher.test_plan_default_selection).run()
         return selected_tp
 
     def _strtobool(self, val):
         return val.lower() in ('y', 'yes', 't', 'true', 'on', '1')
 
     def _pick_jobs_to_run(self):
-        if self.configuration.get_value('test selection', 'forced'):
-            if self.configuration.manifest:
+        if self.launcher.test_selection_forced:
+            if self.launcher.manifest is not Unset:
                 self.ctx.sa.save_manifest(
                     {manifest_id:
-                     self._strtobool(
-                         self.configuration.manifest[manifest_id]) for
-                     manifest_id in self.configuration.manifest}
+                     self._strtobool(self.launcher.manifest[manifest_id]) for
+                     manifest_id in self.launcher.manifest}
                 )
             # by default all tests are selected; so we're done here
             return
@@ -494,7 +492,7 @@ class Launcher(MainLoopStage, ReportsStage):
         if not rerun_candidates:
             return False
         # we wait before retrying
-        delay = self.configuration.get_value('ui', 'delay_before_retry')
+        delay = self.launcher.delay_before_retry
         _logger.info(_("Waiting {} seconds before retrying failed"
                        " jobs...".format(delay)))
         time.sleep(delay)
@@ -527,11 +525,10 @@ class Launcher(MainLoopStage, ReportsStage):
             def considering_job(self, job, job_state):
                 pass
         show_out = True
-        output = self.configuration.get_value('ui', 'output')
-        if output == 'hide-resource-and-attachment':
+        if self.launcher.output == 'hide-resource-and-attachment':
             if job.plugin in ('local', 'resource', 'attachment'):
                 show_out = False
-        elif output in ['hide', 'hide-automated']:
+        elif self.launcher.output in ['hide', 'hide-automated']:
             if job.plugin in ('shell', 'local', 'resource', 'attachment'):
                 show_out = False
         if 'suppress-output' in job.get_flag_set():
@@ -751,7 +748,7 @@ class Run(MainLoopStage):
             respawn_cmd = sys.argv[0]  # entry-point to checkbox
         respawn_cmd += ' --resume {}'  # interpolate with session_id
         self.sa.configure_application_restart(
-            lambda session_id: [respawn_cmd.format(session_id)], 'local')
+            lambda session_id: [respawn_cmd.format(session_id)])
 
 
 class List():

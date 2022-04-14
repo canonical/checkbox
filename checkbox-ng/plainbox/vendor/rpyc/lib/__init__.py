@@ -19,8 +19,8 @@ class MissingModule(object):
 
     def __getattr__(self, name):
         if name.startswith("__"):  # issue 71
-            raise AttributeError("module {!r} not found".format((self.__name)))
-        raise ImportError("module {!r} not found".format((self.__name)))
+            raise AttributeError("module %r not found" % (self.__name,))
+        raise ImportError("module %r not found" % (self.__name,))
 
     def __bool__(self):
         return False
@@ -96,7 +96,7 @@ def spawn_waitready(init, main):
     return thread, stack.pop()
 
 
-class Timeout(object):
+class Timeout:
 
     def __init__(self, timeout):
         if isinstance(timeout, Timeout):
@@ -175,7 +175,7 @@ def get_id_pack(obj):
                 else:
                     name_pack = '{0}.{1}'.format(obj.__class__.__module__, obj.__name__)
             elif inspect.ismodule(obj):
-                name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
+                name_pack = '{0}.{1}'.format(obj__module__, obj.__name__)
                 print(name_pack)
             elif hasattr(obj, '__module__'):
                 name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)

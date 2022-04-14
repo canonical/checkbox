@@ -340,7 +340,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         Returns True if the remote should keep running.
         And False if it should quit.
         """
-        if self.launcher.get_value('ui', 'type'):
+        if self.launcher.get_value('ui', 'type') == 'silent':
             self._sa.terminate()
             return False
         response = interrupt_dialog(self._target_host)

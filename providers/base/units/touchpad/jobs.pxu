@@ -238,6 +238,7 @@ _description:
 id: touchpad/palm-rejection
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/palm_rejection.qml 2>&1 | grep -o PASS
 _purpose:
  This test checks if touchpad ignores palm touches

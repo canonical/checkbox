@@ -127,7 +127,12 @@ def main():
     # some other modules
     control_cls = {
         1: ZapperControlV1,
-    }[version]
+    }.get(version, None)
+    if control_cls is None:
+        raise SystemExit((
+            "Zapper host returned unknown Zapper Control Version: {ver}\n"
+            "Implement ZapperControlV{ver} in checkbox_support!"
+        ).format(ver=version))
     zapper_control = control_cls(conn)
     parser.run(zapper_control)
 

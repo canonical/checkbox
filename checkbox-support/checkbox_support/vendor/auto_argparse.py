@@ -1,3 +1,23 @@
+# Copyright (C) 2022 Canonical Ltd.
+#
+# Authors:
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+An extended ArgParser that automatically creates subparsers.
+"""
+
 import argparse
 import inspect
 import re
@@ -88,4 +108,8 @@ class AutoArgParser(argparse.ArgumentParser):
             self.parse_args()
         if obj is None:
             obj = self._cls()
+        if not self._picked_method:
+            raise SystemExit(
+                "No sub-command chosen!\n\n{}".format(self.format_help()))
+            print("No subcommand chosen")
         return getattr(obj, self._picked_method)(**self._method_args)

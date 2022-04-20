@@ -22,6 +22,8 @@ except KeyError:
         TEST_SNAP = 'test-snapd-tools-core18'
     elif 'checkbox20' in runtime:
         TEST_SNAP = 'test-snapd-tools-core20'
+    elif 'checkbox22' in runtime:
+        TEST_SNAP = 'test-snapd-tools-core22'
     else:
         TEST_SNAP = 'test-snapd-tools'
 SNAPD_TASK_TIMEOUT = int(os.getenv('SNAPD_TASK_TIMEOUT', 30))

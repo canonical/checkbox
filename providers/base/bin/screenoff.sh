@@ -34,3 +34,4 @@ evemu-event "${device}" --type EV_MSC --code MSC_SCAN --value 28
 evemu-event --sync "${device}" --type EV_KEY --code KEY_ENTER --value 1
 evemu-event "${device}" --type EV_MSC --code MSC_SCAN --value 28
 evemu-event --sync "${device}" --type EV_KEY --code KEY_ENTER --value 0
+loginctl unlock-session

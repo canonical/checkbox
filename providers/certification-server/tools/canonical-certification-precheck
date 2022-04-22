@@ -28,6 +28,40 @@ while getopts "i" opt; do
   esac
 done
 
+get_yn() {
+    # $1 = Prompt string
+    # $2 = Default value (assume Y if absent or not "n" or "N")
+    # Returns "Y" or "N" in $YN -- guaranteed uppercase
+    YN=""
+    while [ -z "$YN" ] ; do
+        echo -n "$1"
+        local default="Y"
+        if [ "$2" = "n" ] || [ "$2" = "N" ] ; then
+           default="N"
+        fi
+        if [ $default = "Y" ] ; then
+            echo -n " (Y/n)? "
+        else
+            echo -n " (y/N)? "
+        fi
+        local answer
+        read -r answer
+        if [ -z "$answer" ] ; then
+            YN=$default
+        else
+             if [ "${answer:0:1}" = "y" ] || [ "${answer:0:1}" = "Y" ] ; then
+                 YN="Y"
+             fi
+             if [ "${answer:0:1}" = "n" ] || [ "${answer:0:1}" = "N" ] ; then
+                 YN="N"
+            fi
+        fi
+        if [ -z "$YN" ] ; then
+            echo "Please enter 'Y' or 'N'!"
+        fi
+    done
+}
+
 echoname(){
     echo -e "\n\e[1;33m============\e[m \e[1;34m$1\e[m \e[1;33m============\e[m"
 }
@@ -114,15 +148,15 @@ ccs=$(apt-cache policy canonical-certification-server|grep Installed|awk '{print
 eval info${i}=\"$ccs\"
 
 if [[ $ccs = *none* ]] ; then
-	echo -e " canonical-certification-server might not be installed.\n Would you like to install it now? [Y/n]"
-	read -s -N1 a
-   	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+	echo " canonical-certification-server might not be installed."
+	get_yn " Would you like to install it now?" "Y"
+   	if [[ $YN == "Y" ]]; then
 		echo " Installing canonical-certification-server..."
 		sudo apt-add-repository -y ppa:hardware-certification/public 1>/dev/null
 		sudo apt-get -q update 1>/dev/null
 		sudo apt-get -q install -y canonical-certification-server 1>/dev/null
 		CCS_Version
-   	elif [[ $a == "N" || $a == "n" ]]; then
+   	else
 		echo 
 		fail
 	fi
@@ -149,9 +183,8 @@ echoname "Secure ID Check"
 if grep "^secure_id =" $configfile >/dev/null ; then
 	secureid=$(grep "^secure_id =" $configfile|awk '{print $3}')
     echo " Secure ID is configured as '$secureid'."
-    echo " Is this correct? [Y/n]"
-    read -s -N1 a
-    if [[ $a == "n" || $a == "N" ]]; then
+    get_yn " Is this correct?" "Y"
+    if [[ $YN == "N" ]]; then
         configure_SID
         SID_Check
     else
@@ -159,12 +192,12 @@ if grep "^secure_id =" $configfile >/dev/null ; then
         info
     fi
 else
-    echo -e " secure_id is not configured.\n Would you like to configure it now? [Y/n]"
-    read -s -N1 a
-    if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+    echo " secure_id is not configured."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
         configure_SID
 	    SID_Check
-    elif [[ $a == "N" || $a == "n" ]]; then
+    else
 		eval info${i}=\"Not Set\"
         info
     fi
@@ -404,9 +437,9 @@ if grep "^KVM_IMAGE =" /etc/xdg/$configfile >/dev/null; then
             pass
             return 0
         else
-            echo -e " $kvmurl is not a valid image.\n Would you like to reconfigure it now? [Y/n]"
-            read -s -N1 a
-            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+            echo " $kvmurl is not a valid image."
+            get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
                 read -e -p " Enter the path of your KVM Image: " kvm
                 sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
                 kvmurl=$(grep ^KVM_IMAGE $configfilen|awk '{print $3}')
@@ -433,9 +466,11 @@ if grep "^KVM_IMAGE =" /etc/xdg/$configfile >/dev/null; then
     fi
 
 else
-    echo -e " KVM_IMAGE is not configured.\n Note: If left unconfigured, we will pull our image from\n cloud-images.ubuntu.com.\n Would you like to configure it now? [Y/n]"
-    read -s -N1 a
-    if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+    echo " KVM_IMAGE is not configured."
+    echo " Note: If left unconfigured, we will pull our image from"
+    echo " cloud-images.ubuntu.com."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
         read -e -p " Enter the path of your KVM Image: " kvm
         sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile 
         kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
@@ -445,9 +480,9 @@ else
             pass
             return 0
         else
-            echo -e "\n $kvmurl is not a valid image.\n Would you like to reconfigure it now? [Y/n]"
-            read -s -N1 a
-            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+            echo "\n $kvmurl is not a valid image."
+            get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
                 read -e -p " Enter the path of your KVM Image: " kvm
                 sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
                 kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
@@ -490,9 +525,9 @@ if grep "^LXD_TEMPLATE =" $configfile >/dev/null; then
     else
         echo -e " NOTE: For the following, YOU MUST PROVIDE A VALID URL beginning with http://,"
         echo -e "       https://, or file://. A filesystem PATH is NOT valid here:"
-	    echo -e " $templateurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
-        read -s -N1 a
-        if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+	    echo " $templateurl is not a valid url."
+	    get_yn " Would you like to reconfigure it now?" "Y"
+        if [[ $YN == "Y" ]]; then
             read -e -p " Enter the URL of your LXD Template File: " template
             sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
             templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
@@ -509,9 +544,11 @@ if grep "^LXD_TEMPLATE =" $configfile >/dev/null; then
         fi
     fi
 else
-    echo -e " LXD_TEMPLATE is not configured.\n Note: If left unconfigured, we will attempt to get the LXD image from the ubuntu LXD image stream.\n Would you like to configure it now? [Y/n]"
-    read -s -N1 a
-    if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+    echo " LXD_TEMPLATE is not configured."
+    echo " Note: If left unconfigured, we will attempt to get the LXD image from the"
+    echo " ubuntu LXD image stream."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
         echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
         echo -e "       https://, or file://"
         read -e -p " Enter the URL of your LXD Template File: " template
@@ -521,9 +558,9 @@ else
             echo -e " $templateurl is a valid url.\n Continuing to use this template file"
             pass
         else
-	        echo -e " $templateurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
-            read -s -N1 a
-            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+	        echo " $templateurl is not a valid url."
+	        get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
                 read -e -p " Enter the URL of your LXD Template File: " template
                 sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
                 templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
@@ -553,9 +590,9 @@ if grep "^LXD_ROOTFS =" $configfile >/dev/null; then
     else
         echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
         echo -e "       https://, or file://"
-	    echo -e " $rootfsurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
-        read -s -N1 a
-        if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+	    echo " $rootfsurl is not a valid url."
+	    get_yn " Would you like to reconfigure it now?" "Y"
+        if [[ $YN == "Y" ]]; then
             read -e -p " Enter the path of your ROOTFS File: " rootfs
             sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
             rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
@@ -573,9 +610,11 @@ if grep "^LXD_ROOTFS =" $configfile >/dev/null; then
         fi
     fi
 else
-    echo -e " LXD_ROOTFS is not configured.\n Note: If left unconfigured, we will attempt to get the ROOTFS image from the ubuntu LXD image stream.\n Would you like to configure it now? [Y/n]"
-    read -s -N1 a
-    if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+    echo " LXD_ROOTFS is not configured."
+    echo " Note: If left unconfigured, we will attempt to get the ROOTFS image from the"
+    echo " ubuntu LXD image stream."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
         echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
         echo -e "       https://, or file://"
         read -e -p " Enter the URL of your ROOTFS File: " rootfs
@@ -585,9 +624,9 @@ else
             echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
             pass
         else
-	        echo -e " $rootfsurl is not a valid url.\n Would you like to reconfigure it now? [Y/n]"
-            read -s -N1 a
-            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+	        echo " $rootfsurl is not a valid url."
+	        get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
                 read -e -p " Enter the path of your ROOTFS Template File: " rootfs
                 sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
                 rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
@@ -673,13 +712,13 @@ if [ $(grep ^TEST_TARGET_IPERF $configfile|wc -l) = 1 ];then
 	echo " IPERF is configured"
 	pass
 elif [ $(grep ^TEST_TARGET_IPERF $configfile|wc -l) = 0 ];then
-	echo -e " TEST_TARGET_IPERF is not configured.\n Would you like to configure it now? [Y/n]"
-	read -s -N1 a
-   	if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+	echo " TEST_TARGET_IPERF is not configured."
+	get_yn " Would you like to configure it now?" "Y"
+   	if [[ $YN == "Y" ]]; then
 		read -e -p " Please enter the IP Address of the Iperf server: " ip
 		sudo sed -i "s/#TEST_TARGET_IPERF = .*/TEST_TARGET_IPERF = $ip/g" $configfile
 	IPERF
-   	elif [[ $a == "N" || $a == "n" ]]; then
+   	else
 		fail
 	fi
 fi
@@ -748,12 +787,10 @@ for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun
     echo -n " Interface $nic is"
     if [ $current_speed -gt 10000 ]; then
         local current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
-        echo -n " fast and has MTU of $current_mtu;"
+        echo " fast and has MTU of $current_mtu;"
         if [ $current_mtu -lt 9000 ]; then
-            echo " do you want to set an"
-            echo -n " MTU of 9000 (recommended)? "
-            read -N1 a
-            if [[ $a == "Y" || $a == "y" || -z $a ]]; then
+            get_yn " do you want to set an MTU of 9000 (recommended)?" "Y"
+            if [[ $YN == "Y" ]]; then
                 sudo ip link set $nic mtu 9000
                 if [ -f /etc/rc.local ] ; then
                     if grep exit /etc/rc.local > /dev/null ; then

@@ -476,9 +476,9 @@ requires:
   package.name == 'ipmctl' or executable.name == 'ipmctl'
 _summary: Resource for NVDIMM detection
 command:
- if ipmctl show -dimm |grep -iq "No DIMMs in the system";
+ if ipmctl show -dimm &> /dev/null;
  then
-     echo "detected: false"
- else
      echo "detected: true"
+ else
+     echo "detected: false"
  fi

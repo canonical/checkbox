@@ -136,14 +136,16 @@ flags: also-after-suspend
 id: monitor/{index}_powersaving_{product_slug}
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::monitor
-command: xset dpms force off
+command:
+  busctl --user call org.gnome.Shell /org/gnome/ScreenSaver org.gnome.ScreenSaver SetActive b true
+  sleep 5
+  busctl --user call org.gnome.Shell /org/gnome/ScreenSaver org.gnome.ScreenSaver SetActive b false
 _purpose:
     This test will check your monitor power saving capabilities
 _steps:
-    1. Click "Test" to try the power saving capabilities of your monitor
-    2. Press any key or move the mouse to recover
+    1. Start the test to try the power saving capabilities of your monitor
 _verification:
-    Did the monitor go blank and turn on again?
+    Did the monitor go blank and turn on again after a few seconds?
 
 unit: template
 template-resource: graphics_card

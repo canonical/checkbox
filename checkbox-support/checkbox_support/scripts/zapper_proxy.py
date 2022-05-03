@@ -73,7 +73,7 @@ class ZapperControlV1(IZapperControl):
         print("State for address {} is {}".format(address, ret[0]))
 
     def usb_set_state(self, address, state):
-        success = self._conn.root.zombiemux_get_state(address, state)
+        success = self._conn.root.zombiemux_set_state(address, state)
         if not success:
             raise SystemExit(
                 "Failed to set '{}' state for address {}.".format(

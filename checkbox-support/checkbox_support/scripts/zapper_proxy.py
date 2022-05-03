@@ -57,10 +57,17 @@ class IZapperControl:
         :param str state: state to set on the USBMUX addon
         """
 
+    @abstractmethod
+    def get_capabilities(self):
+        """Get Zapper's setup capabilities in checkbox resource form."""
+
 
 class ZapperControlV1(IZapperControl):
-    """Control Zapper via RPyC using v1 of the API."""
+    """
+    Control Zapper via RPyC using v1 of the API.
 
+    :return str: list of capabilities in Checkbox resource form.
+    """
     def __init__(self, connection):
         self._conn = connection
 
@@ -79,6 +86,14 @@ class ZapperControlV1(IZapperControl):
                 "Failed to set '{}' state for address {}.".format(
                     state, address))
         print("State '{}' set for the address {}.".format(state, address))
+
+    def get_capabilities(self):
+        capabilities = self._conn.root.get_capabilities()
+
+        def stringify_cap(cap):
+            return '\n'.join(
+                '{}: {}'.format(key, val) for key, val in sorted(cap.items()))
+        print('\n\n'.join(stringify_cap(cap) for cap in capabilities))
 
 
 def main():

@@ -2,7 +2,7 @@ name: checkbox22
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
 version: '1.27.dev'
-grade: devel # switch to stable when core22 is stable
+grade: stable
 
 base: core22
 

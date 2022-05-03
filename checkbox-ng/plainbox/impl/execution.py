@@ -37,6 +37,7 @@ from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
 from plainbox.impl.unit.job import supported_plugins
+from plainbox.impl.unit.unit import on_ubuntucore
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import CommandOutputWriter
@@ -568,5 +569,9 @@ def get_execution_command(job, environ, session_id,
             env.update(extra_env())
     cmd += ["{key}={value}".format(key=key, value=value)
             for key, value in sorted(env.items())]
+    # Run the command unconfined on ubuntu core because of snap-confine fixes
+    # related to https://ubuntu.com/security/CVE-2021-44731
+    if on_ubuntucore():
+        cmd += ['aa-exec', '-p', 'unconfined']
     cmd += [job.shell, '-c', job.command]
     return cmd

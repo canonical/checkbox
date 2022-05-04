@@ -18,6 +18,8 @@ import signal
 import sys
 from systemd import journal
 
+from checkbox_support.scripts.zapper_proxy import ControlVersionDecider
+
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
@@ -59,14 +61,29 @@ class USBWatcher:
         j.seek_tail()
         p = select.poll()
         p.register(j, j.get_events())
-        if self.args.testcase == "insertion":
-            print("\n\nINSERT NOW\n\n", flush=True)
-        elif self.args.testcase == "removal":
-            print("\n\nREMOVE NOW\n\n", flush=True)
+        if self.args.zapper_usb_address:
+            zapper_host = os.environ.get('ZAPPER_ADDRESS')
+            if not zapper_host:
+                raise SystemExit(
+                    "ZAPPER_ADDRESS environment variable not found!")
+            zapper_control = ControlVersionDecider().decide(zapper_host)
+            usb_address = self.args.zapper_usb_address
+            if self.args.testcase == "insertion":
+                print("Calling zapper to connect the USB device")
+                zapper_control.usb_set_state(usb_address, 'dut')
+            elif self.args.testcase == "removal":
+                print("Calling zapper to disconnect the USB device")
+                zapper_control.usb_set_state(usb_address, 'off')
+        else:
+            if self.args.testcase == "insertion":
+                print("\n\nINSERT NOW\n\n", flush=True)
+            elif self.args.testcase == "removal":
+                print("\n\nREMOVE NOW\n\n", flush=True)
         while p.poll():
             if j.process() != journal.APPEND:
                 continue
-            self._callback([e['MESSAGE'] for e in j if e and 'MESSAGE' in e])
+            self._callback(
+                [e['MESSAGE'] for e in j if e and 'MESSAGE' in e])
 
     def _callback(self, lines):
         for line in lines:
@@ -218,6 +235,8 @@ def main():
     parser.add_argument('usb_type',
                         choices=['usb2', 'usb3', 'mediacard'],
                         help=("usb2 or usb3"))
+    parser.add_argument('--zapper-usb-address', type=str,
+                        help="Zapper's USB switch address to use")
     args = parser.parse_args()
     watcher = USBWatcher(args)
     watcher.run()

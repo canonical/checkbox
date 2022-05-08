@@ -17,13 +17,14 @@ from checkbox_support.dbus.udisks2 import UDisks2Model          # noqa: E402
 from checkbox_support.dbus.udisks2 import UDisks2Observer       # noqa: E402
 from checkbox_support.dbus.udisks2 import is_udisks2_supported  # noqa: E402
 from checkbox_support.dbus.udisks2 import lookup_udev_device    # noqa: E402
-from checkbox_support.dbus.udisks2 import (
+from checkbox_support.dbus.udisks2 import (                     # noqa: E402
     map_udisks1_connection_bus)  # noqa: E402
 from checkbox_support.heuristics.udisks2 import is_memory_card  # noqa: E402
 from checkbox_support.parsers.udevadm import CARD_READER_RE     # noqa: E402
 from checkbox_support.parsers.udevadm import GENERIC_RE         # noqa: E402
 from checkbox_support.parsers.udevadm import FLASH_RE           # noqa: E402
-from checkbox_support.scripts.zapper_proxy import ControlVersionDecider
+from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
+    ControlVersionDecider)
 from checkbox_support.udev import get_interconnect_speed        # noqa: E402
 from checkbox_support.udev import get_udev_block_devices        # noqa: E402
 

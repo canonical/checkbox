@@ -1,5 +1,8 @@
-id: pig
+id: zapper_capabilities
 plugin: resource
-_summary: Get Pig's capabilities
-environ: PIG_HOST
-command: ssh -q -o 'StrictHostKeyChecking=no' "$PIG_HOST" /snap/bin/pigbox capabilities
+_summary: Get Zapper's setup capabilities
+_description:
+ Connect to Zapper and list functions that the current setup (DUT + Zapper) are
+ capable off.
+environ: ZAPPER_HOST
+command: checkbox-support-zapper-proxy get_capabilities

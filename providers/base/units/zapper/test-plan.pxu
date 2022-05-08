@@ -12,5 +12,7 @@ _name: Tests using Zapper
 _description: Tests using Zapper
 include:
   monitor/zapper-edid
+  usb3/zapper-usb-insert-.*
+  usb3/zapper-usb-remove-.*
 bootstrap_include:
   zapper_capabilities

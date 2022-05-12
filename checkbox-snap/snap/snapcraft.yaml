@@ -42,9 +42,11 @@ parts:
   launchers:
     plugin: dump
     source: launchers/
+    build-attributes: [no-patchelf]
     organize:
       '*': bin/
   config-variables:
     plugin: dump
     source: .
+    build-attributes: [no-patchelf]
     stage: [config_vars]

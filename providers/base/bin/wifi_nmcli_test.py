@@ -48,7 +48,7 @@ def cleanup_nm_connections():
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
-        type, uuid, name = line.strip().split(':')
+        type, uuid, name = line.strip().split(':', 2)
         if type == '802-11-wireless':
             print("Deleting connection", name)
             cmd = "nmcli c delete {}".format(uuid)
@@ -83,7 +83,7 @@ def list_aps(args):
         # lp bug #1723372 - extra line in output on zesty
         if line.strip() == args.device:
             continue
-        ssid, channel, frequency, signal = line.strip().split(':')
+        ssid, channel, frequency, signal = line.strip().rsplit(':', 3)
         print("SSID: {} Chan: {} Freq: {} Signal: {}".format(
             ssid, channel, frequency, signal))
         if hasattr(args, 'essid'):

@@ -865,6 +865,211 @@ class LXDTest(object):
         return True
 
 
+class LXDTest_vm(object):
+
+    def __init__(self, template=None, image=None):
+        self.image_url = image
+        self.template_url = template
+        self.image_tarball = None
+        self.template_tarball = None
+        self.name = 'testbed'
+        self.image_alias = uuid4().hex
+        self.default_remote = "ubuntu:"
+        self.os_version = get_release_to_test()
+
+    def run_command(self, cmd):
+        task = RunCommand(cmd)
+        if task.returncode != 0:
+            logging.error('Command {} returnd a code of {}'.format(
+                task.cmd, task.returncode))
+            logging.error(' STDOUT: {}'.format(task.stdout))
+            logging.error(' STDERR: {}'.format(task.stderr))
+            return False
+        else:
+            logging.debug('Command {}:'.format(task.cmd))
+            if task.stdout != '':
+                logging.debug(' STDOUT: {}'.format(task.stdout))
+            elif task.stderr != '':
+                logging.debug(' STDERR: {}'.format(task.stderr))
+            else:
+                logging.debug(' Command returned no output')
+            return True
+
+    def setup(self):
+        # Initialize LXD
+        result = True
+        logging.debug("Attempting to initialize LXD")
+        # TODO: Need a method to see if LXD is already initialized
+        if not self.run_command('lxd init --auto'):
+            logging.debug('Error encounterd while initializing LXD')
+            result = False
+
+        # Retrieve and insert LXD images
+        if self.template_url is not None:
+            logging.debug("Downloading template.")
+            targetfile = urlparse(self.template_url).path.split('/')[-1]
+            filename = os.path.join('/tmp', targetfile)
+            if not os.path.isfile(filename):
+                self.template_tarball = self.download_images(self.template_url,
+                                                             filename)
+                if not self.template_tarball:
+                    logging.error("Unable to download {} from "
+                                  "{}".format(self.template_tarball,
+                                              self.template_url))
+                    logging.error("Aborting")
+                    result = False
+            else:
+                logging.debug("Template file {} already exists. "
+                              "Skipping Download.".format(filename))
+                self.template_tarball = filename
+
+        if self.image_url is not None:
+            logging.debug("Downloading image.")
+            targetfile = urlparse(self.image_url).path.split('/')[-1]
+            filename = os.path.join('/tmp', targetfile)
+            if not os.path.isfile(filename):
+                self.image_tarball = self.download_images(self.image_url,
+                                                          filename)
+                if not self.image_tarball:
+                    logging.error("Unable to download {} from{}".format(
+                        self.image_tarball, self.image_url))
+                    logging.error("Aborting")
+                    result = False
+            else:
+                logging.debug("Template file {} already exists. "
+                              "Skipping Download.".format(filename))
+                self.image_tarball = filename
+
+        # Insert images
+        if self.template_url is not None and self.image_url is not None:
+            logging.debug("Importing images into LXD")
+            cmd = 'lxc image import {} {} --alias {}'.format(
+                self.template_tarball, self.image_tarball,
+                self.image_alias)
+            result = self.run_command(cmd)
+            if not result:
+                logging.error('Error encountered while attempting to '
+                              'import images into LXD')
+                result = False
+        return result
+
+    def download_images(self, url, filename):
+        """
+        Downloads LXD files for same release as host machine
+        """
+        # TODO: Clean this up to use a non-internet simplestream on MAAS server
+        logging.debug("Attempting download of {} from {}".format(filename,
+                                                                 url))
+        try:
+            urllib.request.urlretrieve(url, filename)
+        except (IOError,
+                OSError,
+                urllib.error.HTTPError,
+                urllib.error.URLError) as exception:
+            logging.error("Failed download of image from %s: %s",
+                          url, exception)
+            return False
+        except ValueError as verr:
+            logging.error("Invalid URL %s" % url)
+            logging.error("%s" % verr)
+            return False
+
+        if not os.path.isfile(filename):
+            logging.warn("Can not find {}".format(filename))
+            return False
+
+        return filename
+
+    def cleanup(self):
+        """
+        Clean up test files an Virtual Machines created
+        """
+        logging.debug('Cleaning up images and VMs created during test')
+        self.run_command('lxc image delete {}'.format(self.image_alias))
+        self.run_command('lxc delete --force {}'.format(self.name))
+
+    def start_vm(self):
+        """
+        Creates an lxd virtutal machine and performs the test
+        """
+        wait_interval = 5
+        test_interval = 300
+
+        result = self.setup()
+        if not result:
+            logging.error("One or more setup stages failed.")
+            return False
+
+        # Create Virtual Machine
+        logging.debug("Launching Virtual Machine")
+        if not self.image_url and not self.template_url:
+            logging.debug("No local image available, attempting to "
+                          "import from default remote.")
+            cmd = ('lxc init {}{} {} --vm '.format(
+               self.default_remote, self.os_version, self.name))
+        else:
+            cmd = ('lxc init {} {} --vm'.format(self.image_alias, self.name))
+
+        if not self.run_command(cmd):
+            return False
+
+        logging.debug("Start VM:")
+        cmd = ("lxc start {} ".format(self.name))
+        if not self.run_command(cmd):
+            return False
+
+        logging.debug("Virtual Machine listing:")
+        cmd = ("lxc list")
+        if not self.run_command(cmd):
+            return False
+
+        logging.debug("Wait for vm to boot")
+        check_vm = 0
+        while check_vm < test_interval:
+            time.sleep(wait_interval)
+            cmd = ("lxc exec {} -- lsb_release -a".format(self.name))
+            if self.run_command(cmd):
+                print("Vm started and booted succefully")
+                return True
+            else:
+                logging.debug("Re-verify VM booted")
+                check_vm = check_vm + wait_interval
+
+        logging.debug("testing vm failed")
+        if check_vm == test_interval:
+            return False
+
+
+def test_lxd_vm(args):
+    logging.debug("Executing LXD VM Test")
+
+    template = None
+    image = None
+
+    # First in priority are environment variables.
+    if 'LXD_TEMPLATE' in os.environ:
+        template = os.environ['LXD_TEMPLATE']
+    if 'KVM_IMAGE' in os.environ:
+        image = os.environ['KVM_IMAGE']
+
+    # Finally, highest-priority are command line arguments.
+    if args.template:
+        template = args.template
+    if args.image:
+        image = args.image
+
+    lxd_test = LXDTest_vm(template, image)
+
+    result = lxd_test.start_vm()
+    lxd_test.cleanup()
+    if result:
+        print("PASS: Virtual Machine was succssfully started and checked")
+        sys.exit(0)
+    else:
+        print("FAIL: Virtual Machine was not started and checked")
+        sys.exit(1)
+
+
 def test_uvtkvm(args):
     logging.debug("Executing UVT KVM Test")
     # if args.image is not set and UVT_IMAGE_OR_SOURCE does not exist, a key
@@ -965,6 +1170,8 @@ def main():
         'uvt', help=("Run uvt kvm virtualization test"))
     lxd_test_parser = subparsers.add_parser(
         'lxd', help=("Run the LXD validation test"))
+    lxd_test_vm_parser = subparsers.add_parser(
+        'lxdvm', help=("Run the LXD VM validation test"))
     parser.add_argument('--debug', dest='log_level',
                         action="store_const", const=logging.DEBUG,
                         default=logging.INFO)
@@ -989,6 +1196,13 @@ def main():
     lxd_test_parser.add_argument(
         '--rootfs', type=str, default=None)
     lxd_test_parser.set_defaults(func=test_lxd)
+
+    # Sub test options
+    lxd_test_vm_parser.add_argument(
+        '--template', type=str, default=None)
+    lxd_test_vm_parser.add_argument(
+        '--image', type=str, default=None)
+    lxd_test_vm_parser.set_defaults(func=test_lxd_vm)
 
     args = parser.parse_args()
 

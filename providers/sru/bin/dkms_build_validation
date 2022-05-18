@@ -15,8 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-kernel_ver_min=`dkms status | awk -F ', ' {'print $3'} | sort -V | uniq | head -1`
-kernel_ver_max=`dkms status | awk -F ', ' {'print $3'} | sort -V | uniq | tail -1`
+ubuntu_release=`lsb_release -r | cut -d ':' -f 2 | xargs`
+
+if [ $ubuntu_release = '22.04' ]; then
+    kernel_ver_min=`dkms status | awk -F ', ' {'print $2'} | sort -V | uniq | head -1`
+    kernel_ver_max=`dkms status | awk -F ', ' {'print $2'} | sort -V | uniq | tail -1`
+else
+    kernel_ver_min=`dkms status | awk -F ', ' {'print $3'} | sort -V | uniq | head -1`
+    kernel_ver_max=`dkms status | awk -F ', ' {'print $3'} | sort -V | uniq | tail -1`
+fi
 kernel_ver_current=`uname -r`
 
 number_dkms_min=`dkms status | grep $kernel_ver_min | grep installed | wc -l`

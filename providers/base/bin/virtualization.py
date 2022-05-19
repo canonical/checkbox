@@ -557,149 +557,6 @@ class RunCommand(object):
         self.returncode = proc.returncode
 
 
-class UVTKVMTest(object):
-
-    def __init__(self, image=None):
-        self.image = image
-        self.release = get_codename_to_test()
-        self.arch = check_output(['dpkg', '--print-architecture'],
-                                 universal_newlines=True).strip()
-        # max len(name) is 8 chars for use with test-snapd-uvtool snap
-        self.name = tempfile.mktemp()[-8:]
-
-    def run_command(self, cmd):
-        task = RunCommand(cmd)
-        if task.returncode != 0:
-            logging.error('Command {} returnd a code of {}'.format(
-                task.cmd, task.returncode))
-            logging.error(' STDOUT: {}'.format(task.stdout))
-            logging.error(' STDERR: {}'.format(task.stderr))
-            return False
-        else:
-            logging.debug('Command {}:'.format(task.cmd))
-            if task.stdout != '':
-                logging.debug(' STDOUT: {}'.format(task.stdout))
-            elif task.stderr != '':
-                logging.debug(' STDERR: {}'.format(task.stderr))
-            else:
-                logging.debug(' Command returned no output')
-            return True
-
-    def ssh_command(self, private_key_file, cmd):
-        task = RunCommand("uvt-kvm ip {}".format(self.name))
-        if task.returncode != 0:
-            logging.error('Command {} returnd a code of {}'.format(
-                task.cmd, task.returncode))
-            return False
-        vm_ip = task.stdout
-
-        ssh_cmd = ('ssh ubuntu@{} '
-                   '-o UserKnownHostsFile=/dev/null '
-                   '-o StrictHostKeyChecking=no '
-                   '-i {} {}').format(vm_ip, private_key_file, cmd)
-        return self.run_command(ssh_cmd)
-
-    def get_image_or_source(self):
-        """
-        An image can be specifed in a filesytem path and used directly in
-        uvt-create with the backing-image option or a url can be
-        specifed and used in uvt-simplestreams to generate an image.
-        """
-        url = urlparse(self.image)
-
-        if url.scheme == 'file' or os.path.isfile(url.path):
-            logging.debug("Cloud image exists locally at %s" % url.path)
-            self.image = url.path
-        else:
-            cmd = ("uvt-simplestreams-libvirt sync release={} "
-                   "arch={}".format(self.release, self.arch))
-
-            if url.scheme == 'http':
-                # Path specified to use -source option
-                logging.debug("Using --source option for uvt-simpletreams")
-                cmd = cmd + " --source {} ".format(self.image)
-
-            logging.debug("uvt-simplestreams-libvirt sync")
-            if not self.run_command(cmd):
-                return False
-        return True
-
-    def cleanup(self):
-        """
-        A combination of virsh destroy/undefine is used instead of
-        uvt-kvm destroy.  When using uvt-kvm destroy the following bug
-        is seen:
-        https://bugs.launchpad.net/ubuntu/+source/uvtool/+bug/1452095
-        """
-        # Destroy vm
-        logging.debug("Destroy VM")
-        if not self.run_command('virsh destroy {}'.format(self.name)):
-            return False
-
-        # Virsh undefine
-        logging.debug("Undefine VM")
-        if not self.run_command('virsh undefine {}'.format(self.name)):
-            return False
-
-        # Purge/Remove simplestreams image
-        if not self.run_command("uvt-simplestreams-libvirt purge"):
-            return False
-        return True
-
-    def start(self):
-        # Generate ssh key if needed
-        with tempfile.TemporaryDirectory(
-                dir=os.path.expandvars("$PLAINBOX_SESSION_SHARE")) as tmp_dir:
-            ssh_private_key_file = "{}/id_rsa".format(tmp_dir)
-            ssh_public_key_file = "{}/id_rsa.pub".format(tmp_dir)
-
-            if not os.path.exists(ssh_private_key_file):
-                cmd = ('ssh-keygen -f {} -t rsa -N \'\''.format(
-                    ssh_private_key_file))
-                if not self.run_command(cmd):
-                    return False
-
-            # Create vm
-            logging.debug("Creating VM")
-            cmd = ('uvt-kvm create --ssh-public-key-file {} {} arch={}'.format(
-                ssh_public_key_file, self.name, self.arch))
-
-            logging.debug("Checking for local image")
-            try:
-                self.image.find(".img") > 0
-            except AttributeError:
-                logging.debug("No user provided image found.")
-                logging.debug(
-                    "I will attempt to sync the image from ubuntu.com")
-            else:
-                cmd = cmd + " --backing-image-file {} ".format(self.image)
-
-            if not self.run_command(cmd):
-                return False
-
-            logging.debug("Wait for VM to complete creation")
-            cmd = 'uvt-kvm wait --ssh-private-key-file {} {}'.format(
-                ssh_private_key_file, self.name)
-            if not self.run_command(cmd):
-                return False
-
-            logging.debug("List newly created vm")
-            cmd = ("uvt-kvm list")
-            if not self.run_command(cmd):
-                return False
-
-            logging.debug("Verify VM was created with ssh")
-            if not self.ssh_command(ssh_private_key_file, ""):
-                return False
-
-            logging.debug("Verify VM was created with ssh and run a command")
-            cmd = "lsb_release -a"
-            if not self.ssh_command(ssh_private_key_file, cmd):
-                return False
-
-        return True
-
-
 class LXDTest(object):
 
     def __init__(self, template=None, rootfs=None):
@@ -1070,28 +927,6 @@ def test_lxd_vm(args):
         sys.exit(1)
 
 
-def test_uvtkvm(args):
-    logging.debug("Executing UVT KVM Test")
-    # if args.image is not set and UVT_IMAGE_OR_SOURCE does not exist, a key
-    # error is generated we need to handle.
-    try:
-        image = args.image or os.environ['UVT_IMAGE_OR_SOURCE']
-    except KeyError:
-        logging.warning("UVT_IMAGE_OR_SOURCE is not set")
-        image = None
-    uvt_test = UVTKVMTest(image)
-    uvt_test.get_image_or_source()
-    result = uvt_test.start()
-    uvt_test.cleanup()
-
-    if result:
-        print("PASS: VM was succssfully started and checked")
-        sys.exit(0)
-    else:
-        print("FAIL: VM was not started and/or checked")
-        sys.exit(1)
-
-
 def test_lxd(args):
     logging.debug("Executing LXD Test")
 
@@ -1166,8 +1001,6 @@ def main():
     # Main cli options
     kvm_test_parser = subparsers.add_parser(
         'kvm', help=("Run kvm virtualization test"))
-    uvt_kvm_test_parser = subparsers.add_parser(
-        'uvt', help=("Run uvt kvm virtualization test"))
     lxd_test_parser = subparsers.add_parser(
         'lxd', help=("Run the LXD validation test"))
     lxd_test_vm_parser = subparsers.add_parser(
@@ -1187,10 +1020,6 @@ def main():
     kvm_test_parser.set_defaults(func=test_kvm)
 
     # Sub test options
-    uvt_kvm_test_parser.add_argument(
-        '-i', '--image', type=str)
-    uvt_kvm_test_parser.set_defaults(func=test_uvtkvm)
-
     lxd_test_parser.add_argument(
         '--template', type=str, default=None)
     lxd_test_parser.add_argument(

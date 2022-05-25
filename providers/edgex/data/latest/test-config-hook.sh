@@ -147,13 +147,20 @@ test_options()
 validate_service_env()
 {
     service="$1"
-    snapFile=$(cat "/var/snap/edgexfoundry/current/config/$service/res/$service.env" | sort)
-    testFile=$(cat "${TESTFILE:-"$SNAP/providers/checkbox-provider-edgex/data/latest/test-files"}/$service.env" | sort)
+    snapFilePath="/var/snap/edgexfoundry/current/config/$service/res/$service.env"
+    snapFile=$(cat "$snapFilePath" | sort)
+    if [ -n "$SNAP" ]; then
+        testFilePath="$SNAP/providers/checkbox-provider-edgex/data/latest/test-files/$service.env"
+    else
+        testFilePath="./test-files/$service.env"
+    fi
+    testFile=$(cat "$testFilePath" | sort)
 
     if [ "$snapFile" != "$testFile" ]; then
-	snap_remove
-	echo "$service.env file doesn't match test file."
-	exit 1
+        snap_remove
+        echo "$service.env file doesn't match test file."
+        diff "$snapFilePath" "$testFilePath"
+        exit 1
     fi
 }
 

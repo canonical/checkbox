@@ -8,7 +8,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # shellcheck source=/dev/null
 source "$(dirname "$SCRIPT_DIR")/utils.sh"
 
-EDGEX_STABLE_CHANNEL="2.1/stable"
+EDGEX_STABLE_CHANNEL="latest/stable"
+EDGEX_PREV_STABLE_CHANNEL="2.1/stable"
 
 # helper function to download the snap, ack the assertion and return the
 # name of the file
@@ -109,7 +110,7 @@ if [ -n "$SINGLE_TEST" ]; then
     fi
 
     if [ "$SINGLE_TEST" == "test-refresh-config-paths.sh" ]; then
-        EDGEX_PREV_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=2.0/stable)
+        EDGEX_PREV_STABLE_SNAP_FILE=$(snap_download_and_ack edgexfoundry --channel=$EDGEX_PREV_STABLE_CHANNEL)
         export EDGEX_PREV_STABLE_SNAP_FILE
         snap_download_stable_and_default
     fi

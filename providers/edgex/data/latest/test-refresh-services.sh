@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# This test validates a smooth upgrade between 2.0/stable channel and latest/beta channel
+# This test validates a smooth upgrade between  prev stable channel and latest/beta channel
 
 # get the directory of this script
 # snippet from https://stackoverflow.com/a/246128/10102404
@@ -11,7 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
-EDGEX_STABLE_CHANNEL="2.0/stable"
+EDGEX_PREV_STABLE_CHANNEL="2.1/stable"
 
 snap_remove
 
@@ -20,7 +20,7 @@ if [ -n "$EDGEX_PREV_STABLE_SNAP_FILE" ]; then
     snap_install "$EDGEX_PREV_STABLE_SNAP_FILE"
 else
     echo "Installing snap from channel"
-    snap_install edgexfoundry $EDGEX_STABLE_CHANNEL
+    snap_install edgexfoundry $EDGEX_PREV_STABLE_CHANNEL
 fi 
 ORIGINAL_VERSION=$(list_snap edgexfoundry)
 echo "Installed $ORIGINAL_VERSION"

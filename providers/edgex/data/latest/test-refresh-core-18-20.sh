@@ -16,8 +16,9 @@ START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 # remove the current snap
 snap_remove
 
-# install 2.0/stable
-snap_install edgexfoundry "2.0/stable"
+# install previous stable
+EDGEX_PREV_STABLE_CHANNEL="2.1/stable"
+snap_install edgexfoundry $EDGEX_PREV_STABLE_CHANNEL
 
 # wait for services to come online
 snap_wait_all_services_online
@@ -52,7 +53,7 @@ TOKEN=$OUT
 echo "Got Token: $TOKEN"
 
 # note: we need to use "edgexfoundry.curl", not "curl" to correctly support TLS 1.2
-echo "Verifying JWT token using edgexfoundry 2.0/stable"
+echo "Verifying JWT token using edgexfoundry $EDGEX_PREV_STABLE_CHANNEL"
 code=$(edgexfoundry.curl --insecure --show-error --silent --include \
     --output /dev/null --write-out "%{http_code}" \
     -X GET 'https://localhost:8443/core-data/api/v2/ping?' \

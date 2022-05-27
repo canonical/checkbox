@@ -1,24 +1,5 @@
 plugin: shell
 category_id: com.canonical.plainbox::virtualization
-id: virtualization/kvm_check_vm
-user: root
-environ: UVT_IMAGE_OR_SOURCE http_proxy https_proxy
-estimated_duration: 300.0
-requires:
- executable.name == 'uvt-kvm'
- executable.name == 'uvt-simplestreams-libvirt'
- executable.name == 'virsh'
- executable.name == 'ssh-keygen'
- virtualization.kvm == 'supported'
-command: virtualization.py --debug uvt
-_description:
- Verifies that a KVM guest can be created and booted using an Ubuntu Server
- cloud image.
-_summary:
- Verify KVM guest boots
-
-plugin: shell
-category_id: com.canonical.plainbox::virtualization
 id: virtualization/verify_lxd_vm
 environ: LXD_TEMPLATE KVM_IMAGE
 estimated_duration: 60.0

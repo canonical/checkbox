@@ -29,6 +29,7 @@ include:
     memory/info                                certification-status=blocker
     memory/memory_stress_ng                    certification-status=blocker
     power-management/rtc                       certification-status=blocker
+    stress/cpu_stress_ng_test                  certification-status=blocker
 bootstrap_include:
     device
     fwts

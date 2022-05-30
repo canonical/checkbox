@@ -7,6 +7,7 @@ import dbus
 import logging
 import os
 import sys
+import threading
 
 import gi
 gi.require_version('GUdev', '1.0')
@@ -922,18 +923,31 @@ def main():
                 "ZAPPER_ADDRESS environment variable not found!")
         zapper_control = ControlVersionDecider().decide(zapper_host)
         usb_address = args.zapper_usb_address
-        if args.action == "insert":
+        delay = 5  # in seconds
+
+        def do_the_insert():
             logging.info("Calling zapper to connect the USB device")
             zapper_control.usb_set_state(usb_address, 'dut')
-        elif args.action == "remove":
+        insert_timer = threading.Timer(delay, do_the_insert)
+
+        def do_the_remove():
             logging.info("Calling zapper to disconnect the USB device")
             zapper_control.usb_set_state(usb_address, 'off')
+        remove_timer = threading.Timer(delay, do_the_remove)
+        if args.action == "insert":
+            logging.info("Starting timer for delayed insertion")
+            insert_timer.start()
+        elif args.action == "remove":
+            logging.info("Starting timer for delayed removal")
+            remove_timer.start()
+        try:
+            res = listener.check(args.timeout)
+            return res
+        except KeyboardInterrupt:
+            return 1
+
     else:
         print("\n\n{} NOW\n\n".format(args.action.upper()), flush=True)
-    try:
-        return listener.check(args.timeout)
-    except KeyboardInterrupt:
-        return 1
 
 
 if __name__ == "__main__":

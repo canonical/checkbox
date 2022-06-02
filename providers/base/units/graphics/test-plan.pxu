@@ -32,9 +32,6 @@ _description:
  Graphics tests (integrated GPU) (Automated)
 include:
  graphics/1_auto_switch_card_.*                 certification-status=blocker
- graphics/xorg-version                          certification-status=blocker
- graphics/xorg-failsafe                         certification-status=blocker
- graphics/xorg-process                          certification-status=blocker
  graphics/VESA_drivers_not_in_use               certification-status=blocker
  graphics/1_driver_version_.*                   certification-status=blocker
  graphics/1_gl_support_.*                       certification-status=blocker
@@ -169,9 +166,6 @@ _name: Graphics tests (integrated GPU, certification blockers only)
 _description: Graphics tests (integrated GPU, certification blockers only)
 include:
     graphics/1_auto_switch_card_.*                 certification-status=blocker
-    graphics/xorg-version                          certification-status=blocker
-    graphics/xorg-failsafe                         certification-status=blocker
-    graphics/xorg-process                          certification-status=blocker
     graphics/VESA_drivers_not_in_use               certification-status=blocker
     graphics/1_maximum_resolution_.*               certification-status=blocker
     graphics/1_glxgears_.*                         certification-status=blocker

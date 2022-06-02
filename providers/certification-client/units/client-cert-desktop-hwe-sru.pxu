@@ -30,7 +30,6 @@ include:
     info/audio_device_driver
     info/network_devices
     # Automated requisite tests for the manual ones
-    graphics/xorg-version                                  certification-status=blocker
     graphics/VESA_drivers_not_in_use                       certification-status=blocker
     # Manual tests
     monitor/1_vga.*                                        certification-status=blocker
@@ -43,8 +42,6 @@ include:
     monitor/1_thunderbolt.*
     monitor/1_dim_brightness.*                             certification-status=blocker
     # Automated tests
-    graphics/xorg-failsafe                                 certification-status=blocker
-    graphics/xorg-process                                  certification-status=blocker
     graphics/1_maximum_resolution_.*                       certification-status=blocker
     graphics/1_glxgears_.*                                 certification-status=blocker
     graphics/1_driver_version_.*                           certification-status=blocker

@@ -23,8 +23,7 @@ services[1]=core-metadata
 services[2]=core-command
 services[3]=support-notifications
 services[4]=support-scheduler
-services[5]=device-virtual
-services[6]=sys-mgmt-agent
+services[5]=sys-mgmt-agent
 
 # define config to EdgeX environment variable mappings
 #
@@ -57,7 +56,7 @@ conf_to_env[clients_support-notifications_port]="CLIENTS_SUPPORTNOTIFICATIONS_PO
 # [Clients.Scheduler] - sys-mgmt-only
 conf_to_env[clients_support-scheduler_port]="CLIENTS_SUPPORTSCHEDULER_PORT/14"
 
-# [MessageQueue] -- core-data & device-virtual
+# [MessageQueue] -- core-data
 conf_to_env[messagequeue_publish-topic-prefix]="MESSAGEQUEUE_PUBLISHTOPICPREFIX/'fubar'"
 
 # load the latest release utils
@@ -120,13 +119,11 @@ test_options()
 	fi
 
 	# handle mismatched client keys due device-sdk-go bug
-        if [ "$key" == "clients_coredata_port" ] &&
-           [ "$service" == "device-virtual" ]; then
+        if [ "$key" == "clients_coredata_port" ]; then
 	    continue
 	fi
 
-	if [ "$key" == "clients_data_port" ] &&
-           [ "$service" != "device-virtual" ]; then
+	if [ "$key" == "clients_data_port" ]; then
             continue
 	fi
 

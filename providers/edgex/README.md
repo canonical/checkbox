@@ -109,7 +109,7 @@ sudo DEFAULT_TEST_CHANNEL="<channel>" ./run-all-tests-locally.sh
 - Test that services are not listening on external network interfaces
 - Test that the rules engine works with the snap
 - Test that snap configure hook settings are supported by the edgexfoundry snap
-- Test that device-virtual creates devices and produces readings
+- Test that edgex-device-virtual creates devices and produces readings
 - Mandatory tests: see [units/test-plan.pxu#L113](./units/test-plan.pxu#L113)
 
 ## Limitations

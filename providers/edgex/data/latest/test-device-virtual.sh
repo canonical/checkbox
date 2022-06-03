@@ -22,16 +22,17 @@ fi
 # wait for services to come online
 snap_wait_all_services_online
 
-# start device-virtual
-snap start edgexfoundry.device-virtual
+# install and start edgex-device-virtual
+snap install edgex-device-virtual --channel=latest/edge
+snap start edgex-device-virtual
 
 # wait for service to come online
 snap_wait_port_status 59900 open
 
-# ensure device-virtual is running
-if [ "$(snap services edgexfoundry.device-virtual | grep -o inactive)" = "inactive" ]; then
+# ensure edgex-device-virtual is running
+if [ "$(snap services edgex-device-virtual.device-virtual | grep -o inactive)" = "inactive" ]; then
     print_error_logs
-    echo "failed to start device-virtual"
+    echo "failed to start edgex-device-virtual"
     exit 1
 fi
 
@@ -50,18 +51,18 @@ fi
 
 echo "found at $JQ"
 
-# a new try every other second, at max 30 tries is 1 minute for device-virtual
+# a new try every other second, at max 30 tries is 1 minute for edgex-device-virtual
 # to start
 MAX_READING_TRIES=30
 num_tries=0
 
-# check to see if we can find the device created by device-virtual
+# check to see if we can find the device created by edgex-device-virtual
 while true; do
     FIND_DEVICE=$(edgexfoundry.curl -s localhost:59881/api/v2/device/all | $JQ '[.devices[] | select(.name == "Random-Boolean-Device")] | length')
     EXIT_CODE=$?
     if [ "$EXIT_CODE" -ne 0 ] ; then
         print_error_logs
-        echo "Error finding the device created by device-virtual"
+        echo "Error finding the device created by edgex-device-virtual"
         exit 1
     fi
     
@@ -70,7 +71,7 @@ while true; do
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then
             print_error_logs
-            echo "max tries attempting to get device-virtual devices"
+            echo "max tries attempting to get edgex-device-virtual devices"
             exit 1
         fi
         # no readings yet, keep waiting
@@ -90,7 +91,7 @@ while true; do
     EXIT_CODE=$?
     if [ "$EXIT_CODE" -ne 0 ] ; then
         print_error_logs
-        echo "Error getting a reading produced by device-virtual"
+        echo "Error getting a reading produced by edgex-device-virtual"
         exit 1
     fi
 
@@ -100,7 +101,7 @@ while true; do
         num_tries=$((num_tries+1))
         if (( num_tries > MAX_READING_TRIES )); then
             print_error_logs
-            echo "max tries attempting to get device-virtual readings"
+            echo "max tries attempting to get edgex-device-virtual readings"
             exit 1
         fi
         # no readings yet, keep waiting
@@ -113,5 +114,6 @@ done
 set -e
 
 # remove the snap to run the next test
+snap remove edgex-device-virtual
 snap_remove
 

@@ -31,8 +31,10 @@ fi
 # wait for services to come online
 snap_wait_all_services_online
 
-# enable device-virtual, as it's disabled by default
-snap set edgexfoundry device-virtual=on
+# install and start edgex-device-virtual
+# TODO: change channel to latest/stable when available
+snap install edgex-device-virtual --channel=latest/edge
+snap start edgex-device-virtual
 
 i=0
 reading_count=0
@@ -40,18 +42,18 @@ reading_count=0
 while [ "$reading_count" -eq 0 ] ; 
 do
     ((i=i+1))
-    echo "waiting for device-virtual produce readings, current retry count: $i/60"
+    echo "waiting for edgex-device-virtual produce readings, current retry count: $i/60"
     sleep 1
     #max retry avoids forever waiting
     if [ "$i" -ge 60 ]; then
-        echo "waiting for device-virtual produce readings, reached maximum retry count of 60"
+        echo "waiting for edgex-device-virtual produce readings, reached maximum retry count of 60"
         print_error_logs
         snap_remove
         exit 1
     fi
     reading_count=$(curl -s -X 'GET'   'http://localhost:59880/api/v2/reading/count' | jq -r '.Count')
 done
-echo "device-virtual is producing readings now"
+echo "edgex-device-virtual is producing readings now"
 
 # change kuiper's log level to DEBUG, before the first start
 sed -i -e 's@debug\: false@debug\: true@' /var/snap/edgexfoundry/current/kuiper/etc/kuiper.yaml
@@ -278,6 +280,7 @@ if [ -z "$(snap services edgexfoundry.app-service-configurable | grep edgexfound
 fi
 
 # remove the snap to run the next test
+snap remove edgex-device-virtual
 snap_remove
 
 # remove the MQTT broker if we installed it

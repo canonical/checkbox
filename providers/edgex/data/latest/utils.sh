@@ -45,20 +45,18 @@ snap_check_svcs()
         "kong-daemon" "postgres" "vault" "consul")
 
     declare -a arr_disabled_services=(
-        # app service, kuiper and device-virtual
+        # app service, kuiper
         "kuiper" 
         "app-service-configurable"
-        "device-virtual"
         # support services, system service
         "support-notifications"
         "support-scheduler"
         "sys-mgmt-agent")
 
     declare -a arr_inactive_services=(
-        # app service, kuiper and device-virtual
+        # app service, kuiper
         "kuiper" 
         "app-service-configurable"
-        "device-virtual"
         # one-shot security services
         "security-proxy-setup"
         "security-secretstore-setup"

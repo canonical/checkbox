@@ -68,9 +68,6 @@ include:
     monitor/1_vga_.*                                       certification-status=blocker
     monitor/1_multi-head_.*                                certification-status=blocker
     # See Graphic Tests section for monitor test on second graphic card
-    graphics/xorg-version                                  certification-status=blocker
-    graphics/xorg-failsafe                                 certification-status=blocker
-    graphics/xorg-process                                  certification-status=blocker
     graphics/VESA_drivers_not_in_use                       certification-status=blocker
     graphics/1_maximum_resolution_.*                       certification-status=blocker
     graphics/1_glxgears_.*                                 certification-status=blocker

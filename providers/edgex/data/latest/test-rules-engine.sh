@@ -33,6 +33,7 @@ snap_wait_all_services_online
 
 # install and start edgex-device-virtual
 # TODO: change channel to latest/stable when available
+snap remove edgex-device-virtual
 snap install edgex-device-virtual --channel=latest/edge
 snap start edgex-device-virtual
 

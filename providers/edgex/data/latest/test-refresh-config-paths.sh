@@ -27,8 +27,8 @@ fi
 ORIGINAL_VERSION=$(list_snap edgexfoundry)
 echo "Installed $ORIGINAL_VERSION"
 
-SNAP_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
-echo "Getting the revision number for this channel: $SNAP_REVISION"
+ORIGINAL_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
+echo "Getting the revision number for this channel: $ORIGINAL_REVISION"
 
 # wait for services to come online
 snap_wait_all_services_online
@@ -46,16 +46,24 @@ snap_wait_all_services_online
 
 echo -e "Successfully upgraded:\n\tfrom: $ORIGINAL_VERSION\n\tto:   $UPGRADED_VERSION"
 
-echo "Checking for files with previous snap revision $SNAP_REVISION"
+UPGRADED_REVISION=$(snap run --shell edgexfoundry.consul -c "echo \$SNAP_REVISION")
+
+if [[ "$ORIGINAL_REVISION" == "$UPGRADED_REVISION" ]]; then
+    echo "Upgraded to the same revision. Skipping test."
+    snap_remove
+    exit 0
+fi
+
+echo "Checking for files with previous snap revision $ORIGINAL_REVISION"
 
 # check that all files in $SNAP_DATA don't reference the previous revision
 # except for "Binary file consul/data/raft/raft.db"
 # ends up putting the path including the old revision number inside
-pushd /var/snap/edgexfoundry/current > /dev/null
+pushd /var/snap/edgexfoundry/current
 set +e
-notUpgradedFiles=$(grep -R "edgexfoundry/$SNAP_REVISION" | grep -v "raft.db")
+notUpgradedFiles=$(grep -R "edgexfoundry/$ORIGINAL_REVISION" | grep -v "raft.db")
      
-popd > /dev/null
+popd
 if [ -n "$notUpgradedFiles" ]; then
     print_error_logs
     echo "Files not upgraded to use \"current\" symlink in config files:"

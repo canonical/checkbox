@@ -166,8 +166,10 @@ list_snap()
 
 print_error_logs()
 {
+    echo "==========="
     echo "Error logs:"
     journalctl --since "$START_TIME" --no-pager | grep "edgexfoundry" | grep --ignore-case "error" | grep --invert-match "error=-1"
+    echo "==========="
 }
 
 

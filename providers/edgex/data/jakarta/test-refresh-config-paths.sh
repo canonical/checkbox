@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 # This test checks if all files in $SNAP_DATA don't reference the previous revision
-# after upgrading the snap from 2.0/stable to 2.1/beta
+# after upgrading the snap from 2.1/stable to 2.1/beta
 
 # get the directory of this script
 # snippet from https://stackoverflow.com/a/246128/10102404
@@ -12,7 +12,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
-EDGEX_PREV_STABLE_CHANNEL="2.0/stable"
+EDGEX_PREV_STABLE_CHANNEL="2.1/stable"
 
 snap_remove
 
@@ -33,7 +33,7 @@ echo "Getting the revision number for this channel: $SNAP_REVISION"
 # wait for services to come online
 snap_wait_all_services_online
 
-# now upgrade the snap from 2.0/stable to 2.1/stable
+# now upgrade the snap from 2.1/stable to 2.1/beta
 if [ -n "$REVISION_TO_TEST" ]; then
     snap_install "$REVISION_TO_TEST" "$REVISION_TO_TEST_CHANNEL" "$REVISION_TO_TEST_CONFINEMENT"
 else

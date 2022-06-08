@@ -96,14 +96,6 @@ _description:
  VERIFICATION:
      Is this the display's maximum resolution?
 
-id: graphics/modes
-plugin: shell
-category_id: com.canonical.plainbox::graphics
-command: graphics_modes_info.py
-estimated_duration: 0.250
-_description: Collect info on graphics modes (screen resolution and refresh rate)
-_summary: Collect info on graphics modes
-
 id: graphics/color_depth
 plugin: shell
 category_id: com.canonical.plainbox::graphics

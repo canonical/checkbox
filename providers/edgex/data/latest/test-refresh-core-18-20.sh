@@ -17,7 +17,7 @@ START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 snap_remove
 
 # install previous stable
-EDGEX_PREV_STABLE_CHANNEL="2.1/stable"
+EDGEX_PREV_STABLE_CHANNEL="latest/stable"
 snap_install edgexfoundry $EDGEX_PREV_STABLE_CHANNEL
 
 # wait for services to come online

@@ -11,7 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$SCRIPT_DIR/utils.sh"
 
 START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
-EDGEX_PREV_STABLE_CHANNEL="2.1/stable"
+EDGEX_PREV_STABLE_CHANNEL="latest/stable"
 
 snap_remove
 

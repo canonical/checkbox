@@ -9,7 +9,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$(dirname "$SCRIPT_DIR")/utils.sh"
 
 EDGEX_STABLE_CHANNEL="latest/stable"
-EDGEX_PREV_STABLE_CHANNEL="2.1/stable"
+EDGEX_PREV_STABLE_CHANNEL="latest/stable"
 
 # helper function to download the snap, ack the assertion and return the
 # name of the file

@@ -58,12 +58,14 @@ class StressNg():
                  stressors,
                  wrapper_timeout,
                  sng_timeout,
+                 thread_count,
                  extra_options=""):
 
         self.stressors = stressors
         self.wrapper_timeout = wrapper_timeout
         self.sng_timeout = sng_timeout
         self.extra_options = extra_options
+        self.thread_count = thread_count
         self.results = ""
         self.returncode = 0
 
@@ -71,10 +73,12 @@ class StressNg():
         """Run a stress-ng test, storing results in self.results."""
 
         stressor_list = "--" + " 0 --".join(self.stressors)
-        command = "stress-ng --aggressive --verify --timeout {} {} {} 0". \
+        # 0
+        command = "stress-ng --aggressive --verify --timeout {} {} {} %i". \
             format(self.sng_timeout,
                    self.extra_options,
-                   stressor_list)
+                   stressor_list,
+                   self.thread_count)
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
             print("{}: Running stress-ng {} stressor for {:.0f} seconds...".
@@ -221,11 +225,19 @@ def stress_memory(args):
                      'stream', 'tsearch', 'vm-rw', 'wcs', 'zero', 'mlock',
                      'mmapfork', 'mmapmany', 'mremap', 'shm-sysv',
                      'vm-splice']
+    crt_stressors = crt_stressors[0:8]
+
     if num_numa_nodes() > 1:
         crt_stressors.append('numa')
 
     # Variable-run-time stressors -- run longer on systems with more RAM....
     vrt_stressors = ['malloc', 'mincore', 'vm', 'bigheap', 'brk', 'mmap']
+    vrt_stressors = vrt_stressors[0:3]
+    # stack, bigheap, brk
+    ltc_stressors = ['stack', 'bigheap', 'brk']
+
+    # add random selection of n stressors
+    # and/or increase timeout(s)
 
     est_runtime = len(crt_stressors) * args.base_time + \
         len(vrt_stressors) * vrt
@@ -234,12 +246,22 @@ def stress_memory(args):
     for stressor in crt_stressors:
         test_object = StressNg(stressors=stressor.split(),
                                sng_timeout=args.base_time,
-                               wrapper_timeout=args.base_time*2)
+                               wrapper_timeout=args.base_time * 2,
+                               thread_count=0)
         retval = retval | test_object.run()
         print(test_object.results)
     for stressor in vrt_stressors:
-        test_object = StressNg(stressors=stressor.split(), sng_timeout=vrt,
-                               wrapper_timeout=vrt*2)
+        test_object = StressNg(stressors=stressor.split(),
+                               sng_timeout=vrt,
+                               wrapper_timeout=vrt * 2,
+                               thread_count=0)
+        retval = retval | test_object.run()
+        print(test_object.results)
+    for stressor in ltc_stressors:
+        test_object = StressNg(stressors=stressor.split(),
+                               sng_timeout=vrt,
+                               wrapper_timeout=vrt * 2,
+                               thread_count=8)
         retval = retval | test_object.run()
         print(test_object.results)
     if my_swap is not None and args.keep_swap is False:
@@ -271,7 +293,7 @@ def stress_disk(args):
         est_runtime = len(disk_stressors) * args.base_time
         print("Using test directory: '{}'".format(test_disk.test_dir))
         print("Estimated total run time is {:.0f} minutes\n".
-              format(est_runtime/60))
+              format(est_runtime / 60))
         retval = 0
         if not args.simulate:
             for stressor in disk_stressors:
@@ -279,7 +301,7 @@ def stress_disk(args):
                     "--hdd-opts dsync --readahead-bytes 16M -k"
                 test_object = StressNg(stressors=stressor.split(),
                                        sng_timeout=args.base_time,
-                                       wrapper_timeout=args.base_time*5,
+                                       wrapper_timeout=args.base_time * 5,
                                        extra_options=disk_options)
                 retval = retval | test_object.run()
                 print(test_object.results)

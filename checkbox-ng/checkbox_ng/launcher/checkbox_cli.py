@@ -34,7 +34,7 @@ from plainbox.impl.session.assistant import SessionAssistant
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.subcommands import (
     Launcher, List, Run, StartProvider, Submit, ListBootstrapped,
-    TestPlanExport
+    TestPlanExport, Show
 )
 from checkbox_ng.launcher.check_config import CheckConfig
 from checkbox_ng.launcher.merge_reports import MergeReports
@@ -63,6 +63,7 @@ def main():
         'run': Run,
         'startprovider': StartProvider,
         'submit': Submit,
+        'show': Show,
         'list-bootstrapped': ListBootstrapped,
         'merge-reports': MergeReports,
         'merge-submissions': MergeSubmissions,

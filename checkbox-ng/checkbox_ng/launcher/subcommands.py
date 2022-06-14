@@ -930,3 +930,25 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None):
                 _show(child, indent)
 
     _show(obj, "")
+
+
+class Show():
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'IDs', nargs='+', help=_("Show the definitions of objects"))
+
+    def invoked(self, ctx):
+        providers = ctx.sa.get_selected_providers()
+        self._searched_names = ctx.args.IDs
+        root = Explorer(providers).get_object_tree()
+        self._traverse_obj_tree(root)
+
+    def _traverse_obj_tree(self, obj):
+        if obj.name in self._searched_names:
+            self._print_obj(obj)
+        for child in obj.children:
+            self._traverse_obj_tree(child)
+
+    def _print_obj(self, obj):
+        for k,v in obj.attrs.items():
+            print("{}: {}".format(k, v))

@@ -62,6 +62,10 @@ slots:
     read:
       - /
 
+package-repositories:
+  - type: apt
+    ppa: hardware-certification/public
+
 parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml

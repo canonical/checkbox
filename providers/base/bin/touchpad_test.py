@@ -3,6 +3,7 @@
 import gi
 import sys
 import gettext
+from time import sleep
 
 from gettext import gettext as _
 gi.require_version('Gdk', '3.0')
@@ -124,21 +125,33 @@ class GtkScroller(object):
 
     def run(self):
         # Save touchpad settings.
-        self.saved_scroll_method = self.touchpad_settings.get_string(
-            "scroll-method")
+        self.saved_edge_scrolling_enabled = self.touchpad_settings.get_boolean(
+            "edge-scrolling-enabled")
+        self.saved_two_finger_enabled = self.touchpad_settings.get_boolean(
+            "two-finger-scrolling-enabled")
 
         # Set touchpad settings.
         if self.edge_scroll:
-            self.touchpad_settings.set_string(
-                "scroll-method", "edge-scrolling")
-
+            self.touchpad_settings.set_boolean(
+                "edge-scrolling-enabled", True)
+            self.touchpad_settings.set_boolean(
+                "two-finger-scrolling-enabled", False)
+        else:
+            self.touchpad_settings.set_boolean(
+                "two-finger-scrolling-enabled", True)
+            self.touchpad_settings.set_boolean(
+                "edge-scrolling-enabled", False)
         Gtk.main()
 
     def quit(self):
         # Reset touchpad settings.
-        self.touchpad_settings.set_string(
-            "scroll-method", self.saved_scroll_method)
-
+        self.touchpad_settings.set_boolean(
+            "two-finger-scrolling-enabled", self.saved_two_finger_enabled)
+        # GNOME does not like when both settings are set at the same time, so
+        # waiting a bit.
+        sleep(0.1)
+        self.touchpad_settings.set_boolean(
+            "edge-scrolling-enabled", self.saved_edge_scrolling_enabled)
         Gtk.main_quit()
 
     def show_text(self, text, widget=None):
@@ -161,10 +174,25 @@ class GtkScroller(object):
 
     def on_scroll(self, window, event):
         for direction in self.directions:
-            if direction.value == event.direction:
-                self.found_direction(direction)
-                break
-
+            scroll_delta, delta_x, delta_y = event.get_scroll_deltas()
+            if scroll_delta:
+                event_direction = None
+                # Arbitrarily using 0.8, which requires a little bit of hand
+                # movement on the touchpads used for testing.
+                # Note that the directions are based on the default natural
+                # scrolling settings in GNOME settings.
+                if delta_x > 0.8:
+                    event_direction = Direction("left")
+                elif delta_x < -0.8:
+                    event_direction = Direction("right")
+                if delta_y > 0.8:
+                    event_direction = Direction("up")
+                elif delta_y < -0.8:
+                    event_direction = Direction("down")
+                if event_direction:
+                    if direction.value == event_direction.value:
+                        self.found_direction(direction)
+                        break
         return True
 
 

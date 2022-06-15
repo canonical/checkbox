@@ -70,7 +70,7 @@ class GtkScroller(object):
         button_hbox = self._add_hbox(vbox)
         validation_hbox = self._add_hbox(vbox)
         self.status = self._add_label(vbox)
-        self.exit_button = self._add_button(vbox, Gtk.STOCK_CLOSE)
+        self.exit_button = self._add_button(vbox, "_Close")
         self.exit_button.connect("clicked", lambda w: self.quit())
 
         # Add widgets for each direction.
@@ -85,8 +85,8 @@ class GtkScroller(object):
             "\n" +
             _("Then scroll in each direction on your touchpad."))
 
-    def _add_button(self, context, stock):
-        button = self.button_factory(stock=stock)
+    def _add_button(self, context, label):
+        button = self.button_factory.new_with_mnemonic(label)
         context.add(button)
         button.show()
         return button
@@ -156,7 +156,7 @@ class GtkScroller(object):
 
     def found_direction(self, direction):
         direction.tested = True
-        self.icons[direction].set_from_stock(
+        self.icons[direction].set_from_icon_name(
             self.ICON_TESTED, size=self.ICON_SIZE)
         self.check_directions()
 

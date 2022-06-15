@@ -43,7 +43,7 @@ class GtkScroller(object):
         # Initialize GTK constants
         self.ICON_SIZE = Gtk.IconSize.BUTTON
         self.ICON_TESTED = Gtk.STOCK_YES
-        self.ICON_UNTESTED = Gtk.STOCK_INDEX
+        self.ICON_UNTESTED = Gtk.STOCK_DIALOG_QUESTION
         self.ICON_NOT_REQUIRED = Gtk.STOCK_REMOVE
 
         self.button_factory = Gtk.Button
@@ -78,7 +78,7 @@ class GtkScroller(object):
         for direction in self.directions:
             self._add_label(button_hbox, direction.name)
             self.icons[direction] = self._add_image(
-                validation_hbox, Gtk.STOCK_INDEX)
+                validation_hbox, self.ICON_UNTESTED)
 
         self.show_text(
             _("Please move the mouse cursor to this window.") +

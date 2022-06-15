@@ -124,15 +124,10 @@ class GtkScroller(object):
 
     def run(self):
         # Save touchpad settings.
-        if self.horiz_scroll_key:
-            self.saved_horiz_scroll_enabled = \
-                self.touchpad_settings.get_boolean("horiz-scroll-enabled")
         self.saved_scroll_method = self.touchpad_settings.get_string(
             "scroll-method")
 
         # Set touchpad settings.
-        if self.horiz_scroll_key:
-            self.touchpad_settings.set_boolean("horiz-scroll-enabled", True)
         if self.edge_scroll:
             self.touchpad_settings.set_string(
                 "scroll-method", "edge-scrolling")
@@ -141,9 +136,6 @@ class GtkScroller(object):
 
     def quit(self):
         # Reset touchpad settings.
-        if self.horiz_scroll_key:
-            self.touchpad_settings.set_boolean(
-                "horiz-scroll-enabled", self.saved_horiz_scroll_enabled)
         self.touchpad_settings.set_string(
             "scroll-method", self.saved_scroll_method)
 

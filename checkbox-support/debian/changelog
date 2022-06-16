@@ -1,4 +1,4 @@
-checkbox-support (0.54.0-1) UNRELEASED; urgency=medium
+checkbox-support (0.55.0~rc1-1) UNRELEASED; urgency=medium
 
   [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
@@ -68,8 +68,9 @@ checkbox-support (0.54.0-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Fri, 15 Apr 2022 09:06:37 +0000
+ -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Thu, 16 Jun 2022 08:23:21 +0000
 
 checkbox-support (0.28) unstable; urgency=medium
 

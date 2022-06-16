@@ -1,4 +1,4 @@
-plainbox-provider-certification-server (0.57.0-1) UNRELEASED; urgency=medium
+plainbox-provider-certification-server (0.58.0~rc1-1) UNRELEASED; urgency=medium
 
   [ pierre ]
   * "new upstream version"
@@ -68,8 +68,9 @@ plainbox-provider-certification-server (0.57.0-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Fri, 15 Apr 2022 09:06:39 +0000
+ -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Thu, 16 Jun 2022 08:23:23 +0000
 
 plainbox-provider-certification-server (0.28-1) precise; urgency=medium
 

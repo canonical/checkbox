@@ -102,37 +102,20 @@ _siblings:
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
-id: touchpad/multitouch-horizontal
+id: touchpad/multitouch
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-command: touchpad_test.py right left
+command: touchpad_test.py up down right left
 estimated_duration: 120.0
 _purpose:
-     Touchpad 2-touch horizontal scroll verification
+     Touchpad 2-finger scroll verification
 _steps:
-    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
-    2. Verify that you can move the horizontal slider by moving 2 fingers right and left along the touchpad.
+    1. Press "Enter" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that the scroll events are detected by moving two fingers in all four directions along the touchpad.
 _verification:
-     Could you scroll right and left?
+    Were scroll events detected for all four directions?
 _siblings:
-    [{ "id": "touchpad/multitouch-horizontal-after-suspend",
-       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-horizontal" }]
-
-plugin: user-interact
-category_id: com.canonical.plainbox::touchpad
-id: touchpad/multitouch-vertical
-requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
-command: touchpad_test.py up down
-estimated_duration: 120.0
-_purpose:
-     Touchpad 2-touch vertical scroll verification
-_steps:
-    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
-    2. Verify that you can move the vertical slider by moving 2 fingers up and down along the touchpad.
-_verification:
-     Could you scroll up and down?
-_siblings:
-    [{ "id": "touchpad/multitouch-vertical-after-suspend",
-       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-vertical" }]
+    [{ "id": "touchpad/multitouch-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch" }]
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad

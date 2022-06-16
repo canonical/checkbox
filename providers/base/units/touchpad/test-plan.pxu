@@ -20,8 +20,7 @@ include:
  touchpad/singletouch-selection                 certification-status=blocker
  touchpad/drag-and-drop                         certification-status=blocker
  touchpad/multitouch-rightclick                 certification-status=blocker
- touchpad/multitouch-horizontal                 certification-status=blocker
- touchpad/multitouch-vertical                   certification-status=blocker
+ touchpad/multitouch                            certification-status=blocker
 
 id: touchpad-cert-automated
 unit: test plan
@@ -45,8 +44,7 @@ include:
     touchpad/singletouch-selection-after-suspend   certification-status=blocker
     touchpad/drag-and-drop-after-suspend           certification-status=blocker
     touchpad/multitouch-rightclick-after-suspend   certification-status=blocker
-    touchpad/multitouch-horizontal-after-suspend   certification-status=blocker
-    touchpad/multitouch-vertical-after-suspend     certification-status=blocker
+    touchpad/multitouch-after-suspend              certification-status=blocker
 
 id: touchpad-cert-blockers
 unit: test plan
@@ -59,8 +57,7 @@ include:
     touchpad/singletouch-selection                 certification-status=blocker
     touchpad/drag-and-drop                         certification-status=blocker
     touchpad/multitouch-rightclick                 certification-status=blocker
-    touchpad/multitouch-horizontal                 certification-status=blocker
-    touchpad/multitouch-vertical                   certification-status=blocker
+    touchpad/multitouch                            certification-status=blocker
 
 id: after-suspend-touchpad-cert-blockers
 unit: test plan
@@ -73,5 +70,4 @@ include:
     touchpad/singletouch-selection-after-suspend   certification-status=blocker
     touchpad/drag-and-drop-after-suspend           certification-status=blocker
     touchpad/multitouch-rightclick-after-suspend   certification-status=blocker
-    touchpad/multitouch-horizontal-after-suspend   certification-status=blocker
-    touchpad/multitouch-vertical-after-suspend     certification-status=blocker
+    touchpad/multitouch-after-suspend              certification-status=blocker

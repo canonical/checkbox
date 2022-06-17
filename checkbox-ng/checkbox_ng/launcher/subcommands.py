@@ -950,5 +950,22 @@ class Show():
             self._traverse_obj_tree(child)
 
     def _print_obj(self, obj):
-        for k,v in obj.attrs.items():
-            print("{}: {}".format(k, v))
+        if 'origin' in obj.attrs:
+            try:
+                path, line_range = obj.attrs['origin'].rsplit(':', maxsplit=1)
+                start_index, end_index = [int(i) for i in line_range.split('-')]
+                with open(path, 'rt', encoding='utf-8') as pxu:
+                    # origin uses human-like numbering (starts with 1), so we need
+                    # to substract 1. The range in origin is inclusive,
+                    # so the end_index is right
+                    record = pxu.readlines()[start_index - 1 : end_index]
+                    print(''.join(record))
+            except (ValueError, KeyError):
+                print("Could not read the record for {}!".format(obj.attrs['id']))
+            except OSError as exc:
+                print("Could not read '{}' containing record for '{}'!".format(
+                    path, obj.attrs['id']))
+        else:
+            # provider and service does not have origin
+            for k,v in obj.attrs.items():
+                print("{}: {}".format(k, v))

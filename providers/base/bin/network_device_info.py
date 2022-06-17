@@ -343,7 +343,7 @@ class UdevDevices():
     def _collect_devices(self):
         cmd = ['udevadm', 'info', '--export-db']
         try:
-            output = check_output(cmd).decode(sys.stdout.encoding)
+            output = check_output(cmd).decode(sys.stdout.encoding, errors='ignore')
         except CalledProcessError as err:
             sys.stderr.write(err)
             return

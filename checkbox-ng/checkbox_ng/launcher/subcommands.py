@@ -952,6 +952,7 @@ class Show():
     def _print_obj(self, obj):
         if 'origin' in obj.attrs:
             try:
+                print("origin:", obj.attrs['origin'])
                 path, line_range = obj.attrs['origin'].rsplit(':', maxsplit=1)
                 start_index, end_index = [int(i) for i in line_range.split('-')]
                 with open(path, 'rt', encoding='utf-8') as pxu:

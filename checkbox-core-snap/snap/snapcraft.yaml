@@ -1,8 +1,10 @@
 name: checkbox22
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-version: '1.29.dev'
 grade: stable
+confinement: strict
+
+version: '1.29.dev'
 
 base: core22
 
@@ -262,7 +264,7 @@ parts:
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-pulseaudio
-      - try: [hdapsd] # optional as not available for arm
+      - on amd64: [hdapsd] # optional as not available for arm
       - hdparm
       - i2c-tools
       - ipmitool

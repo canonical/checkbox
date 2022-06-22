@@ -71,7 +71,7 @@ def main():
         raise SystemExit()
     parser = AVAILABLE_PARSERS[args.parser_name]
     stdin = sys.stdin
-    with io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8') as stdin:
+    with io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8', errors='ignore') as stdin:
         try:
             text = stdin.read()
             print(run_parsing(parser, text))

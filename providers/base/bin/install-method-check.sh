@@ -70,21 +70,46 @@ get_install_datasource() {
     fi
 }
 
+# Returns 1 if input takes the form of an IPv4 address,
+# 0 otherwise
+is_ip_addr() {
+    local ip=$1
+    local stat=1
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        OIFS=$IFS
+        IFS='.'
+        read -r -a ip_array <<< "$ip"
+        IFS=$OIFS
+        [[ ${ip_array[0]} -le 255 && ${ip_array[1]} -le 255 \
+        && ${ip_array[2]} -le 255 && ${ip_array[3]} -le 255 ]]
+        stat=$?
+    fi
+    return $stat
+}
+
 # Verify that the $INSTALL_DATASOURCE points to a valid IP address.
 # Note: Function assumes that $INSTALL_DATASOURCE is already set, as is
 # done by the get_install_datasource() function.
 verify_maas_ip() {
+    MAAS_IP=""
     if [[ $INSTALL_DATASOURCE_FOUND == 1 ]]; then
         MAAS_HOSTNAME=$(echo "$INSTALL_DATASOURCE" | cut -d "/" -f 3 | cut -d ":" -f 1)
-        HOST_OUTPUT=$(host "$MAAS_HOSTNAME" | grep "has address")
-        status=$?
-        if [[ $status -eq 0 ]]; then
-            MAAS_IP=$(echo "$HOST_OUTPUT" | cut -d " " -f 4)
+        is_ip_addr "$MAAS_HOSTNAME"
+        if [[ $? -ne 1 ]]; then
+            MAAS_IP=$MAAS_HOSTNAME
+        else
+            HOST_OUTPUT=$(host "$MAAS_HOSTNAME" | grep "has address")
+            status=$?
+            if [[ $status -eq 0 ]]; then
+                MAAS_IP=$(echo "$HOST_OUTPUT" | cut -d " " -f 4)
+            fi
+        fi
+        if [ -z "$MAAS_IP" ] ; then
+            conditional_print "ERROR: Unable to determine MAAS server's IP address" "maas"
+        else
+            MAAS_IP_FOUND=1
             conditional_print "MAAS server's IP address is $MAAS_IP" "maas"
             conditional_print "ERROR: MAAS server's IP address is $MAAS_IP" "subiquity"
-            MAAS_IP_FOUND=1
-        else
-            conditional_print "ERROR: Unable to determine MAAS server's IP address" "maas"
         fi
     fi
 }

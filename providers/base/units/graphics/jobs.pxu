@@ -43,7 +43,6 @@ template-resource: graphics_card
 plugin: manual
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_resolution-change_{product_slug}
-depends: graphics/xorg-version
 _summary: Test changing resolution for {vendor} {product}
 _description:
  PURPOSE:
@@ -236,7 +235,6 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
-depends: graphics/xorg-version
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}

@@ -34,8 +34,6 @@ include:
     suspend/audio_before_suspend                   certification-status=blocker
     suspend/cpu_before_suspend                     certification-status=blocker
     suspend/memory_before_suspend                  certification-status=blocker
-    suspend/bluetooth_obex_send_before_suspend     certification-status=blocker
-    bluetooth4/beacon_eddystone_url_.*             certification-status=blocker
 bootstrap_include:
     device
 
@@ -48,9 +46,6 @@ include:
     suspend/audio_after_suspend_auto                    certification-status=blocker
     suspend/cpu_after_suspend_auto                      certification-status=blocker
     suspend/memory_after_suspend_auto                   certification-status=blocker
-    suspend/bluetooth_detect_after_suspend_auto         certification-status=blocker
-    suspend/bluetooth_obex_send_after_suspend_auto      certification-status=blocker
-    after-suspend-bluetooth4/beacon_eddystone_url_.*    certification-status=blocker
 bootstrap_include:
     device
 
@@ -63,8 +58,6 @@ include:
     suspend/audio_before_suspend                   certification-status=blocker
     suspend/cpu_before_suspend                     certification-status=blocker
     suspend/memory_before_suspend                  certification-status=blocker
-    suspend/bluetooth_obex_send_before_suspend     certification-status=blocker
-    bluetooth4/beacon_eddystone_url_.*             certification-status=blocker
 bootstrap_include:
     device
 
@@ -77,9 +70,6 @@ include:
     suspend/audio_after_suspend_auto                    certification-status=blocker
     suspend/cpu_after_suspend_auto                      certification-status=blocker
     suspend/memory_after_suspend_auto                   certification-status=blocker
-    suspend/bluetooth_detect_after_suspend_auto         certification-status=blocker
-    suspend/bluetooth_obex_send_after_suspend_auto      certification-status=blocker
-    after-suspend-bluetooth4/beacon_eddystone_url_.*    certification-status=blocker
 bootstrap_include:
     device
 

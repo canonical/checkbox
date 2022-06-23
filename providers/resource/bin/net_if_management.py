@@ -36,7 +36,8 @@ def log(msg):
 def get_network_interfaces(category):
     names = []
     cmd = 'udevadm info --export-db'
-    output = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+    output = sp.check_output(cmd, shell=True).decode(
+        sys.stdout.encoding, errors='ignore')
     udev = UdevadmParser(output)
     for device in udev.run():
         if category == getattr(device, "category", None):
@@ -66,7 +67,8 @@ class NmInterfaceState():
     def parse(self, data=None):
         if data is None:
             cmd = 'nmcli -t -f DEVICE,STATE d'
-            data = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
+            data = sp.check_output(cmd, shell=True).decode(
+                sys.stdout.encoding, errors='ignore')
         for line in data.splitlines():
             dev, state = line.strip().rsplit(':', maxsplit=1)
             self.devices[dev] = state

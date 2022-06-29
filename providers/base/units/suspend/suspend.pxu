@@ -202,9 +202,11 @@ command:
      else
          echo "Calling rtcwake"
          if [ -z "$RTC_DEVICE_FILE" ]; then
-             rtcwake -m mem -s 30
+             rtcwake -m on -s 30 &
+             systemctl suspend
          else
-             rtcwake -d "$RTC_DEVICE_FILE" -m mem -s 30
+             rtcwake -d "$RTC_DEVICE_FILE" -m on -s 30 &
+             systemctl suspend
          fi
      fi
  else
@@ -285,9 +287,11 @@ command:
  else
      echo "Calling rtcwake"
      if [ -z "$RTC_DEVICE_FILE" ]; then
-         rtcwake -m mem -s 30
+         rtcwake -m on -s 30 &
+         systemctl suspend
      else
-         rtcwake -d "$RTC_DEVICE_FILE" -m mem -s 30
+         rtcwake -d "$RTC_DEVICE_FILE" -m on -s 30 &
+         systemctl suspend
      fi
  fi
 estimated_duration: 90.000

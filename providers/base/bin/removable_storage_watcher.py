@@ -948,6 +948,10 @@ def main():
 
     else:
         print("\n\n{} NOW\n\n".format(args.action.upper()), flush=True)
+        try:
+            return listener.check(args.timeout)
+        except KeyboardInterrupt:
+            return 1
 
 
 if __name__ == "__main__":

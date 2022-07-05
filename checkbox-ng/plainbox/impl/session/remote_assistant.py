@@ -250,6 +250,7 @@ class RemoteSessionAssistant():
             if (
                 "DISPLAY" in p_environ and
                 "XAUTHORITY" in p_environ and
+                "XDG_SESSION_TYPE" in p_environ and
                 p_user != 'gdm'
             ):  # gdm uses :1024
                 uid = pwd.getpwnam(self._normal_user).pw_uid

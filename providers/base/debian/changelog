@@ -1,4 +1,4 @@
-plainbox-provider-checkbox (0.65.0~rc3-1) UNRELEASED; urgency=medium
+plainbox-provider-checkbox (0.65.0-1) UNRELEASED; urgency=medium
 
   [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
@@ -95,8 +95,9 @@ plainbox-provider-checkbox (0.65.0~rc3-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Mon, 04 Jul 2022 09:18:19 +0000
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:55 +0000
 
 plainbox-provider-checkbox (0.31) unstable; urgency=medium
 

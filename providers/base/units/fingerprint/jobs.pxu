@@ -89,16 +89,7 @@ id: fingerprint/unlock
 depends: fingerprint/verify-match
 user: root
 command:
-  python3 <<EOF
-  from evdev import UInput, ecodes as e
-  ui = UInput()
-  ui.write(e.EV_KEY, e.KEY_LEFTMETA, 1)
-  ui.write(e.EV_KEY, e.KEY_L, 1)
-  ui.write(e.EV_KEY, e.KEY_LEFTMETA, 0)
-  ui.write(e.EV_KEY, e.KEY_L, 0)
-  ui.syn()
-  ui.close()
-  EOF
+  loginctl lock-sessions
 _summary: Fingerprint unlock screen
 _purpose:
  This test will verify that a fingerprint reader can be used to unlock a locked system.

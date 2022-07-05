@@ -1,4 +1,4 @@
-plainbox-provider-sru (1.23.0~rc1-1) UNRELEASED; urgency=medium
+plainbox-provider-sru (1.23.0-1) UNRELEASED; urgency=medium
 
   [ Pierre Equoy ]
   * Open for development (remove this message before releasing)
@@ -41,8 +41,9 @@ plainbox-provider-sru (1.23.0~rc1-1) UNRELEASED; urgency=medium
   * "new upstream version"
   * "new upstream version"
   * "new upstream version"
+  * "new upstream version"
 
- -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Thu, 16 Jun 2022 08:23:31 +0000
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:58 +0000
 
 plainbox-provider-sru (1.5) unstable; urgency=medium
 

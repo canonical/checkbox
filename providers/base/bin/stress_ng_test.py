@@ -134,6 +134,8 @@ def stress_cpu(args):
     return retval
 
 
+# Define memory-related functions...
+
 def num_numa_nodes():
     """Return the number of NUMA nodes supported by the CPU."""
 

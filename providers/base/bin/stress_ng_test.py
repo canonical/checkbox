@@ -73,8 +73,8 @@ class StressNg():
         """Run a stress-ng test, storing results in self.results."""
 
         stressor_list = "--" + " 0 --".join(self.stressors)
-        # 0
-        command = "stress-ng --aggressive --verify --timeout {} {} {} %i". \
+
+        command = "stress-ng --aggressive --verify --timeout {} {} {} {}". \
             format(self.sng_timeout,
                    self.extra_options,
                    stressor_list,
@@ -133,8 +133,6 @@ def stress_cpu(args):
     print(test_object.results)
     return retval
 
-
-# Define memory-related functions...
 
 def num_numa_nodes():
     """Return the number of NUMA nodes supported by the CPU."""
@@ -221,23 +219,18 @@ def stress_memory(args):
     # Constant-run-time stressors -- run them for the same length of time on
     # all systems....
     crt_stressors = ['bsearch', 'context', 'hsearch', 'lsearch', 'matrix',
-                     'memcpy', 'null', 'pipe', 'qsort', 'stack', 'str',
+                     'memcpy', 'null', 'pipe', 'qsort', 'str',
                      'stream', 'tsearch', 'vm-rw', 'wcs', 'zero', 'mlock',
                      'mmapfork', 'mmapmany', 'mremap', 'shm-sysv',
                      'vm-splice']
-    crt_stressors = crt_stressors[0:8]
 
     if num_numa_nodes() > 1:
         crt_stressors.append('numa')
 
     # Variable-run-time stressors -- run longer on systems with more RAM....
-    vrt_stressors = ['malloc', 'mincore', 'vm', 'bigheap', 'brk', 'mmap']
-    vrt_stressors = vrt_stressors[0:3]
+    vrt_stressors = ['malloc', 'mincore', 'vm', 'mmap']
     # stack, bigheap, brk
     ltc_stressors = ['stack', 'bigheap', 'brk']
-
-    # add random selection of n stressors
-    # and/or increase timeout(s)
 
     est_runtime = len(crt_stressors) * args.base_time + \
         len(vrt_stressors) * vrt
@@ -261,7 +254,7 @@ def stress_memory(args):
         test_object = StressNg(stressors=stressor.split(),
                                sng_timeout=vrt,
                                wrapper_timeout=vrt * 2,
-                               thread_count=8)
+                               thread_count=8)  # throttle to 8 threads
         retval = retval | test_object.run()
         print(test_object.results)
     if my_swap is not None and args.keep_swap is False:

@@ -63,7 +63,8 @@ command:
  for i in {1..{{ s3_iterations }}};
  do
     echo "Iteration $i"
-    rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
+    rtcwake -v -m on -s "${STRESS_S3_SLEEP_DELAY:-30}" &
+    systemctl suspend
  done
  {% endif -%}
 _description:

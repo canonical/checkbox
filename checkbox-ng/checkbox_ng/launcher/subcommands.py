@@ -930,3 +930,43 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None):
                 _show(child, indent)
 
     _show(obj, "")
+
+
+class Show():
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'IDs', nargs='+', help=_("Show the definitions of objects"))
+
+    def invoked(self, ctx):
+        providers = ctx.sa.get_selected_providers()
+        self._searched_names = ctx.args.IDs
+        root = Explorer(providers).get_object_tree()
+        self._traverse_obj_tree(root)
+
+    def _traverse_obj_tree(self, obj):
+        if obj.name in self._searched_names:
+            self._print_obj(obj)
+        for child in obj.children:
+            self._traverse_obj_tree(child)
+
+    def _print_obj(self, obj):
+        if 'origin' in obj.attrs:
+            try:
+                print("origin:", obj.attrs['origin'])
+                path, line_range = obj.attrs['origin'].rsplit(':', maxsplit=1)
+                start_index, end_index = [int(i) for i in line_range.split('-')]
+                with open(path, 'rt', encoding='utf-8') as pxu:
+                    # origin uses human-like numbering (starts with 1), so we need
+                    # to substract 1. The range in origin is inclusive,
+                    # so the end_index is right
+                    record = pxu.readlines()[start_index - 1 : end_index]
+                    print(''.join(record))
+            except (ValueError, KeyError):
+                print("Could not read the record for {}!".format(obj.attrs['id']))
+            except OSError as exc:
+                print("Could not read '{}' containing record for '{}'!".format(
+                    path, obj.attrs['id']))
+        else:
+            # provider and service does not have origin
+            for k,v in obj.attrs.items():
+                print("{}: {}".format(k, v))

@@ -231,7 +231,7 @@ def stress_memory(args):
 
     # Variable-run-time stressors -- run longer on systems with more RAM....
     vrt_stressors = ['malloc', 'mincore', 'vm', 'mmap']
-    # stack, bigheap, brk
+    # Low-thread-count stressors -- throttle to >8 threads...
     ltc_stressors = ['stack', 'bigheap', 'brk']
 
     est_runtime = len(crt_stressors) * args.base_time + \

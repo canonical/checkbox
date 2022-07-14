@@ -1,16 +1,16 @@
 #!/bin/bash
 
 #Check if light sensor driver available, this section will be retired after checkbox resource jobs implement the light sensor in Device check
-#Bug for reference https://bugs.launchpad.net/checkbox-support/+bug/1864960
-als_sensors=$(udevadm info --export-db|grep hid_sensor_als)
+#Bug for reference LP #1864960 and LP #1980797
+als_sensors=$(udevadm info --export-db|grep IIO_SENSOR_PROXY_TYPE |grep als)
 
-#Check hid_sensor_als driver is loaded and available first.
+#Check iio_sensor_als is ready and available first.
 if [ -z "$als_sensors" ]
 then
-    echo "Light sensor driver not found"
+    echo "Light sensor is not found"
     exit 1
 else
-    echo "Light sensor driver is available"
+    echo "Light sensor is available"
     echo "$als_sensors"
 fi
 

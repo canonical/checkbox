@@ -392,3 +392,24 @@ plugin: manual
 flags: also-after-suspend
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 5m
+
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/bluetooth_obex_send
+depends: bluetooth/detect-output
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
+flags: also-after-suspend
+_summary: Bluetooth OBEX send
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable

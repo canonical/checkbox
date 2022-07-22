@@ -97,35 +97,6 @@ _description:
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_send_before_suspend
-estimated_duration: 10.0
-requires:
- package.name == 'bluez'
- executable.name == 'obexftp'
- device.category == 'BLUETOOTH'
-command:
-  if [ -z "$BTDEVADDR" ]
-  then
-    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
-    exit 1
-  fi
-  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
-  then
-    echo "rfkill list shows BT is hard blocked"
-  fi
-  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
-  then
-    echo "rfkill list shows BT is soft blocked, removing before testing"
-    rfkill unblock bluetooth
-    sleep 3
-  fi
-  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
-_summary: Bluetooth OBEX send before suspend
-_description:
- This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_before_suspend
 estimated_duration: 10.0
 requires:
@@ -998,64 +969,6 @@ command:
  fi
 _description:
  This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address grabbed before suspend.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_send_after_suspend
-depends: suspend/suspend_advanced_auto
-estimated_duration: 10.0
-requires:
- package.name == 'bluez'
- executable.name == 'obexftp'
- device.category == 'BLUETOOTH'
-command:
-  if [ -z "$BTDEVADDR" ]
-  then
-    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
-    exit 1
-  fi
-  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
-  then
-    echo "rfkill list shows BT is hard blocked"
-  fi
-  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
-  then
-    echo "rfkill list shows BT is soft blocked, removing before testing"
-    rfkill unblock bluetooth
-    sleep 3
-  fi
-  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
-_description:
- This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_send_after_suspend_auto
-depends: suspend/suspend_advanced_auto
-estimated_duration: 10.0
-requires:
- package.name == 'bluez'
- executable.name == 'obexftp'
- device.category == 'BLUETOOTH'
-command:
-  if [ -z "$BTDEVADDR" ]
-  then
-    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
-    exit 1
-  fi
-  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
-  then
-    echo "rfkill list shows BT is hard blocked"
-  fi
-  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
-  then
-    echo "rfkill list shows BT is soft blocked, removing before testing"
-    rfkill unblock bluetooth
-    sleep 3
-  fi
-  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
-_description:
- This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

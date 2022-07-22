@@ -23,7 +23,11 @@ unit: test plan
 _name: Bluetooth tests (automated)
 _description: Bluetooth tests (automated)
 include:
- bluetooth/detect-output                        certification-status=blocker
+    bluetooth/detect-output                        certification-status=blocker
+    bluetooth/bluetooth_obex_send                  certification-status=blocker
+    bluetooth4/beacon_eddystone_url_.*             certification-status=blocker
+bootstrap_include:
+    device
 
 id: bluetooth-cert-blockers
 unit: test plan
@@ -149,3 +153,14 @@ exclude:
     "after-suspend-bluetooth/bluez-internal-hci-tests_LE Read Local PK"
     "after-suspend-bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs"
     "after-suspend-bluetooth/bluez-internal-hci-tests_LE Generate DHKey"
+
+id: after-suspend-bluetooth-cert-automated
+unit: test plan
+_name: Automated Bluetooth tests (after suspend)
+_description: Automated Bluetooth tests (after suspend)
+include:
+    bluetooth/detect-output                                certification-status=blocker
+    after-suspend-bluetooth/bluetooth_obex_send            certification-status=blocker
+    after-suspend-bluetooth4/beacon_eddystone_url_.*       certification-status=blocker
+bootstrap_include:
+    device

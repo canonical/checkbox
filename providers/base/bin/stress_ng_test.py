@@ -58,7 +58,7 @@ class StressNg():
                  stressors,
                  wrapper_timeout,
                  sng_timeout,
-                 thread_count,
+                 thread_count=0,
                  extra_options=""):
 
         self.stressors = stressors
@@ -72,13 +72,15 @@ class StressNg():
     def run(self):
         """Run a stress-ng test, storing results in self.results."""
 
-        stressor_list = "--" + " 0 --".join(self.stressors)
+        stressor_list = "--" + " {} --".format(self.thread_count).join(
+                self.stressors)
+        # LP:1983122 ensure the final stressor in the list is properly defined
+        stressor_list = stressor_list + " {}".format(self.thread_count)
 
-        command = "stress-ng --aggressive --verify --timeout {} {} {} {}". \
+        command = "stress-ng --aggressive --verify --timeout {} {} {}". \
             format(self.sng_timeout,
                    self.extra_options,
-                   stressor_list,
-                   self.thread_count)
+                   stressor_list)
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
             print("{}: Running stress-ng {} stressor for {:.0f} seconds...".

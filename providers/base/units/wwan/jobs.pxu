@@ -37,7 +37,7 @@ _description:
 plugin: shell
 command:
   BEGIN_CONNECTION_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
-  wwan_tests.py 3gpp-connection "$WWAN_CONTROL_IF" "$WWAN_NET_IF" "$WWAN_APN" "${{WWAN_SETUPTIME:-30}}"
+  wwan_tests.py 3gpp-connection {hw_id} "$WWAN_NET_IF" "$WWAN_APN" "${{WWAN_SETUPTIME:-30}}"
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then
     echo "==== Service units logs ===="

@@ -79,7 +79,7 @@ plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid
 estimated_duration: 120.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 _description:
  PURPOSE:
      This test will check your lid sensors.
@@ -456,7 +456,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/light_sensor
 estimated_duration: 10.0
 requires:
-  dmi.product in ['Notebook','Laptop','Portable']
+  dmi.product in ['Notebook','Laptop','Portable','Convertible']
   executable.name == 'monitor-sensor'
 flags: also-after-suspend
 command: light_sensor_test.sh

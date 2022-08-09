@@ -209,6 +209,9 @@ class MMCLI():
     def get_model_name(self, mm_id):
         return _value_from_table('modem', mm_id, 'model')
 
+    def get_primary_port(self, mm_id):
+        return _value_from_table("modem", mm_id, "primary port")
+
     def sim_present(self, mm_id):
         if self._get_sim_id(mm_id) is None:
             return False
@@ -296,8 +299,8 @@ class ThreeGppConnection():
 
     def invoked(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('wwan_control_if',  type=str,
-                            help='The control interface for the device')
+        parser.add_argument('hw_id',  type=str,
+                            help='The hardware ID of the modem')
         parser.add_argument('wwan_net_if', type=str,
                             help='The network interface used when connected')
         parser.add_argument('apn', type=str,
@@ -305,9 +308,14 @@ class ThreeGppConnection():
         parser.add_argument('wwan_setup_time', type=int, default=30,
                             help='delay before ping test')
         args = parser.parse_args(sys.argv[2:])
+
+        mm = MMCLI()
+        mm_id = mm.equipment_id_to_mm_id(args.hw_id)
+        wwan_control_if = mm.get_primary_port(mm_id)
+
         ret_code = 1
         try:
-            _create_3gpp_connection(args.wwan_control_if, args.apn)
+            _create_3gpp_connection(wwan_control_if, args.apn)
             _wwan_radio_on()
             time.sleep(args.wwan_setup_time)
             ret_code = _ping_test(args.wwan_net_if)

@@ -40,16 +40,6 @@ fi
 # wait for services to come online
 snap_wait_all_services_online
 
-snapRelease=$(snap get edgexfoundry release)
-if [ "$snapRelease" != "jakarta" ]; then
-    print_error_logs
-    echo "missing or invalid config item for snap release: \"$snapRelease\""
-    snap_remove
-    exit 1
-else 
-    echo "The release config item is set to jakarta"
-fi
-
 echo "All done. Cleaning up"
 # remove the snap to run the next test
 snap_remove

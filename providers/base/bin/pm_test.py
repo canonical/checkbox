@@ -257,10 +257,10 @@ class PowerManagementOperation():
             problems = ''
             fwts_log_path = os.path.join(self.args.log_dir, 'fwts.log')
             try:
-                with open(fwts_log_path, 'rt') as f:
+                with open(fwts_log_path, 'rt') as fwts_log:
                     magic_line_s3 = 'Completed S3 cycle(s) \n'
                     magic_line_s2idle = 'Completed s2idle cycle(s) \n'
-                    lines = f.readlines()
+                    lines = fwts_log.readlines()
                     count_s3 = lines.count(magic_line_s3)
                     count_s2idle = lines.count(magic_line_s2idle)
                     count = count_s3 + count_s2idle
@@ -277,8 +277,8 @@ class PowerManagementOperation():
                     'comments': problems,
                 }
                 result_filename = os.path.join(self.args.log_dir, '__result')
-                with open(result_filename, 'wt') as f:
-                    json.dump(result, f)
+                with open(result_filename, 'wt') as result_f:
+                    json.dump(result, result_f)
 
         if self.args.silent:
             logging.info(message)
@@ -298,9 +298,9 @@ class PowerManagementOperation():
             # x-terminal-emulator command does not work on Wayland
             # Run the checkbox_respawn_cmd via subprocess.run instead
             except subprocess.CalledProcessError:
-                with open(self.args.checkbox_respawn_cmd, 'rt') as f:
-                    for l in f:
-                        subprocess.run(l, shell=True)
+                with open(self.args.checkbox_respawn_cmd, 'rt') as respawn_f:
+                    for respawn_cmd in respawn_f:
+                        subprocess.run(respawn_cmd, shell=True)
 
     def teardown(self):
         """
@@ -430,6 +430,7 @@ class Command():
     Simple subprocess.Popen wrapper to run shell commands
     and log their output
     """
+
     def __init__(self, command_str, verbose=True):
         self.command_str = command_str
         self.verbose = verbose
@@ -479,6 +480,7 @@ class CountdownDialog(Gtk.Dialog):
     Dialog that shows the amount of progress in the reboot test
     and lets the user cancel it if needed
     """
+
     def __init__(self, pm_operation, pm_delay, hardware_delay,
                  iterations, iterations_count):
         self.pm_operation = pm_operation
@@ -643,6 +645,7 @@ class MessageDialog():
     """
     Simple wrapper aroung Gtk.MessageDialog
     """
+
     def __init__(self, title, message, type=Gtk.MessageType.INFO):
         self.title = title
         self.message = message
@@ -663,6 +666,7 @@ class AutoLoginConfigurator():
     Enable/disable autologin configuration
     to make sure that reboot test will work properly
     """
+
     def __init__(self, user=None):
         self.user = user
         self.config_filename = '/etc/lightdm/lightdm.conf'
@@ -751,7 +755,6 @@ class SudoersConfigurator():
                    "{user} ALL=NOPASSWD: /usr/bin/python3' "
                    "{filename}".format(mark=self.MARK,
                                        user=self.user,
-                                       script=os.path.realpath(__file__),
                                        filename=self.SUDOERS))
 
         Command(command, verbose=False).run()
@@ -891,6 +894,7 @@ class MyArgumentParser():
     """
     Command-line argument parser
     """
+
     def __init__(self):
         """
         Create parser object

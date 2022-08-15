@@ -6,8 +6,9 @@ The category unit is a normalized implementation of a "test category" concept.
 Using category units one can define logical groups of tests that deal with some
 specific testing area (for example, suspend-resume or USB support).
 
-Job definitions can be associated with at most one category. Categories can
-be used by particular applications to facilitate test selection.
+Job definitions can be associated with at most one category using the
+``category_id`` field (see :ref:`job unit reference <category_id>`). Categories
+can be used by particular applications to facilitate test selection.
 
 Category Fields
 ---------------
@@ -15,17 +16,14 @@ Category Fields
 There are two fields that are used by the category unit:
 
 ``id``:
-    This field defines the partial identifier of the category. It is similar
-    to the id field on the job definition units.
-
-    This field is mandatory.
+    (mandatory) - This field defines the partial identifier of the category. It
+    is similar to the ``id`` field on the job definition units.
 
 ``name``:
-    This field defines a human readable name of the category. It may be used
-    in application user interfaces for displaying a group of tests.
+    (mandatory) - This field defines a human readable name of the category. It
+    may be used in application user interfaces for displaying a group of tests.
 
     This field is translatable.
-    This field is mandatory.
 
 Rationale
 =========
@@ -60,4 +58,4 @@ And the following definition of a job unit::
     plugin: manual
     _description: Plug in your headphones and ensure the system detected them
 
-The job definition will be a part of the audio category.
+The job definition will be a part of the ``audio`` category.

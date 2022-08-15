@@ -34,6 +34,11 @@ Following fields may be used by the job unit:
     for translation into other languages. It is used when listing jobs. It must
     be one line long, ideally it should be short (50-70 characters max).
 
+.. _category_id:
+
+``category_id``:
+    (optional) - Identifier of the :doc:`category` this job belongs to.
+
 ``plugin``:
     (mandatory) - For historical reasons it's called "plugin" but it's
     better thought of as describing the "type" of job. The allowed types

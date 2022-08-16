@@ -68,9 +68,9 @@ class Device():
             result = subprocess.check_output(['i2cdetect', '-y', '-r', str(i)],
                                              universal_newlines=True)
             print(result)
-            result_line = result.splitlines()[1:]
-            for l in result_line:
-                address_value = l.strip('\n').split(':')[1].split()
+            result_lines = result.splitlines()[1:]
+            for r in result_lines:
+                address_value = r.strip('\n').split(':')[1].split()
                 for v in address_value:
                     if v != '--':
                         exit_code = 0

@@ -17,7 +17,7 @@ PCM_FILE = '/proc/asound/pcm'
 if os.path.exists(PCM_FILE):
     with open(PCM_FILE, 'r') as f:
         for line in f:
-            t = [l.strip() for l in line.split(':')]
+            t = [device_line.strip() for device_line in line.split(':')]
             # 0 = Card and device id
             ids = t[0].split('-')
             print("Card: {}".format(ids[0]))

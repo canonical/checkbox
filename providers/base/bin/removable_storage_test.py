@@ -19,7 +19,7 @@ gi.require_version('GUdev', '1.0')
 from gi.repository import GUdev                                 # noqa: E402
 
 from checkbox_support.dbus import connect_to_system_bus         # noqa: E402
-from checkbox_support.dbus.udisks2 import (
+from checkbox_support.dbus.udisks2 import (                     # noqa: E402
     UDISKS2_BLOCK_INTERFACE,
     UDISKS2_DRIVE_INTERFACE,
     UDISKS2_FILESYSTEM_INTERFACE,
@@ -28,11 +28,11 @@ from checkbox_support.dbus.udisks2 import (
     UDisks2Observer,
     is_udisks2_supported,
     lookup_udev_device,
-    map_udisks1_connection_bus)                                 # noqa: E402
+    map_udisks1_connection_bus)
 from checkbox_support.heuristics.udisks2 import is_memory_card  # noqa: E402
-from checkbox_support.helpers.human_readable_bytes import (
-    HumanReadableBytes)                                         # noqa: E402
-from checkbox_support.parsers.udevadm import (
+from checkbox_support.helpers.human_readable_bytes import (     # noqa: E402
+    HumanReadableBytes)
+from checkbox_support.parsers.udevadm import (                  # noqa: E402
     CARD_READER_RE,
     GENERIC_RE,
     FLASH_RE,

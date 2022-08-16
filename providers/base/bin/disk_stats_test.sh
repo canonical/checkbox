@@ -27,7 +27,7 @@ if [[ "$1" != '' ]]; then
 fi
 
 nvdimm="pmem"
-if [ -z "${DISK##*$nvdimm*}" ];then
+if [ -z "${DISK##*"$nvdimm"*}" ];then
     echo "Disk $DISK appears to be an NVDIMM, skipping"
     exit "$STATUS"
 fi

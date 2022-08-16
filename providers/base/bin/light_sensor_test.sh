@@ -40,7 +40,7 @@ fi
 #Print 5 values of the Light sensor value form log file
 for i in {1..5}
 do 
-    echo "Ambient light sensor value " $i: "$(grep 'Light' "$PLAINBOX_SESSION_SHARE"/light_sensor_test.log | awk '{print $3}' | sed -n "$i"p)"
+    echo "Ambient light sensor value $i: " "$(grep 'Light' "$PLAINBOX_SESSION_SHARE"/light_sensor_test.log | awk '{print $3}' | sed -n "$i"p)"
 done
 exit 0
 

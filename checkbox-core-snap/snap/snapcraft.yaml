@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '1.29.dev'
+version: '1.29'
 
 base: core22
 
@@ -66,13 +66,13 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: hardware-certification/public
+  ppa: hardware-certification/public
 
 parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: ""
+    source-tag: "V22.07.00"
     source-depth: 1
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts
@@ -98,7 +98,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: ""
+    source-tag: "V0.14.03"
     source-depth: 1
     plugin: make
     source: https://github.com/ColinIanKing/stress-ng.git
@@ -120,7 +120,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
-    source-tag: ""
+    source-tag: "R03_31_22"
     source-depth: 1
     plugin: make
     source: https://github.com/acpica/acpica.git
@@ -134,7 +134,7 @@ parts:
     after: [stress-ng]
 ################################################################################
   checkbox-support:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: python
     source: https://git.launchpad.net/checkbox-support
@@ -173,7 +173,7 @@ parts:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
 ################################################################################
   checkbox-ng:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: python
     source: https://git.launchpad.net/checkbox-ng
@@ -214,7 +214,7 @@ parts:
       - READTHEDOCS: 'True' # simplifies picamera install
 ################################################################################
   plainbox-provider-resource:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-resource
@@ -239,7 +239,7 @@ parts:
     after: [checkbox-ng]
 ################################################################################
   plainbox-provider-checkbox:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-checkbox
@@ -321,7 +321,7 @@ parts:
     after: [plainbox-provider-resource]
 ################################################################################
   plainbox-provider-ipdt:
-    source-tag: ""
+    source-tag: "snap-2022-01-12T0907"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-ipdt
@@ -331,7 +331,7 @@ parts:
     after: [plainbox-provider-checkbox]
 ################################################################################
   plainbox-provider-docker:
-    source-tag: ""
+    source-tag: "snap-2021-08-20T1127"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-docker
@@ -341,7 +341,7 @@ parts:
     after: [plainbox-provider-ipdt]
 ################################################################################
   plainbox-provider-tpm2:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-tpm2
@@ -359,7 +359,7 @@ parts:
     after: [plainbox-provider-tpm2]
 ################################################################################
   plainbox-provider-sru:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-sru
@@ -377,7 +377,7 @@ parts:
     after: [plainbox-provider-sru]
 ################################################################################
   checkbox-provider-gpgpu:
-    source-tag: ""
+    source-tag: "snap-2021-02-23T1430"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/checkbox-provider-gpgpu
@@ -385,7 +385,7 @@ parts:
     after: [checkbox-provider-edgex]
 ################################################################################
   plainbox-provider-certification-client:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-certification-client
@@ -393,7 +393,7 @@ parts:
     after: [checkbox-provider-gpgpu]
 ################################################################################
   plainbox-provider-certification-server:
-    source-tag: ""
+    source-tag: "snap-2022-08-17T0708"
     source-depth: 1
     plugin: checkbox-provider
     source: https://git.launchpad.net/plainbox-provider-certification-server

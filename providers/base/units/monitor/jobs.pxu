@@ -151,7 +151,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dim_brightness_{product_slug}
-requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
+requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::monitor
 user: root

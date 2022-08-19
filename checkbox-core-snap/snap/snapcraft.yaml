@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '1.29.dev'
+version: '1.30.dev'
 
 base: core22
 
@@ -66,7 +66,7 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: hardware-certification/public
+  ppa: hardware-certification/public
 
 parts:
 ################################################################################

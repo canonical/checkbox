@@ -21,7 +21,7 @@ def get_system_mac():
             List: Mac addresses of ethernet devices
     """
     mac_addresses = []
-    for interface in glob.glob("/sys/class/net/en*/address"):
+    for interface in glob.glob("/sys/class/net/e*/address"):
         try:
             with open(interface, 'r') as iface:
                 mac = iface.read()
@@ -69,7 +69,8 @@ def check_mac_passthrough(mac, bios_mac):
             mac: A list contains MAC addresses from system
             bios_mac: A string of MAC address from BIOS DSDT table
     """
-    if len(mac) == 2 and mac[0] == mac[1]:
+    # Check duplicate item in mac list first
+    if len(mac) != len(set(mac)):
         print('AUXMAC in DSDT table is identical to onboard NIC MAC, which '
               'means in BIOS setting, it is set to '
               '"Integrated NIC 1 MAC Address".')
@@ -96,16 +97,14 @@ def check_smbios_token(index):
     """
     smbios_token_cmd = ['smbios-token-ctl', '--token-id=']
     smbios_token_cmd[1] += index
-    try:
-        out = subprocess.check_output(smbios_token_cmd)
-        for line in out.decode("utf-8").splitlines():
-            if 'value: bool' in line:
-                if 'true' in line:
-                    raise SystemExit('MAC address pass-through '
-                                     'is disabled in BIOS setting.')
-    except Exception as err:
-        raise SystemExit(err)
-    print('MAC address pass-through is enabled in BIOS setting.')
+    out = subprocess.run(smbios_token_cmd, check=False, capture_output=True)
+    for line in out.stdout.decode("utf-8").splitlines():
+        if 'value: bool' in line:
+            if 'true' in line:
+                raise SystemExit('MAC address pass-through '
+                                 'is disabled in BIOS setting.')
+            else:
+                print('MAC address pass-through is enabled in BIOS setting.')
 
 
 def main():

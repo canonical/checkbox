@@ -638,7 +638,7 @@ class UDisks2StorageDeviceListener:
                     found.add('mounted')
                     # On some systems partition are reported as mounted
                     # filesystems, without 'partition' record
-                    if set(['partition', 'mounted']).issubset(needs):
+                    if set(['partition']).issubset(needs):
                         needs.remove('partition')
                 # Finally memorize the drive the block device belongs to
                 elif (record.value.iface_name ==

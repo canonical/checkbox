@@ -43,23 +43,19 @@ echo "*  Adding nVidia package repository"
 # SAUCE: https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=debnetwork
 
 OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
-
-wget https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64/cuda-$OSRELEASE.pin
-mv cuda-$OSRELEASE.pin /etc/apt/preferences.d/cuda-repository-pin-600
-# Ran into a case where the 16.04 repo uses http while 18.04 uses https :/
-KEYSERVER_URL_TAIL="://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64/7fa2af80.pub"
-SUCCESS=1
-for KEYSERVER_URL_HEAD in https http; do
-    KEYSERVER_URL=$KEYSERVER_URL_HEAD$KEYSERVER_URL_TAIL
-    apt-key adv --fetch-keys $KEYSERVER_URL
-    SUCCESS=$?
-    [ $SUCCESS == 0 ] && break
-done
-
-add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64/ /"
+REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64"
+PINFILE="cuda-$OSRELEASE.pin"
+if [[ "$OSRELEASE" =~ "2004" ]] || [[ "$OSRELEASE" =~ "1804" ]]; then
+    KEYFILE="cuda-$OSRELEASE-keyring.gpg"
+else
+    KEYFILE="cuda-archive-keyring.gpg"
+fi
+wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
+wget -O /etc/apt/trusted.gpg.d/$KEYFILE "$REPO_URL/$KEYFILE"
+add-apt-repository -y "deb http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64/ /"
 
 # Install necessary files
-apt update
+#apt update
 echo "*  Installing necessary pacakges"
 apt install -y build-essential git
 ## need to break this out to fix issue where cuda installs gdm3

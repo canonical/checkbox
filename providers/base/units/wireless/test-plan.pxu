@@ -30,6 +30,7 @@ _description: Wireless connection tests
 bootstrap_include:
     device
 include:
+    wireless/detect
     wireless/nm_connection_save_.*
     wireless/wireless_scanning_.*                  certification-status=blocker
     wireless/wireless_connection_wpa_bg_nm_.*      certification-status=blocker

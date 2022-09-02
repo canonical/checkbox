@@ -234,6 +234,12 @@ class Port(Node):
             p.Regex('[^ (\n]+'), ' ', combine=True
         ).setResultsName('port-label')
         + p.Suppress('(')
+        + p.Optional(
+            p.Keyword('type').suppress()
+            + p.Suppress(':')
+            + p.Word(p.alphanums).suppress()
+            + p.Suppress(',')
+        )
         + p.Keyword('priority').suppress()
         + p.Suppress(':')
         + p.Word(p.nums).setParseAction(
@@ -242,6 +248,7 @@ class Port(Node):
         + p.MatchFirst([
             p.Suppress(',') + p.Literal('not available'),
             p.Suppress(',') + p.Literal('available'),
+            p.Suppress(',') + p.Literal('availability unknown'),
             p.Empty().setParseAction(lambda t: '')
         ]).setResultsName('port-availability')
         + p.Suppress(')')
@@ -306,6 +313,12 @@ class PortWithProfile(Node):
             ' '
         ).setResultsName('port-label')
         + p.Suppress('(')
+        + p.Optional(
+            p.Keyword('type').suppress()
+            + p.Suppress(':')
+            + p.Word(p.alphanums).suppress()
+            + p.Suppress(',')
+        )
         + p.Keyword('priority').suppress()
         + p.Optional(
             p.Suppress(':')
@@ -325,6 +338,7 @@ class PortWithProfile(Node):
             p.MatchFirst([
                 p.Suppress(',') + p.Literal('not available'),
                 p.Suppress(',') + p.Literal('available'),
+                p.Suppress(',') + p.Literal('availability unknown'),
                 p.Empty().setParseAction(lambda t: '')
             ]).setResultsName('port-availability')
         )

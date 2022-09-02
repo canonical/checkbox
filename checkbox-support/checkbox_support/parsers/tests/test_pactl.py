@@ -202,6 +202,17 @@ class PortTests(ParsingTestCase):
         self.assertEqual(port.priority, 100)
         self.assertEqual(port.availability, 'not available')
 
+    def test_port_with_(self):
+        port = self.assertParses(
+            pactl.Port.Syntax, (
+		        'analog-input-internal-mic: Internal Microphone '
+                '(type: Mic, priority: 8900, availability unknown)')
+        )['port']
+        self.assertEqual(port.name, 'analog-input-internal-mic')
+        self.assertEqual(port.label, 'Internal Microphone')
+        self.assertEqual(port.priority, 8900)
+        self.assertEqual(port.availability, 'availability unknown')
+
     def test_chinese_label(self):
         port = self.assertParses(
             pactl.Port.Syntax, (
@@ -605,6 +616,25 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(
             record.attribute_map['Formats'].value, ['pcm'])
 
+    def test_sinks_p16gen1(self):
+        record = self.assertParses(
+            pactl.Record.Syntax, self.get_text("sinks-desktop-jammy-p16gen1")
+        )['record']
+        self.assertEqual(record.name, "Sink #4")
+        self.assertEqual(record.attribute_list[0].name, "State")
+        self.assertIs(record.attribute_map['State'], record.attribute_list[0])
+        # Probe some random things
+        self.assertEqual(
+            record.attribute_map['Ports'].value[0].name, "Speaker")
+        self.assertEqual(
+            record.attribute_map['Ports'].value[0].availability, "availability unknown")
+        self.assertEqual(
+            record.attribute_map['Ports'].value[1].name, "Headphones")
+        self.assertEqual(
+            record.attribute_map['Properties'].value[2].value, "sound")
+        self.assertEqual(
+            record.attribute_map['Formats'].value, ['pcm'])
+
     def test_modules(self):
         record = self.assertParses(
             pactl.Record.Syntax, self.get_text("modules-desktop-precise-0")
@@ -646,6 +676,12 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         )[0]
         self.assertEqual(len(document.record_list), 1)
 
+    def test_pactl_list_sinks_p16gen1(self):
+        document = self.assertParses(
+            pactl.Document.Syntax, self.get_text("sinks-desktop-jammy-p16gen1")
+        )[0]
+        self.assertEqual(len(document.record_list), 1)
+
     def test_pactl_list_cards(self):
         document = self.assertParses(
             pactl.Document.Syntax, self.get_text("cards-desktop-precise")
@@ -663,6 +699,12 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
             pactl.Document.Syntax, self.get_text("cards-desktop-bionic-x13")
         )[0]
         self.assertEqual(len(document.record_list), 1)
+
+    def test_pactl_list_cards_p16gen1(self):
+        document = self.assertParses(
+            pactl.Document.Syntax, self.get_text("desktop-jammy-p16gen1")
+        )[0]
+        self.assertEqual(len(document.record_list), 43)
 
     def test_pactl_list_clients_bionic(self):
         document = self.assertParses(

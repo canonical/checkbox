@@ -1,0 +1,50 @@
+name: checkbox
+summary: Checkbox test runner
+description: |
+  Checkbox is a flexible test automation software.
+  It’s the main tool used in Ubuntu Certification program.
+version: '2.2.dev'
+grade: stable
+confinement: classic
+
+base: core20
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+  sru:
+    command-chain: [bin/wrapper_local]
+    command: bin/sru
+  client-cert-iot-server:
+    command-chain: [bin/wrapper_local]
+    command: bin/client-cert-iot-server
+  configure:
+    command: bin/configure
+  service:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper service
+    daemon: simple
+    restart-condition: on-failure
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  launchers:
+    plugin: dump
+    source: launchers/
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: .
+    stage: [config_vars]

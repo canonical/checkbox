@@ -1,0 +1,100 @@
+name: checkbox
+summary: Checkbox test runner
+description: |
+  Checkbox is a flexible test automation software.
+  It’s the main tool used in Ubuntu Certification program.
+version: '2.2.dev'
+grade: stable
+confinement: strict
+
+base: core18
+
+plugs:
+  checkbox-runtime:
+    interface: content
+    target: $SNAP/checkbox-runtime
+    default-provider: checkbox18
+  provider-resource:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-resource
+    default-provider: checkbox18
+  provider-checkbox:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-checkbox
+    default-provider: checkbox18
+  provider-ipdt:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-ipdt
+    default-provider: checkbox18
+  provider-docker:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-docker
+    default-provider: checkbox18
+  provider-tpm2:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-tpm2
+    default-provider: checkbox18
+  provider-sru:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-sru
+    default-provider: checkbox18
+  provider-gpgpu:
+    interface: content
+    target: $SNAP/providers/checkbox-provider-gpgpu
+    default-provider: checkbox18
+  provider-certification-client:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-certification-client
+    default-provider: checkbox18
+  provider-certification-server:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-certification-server
+    default-provider: checkbox18
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+    plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
+      gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
+      system-observe, tpm, udisks2]
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+    plugs: *standard
+  sru:
+    command-chain: [bin/wrapper_local]
+    command: bin/sru
+    plugs: *standard
+  client-cert-iot-ubuntucore:
+    command-chain: [bin/wrapper_local]
+    command: bin/client-cert-iot-ubuntucore
+    plugs: *standard
+  configure:
+    command: bin/configure
+  service:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper service
+    daemon: simple
+    restart-condition: on-failure
+    plugs: *standard
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+    plugs: *standard
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  launchers:
+    plugin: dump
+    source: launchers/
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: .
+    stage: [config_vars]

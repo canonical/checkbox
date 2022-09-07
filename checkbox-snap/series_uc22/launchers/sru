@@ -1,0 +1,16 @@
+#!/usr/bin/env checkbox-cli-wrapper
+[launcher]
+app_id = com.canonical.certification:checkbox
+api_flags = restartable
+launcher_version = 1
+stock_reports = text, submission_files
+
+[test plan]
+unit = com.canonical.certification::sru-ubuntucore
+forced = yes
+
+[test selection]
+forced = yes
+
+[ui]
+type = silent

@@ -1,0 +1,18 @@
+#!/usr/bin/env checkbox-cli-wrapper
+[launcher]
+app_id = com.canonical.certification:checkbox
+launcher_version = 1
+stock_reports = text, submission_files
+
+[test plan]
+unit = com.canonical.certification::client-cert-iot-ubuntucore-20-automated
+forced = yes
+
+[test selection]
+forced = yes
+
+[ui]
+type = silent
+auto_retry = yes
+max_attempts = 4
+delay_before_retry = 30

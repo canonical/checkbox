@@ -1,0 +1,52 @@
+#!/bin/bash
+
+case "$SNAP_ARCH" in
+    "amd64") ARCH='x86_64-linux-gnu'
+    ;;
+    "i386") ARCH='i386-linux-gnu'
+    ;;
+    "arm64") ARCH='aarch64-linux-gnu'
+    ;;
+    "armhf") ARCH='arm-linux-gnueabihf'
+    ;;
+    *)
+        echo "Unsupported architecture: $SNAP_ARCH"
+    ;;
+esac
+
+################################################
+# Launcher common exports for any checkbox app #
+################################################
+
+if [ -d $SNAP/checkbox-runtime ]; then
+  RUNTIME=$SNAP/checkbox-runtime
+  if [ ! -d $RUNTIME/usr ]; then
+    echo "You need to connect this snap to the checkbox18 snap."
+    echo ""
+    echo "You can do this with those commands:"
+    echo "snap install checkbox18"
+    echo "snap connect $SNAP_NAME:checkbox-runtime checkbox18:checkbox-runtime"
+    exit 1
+  fi
+fi
+
+export LC_ALL=C.UTF-8
+PERL_VERSION=$(perl -e '$^V=~/^v(\d+\.\d+)/;print $1')
+export PERL5LIB="$PERL5LIB:$SNAP/usr/lib/$ARCH/perl/$PERL_VERSION:$SNAP/usr/lib/$ARCH/perl5/$PERL_VERSION:$SNAP/usr/share/perl/$PERL_VERSION:$SNAP/usr/share/perl5"
+export GI_TYPELIB_PATH=$SNAP/usr/lib/girepository-1.0:$SNAP/usr/lib/$ARCH/girepository-1.0
+export PATH="$PATH:$SNAP/usr/sbin:$SNAP/sbin:/snap/bin"
+export PYTHONPATH="$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH"
+
+if [ -e $RUNTIME/wrapper_common ]; then
+  . $RUNTIME/wrapper_common
+else
+  CGROUP_NAME=$(cat /proc/self/cgroup | grep -e "^1:name")
+  if [[ "$CGROUP_NAME" == *"hook.configure"* ]]; then
+    echo "Running in configure hook, wrapper_common not required"
+  else
+    echo "ERROR: no $RUNTIME/wrapper_common found"
+    exit 0
+  fi
+fi
+
+exec "$@"

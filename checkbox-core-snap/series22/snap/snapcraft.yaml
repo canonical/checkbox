@@ -98,7 +98,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: ""
+    source-tag: "V0.14.03"
     source-depth: 1
     plugin: make
     source: https://github.com/ColinIanKing/stress-ng.git
@@ -115,7 +115,13 @@ parts:
       - libaio-dev
       - libcap-dev
       - libsctp-dev
+      - libatomic1
       - libjudy-dev
+      - libjpeg-dev
+      - libipsec-mb-dev
+      - libglvnd-dev
+      - libgbm-dev
+      - libxxhash-dev
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml

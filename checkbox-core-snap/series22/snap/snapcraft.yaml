@@ -176,7 +176,7 @@ parts:
       - -**/__pycache__
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.10
-      - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
+      - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
 ################################################################################
   checkbox-ng:
     source-tag: ""
@@ -216,13 +216,13 @@ parts:
       - -**/RECORD
       - -**/__pycache__
     build-environment:
-      - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
+      - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
 ################################################################################
   plainbox-provider-resource:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-resource
     source-type: git
     stage-packages:
@@ -235,7 +235,11 @@ parts:
       - smartmontools
     override-build: |
       cd src && autoreconf -i && cd -
-      snapcraftctl build
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-resource --root="$SNAPCRAFT_PART_INSTALL"
     build-packages:
       - autoconf
       - automake
@@ -247,9 +251,15 @@ parts:
   plainbox-provider-checkbox:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-checkbox
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-checkbox --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - bc
       - bluez-tests
@@ -329,9 +339,15 @@ parts:
   plainbox-provider-ipdt:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-ipdt
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-ipdt --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - util-linux
     after: [plainbox-provider-checkbox]
@@ -339,9 +355,15 @@ parts:
   plainbox-provider-docker:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-docker
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-docker --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - apache2-utils
     after: [plainbox-provider-ipdt]
@@ -349,9 +371,15 @@ parts:
   plainbox-provider-tpm2:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-tpm2
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-tpm2 --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - clevis-tpm2
     after: [plainbox-provider-docker]
@@ -359,25 +387,44 @@ parts:
   checkbox-provider-iiotg:
     source-tag: "snap-2022-01-11T1726"
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/checkbox-provider-iiotg
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-iiotg --root="$SNAPCRAFT_PART_INSTALL"
+
     after: [plainbox-provider-tpm2]
 ################################################################################
   plainbox-provider-sru:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-sru
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-sru --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-iiotg]
 ################################################################################
   checkbox-provider-edgex:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/checkbox-provider-edgex
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-edgex --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - curl
     after: [plainbox-provider-sru]
@@ -385,25 +432,43 @@ parts:
   checkbox-provider-gpgpu:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/checkbox-provider-gpgpu
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-gpgpu --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-edgex]
 ################################################################################
   plainbox-provider-certification-client:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-certification-client
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-certification-client --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-gpgpu]
 ################################################################################
   plainbox-provider-certification-server:
     source-tag: ""
     source-depth: 1
-    plugin: checkbox-provider
+    plugin: dump
     source: https://git.launchpad.net/plainbox-provider-certification-server
     source-type: git
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-certification-server --root="$SNAPCRAFT_PART_INSTALL"
     after: [plainbox-provider-certification-client]
 ################################################################################
   glmark2:

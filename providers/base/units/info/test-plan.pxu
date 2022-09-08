@@ -53,6 +53,7 @@ include:
  sysfs_attachment
  udev_attachment
  firmware/fwts_dump_acpi_attachment.gz
+ info/secure-boot-check
 bootstrap_include:
     device
 
@@ -91,6 +92,7 @@ include:
  sysfs_attachment
  udev_attachment
  udev-summary_attachment
+ info/secure-boot-check
 bootstrap_include:
     device
     fwts

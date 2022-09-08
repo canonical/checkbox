@@ -502,3 +502,15 @@ environ: SNAP CHECKBOX_RUNTIME
 user: root
 estimated_duration: 0.02
 _summary: Attaches an information about all parts that constituted this snap
+
+id: info/secure-boot-check
+plugin: attachment
+category_id: com.canonical.plainbox::info
+estimated_duration: 0.2
+requires:
+ package.name == 'mokutil'
+command:
+ mokutil --sb-state
+_summary: Check secure boot state
+_description:
+ Output secure boot is enabled or disabled

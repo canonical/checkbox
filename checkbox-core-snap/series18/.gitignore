@@ -8,3 +8,7 @@ snap/.snapcraft
 snap/gui/
 stage/
 prime/
+
+# following files are populated by the prepare.sh script and should be ignored
+.bumpversion.cfg
+config/

@@ -24,9 +24,9 @@
 # microphone and just ensure the speech can be heard instantly in the headset.
 
 # All the sudirectories here contain sources for snaps for different series.
-# Those snaps have files in common, those files are placed in common_files.
-# This tool copies over those files to the snap's directory so it can be
-# snapped.
+# Those snaps have files in common, those files are placed in
+# common_series_classic.  This tool copies over those files to the snap's
+# directory so it can be snapped.
 
 series=$1
 
@@ -35,7 +35,7 @@ if [ -z "$series" ]; then
 	echo
 	echo "This tool populates snap's directory with missing files that are"
 	echo "common between all series. The files in question may be found in"
-	echo "the common_files directory"
+	echo "the common_series_classic directory"
 	exit 1
 fi
 

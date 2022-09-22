@@ -122,5 +122,4 @@ _description:
 include:
     tpm2/fwts-event-log-dump
 nested_part:
-    tpm2.0_4.1.1-automated
     clevis-automated

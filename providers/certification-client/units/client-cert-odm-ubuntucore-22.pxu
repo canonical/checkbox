@@ -106,6 +106,7 @@ nested_part:
     ethernet-automated
     iot-cert-image-automated
     i2c-automated
+    gpio-automated
     memory-automated
     networking-automated
     snappy-snap-automated
@@ -115,6 +116,7 @@ nested_part:
     suspend-tp
     after-suspend-bluez-automated
     after-suspend-ethernet-automated
+    after-suspend-gpio-automated
     after-suspend-wireless-automated
     after-suspend-wwan-automated
     warm-boot-stress-test

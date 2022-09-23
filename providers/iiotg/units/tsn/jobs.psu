@@ -1,0 +1,16 @@
+
+id: tsn/ensure-ptp4l-service-running
+category_id: tsn
+_summary: Test the PTP4L service is running
+_description:
+  Precision Time Protocol (PTP) for Linux - a tool to ensure the PTP Hardware
+  Clock (PHC) on the NIC is synced with the other end points on the network
+command:
+  snap services ptp4l
+
+id: tsn/check-clocks-sync-{interface}
+_summary: Test that {interface} clock is in sync with the Grand Master clock
+category_id: tsn
+command:
+  check_clocks -d {interface}
+user: root

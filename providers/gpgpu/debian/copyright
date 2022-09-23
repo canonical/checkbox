@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: checkbox-provider-gpgpu
+Source: https://launchpad.net/checkbox-provider-gpgpu
+
+Files: *
+Copyright: Copyright 2020 Canonical Ltd.
+License: GPL-3

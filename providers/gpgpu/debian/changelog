@@ -1,0 +1,22 @@
+checkbox-provider-gpgpu (0.3.0-1) UNRELEASED; urgency=medium
+
+  [ Jeff Lane ]
+  * Moved the GPGPU launcher, testplan and other stuff in from
+    canonical-certification-server and plainbox-provider-checkbox
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+
+  [ Jenkins ]
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Jenkins <jenkins@open-joey-201506-18558.maas>  Tue, 26 Jan 2021 08:32:57 +0000
+
+checkbox-provider-gpgpu (0.1-1) bionic; urgency=medium
+
+  * Initial release
+  * Added in existing GPGPU setup script and test cases from PPC and PPCS
+
+ -- Jeff Lane <jeff@ubuntu.com>  Wed, 20 May 2020 14:49:13 -0400

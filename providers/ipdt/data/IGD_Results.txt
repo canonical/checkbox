@@ -1,0 +1,6 @@
+IGD Module Test
+Module Version: 1.0.4.64b.L
+Start Time: Thu Jul 14 22:14:31 2016
+Test Result: Intel(R) Integrated Graphics Device Not Detected, Test Skipped
+End Time: Thu Jul 14 22:14:31 2016
+Total Time:  seconds: 0

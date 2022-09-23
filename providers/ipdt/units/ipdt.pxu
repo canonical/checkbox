@@ -1,0 +1,295 @@
+unit: category
+id: ipdt
+_name: IPDT
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/SPBC-{platform}
+category_id: ipdt
+_summary: Sample Production Bit Checker
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 spbc -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  The purpose of spbc.exe is to determine if the processor under test is either a sample or production processor
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/genintel-{platform}
+category_id: ipdt
+_summary: Genuine Intel Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 genintel -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  GenIntel.exe reads the General Specific Register and compares it to "GeniunIntel". If the read value matches the expected value, the test will pass.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/temperature-{platform}
+category_id: ipdt
+_summary: Temperature Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  modprobe msr
+  taskset -c 0 temperature -usp 1
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Temperature test measures the CPU junction temperature in Celsius and displays the value below the shutdown value of zero. The default failing set point is 5 degrees Celsius, so if the measured temperature is less than 5 from shutdown. the test will fail.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/brandstring-{platform}
+category_id: ipdt
+_summary: Brand String Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 brandstring -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Reads the brand string parts from the CPU and compares them against parts from a configuration file. If all expected parts from the configuration file are found in the parts from the CPU, the test will pass.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/CPUFreq-{platform}
+category_id: ipdt
+_summary: CPU Frequency Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+environ: LD_LIBRARY_PATH
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 CPUFreq -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Compares the value between expected and detected CPU frequency, base clock frequency and QPI rate.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/Math_FP-{platform}
+category_id: ipdt
+_summary: Floating Point Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 Math_FP -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Performs floating points mathematic operation.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/Math_PrimeNum-{platform}
+category_id: ipdt
+_summary: Prime Number Generation Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 Math_PrimeNum -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Checks how fast the CPU can search for prime numbers.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/cache-{platform}
+category_id: ipdt
+_summary: Cache Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 cache -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  The purpose of CPU Cache test is to display the size of the L1, L2, and L3 Cache, whichever is present. The CPUID instruction is used to read the general purpose EAX, EBX, ECX, and EDX registers. The test retrieves the L1, L2, and L3 Cache size information
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/avx-{platform}
+category_id: ipdt
+_summary: AVX Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 avx -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  The purpose of the AVX test is to detect and test the presence of the following AVX features on your Intel processor : AVX (Advanced Vector Extensions), AES (Advanced Encryption Standard), PCLMULQDQ (Carry-Less Multiplication of two 64 bit operands)
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/IMC-{platform}
+category_id: ipdt
+_summary: Integrated Memory Controller Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 IMC -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Displays or compares the value between expected and detected memory, performs simple memory patterns test.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/PCH-{platform}
+category_id: ipdt
+_summary: Platform Controller Hub Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+environ: LD_LIBRARY_PATH
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 PCH -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Displays the chipset information and external Device Enumeration.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdt/mmxsse-{platform}
+category_id: ipdt
+_summary: MMX/SSE Test
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 mmxsse -c
+  status=$?
+  if [ $status -eq 0 ] || [ $status -eq 3 ] || [ $status -eq 5 ];then
+    exit 0
+  else
+    exit 1
+ fi
+_purpose:
+  Detects which MMX & SSE, SSE2, SSE3, SSSE3, SSE4 instruction sets are supported on the processor being tested.
+  If the instruction set is supported then the test will execute all MMX & SSE instructions for the supported instruction sets.
+flags: preserve-locale suppress-output

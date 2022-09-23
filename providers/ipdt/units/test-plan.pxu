@@ -1,0 +1,52 @@
+# Copyright 2015-2019 Canonical Ltd.
+# All rights reserved.
+
+id: ipdt-plan
+unit: test plan
+_name: IPDTGPU
+_description:
+ Runs the Intel Processor Diagnostic Test Suite
+estimated_duration: 1h
+include:
+    ipdt/.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    com.canonical.certification::package
+    com.canonical.certification::snap
+    com.canonical.certification::uname
+    com.canonical.certification::lsb
+    com.canonical.certification::dpkg
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::dmi
+    com.canonical.certification::meminfo
+bootstrap_include:
+    com.canonical.certification::cpuinfo
+
+id: ipdt-gpu-plan
+unit: test plan
+_name: IPDT (Graphics)
+_description:
+ Runs the Intel Processor Diagnostic Test Suite (Graphics)
+estimated_duration: 1h
+include:
+    ipdtgpu/.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    com.canonical.certification::package
+    com.canonical.certification::snap
+    com.canonical.certification::uname
+    com.canonical.certification::lsb
+    com.canonical.certification::dpkg
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::dmi
+    com.canonical.certification::meminfo
+bootstrap_include:
+    com.canonical.certification::cpuinfo

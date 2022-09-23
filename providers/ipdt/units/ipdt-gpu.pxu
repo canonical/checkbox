@@ -1,0 +1,40 @@
+unit: category
+id: ipdtgpu
+_name: IPDT GPU Tests
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdtgpu/IGD-{platform}
+category_id: ipdtgpu
+_summary: Integrated Graphics Device IGD
+plugin: shell
+user: root
+estimated_duration: 30.0
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 IGD -c
+_purpose:
+  IGD, or Integrated Graphics Device, is a test used to detect if Intel(R) Integrated Graphics are detected on the CPU being tested.
+flags: preserve-locale suppress-output
+
+unit: template
+template-imports: from com.canonical.certification import cpuinfo
+template-resource: cpuinfo
+template-filter: cpuinfo.platform == 'x86_64'
+template-unit: job
+id: ipdtgpu/GFX-{platform}
+category_id: ipdtgpu
+_summary: Advanced Graphics Testing GFX Library
+plugin: shell
+user: root
+estimated_duration: 30.0
+environ: LD_LIBRARY_PATH LIBGL_DRIVERS_PATH
+command:
+  cd $PLAINBOX_PROVIDER_DATA
+  taskset -c 0 GFX -c
+_purpose:
+  Launches a 2D Color Spectrum test and a 3D Graphics test.
+flags: preserve-locale suppress-output

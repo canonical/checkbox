@@ -1,0 +1,241 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-01 11:32+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../manage.py:94
+msgid "Test Definitions (Jobs)"
+msgstr ""
+
+#. Create a section with static information
+#: ../manage.py:110
+msgid "Test Descriptions"
+msgstr ""
+
+#. Add columns: category, id and description
+#: ../manage.py:121
+msgid "Category"
+msgstr ""
+
+#. Add columns: id
+#: ../manage.py:122 ../manage.py:201
+msgid "Test Case ID"
+msgstr ""
+
+#: ../manage.py:123
+msgid "Description"
+msgstr ""
+
+#: ../manage.py:124
+msgid "Command"
+msgstr ""
+
+#: ../manage.py:125
+msgid "Duration"
+msgstr ""
+
+#: ../manage.py:167
+msgid "{}"
+msgstr ""
+
+#. Create a section with static information
+#: ../manage.py:183
+msgid "Test Plan Name"
+msgstr ""
+
+#: ../manage.py:185
+msgid "Test Plan ID"
+msgstr ""
+
+#: ../manage.py:202
+msgid "Summary"
+msgstr ""
+
+#: ../manage.py:223
+msgid "FILE"
+msgstr ""
+
+#: ../manage.py:224
+msgid "path of the .xlsx file to write"
+msgstr ""
+
+#: ../manage.py:231
+msgid "Plainbox Provider for IPDT"
+msgstr ""
+
+#. name
+#: ../units/ipdt.pxu:3
+msgid "IPDT"
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:8
+msgid "Sample Production Bit Checker"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:21
+msgid ""
+" The purpose of spbc.exe is to determine if the processor under test is "
+"either a sample or production processor"
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:28
+msgid "Genuine Intel Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:41
+msgid ""
+" GenIntel.exe reads the General Specific Register and compares it to "
+"\"GeniunIntel\". If the read value matches the expected value, the test will "
+"pass."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:48
+msgid "Temperature Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:62
+msgid ""
+" Temperature test measures the CPU junction temperature in Celsius and "
+"displays the value below the shutdown value of zero. The default failing set "
+"point is 5 degrees Celsius, so if the measured temperature is less than 5 "
+"from shutdown. the test will fail."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:69
+msgid "Brand String Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:82
+msgid ""
+" Reads the brand string parts from the CPU and compares them against parts "
+"from a configuration file. If all expected parts from the configuration file "
+"are found in the parts from the CPU, the test will pass."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:89
+msgid "CPU Frequency Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:103
+msgid ""
+" Compares the value between expected and detected CPU frequency, base clock "
+"frequency and QPI rate."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:110
+msgid "Floating Point Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:123
+msgid " Performs floating points mathematic operation."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:130
+msgid "Prime Number Generation Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:143
+msgid " Checks how fast the CPU can search for prime numbers."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:150
+msgid "Cache Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:163
+msgid ""
+" The purpose of CPU Cache test is to display the size of the L1, L2, and L3 "
+"Cache, whichever is present. The CPUID instruction is used to read the "
+"general purpose EAX, EBX, ECX, and EDX registers. The test retrieves the L1, "
+"L2, and L3 Cache size information"
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:170
+msgid "AVX Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:183
+msgid ""
+" The purpose of the AVX test is to detect and test the presence of the "
+"following AVX features on your Intel processor : AVX (Advanced Vector "
+"Extensions), AES (Advanced Encryption Standard), PCLMULQDQ (Carry-Less "
+"Multiplication of two 64 bit operands)"
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:190
+msgid "Integrated Memory Controller Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:203
+msgid ""
+" Displays or compares the value between expected and detected memory, "
+"performs simple memory patterns test."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:210
+msgid "Platform Controller Hub Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:224
+msgid " Displays the chipset information and external Device Enumeration."
+msgstr ""
+
+#. summary
+#: ../units/ipdt.pxu:231
+msgid "MMX/SSE Test"
+msgstr ""
+
+#. purpose
+#: ../units/ipdt.pxu:244
+msgid ""
+" Detects which MMX & SSE, SSE2, SSE3, SSSE3, SSE4 instruction sets are "
+"supported on the processor being tested.\n"
+" If the instruction set is supported then the test will execute all MMX & "
+"SSE instructions for the supported instruction sets."
+msgstr ""
+
+#. name
+#: ../units/test-plan.pxu:6
+msgid "IPDTGPU"
+msgstr ""
+
+#. description
+#: ../units/test-plan.pxu:7
+msgid "Runs the Intel Processor Diagnostic Test Suite"
+msgstr ""

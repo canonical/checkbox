@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?GFX_LocalConfig.xml Version="1.0.0.0"?>
+<GFX_LocalConfig  GFX_LocalConfig="Integrated Graphics Device Model String Definitions"   >
+  <GraphicsSwitches   GFXTest="ENABLE"
+                      Rotation="Enable"
+                      GFX2DTestExe="./vis2Dgfx"   
+                      GFXTestExe="./visGFX1"
+                      GFXTime="20"
+                      GFXSpin="5"
+                      >
+  </GraphicsSwitches>
+
+</GFX_LocalConfig>
+

@@ -1,0 +1,1448 @@
+#!/bin/bash
+ #pass all command line parameters
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
+if [ "$EUID" -ne 0 ]
+	then echo "Please run IPDT64 as root"
+	exit
+fi
+
+# User specific environment and startup programs
+PATH=$PATH:$HOME/bin
+export PATH
+#LD_LIBRARY_PATH=/usr/local/lib64
+#export LD_LIBRARY_PATH
+
+# Intel Processor Diagnostic Tool - Control Script
+# Intel Corporation
+# Global Reverse Logistics
+# Global Technical Solutions
+
+# ********** Step 1.  Set Administrator Privileges 
+modprobe msr
+#reset
+Version=3.0.0.25.L.MP
+StartDate=$(date '+%d/%m/%Y %H:%M:%S');
+
+# ********** Step 2.  Set IPDT Test Configuration 
+# *******************************************************
+# **** Start of Editable Area ****************************
+# **** Enable Disable Test Modules. Set to Yes or No ****
+SPBC_Enabled=No
+GenIntel_Enabled=Yes
+Temperature_Enabled=Yes
+BrandString_Enabled=Yes
+CPUFreq_Enabled=Yes
+Math_FP_Enabled=Yes
+Math_PrimeNum_Enabled=Yes
+Cache_Enabled=Yes
+MMXSSE_Enabled=Yes
+AVX_Enabled=Yes
+IMC_Enabled=Yes
+PCH_Enabled=Yes
+IGD_Enabled=Yes
+GFX_Enabled=Yes
+CPULoad_Enabled=Yes
+TempMonitor_Enabled=Yes
+# **** Loop Test Modules. Set to 1 2 3 4 ........ ****
+SPBC_Loop=1
+GenIntel_Loop=1
+Temperature_Loop=1
+BrandString_Loop=1
+CPUFreq_Loop=1
+Math_FP_Loop=1
+Math_PrimeNum_Loop=1
+Cache_Loop=1
+MMXSSE_Loop=1
+AVX_Loop=1
+IMC_Loop=1
+PCH_Loop=1
+IGD_Loop=1
+GFX_Loop=1
+CPULoad_Loop=1
+# **** Set Module command line switches (Use module -h for switches to use)........ ****
+SPBC_Cmd="-c"
+GenIntel_Cmd="-c"
+Temperature_Cmd="-c"
+BrandString_Cmd="-c"
+CPUFreq_Cmd="-c"
+Math_FP_Cmd="-c"
+Math_PrimeNum_Cmd="-c"
+Cache_Cmd="-c"
+MMXSSE_Cmd="-c"
+AVX_Cmd="-c"
+IMC_Cmd="-c"
+PCH_Cmd="-c"
+IGD_Cmd="-c"
+GFX_Cmd="-c"
+CPULoad_Cmd="-c -s 240"
+TempMonitor_Cmd="-usp 1 -f 5"
+# **** Set StopOnFail flag to No to Stop IPDT when a Module Fails ****
+# **** Set StopOnFail flag to Yes to continue testing all Modules even if a Module fails **** 
+StopOnFail=Yes
+
+# **** Set Output Test Results File Name and Summary Results file ****************
+# **** Set name within "....." below 
+IPDT_TestResultFile="TestResults.txt"
+IPDT_SummaryFile="Summary.txt"
+IPDT_ResultFileFull="TestResults_Full.txt"
+
+# *******************************************************
+# *******************************************************
+# **** End of Editable Area *****************************
+
+# Set local test flags **********
+SPBC_Tested=No
+GenIntel_Tested=No
+Temperature_Tested=No
+BrandString_Tested=No
+CPUFreq_Tested=No
+Math_FP_Tested=No
+Math_PrimeNum_Tested=No
+Cache_Tested=No
+MMXSSE_Tested=No
+AVX_Tested=No
+IMC_Tested=No
+PCH_Tested=No
+IGD_Tested=No
+GFX_Tested=No
+CPULoad_Tested=No
+
+SPBC_Result=NotStarted
+GenIntel_Result=NotStarted
+Temperature_Result=NotStarted
+BrandString_Result=NotStarted
+CPUFreq_Result=NotStarted
+Math_FP_Result=NotStarted
+Math_PrimeNum_Result=NotStarted
+Cache_Result=NotStarted
+MMXSSE_Result=NotStarted
+AVX_Result=NotStarted
+IMC_Result=NotStarted
+PCH_Result=NotStarted
+IGD_Result=NotStarted
+GFX_Result=NotStarted
+CPULoad_Result=NotStarted
+IPDT_Result=NotStarted
+
+FailDetected=No
+ContinueTesting=Yes
+
+Passed_IPDT () {
+echo -e "\033[92m"
+echo "Passed Test"
+echo
+echo "PPPP    AA     SSS    SSS"
+echo "P  P   A  A   S      S"
+echo "P  P   A  A   S      S"
+echo "PPP    AAAA    SS     SS"
+echo "P      A  A      S      S"
+echo "P      A  A      S      S"
+echo "P      A  A   SSS    SSS"
+echo -e "\033[0m"
+}
+
+Failed_IPDT () {
+echo -e "\033[91m"
+echo "Failed Test"
+echo
+echo "FFFF   AA    III   L"
+echo "F     A  A    I    L"
+echo "F     A  A    I    L"
+echo "FFF   AAAA    I    L"
+echo "F     A  A    I    L"
+echo "F     A  A    I    L"
+echo "F     A  A   III   LLLL"
+echo -e "\033[0m"
+}
+
+# ********** Step 3.  Delete any previous Test Results 
+
+if [ -f $IPDT_TestResultFile ]
+then
+rm $IPDT_TestResultFile 
+fi
+
+if [ -f $IPDT_SummaryFile ]
+then
+rm $IPDT_SummaryFile 
+fi
+
+if [ -f spbc_Results.txt ]
+then
+rm spbc_Results.txt
+fi
+
+if [ -f GenIntel_Results.txt ]
+then
+rm GenIntel_Results.txt 
+fi
+
+if [ -f Temperature_Results.txt ]
+then
+rm Temperature_Results.txt 
+fi
+
+if [ -f BrandString_Results.txt ]
+then
+rm BrandString_Results.txt 
+fi
+
+if [ -f CPUFreq_Results.txt ]
+then
+rm CPUFreq_Results.txt 
+fi
+
+if [ -f Math_FP_results.txt ]
+then
+rm Math_FP_Results.txt 
+fi
+
+if [ -f Math_PrimeNum_results.txt ]
+then
+rm Math_PrimeNum_Results.txt 
+fi
+
+if [ -f Cache_Results.txt ]
+then
+rm Cache_Results.txt 
+fi
+
+if [ -f MMXSSE_Results.txt ]
+then
+rm MMXSSE_Results.txt 
+fi
+
+if [ -f AVX_results.txt ]
+then
+rm AVX_results.txt 
+fi
+
+if [ -f IMC_Results.txt ]
+then
+rm IMC_Results.txt 
+fi
+
+if [ -f PCH_Results.txt ]
+then
+rm PCH_Results.txt 
+fi
+
+if [ -f IGD_Results.txt ]
+then
+rm IGD_Results.txt 
+fi
+
+if [ -f GFX_Results.txt ]
+then
+rm GFX_Results.txt 
+fi
+
+if [ -f CPULoad_Results.txt ]
+then
+rm CPULoad_Results.txt 
+fi
+
+if [ -f cpuinfo.txt ]
+then
+rm cpuinfo.txt 
+fi
+
+if [ -f tmpmonitor.txt ]
+then
+rm tmpmonitor.txt 
+fi
+
+# ********** Step 4.  Run IPDT Test Modules 
+echo "Running Intel Processor Diagnostic Tool"
+echo
+echo --- IPDT 64bit - Revision: $Version ---
+echo --- IPDT 64bit - Start Time: $StartDate ---
+echo
+# Handle IPT Output Results File Header info
+echo --- IPDT 64bit - Revision: $Version --- > $IPDT_TestResultFile
+echo --- IPDT 64bit - Start Time: $StartDate --- >> $IPDT_TestResultFile
+SerialNumber=`/usr/sbin/dmidecode -s system-serial-number`
+SerialNumberText="System Serial Number:  $SerialNumber"
+echo
+echo $SerialNumberText
+echo $SerialNumberText >> $IPDT_TestResultFile
+echo >> $IPDT_TestResultFile
+ 
+# Run all test Modules
+# Parse Module Test Results txt file for pass or fail
+# Set Module Test Result Flag
+# Append Module Test Result to Overall IPDT TestResults.txt file
+# Save TestResults to unique SysSerialNumber_Date_TestResults.txt
+echo 
+echo "Detecting Processor Count....."
+
+cpunum=`grep "physical id" /proc/cpuinfo | sort -u | wc -l`
+lcore=`grep -c "processor" /proc/cpuinfo`
+sleep 1
+echo Number of Processors: $cpunum
+echo Logical Cores: $lcore
+
+echo --- IPDT 64bit - Number of Processors: $cpunum --- >> $IPDT_TestResultFile
+echo --- IPDT 64bit - Logical Cores: $lcore --- >> $IPDT_TestResultFile
+
+#Set Affinity for Taskset -c to CPU number - Begins with 0 for CPU0
+#affinitydec=$(($lcore-1))
+affinitydec=0
+
+testcount=0	#number of IPDT test runs
+echo Test Summary > $IPDT_SummaryFile
+echo ------------ >> $IPDT_SummaryFile
+
+while test $testcount -lt $cpunum
+do
+	let currentCPU=$testcount+1
+	echo "---------------------"
+	echo "Testing Processor $currentCPU"
+	echo "---------------------"
+	echo 
+	echo -e "\n---------------------" >> $IPDT_TestResultFile
+	echo -e "\nTesting Processor $currentCPU" >> $IPDT_TestResultFile
+	echo -e "\n---------------------" >> $IPDT_TestResultFile
+	echo -e "\n" >> $IPDT_TestResultFile
+
+#Run the Modules here with Affinity set using taskset -c
+#####################################################
+SPBC_Result=NotStarted
+GenIntel_Result=NotStarted
+Temperature_Result=NotStarted
+BrandString_Result=NotStarted
+CPUFreq_Result=NotStarted
+Math_FP_Result=NotStarted
+Math_PrimeNum_Result=NotStarted
+Cache_Result=NotStarted
+MMXSSE_Result=NotStarted
+AVX_Result=NotStarted
+IMC_Result=NotStarted
+PCH_Result=NotStarted
+IGD_Result=NotStarted
+GFX_Result=NotStarted
+CPULoad_Result=NotStarted
+IPDT_Result=NotStarted
+
+if [ $SPBC_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	SPBC_Result=Fail
+	for i in $(seq 1 $SBPC_Loop)
+	do
+		echo running SPBC		
+		taskset -c $affinitydec ./spbc $SPBC_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			SPBC_Result=Pass
+			cat spbc_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			SPBC_Result=Fail
+			cat spbc_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			SPBC_Result=Fail
+			cat spbc_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			SPBC_Result=Pass
+			cat spbc_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			SPBC_Result=Fail
+			cat spbc_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			SPBC_Result=Pass
+			cat spbc_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $SPBC_Enabled == No ]
+then
+SPBC_Result=Not_Tested
+fi
+
+if [ $GenIntel_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	GenIntel_Result=Fail
+	for i in $(seq 1 $GenIntel_Loop)
+	do
+		echo running GenIntel		
+		taskset -c $affinitydec ./genintel $GenIntel_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			GenIntel_Result=Pass
+			cat GenIntel_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			GenIntel_Result=Fail
+			cat GenIntel_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			GenIntel_Result=Fail
+			cat GenIntel_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			GenIntel_Result=Pass
+			cat GenIntel_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			GenIntel_Result=Fail
+			cat GenIntel_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			GenIntel_Result=Pass
+			cat GenIntel_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $GenIntel_Enabled == No ]
+then
+GenIntel_Result=Not_Tested
+fi
+
+if [ $Temperature_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	Temperature_Result=Fail
+	for i in $(seq 1 $Temperature_Loop)
+	do
+		echo running Temperature		
+		taskset -c $affinitydec ./temperature $Temperature_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			Temperature_Result=Pass
+			cat Temperature_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			Temperature_Result=Fail
+			cat Temperature_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			Temperature_Result=Fail
+			cat Temperature_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			Temperature_Result=Pass
+			cat Temperature_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			Temperature_Result=Fail
+			cat Temperature_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			Temperature_Result=Pass
+			cat Temperature_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $Temperature_Enabled == No ]
+then
+Temperature_Result=Not_Tested
+fi
+
+
+if [ $BrandString_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	BrandString_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running BrandString		
+		taskset -c $affinitydec ./brandstring $BrandString_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			BrandString_Result=Pass
+			cat BrandString_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			BrandString_Result=Fail
+			cat BrandString_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			BrandString_Result=Fail
+			cat BrandString_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			BrandString_Result=Pass
+			cat BrandString_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			BrandString_Result=Fail
+			cat BrandString_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			BrandString_Result=Pass
+			cat BrandString_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $BrandString_Enabled == No ]
+then
+BrandString_Result=Not_Tested
+fi
+
+if [ $CPUFreq_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	CPUFreq_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running CPUFreq		
+		taskset -c $affinitydec ./CPUFreq $CPUFreq_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			CPUFreq_Result=Pass
+			cat CPUFreq_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			CPUFreq_Result=Fail
+			cat CPUFreq_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			CPUFreq_Result=Fail
+			cat CPUFreq_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			CPUFreq_Result=Pass
+			cat CPUFreq_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			CPUFreq_Result=Fail
+			cat CPUFreq_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			CPUFreq_Result=Pass
+			cat CPUFreq_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $CPUFreq_Enabled == No ]
+then
+CPUFreq_Result=Not_Tested
+fi
+
+if [ $Math_FP_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	Math_FP_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running FloatingPoint		
+		taskset -c $affinitydec ./Math_FP $Math_FP_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			Math_FP_Result=Pass
+			cat Math_FP_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			Math_FP_Result=Fail
+			cat Math_FP_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			Math_FP_Result=Fail
+			cat Math_FP_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			Math_FP_Result=Pass
+			cat Math_FP_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			Math_FP_Result=Fail
+			cat Math_FP_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			Math_FP_Result=Pass
+			cat Math_FP_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $Math_FP_Enabled == No ]
+then
+Math_FP_Result=Not_Tested
+fi
+
+if [ $Math_PrimeNum_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	Math_PrimeNum_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running PrimeNumGen		
+		taskset -c $affinitydec ./Math_PrimeNum $Math_PrimeNum_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			Math_PrimeNum_Result=Pass
+			cat Math_PrimeNum_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			Math_PrimeNum_Result=Fail
+			cat Math_PrimeNum_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			Math_PrimeNum_Result=Fail
+			cat Math_PrimeNum_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			Math_PrimeNum_Result=Pass
+			cat Math_PrimeNum_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			Math_PrimeNum_Result=Fail
+			cat Math_PrimeNum_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			Math_PrimeNum_Result=Pass
+			cat Math_PrimeNum_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $Math_PrimeNum_Enabled == No ]
+then
+Math_PrimeNum_Result=Not_Tested
+fi
+
+if [ $Cache_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	Cache_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running Cache		
+		taskset -c $affinitydec ./cache $Cache_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			Cache_Result=Pass
+			cat Cache_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			Cache_Result=Fail
+			cat Cache_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			Cache_Result=Fail
+			cat Cache_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			Cache_Result=Pass
+			cat Cache_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			Cache_Result=Fail
+			cat Cache_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			Cache_Result=Pass
+			cat Cache_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $Cache_Enabled == No ]
+then
+Cache_Result=Not_Tested
+fi
+
+if [ $MMXSSE_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	MMXSSE_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running MMXSSE		
+		taskset -c $affinitydec ./mmxsse $MMXSSE_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			MMXSSE_Result=Pass
+			cat MMXSSE_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			MMXSSE_Result=Fail
+			cat MMXSSE_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			MMXSSE_Result=Fail
+			cat MMXSSE_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			MMXSSE_Result=Pass
+			cat MMXSSE_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			MMXSSE_Result=Fail
+			cat MMXSSE_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			MMXSSE_Result=Pass
+			cat MMXSSE_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $MMXSSE_Enabled == No ]
+then
+MMXSSE_Result=Not_Tested
+fi
+
+if [ $AVX_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	AVX_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running AVX		
+		taskset -c $affinitydec ./avx $AVX_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			AVX_Result=Pass
+			cat AVX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			AVX_Result=Fail
+			cat AVX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			AVX_Result=Fail
+			cat AVX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			AVX_Result=Pass
+			cat AVX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			AVX_Result=Fail
+			cat AVX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			AVX_Result=Pass
+			cat AVX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $AVX_Enabled == No ]
+then
+AVX_Result=Not_Tested
+fi
+
+if [ $IMC_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	IMC_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running IMC		
+		taskset -c $affinitydec ./IMC $IMC_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			IMC_Result=Pass
+			cat IMC_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			IMC_Result=Fail
+			cat IMC_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			IMC_Result=Fail
+			cat IMC_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			IMC_Result=Pass
+			cat IMC_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			IMC_Result=Fail
+			cat IMC_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			IMC_Result=Pass
+			cat IMC_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $IMC_Enabled == No ]
+then
+IMC_Result=Not_Tested
+fi
+
+if [ $PCH_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	PCH_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running PCH		
+		taskset -c $affinitydec ./PCH $PCH_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			PCH_Result=Pass
+			cat PCH_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			PCH_Result=Fail
+			cat PCH_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			PCH_Result=Fail
+			cat PCH_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			PCH_Result=Pass
+			cat PCH_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			PCH_Result=Fail
+			cat PCH_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			PCH_Result=Pass
+			cat PCH_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $PCH_Enabled == No ]
+then
+PCH_Result=Not_Tested
+fi
+
+if [ $IGD_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	IGD_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running IGD		
+		taskset -c $affinitydec ./IGD $IGD_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			IGD_Result=Pass
+			cat IGD_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			IGD_Result=Fail
+			cat IGD_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			IGD_Result=Fail
+			cat IGD_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			IGD_Result=Pass
+			cat IGD_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			IGD_Result=Fail
+			cat IGD_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			IGD_Result=Pass
+			cat IGD_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $IGD_Enabled == No ]
+then
+IGD_Result=Not_Tested
+fi
+
+if [ $GFX_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	GFX_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running GFX		
+		taskset -c $affinitydec ./GFX $GFX_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			GFX_Result=Pass
+			cat GFX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			GFX_Result=Fail
+			cat GFX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			GFX_Result=Fail
+			cat GFX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			GFX_Result=Pass
+			cat GFX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			GFX_Result=Fail
+			cat GFX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			GFX_Result=Pass
+			cat GFX_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+	done
+fi
+
+if [ $StopOnFail == Yes ] && [ $FailDetected == Yes ]
+then
+ContinueTesting=No
+fi
+
+if [ $GFX_Enabled == No ]
+then
+GFX_Result=Not_Tested
+fi
+
+#All Modules have run - rerun for multiple CPU's
+#Send Results to Summary Text file
+echo >> $IPDT_SummaryFile
+echo Processor $currentCPU >> $IPDT_SummaryFile
+echo ------------- >> $IPDT_SummaryFile
+echo SPBC Result: $SPBC_Result >> $IPDT_SummaryFile
+echo GenIntel Result: $GenIntel_Result >> $IPDT_SummaryFile
+echo Temperature Result: $Temperature_Result >> $IPDT_SummaryFile
+echo BrandString Result: $BrandString_Result >> $IPDT_SummaryFile
+echo CPUFreq Result: $CPUFreq_Result >> $IPDT_SummaryFile
+echo Floating Point Result: $Math_FP_Result >> $IPDT_SummaryFile
+echo Prime Number Result: $Math_PrimeNum_Result >> $IPDT_SummaryFile
+echo Cache Result: $Cache_Result >> $IPDT_SummaryFile
+echo MMXSSE Result: $MMXSSE_Result >> $IPDT_SummaryFile
+echo AVX Result: $AVX_Result >> $IPDT_SummaryFile
+echo IMC Result: $IMC_Result >> $IPDT_SummaryFile
+echo PCH Result: $PCH_Result >> $IPDT_SummaryFile
+echo IGD Result: $IGD_Result >> $IPDT_SummaryFile
+echo GFX Result: $GFX_Result >> $IPDT_SummaryFile
+#######################################################
+	let testcount=$testcount+1
+	
+	#Handle Affinity if cpunum > 1
+	if [ $cpunum -gt 1 ]
+	then
+	cpucount=$(($testcount + 1))
+	affinitydec=$(($lcore / $cpucount))
+	fi 
+done
+
+#..multi-processor stress load section
+if [ $CPULoad_Enabled == Yes ] && [ $ContinueTesting == Yes ]
+then
+	#Set Module Result to fail initially
+	CPULoad_Result=Fail
+	for i in $(seq 1 $_Loop)
+	do
+		echo running CPULoad 
+		if [ $TempMonitor_Enabled == Yes ]
+		then
+			./temperature $TempMonitor_Cmd | tee tmpmonitor.txt &
+		fi
+		lcore=$(($lcore-1))
+		while test $lcore -gt 0
+		do
+			taskset -c $lcore ./CPULoad $CPULoad_Cmd -resultName CPULoad_Results_$lcore.txt &
+			let lcore=$lcore-1
+		done
+		taskset -c 0 ./CPULoad $CPULoad_Cmd
+		status=$?
+		if [ $status == 0 ]
+		then
+			CPULoad_Result=Pass
+			cat CPULoad_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 1 ]
+		then
+			CPULoad_Result=Fail
+			cat CPULoad_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 2 ]
+		then
+			CPULoad_Result=Fail
+			cat CPULoad_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 3 ]
+		then
+			CPULoad_Result=Pass
+			cat CPULoad_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $status == 4 ]
+		then
+			CPULoad_Result=Fail
+			cat CPULoad_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+			FailDetected=Yes
+		fi
+		if [ $status == 5 ]
+		then
+			CPULoad_Result=Pass
+			cat CPULoad_Results.txt >> $IPDT_TestResultFile
+			echo -e "\n--------------------------------------------------------------"
+			echo -e "\n--------------------------------------------------------------" >> $IPDT_TestResultFile
+		fi
+		if [ $TempMonitor_Enabled == Yes ]
+		then
+			pkill -9 temperature
+			cat tmpmonitor.txt >> $IPDT_TestResultFile
+			if grep -Fq "FAIL" tmpmonitor.txt
+			then
+				Temperature_Result=Fail
+				FailDetected=Yes
+			fi
+		fi
+		wait
+	done
+fi
+
+if [ $CPULoad_Enabled == No ]
+then
+CPULoad_Result=Not_Tested
+fi
+
+if [ $testcount -gt 1 ]
+then	
+	echo 
+	echo Multi CPULoad Result: $CPULoad_Result >> $IPDT_SummaryFile
+else
+	echo CPULoad Result: $CPULoad_Result >> $IPDT_SummaryFile
+fi
+
+if [ $TempMonitor_Enabled == Yes ]
+then
+echo Temperature Monitor Result: $Temperature_Result >> $IPDT_SummaryFile
+fi
+
+# Check for Pass/Fail Status
+if [ $FailDetected == Yes ] ; then
+	IPDT_Result=Fail
+else
+	IPDT_Result=Pass
+fi
+
+echo
+#Display Test Results Summary
+cat $IPDT_SummaryFile
+
+echo >> $IPDT_TestResultFile
+cat $IPDT_SummaryFile >> $IPDT_TestResultFile
+
+EndDate=$(date '+%d/%m/%Y %H:%M:%S');
+echo
+echo --- IPDT 64bit - End Time: $StartDate ---
+echo
+# Handle IPT Output Results File Header info
+echo >> $IPDT_TestResultFile
+echo --- IPDT 64bit - End Time: $StartDate --- >> $IPDT_TestResultFile
+echo >> $IPDT_TestResultFile
+echo --- IPDT 64bit - Result: $IPDT_Result --- >> $IPDT_TestResultFile
+
+cat $IPDT_TestResultFile >> $IPDT_ResultFileFull
+echo -e "\n--------------------------------------------------------------" >> $IPDT_ResultFileFull
+
+if [ $IPDT_Result == Pass ]
+then
+Passed_IPDT
+fi
+
+if [ $IPDT_Result == Fail ]
+then
+Failed_IPDT
+fi
+
+#Remove Spaces from Serial Number
+SerialNumber=$(echo $SerialNumber | tr -d ' ')
+snDate=$(date '+%d_%m_%Y_%H_%M_%S');
+snReport=sn_reports/$SerialNumber-$snDate.txt
+cat $IPDT_TestResultFile > $snReport
+
+echo
+echo Testing Completed
+echo Press any key to exit
+read s
+
+
+

@@ -1,0 +1,6 @@
+GFX Module Test
+Module Version: 1.0.4.64b.L
+Start Time: Thu Jul 14 22:21:08 2016
+GFX Module Test: INDETERMINATE
+End Time: Thu Jul 14 22:21:20 2016
+Total Time:  seconds: 12

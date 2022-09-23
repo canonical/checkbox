@@ -1,0 +1,14 @@
+#!/bin/bash
+
+TMPDIR=$(mktemp -d)
+trap "rm -rf $TMPDIR" EXIT
+
+set -e
+
+git clone git://git.launchpad.net/plainbox-provider-resource $TMPDIR/plainbox-provider-resource
+python3 $TMPDIR/plainbox-provider-resource/manage.py develop --force
+
+git clone git://git.launchpad.net/plainbox-provider-checkbox $TMPDIR/plainbox-provider-checkbox
+python3 $TMPDIR/plainbox-provider-checkbox/manage.py develop --force
+
+./manage.py validate

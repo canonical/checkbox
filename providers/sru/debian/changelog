@@ -1,0 +1,92 @@
+plainbox-provider-sru (1.23.0-1) UNRELEASED; urgency=medium
+
+  [ Pierre Equoy ]
+  * Open for development (remove this message before releasing)
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Jenkins ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:58 +0000
+
+plainbox-provider-sru (1.5) unstable; urgency=medium
+
+  [ Pierre Equoy ]
+
+  [ pierre ]
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:18:33 +0800
+
+plainbox-provider-sru (1.4) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Mon, 25 Jul 2016 10:57:16 +0800
+
+plainbox-provider-sru (1.3) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Mon, 20 Jun 2016 10:01:59 +0800
+
+plainbox-provider-sru (1.2) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Tue, 19 Apr 2016 14:12:53 +0800
+
+plainbox-provider-sru (1.1) unstable; urgency=medium
+
+  [ Sylvain Pineau ]
+
+  [ Pierre Equoy ]
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Mon, 21 Mar 2016 11:13:17 +0800
+
+plainbox-provider-sru (1.0) unstable; urgency=medium
+
+  [ Pierre Equoy ]
+  * Initial release.
+
+  [ Sylvain Pineau ]
+  * New upstream release
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 15 Jan 2016 14:22:26 +0100

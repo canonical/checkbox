@@ -1,0 +1,40 @@
+Source: plainbox-provider-sru
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-dev@lists.launchpad.net>
+Uploaders: Pierre Equoy <pierre.equoy@canonical.com>,
+           Sylvain Pineau <sylvain.pineau@canonical.com>
+Build-Depends: autoconf,
+               automake,
+               debhelper (>= 9),
+               intltool,
+               libnl-3-dev,
+               libnl-genl-3-dev,
+               pkg-config,
+               plainbox-provider-checkbox (>= 0.31),
+               python3,
+               python3-checkbox-ng,
+               python3-debian
+Standards-Version: 3.9.6
+Homepage: http://launchpad.net/plainbox-provider-sru
+
+Package: plainbox-provider-sru
+Architecture: any
+Depends: plainbox-provider-checkbox (>= 0.27),
+         python3 (>= 3.2),
+         python3-checkbox-support (>= 0.27),
+         ${misc:Depends},
+         ${plainbox:Depends},
+         ${shlibs:Depends}
+Recommends: ${plainbox:Recommends}
+Suggests: ${plainbox:Suggests}
+X-Plainbox-Provider: yes
+Description: CheckBox SRU jobs provider
+ This package provides the SRU (Stable Release Updates) jobs. It is used together
+ alongside with Plainbox.
+ .
+ Jobs are smallest units of testing that can be performed by Plainbox.
+ All jobs have an unique name. There are many types of jobs, some are fully
+ automated others are fully manual.
+ .
+ SRU jobs are used during SRU testing.

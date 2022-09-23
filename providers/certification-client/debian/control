@@ -1,0 +1,78 @@
+Source: plainbox-provider-certification-client
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
+Uploaders: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Standards-Version: 3.9.3
+Build-Depends: checkbox-ng,
+               debhelper (>= 9.2),
+               intltool,
+               plainbox-provider-resource-generic (>= 0.25~),
+               python3-all (>= 3.2),
+               python3-docutils,
+               python3-setuptools
+
+Package: plainbox-provider-certification-client
+Architecture: all
+Depends: dbus-x11,
+         plainbox-provider-checkbox (>= 0.27~),
+         plainbox-provider-resource-generic (>= 0.25~),
+         plainbox-provider-tpm2,
+         pyotherside,
+         python3-checkbox-ng,
+         qml-module-qtquick-controls,
+         qml-module-qtquick-layouts,
+         qmlscene,
+         ${misc:Depends}
+Recommends: ethtool,
+            fswebcam,
+            fwts (>= 16.02.00-0ubuntu1~),
+            glmark2,
+            hdapsd,
+            hdparm,
+            imagemagick,
+            iw,
+            mesa-utils,
+            nux-tools,
+            obexftp,
+            render-bench,
+            shutter,
+            stress,
+            wmctrl,
+            pm-graph
+Description: Client Certification provider for Plainbox
+ This package provides a test set of test plans that are used by Canonical
+ for the testing and certification of "client" devices. Client devices include
+ laptops, desktops and all-in-one machines.
+ .
+ The actual tests (also known as plainbox jobs) are sourced from checkbox and
+ plainbox resource providers. This package only contains the test plans
+ themselves.
+
+Package: canonical-certification-client
+Architecture: all
+Depends: checkbox-ng (>= 0.25~),
+         plainbox-provider-certification-client (= ${source:Version}),
+         ${misc:Depends}
+Description: Client Certification Launcher
+ This package provides the Client Certification Launcher. The launcher is an
+ executable application that can be started by a test operator to perform the
+ testing process associated with certification of client devices at Canonical.
+
+Package: canonical-certification-submit
+Architecture: all
+Depends: checkbox-ng (>= 0.25~), ${misc:Depends}
+Description: Tool for sending test results to Canonical Certification Website
+ This package provides a simple command line tool for sending a "submission"
+ file to the Canonical Certification Website. It is useful for sending test
+ results that were collected in an off-line environment.
+
+Package: plainbox-glmark2-es2-meta
+Architecture: any
+Depends: glmark2-es2 [arm64 armhf], ${misc:Depends}
+Description: Meta-package to selectively install glmark2-es2
+ The objective of this metapackage is not introducing architecture specificity
+ in plainbox-provider-certification-client. This metapackage will cause
+ installation of glmark2-es2 on arm architectures, while just being a dummy
+ package on others. Arch-independent packages can depend on this one to (maybe)
+ install glmark2-es2.

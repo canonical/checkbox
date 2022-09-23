@@ -1,0 +1,165 @@
+checkbox-support (0.55.0-1) UNRELEASED; urgency=medium
+
+  [ Pierre Equoy ]
+  * Open for development (remove this message before releasing)
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ kissiel ]
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Jenkins ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:48 +0000
+
+checkbox-support (0.28) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:18:05 +0800
+
+checkbox-support (0.22-2) UNRELEASED; urgency=medium
+
+  * Fixed homepage (https)
+  * Fixed VCS URL (https)
+
+ -- Ondřej Nový <novy@ondrej.org>  Tue, 29 Mar 2016 21:39:15 +0200
+
+checkbox-support (0.22-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control: Depend on python3-dbus, python3-gi and python3-lxml.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 07 Dec 2015 13:46:22 +0100
+
+checkbox-support (0.20-2) unstable; urgency=medium
+
+  * debian/patches/fix-lp1483410-part1: Correct the method of loading unit
+    tests so that package modules are not loaded as top-level modules
+    themselves.  (Closes LP: #1483410)
+  * debian/patches/fix-lp1483410-part2: Iterate over a copy of dictionary keys
+    so that the loop can correctly remove elements without raising exceptions.
+  * debian/control: build-depend on python3-dbus and python3-gi as apparently
+    tests are importing modules that depend on those.
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 11 Aug 2015 11:49:15 +0200
+
+checkbox-support (0.20-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/patches/ship-{cpuinfo-test,package,xml-test}-data: drop, applied
+    upstream
+  * debian/control: Use the new email address for the team
+    (checkbox-devel@lists.ubuntu.com). 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 21 Jul 2015 14:40:23 +0200
+
+checkbox-support (0.18-1) unstable; urgency=medium
+
+  * debian/watch: use the new pypi redirector
+  * debian/copyright: correct license of xrandr.py (it's actually "or later"
+    so it is compatible with the rest of the GPL3 code).
+  * debian/copyright: remove duplicate entry for mock.py 
+  * debian/control: correct capitalization of 'Python' 
+  * debian/control: bump Standards-Version to 3.9.6 (no change required) 
+  * debian/patches/ship-package-data: ship package data files so that DEP-8
+    tests can be written
+  * debian/control, debian/tests: add DEP-8 tests 
+  * New upstream release 
+  * debian/control: build-depend on python-libxml (new dependency)
+  * debian/patches/unvendorize: refresh
+  * debian/patches/ship-package-data, debian/patches/ship-xml-test-data,
+    debian/patches/ship-cpuinfo-test-data: bundle test data that was missing
+    from the last release (MANIFEST.in out of date) so that tests can pass
+  * debian/copyright: refresh dates 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 13:30:17 +0100
+
+checkbox-support (0.2-2) unstable; urgency=medium
+
+  * Remove dependency on udisks (Closes: #750512)
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Wed, 04 Jun 2014 09:24:47 +0200
+
+checkbox-support (0.2-1) unstable; urgency=low
+
+  [ Sylvain Pineau ]
+  * New upstream release. List of bugs fixed:
+    https://launchpad.net/checkbox-support/+milestone/0.2
+
+  [ Zygmunt Krynicki ]
+  * Use armoured gpg keys to avoid having to keep binary files in Debian
+    packaging. Also, replace that with my key since I made the 0.2 release
+    upstream. 
+  * Patch away checkbox_support.vendor.mock. Also add a copyright entry for
+    that module. Both changes are similar to what we do in python3-plainbox.
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 07 Apr 2014 12:16:36 +0200
+
+checkbox-support (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #735153)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 10 Jan 2014 10:00:00 +0100

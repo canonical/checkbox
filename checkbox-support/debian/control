@@ -1,0 +1,76 @@
+Source: checkbox-support
+Section: python
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com> 
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
+           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
+           Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Build-Depends:
+ debhelper (>= 9),
+ dh-python,
+ python3-all,
+ python3-bluez,
+ python3-dbus,
+ python3-distro,
+ python3-gi,
+ python3-lxml (>= 2.3),
+ python3-pkg-resources,
+ python3-pyparsing,
+ python3-requests,
+ python3-requests-unixsocket,
+ python3-setuptools,
+ python3-yaml
+Standards-Version: 3.9.6
+X-Python3-Version: >= 3.5
+XS-Testsuite: autopkgtest
+Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/checkbox-support.git
+Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/checkbox-support.git
+Homepage: https://launchpad.net/checkbox-support
+
+Package: python3-checkbox-support
+Architecture: all
+Depends: gir1.2-gudev-1.0,
+         python3-bluez,
+         python3-dbus,
+         python3-distro,
+         python3-gi,
+         python3-lxml,
+         python3-pyparsing,
+         python3-requests,
+         python3-requests-unixsocket,
+         python3-yaml,
+         udev,
+         udisks2,
+         ${misc:Depends},
+         ${python3:Depends}
+Description: collection of Python modules used by PlainBox providers
+ This package contains the CheckBox support Python 3 library, primarily used by
+ the CheckBox provider.
+ .
+ It should not be installed directly, but pulled in by PlainBox provider
+ packages requiring one of the support module listed below:
+ .
+  * checkbox_support.contrib.xrandr: provides a high level API for the XRandR
+    extension of the X.org server.
+ .
+  * checkbox_support.dbus.udisks2: module for working with UDisks2 from Python
+ .
+  * checkbox_support.heuristics.udev: heuristics for udev
+  * checkbox_support.heuristics.udisks2: heuristics for udisks2
+ .
+  * checkbox_support.parsers.cpuinfo: parser for the /proc/cpuinfo file
+  * checkbox_support.parsers.dmidecode: parser for the dmidecode command
+  * checkbox_support.parsers.efi: parser for EFI information
+  * checkbox_support.parsers.lshwjson: parser for the lshw JSON output
+  * checkbox_support.parsers.meminfo: parser for the /proc/meminfo file
+  * checkbox_support.parsers.modinfo: parser for modinfo information
+  * checkbox_support.parsers.pactl: parser for the output of 'pactl list' syntax
+  * checkbox_support.parsers.udevadm: parser for the udevadm command
+  * checkbox_support.parsers.xinput: parser for the xinput command
+ .
+  * checkbox_support.scripts.audio_settings manipulates PulseAudio settings.
+  * checkbox_support.scripts.gputest_benchmark is a wrapper for the Geeks3D
+    GpuTest benchmark.
+ .
+  * checkbox_support.udev is a collection of utility functions for
+    interacting with GUdev.

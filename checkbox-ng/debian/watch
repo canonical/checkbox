@@ -1,0 +1,3 @@
+version=3
+opts=uversionmangle=s/(rc|a|b|c)/~$1/,pgpsigurlmangle=s/$/.asc/ \
+http://pypi.debian.net/checkbox-ng/checkbox-ng-(.+)\.(?:zip|tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))

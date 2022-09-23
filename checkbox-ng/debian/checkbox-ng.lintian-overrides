@@ -1,0 +1,2 @@
+# checkbox-launcher is a correct interpreter for checkbox launchers 
+checkbox-ng: unusual-interpreter usr/bin/checkbox-cli #!checkbox-launcher

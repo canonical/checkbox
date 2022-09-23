@@ -1,0 +1,79 @@
+Source: checkbox-ng
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
+           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
+           Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Build-Depends: debhelper (>= 9),
+               dh-python,
+               python3-all,
+               python3-distutils-extra,
+               python3-docutils,
+               python3-jinja2,
+               python3-padme,
+               python3-pkg-resources,
+               python3-psutil,
+               python3-requests (>= 1.0),
+               python3-requests-oauthlib,
+               python3-setuptools,
+               python3-sphinx,
+               python3-tk,
+               python3-tqdm,
+               python3-urwid,
+               python3-xlsxwriter
+Standards-Version: 3.9.6
+X-Python3-Version: >= 3.2
+Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/checkbox-ng.git
+Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/checkbox-ng.git
+Homepage: https://launchpad.net/checkbox-ng
+
+Package: checkbox-ng
+Architecture: all
+Depends: python3-checkbox-ng (= ${binary:Version}),
+         ${misc:Depends},
+         ${python3:Depends}
+Breaks: plainbox (<<1)
+Replaces: plainbox (<<1)
+Provides: plainbox
+Description: CheckBoxNG test runner
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
+ This package contains the CheckBox command line tool
+
+Package: python3-checkbox-ng
+Architecture: all
+Depends: python3-jinja2,
+         python3-padme,
+         python3-pkg-resources,
+         python3-psutil,
+         python3-requests (>= 1.0),
+         python3-requests-oauthlib,
+         python3-tqdm,
+         python3-urwid,
+         python3-xlsxwriter,
+         ${misc:Depends},
+         ${python3:Depends}
+Breaks: python3-plainbox (<<1)
+Replaces: python3-plainbox (<<1)
+Provides: python3-plainbox
+Description: CheckBoxNG test runner (Python 3 library)
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
+ This package contains the checkbox-ng Python 3 library
+
+Package: python3-checkbox-ng-doc
+Architecture: all
+Section: doc
+Priority: extra
+Depends: ${misc:Depends}, ${sphinxdoc:Depends}
+Description: CheckBoxNG test runner (documentation)
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
+ This package contains the documentation for the checkbox-ng Python 3 library

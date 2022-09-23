@@ -1,0 +1,14 @@
+[Unit]
+Description=Checkbox Remote Service
+Wants=network.target
+
+[Service]
+ExecStart=/usr/bin/checkbox-cli service
+SyslogIdentifier=checkbox-ng.service
+Environment="XDG_CACHE_HOME=/var/cache/"
+Restart=on-failure
+TimeoutStopSec=30
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

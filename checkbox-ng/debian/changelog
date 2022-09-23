@@ -1,0 +1,195 @@
+checkbox-ng (1.19.0-1) UNRELEASED; urgency=medium
+
+  [ Sylvain Pineau ]
+  * Open for development (remove this message before releasing)
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Jenkins ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 23 Aug 2022 09:46:53 +0000
+
+checkbox-ng (1.0.0-1) UNRELEASED; urgency=medium
+
+  [ Sylvain Pineau ]
+  * Major version: Plainbox integration in checkbox-ng.
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 09 Feb 2018 10:11:15 +0100
+
+checkbox-ng (0.29-1) UNRELEASED; urgency=medium
+
+  [ Ondřej Nový ]
+  * Fixed homepage (https)
+  * Fixed VCS URL (https)
+
+  [ Sylvain Pineau ]
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Wed, 05 Oct 2016 13:43:10 +0200
+
+checkbox-ng (0.23-2) unstable; urgency=medium
+
+  * debian/control: Add Breaks/Replaces rules after scripts ownership changes.
+    Closes: #810353.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 11 Jan 2016 15:12:03 +0100
+
+checkbox-ng (0.23-1) unstable; urgency=medium
+
+  * New upstream release. Closes: #740215.
+  * Remove the checkbox-ng-service binary package.
+  * debian/control: require plainbox 0.24 or more recent (new APIs and fixes)
+  * debian/rules: Ensure scripts in /usr/bin are well provided by checkbox-ng
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Wed, 06 Jan 2016 11:36:34 +0100
+
+checkbox-ng (0.22-1) unstable; urgency=medium
+
+  * New upstream maintenance release
+  * debian/control: require plainbox 0.24 or more recent (new APIs and fixes)
+    and checkbox-support 0.22
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 07 Dec 2015 14:17:56 +0100
+
+checkbox-ng (0.20.1-1) unstable; urgency=medium
+
+  * New upstream maintenance release 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 28 Jul 2015 18:48:23 +0200
+
+checkbox-ng (0.20-1) unstable; urgency=medium
+
+  * New upstream release 
+  * debian/control: Use the new email address for the team
+    (checkbox-devel@lists.ubuntu.com). 
+  * debian/patches/documentation-theme: refresh
+  * debian/patches/fix-tests-on-python35: drop (applied upstream)
+  * debian/control: require plainbox 0.22 or more recent (new APIs and fixes) 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 21 Jul 2015 13:21:12 +0200
+
+checkbox-ng (0.18-2) unstable; urgency=medium
+
+  * Add fix-tests-on-python35 patch to use inspect.Signature.from_callable
+    instead of deprecated from_function in Python >= 3.5 (LP: #1473093)
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 09 Jul 2015 19:58:33 +0200
+
+checkbox-ng (0.18-1) unstable; urgency=medium
+
+  * New upstream release 
+  * debian/rules: prune empty directories in python3-checkbox-ng
+  * debian/control: update Standards-Version to 3.9.6 (no change required)
+  * debian/watch: use the new pypi redirector 
+  * debian/upstream/signing-key.asc: add key 7ED72CD1
+    of Sylvain Pineau <sylvain.pineau@canonical.com>
+  * debian/patches/documentation-theme: patch away the custom theme 
+  * debian/rules: remove stale rules for no-longer-present canonical-*
+    executables
+  * debian/rules: ship checkbox-cli launcher in the checkbox-ng binary package 
+  * debian/control: checkbox-ng-service depends on python3  
+  * debian/checkbox-ng.manpages: remove stale links for no-longer-present
+    canonical-* executables
+  * debian/checkbox-ng.lintian-overrides: add lintian override for
+    checkbox-launcher script interpreter 
+  * debian/control: wrap-and-sort 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 05 Mar 2015 14:40:11 +0100
+
+checkbox-ng (0.3.1-1) unstable; urgency=medium
+
+  * New upstream release: https://launchpad.net/checkbox-ng/14.04/0.3.1 
+  * debian/control: reformat some dependencies
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 28 Apr 2014 11:35:20 +0200
+
+checkbox-ng (0.3-2) unstable; urgency=medium
+
+  * Add build dependency on python3-requests
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Wed, 09 Apr 2014 18:34:16 +0200
+
+checkbox-ng (0.3-1) unstable; urgency=medium
+
+  [ Zygmunt Krynicki ]
+  * New upstream release: https://launchpad.net/checkbox-ng/14.04/0.3 
+  * debian/control: make python3-checkbox-ng, checkbox-ng and checkbox-service
+    all depend on one version of themselves. LP: #1298284
+  * debian/control: depend on latest plainbox 
+  * debian/upstream/signing-key.asc: Use armoured gpg keys to avoid having to
+    keep binary files in Debian packaging. Also, replace that with my key
+    since I made the 0.3 release upstream.
+  * debian/source/include-binaries: no longer needed 
+
+  [ Piotr Ożarowski ]
+  * debian/watch: add support for dev releases
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 27 Mar 2014 11:18:14 +0100
+
+checkbox-ng (0.2.2-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 24 Mar 2014 14:27:40 +0100
+
+checkbox-ng (0.1-2) unstable; urgency=low
+
+  [ Daniel Manrique ]
+  * checkbox-ng Replaces: and Breaks: old, pre-transitional versions of
+    checkbox, to avoid conflict with some files.
+
+  [ Matthias Klose ]
+  * Don't used a python3.x shebang. Closes: #739883.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 25 Feb 2014 15:57:58 +0100
+
+checkbox-ng (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #736284)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 21 Jan 2014 21:18:23 +0100

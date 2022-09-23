@@ -1,0 +1,44 @@
+#! /bin/sh
+# Pre-install script for ‘python3-checkbox-ng.
+#
+# Manpage: ‘dh_installdeb(1)’
+
+set -e
+
+# Summary of ways this script can be called:
+#   * <new-preinst> install
+#   * <new-preinst> install <old-version>
+#   * <new-preinst> upgrade <old-version>
+#   * <old-preinst> abort-upgrade <new-version>
+# For details, see the Debian Policy §6.5 in the ‘debian-policy’ package
+# or on the web at <URL:http://www.debian.org/doc/debian-policy/>.
+
+action="$1"
+
+case "$action" in
+    upgrade)
+        data_dir="/usr/lib/python3/dist-packages/checkbox-ng/data"
+        if [ -d "$data_dir" ] && [ ! -L "$data_dir" ] ; then
+            # The ‘data’ location should be platform-independent.
+            # The new package will replace the directory with a symlink.
+            rm -rf "$data_dir"
+        fi
+        testdata_dir="/usr/lib/python3/dist-packages/checkbox-ng/test-data"
+        if [ -d "$testdata_dir" ] && [ ! -L "$testdata_dir" ] ; then
+            # The ‘data’ location should be platform-independent.
+            # The new package will replace the directory with a symlink.
+            rm -rf "$testdata_dir"
+        fi
+        ;;
+
+    install|abort-upgrade)
+        ;;
+
+    *)
+        printf "preinst called with unknown action ‘%s’\n" "$action" >&2
+        exit 1
+        ;;
+
+esac
+
+#DEBHELPER#

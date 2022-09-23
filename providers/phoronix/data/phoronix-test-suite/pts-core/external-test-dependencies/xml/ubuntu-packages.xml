@@ -1,0 +1,399 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="xsl/pts-exdep-viewer.xsl" ?>
+<PhoronixTestSuite>
+	<ExternalDependencies>
+		<Information>
+			<Name>Ubuntu</Name>
+			<Aliases>Debian, Linux Mint, MEPIS, Nexenta Core, PTS Linux Live, PTS Desktop Live, Joli Cloud, gNewSense, Fluxbuntu, Mythbuntu, Goobuntu, GNU KFreeBSD, Linaro</Aliases>
+			<PackageManager>apt-get</PackageManager>
+		</Information>
+		<Package>
+			<GenericName>common-dependencies</GenericName>
+			<PackageName>mesa-utils unzip apt-file unzip</PackageName>
+			<FileCheck>glxinfo, unzip, apt-file</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>32bit-compatibility</GenericName>
+			<PackageName>libc6-i386 libc6:i386 libstdc++6:i386 libstdc++5:i386 libx11-6:i386 libxext6:i386 libxrandr2:i386 libxinerama1:i386 libxdamage-dev:i386 libgl1-mesa-dev:i386 libsdl-sound1.2:i386 libjpeg62:i386 libudev1:i386</PackageName>
+			<ArchitectureSpecific>x86_64</ArchitectureSpecific>
+			<FileCheck>/lib32/libc.so.6, /lib/i386-linux-gnu/libc.so.6, /usr/lib/i386-linux-gnu/libX11.so.6</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>32bit-compatibility</GenericName>
+			<PackageName>ia32-libs</PackageName>
+			<ArchitectureSpecific>x86_64</ArchitectureSpecific>
+			<VersionSpecific>8.04, 8.10, 9.04, 9.10, 10.04, 10.10, 11.04, 11.10, 12.04, 12.10, 13.04</VersionSpecific>
+			<FileCheck>/usr/share/doc/ia32-libs</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>gtk-development</GenericName>
+			<PackageName>libgtk2.0-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>sdl2-development</GenericName>
+			<PackageName>libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>sdl-development</GenericName>
+			<PackageName>libsdl1.2-dev libsdl-gfx1.2-dev libsdl-net1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>vulkan-development</GenericName>
+			<PackageName>vulkan-utils libvulkan-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>glut</GenericName>
+			<PackageName>freeglut3-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>csh</GenericName>
+			<PackageName>csh</PackageName>
+		</Package>
+		<Package>
+			<GenericName>libpng-development</GenericName>
+			<PackageName>libpng-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>openssl-development</GenericName>
+			<PackageName>libssl-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>build-utilities</GenericName>
+			<PackageName>build-essential autoconf</PackageName>
+			<FileCheck>/usr/share/build-essential, autoconf</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>cairo-development</GenericName>
+			<PackageName>libcairo2-dev libgdk-pixbuf2.0-dev</PackageName>
+			<FileCheck>cairo/cairo.h, gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf.h</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>xorg-development</GenericName>
+			<PackageName>xorg-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>tiff</GenericName>
+			<PackageName>libtiff5-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>bison</GenericName>
+			<PackageName>bison</PackageName>
+		</Package>
+		<Package>
+			<GenericName>flex</GenericName>
+			<PackageName>flex</PackageName>
+		</Package>
+		<Package>
+			<GenericName>imlib2-development</GenericName>
+			<PackageName>libimlib2-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>java</GenericName>
+			<PackageName>openjdk-11-jdk</PackageName>
+		</Package>
+		<Package>
+			<GenericName>maven</GenericName>
+			<PackageName>maven</PackageName>
+		</Package>
+		<Package>
+			<GenericName>portaudio-development</GenericName>
+			<PackageName>portaudio19-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>fortran-compiler</GenericName>
+			<PackageName>gfortran</PackageName>
+		</Package>
+		<Package>
+			<GenericName>glew</GenericName>
+			<PackageName>libglew1.5-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>lib3ds</GenericName>
+			<PackageName>lib3ds-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>bc</GenericName>
+			<PackageName>bc</PackageName>
+		</Package>
+		<Package>
+			<GenericName>freeimage</GenericName>
+			<PackageName>libfreeimage3 libfreeimage-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>scons</GenericName>
+			<PackageName>scons</PackageName>
+		</Package>
+		<Package>
+			<GenericName>smartmontools</GenericName>
+			<PackageName>smartmontools</PackageName>
+		</Package>
+		<Package>
+			<GenericName>zlib-development</GenericName>
+			<PackageName>zlib1g-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>jpeg-development</GenericName>
+			<PackageName>libjpeg-dev</PackageName>
+			<FileCheck>jpeglib.h</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>libaio-development</GenericName>
+			<PackageName>libaio-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>pcre</GenericName>
+			<PackageName>libpcre3-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>perl</GenericName>
+			<PackageName>perl perl-base perl-modules libsdl-perl libperl-dev</PackageName>
+			<FileCheck>perl, /etc/perl/CPAN</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>perl-opengl</GenericName>
+			<PackageName>libopengl-perl</PackageName>
+			<FileCheck>perl5/auto/OpenGL/OpenGL.so</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>xorg-video</GenericName>
+			<PackageName>libxv-dev libxvmc-dev libvdpau-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>libstdcpp5</GenericName>
+			<PackageName>libstdc++5</PackageName>
+		</Package>
+		<Package>
+			<GenericName>openal-development</GenericName>
+			<PackageName>libopenal-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>vorbis-development</GenericName>
+			<PackageName>libvorbis-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>jam</GenericName>
+			<PackageName>jam</PackageName>
+		</Package>
+		<Package>
+			<GenericName>p7zip</GenericName>
+			<PackageName>p7zip-full</PackageName>
+		</Package>
+		<Package>
+			<GenericName>qt4-development</GenericName>
+			<PackageName>libqt4-dev libqt4-opengl-dev</PackageName>
+			<FileCheck>qmake-qt4, qt4/Qt/qgl.h</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>qt5-development</GenericName>
+			<PackageName>qml-module-qtquick2 qtdeclarative5-dev qt5-default qtbase5-dev</PackageName>
+			<FileCheck>qmake</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>autoconf</GenericName>
+			<PackageName>autoconf</PackageName>
+		</Package>
+		<Package>
+			<GenericName>libtool</GenericName>
+			<PackageName>libtool</PackageName>
+		</Package>
+		<Package>
+			<GenericName>libevent</GenericName>
+			<PackageName>libevent-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>ncurses-development</GenericName>
+			<PackageName>libncurses5-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>popt</GenericName>
+			<PackageName>libpopt-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>numa-development</GenericName>
+			<PackageName>libnuma-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>curl</GenericName>
+			<PackageName>curl libcurl4-openssl-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>fftw3-development</GenericName>
+			<PackageName>libfftw3-dev fftw-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>blas-development</GenericName>
+			<PackageName>libblas-dev libopenblas-base libopenblas-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>lapack-development</GenericName>
+			<PackageName>liblapack-dev liblapacke-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>atlas-development</GenericName>
+			<PackageName>libatlas-base-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>openmpi-development</GenericName>
+			<PackageName>libopenmpi-dev openmpi-bin libmpich-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>cmake</GenericName>
+			<PackageName>cmake cmake-data</PackageName>
+		</Package>
+		<Package>
+			<GenericName>boost-development</GenericName>
+			<PackageName>libboost-all-dev libasio-dev libboost-iostreams-dev</PackageName>
+			<FileCheck>boost/regex.hpp, boost/iostreams/write.hpp</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>bzip2-development</GenericName>
+			<PackageName>libbz2-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>tcl</GenericName>
+			<PackageName>tcl</PackageName>
+		</Package>
+		<Package>
+			<GenericName>glibc-development</GenericName>
+			<PackageName>libc6-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>rust</GenericName>
+			<PackageName>rustc cargo</PackageName>
+		</Package>
+		<Package>
+			<GenericName>glibc-development</GenericName>
+			<PackageName>libc6-dev-i386</PackageName>
+			<FileCheck>/usr/lib32/libc.so</FileCheck>
+			<ArchitectureSpecific>x86_64</ArchitectureSpecific>
+		</Package>
+		<Package>
+			<GenericName>python</GenericName>
+			<PackageName>python python-pip python3-pip</PackageName>
+			<FileCheck>pip3, python, python3</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>python-boost-development</GenericName>
+			<PackageName>libboost-python-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>boost-thread-development</GenericName>
+			<PackageName>libboost-thread-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>python-numpy</GenericName>
+			<PackageName>python-numpy</PackageName>
+			<FileCheck>/usr/share/pyshared/numpy/version.py OR /usr/lib/python2.7/dist-packages/numpy/version.py</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>yasm</GenericName>
+			<PackageName>yasm nasm</PackageName>
+		</Package>
+		<Package>
+			<GenericName>gmp-library</GenericName>
+			<PackageName>libgmp3-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>subversion</GenericName>
+			<PackageName>subversion</PackageName>
+		</Package>
+		<Package>
+			<GenericName>git</GenericName>
+			<PackageName>git-core</PackageName>
+		</Package>
+		<Package>
+			<GenericName>superlu</GenericName>
+			<PackageName>libsuperlu-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>suitesparse</GenericName>
+			<PackageName>libsuitesparse-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>dune</GenericName>
+			<PackageName>libdune-common-dev libdune-istl-dev libdune-geometry-dev libdune-grid-dev libdune-localfunctions-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>tinyxml</GenericName>
+			<PackageName>libtinyxml-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>opencl</GenericName>
+			<PackageName>opencl-headers ocl-icd-libopencl1</PackageName>
+		</Package>
+		<Package>
+			<GenericName>attr</GenericName>
+			<PackageName>libattr1-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>httpd</GenericName>
+			<PackageName>apache2</PackageName>
+		</Package>
+		<Package>
+			<GenericName>meson</GenericName>
+			<PackageName>meson</PackageName>
+		</Package>
+                <Package>
+			<GenericName>golang</GenericName>
+			<PackageName>golang</PackageName>
+		</Package>
+                <Package>
+			<GenericName>steam</GenericName>
+			<PackageName>steam</PackageName>
+		</Package>
+                <Package>
+			<GenericName>redis-server</GenericName>
+			<PackageName>redis-server</PackageName>
+		</Package>
+                <Package>
+			<GenericName>opencv</GenericName>
+			<PackageName>libopencv-dev</PackageName>
+		</Package>
+		<Package>
+                        <GenericName>perl-digest-md5</GenericName>
+                        <PackageName>libdigest-md5-file-perl libdigest-perl-md5-perl</PackageName>
+                </Package>
+		<Package>
+			<GenericName>python-scipy</GenericName>
+			<PackageName>python-scipy</PackageName>
+			<FileCheck>/usr/lib/python2.7/dist-packages/scipy</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>python-sklearn</GenericName>
+			<PackageName>python-sklearn</PackageName>
+			<FileCheck>/usr/lib/python2.7/dist-packages/sklearn/</FileCheck>
+		</Package>
+		<Package>
+			<GenericName>V8</GenericName>
+			<PackageName>libv8-dev</PackageName>
+		</Package>
+		<Package>
+			<GenericName>ruby</GenericName>
+			<PackageName>ruby</PackageName>
+		</Package>
+		<Package>
+			<GenericName>gimp</GenericName>
+			<PackageName>gimp</PackageName>
+		</Package>
+		<Package>
+			<GenericName>darktable</GenericName>
+			<PackageName>darktable</PackageName>
+		</Package>
+		<Package>
+			<GenericName>wine</GenericName>
+			<PackageName>wine</PackageName>
+		</Package>
+		<Package>
+			<GenericName>mongodb</GenericName>
+			<PackageName>mongodb</PackageName>
+		</Package>
+		<Package>
+			<GenericName>node-npm</GenericName>
+			<PackageName>npm</PackageName>
+		</Package>
+		<Package>
+			<GenericName>expat</GenericName>
+			<PackageName>libexpat1-dev</PackageName>
+		</Package>
+	</ExternalDependencies>
+</PhoronixTestSuite>

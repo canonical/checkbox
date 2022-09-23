@@ -1,0 +1,119 @@
+unit: category
+id: phoronix
+_name: Phoronix Test Suite
+
+unit: test plan
+category_id: phoronix
+id: pts
+_name: Phoronix Test Suite
+include:
+ pts-prepare-nest
+ pts/encode-mp3
+ pts/fs-mark
+ pts/john-the-ripper
+ pts/ramspeed
+ pts-generate-report
+ pts-attach-report
+bootstrap_include:
+ com.canonical.certification::cpuinfo
+ com.canonical.certification::environment
+ pts-job-generator
+
+unit: test plan
+category_id: phoronix
+id: pts-autotest
+_name: Phoronix Test Suite - Autotest suite
+include:
+ pts/john-the-ripper
+ pts/openssl
+ pts/povray
+ pts/ttsiod-renderer
+bootstrap_include:
+ com.canonical.certification::cpuinfo
+ com.canonical.certification::environment
+ pts-job-generator
+
+id: pts-job-generator
+category_id: phoronix
+plugin: resource
+requires:
+ cpuinfo.platform == "x86_64"
+ environment.PTS_CACHE_URL != ''
+command:
+ echo id: pts/encode-mp3
+ echo "name: This test measures the time required to encode a WAV file to MP3 format."
+ echo
+ echo id: pts/fs-mark
+ echo "name: FS_Mark is designed to test a system's file-system performance."
+ echo
+ echo id: pts/john-the-ripper
+ echo "name: This is a benchmark of John The Ripper, which is a password cracker."
+ echo
+ echo id: pts/network-loopback
+ echo "name: This test measures the loopback network adapter performance using a micro-benchmark to measure the TCP performance."
+ echo
+ echo id: pts/ramspeed
+ echo "name: This benchmark tests the system memory (RAM) performance."
+ echo
+ echo id: pts/openssl
+ echo "name: This test measures the RSA 4096-bit performance of OpenSSL."
+ echo
+ echo id: pts/povray
+ echo "name: This is a test of POV-Ray, the Persistence of Vision Raytracer."
+ echo
+ echo id: pts/ttsiod-renderer
+ echo "name: A portable GPL 3D software renderer that supports OpenMP and Intel Threading Building Blocks with many different rendering modes."
+ echo
+
+id: pts-prepare-nest
+category_id: phoronix
+plugin: shell
+depends: pts-job-generator
+command:
+ if grep 'flags' /proc/cpuinfo |grep -q ' avx2 '; then
+     export KIND=avx2
+ else
+     export KIND=base
+ fi
+ ARCH=`uname -m`
+ RELEASE=`lsb_release -cs`
+ CACHE_FILE=pts-cache-$RELEASE-$ARCH-$KIND.tar.gz
+ mkdir $PLAINBOX_SESSION_SHARE/pts-nest/
+ echo Downloading PTS cache from $PTS_CACHE_URL/$CACHE_FILE
+ wget -qO- $PTS_CACHE_URL/$CACHE_FILE |tar --strip-components=1 -xz -C $PLAINBOX_SESSION_SHARE/pts-nest
+ echo Cache size after unpacking: `du -sh $PLAINBOX_SESSION_SHARE/pts-nest`
+ rm -rf $PLAINBOX_SESSION_SHARE/pts-nest/test-results/*
+ cp $PLAINBOX_PROVIDER_DATA/phoronix-test-suite-configuration/* $PLAINBOX_SESSION_SHARE/pts-nest
+ sed -i "s+__TARGET_PATH__+$PLAINBOX_SESSION_SHARE\/pts-nest\/+" $PLAINBOX_SESSION_SHARE/pts-nest/user-config.xml
+ ln -s $PLAINBOX_SESSION_SHARE/pts-nest/installed-tests/pts/timed-audio-encode-1.0.0 $PLAINBOX_SESSION_SHARE/pts-nest/installed-tests/pts/timed-audio-encode-1.0.1
+environ: PTS_CACHE_URL
+
+unit: template
+template-resource: pts-job-generator
+id: {id}
+category_id: phoronix
+_summary: {name}
+command:
+ export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
+ pts_wrapper.py {id}
+plugin: shell
+depends: pts-prepare-nest
+flags: has-leftovers
+
+id: pts-generate-report
+category_id: phoronix
+plugin: shell
+depends: pts-prepare-nest
+command:
+ export PTS_USER_PATH_OVERRIDE=$PLAINBOX_SESSION_SHARE/pts-nest/
+ cd $PLAINBOX_SESSION_SHARE/pts-nest/test-results/
+ pts_merge_reports.py
+
+id: pts-attach-report
+category_id: phoronix
+plugin: attachment
+depends: pts-generate-report
+_summary: Attach PTS report in PDF form
+command:
+ cat $PLAINBOX_SESSION_SHARE/results.pdf
+_description: Attach PTS report in PDF form

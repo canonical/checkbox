@@ -1,0 +1,136 @@
+id: client-cert-odm-ubuntucore-18-manual
+_name: ODM Client Certification for Ubuntu Core 18 - (1/2) Manual tests
+unit: test plan
+_description:
+ This test plan is intended for use by ODMs in their own facilities as part of
+ the ODM Certification programme. This test plan should be used when certifying
+ Ubuntu Core images.
+include:
+mandatory_include:
+    com.canonical.plainbox::manifest
+    executable
+    interface
+    connections
+    model_assertion
+    serial_assertion
+    net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+    parts_meta_info_attachment
+bootstrap_include:
+    bootloader
+    cpuinfo
+    device
+    net_if_management
+nested_part:
+    submission-cert-full
+    self-manual
+    audio-manual
+    bluetooth-manual
+    camera-manual
+    led-manual
+    mediacard-manual
+    rtc-manual
+    serial-manual
+    usb-c-manual
+    usb-manual
+    usb3-manual
+    thunderbolt-cert-manual
+    wwan-manual
+    i2c-manual
+    suspend-tp
+    after-suspend-audio-manual
+    after-suspend-bluetooth-manual
+    after-suspend-ethernet-manual
+    after-suspend-wwan-manual
+    after-suspend-thunderbolt-cert-manual 
+exclude:
+    com.intel.ipdt::ipdt/PCH-.*
+    usb-c/c-to-a-adapter.*
+    mediacard/mmc-.*
+    mediacard/cf-.*
+    mediacard/sdxc-.*
+    mediacard/ms-.*
+    mediacard/msp-.*
+    mediacard/xd-.*
+    rtc/battery
+
+id: client-cert-odm-ubuntucore-18-automated
+_name: ODM Client Certification for Ubuntu Core 18 - (2/2) Automated tests
+unit: test plan
+_description:
+ This test plan is intended for use by ODMs in their own facilities as part of
+ the ODM Certification programme. This test plan should be used when certifying
+ Ubuntu Core images.
+include:
+mandatory_include:
+    com.canonical.plainbox::manifest
+    executable
+    interface
+    connections
+    model_assertion
+    serial_assertion
+    net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+    parts_meta_info_attachment
+bootstrap_include:
+    bootloader
+    cpuinfo
+    device
+    net_if_management
+nested_part:
+    submission-cert-automated
+    self-automated
+    bluez-automated
+    camera-automated
+    mediacard-automated
+    rtc-automated
+    serial-automated
+    usb-c-automated
+    usb-automated
+    usb3-automated
+    thunderbolt-cert-automated
+    watchdog-automated
+    wwan-automated
+    com.intel.ipdt::ipdt-plan
+    cpu-automated
+    disk-automated
+    ethernet-automated
+    i2c-automated
+    iot-cert-image-automated
+    memory-automated
+    networking-automated
+    snappy-snap-automated
+    wireless-automated
+    wireless-wifi-master-mode-auto
+    tpm2.0_3.0.4
+    suspend-tp
+    after-suspend-bluez-automated
+    after-suspend-ethernet-automated
+    after-suspend-wireless-automated
+    after-suspend-wwan-automated
+    warm-boot-stress-test
+    cold-boot-stress-test
+exclude:
+    com.intel.ipdt::ipdt/PCH-.*
+    usb-c/c-to-a-adapter.*
+    mediacard/mmc-.*
+    mediacard/cf-.*
+    mediacard/sdxc-.*
+    mediacard/ms-.*
+    mediacard/msp-.*
+    mediacard/xd-.*
+    rtc/battery
+
+id: client-cert-odm-ubuntucore-18
+_name: DONT USE - uc18 - placeholder to establish that total number of tests has not changed
+unit: test plan
+include:
+nested_part:
+    client-cert-odm-ubuntucore-18-manual
+    client-cert-odm-ubuntucore-18-automated

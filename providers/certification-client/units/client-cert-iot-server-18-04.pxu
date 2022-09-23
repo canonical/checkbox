@@ -1,0 +1,42 @@
+id: client-cert-iot-server-18-04
+_name: IoT Client Certification for 18.04 classic images
+unit: test plan
+_description:
+  This is classic 18.04
+include:
+nested_part:
+  client-cert-iot-server-18-04-manual
+  client-cert-iot-server-18-04-automated
+
+
+id: client-cert-iot-server-18-04-manual
+_name: IoT Client Certification for 18.04 classic images (Manual Tests)
+unit: test plan
+_description:
+  This is classic 18.04
+include:
+nested_part:
+  # until there is reason to diverge, nest these plans
+  client-cert-iot-ubuntucore-18-manual
+
+
+id: client-cert-iot-server-18-04-automated
+_name: IoT Client Certification for 18.04 classic images (Automated Tests)
+unit: test plan
+_description:
+  This is classic 18.04
+include:
+nested_part:
+  # until there is reason to diverge, nest these plans
+  client-cert-iot-ubuntucore-18-automated
+  ## snappy-snap-automated-lightweight ??
+
+
+id: client-cert-iot-server-18-04-stress
+_name: IoT Client Certification for 18.04 classic images (Stress Tests)
+unit: test plan
+_description:
+  This is classic 18.04
+include:
+nested_part:
+  stress-full

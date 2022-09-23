@@ -1,0 +1,33 @@
+id: cdts-wireless
+_name: CDTS wireless test plan
+unit: test plan
+_description: CDTS wifi and bluetooth test plan
+include:
+nested_part:
+    com.canonical.certification::submission-cert-full
+    com.canonical.certification::bluetooth-cert-full
+    com.canonical.certification::wireless-automated
+    com.canonical.certification::after-suspend-wireless-automated
+    com.canonical.certification::info-attachment-cert-full
+
+id: cdts-dock
+_name: CDTS Dock test plan
+unit: test plan
+_description: CDTS Dock test plan
+include:
+nested_part:
+    com.canonical.certification::dock-cert-full
+    com.canonical.certification::after-suspend-dock-cert-full
+
+id: touchpad
+_name: Touchpad Tests
+unit: test plan
+_description:
+ This test plan is used for customers and independent hardware vendors (IHV)
+ to test and verify the behavior of touchpads on tested devices.
+include:
+nested_part:
+    submission-cert-full
+    touchpad-cert-full
+    after-suspend-touchpad-cert-full
+    info-attachment-cert-full

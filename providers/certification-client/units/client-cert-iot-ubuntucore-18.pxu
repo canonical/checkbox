@@ -1,0 +1,157 @@
+id: client-cert-iot-ubuntucore-18
+_name: IoT Client Certification for Ubuntu Core 18
+unit: test plan
+_description:
+  This is UC18
+include:
+nested_part:
+  client-cert-iot-ubuntucore-18-manual
+  client-cert-iot-ubuntucore-18-automated
+
+
+id: client-cert-iot-ubuntucore-18-manual
+_name: IoT Client Certification for Ubuntu Core 18 (Manual Tests)
+unit: test plan
+_description:
+  This is UC18
+include:
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
+nested_part:
+  submission-cert-full
+  self-manual
+  audio-manual
+  bluetooth-manual
+  camera-manual
+  cpu-manual
+  disk-manual
+  ethernet-manual
+  led-manual
+  mediacard-manual
+  memory-manual
+  monitor-manual
+  networking-manual
+  rtc-manual
+  serial-manual
+  snappy-snap-manual
+  socketcan-manual-remote
+  socketcan-manual-local
+  usb-manual
+  usb-c-manual
+  usb3-manual
+  thunderbolt-cert-manual
+  watchdog-manual
+  wireless-manual
+  wireless-wifi-master-mode-manual
+  wwan-manual
+  after-suspend-audio-manual
+  after-suspend-bluetooth-manual
+  after-suspend-ethernet-manual
+  after-suspend-monitor-manual
+  after-suspend-networking-manual
+  after-suspend-serial-manual
+  after-suspend-socketcan-manual-remote
+  after-suspend-socketcan-manual-local
+  after-suspend-usb-manual
+  after-suspend-usb-c-manual
+  after-suspend-usb3-manual
+  after-suspend-thunderbolt-cert-manual
+  after-suspend-wireless-manual
+  after-suspend-wireless-wifi-master-mode-manual
+  after-suspend-wwan-manual
+
+
+id: client-cert-iot-ubuntucore-18-automated
+_name: IoT Client Certification for Ubuntu Core 18 (Automated Tests)
+unit: test plan
+_description:
+  This is UC18
+include:
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
+nested_part:
+  submission-cert-automated
+  self-automated
+  com.intel.ipdt::ipdt-plan
+  iot-fwts-automated
+  audio-automated
+  bluez-automated
+  camera-automated
+  cpu-automated
+  disk-automated
+  docker-automated
+  ethernet-automated
+  i2c-automated
+  gpio-automated
+  kernel-security-automated
+  kernel-snap-automated
+  location-automated
+  mediacard-automated
+  memory-automated
+  # monitor-automated
+  networking-automated
+  power-automated
+  serial-automated
+  snappy-snap-automated
+  socketcan-auto-local
+  socketcan-auto-remote
+  tpm2.0_3.0.4-automated
+  usb-automated
+  thunderbolt-cert-automated
+  watchdog-automated
+  wireless-automated
+  wireless-wifi-master-mode-auto
+  wwan-automated
+  after-suspend-audio-automated
+  after-suspend-bluez-automated
+  after-suspend-ethernet-automated
+  after-suspend-gpio-automated
+  after-suspend-location-automated
+  after-suspend-serial-automated
+  after-suspend-usb-automated
+  after-suspend-wireless-automated
+  after-suspend-wwan-automated
+
+
+id: client-cert-iot-ubuntucore-18-stress
+_name: IoT Client Certification for Ubuntu Core 18 (Stress Tests)
+unit: test plan
+_description:
+  This is UC18
+include:
+nested_part:
+  stress-full

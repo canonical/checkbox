@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Certification Testing
+Comment=Certify your system with Ubuntu
+Type=Application
+Exec=/usr/bin/canonical-certification-client
+Icon=checkbox
+Categories=System;Qt;Application
+Keywords=certification;certify;testing;drivers;hardware;
+X-GNOME-Gettext-Domain=checkbox-gui
+X-Ayatana-Appmenu-Show-Stubs=False
+X-Ubuntu-Touch=true
+X-Ubuntu-StageHint=SideStage

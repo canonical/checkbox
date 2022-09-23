@@ -1,0 +1,23 @@
+Source: plainbox-provider-tpm2
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>
+Build-Depends: debhelper (>= 9),
+               intltool,
+               plainbox-provider-resource-generic (>= 0.25),
+               python3,
+               python3-checkbox-ng,
+               python3-debian
+Standards-Version: 3.9.6
+Homepage: http://launchpad.net/plainbox-provider-tpm2
+
+Package: plainbox-provider-tpm2
+Architecture: all
+Depends: plainbox-provider-resource-generic (>= 0.25),
+         ${misc:Depends},
+         ${plainbox:Depends},
+         ${shlibs:Depends}
+X-Plainbox-Provider: yes
+Description: TPM 2.0 provider for PlainBox
+ This package provides the TPM 2.0 upstream integration tests.

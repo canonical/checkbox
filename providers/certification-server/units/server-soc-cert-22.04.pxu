@@ -1,0 +1,35 @@
+id: 22.04-server-soc-cert
+_name: 22.04 System On Chip Certification (For SoC Testing)
+unit: test plan
+_description:
+    This whitelist is intended to be used for testing Server SoCs.  The tests
+    contained here should work in any test lab envrionement. Please use this 
+    whitelist for the Ubuntu Certification self-testing programme.
+nested_part:
+    com.canonical.certification::server-cpu
+    com.canonical.certification::server-disk
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-ethernet
+    com.canonical.certification::server-memory
+    com.canonical.certification::server-networking
+    com.canonical.certification::server-usb
+include:
+    info/hdparm_.*.txt                         certification-status=non-blocker
+    benchmarks/disk/hdparm-read_.*             certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
+    power-management/rtc                       certification-status=blocker
+    stress/cpu_stress_ng_test                  certification-status=blocker
+    virtualization/verify_lxd                  certification-status=blocker
+    virtualization/verify_lxd_vm               certification-status=blocker
+    info/kvm_output                            certification-status=non-blocker
+    miscellanea/oops                           certification-status=non-blocker
+    miscellanea/oops_results.log
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    fwts

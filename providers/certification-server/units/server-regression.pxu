@@ -1,0 +1,36 @@
+id: server-regression
+_name: Server Regression Suite - Full
+unit: test plan
+_description:
+    This whitelist is intended to be used for server certification.
+    the tests contained here should work in any test lab envrionement.
+    Please use this whitelist for the Ubuntu Certification self-testing
+    programme.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-miscellaneous-regression
+    com.canonical.certification::server-cpu
+    com.canonical.certification::server-disk
+    com.canonical.certification::server-ethernet-sru
+    com.canonical.certification::server-memory
+    com.canonical.certification::server-networking
+    com.canonical.certification::nvdimm-full
+include:
+    info/hdparm_.*.txt                         certification-status=non-blocker
+    benchmarks/disk/hdparm-read_.*             certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
+    power-management/rtc                       certification-status=blocker
+    stress/cpu_stress_ng_test                  certification-status=blocker
+    usb/detect                                 certification-status=non-blocker
+    virtualization/verify_lxd                  certification-status=blocker
+    virtualization/verify_lxd_vm               certification-status=blocker
+    info/kvm_output                            certification-status=non-blocker
+    miscellanea/oops                           certification-status=blocker
+    miscellanea/oops_results.log
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    fwts

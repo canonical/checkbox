@@ -1,0 +1,16 @@
+id: memory-only
+_name: Memory Tests
+unit: test plan
+_description:
+    This testplan will run only the memory stress and related tests. It
+    is intended to be used as an easy way to retest or execute only the
+    memory related certification tests.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-memory
+    com.canonical.certification::nvdimm-full
+include:
+bootstrap_include:
+    device
+    fwts

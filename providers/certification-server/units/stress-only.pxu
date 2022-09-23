@@ -1,0 +1,18 @@
+id: stress-only
+_name: System Stress Test
+unit: test plan
+_description:
+    This whitelist is intended to be used for server certification.
+    The tests contained here should work in any test lab envrionement.
+    This is provided as an easy means to run only the CPU/System stress
+    test which will exercise the CPU, RAM and storage to very high
+    loading.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-memory
+include:
+    stress/cpu_stress_ng_test                  certification-status=blocker
+bootstrap_include:
+    device
+    fwts

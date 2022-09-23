@@ -1,0 +1,23 @@
+id: cpu-only
+_name: CPU Tests Only
+unit: test plan
+_description:
+    This whitelist is intended to be used for server certification.
+    the tests contained here should work in any test lab envrionement.
+    Please use this whitelist for the Ubuntu Certification self-testing
+    programme.
+nested_part:
+    com.canonical.certification::server-cpu
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-miscellaneous
+include:
+    stress/cpu_stress_ng_test                  certification-status=blocker
+    miscellanea/oops                           certification-status=blocker
+    miscellanea/oops_results.log
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    fwts

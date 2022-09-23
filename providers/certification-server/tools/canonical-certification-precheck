@@ -1,0 +1,1015 @@
+#!/bin/bash
+
+codename=$(/usr/bin/lsb_release -s -c) 
+arch=$(dpkg --print-architecture)
+configfile="/etc/xdg/canonical-certification.conf"
+
+pass(){
+ eval pass${i}=1
+}
+
+fail(){
+ eval pass${i}=0
+}
+
+warn(){
+ eval pass${i}=2
+}
+
+info(){
+ eval pass${i}=3
+}
+
+steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check UVT_KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
+
+while getopts "i" opt; do
+  case $opt in
+    i) individual="1";;
+  esac
+done
+
+get_yn() {
+    # $1 = Prompt string
+    # $2 = Default value (assume Y if absent or not "n" or "N")
+    # Returns "Y" or "N" in $YN -- guaranteed uppercase
+    YN=""
+    while [ -z "$YN" ] ; do
+        echo -n "$1"
+        local default="Y"
+        if [ "$2" = "n" ] || [ "$2" = "N" ] ; then
+           default="N"
+        fi
+        if [ $default = "Y" ] ; then
+            echo -n " (Y/n)? "
+        else
+            echo -n " (y/N)? "
+        fi
+        local answer
+        read -r answer
+        if [ -z "$answer" ] ; then
+            YN=$default
+        else
+             if [ "${answer:0:1}" = "y" ] || [ "${answer:0:1}" = "Y" ] ; then
+                 YN="Y"
+             fi
+             if [ "${answer:0:1}" = "n" ] || [ "${answer:0:1}" = "N" ] ; then
+                 YN="N"
+            fi
+        fi
+        if [ -z "$YN" ] ; then
+            echo "Please enter 'Y' or 'N'!"
+        fi
+    done
+}
+
+echoname(){
+    echo -e "\n\e[1;33m============\e[m \e[1;34m$1\e[m \e[1;33m============\e[m"
+}
+
+# Some packages can be left installed but unconfigured by curtin;
+# fix this....
+Fix_APT_Issues() {
+  echoname "Fix APT issues"
+  sudo apt-get install -f -y
+  if [ $? = "0" ] ; then
+    pass
+  else
+    fail
+  fi
+}
+
+Verify_Config_File() {
+    if [ ! -f $configfile ]; then
+        echo "ERROR: Configuration file $configfile was not found"
+        echo "Please check your installation and apt logs for errors"
+        exit 1
+    fi
+    pass
+}
+
+# Check architecture
+Arch(){
+ echoname "Check architecture"
+ echo -e " Architecture: $arch"
+ eval info${i}=\"$arch\"
+ if [ $arch = i386 ] ; then
+	 warn
+ else
+	 info
+ fi
+}
+
+# Check for valid section headers in xdg config file
+XDG_Check(){
+ echoname "XDG Config file Check"
+ failstatus=0
+ prevstatus=0
+ for section in common transport:c3 environment
+     do grep ^'\['$section'\]' $configfile >/dev/null 2>&1
+      exitstatus=$?
+      printf "%15s" " [$section] "
+      printf "%0.1s" " "{1..5}
+      if [ $exitstatus = "0" ] ; then
+        printf "\e[1;32m  OK\e[m\n"
+        failstatus=1
+      else
+        printf "\e[1;31m  Not found\e[m\n"
+        if [ $section = "common" ] ; then
+            failstatus=3
+        else
+                failstatus=2
+                if [ $prevstatus = $failstatus ] ; then
+                    output="[$section],[$prevsection]"
+                else
+                    output=[$section]
+                fi
+                eval info${i}=\"\$output\ missing\"
+                prevsection=$section
+        fi
+      fi
+     if [ $prevstatus -gt $failstatus ] ; then
+        failstatus=$prevstatus
+     fi
+     prevstatus=$failstatus
+ done
+ if [ $failstatus = 3 ] ; then
+    fail
+ elif [ $failstatus = 2 ] ; then
+    warn
+ else
+    pass
+ fi
+}
+
+# Display version of canonical-certification-server package installed
+CCS_Version(){
+echoname "canonical-certification-server version"
+ccs=$(apt-cache policy canonical-certification-server|grep Installed|awk '{print $2}')
+eval info${i}=\"$ccs\"
+
+if [[ $ccs = *none* ]] ; then
+	echo " canonical-certification-server might not be installed."
+	get_yn " Would you like to install it now?" "Y"
+   	if [[ $YN == "Y" ]]; then
+		echo " Installing canonical-certification-server..."
+		sudo apt-add-repository -y ppa:hardware-certification/public 1>/dev/null
+		sudo apt-get -q update 1>/dev/null
+		sudo apt-get -q install -y canonical-certification-server 1>/dev/null
+		CCS_Version
+   	else
+		echo 
+		fail
+	fi
+else
+	echo " canonical-certification-server: $ccs"
+	info
+fi
+}
+
+# Secure ID is set in $configfile (?)
+configure_SID(){
+    read -e -p " Please enter the secure_id of your SUT: " sid 
+    if grep "#secure_id" $configfile >/dev/null ; then
+        sudo sed -i "s/#\[transport:c3\]/\[transport:c3\]/g" $configfile
+	    sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" $configfile
+    else
+	    sudo sed -i "s/secure_id =.*/secure_id = $sid/g" $configfile
+    fi
+}
+
+# Check for Secure ID config
+SID_Check(){
+echoname "Secure ID Check"
+if grep "^secure_id =" $configfile >/dev/null ; then
+	secureid=$(grep "^secure_id =" $configfile|awk '{print $3}')
+    echo " Secure ID is configured as '$secureid'."
+    get_yn " Is this correct?" "Y"
+    if [[ $YN == "N" ]]; then
+        configure_SID
+        SID_Check
+    else
+	    eval info${i}=\"$secureid\"
+        info
+    fi
+else
+    echo " secure_id is not configured."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
+        configure_SID
+	    SID_Check
+    else
+		eval info${i}=\"Not Set\"
+        info
+    fi
+fi
+}
+
+# Sets $usb_disk to 1 if /dev/$1 is a USB disk, or to 0 otherwise
+Is_USB(){
+local disk=$1
+usb_disk=0
+local drive="/dev/$disk"
+if [ -d "/sys/bus/usb/devices" ]; then
+    path=$(readlink -f /sys/block/$disk)
+    for usbname in $(ls /sys/bus/usb/devices); do
+        usbpath=$(readlink -f /sys/bus/usb/devices/$usbname)
+        if [[ "$path" == "$usbpath"* ]]; then
+            usb_disk=1
+        fi
+    done
+fi
+}
+
+LVM_Check(){
+echoname "LVM Check"
+if [ -x "$(command -v lvmdiskscan)" ]; then
+    local lvmCount=$(sudo lvmdiskscan | awk '/[0-9] LVM/ {print $1}' | tr -d -c 0-9)
+    local lvmList=($(sudo lvmdiskscan | awk '/] LVM/ {print $1}'))
+    if [ "$lvmCount" -eq "0" ]; then
+        echo -e " LVM not present."
+        pass
+    else
+        echo -e " LVM members found:"
+        for element in "${lvmList[@]}"; do
+            echo -e " ${element}"
+        done
+        fail
+    fi
+else
+   echo -e " lvmdiskscan command not found. Skipping this check."
+   echo -e " You should manually verify that LVM volumes are not present."
+   fail
+fi
+}
+
+# Check that the minimum acceptable speed overrides for the
+# disk_read_performance_test.sh script are set in
+# /etc/xdg/canonical_certification.conf
+Disk_Speed_Check(){
+echoname "Disk Speed Check"
+local nvme_present
+local mdadm_present
+if grep "^DISK_NVME_READ_PERF =" $configfile >/dev/null; then
+    nvme_present=1
+else
+    nvme_present=0
+fi
+if grep "^DISK_MDADM_READ_PERF =" $configfile >/dev/null; then
+    mdadm_present=1
+else
+    mdadm_present=0
+fi
+if [ "$nvme_present" -eq 1 ] && [ "$mdadm_present" -eq 1 ]; then
+    echo "Disk hdparm speed test overrides are set."
+    pass
+else
+    echo "Disk hdparm speed test overrides NOT set."
+    echo "Check /etc/xdg/canonical_certification.conf for DISK_NVME_READ_PERF and"
+    echo "DISK_MDADM_READ_PERF lines in the [environment] section."
+    fail
+fi
+}
+
+# Check for valid filesystem
+Hard_Disks(){
+echoname "Hard Disk Filesystem Check"
+local all_ok="Y"
+local disk_UUIDs=()
+local show_UUIDs="N"
+local release_year="$(echo $DISTRIB_RELEASE | cut -f 1 -d ".")"
+for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
+    local drive="/dev/$disk"
+    # Suport for "-s PTUUID" in blkid was not present in Trusty, but does
+    # exist in Xenial. Without that support, the PTUUID check produces false
+    # alarms.
+    if [ $release_year -gt 15 ]; then
+        local UUID="$(sudo blkid -s PTUUID -o value $drive)"
+        case "${disk_UUIDs[@]}" in
+            $UUID) echo " Duplicate disk partition table GUID/UUID ($UUID)"
+                echo " on $drive; possible multipath system!"
+                show_UUIDs="Y"
+                all_ok="N"
+                ;;
+        esac
+        disk_UUIDs+=($UUID)
+    fi
+    Is_USB $disk
+    if [ "$usb_disk" == "0" ]; then
+        local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ' ' | sed 's/,*$//g')"
+        echo " Filesystem(s) detected on $drive: $fs"
+        if [ -z "$(echo $fs | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)" ]; then
+            if [ ! -z "$(echo $fs | grep LVM2_member)" ]; then
+                fs_mapper="$(sudo blkid -s TYPE -o value /dev/mapper/* | sort | uniq | tr '\n' ' ' | sed 's/,*$//g')"
+                echo " Filesystem(s) detected in /dev/mapper: $fs_mapper"
+                if [ -z "$(echo $fs_mapper | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs)" ]; then
+                    echo " No suitable filesystem detected on $drive."
+                    all_ok="N"
+                fi
+            else
+                echo " No suitable filesystem detected on $drive."
+                all_ok="N"
+            fi
+        fi
+    fi
+done
+if [ "$show_UUIDs" == "Y" ]; then
+    echo " Full partition table GUID/UUID ('PTUUID') information:"
+    for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
+        echo "   $(sudo blkid -s PTUUID /dev/$disk)"
+    done
+fi
+if [ "$all_ok" == "Y" ]; then
+    pass
+else
+    fail
+fi
+}
+
+# Check for USB storage devices
+USB_Disks(){
+echoname "USB Disks Check"
+local all_ok="Y"
+local usb2_disks=()
+local usb3_disks=()
+if [ ! -d "/sys/bus/usb" ]; then
+    eval info${i}=\"No USB bus\"
+    echo " No USB bus detected!"
+    warn
+    return
+fi
+for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
+    local drive="/dev/$disk"
+    Is_USB $disk
+    if [ "$usb_disk" == 1 ]; then
+        local fs="$(sudo blkid -s TYPE -o value /dev/$disk* | sort | uniq | tr '\n' ',' | sed 's/,*$//g')"
+        echo " Filesystem(s) detected on $drive: $fs"
+        if [ "$fs" == "iso9660,vfat" ]; then
+            echo " $drive may hold an Ubuntu installer, which is not suitable for certification"
+            echo " testing."
+            all_ok="N"
+        elif [ -z "$(echo $fs | grep -E ext2\|ext3\|ext4\|xfs\|jfs\|btrfs\|vfat)" ]; then
+            echo " No suitable filesystem detected on $drive."
+            all_ok="N"
+        fi
+        path=$(readlink -f /sys/block/$disk)
+        num_elements=$(echo $path | sed -n -e 's/usb[0-9].*//p' | sed 's/[^\/]//g' | awk '{ print length }')
+        let hub_fields=$num_elements+1
+        let device_fields=$num_elements+2
+        hub_version=$(cat "$(echo $path | cut -d "/" -f 1-$hub_fields)/version" | tr -d " ")
+        device_version=$(cat "$(echo $path | cut -d "/" -f 1-$device_fields)/version" | tr -d " ")
+        if [ $(echo "$hub_version"'>='"3.0" | bc -l) == "1" ] && \
+           [ $(echo "$device_version"'>='"3.0" | bc -l) == "1" ]; then
+            usb3_disks+=($drive)
+        elif [ $(echo "$hub_version"'>='"2.0" | bc -l) == "1" ] && \
+             [ $(echo "$device_version"'>='"2.0" | bc -l) == "1" ]; then
+            usb2_disks+=($drive)
+        fi
+    fi
+done
+if [ -z "$usb2_disks" ]; then
+    echo " No USB2 disks detected."
+    all_ok="N"
+else
+    echo " Detected USB2 disk(s): ${usb2_disks[*]}"
+fi
+if [ ! -z "$(lsusb | grep "3.0 root hub")" ]; then
+    echo " Found USB 3.0 root hub"
+    if [ -z "$usb3_disks" ]; then
+        echo " No USB3 disks detected."
+        all_ok="N"
+    else
+        echo " Detected USB3 disk(s): ${usb3_disks[*]}"
+    fi
+fi
+if [ "$all_ok" == "Y" ]; then
+    pass
+else
+    fail
+fi
+}
+
+# Check local availability of UVT KVM image or source
+UVT_KVM_Image_Check(){
+echoname "UVT_KVM Image Check"
+if grep "^UVT_IMAGE_OR_SOURCE =" $configfile >/dev/null; then
+    kvmurl=$(grep ^UVT_IMAGE_OR_SOURCE $configfile|awk '{print $3}')
+    echo $kvmurl
+    if [[ "$kvmurl" =~ .*\.img$ ]] ; then
+        /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+        if [ $? = "0" ]; then
+            echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+            pass
+            return 0
+        else
+            echo -e "$kvmurl is an invalid image. \n"
+            fail
+            return 0
+        fi
+    elif [[ "$kvmurl" =~ ^http ]] ; then
+        if curl --output /dev/null --silent --head -fail "$kvmurl"; then
+            echo -e " This is a valid source $kvmurl.\n Continuing to use this source"
+            pass
+        else
+            echo -e " This is not a valid source $kvmurl.\n Marking as failed"
+            fail
+        fi
+    else
+        echo -e " This is not a valid image or source"
+        echo -e " Leaving configuration but commenting out.\n Trying cloud image."
+        sudo sed -i '/^UVT_IMAGE_OR_SOURCE/ s/^#*/#/' $configfile
+        fail
+    fi
+else
+    echo -e "  UVT_IMAGE_OR_SOURCE is not configured. \n uvt-simplestreams-libvirt will download images from cloud-images.ubuntu by default"
+    fail
+fi
+}
+
+# Check local availability of KVM image or pull from Internet, which tends to be slow
+KVM_Image_Check(){
+echoname "KVM Image Check"
+if grep "^KVM_IMAGE =" /etc/xdg/$configfile >/dev/null; then
+    kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
+    if [[ "$kvmurl" =~ .*\.img$ ]] ; then
+        /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+        if [ $? = "0" ]; then
+            echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+            pass
+            return 0
+        else
+            echo " $kvmurl is not a valid image."
+            get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
+                read -e -p " Enter the path of your KVM Image: " kvm
+                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
+                kvmurl=$(grep ^KVM_IMAGE $configfilen|awk '{print $3}')
+                /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+                if [ $? = "0" ]; then
+                    echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+                    pass
+                    return 0
+                else
+                    echo -e " We cannot get our image from $kvmurl.\n Marking as failed."
+                    fail
+                    return 0
+                fi
+            else
+                echo -e " Leaving configuration but commenting out.\n Trying cloud image."
+                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' $configfile
+            fi
+        fi
+    else # URL does not end in ".img". No way to test, so pass it and hope for the best....
+        echo -e " $kvmurl is not a\n .img file, so its validity can't be tested."
+        warn
+        eval info${i}=\"Unable to test\"
+        return 0
+    fi
+
+else
+    echo " KVM_IMAGE is not configured."
+    echo " Note: If left unconfigured, we will pull our image from"
+    echo " cloud-images.ubuntu.com."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
+        read -e -p " Enter the path of your KVM Image: " kvm
+        sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile 
+        kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
+        /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+        if [ $? = "0" ]; then
+            echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+            pass
+            return 0
+        else
+            echo "\n $kvmurl is not a valid image."
+            get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
+                read -e -p " Enter the path of your KVM Image: " kvm
+                sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
+                kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
+                /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
+                if [ $? = "0" ]; then
+                    echo -e " $kvmurl is a valid image.\n Continuing to use this image"
+                    pass
+                    return 0
+                else
+                    echo -e " Leaving configuration but commenting out.\n Trying cloud image."
+                    sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' $configfile
+                fi
+            else
+                echo -e " Leaving configuration but commenting out.\n Trying cloud image."
+                sudo sed -i '/^KVM_IMAGE/ s/^#*/#/' $configfile
+            fi
+        fi
+    fi
+fi
+kvmurl="http://cloud-images.ubuntu.com/$codename/current/$codename-server-cloudimg-$arch.img"
+if curl --output /dev/null --silent --head -fail "$kvmurl"; then
+    echo -e " We can get our image from $kvmurl.\n Continuing to use this image"
+    pass
+else
+    echo -e " We cannot get our image from $kvmurl.\n Marking as failed"
+    fail
+fi
+}
+
+# Check local availability of LXD images or pull from Internet, which tends to be slow
+LXD_Image_Check(){
+echoname "LXD Image Check"
+
+#Check template image
+if grep "^LXD_TEMPLATE =" $configfile >/dev/null; then
+    templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
+    if curl --output /dev/null --silent --head -fail "$templateurl"; then
+        echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+        pass
+    else
+        echo -e " NOTE: For the following, YOU MUST PROVIDE A VALID URL beginning with http://,"
+        echo -e "       https://, or file://. A filesystem PATH is NOT valid here:"
+	    echo " $templateurl is not a valid url."
+	    get_yn " Would you like to reconfigure it now?" "Y"
+        if [[ $YN == "Y" ]]; then
+            read -e -p " Enter the URL of your LXD Template File: " template
+            sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
+            templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
+            if curl --output /dev/null --silent --head -fail "$templateurl"; then
+                echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+                pass
+            else
+	            echo -e " We cannot get the LXD template image from $templateurl.\n Marking as failed"
+	            fail
+            fi
+        else
+		    echo -e " Leaving configuration but commenting out."
+	        sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' $configfile
+        fi
+    fi
+else
+    echo " LXD_TEMPLATE is not configured."
+    echo " Note: If left unconfigured, we will attempt to get the LXD image from the"
+    echo " ubuntu LXD image stream."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
+        echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
+        echo -e "       https://, or file://"
+        read -e -p " Enter the URL of your LXD Template File: " template
+        sudo sed -i "s,#LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
+        templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
+        if curl --output /dev/null --silent --head -fail "$templateurl"; then
+            echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+            pass
+        else
+	        echo " $templateurl is not a valid url."
+	        get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
+                read -e -p " Enter the URL of your LXD Template File: " template
+                sudo sed -i "s,LXD_TEMPLATE =.*,LXD_TEMPLATE = $template,g" $configfile
+                templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
+                if curl --output /dev/null --silent --head -fail "$templateurl"; then
+                    echo -e " $templateurl is a valid url.\n Continuing to use this template file"
+                    pass
+                else
+	                echo -e " We cannot get the LXD template image from $templateurl.\n Marking as failed"
+	                fail
+                fi
+            else
+		        echo -e " Leaving configuration but commenting out."
+	            sudo sed -i '/^LXD_TEMPLATE/ s/^#*/#/' $configfile
+            fi
+        fi
+    else
+        echo -e " Leaving LXD_TEMPLATE unconfigured"
+        fail
+    fi
+fi
+# Check RootFS
+if grep "^LXD_ROOTFS =" $configfile >/dev/null; then
+    rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
+    if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+        echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+        pass
+    else
+        echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
+        echo -e "       https://, or file://"
+	    echo " $rootfsurl is not a valid url."
+	    get_yn " Would you like to reconfigure it now?" "Y"
+        if [[ $YN == "Y" ]]; then
+            read -e -p " Enter the path of your ROOTFS File: " rootfs
+            sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
+            rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
+            if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+                echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+                pass
+            else
+	            echo -e " We cannot get the rootfs file from $rootfsurl.\n Marking as failed"
+	            fail
+            fi
+        else
+		    echo -e " Leaving configuration but commenting out."
+	        sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' $configfile
+            fail
+        fi
+    fi
+else
+    echo " LXD_ROOTFS is not configured."
+    echo " Note: If left unconfigured, we will attempt to get the ROOTFS image from the"
+    echo " ubuntu LXD image stream."
+    get_yn " Would you like to configure it now?" "Y"
+    if [[ $YN == "Y" ]]; then
+        echo -e " NOTE: For the following, you must provide a valid URL beginning with http://,"
+        echo -e "       https://, or file://"
+        read -e -p " Enter the URL of your ROOTFS File: " rootfs
+        sudo sed -i "s,#LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
+        rootfsurl=$(grep ^LXD_ROOTFS /etc/xdg/$configfile|awk '{print $3}')
+        if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+            echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+            pass
+        else
+	        echo " $rootfsurl is not a valid url."
+	        get_yn " Would you like to reconfigure it now?" "Y"
+            if [[ $YN == "Y" ]]; then
+                read -e -p " Enter the path of your ROOTFS Template File: " rootfs
+                sudo sed -i "s,LXD_ROOTFS =.*,LXD_ROOTFS = $rootfs,g" $configfile
+                rootfsurl=$(grep ^LXD_ROOTFS $configfile|awk '{print $3}')
+                if curl --output /dev/null --silent --head -fail "$rootfsurl"; then
+                    echo -e " $rootfsurl is a valid url.\n Continuing to use this rootfs file"
+                    pass
+                else
+	                echo -e " We cannot get the rootfs image from $rootfsurl.\n Marking as failed"
+	                fail
+                fi
+            else
+		        echo -e " Leaving configuration but commenting out."
+	            sudo sed -i '/^LXD_ROOTFS/ s/^#*/#/' $configfile
+                fail
+            fi
+        fi
+    else
+        echo -e " Leaving LXD_ROOTFS unconfigured"
+        fail
+    fi
+fi
+}
+
+
+# Correct Ubuntu version installed (could be tricky to determine, so maybe too much effort -- or maybe just display the Ubuntu version and, if the script is interactive, ask the user to verify that it’s what was intended)
+Ubuntu_Version(){
+ echoname "Ubuntu Version"
+ release=$(/usr/bin/lsb_release -s -d)
+ eval info${i}=\"$release\"
+ if [[ $release == *LTS* ]] ; then
+        echo " $release is an LTS version of Ubuntu"
+        info
+ else
+        echo " $release is a non-LTS version of Ubuntu"
+        warn
+ fi
+}
+
+ALL_NICS=$(cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb.")
+
+# All NICs are on the same network segment, to flag cabling, switch, or configuration errors (??)
+Network_Subnets(){
+echoname "Network Subnets"
+check_bcast=$(for nic in $ALL_NICS
+	do
+		ip addr show dev $nic | grep "inet "|awk '{print $4}'
+done|uniq|wc -l)
+for nic in $ALL_NICS
+	do
+		echo  " $nic - $(ip addr show dev $nic | grep "inet "|awk '{print $2, $4}')"
+done
+echo
+if [ $check_bcast = 1 ]; then
+	pass
+	echo " All interfaces seem to be on the same subnet"
+else
+	echo " One or more interfaces are on separate subnets"
+	eval info${i}=\"Multiple subnets detected\"
+	warn
+fi
+
+}
+
+# Find the network associated with the specified IP address.
+# Returns network (in network/width form, as in 10.1.10.0/23)
+# in the "network" variable, or empty variable if address
+# requires routing.
+find_network() {
+# $1 = IP address
+network=""
+# routable = 'via' if routed, 'dev' if local
+local routable=$(ip route get $1 | awk '{print $2}')
+if [ $routable == 'dev' ]; then
+    local nic=$(ip route get $1 | awk '{print $3}')
+    network=$(ipcalc $(ip addr show dev $nic | grep "inet " | awk '{print $2}') -nb | grep "Network" | awk '{print $2}')
+fi
+}
+
+# Check if iperf3 is available on server specified in $configfile 
+IPERF(){
+echoname "Iperf"
+if [ $(grep ^TEST_TARGET_IPERF $configfile|wc -l) = 1 ];then
+	echo " IPERF is configured"
+	pass
+elif [ $(grep ^TEST_TARGET_IPERF $configfile|wc -l) = 0 ];then
+	echo " TEST_TARGET_IPERF is not configured."
+	get_yn " Would you like to configure it now?" "Y"
+   	if [[ $YN == "Y" ]]; then
+		read -e -p " Please enter the IP Address of the Iperf server: " ip
+		sudo sed -i "s/#TEST_TARGET_IPERF = .*/TEST_TARGET_IPERF = $ip/g" $configfile
+	IPERF
+   	else
+		fail
+	fi
+fi
+
+# Create a list of all local networks (identified by address/width, as in 10.1.10.0/23)
+for nic in $ALL_NICS; do
+    local nic_addr=$(ip addr show dev $nic | grep "inet " | awk '{print $2}')
+    if [[ $nic_addr != "" ]]; then
+        this_network=$(ipcalc $nic_addr -nb | grep "Network" | awk '{print $2}')
+        found=0
+        for net in ${all_networks[@]}; do
+            if [ $net == $this_network ]; then
+                found=1;
+            fi
+        done
+        if [ $found == 0 ]; then
+            all_networks+=( $this_network )
+        fi
+    fi
+done
+
+# Report on presence of individual configured iperf3 servers....
+for iperfserver in $(grep ^TEST_TARGET_IPERF $configfile | cut -d = -f 2 | sed s/,/\\n/g)
+    do
+        timeout 5 iperf3 -c $iperfserver -n 1 >/dev/null 2>&1
+        if [ $? = 0 ]; then
+            echo " Iperf3 server found on port 5201 on $iperfserver"
+            find_network $iperfserver
+            all_networks=( "${all_networks[@]/$network}" )
+        else
+            echo " No Iperf3 server found on $iperfserver"
+        fi
+done
+
+# Count number of networks without an iperf3 server.
+# Note: ${#all_networks[@]} SHOULD have this, but seems to be thrown
+# off by removing elements earlier.
+local num_nets_left=0
+for net in ${all_networks[@]}; do
+    let num_nets_left=num_nets_left+1
+done
+
+if [[ $num_nets_left -gt 0 ]]; then
+    echo ""
+    echo " Networks without iperf3 servers:"
+    for net in ${all_networks[@]}; do
+        echo "  $net"
+    done
+    fail
+else
+    echo ""
+    echo " iperf3 server(s) found on all network(s)."
+    pass
+fi
+} # IPERF()
+
+# Check that jumbo frames are enabled on all >10Gbps NICs
+Jumbo_Frames(){
+echoname "Jumbo frames are enabled on fast network devices"
+local worst_status=0
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`; do
+    local current_speed=$(cat /sys/class/net/$nic/speed 2> /dev/null)
+    if [ -z "$current_speed" ]; then
+        current_speed=0
+    fi
+    echo -n " Interface $nic is"
+    if [ $current_speed -gt 10000 ]; then
+        local current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
+        echo " fast and has MTU of $current_mtu;"
+        if [ $current_mtu -lt 9000 ]; then
+            get_yn " do you want to set an MTU of 9000 (recommended)?" "Y"
+            if [[ $YN == "Y" ]]; then
+                sudo ip link set $nic mtu 9000
+                if [ -f /etc/rc.local ] ; then
+                    if grep exit /etc/rc.local > /dev/null ; then
+                        sudo sed -i "s/exit 0/ip link set $nic mtu 9000\n\nexit 0/g" /etc/rc.local
+                    else
+                        sudo sh -c "printf 'ip link set $nic mtu 9000\n\nexit 0\n' >> /etc/rc.local"
+                    fi
+                else
+                    sudo sh -c "printf '#!/bin/bash\n\nip link set $nic mtu 9000\n\nexit 0\n' > /etc/rc.local"
+                    sudo chmod a+x /etc/rc.local
+                fi
+                current_mtu=$(cat /sys/class/net/$nic/mtu 2> /dev/null)
+                if [ $current_mtu -lt 9000 ]; then
+                    echo -e "\n Unable to set MTU to 9000!"
+                    let worst_status=$(($worst_status | 1))
+                else
+                    echo -e "\n NOTE: MTU adjusted in /etc/rc.local."
+                fi
+            else
+                echo -e "\n If network tests fail, try setting the MTU to 9000."
+                let worst_status=$(($worst_status | 1))
+            fi
+        else
+            echo " config is OK"
+        fi
+    else
+        echo " slow or down; jumbo frame status not checked."
+    fi
+done
+case "$worst_status" in
+    0) pass
+        ;;
+    *) fail
+        ;;
+esac
+}
+
+# All NICs are enabled and set to maximum speed
+NICs_enabled(){
+echoname "All NICs enabled and at maximum supported speed"
+local worst_status=0
+for nic in `cat /proc/net/dev|grep ":"|awk -F: '{print $1}'|egrep -v "lo|br.|tun.|usb."`; do
+    local state=$(cat /sys/class/net/$nic/operstate)
+    # /sys/class/net/wlan0/speed produces an error and returns nothing,
+    # so protect against this as a special case.
+    local current_speed=$(cat /sys/class/net/$nic/speed 2> /dev/null)
+    if [ -z "$current_speed" ]; then
+        current_speed=0
+    fi
+    local max_speed=0
+    # current_speed (above) and speed (below) are computed in the same way here as
+    # in the "network" Checkbox script (give or take bash vs. Python differences).
+    # If one is changed, the other should be, too.
+    for speed in $(ethtool $nic 2> /dev/null | sed 's/base.*/baseT/' | \
+                   egrep '[[:digit:]](base)([A-Z]+)|[[:digit:]](Mb/s)' | \
+                   sed 's/[^0-9 ]*//g' | tr " " "\n" | sort | uniq | sed '/^\s*$/d'); do
+        if [ $speed -ge $max_speed ]; then
+            max_speed="$speed"
+        fi
+    done
+    echo -n " Interface $nic is $state"
+    if [ "$state" != "down" ]; then
+        echo -n " and running at $current_speed of $max_speed Mbps"
+    fi
+    if [ $current_speed -gt 0 ] && [ $current_speed -ge $max_speed ] && [ "$state" == "up" ]; then
+        echo "; config is OK"
+    elif ([ $current_speed -eq 0 ] && [ "$state" == "up" ]) || [ "$state" == "unknown" ]; then
+        echo "; config is UNKNOWN"
+        let worst_status=$(($worst_status | 1))
+    else
+        echo "; config is BAD"
+        let worst_status=$(($worst_status | 2))
+    fi
+done
+case "$worst_status" in
+    0) pass
+        ;;
+    1) eval info${i}=\"Unknown config\"
+        warn
+        ;;
+    *) fail
+        ;;
+esac
+}
+
+# Installed RAM (STG says 4GiB minimum)
+Installed_Ram(){
+echoname "Check Installed Ram"
+mem=$(cat /proc/meminfo |grep MemTotal|awk '{print $2}')
+eval info${i}="$mem "
+if [ $mem -lt 4096000 ] ; then
+	echo " $mem is less than 4G"
+	warn
+else
+	echo " $mem is greater than 4G"
+	pass
+fi
+}
+
+# CPU virtualization support (VMX/SVM)
+Virtualization_Support(){
+echoname "Virtualization Support"
+/usr/sbin/kvm-ok >/dev/null
+if [ $? = 0 ]; then
+ echo " System has virtualization support"
+ pass
+else
+ echo " System does NOT have virtualization support"
+ fail
+fi
+}
+
+# EFI-mode installation (redundant with Checkbox test for same, but maybe good to warn about this issue before running Checkbox)
+EFI_Mode(){
+echoname "EFI-mode installation"
+if [ -d /sys/firmware/efi ]; then
+	efi='This is an EFI Mode installation'
+	echo " $efi"
+	eval info${i}=\"$efi\"
+	info
+elif [ ! -d /sys/firmware/efi ]; then
+	efi='This is not an EFI Mode installation'
+	echo " $efi"
+	eval info${i}=\"$efi\"
+	info
+fi
+}
+
+# Detect NVDIMMs in the system and prompt user to configure before testing
+NVDIMM_Detection(){
+echoname "NVDIMM Detection"
+if [ ! -c /dev/nmem0 ]; then
+    nvdimm="NVDIMMs NOT detected"
+    echo " $nvdimm"
+    eval info${i}=\"$nvdimm\"
+    info
+elif [ -c /dev/nmem0 ]; then
+    nvdimm="NVDIMMs detected"
+    echo " $nvdimm"
+    echo " If you have not done so already, you will"
+    echo " need to configure the NVDIMMs to be able to"
+    echo " test both Memory and AppDirect modes."
+    echo " Please refer to the Self Testing Guide for"
+    echo " more information."
+    eval info${i}=\"$nvdimm\"
+    info
+fi
+}
+
+# Quick check to identify most/many GPGPUs and let user know of special steps
+# needed to test.
+GPGPU_Check() {
+echoname "GPGPU Identification"
+if lspci | grep "3D controller [0302]"; then
+    gpu="GPGPU Detected"
+    echo " $gpu"
+    echo " In order to test the discovered GPGPU device(s)"
+    echo " You will need to install the checkbox-provider-gpgpu"
+    echo " package and run the gpu-setup script to install"
+    echo " the necessary drivers and toolkit."
+    eval info${i}=\"$gpu\"
+    info
+else
+    gpu="No GPGPU Detected"
+    echo " $gpu"
+    eval info${i}=\"$gpu\"
+    info
+fi
+}
+
+CPUFreq_Check() {
+echoname "CPUFreq Support Check"
+if [ -z "$(ls -A /sys/devices/system/cpu/cpufreq 2>/dev/null)" ]; then
+   echo " CPUFreq directory empty or not present."
+   fail
+else
+   echo " CPUFreq directory present and populated."
+   pass
+fi
+}
+
+
+runchoices() {
+ echo 
+ for i in $steps
+  do
+   eval "status=\$check${i}"
+    "$i"
+ done
+}
+
+report() {
+    echo -e "\n\e[1;33m============\e[m \e[1;34mReport\e[m \e[1;33m============\e[m\n"
+ for i in $steps
+  do
+   eval "status=\$pass${i}"
+   if [ $status = "1" ];then
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;32m  Passed\e[m\n"
+   elif [ $status = "0" ];then
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;31m  Failed\e[m\n"
+   elif [ $status = "2" ];then
+    eval "detail=\$info${i}"
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;33m  $detail\e[m\n"
+   elif [ $status = "3" ];then
+    eval "detail=\$info${i}"
+    printf "%30s" "$i  "
+    printf "%0.1s" "-"{1..20}
+    printf "\e[1;37m  $detail\e[m\n"
+   fi
+ done
+}
+
+. /etc/lsb-release
+
+runchoices
+report

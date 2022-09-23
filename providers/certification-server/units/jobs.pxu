@@ -1,0 +1,13 @@
+id: udev-summary_attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command: udev_resource -l DISK NETWORK USB
+_description: Attaches a summary of devices found via udev
+_summary: Attach a summary of udev devices
+
+id: config_file_attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command: [ -f /etc/xdg/canonical-certification.conf ] && cat /etc/xdg/canonical-certification.conf
+_description: Attaches the config file for debugging config issues
+_summary: Attach a copy of /etc/xdg/canonical-certification.conf

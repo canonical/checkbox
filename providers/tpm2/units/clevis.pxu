@@ -1,0 +1,80 @@
+# This file is part of Checkbox.
+#
+# Copyright 2021 Canonical Ltd.
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+id: clevis-encrypt-tpm2/precheck
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_tpm2_chip == 'True'
+ executable.name == 'clevis-encrypt-tpm2'
+_summary: clevis encrypt/decrypt precheck
+flags: simple
+command: true
+
+id: clevis-encrypt-tpm2/detect-rsa-capabilities
+category_id: tpm2
+plugin: shell
+depends: clevis-encrypt-tpm2/precheck
+user: root
+_summary: Ensure the TPM has required capabilities for clevis RSA test
+command:
+  tpm2_capabilities.py hash sha256 && \
+  tpm2_capabilities.py pcr_banks sha256 && \
+  tpm2_capabilities.py assymetric rsa
+
+id: clevis-encrypt-tpm2/rsa
+category_id: tpm2
+plugin: shell
+depends: clevis-encrypt-tpm2/detect-rsa-capabilities
+estimated_duration: 30
+_summary: clevis encrypt/decrypt key rsa
+user: root
+command:
+ echo "+ Generate a random string"
+ rand=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c32768)
+ echo "+ Encrypt and decrypt the string using the TPM"
+ result=$(echo -n $rand | clevis-encrypt-tpm2 '{"hash": "sha256", "key":"rsa", "pcr_bank":"sha256","pcr_ids":"0,1"}' | clevis-decrypt-tpm2)
+ echo "+ Compare with the original string"
+ [[ $result == $rand ]]
+
+id: clevis-encrypt-tpm2/detect-ecc-capabilities
+category_id: tpm2
+plugin: shell
+depends: clevis-encrypt-tpm2/precheck
+user: root
+_summary: Ensure the TPM has required capabilities for clevis ECC test
+command:
+  tpm2_capabilities.py hash sha256 && \
+  tpm2_capabilities.py pcr_banks sha256 && \
+  tpm2_capabilities.py assymetric ecc
+
+id: clevis-encrypt-tpm2/ecc
+category_id: tpm2
+plugin: shell
+depends: clevis-encrypt-tpm2/detect-ecc-capabilities
+estimated_duration: 30
+_summary: clevis encrypt/decrypt key ecc
+user: root
+command:
+ echo "+ Generate a random string"
+ rand=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c32768)
+ echo "+ Encrypt and decrypt the string using the TPM"
+ result=$(echo -n $rand | clevis-encrypt-tpm2 '{"hash": "sha256", "key":"ecc", "pcr_bank":"sha256","pcr_ids":"0,1"}' | clevis-decrypt-tpm2)
+ echo "+ Compare with the original string"
+ [[ $result == $rand ]]

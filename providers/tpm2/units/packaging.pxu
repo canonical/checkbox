@@ -1,0 +1,12 @@
+unit: packaging meta-data
+os-id: debian
+Depends: clevis-tpm2 | tpm2-tools
+
+unit: packaging meta-data
+os-id: debian
+Depends: dpkg
+
+unit: packaging meta-data
+os-id: ubuntu
+os-version-id: 20.04
+Depends: libtss2-dev

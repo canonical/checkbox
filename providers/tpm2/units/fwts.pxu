@@ -1,0 +1,32 @@
+# This file is part of Checkbox.
+#
+# Copyright 2021 Canonical Ltd.
+# Written by:
+#   Jonathan Cave <jonthan.cave@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+id: tpm2/fwts-event-log-dump
+category_id: tpm2
+plugin: attachment
+user: root
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_tpm2_chip == 'True'
+ executable.name == 'fwts'
+_summary: Dump the contents of the TPM Event Log 
+_description:
+ The information in the TPM Event Log can be useful in debugging problems with
+ TPM command support and adherance to standards. This can be of particular help
+ when checking whether a device can support Ubuntu Core Full Disk Encryption. 
+command: fwts tpmevlogdump -r stdout

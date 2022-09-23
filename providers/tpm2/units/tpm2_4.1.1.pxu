@@ -1,0 +1,760 @@
+# This file is part of Checkbox.
+#
+# Copyright 2020 Canonical Ltd.
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+id: tpm2.0_4.1.1/tpm2_activecredential
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_activecredential
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/activecredential.sh
+
+id: tpm2.0_4.1.1/tpm2_attestation
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_attestation
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/attestation.sh
+
+id: tpm2.0_4.1.1/tpm2_certifycreation
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_certifycreation
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/certifycreation.sh
+
+id: tpm2.0_4.1.1/tpm2_certify
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_certify
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/certify.sh
+
+id: tpm2.0_4.1.1/tpm2_changeauth
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_changeauth
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/changeauth.sh
+
+id: tpm2.0_4.1.1/tpm2_checkquote
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_checkquote
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/checkquote.sh
+
+id: tpm2.0_4.1.1/tpm2_clear
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_clear
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/clear.sh
+
+id: tpm2.0_4.1.1/tpm2_clockrateadjust
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_clockrateadjust
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/clockrateadjust.sh
+
+id: tpm2.0_4.1.1/tpm2_createak
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_createak
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/createak.sh
+
+id: tpm2.0_4.1.1/tpm2_createek
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_createek
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ export TPM2_TOOLS_TEST_FIXTURES=$INTEGRATION_TEST_PATH/fixtures
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/createek.sh
+
+id: tpm2.0_4.1.1/tpm2_createpolicy
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_createpolicy
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/createpolicy.sh
+
+id: tpm2.0_4.1.1/tpm2_createprimary
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_createprimary
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/createprimary.sh
+
+id: tpm2.0_4.1.1/tpm2_create
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_create
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/create.sh
+
+id: tpm2.0_4.1.1/tpm2_dictionarylockout
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_dictionarylockout
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/dictionarylockout.sh
+
+id: tpm2.0_4.1.1/tpm2_duplicate
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_duplicate
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/duplicate.sh
+
+id: tpm2.0_4.1.1/tpm2_evictcontrol
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_evictcontrol
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/evictcontrol.sh
+
+id: tpm2.0_4.1.1/tpm2_flushcontext
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_flushcontext
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/flushcontext.sh
+
+id: tpm2.0_4.1.1/tpm2_getcap
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_getcap
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/getcap.sh
+
+id: tpm2.0_4.1.1/tpm2_getekcertificate
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_getekcertificate
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/getekcertificate.sh
+
+id: tpm2.0_4.1.1/tpm2_getrandom
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_getrandom
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/getrandom.sh
+
+id: tpm2.0_4.1.1/tpm2_gettestresult
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_gettestresult
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/gettestresult.sh
+
+id: tpm2.0_4.1.1/tpm2_gettime
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_gettime
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/gettime.sh
+
+id: tpm2.0_4.1.1/tpm2_hash
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_hash
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/hash.sh
+
+id: tpm2.0_4.1.1/tpm2_hmac
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_hmac
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/hmac.sh
+
+id: tpm2.0_4.1.1/tpm2_import
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_import
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/import.sh
+
+id: tpm2.0_4.1.1/tpm2_import_tpm
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_import_tpm
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/import_tpm.sh
+
+id: tpm2.0_4.1.1/tpm2_incrementalselftest
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_incrementalselftest
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/incrementalselftest.sh
+
+id: tpm2.0_4.1.1/tpm2_loadexternal
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_loadexternal
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/loadexternal.sh
+
+id: tpm2.0_4.1.1/tpm2_load
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_load
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/load.sh
+
+id: tpm2.0_4.1.1/tpm2_makecredential
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_makecredential
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/makecredential.sh
+
+id: tpm2.0_4.1.1/tpm2_nvcertify
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_nvcertify
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/nvcertify.sh
+
+id: tpm2.0_4.1.1/tpm2_nvinc
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_nvinc
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/nvinc.sh
+
+id: tpm2.0_4.1.1/tpm2_nv
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_nv
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/nv.sh
+
+id: tpm2.0_4.1.1/tpm2_output_formats
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_output_formats
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/output_formats.sh
+
+id: tpm2.0_4.1.1/tpm2_pcrevent
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_pcrevent
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/pcrevent.sh
+
+id: tpm2.0_4.1.1/tpm2_pcrextend
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_pcrextend
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/pcrextend.sh
+
+id: tpm2.0_4.1.1/tpm2_pcrlist
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_pcrlist
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/pcrlist.sh
+
+id: tpm2.0_4.1.1/tpm2_pcrreset
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_pcrreset
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/pcrreset.sh
+
+id: tpm2.0_4.1.1/tpm2_print
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_print
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/print.sh
+
+id: tpm2.0_4.1.1/tpm2_quote
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_quote
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/quote.sh
+
+id: tpm2.0_4.1.1/tpm2_rc_decode
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_tpm2_chip == 'True'
+ package.name == 'libtss2-dev'
+estimated_duration: 2
+_summary: tpm2_rc_decode
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/rc_decode.sh
+
+id: tpm2.0_4.1.1/tpm2_readclock
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_readclock
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/readclock.sh
+
+id: tpm2.0_4.1.1/tpm2_readpublic
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_readpublic
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/readpublic.sh
+
+id: tpm2.0_4.1.1/tpm2_rsadecrypt
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_rsadecrypt
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/rsadecrypt.sh
+
+id: tpm2.0_4.1.1/tpm2_rsaencrypt
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_rsaencrypt
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/rsaencrypt.sh
+
+id: tpm2.0_4.1.1/tpm2_selftest
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_selftest
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/selftest.sh
+
+id: tpm2.0_4.1.1/tpm2_send
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_send
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ export TPM2_TOOLS_TEST_FIXTURES=$INTEGRATION_TEST_PATH/fixtures
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/send.sh
+
+id: tpm2.0_4.1.1/tpm2_setclock
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_setclock
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/setclock.sh
+
+id: tpm2.0_4.1.1/tpm2_setprimarypolicy
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_setprimarypolicy
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/setprimarypolicy.sh
+
+id: tpm2.0_4.1.1/tpm2_sign
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_sign
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/sign.sh
+
+id: tpm2.0_4.1.1/tpm2_startup
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_startup
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/startup.sh
+
+id: tpm2.0_4.1.1/tpm2_stirrandom
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_stirrandom
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/stirrandom.sh
+
+id: tpm2.0_4.1.1/tpm2_testparms
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_testparms
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/testparms.sh
+
+id: tpm2.0_4.1.1/tpm2_unseal
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_unseal
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/unseal.sh
+
+id: tpm2.0_4.1.1/tpm2_verifysignature
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: tpm2_verifysignature
+user: root
+command:
+ INTEGRATION_TEST_PATH=$PLAINBOX_PROVIDER_DATA/tpm2-tools-4.1.1/integration
+ export PATH=$INTEGRATION_TEST_PATH:$PATH
+ TPM2TOOLS_TEST_TCTI="device:/dev/tpmrm0" bash -x $INTEGRATION_TEST_PATH/tests/verifysignature.sh
+
+id: tpm2.0_4.1.1/pcr0_mismatch_check
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: Check the reconstruction of PCR0 using TPM event log
+user: root
+command:
+ fwupdmgr get-devices
+ fwupdmgr get-devices | ( grep 'TPM PCR0 differs from reconstruction' || exit 0 && exit 1)
+
+id: tpm2.0_4.1.1/context_gap_max_check
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_tpm2_chip == 'True'
+estimated_duration: 2
+_summary: Check the CONTEXT_GAP_MAX value
+user: root
+command:
+ tpm2_getcap properties-fixed | grep -A 1 "TPM2_PT_CONTEXT_GAP_MAX:"
+ tpm2_getcap properties-fixed | (grep -zPq "TPM2_PT_CONTEXT_GAP_MAX:\s*raw: 0xFFFF" || exit 1 && exit 0)

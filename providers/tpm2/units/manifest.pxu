@@ -1,0 +1,10 @@
+# Copyright 2017 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+
+unit: manifest entry
+id: has_tpm2_chip
+_name: TPM 2.0 Support
+value-type: bool

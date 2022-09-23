@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+venv_path=${1:-venv}
+
+venv_path=$(realpath $venv_path)
+
+if [ -d $venv_path ]; then
+    echo "$venv_path already exists"
+    exit 1
+fi
+
+virtualenv --quiet --system-site-packages --python=python3 $venv_path
+
+. $venv_path/bin/activate
+python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /'
+pip install tqdm psutil
+
+mkdir -p "$venv_path/share/plainbox-providers-1"
+echo "export PROVIDERPATH=$venv_path/share/plainbox-providers-1" >> $venv_path/bin/activate
+
+echo "virtualenv with an empty provider database created at $venv_path"
+echo "To activate your virtualenv run:"
+echo "$ . $venv_path/bin/activate"
+

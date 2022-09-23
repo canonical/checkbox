@@ -1,0 +1,61 @@
+unit: exporter
+id: html
+_summary: Generate a standalone HTML
+entry_point: jinja2
+file_extension: html
+data: {"template": "checkbox.html"}
+
+unit: exporter
+id: html-multi-page
+_summary: Generate a multi-page standalone HTML
+entry_point: jinja2
+file_extension: html
+data: {"template": "multi-page.html"}
+
+unit: exporter
+id: json
+_summary: Generate JSON output
+entry_point: jinja2
+file_extension: json
+data: {"template": "checkbox.json"}
+
+unit: exporter
+id: text
+_summary: Generate plain text output
+entry_point: text
+file_extension: txt
+
+unit: exporter
+id: tar
+_summary: Generate a tar.xz archive
+entry_point: tar
+file_extension: tar.xz
+
+unit: exporter
+id: xlsx
+_summary: Generate an Excel 2007+ XLSX document
+entry_point: xlsx
+file_extension: xlsx
+options:
+ with-sys-info, with-summary, with-job-description, with-text-attachments
+
+unit: exporter
+id: global
+_summary: Generate a text file containing only the test run global result
+entry_point: jinja2
+file_extension: txt
+data: {"template": "global.txt"}
+
+unit: exporter
+id: junit
+_summary: Generate junit XML
+entry_point: jinja2
+file_extension: junit.xml
+data: {"template": "junit.xml"}
+
+unit: exporter
+id: tp-export
+_summary: Generate an Excel 2007+ XLSX export of a test plan
+entry_point: xlsx
+file_extension: xlsx
+options: tp-export

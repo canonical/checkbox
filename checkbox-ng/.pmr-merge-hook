@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+git clone https://git.launchpad.net/~checkbox-dev/checkbox/+git/support
+time -o timing.dat ./support/test-in-lxc.sh
+echo "Complete test time:"
+cat timing.dat
+
+# Ping rtfd.org to refresh the documentation
+curl -X POST -d "branches=latest" -d "token=71e3fc78c690eb55c0ea4dccb703f65bf5be5f57" https://readthedocs.org/api/v2/webhook/checkbox/137367/

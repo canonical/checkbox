@@ -1,0 +1,71 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-05-09 23:35+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. summary
+#: ../units/exporter.pxu:3
+msgid "Generate XML (for certification)"
+msgstr ""
+
+#. summary
+#: ../units/exporter.pxu:10
+msgid "Generate a standalone HTML"
+msgstr ""
+
+#. summary
+#: ../units/exporter.pxu:17
+msgid "Generate JSON output"
+msgstr ""
+
+#. summary
+#: ../units/exporter.pxu:23
+msgid "Generate RCF822 output"
+msgstr ""
+
+#. summary
+#: ../units/exporter.pxu:29
+msgid "Generate plain text output"
+msgstr ""
+
+#. summary
+#: ../units/exporter.pxu:35
+msgid "Generate a tar.gz archive"
+msgstr ""
+
+#. summary
+#: ../units/exporter.pxu:41
+msgid "Generate an Excel 2007+ XLSX document"
+msgstr ""
+
+#. This is exporters_def.description,
+#. we need it here to extract is as a part of this provider
+#: ../manage.py:45
+msgid "Exporters Provider"
+msgstr ""
+
+#: ../manage.py:55 ../manage.py:66
+msgid "The Exporters provider is special"
+msgstr ""
+
+#: ../manage.py:56
+msgid "You don't need to develop it explicitly"
+msgstr ""
+
+#: ../manage.py:67
+msgid "You don't need to install it explicitly"
+msgstr ""

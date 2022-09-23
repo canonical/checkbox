@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multi-page System Testing Report</title>
+    <style type="text/css">
+        {%- include "jquery.mobile.min.css" -%}
+    </style>
+    <style type="text/css">
+        {%- include "checkbox.css" -%}
+    </style>
+    <script type="text/javascript">
+        {%- include "jquery.min.js" -%}
+    </script>
+    <script type="text/javascript">
+        {%- include "jquery-mobile.min.js" -%}
+    </script>
+    <script type="text/javascript">
+        {{ include_file("Chart.min.js") }}
+    </script>
+    <script>
+        {%- for manager in manager_list %}
+        $(function(){
+          // bind change event to select
+          $('#select-report{{ loop.index - 1 }}').bind('change', function () {
+              var url = $(this).val(); // get selected value
+              if (url) { // require a URL
+                  $.mobile.changePage("#session-"+url, { transition: "slide" });
+              }
+              return false;
+          });
+        });
+        {%- endfor %}
+        $(document).on( "pagecontainerbeforechange", function( event, ui ) {
+            pageId = $('body').pagecontainer('getActivePage').prop('id'); 
+            {%- for manager in manager_list %}
+            if (pageId === "session-{{ loop.index - 1 }}") {
+                window.myPie{{ loop.index }}.destroy();
+            }
+            {%- endfor %}
+        });
+        $(document).on( "pagecontainershow", function( event, ui ) {
+            pageId = $('body').pagecontainer('getActivePage').prop('id'); 
+            {%- for manager in manager_list %}
+            if (pageId === "session-{{ loop.index - 1 }}") {
+                var ctx{{ loop.index }} = document.getElementById('chart-area{{ loop.index }}').getContext('2d');
+                window.myPie{{ loop.index }} = new Chart(ctx{{ loop.index }}, config{{ loop.index }});
+            }
+            if (ui.toPage[0].id === "session-{{ loop.index - 1 }}") {
+                var target_id = ui.toPage[0].id
+                var desired_index = {{ loop.index - 1 }}
+                var myselect = $("#select-report{{ loop.index - 1 }}");
+                myselect[0].selectedIndex = desired_index;
+                myselect.selectmenu("refresh");
+            }
+            {%- endfor %}
+        });
+    </script>
+</head>
+
+<body>
+{% for manager in manager_list %}
+{% set managerloop = loop %}
+{%- set metadata = manager.state.metadata %}
+{%- set ns = 'com.canonical.certification::' -%}
+{%- set state = manager.default_device_context.state -%}
+{%- set resource_map = state.resource_map -%}
+{%- set job_state_map = state.job_state_map -%}
+{%- set category_map = state.category_map_lite -%}
+{%- set category_outcome_map = state.category_outcome_map -%}
+{%- set resource_global_outcome = state.resource_global_outcome -%}
+{%- set attachment_global_outcome = state.attachment_global_outcome -%}
+<!-- Start of report page -->
+<div data-role="page" id="session-{{ loop.index - 1 }}" class="jqm-demos ui-page ui-page-theme-a ui-page-footer-fixed">
+
+    <div data-role="header" data-position="fixed">
+        <div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-left">
+            <select name="select-report{{ loop.index - 1 }}" id="select-report{{ loop.index - 1 }}" data-mini="true" data-inline="true" data-iconpos="left" >
+                {%- for manager in manager_list %}
+                {%- set metadata = manager.state.metadata %}
+                    {%- if managerloop.index == loop.index %}
+                    <option value="{{ loop.index - 1 }}" selected="selected">{{ metadata.title }}</option>
+                    {%- else %}
+                    <option value="{{ loop.index - 1 }}">{{ metadata.title }}</option>
+                    {%- endif %}
+                {%- endfor %}
+            </select>
+        </div>
+        <h1>System Testing Report</h1>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content">
+        {%- if ns ~ 'system_info_json' in state.job_state_map and state.job_state_map[ns ~ 'system_info_json'].result.outcome == 'pass' %}
+        <h2>System Information</h2>
+        {%- set system_info_json = state.job_state_map[ns ~ 'system_info_json'].result.io_log_as_text_attachment.rstrip() %}
+        {%- set system_info = system_info_json|json_load_ordered_dict %}
+        <table data-role="table" id="system-info" data-mode="reflow" class="ui-body-d ui-responsive table-stroke">
+            <thead><tr class="ui-bar-d"></tr></thead>
+            </tbody>
+            {%- for section, section_data in system_info.items() %}
+                <tr style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">
+                <th style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; vertical-align:top; font-size: 0.85em;">{{ section }}</th>
+                <td style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; line-height: 1em;">
+                {%- for info in section_data %}
+                <p style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; font-size: 0.85em">
+                {% autoescape false %}
+                {%- if section in ('System', 'Machine', 'CPU') %}
+                {{ info|highlight_keys }}
+                {%- else %}
+                {{ info }}
+                {%- endif %}
+                {% endautoescape %}</p>
+                {%- endfor %}
+                </td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+        <br>
+        {%- endif %}
+        <h2>Tests Results</h2>
+            {%- if manager.test_plans %}
+            <p>Test plan: {{ manager.test_plans[0] }}</p>
+            {%- endif %}
+
+    <div id="canvas-holder{{ loop.index }}" style="width:300px">
+        <canvas id="chart-area{{ loop.index }}"></canvas>
+    </div>
+    <script>
+        var config{{ loop.index }} = {
+            type: 'pie',
+            data: {
+                datasets: [{
+                    data: [
+                        {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                        {{ total }},
+                        {%- endfor %}
+                    ],
+                    backgroundColor: [
+                        {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                        "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",
+                        {%- endfor %}
+                    ],
+                }],
+                labels: [
+                    {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                    "{{ OUTCOME_METADATA_MAP[outcome].tr_label }}",
+                    {%- endfor %}
+                ]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    display: true,
+                    onClick: function () {},
+                    position: 'right',
+                    labels: {
+                        fontSize: 15,
+                        fontStyle: 'normal',
+                        generateLabels: function(chart) {
+                            var data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map(function(label, i) {
+                                    var meta = chart.getDatasetMeta(0);
+                                    var ds = data.datasets[0];
+                                    var arc = meta.data[i];
+                                    var custom = arc && arc.custom || {};
+                                    var getValueAtIndexOrDefault = Chart.helpers.getValueAtIndexOrDefault;
+                                    var arcOpts = chart.options.elements.arc;
+                                    var fill = custom.backgroundColor ? custom.backgroundColor : getValueAtIndexOrDefault(ds.backgroundColor, i, arcOpts.backgroundColor);
+                                    var stroke = custom.borderColor ? custom.borderColor : getValueAtIndexOrDefault(ds.borderColor, i, arcOpts.borderColor);
+                                    var bw = custom.borderWidth ? custom.borderWidth : getValueAtIndexOrDefault(ds.borderWidth, i, arcOpts.borderWidth);
+        
+                                    // We get the value of the current label
+                                    var value = chart.config.data.datasets[arc._datasetIndex].data[arc._index];
+        
+                                    return {
+                                        // Instead of `text: label,`
+                                        // We add the value to the string
+                                        text: label + " : " + value,
+                                        fillStyle: fill,
+                                        strokeStyle: stroke,
+                                        lineWidth: bw,
+                                        hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+                                        index: i
+                                    };
+                                });
+                            } else {
+                                return [];
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        $(function(){
+            $('#expanseAll{{ loop.index }}').on('click', function() {
+                $( ".openMe{{ loop.index }}" ).collapsible( "expand" );
+            });
+            $('#collapseAll{{ loop.index }}').on('click', function() {
+                $( ".openMe{{ loop.index }}" ).collapsible( "collapse" );
+            });
+        });
+    </script>
+    <br>
+    <fieldset class="ui-grid-a">
+        <div class="ui-block-a">
+            <input id="expanseAll{{ loop.index }}" data-mini="true" data-inline="true" value="Expand All" type="button">
+            <input id="collapseAll{{ loop.index }}" data-mini="true" data-inline="true" value="Collapse All" type="button">
+        </div>
+        <div class="ui-block-b"><input id="filterTable-input{{ managerloop.index }}" data-type="search"></div>
+    </fieldset>
+    {%- for cat_id, cat_name in category_map|dictsort(false, 'value') %}
+    {% set mainloop = loop %}
+    <div data-role="collapsible" data-filter="true" data-input="#filterTable-input{{ managerloop.index }}" class="openMe{{ managerloop.index }}" style="margin: 0;" data-content-theme="false">
+    <h3>{{ cat_name }}<span class="ui-li-count {{ OUTCOME_METADATA_MAP[category_outcome_map[cat_id]].tr_label }}Count">{{ OUTCOME_METADATA_MAP[category_outcome_map[cat_id]].tr_label }}</span></h3>
+        <table data-role="table" id="{{ cat_id }}" data-filter="true" data-input="#filterTable-input{{ managerloop.index }}" class="ui-body-d ui-shadow table-stroke ui-responsive">
+            <thead>
+                <tr class="ui-bar-d">
+                </tr>
+            </thead>
+            <tbody>
+            {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
+                <tr>
+                    <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
+                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                    {%- if job_state.effective_certification_status != "unspecified" %}
+                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    {%- if job_state.result.io_log_as_flat_text != "" %}
+                    <td style='width:10%'><a href="#{{ managerloop.index }}-{{ mainloop.index }}-{{ loop.index }}-log">I/O log</a></td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    <td style='width:35%'>{% autoescape false %}{{ job_state.result.comments if job_state.result.comments != None }}{% endautoescape %}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+    </div>
+    {%- endfor %}
+    <p></p>
+    <h2>Logs</h2>
+    {%- if resource_map %}
+    <div data-role="collapsible" data-filter="true" data-input="#filterTable-input{{ managerloop.index }}" class="openMe{{ managerloop.index }}" data-content-theme="false">
+    <h3>Resources<span class="ui-li-count {{ OUTCOME_METADATA_MAP[resource_global_outcome].tr_label }}Count">{{ OUTCOME_METADATA_MAP[resource_global_outcome].tr_label }}</span></h3>
+        <table data-role="table" id="resource" data-filter="true" data-input="#filterTable-input{{ managerloop.index }}" class="ui-body-d ui-shadow table-stroke ui-responsive">
+            <thead>
+                <tr class="ui-bar-d">
+                </tr>
+            </thead>
+            <tbody>
+            {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "resource" %}
+                {%- if job_id|strip_ns == "package" %}
+                <tr>
+                    <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
+                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                    {%- if job_state.effective_certification_status != "unspecified" %}
+                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    {%- if job_state.result.io_log_as_flat_text != "" %}
+                    <td style='width:10%'><a href="#package-{{ managerloop.index }}-log">View</a></td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                </tr>
+                {%- else %}
+                <tr>
+                    <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
+                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                    {%- if job_state.effective_certification_status != "unspecified" %}
+                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    {%- if job_state.result.io_log_as_flat_text != "" %}
+                    <td style='width:10%'><a href="#resource-{{ managerloop.index }}-{{ loop.index }}-log">I/O log</a></td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                </tr>
+                {%- endif %}
+            {%- endfor %}
+            </tbody>
+        </table>
+    </div>
+    {%- endif %}
+    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
+    {%- if loop.first %}
+    <div data-role="collapsible" data-filter="true" data-input="#filterTable-input{{ managerloop.index }}" class="openMe{{ managerloop.index }}" data-content-theme="false">
+    <h3>Attachments<span class="ui-li-count {{ OUTCOME_METADATA_MAP[attachment_global_outcome].tr_label }}Count">{{ OUTCOME_METADATA_MAP[attachment_global_outcome].tr_label }}</span></h3>
+        <table data-role="table" id="resource" data-filter="true" data-input="#filterTable-input{{ managerloop.index }}" class="ui-body-d ui-shadow table-stroke ui-responsive">
+            <thead>
+                <tr class="ui-bar-d">
+                </tr>
+            </thead>
+            <tbody>
+    {%- endif %}
+                <tr>
+                    <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
+                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                    {%- if job_state.effective_certification_status != "unspecified" %}
+                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    {%- if job_state.result.io_log_as_text_attachment != "" %}
+                    <td style='width:10%'><a href="#attachment-{{ managerloop.index }}-{{ loop.index }}-log">View</a></td>
+                    {%- else %}
+                    <td style='width:10%'></td>
+                    {%- endif %}
+                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                </tr>
+    {%- if loop.last %}
+            </tbody>
+        </table>
+    </div>
+    {%- endif %}
+    {%- endfor %}
+    </div><!-- /content -->
+
+    <div data-role="footer" data-position="fixed" data-tap-toggle="false" class="jqm-footer">
+        <p>This report was created using {{ client_version }} on {{ timestamp }}</p>
+        <p>Copyright {{timestamp.split("-")[0]}} Canonical Ltd.</p>
+    </div><!-- /footer -->
+
+</div><!-- /report page -->
+
+<!-- I/O log pages -->
+
+{%- if ns ~ "package" in resource_map %}
+<div class="jqm-demos ui-page" tabindex="0" data-url="package-{{ managerloop.index }}" id="package-{{ managerloop.index }}-log" data-role="page">
+    <div data-role="header" class="jqm-header">
+        <h1>Debian Packages</h1>
+    </div>
+    <div role="main" class="ui-content">
+        <form>
+            <input id="filterTable-input-package-{{ managerloop.index }}" data-type="search">
+        </form>
+        <table data-role="table" id="table2" data-filter="true" data-input="#filterTable-input-package-{{ managerloop.index }}" class="ui-body-d ui-shadow table-stripe ui-responsive">
+            <thead>
+                <tr class="ui-bar-d">
+                    <th>Name</th>
+                    <th>Version</th>
+                </tr>
+            </thead>
+            <tbody>
+            {%- for package in resource_map[ns ~ "package"] %}
+                <tr>
+                    <td>{{ package["name"] }}</td>
+                    <td>{{ package["version"] }}</td>
+                </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{%- endif %}
+
+<!-- Job I/O log pages -->
+
+{%- for cat_id, cat_name in category_map|dictsort(false, 'value') %}
+    {% set mainloop = loop %}
+    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
+    {%- if job_state.result.io_log_as_flat_text != "" %}
+    <div class="jqm-demos ui-page" tabindex="0" data-url="{{ managerloop.index }}-{{ mainloop.index }}-{{ loop.index }}" id="{{ managerloop.index }}-{{ mainloop.index }}-{{ loop.index }}-log" data-role="page">
+        <div data-role="header" class="jqm-header">
+            <h1>{{ job_state.job.tr_summary() }}</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ job_state.result.io_log_as_flat_text }}</pre>
+        </div>
+    </div>
+    {%- endif %}
+    {%- endfor %}
+{%- endfor %}
+
+<!-- Resources I/O log pages -->
+
+{%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "resource" %}
+{%- if job_state.result.io_log_as_flat_text != "" and job_id|strip_ns != "package" %}
+<div class="jqm-demos ui-page" tabindex="0" data-url="resource-{{ managerloop.index }}-{{ loop.index }}" id="resource-{{ managerloop.index }}-{{ loop.index }}-log" data-role="page">
+    <div data-role="header" class="jqm-header">
+        <h1>{{ job_state.job.tr_summary() }}</h1>
+    </div>
+    <div role="main" class="ui-content">
+        <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ job_state.result.io_log_as_flat_text }}</pre>
+    </div>
+</div>
+{%- endif %}
+{%- endfor %}
+
+<!-- Attachments pages -->
+
+{%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
+{%- if job_state.result.io_log_as_text_attachment != "" %}
+<div class="jqm-demos ui-page" tabindex="0" data-url="attachment-{{ managerloop.index }}-{{ loop.index }}" id="attachment-{{ managerloop.index }}-{{ loop.index }}-log" data-role="page">
+    <div data-role="header" class="jqm-header">
+        <h1>{{ job_state.job.tr_summary() }}</h1>
+    </div>
+    <div role="main" class="ui-content">
+        <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ job_state.result.io_log_as_text_attachment }}</pre>
+    </div>
+</div>
+{%- endif %}
+{%- endfor %}
+
+{%- endfor %}
+</body>
+</html>

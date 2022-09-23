@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=CheckBox SRU for Desktop
+Comment=CheckBox can run after login to test a system automatically.
+Icon=checkbox
+Exec=/usr/bin/checkbox-sru-desktop.sh
+Terminal=false
+Type=Application
+Categories=
+X-Ubuntu-Gettext-Domain=checkbox

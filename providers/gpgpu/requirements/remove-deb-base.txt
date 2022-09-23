@@ -1,0 +1,2 @@
+plainbox-provider-certification-server
+checkbox-provider-gpgpu

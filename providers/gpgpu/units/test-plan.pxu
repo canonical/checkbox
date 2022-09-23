@@ -1,0 +1,8 @@
+id: gpgpu-tests
+unit: test plan
+_name: GPGPU Compute Testing
+_description:
+ Tests for GPGPU Computations (non-graphical)
+mandatory_include:
+    gpgpu/gpu-burn
+include:

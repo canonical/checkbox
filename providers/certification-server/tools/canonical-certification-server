@@ -1,0 +1,24 @@
+#!/bin/bash
+
+usage () {
+    echo "DEPRECATED: $0"
+    echo 
+    echo "*** ATTENTION! ***"
+    echo "This command is deprecated and no longer functions"
+    echo "For certification testing, you should now use the version specific"
+    echo "commands that initiate certification runs."
+    echo
+    echo "certify-18.04: launches the 18.04 certification suite"
+    echo "certify-16.04: launches the 16.04 certification suite"
+    echo
+    echo "Additionally there are other commands for running the smaller test"
+    echo "plans for targeted testing of Network, Storage, USB, and other"
+    echo "areas."
+    echo 
+    echo "Please refer to the current Self-Test Guide for more information:"
+    echo "https://certification.canonical.com/"
+    echo
+}
+
+usage
+exit 1

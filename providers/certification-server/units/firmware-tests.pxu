@@ -1,0 +1,27 @@
+id: firmware-tests
+_name: Firmware Tests
+unit: test plan
+_description:
+    This whitelist is intended to be used for firmware testing on certain
+    hardware.  It will run several checks of firmware and DMI data.  This
+    whitelist is meant to provide the hardware vendor with information on
+    their system firmware.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
+include:
+    miscellanea/ipmi_test
+    miscellanea/bmc_info
+    firmware/fwts_server
+    firmware/fwts_server_results.log.gz
+    memory/info
+    miscellanea/oops                        certification-status=non-blocker
+    miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                        certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                        certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    fwts

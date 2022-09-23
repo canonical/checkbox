@@ -1,0 +1,23 @@
+id: network-only
+_name: Network Only Test Plan (Only tests network devices)
+unit: test plan
+_description:
+    This test plan is intended to be used for retesting of network devices
+    only.  It does not provide any testing of other hardware and should only be
+    run at the direction of the Cert Team when re-testing of network devices is
+    requried.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-ethernet
+    com.canonical.certification::server-networking
+include:
+    miscellanea/oops                        certification-status=non-blocker
+    miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                        certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                        certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    fwts

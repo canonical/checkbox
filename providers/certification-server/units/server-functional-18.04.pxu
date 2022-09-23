@@ -1,0 +1,42 @@
+id: 18.04-server-functional
+_name: 18.04 Server Certification Functional
+unit: test plan
+_description:
+    This whitelist is intended to be used for OEM self-testing.
+    The tests contained here should work in any test lab environment.
+    This test plan runs all server certification tests except for the really
+    demanding or lengthy ones.
+nested_part:
+    com.canonical.certification::server-cpu
+    com.canonical.certification::server-info-attachment-automated
+    com.canonical.certification::server-firmware
+    com.canonical.certification::server-miscellaneous
+    com.canonical.certification::server-ethernet
+    com.canonical.certification::nvdimm-full
+    com.canonical.certification::server-usb
+include:
+    info/hdparm_.*.txt                         certification-status=non-blocker
+    benchmarks/disk/hdparm-read_.*             certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
+    disk/detect                                certification-status=blocker
+    disk/stats_.*                              certification-status=blocker
+    disk/read_performance_.*                   certification-status=blocker
+    disk/smart_.*                              certification-status=non-blocker
+    disk/fstrim_.*                             certification-status=non-blocker
+    disk/disk_stress_ng_.*                     certification-status=blocker
+    disk/disk_cpu_load_.*                      certification-status=non-blocker
+    networking/predictable_names               certification-status=non-blocker
+    memory/info                                certification-status=blocker
+    power-management/rtc                       certification-status=blocker
+    virtualization/verify_lxd                  certification-status=blocker
+    virtualization/verify_lxd_vm               certification-status=blocker
+    info/kvm_output                            certification-status=non-blocker
+    miscellanea/oops                           certification-status=non-blocker
+    miscellanea/oops_results.log               certification-status=non-blocker
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    fwts

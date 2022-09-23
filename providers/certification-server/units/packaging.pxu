@@ -1,0 +1,14 @@
+# The 'memory/memory_stress_ng' job requires numactl
+unit: packaging meta-data
+os-id: debian
+Depends: numactl
+
+# The canonical-certification-precheck tool requires bc
+unit: packaging meta-data
+os-id: debian
+Depends: bc
+
+# The canonical-certification-precheck tool requires ipcalc
+unit: packaging meta-data
+os-id: debian
+Depends: ipcalc

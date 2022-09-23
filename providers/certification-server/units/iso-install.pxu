@@ -1,0 +1,21 @@
+id: iso-install
+_name: ISO Install Test Plan (Test for installation from ISO image)
+unit: test plan
+_description:
+    This test plan is intended to be used to confirm successful installation
+    of Ubuntu from a Subiquity-based ISO disk image.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+include:
+    miscellanea/oops                           certification-status=non-blocker
+    miscellanea/oops_results.log               certification-status=non-blocker
+    miscellanea/olog                           certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                           certification-status=blocker
+    miscellanea/klog_results.log
+    miscellanea/sosreport                      certification-status=non-blocker
+    miscellanea/sosreport_attachment           certification-status=non-blocker
+    miscellanea/test_iso_install               certification-status=non-blocker
+bootstrap_include:
+    device
+    fwts

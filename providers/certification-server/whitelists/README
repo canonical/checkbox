@@ -1,0 +1,6 @@
+All Server Certification Whitelists have been moved to the 'units' directory
+and have been converted to Test Plan units.  This should not create a noticable
+effect for any tester running the Server Certification Test Suite.
+
+Future changes or additions to the test lists should happen in the appropriate
+.pxu files in ../units

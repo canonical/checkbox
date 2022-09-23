@@ -1,0 +1,4 @@
+debian/tmp/usr/bin/canonical-certification-cli /usr/bin
+debian/tmp/usr/bin/canonical-certification-client /usr/bin
+debian/tmp/usr/bin/checkbox-touchpad /usr/bin
+debian/tmp/usr/share/applications/canonical-certification-client.desktop /usr/share/applications/

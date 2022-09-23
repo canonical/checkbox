@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	python3 manage.py clean
+	rm -f debian/*.1
+
+override_dh_auto_build:
+	mkdir -p debian/tmp
+	python3 manage.py build
+	python3 manage.py i18n --dont-update-pot --dont-merge-po
+	rst2man debian/canonical-certification-cli.rst debian/canonical-certification-cli.1
+	rst2man debian/canonical-certification-client.rst debian/canonical-certification-client.1
+	rst2man debian/canonical-certification-submit.rst debian/canonical-certification-submit.1
+
+override_dh_auto_test:
+	python3 manage.py validate
+
+pkg_name=plainbox-provider-certification-client
+verbose_id=certification-client
+terse_id=$(pkg_name)
+
+override_dh_auto_install:
+	python3 manage.py install \
+		--prefix=/usr --layout=unix \
+		--root=$(CURDIR)/debian/tmp/
+	# Rename provider directory to avoid having colon in the PATH
+	mv debian/tmp/usr/share/$(verbose_id) debian/tmp/usr/share/$(terse_id)
+	# Rename the .provider file, mind the mangling of : done by manage.py install!
+	mv debian/tmp/usr/share/plainbox-providers-1/$(subst :,.,$(verbose_id)).provider \
+		debian/tmp/usr/share/plainbox-providers-1/$(terse_id).provider
+	# Reflect changes in the .provider meta-data
+	sed -i -e 's!$(verbose_id)!$(terse_id)!g' \
+		debian/tmp/usr/share/plainbox-providers-1/$(terse_id).provider
+	# But don't modify the name, it has to be exactly as before
+	sed -i -e 's!name = $(terse_id)!name = $(verbose_id)!g' \
+		debian/tmp/usr/share/plainbox-providers-1/$(terse_id).provider

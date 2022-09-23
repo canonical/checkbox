@@ -1,0 +1,183 @@
+unit: packaging meta-data
+os-id: debian
+Depends: checkbox-provider-phoronix [amd64]
+
+unit: packaging meta-data
+os-id: debian
+Depends: plainbox-provider-certification-client
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/dkms_build_validation
+requires: package.name == 'dkms'
+command:
+ dkms_build_validation
+_summary: Validate the build status of DKMS modules, automatically
+_description:
+ Firstly, check the built number of DKMS modules.
+ Secondly, scan APT system update log to see any build error messages.
+ This test is mainly used for pre-installed images which use DKMS modules.
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/screenshot_opencv_validation
+requires: package.name == 'python-opencv'
+environ: EXTERNAL_WEBCAM_DEVICE
+command:
+ screenshot_validation \
+    ${PLAINBOX_PROVIDER_DATA}/images/logo_Ubuntu_stacked_black.png \
+    --device=${EXTERNAL_WEBCAM_DEVICE:-/dev/external_webcam} \
+    -o ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
+_summary: Test that a screenshot is valid, automatically
+_description:
+ Take a screengrab of the screen displaying a black and white Ubuntu logo.
+ Check that the screenshot matches the original file using OpenCV ORB detection.
+
+plugin: attachment
+category_id: com.canonical.plainbox::graphics
+id: screenshot_opencv_validation.jpg
+after: graphics/screenshot_opencv_validation
+command: [ -f ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg ] && cat ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
+_description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
+_summary: Attach the screenshot captured for the automatically validated screenshot test
+
+id: sru-server
+_name: All SRU Tests (Ubuntu Server)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
+    recommended for, nor will it be accepted for self-testing purposes.
+include:
+    # Following jobs all run first before the nested parts
+    # Please keep it short and avoid jobs triggering suspend or reboots
+    # Whenever possible prefer the use of nested parts instead
+    audio/alsa_record_playback_automated
+    recovery_info_attachment
+    miscellanea/submission-resources
+    info/systemd-analyze
+    net_if_management_attachment
+    audio/alsa_record_playback_automated
+    install/apt-get-gets-updates
+    miscellanea/dkms_build_validation
+    miscellanea/fan_stress_reaction
+    networking/http
+    networking/gateway_ping
+    thunderbolt3/storage-preinserted
+nested_part:
+    submission-cert-automated
+    info-attachment-cert-automated
+    audio-cert-automated
+    bluetooth-cert-automated
+    camera-cert-automated
+    thunderbolt-cert-automated
+    cpu-cert-automated
+    input-cert-automated
+    disk-cert-automated
+    misc-client-cert-automated
+    fingerprint-automated
+    keys-cert-automated
+    led-cert-automated
+    mediacard-cert-automated
+    mediacard-automated
+    memory-automated
+    mobilebroadband-cert-automated
+    ethernet-cert-automated
+    networking-cert-automated
+    optical-cert-automated
+    power-management-precheck-cert-automated
+    touchpad-cert-automated
+    touchscreen-cert-automated
+    usb-cert-automated
+    usb-automated
+    wireless-cert-automated
+    # start of suspend related tests
+    before-suspend-reference-cert-full
+    # suspend point
+    after-suspend-reference-cert-full
+    after-suspend-touchscreen-cert-automated
+    after-suspend-wireless-cert-automated
+    # The following tests should run BEFORE the automated tests. The reboot and
+    # power off tests will also give us a clean system to start the stress run
+    # with.
+    power-management-reboot-poweroff-cert-automated
+    tpm-cert-automated
+    pts
+    stress-pm-graph
+    stress-ng-cert-automated
+    stress-10-reboot-poweroff-automated
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management
+exclude:
+    cpu/clocktest
+    disk/stats_.*
+    disk/storage_device_.*
+    installer_debug.gz
+    memory/memory_stress_ng
+    audio/valid-sof-firmware-sig
+    miscellanea/check_prerelease
+    suspend/bluetooth_obex_.*
+
+id: sru
+_name: All SRU Tests (Ubuntu Desktop)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
+    recommended for, nor will it be accepted for self-testing purposes.
+include:
+    # Following jobs all run first before the nested parts
+    # Please keep it short and avoid jobs triggering suspend or reboots
+    # Whenever possible prefer the use of nested parts instead
+    audio/alsa_record_playback_automated
+    recovery_info_attachment
+    miscellanea/submission-resources
+    info/systemd-analyze
+    net_if_management_attachment
+    audio/alsa_record_playback_automated
+    graphics/xorg-version
+    graphics/1_compiz_check_.*
+    graphics/xorg-failsafe
+    graphics/xorg-process
+    graphics/1_screenshot_.*
+    1_screenshot_.*.jpg
+    graphics/1_screenshot_fullscreen_video_.*
+    1_screenshot_fullscreen_video_.*.jpg
+    install/apt-get-gets-updates
+    miscellanea/dkms_build_validation
+    miscellanea/fan_stress_reaction
+    networking/http
+    networking/gateway_ping
+    thunderbolt3/storage-preinserted
+nested_part:
+    sru-server
+    monitor-integrated-gpu-cert-automated
+    monitor-discrete-gpu-cert-automated
+    graphics-integrated-gpu-cert-automated
+    graphics-discrete-gpu-cert-automated
+    # start of suspend related tests
+    before-suspend-reference-cert-full
+    # suspend point
+    after-suspend-reference-cert-full
+    # Test discrete card first, if present, since it's the one we will be using
+    # after coming back from suspend if the system has hybrid graphics.
+    after-suspend-graphics-discrete-gpu-cert-automated
+    # after-suspend-monitor-discrete-gpu-cert-automated # not defined
+    # Now we ask to switch to the integrated graphics card.
+    after-suspend-graphics-integrated-gpu-cert-automated
+    # after-suspend-monitor-integrated-gpu-cert-automated # not defined
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management
+exclude:
+    cpu/clocktest
+    disk/stats_.*
+    disk/storage_device_.*
+    installer_debug.gz
+    memory/memory_stress_ng
+    audio/valid-sof-firmware-sig
+    miscellanea/check_prerelease
+    suspend/bluetooth_obex_.*

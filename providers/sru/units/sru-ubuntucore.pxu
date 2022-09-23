@@ -1,0 +1,113 @@
+# plugin: shell
+# category_id: com.canonical.plainbox::graphics
+# id: graphics/screenshot_opencv_validation
+# requires: package.name == 'python-opencv'
+# environ: EXTERNAL_WEBCAM_DEVICE
+# command:
+#  screenshot_validation \
+#     ${PLAINBOX_PROVIDER_DATA}/images/logo_Ubuntu_stacked_black.png \
+#     --device=${EXTERNAL_WEBCAM_DEVICE:-/dev/external_webcam} \
+#     -o ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
+# _summary: Test that a screenshot is valid, automatically
+# _description:
+#  Take a screengrab of the screen displaying a black and white Ubuntu logo.
+#  Check that the screenshot matches the original file using OpenCV ORB detection.
+
+# plugin: attachment
+# category_id: com.canonical.plainbox::graphics
+# id: screenshot_opencv_validation.jpg
+# after: graphics/screenshot_opencv_validation
+# command: [ -f ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg ] && cat ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
+# _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
+# _summary: Attach the screenshot captured for the automatically validated screenshot test
+
+id: sru-ubuntucore
+_name: All SRU Tests (Ubuntu Core)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
+    recommended for, nor will it be accepted for self-testing purposes.
+include:
+    miscellanea/submission-resources
+    acpi_sleep_attachment
+    codecs_attachment
+    cpuinfo_attachment
+    dmesg_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    meminfo_attachment
+    modprobe_attachment
+    modules_attachment
+    net_if_management_attachment
+    sysctl_attachment
+    lsmod_attachment
+    audio/alsa-loopback-automated
+    bluetooth/detect-output
+#     camera/detect
+#     camera/multiple-resolution-images_.*
+    cpu/scaling_test
+    cpu/scaling_test-log-attach
+    cpu/offlining_test
+    cpu/topology
+    disk/read_performance_.*
+#     graphics/xorg-version
+#     graphics/1_compiz_check_.*
+#     graphics/xorg-failsafe
+#     graphics/xorg-process
+#     graphics/1_screenshot_.*
+#     1_screenshot_.*.jpg
+#     graphics/1_screenshot_fullscreen_video_.*
+#     1_screenshot_fullscreen_video_.*.jpg
+#     graphics/screenshot_opencv_validation
+#     screenshot_opencv_validation.jpg
+#     install/apt-get-gets-updates
+    mediacard/sd-preinserted
+    memory/info
+    ethernet/detect
+    ethernet/info_automated
+    networking/http
+    ethernet/ping_.*
+    power-management/tickless_idle_.*
+    power-management/rtc
+    power-management/fwts_wakealarm
+    power-management/fwts_wakealarm-log-attach
+    usb/detect
+    usb/storage-preinserted
+    wireless/wireless_scanning_.*
+    wireless/wireless_connection_wpa_bg_nm_.*
+    wireless/wireless_connection_open_bg_nm_.*
+    wireless/wireless_connection_wpa_n_nm_.*
+    wireless/wireless_connection_open_n_nm_.*
+    wireless/wireless_connection_wpa_ac_nm_.*
+    wireless/wireless_connection_open_ac_nm_.*
+#     suspend/audio_before_suspend
+    bluetooth4/beacon_eddystone_url_.*
+    cpu/cpuinfo_before_suspend
+#    suspend/network_before_suspend
+    memory/meminfo_before_suspend
+    suspend/suspend_advanced_auto
+    suspend/suspend-single-log-check
+    suspend/suspend-single-log-attach
+#     suspend/audio_after_suspend_auto
+    after-suspend-ethernet/network_resume_time_auto
+    after-suspend-wifi/wifi_resume_time_auto
+    after-suspend-usb/storage-preinserted
+    after-suspend-audio/alsa-loopback-automated
+    after-suspend-bluetooth4/beacon_eddystone_url_.*
+    after-suspend-cpu/cpuinfo_after_suspend
+    after-suspend-memory/meminfo_after_suspend
+    after-suspend-wireless/wireless_connection_open_bg_nm_.*
+    after-suspend-wireless/wireless_connection_open_n_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*
+#     suspend/gpu_lockup_after_suspend
+#     suspend/screenshot_after_suspend
+#     screenshot_after_suspend.jpg
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management

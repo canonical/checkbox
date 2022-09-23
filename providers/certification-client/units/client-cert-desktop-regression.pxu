@@ -1,0 +1,116 @@
+id: client-cert-desktop-regression
+_name: Regression Tests
+unit: test plan
+include:
+    # Resource Jobs (Not used by templates jobs)
+    IEEE_80211
+    block_device
+    cdimage
+    cpuinfo
+    display
+    dmi
+    dpkg
+    efi
+    environment
+    lsb
+    meminfo
+    mobilebroadband
+    module
+    optical_drive_.*
+    package
+    rtc
+    sleep
+    uname
+    usb
+    xinput
+    # END Resource Jobs
+    audio/alsa_info_collect
+    audio/alsa_info_attachment
+    audio/list_devices
+    audio/speaker-headphone-plug-detection
+    audio/microphone-plug-detection
+    audio/playback_headphones
+    audio/alsa_record_playback_external
+    audio/playback_auto
+    audio/alsa_record_playback_internal
+    audio/playback_hdmi
+    audio/playback_displayport
+    audio/alsa_record_playback_automated
+    camera/detect
+    camera/display
+    cpu/cstates
+    cpu/cstates_results.log
+    disk/detect
+    esata/insert
+    esata/storage-test
+    esata/remove
+    expresscard/verification
+    graphics/1_cycle_resolution_.*
+    graphics/1_glxgears_.*
+    graphics/2_switch_card_.*
+    graphics/2_cycle_resolution_.*
+    keys/super
+    ethernet/detect
+    networking/info
+    optical/detect
+    power-management/rtc
+    touchpad/horizontal
+    touchpad/vertical
+    usb/detect
+    usb/HID
+    usb/insert
+    usb/storage-automated
+    usb/remove
+    wireless/wireless_scanning
+    suspend/suspend-time-check
+    suspend/suspend-single-log-attach
+    suspend/hybrid_sleep
+    suspend/audio_after_suspend
+    suspend/speaker-headphone-plug-detection-after-suspend
+    suspend/microphone-plug-detection-after-suspend
+    suspend/playback_headphones-after-suspend
+    suspend/alsa_record_playback_external-after-suspend
+    camera/display_after_suspend
+    suspend/cycle_resolutions_after_suspend
+    # Now we ask to switch to the first graphics card. This requires a restart
+    # of checkbox. If the system only has one card, the test instructions should
+    # tell the user to just do nothing.
+    graphics/1_switch_card_.*
+    suspend/1_suspend_after_switch_to_card_.*
+    suspend/1_display_after_suspend.*
+    power-management/poweroff
+    power-management/poweroff-log-attach
+    power-management/reboot
+    power-management/reboot-log-attach
+    monitor/hdmi
+    memory/info
+    #Info attachment jobs
+    codecs_attachment
+    cpuinfo_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    lsusb_attachment
+    kernel_cmdline_attachment
+    meminfo_attachment
+    modprobe_attachment
+    modules_attachment
+    sysctl_attachment
+    sysfs_attachment
+    udev_attachment
+    recovery_info_attachment
+    dell_bto_xml_attachment
+    lsmod_attachment
+    dkms_info_attachment
+    acpi_sleep_attachment
+    info/touchpad_driver
+    info/disk_partitions
+bootstrap_include:
+    device
+    fwts
+    graphics_card
+mandatory_include:
+    # Meta-job to include required resources, don't remove.
+    miscellanea/submission-resources

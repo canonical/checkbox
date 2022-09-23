@@ -1,0 +1,2 @@
+canonical-certification-client
+plainbox-provider-certification-client

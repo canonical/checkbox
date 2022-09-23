@@ -1,0 +1,102 @@
+id: client-cert-desktop-hwe-sru
+_name: HWE SRU
+unit: test plan
+include:
+    ## This test plan is intended to check HWE SRU patches.
+    # Resource Jobs (Not used by templates jobs)
+    display
+    # END Resource Jobs
+    codecs_attachment
+    cpuinfo_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    lsusb_attachment
+    meminfo_attachment
+    modprobe_attachment
+    modules_attachment
+    sysctl_attachment
+    sysfs_attachment
+    udev_attachment
+    udev_resource_attachment
+    lsmod_attachment
+    acpi_sleep_attachment
+    info/buildstamp
+    info/hdparm
+    installer_debug.gz
+    info/touchpad_driver
+    info/audio_device_driver
+    info/network_devices
+    # Automated requisite tests for the manual ones
+    graphics/VESA_drivers_not_in_use                       certification-status=blocker
+    # Manual tests
+    monitor/1_vga.*                                        certification-status=blocker
+    monitor/1_dvi.*                                        certification-status=blocker
+    monitor/1_displayport.*                                certification-status=blocker
+    audio/1_playback_displayport_.*                        certification-status=blocker
+    monitor/1_hdmi.*                                       certification-status=blocker
+    audio/1_playback_hdmi_.*                               certification-status=blocker
+    keys/video-out                                         certification-status=blocker
+    monitor/1_thunderbolt.*
+    monitor/1_dim_brightness.*                             certification-status=blocker
+    # Automated tests
+    graphics/1_maximum_resolution_.*                       certification-status=blocker
+    graphics/1_glxgears_.*                                 certification-status=blocker
+    graphics/1_driver_version_.*                           certification-status=blocker
+    graphics/1_compiz_check_.*                             certification-status=blocker
+    graphics/1_rotation_.*                                 certification-status=blocker
+    graphics/1_video_.*                                    certification-status=blocker
+    graphics/1_minimum_resolution_.*
+    graphics/1_cycle_resolution_.*
+    graphics/1_screen-capture-internal_.*
+    graphics/1_screen-capture-internal_.*png
+    graphics/1_screenshot_.*
+    1_screenshot_.*
+    graphics/screen-capture-internal
+    screen-capture-internal.png
+    graphics/2_switch_card_.*                              certification-status=blocker
+    monitor/2_vga.*                                        certification-status=blocker
+    monitor/2_dvi.*                                        certification-status=blocker
+    monitor/2_displayport.*                                certification-status=blocker
+    audio/2_playback_displayport_.*                        certification-status=blocker
+    monitor/2_hdmi.*                                       certification-status=blocker
+    audio/2_playback_hdmi_.*                               certification-status=blocker
+    suspend/keys_after_suspend/video-out
+    monitor/2_thunderbolt.*
+    monitor/2_dim_brightness.*                             certification-status=blocker
+    graphics/2_maximum_resolution_.*                       certification-status=blocker
+    graphics/2_glxgears_.*                                 certification-status=blocker
+    graphics/2_driver_version_.*                           certification-status=blocker
+    graphics/2_compiz_check_.*                             certification-status=blocker
+    graphics/2_rotation_.*                                 certification-status=blocker
+    graphics/2_video_.*                                    certification-status=blocker
+    graphics/2_minimum_resolution_.*
+    graphics/2_cycle_resolution_.*
+    graphics/2_screen-capture-internal_.*
+    graphics/2_screen-capture-internal_.*png
+    power-management/rtc                                   certification-status=blocker
+    # Test card 2 first, if present, since it's the one we will be using
+    # after coming back from suspend if the system has hybrid graphics.
+    suspend/2_resolution_before_suspend_.*                 certification-status=blocker
+    suspend/2_cycle_resolutions_before_suspend_.*          certification-status=blocker
+    suspend/2_suspend_after_switch_to_card_.*              certification-status=blocker
+    suspend/2_resolution_after_suspend_.*                  certification-status=blocker
+    suspend/2_cycle_resolutions_after_suspend_.*           certification-status=blocker
+    suspend/2_display_after_suspend.*                      certification-status=blocker
+    # Now we ask to switch to the first graphics card. This requires a restart
+    # of checkbox. If the system only has one card, the test instructions should
+    # tell the user to just do nothing.
+    graphics/1_switch_card_.*                              certification-status=blocker
+    suspend/resolution_before_suspend                      certification-status=blocker
+    suspend/resolution_after_suspend                       certification-status=blocker
+    suspend/display_after_suspend                          certification-status=blocker
+    suspend/cycle_resolutions_after_suspend                certification-status=blocker
+bootstrap_include:
+    device
+    graphics_card
+mandatory_include:
+    # A meta-job that includes the resources needed for a valid submission.
+    # Please do not remove without good reason.
+    miscellanea/submission-resources

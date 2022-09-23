@@ -1,0 +1,242 @@
+id: client-cert-desktop-n+1
+_name: N+1 Client Certification Tests
+unit: test plan
+_description:
+ This test plan is intended for use inside Canonical's test labs to perform a
+ component-based test for the N+1 process.
+ N+1 aims to upstream all the needed patches to enable a platform with Ubuntu,
+ so we can then certify a previously enabled platform with stock Ubuntu.
+ As this normally takes (at least) one release on Ubuntu to make it happen, we
+ call it N+1.
+include:
+    # Resource Jobs (Not used by templates jobs)
+    IEEE_80211
+    block_device
+    cdimage
+    cpuinfo
+    display
+    dmi
+    dpkg
+    efi
+    environment
+    lsb
+    meminfo
+    mobilebroadband
+    module
+    optical_drive_.*                                       certification-status=blocker
+    package
+    rtc
+    sleep
+    uname
+    usb
+    xinput
+    # END Resource Jobs
+    audio/alsa_info_collect
+    audio/alsa_info_attachment
+    audio/list_devices
+    audio/speaker-headphone-plug-detection                 certification-status=blocker
+    audio/microphone-plug-detection                        certification-status=blocker
+    audio/playback_headphones                              certification-status=blocker
+    audio/alsa_record_playback_external                    certification-status=blocker
+    audio/playback_auto                                    certification-status=blocker
+    audio/alsa_record_playback_internal                    certification-status=blocker
+    # See Monitor / Graphic test section for hybrid-graphic monitor audio tests
+    bluetooth/detect-output                                certification-status=blocker
+    bluetooth/audio-a2dp                                   certification-status=blocker
+    bluetooth/browse-files                                 certification-status=blocker
+    bluetooth/file-transfer                                certification-status=blocker
+    bluetooth/HID
+    bluetooth4/HOGP-mouse                                  certification-status=non-blocker
+    bluetooth4/HOGP-keyboard                               certification-status=non-blocker
+    cpu/cstates                                            certification-status=blocker
+    cpu/cstates_results.log
+    monitor/1_powersaving_.*                               certification-status=blocker
+    monitor/1_dim_brightness_.*                            certification-status=blocker
+    monitor/1_displayport_.*                               certification-status=blocker
+    monitor/1_type-c_displayport_.*                        certification-status=non-blocker
+    audio/1_playback_displayport_.*                        certification-status=blocker
+    audio/1_playback_type-c_displayport_.*                 certification-status=non-blocker
+    monitor/1_dvi_.*                                       certification-status=blocker
+    monitor/1_hdmi_.*                                      certification-status=blocker
+    audio/1_playback_hdmi_.*                               certification-status=blocker
+    monitor/1_thunderbolt_.*                               certification-status=blocker
+    monitor/1_thunderbolt3_.*                              certification-status=non-blocker
+    audio/1_playback_thunderbolt_.*                        certification-status=blocker
+    audio/1_playback_thunderbolt3_.*                       certification-status=non-blocker
+    monitor/1_rca_.*                                       certification-status=blocker
+    monitor/1_svideo_.*                                    certification-status=blocker
+    monitor/1_vga_.*                                       certification-status=blocker
+    monitor/1_multi-head_.*                                certification-status=blocker
+    # See Graphic Tests section for monitor test on second graphic card
+    graphics/VESA_drivers_not_in_use                       certification-status=blocker
+    graphics/1_maximum_resolution_.*                       certification-status=blocker
+    graphics/1_glxgears_.*                                 certification-status=blocker
+    graphics/1_driver_version_.*                           certification-status=blocker
+    graphics/1_compiz_check_.*                             certification-status=blocker
+    graphics/1_rotation_.*                                 certification-status=blocker
+    graphics/1_video_.*                                    certification-status=blocker
+    graphics/1_minimum_resolution_.*
+    graphics/1_cycle_resolution_.*                         certification-status=non-blocker
+    graphics/2_switch_card_.*                              certification-status=blocker
+    graphics/2_maximum_resolution_.*                       certification-status=blocker
+    graphics/2_glxgears_.*                                 certification-status=blocker
+    graphics/2_driver_version_.*                           certification-status=blocker
+    graphics/2_compiz_check_.*                             certification-status=blocker
+    graphics/2_rotation_.*                                 certification-status=blocker
+    graphics/2_video_.*                                    certification-status=blocker
+    graphics/2_minimum_resolution_.*
+    graphics/2_cycle_resolution_.*                         certification-status=non-blocker
+    monitor/2_powersaving_.*                               certification-status=blocker
+    monitor/2_dim_brightness_.*                            certification-status=blocker
+    monitor/2_displayport_.*                               certification-status=blocker
+    monitor/2_type-c_displayport_.*                        certification-status=non-blocker
+    audio/2_playback_displayport_.*                        certification-status=blocker
+    audio/2_playback_type-c_displayport_.*                 certification-status=non-blocker
+    monitor/2_dvi_.*                                       certification-status=blocker
+    monitor/2_hdmi_.*                                      certification-status=blocker
+    audio/2_playback_hdmi_.*                               certification-status=blocker
+    monitor/2_thunderbolt_.*                               certification-status=blocker
+    monitor/2_thunderbolt3_.*                              certification-status=non-blocker
+    audio/2_playback_thunderbolt_.*                        certification-status=blocker
+    audio/2_playback_thunderbolt3_.*                       certification-status=non-blocker
+    monitor/2_rca_.*                                       certification-status=blocker
+    monitor/2_svideo_.*                                    certification-status=blocker
+    monitor/2_vga_.*                                       certification-status=blocker
+    monitor/2_multi-head_.*                                certification-status=blocker
+    miscellanea/oops                                       certification-status=blocker
+    miscellanea/oops_results.log
+    ethernet/detect                                        certification-status=blocker
+    networking/gateway_ping                                certification-status=blocker
+    networking/info.*                                      certification-status=blocker
+    networking/ntp                                         certification-status=blocker
+    power-management/rtc                                   certification-status=blocker
+    power-management/tickless_idle                         certification-status=blocker
+    touchpad/detected-as-mouse                             certification-status=blocker
+    touchpad/continuous-move                               certification-status=blocker
+    touchpad/horizontal                                    certification-status=blocker
+    touchpad/vertical                                      certification-status=blocker
+    touchpad/singletouch-automated                         certification-status=blocker
+    touchpad/singletouch-selection                         certification-status=blocker
+    touchpad/drag-and-drop                                 certification-status=blocker
+    touchpad/multitouch-automated                          certification-status=blocker
+    touchpad/multitouch-manual                             certification-status=blocker
+    touchpad/multitouch-rightclick                         certification-status=blocker
+    touchpad/multitouch-horizontal                         certification-status=blocker
+    touchpad/multitouch-vertical                           certification-status=blocker
+    touchpad/multitouch-dash                               certification-status=non-blocker
+    touchscreen/drag-n-drop                                certification-status=blocker
+    touchscreen/multitouch-zoom                            certification-status=blocker
+    touchscreen/multitouch-rotate
+    touchscreen/3-touch-tap                                certification-status=blocker
+    touchscreen/4-touch-tap                                certification-status=blocker
+    touchscreen/multitouch-dash                            certification-status=non-blocker
+    wireless/wireless_scanning                             certification-status=blocker
+    wireless/wireless_connection_wpa_bg                    certification-status=blocker
+    wireless/wireless_connection_open_bg                   certification-status=blocker
+    wireless/wireless_connection_wpa_n                     certification-status=blocker
+    wireless/wireless_connection_open_n                    certification-status=blocker
+    wireless/wireless_connection_wpa_ac                    certification-status=blocker
+    wireless/wireless_connection_open_ac                   certification-status=blocker
+    suspend/network_before_suspend                         certification-status=blocker
+    suspend/audio_before_suspend                           certification-status=blocker
+    suspend/cpu_before_suspend                             certification-status=blocker
+    suspend/memory_before_suspend                          certification-status=blocker
+    suspend/bluetooth_obex_send_before_suspend             certification-status=blocker
+    suspend/bluetooth_obex_browse_before_suspend           certification-status=blocker
+    suspend/bluetooth_obex_get_before_suspend              certification-status=blocker
+    # Test card 2 first, if present, since it's the one we will be using
+    # after coming back from suspend if the system has hybrid graphics.
+    suspend/2_resolution_before_suspend_.*                 certification-status=blocker
+    suspend/2_suspend_after_switch_to_card_.*              certification-status=blocker
+    suspend/2_suspend-time-check_.*                        certification-status=non-blocker
+    suspend/2_suspend-single-log-attach_.*
+    suspend/2_compiz_check_after_suspend_.*                certification-status=blocker
+    suspend/2_driver_version_after_suspend_.*              certification-status=blocker
+    suspend/2_resolution_after_suspend_.*                  certification-status=blocker
+    suspend/2_display_after_suspend_.*                     certification-status=blocker
+    suspend/2_glxgears_after_suspend_.*                    certification-status=blocker
+    suspend/2_video_after_suspend_.*                       certification-status=blocker
+    suspend/2_cycle_resolutions_after_suspend_.*           certification-status=non-blocker
+    suspend/2_xrandr_screens_after_suspend_.*.tar.gz
+    # Now we ask to switch to the first graphics card. This requires a restart
+    # of checkbox.
+    graphics/1_switch_card_.*                              certification-status=blocker
+    suspend/resolution_before_suspend                      certification-status=blocker
+    suspend/suspend-time-check                             certification-status=non-blocker
+    suspend/suspend-single-log-attach
+    power-management/lid                                   certification-status=blocker
+    power-management/lid_close                             certification-status=blocker
+    power-management/lid_open                              certification-status=blocker
+    suspend/compiz_check_after_suspend                     certification-status=blocker
+    suspend/driver_version_after_suspend                   certification-status=blocker
+    suspend/resolution_after_suspend                       certification-status=blocker
+    suspend/display_after_suspend                          certification-status=blocker
+    suspend/glxgears_after_suspend                         certification-status=blocker
+    suspend/video_after_suspend                            certification-status=blocker
+    suspend/cycle_resolutions_after_suspend                certification-status=non-blocker
+    suspend/xrandr_screens_after_suspend.tar.gz
+    suspend/network_after_suspend                          certification-status=blocker
+    suspend/audio_after_suspend                            certification-status=blocker
+    suspend/cpu_after_suspend                              certification-status=blocker
+    suspend/memory_after_suspend                           certification-status=blocker
+    suspend/bluetooth_detect_after_suspend                 certification-status=blocker
+    suspend/bluetooth_obex_send_after_suspend              certification-status=blocker
+    suspend/bluetooth_obex_browse_after_suspend            certification-status=blocker
+    suspend/bluetooth_obex_get_after_suspend               certification-status=blocker
+    suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
+    suspend/microphone-plug-detection-after-suspend        certification-status=blocker
+    suspend/playback_headphones-after-suspend              certification-status=blocker
+    suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+    suspend/oops_after_suspend                             certification-status=blocker
+    suspend/oops_results_after_suspend.log
+    suspend/wireless_connection_after_suspend_wpa_bg       certification-status=blocker
+    suspend/wireless_connection_after_suspend_open_bg      certification-status=blocker
+    suspend/wireless_connection_after_suspend_wpa_n        certification-status=blocker
+    suspend/wireless_connection_after_suspend_open_n       certification-status=blocker
+    suspend/wireless_connection_after_suspend_wpa_ac       certification-status=blocker
+    suspend/wireless_connection_after_suspend_open_ac      certification-status=blocker
+    miscellanea/dmitest_client
+    cpu/scaling_test                                       certification-status=blocker
+    cpu/scaling_test-log-attach
+    cpu/maxfreq_test                                       certification-status=blocker
+    cpu/maxfreq_test-log-attach
+    cpu/offlining_test                                     certification-status=blocker
+    cpu/topology                                           certification-status=blocker
+    cpu/clocktest
+    memory/info                                            certification-status=blocker
+    memory/check                                           certification-status=blocker
+    stress/cpu_stress_test                                 certification-status=blocker
+    #Info attachment jobs
+    codecs_attachment
+    cpuinfo_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    lspci_standard_config_attachment
+    lsusb_attachment
+    kernel_cmdline_attachment
+    meminfo_attachment
+    modinfo_attachment
+    modprobe_attachment
+    modules_attachment
+    sysctl_attachment
+    sysfs_attachment
+    udev_attachment
+    recovery_info_attachment
+    dell_bto_xml_attachment
+    lsmod_attachment
+    dkms_info_attachment
+    acpi_sleep_attachment
+    info/hdparm_.*.txt
+    installer_debug.gz
+    info/touchpad_driver
+    info/disk_partitions
+bootstrap_include:
+    device
+    fwts
+    graphics_card
+mandatory_include:
+    # Meta-job to include required resources, don't remove.
+    miscellanea/submission-resources

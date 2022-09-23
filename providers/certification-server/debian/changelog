@@ -1,0 +1,140 @@
+plainbox-provider-certification-server (0.58.0-1) UNRELEASED; urgency=medium
+
+  [ pierre ]
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Pierre Equoy ]
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Pierre Equoy ]
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Jenkins ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:50 +0000
+
+plainbox-provider-certification-server (0.28-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 15 Jul 2016 17:25:11 +0800
+
+plainbox-provider-certification-server (0.27-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Thu, 02 Jun 2016 17:24:21 +0800
+
+plainbox-provider-certification-server (0.26-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Wed, 06 Apr 2016 15:22:41 +0800
+
+plainbox-provider-certification-server (0.26-1) UNRELEASED; urgency=medium
+
+  * Update dependencies minimum version to avoid issues in Xenial (Fix lp:1563763)
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Thu, 31 Mar 2016 17:04:23 +0800
+
+plainbox-provider-certification-server (0.25-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Jeff Lane <jeff@ubuntu.com>  Tue, 29 Mar 2016 13:12:08 -0400
+
+plainbox-provider-certification-server (0.24-2) precise; urgency=medium
+
+  * new upstream version
+
+ -- Jeff Lane <jeff@ubuntu.com>  Wed, 23 Mar 2016 10:18:49 -0400
+
+plainbox-provider-certification-server (0.23-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 18 Mar 2016 01:26:03 +0100
+
+plainbox-provider-certification-server (0.22-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Wed, 09 Mar 2016 00:18:05 +0100
+
+plainbox-provider-certification-server (0.21-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Wed, 02 Dec 2015 10:50:06 +0800
+
+plainbox-provider-certification-server (0.20-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 03 Nov 2015 02:37:07 +0100
+
+plainbox-provider-certification-server (0.19-1) precise; urgency=medium
+
+  * Initial release from upstream tarball
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 14 Sep 2015 20:40:12 +0200

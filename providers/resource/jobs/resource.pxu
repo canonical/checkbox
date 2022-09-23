@@ -1,0 +1,484 @@
+# This is for all the Python scripts
+unit: packaging meta-data
+os-id: debian
+Depends: python3 (>= 3.2)
+
+# This is for bin/efi_resource.py, bin/cpuinfo_resource.py,
+# bin/meminfo_resource.py, bin/udev_resource.py and bin/xinput_resource.py
+unit: packaging meta-data
+os-id: debian
+Depends: python3-checkbox-support (>= 0.22)
+
+# This is for bin/display_resource.py
+unit: packaging meta-data
+os-id: debian
+# NOTE: This is not a hard dependency so that
+# plainbox-provider-resource-generic has minimalistic dependencies.
+Suggests: x11-server-utils
+
+# This is for bin/dmi_resource.py
+unit: packaging meta-data
+os-id: debian
+Depends: dmidecode [!riscv64 !arm64 !armel !mips !mipsel !powerpc !ppc64el !ppc64le !s390x !alpha !hppa !m68k !mips64el !ppc64 !sh4 !sparc64]
+
+# This is for bin/dpkg_resource.py
+unit: packaging meta-data
+os-id: debian
+Depends: dpkg (>= 1.13)
+
+# This is for bin/lsb_resource.py
+unit: packaging meta-data
+os-id: debian
+Depends: lsb-release
+
+# This is for bin/optical_resource.py and bin/udev_resource.py
+unit: packaging meta-data
+os-id: debian
+Depends: udev
+
+# This is for bin/xinput_resource.py
+unit: packaging meta-data
+os-id: debian
+# NOTE: This is not a hard dependency so that
+# plainbox-provider-resource-generic has minimalistic dependencies.
+Suggests: xinput
+
+# This is for 'usb'
+unit: packaging meta-data
+os-id: debian
+Depends: usbutils
+
+# This is for snapd_resource.py
+unit: packaging meta-data
+os-id: debian
+Depends: python3-requests-unixsocket
+
+# This is for wireless_sta_protocol
+unit: packaging meta-data
+os-id: ubuntu
+os-version-id: 18.04
+Depends: iw (>= 5.3)
+
+id: cpuinfo
+estimated_duration: 0.37
+plugin: resource
+user: root
+command: cpuinfo_resource.py
+_summary: Collect information about the CPU
+_description: Gets CPU resource info from /proc/cpuinfo
+
+id: cdimage
+estimated_duration: 0.61
+plugin: resource
+user: root
+command: cdimage_resource.py
+_summary: Collect information about installation media (casper)
+_description: Gets installation info from casper.log and media-info
+
+id: dpkg
+estimated_duration: 0.19
+plugin: resource
+command: dpkg_resource.py
+_summary: Collect information about dpkg version
+_description: Gets info on the version of dpkg installed
+
+id: lsb
+estimated_duration: 1.63
+plugin: resource
+command: lsb_resource.py
+_description: Generates release info based on /etc/lsb-release
+_summary: Collect information about installed system (lsb-release)
+
+id: meminfo
+estimated_duration: 0.1
+plugin: resource
+command: meminfo_resource.py
+_description: Generates resource info based on /proc/meminfo
+_summary: Collect information about system memory (/proc/meminfo)
+
+id: module
+estimated_duration: 0.13
+plugin: resource
+user: root
+command: module_resource.py
+_description: Generates resources info on running kernel modules
+_summary: Collect information about kernel modules
+
+id: package
+estimated_duration: 1.16
+plugin: resource
+command:
+  # shellcheck disable=SC2016
+  dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n' || true
+_description: Generates a list of packages
+_summary: Collect information about installed software packages
+
+id: executable
+estimated_duration: 0.78
+plugin: resource
+_summary: Enumerate available system executables
+_description: Generates a resource for all available executables
+command:
+  xargs -n1 -d: <<< "$PATH" | xargs -I{} find -H {} -maxdepth 1 -xtype f -executable -printf "name: %f\n\n" 2> /dev/null | sort -u | awk '{print}' ORS='\n\n' || true
+
+id: device
+estimated_duration: 0.48
+plugin: resource
+command: udev_resource.py
+_description: Creates resource info from udev
+_summary: Collect information about hardware devices (udev)
+
+id: removable_partition
+estimated_duration: 0.48
+plugin: resource
+command: udev_resource.py -f PARTITION || true
+_description: Creates removable partitions info from udev
+_summary: Collect removable partitions info from udev
+
+id: dmi_present
+estimated_duration: 0.02
+plugin: resource
+user: root
+command:
+  if [ -d /sys/devices/virtual/dmi ]
+  then
+      echo "state: supported"
+  else
+      echo "state: unsupported"
+  fi
+_summary: Resource to detect if dmi data is present
+
+id: dmi
+estimated_duration: 0.59
+plugin: resource
+requires:
+  dmi_present.state == 'supported'
+user: root
+command: dmi_resource.py
+_summary: Collect information about hardware devices (DMI)
+
+id: efi
+estimated_duration: 0.56
+plugin: resource
+user: root
+command: efi_resource.py
+_summary: Collect information about the EFI configuration
+
+id: uname
+estimated_duration: 0.09
+plugin: resource
+command: uname_resource.py
+_description: Creates resource info from uname output
+_summary: Collect information about the running kernel
+
+id: sleep
+estimated_duration: 0.03
+plugin: resource
+command:
+  tr ' ' '\n' < /sys/power/state | while IFS= read -r state; do echo "$state: supported"; done
+  if [ -e /sys/power/mem_sleep ]; then
+      awk -F"[][]" '{ print "mem_sleep: " $2 }' < /sys/power/mem_sleep
+  else
+      echo "mem_sleep: unsupported"
+  fi
+_summary: Create resource info for supported sleep states
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+id: optical_drive_{name}
+plugin: resource
+command: optical_resource.py /dev/{name}
+estimated_duration: 0.5
+_summary: Create resource info for supported optical actions ({name})
+
+id: block_device
+estimated_duration: 0.08
+plugin: resource
+user: root
+command: block_device_resource.py
+_summary: Create resource info for removable block devices
+
+id: display
+estimated_duration: 0.43
+plugin: resource
+command: display_resource.py
+requires: package.name == "x11-xserver-utils"
+_summary: Creates display resource info from xrandr output
+
+id: usb
+template-engine: jinja2
+estimated_duration: 0.33
+plugin: resource
+_description: Creates resource info for supported USB versions
+_summary: Collect information about supported types of USB
+command:
+ for version in 2 3; do
+     echo -n "usb$version: "
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-lsusb -f $SNAP/checkbox-runtime/var/lib/usbutils/usb.ids | grep -Pq "Linux Foundation ${version}.\d+ root hub" && echo "supported" || echo "unsupported"
+ {% else %}
+     lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
+ {% endif -%}
+ done
+
+id: xinput
+estimated_duration: 0.19
+plugin: resource
+command: xinput_resource.py
+requires: package.name == "xinput"
+_summary: Creates resource info from xinput output.
+
+id: environment
+estimated_duration: 0.11
+plugin: resource
+_summary: Create resource info for environment variables
+command:
+ IFS=$'\n'
+ for e in $(env | sed 's/=/:/g'); do
+     echo "$e" | awk -F':' '{print $1 ": " $2}'
+ done
+
+id: mobilebroadband
+estimated_duration: 0.38
+plugin: resource
+_summary: Create resource for mobile broadband devices
+command: mobilebroadband_resource.sh
+
+id: virtualization
+estimated_duration: 0.13
+plugin: resource
+requires:
+  package.name == "cpu-checker" or executable.name == 'kvm-ok'
+_summary: Resource for hardware virtualization
+command:
+ if kvm-ok > /dev/null
+ then
+     echo "kvm: supported"
+ else
+     echo "kvm: unsupported"
+ fi
+
+id: IEEE_80211
+estimated_duration: 0.08
+plugin: resource
+command: 80211_resource
+_summary: Creates resource info for wifi supported protocols/interfaces
+
+id: wireless_sta_protocol
+plugin: resource
+_summary: Resource job to identify Wi-Fi STA supported protocols
+_description:
+ Job listing STA supported 802.11 protocols per interfaces.
+command:
+ # shellcheck disable=SC2046
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'VHT' && echo "$i""_ac: supported" || echo "$i""_ac: unsupported"; done
+ # MCS 10 and 11 if present support the ax only 1024-QAM 
+ # shellcheck disable=SC2046
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'MCS 0-11' && echo "$i""_ax: supported" || echo "$i""_ax: unsupported"; done
+estimated_duration: 0.5
+flags: preserve-locale
+
+id: rtc
+estimated_duration: 0.02
+plugin: resource
+command:
+  if [ -e /proc/driver/rtc ]
+  then
+      echo "state: supported"
+  else
+      echo "state: unsupported"
+  fi
+_summary: Creates resource info for RTC
+
+id: requirements
+estimated_duration: 0.01
+plugin: resource
+command:
+ if [ -f "$PLAINBOX_SESSION_SHARE"/requirements_docs.txt ];then
+    cat "$PLAINBOX_SESSION_SHARE"/requirements_docs.txt
+ else
+    true
+ fi
+_summary: Provide links to requirements documents
+_description:
+ Provide links to requirements documents.
+ .
+ The requirement document should contain sets of name/link pairs.
+ .
+ Each requirement should have two keys with their respective
+ values:
+ name: (to be used as the anchor text)
+ link: (the actual URL)
+ .
+ Each set should be separated from the previous one by a new line.
+ .
+ Example:
+ .
+ name: Requirement 1
+ link: http://example.com/requirement1
+ .
+ name: requirement 2
+ link: http://example.com/requirement2
+ .
+ Providers wishing to use this feature need to:
+ 1- Write a job that places a suitably-formatted file in $PLAINBOX_SESSION_SHARE
+ 2- Update their whitelists to run that job *before* miscellanea/submission-resources
+    or the "requirements" resource job.
+
+id: graphics_card
+estimated_duration: 0.05
+plugin: resource
+_summary: Generate an entry for each graphics card present in the system.
+command: graphics_card_resource.py
+
+id: fwts
+estimated_duration: 0.5
+plugin: resource
+requires: executable.name == "fwts"
+_summary: Generate an entry for each FWTS test available
+command:
+ for test in $(checkbox-support-fwts_test --list); do echo "name: $test"; echo ""; done
+
+id: mir
+estimated_duration: 0.5
+plugin: resource
+requires: package.name == "mir-test-tools"
+_summary: Generate an entry for each MIR integration tests
+command:
+ for test in $(mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'); do echo "category: integration"; echo "name: $test"; echo ""; done
+ for test in $(mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'); do echo "category: acceptance"; echo "name: $test"; echo ""; done
+
+id: wifi_interface_mode
+estimated_duration: 0.1
+plugin: resource
+command:
+ # shellcheck disable=SC2046
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+');
+ do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info |
+ grep -Pzo '(?s)Supported interface modes:\n\K(\s+\*\s.*?\n)+' |
+ sed "s/.*\* \(.*\)/""$i""_\1: supported/" | tr -d '\000';
+ done
+_summary: Create resource info for supported wifi interface modes
+
+id: snap
+estimated_duration: 1.1
+plugin: resource
+command:
+    unset PYTHONUSERBASE
+    snapd_resource.py snaps
+_description: Generates a list of snap packages
+_summary: Collect information about installed snap packages
+
+id: interface
+estimated_duration: 1.1
+plugin: resource
+command:
+    unset PYTHONUSERBASE
+    snapd_resource.py interfaces endpoints
+_description: Generates a list of interface declarations on the device
+_summary: Collect information about interfaces
+
+id: connections
+estimated_duration: 1.1
+plugin: resource
+command:
+    unset PYTHONUSERBASE
+    snapd_resource.py interfaces connections
+_description: Generates a list of plug and slot connections on the device
+_summary: Collect information about connections
+
+id: model_assertion
+_summary: Collect model assertions on the device
+_description:
+ Queries the snapd REST API for model assertions present on the device.
+plugin: resource
+estimated_duration: 2.0
+command:
+  snapd_resource.py assertions model
+
+id: serial_assertion
+_summary: Collect serial assertions on the device
+_description:
+ Queries the snapd REST API for serial assertions present on the device.
+plugin: resource
+estimated_duration: 2.0
+command:
+  snapd_resource.py assertions serial
+
+id: serial_ports_static
+_summary: Generates a serial port resource based on user supplied configuration
+_description:
+ A serial port resource that instead of automatically detecting the hardware
+ relies on the user specifying the ports. This is to allow template jobs to
+ then be instantiated.
+plugin: resource
+estimated_duration: 1.0
+command:
+  for i in $SERIAL_PORTS_STATIC; do
+    echo "dev: $i"
+    echo ""
+  done
+
+id: ubuntu_core_features
+_summary: Indicate whether product features of Ubuntu Core are enabled
+_description:
+ There are features of Ubuntu Core images that could be enabled depending on
+ device type or owner requirements. This resource detects that state of those
+ features so that appropriate tests can be run.
+plugin: resource
+estimated_duration: 1.0
+command:
+  snapd_resource.py features
+
+id: net_if_management
+_summary: Identify what service is managing each physical network interface
+_description:
+ Network interfaces on Ubuntu systems are generally configured by either
+ systemd-networkd or NetworkManager. This configuration can be maintained using
+ the Netplan utility. This resource attempts to identify which "renderer" is
+ responsible for cofiguring an individual interface allowing appropriate tests
+ to be run.
+plugin: resource
+estimated_duration: 2.0
+user: root
+command:
+  net_if_management.py
+
+id: net_if_management_attachment
+_summary: Collect logging from the net_if_management job
+_description:
+ Allows logging of debug info and errors by the associated resource job
+plugin: attachment
+estimated_duration: 1.0
+category_id: com.canonical.plainbox::info
+command:
+  log_file="$PLAINBOX_SESSION_SHARE/net_if_management.log"
+  [ -e "$log_file" ] && cat "$log_file"
+after: net_if_management
+
+id: bootloader
+_summary: Detect which bootloader is used on the device
+_description:
+ Apply a simple heuristic to determine the bootloader that is used on the
+ device. This can help identify what boot security systems might be used.
+plugin: resource
+estimated_duration: 1.0
+user: root
+command:
+  bootloader_resource.py
+
+id: nvdimm_resource
+estimated_duration: 0.25
+plugin: resource
+user: root
+requires:
+  package.name == 'ipmctl' or executable.name == 'ipmctl'
+_summary: Resource for NVDIMM detection
+command:
+ if ipmctl show -dimm &> /dev/null;
+ then
+     echo "detected: true"
+ else
+     echo "detected: false"
+ fi

@@ -1,0 +1,2 @@
+plainbox-provider-resource-generic
+plainbox-provider-resource-desktop

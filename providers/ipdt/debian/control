@@ -1,0 +1,43 @@
+Source: plainbox-provider-ipdt
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
+Uploaders: Jonathan Cave <jonathan.cave@canonical.com>
+Build-Depends: autoconf,
+               automake,
+               debhelper (>= 9),
+               intltool,
+               libnl-3-dev,
+               libnl-genl-3-dev,
+               pkg-config,
+               plainbox-provider-checkbox (>= 0.31),
+               python3,
+               python3-checkbox-ng,
+               python3-debian
+Standards-Version: 3.9.6
+Homepage: https://launchpad.net/plainbox-provider-ipdt
+
+Package: plainbox-provider-ipdt
+Architecture: all
+Depends: apt-file,
+         autoconf,
+         build-essential,
+         cmake,
+         cmake-data,
+         curl,
+         git-core,
+         libcurl4-openssl-dev,
+         libgmp3-dev,
+         libssl-dev,
+         libvulkan-dev,
+         mesa-utils,
+         ocl-icd-libopencl1,
+         opencl-headers,
+         python3,
+         unzip,
+         vulkan-utils,
+         xorg-dev,
+         ${misc:Depends},
+         ${plainbox:Depends}
+X-Plainbox-Provider: yes
+Description: Checkbox provider for Intel Processor Diagnostic Test Suite

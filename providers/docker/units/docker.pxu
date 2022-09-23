@@ -1,0 +1,456 @@
+# Copyright 2016-2018 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Jonathan Cave <jonathan.cave@canonical.com>
+
+unit: category
+id: docker
+_name: Docker containers
+
+id: docker_resource
+plugin: resource
+category_id: docker
+_summary: Configure docker jobs
+_description:
+ Configure docker compose command and docker inspect json fields
+command:
+ echo arch: $SNAP_ARCH
+ if command -v docker.compose > /dev/null ; then
+    echo 'compose_command: docker.compose'
+    #A readable&writable path for docker snap
+    echo 'root_dir: /var/snap/docker/common'
+ else
+    echo 'compose_command: docker-compose'
+    echo 'root_dir: /var/lib/docker'
+ fi
+ #avoid escape '{}' in docker inspect
+ echo 'path: {{.Path}}'
+ echo 'image: {{.Config.Image}}'
+ echo 'status: {{.State.Status}}'
+ echo 'exitcode: {{.State.ExitCode}}'
+ echo 'restartPolicy: {{.HostConfig.RestartPolicy.Name}}'
+ echo 'maximumRetryCount: {{.HostConfig.RestartPolicy.MaximumRetryCount}}'
+ echo 'restartCount: {{.RestartCount}}'
+estimated_duration: 1s
+flags: preserve-locale
+
+id: docker/version
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command: docker version
+_summary: Display docker version information
+flags: simple preserve-cwd
+
+id: docker/info
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command: docker info
+_summary: Display system-wide information about docker
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/run_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command: docker run --rm ubuntu echo 'Hello world'
+_summary: Download and run ubuntu container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/interative_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command: docker run --rm -i ubuntu bash <<< "echo 'Hello world'"
+_summary: Test an interactive shell in Ubuntu container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/diff_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -dit ubuntu mkdir /home/test)
+ docker diff $ID | grep 'A /home/test'
+ docker rm -f $ID
+_summary: Test changes to files in Ubuntu container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/copy_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -dit ubuntu touch /home/file)
+ docker diff $ID | grep 'A /home/file'
+ file_path={root_dir}/
+ docker cp $ID:/home/file $file_path
+ docker cp $file_path/file $ID:/home/new_file
+ docker diff $ID | grep 'A /home/new_file'
+ docker rm -f $ID
+_summary: Test copy a file bwtween a container and local filesystem
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/inspect_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -dit ubuntu bash)
+ path=$(docker inspect -f {path} $ID)
+ image=$(docker inspect -f {image} $ID)
+ [ $path = "bash" ] || exit 1
+ [ $image = "ubuntu" ] || exit 1
+ docker rm -f $ID
+_summary: Test query low-level information on a docker object
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/kill_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -dit --name test ubuntu bash)
+ docker ps --no-trunc | grep $ID
+ docker rename $ID test_2
+ docker kill test_2
+ docker rm -f test_2
+_summary: Test killing containers
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/start-stop_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -d ubuntu bash -c "trap 'exit 0' SIGTERM ; while true; do :; done")
+ [ `docker inspect -f {status} $ID` != running ] && exit 1
+ docker stop $ID
+ [ `docker wait $ID` != 0 ] && exit 1
+ [ `docker inspect -f {status} $ID` != exited ] && exit 1
+ docker start $ID
+ docker rm -f $ID
+_summary: Start and stop a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/build-single_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ dockerfile=$(cat <<EOF
+   FROM alpine
+   CMD echo "hello-world"
+ EOF
+ )
+ echo "$dockerfile" | docker build -t test -
+ ID=$(docker run -dit test)
+ sleep 1
+ [ `docker inspect -f {status} $ID` != exited ] && exit 1
+ docker rm -f $ID
+_summary: Test docker build with a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/export-and-import_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -dit ubuntu bash)
+ tarball_file={root_dir}/ubuntu.tar
+ docker export $ID > $tarball_file
+ cat $tarball_file | sudo docker import - plainbox/ubuntu:v1.0
+ docker images -a | grep 'plainbox/ubuntu'
+ docker rm -f $ID
+ docker rmi plainbox/ubuntu:v1.0
+_summary: Test docker import and export a docker container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/commit_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run -dit --name test ubuntu mkdir /home/test)
+ docker commit $ID ubuntu-plainbox
+ docker images | grep 'ubuntu-plainbox'
+ docker run ubuntu [ -d /home/test ] && exit 1 || echo 'Directory not found'
+ docker run ubuntu-plainbox [ -d /home/test ] && echo 'Directory found' || exit 1
+ docker rm -f $(docker ps -q -a)
+ docker rmi ubuntu-plainbox
+_summary: Test docker commit a change to a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/save-and-load_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ docker pull ubuntu
+ docker save ubuntu > {root_dir}/ubuntu.tar
+ docker load < {root_dir}/ubuntu.tar
+ docker images -a | grep ubuntu
+_summary: Test docker save and load a docker image
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/compose-single_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
+ set -e
+ compose_file={root_dir}/docker-compose.yaml
+ echo "test:
+   image: ubuntu
+   command: bash
+   tty: true" > $compose_file
+ {compose_command} -f $compose_file up -d
+ ID=$({compose_command} -f $compose_file ps -q test)
+ [ `docker inspect -f {status} $ID` != running ] && exit 1
+ {compose_command} -f $compose_file kill
+ [ `docker inspect -f {exitcode} $ID` != 137 ] && exit 1
+ {compose_command} -f $compose_file rm -v -f
+_summary: Test docker compose with a single container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/compose-and-basic_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
+ set -e
+ #read content from stdin
+ yml=$(cat <<EOF
+ test:
+   image: ubuntu
+   command: bash
+   tty: true
+ EOF
+ )
+ echo "$yml" | {compose_command} -f - pull
+ echo "$yml" | {compose_command} -f - create
+ echo "$yml" | {compose_command} -f - start
+ ID=$(echo "$yml" | {compose_command} -f - ps -q test)
+ [ `docker inspect -f {status} $ID` != running ] && exit 1
+ echo "$yml" | {compose_command} -f - stop
+ [ `docker inspect -f {status} $ID` != exited ] && exit 1
+ echo "$yml" | {compose_command} -f - up -d --scale test=3
+ docker ps | grep 'test' | grep -c 'Up'
+ ret=$(docker ps -a | grep 'test' | grep -c 'Up')
+ [ $ret != 3 ] && exit 1
+ echo "$yml" | {compose_command} -f - up -d --scale test=1
+ ret=$(docker ps -a | grep 'test' | grep -c 'Up')
+ [ $ret != 1 ] && exit 1
+ echo "$yml" | {compose_command} -f - down
+ docker ps -a | grep 'test' || exit 0
+ echo "The container is still available"
+ exit 1
+_summary: Test docker compose and basic command
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/deploy-registry_{arch}
+user: root
+category_id: docker
+requires:
+ executable.name == 'docker'
+ executable.name == 'htpasswd'
+command:
+ set -e
+ auth_folder={root_dir}/auth
+ mkdir -p $auth_folder
+ htpasswd -Bbn user passwd > $auth_folder/htpasswd
+ docker run -d -p 5000:5000 --restart=always --name registry \
+   -v $auth_folder:/auth \
+   -e "REGISTRY_AUTH=htpasswd" \
+   -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+   -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+    registry:2
+ docker pull ubuntu
+ docker tag ubuntu localhost:5000/ubuntu
+ docker login --username user --password passwd localhost:5000
+ docker push localhost:5000/ubuntu
+ docker pull localhost:5000/ubuntu
+ docker stop registry
+ docker rm -v registry
+_summary: Deploy a registry server and run it on localhost
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/restart-on-failure_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ dockerfile=$(cat <<EOF
+   FROM ubuntu
+   CMD sleep 1; exit 1
+ EOF
+ )
+ echo "$dockerfile" | docker build -t test-image -
+ ID=$(docker run --restart on-failure:3 -dit test-image)
+ restartPolicy=$(docker inspect  -f {restartPolicy} $ID)
+ [ $restartPolicy = on-failure ] || exit 1
+ maximumRetryCount=$(docker inspect  -f {maximumRetryCount} $ID)
+ [ $maximumRetryCount = 3 ] || exit 1
+ sleep 10
+ restartCount=$(docker inspect -f {restartCount} $ID)
+ [ $restartCount = 3 ] || exit 1
+ docker rm -f $ID
+_summary: Test container restart policy with on_failure applied
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/restart-always_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ dockerfile=$(cat <<EOF
+   FROM ubuntu
+   CMD sleep 1
+ EOF
+ )
+ echo "$dockerfile" | docker build -t test-image -
+ ID=$(docker run --restart always -dit test-image)
+ restartPolicy=$(docker inspect  -f {restartPolicy} $ID)
+ [ $restartPolicy = always ] || exit 1
+ sleep 10
+ restartCount=$(docker inspect -f {restartCount} $ID)
+ [ $restartCount -gt 1 ] || exit 1
+ docker rm -f $ID
+_summary: Test container restart policy with always applied
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/update_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ set -e
+ ID=$(docker run --restart always -dit ubuntu bash)
+ restartPolicy=$(docker inspect -f {restartPolicy} $ID)
+ [ $restartPolicy = always ] || exit 1
+ docker update --restart=no $ID
+ restartPolicy=$(docker inspect -f {restartPolicy} $ID)
+ [ $restartPolicy = no ] || exit 1
+ docker rm -f $ID
+_summary: Test update configuration of one container
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/compose-restart_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+ export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
+ set -e
+ compose_file={root_dir}/docker-compose.yaml
+ echo "test:
+   image: ubuntu
+   command: sleep 1
+   restart: always" > $compose_file
+ {compose_command} -f $compose_file up -d
+ ID=$({compose_command} -f $compose_file ps -q test)
+ restartPolicy=$(docker inspect -f {restartPolicy} $ID)
+ [ $restartPolicy = always ] || exit 1
+ sleep 5
+ restartCount=$(docker inspect -f {restartCount} $ID)
+ [ $restartCount -gt 1 ] || exit 1
+ {compose_command} -f $compose_file down
+_summary: Test compose a container with restart policy applied
+flags: simple preserve-cwd
+
+unit: template
+template-resource: docker_resource
+template-unit: job
+id: docker/edgex_compose_{arch}
+user: root
+category_id: docker
+requires: executable.name == 'docker'
+command:
+  export -n PYTHONHOME PYTHONUSERBASE PYTHONPATH
+  set -ex
+  compose_file={root_dir}/docker-compose-california-0.6.1.yml
+  wget https://raw.githubusercontent.com/edgexfoundry/developer-scripts/04c933f2c03bb9b212e1035505fed0a386f4d43e/compose-files/docker-compose-california-0.6.1.yml -O $compose_file
+  for svc in volume config-seed mongo logging notifications metadata data command scheduler export-client export-distro rulesengine device-virtual; do 
+    {compose_command} --file $compose_file up -d $svc
+    sleep 60
+  done
+  for svc in volume mongo logging notifications metadata data command scheduler export-client export-distro device-virtual; do 
+    status=$(docker inspect -f '{status}' $({compose_command} --file $compose_file ps -q $svc))
+    if [ "$status" != "running" ]; then
+        echo "service $svc is supposed to be running, but currently has status: $status"
+        exit 1
+    fi
+  done
+  {compose_command} --file $compose_file down
+_summary: Test creation of an EdgeX project container
+flags: simple preserve-cwd

@@ -1,0 +1,65 @@
+# Copyright 2018 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Jonathan Cave <jonathan.cave@canonical.com>
+
+id: docker-full
+unit: test plan
+_name: QA tests for Docker containers
+_description:
+ QA test plan for Docker containers (docker and docker-compose)
+include:
+nested_part:
+    docker-manual
+    docker-automated
+
+id: docker-manual
+unit: test plan
+_name: Manual QA tests for Docker containers
+_description:
+ QA test plan for Docker containers (docker and docker-compose)
+include:
+
+id: docker-automated
+unit: test plan
+_name: Fully automated QA tests for Docker containers
+_description:
+ QA test plan for Docker containers (docker and docker-compose)
+estimated_duration: 120
+include:
+    docker/info
+    docker/version
+    docker/run_.*
+    docker/interative_.*
+    docker/diff_.*
+    docker/copy_.*
+    docker/inspect_.*
+    docker/kill_.*
+    docker/build-single_.*
+    docker/start-stop_.*
+    docker/deploy-registry_.*
+    docker/export-and-import_.*
+    docker/save-and-load_.*
+    docker/commit_.*
+    docker/update_.*
+    docker/restart-on-failure_.*
+    docker/restart-always_.*
+    docker/compose-single_.*
+    docker/compose-and-basic_.*
+    docker/compose-restart_.*
+bootstrap_include:
+    docker_resource
+
+id: docker-edgex
+unit: test plan
+_name: Automated tests of Docker functionality for EdgeX Foundry
+_description:
+ Exercise the docker snap by carrying out actions used specifically for EdgeX
+ Foundry. Note that these tests could be have significant duration.
+estimated_duration: 900
+include:
+    docker/edgex_compose_.*
+bootstrap_include:
+    docker_resource

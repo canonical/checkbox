@@ -1,0 +1,166 @@
+⎡ Virtual core pointer                    	id=2	[master pointer  (3)]
+	Reporting 8 classes:
+		Class originated from: 12. Type: XIButtonClass
+		Buttons supported: 12
+		Button labels: "Button Left" "Button Middle" "Button Right" "Button Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button Horiz Wheel Right" None None None None None
+		Button state:
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 0:
+		  Label: Rel X
+		  Range: 0.000000 - 2000.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 1:
+		  Label: Rel Y
+		  Range: 0.000000 - 1400.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 2:
+		  Label: Rel Horiz Scroll
+		  Range: 0.000000 - -1.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 3:
+		  Label: Rel Vert Scroll
+		  Range: 0.000000 - -1.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIScrollClass
+		Scroll info for Valuator 2
+		  type: 2 (horizontal)
+		  increment: 48.000000
+		  flags: 0x0
+		Class originated from: 12. Type: XIScrollClass
+		Scroll info for Valuator 3
+		  type: 1 (vertical)
+		  increment: 48.000000
+		  flags: 0x0
+		Class originated from: 0. Type: XITouchClass
+		Touch mode: dependent
+		Max number of touches: 2
+
+⎜   ↳ Virtual core XTEST pointer              	id=4	[slave  pointer  (2)]
+	Reporting 3 classes:
+		Class originated from: 4. Type: XIButtonClass
+		Buttons supported: 10
+		Button labels: "Button Left" "Button Middle" "Button Right" "Button Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button Horiz Wheel Right" None None None
+		Button state:
+		Class originated from: 4. Type: XIValuatorClass
+		Detail for Valuator 0:
+		  Label: Rel X
+		  Range: -1.000000 - -1.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 4. Type: XIValuatorClass
+		Detail for Valuator 1:
+		  Label: Rel Y
+		  Range: -1.000000 - -1.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+
+⎜   ↳ DualPoint Stick                         	id=11	[slave  pointer  (2)]
+	Reporting 3 classes:
+		Class originated from: 11. Type: XIButtonClass
+		Buttons supported: 7
+		Button labels: "Button Left" "Button Middle" "Button Right" "Button Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button Horiz Wheel Right"
+		Button state:
+		Class originated from: 11. Type: XIValuatorClass
+		Detail for Valuator 0:
+		  Label: Rel X
+		  Range: -1.000000 - -1.000000
+		  Resolution: 1 units/m
+		  Mode: relative
+		Class originated from: 11. Type: XIValuatorClass
+		Detail for Valuator 1:
+		  Label: Rel Y
+		  Range: -1.000000 - -1.000000
+		  Resolution: 1 units/m
+		  Mode: relative
+
+⎜   ↳ AlpsPS/2 ALPS DualPoint TouchPad        	id=12	[slave  pointer  (2)]
+	Reporting 8 classes:
+		Class originated from: 12. Type: XIButtonClass
+		Buttons supported: 12
+		Button labels: "Button Left" "Button Middle" "Button Right" "Button Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button Horiz Wheel Right" None None None None None
+		Button state:
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 0:
+		  Label: Rel X
+		  Range: 0.000000 - 2000.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 1:
+		  Label: Rel Y
+		  Range: 0.000000 - 1400.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 2:
+		  Label: Rel Horiz Scroll
+		  Range: 0.000000 - -1.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIValuatorClass
+		Detail for Valuator 3:
+		  Label: Rel Vert Scroll
+		  Range: 0.000000 - -1.000000
+		  Resolution: 0 units/m
+		  Mode: relative
+		Class originated from: 12. Type: XIScrollClass
+		Scroll info for Valuator 2
+		  type: 2 (horizontal)
+		  increment: 48.000000
+		  flags: 0x0
+		Class originated from: 12. Type: XIScrollClass
+		Scroll info for Valuator 3
+		  type: 1 (vertical)
+		  increment: 48.000000
+		  flags: 0x0
+		Class originated from: 0. Type: XITouchClass
+		Touch mode: dependent
+		Max number of touches: 2
+
+⎣ Virtual core keyboard                   	id=3	[master keyboard (2)]
+	Reporting 1 classes:
+		Class originated from: 10. Type: XIKeyClass
+		Keycodes supported: 248
+
+    ↳ Virtual core XTEST keyboard             	id=5	[slave  keyboard (3)]
+	Reporting 1 classes:
+		Class originated from: 5. Type: XIKeyClass
+		Keycodes supported: 248
+
+    ↳ Power Button                            	id=6	[slave  keyboard (3)]
+	Reporting 1 classes:
+		Class originated from: 6. Type: XIKeyClass
+		Keycodes supported: 248
+
+    ↳ Video Bus                               	id=7	[slave  keyboard (3)]
+	Reporting 1 classes:
+		Class originated from: 7. Type: XIKeyClass
+		Keycodes supported: 248
+
+    ↳ Power Button                            	id=8	[slave  keyboard (3)]
+	Reporting 1 classes:
+		Class originated from: 8. Type: XIKeyClass
+		Keycodes supported: 248
+
+    ↳ CNF9055                                 	id=9	[slave  keyboard (3)]
+	Reporting 1 classes:
+		Class originated from: 9. Type: XIKeyClass
+		Keycodes supported: 248
+
+    ↳ AT Translated Set 2 keyboard            	id=10	[slave  keyboard (3)]
+	Reporting 1 classes:
+		Class originated from: 10. Type: XIKeyClass
+		Keycodes supported: 248
+
+    ↳ Toshiba input device                    	id=13	[slave  keyboard (3)]
+	Reporting 1 classes:
+		Class originated from: 13. Type: XIKeyClass
+		Keycodes supported: 248
+

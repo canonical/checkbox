@@ -1,0 +1,4147 @@
+P: /devices/breakpoint
+E: DEVPATH=/devices/breakpoint
+E: SUBSYSTEM=event_source
+
+P: /devices/cpu
+E: DEVPATH=/devices/cpu
+E: SUBSYSTEM=event_source
+
+P: /devices/pci0000:00/pci_bus/0000:00
+E: DEVPATH=/devices/pci0000:00/pci_bus/0000:00
+E: OF_COMPATIBLE_0=IBM,Logical_PHB
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/pci@800000020000000
+E: OF_NAME=pci
+E: OF_TYPE=pci
+E: SUBSYSTEM=pci_bus
+
+P: /devices/platform/Fixed MDIO bus.0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0
+E: MODALIAS=platform:Fixed MDIO bus
+E: SUBSYSTEM=platform
+
+P: /devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0
+E: SUBSYSTEM=mdio_bus
+
+P: /devices/platform/alarmtimer
+E: DEVPATH=/devices/platform/alarmtimer
+E: DRIVER=alarmtimer
+E: MODALIAS=platform:alarmtimer
+E: SUBSYSTEM=platform
+
+P: /devices/platform/reg-dummy
+E: DEVPATH=/devices/platform/reg-dummy
+E: DRIVER=reg-dummy
+E: MODALIAS=platform:reg-dummy
+E: SUBSYSTEM=platform
+
+P: /devices/platform/reg-dummy/regulator/regulator.0
+E: DEVPATH=/devices/platform/reg-dummy/regulator/regulator.0
+E: SUBSYSTEM=regulator
+
+P: /devices/platform/rtc-generic
+E: DEVPATH=/devices/platform/rtc-generic
+E: MODALIAS=platform:rtc-generic
+E: SUBSYSTEM=platform
+
+P: /devices/platform/serial8250
+E: DEVPATH=/devices/platform/serial8250
+E: DRIVER=serial8250
+E: MODALIAS=platform:serial8250
+E: SUBSYSTEM=platform
+
+P: /devices/platform/serial8250/tty/ttyS0
+N: ttyS0
+E: DEVNAME=/dev/ttyS0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS0
+E: MAJOR=4
+E: MINOR=64
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS1
+N: ttyS1
+E: DEVNAME=/dev/ttyS1
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS1
+E: MAJOR=4
+E: MINOR=65
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS10
+N: ttyS10
+E: DEVNAME=/dev/ttyS10
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS10
+E: MAJOR=4
+E: MINOR=74
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS11
+N: ttyS11
+E: DEVNAME=/dev/ttyS11
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS11
+E: MAJOR=4
+E: MINOR=75
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS12
+N: ttyS12
+E: DEVNAME=/dev/ttyS12
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS12
+E: MAJOR=4
+E: MINOR=76
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS13
+N: ttyS13
+E: DEVNAME=/dev/ttyS13
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS13
+E: MAJOR=4
+E: MINOR=77
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS14
+N: ttyS14
+E: DEVNAME=/dev/ttyS14
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS14
+E: MAJOR=4
+E: MINOR=78
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS15
+N: ttyS15
+E: DEVNAME=/dev/ttyS15
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS15
+E: MAJOR=4
+E: MINOR=79
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS16
+N: ttyS16
+E: DEVNAME=/dev/ttyS16
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS16
+E: MAJOR=4
+E: MINOR=80
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS17
+N: ttyS17
+E: DEVNAME=/dev/ttyS17
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS17
+E: MAJOR=4
+E: MINOR=81
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS18
+N: ttyS18
+E: DEVNAME=/dev/ttyS18
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS18
+E: MAJOR=4
+E: MINOR=82
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS19
+N: ttyS19
+E: DEVNAME=/dev/ttyS19
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS19
+E: MAJOR=4
+E: MINOR=83
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS2
+N: ttyS2
+E: DEVNAME=/dev/ttyS2
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS2
+E: MAJOR=4
+E: MINOR=66
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS20
+N: ttyS20
+E: DEVNAME=/dev/ttyS20
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS20
+E: MAJOR=4
+E: MINOR=84
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS21
+N: ttyS21
+E: DEVNAME=/dev/ttyS21
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS21
+E: MAJOR=4
+E: MINOR=85
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS22
+N: ttyS22
+E: DEVNAME=/dev/ttyS22
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS22
+E: MAJOR=4
+E: MINOR=86
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS23
+N: ttyS23
+E: DEVNAME=/dev/ttyS23
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS23
+E: MAJOR=4
+E: MINOR=87
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS24
+N: ttyS24
+E: DEVNAME=/dev/ttyS24
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS24
+E: MAJOR=4
+E: MINOR=88
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS25
+N: ttyS25
+E: DEVNAME=/dev/ttyS25
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS25
+E: MAJOR=4
+E: MINOR=89
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS26
+N: ttyS26
+E: DEVNAME=/dev/ttyS26
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS26
+E: MAJOR=4
+E: MINOR=90
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS27
+N: ttyS27
+E: DEVNAME=/dev/ttyS27
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS27
+E: MAJOR=4
+E: MINOR=91
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS28
+N: ttyS28
+E: DEVNAME=/dev/ttyS28
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS28
+E: MAJOR=4
+E: MINOR=92
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS29
+N: ttyS29
+E: DEVNAME=/dev/ttyS29
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS29
+E: MAJOR=4
+E: MINOR=93
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS3
+N: ttyS3
+E: DEVNAME=/dev/ttyS3
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS3
+E: MAJOR=4
+E: MINOR=67
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS30
+N: ttyS30
+E: DEVNAME=/dev/ttyS30
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS30
+E: MAJOR=4
+E: MINOR=94
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS31
+N: ttyS31
+E: DEVNAME=/dev/ttyS31
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS31
+E: MAJOR=4
+E: MINOR=95
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS4
+N: ttyS4
+E: DEVNAME=/dev/ttyS4
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS4
+E: MAJOR=4
+E: MINOR=68
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS5
+N: ttyS5
+E: DEVNAME=/dev/ttyS5
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS5
+E: MAJOR=4
+E: MINOR=69
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS6
+N: ttyS6
+E: DEVNAME=/dev/ttyS6
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS6
+E: MAJOR=4
+E: MINOR=70
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS7
+N: ttyS7
+E: DEVNAME=/dev/ttyS7
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS7
+E: MAJOR=4
+E: MINOR=71
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS8
+N: ttyS8
+E: DEVNAME=/dev/ttyS8
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS8
+E: MAJOR=4
+E: MINOR=72
+E: SUBSYSTEM=tty
+
+P: /devices/platform/serial8250/tty/ttyS9
+N: ttyS9
+E: DEVNAME=/dev/ttyS9
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS9
+E: MAJOR=4
+E: MINOR=73
+E: SUBSYSTEM=tty
+
+P: /devices/software
+E: DEVPATH=/devices/software
+E: SUBSYSTEM=event_source
+
+P: /devices/system/clockevents/clockevent0
+E: DEVPATH=/devices/system/clockevents/clockevent0
+E: SUBSYSTEM=clockevents
+
+P: /devices/system/clockevents/clockevent1
+E: DEVPATH=/devices/system/clockevents/clockevent1
+E: SUBSYSTEM=clockevents
+
+P: /devices/system/clocksource/clocksource0
+E: DEVPATH=/devices/system/clocksource/clocksource0
+E: SUBSYSTEM=clocksource
+
+P: /devices/system/cpu/cpu0
+E: DEVPATH=/devices/system/cpu/cpu0
+E: OF_COMPATIBLE_N=0
+E: OF_FULLNAME=/cpus/PowerPC,POWER7+@0
+E: OF_NAME=PowerPC,POWER7+
+E: OF_TYPE=cpu
+E: SUBSYSTEM=cpu
+
+P: /devices/system/cpu/cpu1
+E: DEVPATH=/devices/system/cpu/cpu1
+E: OF_COMPATIBLE_N=0
+E: OF_FULLNAME=/cpus/PowerPC,POWER7+@4
+E: OF_NAME=PowerPC,POWER7+
+E: OF_TYPE=cpu
+E: SUBSYSTEM=cpu
+
+P: /devices/system/memory/memory0
+E: DEVPATH=/devices/system/memory/memory0
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory1
+E: DEVPATH=/devices/system/memory/memory1
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory10
+E: DEVPATH=/devices/system/memory/memory10
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory100
+E: DEVPATH=/devices/system/memory/memory100
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory101
+E: DEVPATH=/devices/system/memory/memory101
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory102
+E: DEVPATH=/devices/system/memory/memory102
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory103
+E: DEVPATH=/devices/system/memory/memory103
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory104
+E: DEVPATH=/devices/system/memory/memory104
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory105
+E: DEVPATH=/devices/system/memory/memory105
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory106
+E: DEVPATH=/devices/system/memory/memory106
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory107
+E: DEVPATH=/devices/system/memory/memory107
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory108
+E: DEVPATH=/devices/system/memory/memory108
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory109
+E: DEVPATH=/devices/system/memory/memory109
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory11
+E: DEVPATH=/devices/system/memory/memory11
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory110
+E: DEVPATH=/devices/system/memory/memory110
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory111
+E: DEVPATH=/devices/system/memory/memory111
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory112
+E: DEVPATH=/devices/system/memory/memory112
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory113
+E: DEVPATH=/devices/system/memory/memory113
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory114
+E: DEVPATH=/devices/system/memory/memory114
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory115
+E: DEVPATH=/devices/system/memory/memory115
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory116
+E: DEVPATH=/devices/system/memory/memory116
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory117
+E: DEVPATH=/devices/system/memory/memory117
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory118
+E: DEVPATH=/devices/system/memory/memory118
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory119
+E: DEVPATH=/devices/system/memory/memory119
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory12
+E: DEVPATH=/devices/system/memory/memory12
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory120
+E: DEVPATH=/devices/system/memory/memory120
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory121
+E: DEVPATH=/devices/system/memory/memory121
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory122
+E: DEVPATH=/devices/system/memory/memory122
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory123
+E: DEVPATH=/devices/system/memory/memory123
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory124
+E: DEVPATH=/devices/system/memory/memory124
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory125
+E: DEVPATH=/devices/system/memory/memory125
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory126
+E: DEVPATH=/devices/system/memory/memory126
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory127
+E: DEVPATH=/devices/system/memory/memory127
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory128
+E: DEVPATH=/devices/system/memory/memory128
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory129
+E: DEVPATH=/devices/system/memory/memory129
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory13
+E: DEVPATH=/devices/system/memory/memory13
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory130
+E: DEVPATH=/devices/system/memory/memory130
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory131
+E: DEVPATH=/devices/system/memory/memory131
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory132
+E: DEVPATH=/devices/system/memory/memory132
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory133
+E: DEVPATH=/devices/system/memory/memory133
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory134
+E: DEVPATH=/devices/system/memory/memory134
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory135
+E: DEVPATH=/devices/system/memory/memory135
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory136
+E: DEVPATH=/devices/system/memory/memory136
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory137
+E: DEVPATH=/devices/system/memory/memory137
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory138
+E: DEVPATH=/devices/system/memory/memory138
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory139
+E: DEVPATH=/devices/system/memory/memory139
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory14
+E: DEVPATH=/devices/system/memory/memory14
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory140
+E: DEVPATH=/devices/system/memory/memory140
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory141
+E: DEVPATH=/devices/system/memory/memory141
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory142
+E: DEVPATH=/devices/system/memory/memory142
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory143
+E: DEVPATH=/devices/system/memory/memory143
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory144
+E: DEVPATH=/devices/system/memory/memory144
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory145
+E: DEVPATH=/devices/system/memory/memory145
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory146
+E: DEVPATH=/devices/system/memory/memory146
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory147
+E: DEVPATH=/devices/system/memory/memory147
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory148
+E: DEVPATH=/devices/system/memory/memory148
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory149
+E: DEVPATH=/devices/system/memory/memory149
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory15
+E: DEVPATH=/devices/system/memory/memory15
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory150
+E: DEVPATH=/devices/system/memory/memory150
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory151
+E: DEVPATH=/devices/system/memory/memory151
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory152
+E: DEVPATH=/devices/system/memory/memory152
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory153
+E: DEVPATH=/devices/system/memory/memory153
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory154
+E: DEVPATH=/devices/system/memory/memory154
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory155
+E: DEVPATH=/devices/system/memory/memory155
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory156
+E: DEVPATH=/devices/system/memory/memory156
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory157
+E: DEVPATH=/devices/system/memory/memory157
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory158
+E: DEVPATH=/devices/system/memory/memory158
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory159
+E: DEVPATH=/devices/system/memory/memory159
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory16
+E: DEVPATH=/devices/system/memory/memory16
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory160
+E: DEVPATH=/devices/system/memory/memory160
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory161
+E: DEVPATH=/devices/system/memory/memory161
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory162
+E: DEVPATH=/devices/system/memory/memory162
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory163
+E: DEVPATH=/devices/system/memory/memory163
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory164
+E: DEVPATH=/devices/system/memory/memory164
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory165
+E: DEVPATH=/devices/system/memory/memory165
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory166
+E: DEVPATH=/devices/system/memory/memory166
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory167
+E: DEVPATH=/devices/system/memory/memory167
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory168
+E: DEVPATH=/devices/system/memory/memory168
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory169
+E: DEVPATH=/devices/system/memory/memory169
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory17
+E: DEVPATH=/devices/system/memory/memory17
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory170
+E: DEVPATH=/devices/system/memory/memory170
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory171
+E: DEVPATH=/devices/system/memory/memory171
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory172
+E: DEVPATH=/devices/system/memory/memory172
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory173
+E: DEVPATH=/devices/system/memory/memory173
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory174
+E: DEVPATH=/devices/system/memory/memory174
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory175
+E: DEVPATH=/devices/system/memory/memory175
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory176
+E: DEVPATH=/devices/system/memory/memory176
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory177
+E: DEVPATH=/devices/system/memory/memory177
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory178
+E: DEVPATH=/devices/system/memory/memory178
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory179
+E: DEVPATH=/devices/system/memory/memory179
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory18
+E: DEVPATH=/devices/system/memory/memory18
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory180
+E: DEVPATH=/devices/system/memory/memory180
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory181
+E: DEVPATH=/devices/system/memory/memory181
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory182
+E: DEVPATH=/devices/system/memory/memory182
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory183
+E: DEVPATH=/devices/system/memory/memory183
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory184
+E: DEVPATH=/devices/system/memory/memory184
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory185
+E: DEVPATH=/devices/system/memory/memory185
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory186
+E: DEVPATH=/devices/system/memory/memory186
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory187
+E: DEVPATH=/devices/system/memory/memory187
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory188
+E: DEVPATH=/devices/system/memory/memory188
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory189
+E: DEVPATH=/devices/system/memory/memory189
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory19
+E: DEVPATH=/devices/system/memory/memory19
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory190
+E: DEVPATH=/devices/system/memory/memory190
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory191
+E: DEVPATH=/devices/system/memory/memory191
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory192
+E: DEVPATH=/devices/system/memory/memory192
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory193
+E: DEVPATH=/devices/system/memory/memory193
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory194
+E: DEVPATH=/devices/system/memory/memory194
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory195
+E: DEVPATH=/devices/system/memory/memory195
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory196
+E: DEVPATH=/devices/system/memory/memory196
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory197
+E: DEVPATH=/devices/system/memory/memory197
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory198
+E: DEVPATH=/devices/system/memory/memory198
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory199
+E: DEVPATH=/devices/system/memory/memory199
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory2
+E: DEVPATH=/devices/system/memory/memory2
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory20
+E: DEVPATH=/devices/system/memory/memory20
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory200
+E: DEVPATH=/devices/system/memory/memory200
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory201
+E: DEVPATH=/devices/system/memory/memory201
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory202
+E: DEVPATH=/devices/system/memory/memory202
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory203
+E: DEVPATH=/devices/system/memory/memory203
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory204
+E: DEVPATH=/devices/system/memory/memory204
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory205
+E: DEVPATH=/devices/system/memory/memory205
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory206
+E: DEVPATH=/devices/system/memory/memory206
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory207
+E: DEVPATH=/devices/system/memory/memory207
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory208
+E: DEVPATH=/devices/system/memory/memory208
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory209
+E: DEVPATH=/devices/system/memory/memory209
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory21
+E: DEVPATH=/devices/system/memory/memory21
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory210
+E: DEVPATH=/devices/system/memory/memory210
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory211
+E: DEVPATH=/devices/system/memory/memory211
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory212
+E: DEVPATH=/devices/system/memory/memory212
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory213
+E: DEVPATH=/devices/system/memory/memory213
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory214
+E: DEVPATH=/devices/system/memory/memory214
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory215
+E: DEVPATH=/devices/system/memory/memory215
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory216
+E: DEVPATH=/devices/system/memory/memory216
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory217
+E: DEVPATH=/devices/system/memory/memory217
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory218
+E: DEVPATH=/devices/system/memory/memory218
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory219
+E: DEVPATH=/devices/system/memory/memory219
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory22
+E: DEVPATH=/devices/system/memory/memory22
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory220
+E: DEVPATH=/devices/system/memory/memory220
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory221
+E: DEVPATH=/devices/system/memory/memory221
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory222
+E: DEVPATH=/devices/system/memory/memory222
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory223
+E: DEVPATH=/devices/system/memory/memory223
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory224
+E: DEVPATH=/devices/system/memory/memory224
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory225
+E: DEVPATH=/devices/system/memory/memory225
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory226
+E: DEVPATH=/devices/system/memory/memory226
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory227
+E: DEVPATH=/devices/system/memory/memory227
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory228
+E: DEVPATH=/devices/system/memory/memory228
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory229
+E: DEVPATH=/devices/system/memory/memory229
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory23
+E: DEVPATH=/devices/system/memory/memory23
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory230
+E: DEVPATH=/devices/system/memory/memory230
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory231
+E: DEVPATH=/devices/system/memory/memory231
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory232
+E: DEVPATH=/devices/system/memory/memory232
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory233
+E: DEVPATH=/devices/system/memory/memory233
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory234
+E: DEVPATH=/devices/system/memory/memory234
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory235
+E: DEVPATH=/devices/system/memory/memory235
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory236
+E: DEVPATH=/devices/system/memory/memory236
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory237
+E: DEVPATH=/devices/system/memory/memory237
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory238
+E: DEVPATH=/devices/system/memory/memory238
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory239
+E: DEVPATH=/devices/system/memory/memory239
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory24
+E: DEVPATH=/devices/system/memory/memory24
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory240
+E: DEVPATH=/devices/system/memory/memory240
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory241
+E: DEVPATH=/devices/system/memory/memory241
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory242
+E: DEVPATH=/devices/system/memory/memory242
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory243
+E: DEVPATH=/devices/system/memory/memory243
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory244
+E: DEVPATH=/devices/system/memory/memory244
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory245
+E: DEVPATH=/devices/system/memory/memory245
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory246
+E: DEVPATH=/devices/system/memory/memory246
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory247
+E: DEVPATH=/devices/system/memory/memory247
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory248
+E: DEVPATH=/devices/system/memory/memory248
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory249
+E: DEVPATH=/devices/system/memory/memory249
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory25
+E: DEVPATH=/devices/system/memory/memory25
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory250
+E: DEVPATH=/devices/system/memory/memory250
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory251
+E: DEVPATH=/devices/system/memory/memory251
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory252
+E: DEVPATH=/devices/system/memory/memory252
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory253
+E: DEVPATH=/devices/system/memory/memory253
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory254
+E: DEVPATH=/devices/system/memory/memory254
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory255
+E: DEVPATH=/devices/system/memory/memory255
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory256
+E: DEVPATH=/devices/system/memory/memory256
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory257
+E: DEVPATH=/devices/system/memory/memory257
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory258
+E: DEVPATH=/devices/system/memory/memory258
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory259
+E: DEVPATH=/devices/system/memory/memory259
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory26
+E: DEVPATH=/devices/system/memory/memory26
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory260
+E: DEVPATH=/devices/system/memory/memory260
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory261
+E: DEVPATH=/devices/system/memory/memory261
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory262
+E: DEVPATH=/devices/system/memory/memory262
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory263
+E: DEVPATH=/devices/system/memory/memory263
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory264
+E: DEVPATH=/devices/system/memory/memory264
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory265
+E: DEVPATH=/devices/system/memory/memory265
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory266
+E: DEVPATH=/devices/system/memory/memory266
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory267
+E: DEVPATH=/devices/system/memory/memory267
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory268
+E: DEVPATH=/devices/system/memory/memory268
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory269
+E: DEVPATH=/devices/system/memory/memory269
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory27
+E: DEVPATH=/devices/system/memory/memory27
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory270
+E: DEVPATH=/devices/system/memory/memory270
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory271
+E: DEVPATH=/devices/system/memory/memory271
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory272
+E: DEVPATH=/devices/system/memory/memory272
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory273
+E: DEVPATH=/devices/system/memory/memory273
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory274
+E: DEVPATH=/devices/system/memory/memory274
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory275
+E: DEVPATH=/devices/system/memory/memory275
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory276
+E: DEVPATH=/devices/system/memory/memory276
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory277
+E: DEVPATH=/devices/system/memory/memory277
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory278
+E: DEVPATH=/devices/system/memory/memory278
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory279
+E: DEVPATH=/devices/system/memory/memory279
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory28
+E: DEVPATH=/devices/system/memory/memory28
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory280
+E: DEVPATH=/devices/system/memory/memory280
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory281
+E: DEVPATH=/devices/system/memory/memory281
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory282
+E: DEVPATH=/devices/system/memory/memory282
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory283
+E: DEVPATH=/devices/system/memory/memory283
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory284
+E: DEVPATH=/devices/system/memory/memory284
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory285
+E: DEVPATH=/devices/system/memory/memory285
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory286
+E: DEVPATH=/devices/system/memory/memory286
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory287
+E: DEVPATH=/devices/system/memory/memory287
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory288
+E: DEVPATH=/devices/system/memory/memory288
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory289
+E: DEVPATH=/devices/system/memory/memory289
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory29
+E: DEVPATH=/devices/system/memory/memory29
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory290
+E: DEVPATH=/devices/system/memory/memory290
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory291
+E: DEVPATH=/devices/system/memory/memory291
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory292
+E: DEVPATH=/devices/system/memory/memory292
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory293
+E: DEVPATH=/devices/system/memory/memory293
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory294
+E: DEVPATH=/devices/system/memory/memory294
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory295
+E: DEVPATH=/devices/system/memory/memory295
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory296
+E: DEVPATH=/devices/system/memory/memory296
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory297
+E: DEVPATH=/devices/system/memory/memory297
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory298
+E: DEVPATH=/devices/system/memory/memory298
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory299
+E: DEVPATH=/devices/system/memory/memory299
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory3
+E: DEVPATH=/devices/system/memory/memory3
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory30
+E: DEVPATH=/devices/system/memory/memory30
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory300
+E: DEVPATH=/devices/system/memory/memory300
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory301
+E: DEVPATH=/devices/system/memory/memory301
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory302
+E: DEVPATH=/devices/system/memory/memory302
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory303
+E: DEVPATH=/devices/system/memory/memory303
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory304
+E: DEVPATH=/devices/system/memory/memory304
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory305
+E: DEVPATH=/devices/system/memory/memory305
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory306
+E: DEVPATH=/devices/system/memory/memory306
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory307
+E: DEVPATH=/devices/system/memory/memory307
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory308
+E: DEVPATH=/devices/system/memory/memory308
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory309
+E: DEVPATH=/devices/system/memory/memory309
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory31
+E: DEVPATH=/devices/system/memory/memory31
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory310
+E: DEVPATH=/devices/system/memory/memory310
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory311
+E: DEVPATH=/devices/system/memory/memory311
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory312
+E: DEVPATH=/devices/system/memory/memory312
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory313
+E: DEVPATH=/devices/system/memory/memory313
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory314
+E: DEVPATH=/devices/system/memory/memory314
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory315
+E: DEVPATH=/devices/system/memory/memory315
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory316
+E: DEVPATH=/devices/system/memory/memory316
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory317
+E: DEVPATH=/devices/system/memory/memory317
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory318
+E: DEVPATH=/devices/system/memory/memory318
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory319
+E: DEVPATH=/devices/system/memory/memory319
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory32
+E: DEVPATH=/devices/system/memory/memory32
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory320
+E: DEVPATH=/devices/system/memory/memory320
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory321
+E: DEVPATH=/devices/system/memory/memory321
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory322
+E: DEVPATH=/devices/system/memory/memory322
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory323
+E: DEVPATH=/devices/system/memory/memory323
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory324
+E: DEVPATH=/devices/system/memory/memory324
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory325
+E: DEVPATH=/devices/system/memory/memory325
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory326
+E: DEVPATH=/devices/system/memory/memory326
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory327
+E: DEVPATH=/devices/system/memory/memory327
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory328
+E: DEVPATH=/devices/system/memory/memory328
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory329
+E: DEVPATH=/devices/system/memory/memory329
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory33
+E: DEVPATH=/devices/system/memory/memory33
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory330
+E: DEVPATH=/devices/system/memory/memory330
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory331
+E: DEVPATH=/devices/system/memory/memory331
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory332
+E: DEVPATH=/devices/system/memory/memory332
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory333
+E: DEVPATH=/devices/system/memory/memory333
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory334
+E: DEVPATH=/devices/system/memory/memory334
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory335
+E: DEVPATH=/devices/system/memory/memory335
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory336
+E: DEVPATH=/devices/system/memory/memory336
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory337
+E: DEVPATH=/devices/system/memory/memory337
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory338
+E: DEVPATH=/devices/system/memory/memory338
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory339
+E: DEVPATH=/devices/system/memory/memory339
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory34
+E: DEVPATH=/devices/system/memory/memory34
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory340
+E: DEVPATH=/devices/system/memory/memory340
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory341
+E: DEVPATH=/devices/system/memory/memory341
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory342
+E: DEVPATH=/devices/system/memory/memory342
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory343
+E: DEVPATH=/devices/system/memory/memory343
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory344
+E: DEVPATH=/devices/system/memory/memory344
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory345
+E: DEVPATH=/devices/system/memory/memory345
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory346
+E: DEVPATH=/devices/system/memory/memory346
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory347
+E: DEVPATH=/devices/system/memory/memory347
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory348
+E: DEVPATH=/devices/system/memory/memory348
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory349
+E: DEVPATH=/devices/system/memory/memory349
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory35
+E: DEVPATH=/devices/system/memory/memory35
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory350
+E: DEVPATH=/devices/system/memory/memory350
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory351
+E: DEVPATH=/devices/system/memory/memory351
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory352
+E: DEVPATH=/devices/system/memory/memory352
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory353
+E: DEVPATH=/devices/system/memory/memory353
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory354
+E: DEVPATH=/devices/system/memory/memory354
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory355
+E: DEVPATH=/devices/system/memory/memory355
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory356
+E: DEVPATH=/devices/system/memory/memory356
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory357
+E: DEVPATH=/devices/system/memory/memory357
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory358
+E: DEVPATH=/devices/system/memory/memory358
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory359
+E: DEVPATH=/devices/system/memory/memory359
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory36
+E: DEVPATH=/devices/system/memory/memory36
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory360
+E: DEVPATH=/devices/system/memory/memory360
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory361
+E: DEVPATH=/devices/system/memory/memory361
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory362
+E: DEVPATH=/devices/system/memory/memory362
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory363
+E: DEVPATH=/devices/system/memory/memory363
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory364
+E: DEVPATH=/devices/system/memory/memory364
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory365
+E: DEVPATH=/devices/system/memory/memory365
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory366
+E: DEVPATH=/devices/system/memory/memory366
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory367
+E: DEVPATH=/devices/system/memory/memory367
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory368
+E: DEVPATH=/devices/system/memory/memory368
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory369
+E: DEVPATH=/devices/system/memory/memory369
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory37
+E: DEVPATH=/devices/system/memory/memory37
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory370
+E: DEVPATH=/devices/system/memory/memory370
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory371
+E: DEVPATH=/devices/system/memory/memory371
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory372
+E: DEVPATH=/devices/system/memory/memory372
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory373
+E: DEVPATH=/devices/system/memory/memory373
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory374
+E: DEVPATH=/devices/system/memory/memory374
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory375
+E: DEVPATH=/devices/system/memory/memory375
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory376
+E: DEVPATH=/devices/system/memory/memory376
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory377
+E: DEVPATH=/devices/system/memory/memory377
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory378
+E: DEVPATH=/devices/system/memory/memory378
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory379
+E: DEVPATH=/devices/system/memory/memory379
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory38
+E: DEVPATH=/devices/system/memory/memory38
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory380
+E: DEVPATH=/devices/system/memory/memory380
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory381
+E: DEVPATH=/devices/system/memory/memory381
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory382
+E: DEVPATH=/devices/system/memory/memory382
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory383
+E: DEVPATH=/devices/system/memory/memory383
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory384
+E: DEVPATH=/devices/system/memory/memory384
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory385
+E: DEVPATH=/devices/system/memory/memory385
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory386
+E: DEVPATH=/devices/system/memory/memory386
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory387
+E: DEVPATH=/devices/system/memory/memory387
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory388
+E: DEVPATH=/devices/system/memory/memory388
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory389
+E: DEVPATH=/devices/system/memory/memory389
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory39
+E: DEVPATH=/devices/system/memory/memory39
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory390
+E: DEVPATH=/devices/system/memory/memory390
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory391
+E: DEVPATH=/devices/system/memory/memory391
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory392
+E: DEVPATH=/devices/system/memory/memory392
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory393
+E: DEVPATH=/devices/system/memory/memory393
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory394
+E: DEVPATH=/devices/system/memory/memory394
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory395
+E: DEVPATH=/devices/system/memory/memory395
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory396
+E: DEVPATH=/devices/system/memory/memory396
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory397
+E: DEVPATH=/devices/system/memory/memory397
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory398
+E: DEVPATH=/devices/system/memory/memory398
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory399
+E: DEVPATH=/devices/system/memory/memory399
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory4
+E: DEVPATH=/devices/system/memory/memory4
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory40
+E: DEVPATH=/devices/system/memory/memory40
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory400
+E: DEVPATH=/devices/system/memory/memory400
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory401
+E: DEVPATH=/devices/system/memory/memory401
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory402
+E: DEVPATH=/devices/system/memory/memory402
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory403
+E: DEVPATH=/devices/system/memory/memory403
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory404
+E: DEVPATH=/devices/system/memory/memory404
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory405
+E: DEVPATH=/devices/system/memory/memory405
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory406
+E: DEVPATH=/devices/system/memory/memory406
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory407
+E: DEVPATH=/devices/system/memory/memory407
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory408
+E: DEVPATH=/devices/system/memory/memory408
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory409
+E: DEVPATH=/devices/system/memory/memory409
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory41
+E: DEVPATH=/devices/system/memory/memory41
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory410
+E: DEVPATH=/devices/system/memory/memory410
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory411
+E: DEVPATH=/devices/system/memory/memory411
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory412
+E: DEVPATH=/devices/system/memory/memory412
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory413
+E: DEVPATH=/devices/system/memory/memory413
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory414
+E: DEVPATH=/devices/system/memory/memory414
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory415
+E: DEVPATH=/devices/system/memory/memory415
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory416
+E: DEVPATH=/devices/system/memory/memory416
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory417
+E: DEVPATH=/devices/system/memory/memory417
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory418
+E: DEVPATH=/devices/system/memory/memory418
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory419
+E: DEVPATH=/devices/system/memory/memory419
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory42
+E: DEVPATH=/devices/system/memory/memory42
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory420
+E: DEVPATH=/devices/system/memory/memory420
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory421
+E: DEVPATH=/devices/system/memory/memory421
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory422
+E: DEVPATH=/devices/system/memory/memory422
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory423
+E: DEVPATH=/devices/system/memory/memory423
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory424
+E: DEVPATH=/devices/system/memory/memory424
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory425
+E: DEVPATH=/devices/system/memory/memory425
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory426
+E: DEVPATH=/devices/system/memory/memory426
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory427
+E: DEVPATH=/devices/system/memory/memory427
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory428
+E: DEVPATH=/devices/system/memory/memory428
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory429
+E: DEVPATH=/devices/system/memory/memory429
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory43
+E: DEVPATH=/devices/system/memory/memory43
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory430
+E: DEVPATH=/devices/system/memory/memory430
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory431
+E: DEVPATH=/devices/system/memory/memory431
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory432
+E: DEVPATH=/devices/system/memory/memory432
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory433
+E: DEVPATH=/devices/system/memory/memory433
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory434
+E: DEVPATH=/devices/system/memory/memory434
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory435
+E: DEVPATH=/devices/system/memory/memory435
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory436
+E: DEVPATH=/devices/system/memory/memory436
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory437
+E: DEVPATH=/devices/system/memory/memory437
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory438
+E: DEVPATH=/devices/system/memory/memory438
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory439
+E: DEVPATH=/devices/system/memory/memory439
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory44
+E: DEVPATH=/devices/system/memory/memory44
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory440
+E: DEVPATH=/devices/system/memory/memory440
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory441
+E: DEVPATH=/devices/system/memory/memory441
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory442
+E: DEVPATH=/devices/system/memory/memory442
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory443
+E: DEVPATH=/devices/system/memory/memory443
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory444
+E: DEVPATH=/devices/system/memory/memory444
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory445
+E: DEVPATH=/devices/system/memory/memory445
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory446
+E: DEVPATH=/devices/system/memory/memory446
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory447
+E: DEVPATH=/devices/system/memory/memory447
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory448
+E: DEVPATH=/devices/system/memory/memory448
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory449
+E: DEVPATH=/devices/system/memory/memory449
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory45
+E: DEVPATH=/devices/system/memory/memory45
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory450
+E: DEVPATH=/devices/system/memory/memory450
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory451
+E: DEVPATH=/devices/system/memory/memory451
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory452
+E: DEVPATH=/devices/system/memory/memory452
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory453
+E: DEVPATH=/devices/system/memory/memory453
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory454
+E: DEVPATH=/devices/system/memory/memory454
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory455
+E: DEVPATH=/devices/system/memory/memory455
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory456
+E: DEVPATH=/devices/system/memory/memory456
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory457
+E: DEVPATH=/devices/system/memory/memory457
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory458
+E: DEVPATH=/devices/system/memory/memory458
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory459
+E: DEVPATH=/devices/system/memory/memory459
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory46
+E: DEVPATH=/devices/system/memory/memory46
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory460
+E: DEVPATH=/devices/system/memory/memory460
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory461
+E: DEVPATH=/devices/system/memory/memory461
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory462
+E: DEVPATH=/devices/system/memory/memory462
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory463
+E: DEVPATH=/devices/system/memory/memory463
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory464
+E: DEVPATH=/devices/system/memory/memory464
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory465
+E: DEVPATH=/devices/system/memory/memory465
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory466
+E: DEVPATH=/devices/system/memory/memory466
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory467
+E: DEVPATH=/devices/system/memory/memory467
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory468
+E: DEVPATH=/devices/system/memory/memory468
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory469
+E: DEVPATH=/devices/system/memory/memory469
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory47
+E: DEVPATH=/devices/system/memory/memory47
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory470
+E: DEVPATH=/devices/system/memory/memory470
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory471
+E: DEVPATH=/devices/system/memory/memory471
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory472
+E: DEVPATH=/devices/system/memory/memory472
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory473
+E: DEVPATH=/devices/system/memory/memory473
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory474
+E: DEVPATH=/devices/system/memory/memory474
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory475
+E: DEVPATH=/devices/system/memory/memory475
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory476
+E: DEVPATH=/devices/system/memory/memory476
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory477
+E: DEVPATH=/devices/system/memory/memory477
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory478
+E: DEVPATH=/devices/system/memory/memory478
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory479
+E: DEVPATH=/devices/system/memory/memory479
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory48
+E: DEVPATH=/devices/system/memory/memory48
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory480
+E: DEVPATH=/devices/system/memory/memory480
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory481
+E: DEVPATH=/devices/system/memory/memory481
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory482
+E: DEVPATH=/devices/system/memory/memory482
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory483
+E: DEVPATH=/devices/system/memory/memory483
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory484
+E: DEVPATH=/devices/system/memory/memory484
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory485
+E: DEVPATH=/devices/system/memory/memory485
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory486
+E: DEVPATH=/devices/system/memory/memory486
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory487
+E: DEVPATH=/devices/system/memory/memory487
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory488
+E: DEVPATH=/devices/system/memory/memory488
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory489
+E: DEVPATH=/devices/system/memory/memory489
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory49
+E: DEVPATH=/devices/system/memory/memory49
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory490
+E: DEVPATH=/devices/system/memory/memory490
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory491
+E: DEVPATH=/devices/system/memory/memory491
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory492
+E: DEVPATH=/devices/system/memory/memory492
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory493
+E: DEVPATH=/devices/system/memory/memory493
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory494
+E: DEVPATH=/devices/system/memory/memory494
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory495
+E: DEVPATH=/devices/system/memory/memory495
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory496
+E: DEVPATH=/devices/system/memory/memory496
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory497
+E: DEVPATH=/devices/system/memory/memory497
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory498
+E: DEVPATH=/devices/system/memory/memory498
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory499
+E: DEVPATH=/devices/system/memory/memory499
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory5
+E: DEVPATH=/devices/system/memory/memory5
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory50
+E: DEVPATH=/devices/system/memory/memory50
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory500
+E: DEVPATH=/devices/system/memory/memory500
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory501
+E: DEVPATH=/devices/system/memory/memory501
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory502
+E: DEVPATH=/devices/system/memory/memory502
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory503
+E: DEVPATH=/devices/system/memory/memory503
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory504
+E: DEVPATH=/devices/system/memory/memory504
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory505
+E: DEVPATH=/devices/system/memory/memory505
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory506
+E: DEVPATH=/devices/system/memory/memory506
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory507
+E: DEVPATH=/devices/system/memory/memory507
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory508
+E: DEVPATH=/devices/system/memory/memory508
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory509
+E: DEVPATH=/devices/system/memory/memory509
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory51
+E: DEVPATH=/devices/system/memory/memory51
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory510
+E: DEVPATH=/devices/system/memory/memory510
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory511
+E: DEVPATH=/devices/system/memory/memory511
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory52
+E: DEVPATH=/devices/system/memory/memory52
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory53
+E: DEVPATH=/devices/system/memory/memory53
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory54
+E: DEVPATH=/devices/system/memory/memory54
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory55
+E: DEVPATH=/devices/system/memory/memory55
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory56
+E: DEVPATH=/devices/system/memory/memory56
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory57
+E: DEVPATH=/devices/system/memory/memory57
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory58
+E: DEVPATH=/devices/system/memory/memory58
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory59
+E: DEVPATH=/devices/system/memory/memory59
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory6
+E: DEVPATH=/devices/system/memory/memory6
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory60
+E: DEVPATH=/devices/system/memory/memory60
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory61
+E: DEVPATH=/devices/system/memory/memory61
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory62
+E: DEVPATH=/devices/system/memory/memory62
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory63
+E: DEVPATH=/devices/system/memory/memory63
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory64
+E: DEVPATH=/devices/system/memory/memory64
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory65
+E: DEVPATH=/devices/system/memory/memory65
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory66
+E: DEVPATH=/devices/system/memory/memory66
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory67
+E: DEVPATH=/devices/system/memory/memory67
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory68
+E: DEVPATH=/devices/system/memory/memory68
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory69
+E: DEVPATH=/devices/system/memory/memory69
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory7
+E: DEVPATH=/devices/system/memory/memory7
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory70
+E: DEVPATH=/devices/system/memory/memory70
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory71
+E: DEVPATH=/devices/system/memory/memory71
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory72
+E: DEVPATH=/devices/system/memory/memory72
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory73
+E: DEVPATH=/devices/system/memory/memory73
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory74
+E: DEVPATH=/devices/system/memory/memory74
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory75
+E: DEVPATH=/devices/system/memory/memory75
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory76
+E: DEVPATH=/devices/system/memory/memory76
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory77
+E: DEVPATH=/devices/system/memory/memory77
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory78
+E: DEVPATH=/devices/system/memory/memory78
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory79
+E: DEVPATH=/devices/system/memory/memory79
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory8
+E: DEVPATH=/devices/system/memory/memory8
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory80
+E: DEVPATH=/devices/system/memory/memory80
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory81
+E: DEVPATH=/devices/system/memory/memory81
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory82
+E: DEVPATH=/devices/system/memory/memory82
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory83
+E: DEVPATH=/devices/system/memory/memory83
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory84
+E: DEVPATH=/devices/system/memory/memory84
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory85
+E: DEVPATH=/devices/system/memory/memory85
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory86
+E: DEVPATH=/devices/system/memory/memory86
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory87
+E: DEVPATH=/devices/system/memory/memory87
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory88
+E: DEVPATH=/devices/system/memory/memory88
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory89
+E: DEVPATH=/devices/system/memory/memory89
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory9
+E: DEVPATH=/devices/system/memory/memory9
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory90
+E: DEVPATH=/devices/system/memory/memory90
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory91
+E: DEVPATH=/devices/system/memory/memory91
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory92
+E: DEVPATH=/devices/system/memory/memory92
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory93
+E: DEVPATH=/devices/system/memory/memory93
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory94
+E: DEVPATH=/devices/system/memory/memory94
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory95
+E: DEVPATH=/devices/system/memory/memory95
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory96
+E: DEVPATH=/devices/system/memory/memory96
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory97
+E: DEVPATH=/devices/system/memory/memory97
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory98
+E: DEVPATH=/devices/system/memory/memory98
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory99
+E: DEVPATH=/devices/system/memory/memory99
+E: SUBSYSTEM=memory
+
+P: /devices/system/node/node0
+E: DEVPATH=/devices/system/node/node0
+E: SUBSYSTEM=node
+
+P: /devices/tracepoint
+E: DEVPATH=/devices/tracepoint
+E: SUBSYSTEM=event_source
+
+P: /devices/vio
+E: DEVPATH=/devices/vio
+E: SUBSYSTEM=vio
+
+P: /devices/vio/71000000
+E: DEVPATH=/devices/vio/71000000
+E: DRIVER=hvc_console
+E: MODALIAS=vio:TserialShvterm1
+E: OF_COMPATIBLE_0=hvterm1
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/vdevice/vty@71000000
+E: OF_NAME=vty
+E: OF_TYPE=serial
+E: SUBSYSTEM=vio
+
+P: /devices/vio/71000001
+E: DEVPATH=/devices/vio/71000001
+E: MODALIAS=vio:TnvramSqemu,spapr-nvram
+E: OF_COMPATIBLE_0=qemu,spapr-nvram
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/vdevice/nvram@71000001
+E: OF_NAME=nvram
+E: OF_TYPE=nvram
+E: SUBSYSTEM=vio
+
+P: /devices/vio/71000002
+E: DEVPATH=/devices/vio/71000002
+E: DRIVER=ibmveth
+E: MODALIAS=vio:TnetworkSIBM,l-lan
+E: OF_COMPATIBLE_0=IBM,l-lan
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/vdevice/l-lan@71000002
+E: OF_NAME=l-lan
+E: OF_TYPE=network
+E: SUBSYSTEM=vio
+
+P: /devices/vio/71000002/net/eth0
+E: DEVPATH=/devices/vio/71000002/net/eth0
+E: ID_NET_NAME_MAC=enx525400004283
+E: IFINDEX=2
+E: INTERFACE=eth0
+E: MATCHDEVID=0x0
+E: MATCHIFTYPE=1
+E: SUBSYSTEM=net
+E: USEC_INITIALIZED=9357
+
+P: /devices/vio/71000003
+E: DEVPATH=/devices/vio/71000003
+E: DRIVER=ibmvscsi
+E: MODALIAS=vio:TvscsiSIBM,v-scsi
+E: OF_COMPATIBLE_0=IBM,v-scsi
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/vdevice/v-scsi@71000003
+E: OF_NAME=v-scsi
+E: OF_TYPE=vscsi
+E: SUBSYSTEM=vio
+
+P: /devices/vio/71000003/host0
+E: DEVPATH=/devices/vio/71000003/host0
+E: DEVTYPE=scsi_host
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000003/host0/port-0:1/srp_remote_ports/port-0:1
+E: DEVPATH=/devices/vio/71000003/host0/port-0:1/srp_remote_ports/port-0:1
+E: SUBSYSTEM=srp_remote_ports
+
+P: /devices/vio/71000003/host0/scsi_host/host0
+E: DEVPATH=/devices/vio/71000003/host0/scsi_host/host0
+E: SUBSYSTEM=scsi_host
+
+P: /devices/vio/71000003/host0/srp_host/host0
+E: DEVPATH=/devices/vio/71000003/host0/srp_host/host0
+E: SUBSYSTEM=srp_host
+
+P: /devices/vio/71000003/host0/target0:0:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sd
+E: MODALIAS=scsi:t-0x00
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0/block/sda
+N: sda
+S: disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd0
+S: disk/by-path/scsi-0:0:0:0
+E: DEVLINKS=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd0 /dev/disk/by-path/scsi-0:0:0:0
+E: DEVNAME=/dev/sda
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0/block/sda
+E: DEVTYPE=disk
+E: ID_BUS=scsi
+E: ID_MODEL=QEMU_HARDDISK
+E: ID_MODEL_ENC=QEMU\x20HARDDISK\x20\x20\x20
+E: ID_PART_TABLE_TYPE=gpt
+E: ID_PATH=scsi-0:0:0:0
+E: ID_PATH_TAG=scsi-0_0_0_0
+E: ID_REVISION=1.6.
+E: ID_SCSI=1
+E: ID_SERIAL=0QEMU_QEMU_HARDDISK_scsi0-hd0
+E: ID_SERIAL_SHORT=scsi0-hd0
+E: ID_TYPE=disk
+E: ID_VENDOR=QEMU
+E: ID_VENDOR_ENC=QEMU\x20\x20\x20\x20
+E: MAJOR=8
+E: MINOR=0
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=1438
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0/block/sda/sda1
+N: sda1
+S: disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd0-part1
+S: disk/by-label/cloudimg-rootfs
+S: disk/by-partlabel/Linux\x20filesystem
+S: disk/by-partuuid/c063e61d-6413-47bf-ad40-7f6acada75ad
+S: disk/by-path/scsi-0:0:0:0-part1
+S: disk/by-uuid/f4f00f0b-ad6d-4e50-83d9-fefa3decc425
+E: DEVLINKS=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd0-part1 /dev/disk/by-label/cloudimg-rootfs /dev/disk/by-partlabel/Linux\x20filesystem /dev/disk/by-partuuid/c063e61d-6413-47bf-ad40-7f6acada75ad /dev/disk/by-path/scsi-0:0:0:0-part1 /dev/disk/by-uuid/f4f00f0b-ad6d-4e50-83d9-fefa3decc425
+E: DEVNAME=/dev/sda1
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0/block/sda/sda1
+E: DEVTYPE=partition
+E: ID_BUS=scsi
+E: ID_FS_LABEL=cloudimg-rootfs
+E: ID_FS_LABEL_ENC=cloudimg-rootfs
+E: ID_FS_TYPE=ext4
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=f4f00f0b-ad6d-4e50-83d9-fefa3decc425
+E: ID_FS_UUID_ENC=f4f00f0b-ad6d-4e50-83d9-fefa3decc425
+E: ID_FS_VERSION=1.0
+E: ID_MODEL=QEMU_HARDDISK
+E: ID_MODEL_ENC=QEMU\x20HARDDISK\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:0
+E: ID_PART_ENTRY_NAME=Linux\x20filesystem
+E: ID_PART_ENTRY_NUMBER=1
+E: ID_PART_ENTRY_OFFSET=18432
+E: ID_PART_ENTRY_SCHEME=gpt
+E: ID_PART_ENTRY_SIZE=20953055
+E: ID_PART_ENTRY_TYPE=0fc63daf-8483-4772-8e79-3d69d8477de4
+E: ID_PART_ENTRY_UUID=c063e61d-6413-47bf-ad40-7f6acada75ad
+E: ID_PART_TABLE_TYPE=gpt
+E: ID_PATH=scsi-0:0:0:0
+E: ID_PATH_TAG=scsi-0_0_0_0
+E: ID_REVISION=1.6.
+E: ID_SCSI=1
+E: ID_SERIAL=0QEMU_QEMU_HARDDISK_scsi0-hd0
+E: ID_SERIAL_SHORT=scsi0-hd0
+E: ID_TYPE=disk
+E: ID_VENDOR=QEMU
+E: ID_VENDOR_ENC=QEMU\x20\x20\x20\x20
+E: MAJOR=8
+E: MINOR=1
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=1820
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0/block/sda/sda2
+N: sda2
+S: disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd0-part2
+S: disk/by-partlabel/PowerPC\x20PReP\x20boot
+S: disk/by-partuuid/52a88c68-04f2-4234-84e6-04ac0cb65c87
+S: disk/by-path/scsi-0:0:0:0-part2
+E: DEVLINKS=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd0-part2 /dev/disk/by-partlabel/PowerPC\x20PReP\x20boot /dev/disk/by-partuuid/52a88c68-04f2-4234-84e6-04ac0cb65c87 /dev/disk/by-path/scsi-0:0:0:0-part2
+E: DEVNAME=/dev/sda2
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0/block/sda/sda2
+E: DEVTYPE=partition
+E: ID_BUS=scsi
+E: ID_MODEL=QEMU_HARDDISK
+E: ID_MODEL_ENC=QEMU\x20HARDDISK\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:0
+E: ID_PART_ENTRY_NAME=PowerPC\x20PReP\x20boot
+E: ID_PART_ENTRY_NUMBER=2
+E: ID_PART_ENTRY_OFFSET=2048
+E: ID_PART_ENTRY_SCHEME=gpt
+E: ID_PART_ENTRY_SIZE=16384
+E: ID_PART_ENTRY_TYPE=9e1a2d38-c612-4316-aa26-8b49521e5a8b
+E: ID_PART_ENTRY_UUID=52a88c68-04f2-4234-84e6-04ac0cb65c87
+E: ID_PART_TABLE_TYPE=gpt
+E: ID_PATH=scsi-0:0:0:0
+E: ID_PATH_TAG=scsi-0_0_0_0
+E: ID_REVISION=1.6.
+E: ID_SCSI=1
+E: ID_SERIAL=0QEMU_QEMU_HARDDISK_scsi0-hd0
+E: ID_SERIAL_SHORT=scsi0-hd0
+E: ID_TYPE=disk
+E: ID_VENDOR=QEMU
+E: ID_VENDOR_ENC=QEMU\x20\x20\x20\x20
+E: MAJOR=8
+E: MINOR=2
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=1833
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0/bsg/0:0:0:0
+N: bsg/0:0:0:0
+E: DEVNAME=/dev/bsg/0:0:0:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0/bsg/0:0:0:0
+E: MAJOR=250
+E: MINOR=0
+E: SUBSYSTEM=bsg
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0/scsi_device/0:0:0:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0/scsi_device/0:0:0:0
+E: SUBSYSTEM=scsi_device
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0/scsi_disk/0:0:0:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0/scsi_disk/0:0:0:0
+E: SUBSYSTEM=scsi_disk
+
+P: /devices/vio/71000003/host0/target0:0:0/0:0:0:0/scsi_generic/sg0
+N: sg0
+E: DEVNAME=/dev/sg0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:0/0:0:0:0/scsi_generic/sg0
+E: MAJOR=21
+E: MINOR=0
+E: SUBSYSTEM=scsi_generic
+
+P: /devices/vio/71000003/host0/target0:0:1
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:1
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000003/host0/target0:0:1/0:0:1:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:1/0:0:1:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sd
+E: MODALIAS=scsi:t-0x00
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000003/host0/target0:0:1/0:0:1:0/block/sdb
+N: sdb
+S: disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd1
+S: disk/by-path/scsi-0:0:1:0
+E: DEVLINKS=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_scsi0-hd1 /dev/disk/by-path/scsi-0:0:1:0
+E: DEVNAME=/dev/sdb
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:1/0:0:1:0/block/sdb
+E: DEVTYPE=disk
+E: ID_BUS=scsi
+E: ID_MODEL=QEMU_HARDDISK
+E: ID_MODEL_ENC=QEMU\x20HARDDISK\x20\x20\x20
+E: ID_PATH=scsi-0:0:1:0
+E: ID_PATH_TAG=scsi-0_0_1_0
+E: ID_REVISION=1.6.
+E: ID_SCSI=1
+E: ID_SERIAL=0QEMU_QEMU_HARDDISK_scsi0-hd1
+E: ID_SERIAL_SHORT=scsi0-hd1
+E: ID_TYPE=disk
+E: ID_VENDOR=QEMU
+E: ID_VENDOR_ENC=QEMU\x20\x20\x20\x20
+E: MAJOR=8
+E: MINOR=16
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=2283
+
+P: /devices/vio/71000003/host0/target0:0:1/0:0:1:0/bsg/0:0:1:0
+N: bsg/0:0:1:0
+E: DEVNAME=/dev/bsg/0:0:1:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:1/0:0:1:0/bsg/0:0:1:0
+E: MAJOR=250
+E: MINOR=1
+E: SUBSYSTEM=bsg
+
+P: /devices/vio/71000003/host0/target0:0:1/0:0:1:0/scsi_device/0:0:1:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:1/0:0:1:0/scsi_device/0:0:1:0
+E: SUBSYSTEM=scsi_device
+
+P: /devices/vio/71000003/host0/target0:0:1/0:0:1:0/scsi_disk/0:0:1:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:1/0:0:1:0/scsi_disk/0:0:1:0
+E: SUBSYSTEM=scsi_disk
+
+P: /devices/vio/71000003/host0/target0:0:1/0:0:1:0/scsi_generic/sg1
+N: sg1
+E: DEVNAME=/dev/sg1
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:1/0:0:1:0/scsi_generic/sg1
+E: MAJOR=21
+E: MINOR=1
+E: SUBSYSTEM=scsi_generic
+
+P: /devices/vio/71000003/host0/target0:0:2
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:2
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000003/host0/target0:0:2/0:0:2:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:2/0:0:2:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sr
+E: MODALIAS=scsi:t-0x05
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000003/host0/target0:0:2/0:0:2:0/block/sr0
+N: sr0
+L: -100
+S: cdrom
+S: disk/by-id/scsi-0QEMU_QEMU_CD-ROM_scsi0-cd2
+S: disk/by-path/scsi-0:0:2:0
+E: DEVLINKS=/dev/cdrom /dev/disk/by-id/scsi-0QEMU_QEMU_CD-ROM_scsi0-cd2 /dev/disk/by-path/scsi-0:0:2:0
+E: DEVNAME=/dev/sr0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:2/0:0:2:0/block/sr0
+E: DEVTYPE=disk
+E: ID_BUS=scsi
+E: ID_CDROM=1
+E: ID_CDROM_CD=1
+E: ID_CDROM_DVD=1
+E: ID_CDROM_MEDIA=1
+E: ID_CDROM_MEDIA_CD=1
+E: ID_CDROM_MRW=1
+E: ID_CDROM_MRW_W=1
+E: ID_FOR_SEAT=block-scsi-0_0_2_0
+E: ID_MODEL=QEMU_CD-ROM
+E: ID_MODEL_ENC=QEMU\x20CD-ROM\x20\x20\x20\x20\x20
+E: ID_PATH=scsi-0:0:2:0
+E: ID_PATH_TAG=scsi-0_0_2_0
+E: ID_REVISION=1.6.
+E: ID_SCSI=1
+E: ID_SERIAL=0QEMU_QEMU_CD-ROM_scsi0-cd2
+E: ID_SERIAL_SHORT=scsi0-cd2
+E: ID_TYPE=cd
+E: ID_VENDOR=QEMU
+E: ID_VENDOR_ENC=QEMU\x20\x20\x20\x20
+E: MAJOR=11
+E: MINOR=0
+E: SUBSYSTEM=block
+E: TAGS=:seat:uaccess:
+E: USEC_INITIALIZED=3446
+
+P: /devices/vio/71000003/host0/target0:0:2/0:0:2:0/bsg/0:0:2:0
+N: bsg/0:0:2:0
+E: DEVNAME=/dev/bsg/0:0:2:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:2/0:0:2:0/bsg/0:0:2:0
+E: MAJOR=250
+E: MINOR=2
+E: SUBSYSTEM=bsg
+
+P: /devices/vio/71000003/host0/target0:0:2/0:0:2:0/scsi_device/0:0:2:0
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:2/0:0:2:0/scsi_device/0:0:2:0
+E: SUBSYSTEM=scsi_device
+
+P: /devices/vio/71000003/host0/target0:0:2/0:0:2:0/scsi_generic/sg2
+N: sg2
+E: DEVNAME=/dev/sg2
+E: DEVPATH=/devices/vio/71000003/host0/target0:0:2/0:0:2:0/scsi_generic/sg2
+E: ID_FOR_SEAT=scsi_generic-scsi-0_0_2_0
+E: ID_PATH=scsi-0:0:2:0
+E: ID_PATH_TAG=scsi-0_0_2_0
+E: MAJOR=21
+E: MINOR=2
+E: SUBSYSTEM=scsi_generic
+E: TAGS=:seat:uaccess:
+E: USEC_INITIALIZED=10282
+
+P: /devices/vio/71000004
+E: DEVPATH=/devices/vio/71000004
+E: DRIVER=ibmvscsi
+E: MODALIAS=vio:TvscsiSIBM,v-scsi
+E: OF_COMPATIBLE_0=IBM,v-scsi
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/vdevice/v-scsi@71000004
+E: OF_NAME=v-scsi
+E: OF_TYPE=vscsi
+E: SUBSYSTEM=vio
+
+P: /devices/vio/71000004/host1
+E: DEVPATH=/devices/vio/71000004/host1
+E: DEVTYPE=scsi_host
+E: SUBSYSTEM=scsi
+
+P: /devices/vio/71000004/host1/port-1:1/srp_remote_ports/port-1:1
+E: DEVPATH=/devices/vio/71000004/host1/port-1:1/srp_remote_ports/port-1:1
+E: SUBSYSTEM=srp_remote_ports
+
+P: /devices/vio/71000004/host1/scsi_host/host1
+E: DEVPATH=/devices/vio/71000004/host1/scsi_host/host1
+E: SUBSYSTEM=scsi_host
+
+P: /devices/vio/71000004/host1/srp_host/host1
+E: DEVPATH=/devices/vio/71000004/host1/srp_host/host1
+E: SUBSYSTEM=srp_host
+
+P: /devices/vio/ibm,random-v1
+E: DEVPATH=/devices/vio/ibm,random-v1
+E: MODALIAS=vio:Tibm,random-v1Sibm,random
+E: OF_COMPATIBLE_0=ibm,random
+E: OF_COMPATIBLE_N=1
+E: OF_FULLNAME=/ibm,platform-facilities/ibm,random-v1
+E: OF_NAME=ibm,random-v1
+E: SUBSYSTEM=vio
+
+P: /devices/virtual/bdi/11:0
+E: DEVPATH=/devices/virtual/bdi/11:0
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:0
+E: DEVPATH=/devices/virtual/bdi/1:0
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:1
+E: DEVPATH=/devices/virtual/bdi/1:1
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:10
+E: DEVPATH=/devices/virtual/bdi/1:10
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:11
+E: DEVPATH=/devices/virtual/bdi/1:11
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:12
+E: DEVPATH=/devices/virtual/bdi/1:12
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:13
+E: DEVPATH=/devices/virtual/bdi/1:13
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:14
+E: DEVPATH=/devices/virtual/bdi/1:14
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:15
+E: DEVPATH=/devices/virtual/bdi/1:15
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:2
+E: DEVPATH=/devices/virtual/bdi/1:2
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:3
+E: DEVPATH=/devices/virtual/bdi/1:3
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:4
+E: DEVPATH=/devices/virtual/bdi/1:4
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:5
+E: DEVPATH=/devices/virtual/bdi/1:5
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:6
+E: DEVPATH=/devices/virtual/bdi/1:6
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:7
+E: DEVPATH=/devices/virtual/bdi/1:7
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:8
+E: DEVPATH=/devices/virtual/bdi/1:8
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/1:9
+E: DEVPATH=/devices/virtual/bdi/1:9
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:0
+E: DEVPATH=/devices/virtual/bdi/7:0
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:1
+E: DEVPATH=/devices/virtual/bdi/7:1
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:2
+E: DEVPATH=/devices/virtual/bdi/7:2
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:3
+E: DEVPATH=/devices/virtual/bdi/7:3
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:4
+E: DEVPATH=/devices/virtual/bdi/7:4
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:5
+E: DEVPATH=/devices/virtual/bdi/7:5
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:6
+E: DEVPATH=/devices/virtual/bdi/7:6
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:7
+E: DEVPATH=/devices/virtual/bdi/7:7
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/8:0
+E: DEVPATH=/devices/virtual/bdi/8:0
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/8:16
+E: DEVPATH=/devices/virtual/bdi/8:16
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/default
+E: DEVPATH=/devices/virtual/bdi/default
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/block/loop0
+N: loop0
+E: DEVNAME=/dev/loop0
+E: DEVPATH=/devices/virtual/block/loop0
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=0
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=9981
+
+P: /devices/virtual/block/loop1
+N: loop1
+E: DEVNAME=/dev/loop1
+E: DEVPATH=/devices/virtual/block/loop1
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=1
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=437
+
+P: /devices/virtual/block/loop2
+N: loop2
+E: DEVNAME=/dev/loop2
+E: DEVPATH=/devices/virtual/block/loop2
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=2
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=658
+
+P: /devices/virtual/block/loop3
+N: loop3
+E: DEVNAME=/dev/loop3
+E: DEVPATH=/devices/virtual/block/loop3
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=3
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=1020
+
+P: /devices/virtual/block/loop4
+N: loop4
+E: DEVNAME=/dev/loop4
+E: DEVPATH=/devices/virtual/block/loop4
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=4
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=1317
+
+P: /devices/virtual/block/loop5
+N: loop5
+E: DEVNAME=/dev/loop5
+E: DEVPATH=/devices/virtual/block/loop5
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=5
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=1675
+
+P: /devices/virtual/block/loop6
+N: loop6
+E: DEVNAME=/dev/loop6
+E: DEVPATH=/devices/virtual/block/loop6
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=6
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=2011
+
+P: /devices/virtual/block/loop7
+N: loop7
+E: DEVNAME=/dev/loop7
+E: DEVPATH=/devices/virtual/block/loop7
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=7
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=2188
+
+P: /devices/virtual/block/ram0
+N: ram0
+E: DEVNAME=/dev/ram0
+E: DEVPATH=/devices/virtual/block/ram0
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=0
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=2358
+
+P: /devices/virtual/block/ram1
+N: ram1
+E: DEVNAME=/dev/ram1
+E: DEVPATH=/devices/virtual/block/ram1
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=1
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=2794
+
+P: /devices/virtual/block/ram10
+N: ram10
+E: DEVNAME=/dev/ram10
+E: DEVPATH=/devices/virtual/block/ram10
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=10
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=3162
+
+P: /devices/virtual/block/ram11
+N: ram11
+E: DEVNAME=/dev/ram11
+E: DEVPATH=/devices/virtual/block/ram11
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=11
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=3530
+
+P: /devices/virtual/block/ram12
+N: ram12
+E: DEVNAME=/dev/ram12
+E: DEVPATH=/devices/virtual/block/ram12
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=12
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=3907
+
+P: /devices/virtual/block/ram13
+N: ram13
+E: DEVNAME=/dev/ram13
+E: DEVPATH=/devices/virtual/block/ram13
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=13
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=4276
+
+P: /devices/virtual/block/ram14
+N: ram14
+E: DEVNAME=/dev/ram14
+E: DEVPATH=/devices/virtual/block/ram14
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=14
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=4646
+
+P: /devices/virtual/block/ram15
+N: ram15
+E: DEVNAME=/dev/ram15
+E: DEVPATH=/devices/virtual/block/ram15
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=15
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=5015
+
+P: /devices/virtual/block/ram2
+N: ram2
+E: DEVNAME=/dev/ram2
+E: DEVPATH=/devices/virtual/block/ram2
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=2
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=5030
+
+P: /devices/virtual/block/ram3
+N: ram3
+E: DEVNAME=/dev/ram3
+E: DEVPATH=/devices/virtual/block/ram3
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=3
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=5044
+
+P: /devices/virtual/block/ram4
+N: ram4
+E: DEVNAME=/dev/ram4
+E: DEVPATH=/devices/virtual/block/ram4
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=4
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=5787
+
+P: /devices/virtual/block/ram5
+N: ram5
+E: DEVNAME=/dev/ram5
+E: DEVPATH=/devices/virtual/block/ram5
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=5
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=5802
+
+P: /devices/virtual/block/ram6
+N: ram6
+E: DEVNAME=/dev/ram6
+E: DEVPATH=/devices/virtual/block/ram6
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=6
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=6517
+
+P: /devices/virtual/block/ram7
+N: ram7
+E: DEVNAME=/dev/ram7
+E: DEVPATH=/devices/virtual/block/ram7
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=7
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=6532
+
+P: /devices/virtual/block/ram8
+N: ram8
+E: DEVNAME=/dev/ram8
+E: DEVPATH=/devices/virtual/block/ram8
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=8
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=7263
+
+P: /devices/virtual/block/ram9
+N: ram9
+E: DEVNAME=/dev/ram9
+E: DEVPATH=/devices/virtual/block/ram9
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=9
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=7278
+
+P: /devices/virtual/graphics/fbcon
+E: DEVPATH=/devices/virtual/graphics/fbcon
+E: SUBSYSTEM=graphics
+
+P: /devices/virtual/input/mice
+N: input/mice
+E: DEVNAME=/dev/input/mice
+E: DEVPATH=/devices/virtual/input/mice
+E: MAJOR=13
+E: MINOR=63
+E: SUBSYSTEM=input
+
+P: /devices/virtual/mem/full
+N: full
+E: DEVMODE=0666
+E: DEVNAME=/dev/full
+E: DEVPATH=/devices/virtual/mem/full
+E: MAJOR=1
+E: MINOR=7
+E: SUBSYSTEM=mem
+
+P: /devices/virtual/mem/kmsg
+N: kmsg
+E: DEVMODE=0644
+E: DEVNAME=/dev/kmsg
+E: DEVPATH=/devices/virtual/mem/kmsg
+E: MAJOR=1
+E: MINOR=11
+E: SUBSYSTEM=mem
+
+P: /devices/virtual/mem/mem
+N: mem
+E: DEVNAME=/dev/mem
+E: DEVPATH=/devices/virtual/mem/mem
+E: MAJOR=1
+E: MINOR=1
+E: SUBSYSTEM=mem
+
+P: /devices/virtual/mem/null
+N: null
+E: DEVMODE=0666
+E: DEVNAME=/dev/null
+E: DEVPATH=/devices/virtual/mem/null
+E: MAJOR=1
+E: MINOR=3
+E: SUBSYSTEM=mem
+
+P: /devices/virtual/mem/random
+N: random
+E: DEVMODE=0666
+E: DEVNAME=/dev/random
+E: DEVPATH=/devices/virtual/mem/random
+E: MAJOR=1
+E: MINOR=8
+E: SUBSYSTEM=mem
+
+P: /devices/virtual/mem/urandom
+N: urandom
+E: DEVMODE=0666
+E: DEVNAME=/dev/urandom
+E: DEVPATH=/devices/virtual/mem/urandom
+E: MAJOR=1
+E: MINOR=9
+E: SUBSYSTEM=mem
+
+P: /devices/virtual/mem/zero
+N: zero
+E: DEVMODE=0666
+E: DEVNAME=/dev/zero
+E: DEVPATH=/devices/virtual/mem/zero
+E: MAJOR=1
+E: MINOR=5
+E: SUBSYSTEM=mem
+
+P: /devices/virtual/misc/cpu_dma_latency
+N: cpu_dma_latency
+E: DEVNAME=/dev/cpu_dma_latency
+E: DEVPATH=/devices/virtual/misc/cpu_dma_latency
+E: MAJOR=10
+E: MINOR=61
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/device-mapper
+N: mapper/control
+E: DEVNAME=/dev/mapper/control
+E: DEVPATH=/devices/virtual/misc/device-mapper
+E: MAJOR=10
+E: MINOR=236
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/ecryptfs
+N: ecryptfs
+E: DEVNAME=/dev/ecryptfs
+E: DEVPATH=/devices/virtual/misc/ecryptfs
+E: MAJOR=10
+E: MINOR=62
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/fuse
+N: fuse
+E: DEVNAME=/dev/fuse
+E: DEVPATH=/devices/virtual/misc/fuse
+E: MAJOR=10
+E: MINOR=229
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/loop-control
+N: loop-control
+E: DEVNAME=/dev/loop-control
+E: DEVPATH=/devices/virtual/misc/loop-control
+E: MAJOR=10
+E: MINOR=237
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/network_latency
+N: network_latency
+E: DEVNAME=/dev/network_latency
+E: DEVPATH=/devices/virtual/misc/network_latency
+E: MAJOR=10
+E: MINOR=60
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/network_throughput
+N: network_throughput
+E: DEVNAME=/dev/network_throughput
+E: DEVPATH=/devices/virtual/misc/network_throughput
+E: MAJOR=10
+E: MINOR=59
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/nvram
+N: nvram
+E: DEVNAME=/dev/nvram
+E: DEVPATH=/devices/virtual/misc/nvram
+E: MAJOR=10
+E: MINOR=144
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/psaux
+N: psaux
+E: DEVNAME=/dev/psaux
+E: DEVPATH=/devices/virtual/misc/psaux
+E: MAJOR=10
+E: MINOR=1
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/tun
+N: net/tun
+E: DEVNAME=/dev/net/tun
+E: DEVPATH=/devices/virtual/misc/tun
+E: MAJOR=10
+E: MINOR=200
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/uinput
+N: uinput
+E: DEVNAME=/dev/uinput
+E: DEVPATH=/devices/virtual/misc/uinput
+E: MAJOR=10
+E: MINOR=223
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/misc/vga_arbiter
+N: vga_arbiter
+E: DEVNAME=/dev/vga_arbiter
+E: DEVPATH=/devices/virtual/misc/vga_arbiter
+E: MAJOR=10
+E: MINOR=63
+E: SUBSYSTEM=misc
+
+P: /devices/virtual/net/lo
+E: DEVPATH=/devices/virtual/net/lo
+E: IFINDEX=1
+E: INTERFACE=lo
+E: SUBSYSTEM=net
+
+P: /devices/virtual/ppp/ppp
+N: ppp
+E: DEVNAME=/dev/ppp
+E: DEVPATH=/devices/virtual/ppp/ppp
+E: MAJOR=108
+E: MINOR=0
+E: SUBSYSTEM=ppp
+
+P: /devices/virtual/tty/console
+N: console
+E: DEVNAME=/dev/console
+E: DEVPATH=/devices/virtual/tty/console
+E: MAJOR=5
+E: MINOR=1
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc0
+N: hvc0
+E: DEVNAME=/dev/hvc0
+E: DEVPATH=/devices/virtual/tty/hvc0
+E: MAJOR=229
+E: MINOR=0
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc1
+N: hvc1
+E: DEVNAME=/dev/hvc1
+E: DEVPATH=/devices/virtual/tty/hvc1
+E: MAJOR=229
+E: MINOR=1
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc2
+N: hvc2
+E: DEVNAME=/dev/hvc2
+E: DEVPATH=/devices/virtual/tty/hvc2
+E: MAJOR=229
+E: MINOR=2
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc3
+N: hvc3
+E: DEVNAME=/dev/hvc3
+E: DEVPATH=/devices/virtual/tty/hvc3
+E: MAJOR=229
+E: MINOR=3
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc4
+N: hvc4
+E: DEVNAME=/dev/hvc4
+E: DEVPATH=/devices/virtual/tty/hvc4
+E: MAJOR=229
+E: MINOR=4
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc5
+N: hvc5
+E: DEVNAME=/dev/hvc5
+E: DEVPATH=/devices/virtual/tty/hvc5
+E: MAJOR=229
+E: MINOR=5
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc6
+N: hvc6
+E: DEVNAME=/dev/hvc6
+E: DEVPATH=/devices/virtual/tty/hvc6
+E: MAJOR=229
+E: MINOR=6
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/hvc7
+N: hvc7
+E: DEVNAME=/dev/hvc7
+E: DEVPATH=/devices/virtual/tty/hvc7
+E: MAJOR=229
+E: MINOR=7
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/ptmx
+N: ptmx
+E: DEVMODE=0666
+E: DEVNAME=/dev/ptmx
+E: DEVPATH=/devices/virtual/tty/ptmx
+E: MAJOR=5
+E: MINOR=2
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty
+N: tty
+E: DEVMODE=0666
+E: DEVNAME=/dev/tty
+E: DEVPATH=/devices/virtual/tty/tty
+E: MAJOR=5
+E: MINOR=0
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty0
+N: tty0
+E: DEVNAME=/dev/tty0
+E: DEVPATH=/devices/virtual/tty/tty0
+E: MAJOR=4
+E: MINOR=0
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty1
+N: tty1
+E: DEVNAME=/dev/tty1
+E: DEVPATH=/devices/virtual/tty/tty1
+E: MAJOR=4
+E: MINOR=1
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty10
+N: tty10
+E: DEVNAME=/dev/tty10
+E: DEVPATH=/devices/virtual/tty/tty10
+E: MAJOR=4
+E: MINOR=10
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty11
+N: tty11
+E: DEVNAME=/dev/tty11
+E: DEVPATH=/devices/virtual/tty/tty11
+E: MAJOR=4
+E: MINOR=11
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty12
+N: tty12
+E: DEVNAME=/dev/tty12
+E: DEVPATH=/devices/virtual/tty/tty12
+E: MAJOR=4
+E: MINOR=12
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty13
+N: tty13
+E: DEVNAME=/dev/tty13
+E: DEVPATH=/devices/virtual/tty/tty13
+E: MAJOR=4
+E: MINOR=13
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty14
+N: tty14
+E: DEVNAME=/dev/tty14
+E: DEVPATH=/devices/virtual/tty/tty14
+E: MAJOR=4
+E: MINOR=14
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty15
+N: tty15
+E: DEVNAME=/dev/tty15
+E: DEVPATH=/devices/virtual/tty/tty15
+E: MAJOR=4
+E: MINOR=15
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty16
+N: tty16
+E: DEVNAME=/dev/tty16
+E: DEVPATH=/devices/virtual/tty/tty16
+E: MAJOR=4
+E: MINOR=16
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty17
+N: tty17
+E: DEVNAME=/dev/tty17
+E: DEVPATH=/devices/virtual/tty/tty17
+E: MAJOR=4
+E: MINOR=17
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty18
+N: tty18
+E: DEVNAME=/dev/tty18
+E: DEVPATH=/devices/virtual/tty/tty18
+E: MAJOR=4
+E: MINOR=18
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty19
+N: tty19
+E: DEVNAME=/dev/tty19
+E: DEVPATH=/devices/virtual/tty/tty19
+E: MAJOR=4
+E: MINOR=19
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty2
+N: tty2
+E: DEVNAME=/dev/tty2
+E: DEVPATH=/devices/virtual/tty/tty2
+E: MAJOR=4
+E: MINOR=2
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty20
+N: tty20
+E: DEVNAME=/dev/tty20
+E: DEVPATH=/devices/virtual/tty/tty20
+E: MAJOR=4
+E: MINOR=20
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty21
+N: tty21
+E: DEVNAME=/dev/tty21
+E: DEVPATH=/devices/virtual/tty/tty21
+E: MAJOR=4
+E: MINOR=21
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty22
+N: tty22
+E: DEVNAME=/dev/tty22
+E: DEVPATH=/devices/virtual/tty/tty22
+E: MAJOR=4
+E: MINOR=22
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty23
+N: tty23
+E: DEVNAME=/dev/tty23
+E: DEVPATH=/devices/virtual/tty/tty23
+E: MAJOR=4
+E: MINOR=23
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty24
+N: tty24
+E: DEVNAME=/dev/tty24
+E: DEVPATH=/devices/virtual/tty/tty24
+E: MAJOR=4
+E: MINOR=24
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty25
+N: tty25
+E: DEVNAME=/dev/tty25
+E: DEVPATH=/devices/virtual/tty/tty25
+E: MAJOR=4
+E: MINOR=25
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty26
+N: tty26
+E: DEVNAME=/dev/tty26
+E: DEVPATH=/devices/virtual/tty/tty26
+E: MAJOR=4
+E: MINOR=26
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty27
+N: tty27
+E: DEVNAME=/dev/tty27
+E: DEVPATH=/devices/virtual/tty/tty27
+E: MAJOR=4
+E: MINOR=27
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty28
+N: tty28
+E: DEVNAME=/dev/tty28
+E: DEVPATH=/devices/virtual/tty/tty28
+E: MAJOR=4
+E: MINOR=28
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty29
+N: tty29
+E: DEVNAME=/dev/tty29
+E: DEVPATH=/devices/virtual/tty/tty29
+E: MAJOR=4
+E: MINOR=29
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty3
+N: tty3
+E: DEVNAME=/dev/tty3
+E: DEVPATH=/devices/virtual/tty/tty3
+E: MAJOR=4
+E: MINOR=3
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty30
+N: tty30
+E: DEVNAME=/dev/tty30
+E: DEVPATH=/devices/virtual/tty/tty30
+E: MAJOR=4
+E: MINOR=30
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty31
+N: tty31
+E: DEVNAME=/dev/tty31
+E: DEVPATH=/devices/virtual/tty/tty31
+E: MAJOR=4
+E: MINOR=31
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty32
+N: tty32
+E: DEVNAME=/dev/tty32
+E: DEVPATH=/devices/virtual/tty/tty32
+E: MAJOR=4
+E: MINOR=32
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty33
+N: tty33
+E: DEVNAME=/dev/tty33
+E: DEVPATH=/devices/virtual/tty/tty33
+E: MAJOR=4
+E: MINOR=33
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty34
+N: tty34
+E: DEVNAME=/dev/tty34
+E: DEVPATH=/devices/virtual/tty/tty34
+E: MAJOR=4
+E: MINOR=34
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty35
+N: tty35
+E: DEVNAME=/dev/tty35
+E: DEVPATH=/devices/virtual/tty/tty35
+E: MAJOR=4
+E: MINOR=35
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty36
+N: tty36
+E: DEVNAME=/dev/tty36
+E: DEVPATH=/devices/virtual/tty/tty36
+E: MAJOR=4
+E: MINOR=36
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty37
+N: tty37
+E: DEVNAME=/dev/tty37
+E: DEVPATH=/devices/virtual/tty/tty37
+E: MAJOR=4
+E: MINOR=37
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty38
+N: tty38
+E: DEVNAME=/dev/tty38
+E: DEVPATH=/devices/virtual/tty/tty38
+E: MAJOR=4
+E: MINOR=38
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty39
+N: tty39
+E: DEVNAME=/dev/tty39
+E: DEVPATH=/devices/virtual/tty/tty39
+E: MAJOR=4
+E: MINOR=39
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty4
+N: tty4
+E: DEVNAME=/dev/tty4
+E: DEVPATH=/devices/virtual/tty/tty4
+E: MAJOR=4
+E: MINOR=4
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty40
+N: tty40
+E: DEVNAME=/dev/tty40
+E: DEVPATH=/devices/virtual/tty/tty40
+E: MAJOR=4
+E: MINOR=40
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty41
+N: tty41
+E: DEVNAME=/dev/tty41
+E: DEVPATH=/devices/virtual/tty/tty41
+E: MAJOR=4
+E: MINOR=41
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty42
+N: tty42
+E: DEVNAME=/dev/tty42
+E: DEVPATH=/devices/virtual/tty/tty42
+E: MAJOR=4
+E: MINOR=42
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty43
+N: tty43
+E: DEVNAME=/dev/tty43
+E: DEVPATH=/devices/virtual/tty/tty43
+E: MAJOR=4
+E: MINOR=43
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty44
+N: tty44
+E: DEVNAME=/dev/tty44
+E: DEVPATH=/devices/virtual/tty/tty44
+E: MAJOR=4
+E: MINOR=44
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty45
+N: tty45
+E: DEVNAME=/dev/tty45
+E: DEVPATH=/devices/virtual/tty/tty45
+E: MAJOR=4
+E: MINOR=45
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty46
+N: tty46
+E: DEVNAME=/dev/tty46
+E: DEVPATH=/devices/virtual/tty/tty46
+E: MAJOR=4
+E: MINOR=46
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty47
+N: tty47
+E: DEVNAME=/dev/tty47
+E: DEVPATH=/devices/virtual/tty/tty47
+E: MAJOR=4
+E: MINOR=47
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty48
+N: tty48
+E: DEVNAME=/dev/tty48
+E: DEVPATH=/devices/virtual/tty/tty48
+E: MAJOR=4
+E: MINOR=48
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty49
+N: tty49
+E: DEVNAME=/dev/tty49
+E: DEVPATH=/devices/virtual/tty/tty49
+E: MAJOR=4
+E: MINOR=49
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty5
+N: tty5
+E: DEVNAME=/dev/tty5
+E: DEVPATH=/devices/virtual/tty/tty5
+E: MAJOR=4
+E: MINOR=5
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty50
+N: tty50
+E: DEVNAME=/dev/tty50
+E: DEVPATH=/devices/virtual/tty/tty50
+E: MAJOR=4
+E: MINOR=50
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty51
+N: tty51
+E: DEVNAME=/dev/tty51
+E: DEVPATH=/devices/virtual/tty/tty51
+E: MAJOR=4
+E: MINOR=51
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty52
+N: tty52
+E: DEVNAME=/dev/tty52
+E: DEVPATH=/devices/virtual/tty/tty52
+E: MAJOR=4
+E: MINOR=52
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty53
+N: tty53
+E: DEVNAME=/dev/tty53
+E: DEVPATH=/devices/virtual/tty/tty53
+E: MAJOR=4
+E: MINOR=53
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty54
+N: tty54
+E: DEVNAME=/dev/tty54
+E: DEVPATH=/devices/virtual/tty/tty54
+E: MAJOR=4
+E: MINOR=54
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty55
+N: tty55
+E: DEVNAME=/dev/tty55
+E: DEVPATH=/devices/virtual/tty/tty55
+E: MAJOR=4
+E: MINOR=55
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty56
+N: tty56
+E: DEVNAME=/dev/tty56
+E: DEVPATH=/devices/virtual/tty/tty56
+E: MAJOR=4
+E: MINOR=56
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty57
+N: tty57
+E: DEVNAME=/dev/tty57
+E: DEVPATH=/devices/virtual/tty/tty57
+E: MAJOR=4
+E: MINOR=57
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty58
+N: tty58
+E: DEVNAME=/dev/tty58
+E: DEVPATH=/devices/virtual/tty/tty58
+E: MAJOR=4
+E: MINOR=58
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty59
+N: tty59
+E: DEVNAME=/dev/tty59
+E: DEVPATH=/devices/virtual/tty/tty59
+E: MAJOR=4
+E: MINOR=59
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty6
+N: tty6
+E: DEVNAME=/dev/tty6
+E: DEVPATH=/devices/virtual/tty/tty6
+E: MAJOR=4
+E: MINOR=6
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty60
+N: tty60
+E: DEVNAME=/dev/tty60
+E: DEVPATH=/devices/virtual/tty/tty60
+E: MAJOR=4
+E: MINOR=60
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty61
+N: tty61
+E: DEVNAME=/dev/tty61
+E: DEVPATH=/devices/virtual/tty/tty61
+E: MAJOR=4
+E: MINOR=61
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty62
+N: tty62
+E: DEVNAME=/dev/tty62
+E: DEVPATH=/devices/virtual/tty/tty62
+E: MAJOR=4
+E: MINOR=62
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty63
+N: tty63
+E: DEVNAME=/dev/tty63
+E: DEVPATH=/devices/virtual/tty/tty63
+E: MAJOR=4
+E: MINOR=63
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty7
+N: tty7
+E: DEVNAME=/dev/tty7
+E: DEVPATH=/devices/virtual/tty/tty7
+E: MAJOR=4
+E: MINOR=7
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty8
+N: tty8
+E: DEVNAME=/dev/tty8
+E: DEVPATH=/devices/virtual/tty/tty8
+E: MAJOR=4
+E: MINOR=8
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/tty9
+N: tty9
+E: DEVNAME=/dev/tty9
+E: DEVPATH=/devices/virtual/tty/tty9
+E: MAJOR=4
+E: MINOR=9
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/tty/ttyprintk
+N: ttyprintk
+E: DEVNAME=/dev/ttyprintk
+E: DEVPATH=/devices/virtual/tty/ttyprintk
+E: MAJOR=5
+E: MINOR=3
+E: SUBSYSTEM=tty
+
+P: /devices/virtual/vc/vcs
+N: vcs
+E: DEVNAME=/dev/vcs
+E: DEVPATH=/devices/virtual/vc/vcs
+E: MAJOR=7
+E: MINOR=0
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs1
+N: vcs1
+E: DEVNAME=/dev/vcs1
+E: DEVPATH=/devices/virtual/vc/vcs1
+E: MAJOR=7
+E: MINOR=1
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs10
+N: vcs10
+E: DEVNAME=/dev/vcs10
+E: DEVPATH=/devices/virtual/vc/vcs10
+E: MAJOR=7
+E: MINOR=10
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs11
+N: vcs11
+E: DEVNAME=/dev/vcs11
+E: DEVPATH=/devices/virtual/vc/vcs11
+E: MAJOR=7
+E: MINOR=11
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs12
+N: vcs12
+E: DEVNAME=/dev/vcs12
+E: DEVPATH=/devices/virtual/vc/vcs12
+E: MAJOR=7
+E: MINOR=12
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs2
+N: vcs2
+E: DEVNAME=/dev/vcs2
+E: DEVPATH=/devices/virtual/vc/vcs2
+E: MAJOR=7
+E: MINOR=2
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs3
+N: vcs3
+E: DEVNAME=/dev/vcs3
+E: DEVPATH=/devices/virtual/vc/vcs3
+E: MAJOR=7
+E: MINOR=3
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs4
+N: vcs4
+E: DEVNAME=/dev/vcs4
+E: DEVPATH=/devices/virtual/vc/vcs4
+E: MAJOR=7
+E: MINOR=4
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs5
+N: vcs5
+E: DEVNAME=/dev/vcs5
+E: DEVPATH=/devices/virtual/vc/vcs5
+E: MAJOR=7
+E: MINOR=5
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs6
+N: vcs6
+E: DEVNAME=/dev/vcs6
+E: DEVPATH=/devices/virtual/vc/vcs6
+E: MAJOR=7
+E: MINOR=6
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs7
+N: vcs7
+E: DEVNAME=/dev/vcs7
+E: DEVPATH=/devices/virtual/vc/vcs7
+E: MAJOR=7
+E: MINOR=7
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs8
+N: vcs8
+E: DEVNAME=/dev/vcs8
+E: DEVPATH=/devices/virtual/vc/vcs8
+E: MAJOR=7
+E: MINOR=8
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcs9
+N: vcs9
+E: DEVNAME=/dev/vcs9
+E: DEVPATH=/devices/virtual/vc/vcs9
+E: MAJOR=7
+E: MINOR=9
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa
+N: vcsa
+E: DEVNAME=/dev/vcsa
+E: DEVPATH=/devices/virtual/vc/vcsa
+E: MAJOR=7
+E: MINOR=128
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa1
+N: vcsa1
+E: DEVNAME=/dev/vcsa1
+E: DEVPATH=/devices/virtual/vc/vcsa1
+E: MAJOR=7
+E: MINOR=129
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa10
+N: vcsa10
+E: DEVNAME=/dev/vcsa10
+E: DEVPATH=/devices/virtual/vc/vcsa10
+E: MAJOR=7
+E: MINOR=138
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa11
+N: vcsa11
+E: DEVNAME=/dev/vcsa11
+E: DEVPATH=/devices/virtual/vc/vcsa11
+E: MAJOR=7
+E: MINOR=139
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa12
+N: vcsa12
+E: DEVNAME=/dev/vcsa12
+E: DEVPATH=/devices/virtual/vc/vcsa12
+E: MAJOR=7
+E: MINOR=140
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa2
+N: vcsa2
+E: DEVNAME=/dev/vcsa2
+E: DEVPATH=/devices/virtual/vc/vcsa2
+E: MAJOR=7
+E: MINOR=130
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa3
+N: vcsa3
+E: DEVNAME=/dev/vcsa3
+E: DEVPATH=/devices/virtual/vc/vcsa3
+E: MAJOR=7
+E: MINOR=131
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa4
+N: vcsa4
+E: DEVNAME=/dev/vcsa4
+E: DEVPATH=/devices/virtual/vc/vcsa4
+E: MAJOR=7
+E: MINOR=132
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa5
+N: vcsa5
+E: DEVNAME=/dev/vcsa5
+E: DEVPATH=/devices/virtual/vc/vcsa5
+E: MAJOR=7
+E: MINOR=133
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa6
+N: vcsa6
+E: DEVNAME=/dev/vcsa6
+E: DEVPATH=/devices/virtual/vc/vcsa6
+E: MAJOR=7
+E: MINOR=134
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa7
+N: vcsa7
+E: DEVNAME=/dev/vcsa7
+E: DEVPATH=/devices/virtual/vc/vcsa7
+E: MAJOR=7
+E: MINOR=135
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa8
+N: vcsa8
+E: DEVNAME=/dev/vcsa8
+E: DEVPATH=/devices/virtual/vc/vcsa8
+E: MAJOR=7
+E: MINOR=136
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vc/vcsa9
+N: vcsa9
+E: DEVNAME=/dev/vcsa9
+E: DEVPATH=/devices/virtual/vc/vcsa9
+E: MAJOR=7
+E: MINOR=137
+E: SUBSYSTEM=vc
+
+P: /devices/virtual/vtconsole/vtcon0
+E: DEVPATH=/devices/virtual/vtconsole/vtcon0
+E: SUBSYSTEM=vtconsole
+
+P: /devices/virtual/workqueue/writeback
+E: DEVPATH=/devices/virtual/workqueue/writeback
+E: SUBSYSTEM=workqueue
+

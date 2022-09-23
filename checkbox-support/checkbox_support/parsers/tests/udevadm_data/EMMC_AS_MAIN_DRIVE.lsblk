@@ -1,0 +1,7 @@
+KNAME="mmcblk0rpmb" TYPE="disk" MOUNTPOINT=""
+KNAME="mmcblk0boot0" TYPE="disk" MOUNTPOINT=""
+KNAME="mmcblk0boot1" TYPE="disk" MOUNTPOINT=""
+KNAME="mmcblk0" TYPE="disk" MOUNTPOINT=""
+KNAME="mmcblk0p1" TYPE="part" MOUNTPOINT="/boot/efi"
+KNAME="mmcblk0p2" TYPE="part" MOUNTPOINT=""
+KNAME="mmcblk0p3" TYPE="part" MOUNTPOINT="/"

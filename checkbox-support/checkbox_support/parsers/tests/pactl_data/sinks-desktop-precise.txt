@@ -1,0 +1,56 @@
+Sink #0
+	State: RUNNING
+	Name: alsa_output.pci-0000_00_1b.0.analog-stereo
+	Description: Wbudowany dźwięk Analogowe stereo
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4
+	Mute: no
+	Volume: 0:  64% 1:  64%
+	        0: -11.67 dB 1: -11.67 dB
+	        balance 0.00
+	Base Volume: 100%
+	             0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
+	Latency: 60668 usec, configured 66000 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "CONEXANT Analog"
+		alsa.id = "CONEXANT Analog"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel PCH"
+		alsa.long_card_name = "HDA Intel PCH at 0xe0610000 irq 46"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "Panther Point High Definition Audio Controller"
+		device.form_factor = "internal"
+		device.string = "front:0"
+		device.buffering.buffer_size = "65536"
+		device.buffering.fragment_size = "32768"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "analog-stereo"
+		device.profile.description = "Analogowe stereo"
+		device.description = "Wbudowany dźwięk Analogowe stereo"
+		alsa.mixer_name = "Intel PantherPoint HDMI"
+		alsa.components = "HDA:14f1506e,17aac023,00100003 HDA:80862806,80860101,00100000"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		analog-output-speaker: Głośniki (priority: 10000, not available)
+		analog-output-headphones: Słuchawki (priority: 9000, available)
+	Active Port: analog-output-headphones
+	Formats:
+		pcm

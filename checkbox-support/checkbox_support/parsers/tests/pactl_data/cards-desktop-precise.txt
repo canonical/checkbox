@@ -1,0 +1,41 @@
+Card #0
+	Name: alsa_card.pci-0000_00_1b.0
+	Driver: module-alsa-card.c
+	Owner Module: 4
+	Properties:
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel PCH"
+		alsa.long_card_name = "HDA Intel PCH at 0xe0610000 irq 46"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "Panther Point High Definition Audio Controller"
+		device.form_factor = "internal"
+		device.string = "0"
+		device.description = "Wbudowany dźwięk"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		output:analog-stereo: Wyjście Analogowe stereo (sinks: 1, sources: 0, priority. 6000)
+		output:analog-stereo+input:analog-stereo: Analogowy dupleks stereo (sinks: 1, sources: 1, priority. 6060)
+		output:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5400)
+		output:hdmi-stereo+input:analog-stereo: Wyjście Digital Stereo (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 5460)
+		output:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) (sinks: 1, sources: 0, priority. 300)
+		output:hdmi-surround+input:analog-stereo: Wyjście Digital Surround 5.1 (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 360)
+		input:analog-stereo: Wejście Analogowe stereo (sinks: 0, sources: 1, priority. 60)
+		off: Wyłącz (sinks: 0, sources: 0, priority. 0)
+	Active Profile: output:analog-stereo+input:analog-stereo
+	Ports:
+		analog-output-speaker: Głośniki (priority 10000)
+			Part of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo
+		analog-output-headphones: Słuchawki (priority 9000)
+			Part of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo
+		analog-input-microphone-internal: Wewnętrzny mikrofon (priority 8900)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:hdmi-stereo+input:analog-stereo, output:hdmi-surround+input:analog-stereo, input:analog-stereo
+		analog-input-microphone: Mikrofon (priority 8700)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:hdmi-stereo+input:analog-stereo, output:hdmi-surround+input:analog-stereo, input:analog-stereo
+		hdmi-output-0: HDMI / DisplayPort (priority 5900)
+			Part of profile(s): output:hdmi-stereo, output:hdmi-stereo+input:analog-stereo, output:hdmi-surround, output:hdmi-surround+input:analog-stereo

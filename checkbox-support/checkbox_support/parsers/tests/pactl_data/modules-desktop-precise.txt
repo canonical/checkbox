@@ -1,0 +1,213 @@
+Module #0
+	Name: module-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute state of devices"
+		module.version = "1.1"
+
+Module #1
+	Name: module-stream-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute/device state of streams"
+		module.version = "1.1"
+
+Module #2
+	Name: module-card-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore profile of cards"
+		module.version = "1.1"
+
+Module #3
+	Name: module-augment-properties
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Augment the property sets of streams with additional static information"
+		module.version = "1.1"
+
+Module #4
+	Name: module-alsa-card
+	Argument: device_id="0" name="pci-0000_00_1b.0" card_name="alsa_card.pci-0000_00_1b.0" namereg_fail=false tsched=yes ignore_dB=no deferred_volume=yes card_properties="module-udev-detect.discovered=1"
+	Usage counter: 0
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "ALSA Card"
+		module.version = "1.1"
+
+Module #5
+	Name: module-udev-detect
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Detect available audio hardware and load matching drivers"
+		module.version = "1.1"
+
+Module #6
+	Name: module-bluetooth-discover
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Joao Paulo Rechi Vita"
+		module.description = "Detect available bluetooth audio devices and load bluetooth audio drivers"
+		module.version = "1.1"
+
+Module #7
+	Name: module-native-protocol-unix
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Native protocol (UNIX sockets)"
+		module.version = "1.1"
+
+Module #8
+	Name: module-gconf
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "GConf Adapter"
+		module.version = "1.1"
+
+Module #9
+	Name: module-default-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the default sink and source"
+		module.version = "1.1"
+
+Module #10
+	Name: module-rescue-streams
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is removed, try to move their streams to the default sink/source"
+		module.version = "1.1"
+
+Module #11
+	Name: module-always-sink
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Utrzymywanie zawsze co najmniej jednego wczytanego odpływu nawet, jeśli to pusty odpływ"
+		module.version = "1.1"
+
+Module #12
+	Name: module-intended-roles
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically set device of streams based of intended roles of devices"
+		module.version = "1.1"
+
+Module #13
+	Name: module-suspend-on-idle
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is idle for too long, suspend it"
+		module.version = "1.1"
+
+Module #14
+	Name: module-console-kit
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Create a client for each ConsoleKit session of this user"
+		module.version = "1.1"
+
+Module #15
+	Name: module-position-event-sounds
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Position event sounds between L and R depending on the position on screen of the widget triggering them."
+		module.version = "1.1"
+
+Module #16
+	Name: module-filter-heuristics
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Detect when various filters are desirable"
+		module.version = "1.1"
+
+Module #17
+	Name: module-filter-apply
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Load filter sinks automatically when needed"
+		module.version = "1.1"
+
+Module #18
+	Name: module-switch-on-port-available
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		
+
+Module #19
+	Name: module-x11-publish
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 credential publisher"
+		module.version = "1.1"
+
+Module #20
+	Name: module-x11-bell
+	Argument: display=:0 sample=bell.ogg
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 bell interceptor"
+		module.version = "1.1"
+
+Module #21
+	Name: module-x11-cork-request
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Synthesize X11 media key events when cork/uncork is requested"
+		module.version = "1.1"
+
+Module #22
+	Name: module-x11-xsmp
+	Argument: display=:0 session_manager=local/g580:@/tmp/.ICE-unix/2788,unix/g580:/tmp/.ICE-unix/2788
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 session management"
+		module.version = "1.1"
+
+Module #23
+	Name: module-cli-protocol-unix
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Command line interface protocol (UNIX sockets)"
+		module.version = "1.1"

@@ -1,0 +1,608 @@
+Module #0
+	Name: module-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute state of devices"
+		module.version = "1.1"
+
+Module #1
+	Name: module-stream-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute/device state of streams"
+		module.version = "1.1"
+
+Module #2
+	Name: module-card-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore profile of cards"
+		module.version = "1.1"
+
+Module #3
+	Name: module-augment-properties
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Augment the property sets of streams with additional static information"
+		module.version = "1.1"
+
+Module #4
+	Name: module-alsa-card
+	Argument: device_id="1" name="pci-0000_01_00.1" card_name="alsa_card.pci-0000_01_00.1" namereg_fail=false tsched=yes ignore_dB=no deferred_volume=yes card_properties="module-udev-detect.discovered=1"
+	Usage counter: 0
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "ALSA Card"
+		module.version = "1.1"
+
+Module #5
+	Name: module-alsa-card
+	Argument: device_id="0" name="pci-0000_00_1b.0" card_name="alsa_card.pci-0000_00_1b.0" namereg_fail=false tsched=yes ignore_dB=no deferred_volume=yes card_properties="module-udev-detect.discovered=1"
+	Usage counter: 0
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "ALSA Card"
+		module.version = "1.1"
+
+Module #6
+	Name: module-udev-detect
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Detect available audio hardware and load matching drivers"
+		module.version = "1.1"
+
+Module #7
+	Name: module-bluetooth-discover
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Joao Paulo Rechi Vita"
+		module.description = "Detect available bluetooth audio devices and load bluetooth audio drivers"
+		module.version = "1.1"
+
+Module #8
+	Name: module-native-protocol-unix
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Native protocol (UNIX sockets)"
+		module.version = "1.1"
+
+Module #9
+	Name: module-gconf
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "GConf Adapter"
+		module.version = "1.1"
+
+Module #10
+	Name: module-default-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the default sink and source"
+		module.version = "1.1"
+
+Module #11
+	Name: module-rescue-streams
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is removed, try to move their streams to the default sink/source"
+		module.version = "1.1"
+
+Module #12
+	Name: module-always-sink
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Garde toujours au moins une destination même si elle est vide"
+		module.version = "1.1"
+
+Module #13
+	Name: module-intended-roles
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically set device of streams based of intended roles of devices"
+		module.version = "1.1"
+
+Module #14
+	Name: module-suspend-on-idle
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is idle for too long, suspend it"
+		module.version = "1.1"
+
+Module #15
+	Name: module-console-kit
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Create a client for each ConsoleKit session of this user"
+		module.version = "1.1"
+
+Module #16
+	Name: module-position-event-sounds
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Position event sounds between L and R depending on the position on screen of the widget triggering them."
+		module.version = "1.1"
+
+Module #17
+	Name: module-filter-heuristics
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Detect when various filters are desirable"
+		module.version = "1.1"
+
+Module #18
+	Name: module-filter-apply
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Load filter sinks automatically when needed"
+		module.version = "1.1"
+
+Module #19
+	Name: module-switch-on-port-available
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		
+
+Module #20
+	Name: module-x11-publish
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 credential publisher"
+		module.version = "1.1"
+
+Module #21
+	Name: module-x11-bell
+	Argument: display=:0 sample=bell.ogg
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 bell interceptor"
+		module.version = "1.1"
+
+Module #22
+	Name: module-x11-cork-request
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Synthesize X11 media key events when cork/uncork is requested"
+		module.version = "1.1"
+
+Module #23
+	Name: module-x11-xsmp
+	Argument: display=:0 session_manager=local/sylvain-Desktop:@/tmp/.ICE-unix/1693,unix/sylvain-Desktop:/tmp/.ICE-unix/1693
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 session management"
+		module.version = "1.1"
+
+Sink #0
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_01_00.1.hdmi-stereo
+	Description: RV770 HDMI Audio [Radeon HD 4850/4870] Digital Stereo (HDMI)
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4
+	Mute: no
+	Volume: 0: 100% 1: 100%
+	        0: 0.00 dB 1: 0.00 dB
+	        balance 0.00
+	Base Volume: 100%
+	             0.00 dB
+	Monitor Source: alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY SET_FORMATS 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "HDMI 0"
+		alsa.id = "HDMI 0"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "3"
+		alsa.card = "1"
+		alsa.card_name = "HDA ATI HDMI"
+		alsa.long_card_name = "HDA ATI HDMI at 0xfe9fc000 irq 44"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:01:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1"
+		device.bus = "pci"
+		device.vendor.id = "1002"
+		device.vendor.name = "Advanced Micro Devices [AMD] nee ATI"
+		device.product.name = "RV770 HDMI Audio [Radeon HD 4850/4870]"
+		device.string = "hdmi:1"
+		device.buffering.buffer_size = "65536"
+		device.buffering.fragment_size = "32768"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "hdmi-stereo"
+		device.profile.description = "Digital Stereo (HDMI)"
+		device.description = "RV770 HDMI Audio [Radeon HD 4850/4870] Digital Stereo (HDMI)"
+		alsa.mixer_name = "ATI R6xx HDMI"
+		alsa.components = "HDA:1002aa01,00aa0100,00100100"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		hdmi-output-0: HDMI / DisplayPort (priority: 5900, not available)
+	Active Port: hdmi-output-0
+	Formats:
+		pcm
+
+Sink #1
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1b.0.analog-stereo
+	Description: Audio interne Stéréo analogique
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 5
+	Mute: yes
+	Volume: 0:  47% 1:  47%
+	        0: -19.50 dB 1: -19.50 dB
+	        balance 0.00
+	Base Volume: 100%
+	             0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "ALC1200 Analog"
+		alsa.id = "ALC1200 Analog"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel"
+		alsa.long_card_name = "HDA Intel at 0xfe8f8000 irq 43"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "82801JI (ICH10 Family) HD Audio Controller"
+		device.form_factor = "internal"
+		device.string = "front:0"
+		device.buffering.buffer_size = "65536"
+		device.buffering.fragment_size = "32768"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "analog-stereo"
+		device.profile.description = "Stéréo analogique"
+		device.description = "Audio interne Stéréo analogique"
+		alsa.mixer_name = "Realtek ALC1200"
+		alsa.components = "HDA:10ec0888,104382fe,00100101"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		analog-output: Sortie analogique (priority: 9900)
+	Active Port: analog-output
+	Formats:
+		pcm
+
+Source #0
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor
+	Description: Monitor of RV770 HDMI Audio [Radeon HD 4850/4870] Digital Stereo (HDMI)
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4
+	Mute: no
+	Volume: 0: 100% 1: 100%
+	        0: 0.00 dB 1: 0.00 dB
+	        balance 0.00
+	Base Volume: 100%
+	             0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_01_00.1.hdmi-stereo
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of RV770 HDMI Audio [Radeon HD 4850/4870] Digital Stereo (HDMI)"
+		device.class = "monitor"
+		alsa.card = "1"
+		alsa.card_name = "HDA ATI HDMI"
+		alsa.long_card_name = "HDA ATI HDMI at 0xfe9fc000 irq 44"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:01:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1"
+		device.bus = "pci"
+		device.vendor.id = "1002"
+		device.vendor.name = "Advanced Micro Devices [AMD] nee ATI"
+		device.product.name = "RV770 HDMI Audio [Radeon HD 4850/4870]"
+		device.string = "1"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #1
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
+	Description: Monitor of Audio interne Stéréo analogique
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 5
+	Mute: no
+	Volume: 0: 100% 1: 100%
+	        0: 0.00 dB 1: 0.00 dB
+	        balance 0.00
+	Base Volume: 100%
+	             0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_00_1b.0.analog-stereo
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of Audio interne Stéréo analogique"
+		device.class = "monitor"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel"
+		alsa.long_card_name = "HDA Intel at 0xfe8f8000 irq 43"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "82801JI (ICH10 Family) HD Audio Controller"
+		device.form_factor = "internal"
+		device.string = "0"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #2
+	State: SUSPENDED
+	Name: alsa_input.pci-0000_00_1b.0.analog-stereo
+	Description: Audio interne Stéréo analogique
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 5
+	Mute: no
+	Volume: 0:  16% 1:  16%
+	        0: -48.00 dB 1: -48.00 dB
+	        balance 0.00
+	Base Volume:  10%
+	             -60.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "ALC1200 Analog"
+		alsa.id = "ALC1200 Analog"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel"
+		alsa.long_card_name = "HDA Intel at 0xfe8f8000 irq 43"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "82801JI (ICH10 Family) HD Audio Controller"
+		device.form_factor = "internal"
+		device.string = "front:0"
+		device.buffering.buffer_size = "65536"
+		device.buffering.fragment_size = "32768"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "analog-stereo"
+		device.profile.description = "Stéréo analogique"
+		device.description = "Audio interne Stéréo analogique"
+		alsa.mixer_name = "Realtek ALC1200"
+		alsa.components = "HDA:10ec0888,104382fe,00100101"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		analog-input-microphone-front: Front Microphone (priority: 8500)
+		analog-input-microphone: Microphone (priority: 8700)
+		analog-input-linein: Entrée-ligne (priority: 8100)
+	Active Port: analog-input-microphone
+	Formats:
+		pcm
+
+Client #0
+	Driver: module-console-kit.c
+	Owner Module: 15
+	Properties:
+		application.name = "ConsoleKit Session /org/freedesktop/ConsoleKit/Session2"
+		console-kit.session = "/org/freedesktop/ConsoleKit/Session2"
+
+Client #1
+	Driver: protocol-native.c
+	Owner Module: 8
+	Properties:
+		application.name = "GNOME Volume Control Media Keys"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.id = "org.gnome.VolumeControl"
+		application.icon_name = "multimedia-volume-control"
+		application.version = "3.4.2"
+		application.process.id = "1747"
+		application.process.user = "sylvain"
+		application.process.host = "sylvain-Desktop"
+		application.process.binary = "gnome-settings-daemon"
+		application.language = "fr_FR.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "4ca4098bd7fb4b50861c728c00000006"
+		application.process.session_id = "4ca4098bd7fb4b50861c728c00000006-1370257395.99092-1975316763"
+
+Client #2
+	Driver: protocol-native.c
+	Owner Module: 8
+	Properties:
+		application.name = "Indicator Sound"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.id = "com.canonical.indicator.sound"
+		application.icon_name = "multimedia-volume-control"
+		application.version = "0.8.5.0"
+		application.process.id = "1865"
+		application.process.user = "sylvain"
+		application.process.host = "sylvain-Desktop"
+		application.process.binary = "indicator-sound-service"
+		application.language = "fr_FR.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "4ca4098bd7fb4b50861c728c00000006"
+		application.process.session_id = "4ca4098bd7fb4b50861c728c00000006-1370257395.99092-1975316763"
+
+Client #7
+	Driver: module-x11-xsmp.c
+	Owner Module: 23
+	Properties:
+		application.name = "XSMP Session on gnome-session as 10638a3fc4330dbdf3137025740380403100000016930035"
+		xsmp.vendor = "gnome-session"
+		xsmp.client.id = "10638a3fc4330dbdf3137025740380403100000016930035"
+
+Client #10
+	Driver: protocol-native.c
+	Owner Module: 8
+	Properties:
+		application.name = "pactl"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.process.id = "2219"
+		application.process.user = "sylvain"
+		application.process.host = "sylvain-Desktop"
+		application.process.binary = "pactl"
+		application.language = "C"
+		window.x11.display = ":0"
+		application.process.machine_id = "4ca4098bd7fb4b50861c728c00000006"
+		application.process.session_id = "4ca4098bd7fb4b50861c728c00000006-1370257395.99092-1975316763"
+
+Card #0
+	Name: alsa_card.pci-0000_01_00.1
+	Driver: module-alsa-card.c
+	Owner Module: 4
+	Properties:
+		alsa.card = "1"
+		alsa.card_name = "HDA ATI HDMI"
+		alsa.long_card_name = "HDA ATI HDMI at 0xfe9fc000 irq 44"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:01:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1"
+		device.bus = "pci"
+		device.vendor.id = "1002"
+		device.vendor.name = "Advanced Micro Devices [AMD] nee ATI"
+		device.product.name = "RV770 HDMI Audio [Radeon HD 4850/4870]"
+		device.string = "1"
+		device.description = "RV770 HDMI Audio [Radeon HD 4850/4870]"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		output:hdmi-stereo: Digital Stereo (HDMI) Output (sinks: 1, sources: 0, priority. 5400)
+		off: Éteint (sinks: 0, sources: 0, priority. 0)
+	Active Profile: output:hdmi-stereo
+	Ports:
+		hdmi-output-0: HDMI / DisplayPort (priority 5900)
+			Part of profile(s): output:hdmi-stereo
+
+Card #1
+	Name: alsa_card.pci-0000_00_1b.0
+	Driver: module-alsa-card.c
+	Owner Module: 5
+	Properties:
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel"
+		alsa.long_card_name = "HDA Intel at 0xfe8f8000 irq 43"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "82801JI (ICH10 Family) HD Audio Controller"
+		device.form_factor = "internal"
+		device.string = "0"
+		device.description = "Audio interne"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		output:analog-stereo: Stéréo analogique Output (sinks: 1, sources: 0, priority. 6000)
+		output:analog-stereo+input:analog-stereo: Duplex stéréo analogique (sinks: 1, sources: 1, priority. 6060)
+		output:analog-stereo+input:iec958-stereo: Stéréo analogique Output + Stéréo numérique (IEC958) Input (sinks: 1, sources: 1, priority. 6055)
+		output:analog-surround-40: Surround analogique 4.0 Output (sinks: 1, sources: 0, priority. 700)
+		output:analog-surround-40+input:analog-stereo: Surround analogique 4.0 Output + Stéréo analogique Input (sinks: 1, sources: 1, priority. 760)
+		output:analog-surround-40+input:iec958-stereo: Surround analogique 4.0 Output + Stéréo numérique (IEC958) Input (sinks: 1, sources: 1, priority. 755)
+		output:analog-surround-41: Surround analogique 4.1 Output (sinks: 1, sources: 0, priority. 800)
+		output:analog-surround-41+input:analog-stereo: Surround analogique 4.1 Output + Stéréo analogique Input (sinks: 1, sources: 1, priority. 860)
+		output:analog-surround-41+input:iec958-stereo: Surround analogique 4.1 Output + Stéréo numérique (IEC958) Input (sinks: 1, sources: 1, priority. 855)
+		output:analog-surround-50: Surround analogique 5.0 Output (sinks: 1, sources: 0, priority. 700)
+		output:analog-surround-50+input:analog-stereo: Surround analogique 5.0 Output + Stéréo analogique Input (sinks: 1, sources: 1, priority. 760)
+		output:analog-surround-50+input:iec958-stereo: Surround analogique 5.0 Output + Stéréo numérique (IEC958) Input (sinks: 1, sources: 1, priority. 755)
+		output:analog-surround-51: Surround analogique 5.1 Output (sinks: 1, sources: 0, priority. 800)
+		output:analog-surround-51+input:analog-stereo: Surround analogique 5.1 Output + Stéréo analogique Input (sinks: 1, sources: 1, priority. 860)
+		output:analog-surround-51+input:iec958-stereo: Surround analogique 5.1 Output + Stéréo numérique (IEC958) Input (sinks: 1, sources: 1, priority. 855)
+		output:iec958-stereo: Stéréo numérique (IEC958) Output (sinks: 1, sources: 0, priority. 5500)
+		output:iec958-stereo+input:analog-stereo: Stéréo numérique (IEC958) Output + Stéréo analogique Input (sinks: 1, sources: 1, priority. 5560)
+		output:iec958-stereo+input:iec958-stereo: Duplex stéréo numérique (IEC958) (sinks: 1, sources: 1, priority. 5555)
+		input:analog-stereo: Stéréo analogique Input (sinks: 0, sources: 1, priority. 60)
+		input:iec958-stereo: Stéréo numérique (IEC958) Input (sinks: 0, sources: 1, priority. 55)
+		off: Éteint (sinks: 0, sources: 0, priority. 0)
+	Active Profile: output:analog-stereo+input:analog-stereo
+	Ports:
+		analog-output: Sortie analogique (priority 9900)
+			Part of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo, output:analog-stereo+input:iec958-stereo, output:analog-surround-40, output:analog-surround-40+input:analog-stereo, output:analog-surround-40+input:iec958-stereo, output:analog-surround-41, output:analog-surround-41+input:analog-stereo, output:analog-surround-41+input:iec958-stereo, output:analog-surround-50, output:analog-surround-50+input:analog-stereo, output:analog-surround-50+input:iec958-stereo, output:analog-surround-51, output:analog-surround-51+input:analog-stereo, output:analog-surround-51+input:iec958-stereo
+		analog-input-microphone-front: Front Microphone (priority 8500)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:analog-surround-40+input:analog-stereo, output:analog-surround-41+input:analog-stereo, output:analog-surround-50+input:analog-stereo, output:analog-surround-51+input:analog-stereo, output:iec958-stereo+input:analog-stereo, input:analog-stereo
+		analog-input-microphone: Microphone (priority 8700)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:analog-surround-40+input:analog-stereo, output:analog-surround-41+input:analog-stereo, output:analog-surround-50+input:analog-stereo, output:analog-surround-51+input:analog-stereo, output:iec958-stereo+input:analog-stereo, input:analog-stereo
+		analog-input-linein: Entrée-ligne (priority 8100)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:analog-surround-40+input:analog-stereo, output:analog-surround-41+input:analog-stereo, output:analog-surround-50+input:analog-stereo, output:analog-surround-51+input:analog-stereo, output:iec958-stereo+input:analog-stereo, input:analog-stereo
+		iec958-stereo-input: iec958-stereo-input (priority 0)
+			Part of profile(s): output:analog-stereo+input:iec958-stereo, output:analog-surround-40+input:iec958-stereo, output:analog-surround-41+input:iec958-stereo, output:analog-surround-50+input:iec958-stereo, output:analog-surround-51+input:iec958-stereo, output:iec958-stereo+input:iec958-stereo, input:iec958-stereo
+		iec958-stereo-output: Digital Output (S/PDIF) (priority 0)
+			Part of profile(s): output:iec958-stereo, output:iec958-stereo+input:analog-stereo, output:iec958-stereo+input:iec958-stereo

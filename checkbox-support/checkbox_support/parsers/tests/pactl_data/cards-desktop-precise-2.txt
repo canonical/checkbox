@@ -1,0 +1,30 @@
+Card #2
+	Name: alsa_card.usb-046d_0825_0E3A8A10-02-U0x46d0x825
+	Driver: module-alsa-card.c
+	Owner Module: 6
+	Properties:
+		alsa.card = "1"
+		alsa.card_name = "USB Device 0x46d:0x825"
+		alsa.long_card_name = "USB Device 0x46d:0x825 at usb-0000:00:1d.7-1, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		device.bus_path = "pci-0000:00:1d.7-usb-0:1:1.2"
+		sysfs.path = "/devices/pci0000:00/0000:00:1d.7/usb2/2-1/2-1:1.2/sound/card1"
+		udev.id = "usb-046d_0825_0E3A8A10-02-U0x46d0x825"
+		device.bus = "usb"
+		device.vendor.id = "046d"
+		device.vendor.name = "Logitech, Inc."
+		device.product.id = "0825"
+		device.product.name = "Webcam C270"
+		device.serial = "046d_0825_0E3A8A10"
+		device.form_factor = "webcam"
+		device.string = "1"
+		device.description = "Webcam C270"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "camera-web-usb"
+	Profiles:
+		input:analog-mono: Wejście Analogowe mono (sinks: 0, sources: 1, priority. 1)
+		off: Wyłącz (sinks: 0, sources: 0, priority. 0)
+	Active Profile: input:analog-mono
+	Ports:
+		analog-input-microphone: Mikrofon (priority 8700)
+			Part of profile(s): input:analog-mono

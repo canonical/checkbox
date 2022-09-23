@@ -1,0 +1,143 @@
+⎡ Virtual core pointer id=2 [master pointer (3)]
+Reporting 4 classes:
+Class originated from: 10. Type: XIButtonClass
+Buttons supported: 10
+Button labels: "Button Unknown" "Button Unknown" "Button Unknown" 
+"Button Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button 
+Horiz Wheel Right" None None None
+Button state:
+Class originated from: 10. Type: XIValuatorClass
+Detail for Valuator 0:
+Label: Abs MT Position X
+Range: 0.000000 - 1919.000000
+Resolution: 0 units/m
+Mode: absolute
+Current value: 1664.000000
+Class originated from: 10. Type: XIValuatorClass
+Detail for Valuator 1:
+Label: Abs MT Position Y
+Range: 0.000000 - 1079.000000
+Resolution: 0 units/m
+Mode: absolute
+Current value: 932.000000
+Class originated from: 0. Type: XITouchClass
+Touch mode: direct
+Max number of touches: 17
+
+⎜ ↳ Virtual core XTEST pointer id=4 [slave pointer (2)]
+Reporting 3 classes:
+Class originated from: 4. Type: XIButtonClass
+Buttons supported: 10
+Button labels: "Button Left" "Button Middle" "Button Right" "Button 
+Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button Horiz 
+Wheel Right" None None None
+Button state:
+Class originated from: 4. Type: XIValuatorClass
+Detail for Valuator 0:
+Label: Rel X
+Range: -1.000000 - -1.000000
+Resolution: 0 units/m
+Mode: relative
+Class originated from: 4. Type: XIValuatorClass
+Detail for Valuator 1:
+Label: Rel Y
+Range: -1.000000 - -1.000000
+Resolution: 0 units/m
+Mode: relative
+
+⎜ ↳ Quanta OpticalTouchScreen id=10 [slave pointer (2)]
+Reporting 4 classes:
+Class originated from: 10. Type: XIButtonClass
+Buttons supported: 5
+Button labels: "Button Unknown" "Button Unknown" "Button Unknown" 
+"Button Wheel Up" "Button Wheel Down"
+Button state:
+Class originated from: 10. Type: XIValuatorClass
+Detail for Valuator 0:
+Label: Abs MT Position X
+Range: 0.000000 - 1919.000000
+Resolution: 0 units/m
+Mode: absolute
+Current value: 1664.000000
+Class originated from: 10. Type: XIValuatorClass
+Detail for Valuator 1:
+Label: Abs MT Position Y
+Range: 0.000000 - 1079.000000
+Resolution: 0 units/m
+Mode: absolute
+Current value: 932.000000
+Class originated from: 0. Type: XITouchClass
+Touch mode: direct
+Max number of touches: 9
+
+⎜ ↳ MCE IR Keyboard/Mouse (nuvoton-cir) id=12 [slave pointer (2)]
+Reporting 4 classes:
+Class originated from: 12. Type: XIButtonClass
+Buttons supported: 5
+Button labels: "Button Left" "Button Unknown" "Button Right" "Button 
+Wheel Up" "Button Wheel Down"
+Button state:
+Class originated from: 12. Type: XIKeyClass
+Keycodes supported: 248
+Class originated from: 12. Type: XIValuatorClass
+Detail for Valuator 0:
+Label: Rel X
+Range: -1.000000 - -1.000000
+Resolution: 1 units/m
+Mode: relative
+Class originated from: 12. Type: XIValuatorClass
+Detail for Valuator 1:
+Label: Rel Y
+Range: -1.000000 - -1.000000
+Resolution: 1 units/m
+Mode: relative
+
+⎣ Virtual core keyboard id=3 [master keyboard (2)]
+Reporting 1 classes:
+Class originated from: 14. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Virtual core XTEST keyboard id=5 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 5. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Power Button id=6 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 6. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Power Button id=7 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 7. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Laptop_Integrated_Webcam_2M id=8 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 8. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ HID 413c:8161 id=9 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 9. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Nuvoton w836x7hg Infrared Remote Transceiver id=11 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 11. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Dell AIO WMI hotkeys id=13 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 13. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Chicony USB Keyboard id=14 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 14. Type: XIKeyClass
+Keycodes supported: 248
+
+↳ Chicony USB Keyboard id=15 [slave keyboard (3)]
+Reporting 1 classes:
+Class originated from: 15. Type: XIKeyClass
+Keycodes supported: 248

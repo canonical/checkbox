@@ -1,0 +1,51 @@
+Card #1
+	Name: alsa_card.pci-0000_00_1b.0
+	Driver: module-alsa-card.c
+	Owner Module: 5
+	Properties:
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel"
+		alsa.long_card_name = "HDA Intel at 0xf9ff8000 irq 70"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "82801JI (ICH10 Family) HD Audio Controller"
+		device.form_factor = "internal"
+		device.string = "0"
+		device.description = "Wbudowany dźwięk"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		output:analog-stereo: Wyjście Analogowe stereo (sinks: 1, sources: 0, priority. 6000)
+		output:analog-stereo+input:analog-stereo: Analogowy dupleks stereo (sinks: 1, sources: 1, priority. 6060)
+		output:analog-surround-40: Wyjście Analogowe surround 4.0 (sinks: 1, sources: 0, priority. 700)
+		output:analog-surround-40+input:analog-stereo: Wyjście Analogowe surround 4.0 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 760)
+		output:analog-surround-41: Wyjście Analogowe surround 4.1 (sinks: 1, sources: 0, priority. 800)
+		output:analog-surround-41+input:analog-stereo: Wyjście Analogowe surround 4.1 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 860)
+		output:analog-surround-50: Wyjście Analogowe surround 5.0 (sinks: 1, sources: 0, priority. 700)
+		output:analog-surround-50+input:analog-stereo: Wyjście Analogowe surround 5.0 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 760)
+		output:analog-surround-51: Wyjście Analogowe surround 5.1 (sinks: 1, sources: 0, priority. 800)
+		output:analog-surround-51+input:analog-stereo: Wyjście Analogowe surround 5.1 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 860)
+		output:analog-surround-71: Wyjście Analog Surround 7.1 (sinks: 1, sources: 0, priority. 700)
+		output:analog-surround-71+input:analog-stereo: Wyjście Analog Surround 7.1 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 760)
+		output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) (sinks: 1, sources: 0, priority. 5500)
+		output:iec958-stereo+input:analog-stereo: Wyjście Cyfrowe stereo (IEC958) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 5560)
+		input:analog-stereo: Wejście Analogowe stereo (sinks: 0, sources: 1, priority. 60)
+		off: Wyłącz (sinks: 0, sources: 0, priority. 0)
+	Active Profile: output:analog-stereo+input:analog-stereo
+	Ports:
+		analog-output: Wyjście analogowe (priority 9900)
+			Part of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo, output:analog-surround-40, output:analog-surround-40+input:analog-stereo, output:analog-surround-41, output:analog-surround-41+input:analog-stereo, output:analog-surround-50, output:analog-surround-50+input:analog-stereo, output:analog-surround-51, output:analog-surround-51+input:analog-stereo, output:analog-surround-71, output:analog-surround-71+input:analog-stereo
+		analog-output-headphones: Słuchawki (priority 9000)
+			Part of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo
+		analog-input-microphone-front: Przedni mikrofon (priority 8500)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:analog-surround-40+input:analog-stereo, output:analog-surround-41+input:analog-stereo, output:analog-surround-50+input:analog-stereo, output:analog-surround-51+input:analog-stereo, output:analog-surround-71+input:analog-stereo, output:iec958-stereo+input:analog-stereo, input:analog-stereo
+		analog-input-microphone-rear: Tylny mikrofon (priority 8200)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:analog-surround-40+input:analog-stereo, output:analog-surround-41+input:analog-stereo, output:analog-surround-50+input:analog-stereo, output:analog-surround-51+input:analog-stereo, output:analog-surround-71+input:analog-stereo, output:iec958-stereo+input:analog-stereo, input:analog-stereo
+		analog-input-linein: Wejście liniowe (priority 8100)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:analog-surround-40+input:analog-stereo, output:analog-surround-41+input:analog-stereo, output:analog-surround-50+input:analog-stereo, output:analog-surround-51+input:analog-stereo, output:analog-surround-71+input:analog-stereo, output:iec958-stereo+input:analog-stereo, input:analog-stereo
+		iec958-stereo-output: Wyjście cyfrowe (S/PDIF) (priority 0)
+			Part of profile(s): output:iec958-stereo, output:iec958-stereo+input:analog-stereo

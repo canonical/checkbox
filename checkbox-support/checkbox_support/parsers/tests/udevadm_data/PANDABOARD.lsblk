@@ -1,0 +1,3 @@
+KNAME="mmcblk0" TYPE="disk" MOUNTPOINT=""
+KNAME="mmcblk0p1" TYPE="part" MOUNTPOINT=""
+KNAME="mmcblk0p2" TYPE="part" MOUNTPOINT="/"

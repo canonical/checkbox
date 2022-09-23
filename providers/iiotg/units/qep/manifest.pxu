@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_qep
+_name: Has support for Quadrature Encoder Peripherals
+value-type: bool

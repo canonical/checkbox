@@ -1,0 +1,20 @@
+id: edac-full
+_name: Error Detection And Correction (EDAC) module tests
+unit: test plan
+include:
+nested_part:
+    edac-manual
+    edac-automated
+
+id: edac-manual
+_name: Error Detection And Correction (EDAC) module tests (manual)
+unit: test plan
+include:
+
+id: edac-automated
+_name: Error Detection And Correction (EDAC) module tests (automated)
+unit: test plan
+include:
+    edac/detect
+    edac/default-report
+

@@ -1,0 +1,3 @@
+unit: category
+id: usb-dwc3
+_name: DesignWare Core SuperSpeed USB 3.0 Controller

@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_edac_module
+_name: An Error Detection And Correction (EDAC) Module
+value-type: bool

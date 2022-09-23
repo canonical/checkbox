@@ -1,0 +1,10 @@
+
+id: qep/detect
+_summary: Detect presence of a QEP interface device
+plugin: shell
+category_id: qep
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_qep == 'True'
+command:
+  lspci | grep -i 4bc3 | cut -c 1-7

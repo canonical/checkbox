@@ -1,0 +1,66 @@
+id: usb-dwc3/driver-detect
+_summary: Detect if the USB DWC3 drivers are loaded
+category_id: usb-dwc3
+imports: from com.canonical.plainbox import manifest
+requires:
+  device.driver == 'dwc3-pci'
+  manifest.has_usb_dwc3_controller == 'True'
+flags: simple fail-on-resource
+command:
+  echo "dwc3-pci driver loaded"
+
+id: usb-dwc3/module-detect
+_summary: Detect if the USB DWC3 module is loaded
+category_id: usb-dwc3
+imports: from com.canonical.plainbox import manifest
+requires:
+  module.name == 'dwc3_pci'
+  manifest.has_usb_dwc3_controller == 'True'
+flags: simple fail-on-resource
+command:
+  echo "dwc3_pci module loaded"
+
+id: usb-dwc3/mass-storage
+_summary: Check DUT can be detected as mass storage device
+_purpose:
+  Check that after connecting the device under test (DUT) to another device
+  (host), DUT can be detected as mass storage device by the host.
+_steps:
+  1. In BIOS, enable USB xDCI support (Advanced Menu -> USB Configuration ->
+  xDCI Support -> [Enabled]).
+  2. Press Enter to setup a 256 MB FAT32 image on the device.
+  3. From an Ubuntu (or Windows) host, connect a cable to the USB OTG port (on
+  Aaeon EHL board, it's the USB type C connector) of the DUT.
+_verification:
+  The host detects and mounts a mass storage device. It has read and write
+  permissions on it.
+plugin: user-interact-verify
+depends:
+  usb-dwc3/driver-detect
+  usb-dwc3/module-detect
+command:
+  echo "Creating 256 MB image file..."
+  dd if=/dev/zero of="${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img bs=1M count=256
+  echo "Formatting image file as FAT32..."
+  mkdosfs -F 32 "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
+  echo "loading g_mass_storage module..."
+  modprobe g_mass_storage file="${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img stall=0
+user: root
+category_id: usb-dwc3
+estimated_duration: 5m
+flags: preserve-locale
+
+id: usb-dwc3/mass-storage-cleanup
+_summary: Cleanup mass storage setup after mass storage device test
+plugin: shell
+after: usb-dwc3/mass-storage
+command:
+  echo "Removing g_mass_storage module..."
+  modprobe -r g_mass_storage
+  if [ -f "${PLAINBOX_SESSION_SHARE}/checkbox-mass-storage-test.img" ]; then
+    echo "Removing image file..."
+    rm "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
+  fi
+user: root
+estimated_duration: 1s
+

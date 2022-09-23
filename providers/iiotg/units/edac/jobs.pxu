@@ -1,0 +1,23 @@
+
+id: edac/detect
+_summary: Detect if the EDAC drivers are loaded and Memory Controllers are found
+category_id: edac
+imports: from com.canonical.plainbox import manifest
+requires:
+  executable.name == 'edac-util'
+  manifest.has_edac_module == 'True'
+flags: simple
+command:
+  # TODO: check out returncode and output
+  edac-util -v --status
+
+id: edac/default-report
+_summary: Attach the default report from EDAC util
+category_id: edac
+imports: from com.canonical.plainbox import manifest
+requires:
+  executable.name == 'edac-util'
+  manifest.has_edac_module == 'True'
+plugin: attachment
+command:
+  edac-util -v

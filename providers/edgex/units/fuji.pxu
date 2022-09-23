@@ -1,0 +1,71 @@
+id: edgex/fuji/install
+_summary: Test installation of EdgeX snap
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-install.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/security-services-proxy-certs
+_summary: Test security services proxy certs work properly
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-security-services-proxy-certs.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/services-alive
+_summary: Test that all services can be started properly
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-services-alive.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/device-random
+_summary: Test that device-random works with core-data and core-metadata
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-device-random.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/install-config-paths
+_summary: Test that installing uses "current" based filepaths in config files
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-install-config-paths.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/refresh-config-paths
+_summary: Test that refreshing uses "current" based filepaths in config files
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-refresh-config-paths.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/refresh-services
+_summary: Test that services start after refreshing 
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-refresh-services.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/self-refresh-services
+_summary: Test that services start after refreshing to this revision from self 
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-self-refresh-services.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/fuji/sys-mgmt-agent
+_summary: Test that the system management agent works with the snap
+command: $PLAINBOX_PROVIDER_DATA/fuji/test-sys-mgmt-agent.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple

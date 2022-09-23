@@ -1,0 +1,71 @@
+id: edgex/geneva/install
+_summary: Test installation of EdgeX snap
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-install.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/security-services-proxy-certs
+_summary: Test security services proxy certs work properly
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-security-services-proxy-certs.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/services-alive
+_summary: Test that all services can be started properly
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-services-alive.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/install-config-paths
+_summary: Test that installing uses "current" based filepaths in config files
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-install-config-paths.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/refresh-config-paths
+_summary: Test that refreshing uses "current" based filepaths in config files
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-refresh-config-paths.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/refresh-services
+_summary: Test that services start after refreshing 
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-refresh-services.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/self-refresh-services
+_summary: Test that services start after refreshing to this revision from self
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-self-refresh-services.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/sys-mgmt-agent
+_summary: Test that the system management agent works with the snap
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-sys-mgmt-agent.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/geneva/network-interfaces
+_summary: Test that services are not listening on external network interfaces
+command: $PLAINBOX_PROVIDER_DATA/geneva/test-network-interfaces.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple

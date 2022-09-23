@@ -1,0 +1,96 @@
+id: edgex/jakarta/install
+_summary: Test installation of EdgeX snap
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-install.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/security-services-proxy-certs
+_summary: Test security services proxy certs work properly
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-security-services-proxy-certs.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/services-alive
+_summary: Test that all services can be started properly
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-services-alive.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/install-config-paths
+_summary: Test that installing uses "current" based filepaths in config files
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-install-config-paths.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/refresh-config-paths
+_summary: Test that refreshing uses "current" based filepaths in config files
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-refresh-config-paths.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/refresh-services
+_summary: Test that services start after refreshing 
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-refresh-services.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/self-refresh-services
+_summary: Test that services start after refreshing to this revision from self
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-self-refresh-services.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/sys-mgmt-agent
+_summary: Test that the system management agent works with the snap
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-sys-mgmt-agent.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/network-interfaces
+_summary: Test that services are not listening on external network interfaces
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-network-interfaces.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/rules-engine
+_summary: Test that the rules engine works with the snap
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-rules-engine.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/config-hook
+_summary: Test that snap configure hook settings are supported by the edgexfoundry snap
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-config-hook.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+
+id: edgex/jakarta/device-virtual
+_summary: Test that device-virtual creates devices and produces readings
+command: $PLAINBOX_PROVIDER_DATA/jakarta/test-device-virtual.sh
+user: root
+environ: DEFAULT_TEST_CHANNEL REVISION_TO_TEST REVISION_TO_TEST_CHANNEL REVISION_TO_TEST_CONFINEMENT
+category_id: edgex
+flags: simple
+

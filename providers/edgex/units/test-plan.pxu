@@ -1,0 +1,161 @@
+id: edgex-fuji-tp
+unit: test plan
+_name: EdgeX Fuji
+_description: EdgeX Fuji tests
+mandatory_include:
+    com.canonical.certification::connections
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::dpkg
+    com.canonical.certification::info/buildstamp
+    com.canonical.certification::info/systemd-analyze
+    com.canonical.certification::interface
+    com.canonical.certification::lsb
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::meminfo
+    com.canonical.certification::package
+    com.canonical.certification::parts_meta_info_attachment
+    com.canonical.certification::serial_assertion
+    com.canonical.certification::snap
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::system_info_json
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::udev_json
+    com.canonical.certification::uname
+include:
+    edgex/fuji/.*
+
+id: edgex-geneva-tp
+unit: test plan
+_name: EdgeX Geneva
+_description: EdgeX Geneva tests
+mandatory_include:
+    com.canonical.certification::connections
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::dpkg
+    com.canonical.certification::info/buildstamp
+    com.canonical.certification::info/systemd-analyze
+    com.canonical.certification::interface
+    com.canonical.certification::lsb
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::meminfo
+    com.canonical.certification::package
+    com.canonical.certification::parts_meta_info_attachment
+    com.canonical.certification::serial_assertion
+    com.canonical.certification::snap
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::system_info_json
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::udev_json
+    com.canonical.certification::uname
+include:
+    edgex/geneva/.*
+
+id: edgex-hanoi-tp
+unit: test plan
+_name: EdgeX Hanoi
+_description: EdgeX Hanoi tests
+mandatory_include:
+    com.canonical.certification::connections
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::dpkg
+    com.canonical.certification::info/buildstamp
+    com.canonical.certification::info/systemd-analyze
+    com.canonical.certification::interface
+    com.canonical.certification::lsb
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::meminfo
+    com.canonical.certification::package
+    com.canonical.certification::parts_meta_info_attachment
+    com.canonical.certification::serial_assertion
+    com.canonical.certification::snap
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::system_info_json
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::udev_json
+    com.canonical.certification::uname
+include:
+    edgex/hanoi/.*
+
+id: edgex-ireland-tp
+unit: test plan
+_name: EdgeX Ireland
+_description: EdgeX Ireland tests
+mandatory_include:
+    com.canonical.certification::connections
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::dpkg
+    com.canonical.certification::info/buildstamp
+    com.canonical.certification::info/systemd-analyze
+    com.canonical.certification::interface
+    com.canonical.certification::lsb
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::meminfo
+    com.canonical.certification::package
+    com.canonical.certification::parts_meta_info_attachment
+    com.canonical.certification::serial_assertion
+    com.canonical.certification::snap
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::system_info_json
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::udev_json
+    com.canonical.certification::uname
+include:
+    edgex/ireland/.*
+
+id: edgex-jakarta-tp
+unit: test plan
+_name: EdgeX Jakarta
+_description: EdgeX Jakarta tests
+mandatory_include:
+    com.canonical.certification::connections
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::dpkg
+    com.canonical.certification::info/buildstamp
+    com.canonical.certification::info/systemd-analyze
+    com.canonical.certification::interface
+    com.canonical.certification::lsb
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::meminfo
+    com.canonical.certification::package
+    com.canonical.certification::parts_meta_info_attachment
+    com.canonical.certification::serial_assertion
+    com.canonical.certification::snap
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::system_info_json
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::udev_json
+    com.canonical.certification::uname
+include:
+    edgex/jakarta/.*
+
+id: edgex-latest-tp
+unit: test plan
+_name: EdgeX Latest
+_description: EdgeX Latest tests
+mandatory_include:
+    com.canonical.certification::connections
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::dpkg
+    com.canonical.certification::info/buildstamp
+    com.canonical.certification::info/systemd-analyze
+    com.canonical.certification::interface
+    com.canonical.certification::lsb
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::meminfo
+    com.canonical.certification::package
+    com.canonical.certification::parts_meta_info_attachment
+    com.canonical.certification::serial_assertion
+    com.canonical.certification::snap
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::system_info_json
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::udev_json
+    com.canonical.certification::uname
+include:
+    edgex/latest/.*

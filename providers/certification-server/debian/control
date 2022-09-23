@@ -1,0 +1,50 @@
+Source: plainbox-provider-certification-server
+Section: utils
+Priority: optional
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Standards-Version: 3.9.3
+Build-Depends: checkbox-ng,
+               debhelper (>= 9.2),
+               intltool,
+               plainbox-provider-resource-generic (>= 0.25~),
+               python3-all (>= 3.2),
+               python3-debian,
+               python3-setuptools
+Vcs-Git: git://git.launchpad.net/plainbox-provider-canonical-certification
+
+Package: plainbox-provider-certification-server
+Architecture: all
+Depends: plainbox-provider-checkbox (>= 0.27~), ${plainbox:Depends}
+Recommends: bonnie++,
+            canonical-certification-submit,
+            cpu-checker,
+            freeipmi-tools,
+            fwts (>=16.02.00-0ubuntu1~),
+            iperf,
+            ipmitool,
+            nmap,
+            qemu-system,
+            qemu-utils,
+            screen,
+            ssh,
+            stress,
+            stress-ng,
+            ${plainbox:Recommends}
+Suggests: ${plainbox:Suggests}
+X-Plainbox-Provider: yes
+Description: Server Certification provider for Plainbox
+ This package provides a test set of test plans that are used by Canonical
+ for the testing and certification of "server" devices.
+ .
+ The actual tests (also known as plainbox jobs) are sourced from checkbox and
+ plainbox resource providers. This package only contains the test plans
+ themselves.
+
+Package: canonical-certification-server
+Architecture: all
+Depends: checkbox-ng (>=0.25~),
+         plainbox-provider-certification-server (= ${binary:Version})
+Description: Server Certification Launcher
+ This package provides the Server Certification Launcher. The launcher is an
+ executable application that can be started by a test operator to perform the
+ testing process associated with certification of servers at Canonical.

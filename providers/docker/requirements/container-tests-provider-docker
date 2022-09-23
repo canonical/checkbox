@@ -1,0 +1,18 @@
+#!/bin/bash
+
+TMPDIR=$(mktemp -d)
+trap "rm -rf $TMPDIR" EXIT
+
+set -e
+
+git clone git://git.launchpad.net/checkbox-ng $TMPDIR/checkbox-ng
+echo "I: running 'develop' on checkbox-ng"
+( cd $TMPDIR/checkbox-ng/ && python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /' )
+
+git clone git://git.launchpad.net/plainbox-provider-resource $TMPDIR/plainbox-provider-resource
+python3 $TMPDIR/plainbox-provider-resource/manage.py develop --force
+
+git clone git://git.launchpad.net/plainbox-provider-snappy $TMPDIR/plainbox-provider-snappy
+python3 $TMPDIR/plainbox-provider-snappy/manage.py develop --force
+
+./manage.py validate

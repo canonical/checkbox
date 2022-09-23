@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -e
+
+git clone https://git.launchpad.net/~checkbox-dev/checkbox/+git/support
+time -o timing.dat ./support/test-in-lxc.sh
+echo "Complete test time:"
+cat timing.dat

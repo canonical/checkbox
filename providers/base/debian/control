@@ -1,0 +1,68 @@
+Source: plainbox-provider-checkbox
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
+           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
+           Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Build-Depends: debhelper (>= 9),
+               intltool,
+               libasound2-dev,
+               plainbox-provider-resource-generic (>= 0.25),
+               python3,
+               python3-checkbox-support (>= 0.25),
+               python3-checkbox-ng,
+               python3-debian
+Standards-Version: 3.9.6
+Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-checkbox/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-checkbox/trunk/
+Homepage: http://launchpad.net/plainbox-provider-checkbox
+
+Package: plainbox-provider-checkbox
+Architecture: any
+Depends: plainbox-provider-resource-generic (>= 0.25),
+         python3,
+         python3-checkbox-support (>= 0.25),
+         ${misc:Depends},
+         ${plainbox:Depends},
+         ${shlibs:Depends}
+Recommends: bonnie++,
+            curl,
+            ethtool,
+            gir1.2-cheese-3.0,
+            gir1.2-gst-plugins-base-1.0,
+            gir1.2-gstreamer-1.0,
+            gstreamer1.0-plugins-good,
+            gstreamer1.0-pulseaudio,
+            hdparm,
+            kmod,
+            libgstreamer1.0-0,
+            lshw,
+            pm-utils,
+            python3-apt,
+            python3-dbus,
+            python3-gi,
+            smartmontools,
+            sysstat,
+            ${plainbox:Recommends}
+Suggests: fswebcam,
+          fwts,
+          glmark2,
+          glmark2-es2,
+          gtkperf,
+          imagemagick,
+          mesa-utils,
+          obexftp,
+          render-bench,
+          stress,
+          wmctrl,
+          ${plainbox:Suggests}
+X-Plainbox-Provider: yes
+Description: CheckBox provider for PlainBox
+ This package provides the CheckBox jobs collection, i.e the hardware test
+ definitions and scripts originally included with CheckBox.
+ It is used together alongside with PlainBox.
+ .
+ Jobs are smallest units of testing that can be performed by PlainBox.
+ All jobs have an unique name. There are many types of jobs, some are fully
+ automated others are fully manual.

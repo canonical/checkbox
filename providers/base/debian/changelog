@@ -1,0 +1,206 @@
+plainbox-provider-checkbox (0.65.0-1) UNRELEASED; urgency=medium
+
+  [ Pierre Equoy ]
+  * Open for development (remove this message before releasing)
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Pierre Equoy ]
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Jenkins ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:55 +0000
+
+plainbox-provider-checkbox (0.31) unstable; urgency=medium
+
+  [ Pierre Equoy ]
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:18:21 +0800
+
+plainbox-provider-checkbox (0.25-1) unstable; urgency=medium
+
+  * New upstream maintenance release
+  * debian/watch: match new upstream tarball names
+  * debian/rules: simplify override_dh_auto_install since installation
+    directories are all named plainbox-provider-checkbox
+  * debian/control: remove python2.x, dh-python and obexd-client dependencies
+  * debian/patches: New patch to depends on kmod instead of module-init-tools.
+    (Closes: #811187)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 15 Jan 2016 16:51:16 +0100
+
+plainbox-provider-checkbox (0.24-1) unstable; urgency=medium
+
+  * New upstream maintenance release
+  * debian/control: Depend on more recent version of python3-checkbox-support
+    and python3-plainbox. 
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Thu, 07 Jan 2016 18:03:36 +0100
+
+plainbox-provider-checkbox (0.21.3-1) unstable; urgency=medium
+
+  * New upstream maintenance release:
+    https://launchpad.net/plainbox-provider-checkbox/+milestone/0.21.1
+    https://launchpad.net/plainbox-provider-checkbox/+milestone/0.21.2
+    https://launchpad.net/plainbox-provider-checkbox/+milestone/0.21.3
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 04 Aug 2015 10:03:10 +0200
+
+plainbox-provider-checkbox (0.21-1) unstable; urgency=medium
+
+  * New upstream release 
+  * debian/control: wrap-and-sort 
+  * debian/rules: don't modify .pot/.po files present in the tree 
+  * debian/rules: rewrite provider directories to use more friendly names 
+  * debian/rules: disable strict validation
+  * debian/watch: quote the last dot of the URL pattern 
+  * debian/upstream/signing-key.asc: add the public key of Sylvain
+    Pineau (using gpg --armor --export-options export-minimal --export
+    '7ED72CD1').
+  * debian/copyright: bump Canonical copyright
+  * debian/control: Use the new email address for the team
+    (checkbox-devel@lists.ubuntu.com). 
+  * debian/control: Depend on more recent version of plainbox to get the
+    packaging meta-data unit which blocks validation.
+  * debian/control, debian/rules: Depend on python3-debian for plainbox
+    packaging system integration. Activate plainbox packaging integration
+    through "./manage.py packaging", "X-Plainbox-Provider: yes" and
+    ${plainbox:Depends} and similar. This lets plainbox look at packaging
+    meta-data units contained in the provider being packaged (at .txt.in, .txt
+    and .pxu files) and determine appropriate dependencies. This lessens the
+    maintenance burden on the package maintainer and shifts it onto the
+    upstream developers to provide accurate packaging meta-data for each
+    specific distribution. This also means that separate packaging for similar
+    distributions (Debian, Ubuntu and bleeding-edge Ubuntu PPA is far easier
+    to work with as bulk of the work is shared).
+  * debian/copyright: de-duplicate licenses, as reported by lintian
+  * debian/control: bump standards version to 3.9.6 (no change required) 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Wed, 22 Jul 2015 17:10:33 +0200
+
+plainbox-provider-checkbox (0.4-1) unstable; urgency=medium
+
+  * New upstream release. List of bugfixes:
+    https://launchpad.net/plainbox-provider-checkbox/14.04/0.4
+  * debian/watch: look for new releases on launchpad
+  * debian/rules: stop using pybuild and use manage.py
+    {i18n,build,install,validate} instead. This also drops dependency on
+    python3-distutils-extra and replaces that with intltool
+  * debian/control: drop X-Python3-Version
+  * debian/control: make plainbox-provider-checkbox depend on python and
+    python2.7 (for some scripts) rather than suggesting them.
+  * debian/upstream/signing-key.asc: Use armoured gpg keys to avoid having to
+    keep binary files in Debian packaging. Also, replace that with my key
+    since I made the 0.3 release upstream.
+  * debian/source/lintian-overrides: add an override for warning about no
+    source for flash movie with reference to a bug report that discusses that
+    issue.
+  * debian/source/include-binaries: drop (no longer needed)
+  * debian/patches: drop (no longer needed)
+  * debian/plainbox-provider-checkbox.lintian-overrides: drop (no longer
+    needed)
+  * Stop being a python3 module, move to from DPMT to PAPT
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 07 Apr 2014 19:00:31 +0200
+
+plainbox-provider-checkbox (0.3-2) unstable; urgency=low
+
+  * Patch the checkbox.provider file to add the version number, required by
+    plainbox >= 0.5.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 28 Jan 2014 13:20:39 +0100
+
+plainbox-provider-checkbox (0.3-1) unstable; urgency=low
+
+  * Initial release (Closes: #735208)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Wed, 22 Jan 2014 00:58:42 +0100

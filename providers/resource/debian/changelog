@@ -1,0 +1,164 @@
+plainbox-provider-resource-generic (0.51.0-1) UNRELEASED; urgency=medium
+
+  [ Pierre Equoy ]
+  * Open for development (remove this message before releasing)
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Sylvain Pineau ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+  [ Jenkins ]
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+  * "new upstream version"
+
+ -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:57 +0000
+
+plainbox-provider-resource-generic (0.28) unstable; urgency=medium
+
+  [ Pierre Equoy ]
+  * New upstream release
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Fri, 30 Sep 2016 15:18:52 +0800
+
+plainbox-provider-resource-generic (0.23-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/watch: match new upstream tarball names
+  * debian/rules: simplify override_dh_auto_install since installation
+    directories are all named plainbox-provider-resource-generic
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 15 Jan 2016 21:45:29 +0100
+
+plainbox-provider-resource-generic (0.22-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 08 Jan 2016 09:23:03 +0100
+
+plainbox-provider-resource-generic (0.19-2) unstable; urgency=low
+
+  * Patch packaging meta-data to avoid depending on dmidecode for the following
+    architectures: armel, mips, mipsel, powerpc, ppc64el and s390x.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 08 Sep 2015 16:51:00 +0200
+
+plainbox-provider-resource-generic (0.19-1) unstable; urgency=medium
+
+  * New upstream release
+  * List of bug fixes and enhancements:
+    https://launchpad.net/plainbox-provider-resource/trunk/0.18
+    https://launchpad.net/plainbox-provider-resource/trunk/0.19
+  * Allow debian/rules 'clean' to fail so that plainbox doesn't have to be
+    installed to build the source package in a clean tree. 
+  * debian/control: Use the new email address for the team
+    (checkbox-devel@lists.ubuntu.com). 
+  * debian/control: Depend on more recent version of plainbox to get the
+    packaging meta-data unit which blocks validation.
+  * debian/control, debian/rules: Depend on python3-debian for plainbox
+    packaging system integration. Activate plainbox packaging integration
+    through "./manage.py packaging", "X-Plainbox-Provider: yes" and
+    ${plainbox:Depends} and similar. This lets plainbox look at packaging
+    meta-data units contained in the provider being packaged (at .txt.in, .txt
+    and .pxu files) and determine appropriate dependencies. This lessens the
+    maintenance burden on the package maintainer and shifts it onto the
+    upstream developers to provide accurate packaging meta-data for each
+    specific distribution. This also means that separate packaging for similar
+    distributions (Debian, Ubuntu and bleeding-edge Ubuntu PPA is far easier
+    to work with as bulk of the work is shared).
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 28 Apr 2015 10:35:39 +0200
+
+plainbox-provider-resource-generic (0.17-1) unstable; urgency=medium
+
+  * New upstream release 
+  * debian/copyright: refresh dates 
+  * debian/rules: rename provider directories to avoid having colon in any
+    filesystem path 
+  * debian/control: bump Standards-Version to 3.9.6 (no change required) 
+  * debian/upstream/signing-key.asc: Re-export the public key of Sylvain
+    Pineau (using gpg --armor --export-options export-minimal --export
+    '7ED72CD1'). The old key there didn't validate and I'm not quite sure
+    whose key that was. 
+  * debian/watch: escape one more dot 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 14:42:54 +0100
+
+plainbox-provider-resource-generic (0.3-1) unstable; urgency=medium
+
+  * New upstream release. List of bugfixes:
+    https://launchpad.net/plainbox-provider-resource/14.04/0.3
+  * debian/watch: look for new releases on launchpad
+  * debian/control: make plainbox-provider-resource-generic arch=any as it
+    builds C source for one provider-specific executable now, also depend on
+    autotools, intltool and two netlink libraries
+  * debian/rules: stop using pybuild and use manage.py
+    {i18n,build,install,validate} instead. The build rule also regenerates.
+    autotools scripts that are present in the tarball.
+  * debian/control: drop X-Python3-Version 
+  * debian/patches: drop (no longer needed)
+  * debian/upstream/signing-key.asc: Use armoured gpg keys to avoid having to
+    keep binary files in Debian packaging. Also, replace that with my key
+    since I made the 0.3 release upstream.
+  * debian/source/include-binaries: no longer needed 
+  * Stop being a python3 module, move to from DPMT to PAPT
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 07 Apr 2014 14:12:51 +0200
+
+plainbox-provider-resource-generic (0.2-2) unstable; urgency=low
+
+  * Patch the plainbox-resources.provider file to add the version number,
+    required by plainbox >= 0.5.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 28 Jan 2014 13:23:22 +0100
+
+plainbox-provider-resource-generic (0.2-1) unstable; urgency=low
+
+  * Initial release (Closes: #735187)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 13 Jan 2014 15:27:48 +0100

@@ -1,0 +1,553 @@
+
+id: wireless/detect
+category_id: com.canonical.plainbox::wireless
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 2.0
+_summary: Detect if at least one Wireless LAN device is detected
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_wlan_adapter == 'True'
+command:
+  network_device_info.py detect WIRELESS
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_scanning_{{ interface }}
+_summary: Test system can discover Wi-Fi networks on {{ interface }}
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py scan {{ interface }}
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 6
+_description:
+ Check system can find a wireless network AP nearby
+flags: preserve-locale also-after-suspend
+requires:
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {% endif -%}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_wpa_bg_nm_{{ interface }}
+_summary: Connect to WPA-encrypted 802.11b/g Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to 802.11b/g AP with wpa security
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_BG_SSID" "$WPA_BG_PSK"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {% endif -%}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_open_bg_nm_{{ interface }}
+_summary: Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to insecure 802.11b/g AP
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_BG_SSID"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {% endif -%}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_wpa_n_nm_{{ interface }}
+_summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to 802.11n AP with wpa security
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_N_SSID" "$WPA_N_PSK"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {% endif -%}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_open_n_nm_{{ interface }}
+_summary: Connect to unencrypted 802.11n Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to insecure 802.11n AP
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_N_SSID"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {% endif -%}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_wpa_ac_nm_{{ interface }}
+_summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to 802.11ac AP with wpa security
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_AC_SSID" "$WPA_AC_PSK"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_ac == 'supported'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {%- endif %}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_open_ac_nm_{{ interface }}
+_summary: Connect to unencrypted 802.11ac Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to insecure 802.11ac AP
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_AC_SSID"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_ac == 'supported'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {%- endif %}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_wpa_ax_nm_{{ interface }}
+_summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to 802.11ax AP with wpa security
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA_AX_SSID" "$WPA_AX_PSK"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {%- endif %}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/wireless_connection_open_ax_nm_{{ interface }}
+_summary: Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to insecure 802.11ax AP
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py open {{ interface }} "$OPEN_AX_SSID"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {%- endif %}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::wireless
+id: wireless/wireless_connection_wpa_bg_manual
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11b/g protocols.
+ STEPS:
+     1. Open your router's configuration tool
+     2. Change the settings to only accept connections on the B and G wireless bands
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::wireless
+id: wireless/wireless_connection_open_bg_manual
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11b/g protocols.
+ STEPS:
+     1. Open your router's configuration tool
+     2. Change the settings to only accept connections on the B and G wireless bands
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use no security
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::wireless
+id: wireless/wireless_connection_wpa_n_manual
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+ IEEE_80211.band_5GHz == 'supported'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11n protocols.
+ STEPS:
+     1. Open your router's configuration tool
+     2. Change the settings to only accept connections on the N wireless band
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::wireless
+id: wireless/wireless_connection_open_n_manual
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+ IEEE_80211.band_5GHz == 'supported'
+user: root
+environ: ROUTER_SSID
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11n protocol.
+ STEPS:
+     1. Open your router's configuration tool
+     2. Change the settings to only accept connections on the N wireless band
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use no security
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::wireless
+id: wireless/wireless_connection_wpa_ac_manual
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+ IEEE_80211.ac == 'supported'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11ac protocol.
+ STEPS:
+     1. Open your router's configuration tool
+     2. Change the settings to only accept connections with the 802.11ac protocol.
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::wireless
+id: wireless/wireless_connection_open_ac_manual
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+ IEEE_80211.ac == 'supported'
+user: root
+environ: ROUTER_SSID
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11ac protocol.
+ STEPS:
+     1. Open your router's configuration tool
+     2. Change the settings to only accept connections with the 802.11ac protocol.
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use no security
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+id: wireless/monitor_wireless_connection
+requires:
+ executable.name == 'iperf'
+ device.category == 'WIRELESS'
+user: root
+environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $WPA_BG_SSID" EXIT
+    if create_connection.py wifi "$WPA_BG_SSID" --security=wpa --key="$WPA_BG_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        iperf -c "$SERVER_IPERF" -t 300 -i 30
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 330.0
+_description:
+ Tests the performance of a system's wireless connection through the iperf tool.
+
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+id: wireless/monitor_wireless_connection_udp
+requires:
+ executable.name == 'iperf'
+ device.category == 'WIRELESS'
+user: root
+environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $WPA_BG_SSID" EXIT
+    if create_connection.py wifi "$WPA_BG_SSID" --security=wpa --key="$WPA_BG_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        iperf -c "$SERVER_IPERF" -t 300 -i 30 -u -b 100m -p 5050
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+estimated_duration: 330.0
+_description:
+ Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+id: wireless/nm_connection_save_{interface}
+category_id: com.canonical.plainbox::wireless
+_summary: Save any NetworkManager 802.11 configurations prior to testing
+plugin: shell
+user: root
+command:
+    wifi_nmcli_backup.py save
+estimated_duration: 2.0
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+id: wireless/nm_connection_restore_{interface}
+category_id: com.canonical.plainbox::wireless
+_summary: Restore any NetworkManager 802.11 configurations after testing
+plugin: shell
+user: root
+command:
+    wifi_nmcli_backup.py restore
+estimated_duration: 2.0
+depends: wireless/nm_connection_save_{interface}
+flags: preserve-locale also-after-suspend

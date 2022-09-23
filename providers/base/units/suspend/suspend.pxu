@@ -1,0 +1,2206 @@
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/network_before_suspend
+depends: ethernet/detect
+estimated_duration: 1.2
+_summary: Record the current network before suspending.
+command: set -o pipefail; gateway_ping_test.py | tee "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/resolution_before_suspend
+estimated_duration: 1.2
+_summary: Record the current resolution before suspending.
+command: xrandr -q | grep "[*]" | awk '{print $1}' > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_resolution_before_suspend_{product_slug}
+depends: graphics/{index}_switch_card_{product_slug}
+estimated_duration: 1.2
+_summary: Record the current resolution before suspending.
+command: xrandr -q | grep "[*]" | awk '{{print $1}}' > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/audio_before_suspend
+estimated_duration: 1.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+_summary: Record mixer settings before suspending.
+command: audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/cpu_before_suspend
+estimated_duration: 1.2
+_summary: Verify that all the CPUs are online before suspending
+command: cpuinfo_resource.py > "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/memory_before_suspend
+estimated_duration: 1.2
+_summary: Dumps memory info to a file for comparison after suspend
+command: meminfo_resource.py > "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/iperf_before_suspend_ether_auto_device{__index__}_{interface}
+depends: ethernet/detect
+estimated_duration: 20.0
+requires:
+ package.name == 'iperf'
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command: network.py test -i {interface} -t iperf
+_summary: Before suspend iperf test ethernet {interface}
+_description:
+ This test executes iperf connection performance/stability against device {__index__} ({interface}) before suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/iperf_before_suspend_mobilebroadband_gsm_auto
+depends: mobilebroadband/gsm_connection
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
+_summary: Before suspend iperf test GSM mobilebroadband
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/iperf_before_suspend_mobilebroadband_cdma_auto
+depends: mobilebroadband/cdma_connection
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
+_summary: Before suspend iperf test CDMA mobilebroadband
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_obex_browse_before_suspend
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
+_summary: Bluetooth OBEX browse before suspend
+_description:
+ This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_obex_get_before_suspend
+estimated_duration: 20.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
+_summary: Bluetooth OBEX get before suspend
+_description:
+ This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/suspend_advanced
+requires:
+ sleep.mem == 'supported'
+ rtc.state == 'supported'
+user: root
+environ: PLAINBOX_SESSION_SHARE RTC_DEVICE_FILE
+command:
+ if type -P fwts >/dev/null; then
+     echo "Calling fwts"
+     if [[ -v SNAP ]]; then
+         export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+     fi
+     if fwts --show-tests-categories | grep -q 's3 '; then
+         echo "Calling fwts"
+         set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
+     else
+         echo "Calling rtcwake"
+         if [ -z "$RTC_DEVICE_FILE" ]; then
+             rtcwake -m on -s 30 &
+             systemctl suspend
+         else
+             rtcwake -d "$RTC_DEVICE_FILE" -m on -s 30 &
+             systemctl suspend
+         fi
+     fi
+ else
+     echo "Calling sleep_test.py"
+     set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/2_suspend_single_times.log
+ fi
+estimated_duration: 90.0
+_summary: Manual test of suspend function
+_description:
+ PURPOSE:
+     This test will check suspend and resume
+ STEPS:
+     1. Click "Test" and your system will suspend for about 30 - 60 seconds
+     2. Observe the Power LED to see if it blinks or changes color during suspend
+     3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     4. If your system fails to wake at all and must be rebooted, restart Checkbox after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system suspend and resume correctly?
+     (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+requires:
+ sleep.mem == 'supported'
+ rtc.state == 'supported'
+depends: suspend/suspend_advanced_auto graphics/{index}_switch_card_{product_slug}
+user: root
+environ: PLAINBOX_SESSION_SHARE
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  if [[ -v SNAP ]]; then
+      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+  fi
+  set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
+ else
+  echo "Calling sleep_test.py"
+  set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
+ fi
+estimated_duration: 90.0
+_summary: Test suspend/resume after switching to {vendor} {product}
+_description:
+ PURPOSE:
+     This test will check suspend and resume after switching to {vendor} {product} graphics card.
+ STEPS:
+     1. Ensure you have switched to {vendor} {product} graphics card.
+     2. Click "Test" and your system will suspend for about 30 - 60 seconds
+     3. Observe the Power LED to see if it blinks or changes color during suspend
+     4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     5. If your system fails to wake at all and must be rebooted, restart Checkbox after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system suspend and resume correctly after switching to {vendor} {product} graphics card?
+     (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/suspend_advanced_auto
+requires:
+    sleep.mem == 'supported'
+    rtc.state == 'supported'
+_summary: Automated test of suspend function
+_description:
+ This is the automated version of suspend/suspend_advanced.
+user: root
+environ: PLAINBOX_SESSION_SHARE RTC_DEVICE_FILE
+command:
+ if [[ -v SNAP ]]; then
+     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+ fi
+ # fwts s3 is not available on all architectures (i.e ARM)
+ if fwts --show-tests-categories | grep -q 's3 '; then
+     echo "Calling fwts"
+     set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
+ else
+     echo "Calling rtcwake"
+     if [ -z "$RTC_DEVICE_FILE" ]; then
+         rtcwake -m on -s 30 &
+         systemctl suspend
+     else
+         rtcwake -d "$RTC_DEVICE_FILE" -m on -s 30 &
+         systemctl suspend
+     fi
+ fi
+estimated_duration: 90.000
+
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_hybrid_sleep_{product_slug}
+user: root
+command:
+ if [[ -v SNAP ]]; then
+     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+ fi
+ set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single_times.log
+estimated_duration: 90.0
+_summary: This test will check hybrid sleep and resume
+_description:
+ PURPOSE:
+     This test will check hybrid sleep and resume
+ STEPS:
+     1. Click "Test" and your system will go into hybrid sleep mode for about 30 - 60 seconds
+     2. Observe the Power LED to see if it blinks or changes color during suspend
+     3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     4. If your system fails to wake at all and must be rebooted, restart Checkbox after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system enter hybrid sleep and then resume correctly?
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/suspend-single-log-check
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_single.log
+_summary: Automated check of the suspend log for errors reported by fwts
+
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: suspend/suspend-single-log-attach
+depends: suspend/suspend_advanced_auto
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_single.log
+_summary: Attaches the log from the single suspend/resume test
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_suspend-single-log-attach_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log
+_summary: Attaches the log from the single suspend/resume test
+
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_hybrid-sleep-single-log-check
+depends: suspend/{index}_hybrid_sleep_{product_slug}
+estimated_duration: 1.2
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
+_summary: Automated check of the hybrid sleep log for errors reported by fwts
+
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
+depends: suspend/{index}_hybrid_sleep_{product_slug}
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
+_summary: Attaches the log from the single hybrid sleep/resume test
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/suspend-time-check
+estimated_duration: 1.2
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
+_summary: Ensure time to suspend/resume is under threshold
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_suspend-time-check_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+estimated_duration: 1.2
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
+_summary: Ensure time to suspend/resume is under threshold
+_description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: power-management/usb_wakeup_keyboard
+user: root
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+command: pm-suspend
+_description:
+ PURPOSE:
+     Wake up by USB keyboard
+ STEPS:
+     1. Enable "Wake by USB KB/Mouse" item in BIOS
+     2. Press "Test" to enter suspend (S3) mode
+     3. Press any key of USB keyboard to wake system up
+ VERIFICATION:
+     Did the system wake up from suspend mode when you pressed a keyboard key?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: power-management/usb_wakeup_mouse
+user: root
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+command: pm-suspend
+_description:
+ PURPOSE:
+     Wake up by USB mouse
+ STEPS:
+     1. Enable "Wake by USB KB/Mouse" item in BIOS
+     2. Press "Test" to enter suspend (S3) mode
+     3. Press any button of USB mouse to wake system up
+ VERIFICATION:
+     Did the system wake up from suspend mode when you pressed the mouse button?
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/network_after_suspend
+estimated_duration: 20.0
+depends: suspend/suspend_advanced_auto suspend/network_before_suspend
+_description: Test the network after resuming.
+command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/network_after_suspend_auto
+estimated_duration: 20.0
+depends: suspend/suspend_advanced_auto suspend/network_before_suspend
+_description: Test the network after resuming.
+command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/resolution_after_suspend
+depends: suspend/suspend_advanced_auto suspend/resolution_before_suspend
+estimated_duration: 1.2
+_description: Test to see that we have the same resolution after resuming as before.
+command: xrandr -q | grep "[*]" | awk '{print $1}' | diff "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt -
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_resolution_after_suspend_{product_slug}
+estimated_duration: 1.2
+depends: suspend/{index}_resolution_before_suspend_{product_slug}
+_description: Test to see that we have the same resolution after resuming as before.
+command: xrandr -q | grep "[*]" | awk '{{print $1}}' | diff "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt -
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/audio_after_suspend
+estimated_duration: 1.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
+_description: Verify that mixer settings after suspend are the same as before suspend.
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/audio_after_suspend_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
+_description: Verify that mixer settings after suspend are the same as before suspend.
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/speaker-headphone-plug-detection-after-suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 60.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse_active_port_change.py sinks
+_description:
+ PURPOSE:
+     Check that system detects speakers or headphones being plugged in after suspend
+ STEPS:
+     1. Prepare a pair of headphones or speakers with a standard 3.5mm jack
+     2. Locate the speaker / headphone jack on the device under test
+     3. Run the test (you have 30 seconds from now on)
+     4. Plug headphones or speakers into the appropriate jack
+     5. Unplug the device for subsequent tests.
+ VERIFICATION:
+     Verification is automatic, no action is required.
+     The test times out after 30 seconds (and fails in that case).
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/microphone-plug-detection-after-suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 60.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse_active_port_change.py sources
+_description:
+ PURPOSE:
+     Check that system detects a microphone being plugged in after suspend
+ STEPS:
+     1. Prepare a microphone with a standard 3.5mm jack
+     2. Locate the microphone jack on the device under test.
+        Keep in mind that it may be shared with the headphone jack.
+     3. Run the test (you have 30 seconds from now on)
+     4. Plug the microphone into the appropriate jack
+     5. Unplug the device for subsequent tests.
+ VERIFICATION:
+     Verification is automatic, no action is required.
+     The test times out after 30 seconds (and fails in that case).
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/playback_headphones-after-suspend
+estimated_duration: 20.0
+depends: audio/list_devices suspend/suspend_advanced_auto
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that headphones connector works correctly after suspend
+ STEPS:
+     1. Connect a pair of headphones to your audio device
+     2. Commence the test to play a sound to your audio device
+ VERIFICATION:
+     Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/alsa_record_playback_external-after-suspend
+estimated_duration: 20.0
+depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced_auto
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+ audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --device=pci --volume=50
+ alsa_record_playback.sh
+ EXIT_CODE=$?
+ audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that recording sound using an external microphone works correctly after suspend
+ STEPS:
+     1. Connect a microphone to your microphone port
+     2. Click "Test", then speak into the external microphone
+     3. After a few seconds, your speech will be played back to you
+ VERIFICATION:
+     Did you hear your speech played back?
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/cpu_after_suspend
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
+_description: Verify that all CPUs are online after resuming.
+command: cpuinfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend -
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/cpu_after_suspend_auto
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
+_description: Verify that all CPUs are online after resuming.
+command: cpuinfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend -
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/memory_after_suspend
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
+_description:
+ Verify that all memory is available after resuming from suspend.
+command: meminfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend -
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/memory_after_suspend_auto
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
+_description:
+ Verify that all memory is available after resuming from suspend.
+command: meminfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend -
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/display_after_suspend
+estimated_duration: 120.0
+depends: suspend/suspend_advanced_auto
+_description:
+ PURPOSE:
+     This test will check that the display is correct after suspend and resume
+ STEPS:
+     1. Check that your display does not show up visual artifacts after resuming.
+ VERIFICATION:
+     Does the display work normally after resuming from suspend?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_display_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+_summary: Test display function after suspend for {vendor} {product}
+_description:
+ PURPOSE:
+     This test will check that the display is correct after suspend and resume on the {vendor} {product} graphics card.
+ STEPS:
+     1. Check that your display does not show up visual artifacts after resuming.
+ VERIFICATION:
+     Does the display work normally after resuming from suspend using the {vendor} {product} graphics card?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/iperf_after_suspend_ether_auto_device{__index__}_{interface}
+depends: suspend/suspend_advanced_auto
+estimated_duration: 30.0
+requires:
+ package.name == 'iperf'
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command: network.py test -i {interface} -t iperf
+_description:
+ This test executes iperf connection performance/stability against device {__index__} ({interface}) after suspend.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS'
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/iperf_after_suspend_wifi_auto_device{__index__}_{interface}
+depends: suspend/suspend_advanced_auto
+estimated_duration: 30.0
+requires:
+ package.name == 'iperf'
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command: network.py test -i {interface} -t iperf
+_description:
+ This test executes iperf connection performance/stability against device {__index__} ({interface}) after suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/iperf_after_suspend_mobilebroadband_gsm_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/iperf_after_suspend_mobilebroadband_cdma_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:
+ INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13)
+ [ -z "$INTERFACE" ] && exit 1
+ network.py test -i "$INTERFACE" -t iperf
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/wireless_connection_after_suspend_wpa_bg_manual
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11b/g protocols.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the B and G wireless bands
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/wireless_connection_after_suspend_open_bg_manual
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11b/g protocols.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the B and G wireless bands
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use no security
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/wireless_connection_after_suspend_wpa_n_manual
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11n protocols.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the N wireless band
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/wireless_connection_after_suspend_open_n_manual
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11n protocol.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the N wireless band
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use no security
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/wireless_connection_after_suspend_wpa_ac_manual
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID" --security=wpa --key="$ROUTER_PSK"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11ac protocol.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the 802.11ac protocol.
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/wireless_connection_after_suspend_open_ac_manual
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID
+command:
+    # shellcheck disable=SC2064
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection.py wifi "$ROUTER_SSID"; then
+        connect_wireless.sh # lp:1471663
+        INTERFACE=$(nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}')
+        iw dev "$INTERFACE" link
+        gateway_ping_test.py --interface="$INTERFACE"
+        STATUS=$?
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
+        if [[ -n $WIRED ]]; then
+            nmcli c up uuid "$WIRED"
+        fi
+        exit $STATUS
+    else
+        exit 1
+    fi
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11ac protocol.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the 802.11ac protocol.
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use no security
+     5. Commence the test to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_detect_after_suspend
+depends: suspend/suspend_advanced_auto bluetooth/detect-output
+estimated_duration: 1.2
+requires:
+ package.name == 'bluez'
+ device.category == 'BLUETOOTH'
+command:
+ if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then
+   echo "rfkill shows BT is hard blocked"
+ fi
+ if rfkill list bluetooth | grep -q 'Soft blocked: yes'; then
+   echo "rfkill shows BT is soft blocked, removing before testing"
+   rfkill unblock bluetooth
+   sleep 3
+ fi
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}')
+ echo "$output" | diff "$PLAINBOX_SESSION_SHARE"/bluetooth_address -
+ if [ -z "$output" ]; then
+     echo "BT hardware not available"
+     exit 1
+ fi
+_description:
+ This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address grabbed before suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_detect_after_suspend_auto
+depends: suspend/suspend_advanced_auto bluetooth/detect-output
+estimated_duration: 1.2
+requires:
+ package.name == 'bluez'
+ device.category == 'BLUETOOTH'
+command:
+ if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then
+   echo "rfkill shows BT is hard blocked"
+ fi
+ if rfkill list bluetooth | grep -q 'Soft blocked: yes'; then
+   echo "rfkill shows BT is soft blocked, removing before testing"
+   rfkill unblock bluetooth
+   sleep 3
+ fi
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}')
+ echo "$output" | diff "$PLAINBOX_SESSION_SHARE"/bluetooth_address -
+ if [ -z "$output" ]; then
+     echo "BT hardware not available"
+     exit 1
+ fi
+_description:
+ This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address grabbed before suspend.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_obex_browse_after_suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
+_description:
+ This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_obex_browse_after_suspend_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
+_description:
+ This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_obex_get_after_suspend
+estimated_duration: 20.0
+depends: suspend/suspend_advanced_auto
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
+_description:
+ This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/bluetooth_obex_get_after_suspend_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
+_description:
+ This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/cycle_resolutions_after_suspend
+estimated_duration: 120.0
+requires: package.name == 'xorg'
+depends: suspend/suspend_advanced_auto
+command:
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   gnome_randr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
+_description:
+ PURPOSE:
+     This test will cycle through the detected display modes
+ STEPS:
+     1. Click "Test" and the display will cycle trough the display modes
+ VERIFICATION:
+     Did your display look fine in the detected mode?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
+requires: package.name == 'xorg'
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+estimated_duration: 120.0
+command:
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   gnome_randr_cycle.py --keyword={index}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --keyword={index}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
+_description:
+ PURPOSE:
+     This test will cycle through the detected display modes
+ STEPS:
+     1. Click "Test" and the display will cycle trough the display modes
+ VERIFICATION:
+     Did your display look fine in the detected mode?
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/cycle_resolutions_after_suspend_auto
+estimated_duration: 1.2
+requires: package.name == 'xorg'
+depends: suspend/suspend_advanced_auto
+_description:
+ This test will check to make sure supported video modes work after a suspend and resume.
+ This is done automatically by taking screenshots and uploading them as an attachment.
+command:
+ if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ then
+   gnome_randr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
+
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: suspend/xrandr_screens_after_suspend.tar.gz
+depends: suspend/cycle_resolutions_after_suspend
+command: [ -f "$PLAINBOX_SESSION_SHARE"/xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/xrandr_screens_after_suspend.tgz
+_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
+depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
+command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
+_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/record_playback_after_suspend
+estimated_duration: 10.0
+depends: suspend/suspend_advanced_auto
+requires:
+ package.name == 'python3-gi'
+ package.name == 'gir1.2-gstreamer-1.0'
+ package.name == 'libgstreamer1.0-0'
+ package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'gstreamer1.0-pulseaudio'
+ package.name == 'alsa-base'
+ device.category == 'AUDIO'
+command: audio_test.py
+_description:
+ This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/record_playback_after_suspend_auto
+estimated_duration: 10.0
+depends: suspend/suspend_advanced_auto
+requires:
+ package.name == 'python3-gi'
+ package.name == 'gir1.2-gstreamer-1.0'
+ package.name == 'libgstreamer1.0-0'
+ package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'gstreamer1.0-pulseaudio'
+ package.name == 'alsa-base'
+ device.category == 'AUDIO'
+command: audio_test.py
+_description:
+ This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
+
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: suspend/suspend-auto-single-log-attach
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log
+_description:
+ Attaches the log from the single suspend/resume test to the results
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/screenshot_after_suspend
+estimated_duration: 10.0
+depends: suspend/suspend_advanced_auto
+requires: package.name == 'fswebcam'
+command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f "${PLAINBOX_SESSION_SHARE}"/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser.py
+_description:
+ PURPOSE:
+     Take a screengrab of the current screen after suspend (logged on Unity desktop)
+ STEPS:
+     1. Take picture using USB webcam
+ VERIFICATION:
+     Review attachment manually later
+
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: screenshot_after_suspend.jpg
+depends: suspend/screenshot_after_suspend
+command: cat "${PLAINBOX_SESSION_SHARE}"/screenshot_after_suspend.jpg
+_description: Attaches the screenshot captured in graphics/screenshot.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/gpu_lockup_after_suspend
+estimated_duration: 10.0
+requires:
+ executable.name == 'wmctrl'
+ executable.name == 'glxgears'
+ package.name == 'firefox'
+ package.name == 'unity'
+depends: suspend/suspend_advanced_auto
+command: gpu_test.py
+_description:
+ PURPOSE:
+     Do some challenging operations then check for lockup on the GPU
+ STEPS:
+     1. Create 2 glxgears windows and move them quickly
+     2. Switch workspaces with wmctrl
+     3. Launch an HTML5 video playback in firefox
+ VERIFICATION:
+     After a 60s workload, check kern.log for reported GPU errors
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/wifi_resume_time
+depends: suspend/suspend_advanced_auto
+requires:
+   device.category == 'WIRELESS'
+user: root
+command: network_reconnect_resume_test.py -t 90 -d wifi
+estimated_duration: 0.530
+_description:
+ Checks the length of time it takes to reconnect an existing wifi connection
+ after a suspend/resume cycle.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/wifi_resume_time_auto
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto
+requires:
+   device.category == 'WIRELESS'
+user: root
+command: network_reconnect_resume_test.py -t 90 -d wifi
+_description:
+ Checks the length of time it takes to reconnect an existing wifi connection
+ after a suspend/resume cycle.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/network_resume_time
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+   device.category == 'NETWORK'
+user: root
+command: network_reconnect_resume_test.py -t 10 -d wired
+_description:
+ Checks the length of time it takes to reconnect an existing wired connection
+  after a suspend/resume cycle.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/network_resume_time_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+   device.category == 'NETWORK'
+user: root
+command: network_reconnect_resume_test.py -t 10 -d wired
+_description:
+ Checks the length of time it takes to reconnect an existing wired connection
+  after a suspend/resume cycle.
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/power
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the power LED operated the same after resuming from suspend
+ STEPS:
+     1. Power LED should be on while device is switched on
+ VERIFICATION:
+     Does the power LED remain on after resuming from suspend?
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/battery-charging
+estimated_duration: 120.0
+depends: suspend/suspend_advanced_auto
+_description:
+ PURPOSE:
+     Validate that the battery light shows charging status after resuming from suspend
+ STEPS:
+     1. Let system run on battery for a while
+     2. Plug in AC plug
+ VERIFICATION:
+     Did the battery indicator LED still turn orange after resuming from suspend?
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/battery-charged
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the battery LED properly displays charged status after resuming from suspend
+ STEPS:
+     1. Let system run on battery for a short time
+     2. Plug in AC
+     3. Let system run on AC
+ VERIFICATION:
+     Does the orange battery LED still shut off when system is fully charged after resuming from suspend?
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/battery-low
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the battery LED indicated low power after resuming from suspend
+ STEPS:
+     1. Let system run on battery for several hours
+     2. Monitor battery LED carefully
+ VERIFICATION:
+     Does the LED light orange when battery is low after resuming from suspend?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/hdd
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+command: led_hdd_test.sh
+_description:
+ PURPOSE:
+     Validate that the HDD LED still operates as expected after resuming from suspend
+ STEPS:
+     1. Select "Test" to write and read a temporary file for a few seconds
+     2. HDD LED should blink when writing to/reading from HDD
+ VERIFICATION:
+     Did the HDD LED still blink with HDD activity after resuming from suspend?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/numeric-keypad
+estimated_duration: 120.0
+depends: suspend/suspend_advanced_auto
+command: keyboard_test.py
+_description:
+ PURPOSE:
+     Validate that the numeric keypad LED operates the same before and after resuming from suspend
+ STEPS:
+     1. Press "Block Num" key to toggle numeric keypad LED
+     2. Click on the "Test" button to open a window to verify your typing
+     3. Type using the numeric keypad both when the LED is on and off
+ VERIFICATION:
+     1. Numeric keypad LED status should toggle everytime the "Block Num" key is pressed
+     2. Numbers should only be entered in the keyboard verification window when the LED is on
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/caps-lock
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the Caps Lock key operates the same before and after resuming from suspend
+ STEPS:
+     1. Press "Block Cap Keys" to activate/deactivate cap keys blocking
+     2. Cap Keys LED should be switched on/off every time the key is pressed
+ VERIFICATION:
+     Did the Cap Keys LED light as expected after resuming from suspend?
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/wlan
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     WLAN LED verification after resuming from suspend
+ STEPS:
+     1. Make sure WLAN connection is established
+     2. WLAN LED should light
+ VERIFICATION:
+     Did the WLAN LED light as expected after resuming from suspend?
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/wlan-disabled
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that WLAN LED shuts off when disabled after resuming from suspend
+ STEPS:
+     1. Connect to AP
+     2. Use Physical switch to disable WLAN
+     3. Re-enable
+     4. Use Network-Manager to disable WLAN
+ VERIFICATION:
+     Did the LED turn off then WLAN is disabled after resuming from suspend?
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/bluetooth
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the Bluetooth LED turns on and off when BT is enabled/disabled after resuming from suspend
+ STEPS:
+     1. Switch bluetooth off from a hardware switch (if present)
+     2. Switch bluetooth back on
+     3. Switch bluetooth off from the panel applet
+     4. Switch bluetooth back on
+ VERIFICATION:
+     Did the bluetooth LED turn off and on twice after resuming from suspend?
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/touchpad
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad LED verification after resuming from suspend
+ STEPS:
+     1. Click on the touchpad button or press key combination to enable/disable touchpad button
+     2. Slide your finger on the touchpad
+ VERIFICATION:
+     1. Touchpad LED status should toggle everytime the button is clicked or the key combination is pressed
+     2. When the LED is on, the mouse pointer should move on touchpad usage
+     3. When the LED is off, the mouse pointer should not move on touchpad usage
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/led_after_suspend/wireless
+depends: suspend/suspend_advanced_auto
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate Wireless (WLAN + Bluetooth) LED operated the same after resuming from suspend
+ STEPS:
+     1. Make sure WLAN connection is established and Bluetooth is enabled.
+     2. WLAN/Bluetooth LED should light
+     3. Switch WLAN and Bluetooth off from a hardware switch (if present)
+     4. Switch them back on
+     5. Switch WLAN and Bluetooth off from the panel applet
+     6. Switch them back on
+ VERIFICATION:
+     Did the WLAN/Bluetooth LED light as expected after resuming from suspend?
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb_insert_after_suspend
+estimated_duration: 30.0
+depends:
+ suspend/suspend_advanced_auto
+command: removable_storage_watcher.py insert usb
+_purpose:
+     This test will check that the system correctly detects the insertion of
+     a USB storage device after suspend and resume.
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
+_steps:
+     1. Click "Test" and insert a USB storage device (pen-drive/HDD).
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not unplug the device after the test.
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb3_insert_after_suspend
+estimated_duration: 30.0
+requires:
+ usb.usb3 == 'supported'
+depends:
+ suspend/suspend_advanced_auto
+command: removable_storage_watcher.py -m 500000000 insert usb
+_purpose:
+     This test will check that the system correctly detects the insertion of
+     a USB 3.0 storage device after suspend and resume.
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
+_steps:
+     1. Click "Test" and insert a USB 3.0 storage device (pen-drive/HDD) in
+        a USB 3.0 port. (Note: this test will time-out after 20 seconds.)
+     2. Do not unplug the device after the test.
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb_remove_after_suspend
+estimated_duration: 30.0
+depends:
+ suspend/usb_insert_after_suspend
+command: removable_storage_watcher.py remove usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal of
+     a USB storage device after suspend.
+ STEPS:
+     1. Click "Test" and remove the USB device.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb3_remove_after_suspend
+estimated_duration: 30.0
+depends:
+ suspend/usb3_insert_after_suspend
+requires:
+ usb.usb3 == 'supported'
+command: removable_storage_watcher.py -m 500000000 remove usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal of
+     a USB 3.0 storage device after suspend
+ STEPS:
+     1. Click "Test" and remove the USB 3.0 device.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb_storage_automated_after_suspend
+estimated_duration: 1.2
+depends: suspend/usb_insert_after_suspend
+user: root
+command: removable_storage_test.py -s 268400000 usb
+_description:
+ This test is automated and executes after the suspend/usb_insert_after_suspend
+ test is run.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb3_storage_automated_after_suspend
+estimated_duration: 1.2
+requires:
+ usb.usb3 == 'supported'
+depends: suspend/usb3_insert_after_suspend
+user: root
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+ This test is automated and executes after the suspend/usb3_insert_after_suspend
+ test is run.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb_performance_after_suspend
+depends: suspend/usb_insert_after_suspend
+user: root
+estimated_duration: 45.00
+command: removable_storage_test.py -s 268400000 -p 15 usb
+_description:
+ This test will check that your USB 2.0 port transfers data at a
+ minimum expected speed.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/usb3_superspeed_performance_after_suspend
+requires:
+ usb.usb3 == 'supported'
+depends: suspend/usb3_insert_after_suspend
+user: root
+estimated_duration: 45.00
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+ This test will check that your USB 3.0 port could be recognized
+ as SuperSpeed USB device using xhci_hcd driver and transfers data correctly.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/mmc-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of an MMC card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert an MMC card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/mmc-storage-after-suspend
+depends: suspend/mmc-insert-after-suspend
+estimated_duration: 10.0
+user: root
+command: removable_storage_test.py -s 67120000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/mmc-insert-after-suspend test
+ is run. It tests reading and writing to the MMC card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/mmc-remove-after-suspend
+depends: suspend/mmc-insert-after-suspend
+estimated_duration: 30.0
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of an MMC card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the MMC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/sd-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of an UNLOCKED SD card after the system
+     has been suspended
+ STEPS:
+     1. Click "Test" and insert an UNLOCKED SD card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/sd-storage-after-suspend
+estimated_duration: 10.0
+depends: suspend/sd-insert-after-suspend
+user: root
+command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/sd-insert-after-suspend test
+ is run. It tests reading and writing to the SD card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/sd-remove-after-suspend
+estimated_duration: 30.0
+depends: suspend/sd-insert-after-suspend
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of an SD card from the systems card reader
+     after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the SD card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/sdhc-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of an UNLOCKED SDHC media card after the
+     system has been suspended
+ STEPS:
+     1. Click "Test" and insert an UNLOCKED SDHC card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/sdhc-storage-after-suspend
+estimated_duration: 10.0
+depends: suspend/sdhc-insert-after-suspend
+user: root
+command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/sdhc-insert-after-suspend test
+ is run. It tests reading and writing to the SDHC card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: suspend/sdhc-remove-after-suspend
+estimated_duration: 30.0
+depends: suspend/sdhc-insert-after-suspend
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of an SDHC card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the SDHC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/cf-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a CF card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a CF card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: mediacard/cf-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/cf-insert-after-suspend
+user: root
+command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/cf-insert-after-suspend test
+ is run. It tests reading and writing to the CF card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/cf-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/cf-insert-after-suspend
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a CF card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the CF card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/sdxc-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a SDXC card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a SDXC card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: mediacard/sdxc-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/sdxc-insert-after-suspend
+user: root
+command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/sdxc-insert-after-suspend test
+ is run. It tests reading and writing to the SDXC card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/sdxc-remove-after-suspend
+depends: mediacard/sdxc-insert-after-suspend
+estimated_duration: 30.0
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a SDXC card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the SDXC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/ms-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a MS card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a MS card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: mediacard/ms-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/ms-insert-after-suspend
+user: root
+command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/ms-insert-after-suspend test
+ is run. It tests reading and writing to the MS card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/ms-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/ms-insert-after-suspend
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a MS card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the MS card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/msp-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a MSP card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a MSP card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: mediacard/msp-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/msp-insert-after-suspend
+user: root
+command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/msp-insert-after-suspend test
+ is run. It tests reading and writing to the MSP card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/msp-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/msp-insert-after-suspend
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a MSP card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the MSP card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/xd-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+command: removable_storage_watcher.py --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a xD card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a xD card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: mediacard/xd-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/xd-insert-after-suspend
+user: root
+command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/xd-insert-after-suspend test
+ is run. It tests reading and writing to the xD card after the system has been suspended.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::suspend
+id: mediacard/xd-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/xd-insert-after-suspend
+command: removable_storage_watcher.py --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a xD card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the xD card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: touchpad/touchpad_after_suspend
+depends: suspend/suspend_advanced_auto
+requires:
+  dmi.product in ['Notebook','Laptop','Portable']
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
+command: true
+estimated_duration: 1.2
+_description:
+ Determine if the touchpad is still functioning after suspend/resume.
+
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: touchscreen/touchscreen_after_suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+depends: suspend/suspend_advanced_auto
+estimated_duration: 30.0
+_description:
+ PURPOSE:
+     Check touchscreen tap recognition
+ STEPS:
+     1. Tap an object on the screen with finger. The cursor should jump to location tapped and object should highlight
+ VERIFICATION:
+     Does tap recognition work?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+id: suspend/pointing-after-suspend_{product_slug}_{category}_{__index__}
+depends: suspend/suspend_advanced_auto
+_description:
+ PURPOSE:
+     This will test your {product} device after suspend.
+ STEPS:
+     1. Move the cursor with your {product}.
+ VERIFICATION:
+     Did the cursor move?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD'
+plugin: manual
+category_id: com.canonical.plainbox::suspend
+estimated_duration: 30.0
+id: suspend/clicking-after-suspend_{product_slug}_{category}_{__index__}
+depends: suspend/suspend_advanced_auto
+_summary: Check post suspend button functionality for {product}
+_description:
+ PURPOSE:
+     This will test the buttons of your {product} device after suspend
+ STEPS:
+     1. Click the left button with your {product}.
+     2. Click the right button with your {product}.
+     3. Click the middle button with your {product} (if available).
+     4. Double-click the left button with your {product}.
+ VERIFICATION:
+     Did these buttons work as expected?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_gl_support_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+requires: package.name == 'nux-tools'
+command: /usr/lib/nux/unity_support_test -p 2>&1
+estimated_duration: 0.130
+_description: Check that {product} hardware is able to run a desktop session (OpenGL) after suspend
+_summary: Test OpenGL support for {product} after suspend
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/gl_support_after_suspend
+depends: suspend/suspend_advanced_auto
+requires: package.name == 'nux-tools'
+command: /usr/lib/nux/unity_support_test -p 2>&1
+estimated_duration: 0.130
+_description: Check that the hardware is able to run a desktop session (OpenGL)
+_summary: Test OpenGL support after suspend
+
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/{index}_glxgears_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+requires: executable.name == 'glxgears'
+command: glxgears; true
+_summary: Test that glxgears works for {vendor} {product} after suspend
+_description:
+ PURPOSE:
+     This test tests the basic 3D capabilities of your {vendor} {product} video card after suspend
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+id: suspend/glxgears_after_suspend
+depends: suspend/suspend_advanced_auto
+requires:
+ executable.name == 'glxgears'
+ device.category == 'VIDEO'
+command: glxgears; true
+_summary: Test that glxgears works after suspend
+_description:
+ PURPOSE:
+     This test tests the basic 3D capabilities of your video card after suspend
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
+
+unit: template
+template-resource: graphics_card
+id: suspend/{index}_video_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+requires:
+ package.name == 'xorg'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+command: gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+_summary: Test that video can be displayed after suspend with {vendor} {product}
+_description:
+ PURPOSE:
+     This test will test the default display after suspend with a sample video
+ STEPS:
+     1. Click "Test" to display a video test.
+ VERIFICATION:
+     Do you see color bars and static?
+
+id: suspend/video_after_suspend
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::suspend
+depends: suspend/suspend_advanced_auto
+requires:
+ device.category == 'VIDEO'
+ package.name == 'xorg'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+command: gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+_summary: Test that video can be displayed after suspend
+_description:
+ PURPOSE:
+     This test will test the default display after suspend with a sample video
+ STEPS:
+     1. Click "Test" to display a video test.
+ VERIFICATION:
+     Do you see color bars and static?
+
+id: suspend/oops_after_suspend
+depends: suspend/suspend_advanced_auto
+plugin:shell
+estimated_duration: 10.0
+requires: executable.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) oops tests after suspend.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ if [[ -v SNAP ]]; then
+     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+ fi
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_oops_results_after_s3.log -t oops
+
+id: suspend/oops_results_after_suspend.log
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+estimated_duration: 0.5
+command:
+ [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log
+_description: Attaches the FWTS oops results log to the submission after suspend

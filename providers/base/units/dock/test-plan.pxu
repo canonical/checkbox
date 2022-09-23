@@ -1,0 +1,256 @@
+id: dock-cert-full
+unit: test plan
+_name: Dock Cert tests
+_description:
+ Cert tests for dock devices.
+include:
+nested_part:
+  dock-cold-plug-cert
+  dock-hot-plug
+
+id: after-suspend-dock-cert-full
+unit: test plan
+_name: Dock Cert tests after suspend
+_description:
+ Cert tests for dock devices.
+include:
+nested_part:
+  after-suspend-dock-cert
+  after-suspend-dock-hot-plug
+  suspend-dock-resume-test
+  suspend-undock-resume-test
+
+id: dock-cold-plug-cert
+unit: test plan
+_name: Dock Cold Plug Cert tests
+_description:
+ Cert tests for dock cold plug.
+include:
+  dock/cold-plug                          certification-status=blocker
+  dock/power-button                       certification-status=blocker
+  dock/monitor-displayport                certification-status=blocker
+  dock/audio-playback-displayport         certification-status=blocker
+  dock/monitor-dvi                        certification-status=blocker
+  dock/monitor-hdmi                       certification-status=blocker
+  dock/audio-playback-hdmi                certification-status=blocker
+  dock/monitor-vga                        certification-status=blocker
+  dock/monitor_type-c_displayport         certification-status=blocker
+  dock/audio-playback-type-c-displayport  certification-status=blocker
+  dock/monitor_type-c_hdmi                certification-status=blocker
+  dock/audio-playback-type-c-hdmi         certification-status=blocker
+  dock/monitor_type-c_vga                 certification-status=blocker
+  dock/keys-video-out                     certification-status=blocker
+  dock/monitor-dual-head                  certification-status=blocker
+  dock/monitor-triple-head
+  dock/audio-alsa-info-collect
+  dock/audio-alsa-info-attachment
+  dock/audio-list-devices
+  dock/audio-playback-headphones        certification-status=blocker
+  dock/audio-alsa-record-playback-external      certification-status=blocker
+  dock/audio-external-linein
+  dock/audio-external-lineout
+  dock/networking-gateway-ping          certification-status=blocker
+  dock/networking-ntp                   certification-status=blocker
+  dock/mac-address-passthrough
+  dock/usb-HID                          certification-status=blocker
+  dock/usb-insert                       certification-status=blocker
+  dock/usb-storage-automated            certification-status=blocker
+  dock/usb-remove                       certification-status=blocker
+  dock/usb3-insert                      certification-status=blocker
+  dock/usb3-storage-automated           certification-status=blocker
+  dock/usb3-remove                      certification-status=blocker
+  dock/usb-c/c-to-a-adapter/insert
+  dock/usb-c/c-to-a-adapter/storage-automated
+  dock/usb-c/c-to-a-adapter/remove
+  dock/usb-c/insert
+  dock/usb-c/storage-automated
+  dock/usb-c/remove
+  dock/battery-charging                 certification-status=blocker
+  dock/monitor-thunderbolt3
+  dock/audio-playback-thunderbolt3
+  dock/thunderbolt3-insert
+  dock/thunderbolt3-storage-test
+  dock/thunderbolt3-remove
+  dock/thunderbolt3-daisy-chain
+  dock/network-before-suspend           certification-status=blocker
+  dock/audio-before-suspend             certification-status=blocker
+  
+id: dock-hot-plug
+unit: test plan
+_name: Dock Hot Plug tests
+_description:
+ Tests for dock cold plug.
+include:
+  dock/hot-plug
+  dock/hotplug-ethernet
+  dock/hotplug-usb-insert
+  dock/hotplug-usb-storage-automated
+  dock/hotplug-usb-remove
+  dock/hotplug-usb3-insert
+  dock/hotplug-usb3-storage-automated
+  dock/hotplug-usb3-remove
+  dock/hotplug-playback-displayport
+  dock/hotplug-playback-hdmi
+  dock/hotplug-playback-type-c-displayport
+  dock/hotplug-playback-thumderbolt3
+  
+id: after-suspend-dock-cert
+unit: test plan
+_name: After suspend Dock Cert tests
+_description:
+ Cert tests for the dock after suspend.
+include:
+  # Do power on/off to clean up the test environment
+  power-management/poweroff                        certification-status=blocker
+  power-management/poweroff-log-attach
+  suspend/suspend_advanced_auto                    certification-status=blocker
+  dock/power-button-after-suspend                  certification-status=blocker
+  dock/networking-gateway-ping-after-suspend       certification-status=blocker
+  dock/usb-HID-after-suspend                       certification-status=blocker
+  dock/usb-insert-after-suspend                    certification-status=blocker
+  dock/usb-storage-automated-after-suspend         certification-status=blocker
+  dock/usb-remove-after-suspend                    certification-status=blocker
+  dock/usb3-insert-after-suspend                   certification-status=blocker
+  dock/usb3-storage-automated-after-suspend        certification-status=blocker
+  dock/usb3-remove-after-suspend                   certification-status=blocker
+  dock/usb-c/c-to-a-adapter/insert-after-suspend
+  dock/usb-c/c-to-a-adapter/storage-automated-after-suspend
+  dock/usb-c/c-to-a-adapter/remove-after-suspend
+  dock/usb-c/insert-after-suspend
+  dock/usb-c/storage-automated-after-suspend
+  dock/usb-c/remove-after-suspend
+  after-suspend-dock/audio-playback-headphones              certification-status=blocker
+  after-suspend-dock/audio-alsa-record-playback-external    certification-status=blocker
+  dock/monitor-displayport-after-suspend                  certification-status=blocker
+  after-suspend-dock/audio-playback-displayport    certification-status=blocker
+  dock/monitor-dvi-after-suspend                          certification-status=blocker
+  dock/monitor-hdmi-after-suspend                         certification-status=blocker
+  after-suspend-dock/audio-playback-hdmi           certification-status=blocker
+  dock/monitor-vga-after-suspend                          certification-status=blocker
+  dock/monitor_type-c_displayport-after-suspend
+  after-suspend-dock/audio-playback-type-c-displayport
+  dock/monitor_type-c_hdmi-after-suspend
+  dock/monitor_type-c_vga-after-suspend
+  after-suspend-dock/thunderbolt3-insert
+  after-suspend-dock/thunderbolt3-storage-test
+  after-suspend-dock/thunderbolt3-remove
+  after-suspend-dock/thunderbolt3-daisy-chain
+  after-suspend-dock/audio-playback-thunderbolt3
+  dock/monitor-dual-head-after-suspend                    certification-status=blocker
+  dock/monitor-triple-head-after-suspend
+
+id: after-suspend-dock-hot-plug
+unit: test plan
+_name: After suspend Dock Hot-plug tests
+_description:
+ Tests for after suspend dock hot-plug.
+include:
+  dock/hot-plug-after-suspend
+  dock/hotplug-ethernet-after-suspend
+  dock/hotplug-usb-insert-after-suspend
+  dock/hotplug-usb-storage-automated-after-suspend
+  dock/hotplug-usb-remove-after-suspend
+  dock/hotplug-usb3-insert-after-suspend
+  dock/hotplug-usb3-storage-automated-after-suspend
+  dock/hotplug-usb3-remove-after-suspend
+  dock/hotplug-monitor-displayport-after-suspend
+  dock/hotplug-monitor-hdmi-after-suspend
+  after-suspend-dock/hotplug-playback-displayport
+  after-suspend-dock/hotplug-playback-hdmi
+  after-suspend-dock/hotplug-playback-type-c-displayport
+  after-suspend-dock/hotplug-playback-thumderbolt3
+
+id: suspend-dock-resume-test
+unit: test plan
+_name: Suspend dock resume tests
+_description:
+ Tests for suspend dock then resume it.
+include:
+  dock/suspend-dock-resume 
+  dock/ethernet-after-suspend-dock-resume
+  dock/usb-insert-after-suspend-dock-resume
+  dock/usb-storage-automated-after-suspend-dock-resume
+  dock/usb-remove-after-suspend-dock-resume
+  dock/usb3-insert-after-suspend-dock-resume
+  dock/usb3-storage-automated-after-suspend-dock-resume
+  dock/usb3-remove-after-suspend-dock-resume
+  dock/monitor-displayport-after-suspend-dock-resume
+  dock/monitor-hdmi-after-suspend-dock-resume
+
+id: suspend-undock-resume-test
+unit: test plan
+_name: After suspend Dock Hot-plug Cert tests
+_description:
+ Test for after susepnd then undock then resume the system.
+include:
+  dock/suspend-undock-resume
+  dock/all-initial
+  dock/all-reboot
+  dock/all-hotplug
+  dock/all-suspend
+  dock/all-poweroff
+
+id: dock-cold-plug-cert-blockers
+unit: test plan
+_name: Dock Cold Plug Cert blocker tests
+_description:
+ Cert blocker tests for dock cold plug.
+include:
+  dock/cold-plug                          certification-status=blocker
+  dock/power-button                       certification-status=blocker
+  dock/monitor-displayport                certification-status=blocker
+  dock/audio-playback-displayport         certification-status=blocker
+  dock/monitor-dvi                        certification-status=blocker
+  dock/monitor-hdmi                       certification-status=blocker
+  dock/audio-playback-hdmi                certification-status=blocker
+  dock/monitor-vga                        certification-status=blocker
+  dock/monitor_type-c_displayport         certification-status=blocker
+  dock/dock_playback_type-c_displayport   certification-status=blocker
+  dock/monitor_type-c_hdmi                certification-status=blocker
+  dock/dock_playback_type-c_hdmi          certification-status=blocker
+  dock/monitor_type-c_vga                 certification-status=blocker
+  dock/keys-video-out                     certification-status=blocker
+  dock/monitor-dual-head                  certification-status=blocker
+  dock/audio-playback-headphones        certification-status=blocker
+  dock/audio-alsa-record-playback-external      certification-status=blocker
+  dock/networking-gateway-ping          certification-status=blocker
+  dock/networking-ntp                   certification-status=blocker
+  dock/usb-HID                          certification-status=blocker
+  dock/usb-insert                       certification-status=blocker
+  dock/usb-storage-automated            certification-status=blocker
+  dock/usb-remove                       certification-status=blocker
+  dock/usb3-insert                      certification-status=blocker
+  dock/usb3-storage-automated           certification-status=blocker
+  dock/usb3-remove                      certification-status=blocker
+  dock/battery-charging                 certification-status=blocker
+  dock/network-before-suspend           certification-status=blocker
+  dock/audio-before-suspend             certification-status=blocker
+
+id: after-suspend-dock-cert-blockers
+unit: test plan
+_name: After suspend Dock Cert blocker tests
+_description:
+ Cert blocker tests for the dock after suspend.
+include:
+  # Do power on/off to clean up the test environment
+  power-management/poweroff                        certification-status=blocker
+  power-management/poweroff-log-attach
+  suspend/suspend_advanced_auto                    certification-status=blocker
+  dock/power-button-after-suspend                  certification-status=blocker
+  dock/networking-gateway-ping-after-suspend       certification-status=blocker
+  after-suspend-dock/audio-playback-headphones              certification-status=blocker
+  after-suspend-dock/audio-alsa-record-playback-external    certification-status=blocker
+  dock/usb-HID-after-suspend                       certification-status=blocker
+  dock/usb-insert-after-suspend                    certification-status=blocker
+  dock/usb-storage-automated-after-suspend         certification-status=blocker
+  dock/usb-remove-after-suspend                    certification-status=blocker
+  dock/usb3-insert-after-suspend                   certification-status=blocker
+  dock/usb3-storage-automated-after-suspend        certification-status=blocker
+  dock/usb3-remove-after-suspend                   certification-status=blocker
+  dock/monitor-displayport-after-suspend           certification-status=blocker
+  after-suspend-dock/audio-playback-displayport             certification-status=blocker
+  dock/monitor-dvi-after-suspend                   certification-status=blocker
+  dock/monitor-hdmi-after-suspend                  certification-status=blocker
+  after-suspend-dock/audio-playback-hdmi                    certification-status=blocker
+  dock/monitor-vga-after-suspend                   certification-status=blocker
+  dock/monitor-dual-head-after-suspend             certification-status=blocker

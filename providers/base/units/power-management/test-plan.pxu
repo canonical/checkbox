@@ -1,0 +1,111 @@
+id: power-management-precheck-cert-full
+unit: test plan
+_name: Power Management precheck tests
+_description: Power Management precheck tests
+include:
+nested_part:
+    power-management-precheck-cert-manual
+    power-management-precheck-cert-automated
+
+id: power-management-reboot-poweroff-cert-full
+unit: test plan
+_name: Power Management reboot and power off tests
+_description: Power Management reboot and power off tests
+include:
+nested_part:
+    power-management-reboot-poweroff-cert-manual
+    power-management-reboot-poweroff-cert-automated
+
+id: power-management-precheck-cert-manual
+unit: test plan
+_name: Power Management precheck tests (Manual)
+_description: Power Management precheck tests (Manual)
+include:
+
+id: power-management-precheck-cert-automated
+unit: test plan
+_name: Power Management precheck tests (automated)
+_description: Power Management precheck tests (automated)
+include:
+    power-management/rtc                           certification-status=blocker
+    power-management/tickless_idle                 certification-status=blocker
+    power-management/fwts_wakealarm                certification-status=blocker
+    power-management/fwts_wakealarm-log-attach
+
+id: power-management-reboot-poweroff-cert-manual
+unit: test plan
+_name: Power Management reboot and power off tests (Manual
+_description: Power Management reboot and power off tests (Manual)
+include:
+
+id: power-management-reboot-poweroff-cert-automated
+unit: test plan
+_name: Power Management reboot and power off tests (automated)
+_description: Power Management reboot and power off tests (automated)
+include:
+    power-management/poweroff                      certification-status=blocker
+    power-management/poweroff-log-attach
+    power-management/reboot                        certification-status=blocker
+    power-management/reboot-log-attach
+
+id: power-management-precheck-cert-blockers
+unit: test plan
+_name:
+ Power Management precheck tests (certification blockers only)
+_description:
+ Power Management precheck tests (certification blockers only)
+include:
+    power-management/rtc                           certification-status=blocker
+    power-management/tickless_idle                 certification-status=blocker
+    power-management/fwts_wakealarm                certification-status=blocker
+    power-management/fwts_wakealarm-log-attach
+
+id: power-management-reboot-poweroff-cert-blockers
+unit: test plan
+_name:
+ Power Management reboot and power off tests (certification blockers only)
+_description:
+ Power Management reboot and power off tests (certification blockers only)
+include:
+    power-management/poweroff                      certification-status=blocker
+    power-management/poweroff-log-attach
+    power-management/reboot                        certification-status=blocker
+    power-management/reboot-log-attach
+
+id: power-full
+unit: test plan
+_name: Power tests
+_description: QA power tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    power-manual
+    # power-automated is not part of the -full test plan as it silently
+    # autorestarts checkbox upon reboots thanks to a systemd unit on core.
+    # This could lead to multiple jobs being skipped w/o any notice
+
+id: power-automated
+unit: test plan
+_name: Automated power tests
+_description: Automated power tests for Snappy Ubuntu Core devices
+include:
+    power-management/warm-reboot
+    power-management/post-warm-reboot
+    power-management/cold-reboot
+    power-management/post-cold-reboot
+
+id: power-manual
+unit: test plan
+_name: Manual power tests
+_description: Manual power tests for Snappy Ubuntu Core devices
+include:
+    power-management/poweroff-manual
+    power-management/reboot-manual
+
+id: power-management-cpu-cstate-cert-automated
+unit: test plan
+_name: CPU package cstate tests
+_description: CPU package cstate tests for Ubuntu PC devices
+include:
+    power-management/idle-screen-on-residency-check
+    power-management/cpu-low-power-idle
+    power-management/system-low-power-idle

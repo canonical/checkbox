@@ -1,0 +1,14 @@
+# This is for disk/apste_support_on_*
+unit: packaging meta-data
+os-id: debian
+Depends: nvme-cli
+
+# The stress/disk_stress_ng_test job requires uuid-runtime package
+unit: packaging meta-data
+os-id: debian
+Depends: uuid-runtime
+
+# This is for disk/storage_device_*
+unit: packaging meta-data
+os-id: debian
+Depends: python3-psutil

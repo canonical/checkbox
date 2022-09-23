@@ -1,0 +1,94 @@
+id: keys-cert-full
+unit: test plan
+_name: Special keys tests
+_description:
+ Special keys tests (w/o sleep/hibernate keys, see Power Management test plans)
+include:
+nested_part:
+ com.canonical.certification::keys-cert-manual
+ com.canonical.certification::keys-cert-automated
+
+id: keys-cert-manual
+unit: test plan
+_name: Special keys tests (Manual)
+_description:
+ Special keys tests (w/o sleep/hibernate keys, see Power Management test plans) (Manual)
+include:
+ keys/lock-screen                               certification-status=blocker
+ keys/super                                     certification-status=blocker
+ keys/brightness                                certification-status=blocker
+ keys/media-control                             certification-status=blocker
+ keys/mute                                      certification-status=blocker
+ keys/volume                                    certification-status=blocker
+ keys/video-out                                 certification-status=blocker
+ keys/wireless                                  certification-status=blocker
+ keys/keyboard-backlight                        certification-status=blocker
+ keys/microphone-mute                           certification-status=blocker
+ keys/power-button                              certification-status=blocker
+ keys/power-button-event                        certification-status=blocker
+ keys/fn-lock                                   certification-status=non-blocker
+
+id: keys-cert-automated
+unit: test plan
+_name: Special keys tests (Automated)
+_description:
+ Special keys tests (w/o sleep/hibernate keys, see Power Management test plans) (Automated)
+include:
+
+
+id: after-suspend-keys-cert-full
+unit: test plan
+_name: Special keys tests (after suspend)
+_description:
+ Special keys tests (after suspend)
+include:
+    after-suspend-keys/lock-screen              certification-status=blocker
+    after-suspend-keys/super                    certification-status=blocker
+    after-suspend-keys/brightness               certification-status=blocker
+    after-suspend-keys/media-control            certification-status=blocker
+    after-suspend-keys/mute                     certification-status=blocker
+    after-suspend-keys/volume                   certification-status=blocker
+    after-suspend-keys/video-out                certification-status=blocker
+    after-suspend-keys/wireless                 certification-status=blocker
+    after-suspend-keys/keyboard-backlight       certification-status=blocker
+    after-suspend-keys/microphone-mute          certification-status=blocker
+    after-suspend-keys/power-button             certification-status=blocker
+    after-suspend-keys/fn-lock                  certification-status=non-blocker
+
+id: keys-cert-blockers
+unit: test plan
+_name: Special keys tests (certification blockers only)
+_description:
+ Special keys tests (w/o sleep/hibernate keys, see Power Management test plans)
+ (certification blockers only)
+include:
+    keys/lock-screen                               certification-status=blocker
+    keys/super                                     certification-status=blocker
+    keys/brightness                                certification-status=blocker
+    keys/media-control                             certification-status=blocker
+    keys/mute                                      certification-status=blocker
+    keys/volume                                    certification-status=blocker
+    keys/video-out                                 certification-status=blocker
+    keys/wireless                                  certification-status=blocker
+    keys/keyboard-backlight                        certification-status=blocker
+    keys/microphone-mute                           certification-status=blocker
+    keys/power-button                              certification-status=blocker
+    keys/power-button-event                        certification-status=blocker
+
+id: after-suspend-keys-cert-blockers
+unit: test plan
+_name: Special keys tests (certification blockers only, after suspend)
+_description:
+ Special keys tests (certification blockers only, after suspend)
+include:
+    after-suspend-keys/lock-screen                 certification-status=blocker
+    after-suspend-keys/super                       certification-status=blocker
+    after-suspend-keys/brightness                  certification-status=blocker
+    after-suspend-keys/media-control               certification-status=blocker
+    after-suspend-keys/mute                        certification-status=blocker
+    after-suspend-keys/volume                      certification-status=blocker
+    after-suspend-keys/video-out                   certification-status=blocker
+    after-suspend-keys/wireless                    certification-status=blocker
+    after-suspend-keys/keyboard-backlight          certification-status=blocker
+    after-suspend-keys/microphone-mute             certification-status=blocker
+    after-suspend-keys/power-button                certification-status=blocker

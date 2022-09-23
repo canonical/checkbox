@@ -1,0 +1,133 @@
+
+id: oob-management/amt/amtinfo_cmd
+_summary: Check the output of the AmtInfo command is valid
+category_id: oob-management
+plugin: user-interact-verify
+user: root
+requires:
+  executable.name == 'meshcmd'
+_steps:
+  Checkbox will run the meshcmd AmtInfo command
+command:
+  set -x
+  meshcmd amtinfo
+_verification:
+  Check the command ran correctly.
+  Check the correct ME FW version is shown.
+  Correct Provisioning state is shown (should be pre-provisioning for 
+  unprovisioned SUT).
+
+
+id: oob-management/amt/smbios_cmd
+_summary: Check the output of the SMBios command is valid
+category_id: oob-management
+plugin: user-interact-verify
+user: root
+requires:
+  executable.name == 'meshcmd'
+_steps:
+  Checkbox will run the meshcmd SMBios command
+command:
+  set -x
+  meshcmd smbios
+_verification:
+  Check the Processor Info is correct.
+  Check the Memory Info is correct.
+  Check the System Info is correct.
+  Check the AMT info is correct.
+
+
+id: oob-management/amt/amtversions_cmd
+_summary: Check the output of the AmtVersions command is valid
+category_id: oob-management
+plugin: user-interact-verify
+user: root
+requires:
+  executable.name == 'meshcmd'
+_steps:
+  Checkbox will run the meshcmd AmtVersions command
+command:
+  set -x
+  meshcmd amtversions
+_verification:
+  Check the MEI version is correct.
+  Check the AMT version is correct.
+  Check the Sku is correct.
+  Check the Build Number is correct.
+
+
+id: oob-management/amt/amtccm_provisioning
+_summary: Check that Client Control Mode can be reached
+category_id: oob-management
+plugin: user-interact-verify
+user: root
+requires:
+  executable.name == 'meshcmd'
+_steps:
+  Checkbox will run the meshcmd amtccm command and set a password
+command:
+  set -x
+  meshcmd amtccm --password intelamt
+  meshcmd amtinfo
+_verification:
+  Check that the AmtCCM command returns Sucess.
+  Check that the output of the AmtInfo command now shows activated in client
+  control mode.
+
+
+id: oob-management/amt/amtccm_webui
+_summary: Check that Client Control Mode can be reached
+category_id: oob-management
+plugin: manual
+depends: oob-management/amt/amtccm_provisioning
+_steps:
+  Use a desktop PC on the same network as the SUT to attempt to connect to the WebUI.
+  In a browser enter http://<addres-of-sut>:16992 as the location.
+_verification:
+  Verify that WebUI is shown. 
+  Check the HW inventory is correct. 
+  Run a couple of remote power commands and verify they are run successfully.
+
+
+id: oob-management/amt/amtccm_deactivate
+_summary: Check that Client Control Mode can be deactivated
+category_id: oob-management
+plugin: user-interact-verify
+after: oob-management/amt/amtccm_webui
+user: root
+requires:
+  executable.name == 'meshcmd'
+_steps:
+  Checkbox will run the meshcmd amtdeactivate command
+command:
+  set -x
+  meshcmd amtdeactivate
+_verification:
+  Check that the deactivation completed successfully.
+
+
+id: oob-management/amt/lms_service_running
+_summary: Check the LMS service is running
+category_id: oob-management
+plugin: shell
+template-engine: jinja2
+requires:
+  {%- if __on_ubuntucore__ %}
+  {# TODO: name is a guess until snap provided #}
+  snap.name == 'lms'
+  {%- else %}
+  package.name == 'lms'
+  {% endif -%}
+command:
+  {%- if __on_ubuntucore__ %}
+  {# TODO: name is a guess until snap provided #}
+  SERVICE_NAME="snap.lms.lms.service"
+  {%- else %}
+  SERVICE_NAME="lms.service"
+  {% endif -%}
+  systemctl is-active --quiet "$SERVICE_NAME"
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    systemctl status "$SERVICE_NAME"
+    exit $RETVAL
+  fi

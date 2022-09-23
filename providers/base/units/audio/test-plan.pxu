@@ -1,0 +1,150 @@
+id: audio-cert-full
+unit: test plan
+_name: Audio tests
+_description:
+ Audio tests
+ See Monitor / Graphic test plans for hybrid-graphic monitor audio tests
+include:
+nested_part:
+ com.canonical.certification::audio-cert-manual
+ com.canonical.certification::audio-cert-automated
+
+id: audio-cert-manual
+unit: test plan
+_name: Audio tests (Manual)
+_description:
+ Audio tests
+ See Monitor / Graphic test plans for hybrid-graphic monitor audio tests (Manual)
+include:
+ audio/speaker-headphone-plug-detection                 certification-status=blocker
+ audio/microphone-plug-detection                        certification-status=blocker
+ audio/playback_headphones                              certification-status=blocker
+ audio/alsa_record_playback_external                    certification-status=blocker
+ audio/playback_auto                                    certification-status=blocker
+ audio/alsa_record_playback_internal                    certification-status=blocker
+ audio/channels
+ audio/external-linein
+ audio/external-lineout
+
+
+id: after-suspend-audio-cert-full
+unit: test plan
+_name: Audio tests (after suspend)
+_description: Audio tests (after suspend)
+include:
+    suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
+    suspend/microphone-plug-detection-after-suspend        certification-status=blocker
+    suspend/playback_headphones-after-suspend              certification-status=blocker
+    suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+
+id: audio-cert-automated
+unit: test plan
+_name: Audio tests (automated)
+_description:
+ Audio tests (automated)
+include:
+    audio/alsa_info_collect
+    audio/alsa_info_attachment
+    audio/list_devices
+    audio/valid-sof-firmware-sig
+
+id: audio-cert-blockers
+unit: test plan
+_name: Audio tests (certification blockers only)
+_description:
+ Audio tests (certification blockers only)
+ See Monitor / Graphic test plans for hybrid-graphic monitor audio tests
+include:
+    audio/alsa_info_collect
+    audio/alsa_info_attachment
+    audio/list_devices
+    audio/speaker-headphone-plug-detection                 certification-status=blocker
+    audio/microphone-plug-detection                        certification-status=blocker
+    audio/playback_headphones                              certification-status=blocker
+    audio/alsa_record_playback_external                    certification-status=blocker
+    audio/playback_auto                                    certification-status=blocker
+    audio/alsa_record_playback_internal                    certification-status=blocker
+
+id: after-suspend-audio-cert-blockers
+unit: test plan
+_name: Audio tests (after suspend, certification blockers only)
+_description: Audio tests (after suspend, certification blockers only)
+include:
+    suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
+    suspend/microphone-plug-detection-after-suspend        certification-status=blocker
+    suspend/playback_headphones-after-suspend              certification-status=blocker
+    suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+
+id: audio-full
+unit: test plan
+_name: Audio tests
+_description: QA audio tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    audio-manual
+    audio-automated
+
+id: audio-manual
+unit: test plan
+_name: Manual audio tests
+_description: Manual audio tests for Snappy Ubuntu Core devices
+include:
+    audio/alsa-playback
+    audio/alsa-loopback
+
+id: audio-pa-manual
+unit: test plan
+_name: Manual audio tests using pulseaudio
+_description: Manual audio tests using pulseaudio for Snappy Ubuntu Core devices
+include:
+    audio/pa-record-internal-mic
+    audio/pa-record-external-mic
+    audio/pa-playback-headphone
+    audio/pa-playback-lineout
+    audio/pa-playback-hdmi
+
+id: audio-automated
+unit: test plan
+_name: Automated audio tests
+_description: Automated audio tests for Snappy Ubuntu Core devices
+include:
+    audio/detect-playback-devices
+    audio/detect-capture-devices
+    audio/alsa-loopback-automated
+
+id: after-suspend-audio-full
+unit: test plan
+_name: Audio tests (after suspend)
+_description: QA audio tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-audio-manual
+    after-suspend-audio-automated
+
+id: after-suspend-audio-manual
+unit: test plan
+_name: Manual audio tests (after suspend)
+_description: Manual audio tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-audio/alsa-playback
+    after-suspend-audio/alsa-loopback
+
+id: after-suspend-audio-pa-manual
+unit: test plan
+_name: Manual audio tests using pulseaudio (after suspend)
+_description: Manual audio tests using pulseaudio for Snappy Ubuntu Core devices
+include:
+    after-suspend-audio/pa-record-internal-mic
+    after-suspend-audio/pa-record-external-mic
+    after-suspend-audio/pa-playback-headphone
+    after-suspend-audio/pa-playback-lineout
+    after-suspend-audio/pa-playback-hdmi
+
+id: after-suspend-audio-automated
+unit: test plan
+_name: Automated audio tests
+_description: Automated audio tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-audio/detect-playback-devices
+    after-suspend-audio/detect-capture-devices
+    after-suspend-audio/alsa-loopback-automated

@@ -1,0 +1,10 @@
+# Copyright 2015 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Jonathan Cave <jonathan.cave@canonical.com>
+
+unit: manifest entry
+id: has_wwan_module
+_name: A WWAN Module
+value-type: bool

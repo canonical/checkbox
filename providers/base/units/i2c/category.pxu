@@ -1,0 +1,9 @@
+# Copyright 2016 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Gavin Lin <gavin.lin@canonical.com>
+
+unit: category
+id: i2c
+_name: I²C (Inter-Integrated Circuit)

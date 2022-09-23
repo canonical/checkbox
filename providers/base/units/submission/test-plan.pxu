@@ -1,0 +1,26 @@
+id: submission-cert-full
+unit: test plan
+_name: Full submission resources
+_description: Full submission resources
+include:
+nested_part:
+    submission-cert-manual
+    submission-cert-automated
+
+id: submission-cert-manual
+unit: test plan
+_name: Manual submission resources
+_description: Manual submission resources
+include:
+mandatory_include:
+    miscellanea/device_check
+
+id: submission-cert-automated
+unit: test plan
+_name: Automated submission resources
+_description: Automated submission resources
+include:
+mandatory_include:
+    # Meta-job to include required resources, don't remove.
+    miscellanea/submission-resources
+    info/systemd-analyze

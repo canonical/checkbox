@@ -1,0 +1,89 @@
+id: camera-cert-full
+unit: test plan
+_name: Camera tests
+_description:
+ Camera tests
+include:
+nested_part:
+ com.canonical.certification::camera-cert-manual
+ com.canonical.certification::camera-cert-automated
+
+id: camera-cert-manual
+unit: test plan
+_name: Camera tests (Manual)
+_description:
+ Camera tests (Manual)
+include:
+ camera/still_.*                                   certification-status=blocker
+ camera/display_.*                                 certification-status=blocker
+bootstrap_include:
+ device
+
+id: after-suspend-camera-cert-full
+unit: test plan
+_name: Camera tests (after suspend)
+_description: Camera tests (after suspend)
+include:
+ after-suspend-camera/still_.*                     certification-status=blocker
+ after-suspend-camera/display_.*                   certification-status=blocker
+bootstrap_include:
+ device
+
+id: camera-cert-automated
+unit: test plan
+_name: Camera tests (automated)
+_description: Camera tests (automated)
+include:
+ camera/detect                                     certification-status=blocker
+ camera/multiple-resolution-images_.*              certification-status=blocker
+bootstrap_include:
+ device
+
+id: camera-cert-blockers
+unit: test plan
+_name: Camera tests (certification blockers only)
+_description: Camera tests (certification blockers only)
+include:
+ camera/detect                                     certification-status=blocker
+ camera/still_.*                                   certification-status=blocker
+ camera/display_.*                                 certification-status=blocker
+ camera/multiple-resolution-images_.*              certification-status=blocker
+bootstrap_include:
+ device
+
+id: after-suspend-camera-cert-blockers
+unit: test plan
+_name: Camera tests (after suspend, certification blockers only)
+_description: Camera tests (after suspend, certification blockers only)
+include:
+ after-suspend-camera/still_.*                     certification-status=blocker
+ after-suspend-camera/display_.*                   certification-status=blocker
+bootstrap_include:
+ device
+
+id: camera-full
+unit: test plan
+_name: Camera tests
+_description: Camera tests for Ubuntu Core devices
+include:
+nested_part:
+    camera-automated
+    camera-manual
+
+id: camera-manual
+unit: test plan
+_name: Manual camera tests
+_description: Manual camera tests for Ubuntu Core devices
+include:
+
+id: camera-automated
+unit: test plan
+_name: Automated camera tests
+_description: Automated camera tests for Ubuntu Core devices
+estimated_duration: 1h30m
+include:
+    camera/multiple-resolution-images_.*
+    camera/multiple-resolution-images-rpi_.*
+    camera/roundtrip-qrcode_.*
+bootstrap_include:
+    device

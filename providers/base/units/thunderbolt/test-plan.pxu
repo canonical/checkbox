@@ -1,0 +1,64 @@
+id: thunderbolt-cert-full
+unit: test plan
+_name: Thunderbolt tests
+_description:
+ Thunderbolt tests
+include:
+nested_part:
+ com.canonical.certification::thunderbolt-cert-manual
+ com.canonical.certification::thunderbolt-cert-automated
+
+id: after-suspend-thunderbolt-cert-full
+unit: test plan
+_name: Thunderbolt tests
+_description:
+ Thunderbolt tests
+include:
+nested_part:
+ com.canonical.certification::after-suspend-thunderbolt-cert-manual
+
+id: thunderbolt-cert-manual
+unit: test plan
+_name: Thunderbolt tests (Manual)
+_description:
+ Thunderbolt tests (Manual)
+include:
+ thunderbolt3/insert                        certification-status=blocker
+ thunderbolt3/storage-test                  certification-status=blocker
+ thunderbolt3/remove                        certification-status=blocker
+
+id: thunderbolt-cert-automated
+unit: test plan
+_name: Thunderbolt tests (Automated)
+_description:
+ Thunderbolt tests (Automated)
+include:
+
+
+id: thunderbolt-cert-blockers
+unit: test plan
+_name: Thunderbolt tests (certification blockers only)
+_description: Thunderbolt tests (certification blockers only)
+include:
+ thunderbolt3/insert                        certification-status=blocker
+ thunderbolt3/storage-test                  certification-status=blocker
+ thunderbolt3/remove                        certification-status=blocker
+
+id: after-suspend-thunderbolt-cert-manual
+unit: test plan
+_name: Thunderbolt tests (after suspend Manual)
+_description:
+ Thunderbolt tests (after suspend Manual)
+include:
+ after-suspend-thunderbolt3/insert                        certification-status=blocker
+ after-suspend-thunderbolt3/storage-test                  certification-status=blocker
+ after-suspend-thunderbolt3/remove                        certification-status=blocker
+
+id: after-suspend-thunderbolt-cert-blockers
+unit: test plan
+_name: Thunderbolt tests (after suspend - certification blockers only)
+_description: Thunderbolt tests (after suspend - certification blockers only)
+include:
+ after-suspend-thunderbolt3/insert                        certification-status=blocker
+ after-suspend-thunderbolt3/storage-test                  certification-status=blocker
+ after-suspend-thunderbolt3/remove                        certification-status=blocker

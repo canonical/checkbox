@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_special_keys
+_name: Special keys Support
+value-type: bool

@@ -1,0 +1,611 @@
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/mmc-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
+ {% endif -%}
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+user: root
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a Multimedia Card (MMC) media
+ STEPS:
+     1. Commence the test and then insert an MMC card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/mmc-storage
+estimated_duration: 30.0
+depends: mediacard/mmc-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 67120000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_description:
+ This test is automated and executes after the mediacard/mmc-insert
+ test is run. It tests reading and writing to the MMC card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/mmc-remove
+estimated_duration: 30.0
+depends: mediacard/mmc-insert
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
+ {% endif -%}
+user: root
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of the MMC card from the systems card reader.
+ STEPS:
+     1. Commence the test and then remove the MMC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sd-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi --unmounted
+ {% endif -%}
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+user: root
+_summary: Test that insertion of an SD card is detected
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of an UNLOCKED Secure Digital (SD) media card
+ STEPS:
+     1. Commence the test and then insert an UNLOCKED SD card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sd-storage
+estimated_duration: 30.0
+depends: mediacard/sd-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_summary: Test reading & writing to a SD Card
+_description:
+ This test is automated and executes after the mediacard/sd-insert
+ test is run. It tests reading and writing to the SD card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sd-remove
+estimated_duration: 30.0
+depends: mediacard/sd-insert
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi --unmounted
+ {% endif -%}
+user: root
+_summary: Test that removal of an SD card is detected
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of an SD card from the systems card reader.
+ STEPS:
+     1. Commence the test and then remove the SD card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sd-preinserted
+estimated_duration: 30.0
+user: root
+flags: preserve-cwd
+command: removable_storage_test.py -s 268400000 --memorycard -l sdio usb scsi && removable_storage_test.py --memorycard sdio usb scsi
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_card_reader == 'True'
+_summary: Automated test of SD Card reading & writing (udisk2)
+_description:
+ This is a fully automated version of mediacard/sd-automated and assumes that the
+ system under test has a memory card device plugged in prior to checkbox execution.
+ It is intended for SRU automated testing.
+
+plugin: shell
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sd-preinserted-server
+estimated_duration: 30.0
+user: root
+flags: preserve-cwd
+command: removable_storage_test.py -s 268400000 --memorycard -l sdio usb && removable_storage_test.py --memorycard sdio usb
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+_summary: Automated test of SD Card reading & writing (udisk2) for servers
+_description:
+ This is a fully automated version of mediacard/sd-automated and assumes that the
+ system under test has a memory card device plugged in prior to checkbox execution.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sdhc-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi --unmounted
+ {% endif -%}
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+user: root
+_summary: Test that insertion of an SDHC card is detected
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a UNLOCKED Secure Digital High-Capacity
+     (SDHC) media card
+ STEPS:
+     1. Commence the test and then insert an UNLOCKED SDHC card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sdhc-storage
+estimated_duration: 30.0
+depends: mediacard/sdhc-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_summary: Test reading & writing to a SDHC Card
+_description:
+ This test is automated and executes after the mediacard/sdhc-insert
+ test is run. It tests reading and writing to the SDHC card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sdhc-remove
+estimated_duration: 30.0
+depends: mediacard/sdhc-insert
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi --unmounted
+ {% endif -%}
+user: root
+_summary: Test that removal of an SDHC card is detected
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of an SDHC card from the systems card reader.
+ STEPS:
+     1. Commence the test and then remove the SDHC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/cf-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
+ {% endif -%}
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+user: root
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a Compact Flash (CF) media card
+ STEPS:
+     1. Commence the test and then insert a CF card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/cf-storage
+estimated_duration: 30.0
+depends: mediacard/cf-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_description:
+ This test is automated and executes after the mediacard/cf-insert
+ test is run. It tests reading and writing to the CF card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/cf-remove
+depends: mediacard/cf-storage
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
+ {% endif -%}
+user: root
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of a CF card from the systems card reader.
+ STEPS:
+     1. Commence the test and then remove the CF card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sdxc-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi --unmounted
+ {% endif -%}
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+user: root
+_summary: Test that insertion of an SDXC card is detected
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a Secure Digital Extended Capacity (SDXC) media card
+ STEPS:
+     1. Commence the test and then insert an UNLOCKED SDXC card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sdxc-storage
+estimated_duration: 30.0
+depends: mediacard/sdxc-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_summary: Test reading & writing to a SDXC Card
+_description:
+ This test is automated and executes after the mediacard/sdxc-insert
+ test is run. It tests reading and writing to the SDXC card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/sdxc-remove
+estimated_duration: 30.0
+depends: mediacard/sdxc-insert
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi --unmounted
+ {% endif -%}
+user: root
+_summary: Test that removal of an SDXC card is detected
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of a SDXC card from the systems card reader.
+ STEPS:
+     1. Commence the test and then remove the SDXC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/ms-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
+ {% endif -%}
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+user: root
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a Memory Stick (MS) media card
+ STEPS:
+     1. Commence the test and then insert a MS card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/ms-storage
+estimated_duration: 30.0
+depends: mediacard/ms-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_description:
+ This test is automated and executes after the mediacard/ms-insert
+ test is run. It tests reading and writing to the MS card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/ms-remove
+estimated_duration: 30.0
+depends: mediacard/ms-insert
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
+ {% endif -%}
+user: root
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of a MS card from the systems card reader.
+ STEPS:
+     1. Commence the test and then remove the MS card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/msp-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
+ {% endif -%}
+user: root
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a Memory Stick Pro (MSP) media card
+ STEPS:
+     1. Commence the test and then insert a MSP card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/msp-storage
+estimated_duration: 30.0
+depends: mediacard/msp-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_description:
+ This test is automated and executes after the mediacard/msp-insert
+ test is run. It tests reading and writing to the MSP card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/msp-remove
+estimated_duration: 30.0
+depends: mediacard/msp-insert
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
+ {% endif -%}
+user: root
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of a MSP card from the systems card reader.
+ STEPS:
+     1. Commence the test and remove the MSP card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/xd-insert
+estimated_duration: 30.0
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard insert sdio usb scsi
+ {% endif -%}
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+user: root
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a Extreme Digital (xD) media card
+ STEPS:
+     1. Commence the test and then insert a xD card into the reader.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/xd-storage
+estimated_duration: 30.0
+depends: mediacard/xd-insert
+user: root
+flags: preserve-cwd reset-locale
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
+ {% endif -%}
+_description:
+ This test is automated and executes after the mediacard/xd-insert
+ test is run. It tests reading and writing to the xD card.
+
+plugin: user-interact
+template-engine: jinja2
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/xd-remove
+estimated_duration: 30.0
+depends: mediacard/xd-insert
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal mediacard
+ {%- else %}
+     removable_storage_watcher.py --memorycard remove sdio usb scsi
+ {% endif -%}
+user: root
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of a xD card from the systems card reader.
+ STEPS:
+     1. Commence the test and then remove the xD card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+unit: template
+template-resource: removable_partition
+template-filter: removable_partition.bus == 'mediacard'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::mediacard
+id: mediacard/storage-preinserted-{symlink_uuid}
+user: root
+estimated_duration: 45.0
+flags: also-after-suspend reset-locale
+command: USB_RWTEST_PARTITIONS={symlink_uuid} checkbox-support-usb_read_write
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_card_reader == 'True'
+_summary: Automated test of SD Card reading & writing ({symlink_uuid})
+_description:
+ This is a fully automated version of mediacard/sd-automated and assumes that the
+ system under test has a memory card device plugged in prior to checkbox execution.

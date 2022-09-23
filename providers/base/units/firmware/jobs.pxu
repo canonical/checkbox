@@ -1,0 +1,107 @@
+unit: template
+template-resource: fwts
+plugin: shell
+category_id: com.canonical.plainbox::firmware
+id: firmware/fwts_{name}
+estimated_duration: 1.2
+requires: executable.name == 'fwts'
+user: root
+command: checkbox-support-fwts_test -t {name} -l "$PLAINBOX_SESSION_SHARE"/fwts_{name}.log
+_description: Run {name} test from Firmware Test Suite.
+_summary: Run {name} test from Firmware Test Suite.
+
+unit: template
+template-resource: fwts
+plugin: attachment
+category_id: com.canonical.plainbox::firmware
+id: firmware/fwts_{name}.log
+estimated_duration: 1.2
+requires: executable.name == 'fwts'
+user: root
+command: [[ -e "$PLAINBOX_SESSION_SHARE"/fwts_{name}.log ]] && xz -c "$PLAINBOX_SESSION_SHARE"/fwts_{name}.log
+_description: Attach log for FWTS {name} test.
+_summary: Attach log for FWTS {name} test.
+
+plugin:shell
+category_id: com.canonical.plainbox::firmware
+id: firmware/fwts_desktop_diagnosis
+estimated_duration: 10.0
+requires: executable.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) QA-concerned desktop-specific diagnosis tests.
+_summary: Run FWTS QA-concerned desktop-specific diagnosis tests.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ checkbox-support-fwts_test --qa -l "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results.log
+
+plugin:shell
+category_id: com.canonical.plainbox::firmware
+id: firmware/fwts_desktop_diagnosis_hwe
+estimated_duration: 5.0
+requires: executable.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) HWE-concerned desktop-specific diagnosis tests.
+_summary: Run FWTS HWE-concerned desktop-specific diagnosis tests.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ checkbox-support-fwts_test --hwe -l "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results_hwe.log
+
+plugin: attachment
+category_id: com.canonical.plainbox::firmware
+estimated_duration: 0.5
+id: firmware/fwts_desktop_diagnosis_results.log.gz
+command:
+ [ -f "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results.log ] && gzip -c "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results.log
+_description: Attaches the FWTS desktop diagnosis results log to the submission
+_summary: Attach FWTS desktop diagnosis log to submission
+
+plugin: attachment
+category_id: com.canonical.plainbox::firmware
+estimated_duration: 0.5
+id: firmware/fwts_desktop_diagnosis_results_hwe.log.gz
+command:
+ [ -f "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results_hwe.log ] && gzip -c "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results_hwe.log
+_description: Attaches the FWTS desktop diagnosis results log to the submission (to HWE)
+_summary: Attach FWTS desktop diagnosis log to submission (to HWE)
+
+plugin:shell
+category_id: com.canonical.plainbox::firmware
+id: firmware/fwts_server
+estimated_duration: 10.0
+requires: executable.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) Server Cert selected tests.
+_summary: Run FWTS Server Cert selected tests.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ checkbox-support-fwts_test --server -q -f critical -l "$PLAINBOX_SESSION_SHARE"/fwts_server_results.log
+
+plugin: attachment
+category_id: com.canonical.plainbox::firmware
+estimated_duration: 0.5
+id: firmware/fwts_server_results.log.gz
+command:
+ [ -f "$PLAINBOX_SESSION_SHARE"/fwts_server_results.log ] && gzip -c "$PLAINBOX_SESSION_SHARE"/fwts_server_results.log
+_description: Attaches the FWTS Server Cert results log to the submission
+_summary: Attach FWTS Server Cert test log to submission
+
+id: firmware/fwts_dump
+category_id: com.canonical.plainbox::firmware
+_summary: Run the FTWS dump command
+plugin: shell
+user: root
+requires: executable.name == 'fwts'
+command:
+  pushd "$PLAINBOX_SESSION_SHARE" > /dev/null || exit
+  fwts -d
+
+id: firmware/fwts_dump_acpi_attachment.gz
+category_id: com.canonical.plainbox::firmware
+_summary: Collect the ACPI tables dump from FWTS
+plugin: attachment
+depends: firmware/fwts_dump
+command:
+  [ -f "$PLAINBOX_SESSION_SHARE/acpidump.log" ] && gzip -c "$PLAINBOX_SESSION_SHARE/acpidump.log"

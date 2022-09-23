@@ -1,0 +1,10 @@
+# Copyright 2015 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+
+unit: manifest entry
+id: has_tpm_chip
+_name: TPM1.2 chip
+value-type: bool

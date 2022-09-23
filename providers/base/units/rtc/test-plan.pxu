@@ -1,0 +1,20 @@
+id: rtc-full
+unit: test plan
+_name: RTC tests
+_description: QA RTC tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    rtc-manual
+
+id: rtc-manual
+unit: test plan
+_name: Manual RTC tests
+_description: Manual RTC tests for Snappy Ubuntu Core devices
+include:
+    rtc/battery
+
+id: rtc-automated
+unit: test plan
+_name: Automated RTC tests
+_description: Automated RTC tests for Snappy Ubuntu Core devices
+include:

@@ -1,0 +1,332 @@
+plugin: user-interact
+category_id: com.canonical.plainbox::keys
+id: keys/lock-screen
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+command: lock_screen_watcher.py
+_description:
+ PURPOSE:
+     This test will test the screen lock key
+ STEPS:
+     1. Commence the test. If there is no such key, please skip this test.
+     2. Press the lock screen button on the keyboard in 30 seconds.
+     3. If the screen is locked, move the mouse or press any key to activate the prompt.
+     4. Input the password to unlock the screen.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/brightness
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+_description:
+ PURPOSE:
+     This test will test the brightness key
+ STEPS:
+     1. Press the brightness buttons on the keyboard
+ VERIFICATION:
+     Did the brightness change following to your key presses?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::keys
+id: keys/volume
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+user: root
+command: key_test.py -s '0xe02e,0xe0ae:Volume Down' '0xe030,0xe0b0:Volume Up'
+_description:
+ PURPOSE:
+     This test will test the volume keys of your keyboard
+ STEPS:
+     Skip this test if your computer has no volume keys.
+     1. Click test to open a window on which to test the volume keys.
+     2. If all the keys work, the test will be marked as passed.
+ VERIFICATION:
+     Do the keys work as expected?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::keys
+id: keys/mute
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+user: root
+command: key_test.py -s '0xe020,0xe0a0:Mute'
+_description:
+ PURPOSE:
+     This test will test the mute key of your keyboard
+ STEPS:
+     1. Click test to open a window on which to test the mute key.
+     2. If the key works, the test will pass and the window will close.
+ VERIFICATION:
+     Does the mute key work as expected?
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/sleep
+estimated_duration: 90.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+_description:
+ PURPOSE:
+     This test will test the sleep key
+ STEPS:
+     1. Press the sleep key on the keyboard
+     2. Wake your system up by pressing the power button
+ VERIFICATION:
+     Did the system go to sleep after pressing the sleep key?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::keys
+id: keys/battery-info
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+user: root
+command: key_test.py -s '0xe071,0xef1:Battery Info'
+_description:
+ PURPOSE:
+     This test will test the battery information key
+ STEPS:
+     Skip this test if you do not have a Battery Button.
+     1. Click Test to begin
+     2. Press the Battery Info button (or combo like Fn+F3)
+     3: Close the Power Statistics tool if it opens
+ VERIFICATION:
+     Did the Battery Info key work as expected?
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/wireless
+estimated_duration: 90.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+_description:
+ PURPOSE:
+     This test will test the wireless key
+ STEPS:
+     1. Press the wireless key on the keyboard
+     2. Check that the wifi LED turns off or changes color
+     3. Check that wireless is disabled
+     4. Press the same key again
+     5. Check that the wifi LED turns on or changes color
+     6. Check that wireless is enabled
+ VERIFICATION:
+     Did the wireless turn off on the first press and on again on the second?
+     (NOTE: the LED functionality will be reviewed in a following test. Please
+     only consider the functionality of the wifi itself here.)
+
+plugin: user-interact
+category_id: com.canonical.plainbox::keys
+id: keys/media-control
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+user: root
+command: key_test.py -s 0xe010,0xe090:Previous 0xe024,0xe0a4:Stop 0xe019,0xe099:Next 0xe022,0xe0a2:Play
+_description:
+ PURPOSE:
+     This test will test the media keys of your keyboard
+ STEPS:
+     Skip this test if your computer has no media keys.
+     1. Click test to open a window on which to test the media keys.
+     2. If all the keys work, the test will be marked as passed.
+ VERIFICATION:
+     Do the keys work as expected?
+
+plugin: user-interact
+category_id: com.canonical.plainbox::keys
+id: keys/super
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+user: root
+command: key_test.py -s '0xe05b,0xe0db:Left Super Key'
+_description:
+ PURPOSE:
+     This test will test the super key of your keyboard
+ STEPS:
+     1. Click test to open a window on which to test the super key.
+     2. If the key works, the test will pass and the window will close.
+ VERIFICATION:
+     Does the super key work as expected?
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/video-out
+estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+_description:
+ PURPOSE:
+     Validate that the External Video hot key is working as expected
+ STEPS:
+     1. Plug in an external monitor
+     2. Press the display hot key to change the monitors configuration
+ VERIFICATION:
+     Check that the video signal can be mirrored, extended, displayed on external or onboard only.
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/touchpad
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+_description:
+ PURPOSE:
+     Verify touchpad hotkey toggles touchpad functionality on and off
+ STEPS:
+     1. Verify the touchpad is functional
+     2. Tap the touchpad toggle hotkey
+     3. Tap the touchpad toggle hotkey again
+ VERIFICATION:
+     Verify the touchpad has been disabled and re-enabled.
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/keyboard-backlight
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+_description:
+ PURPOSE:
+     Verify that the keyboard backlight toggle key works properly
+ STEPS:
+     1. Tap the keyboard backlight key
+     2. Confirm that the keyboard backlight was toggled to the opposite state
+     3. Tap the keyboard backlight key again
+     4. Confirm that the keyboard backlight was toggled to the opposite state
+ VERIFICATION:
+     Did the keyboard backlight state change on each press?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::keys
+id: keys/microphone-mute
+estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_special_keys == 'True'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+flags: also-after-suspend
+command:
+ audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --device=pci --volume=50
+ alsa_record_playback.sh
+ EXIT_CODE=$?
+ audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will test the mute key for your microphone
+ STEPS:
+     1. Click "Test" then speak: "Imagination is more important than knowledge" (or anything else) into your microphone.
+     2. While you are speaking, please press the mute key for the microphone to mute it and press it again to unmute.
+     3. After a few seconds, your speech will be played back to you. If the key works, your speech should be interrupted for a few seconds.
+ VERIFICATION:
+     Does the microphone mute key work as expected?
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/hibernate
+estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+_description:
+ PURPOSE:
+     This test will test the hibernate key
+ STEPS:
+     1. Press the hibernate key on the keyboard
+     2. Check that the system hibernated correctly
+     3. Wake your system after hibernating by pressing the power button
+ VERIFICATION:
+     Did the system go to hibernate after pressing the hibernate key?
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/keyboard-overhead-light
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+_description:
+ PURPOSE:
+     This test will test the keyboard overhead light key or switch
+ STEPS:
+     1. Press the keyboard overhead light key or swtich on the light
+     2. Check the the keyboard overhead light turn on correctly
+     3. Press the key or switch again to toggle off the light 
+ VERIFICATION:
+     Did the keyboard overhead light key or switch turns on and off the light?
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/power-button
+estimated_duration: 30.0
+flags: also-after-suspend
+_purpose:
+    This test will test the power button
+_steps:
+    1. press the power button.
+    2. press cancel to quit.
+_verification:
+    Did the power management prompt pop up when press power button?
+
+plugin: user-interact
+category_id: com.canonical.plainbox::keys
+_summary:
+  Check power button event filtering
+id: keys/power-button-event
+estimated_duration: 15.0
+requires:
+  package.name == 'acpid'
+  package.name == 'libglib2.0-bin'
+command:
+  action=$(gsettings get org.gnome.settings-daemon.plugins.power power-button-action)
+  gsettings set org.gnome.settings-daemon.plugins.power power-button-action nothing
+  acpi_listen -t 10 | tee "$PLAINBOX_SESSION_SHARE"/power-button-event.log
+  gsettings set org.gnome.settings-daemon.plugins.power power-button-action "$action"
+  [[ $(grep -c "PBTN.*00000080" "$PLAINBOX_SESSION_SHARE"/power-button-event.log) -eq 1 ]] || \
+  [[ $(grep -c "PWRB.*00000080" "$PLAINBOX_SESSION_SHARE"/power-button-event.log) -eq 1 ]]
+_purpose:
+  This test will check if power button event has reported correctly, the listener will
+  wait for 10 seconds.
+_steps:
+  1. Run the test (you have 10 seconds from now on)
+  2. Long-press power button about 3~4 seconds one time (the PBTN/PWRB event will show below)
+  3. Check the number of output PBTN/PWRB event should be Once.
+
+plugin: manual
+category_id: com.canonical.plainbox::keys
+id: keys/fn-lock
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_special_keys == 'True'
+flags: also-after-suspend
+_purpose:
+     This test will test the Fn Lock key
+_steps:
+     Skip this test if your system does not have Fn Lock key.
+     1. Press the Fn+Fn Lock key.
+     2. Press the Fn+any hotkey.
+_verification:
+    Do the keys work as expected?
+

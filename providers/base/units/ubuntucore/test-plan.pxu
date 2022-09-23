@@ -1,0 +1,26 @@
+id: ubuntucore-full
+unit: test plan
+_name: Ubuntu Core OS feature tests
+_description: OS feature test for Ubuntu Core devices
+include:
+nested_part:
+    ubuntucore-manual
+    ubuntucore-automated
+
+id: ubuntucore-automated
+unit: test plan
+_name: Automated Ubuntu Core OS feature tests
+_description: Automated OS feature tests for Ubuntu Core devices
+include:
+
+id: ubuntucore-manual
+unit: test plan
+_name: Manual Ubuntu Core OS feature tests
+_description: Manual OS feature tests for Ubuntu Core devices
+bootstrap_include:
+    lsb
+include:
+    ubuntucore/os-reinstall-mode
+    ubuntucore/os-recovery-mode
+    ubuntucore/os-fail-boot-(?!with-refresh-control).*
+    ubuntucore/sshd

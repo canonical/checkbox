@@ -1,0 +1,5 @@
+
+unit: manifest entry
+id: has_hardware_watchdog
+_name: A Hardware Watchdog Timer
+value-type: bool

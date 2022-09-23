@@ -1,0 +1,34 @@
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::codecs
+id: codecs/ogg-vorbis
+requires:
+ package.name == 'gstreamer0.10-plugins-base' or package.name == 'gstreamer1.0-plugins-base'
+ package.name == 'totem'
+ package.name == 'ubuntu-sounds'
+command: totem /usr/share/sounds/ubuntu/stereo/system-ready.ogg
+_description:
+ PURPOSE:
+    This test will verify your system's ability to play Ogg Vorbis audio files.
+ STEPS:
+    1. Click Test to play an Ogg Vorbis file (.ogg)
+    2. Please close the player to proceed.
+ VERIFICATION:
+    Did the sample play correctly?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::codecs
+id: codecs/wav
+requires:
+ package.name == 'gstreamer0.10-plugins-good' or package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'totem'
+ package.name == 'alsa-utils'
+command: totem /usr/share/sounds/alsa/Noise.wav
+_description:
+ PURPOSE:
+    This test will verify your system's ability to play Wave Audio files.
+ STEPS:
+    1. Select Test to play a Wave Audio format file (.wav)
+    2. Please close the player to proceed.
+ VERIFICATION:
+    Did the sample play correctly?
+

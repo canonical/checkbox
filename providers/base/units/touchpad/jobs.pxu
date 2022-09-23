@@ -1,0 +1,235 @@
+plugin: manual
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/basic
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 120.0
+_purpose:
+    Touchpad manual verification
+_steps:
+    1. Make sure that touchpad is enabled.
+    2. Move cursor using the touchpad.
+_verification:
+    Did the cursor move?
+_siblings:
+    [{ "id": "touchpad/basic-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/basic" }]
+
+plugin: user-interact
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/horizontal
+requires:
+  dmi.product in ['Notebook','Laptop','Portable','Convertible']
+  'Button Horiz Wheel Left' in xinput.button_labels and 'Button Horiz Wheel Right' in xinput.button_labels
+command: touchpad_test.py right left --edge-scroll
+estimated_duration: 120.0
+_purpose:
+     Touchpad horizontal scroll verification
+_steps:
+    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that you can move the horizontal slider by moving your finger right and left in the lower part of the touchpad.
+_verification:
+     Could you scroll right and left?
+_siblings:
+    [{ "id": "touchpad/horizontal-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/horizontal" }]
+
+plugin: user-interact
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/vertical
+requires:
+  dmi.product in ['Notebook','Laptop','Portable','Convertible']
+  'Button Wheel Up' in xinput.button_labels and 'Button Wheel Down' in xinput.button_labels
+command: touchpad_test.py up down --edge-scroll
+estimated_duration: 120.0
+_purpose:
+     Touchpad vertical scroll verification
+_steps:
+    1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that you can move the vertical slider by moving your finger up and down in the right part of the touchpad.
+_verification:
+     Could you scroll up and down?
+_siblings:
+    [{ "id": "touchpad/vertical-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/vertical" }]
+
+plugin: manual
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/multitouch-manual
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 120.0
+_purpose:
+     Touchpad manual detection of multitouch.
+_steps:
+    1. Look at the specifications for your system.
+_verification:
+     Is the touchpad supposed to be multitouch?
+_siblings:
+    [{ "id": "touchpad/multitouch-manual-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-manual" }]
+
+plugin: manual
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/singletouch-selection
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 120.0
+_purpose:
+     Determine that the selection window function is working as expected.
+_steps:
+    1. Open a file folder
+    2. Double tap and drag the cursor across several file.
+_verification:
+     Did a selection window open and were several files selected?
+_siblings:
+    [{ "id": "touchpad/singletouch-selection-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/singletouch-selection" }]
+
+plugin: manual
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/multitouch-rightclick
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 120.0
+_purpose:
+     Determine that the right click function is working as expected.
+_steps:
+    1. Open a file folder
+    2. Hover cursor over file in folder
+    3. 2-touch tap.
+_verification:
+     Did the right click pop up menu appear?
+_siblings:
+    [{ "id": "touchpad/multitouch-rightclick-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-rightclick" }]
+
+plugin: user-interact
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/multitouch
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+command: touchpad_test.py up down right left
+estimated_duration: 120.0
+_purpose:
+     Touchpad 2-finger scroll verification
+_steps:
+    1. Press "Enter" when ready and place your cursor within the borders of the displayed test window.
+    2. Verify that the scroll events are detected by moving two fingers in all four directions along the touchpad.
+_verification:
+    Were scroll events detected for all four directions?
+_siblings:
+    [{ "id": "touchpad/multitouch-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch" }]
+
+plugin: manual
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/drag-and-drop
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 120.0
+_purpose:
+     Determine that the drag and drop function is working as expected.
+_steps:
+    1. Press 'PrtScn' key to take a screenshot
+    2. Tap 'Files' on dock(launcher bar) to open Home\Pictures folder
+    3. Double tap and hold the Screenshot* file
+    4. Drag the selected file to the Home folder and remove finger from touchpad.
+_verification:
+     Does drag and drop work on Touchpad?
+_siblings:
+    [{ "id": "touchpad/drag-and-drop-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/drag-and-drop" }]
+
+plugin: manual
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/multitouch-zoom
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 120.0
+_summary: Check touchpad pinch-to-zoom gesture
+_purpose:
+     Check touchpad pinch gesture for zoom
+_steps:
+    1. Open gallery-app with an image
+    2. Place two fingers on the touchpad and pinch them together
+    3. Place two fingers on the touchpad and move them apart
+_verification:
+     Does the image zoom in and out?
+
+plugin: manual
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/multitouch-dash
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 120.0
+_summary: Check 4-finger tap gesture
+_purpose:
+     Validate that 4-touch tap is operating as expected
+_steps:
+    1. 4-touch tap (tap with 4 fingers) anywhere on the touchpad
+_verification:
+     Did the tap open the Dash?
+_siblings:
+    [{ "id": "touchpad/multitouch-dash-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/multitouch-dash",
+       "_summary": "Check 4-finger tap gesture after suspend (S3)" }]
+
+plugin: shell
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/detected-as-mouse
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 1.2
+command:
+    if info=$(touchpad_driver_info.py); then
+        echo -e "touchpad detected with:\n$info"
+    else
+        echo "$info"
+        exit 1
+    fi 
+_purpose:
+ This test will check if your touchpad was detected as a mouse.
+_siblings:
+    [{ "id": "touchpad/detected-as-mouse-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/detected-as-mouse" }]
+
+plugin: user-interact
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/continuous-move
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+estimated_duration: 12
+command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/touch_continuous_move_test.qml 2>&1 | grep -o PASS
+_purpose:
+     Touchpad continuous move verification
+_steps:
+    1. Select "Test" when ready and continuously move your cursor within the borders of the displayed test window.
+    You'll need to keep moving your finger on the touchpad for 10 seconds.
+_verification:
+     Did the mouse cursor move without interruption?
+_siblings:
+    [{ "id": "touchpad/continuous-move-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/continuous-move" }]
+
+unit: template
+template-resource: device
+template-filter:
+ device.category == 'TOUCHPAD' and device.driver == 'hid-multitouch'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/palm-rejection-firmware-labeling_{product_slug}
+estimated_duration: 5.0
+command: touchpad_confidence_bit.py {product_slug}
+_summary: Touchpad EV_ABS capability check
+_description:
+ Libinput firmware/labeling palm detection rely on touchpad ABS_MT_TOOL_TYPE
+ capability. This test checks touchpad's EV_ABS capability to
+ make sure that firmware/labeling bit is set in touchpad firmware.
+
+id: touchpad/palm-rejection
+plugin: user-interact
+category_id: com.canonical.plainbox::touchpad
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/palm_rejection.qml 2>&1 | grep -o PASS
+_purpose:
+ This test checks if touchpad ignores palm touches
+_steps:
+ Select "Test" and follow the instruction on the screen
+_verification:
+ Cursor should not have moved.
+_siblings:
+    [{ "id": "touchpad/palm-rejection-after-suspend",
+       "depends": "suspend/suspend_advanced_auto touchpad/palm-rejection" }]
+estimated_duration: 40

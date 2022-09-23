@@ -1,0 +1,118 @@
+plugin: shell
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/detect
+user: root
+command: fprintd-list "${SUDO_UID:-$NORMAL_USER}"
+estimated_duration: 1.0
+_summary: Check if at least one fingerprint reader is detected
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_fingerprint_reader == 'True'
+
+plugin: user-interact
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/enroll
+depends: fingerprint/detect
+user: root
+command:
+  set -e
+  echo 'Removing existing signatures...'
+  fprintd-delete "${SUDO_UID:-$NORMAL_USER}" > /dev/null
+  sleep 3
+  fprintd-enroll "${SUDO_UID:-$NORMAL_USER}"
+estimated_duration: 20.0
+_summary: Enroll a fingerprint
+_purpose:
+ Enroll the user's right index finger into the database
+_steps:
+ 1. Press Enter
+ 2. Swipe your right index finger five times (wait 3s for the Enrolling message)
+_verification:
+ The verification of this test is automated.
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
+
+plugin: user-interact
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/verify-no-match
+depends: fingerprint/enroll
+user: root
+command:
+  sleep 2
+  fprintd-verify "${SUDO_UID:-$NORMAL_USER}" | tee /dev/stderr | grep -o verify-no-match
+estimated_duration: 20.0
+_summary: Fingerprint negative match
+_purpose:
+ The verification must not match when using a wrong finger
+_steps:
+ 1. Press Enter
+ 2. Swipe an unenrolled finger on the reader
+_verification:
+ The verification of this test is automated.
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
+
+plugin: user-interact
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/verify-match
+depends: fingerprint/verify-no-match
+user: root
+command:
+  sleep 2
+  for i in {1..3}
+  do
+      # shellcheck disable=SC2015
+      fprintd-verify "${SUDO_UID:-$NORMAL_USER}" | tee /dev/stderr | grep -o verify-match && break || sleep 3
+      [[ $i -eq 3 ]] && exit 1
+      echo "Attempts left: $((3-i))"
+  done
+estimated_duration: 20.0
+_summary: Fingerprint positive match
+_purpose:
+ The verification must match when using the enrolled finger
+_steps:
+ 1. Press Enter
+ 2. Swipe your enrolled finger on the reader (3 attempts max)
+_verification:
+ The verification of this test is automated.
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/unlock
+depends: fingerprint/verify-match
+user: root
+command:
+  loginctl lock-sessions
+_summary: Fingerprint unlock screen
+_purpose:
+ This test will verify that a fingerprint reader can be used to unlock a locked system.
+_steps:
+ 1. Press Enter to lock the screen
+ 2. Press any key or move the mouse.
+ 3. A window should appear that provides the ability to unlock either typing your password or using fingerprint authentication.
+ 4. Use the fingerprint reader to unlock.
+ 5. Your screen should be unlocked.
+_verification:
+ Did the authentication procedure work correctly?
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_fingerprint_reader == 'True'
+ package.name == 'fprintd'
+
+plugin: shell
+category_id: com.canonical.plainbox::fingerprint
+id: fingerprint/delete
+after: fingerprint/unlock
+user: root
+command: fprintd-delete "${SUDO_UID:-$NORMAL_USER}"
+estimated_duration: 1.0
+_summary: Remove existing fingerprint signatures
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_fingerprint_reader == 'True'

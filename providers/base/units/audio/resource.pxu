@@ -1,0 +1,9 @@
+unit: job
+id: alsa_resource
+category_id: com.canonical.plainbox::audio
+plugin: resource
+_summary: Gather device info about alsa sound devices
+_description: Gather device info about alsa sound devices
+command: alsa_pcm_info.py
+estimated_duration: 1s
+flags: preserve-locale

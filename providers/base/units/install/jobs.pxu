@@ -1,0 +1,10 @@
+plugin: shell
+id: install/apt-get-gets-updates
+requires: package.name == 'apt'
+user: root
+command: apt-get -d -y --force-yes dist-upgrade
+_description:
+ Tests to see that apt can access repositories and get updates (does
+ not install updates). This is done to confirm that you could recover
+ from an incomplete or broken update.
+

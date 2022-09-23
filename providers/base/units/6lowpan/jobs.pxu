@@ -1,0 +1,11 @@
+plugin: shell
+category_id: 6lowpan
+id: 6lowpan/kconfig
+estimated_duration: 1.2
+command:
+ for config in CONFIG_6LOWPAN CONFIG_IEEE802154 CONFIG_IEEE802154_6LOWPAN CONFIG_MAC802154; do
+    grep -E "$config=(y|m)" /boot/config-"$(uname -r)" || exit 1
+ done
+_summary: kernel config options for 6LoWPAN
+_description:
+ Checks the kernel config options for 6LoWPAN / IEEE802.15.4 support

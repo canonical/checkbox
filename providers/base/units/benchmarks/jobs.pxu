@@ -1,0 +1,157 @@
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/disk/hdparm-read_{name}
+estimated_duration: 15.0
+user: root
+command: hdparm -t /dev/{name}
+_summary: Raw read timing benchmark of {name} using hdparm
+_description: This test runs hdparm timing of device reads as a benchmark for {name}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/disk/hdparm-cache-read_{name}
+estimated_duration: 10.0
+user: root
+command: hdparm -T /dev/{name}
+_summary: Cached read timing benchmark of {name} using hdparm
+_description: This test runs hdparm timing of cache reads as a benchmark for {name}
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/gtkperf
+depends: graphics/xorg-version
+requires: package.name == 'gtkperf'
+command: python3 -c 'import re,sys,subprocess; (s, o) = subprocess.getstatusoutput("gtkperf -a"); [sys.exit(1) for i in [s] if s]; m = re.search("Total time:\s+(.*)\n", o); [print(i.group(1)+" Seconds") for i in [m] if m]'
+estimated_duration: 30.000
+_description:
+ Run gtkperf to make sure that GTK based test cases work
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/render-bench
+requires: package.name == 'render-bench'
+command: /usr/bin/time -f "%e Seconds" render_bench > /dev/null 2>&1
+estimated_duration: 52.000
+_description: Run Render-Bench XRender/Imlib2 benchmark
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/glmark2-es2
+requires:
+ package.name == 'glmark2-es2'
+ 'arm' in cpuinfo.type
+command:
+ glmark2-es2 2>&1 | sed -e :a -e '$!N;s/\n/ /;ta' | sed -E 's/.*(Score:\s+[0-9]+).*/\1/'
+_description: Run GLmark2-ES2 benchmark
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/glmark2
+requires:
+ package.name == 'glmark2'
+ cpuinfo.platform in ("i386", "x86_64")
+command:
+ glmark2 2>&1 | sed -e :a -e '$!N;s/\n/ /;ta' | sed -E 's/.*(Score:\s+[0-9]+).*/\1/'
+estimated_duration: 306.000
+_description: Run GLmark2 benchmark
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/network/wifi_time_to_reconnect
+requires: device.category == 'WIRELESS'
+command: wifi_time2reconnect.py
+_description: Check the time needed to reconnect to a WIFI access point
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/system/cpu_on_idle
+estimated_duration: 10.0
+requires: package.name == 'sysstat'
+command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("idle\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
+_description: CPU utilization on an idle system.
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/system/disk_on_idle
+estimated_duration: 10.0
+requires: package.name == 'sysstat'
+command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("util\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
+_description: Disk utilization on an idle system.
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/gputest_furmark_fullscreen_1920x1080
+requires:
+ package.name == 'gputest'
+ cpuinfo.platform == 'x86_64'
+command: gputest_benchmark.py fur --width 1920 --height 1080 -f
+estimated_duration: 75.000
+_description:
+ Run a stress test based on FurMark (OpenGL 2.1 or 3.2)
+ Fullscreen 1920x1080 no antialiasing
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/gputest_furmark_windowed_1024x640
+requires:
+ package.name == 'gputest'
+ cpuinfo.platform == 'x86_64'
+command: gputest_benchmark.py fur
+estimated_duration: 75.000
+_description:
+ Run a stress test based on FurMark (OpenGL 2.1 or 3.2)
+ Windowed 1024x640 no antialiasing
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/gputest_gimark_fullscreen_1920x1080
+requires:
+ package.name == 'gputest'
+ cpuinfo.platform == 'x86_64'
+command: gputest_benchmark.py gi --width 1920 --height 1080 -f
+estimated_duration: 75.00
+_description:
+ Run GiMark, a geometry instancing test (OpenGL 3.3)
+ Fullscreen 1920x1080 no antialiasing
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/gputest_gimark_windowed_1024x640
+requires:
+ package.name == 'gputest'
+ cpuinfo.platform == 'x86_64'
+command: gputest_benchmark.py gi
+estimated_duration: 75.500
+_description:
+ Run GiMark, a geometry instancing test (OpenGL 3.3)
+ Windowed 1024x640 no antialiasing
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/gputest_tessmark_fullscreen_1920x1080
+requires:
+ package.name == 'gputest'
+ cpuinfo.platform == 'x86_64'
+command: gputest_benchmark.py tess --width 1920 --height 1080 -f
+estimated_duration: 75.000
+_description:
+ Run a tessellation test based on TessMark (OpenGL 4.0)
+ Fullscreen 1920x1080 no antialiasing
+
+plugin: shell
+category_id: com.canonical.plainbox::benchmarks
+id: benchmarks/graphics/gputest_tessmark_windowed_1024x640
+requires:
+ package.name == 'gputest'
+ cpuinfo.platform == 'x86_64'
+command: gputest_benchmark.py tess
+_description:
+ Run a tessellation test based on TessMark (OpenGL 4.0)
+ Windowed 1024x640 no antialiasing
+

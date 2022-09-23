@@ -1,0 +1,171 @@
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/detect
+estimated_duration: 1.2
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_camera == 'True'
+command:
+  camera_test.py detect
+_summary: This Automated test attempts to detect a camera.
+user: root
+
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/detect-rpi
+estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_rpi_camera == 'True'
+command:
+  udev_resource.py -f MMAL | grep "category: MMAL"
+_summary: Detect presence of a MMAL camera.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::camera
+id: camera/display_{name}
+flags: also-after-suspend
+_summary: Webcam video display test for {product_slug}
+estimated_duration: 120.0
+depends: camera/detect
+command:
+  camera_test.py display -d /dev/{name}
+_description:
+ PURPOSE:
+     This test will check that the {product_slug} camera works
+ STEPS:
+     1. Click on Test to display a video capture from the camera for ten seconds.
+ VERIFICATION:
+     Did you see the video capture?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::camera
+id: camera/led_{name}
+_summary: Webcam LED test for {product_slug}
+estimated_duration: 120.0
+depends: camera/detect
+command:
+  camera_test.py led -d /dev/{name}
+_description:
+ PURPOSE:
+     This test will check that the {product_slug} camera LED works
+ STEPS:
+     1. Select Test to activate camera
+     2. Camera LED should light for a few seconds
+ VERIFICATION:
+     Did the camera LED light?
+flags: also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: user-interact-verify
+template-engine: jinja2
+category_id: com.canonical.plainbox::camera
+id: camera/still_{{ name }}
+flags: also-after-suspend
+_summary: Webcam still image capture test for {{ product_slug }}
+estimated_duration: 120.0
+depends: camera/detect
+requires:
+ {%- if __on_ubuntucore__ %}
+ executable.name == 'fswebcam'
+ {%- else %}
+ package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'eog'
+ package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ {% endif -%}
+command:
+  camera_test.py still -d /dev/{{ name }}
+_description:
+ PURPOSE:
+     This test will check that the {{ product_slug }} works
+ STEPS:
+     1. Click on Test to display a still image from the camera for ten seconds.
+ VERIFICATION:
+     Did you see the image?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images_{{ name }}
+_summary: Webcam multiple resolution capture test for {{ product_slug }}
+estimated_duration: 1.2
+depends: camera/detect
+requires:
+  {%- if __on_ubuntucore__ %}
+ executable.name == 'fswebcam'
+ {%- else %}
+ package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ {% endif -%}
+command:
+  camera_test.py resolutions -d /dev/{{ name }}
+_description:
+  Takes multiple pictures based on the resolutions supported by the camera and
+  validates their size and that they are of a valid format.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'MMAL' and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images-rpi_{name}
+_summary: Webcam multiple resolution capture test for Pi Camera
+estimated_duration: 16.0
+depends: camera/detect-rpi
+requires: cpuinfo.platform == 'armv7l'
+command:
+  camera_test_rpi.py --device /dev/{name}
+_description:
+  Takes multiple pictures based on the resolutions supported by the camera and
+  validates their size and that they are of a valid format.
+user: root
+
+unit: template
+template-engine: jinja2
+template-resource: device
+template-filter: device.category in ('CAPTURE', 'MMAL') and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/roundtrip-qrcode_{{ name }}
+_summary: Test video output and camera {{ name }} by displaying and reading a qrcode
+estimated_duration: 5.0
+depends:
+  {%- if category == 'MMAL' %}
+  camera/detect-rpi
+  {%- else %}
+  camera/detect
+  {% endif -%}
+requires:
+  {%- if __on_ubuntucore__ %}
+  lsb.release >= '19.1'
+  {%- else %}
+  lsb.release >= '19.1'
+  package.name == 'python3-zbar'
+  package.name == 'python3-pyqrcode'
+  package.name == 'python3-pil'
+  {% endif -%}
+command:
+  roundtrip_qr.py {{ name }}
+_description:
+  Generates a QRcode representing a random string of ascii letters. This is
+  written to tty1 using ascii escape codes. Either the PiCamera python module or
+  a gstreamer pipeline is used to capture an image of the display. An attempt
+  to decode a QRcode in the image is then made and data compared against the
+  random string.
+user: root

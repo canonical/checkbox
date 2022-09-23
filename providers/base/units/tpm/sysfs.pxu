@@ -1,0 +1,81 @@
+# Copyright 2015 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+
+unit: job
+id: sysfs_tpm_count
+category_id: tpm
+plugin: resource
+_summary: Count the number of visible TPM chips in sysfs
+_description:
+ This job just counts the number of visible TPM chips in as reported by
+ tpm_sysfs_resource.py tool. The only resource attribute is 'count'
+command: echo "count: $(tpm_sysfs_resource.py | grep -c -F 'x-sysfs-device-name')"
+estimated_duration: 2s
+flags: preserve-locale
+
+unit: job
+id: sysfs_tpm
+category_id: tpm
+plugin: resource
+_summary: Collect TPM information from sysfs
+_description:
+ This job collects all the available TPM information from
+ /sys/class/tpm/*/device/*.
+command: tpm_sysfs_resource.py
+estimated_duration: 2s
+flags: preserve-locale
+# Tie this resource with the has_tpm_chip manifest entry. This way it will
+# automatically get skipped (and everything along with it) when according to
+# the manifest, there is no TPM chip on the DUT.
+requires: manifest.has_tpm_chip == 'True'
+imports: from com.canonical.plainbox import manifest
+
+unit: job
+id: sysfs_tpm_after_taking_ownership
+category_id: tpm
+plugin: resource
+after: action/take-ownership
+_summary: Collect TPM information from sysfs (after taking ownership)
+_description:
+ This job collects all the available TPM information from
+ /sys/class/tpm/*/device/*. Distinct files present there are converted to
+ attributes of resource records.
+command: tpm_sysfs_resource.py
+estimated_duration: 2s
+flags: preserve-locale
+# See note about manifest on the sysfs_tpm job above.
+requires: manifest.has_tpm_chip == 'True'
+imports: from com.canonical.plainbox import manifest
+
+unit: job
+id: sysfs_tpm_after_clearing_ownership
+category_id: tpm
+plugin: resource
+after: action/clear-ownership
+_summary: Collect TPM information from sysfs (after clearing ownership)
+_description:
+ This job collects all the available TPM information from
+ /sys/class/tpm/*/device/*. Distinct files present there are converted to
+ attributes of resource records.
+command: tpm_sysfs_resource.py
+estimated_duration: 2s
+flags: preserve-locale
+# See note about manifest on the sysfs_tpm job above.
+requires: manifest.has_tpm_chip == 'True'
+imports: from com.canonical.plainbox import manifest
+
+unit: job
+id: sysfs_dmi
+category_id: tpm
+plugin: resource
+_summary: Collect DMI information from sysfs
+_description:
+ This job collects all the available DMI information from /sys/class/dmi/id/*.
+ The main purpose of including this job is to allow the provider to include
+ vendor-specific quirks by looking at the sysfs_dmi.bios_vendor attribute.
+command: dmi_sysfs_resource.py
+estimated_duration: 1s
+flags: preserve-locale

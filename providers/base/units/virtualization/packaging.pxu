@@ -1,0 +1,4 @@
+# qemu-efi-aarch64 provides the firmware uvtool needs for arm64 LP: #1940112
+unit: packaging meta-data
+os-id: debian
+Depends: qemu-efi-aarch64 [arm64]

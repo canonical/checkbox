@@ -1,0 +1,57 @@
+plugin: shell
+category_id: com.canonical.plainbox::memory
+id: memory/info
+estimated_duration: 5.0 
+user: root
+command: memory_compare.py
+_summary:
+ Check amount of memory reported by meminfo against DMI
+_description:
+ This test checks the amount of memory which is reporting in meminfo against
+ the size of the memory modules detected by DMI.
+
+plugin: shell
+category_id: com.canonical.plainbox::memory
+id: memory/check
+estimated_duration: 1000.0
+user: root
+requires:
+ uname.name == 'Linux'
+command: memory_test.py
+_summary:
+ Run memory stress test including swapping to disk
+_description:
+ Test to perform some basic stress and exercise of system memory. This test
+ also includes an over-commit function to force swapping to disk, thus SUTs
+ should have suitably large swap files for the amount of RAM they have
+ installed.
+
+plugin: shell
+category_id: com.canonical.plainbox::memory
+id: memory/meminfo_before_suspend
+estimated_duration: 1.2
+_summary: Store memory info before suspending
+command: meminfo_resource.py > "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend
+_siblings: [
+    { "id": "after-suspend-memory/meminfo_after_suspend",
+      "_summary": "Compare memory info to the state prior to suspend",
+      "command": "meminfo_resource.py | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -",
+      "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}
+ ]
+
+plugin: shell
+category_id: com.canonical.plainbox::memory
+id: memory/memory_stress_ng
+estimated_duration: 11000.0
+user: root
+environ: STRESS_NG_MIN_SWAP_SIZE
+requires:
+ executable.name == 'stress-ng'
+command: systemd-inhibit stress_ng_test.py memory
+_summary: Stress test of system memory
+_description:
+ Test to perform some basic stress and exercise of system memory via the
+ stress_ng tool. This test also includes an over-commit function to force
+ swapping to disk, thus SUTs should have suitably large swap files for the
+ amount of RAM they have installed.
+

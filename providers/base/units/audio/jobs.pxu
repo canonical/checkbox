@@ -1,0 +1,895 @@
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/list_devices
+estimated_duration: 1.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+command: cat /proc/asound/cards
+_description: Test to detect audio devices
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/valid-sof-firmware-sig
+requires:
+ device.category == 'AUDIO'
+ package.name == 'linux-firmware'
+command:
+ fail=0
+ for fw in /lib/firmware/intel/sof/sof-*.ri;
+ do
+     # shellcheck disable=SC2016
+     if xxd "${fw}" | grep -q '$CPD'; then
+         if ! sof_ri_info.py --valid "${fw}";
+         then
+             fail=1
+         fi
+     fi
+ done
+ exit $fail
+_description: Valid sof firmware signature
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_auto
+estimated_duration: 5.0
+depends: audio/list_devices
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that internal speakers work correctly
+ STEPS:
+     1. Make sure that no external speakers or headphones are connected
+        When testing a desktop, you can skip this test if there is no
+        internal speaker, we will test the external output later
+     2. Commence the test to play a brief tone on your audio device
+ VERIFICATION:
+     Did you hear a tone?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/{index}_playback_hdmi_{product_slug}
+estimated_duration: 30.0
+requires:
+ display.hdmi == 'supported'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+flags: also-after-suspend
+command:
+ audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    HDMI audio interface verification
+_steps:
+    1. Plug an external HDMI device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the HDMI device?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/{index}_playback_displayport_{product_slug}
+estimated_duration: 30.0
+requires:
+ display.dp == 'supported'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+flags: also-after-suspend
+command:
+ audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    DisplayPort audio interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the DisplayPort device?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/{index}_playback_thunderbolt_{product_slug}
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_thunderbolt == 'True'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+flags: also-after-suspend
+command:
+ audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Thunderbolt audio interface verification
+_steps:
+    1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the Thunderbolt device?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/{index}_playback_thunderbolt3_{product_slug}
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_thunderbolt3 == 'True'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+flags: also-after-suspend
+command:
+ audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Thunderbolt audio interface verification
+_steps:
+    1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the Thunderbolt device?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/{index}_playback_type-c_displayport_{product_slug}
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_usb_type_c == 'True'
+ display.dp == 'supported'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+flags: also-after-suspend
+command:
+ audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    DisplayPort audio via USB Type-C port interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Typce-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the DisplayPort device?
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.prime_gpu_offload == 'Off'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/{index}_playback_type-c_hdmi_{product_slug}
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_usb_type_c == 'True'
+ display.dp == 'supported'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+flags: also-after-suspend
+command:
+ audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --verbose --device=hdmi --volume=50
+ gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    HDMI audio via USB Type-C port interface verification
+_steps:
+    1. Plug an external HDMI device with sound on a USB Type-C port using a "USB Typce-C to HDMI" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the HDMI device?
+    
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_headphones
+estimated_duration: 20.0
+depends: audio/list_devices
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that headphones connector works correctly
+ STEPS:
+     1. Connect a pair of headphones to your audio device
+     2. Commence the test to play a sound to your audio device
+ VERIFICATION:
+     Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/alsa_record_playback_internal
+estimated_duration: 20.0
+depends: audio/playback_auto
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  alsa_record_playback.sh
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that recording sound using the onboard microphone works correctly
+ STEPS:
+     1. Disconnect any external microphones that you have plugged in
+     2. Click "Test", then speak into your internal microphone
+     3. After a few seconds, your speech will be played back to you.
+ VERIFICATION:
+     Did you hear your speech played back?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/alsa_record_playback_external
+estimated_duration: 20.0
+depends: audio/playback_headphones
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+ audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ audio_settings.py set --device=pci --volume=50
+ alsa_record_playback.sh
+ EXIT_CODE=$?
+ audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that recording sound using an external microphone works correctly
+ STEPS:
+     1. Connect a microphone to your microphone port
+     2. Click "Test", then speak into the external microphone
+     3. After a few seconds, your speech will be played back to you
+ VERIFICATION:
+     Did you hear your speech played back?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/alsa_record_playback_usb
+estimated_duration: 120.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=usb --volume=50
+  alsa_record_playback.sh
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that a USB audio device works correctly
+ STEPS:
+     1. Connect a USB audio device to your system
+     2. Click "Test", then speak into the microphone
+     3. After a few seconds, your speech will be played back to you
+ VERIFICATION:
+     Did you hear your speech played back through the USB headphones?
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/alsa_record_playback_automated
+depends: audio/detect_sinks_sources
+estimated_duration: 10.0
+requires:
+ package.name == 'python3-gi'
+ package.name == 'gir1.2-gstreamer-1.0'
+ package.name == 'libgstreamer1.0-0'
+ package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'gstreamer1.0-pulseaudio'
+ package.name == 'alsa-base'
+ device.category == 'AUDIO'
+command: audio_test.py
+_description:
+ Play back a sound on the default output and listen for it on the
+ default input.
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/detect_sinks_sources
+estimated_duration: 1.0
+requires:
+  package.name == 'pulseaudio-utils'
+command:
+  pactl_list.sh
+_description:
+  Test to detect if there's available sources and sinks.
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/alsa_info_collect
+estimated_duration: 2.0
+command: alsa_info --no-dialog --no-upload --output "${PLAINBOX_SESSION_SHARE}"/alsa_info.log
+_description:
+ Collect audio-related system information. This data can be used to
+ simulate this computer's audio subsystem and perform more detailed tests
+ under a controlled environment.
+
+plugin: attachment
+category_id: com.canonical.plainbox::audio
+id: audio/alsa_info_attachment
+depends: audio/alsa_info_collect
+estimated_duration: 1.0
+command: [ -e "${PLAINBOX_SESSION_SHARE}"/alsa_info.log ] && cat "${PLAINBOX_SESSION_SHARE}"/alsa_info.log
+_description:
+ Attaches the audio hardware data collection log to the results.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/channels
+estimated_duration:  20.0
+command: speaker-test -c 2 -l 1 -t wav
+_description:
+ PURPOSE:
+     Check that the various audio channels are working properly
+ STEPS:
+     1. Commence the test
+ VERIFICATION:
+     You should clearly hear a voice from the different audio channels
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/check_volume
+estimated_duration: 1.0
+requires:
+ package.name == 'pulseaudio-utils'
+ device.category == 'AUDIO'
+command: volume_test.py --minvol 1 --maxvol 100
+_description:
+ This test will verify that the volume levels are at an acceptable level on
+ your local system.  The test will validate that the volume is greater than
+ or equal to minvol and less than or equal to maxvol for all sources (inputs)
+ and sinks (outputs) recognized by PulseAudio.  It will also validate that the
+ active source and sink are not muted.  You should not manually adjust the
+ volume or mute before running this test.
+
+plugin: manual
+category_id: com.canonical.plainbox::audio
+id: audio/external-lineout
+estimated_duration: 30.0
+requires:
+ dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
+_description:
+ PURPOSE:
+      Check that external line out connection works correctly
+ STEPS:
+      1. Insert cable to speakers (with built-in amplifiers) on the line out port
+      2. Open system sound preferences, 'Output' tab, select 'Line Out' on the connector list. Commence the test
+      3. On the system sound preferences, click 'Test Sound' to check left and right channel
+ VERIFICATION:
+      1. Do you see internal speakers? The internal speakers should be replaced by external speaker from Line out port, if any
+      2. Do you hear the sound in the internal speakers? The internal speakers should be muted automatically
+      3. Do you hear the sound coming out on the corresponding channel by external speakers from Line out port?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/external-linein
+estimated_duration: 120.0
+requires:
+ dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  alsa_record_playback.sh
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     Check that external line in connection works correctly
+ STEPS:
+     1. Use a cable to connect the line in port to an external line out source.
+     2. Open system sound preferences, 'Input' tab, select 'Line-in' on the connector list. Commence the test
+     3. After a few seconds, your recording will be played back to you.
+ VERIFICATION:
+     Did you hear your recording?
+
+plugin: user-interact
+category_id: com.canonical.plainbox::audio
+id: audio/speaker-headphone-plug-detection
+estimated_duration: 60.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse_active_port_change.py sinks
+_description:
+ PURPOSE:
+     Check that system detects speakers or headphones being plugged in
+ STEPS:
+     1. Prepare a pair of headphones or speakers with a standard 3.5mm jack
+     2. Locate the speaker / headphone jack on the device under test
+     3. Run the test (you have 30 seconds from now on)
+     4. Plug headphones or speakers into the appropriate jack
+     5. Unplug the device for subsequent tests.
+ VERIFICATION:
+     Verification is automatic, no action is required.
+     The test times out after 30 seconds (and fails in that case).
+
+plugin: user-interact
+category_id: com.canonical.plainbox::audio
+id: audio/microphone-plug-detection
+estimated_duration: 60.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse_active_port_change.py sources
+_description:
+ PURPOSE:
+     Check that system detects a microphone being plugged in
+ STEPS:
+     1. Prepare a microphone with a standard 3.5mm jack
+     2. Locate the microphone jack on the device under test.
+        Keep in mind that it may be shared with the headphone jack.
+     3. Run the test (you have 30 seconds from now on)
+     4. Plug the microphone into the appropriate jack
+     5. Unplug the device for subsequent tests.
+ VERIFICATION:
+     Verification is automatic, no action is required.
+     The test times out after 30 seconds (and fails in that case).
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/balance_internal_speaker
+estimated_duration: 20.0
+depends: audio/playback_auto
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --device=pci --volume=50
+    gst_pipeline_test.py -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    exit $EXIT_CODE
+_description:
+ PURPOSE:
+     Check that balance control works correctly on internal speakers
+ STEPS:
+     1. Check that moving the balance slider from left to right works smoothly
+     2. Commence the test to play an audio tone for 10 seconds.
+     3. Move the balance slider from left to right and back.
+     4. Check that actual speaker audio balance follows your setting.
+ VERIFICATION:
+     Does the slider move smoothly, as well as being followed by the setting by the actual audio output?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/balance_headphones
+depends: audio/playback_headphones
+estimated_duration: 30.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  gst_pipeline_test.py -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     Check that balance control works correctly on external headphone
+ STEPS:
+     1. Check that moving the balance slider from left to right works smoothly
+     2. Commence the test to play an audio tone for 10 seconds.
+     3. Move the balance slider from left to right and back.
+     4. Check that actual headphone audio balance follows your setting.
+ VERIFICATION:
+     Does the slider move smoothly, as well as being followed by the setting by the actual audio output?
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/list_devices_after_suspend_30_cycles
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+command: cat /proc/asound/cards
+_description: Test to detect audio devices after suspending 30 times.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_auto_after_suspend_30_cycles
+estimated_duration: 5.0
+depends: audio/list_devices power-management/suspend_30_cycles
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that internal speakers work correctly after suspending 30 times.
+ STEPS:
+     1. Make sure that no external speakers or headphones are connected
+        When testing a desktop, you can skip this test if there is no
+        internal speaker, we will test the external output later
+     2. Commence the test to play a brief tone on your audio device
+ VERIFICATION:
+     Did you hear a tone?
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/alsa_record_playback_automated_after_suspend_30_cycles
+estimated_duration: 10.0
+depends: power-management/suspend_30_cycles audio/detect_sinks_sources_after_suspend_30_cycles
+requires:
+ package.name == 'python3-gi'
+ package.name == 'gir1.2-gstreamer-1.0'
+ package.name == 'libgstreamer1.0-0'
+ package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'gstreamer1.0-pulseaudio'
+ package.name == 'alsa-base'
+ device.category == 'AUDIO'
+command: audio_test.py
+_description:
+ Play back a sound on the default output and listen for it on the
+ default input, after suspending 30 times.
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/detect_sinks_sources_after_suspend_30_cycles
+estimated_duration: 1.0
+requires:
+  package.name == 'pulseaudio-utils'
+command:
+  pactl_list.sh
+_description:
+  Test to detect if there's available sources and sinks after suspending 30 times.
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/check_volume_after_suspend_30_cycles
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles
+requires:
+ package.name == 'pulseaudio-utils'
+ device.category == 'AUDIO'
+command: volume_test.py --minvol 1 --maxvol 100
+_description:
+ This test will verify that the volume levels are at an acceptable level on
+ your local system.  The test will validate that the volume is greater than
+ or equal to minvol and less than or equal to maxvol for all sources (inputs)
+ and sinks (outputs) recognized by PulseAudio.  It will also validate that the
+ active source and sink are not muted.  You should not manually adjust the
+ volume or mute before running this test.
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/audio_after_suspend_30_cycles
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+_description: Record mixer settings after suspending 30 times.
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend_30_cycles
+  diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend_30_cycles
+
+id: audio/detect-playback-devices
+_summary: Check that at least one audio playback device exits
+plugin: shell
+category_id: com.canonical.plainbox::audio
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_audio_playback == 'True'
+command:
+ COUNT=$(alsa_pcm_info.py | grep -c Playback)
+ echo "Count: $COUNT"
+ if [ "$COUNT" -eq 0 ]; then
+  exit 1
+ fi
+estimated_duration: 1s
+
+id: audio/detect-capture-devices
+_summary: Check that at least one audio capture device exists
+plugin: shell
+category_id: com.canonical.plainbox::audio
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_audio_capture == 'True'
+command:
+ COUNT=$(alsa_pcm_info.py | grep -c Capture)
+ echo "Count: $COUNT"
+ if [ "$COUNT" -eq 0 ]; then
+   exit 1
+ fi
+esimated_duration: 1s
+
+id: audio/alsa-playback
+_summary: Playback works
+_purpose:
+ Check if sound is played through ALSA on the default output
+_steps:
+ 1. Make sure speakers or headphones are connect to the device
+ 2. Commence the test
+_verification:
+ Did you hear the sound?
+plugin: user-interact-verify
+depends: audio/detect-playback-devices
+user: root
+environ: ALSA_CONFIG_PATH ALSADEVICE
+flags: also-after-suspend
+command: alsa_test playback -d 5
+category_id: com.canonical.plainbox::audio
+estimated_duration: 10
+
+id: audio/alsa-loopback-automated
+_summary: Captured sound matches played one (automated)
+_purpose:
+ Check if sound that is 'hearable' by capture device
+plugin: shell
+depends: audio/detect-playback-devices audio/detect-capture-devices
+user: root
+environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
+flags: also-after-suspend
+command: alsa_test loopback -d 5
+category_id: com.canonical.plainbox::audio
+estimated_duration: 5
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_audio_loopback_connector == 'True'
+
+id: audio/alsa-loopback
+_summary: Captured sound matches played one
+_purpose:
+ Check if sound that is 'hearable' by capture device
+_steps:
+ 1. Connect line-out to line-in (plug the loop-back cable)
+ 2. Commence the test
+ 3. Observe command's output
+_verification:
+ Is the reported frequency in the 438 - 442 range
+plugin: user-interact-verify
+depends: audio/detect-playback-devices audio/detect-capture-devices
+user: root
+environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
+flags: also-after-suspend
+command: alsa_test loopback -d 5
+category_id: com.canonical.plainbox::audio
+estimated_duration: 30
+
+id: audio/pa-record-internal-mic
+_summary: Record a wav file and check it using pulseaudio - internal mic
+_purpose:
+ Check if audio input work fine through pulseaudio on internal mic
+_steps:
+ 1. Make sure no external mic is connected to the device
+ 2. Make sure there's at least one output device connected to the device
+ 3. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 4. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 5. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 6. Unmute and set volume of input/output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+    sudo pulseaudio.pactl set-source-mute <Source id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-source-volume <Source id #, e.g. 0> 80%
+ 7. Record for 5 seconds to a wav file:
+    sudo timeout 5 pulseaudio.parec -v /var/snap/pulseaudio/common/test.wav
+ 8. Play the recorded file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 9. Remove the recorded file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the recorded sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-record-external-mic
+_summary: Record a wav file and check it using pulseaudio - external mic
+_purpose:
+ Check if audio input work fine through pulseaudio on external mic
+_steps:
+ 1. Make sure an external mic is connected to the device
+ 2. Make sure there's at least one output device connected to the device
+ 3. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 4. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 5. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 6. Unmute and set volume of input/output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+    sudo pulseaudio.pactl set-source-mute <Source id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-source-volume <Source id #, e.g. 0> 80%
+ 7. Record for 5 seconds to a wav file:
+    sudo timeout 5 pulseaudio.parec -v /var/snap/pulseaudio/common/test.wav
+ 8. Play the recorded file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 9. Remove the recorded file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the recorded sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-playback-headphone
+_summary: Play sample wav file using pulseaudio - headphone
+_purpose:
+ Check if sound is played through pulseaudio to headphone
+_steps:
+ 1. Make sure a headphone is connected to the device
+ 2. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 3. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 4. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 5. Unmute and set volume of output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+ 6. Put a test wav file in system as /var/snap/pulseaudio/common/test.wav
+ 7. Play the test wav file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 8. Remove the test file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-playback-lineout
+_summary: Play sample wav file using pulseaudio - lineout
+_purpose:
+ Check if sound is played through pulseaudio to lineout
+_steps:
+ 1. Make sure a output device is connected to the lineout port on device
+ 2. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 3. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 4. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+ 5. Unmute and set volume of output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+ 6. Put a test wav file in system as /var/snap/pulseaudio/common/test.wav
+ 7. Play the test wav file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 8. Remove the test file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m
+
+id: audio/pa-playback-hdmi
+_summary: Play sample wav file using pulseaudio - hdmi
+_purpose:
+ Check if sound is played through pulseaudio to HDMI output device
+_steps:
+ 1. Make sure a HDMI output device is connected to the device
+ 2. Workaround to run pulseaudio correctly:
+    sudo mkdir -p /run/user/0/snap.pulseaudio/pulse
+ 3. Find out corrent source, sink id:
+    sudo pulseaudio.pactl list
+ 4. Set input/output profile:
+    sudo pulseaudio.pactl set-card-profile 0 output:hdmi-stereo+input:analog-stereo
+ 5. Unmute and set volume of output:
+    sudo pulseaudio.pactl set-sink-mute <Sink id #, e.g. 0> 0
+    sudo pulseaudio.pactl set-sink-volume <Sink id #, e.g. 0> 80%
+ 6. Put a test wav file in system as /var/snap/pulseaudio/common/test.wav
+ 7. Play the test wav file
+    sudo pulseaudio.paplay -v /var/snap/pulseaudio/common/test.wav
+ 8. Remove the test file
+    sudo rm /var/snap/pulseaudio/common/test.wav
+_verification:
+ Did you hear the sound correctly?
+plugin: manual
+flags: also-after-suspend
+requires: snap.name == 'pulseaudio'
+category_id: com.canonical.plainbox::audio
+estimated_duration: 1m

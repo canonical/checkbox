@@ -1,0 +1,368 @@
+id: usb-cert-full
+unit: test plan
+_name: USB tests
+_description:
+ USB tests
+include:
+nested_part:
+ com.canonical.certification::usb-cert-manual
+ com.canonical.certification::usb-cert-automated
+
+id: usb-cert-manual
+unit: test plan
+_name: USB tests (Manual)
+_description:
+ USB tests (Manual)
+include:
+ usb/HID                                    certification-status=blocker
+ usb/insert                                 certification-status=blocker
+ usb/storage-automated                      certification-status=blocker
+ usb/remove                                 certification-status=blocker
+
+id: usb-cert-automated
+unit: test plan
+_name: USB tests (Automated)
+_description:
+ USB tests (Automated)
+include:
+ usb/detect                                 certification-status=blocker
+
+
+id: usb3-cert-full
+unit: test plan
+_name: USB3 tests
+_description:
+ USB3 tests
+include:
+nested_part:
+ com.canonical.certification::usb3-cert-manual
+ com.canonical.certification::usb3-cert-automated
+
+id: usb3-cert-manual
+unit: test plan
+_name: USB3 tests (Manual)
+_description:
+ USB3 tests (Manual)
+include:
+ usb3/insert                                certification-status=blocker
+ usb3/storage-automated                     certification-status=blocker
+ usb3/remove                                certification-status=blocker
+
+id: usb3-cert-automated
+unit: test plan
+_name: USB3 tests (Automated)
+_description:
+ USB3 tests (Automated)
+include:
+
+
+id: usb-c-cert-full
+unit: test plan
+_name: USB Type-C tests
+_description: USB Type-C tests
+include:
+    usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    usb-c/c-to-a-adapter/insert                certification-status=blocker
+    usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    usb-c/c-to-a-adapter/remove                certification-status=blocker
+    usb-c/hid                                  certification-status=blocker
+    usb-c/insert                               certification-status=blocker
+    usb-c/storage-automated                    certification-status=blocker
+    usb-c/remove                               certification-status=blocker
+    usb-c/c-to-ethernet-adapter-insert
+
+id: after-suspend-usb-cert-full
+unit: test plan
+_name: USB tests (after suspend)
+_description: USB tests (after suspend)
+include:
+    suspend/usb_insert_after_suspend                       certification-status=blocker
+    suspend/usb_storage_automated_after_suspend            certification-status=blocker
+    suspend/usb_remove_after_suspend                       certification-status=blocker
+
+id: after-suspend-usb3-cert-full
+unit: test plan
+_name: USB3 tests (after suspend)
+_description: USB3 tests (after suspend)
+include:
+    suspend/usb3_insert_after_suspend                      certification-status=blocker
+    suspend/usb3_storage_automated_after_suspend           certification-status=blocker
+    suspend/usb3_remove_after_suspend                      certification-status=blocker
+
+id: after-suspend-usb-c-cert-full
+unit: test plan
+_name: USB Type-C tests (after suspend)
+_description: USB Type-C tests (after suspend)
+include:
+    after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/insert                certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/remove                certification-status=blocker
+    after-suspend-usb-c/hid                                  certification-status=blocker
+    after-suspend-usb-c/insert                               certification-status=blocker
+    after-suspend-usb-c/storage-automated                    certification-status=blocker
+    after-suspend-usb-c/remove                               certification-status=blocker
+    after-suspend-usb-c/c-to-ethernet-adapter-insert
+
+id: usb-cert-blockers
+unit: test plan
+_name: USB tests (certification blockers only)
+_description: USB tests (certification blockers only)
+include:
+    usb/detect                                 certification-status=blocker
+    usb/HID                                    certification-status=blocker
+    usb/insert                                 certification-status=blocker
+    usb/storage-automated                      certification-status=blocker
+    usb/remove                                 certification-status=blocker
+
+id: usb3-cert-blockers
+unit: test plan
+_name: USB3 tests (certification blockers only)
+_description: USB3 tests (certification blockers only)
+include:
+    usb3/insert                                certification-status=blocker
+    usb3/storage-automated                     certification-status=blocker
+    usb3/remove                                certification-status=blocker
+
+id: usb-c-cert-blockers
+unit: test plan
+_name: USB Type-C tests (certification blockers only)
+_description: USB Type-C tests (certification blockers only)
+include:
+    usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    usb-c/c-to-a-adapter/insert                certification-status=blocker
+    usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    usb-c/c-to-a-adapter/remove                certification-status=blocker
+    usb-c/hid                                  certification-status=blocker
+    usb-c/insert                               certification-status=blocker
+    usb-c/storage-automated                    certification-status=blocker
+    usb-c/remove                               certification-status=blocker
+
+id: after-suspend-usb-cert-blockers
+unit: test plan
+_name: USB tests (after suspend, certification blockers only)
+_description: USB tests (after suspend, certification blockers only)
+include:
+    suspend/usb_insert_after_suspend                       certification-status=blocker
+    suspend/usb_storage_automated_after_suspend            certification-status=blocker
+    suspend/usb_remove_after_suspend                       certification-status=blocker
+
+id: after-suspend-usb3-cert-blockers
+unit: test plan
+_name: USB3 tests (after suspend, certification blockers only)
+_description: USB3 tests (after suspend, certification blockers only)
+include:
+    suspend/usb3_insert_after_suspend                      certification-status=blocker
+    suspend/usb3_storage_automated_after_suspend           certification-status=blocker
+    suspend/usb3_remove_after_suspend                      certification-status=blocker
+
+id: after-suspend-usb-c-cert-blockers
+unit: test plan
+_name: USB Type-C tests (after suspend, certification blockers only)
+_description: USB Type-C tests (after suspend, certification blockers only)
+include:
+    after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/insert                certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/storage-automated     certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/remove                certification-status=blocker
+    after-suspend-usb-c/hid                                  certification-status=blocker
+    after-suspend-usb-c/insert                               certification-status=blocker
+    after-suspend-usb-c/storage-automated                    certification-status=blocker
+    after-suspend-usb-c/remove                               certification-status=blocker
+
+id: usb-preinserted
+unit: test plan
+_name: Automated USB write/read/compare tests on storage devices
+_description: Automated USB write/read/compare tests on storage devices
+include:
+    usb/storage-preinserted
+
+id: after-suspend-usb-preinserted
+unit: test plan
+_name: After suspend automated USB write/read/compare tests on storage devices
+_description: After suspend automated USB write/read/compare tests on storage devices
+include:
+    after-suspend-usb/storage-preinserted
+
+id: usb3-preinserted
+unit: test plan
+_name: Automated USB 3 write/read/compare tests on storage devices
+_description: Automated USB 3 write/read/compare tests on storage devices
+include:
+    usb3/storage-preinserted
+
+id: after-suspend-usb3-preinserted
+unit: test plan
+_name: After suspend automated USB 3 write/read/compare tests on storage devices
+_description: After suspend automated USB 3 write/read/compare tests on storage devices
+include:
+    after-suspend-usb3/storage-preinserted
+
+id: usb-full
+unit: test plan
+_name: USB tests
+_description: QA USB tests for Ubuntu Core devices
+include:
+nested_part:
+    usb-manual
+    usb-automated
+
+id: usb-manual
+unit: test plan
+_name: Manual USB tests
+_description: Manual USB tests for Ubuntu Core devices
+include:
+    usb/hid
+    usb/insert
+    usb/storage-automated # depends on manual one, so not automated
+    usb/remove
+
+id: usb-automated
+unit: test plan
+_name: Automated USB tests
+_description: Automated USB tests for Ubuntu Core devices
+include:
+    usb/storage-detect
+    usb/storage-preinserted-.*
+bootstrap_include:
+    removable_partition
+
+id: usb3-full
+unit: test plan
+_name: USB3 tests
+_description: QA USB3 tests for Ubuntu Core devices
+include:
+nested_part:
+    usb3-manual
+
+id: usb3-manual
+unit: test plan
+_name: Manual USB3 tests
+_description: Manual USB3 tests for Ubuntu Core devices
+include:
+    usb3/insert
+    usb3/storage-automated # depends on manual one, so not automated
+    usb3/remove
+
+id: usb3-automated
+unit: test plan
+_name: Automated USB3 tests
+_description: Manual USB3 tests for Ubuntu Core devices
+include:
+
+id: usb-c-full
+unit: test plan
+_name: USB-C tests
+_description: QA USB-C tests for Ubuntu Core devices
+include:
+nested_part:
+    usb-c-manual
+    usb-c-automated
+
+id: usb-c-manual
+unit: test plan
+_name: Manual USB-C tests
+_description: Manual USB-C tests for Ubuntu Core devices
+include:
+    usb-c/c-to-a-adapter/hid
+    usb-c/c-to-a-adapter/insert
+    usb-c/c-to-a-adapter/storage-automated
+    usb-c/c-to-a-adapter/remove
+    usb-c/hid
+    usb-c/insert
+    usb-c/storage-automated
+    usb-c/remove
+
+id: usb-c-automated
+unit: test plan
+_name: Automated USB-C tests
+_description: Automated USB-C tests for Ubuntu Core devices
+include:
+
+id: after-suspend-usb-full
+unit: test plan
+_name: USB tests (after suspend)
+_description: QA USB tests for Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-usb-manual
+
+id: after-suspend-usb-manual
+unit: test plan
+_name: Manual USB tests (after suspend)
+_description: Manual USB tests for Ubuntu Core devices
+include:
+    after-suspend-usb/hid
+    after-suspend-usb/insert
+    after-suspend-usb/storage-automated # depends on manual one, so not automated
+    after-suspend-usb/remove
+
+id: after-suspend-usb3-full
+unit: test plan
+_name: USB3 tests (after suspend)
+_description: QA USB3 tests for Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-usb3-manual
+
+id: after-suspend-usb3-manual
+unit: test plan
+_name: Manual USB3 tests (after suspend)
+_description: Manual USB3 tests for Ubuntu Core devices
+include:
+    after-suspend-usb3/insert
+    after-suspend-usb3/storage-automated # depends on manual one, so not automated
+    after-suspend-usb3/remove
+
+id: after-suspend-usb3-automated
+unit: test plan
+_name: Automated USB3 tests (after suspend)
+_description: Automated USB3 tests for Ubuntu Core devices
+include:
+
+id: after-suspend-usb-c-full
+unit: test plan
+_name: USB-C tests (after suspend)
+_description: QA USB-C tests for Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-usb-c-manual
+
+id: after-suspend-usb-c-manual
+unit: test plan
+_name: Manual USB-C tests (after suspend)
+_description: Manual USB-C tests for Ubuntu Core devices
+include:
+    after-suspend-usb-c/c-to-a-adapter/hid
+    after-suspend-usb-c/c-to-a-adapter/insert
+    after-suspend-usb-c/c-to-a-adapter/storage-automated
+    after-suspend-usb-c/c-to-a-adapter/remove
+    after-suspend-usb-c/hid
+    after-suspend-usb-c/insert
+    after-suspend-usb-c/storage-automated
+    after-suspend-usb-c/remove
+
+id: after-suspend-usb-c-automated
+unit: test plan
+_name: Automated USB-C tests (after suspend)
+_description: Automated USB-C tests for Ubuntu Core devices
+include:
+
+id: after-suspend-usb-automated
+unit: test plan
+_name: Automated USB tests
+_description: Automated USB tests for Ubuntu Core devices
+include:
+    after-suspend-usb/storage-detect
+    after-suspend-usb/storage-preinserted-.*
+bootstrap_include:
+    removable_partition
+
+id: server-usb
+unit: test plan
+_name: USB Server tests
+_description: USB tests for Server Cert
+include:
+    usb/detect
+    usb/storage-server      certification-status=blocker
+    usb3/storage-server     certification-status=blocker

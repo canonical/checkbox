@@ -1,0 +1,6 @@
+
+unit: manifest entry
+id: socket_can_echo_server_running
+_prompt: Is the device connected to the following?:
+_name: A SocketCAN Echo Server
+value-type: bool

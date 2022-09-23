@@ -1,0 +1,95 @@
+id: misc-client-cert-full
+unit: test plan
+_name: Miscellaneous client tests
+_description:
+ Miscellaneous client tests (fwts, dmi, oops)
+include:
+nested_part:
+ com.canonical.certification::misc-client-cert-manual
+ com.canonical.certification::misc-client-cert-automated
+
+id: misc-client-cert-manual
+unit: test plan
+_name: Miscellaneous client tests (Manual)
+_description:
+ Miscellaneous client tests (fwts, dmi, oops) (Manual)
+include:
+nested_part:
+
+
+id: misc-client-cert-automated
+unit: test plan
+_name: Miscellaneous client tests (automated)
+_description:
+ Miscellaneous client tests (fwts, dmi, oops)
+ (automated)
+include:
+    install/apt-get-gets-updates
+    firmware/fwts_desktop_diagnosis
+    firmware/fwts_desktop_diagnosis_results.log.gz
+    firmware/fwts_wakealarm.*                      certification-status=blocker
+    firmware/fwts_uefirtvariable.*                 certification-status=blocker
+    miscellanea/oops                               certification-status=blocker
+    miscellanea/oops_results.log
+    miscellanea/fan_stress_reaction
+    miscellanea/debsums                            certification-status=blocker
+    miscellanea/check_prerelease                   certification-status=blocker
+    miscellanea/ubuntu-desktop-recommends          certification-status=blocker
+bootstrap_include:
+    fwts
+
+id: misc-client-cert-blockers
+unit: test plan
+_name: Miscellaneous client tests (certification blockers only)
+_description:
+ Miscellaneous client tests (fwts, dmi, oops)
+ (certification blockers only)
+include:
+    firmware/fwts_desktop_diagnosis
+    firmware/fwts_desktop_diagnosis_results.log.gz
+    firmware/fwts_wakealarm.*                      certification-status=blocker
+    firmware/fwts_uefirtvariable.*                 certification-status=blocker
+    miscellanea/oops                               certification-status=blocker
+    miscellanea/oops_results.log
+    miscellanea/debsums                            certification-status=blocker
+    miscellanea/check_prerelease                   certification-status=blocker
+bootstrap_include:
+    fwts
+
+id: server-miscellaneous
+unit: test plan
+_name: Miscellaneous server cert tests
+_description:
+ Miscellaneous server tests (log checks, dmi data, etc)
+mandatory_include:
+    miscellanea/apport-directory               certification-status=non-blocker
+    miscellanea/bmc_info                       certification-status=non-blocker
+    miscellanea/check_prerelease               certification-status=blocker
+    miscellanea/cpuid                          certification-status=non-blocker
+    miscellanea/cpus_are_not_samples           certification-status=blocker
+    miscellanea/debsums                        certification-status=non-blocker
+    miscellanea/dmitest_server                 certification-status=blocker
+    miscellanea/efi_boot_mode                  certification-status=blocker
+    miscellanea/efi_pxeboot                    certification-status=non-blocker
+    miscellanea/get_make_and_model             certification-status=non-blocker
+    miscellanea/get_maas_version               certification-status=blocker
+    miscellanea/ipmi_test                      certification-status=blocker
+    miscellanea/kernel_taint_test              certification-status=blocker
+    miscellanea/maas_user_check                certification-status=blocker
+    miscellanea/reboot_firmware                certification-status=non-blocker
+    miscellanea/secure_boot_mode               certification-status=non-blocker
+    miscellanea/sosreport                      certification-status=non-blocker
+    miscellanea/sosreport_attachment           certification-status=non-blocker
+    miscellanea/submission-resources           certification-status=non-blocker
+include:
+
+id: server-miscellaneous-regression
+unit: test plan
+_name: Miscellaneous server cert tests
+_description:
+ Miscellaneous server tests (log checks, dmi data, etc)
+mandatory_include:
+    miscellanea/apport-directory               certification-status=non-blocker
+    miscellanea/ipmi_test                      certification-status=blocker
+    info/systemd-analyze                       certification-status=non-blocker
+include:

@@ -1,0 +1,84 @@
+unit: job
+id: bluez-internal-rfcomm-tests
+plugin: resource
+_summary: Gather list of tests provided by bluez rfcomm test binary
+_description:
+ Bluez includes some internal test that exercise the stack. This resource
+ collects a list of the provided rfcomm tests.
+requires: device.category == 'BLUETOOTH'
+command:
+ rfcomm-tester -l | while read -r i
+ do
+   echo "bluez-internal-rfcomm-test: $i"
+   echo
+ done
+estimated_duration: 2s
+flags: preserve-locale
+
+unit: job
+id: bluez-internal-hci-tests
+plugin: resource
+_summary: Gather list of tests provided by bluez hci test binary
+_description:
+ Bluez includes some internal test that exercise the stack. This resource
+ collects a list of the provided hci tests.
+requires: device.category == 'BLUETOOTH'
+command:
+ hci-tester -l | while read -r i
+ do
+   echo "bluez-internal-hci-test: $i"
+   echo
+ done
+estimated_duration: 2s
+flags: preserve-locale
+
+unit: job
+id: bluez-internal-mgmt-tests
+plugin: resource
+_summary: Gather list of tests provided by bluez mgmt test binary
+_description:
+ Bluez includes some internal test that exercise the stack. This resource
+ collects a list of the provided mgmt tests.
+requires: device.category == 'BLUETOOTH'
+command:
+ mgmt-tester -l | while read -r i
+ do
+   echo "bluez-internal-mgmt-test: $i"
+   echo
+ done
+estimated_duration: 2s
+flags: preserve-locale
+
+unit: job
+id: bluez-internal-uc-tests
+plugin: resource
+_summary: Gather list of tests provided by bluez user channel test binary
+_description:
+ Bluez includes some internal test that exercise the stack. This resource
+ collects a list of the provided user channel tests.
+requires: device.category == 'BLUETOOTH'
+command:
+ userchan-tester -l | while read -r i
+ do
+   echo "bluez-internal-uc-test: $i"
+   echo
+ done
+estimated_duration: 2s
+flags: preserve-locale
+
+unit: job
+id: bluez-internal-bnep-tests
+plugin: resource
+_summary: Gather list of tests provided by bluez bnep test binary
+_description:
+ Bluez includes some internal test that exercise the stack. This resource
+ collects a list of the provided bnep tests.
+requires: device.category == 'BLUETOOTH'
+command:
+ bnep-tester -l | while read -r i
+ do
+   echo "bluez-internal-bnep-test: $i"
+   echo
+ done
+estimated_duration: 2s
+flags: preserve-locale

@@ -1,0 +1,7 @@
+id: nvdimm-full
+unit: test plan
+_name: NVDIM Specific Tests
+_description: NVDIMM related tests
+include:
+ nvdimm/info    certification-status=blocker
+ nvdimm/health  certification-status=blocker

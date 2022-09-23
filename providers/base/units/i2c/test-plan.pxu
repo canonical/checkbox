@@ -1,0 +1,22 @@
+id: i2c-full
+unit: test plan
+_name: I²C tests
+_description: I²C tests for Ubuntu Core devices
+include:
+nested_part:
+    i2c-manual
+    i2c-automated
+
+id: i2c-manual
+unit: test plan
+_name: Manual I²C tests
+_description: Manual I²C tests for Ubuntu Core devices
+include:
+
+id: i2c-automated
+unit: test plan
+_name: Automated I²C tests
+_description: Automated I²C tests for Ubuntu Core devices
+include:
+    i2c/i2c-bus-detect
+    i2c/i2c-device-detect

@@ -1,0 +1,98 @@
+id: dkms_info_json
+template-engine: jinja2
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command:
+ {%- if __on_ubuntucore__ %}
+ echo "{}"
+ {%- else %}
+ dkms_info.py  --format json | checkbox-support-parse dkms-info | \
+ jq '.dkms_info'
+ {% endif -%}
+_description: Attaches json dumps of installed dkms package information.
+_summary: Attaches json dumps of installed dkms package information.
+
+id: udev_json
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command: udevadm info --export-db | checkbox-support-parse udevadm
+_description: Attaches json dumps of udev_resource.py
+_summary: Attaches json dumps of udev_resource.py
+
+id: raw_devices_dmi_json
+plugin: attachment
+category_id: com.canonical.plainbox::info
+requires:
+ executable.name == 'dmidecode'
+ dmi_present.state == 'supported'
+user: root
+command:
+ BOOT_MODE=$(inxi_snapshot -M --output json --output-file print | grep -oP '(?<=\d#)(UEFI|BIOS)(\s+\[Legacy\])?')
+ # shellcheck disable=SC2016
+ dmidecode | checkbox-support-parse dmidecode | \
+ jq --arg BOOT_MODE "$BOOT_MODE" '[.[] | ._attributes + {"category": .category} + (if .category == "BIOS" then {boot_mode: $BOOT_MODE} else {} end)]'
+estimated_duration: 1
+_description: Attaches dmidecode output
+_summary: Attaches json dumps of raw dmi devices
+
+id: modprobe_json
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command:
+ find /etc/modprobe.* -name \*.conf -exec cat {} + | checkbox-support-parse modprobe |
+ jq 'to_entries | map({"module": .key, "options": .value})'
+estimated_duration: 0.015
+_description: Attaches the contents of the various modprobe conf files.
+_summary: Attach the contents of /etc/modprobe.*
+
+id: lspci_standard_config_json
+_summary: Attach PCI configuration space hex dump
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command:
+ lspci -x | checkbox-support-parse pci-subsys-id | \
+ jq '.pci_subsystem_id'
+estimated_duration: 0.1
+_description: Attaches a hex dump of the standard part of the PCI configuration
+ space for all PCI devices.
+
+id: dell_bto_xml_attachment_json
+plugin: attachment
+category_id: com.canonical.plainbox::info
+depends: info/detect_dell_recovery
+requires: package.name == 'dell-recovery'
+user: root
+estimated_duration: 0.5
+_summary: Attach the bto.xml in Dell recovery partition
+_description:
+ bto.xml is basically a Fish manifest
+ The information include:
+  - fish packages
+  - dell recovery stage 2 boot log
+command: recovery_info.py file bto.xml | checkbox-support-parse bto
+
+id: recovery_info_attachment_json
+plugin: attachment
+category_id: com.canonical.plainbox::info
+depends: info/detect_recovery
+requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
+user: root
+estimated_duration: 0.2
+_summary: Attach the recovery partition versions
+_description:
+ Attach the recovery partition version
+ image_version is the preinstalled OS image version
+ bto_version is only for dell_recovery
+ Example:
+ image_version: somerville-trusty-amd64-20140620-0
+ bto_version: A00_dell-bto-trusty-houston-15-A11-iso-20141203-0.iso
+command: recovery_info.py version | checkbox-support-parse recovery-info
+
+id: system_info_json
+plugin: attachment
+category_id: com.canonical.plainbox::info
+command: system_info.py
+_description: Attaches json dumps of system info tools (inxi + udev)
+_summary: Attaches json dumps of system info tools
+requires:
+  cpuinfo.platform not in ("aarch64")

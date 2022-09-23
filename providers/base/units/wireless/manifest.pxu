@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_wlan_adapter
+_name: A Wi-Fi Module
+value-type: bool

@@ -1,0 +1,264 @@
+id: led/power
+_summary: Power LED behavior when powered
+_purpose:
+ Check power led is on when system is powered on
+_steps:
+ 1. Check power led when system is powered on
+_verification:
+ Power led is on when system is powered on
+plugin: manual
+category_id: led
+estimated_duration: 15.0
+
+id: led/power-blink-suspend
+_summary: Power LED behavior when suspended
+_purpose:
+ Check power led is blinking when system is in suspend
+_steps:
+ 1. Suspend the system
+ 2. Check power led when system is in suspend
+_verification:
+ Power led is blinking when system is in suspend
+plugin: manual
+category_id: led
+estimated_duration: 180
+
+plugin: manual
+category_id: led
+id: led/suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced_auto
+_description:
+ PURPOSE:
+     Suspend LED verification.
+ STEPS:
+     Skip this test if your system does not have a dedicated Suspend LED.
+     1. The Suspend LED should blink or change color while the system is
+     suspended
+ VERIFICATION
+     Did the Suspend LED blink or change color while the system was suspended?
+
+plugin: manual
+category_id: led
+id: led/battery-charging
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the battery light shows charging status
+ STEPS:
+     1. Let system run on battery for a while
+     2. Plug in AC plug
+ VERIFICATION:
+     Did the battery indicator LED turn orange?
+
+plugin: manual
+category_id: led
+id: led/battery-charged
+estimated_duration: 240.0
+_description:
+ PURPOSE:
+     Validate that the battery LED properly displays charged status
+ STEPS:
+     1. Let system run on battery for a short time
+     2. Plug in AC
+     3. Let system run on AC
+ VERIFICATION:
+     Does the orange battery LED shut off when system is fully charged?
+
+plugin: manual
+category_id: led
+id: led/battery-low
+estimated_duration: 30.0
+_description:
+ PURPOSE:
+     Validate that the battery LED indicated low power
+ STEPS:
+     1. Let system run on battery for several hours
+     2. Monitor battery LED carefully
+ VERIFICATION:
+     Does the LED light orange when battery is low?
+
+plugin: user-interact-verify
+category_id: led
+id: led/hdd
+estimated_duration: 30.0
+command: led_hdd_test.sh
+_description:
+ PURPOSE:
+     HDD LED verification
+ STEPS:
+     1. Select "Test" to write and read a temporary file for a few seconds
+     2. HDD LED should light when writing to/reading from HDD
+ VERIFICATION:
+     Did the HDD LED light?
+
+plugin: user-interact-verify
+category_id: led
+id: led/numeric-keypad
+estimated_duration: 30.0
+command: keyboard_test.py
+_description:
+ PURPOSE:
+     Numeric keypad LED verification
+ STEPS:
+     1. Press "Block Num" key to toggle numeric keypad LED
+     2. Click on the "Test" button to open a window to verify your typing
+     3. Type using the numeric keypad both when the LED is on and off
+ VERIFICATION:
+     1. Numeric keypad LED status should toggle everytime the "Block Num" key is pressed
+     2. Numbers should only be entered in the keyboard verification window when the LED is on
+
+plugin: manual
+category_id: led
+id: led/caps-lock
+estimated_duration: 30.0
+_description:
+ PURPOSE:
+     Block cap keys LED verification
+ STEPS:
+     1. Press "Block Cap Keys" to activate/deactivate cap keys blocking
+     2. Cap Keys LED should be switched on/off every time the key is pressed
+ VERIFICATION:
+     Did the Cap Keys LED light as expected?
+
+plugin: manual
+category_id: led
+id: led/wlan
+depends: keys/wireless
+estimated_duration: 60.0
+_description:
+ PURPOSE:
+     WLAN LED verification
+ STEPS:
+     1. During the keys/wireless test you should have observed the
+     wireless LED while turning wireless back on.
+     2. WLAN LED should light or change color when wireless is turned on
+ VERIFICATION:
+     Did the WLAN LED turn on or change color as expected?
+
+plugin: manual
+category_id: led
+id: led/wlan-disabled
+estimated_duration: 30.0
+depends: keys/wireless
+_description:
+ PURPOSE:
+     Validate that WLAN LED shuts off when disabled
+ STEPS:
+     1. During the keys/wireless test you should have observed the WLAN LED
+     while performing that test after turning wireless off.
+     2. WLAN LED should turn off or change color when wireless is turned off
+ VERIFICATION:
+     Did the WLAN LED turn off or change color as expected?
+
+id: led/bluetooth
+_summary: Bluetooth LED behavior
+_purpose:
+ Check bluetooth LED behavior is correct
+_steps:
+ 1. Run following command to start bluetoothctl console:
+  sudo bluetoothctl -a
+ ***Following steps are run in bluetoothctl console***
+ 2. Power on the device:
+  power on
+ 3. Power off the device:
+  power off
+ 4. Quit bluetoothctl console
+  quit
+_verification:
+ Bluetooth LED is turned on in step 2, and turned off in step 3.
+plugin: manual
+category_id: led
+estimated_duration: 180
+
+plugin: manual
+category_id: led
+id: led/touchpad
+estimated_duration: 30.0
+_description:
+ PURPOSE:
+     Touchpad LED verification
+ STEPS:
+     1. Click on the touchpad button or press key combination to enable/disable touchpad button
+     2. Slide your finger on the touchpad
+ VERIFICATION:
+     1. Touchpad LED status should toggle everytime the button is clicked or the key combination is pressed
+     2. When the LED is on, the mouse pointer should move on touchpad usage
+     3. When the LED is off, the mouse pointer should not move on touchpad usage
+
+plugin: manual
+category_id: led
+id: led/wireless
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Wireless (WLAN + Bluetooth) LED verification
+ STEPS:
+     1. Make sure WLAN connection is established and Bluetooth is enabled.
+     2. WLAN/Bluetooth LED should light
+     3. Switch WLAN and Bluetooth off from a hardware switch (if present)
+     4. Switch them back on
+     5. Switch WLAN and Bluetooth off from the panel applet
+     6. Switch them back on
+ VERIFICATION:
+     Did the WLAN/Bluetooth LED light as expected?
+
+plugin: manual
+category_id: led
+id: led/mute
+depends: keys/mute
+estimated_duration: 30.0
+_description:
+ PURPOSE:
+     Audio Mute LED verification.
+ STEPS:
+     Skip this test if your system does not have a special Audio Mute LED.
+     1. Press the Mute key twice and observe the Audio LED to determine if it
+     either turned off and on or changed colors.
+ VERIFICATION:
+     Did the Audio LED turn on and off or change color as expected?
+flags: also-after-suspend
+
+plugin: manual
+category_id: led
+id: led/microphone-mute
+estimated_duration: 30.0
+depends: keys/microphone-mute
+_description:
+ PURPOSE:
+     Microphone Mute LED verification.
+ STEPS:
+     Skip this test if your system does not have a special Microphone Mute LED.
+     1. Press the Microphone Mute key twice and observe the Microphone LED to
+     determine if it either turned off and on or changed colors.
+ VERIFICATION:
+     Did the Microphone Mute LED turn on and off or change color as expected?
+flags: also-after-suspend
+
+id: led/serial
+_summary: Serial ports LED behavior
+_purpose:
+ Check serial ports LED behavior is correct
+_steps:
+ 1. Start the test to send data to all serial ports (/dev/ttyS*)
+_verification:
+ All serial ports LED are on for a few seconds (3-4s)
+plugin: user-interact-verify
+command: echo {0..1024} | tee /dev/ttyS{0..100} &> /dev/null
+user: root
+category_id: led
+estimated_duration: 15
+
+plugin: manual
+category_id: led
+id: led/fn
+estimated_duration: 30.0
+flags: also-after-suspend
+_purpose:
+     This test will test Fn key LED
+_steps:
+     Skip this test if your system does not have Fn Lock key.
+     1. Press the Fn+Fn Lock key to activate/deactivate Fn keys blocking.
+     2. Fn key LED should be switched on/off every time the key is pressed.
+_verification:
+    Did the Fn key LED light as expected?

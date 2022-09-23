@@ -1,0 +1,130 @@
+id: before-suspend-reference-cert-full
+unit: test plan
+_name: Before suspend reference tests
+_description: Before suspend reference tests
+include:
+nested_part:
+    before-suspend-reference-cert-automated
+
+id: after-suspend-reference-cert-full
+unit: test plan
+_name: After suspend reference tests
+_description: After suspend reference tests
+include:
+nested_part:
+    after-suspend-reference-cert-automated
+
+id: suspend-key-led-oops-check-cert
+unit: test plan
+_name: After suspend LED and oops tests (using special sleep key)
+_description: After suspend LED and oops tests (using special sleep key)
+include:
+    keys/sleep                                     certification-status=blocker
+    suspend/oops_after_suspend                     certification-status=blocker
+    suspend/oops_results_after_suspend.log
+    led/power-blink-suspend                        certification-status=blocker
+    led/suspend                                    certification-status=blocker
+
+id: before-suspend-reference-cert-automated
+unit: test plan
+_name: Before suspend reference tests (automated)
+_description: Before suspend reference tests (automated)
+include:
+    suspend/network_before_suspend                 certification-status=blocker
+    suspend/audio_before_suspend                   certification-status=blocker
+    suspend/cpu_before_suspend                     certification-status=blocker
+    suspend/memory_before_suspend                  certification-status=blocker
+bootstrap_include:
+    device
+
+id: after-suspend-reference-cert-automated
+unit: test plan
+_name: After suspend reference tests (automated)
+_description: After suspend reference tests (automated)
+include:
+    suspend/network_after_suspend_auto                  certification-status=blocker
+    suspend/audio_after_suspend_auto                    certification-status=blocker
+    suspend/cpu_after_suspend_auto                      certification-status=blocker
+    suspend/memory_after_suspend_auto                   certification-status=blocker
+bootstrap_include:
+    device
+
+id: before-suspend-reference-cert-blockers
+unit: test plan
+_name: Before suspend reference tests (certification blockers only)
+_description: Before suspend reference tests (certification blockers only)
+include:
+    suspend/network_before_suspend                 certification-status=blocker
+    suspend/audio_before_suspend                   certification-status=blocker
+    suspend/cpu_before_suspend                     certification-status=blocker
+    suspend/memory_before_suspend                  certification-status=blocker
+bootstrap_include:
+    device
+
+id: after-suspend-reference-cert-blockers
+unit: test plan
+_name: After suspend reference tests (certification blockers only)
+_description: After suspend reference tests (certification blockers only)
+include:
+    suspend/network_after_suspend_auto                  certification-status=blocker
+    suspend/audio_after_suspend_auto                    certification-status=blocker
+    suspend/cpu_after_suspend_auto                      certification-status=blocker
+    suspend/memory_after_suspend_auto                   certification-status=blocker
+bootstrap_include:
+    device
+
+id: suspend-key-led-oops-check-cert-blockers
+unit: test plan
+_name:
+ After suspend LED and oops tests (using special sleep key, cert. blockers only)
+_description:
+ After suspend LED and oops tests (using special sleep key)
+ (certification blockers only)
+include:
+    keys/sleep                                     certification-status=blocker
+    suspend/oops_after_suspend                     certification-status=blocker
+    suspend/oops_results_after_suspend.log
+
+id: suspend-tp
+unit: test plan
+_name: Suspend the system
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after suspending the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-suspend-tp and after-suspend-tp
+  in the nested_part section of the surrounding test plan.
+include:
+  suspend/suspend_advanced_auto
+
+id: hibernate-tp
+unit: test plan
+_name: Hibernate the system
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after hibernating the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-hibernate-tp and
+  after-hibernate-tp in the nested_part section of the surrounding test plan.
+include:
+  power-management/hibernate_advanced_auto
+
+id: suspend-tp-manual
+unit: test plan
+_name: Suspend the system (manual)
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after suspending the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-suspend-tp and after-suspend-tp
+  in the nested_part section of the surrounding test plan.
+include:
+  suspend/suspend_advanced_auto
+
+id: hibernate-tp-manual
+unit: test plan
+_name: Hibernate the system (manual)
+_description:
+  This test plan should be nested in other test plans that require tests to be
+  rerun after hibernating the SUT. It's a full-blown TP to help manage the
+  execution order, by placing it between before-hibernate-tp and
+  after-hibernate-tp in the nested_part section of the surrounding test plan.
+include:
+  power-management/hibernate_advanced

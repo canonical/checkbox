@@ -1,0 +1,26 @@
+
+id: ipv6_detect
+category_id: com.canonical.plainbox::networking
+_summary: Test if the kernel is IPv6 ready
+command:
+  if test -f /proc/net/if_inet6; then
+    echo "Running kernel is IPv6 ready"
+    exit 0
+  fi
+  echo "/proc/net/if_inet6 not present"
+  echo "Running kernel does not appear to be IPv6 ready"
+  exit 1  
+flags: simple also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-unit: job
+depends: ipv6_detect
+id: ipv6_link_local_address_{interface}
+_summary: Test that {interface} has an IPv6 link local address
+plugin: shell
+category_id: com.canonical.plainbox::networking
+command:
+  [ "$(ip -6 -o addr show dev {interface} scope link | wc -l)" -eq 1 ]
+flags: also-after-suspend

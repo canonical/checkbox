@@ -1,0 +1,97 @@
+id: networking-cert-full
+unit: test plan
+_name: Networking tests
+_description: Networking tests
+include:
+nested_part:
+    networking-cert-automated
+    networking-cert-manual
+
+id: networking-cert-manual
+unit: test plan
+_name: Networking tests (manual)
+_description: Networking tests (manual)
+include:
+    networking/info_device.*                       certification-status=blocker
+bootstrap_include:
+    device
+
+id: networking-cert-automated
+unit: test plan
+_name: Networking tests (automated)
+_description: Networking tests (automated)
+include:
+    networking/gateway_ping                        certification-status=blocker
+    networking/ntp                                 certification-status=blocker
+
+id: networking-cert-blockers
+unit: test plan
+_name: Networking tests (certification blockers only)
+_description: Networking tests (certification blockers only)
+include:
+    networking/gateway_ping                        certification-status=blocker
+    networking/info_device.*                       certification-status=blocker
+    networking/ntp                                 certification-status=blocker
+bootstrap_include:
+    device
+
+id: networking-full
+unit: test plan
+_name: Networking tests for devices
+_description: Networking tests for devices
+include:
+nested_part:
+  networking-manual
+  networking-automated
+
+id: networking-manual
+unit: test plan
+_name: Manual networking tests for devices
+_description: Manual networking tests for devices
+include:
+
+id: networking-automated
+unit: test plan
+_name: Automated networking tests for devices
+_description: Automated networking tests for devices
+include:
+  ipv6_detect
+  ipv6_link_local_address_.*
+  networking/predictable_names
+bootstrap_include:
+  device
+
+id: after-suspend-networking-full
+unit: test plan
+_name: Networking tests for devices (after suspend)
+_description: Networking tests for devices (after suspend)
+include:
+nested_part:
+  after-suspend-networking-manual
+  after-suspend-networking-automated
+
+id: after-suspend-networking-manual
+unit: test plan
+_name: Manual networking tests for devices (after suspend)
+_description: Manual networking tests for devices (after suspend)
+include:
+
+id: after-suspend-networking-automated
+unit: test plan
+_name: Automated networking tests for devices (after suspend)
+_description: Automated networking tests for devices (after suspend)
+include:
+  after-suspend-ipv6_detect
+  after-suspend-ipv6_link_local_address_.*
+bootstrap_include:
+  device
+
+id: server-networking
+unit: test plan
+_name: Networking tests for Server
+_description: Networking tests for Server Cert
+include:
+    networking/predictable_names    certification-status=blocker
+    networking/ntp                  certification-status=non-blocker
+
+

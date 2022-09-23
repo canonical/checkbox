@@ -1,0 +1,47 @@
+id: serial-full
+unit: test plan
+_name: Serial tests
+_description: QA serial tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    serial-manual
+    serial-automated
+
+id: serial-manual
+unit: test plan
+_name: Manual serial tests
+_description: Manual serial tests for Snappy Ubuntu Core devices
+include:
+    serial/rs232-console
+
+id: serial-automated
+unit: test plan
+_name: Automated serial tests
+_description: Automated serial tests for Snappy Ubuntu Core devices
+include:
+    serial/loopback-.*
+bootstrap_include:
+    serial_ports_static
+
+id: after-suspend-serial-full
+unit: test plan
+_name: Serial tests (after suspend)
+_description: QA serial tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-serial-manual
+    after-suspend-serial-automated
+
+id: after-suspend-serial-manual
+unit: test plan
+_name: Manual serial tests (after suspend)
+_description: Manual serial tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-serial/rs232-console
+
+id: after-suspend-serial-automated
+unit: test plan
+_name: Automated serial tests (after suspend)
+_description: Automated serial tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-serial/loopback-.*

@@ -1,0 +1,39 @@
+# Copyright 2016 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Gavin Lin <gavin.lin@canonical.com>
+
+unit: job
+id: i2c/i2c-bus-detect
+_summary: Check presence of an I²C bus
+_description:
+  If an expected number of I²C buses is provided, the job will verify the
+  detected number is correct. If the expected number of buses is not provided
+  the job will pass if at least one I²C bus is detected.
+command:
+  if [ -z "${I2C_BUS_NUMBER+x}" ]; then
+    i2c_driver_test.py bus
+  else
+    i2c_driver_test.py bus -b "$I2C_BUS_NUMBER"
+  fi
+user: root
+plugin: shell
+category_id: i2c
+environ: I2C_BUS_NUMBER
+estimated_duration: 20s
+requires: manifest.has_i2c == 'True'
+imports: from com.canonical.plainbox import manifest
+
+unit: job
+id: i2c/i2c-device-detect
+_summary: Check if any I²C devices can be detected
+_description:
+  The test will pass if there's at least one I²C device detected on any I²C bus.
+command:
+  i2c_driver_test.py device
+user: root
+plugin: shell
+category_id: i2c
+estimated_duration: 3m
+depends: i2c/i2c-bus-detect

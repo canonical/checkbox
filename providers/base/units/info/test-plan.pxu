@@ -1,0 +1,98 @@
+id: info-attachment-cert-full
+unit: test plan
+_name: Info attachment jobs
+_description:
+ Info attachment jobs
+include:
+bootstrap_include:
+ device
+nested_part:
+ com.canonical.certification::info-attachment-cert-manual
+ com.canonical.certification::info-attachment-cert-automated
+
+id: info-attachment-cert-manual
+unit: test plan
+_name: Info attachment jobs (Manual)
+_description:
+ Info attachment jobs (Manual)
+include:
+bootstrap_include:
+    device
+
+id: info-attachment-cert-automated
+unit: test plan
+_name: Info attachment jobs (Automated)
+_description:
+ Info attachment jobs (Automated)
+include:
+ acpi_sleep_attachment
+ codecs_attachment
+ cpuinfo_attachment
+ dkms_info_attachment
+ dmesg_attachment
+ dmi_attachment
+ dmidecode_attachment
+ efi_attachment
+ info/buildstamp
+ info/disk_partitions
+ info/hdparm_.*.txt
+ info/touchpad_driver
+ installer_debug.gz
+ kernel_cmdline_attachment
+ lsmod_attachment
+ lspci_attachment
+ lspci_standard_config_attachment
+ lstpo_verbose_attachment
+ lstopo_visual_attachment
+ lsusb_attachment
+ meminfo_attachment
+ modinfo_attachment
+ modprobe_attachment
+ modules_attachment
+ sysctl_attachment
+ sysfs_attachment
+ udev_attachment
+ firmware/fwts_dump_acpi_attachment.gz
+ info/secure-boot-check
+bootstrap_include:
+    device
+
+id: server-info-attachment-automated
+unit: test plan
+_name: Info attachment jobs for Server Cert (Automated)
+_description:
+ Info attachment jobs for Server Cert(Automated)
+include:
+ config_file_attachment
+ cpuinfo_attachment
+ dkms_info_attachment
+ dmesg_attachment
+ dmi_attachment
+ dmidecode_attachment
+ efi_attachment
+ info/buildstamp
+ info/disk_partitions
+ info/hdparm_.*.txt
+ info/network-config
+ installer_debug.gz
+ kernel_cmdline_attachment
+ lsblk_attachment
+ lshw_attachment
+ lsmod_attachment
+ lspci_attachment
+ lspci_network_attachment
+ lstopo_verbose_attachment
+ lstopo_visual_attachment
+ lsusb_attachment
+ meminfo_attachment
+ modinfo_attachment
+ modprobe_attachment
+ modules_attachment
+ sysctl_attachment
+ sysfs_attachment
+ udev_attachment
+ udev-summary_attachment
+ info/secure-boot-check
+bootstrap_include:
+    device
+    fwts

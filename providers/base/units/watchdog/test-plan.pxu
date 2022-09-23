@@ -1,0 +1,25 @@
+id: watchdog-full
+unit: test plan
+_name: Watchdog tests
+_description: Watchdog tests for Ubuntu Core devices
+include:
+nested_part:
+    watchdog-manual
+    watchdog-automated
+
+id: watchdog-manual
+unit: test plan
+_name: Manual watchdog tests
+_description: Manual watchdog tests for Ubuntu Core devices
+include:
+    watchdog/trigger-system-reset
+
+id: watchdog-automated
+unit: test plan
+_name: Automated watchdog tests
+_description: Automated watchdog tests for Ubuntu Core devices
+include:
+    watchdog/detect
+    watchdog/systemd-config
+    watchdog/trigger-system-reset-auto
+    watchdog/post-trigger-system-reset-auto

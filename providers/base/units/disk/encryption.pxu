@@ -1,0 +1,50 @@
+
+id: disk/encryption/detect
+category_id: com.canonical.plainbox::disk
+plugin: shell
+template-engine: jinja2
+user: root
+requires:
+  executable.name == 'lsblk'
+  executable.name == 'dmsetup'
+  executable.name == 'cryptsetup'
+_summary: Test that Full Disk Encryption is in use
+_description:
+  Examine the system to detect if one of the standard full disk encryption
+  implementations is in use
+command:
+  {%- if __on_ubuntucore__ %}
+  fde_tests.py
+  {%- else %}
+  fde_tests.py desktop
+  {% endif -%}
+estimated_duration: 2.0
+
+id: disk/encryption/check-fde-tpm
+_summary: Disk decryption after TPM change
+_description:
+ Check that the data partition cannot be decrypted (and therefore the device
+ cannot boot) if PCR7 value is modified.
+category_id: com.canonical.plainbox::disk
+estimated_duration: 45m
+plugin: manual
+_purpose:
+ The device partition is encrypted using TPM master key. To unseal the master
+ key from TPM, PCR7 (Platform Configuration Register 7) needs to be identical
+ to the value it had when the master key was sealed into TPM. Every time the
+ device boots, it checks PCR7 to unseal TPM and retrieves master key from TPM
+ to decrypt its data partition. If TPM PCR7 is modified (e.g. by flashing the
+ BIOS), the device won't be able to get the master key and decrypt its data
+ partition.
+_steps:
+ NOTE!!!! YOU'LL HAVE TO RE-INSTALL THE IMAGE AFTER THIS TEST
+ 1. Install the image and make sure it boots and you can log in.
+ 2. Make sure the BIOS is set up properly (e.g. TPM enabled, UEFI boot mode)
+ 3. Based on your project's situation, choose one of the following methods to clean TPM:
+    a. Turn the device off and upgrade/downgrade the BIOS or modify Secure Boot state
+    b. Clean TPM via BIOS menu
+    c. Install checkbox, execute "checkbox-[project name].checkbox-cli run com.canonical.certification::tpm2.0_3.0.4/tpm2_takeownership"
+ 4. Start or reboot the device
+_verification:
+ Mark this test as "Passed" if the device cannot boot anymore.
+

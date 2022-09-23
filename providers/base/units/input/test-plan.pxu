@@ -1,0 +1,53 @@
+id: input-cert-full
+unit: test plan
+_name: Input tests
+_description:
+ Input tests
+include:
+nested_part:
+ com.canonical.certification::input-cert-manual
+ com.canonical.certification::input-cert-automated
+
+id: input-cert-manual
+unit: test plan
+_name: Input tests (Manual)
+_description:
+ Input tests (Manual)
+include:
+ input/accelerometer                        certification-status=non-blocker
+ input/keyboard                             certification-status=blocker
+
+id: input-cert-automated
+unit: test plan
+_name: Input tests (Automated)
+_description:
+ Input tests (Automated)
+include:
+ input/fixed_screen_orientation_on_.*       certification-status=non-blocker
+bootstrap_include:
+ dmi
+
+id: after-suspend-input-cert-full
+unit: test plan
+_name: Input tests (after suspend)
+_description: Input tests (after suspend)
+include:
+    suspend/pointing-after-suspend_.*          certification-status=blocker
+    suspend/clicking-after-suspend_.*          certification-status=blocker
+
+id: input-cert-blockers
+unit: test plan
+_name: Input tests (certification blockers only)
+_description: Input tests (certification blockers only)
+include:
+    input/pointing_.*                          certification-status=blocker
+    input/clicking_.*                          certification-status=blocker
+    input/keyboard                             certification-status=blocker
+
+id: after-suspend-input-cert-blockers
+unit: test plan
+_name: Input tests (after suspend, certification blockers only)
+_description: Input tests (after suspend, certification blockers only)
+include:
+    suspend/pointing-after-suspend_.*          certification-status=blocker
+    suspend/clicking-after-suspend_.*          certification-status=blocker

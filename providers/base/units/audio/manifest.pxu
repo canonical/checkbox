@@ -1,0 +1,21 @@
+# Copyright 2017 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+
+unit: manifest entry
+id: has_audio_playback
+_name: Audio playback
+value-type: bool
+
+unit: manifest entry
+id: has_audio_capture
+_name: Audio capture
+value-type: bool
+
+unit: manifest entry
+id: has_audio_loopback_connector
+_prompt: Does this device have the following?:
+_name: Audio Loopback Connector
+value-type: bool

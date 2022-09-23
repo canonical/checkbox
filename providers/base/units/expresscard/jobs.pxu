@@ -1,0 +1,12 @@
+plugin: manual
+category_id: com.canonical.plainbox::expresscard
+id: expresscard/verification
+_description:
+ PURPOSE:
+     This will verify that an ExpressCard slot can detect inserted devices.
+ STEPS:
+     Skip this test if you do not have an ExpressCard slot.
+     1. Plug an ExpressCard device into the ExpressCard slot
+ VERIFICATION:
+     Was the device correctly detected?
+

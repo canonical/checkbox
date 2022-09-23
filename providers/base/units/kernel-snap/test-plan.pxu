@@ -1,0 +1,24 @@
+
+id: kernel-snap-full
+unit: test plan
+_name: Kernel Snap tests
+_description: Kernel Snap test for Ubuntu Core devices
+include:
+nested_part:
+    kernel-snap-manual
+    kernel-snap-automated
+
+id: kernel-snap-automated
+unit: test plan
+_name: Automated Kernel Snap tests
+_description: Automated Kernel Snap tests for Ubuntu Core devices
+include:
+    kernel-snap/booted-kernel-matches-current-.*
+bootstrap_include:
+    bootloader
+
+id: kernel-snap-manual
+unit: test plan
+_name: Manual Kernel Snap tests
+_description: Manual Kernel Snap tests for Ubuntu Core devices
+include:

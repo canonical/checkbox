@@ -1,0 +1,229 @@
+# Copyright 2015 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Jonathan Cave <jonathan.cave@canonical.com>
+#   Po-Hsu Lin <po-hsu.lin@canonical.com>
+
+unit: job
+id: wwan/detect
+category_id: wwan
+_summary: Identify if WWAN module is missing
+_purpose:
+ Tests that there is a WWAN module present and indicates that testing of it
+ should follow.
+plugin: shell
+user: root
+command:
+  COUNT=$(wwan_tests.py count)
+  if [ "$COUNT" -eq 0 ]; then
+    exit 1
+  fi
+estimated_duration: 2.0
+flags: preserve-locale also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_wwan_module == 'True'
+  snap.name == 'modem-manager' or package.name == 'modemmanager'
+
+unit: template
+template-resource: wwan_resource
+template-unit: job
+id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-auto
+_summary:  Verify a GSM broadband modem can create a data connection
+_description:
+ Any modems discovered by the resource job that list GSM support
+ will be tested to ensure a data connection can be made.
+plugin: shell
+command:
+  BEGIN_CONNECTION_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+  wwan_tests.py 3gpp-connection {hw_id} "$WWAN_NET_IF" "$WWAN_APN" "${{WWAN_SETUPTIME:-30}}"
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    echo "==== Service units logs ===="
+    journalctl -q -u "snap.network-manager.networkmanager.service" -u "snap.modem-manager.modemmanager.service" --no-pager --since "$BEGIN_CONNECTION_TEST_TS" -o cat
+    exit $RETVAL
+  fi
+environ: LD_LIBRARY_PATH WWAN_CONTROL_IF WWAN_NET_IF WWAN_APN WWAN_SETUPTIME
+user: root
+estimated_duration: 10.0
+category_id: wwan
+flags: preserve-locale also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_wwan_module == 'True'
+  snap.name == 'modem-manager' or package.name == 'modemmanager'
+
+unit: template
+template-resource: wwan_resource
+template-unit: job
+id: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
+_summary:  Check if a SIM card is present in a slot connected to the modem
+_description:
+ Check if a SIM card is present in a slot connected to the modem
+plugin: shell
+command: wwan_tests.py sim-present {hw_id}
+environ: LD_LIBRARY_PATH
+user: root
+estimated_duration: 10.0
+category_id: wwan
+flags: preserve-locale also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_wwan_module == 'True'
+  snap.name == 'modem-manager' or package.name == 'modemmanager'
+
+unit: template
+template-resource: wwan_resource
+template-unit: job
+id: wwan/verify-sim-info-{manufacturer}-{model}-{hw_id}
+depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
+_summary: Verify that the information retrieved from a SIM card is valid
+_description:
+ Attempt to retrieve as much information as possible from a SIM present. The
+ user is required to verify if the output is valid.
+plugin: user-interact-verify
+_steps:
+ 1. Start the test to automatically retrieve information from the SIM card
+_verification:
+ Check the output, if as expected then mark the test as passed.
+command: wwan_tests.py sim-info {hw_id}
+environ: LD_LIBRARY_PATH
+user: root
+estimated_duration: 5s
+category_id: wwan
+flags: preserve-locale also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_wwan_module == 'True'
+  snap.name == 'modem-manager' or package.name == 'modemmanager'
+
+id: wwan/detect-manual
+plugin: manual
+_summary: Check if WWAN module is available
+_purpose:
+ Check if WWAN module is available and ready to be used.
+_steps:
+ 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
+ 2. Run `sudo mmcli -L` command.
+ 3. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+_verification:
+ Check the output. Was the modem listed?
+estimated_duration: 60s
+flags:  also-after-suspend
+imports: from com.canonical.plainbox import manifest
+category_id: wwan
+requires:
+    manifest.has_wwan_module == 'True'
+
+id: wwan/check-sim-present-manual
+plugin: manual
+_summary: Check if a SIM card is present in a slot connected to the modem
+_purpose:
+ Check if a SIM card is present in a slot connected to the modem
+_steps:
+ 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
+ 2. Run `sudo mmcli -m 0 |grep SIM
+ 3. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+_verification:
+ Check the output. Was the SIM information printed?
+estimated_duration: 60s
+flags:  also-after-suspend
+imports: from com.canonical.plainbox import manifest
+category_id: wwan
+requires:
+    manifest.has_wwan_module == 'True'
+depends:
+    wwan/detect-manual
+
+id: wwan/gsm-connection-manual
+plugin: manual
+template-engine: jinja2
+_summary: Verify a GSM broadband modem can create a data connection
+_purpose:
+ Ensure that the data connection can be made
+_steps:
+ 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
+ 2. Run `sudo nmcli c add type gsm ifname {{ __checkbox_env__.get("WWAN_CONTROL_IF", "<device name>") }} con-name GSM apn {{ __checkbox_env__.get("WWAN_APN", "<your.carrier.com>") }}`
+ {%- if "WWAN_CONTROL_IF" not in __checkbox_env__ %}
+    Replacing the <your.carrier.com> with appropriate APN name,
+    and <device name> with appropriate device (device can be found by
+    running sudo nmcli d)
+ {%- endif %}
+ {%- if "WWAN_NET_IF" not in __checkbox_env__ %}
+ 3. Ping Google (Run: `ping -I <ifname> 8.8.8.8 -c 5`)
+ {%- else %}
+ 3. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`)
+ {%- endif %}
+ 4. Disconnect from the network (Run: `sudo nmcli c delete GSM`)
+ 5. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+_verification:
+ Did the ping came back?
+estimated_duration: 120s
+flags:  also-after-suspend
+category_id: wwan
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_wwan_module == 'True'
+depends:
+    wwan/check-sim-present-manual
+
+id: wwan/scan-networks-manual
+plugin: manual
+_summary: Verify that modem can scan for available networks
+_purpose:
+ Ensure that the modem can scan/find available networks
+_steps:
+ 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
+ 2. Run `sudo mmcli -m 0 --3gpp-scan --timeout=300`
+ 3. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+_verification:
+ Were available networks listed?
+estimated_duration: 120s
+flags:  also-after-suspend
+category_id: wwan
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_wwan_module == 'True'
+depends:
+    wwan/check-sim-present-manual
+
+id: wwan/gsm-connection-interrupted-manual
+plugin: manual
+template-engine: jinja2
+_summary: Verify a GSM broadband connection can be reconnected after the signal is lost
+_purpose:
+ Ensure that the data connection can be revived after losing signal
+_steps:
+ 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
+ 2. Run `sudo nmcli c add type gsm ifname {{ __checkbox_env__.get("WWAN_CONTROL_IF", "<device name>") }} con-name GSM apn {{ __checkbox_env__.get("WWAN_APN", "<your.carrier.com>") }}`
+ {%- if "WWAN_CONTROL_IF" not in __checkbox_env__ %}
+    Replacing the <your.carrier.com> with appropriate APN name,
+    and <device name> with appropriate device (device can be found by
+    running sudo nmcli d)
+ {%- endif %}
+ {%- if "WWAN_NET_IF" not in __checkbox_env__ %}
+ 3. Ping Google (Run: `ping -I <ifname> 8.8.8.8 -c 5`)
+ {%- else %}
+ 3. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`)
+ {%- endif %}
+ 4. Place the system in a Faraday bag
+ 5. Ping Google (and verify that the connection no longer works)
+ 6. Remove the Faraday bag
+ {%- if "WWAN_NET_IF" not in __checkbox_env__ %}
+ 7. Ping Google (Run: `ping -I <ifname> 8.8.8.8 -c 5`)
+ {%- else %}
+ 7. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`)
+ {%- endif %}
+ 8. Disconnect from the network (Run: `sudo nmcli r wwan off`)
+ 9. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+_verification:
+ Was the connection revived after plugging back in the antennae?
+estimate_duration: 120s
+flags:  also-after-suspend
+category_id: wwan
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_wwan_module == 'True'
+depends:
+    wwan/check-sim-present-manual

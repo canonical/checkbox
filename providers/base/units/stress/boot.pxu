@@ -1,0 +1,250 @@
+# Copyright 2015 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Jonathan Cave <jonathan.cave@canonical.com>
+
+
+unit: category
+id: stress-tests
+_name: Stress Tests
+
+
+unit: category
+id: stress-tests/cold-boot
+_name: Cold-boot Stress Test
+
+
+unit: category
+id: stress-tests/warm-boot
+_name: Warm-boot Stress Test
+
+
+id: reboot-run-generator
+category_id: stress-tests
+_description:
+  Generate a set of IDs corresponding to number of iterations required in the
+  reboots tests.
+plugin: resource
+environ: STRESS_BOOT_ITERATIONS
+command:
+  ITERATIONS=${STRESS_BOOT_ITERATIONS:-2}
+  for i in $(seq 2 "$ITERATIONS"); do
+    echo "reboot_id: $i"
+    echo "reboot_id_previous: $((i-1))"
+    echo
+  done
+estimated_duration: 1s
+flags: preserve-locale
+
+
+id: init-boot-loop-data
+category_id: stress-tests
+_summary: Generate the baseline data set to test against
+_description: This creates baseline data sets which be considered the master
+ copies and all further tests will be compared against these.
+unit: job
+plugin: shell
+command:
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_original || true
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_original || true
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_original || true
+environ: LD_LIBRARY_PATH
+user: root
+estimated_duration: 1s
+flags: preserve-locale
+
+id: cold-boot-loop-reboot1
+category_id: stress-tests/cold-boot
+_summary: Perform cold reboot 1
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is how the device will be request a
+  reboot.
+unit: job
+plugin: shell
+environ: STRESS_BOOT_WAKEUP_DELAY
+command: rtcwake --mode off -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 180.0
+depends: init-boot-loop-data
+
+id: cold-boot-loop-reboot{reboot_id}
+category_id: stress-tests/cold-boot
+_summary: Perform cold reboot {reboot_id}
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is how the device will be request a
+  reboot.
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ: STRESS_BOOT_WAKEUP_DELAY STRESS_BOOT_WAIT_DELAY
+command:
+ sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
+ rtcwake --mode off -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 180.0
+after: cold-boot-loop-test{reboot_id_previous}
+depends: init-boot-loop-data
+
+id: cold-boot-loop-test1
+category_id: stress-tests/cold-boot
+_summary: Cold boot system configuration test 1
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is the test that will be performed
+  on each cycle to verify that all hardware is detected.
+unit: job
+plugin: shell
+environ: LD_LIBRARY_PATH
+command:
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
+    echo "lspci mismatch during cycle 1"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
+    echo "wifi mismatch during cycle 1"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
+    echo "lsusb mismatch during cycle 1"
+    exit 1
+  fi
+user: root
+flags: preserve-locale
+estimated_duration: 1.0
+depends: cold-boot-loop-reboot1
+
+id: cold-boot-loop-test{reboot_id}
+category_id: stress-tests/cold-boot
+_summary: Cold boot system configuration test {reboot_id}
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is the test that will be performed
+  on each cycle to verify that all hardware is detected.
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ: LD_LIBRARY_PATH
+command:
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
+    echo "lspci mismatch during cycle {reboot_id}"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
+    echo "wifi mismatch during cycle {reboot_id}"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
+    echo "lsusb mismatch during cycle {reboot_id}"
+    exit 1
+  fi
+user: root
+flags: preserve-locale
+estimated_duration: 1.0
+depends: cold-boot-loop-reboot{reboot_id}
+
+
+id: warm-boot-loop-reboot1
+category_id: stress-tests/warm-boot
+_summary: Perform warm reboot 1
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is how the device will be request a
+  reboot.
+unit: job
+plugin: shell
+command:
+ reboot
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 60s
+depends: init-boot-loop-data
+
+id: warm-boot-loop-reboot{reboot_id}
+category_id: stress-tests/warm-boot
+_summary: Perform warm reboot {reboot_id}
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is how the device will be request a
+  reboot.
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ: STRESS_BOOT_WAIT_DELAY
+command:
+ sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
+ reboot
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 60.0
+after: warm-boot-loop-test{reboot_id_previous}
+depends: init-boot-loop-data
+
+id: warm-boot-loop-test1
+category_id: stress-tests/warm-boot
+_summary:  Warm boot system configuration test 1
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is the test that will be performed
+  on each cycle to verify that all hardware is detected.
+unit: job
+plugin: shell
+environ: LD_LIBRARY_PATH
+command:
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
+    echo "lspci mismatch during cycle 1"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
+    echo "wifi mismatch during cycle 1"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
+    echo "lsusb mismatch during cycle 1"
+    exit 1
+  fi
+user: root
+flags: preserve-locale
+estimated_duration: 1.0
+depends: warm-boot-loop-reboot1
+
+id: warm-boot-loop-test{reboot_id}
+category_id: stress-tests/warm-boot
+_summary:  Warm boot system configuration test {reboot_id}
+_description: This is a template that will be used to generate a stress test
+  of the system boot. Specifically this is the test that will be performed
+  on each cycle to verify that all hardware is detected.
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ: LD_LIBRARY_PATH
+command:
+  lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
+  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
+    echo "lspci mismatch during cycle {reboot_id}"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/wifi_original "$PLAINBOX_SESSION_SHARE"/wifi_test; then
+    echo "wifi mismatch during cycle {reboot_id}"
+    exit 1
+  fi
+  if ! diff -u "$PLAINBOX_SESSION_SHARE"/lsusb_original "$PLAINBOX_SESSION_SHARE"/lsusb_test; then
+    echo "lsusb mismatch during cycle {reboot_id}"
+    exit 1
+  fi
+user: root
+flags: preserve-locale
+estimated_duration: 1.0
+depends: warm-boot-loop-reboot{reboot_id}

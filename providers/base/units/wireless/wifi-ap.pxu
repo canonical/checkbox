@@ -1,0 +1,1073 @@
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_a_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create open 802.11a Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create an open 802.11a Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=a
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=open
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_a_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create open 802.11a Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11a Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=a
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=open
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_a_open
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_a_open)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_b_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create open 802.11b Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create an open 802.11b Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=b
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=open
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_b_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create open 802.11b Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11b Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=b
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=open
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_b_open
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_b_open)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_g_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create open 802.11g Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create an open 802.11g Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=g
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=open
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_g_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create open 802.11g Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11g Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=g
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=open
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_g_open
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_open)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_ad_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create open 802.11ad Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create an open 802.11ad Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=ad
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=open
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_open_ad_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create open 802.11ad Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11ad Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=ad
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=open
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_ad_open
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_ad_open)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_a_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create WPA2 802.11a Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create a WPA2 802.11a Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=a
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_a_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11a Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11a Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=a
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_a_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_a_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_b_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create WPA2 802.11b Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{{ interface }}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create a WPA2 802.11b Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=b
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_b_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11b Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11b Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=b
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_b_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_b_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_g_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create WPA2 802.11g Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create a WPA2 802.11g Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=g
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_g_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11g Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11g Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=g
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_g_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_ad_no_sta_{interface}_manual
+category_id: wifi_ap
+_summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with no STA (Manual)
+plugin: manual
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+_purpose:
+  Check that the system can create a WPA2 802.11ad Access Point without any STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=ad
+    $ sudo wifi-ap.config set wifi.interface-mode=direct
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+  3. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  4. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_ad_no_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with no STA
+plugin: shell
+_description:
+ Check that the system can create an open 802.11ad Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
+user: root
+command:
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=ad
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_ad_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_ad_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_a_with_sta_{interface}
+category_id: wifi_ap
+_summary: Create WPA2 802.11a Wi-Fi AP on {interface} with active STA (Manual)
+plugin: user-interact-verify
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID
+command:
+ nmcli dev wifi rescan
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+user: root
+_purpose:
+  Check that the system can create a WPA2 802.11a Access Point with an already active STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Connect to an 802.11b/g AP with wpa security:
+    Press Enter to continue
+  3. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=a
+    $ sudo wifi-ap.config set wifi.interface-mode=virtual
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+    $ sudo wifi-ap.config set wifi.channel=$(iw dev {interface} info | grep -oP 'channel\s+\K\d+')
+  4. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  5. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_a_with_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11a Wi-Fi Access Point on {interface} with active STA
+plugin: shell
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
+command:
+ echo "Scanning for existing networks"
+ nmcli dev wifi rescan
+ echo "Connecting to existing network"
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
+ if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
+    echo "FAILED to connect to STA before setting up AP"
+    exit 1
+ fi
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=a
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_a_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_a_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+user: root
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_b_with_sta_{interface}
+category_id: wifi_ap
+_summary: Create WPA2 802.11b Wi-Fi AP on {interface} with active STA (Manual)
+plugin: user-interact-verify
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID
+command:
+ nmcli dev wifi rescan
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+user: root
+_purpose:
+  Check that the system can create a WPA2 802.11b Access Point with an already active STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Connect to an 802.11b/g AP with wpa security:
+    Press Enter to continue
+  3. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=b
+    $ sudo wifi-ap.config set wifi.interface-mode=virtual
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+    $ sudo wifi-ap.config set wifi.channel=$(iw dev {interface} info | grep -oP 'channel\s+\K\d+')
+  4. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  5. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_b_with_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11b Wi-Fi Access Point on {interface} with active STA
+plugin: shell
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
+command:
+ echo "Scanning for existing networks"
+ nmcli dev wifi rescan
+ echo "Connecting to existing network"
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
+ if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
+    echo "FAILED to connect to STA before setting up AP"
+    exit 1
+ fi
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=b
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_b_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_b_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+user: root
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_g_with_sta_{interface}
+category_id: wifi_ap
+_summary: Create WPA2 802.11g Wi-Fi AP on {interface} with active STA (Manual)
+plugin: user-interact-verify
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID
+command:
+ nmcli dev wifi rescan
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+user: root
+_purpose:
+  Check that the system can create a WPA2 802.11g Access Point with an already active STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Connect to an 802.11b/g AP with wpa security:
+    Press Enter to continue
+  3. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=g
+    $ sudo wifi-ap.config set wifi.interface-mode=virtual
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+    $ sudo wifi-ap.config set wifi.channel=$(iw dev {interface} info | grep -oP 'channel\s+\K\d+')
+  4. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  5. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_g_with_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11g Wi-Fi Access Point on {interface} with active STA
+plugin: shell
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
+command:
+ echo "Scanning for existing networks"
+ nmcli dev wifi rescan
+ echo "Connecting to existing network"
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
+ if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
+    echo "FAILED to connect to STA before setting up AP"
+    exit 1
+ fi
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=g
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_g_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+user: root
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_ad_with_sta_{interface}
+category_id: wifi_ap
+_summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with active STA (Manual)
+plugin: user-interact-verify
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID
+command:
+ nmcli dev wifi rescan
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+user: root
+_purpose:
+  Check that the system can create a WPA2 802.11ad Access Point with an already active STA connection
+_steps:
+  1. Delete existing wireless connections known to Network Manager:
+    $ nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+  2. Connect to an 802.11b/g AP with wpa security:
+    Press Enter to continue
+  3. Configure the wifi-ap snap:
+    $ sudo wifi-ap.config set wifi.interface={interface}
+    $ sudo wifi-ap.config set wifi.operation-mode=ad
+    $ sudo wifi-ap.config set wifi.interface-mode=virtual
+    $ sudo wifi-ap.config set disabled=false
+    $ sudo wifi-ap.config set wifi.security=wpa2
+    $ sudo wifi-ap.config set wifi.security-passphrase=Test1234
+    $ sudo wifi-ap.config set wifi.channel=$(iw dev {interface} info | grep -oP 'channel\s+\K\d+')
+  4. Using a suitable Wi-Fi client try to detect the presence of the AP called "Ubuntu"
+  5. Attempt to connect to the AP using password "Test1234"
+_verification:
+  Did the client connect?
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_wpa_ad_with_sta_{interface}_auto
+category_id: wifi_ap
+_summary: Create WPA2 802.11ad Wi-Fi Access Point on {interface} with active STA
+plugin: shell
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
+command:
+ echo "Scanning for existing networks"
+ nmcli dev wifi rescan
+ echo "Connecting to existing network"
+ nmcli dev wifi connect "$OPEN_BG_SSID" ifname {interface} name WIFI_TEST_CREATED_BY_CHECKBOX
+ trap "nmcli dev disconnect {interface}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
+ if ! nmcli -m tabular -t -f GENERAL.STATE d show {interface} |grep ^100 ; then
+    echo "FAILED to connect to STA before setting up AP"
+    exit 1
+ fi
+ BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=ad
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_ad_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_ad_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    echo "==== Service unit logs ===="
+    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
+    exit 1;
+ fi
+user: root
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_setup_wizard_{interface}_auto
+category_id: wifi_ap
+_summary: Create Access Point on {interface} using wifi-ap.setup-wizard
+plugin: shell
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 20.0
+user: root
+command:
+ echo "Disabling AP"
+ wifi-ap.config set wifi.operation-mode=g
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.ssid=DISABLED
+ wifi-ap.config set disabled=true
+ wifi_ap_wizard.py {interface} eth0
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ echo "Running AP setup wizard"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_Wizard)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then exit 0; else exit 1; fi
+_description:
+  Check that the system can create a WPA2 802.11g Access Point using
+  wifi-ap.setup-wizard command on {interface}.
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_across_reboot_{interface}_setup
+category_id: wifi_ap
+_summary: Create WPA2 802.11g Wi-Fi AP on {interface} and reboot (setup part)
+plugin: shell
+_description:
+ Check if the system maintains AP functionality after the reboot.
+ This job sets the AP.
+user: root
+command:
+ echo "Setting up AP"
+ wifi-ap.config set wifi.interface={interface}
+ wifi-ap.config set wifi.operation-mode=g
+ wifi-ap.config set wifi.interface-mode=direct
+ wifi-ap.config set wifi.security=wpa2
+ wifi-ap.config set wifi.security-passphrase=Test1234
+ wifi-ap.config set disabled=false
+ wifi-ap.config set wifi.ssid=Ubuntu_g_wpa2
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ echo "Rebooting"
+ reboot
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale noreturn autorestart
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_across_reboot_{interface}_setup_manual
+category_id: wifi_ap
+_summary: Create WPA2 AP on {interface} and reboot (setup part, manual resume)
+plugin: user-interact-verify
+_purpose:
+ Check if the system maintains AP functionality after the reboot.
+ This job sets the AP.
+_steps:
+ When you start the test, the system will reboot.
+ After the system goes back up, resume checkbox session and mark this job as
+ passing.
+ The next job will check if the Access Point setup survived the reboot.
+user: root
+command:
+ unsnap-wifi-ap.sh config set wifi.interface={interface}
+ unsnap-wifi-ap.sh config set wifi.operation-mode=g
+ unsnap-wifi-ap.sh config set wifi.interface-mode=direct
+ unsnap-wifi-ap.sh config set wifi.security=wpa2
+ unsnap-wifi-ap.sh config set wifi.security-passphrase=Test1234
+ unsnap-wifi-ap.sh config set disabled=0
+ unsnap-wifi-ap.sh config set wifi.ssid=Ubuntu_g_wpa2
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ reboot
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale noreturn
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_across_reboot_{interface}_check
+category_id: wifi_ap
+_summary: Create WPA2 802.11g Wi-Fi AP on {interface} and reboot (after reboot part)
+plugin: shell
+_description:
+ Check if the system maintains AP functionality after the reboot.
+ This job checks if AP still works.
+user: root
+command:
+ echo "Waiting for AP to become available"
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then
+    echo "Network detected"
+    exit 0
+ else
+    echo "FAILED to detect the network"
+    exit 1;
+ fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+depends: wireless/wifi_ap_across_reboot_{interface}_setup
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wifi_ap_across_reboot_{interface}_check_manual
+category_id: wifi_ap
+_summary: Create WPA2 AP on {interface} (after reboot part, manual resume)
+plugin: shell
+_description:
+ Check if the system maintains AP functionality after the reboot.
+ This job checks if AP still works.
+user: root
+command:
+ sleep "${{WIFI_AP_SETUPTIME:-10}}"
+ RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_g_wpa2)")
+ wifi-ap.config set disabled=true
+ if [ "$RES" -eq 2 ]; then exit 0; else exit 1; fi
+requires:
+ wifi_interface_mode.{interface}_AP == 'supported'
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
+depends: wireless/wifi_ap_across_reboot_{interface}_setup_manual
+estimated_duration: 120.0
+environ: WIFI_AP_SETUPTIME
+flags: preserve-locale

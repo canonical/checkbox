@@ -1,0 +1,94 @@
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/gateway_ping
+depends: ethernet/detect
+command: gateway_ping_test.py
+estimated_duration: 2.000
+_description: Tests whether the system has a working Internet connection.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::networking
+id: networking/info_device{__index__}_{interface}
+_summary: Network Information of device {__index__} ({interface})
+estimated_duration: 1.0
+command:
+  network_device_info.py info NETWORK --interface {interface}
+_description:
+ PURPOSE:
+     This test will check the network device {__index__} ({interface})
+ STEPS:
+     1. Click "Test" to verify the information for this network device
+ VERIFICATION:
+     Is this correct?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::networking
+id: networking/modem_connection
+command: network_check.py
+_description:
+ PURPOSE:
+    This test will check that a DSL modem can be configured and connected.
+ STEPS:
+    1. Connect the telephone line to the computer
+    2. Click on the Network icon on the top panel.
+    3. Select "Edit Connections"
+    4. Select the "DSL" tab
+    5. Click on "Add" button
+    6. Configure the connection parameters properly
+    7. Click "Test" to verify that it's possible to establish an HTTP connection
+ VERIFICATION:
+    Did a notification show and was the connection correctly established?
+
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/ping
+command: gateway_ping_test.py "$CHECKBOX_SERVER"
+_description:
+ Automated test case to verify availability of some system on the network using ICMP ECHO packets.
+
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/http
+command: wget -SO /dev/null http://"$TRANSFER_SERVER"
+_description:
+ Automated test case to make sure that it's possible to download files through HTTP
+
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/ntp
+requires: package.name == 'ntpdate'
+user: root
+command: network_ntp_test.py
+_description: Test to see if we can sync local clock to an NTP server
+
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/ssh
+requires: package.name == 'openssh-client'
+command: if [ "$CHECKBOX_SERVER" ]; then ssh -q -o 'StrictHostKeyChecking=no' -o "UserKnownHostsFile=/tmp/ssh_test_$$" -l ubuntu "$CHECKBOX_SERVER" "uname -a" && rm /tmp/ssh_test_$$; fi
+_description: Verify that an installation of checkbox-server on the network can be reached over SSH.
+
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/printer
+requires: package.name == 'cups-client'
+command: network_printer_test.sh -s "$CHECKBOX_SERVER"
+_description: Try to enable a remote printer on the network and print a test page.
+
+plugin: shell
+category_id: com.canonical.plainbox::networking
+template-engine: jinja2
+id: networking/predictable_names
+command: network_predictable_names.sh
+_summary: Verify that all network interfaces have predictable names.
+_description: Verify that all network interfaces have predictable names.
+requires:
+  {%- if __on_ubuntucore__ %}
+  lsb.release >= '20'
+  model_assertion.gadget != "pi"
+  {%- else %}
+  lsb.release >= '18'
+  {% endif -%}

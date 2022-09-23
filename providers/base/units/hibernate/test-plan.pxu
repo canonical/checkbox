@@ -1,0 +1,16 @@
+id: hibernate-integrated-gpu-cert-full
+unit: test plan
+_name: Hibernate tests (integrated GPU)
+_description: Hibernate tests (integrated GPU)
+include:
+    power-management/1_hibernate_advanced_.*               certification-status=non-blocker
+    power-management/1_hibernate-single-log-attach_.*
+    keys/hibernate                                         certification-status=non-blocker
+
+id: hibernate-discrete-gpu-cert-full
+unit: test plan
+_name: Hibernate tests (discrete GPU)
+_description: Hibernate tests (discrete GPU)
+include:
+    power-management/2_hibernate_advanced_.*               certification-status=non-blocker
+    power-management/2_hibernate-single-log-attach_.*

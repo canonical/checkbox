@@ -1,0 +1,33 @@
+id: serial/rs232-console
+_summary: Serial debugging console is enabled and operational
+_purpose:
+ Check user can log into system through serial port from another machine
+_steps:
+ 1. Connect USB to db9 null modem adapter cable to serial port of test machine
+ 2. Connect the cable to USB port of another ubuntu machine (client)
+ 3. Install screen on client (if not done in Prerequisite)
+ 4. Execute following command on client:
+  sudo screen /dev/ttyUSB0
+ 5. Start getty service on test machine:
+  sudo systemctl start getty@[rs232 device, ex. /dev/ttyS0].service
+ 6. Log into the test machine from terminal on client
+_verification:
+ 1. Output to client is fine after getty service started
+ 2. Log into test machine from terminal on client successfully
+plugin: manual
+flags: also-after-suspend
+category_id: serial
+estimated_duration: 600
+
+unit: template
+template-resource: serial_ports_static
+template-unit: job
+id: serial/loopback-{dev}
+_summary: Serial loopback test of {dev}
+_purpose: Check if serial port is working hardwired
+plugin: shell
+user: root
+command: serial_loopback.py {dev}
+flags: preserve-locale preserve-cwd also-after-suspend
+category_id: serial
+estimated_duration: 3.0

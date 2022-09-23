@@ -1,0 +1,105 @@
+id: mediacard-cert-full
+unit: test plan
+_name: Mediacard tests
+_description:
+ Mediacard tests
+include:
+nested_part:
+ com.canonical.certification::mediacard-cert-manual
+ com.canonical.certification::mediacard-cert-automated
+
+id: mediacard-cert-manual
+unit: test plan
+_name: Mediacard tests (Manual)
+_description:
+ Mediacard tests (Manual)
+include:
+ mediacard/sdhc-insert                          certification-status=blocker
+ mediacard/sdhc-storage                         certification-status=blocker
+ mediacard/sdhc-remove                          certification-status=blocker
+
+id: mediacard-cert-automated
+unit: test plan
+_name: Mediacard tests (Automated)
+_description:
+ Mediacard tests (Automated)
+include:
+
+
+id: after-suspend-mediacard-cert-full
+unit: test plan
+_name: Mediacard tests (after suspend)
+_description: Mediacard tests (after suspend)
+include:
+    suspend/sdhc-insert-after-suspend              certification-status=blocker
+    suspend/sdhc-storage-after-suspend             certification-status=blocker
+    suspend/sdhc-remove-after-suspend              certification-status=blocker
+
+id: mediacard-cert-blockers
+unit: test plan
+_name: Mediacard tests (certification blockers only)
+_description: Mediacard tests (certification blockers only)
+include:
+    mediacard/sdhc-insert                          certification-status=blocker
+    mediacard/sdhc-storage                         certification-status=blocker
+    mediacard/sdhc-remove                          certification-status=blocker
+
+id: after-suspend-mediacard-cert-blockers
+unit: test plan
+_name: Mediacard tests (after suspend, certification blockers only)
+_description: Mediacard tests (after suspend, certification blockers only)
+include:
+    suspend/sdhc-insert-after-suspend              certification-status=blocker
+    suspend/sdhc-storage-after-suspend             certification-status=blocker
+    suspend/sdhc-remove-after-suspend              certification-status=blocker
+
+id: mediacard-full
+unit: test plan
+_name: Mediacard tests
+_description: QA mediacard tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    mediacard-manual
+# nested_part doesn't include automated test plan as its tests overlap with the
+# ones from the manual one
+
+id: mediacard-manual
+unit: test plan
+_name: Manual mediacard tests
+_description: Manual mediacard tests for Snappy Ubuntu Core devices
+include:
+    mediacard/cf-insert
+    mediacard/cf-storage
+    mediacard/cf-remove
+    mediacard/mmc-insert
+    mediacard/mmc-storage
+    mediacard/mmc-remove
+    mediacard/ms-insert
+    mediacard/ms-storage
+    mediacard/ms-remove
+    mediacard/msp-insert
+    mediacard/msp-storage
+    mediacard/msp-remove
+    mediacard/sd-insert
+    mediacard/sd-storage
+    mediacard/sd-remove
+    mediacard/sdhc-insert
+    mediacard/sdhc-storage
+    mediacard/sdhc-remove
+    mediacard/sdxc-insert
+    mediacard/sdxc-storage
+    mediacard/sdxc-remove
+    mediacard/xd-insert
+    mediacard/xd-storage
+    mediacard/xd-remove
+
+id: mediacard-automated
+unit: test plan
+_name: Automated mediacard tests
+_description:
+ Automated mediacard tests for Snappy Ubuntu Core devices
+ (not requiring udisks2)
+include:
+    mediacard/storage-preinserted-.*
+bootstrap_include:
+    removable_partition

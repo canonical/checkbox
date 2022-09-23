@@ -1,0 +1,14 @@
+# The dkms_info script requires python3-debian package
+unit: packaging meta-data
+os-id: debian
+Depends: python3-debian
+
+# This is for lsblk attachment and disk/detect
+unit: packaging meta-data
+os-id: debian
+Depends: util-linux
+
+# This is to install hwloc for the lstopo attachment jobs
+unit: packaging meta-data
+os-id: debian
+Depends: hwloc

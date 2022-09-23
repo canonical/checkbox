@@ -1,0 +1,46 @@
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/nmcli_wifi_ap_bg_{{ interface }}
+_summary: Create 802.11b/g Wi-Fi AP on {{ interface }} using NetworkManager
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py ap {{ interface }} bg
+plugin: shell
+category_id: wifi_ap
+estimated_duration: 10
+flags: preserve-locale also-after-suspend
+requires:
+ wifi_interface_mode.{{ interface }}_AP == 'supported'
+ net_if_management.device == '{{ interface }}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {%- else %}
+ executable.name == 'nmcli'
+ {% endif -%}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+id: wireless/nmcli_wifi_ap_a_{{ interface }}
+_summary: Create 802.11a Wi-Fi AP on {{ interface }} using NetworkManager
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py ap {{ interface }} a
+plugin: shell
+category_id: wifi_ap
+estimated_duration: 10
+flags: preserve-locale also-after-suspend
+requires:
+ wifi_interface_mode.{{ interface }}_AP == 'supported'
+ net_if_management.device == '{{ interface }}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {%- else %}
+ executable.name == 'nmcli'
+ {% endif -%}

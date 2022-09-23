@@ -1,0 +1,200 @@
+plugin: shell
+category_id: com.canonical.plainbox::optical
+id: optical/detect
+requires: device.category == 'CDROM'
+estimated_duration: 1.2
+_summary: Displays discovered optical drives
+_description: Detects optical drives (CD/DVD) attached to the system.
+command: udev_resource.py -l CDROM
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::optical
+id: optical/read_{name}
+estimated_duration: 120.0
+user: root
+command: optical_read_test.py /dev/{name}
+flags: also-after-suspend
+_description:
+ PURPOSE:
+     This test will check your {product} device's ability to read CD media
+ STEPS:
+     1. Insert appropriate non-blank media into your optical drive(s). Movie and Audio Disks may not work. Self-created data disks have the greatest chance of working.
+     2. If a file browser window opens, you can safely close or ignore that window.
+     3. Click "Test" to begin the test.
+ VERIFICATION:
+     This test should automatically select "Yes" if it passes, "No" if it fails.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: shell
+category_id: com.canonical.plainbox::optical
+id: optical/read-automated_{name}
+estimated_duration: 120.0
+user: root
+command: optical_read_test.py /dev/{name}
+_summary:
+ Tests read functionality of optical drive {name}
+_description:
+ This is an automated version of optical/read. It assumes you have already inserted a data CD into your optical drive prior to running Checkbox.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::optical
+id: optical/cdrom-write_{name}
+estimated_duration: 120.0
+requires:
+ optical_drive_{name}.cd_write == 'supported'
+user: root
+command: set -o pipefail; optical_write_test.sh /dev/{name} cd | ansi_parser.py
+_description:
+ PURPOSE:
+     This test will check your system's {product} CD writing capabilities. This test requires a blank CD-R or CD+R.
+ STEPS:
+     Skip this test if you do not have a blank CD disk.
+     1. Insert a blank CD-R or CD+R into your drive
+     2. Click "Test" to begin.
+     3. When the CD tray ejects the media after burning, close it (DO NOT remove the disk, it is needed for the second portion of the test). Note, you must close the drive within 5 minutes or the test will time out.
+ VERIFICATION:
+     This test should automatically select "Yes" if it passes, "No" if it fails.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: shell
+category_id: com.canonical.plainbox::optical
+id: optical/cdrom-write-automated_{name}
+estimated_duration: 120.0
+requires:
+ optical_drive_{name}.cd_write == 'supported'
+user: root
+command: set -o pipefail; optical_write_test.sh /dev/{name} cd | ansi_parser.py
+_description:
+ This is an automated version of optical/cdrom-write. It assumes you have already inserted a data CD into your {product} optical drive prior to running Checkbox.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: manual
+category_id: com.canonical.plainbox::optical
+id: optical/cdrom-audio-playback_{name}
+depends: optical/read_{name}
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     This test will check your {product} CD audio playback capabilities
+ STEPS:
+     1. Insert an audio CD in your optical drive
+     2. When prompted, launch the Music Player
+     3. Locate the CD in the display of the Music Player
+     4. Select the CD in the Music Player
+     5. Click the Play button to listen to the music on the CD
+     6. Stop playing after some time
+     7. Right click on the CD icon and select "Eject Disc"
+     8. The CD should be ejected
+     9. Close the Music Player
+ VERIFICATION:
+     Did all the steps work?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::optical
+id: optical/dvd-write_{name}
+requires:
+ optical_drive_{name}.dvd_write == 'supported'
+estimated_duration: 120.0
+user: root
+command: set -o pipefail; optical_write_test.sh /dev/{name} dvd | ansi_parser.py
+_description:
+ PURPOSE:
+     This test will check your system's {product} writing capabilities. This test requires a blank DVD-R or DVD+R.
+ STEPS:
+     Skip this test if you do not have a blank DVD disk.
+     1. Enter a blank DVD-R or DVD+R into your drive
+     2. Click "Test" to begin.
+     3. When the CD tray ejects the media after burning, close it (DO NOT remove the disk, it is needed for the second portion of the test). Note, you must close the drive within 5 minutes or the test will time out.
+ VERIFICATION:
+     This test should automatically select "Yes" if it passes, "No" if it fails.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: shell
+category_id: com.canonical.plainbox::optical
+id: optical/dvd-write-automated_{name}
+estimated_duration: 120.0
+requires:
+ optical_drive_{name}.dvd_write == 'supported'
+user: root
+command: set -o pipefail; optical_write_test.sh /dev/{name} dvd | ansi_parser.py
+_description:
+ This is an automated version of optical/dvd-write. It assumes you have already inserted a data DVD into your {product} optical drive prior to running Checkbox.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::optical
+id: optical/dvd_playback
+command: totem /media/cdrom
+estimated_duration: 120.0
+requires:
+ device.category == 'CDROM'
+ package.name == 'totem'
+_description:
+ PURPOSE:
+     This test will check your DVD  playback capabilities
+ STEPS:
+     1. Insert a DVD that contains any movie in your optical drive
+     2. Click "Test" to play the DVD in Totem
+ VERIFICATION:
+     Did the file play?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: user-interact
+category_id: com.canonical.plainbox::optical
+id: optical/bluray-read_{name}
+estimated_duration: 120.0
+requires:
+ optical_drive_{name}.bd_read == "supported"
+user: root
+command: optical_read_test.py /dev/{name}
+flags: also-after-suspend
+_description:
+ PURPOSE:
+  This test will check your {product} device's ability to read Blu-Ray (BD) media
+ STEPS:
+  1. Insert appropriate non-blank media into your Blu-Ray drive. Movie and Audio Disks may not work. Self-created data disks have the greatest chance of working.
+  2. If a file browser window opens, you can safely close or ignore that window.
+  3. Click "Test" to begin the test.
+ VERIFICATION:
+  This test should automatically select "Yes" if it passes, "No" if it fails.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+plugin: user-interact
+category_id: com.canonical.plainbox::optical
+id: optical/bluray-write_{name}
+requires:
+ optical_drive_{name}.bd_write == "supported"
+ package.name == "growisofs"
+user: root
+command: set -o pipefail; optical_write_test.sh /dev/{name} bd | ansi_parser.py
+estimated_duration: 120.00
+_description:
+ PURPOSE:
+  This test will check your {product} device's ability to write Blu-Ray (BD) media
+ STEPS:
+  Skip this test if you do not have a blank BD-R disc
+  1. Insert appropriate writable media into your Blu-Ray drive.
+  2. Click "Test" to begin the test.
+ VERIFICATION:
+  This test should automatically select "Yes" if it passes, "No" if it fails.
+

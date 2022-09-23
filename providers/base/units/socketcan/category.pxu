@@ -1,0 +1,3 @@
+unit: category
+id: socketcan
+_name: SocketCAN interface tests

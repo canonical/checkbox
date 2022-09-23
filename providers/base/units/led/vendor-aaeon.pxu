@@ -1,0 +1,39 @@
+
+unit: template
+template-resource: dmi
+template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01')
+template-unit: job
+id: led/sysfs_led_brightness_on_{vendor}_{product}
+plugin: user-interact-verify
+category_id: led
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+command:
+  led_sysfs_brightness.py {product} on
+_purpose:
+  Verify that the leds_aaeon driver is working by setting all LEDs to maximum
+  brightness
+_steps:
+  Press ENTER to start the test while watching external LEDs on the SUT
+_verification:
+  The external LEDs should now be on at maximum brightness
+
+unit: template
+template-resource: dmi
+template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01')
+template-unit: job
+id: led/sysfs_led_brightness_off_{vendor}_{product}
+plugin: user-interact-verify
+category_id: led
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+depends: led/sysfs_led_brightness_on_{vendor}_{product}
+command:
+  led_sysfs_brightness.py {product} off
+_purpose:
+  Verify that the leds_aaeon driver is working by setting all LEDs to off / 
+  minimum brightness
+_steps:
+  Press ENTER to start the test while watching external LEDs on the SUT
+_verification:
+  The external LEDs should now be off or at minimum brightness

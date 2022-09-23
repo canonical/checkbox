@@ -1,0 +1,97 @@
+id: touchscreen-cert-full
+unit: test plan
+_name: Touchscreen tests
+_description:
+ Touchscreen tests
+include:
+nested_part:
+ touchscreen-cert-manual
+ touchscreen-cert-automated
+
+id: touchscreen-cert-manual
+unit: test plan
+_name: Touchscreen tests (Manual)
+_description:
+ Touchscreen tests (Manual)
+include:
+ touchscreen/drag-n-drop                    certification-status=blocker
+ touchscreen/multitouch-zoom                certification-status=blocker
+ touchscreen/multitouch-rotate
+ touchscreen/3-touch-tap                    certification-status=blocker
+ touchscreen/4-touch-tap                    certification-status=blocker
+
+id: touchscreen-cert-automated
+unit: test plan
+_name: Touchscreen tests (Automated)
+_description:
+ Touchscreen tests (Automated)
+include:
+
+id: after-suspend-touchscreen-cert-full
+unit: test plan
+_name: Touchscreen tests
+_description:
+ Touchscreen tests
+include:
+nested_part:
+ after-suspend-touchscreen-cert-manual
+ after-suspend-touchscreen-cert-automated
+
+id: after-suspend-touchscreen-cert-manual
+unit: test plan
+_name: Touchscreen tests (Manual)
+_description:
+ Touchscreen tests (Manual)
+include:
+ after-suspend-touchscreen/drag-n-drop       certification-status=blocker
+ after-suspend-touchscreen/multitouch-zoom   certification-status=blocker
+ after-suspend-touchscreen/multitouch-rotate
+ after-suspend-touchscreen/3-touch-tap       certification-status=blocker
+ after-suspend-touchscreen/4-touch-tap       certification-status=blocker
+
+id: after-suspend-touchscreen-cert-automated
+unit: test plan
+_name: Touchscreen tests (Automated)
+_description:
+ Touchscreen tests (Automated)
+include:
+
+id: touchscreen-cert-blockers
+unit: test plan
+_name: Touchscreen tests (certification blockers only)
+_description: Touchscreen tests (certification blockers only)
+include:
+    touchscreen/drag-n-drop                    certification-status=blocker
+    touchscreen/multitouch-zoom                certification-status=blocker
+    touchscreen/3-touch-tap                    certification-status=blocker
+    touchscreen/4-touch-tap                    certification-status=blocker
+
+id: after-suspend-touchscreen-cert-blockers
+unit: test plan
+_name: Touchscreen tests (after suspend, certification blockers only)
+_description: Touchscreen tests (after suspend, certification blockers only)
+include:
+    after-suspend-touchscreen/drag-n-drop        certification-status=blocker
+    after-suspend-touchscreen/multitouch-zoom    certification-status=blocker
+    after-suspend-touchscreen/3-touch-tap        certification-status=blocker
+    after-suspend-touchscreen/4-touch-tap        certification-status=blocker
+
+id: touchscreen-evdev
+unit: test plan
+_name: Touchscreen evdev tests
+_description:
+ Touchscreen evdev tests
+include:
+ touchscreen/evdev.*
+bootstrap_include:
+    device
+
+id: after-suspend-touchscreen-evdev
+unit: test plan
+_name: Touchscreen evdev tests
+_description:
+ Touchscreen evdev tests
+include:
+ after-suspend-touchscreen/evdev.*
+bootstrap_include:
+    device

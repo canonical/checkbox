@@ -1,0 +1,121 @@
+id: led-cert-full
+unit: test plan
+_name: LED tests
+_description:
+ LED tests
+ Notes: - led/power-blink-suspend and led/suspend are used later in the
+          power management testplan just after a number of suspend tests.
+        - led/wireless is redundant given that we have led/wlan and
+          led/bluetooth already.
+include:
+nested_part:
+ com.canonical.certification::led-cert-manual
+ com.canonical.certification::led-cert-automated
+
+
+id: led-cert-manual
+unit: test plan
+_name: LED tests (Manual)
+_description:
+    LED tests
+    Notes: - led/power-blink-suspend and led/suspend are used later in the
+             power management testplan just after a number of suspend tests.
+           - led/wireless is redundant given that we have led/wlan and
+             led/bluetooth already. (Manual)
+include:
+    camera/led_.*                      certification-status=blocker
+    led/caps-lock                      certification-status=blocker
+    led/numeric-keypad                 certification-status=blocker
+    led/power                          certification-status=blocker
+    led/bluetooth                      certification-status=non-blocker
+    led/wlan                           certification-status=non-blocker
+    led/wlan-disabled                  certification-status=non-blocker
+    led/fn                             certification-status=non-blocker
+bootstrap_include:
+    device
+
+
+id: led-cert-automated
+unit: test plan
+_name: LED tests (Automated)
+_description:
+    LED tests
+    Notes: - led/power-blink-suspend and led/suspend are used later in the
+             power management testplan just after a number of suspend tests.
+           - led/wireless is redundant given that we have led/wlan and
+             led/bluetooth already. (Automated)
+include:
+
+
+id: after-suspend-led-cert-full
+unit: test plan
+_name: LED tests (after suspend)
+_description: LED tests (after suspend)
+include:
+    after-suspend-camera/led_.*                 certification-status=blocker
+    suspend/led_after_suspend/caps-lock         certification-status=blocker
+    suspend/led_after_suspend/numeric-keypad    certification-status=blocker
+    suspend/led_after_suspend/power             certification-status=blocker
+    after-suspend-led/mute                      certification-status=blocker
+    after-suspend-led/microphone-mute           certification-status=blocker
+    suspend/led_after_suspend/bluetooth         certification-status=non-blocker
+    suspend/led_after_suspend/wlan              certification-status=non-blocker
+    suspend/led_after_suspend/wlan-disabled     certification-status=non-blocker
+    after-suspend-led/fn                        certification-status=non-blocker
+bootstrap_include:
+    device
+
+
+id: led-cert-blockers
+unit: test plan
+_name: LED tests (certification blockers only)
+_description: LED tests (certification blockers only)
+include:
+    camera/led_.*                      certification-status=blocker
+    led/caps-lock                      certification-status=blocker
+    led/numeric-keypad                 certification-status=blocker
+    led/power                          certification-status=blocker
+    led/mute                           certification-status=blocker
+    led/microphone-mute                certification-status=blocker
+bootstrap_include:
+    device
+
+
+id: after-suspend-led-cert-blockers
+unit: test plan
+_name: LED tests (after suspend, certification blockers only)
+_description: LED tests (after suspend, certification blockers only)
+include:
+    after-suspend-camera/led_.*                 certification-status=blocker
+    suspend/led_after_suspend/caps-lock         certification-status=blocker
+    suspend/led_after_suspend/numeric-keypad    certification-status=blocker
+    suspend/led_after_suspend/power             certification-status=blocker
+    after-suspend-led/mute                      certification-status=blocker
+    after-suspend-led/microphone-mute           certification-status=blocker
+bootstrap_include:
+    device
+
+
+id: led-full
+unit: test plan
+_name: LED tests for IoT
+_description: QA LED tests for IoT devices
+include:
+nested_part:
+    led-manual
+
+
+id: led-manual
+unit: test plan
+_name: Manual LED tests for IoT
+_description: Manual LED tests for IoT devices
+include:
+    led/power
+    led/power-blink-suspend
+    led/bluetooth
+    led/serial
+    led/fn
+    led/sysfs_led_brightness_on_.*
+    led/sysfs_led_brightness_off_.*
+bootstrap_include:
+    dmi

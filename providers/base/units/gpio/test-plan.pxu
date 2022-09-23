@@ -1,0 +1,41 @@
+id: gpio-full
+unit: test plan
+_name: GPIO tests
+_description: QA GPIO tests for Ubuntu Core devices
+include:
+nested_part:
+    gpio-manual
+    gpio-automated
+
+id: gpio-manual
+unit: test plan
+_name: Manual GPIO tests
+_description: Manual GPIO tests for Ubuntu Core devices
+include:
+
+id: after-suspend-gpio-manual
+unit: test plan
+_name: Manual GPIO tests (after suspend)
+_description: Manual GPIO tests for Ubuntu Core devices (after suspend)
+include:
+
+id: gpio-automated
+unit: test plan
+_name: Automated GPIO tests
+_description: Automated GPIO tests for Ubuntu Core devices
+bootstrap_include:
+    model_assertion
+    dmi
+include:
+    gpio/sysfs_loopback_pairs_.*
+    gpio/gpiomem_loopback_pairs_.*
+
+id: after-suspend-gpio-automated
+unit: test plan
+_name: Automated GPIO tests (after suspend)
+_description: Automated GPIO tests for Ubuntu Core devices (after suspend)
+bootstrap_include:
+    model_assertion
+include:
+    after-suspend-gpio/sysfs_loopback_pairs_.*
+    after-suspend-gpio/gpiomem_loopback_pairs_.*

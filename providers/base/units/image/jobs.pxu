@@ -1,0 +1,90 @@
+
+id: image/kernel-publisher-canonical
+category_id: image
+_summary: Check that the kernel snap publisher is Canonical
+_description:
+  During certification testing IoT devices must be running a kernel supplied
+  by Canonical
+plugin: shell
+command:
+  ubuntucore_image_checks.py kernel-publisher
+estimated_duration: 2.0
+flags: preserve-locale
+
+id: image/kernel-tracking-stable
+category_id: image
+_summary: Check that the kernel snap is tracking stable channel
+_description:
+  During certification testing IoT devices must be running a kernel that is on
+  a stable channel
+plugin: shell
+command:
+  ubuntucore_image_checks.py kernel-tracking
+estimated_duration: 2.0
+flags: preserve-locale
+
+id: image/gadget-publisher-canonical
+category_id: image
+_summary: Check that the gadget snap publisher is Canonical
+_description:
+  During certification testing IoT devices must be running a kernel supplied
+  by Canonical
+plugin: shell
+command:
+  ubuntucore_image_checks.py gadget-publisher
+estimated_duration: 2.0
+flags: preserve-locale
+
+id: image/gadget-tracking-stable
+category_id: image
+_summary: Check that the gadget snap is tracking stable channel
+_description:
+  During certification testing IoT devices must be running a gadget that is on
+  a stable channel
+plugin: shell
+command:
+  ubuntucore_image_checks.py gadget-tracking
+estimated_duration: 2.0
+flags: preserve-locale
+
+id: image/model-authority-canonical
+category_id: image
+_summary: Check that model authority-id is canonical
+_description:
+  The authority-id declares on whose authority this assertion is made. This
+  must be Canonical for the certification of IoT devices.
+plugin: shell
+command:
+  ubuntucore_image_checks.py model-authority
+estimated_duration: 2.0
+flags: preserve-locale
+
+id: image/model-brand-canonical
+category_id: image
+_summary: Check the model brand-id is canoncial
+_description:
+  For the certification of IoT devices canonical provided generic images must
+  be used. Hence, the brand-id must be canonical.
+plugin: shell
+command:
+  ubuntucore_image_checks.py model-brand
+estimated_duration: 2.0
+flags: preserve-locale
+
+id: image/model-grade
+category_id: image
+_summary: Check that the model grade is correctly set
+requires:
+ lsb.distributor_id == "Ubuntu Core" and int(lsb.release) >= 20
+_description:
+  Images with the 'dangerous' grade (the lowest of all available grades)
+  results in certain security measures to be relaxed.
+  Images that require strict security related implementations must
+  have the model grade set to non-dangerous grades - either the highest
+  grade of 'secured', or a grade passed to checkbox for checking via the
+  MODEL_GRADE configuration variable.
+plugin: shell
+command:
+  ubuntucore_image_checks.py model-grade
+estimated_duration: 2.0
+flags: preserve-locale

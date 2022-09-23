@@ -1,0 +1,10 @@
+# Copyright 2016 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Gavin Lin <gavin.lin@canonical.com>
+
+unit: manifest entry
+id: has_i2c
+_name: An I²C bus
+value-type: bool

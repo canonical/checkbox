@@ -1,0 +1,45 @@
+id: monitor/zapper-edid
+category_id: com.canonical.plainbox::monitor
+plugin: shell
+estimated_duration: 60
+_summary: Check if the system automatically changes the resolution based on EDID
+environ: ZAPPER_HOST
+command: edid_cycle.py "$ZAPPER_HOST"
+
+unit: template
+template-resource: zapper_capabilities
+template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '3'
+category_id: com.canonical.plainbox::usb
+id: usb3/zapper-usb-insert-{{ port_alias }}
+template-engine: jinja2
+_summary: Zapper-driven USB insertion test on port {{ port_alias }}
+requires: usb.usb3 == 'supported'
+plugin: shell
+user: root
+environ: ZAPPER_ADDRESS
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} insertion usb3
+ {%- else %}
+     removable_storage_watcher.py --unmounted -m 500000000 --zapper-usb-address={{ port_alias }} insert usb
+ {% endif -%}
+estimated_duration: 20
+
+unit: template
+template-resource: zapper_capabilities
+template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '3'
+category_id: com.canonical.plainbox::usb
+id: usb3/zapper-usb-remove-{{ port_alias }}
+template-engine: jinja2
+_summary: Zapper-driven USB removal test on port {{ port_alias }}
+requires: usb.usb3 == 'supported'
+plugin: shell
+user: root
+environ: ZAPPER_ADDRESS
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} removal usb3
+ {%- else %}
+     removable_storage_watcher.py --unmounted -m 500000000 --zapper-usb-address={{ port_alias }} remove usb
+ {% endif -%}
+estimated_duration: 20

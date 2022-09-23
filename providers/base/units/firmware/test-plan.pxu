@@ -1,0 +1,38 @@
+id: server-firmware
+unit: test plan
+_name: Server Firmware Tests
+_description:
+ Server Focused Firmware Tests
+mandatory_include:
+    firmware/fwts_server
+    firmware/fwts_results.log.gz
+include:
+bootstrap_include:
+    fwts
+
+
+id: iot-fwts-full
+unit: test plan
+_name: Test fwts diagnosis with iot project
+_description: Test fwts diagnosis with iot project
+include:
+nested_part:
+    iot-fwts-manual
+    iot-fwts-automated
+
+
+id: iot-fwts-manual
+unit: test plan
+_name: Test fwts diagnosis with iot project (manual)
+_description: Test fwts diagnosis with project (manual)
+include:
+
+
+id: iot-fwts-automated
+unit: test plan
+_name: Test fwts diagnosis with iot project (automated)
+_description: Test fwts diagnosis with iot project (automated)
+include:
+    firmware/fwts_desktop_diagnosis
+    firmware/fwts_desktop_diagnosis_results.log.gz
+

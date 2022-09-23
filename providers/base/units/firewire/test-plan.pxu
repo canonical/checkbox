@@ -1,0 +1,36 @@
+id: firewire-cert-full
+unit: test plan
+_name: Firewire tests
+_description:
+ Firewire tests
+include:
+nested_part:
+ com.canonical.certification::firewire-cert-manual
+ com.canonical.certification::firewire-cert-automated
+
+id: firewire-cert-manual
+unit: test plan
+_name: Firewire tests (Manual)
+_description:
+ Firewire tests (Manual)
+include:
+ firewire/insert                                certification-status=blocker
+ firewire/storage-test                          certification-status=blocker
+ firewire/remove                                certification-status=blocker
+
+id: firewire-cert-automated
+unit: test plan
+_name: Firewire tests (Automated)
+_description:
+ Firewire tests (Automated)
+include:
+
+
+id: firewire-cert-blockers
+unit: test plan
+_name: Firewire tests (certification blockers only)
+_description: Firewire tests (certification blockers only)
+include:
+    firewire/insert                                certification-status=blocker
+    firewire/storage-test                          certification-status=blocker
+    firewire/remove                                certification-status=blocker

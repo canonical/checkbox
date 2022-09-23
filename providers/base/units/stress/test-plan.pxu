@@ -1,0 +1,271 @@
+id: stress-cert-full
+unit: test plan
+_name: Stress tests
+_description:
+ Stress tests
+include:
+nested_part:
+ com.canonical.certification::stress-cert-manual
+ com.canonical.certification::stress-cert-automated
+
+id: stress-cert-manual
+unit: test plan
+_name: Stress tests (Manual)
+_description:
+ Stress tests (Manual)
+include:
+ power-management/suspend_30_cycles             certification-status=blocker
+ power-management/suspend-30-cycle-log-attach
+ power-management/suspend-30-cycles-time-check  certification-status=non-blocker
+ power-management/hibernate_30_cycles           certification-status=non-blocker
+
+
+id: stress-cert-automated
+unit: test plan
+_name: Stress tests (automated)
+_description: Stress tests (automated)
+include:
+    power-management/suspend_30_cycles             certification-status=blocker
+    power-management/suspend-30-cycle-log-attach
+    power-management/suspend-30-cycles-time-check  certification-status=non-blocker
+    power-management/hibernate_30_cycles           certification-status=non-blocker
+    power-management/hibernate-30-cycle-log-attach
+    stress/cpu_stress_ng_test                      certification-status=blocker
+
+id: stress-cert-blockers
+unit: test plan
+_name: Stress tests (certification blockers only)
+_description: Stress tests (certification blockers only)
+include:
+    power-management/suspend_30_cycles             certification-status=blocker
+    power-management/suspend-30-cycle-log-attach
+    stress/cpu_stress_ng_test                      certification-status=blocker
+
+id: stress-suspend-30-cycles-with-reboots-automated
+unit: test plan
+_name: Suspend stress tests (with reboots)
+_description: Suspend stress tests (with reboots)
+include:
+    power-management/suspend_30_cycles_with_reboots
+    power-management/suspend-30-cycles-log-check-with-reboots
+    power-management/suspend-30-cycle-log-attach-with-reboots
+    power-management/suspend-30-cycles-time-check-with-reboots
+
+id: stress-suspend-30-cycles-with-coldboots-automated
+unit: test plan
+_name: Suspend stress tests (with coldboots)
+_description: Suspend stress tests (with coldboots)
+include:
+    power-management/suspend_30_cycles_with_coldboots
+    power-management/suspend-30-cycles-log-check-with-coldboots
+    power-management/suspend-30-cycle-log-attach-with-coldboots
+    power-management/suspend-30-cycles-time-check-with-coldboots
+
+id: stress-hibernate-30-cycles-automated
+unit: test plan
+_name: Hibernate stress tests
+_description: Hibernate stress tests
+include:
+    power-management/hibernate_30_cycles           certification-status=non-blocker
+    power-management/hibernate-30-cycles-log-check
+    power-management/hibernate-30-cycle-log-attach
+
+id: stress-30-reboot-poweroff-automated
+unit: test plan
+_name: Power Management reboot and power off 30 cycles stress tests (automated)
+_description: Power Management reboot and power off 30 cycles stress tests (automated)
+include:
+    stress/reboot_30        certification-status=blocker
+    stress/reboot_30_log
+    stress/poweroff_30      certification-status=blocker
+    stress/poweroff_30_log
+
+id: stress-10-reboot-poweroff-automated
+unit: test plan
+_name: Power Management reboot and power off 10 cycles stress tests (automated)
+_description: Power Management reboot and power off 10 cycles stress tests (automated)
+include:
+    stress/reboot_10        certification-status=blocker
+    stress/reboot_10_log
+    stress/reboot_10_check
+    stress/reboot_10_check_log
+    stress/poweroff_10      certification-status=blocker
+    stress/poweroff_10_log
+    stress/poweroff_10_check
+    stress/poweroff_10_check_log
+
+id: stress-ng-cert-automated
+unit: test plan
+_name: Stress NG tests (automated)
+_description: Stress NG tests (automated)
+include:
+    stress/cpu_stress_ng_test                      certification-status=blocker
+    memory/memory_stress_ng                        certification-status=blocker
+
+id: stress-full
+unit: test plan
+_name: Stress tests
+_description: QA stress tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    stress-automated
+
+id: stress-automated
+unit: test plan
+_name: Automated stress tests
+_description: Automated stress tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    warm-boot-stress-test
+    cold-boot-stress-test
+    suspend-stress-test
+    hibernate-stress-test
+    stress-ng-automated
+
+unit: test plan
+id: warm-boot-stress-test
+_name: Warm boot stress test
+_description:
+ Reboots the machine a pre-defined number of times and on
+ resumption of OS performs a hardware check to ensure all
+ items are still present. Reboot is immediate.
+estimated_duration: 25h
+bootstrap_include:
+  reboot-run-generator
+include:
+  warm-boot-loop-.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+unit: test plan
+id: cold-boot-stress-test
+_name: Cold boot stress test
+_description:
+ Reboots the machine a pre-defined number of times and on
+ resumption of OS performs a hardware check to ensure all
+ items are still present. The reboot is delayed by 2 minutes
+ by the RTC to allow hardware to cool.
+estimated_duration: 42h
+bootstrap_include:
+  reboot-run-generator
+include:
+  cold-boot-loop-.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+
+unit: test plan
+id: suspend-stress-test
+_name: Suspend (S3) stress test
+_description:
+ Suspends the machine a pre-defined number of times and on
+ resume of OS performs a hardware check to ensure all
+ items are still present.
+estimated_duration: 42h
+bootstrap_include:
+  stress_s3_iterations
+include:
+  stress-tests/suspend.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+unit: test plan
+id: hibernate-stress-test
+_name: Hibernate (S4) stress test
+_description:
+ Hibernates the machine a pre-defined number of times and on
+ resume of OS performs a hardware check to ensure all
+ items are still present.
+estimated_duration: 42h
+bootstrap_include:
+  stress_s4_iterations
+include:
+  stress-tests/hibernate.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+id: stress-ng-automated
+unit: test plan
+_name: Automated stress-ng tests
+_description: Automated stress-ng tests for Snappy Ubuntu Core devices
+include:
+    stress/stress-ng-test-for-class-.*
+    disk/disk_stress_ng_.*
+bootstrap_include:
+    device
+    stress-ng-classes
+
+id: stress-iperf3-automated
+unit: test plan
+_name: Automated iperf3 tests
+_description: Automated iperf3 performance test
+include:
+    ethernet/iperf3_.*
+bootstrap_include:
+    device
+
+id: stress-pm-graph
+unit: test plan
+_name: pm-graph stress test
+_description: pm-graph stress test
+include:
+    stress/s2idle_pm-graph_30
+    stress/s2idle_pm-graph_30.tar.xz
+    stress/s3_pm-graph_30
+    stress/s3_pm-graph_30.tar.xz

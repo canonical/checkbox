@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+from statistics import mean
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename',
+                        action='store',
+                        help='The output file from sleep tests to parse')
+    parser.add_argument('--s',
+                        dest='sleep_threshold',
+                        action='store',
+                        type=float,
+                        default=10.00,
+                        help=('The max time a system should have taken to '
+                              'enter a sleep state. (Default: %(default)s)'
+                              ))
+    parser.add_argument('--r',
+                        action='store',
+                        dest='resume_threshold',
+                        type=float,
+                        default=5.00,
+                        help=('The max time a system should have taken to '
+                              'resume from a sleep state. (Default: '
+                              '%(default)s)'))
+    args = parser.parse_args()
+
+    try:
+        with open(args.filename) as file:
+            lines = file.readlines()
+    except IOError as e:
+        print(e)
+        return 1
+
+    sleep_time = None
+    sleep_times = []
+    resume_time = None
+    resume_times = []
+    # find our times
+    for line in lines:
+        try:
+            if "Average time to sleep" in line:
+                sleep_time = float(line.split(':')[1].strip())
+                sleep_times.append(sleep_time)
+            elif "Average time to resume" in line:
+                resume_time = float(line.split(':')[1].strip())
+                resume_times.append(resume_time)
+        except ValueError as e:
+            print("ERROR: One or more times was not reported correctly:")
+            print(e)
+            return 1
+
+    if (
+        (sleep_time is None or resume_time is None) or
+        (len(sleep_times) != len(resume_times))
+    ):
+        print("ERROR: One or more times was not reported correctly")
+        return 1
+
+    print(
+        "Average time to enter sleep state: %.4f seconds" % mean(sleep_times))
+    print(
+        "Average time to resume from sleep state: %.4f seconds" % mean(
+            resume_times))
+
+    failed = 0
+    if sleep_time > args.sleep_threshold:
+        print("System failed to suspend in less than %s seconds" %
+              args.sleep_threshold)
+        failed = 1
+    if resume_time > args.resume_threshold:
+        print("System failed to resume in less than %s seconds" %
+              args.resume_threshold)
+        failed = 1
+    if sleep_time <= 0.00 or resume_time <= 0.00:
+        print("ERROR: One or more times was not reported correctly")
+        failed = 1
+
+    return failed
+
+
+if __name__ == "__main__":
+    sys.exit(main())

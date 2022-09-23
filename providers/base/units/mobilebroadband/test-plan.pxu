@@ -1,0 +1,24 @@
+id: mobilebroadband-cert-full
+unit: test plan
+_name: Mobile broadband tests
+_description:
+ Mobile broadband tests
+include:
+nested_part:
+ com.canonical.certification::mobilebroadband-cert-manual
+ com.canonical.certification::mobilebroadband-cert-automated
+
+id: mobilebroadband-cert-manual
+unit: test plan
+_name: Mobile broadband tests (Manual)
+_description:
+ Mobile broadband tests (Manual)
+include:
+
+id: mobilebroadband-cert-automated
+unit: test plan
+_name: Mobile broadband tests (automated)
+_description: Mobile broadband tests (automated)
+include:
+    mobilebroadband/gsm_connection             certification-status=non-blocker
+    mobilebroadband/cdma_connection            certification-status=non-blocker

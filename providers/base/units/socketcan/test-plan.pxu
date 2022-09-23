@@ -1,0 +1,93 @@
+
+id: socketcan-auto-remote
+unit: test plan
+_name: SocketCAN Tests (Automated, Remote)
+_description:
+  SocketCAN Tests (Automated, Remote)
+include:
+  socketcan/send_packet_remote_.*
+
+
+id: socketcan-manual-remote
+unit: test plan
+_name: SocketCAN Tests (Manual, Remote)
+_description:
+  SocketCAN Tests (Manual, Remote)
+include:
+
+
+id: after-suspend-socketcan-auto-remote
+unit: test plan
+_name: SocketCAN Tests (Automated, Remote, After Suspend)
+_description:
+  SocketCAN Tests (Automated, Remote, After Suspend)
+include:
+  after-suspend-socketcan/send_packet_remote_.*
+
+
+id: after-suspend-socketcan-manual-remote
+unit: test plan
+_name: SocketCAN Tests (Manual, Remote, After Suspend)
+_description:
+  SocketCAN Tests (Manual, Remote, After Suspend)
+include:
+
+
+id: socketcan-auto-local
+unit: test plan
+_name: SocketCAN Tests (Automated, Local)
+_description:
+  SocketCAN Tests (Automated, Local)
+include:
+  socketcan/send_packet_local_.*
+
+
+id: socketcan-manual-local
+unit: test plan
+_name: SocketCAN Tests (Manual, Local)
+_description:
+  SocketCAN Tests (Manual, Local)
+include:
+
+
+id: after-suspend-socketcan-auto-local
+unit: test plan
+_name: SocketCAN Tests (Automated, Local, After Suspend)
+_description:
+  SocketCAN Tests (Automated, Local, After Suspend)
+include:
+  after-suspend-socketcan/send_packet_local_.*
+
+
+id: after-suspend-socketcan-manual-local
+unit: test plan
+_name: SocketCAN Tests (Manual, Local, After Suspend)
+_description:
+  SocketCAN Tests (Manual, Local, After Suspend)
+include:
+
+
+id: socketcan-full
+unit: test plan
+_name: SocketCAN Tests
+_description:
+  SocketCAN Tests
+include:
+nested_part:
+  socketcan-manual-remote
+  socketcan-manual-local
+  socketcan-auto-remote
+  socketcan-auto-local
+
+
+id: after-suspend-socketcan-full
+unit: test plan
+_name: SocketCAN Tests (After Suspend)
+_description:
+  SocketCAN Tests (After Suspend)
+include:
+nested_part:
+  after-suspend-socketcan-manual-remote
+  after-suspend-socketcan-manual-local
+  after-suspend-socketcan-auto-remote
+  after-suspend-socketcan-auto-local

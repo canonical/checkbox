@@ -1,0 +1,4 @@
+# nvdimms require ipmctl for health check jobs
+unit: packaging meta-data
+os-id: debian
+Depends: ipmctl [amd64]

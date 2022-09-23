@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_usb_type_c
+_name: USB Type-C Support
+value-type: bool
+
+unit: manifest entry
+id: has_usb_storage
+_name: USB Storage Device Connected
+value-type: bool

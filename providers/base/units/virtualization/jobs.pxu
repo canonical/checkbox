@@ -1,0 +1,27 @@
+plugin: shell
+category_id: com.canonical.plainbox::virtualization
+id: virtualization/verify_lxd_vm
+environ: LXD_TEMPLATE KVM_IMAGE
+estimated_duration: 60.0
+requires:
+ executable.name == 'lxc'
+ package.name == 'lxd' or snap.name == 'lxd'
+command: virtualization.py --debug lxdvm
+_description:
+ Verifies that an LXD Virtual Machine can be created and launched
+_summary:
+ Verify LXD Virtual Machine launches
+
+plugin: shell
+category_id: com.canonical.plainbox::virtualization
+id: virtualization/verify_lxd
+environ: LXD_TEMPLATE LXD_ROOTFS
+estimated_duration: 30.0
+requires:
+ executable.name == 'lxc'
+ package.name == 'lxd' or snap.name == 'lxd'
+command: virtualization.py --debug lxd
+_description:
+ Verifies that an LXD container can be created and launched
+_summary:
+ Verify LXD container launches

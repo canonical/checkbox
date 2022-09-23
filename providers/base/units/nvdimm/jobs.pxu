@@ -1,0 +1,29 @@
+plugin: shell
+category_id: com.canonical.certification::nvdimm
+id: nvdimm/info
+estimated_duration: 1.0  
+user: root
+requires: 
+ executable.name == "ipmctl"
+ lsb.release >= "18.04"
+ nvdimm_resource.detected == "true"
+command: ipmctl show -dimm
+_summary:
+ Verify that NVDIMMs are discovered
+_description:
+ This test will probe any installed NVDIMMs and list them and their capacities.
+
+plugin: shell
+category_id: com.canonical.certification::nvdimm
+id: nvdimm/health
+estimated_duration: 1.0
+user: root
+requires: 
+ executable.name == "ipmctl"
+ lsb.release >= "18.04"
+ nvdimm_resource.detected == "true"
+command: ipmctl show -sensor Health
+_summary:
+ Report health state of installed NVDIMM devices
+_description:
+ This test will do a quick health check of installed NVDIMM devices.

@@ -1,0 +1,20 @@
+
+id: iot-cert-image-full
+unit: test plan
+_name: Sanity checks for images being certified on IoT devices
+include:
+nested_part:
+    iot-cert-image-manual
+    iot-cert-image-automated
+
+id: iot-cert-image-automated
+unit: test plan
+_name: Automated Sanity checks for images being certified on IoT devices
+include:
+  image/.*
+
+id: iot-cert-image-manual
+unit: test plan
+_name: Manual Sanity checks for images being certified on IoT devices
+include:
+

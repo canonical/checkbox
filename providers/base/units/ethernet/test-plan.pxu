@@ -1,0 +1,136 @@
+id: ethernet-cert-full
+unit: test plan
+_name: Ethernet tests
+_description: Ethernet tests
+include:
+nested_part:
+    ethernet-cert-automated
+    ethernet-cert-manual
+
+id: ethernet-cert-manual
+unit: test plan
+_name: Ethernet tests (manual)
+_description: Ethernet tests (manual)
+include:
+    ethernet/hotplug-.*                            certification-status=blocker
+bootstrap_include:
+    device
+
+id: ethernet-cert-automated
+unit: test plan
+_name: Ethernet tests (automated)
+_description: Ethernet tests (automated)
+include:
+    ethernet/detect                                certification-status=blocker
+
+id: ethernet-cert-blockers
+unit: test plan
+_name: Ethernet tests (certification blockers only)
+_description: Ethernet tests (certification blockers only)
+include:
+    ethernet/detect                                certification-status=blocker
+    ethernet/hotplug-.*                            certification-status=blocker
+bootstrap_include:
+    device
+
+id: ethernet-full
+unit: test plan
+_name: QA tests for ethernet
+_description: Ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+nested_part:
+    ethernet-manual
+    ethernet-automated
+
+id: ethernet-manual
+unit: test plan
+_name: Manual ethernet tests
+_description: Manual tests for ethernet connections
+include:
+    ethernet/wol_S5_.*
+    ethernet/wol_S4_.*
+    ethernet/wol_S3_.*
+    ethernet/hotplug-.*
+bootstrap_include:
+    device
+
+id: ethernet-automated
+unit: test plan
+_name: Automated ethernet tests
+_description: Automated ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+    ethernet/detect
+    ethernet/ping_.*
+bootstrap_include:
+    device
+
+id: after-suspend-ethernet-full
+unit: test plan
+_name: QA tests for ethernet (after suspend)
+_description: Ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+nested_part:
+    after-suspend-ethernet-automated
+
+id: after-suspend-ethernet-manual
+unit: test plan
+_name: Manual ethernet tests (after suspend)
+_description: Manual ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+
+id: after-suspend-ethernet-automated
+unit: test plan
+_name: Automated ethernet tests (after suspend)
+_description: Automated ethernet tests for Ubuntu Core devices
+estimated_duration: 1m
+include:
+    after-suspend-ethernet/detect
+    after-suspend-ethernet/ping_.*
+bootstrap_include:
+    device
+
+id: server-ethernet
+unit: test plan
+_name: Server Ethernet Tests
+_description: Automated ethernet tests for server certification
+estimated_duration: 4h
+include:
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
+    ethernet/ethertool_check_.*             certification-status=non-blocker
+    ethernet/multi_iperf3_nic_device.*      certification-status=blocker
+bootstrap_include:
+    device
+    executable
+
+id: server-ethernet-sru
+unit: test plan
+_name: Server Ethernet SRU Tests
+_description: Automated ethernet tests for server regression testing
+estimated_duration: 4h
+include:
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
+    ethernet/ethertool_check_.*             certification-status=non-blocker
+    ethernet/sru_iperf3_stress_device-.*    certification-status=blocker
+bootstrap_include:
+    device
+    executable
+
+id: server-ethernet-underspeed
+unit: test plan
+_name: Server Ethernet Tests (Speed Check Disabled)
+_description: Automated ethernet tests for server certification without speed check
+estimated_duration: 4h
+include:
+    ethernet/info_automated_server                  certification-status=non-blocker
+    ethernet/ethtool_info                           certification-status=non-blocker
+    ethernet/ethertool_check_.*                     certification-status=non-blocker
+    ethernet/multi_iperf3_nic_underspeed_device.*   certification-status=non-blocker
+bootstrap_include:
+    device
+    executable

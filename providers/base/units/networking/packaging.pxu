@@ -1,0 +1,7 @@
+unit: packaging meta-data
+os-id: debian
+Depends: ntpdate, net-tools
+
+unit: packaging meta-data
+os-id: debian
+Depends: iperf3

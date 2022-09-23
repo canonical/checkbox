@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_touchscreen
+_name: Touchscreen
+value-type: bool

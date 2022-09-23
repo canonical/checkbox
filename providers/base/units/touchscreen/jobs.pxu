@@ -1,0 +1,297 @@
+plugin: shell
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/nontouch-automated
+requires:
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'direct'
+command: true
+estimated_duration: 1.2
+_description:
+ Determine whether the screen is detected as a non-touch device automatically.
+
+plugin: shell
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/multitouch-automated
+requires:
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'direct'
+command: true
+estimated_duration: 1.2
+_description:
+ Determine whether the screen is detected as a multitouch device automatically.
+
+plugin: manual
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/multitouch-manual
+depends: touchscreen/nontouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchscreen capability manual detection.
+ STEPS:
+     1. Look at the specifications for your system.
+ VERIFICATION:
+     Your screen was detected as a non touch screen. Select PASS if this is correct.
+
+plugin: manual
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/tap-detect
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen tap recognition
+ STEPS:
+     1. Tap an object on the screen with finger. The cursor should jump to location tapped and object should highlight
+ VERIFICATION:
+     Does tap recognition work?
+
+plugin: manual
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/drag-n-drop
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen drag & drop
+ STEPS:
+     1. Press 'PrtScn' key to create a screenshot
+     2. Tap 'Files' on dock(launcher bar) to open Home folder
+     3. Double Tap 'Pictures' folder to open Pictures folder
+     4. Tap and hold the Screenshot* files on the Pictures folder
+     5. Drag and drop the Screenshot* files to Home folder
+ VERIFICATION:
+     Does drag and drop work?
+flags: also-after-suspend
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/multitouch-zoom
+_summary: Check touchscreen pinch gesture for zoom
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+command: qmlscene -qt5 "$PLAINBOX_PROVIDER_DATA"/touch_zoom_test.qml 2>&1 |grep -o PASS
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen pinch gesture for zoom
+ STEPS:
+     1. Commence the test
+     2. Using 2 fingers, resize the blue square until it turns green, then release it.
+ VERIFICATION:
+     Did the blue square change size following the gesture?
+flags: also-after-suspend
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/multitouch-rotate
+_summary: Check touchscreen pinch gesture for rotate
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+command: qmlscene -qt5 "$PLAINBOX_PROVIDER_DATA"/touch_rotate_test.qml 2>&1 |grep -o PASS
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen pinch gesture for rotate
+ STEPS:
+     1. Commence the test
+     2. Using 2 fingers, rotate the blue square until it turns green, then release it.
+ VERIFICATION:
+     Did the blue square rotate following the gesture?
+flags: also-after-suspend
+
+plugin: manual
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/multitouch-window-move
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that 3-touch drag is operating as expected
+ STEPS:
+     1. Open a windows and bring it to the foreground
+     2. 3-touch the window and drag
+ VERIFICATION:
+     Did the window move along with the drag?
+
+plugin: manual
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/multitouch-dash
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that 4-touch tap is operating as expected
+ STEPS:
+     1. 4-touch tap anywhere on the touchscreen
+ VERIFICATION:
+     Did the tap open the Dash?
+
+plugin: user-interact-verify
+template-engine: jinja2
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/3-touch-tap
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 15.0
+_description:
+ PURPOSE:
+     Validate that 3-touch tap is operating as expected
+ STEPS:
+     1. Commence the test
+     {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
+     2. Tap the screen within the test area with 3 fingers simultaneously.
+     3. Once 3 fingers are on the screen you should see the indicator they are recognized.
+ VERIFICATION:
+     Did you see the green circles around the three fingers?
+     {%- else %}
+     2. Tap the screen with 3 fingers simultaneously.
+     3. If the tap is not detected the test will time out after 20 seconds.
+ VERIFICATION:
+     Was the tap detected?
+     {% endif %}
+command:
+    {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
+    manage_compiz_plugin.py unityshell disable
+    qmlscene -qt5 3 "$PLAINBOX_PROVIDER_DATA"/touch_tap_test.qml 2>&1 | grep -o PASS
+    EXIT=$?
+    sleep 5
+    manage_compiz_plugin.py unityshell enable
+    {%- else %}
+    timeout 20 multitap_test.py 3 || (>&2 echo "FAILED TO DETECT TAP"; false)
+    EXIT=$?
+    {% endif %}
+    exit $EXIT
+flags: also-after-suspend
+
+plugin: user-interact-verify
+template-engine: jinja2
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/4-touch-tap
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 15.0
+_description:
+ PURPOSE:
+     Validate that 4-touch tap is operating as expected
+ STEPS:
+     1. Commence the test
+     {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
+     2. Tap the screen within the test area with 4 fingers simultaneously.
+     3. Once 4 fingers are on the screen you should see the indicator they are recognized.
+ VERIFICATION:
+     Did you see the green circles around the four fingers?
+     {%- else %}
+     2. Tap the screen with 4 fingers simultaneously.
+     3. If the tap is not detected the test will time out after 20 seconds.
+     {% endif %}
+command:
+    {%- if 'Unity' in __system_env__.get("XDG_CURRENT_DESKTOP", "") %}
+    manage_compiz_plugin.py unityshell disable
+    qmlscene -qt5 4 "$PLAINBOX_PROVIDER_DATA"/touch_tap_test.qml 2>&1 | grep -o PASS
+    EXIT=$?
+    sleep 5
+    manage_compiz_plugin.py unityshell enable
+    {%- else %}
+    timeout 20 multitap_test.py 4 || (>&2 echo "FAILED TO DETECT TAP"; false)
+    EXIT=$?
+    {% endif %}
+    exit $EXIT
+flags: also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that single-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with one finger.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 1
+flags: also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that 2-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with 2 fingers simultaneously.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 2
+flags: also-after-suspend
+after: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/3-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that 3-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with 34 fingers simultaneously.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 3
+flags: also-after-suspend
+after: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: touchscreen/evdev/4-touch-tap-{{ product_slug }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
+estimated_duration: 10.0
+_description:
+ PURPOSE:
+     Validate that 4-touch tap is properly detected
+ STEPS:
+     1. Commence the test
+     2. Tap the screen with 4 fingers simultaneously.
+ VERIFICATION:
+     If the tap is not detected the test will time out after 10 seconds.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 4
+flags: also-after-suspend
+after: touchscreen/evdev/3-touch-tap-{{ product_slug }}

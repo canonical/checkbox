@@ -1,0 +1,89 @@
+id: cpu-cert-full
+unit: test plan
+_name: CPU tests
+_description:
+ CPU tests
+include:
+nested_part:
+ com.canonical.certification::cpu-cert-manual
+ com.canonical.certification::cpu-cert-automated
+
+id: cpu-cert-manual
+unit: test plan
+_name: CPU tests (Manual)
+_description:
+ CPU tests (Manual)
+include:
+
+id: cpu-cert-automated
+unit: test plan
+_name: CPU tests (automated)
+_description: CPU tests (automated)
+include:
+    cpu/cstates                                    certification-status=blocker
+    cpu/cstates_results.log
+    cpu/scaling_test                               certification-status=blocker
+    cpu/scaling_test-log-attach
+    cpu/maxfreq_test                               certification-status=blocker
+    cpu/maxfreq_test-log-attach
+    cpu/offlining_test                             certification-status=blocker
+    cpu/topology                                   certification-status=blocker
+    cpu/clocktest
+
+id: cpu-cert-blockers
+unit: test plan
+_name: CPU tests (certification blockers only)
+_description: CPU tests (certification blockers only)
+include:
+    cpu/cstates                                    certification-status=blocker
+    cpu/cstates_results.log
+    cpu/scaling_test                               certification-status=blocker
+    cpu/scaling_test-log-attach
+    cpu/maxfreq_test                               certification-status=blocker
+    cpu/maxfreq_test-log-attach
+    cpu/offlining_test                             certification-status=blocker
+    cpu/topology                                   certification-status=blocker
+
+id: cpu-full
+unit: test plan
+_name: CPU tests
+_description: QA CPU tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    cpu-automated
+
+id: cpu-manual
+unit: test plan
+_name: Manual CPU tests
+_description: Manual QA CPU tests for Snappy Ubuntu Core devices
+include:
+
+id: cpu-automated
+unit: test plan
+_name: Automated CPU tests
+_description: Automated CPU tests for Snappy Ubuntu Core devices
+include:
+    cpu/scaling_test
+    cpu/scaling_test-log-attach
+    cpu/maxfreq_test
+    cpu/maxfreq_test-log-attach
+    cpu/clocktest
+    cpu/offlining_test
+    cpu/topology
+    cpu/arm_vfp_support_.*
+    cpu/cstates
+    cpu/cstates_results.log
+
+id: server-cpu
+unit: test plan
+_name: CPU Tests (Server)
+_description: CPU Tests (Server)
+include:
+    cpu/clocktest                               certification-status=blocker
+    cpu/cpufreq_test-server                     certification-status=non-blocker
+    cpu/maxfreq_test                            certification-status=blocker
+    cpu/maxfreq_test-log-attach                 certification-status=non-blocker
+    cpu/topology                                certification-status=blocker
+    cpu/arm_vfp_support_.*                      certification-status=non-blocker
+    cpu/cstates                                 certification-status=non-blocker
+    cpu/cstates_results.log                     certification-status=non-blocker

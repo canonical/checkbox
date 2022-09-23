@@ -1,0 +1,87 @@
+id: snappy-snap-full
+unit: test plan
+_name: Tests for snap command
+_description:
+ QA test plan that includes generic tests for the snap command for Snappy
+ Ubuntu Core devices.
+estimated_duration: 5m
+include:
+nested_part:
+    snappy-snap-manual
+    snappy-snap-automated
+
+id: snappy-snap-full-with-refresh-control
+unit: test plan
+_name: Tests for snap command
+_description:
+ QA test plan that includes generic tests for the snap command for Snappy
+ Ubuntu Core devices.
+estimated_duration: 5m
+include:
+nested_part:
+    snappy-snap-manual-with-refresh-control
+    snappy-snap-automated
+
+id: snappy-snap-manual
+unit: test plan
+_name: QA tests for snap command
+_description:
+ QA test that includes manual tests for the snap command for Snappy Ubuntu
+ Core devices.
+include:
+    snappy/os-refresh
+    snappy/os-revert
+mandatory_include:
+    snap
+bootstrap_include:
+    model_assertion
+
+id: snappy-snap-manual-with-refresh-control
+unit: test plan
+_name: QA tests for snap command on refresh controlled stores
+_description:
+ QA test that includes manual tests for the snap command for Snappy Ubuntu
+ Core devices.
+include:
+    snappy/os-refresh-with-refresh-control
+    snappy/os-revert-with-refresh-control
+mandatory_include:
+    snap
+bootstrap_include:
+    model_assertion
+
+id: snappy-snap-automated
+unit: test plan
+_name: Automated tests for snap command
+_description:
+ QA test plan that includes automated tests for the snap command for Snappy
+ Ubuntu Core devices.
+estimated_duration: 1m
+include:
+    snappy/snap-list
+    snappy/snap-search
+    snappy/snap-install
+    snappy/snap-refresh-automated
+    snappy/snap-revert-automated
+    snappy/snap-reupdate-automated
+    snappy/snap-remove
+    snappy/test-store-install-beta
+    snappy/test-store-install-edge
+    snappy/test-store-config-.*
+    snappy/test-snap-confinement-mode
+mandatory_include:
+    snap
+bootstrap_include:
+    model_assertion
+
+id: snappy-snap-automated-lightweight
+unit: test plan
+_name: Automated tests for snap command (lightweight version)
+_description:
+ QA test plan that includes automated tests for the snap command for OEM classic devices.
+estimated_duration: 1m
+include:
+exclude:
+    snappy/test-store.*
+nested_part:
+    snappy-snap-automated

@@ -1,0 +1,210 @@
+id: usb-c/c-to-a-adapter/hid
+_summary: USB HID work on USB Type-C port using a "USB Type-C to Type-A" adapter
+_purpose:
+     This test will check that you can use a USB HID device plugged in a USB
+     Type-C port using a "USB Type-C to Type-A" adapter
+_steps:
+     1. Enable either a USB mouse or keyboard by plugging it in the USB Type-C port using a "USB Type-C to Type-A" adapter
+     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     3. For keyboards, switch to another tty and type some text
+_verification:
+     Did the device work as expected?
+plugin: manual
+flags: also-after-suspend
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usb_type_c == 'True'
+estimated_duration: 60
+
+id: usb-c/c-to-a-adapter/insert
+_purpose:
+     This test will check that the system correctly detects the insertion of
+     a USB 3 storage device in a USB Type-C connector using a "Type-C to Type-A"
+     adapter.
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
+_steps:
+     1. Commence the test
+     2. Connect a USB 3 storage device to a USB Type-C port using a
+        "Type-C to Type-A" adapter.
+     3. Do not unplug the device after the test.
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+plugin: user-interact
+flags: also-after-suspend
+user: root
+command:
+ if [[ -v SNAP ]]; then
+     checkbox-support-run_watcher insertion usb3
+ else
+     removable_storage_watcher.py -m 500000000 insert usb
+ fi
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c == 'True'
+estimated_duration: 30
+
+id: usb-c/c-to-a-adapter/storage-automated
+_description:
+ This test is automated and executes after the usb-c/c-to-a-adapter/insert test
+ is run.
+plugin: shell
+flags: also-after-suspend
+user: root
+command:
+ if [[ -v SNAP ]]; then
+     checkbox-support-usb_read_write
+ else
+     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+ fi
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_usb_type_c == 'True'
+depends: usb-c/c-to-a-adapter/insert
+estimated_duration: 60
+
+id: usb-c/c-to-a-adapter/remove
+_purpose:
+     This test will check that the system correctly detects the removal of
+     a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
+     to Type-A" adapter.
+_steps:
+     1. Commence the test
+     2. Disconnect a USB 3 storage device to a USB Type-C port using a
+        "Type-C to Type-A" adapter
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+plugin: user-interact
+flags: also-after-suspend
+user: root
+command:
+ if [[ -v SNAP ]]; then
+     checkbox-support-run_watcher removal usb3
+ else
+     removable_storage_watcher.py -m 500000000 remove usb
+ fi
+category_id: com.canonical.plainbox::usb
+depends: usb-c/c-to-a-adapter/insert
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_usb_type_c == 'True'
+estimated_duration: 30
+
+id: usb-c/hid
+_summary: USB HID work on USB Type-C port
+_purpose:
+     This test will check that you can use a USB HID device plugged in a USB
+     Type-C port
+_steps:
+     1. Enable either a USB mouse or keyboard by plugging it in the USB Type-C port
+     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     3. For keyboards, switch to another tty and type some text
+_verification:
+     Did the device work as expected?
+plugin: manual
+flags: also-after-suspend
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usb_type_c == 'True'
+estimated_duration: 60
+
+id: usb-c/insert
+_summary: USB 3.0 storage device insertion detected on USB Type-C port
+_purpose:
+     This test will check that the system correctly detects the insertion of
+     a USB 3 storage device in a USB Type-C connector.
+     NOTE: Make sure the USB storage device has a partition before starting
+     the test.
+_steps:
+     1. Commence the test.
+     2. Connect a USB 3 storage device to a USB Type-C port.
+     3. Do not unplug the device after the test.
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+plugin: user-interact
+flags: also-after-suspend
+user: root
+command:
+ if [[ -v SNAP ]]; then
+     checkbox-support-run_watcher insertion usb3
+ else
+     removable_storage_watcher.py -m 500000000 insert usb
+ fi
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usb_type_c == 'True'
+estimated_duration: 30
+
+id: usb-c/storage-automated
+_summary: USB 3.0 storage device read & write works on USB Type-C port
+_description:
+ This test is automated and executes after the usb-c/insert test
+ is run.
+plugin: shell
+flags: also-after-suspend
+user: root
+command:
+ if [[ -v SNAP ]]; then
+     checkbox-support-usb_read_write
+ else
+     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+ fi
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_usb_type_c == 'True'
+depends: usb-c/insert
+estimated_duration: 60
+
+id: usb-c/remove
+_summary: USB 3.0 storage device removal detected on USB Type-C port
+_purpose:
+     This test will check that the system correctly detects the removal of
+     a USB 3 storage device connected to a USB Type-C port.
+_steps:
+     1. Commence the test
+     2. Disconnect a USB 3 storage device to a USB Type-C port
+_verification:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+plugin: user-interact
+flags: also-after-suspend
+user: root
+command:
+ if [[ -v SNAP ]]; then
+     checkbox-support-run_watcher removal usb3
+ else
+     removable_storage_watcher.py -m 500000000 remove usb
+ fi
+category_id: com.canonical.plainbox::usb
+depends: usb-c/insert
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_usb_type_c == 'True'
+estimated_duration: 30
+
+id: usb-c/c-to-ethernet-adapter-insert
+plugin: user-interact
+flags: also-after-suspend
+category_id: com.canonical.plainbox::usb
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usb_type_c == 'True'
+command:
+ net_if_watcher.py
+_summary: Check if USB Type-C to Ethernet adapter works
+_purpose:
+ This test will check if system detects network interface of the Type-C to
+ ethernet adapter.
+_steps:
+ 1. Prepare USB Type-C to Ethernet adapter
+ 2. Start the test
+ 3. When the message "INSERT NOW" is shown, plug in the adapter to Type-C port
+estimated_duration: 20

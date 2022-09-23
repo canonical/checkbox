@@ -1,0 +1,36 @@
+id: esata-cert-full
+unit: test plan
+_name: eSATA tests
+_description:
+ eSATA tests
+include:
+nested_part:
+ com.canonical.certification::esata-cert-manual
+ com.canonical.certification::esata-cert-automated
+
+id: esata-cert-manual
+unit: test plan
+_name: eSATA tests (Manual)
+_description:
+ eSATA tests (Manual)
+include:
+ esata/insert                                   certification-status=blocker
+ esata/storage-test                             certification-status=blocker
+ esata/remove                                   certification-status=blocker
+
+id: esata-cert-automated
+unit: test plan
+_name: eSATA tests (Automated)
+_description:
+ eSATA tests (Automated)
+include:
+
+
+id: esata-cert-blockers
+unit: test plan
+_name: eSATA tests (certification blockers only)
+_description: eSATA tests (certification blockers only)
+include:
+    esata/insert                                   certification-status=blocker
+    esata/storage-test                             certification-status=blocker
+    esata/remove                                   certification-status=blocker

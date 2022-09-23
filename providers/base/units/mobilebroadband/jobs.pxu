@@ -1,0 +1,106 @@
+plugin: shell
+category_id: com.canonical.plainbox::mobilebroadband
+id: mobilebroadband/gsm_connection
+estimated_duration: 20.0
+requires:
+    package.name == 'network-manager'
+    package.name == 'modemmanager'
+    mobilebroadband.gsm == 'supported'
+user: root
+environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
+command:
+  if [ -n "${GSM_APN}" ]; then
+      # shellcheck disable=SC2064
+      trap "nmcli con delete id $GSM_CONN_NAME" EXIT
+      create_connection.py mobilebroadband gsm \
+      "$([ -n "${GSM_APN}" ] && echo "--apn=$GSM_APN")" \
+      "$([ -n "${GSM_CONN_NAME}" ] &&  echo "--name=$GSM_CONN_NAME")" \
+      "$([ -n "${GSM_USERNAME}" ] && echo "--username=$GSM_USERNAME")" \
+      "$([ -n "${GSM_PASSWORD}" ] && echo "--password=$GSM_PASSWORD")" || exit 1
+  fi
+  INTERFACE=$( (nmcli -f GENERAL -t dev list 2>/dev/null || nmcli -f GENERAL -t dev show) | tr '\n' ' ' | grep -oP 'TYPE:\Kgsm.*' | sed 's/GENERAL.TYPE:.*//' | grep -oP 'GENERAL.IP-IFACE:\K\S*')
+  echo "connected GSM interface seems to be $INTERFACE"
+  [ -z "$INTERFACE" ] && exit 1
+  curl http://start.ubuntu.com/connectivity-check.html --interface "$INTERFACE"
+  EXIT_CODE=$?
+  if [ -n "${GSM_APN}" ] && [ "$(nmcli dev status | awk '/gsm/ {print $3}')" == "connected" ]; then
+          nmcli con down id "$([ "${GSM_CONN_NAME}" ] && echo "$GSM_CONN_NAME" || echo "MobileBB")"
+  fi
+  exit $EXIT_CODE
+_description: Creates a mobile broadband connection for a GSM based modem and checks the connection to ensure it's working. 
+
+plugin: shell
+category_id: com.canonical.plainbox::mobilebroadband
+id: mobilebroadband/cdma_connection
+estimated_duration: 20.0
+requires:
+    package.name == 'network-manager'
+    package.name == 'modemmanager'
+    mobilebroadband.cdma == 'supported'
+user: root
+environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
+command:
+  if [ -n "${CDMA_USERNAME}" ]; then
+      # shellcheck disable=SC2064
+      trap "nmcli con delete id $CDMA_CONN_NAME" EXIT
+      create_connection.py mobilebroadband cdma \
+      "$([ -n "${CDMA_CONN_NAME}" ] &&  echo "--name=$CDMA_CONN_NAME")" \
+      "$([ -n "${CDMA_USERNAME}" ] && echo "--username=$CDMA_USERNAME")" \
+      "$([ -n "${CDMA_PASSWORD}" ] && echo "--password=$CDMA_PASSWORD")" || exit 1
+  fi
+  INTERFACE=$( (nmcli -f GENERAL -t dev list 2>/dev/null || nmcli -f GENERAL -t dev show) | tr '\n' ' ' | grep -oP 'TYPE:\Kcdma.*' | sed 's/GENERAL.TYPE:.*//' | grep -oP 'GENERAL.IP-IFACE:\K\S*')
+  echo "connected CDMA interface seems to be $INTERFACE"
+  [ -z "$INTERFACE" ] && exit 1
+  curl http://start.ubuntu.com/connectivity-check.html --interface "$INTERFACE"
+  EXIT_CODE=$?
+  if [ -n "${CDMA_USERNAME}" ] && [ "$(nmcli dev status | awk '/cdma/ {print $3}')" == "connected" ]; then
+          nmcli con down id "$([ "${CDMA_CONN_NAME}" ] && echo "$CDMA_CONN_NAME" || echo "MobileBB")"
+  fi
+  exit $EXIT_CODE
+_description: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::mobilebroadband
+id: mobilebroadband/maximum_bandwidth_gsm_device{__index__}_{interface}
+depends: mobilebroadband/gsm_connection
+estimated_duration: 330.0
+requires:
+ package.name == 'iperf'
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+user: root
+command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result of the test...")
+_purpose:
+ User verification of whether the observed transfer throughput is acceptable
+ for the type and maximum speed of device {__index__} ({interface}).
+_steps:
+ 1. Click "Test".
+ 2. Read the network test summary and confirm that the throughput is acceptable.
+ 3. If needed, click "Test" again to repeat the transfer test.
+_verification:
+ Was the reported throughput acceptable for the type and maximum speed of this interface?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::mobilebroadband
+id: mobilebroadband/maximum_bandwidth_cdma_device{__index__}_{interface}
+depends: mobilebroadband/cdma_connection
+estimated_duration: 330.0
+requires:
+ package.name == 'iperf'
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+user: root
+command: network.py test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result of the test...")
+_purpose:
+ User verification of whether the observed transfer throughput is acceptable
+ for the type and maximum speed of device {__index__} ({interface}).
+_steps:
+ 1. Click "Test".
+ 2. Read the network test summary and confirm that the throughput is acceptable.
+ 3. If needed, click "Test" again to repeat the transfer test.
+_verification:
+ Was the reported throughput acceptable for the type and maximum speed of this interface?

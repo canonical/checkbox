@@ -1,0 +1,73 @@
+id: touchpad-cert-full
+unit: test plan
+_name: Touchpad tests
+_description:
+ Touchpad tests
+include:
+nested_part:
+ com.canonical.certification::touchpad-cert-manual
+ com.canonical.certification::touchpad-cert-automated
+
+id: touchpad-cert-manual
+unit: test plan
+_name: Touchpad tests (Manual)
+_description:
+ Touchpad tests (Manual)
+include:
+ touchpad/basic                                 certification-status=blocker
+ touchpad/palm-rejection                        certification-status=non-blocker
+ touchpad/continuous-move                       certification-status=blocker
+ touchpad/singletouch-selection                 certification-status=blocker
+ touchpad/drag-and-drop                         certification-status=blocker
+ touchpad/multitouch-rightclick                 certification-status=blocker
+ touchpad/multitouch                            certification-status=blocker
+
+id: touchpad-cert-automated
+unit: test plan
+_name: Touchpad tests (Automated)
+_description:
+ Touchpad tests (Automated)
+include:
+ touchpad/detected-as-mouse                     certification-status=blocker
+ touchpad/palm-rejection-firmware-labeling_.*   certification-status=non-blocker
+
+
+id: after-suspend-touchpad-cert-full
+unit: test plan
+_name: Touchpad tests
+_description: Touchpad tests
+include:
+    touchpad/basic-after-suspend                   certification-status=blocker
+    touchpad/detected-as-mouse-after-suspend       certification-status=blocker
+    touchpad/palm-rejection-after-suspend          certification-status=non-blocker
+    touchpad/continuous-move-after-suspend         certification-status=blocker
+    touchpad/singletouch-selection-after-suspend   certification-status=blocker
+    touchpad/drag-and-drop-after-suspend           certification-status=blocker
+    touchpad/multitouch-rightclick-after-suspend   certification-status=blocker
+    touchpad/multitouch-after-suspend              certification-status=blocker
+
+id: touchpad-cert-blockers
+unit: test plan
+_name: Touchpad tests (certification blockers only)
+_description: Touchpad tests (certification blockers only)
+include:
+    touchpad/basic                                 certification-status=blocker
+    touchpad/detected-as-mouse                     certification-status=blocker
+    touchpad/continuous-move                       certification-status=blocker
+    touchpad/singletouch-selection                 certification-status=blocker
+    touchpad/drag-and-drop                         certification-status=blocker
+    touchpad/multitouch-rightclick                 certification-status=blocker
+    touchpad/multitouch                            certification-status=blocker
+
+id: after-suspend-touchpad-cert-blockers
+unit: test plan
+_name: Touchpad tests (after suspend, certification blockers only)
+_description: Touchpad tests (after suspend, certification blockers only)
+include:
+    touchpad/basic-after-suspend                   certification-status=blocker
+    touchpad/detected-as-mouse-after-suspend       certification-status=blocker
+    touchpad/continuous-move-after-suspend         certification-status=blocker
+    touchpad/singletouch-selection-after-suspend   certification-status=blocker
+    touchpad/drag-and-drop-after-suspend           certification-status=blocker
+    touchpad/multitouch-rightclick-after-suspend   certification-status=blocker
+    touchpad/multitouch-after-suspend              certification-status=blocker

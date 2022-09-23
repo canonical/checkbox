@@ -1,0 +1,40 @@
+unit: job
+id: stress-ng-classes
+plugin: resource
+_summary: Gather list of test classes from stress-ng
+_description:
+ stress-ng divides tests in to classes. Get a list of classes so can divide
+ up tests. Complete class list: cpu, cpu-cache, device, io, interrupt,
+ filesystem, memory, network, os, pipe, scheduler, vm.
+command:
+ command -v stress-ng >/dev/null 2>&1 || { >&2 echo "stress-ng command not found"; exit 1; }
+ CLASSES="cpu cpu-cache memory os pipe scheduler vm"
+ for c in $CLASSES; do
+  echo "stress-ng-class: $c"
+  echo
+ done
+estimated_duration: 1s
+flags: preserve-locale
+
+unit: template
+template-resource: stress-ng-classes
+template-unit: job
+id: stress/stress-ng-test-for-class-{stress-ng-class}
+category_id: stress-tests
+_summary: Run the stress-ng stressors for class {stress-ng-class}
+_description:
+ Runs the stressors for the class defined. Tests run sequentially using the
+ same number of proccesses as online processors.
+plugin: shell
+estimated_duration: 1200.0
+environ: STRESS_NG_CLASSES_TIMEOUT
+command:
+ cd /var/tmp || exit $?
+ stress-ng --sequential 0 --class {stress-ng-class} --timeout "${{STRESS_NG_CLASSES_TIMEOUT:-30}}" --skip-silent --verbose
+ # Error code definition - 3(no resource), 4(not implemented)
+ EXIT_CODE=$?
+ echo "EXIT_CODE="$EXIT_CODE
+ case $EXIT_CODE in
+    0|3|4) exit 0;;
+    *)     exit 1;;
+ esac

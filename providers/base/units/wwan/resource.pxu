@@ -1,0 +1,17 @@
+# Copyright 2015 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Jonathan Cave <jonathan.cave@canonical.com>
+
+
+unit: job
+id: wwan_resource
+category_id: wwan
+plugin: resource
+_summary: Gather device info about WWAN modems
+_description: Gather device info about WWAN modems
+command: wwan_tests.py resources
+user: root
+estimated_duration: 3s
+flags: preserve-locale

@@ -1,0 +1,7 @@
+python3-jinja2
+python3-natsort
+python3-padme
+python3-urwid
+python3-xlsxwriter
+shellcheck
+flake8

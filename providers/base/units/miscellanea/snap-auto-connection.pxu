@@ -1,0 +1,15 @@
+# This template job can be used to check any required snap interface connections.
+# For example, if you wish to check that the "home" 
+# plug of the "multipass" snap is connected to a corresponding slot, 
+# simply run the job com.canonical.certification::miscellanea/check-plug_multipass_home
+unit: template
+template-engine: jinja2
+template-resource: interface
+template-filter: interface.type == 'plug'
+id: miscellanea/check-plug_{{ snap }}_{{ name }}
+_summary: Ensure the {{ snap }} snap's {{ name }} plug is connected
+plugin: shell
+command:
+  plug_connected_test.py {{ snap }} {{ name }}
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 1.0

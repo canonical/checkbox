@@ -1,0 +1,70 @@
+id: disk-cert-manual
+unit: test plan
+_name: Disk tests (manual)
+_description: Disk tests (manual)
+include:
+    disk/detect                                certification-status=blocker
+    disk/hdd-parking                           certification-status=non-blocker
+
+id: disk-cert-automated
+unit: test plan
+_name: Disk tests (automated)
+_description: Disk tests (automated)
+include:
+    disk/detect                                certification-status=blocker
+    disk/stats_.*
+    disk/read_performance_.*                   certification-status=blocker
+    disk/storage_device_.*                     certification-status=blocker
+    benchmarks/disk/hdparm-read_.*
+    benchmarks/disk/hdparm-cache-read_.*
+    disk/apste_support_on_.*
+
+id: disk-cert-blockers
+unit: test plan
+_name: Disk tests (certification blockers only)
+_description: Disk tests (certification blockers only)
+include:
+    disk/detect                                certification-status=blocker
+    disk/read_performance_.*                   certification-status=blocker
+    disk/storage_device_.*                     certification-status=blocker
+
+id: disk-full
+unit: test plan
+_name: Disks tests
+_description: QA disk tests for Ubuntu Core devices
+include:
+nested_part:
+    disk-automated
+
+id: disk-manual
+unit: test plan
+_name: Manual disks tests
+_description: Manual QA disk tests for Ubuntu Core devices
+include:
+
+id: disk-automated
+unit: test plan
+_name: Automated disk tests
+_description: Automated disk tests for Ubuntu Core devices
+estimated_duration: 1h30m
+include:
+    disk/detect
+    disk/stats_.*
+    disk/read_performance_.*
+    disk/storage_device_.*
+bootstrap_include:
+    device
+
+id: server-disk
+unit: test plan
+_name: Server Disk Tests
+_Description: AUtomated disk tests for Ubuntu Server
+include:
+    disk/detect                                certification-status=blocker
+    disk/stats_.*                              certification-status=blocker
+    disk/read_performance_.*                   certification-status=blocker
+    disk/smart_.*                              certification-status=non-blocker
+    disk/fstrim_.*                             certification-status=non-blocker
+    disk/disk_stress_ng_.*                     certification-status=blocker
+    disk/disk_cpu_load_.*                      certification-status=blocker
+    disk/apste_support_on_.*                   certification-status=non-blocker

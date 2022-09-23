@@ -1,0 +1,372 @@
+id: wireless-cert-full
+unit: test plan
+_name: Wireless tests
+_description:
+ Wireless connection tests
+include:
+nested_part:
+ com.canonical.certification::wireless-cert-manual
+ com.canonical.certification::wireless-cert-automated
+
+id: wireless-cert-manual
+unit: test plan
+_name: Wireless tests (Manual)
+_description:
+ Wireless connection tests (Manual)
+include:
+
+id: after-suspend-wireless-cert-full
+unit: test plan
+_name: Wireless tests (after suspend)
+_description: Wireless connection tests (after suspend)
+include:
+nested_part:
+    after-suspend-wireless-cert-automated
+
+id: wireless-cert-automated
+unit: test plan
+_name: Wireless tests
+_description: Wireless connection tests
+bootstrap_include:
+    device
+include:
+    wireless/detect
+    wireless/nm_connection_save_.*
+    wireless/wireless_scanning_.*                  certification-status=blocker
+    wireless/wireless_connection_wpa_bg_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_bg_nm_.*     certification-status=blocker
+    wireless/wireless_connection_wpa_n_nm_.*       certification-status=blocker
+    wireless/wireless_connection_open_n_nm_.*      certification-status=blocker
+    wireless/wireless_connection_wpa_ac_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_ac_nm_.*     certification-status=blocker
+    wireless/wireless_connection_wpa_ax_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_ax_nm_.*     certification-status=blocker
+    wireless/nm_connection_restore_.*
+    wireless/check_iwlwifi_microcode_crash_.*
+
+id: after-suspend-wireless-cert-automated
+unit: test plan
+_name: Wireless tests (after suspend, automated)
+_description: Wireless connection tests (after suspend, automated)
+bootstrap_include:
+    device
+include:
+    after-suspend-wireless/nm_connection_save_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_bg_nm_.*   certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_n_nm_.*     certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
+    after-suspend-wireless/nm_connection_restore_.*
+    after-suspend-wireless/check_iwlwifi_microcode_crash_.*
+
+id: wireless-cert-blockers
+unit: test plan
+_name: Wireless tests (certification blockers only)
+_description: Wireless connection tests (certification blockers only)
+bootstrap_include:
+    device
+include:
+    wireless/nm_connection_save_.*
+    wireless/wireless_scanning_.*                  certification-status=blocker
+    wireless/wireless_connection_wpa_bg_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_bg_nm_.*     certification-status=blocker
+    wireless/wireless_connection_wpa_n_nm_.*       certification-status=blocker
+    wireless/wireless_connection_open_n_nm_.*      certification-status=blocker
+    wireless/wireless_connection_wpa_ac_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_ac_nm_.*     certification-status=blocker
+    wireless/wireless_connection_wpa_ax_nm_.*      certification-status=blocker
+    wireless/wireless_connection_open_ax_nm_.*     certification-status=blocker
+    wireless/nm_connection_restore_.*
+
+id: after-suspend-wireless-cert-blockers
+unit: test plan
+_name: Wireless tests (after manual suspend, certification blockers only)
+_description:
+ Wireless connection tests (after manual suspend, certification blockers only)
+bootstrap_include:
+    device
+include:
+    after-suspend-wireless/nm_connection_save_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_bg_nm_.*   certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_n_nm_.*     certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
+    after-suspend-wireless/nm_connection_restore_.*
+
+id: wireless-full
+unit: test plan
+_name: Wireless tests
+_description: QA tests for wireless connections
+estimated_duration: 30m
+include:
+nested_part:
+    wireless-manual
+    wireless-automated
+
+id: wireless-manual
+unit: test plan
+_name: Manual tests for wireless
+_description: Manual tests wireless
+include:
+
+id: wireless-automated
+unit: test plan
+_name: Automated tests for wireless
+_description:
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
+ networks.
+include:
+    wireless/detect
+    wireless/wireless_scanning_.*
+    wireless/wireless_connection_open_ax_nm_.*
+    wireless/wireless_connection_open_ac_nm_.*
+    wireless/wireless_connection_open_bg_nm_.*
+    wireless/wireless_connection_open_n_nm_.*
+    wireless/wireless_connection_wpa_ax_nm_.*
+    wireless/wireless_connection_wpa_ac_nm_.*
+    wireless/wireless_connection_wpa_bg_nm_.*
+    wireless/wireless_connection_wpa_n_nm_.*
+    wireless/wireless_connection_open_ax_np_.*
+    wireless/wireless_connection_open_ac_np_.*
+    wireless/wireless_connection_open_bg_np_.*
+    wireless/wireless_connection_open_n_np_.*
+    wireless/wireless_connection_wpa_ax_np_.*
+    wireless/wireless_connection_wpa_ac_np_.*
+    wireless/wireless_connection_wpa_bg_np_.*
+    wireless/wireless_connection_wpa_n_np_.*
+    wireless/check_iwlwifi_microcode_crash_.*
+bootstrap_include:
+    device
+
+id: wireless-netplan-automated
+unit: test plan
+_name: Automated tests for wireless using netplan
+_description:
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
+ networks using netplan.
+include:
+    wireless/detect
+    wireless/wireless_scanning_.*
+    wireless/wireless_connection_open_ax_nm_.*
+    wireless/wireless_connection_open_ac_nm_.*
+    wireless/wireless_connection_open_bg_nm_.*
+    wireless/wireless_connection_open_n_nm_.*
+    wireless/wireless_connection_wpa_ax_nm_.*
+    wireless/wireless_connection_wpa_ac_nm_.*
+    wireless/wireless_connection_wpa_bg_nm_.*
+    wireless/wireless_connection_wpa_n_nm_.*
+    wireless/wireless_connection_open_ax_np_.*
+    wireless/wireless_connection_open_ac_np_.*
+    wireless/wireless_connection_open_bg_np_.*
+    wireless/wireless_connection_open_n_np_.*
+    wireless/wireless_connection_wpa_ax_np_.*
+    wireless/wireless_connection_wpa_ac_np_.*
+    wireless/wireless_connection_wpa_bg_np_.*
+    wireless/wireless_connection_wpa_n_np_.*
+bootstrap_include:
+    device
+
+
+# not suffixing with "-full" for backwards compatibility
+id: wireless-wifi-master-mode
+unit: test plan
+_name: QA tests for wifi master mode
+_description:
+ System as Access Point tests
+include:
+    wireless/wifi_ap_.*
+exclude:
+    wireless/wifi_ap_across_reboot_.*_setup
+    wireless/wifi_ap_across_reboot_.*_check
+bootstrap_include:
+    device
+    wifi_interface_mode
+
+id: wireless-wifi-master-mode-manual
+unit: test plan
+_name: QA tests for wifi master mode
+_description:
+ System as Access Point tests
+include:
+    wireless/wifi_ap_open_b_no_sta_.*_manual
+    wireless/wifi_ap_open_g_no_sta_.*_manual
+    wireless/wifi_ap_wpa_b_no_sta_.*_manual
+    wireless/wifi_ap_wpa_g_no_sta_.*_manual
+    wireless/wifi_ap_wpa_b_with_sta_.*_manual
+    wireless/wifi_ap_wpa_g_with_sta_.*_manual
+bootstrap_include:
+    device
+    wifi_interface_mode
+
+id: wireless-wifi-master-mode-auto
+unit: test plan
+_name: Automated tests for wifi master mode
+_description:
+ Automated tests for using System as Access Point
+include:
+    # wifi-ap set (see net-if-management resource)
+    wireless/wifi_ap_open_b_no_sta_.*_auto
+    wireless/wifi_ap_open_g_no_sta_.*_auto
+    wireless/wifi_ap_wpa_b_no_sta_.*_auto
+    wireless/wifi_ap_wpa_g_no_sta_.*_auto
+    wireless/wifi_ap_wpa_b_with_sta_.*_auto
+    wireless/wifi_ap_wpa_g_with_sta_.*_auto
+    wireless/wifi_ap_setup_wizard_.*_auto
+    # NetworkManager set (see net-if-management resource)
+    wireless/nmcli_wifi_ap_.*
+bootstrap_include:
+    device
+    wifi_interface_mode
+
+# not suffixing with "-full" for backwards compatibility
+id: after-suspend-wireless-wifi-master-mode
+unit: test plan
+_name: QA tests for wifi master mode (after suspend)
+_description:
+ System as Access Point tests
+include:
+    after-suspend-wireless/wifi_ap_.*
+bootstrap_include:
+    device
+
+id: after-suspend-wireless-wifi-master-mode-manual
+unit: test plan
+_name: QA tests for wifi master mode (after suspend)
+_description:
+ System as Access Point tests
+include:
+    after-suspend-wireless/wifi_ap_open_b_no_sta_.*_manual
+    after-suspend-wireless/wifi_ap_open_g_no_sta_.*_manual
+    after-suspend-wireless/wifi_ap_wpa_b_no_sta_.*_manual
+    after-suspend-wireless/wifi_ap_wpa_g_no_sta_.*_manual
+    after-suspend-wireless/wifi_ap_wpa_b_with_sta_.*_manual
+    after-suspend-wireless/wifi_ap_wpa_g_with_sta_.*_manual
+bootstrap_include:
+    device
+    wifi_interface_mode
+
+id: after-suspend-wireless-wifi-master-mode-auto
+unit: test plan
+_name: QA tests for wifi master mode (after suspend)
+_description:
+ System as Access Point tests
+include:
+    # wifi-ap set (see net-if-management resource)
+    after-suspend-wireless/wifi_ap_open_b_no_sta_.*_auto
+    after-suspend-wireless/wifi_ap_open_g_no_sta_.*_auto
+    after-suspend-wireless/wifi_ap_wpa_b_no_sta_.*_auto
+    after-suspend-wireless/wifi_ap_wpa_g_no_sta_.*_auto
+    after-suspend-wireless/wifi_ap_wpa_b_with_sta_.*_auto
+    after-suspend-wireless/wifi_ap_wpa_g_with_sta_.*_auto
+    after-suspend-wireless/wifi_ap_setup_wizard_.*_auto
+    # NetworkManager set (see net-if-management resource)
+    after-suspend-wireless/nmcli_wifi_ap_.*
+bootstrap_include:
+    device
+    wifi_interface_mode
+
+id: wireless-wowlan-full
+unit: test plan
+_name: QA tests for WoWLAN
+_description:
+  Wake on Wireless LAN (WoWLAN) tests
+include:
+nested_part:
+  wireless-wowlan-manual
+  wireless-wowlan-automated
+
+id: wireless-wowlan-manual
+unit: test plan
+_name: Manual QA tests for WoWLAN
+_description:
+  Manual Wake on Wireless LAN (WoWLAN) tests
+include:
+    wireless/wowlan_.*
+bootstrap_include:
+    device
+
+id: wireless-wowlan-automated
+unit: test plan
+_name: Automated QA tests for WoWLAN
+_description:
+  Automated Wake on Wireless LAN (WoWLAN) tests
+include:
+
+id: after-suspend-wireless-full
+unit: test plan
+_name: Wireless tests (after suspend)
+_description: QA tests for wireless connections
+estimated_duration: 30m
+include:
+nested_part:
+    after-suspend-wireless-manual
+    after-suspend-wireless-automated
+
+id: after-suspend-wireless-manual
+unit: test plan
+_name: Manual tests for wireless (after suspend)
+_description: Manual tests wireless
+include:
+
+id: after-suspend-wireless-automated
+unit: test plan
+_name: Automated tests for wireless (after suspend)
+_description:
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
+ networks.
+include:
+    after-suspend-wireless/wireless_scanning_.*
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*
+    after-suspend-wireless/wireless_connection_open_bg_nm_.*
+    after-suspend-wireless/wireless_connection_open_n_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
+    after-suspend-wireless/wireless_connection_open_ax_np_.*
+    after-suspend-wireless/wireless_connection_open_ac_np_.*
+    after-suspend-wireless/wireless_connection_open_bg_np_.*
+    after-suspend-wireless/wireless_connection_open_n_np_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_np_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_np_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_np_.*
+    after-suspend-wireless/wireless_connection_wpa_n_np_.*
+    after-suspend-wireless/check_iwlwifi_microcode_crash_.*
+bootstrap_include:
+    device
+
+id: after-suspend-wireless-netplan-automated
+unit: test plan
+_name: Automated tests for wireless using netplan (after suspend)
+_description:
+ Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
+ networks using netplan.
+include:
+    after-suspend-wireless/wireless_scanning_.*
+    after-suspend-wireless/wireless_connection_open_ax_nm_.*
+    after-suspend-wireless/wireless_connection_open_ac_nm_.*
+    after-suspend-wireless/wireless_connection_open_bg_nm_.*
+    after-suspend-wireless/wireless_connection_open_n_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
+    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
+    after-suspend-wireless/wireless_connection_open_ax_np_.*
+    after-suspend-wireless/wireless_connection_open_ac_np_.*
+    after-suspend-wireless/wireless_connection_open_bg_np_.*
+    after-suspend-wireless/wireless_connection_open_n_np_.*
+    after-suspend-wireless/wireless_connection_wpa_ax_np_.*
+    after-suspend-wireless/wireless_connection_wpa_ac_np_.*
+    after-suspend-wireless/wireless_connection_wpa_bg_np_.*
+    after-suspend-wireless/wireless_connection_wpa_n_np_.*
+bootstrap_include:
+    device

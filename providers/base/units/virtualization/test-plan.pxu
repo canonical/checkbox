@@ -1,0 +1,19 @@
+id: virtualization-full
+unit: test plan
+_name: Virtualization tests
+include:
+nested_part:
+    virtualization-manual
+    virtualization-automated
+
+id: virtualization-manual
+unit: test plan
+_name: Manual virtualization tests
+include:
+
+id: virtualization-automated
+unit: test plan
+_name: Automated virtualization tests
+include:
+    virtualization/verify_lxd
+    virtualization/verify_lxd_vm

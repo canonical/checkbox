@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_card_reader
+_name: Media Card Reader
+value-type: bool

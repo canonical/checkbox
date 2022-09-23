@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_rpi_camera
+_name: RaspberryPi Camera Module
+value-type: bool
+
+unit: manifest entry
+id: has_camera
+_name: Camera/Capture Device
+value-type: bool

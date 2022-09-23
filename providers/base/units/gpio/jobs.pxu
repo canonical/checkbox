@@ -1,0 +1,42 @@
+# This job currently has a template filter so that devices which do not yet
+# have a pin definition file do not generate fails, when all devices have a
+# definition this could be removed
+unit: template
+template-resource: com.canonical.certification::model_assertion
+template-filter: model_assertion.model in ("pi2", "pi3", "ubuntu-core-18-pi2", "ubuntu-core-18-pi3")
+template-unit: job
+id: gpio/sysfs_loopback_pairs_{model}
+_summary: Test GPIO lines exposed on headers can be controlled via sysfs
+plugin: shell
+user: root
+category_id: gpio
+command:
+  gpio_sysfs_loopback.py {model}
+estimated_duration: 20.0
+flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.gpio_loopback == 'True'
+
+
+# Filtering this job by the same devices as above as uses the same pin 
+# definition file and uses the RPi python module
+unit: template
+template-resource: com.canonical.certification::model_assertion
+template-filter: model_assertion.model in ("pi2", "pi3", "ubuntu-core-18-pi2", "ubuntu-core-18-pi3")
+template-unit: job
+id: gpio/gpiomem_loopback_pairs_{model}
+_summary: Test GPIO lines exposed on headers can be controlled via /dev/gpiomem
+plugin: shell
+user: root
+category_id: gpio
+command:
+  gpio_gpiomem_loopback.py {model}
+estimated_duration: 20.0
+flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.gpio_loopback == 'True'
+# If starting to test confinement then this connection will be requried:
+#requires:
+#  {%- if __on_ubuntucore__ %}
+#  connections.slot == 'snapd:gpio-memory-control' and connections.plug == 'checkbox-plano:gpio-memory-control'
+#  {% endif -%}

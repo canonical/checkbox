@@ -1,0 +1,415 @@
+unit: job
+id: bluetooth/detect
+category_id: com.canonical.plainbox::bluetooth
+_summary: Make sure at least one bluetooth device is detected
+plugin: shell
+command:
+  bt_list_adapters.py && udev_resource.py -f BLUETOOTH
+estimated_duration: 2s
+flags: preserve-locale
+requires: manifest.has_bt_adapter == 'True'
+imports: from com.canonical.plainbox import manifest
+
+id: bluetooth/bluez-controller-detect
+category_id: com.canonical.plainbox::bluetooth
+_summary: Check bluez lists a controller if rfkill detects one
+plugin: shell
+user: root
+depends: bluetooth/detect
+template-engine: jinja2
+requires:
+  package.name == 'bluez' or snap.name == 'bluez'
+  {%- if __on_ubuntucore__ %}
+  connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
+  {% endif -%}
+command:
+  bluez_list_adapters.py
+estimated_duration: 2s
+flags: preserve-locale
+
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/detect-output
+estimated_duration: 1.2
+requires:
+ package.name == 'bluez' or snap.name == 'bluez'
+ device.category == 'BLUETOOTH'
+command:
+ if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then
+   echo "rfkill shows BT is hard blocked"
+ fi
+ if rfkill list bluetooth | grep -q 'Soft blocked: yes'; then
+   echo "rfkill shows BT is soft blocked, removing before testing"
+   rfkill unblock bluetooth
+   sleep 3
+ fi
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}' | tee "$PLAINBOX_SESSION_SHARE"/bluetooth_address)
+ echo "$output"
+ if [ -z "$output" ]; then
+     echo "BT hardware not available"
+     exit 1
+ fi
+_description:
+ Automated test to store bluetooth device information in checkbox report
+
+plugin: manual
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/browse-files
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     This test will check that bluetooth connection works correctly
+ STEPS:
+     1. Enable bluetooth on any mobile device (PDA, smartphone, etc.)
+     2. Click on the bluetooth icon in the menu bar
+     3. Select 'Setup new device'
+     4. Look for the device in the list and select it
+     5. In the device write the PIN code automatically chosen by the wizard
+     6. The device should pair with the computer
+     7. Right-click on the bluetooth icon and select browse files
+     8. Authorize the computer to browse the files in the device if needed
+     9. You should be able to browse the files
+ VERIFICATION:
+     Did all the steps work?
+
+plugin: manual
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/file-transfer
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     This test will check that you can transfer information through a bluetooth connection
+ STEPS:
+     1. Enable bluetooth on a target device (e.g. another laptop) and DUT (device under test)
+     2. Launch bluetooth settings from menu bar
+     3. Select target device from Device options for connection establishing
+     4. Confirm PIN code on both DUT and target device
+     5. Target device is connected
+     7. Click target device in device list
+     8. Click 'Send Files...' and choose a file to send in DUT
+ VERIFICATION:
+     Were file sent to target device ~/Downloads folder correctly?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/audio-a2dp
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  idx=$(pactl list cards short | awk '/bluez/{print $1}')
+  bt_sink=$(pactl list sinks short | awk '/bluez/{print $2}')
+  pactl set-card-profile "$idx" a2dp
+  pactl set-default-sink "$bt_sink"
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check the High Fidelity Playback (A2DP) capability of your Bluetooth device,
+     to see if you can hear audio from it.
+ STEPS:
+     1. Enable and pair the bluetooth headset
+     2. Click "Test" to play a brief tone on your Bluetooth device, if it failed to set the Mode to A2DP,
+        please select the device and change it manually in the "Sound Settings"
+ VERIFICATION:
+     Did you hear the tone?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/audio
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+command: audio_bluetooth_loopback_test.sh
+_description:
+ PURPOSE:
+     This test will check the Telephony Duplex capability of your bluetooth device,
+     to see if you can record and hear audio from it simultaneously.
+ STEPS:
+     1. Enable the bluetooth headset
+     2. Click on the bluetooth icon in the menu bar
+     3. Select "Setup new device"
+     4. Look for the device in the list and pair it
+     5. Click the sound icon
+     6. Click "Sound Settings"
+     7. Select device and ensure Mode is set to "Telephony Duplex (HSP/HFP)"
+     8. Click "Test" to record and play for five seconds in the bluetooth device
+ VERIFICATION:
+     Did you hear the sound you recorded in the bluetooth with a slight intended delay?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/HID
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+command: keyboard_test.py
+_description:
+ PURPOSE:
+     This test will check that you can use a BlueTooth HID device
+ STEPS:
+     1. Enable either a BT mouse or keyboard
+     2. Click on the bluetooth icon in the menu bar
+     3. Select 'Setup new device'
+     4. Look for the device in the list and select it
+     5. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     6. For keyboards, commence the test to launch a small tool. Enter some text into the tool and close it.
+ VERIFICATION:
+     Did the device work as expected?
+
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/file_transfer_stress
+estimated_duration: 300.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in plainbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  bluetooth_transfer_stress.sh "$BTDEVADDR"
+_description:
+ This is an automated Bluetooth file transfer test. It sends a large file
+ to the device specified by the BTDEVADDR environment variable, then
+ retrieves it again using Bluetooth and verifies the checksum to ensure the
+ transfer didn't corrupt the file.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth4/HOGP-mouse
+depends: bluetooth/detect-output
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_bt_smart == 'True'
+ package.name == 'bluez'
+estimated_duration: 30.0
+command: bt_connect.py --mouse
+_purpose:
+     This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart mouse.
+_steps:
+     1. Enable a Bluetooth smart mouse, and put it into paring mode.
+     2. Commence the test to do the auto-pairing, you will be asked to select targeting mouse from the list.
+     3. After it's paired and connected, perform actions such as moving the pointer, right and left button clicks and double clicks.
+_verification:
+     Did the Bluetooth Smart mouse work as expected?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth4/HOGP-keyboard
+depends: bluetooth/detect-output
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_bt_smart == 'True'
+ package.name == 'bluez'
+estimated_duration: 30.0
+command: bt_connect.py --keyboard
+_purpose:
+     This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart keyboard.
+_steps:
+     1. Enable a Bluetooth Smart keyboard, and put it into paring mode.
+     2. Commence the test to do the auto-pairing, you will be asked to select targeting keyboard from the list.
+     3. After it's paired and connected, enter some text with your keyboard.
+_verification:
+     Did the Bluetooth Smart keyboard work as expected?
+
+unit: template
+template-resource: device
+template-filter: device.category == 'BLUETOOTH'
+template-engine: jinja2
+template-unit: job
+id: bluetooth4/beacon_notification_{{ path }}
+_summary: Test system can get beacon notifications on the {{ path.split('/')[-1] }} adapter
+environ: ADV_SVC_UUID SVC_UUID MSRMT_UUID
+command:
+ gatt-notify-test.py {{ path.split('/')[-1] }} "$ADV_SVC_UUID" "$SVC_UUID $MSRMT_UUID"
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::bluetooth
+estimated_duration: 30
+requires:
+ package.name == 'bluez' or snap.name == 'bluez'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
+ {% endif -%}
+
+unit: template
+template-resource: device
+template-filter: device.category == 'BLUETOOTH'
+template-unit: job
+id: bluetooth4/beacon_eddystone_url_{interface}
+_summary: Test system can get beacon EddyStone URL advertisements on the {interface} adapter
+command:
+ checkbox-support-eddystone_scanner -D {interface}
+plugin: shell
+user: root
+flags: also-after-suspend
+category_id: com.canonical.plainbox::bluetooth
+estimated_duration: 10
+
+unit: template
+template-resource: bluez-internal-rfcomm-tests
+template-unit: job
+id: bluetooth/bluez-internal-rfcomm-tests_{bluez-internal-rfcomm-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-rfcomm-test}
+_description:
+ Runs a specific test from the rfcomm test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ rfcomm-tester -p "{bluez-internal-rfcomm-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-hci-tests
+template-unit: job
+id: bluetooth/bluez-internal-hci-tests_{bluez-internal-hci-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-hci-test}
+_description:
+ Runs a specific test from the hci test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ hci-tester -p "{bluez-internal-hci-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-mgmt-tests
+template-unit: job
+id: bluetooth/bluez-internal-mgmt-tests_{bluez-internal-mgmt-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-mgmt-test}
+_description:
+ Runs a specific test from the mgmt test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ mgmt-tester -p "{bluez-internal-mgmt-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-uc-tests
+template-unit: job
+id: bluetooth/bluez-internal-uc-tests_{bluez-internal-uc-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-uc-test}
+_description:
+ Runs a specific test from the user channel test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ userchan-tester -p "{bluez-internal-uc-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+unit: template
+template-resource: bluez-internal-bnep-tests
+template-unit: job
+id: bluetooth/bluez-internal-bnep-tests_{bluez-internal-bnep-test}
+category_id: bluetooth_bluez5_selftests
+_summary: BlueZ-{bluez-internal-bnep-test}
+_description:
+ Runs a specific test from the bnep test suite
+plugin: shell
+user: root
+flags: also-after-suspend
+command:
+ bnep-tester -p "{bluez-internal-bnep-test}"
+requires: device.category == 'BLUETOOTH'
+estimated_duration: 2.0
+
+id: bluetooth/keyboard
+_summary: Bluetooth keyboard works
+_purpose:
+ Check if bluetooth keyboard works
+_verification:
+ Did the keyboard work?
+plugin: user-verify
+user: root
+flags: also-after-suspend
+command: test_bt_keyboard.py
+category_id: com.canonical.plainbox::bluetooth
+estimated_duration: 1m
+
+id: bluetooth/keyboard-manual
+_summary: Bluetooth keyboard manual test
+_purpose:
+ Check bluetooth input device works
+_steps:
+ 1. Run the following command to start bluetoothctl console:
+ sudo bluetoothctl -a
+ ***Following steps are run in bluetoothctl console***
+ 2. Power on the device:
+ power on
+ 3. Register agent for keyboard:
+ agent KeyboardOnly
+ default-agent
+ 4. Put controller in pairable mode:
+ pairable on
+ 5. Scan nearby bluetooth device:
+ scan on
+ 6. Stop Scanning after bluetooth keyboard is found:
+ scan off
+ 7. Pair bluetooth
+ pair [MAC address of bluetooth keyboard]
+ 8. Enter PIN Code on bluetooth keyboard if needed
+ 9. Trust the bluetooth keyboard
+ trust [MAC address of bluetooth keyboard]
+ 10. Connect to bluetooth keyboard:
+ connect [MAC address of bluetooth keyboard]
+ 11. Quit bluetoothctl console
+ quit
+ 12. Use bluetooth keyboard to input
+ **for headless please check the input outside the bluetooth console by using:
+ $ sudo cat /dev/tty1
+_verification:
+ Confirm characters from Bluetooth input device are displayed correctly
+plugin: manual
+flags: also-after-suspend
+category_id: com.canonical.plainbox::bluetooth
+estimated_duration: 5m
+
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/bluetooth_obex_send
+depends: bluetooth/detect-output
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ executable.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
+    exit 1
+  fi
+  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
+flags: also-after-suspend
+_summary: Bluetooth OBEX send
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable

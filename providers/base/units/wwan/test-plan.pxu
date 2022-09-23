@@ -1,0 +1,63 @@
+id: wwan-full
+unit: test plan
+_name: Wwan tests
+_description: QA wwan tests for Snappy Ubuntu Core devices
+include:
+    # Note this test require snap calling snap support
+    wwan/verify-sim-info-.*
+nested_part:
+    wwan-manual
+    wwan-automated
+
+id: wwan-automated
+unit: test plan
+_name: Automated wwan tests
+_description: Automated wwan tests for Snappy Ubuntu Core devices
+include:
+    # Note these tests require snap calling snap support
+    wwan/detect
+    wwan/gsm-connection-.*-auto
+    wwan/check-sim-present-.*-auto
+bootstrap_include:
+    wwan_resource
+
+id: after-suspend-wwan-full
+unit: test plan
+_name: Wwan tests (after suspend)
+_description: QA wwan tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-wwan-automated
+    after-suspend-wwan-manual
+
+id: after-suspend-wwan-automated
+unit: test plan
+_name: Automated wwan tests (after suspend)
+_description: Automated wwan tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-wwan/detect
+    after-suspend-wwan/gsm-connection-.*-auto
+bootstrap_include:
+    wwan_resource
+
+id: wwan-manual
+unit: test plan
+_name: Manual wwan tests
+_description: Manual wwan tests for Snappy Ubuntu Core devices
+include:
+    wwan/detect-manual
+    wwan/gsm-connection-manual
+    wwan/check-sim-present-manual
+    wwan/scan-networks-manual
+    wwan/gsm-connection-interrupted-manual
+
+id: after-suspend-wwan-manual
+unit: test plan
+_name: Manual wwan tests (after suspend)
+_description: Manual wwan tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-wwan/detect-manual
+    after-suspend-wwan/gsm-connection-manual
+    after-suspend-wwan/check-sim-present-manual
+    after-suspend-wwan/scan-networks-manual
+    after-suspend-wwan/gsm-connection-interrupted-manual

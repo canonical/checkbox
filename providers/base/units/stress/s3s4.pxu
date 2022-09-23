@@ -1,0 +1,152 @@
+# Copyright 2016 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+
+unit: category
+id: stress-tests/suspend
+_name: Suspend (S3) Stress Test
+
+unit: category
+id: stress-tests/hibernate
+_name: Hibernate (S4) Stress Test
+
+
+id: stress_s3_iterations
+category_id: stress-tests/suspend
+_description:
+  Resource job meant to be used in the S3 stress templates
+plugin: resource
+environ: STRESS_S3_ITERATIONS
+command:
+ echo "s3_iterations: ${STRESS_S3_ITERATIONS:-30}"
+ python3 -c 'import platform;print("fwts: {}".format("supported" if platform.machine() in ["x86_64", "i386"] else "unsupported"))'
+estimated_duration: 1s
+flags: preserve-locale
+
+id: stress_s4_iterations
+category_id: stress-tests/suspend
+_description:
+  Resource job meant to be used in the S4 stress templates
+plugin: resource
+environ: STRESS_S4_ITERATIONS
+command:
+ echo "s4_iterations: ${STRESS_S4_ITERATIONS:-30}"
+ python3 -c 'import platform;print("fwts: {}".format("supported" if platform.machine() in ["x86_64", "i386"] else "unsupported"))'
+estimated_duration: 1s
+flags: preserve-locale
+
+
+unit: template
+template-resource: stress_s3_iterations
+template-unit: job
+template-engine: jinja2
+plugin: shell
+flags: preserve-locale
+category_id: stress-tests/suspend
+id: stress-tests/suspend_{{ s3_iterations }}_cycles
+imports:
+  from com.canonical.certification import sleep
+  from com.canonical.certification import rtc
+requires:
+  sleep.mem == 'supported'
+  rtc.state == 'supported'
+estimated_duration: 2400.0
+environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH
+user: root
+command:
+ {%- if fwts == "supported" %}
+ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+ set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_{{ s3_iterations }}_cycles.log -f none -s s3 --s3-device-check --s3-device-check-delay="${STRESS_S3_WAIT_DELAY:-45}" --s3-sleep-delay="${STRESS_S3_SLEEP_DELAY:-30}" --s3-multiple={{ s3_iterations }} -j "$SNAP"/share/fwts | tee "$PLAINBOX_SESSION_SHARE"/suspend_{{ s3_iterations }}_cycles_times.log
+ {%- else %}
+ for i in {1..{{ s3_iterations }}};
+ do
+    echo "Iteration $i"
+    rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
+ done
+ {% endif -%}
+_description:
+ PURPOSE:
+    This is an automated stress test that will force the system to suspend/resume for {{ s3_iterations }} cycles.
+
+unit: template
+template-resource: stress_s3_iterations
+template-unit: job
+plugin: shell
+flags: preserve-locale
+category_id: stress-tests/suspend
+id: stress-tests/suspend-{s3_iterations}-cycles-log-check
+after: stress-tests/suspend_{s3_iterations}_cycles
+requires: cpuinfo.platform in ("i386", "x86_64")
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
+_description:
+ Automated check of the {s3_iterations} cycles suspend log for errors detected by fwts.
+
+unit: template
+template-resource: stress_s3_iterations
+template-unit: job
+plugin: attachment
+flags: preserve-locale
+category_id: stress-tests/suspend
+id: stress-tests/suspend-{s3_iterations}-cycles-log-attach
+estimated_duration: 1.0
+after: stress-tests/suspend_{s3_iterations}_cycles
+requires: cpuinfo.platform in ("i386", "x86_64")
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
+_description:
+ Attaches the log from the {s3_iterations} cycles Suspend/Resume test if it exists
+
+
+unit: template
+template-resource: stress_s4_iterations
+template-unit: job
+template-engine: jinja2
+plugin: shell
+flags: preserve-locale
+category_id: stress-tests/hibernate
+id: stress-tests/hibernate_{{ s4_iterations }}_cycles
+imports:
+  from com.canonical.certification import sleep
+  from com.canonical.certification import rtc
+requires:
+  sleep.disk == 'supported'
+  rtc.state == 'supported'
+estimated_duration: 5400.00
+environ: PLAINBOX_SESSION_SHARE STRESS_S4_SLEEP_DELAY STRESS_S4_WAIT_DELAY LD_LIBRARY_PATH
+user: root
+command:
+ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+ checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_{{ s4_iterations }}_cycles.log -f none -s s4 --s4-device-check --s4-device-check-delay="${STRESS_S4_WAIT_DELAY:-45}" --s4-sleep-delay="${STRESS_S4_SLEEP_DELAY:-120}" --s4-multiple={{ s4_iterations }} -j "$SNAP"/share/fwts
+_description:
+ PURPOSE:
+    This is an automated stress test that will force the system to hibernate/resume for {{ s4_iterations }} cycles
+
+unit: template
+template-resource: stress_s4_iterations
+template-unit: job
+plugin: shell
+flags: preserve-locale
+category_id: stress-tests/hibernate
+id: stress-tests/hibernate-{s4_iterations}-cycles-log-check
+after: stress-tests/hibernate_{s4_iterations}_cycles
+requires: cpuinfo.platform in ("i386", "x86_64")
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v s4 "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
+_description:
+ Automated check of the {s4_iterations} cycles hibernate log for errors detected by fwts.
+
+unit: template
+template-resource: stress_s4_iterations
+template-unit: job
+plugin: attachment
+flags: preserve-locale
+category_id: stress-tests/hibernate
+id: stress-tests/hibernate-{s4_iterations}-cycles-log-attach
+estimated_duration: 1.0
+after: stress-tests/hibernate_{s4_iterations}_cycles
+requires: cpuinfo.platform in ("i386", "x86_64")
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
+_description:
+ Attaches the log from the {s4_iterations} cycles Hibernate/Resume test if it exists

@@ -1,0 +1,41 @@
+plugin: user-interact
+category_id: com.canonical.plainbox::esata
+id: esata/insert
+command: removable_storage_watcher.py insert ata_serial_esata
+_description:
+ PURPOSE:
+     This test will check the system can detect the insertion of an eSATA HDD
+ STEPS:
+     1. Click 'Test' to begin the test. This test will
+        timeout and fail if the insertion has not been detected within 20 seconds.
+     2. Plug an eSATA HDD into an available eSATA port.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the automatically
+     selected result
+
+plugin: shell
+category_id: com.canonical.plainbox::esata
+id: esata/storage-test
+user: root
+depends: esata/insert
+command: removable_storage_test.py -s 268400000 ata_serial_esata
+_description:
+ This is an automated test which performs read/write operations on an attached
+ eSATA HDD
+
+plugin: user-interact
+category_id: com.canonical.plainbox::esata
+id: esata/remove
+depends: esata/insert
+command: removable_storage_watcher.py remove ata_serial_esata
+_description:
+ PURPOSE:
+     This test will check the system can detect the removal of an eSATA HDD
+ STEPS:
+     1. Click 'Test' to begin the test. This test will timeout and fail if
+        the removal has not been detected within 20 seconds.
+     2. Remove the previously attached eSATA HDD from the eSATA port.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the automatically
+     selected result
+

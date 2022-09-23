@@ -1,0 +1,351 @@
+plugin: shell
+category_id: com.canonical.plainbox::usb
+id: usb/detect
+requires:
+ cpuinfo.platform != 's390x'
+estimated_duration: 1.0
+command:
+ set -o pipefail
+ if [[ -v SNAP ]]; then
+     checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids 2>/dev/null | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
+ else
+     lsusb 2>/dev/null | sort || echo "No USB devices were detected" >&2
+ fi
+_summary: Display USB devices attached to SUT
+_description: Detects and shows USB devices attached to this system.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::usb
+id: usb/disk_detect
+depends: usb/detect
+requires:
+ package.name == 'udisks2' or snap.name == 'udisks2'
+estimated_duration: 1.0
+command: removable_storage_test.py -l usb
+_description:
+ PURPOSE:
+     This test will check that your system detects USB storage devices.
+ STEPS:
+     1. Plug in one or more USB keys or hard drives.
+     2. Click on "Test".
+ VERIFICATION:
+     Were the drives detected?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::usb
+id: usb/HID
+depends: usb/detect
+estimated_duration: 1.0
+command: keyboard_test.py
+_description:
+ PURPOSE:
+     This test will check that you can use a USB HID device
+ STEPS:
+     1. Enable either a USB mouse or keyboard
+     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     3. For keyboards, commence the test to launch a small tool. Type some text and close the tool.
+ VERIFICATION:
+     Did the device work as expected?
+
+id: usb/insert
+template-engine: jinja2
+_summary: USB 2.0 storage device insertion detected
+_purpose:
+ Check system can detect USB 2.0 storage when inserted.
+ NOTE: Make sure the USB storage device has a partition before starting
+ the test.
+_steps:
+ 1. Press continue
+ 2. Wait until the message "INSERT NOW" is printed on the screen
+ 3. Connect USB 2.0 storage device
+_verification:
+ The verification of this test is automated.
+ Do not change the automatically selected result.
+plugin: user-interact
+flags: also-after-suspend
+user: root
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion usb2
+ {%- else %}
+     removable_storage_watcher.py --unmounted insert usb
+ {% endif -%}
+category_id: com.canonical.plainbox::usb
+estimated_duration: 120
+
+id: usb3/insert
+template-engine: jinja2
+requires:
+ usb.usb3 == 'supported'
+_summary: USB 3.0 storage device insertion detected
+_purpose:
+ Check system can detect insertion of a USB 3.0 storage device.
+ NOTE: Make sure the USB storage device has a partition before starting
+ the test.
+_steps:
+ 1. Press continue
+ 2. Wait until the message "INSERT NOW" is printed on the screen
+ 3. Connect USB 3.0 storage device
+_verification:
+ The verification of this test is automated.
+ Do not change the automatically selected result.
+plugin: user-interact
+flags: also-after-suspend
+user: root
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher insertion usb3
+ {%- else %}
+     removable_storage_watcher.py --unmounted -m 500000000 insert usb
+ {% endif -%}
+category_id: com.canonical.plainbox::usb
+estimated_duration: 120
+
+id: usb/remove
+template-engine: jinja2
+_summary: USB 2.0 storage device removal detected
+_purpose:
+ Check system can detect removal of a USB 2.0 storage device
+_steps:
+ 1. Press continue
+ 2. Wait until the message "REMOVE NOW" is printed on the screen
+ 3. Disconnect USB 2.0 storage device
+_verification:
+ The verification of this test is automated.
+ Do not change the automatically selected result.
+plugin: user-interact
+depends: usb/insert
+flags: also-after-suspend
+user: root
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal usb2
+ {%- else %}
+     removable_storage_watcher.py --unmounted remove usb
+ {% endif -%}
+category_id: com.canonical.plainbox::usb
+estimated_duration: 120
+
+id: usb3/remove
+template-engine: jinja2
+_summary: USB 3.0 storage device removal detected
+_purpose:
+ Check system can detect removal of a USB 3.0 storage device
+_steps:
+ 1. Press continue
+ 2. Wait until the message "REMOVE NOW" is printed on the screen
+ 3. Disconnect USB 3.0 storage device
+_verification:
+ The verification of this test is automated.
+ Do not change the automatically selected result.
+plugin: user-interact
+flags: also-after-suspend
+depends: usb3/insert
+user: root
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-run_watcher removal usb3
+ {%- else %}
+     removable_storage_watcher.py --unmounted -m 500000000 remove usb
+ {% endif -%}
+category_id: com.canonical.plainbox::usb
+estimated_duration: 120
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::usb
+id: usb/storage-transfer
+depends: usb/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test.py -s 268400000 usb
+_description:
+ PURPOSE:
+     This test will check your USB connection.
+ STEPS:
+     1. Plug a USB HDD or thumbdrive into the computer.
+     2. An icon should appear on the Launcher.
+     3. Click "Test" to begin the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::usb
+id: usb3/storage-transfer
+requires:
+ usb.usb3 == 'supported'
+depends: usb3/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test.py -s 268400000 -m 500000000 usb
+_description:
+ PURPOSE:
+     This test will check your USB 3.0 connection.
+ STEPS:
+     1. Plug a USB 3.0 HDD or thumbdrive into a USB 3.0 port in the computer.
+     2. An icon should appear on the Launcher.
+     3. Click "Test" to begin the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+id: usb/storage-automated
+template-engine: jinja2
+_summary: USB 2.0 storage device read & write works
+_purpose:
+ Check system can read/write to USB 2.0 storage correctly
+_steps:
+ 1. This task is fully automatic and need USB 2.0 insertion test was applied first.
+_verification:
+ This task is fully automatic and will verify the result for you.
+plugin: shell
+depends: usb/insert
+flags: also-after-suspend
+user: root
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 usb
+ {% endif -%}
+category_id: com.canonical.plainbox::usb
+estimated_duration: 300
+
+id: usb3/storage-automated
+template-engine: jinja2
+_summary: USB 3.0 storage device read & write works
+_purpose:
+ Check system can read/write to USB 3.0 storage devices correctly
+_steps:
+ 1. This task is fully automatic and need USB 3.0 insertion test was applied first.
+_verification:
+ This task is fully automatic and will verify the result for you.
+plugin: shell
+depends: usb3/insert
+flags: also-after-suspend
+user: root
+command:
+ {%- if __on_ubuntucore__ %}
+     checkbox-support-usb_read_write
+ {%- else %}
+     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+ {% endif -%}
+category_id: com.canonical.plainbox::usb
+estimated_duration: 300
+
+plugin: shell
+category_id: com.canonical.plainbox::usb
+id: usb/storage-preinserted
+user: root
+estimated_duration: 45.0
+command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 usb
+flags: also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
+requires:
+ cpuinfo.platform != 's390x'
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_usb_storage == 'True'
+_summary:
+ Test USB 2.0 or 1.1 ports
+_description:
+ Tests USB 2.0 or 1.1 ports on a system by doing write/read/compare tests on
+ randomly created data.  It requires that a USB stick is plugged into an
+ available USB port before running the certification suite.
+_siblings:
+    [{ "id": "usb/storage-server",
+       "requires": "cpuinfo.platform != 's390x'\npackage.name == 'udisks2' or snap.name == 'udisks2'" }]
+
+plugin: shell
+category_id: com.canonical.plainbox::usb
+id: usb3/storage-preinserted
+user: root
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ cpuinfo.platform != 's390x'
+ usb.usb3 == 'supported'
+ package.name == 'udisks2' or snap.name == 'udisks2'
+ manifest.has_usb_storage == 'True'
+estimated_duration: 45.0
+command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+_summary: 
+ Test USB 3.0 or 3.1 ports
+_description:
+ Tests USB 3.0 ports on a system by doing write/read/compare tests on
+ randomly created data. It requires that a USB stick is plugged into an
+ available USB port before running the certification suite. Additionally, it
+ will only work with USB sticks and ports rated for USB 3.0 speeds or faster.
+_siblings:
+    [{ "id": "usb3/storage-server",
+       "requires": "cpuinfo.platform != 's390x'\nusb.usb3 == 'supported'\npackage.name == 'udisks2' or snap.name == 'udisks2'" }]
+
+plugin: manual
+category_id: com.canonical.plainbox::usb
+id: usb/panels
+_description:
+ PURPOSE:
+     This test will check your USB connection.
+ STEPS:
+     1. Connect a USB storage device to an external USB slot on this computer.
+     2. An icon should appear on the Launcher.
+     3. Confirm that the icon appears.
+     4. Eject the device.
+     5. Repeat with each external USB slot.
+ VERIFICATION:
+     Do all USB slots work with the device?
+
+plugin: shell
+category_id: com.canonical.plainbox::usb
+id: usb/performance
+depends: usb/insert
+user: root
+estimated_duration: 45.00
+command: removable_storage_test.py -s 268400000 -p 15 usb
+_description:
+ This test will check that your USB 2.0 port transfers data at a
+ minimum expected speed.
+
+id: usb/storage-detect
+category_id: com.canonical.plainbox::usb
+plugin: shell
+_summary: Detect storage partitions on a device on the USB bus
+command:
+  udev_resource.py -f PARTITION | grep "bus: usb"
+estimated_duration: 1.0
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_usb_storage == 'True'
+
+unit: template
+template-resource: removable_partition
+template-filter: "usb" in removable_partition.bus
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::usb
+id: usb/storage-preinserted-{symlink_uuid}
+user: root
+estimated_duration: 45.0
+flags: also-after-suspend reset-locale
+command: USB_RWTEST_PARTITIONS={symlink_uuid} checkbox-support-usb_read_write
+_summary:
+ Test USB storage on 2.0 or 1.1 ports detected by udev ({symlink_uuid})
+_description:
+ Tests USB 2.0 or 1.1 ports on a system by doing write/read/compare tests on
+ randomly created data.  It requires that a USB stick is plugged into an
+ available USB port before running the certification suite.
+depends: usb/storage-detect
+
+id: usb/hid
+_summary: USB keyboard works
+_purpose:
+ Check USB input device works
+_steps:
+ 1. Connect USB keyboard
+ 2. Input somethings with USB keyboard
+_verification:
+ What just input is displayed correctly
+plugin: manual
+flags: also-after-suspend
+category_id: com.canonical.plainbox::usb
+estimated_duration: 60

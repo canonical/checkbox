@@ -1,0 +1,682 @@
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/cpu_stress_test
+estimated_duration: 7200.0
+requires:
+ package.name == 'stress'
+user: root
+command: num_vm=$(awk '/MemTotal/ {x=$2/262144; print ((x == int(x)) ? x : int(x) +1)}' /proc/meminfo); vm_bytes=$(($(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)/num_vm/4))M; stress --cpu "$(cpuinfo_resource.py | awk '/count:/ {print $2}')" --vm "$num_vm" --vm-bytes $vm_bytes --timeout 7200s
+_description:
+ Simulate high system load using the 'stress' tool to exercise the CPU for
+ several hours. The test is considered passed if the system does not freeze or
+ abend.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/cpu_stress_ng_test
+estimated_duration: 7200.0
+requires:
+ executable.name == 'stress-ng'
+user: root
+environ: STRESS_NG_CPU_TIME
+command:
+  if [ -n "$STRESS_NG_CPU_TIME" ]
+  then
+    echo "Found STRESS_NG_CPU_TIME env var, stress_ng cpu running time is now: $STRESS_NG_CPU_TIME seconds"
+    systemd-inhibit stress_ng_test.py cpu --base-time "$STRESS_NG_CPU_TIME"
+  else
+    echo STRESS_NG_CPU_TIME env var is not found, stress_ng cpu running time is default value
+    systemd-inhibit stress_ng_test.py cpu --base-time 7200
+  fi
+_summary:
+ Stress of CPUs (very long runtime)
+_description:
+ Impose a high system load using the 'stress_ng' tool to exercise the CPU for
+ several hours. The test is considered passed if the system does not freeze and
+ if the stress_ng tool does not report errors.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/hibernate_30_cycles
+estimated_duration: 5400.00
+depends:
+ power-management/hibernate_advanced
+requires:
+ sleep.disk == 'supported'
+ rtc.state == 'supported'
+environ: PLAINBOX_SESSION_SHARE
+user: root
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=30
+ else
+  echo "Calling sleep_test.py"
+  set -o pipefail; sleep_test.py -s disk -i 30 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
+ fi
+_description:
+ PURPOSE:
+    This is an automated stress test that will force the system to hibernate/resume for 30 cycles
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/hibernate-30-cycles-log-check
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log ] && sleep_test_log_check.py -v s4 "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
+_description:
+ Automated check of the 30 cycle hibernate log for errors detected by fwts.
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: power-management/hibernate-30-cycle-log-attach
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
+_description:
+ Attaches the log from the 30 cycle Hibernate/Resume test if it exists
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend_30_cycles_with_reboots
+estimated_duration: 5400.0
+depends:
+ power-management/rtc
+ suspend/suspend_advanced_auto
+requires:
+ executable.name == 'x-terminal-emulator'
+flags: noreturn
+user: root
+environ: PM_TEST_DRY_RUN
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py reboot --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox --fwts --log-level=debug --log-dir="$PLAINBOX_SESSION_SHARE" --suspends-before-reboot=30 -r 3 --silent --check-hardware-list
+_summary: 30 suspend/resume cycles and 1 reboot, 3 times (automated stress test)
+_description:
+ This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one reboot' 3 times.
+_siblings: [
+    { "id": "power-management/suspend_30_cycles_with_coldboots",
+      "command": "rm -f $PLAINBOX_SESSION_SHARE/__result; pm_test.py poweroff --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3 --silent --check-hardware-list",
+      "_description": "This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one poweroff' 3 times.",
+      "_summary": "30 suspend/resume cycles and 1 poweroff, 3 times (automated stress test)"
+    }
+    ]
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend_30_cycles
+estimated_duration: 2400.0
+depends:
+ power-management/rtc
+ suspend/suspend_advanced_auto
+environ: PLAINBOX_SESSION_SHARE
+user: root
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log -f none -s s3 --s3-device-check --s3-device-check-delay=60 --s3-sleep-delay=60 --s3-multiple=30 | tee "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles_times.log
+ else
+  echo "Calling sleep_test.py"
+  set -o pipefail; sleep_test.py -p -s mem -i 30 | tee "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log
+ fi
+_description:
+ PURPOSE:
+    This is an automated stress test that will force the system to suspend/resume for 30 cycles.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-30-cycles-log-check
+depends: power-management/suspend_30_cycles
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log
+_description:
+ Automated check of the 30 cycle suspend log for errors detected by fwts.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-30-cycles-log-check-with-reboots
+depends: power-management/suspend_30_cycles_with_reboots
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
+_summary: 30 suspend/resume cycles and 1 reboot, 3 times (check logs for errors)
+_description:
+ Automated check of the '30 cycle suspend and 1 reboot times 3' logs for errors detected by fwts.
+_siblings: [
+    { "id": "power-management/suspend-30-cycles-log-check-with-coldboots",
+      "depends": "power-management/suspend_30_cycles_with_coldboots",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_test_log_check.py -v s3 $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "_description": "Automated check of the '30 cycle suspend and 1 poweroff times 3' logs for errors detected by fwts.",
+      "_summary": "30 suspend/resume cycles and 1 poweroff, 3 times (check logs for errors)"
+    }
+    ]
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-30-cycle-log-attach
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log
+_description:
+ Attaches the log from the 30 cycle Suspend/Resume test if it exists
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-30-cycle-log-attach-with-reboots
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles_with_reboots
+command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && cat "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
+_summary: 30 suspend/resume cycles and 1 reboot, 3 times (attach logs)
+_description:
+ Attaches the log from the '30 cycle suspend/resume and one reboot times 3' test if it exists
+_siblings: [
+    { "id": "power-management/suspend-30-cycle-log-attach-with-coldboots",
+      "depends": "power-management/suspend_30_cycles_with_coldboots",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && cat $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "_description": "Attaches the log from the '30 cycle Suspend/Resume and one poweroff times 3' test if it exists",
+      "_summary": "30 suspend/resume cycles and 1 poweroff, 3 times (attach logs)"
+    }
+    ]
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-30-cycles-time-check
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles_times.log
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-30-cycles-time-check-with-reboots
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles_with_reboots
+command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
+_summary: 30 suspend/resume cycles and 1 reboot, 3 times (check logs for timing issues)
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold (warm boots)
+_siblings: [
+    { "id": "power-management/suspend-30-cycles-time-check-with-coldboots",
+      "depends": "power-management/suspend_30_cycles_with_coldboots",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "_description": "Checks the sleep times to ensure that a machine suspends and resumes within a given threshold (cold boots)",
+      "_summary": "30 suspend/resume cycles and 1 poweroff, 3 times (check logs for timing issues)"
+    }
+    ]
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/hibernate_250_cycles
+estimated_duration: 43400.0
+depends: power-management/rtc
+environ: PLAINBOX_SESSION_SHARE
+user: root
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=250
+ else
+  echo "Calling sleep_test.py"
+  set -o pipefail; sleep_test.py -s disk -i 250 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log
+ fi
+_description:
+ PURPOSE:
+    This is an automated stress test that will force the system to hibernate/resume for 250 cycles
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/hibernate-250-cycle-log-attach
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log
+_description:
+ Attaches the log from the 250 cycle Hibernate/Resume test if it exists
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/suspend_250_cycles
+estimated_duration: 18750.0
+depends: power-management/rtc
+environ: PLAINBOX_SESSION_SHARE
+user: root
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log -s s3 --s3-device-check --s3-device-check-delay=45 --s3-sleep-delay=30 --s3-multiple=250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles_times.log
+ else
+  echo "Calling sleep_test.py"
+  set -o pipefail; sleep_test.py -p -s mem -i 250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log
+ fi
+_description:
+ PURPOSE:
+    This is an automated stress test that will force the system to suspend/resume for 250 cycles.
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/suspend-250-cycle-log-attach
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log
+_description:
+ Attaches the log from the 250 cycle Suspend/Resume test if it exists
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/suspend-250-cycles-time-check
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles_times.log
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/reboot
+estimated_duration: 4500.0
+requires: executable.name == 'fwts'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 100 --silent --log-level=notset reboot --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress reboot system (100 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_log
+estimated_duration: 1.0
+depends: stress/reboot
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*reboot.100.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_30
+requires: executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 30 --silent --log-level=notset reboot --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 2700
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress reboot system (30 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_30_log
+depends: stress/reboot_30
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*reboot.30.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_10
+requires: executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 10 --silent --log-level=notset reboot --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 1800
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress reboot system (10 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_10_log
+depends: stress/reboot_10
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*reboot.10.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff
+estimated_duration: 4500.0
+requires:
+ executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 100 --silent --log-level=notset poweroff --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress poweroff system (100 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_log
+estimated_duration: 1.0
+depends: stress/poweroff
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*poweroff.100.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_30
+requires:
+ executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 30 --wakeup 150 --silent --log-level=notset poweroff --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 3600
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress poweroff system (30 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_30_log
+depends: stress/poweroff_30
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*poweroff.30.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10
+requires:
+ executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command:
+ rm -f "$PLAINBOX_SESSION_SHARE"/__result
+ pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 10 --wakeup 150 --silent --log-level=notset poweroff --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 3600
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress poweroff system (10 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10_log
+depends: stress/poweroff_10
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*poweroff.10.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_30_check
+estimated_duration: 1.0
+depends: stress/reboot_30
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.30.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.30.log
+_description: Check logs for the stress reboot (30 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_30_check_log
+estimated_duration: 1.0
+depends: stress/reboot_30_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.30.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_10_check
+estimated_duration: 1.0
+depends: stress/reboot_10
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.10.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.10.log
+_description: Check logs for the stress reboot (10 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_10_check_log
+estimated_duration: 1.0
+depends: stress/reboot_10_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.10.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_30_check
+estimated_duration: 1.0
+depends: stress/poweroff_30
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.30.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.30.log
+_description: Check logs for the stress poweroff (30 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_30_check_log
+estimated_duration: 1.0
+depends: stress/poweroff_30_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.30.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10_check
+estimated_duration: 1.0
+depends: stress/poweroff_10
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.10.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.10.log
+_description: Check logs for the stress poweroff (10 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_10_check_log
+estimated_duration: 1.0
+depends: stress/poweroff_10_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.10.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_check
+estimated_duration: 1.0
+depends: stress/reboot
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.100.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.100.log
+_description: Check logs for the stress reboot (100 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_check_log
+estimated_duration: 1.0
+depends: stress/reboot_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.100.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_check
+estimated_duration: 1.0
+depends: stress/poweroff
+command: pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.100.log "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.100.log
+_description: Check logs for the stress poweroff (100 cycles) test case
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_check_log
+estimated_duration: 1.0
+depends: stress/poweroff_check
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.100.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/graphics
+estimated_duration: 600.0
+requires:
+ package.name == 'x11-apps'
+user: root
+environ: PLAINBOX_SESSION_SHARE
+command: graphics_stress_test.py --iterations 20 -b repeat -d -o "$PLAINBOX_SESSION_SHARE"/graphics-stress-results && echo "Graphics Stress Test completed successfully" || echo "Graphics Stress Test completed, but there are errors. Please see the log $PLAINBOX_SESSION_SHARE/graphics-stress-results for details" && false
+_description:
+ Run the graphics stress test. This test can take a few minutes.
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/graphics-tarball
+estimated_duration: 1.0
+requires:
+ package.name == 'x11-apps'
+command: [ -f "$PLAINBOX_SESSION_SHARE"/graphics-stress-results ] && cat "$PLAINBOX_SESSION_SHARE"/graphics-stress-results
+_description: Attaches the graphics stress results to the submission.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/usb
+estimated_duration: 710.0
+user: root
+command: removable_storage_test.py -s 10240000 -c 100 -i 3 usb
+_description: Runs a test that transfers 100 10MB files 3 times to usb.
+
+plugin: user-interact
+category_id: com.canonical.plainbox::stress
+id: stress/sdhc
+user: root
+_summary: Stress test for SDHC card
+estimated_duration: 780.0
+command: removable_storage_test.py -s 10240000 -c 100 -i 3 sdio scsi usb --memorycard
+_description:
+ PURPOSE:
+     This test will transfers 100 10MB files 3 times to a SDHC card, to
+     check that the systems media card reader can transfer large amounts
+     of data.
+ STEPS:
+     1. Insert a SDHC card into the reader and then Click "Test".
+        If a file browser opens up, you can safely close it.
+     2. Do not remove the device during this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/network_restart
+estimated_duration: 1500.0
+user: root
+environ: PLAINBOX_SESSION_SHARE
+command: network_restart.py -t 100 -o "$PLAINBOX_SESSION_SHARE"
+_description: Ping ubuntu.com and restart network interfaces 100 times
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/network_restart_log
+estimated_duration: 1.0
+depends: stress/network_restart
+command: file="$PLAINBOX_SESSION_SHARE"/network_restart.log; if [ -e "$file" ]; then iconv -t 'ascii' -c "$file"; fi
+
+plugin: manual
+category_id: com.canonical.plainbox::stress
+id: stress/wireless_hotkey
+estimated_duration: 60.0
+requires: dmi.product in ['Notebook','Laptop','Portable']
+_description:
+ PURPOSE:
+     To make sure that stressing the wifi hotkey does not cause applets to disappear from the panel or the system to lock up
+ STEPS:
+     1. Log in to desktop
+     2. Press wifi hotkey at a rate of 1 press per second and slowly increase the speed of the tap, until you are tapping as fast as possible
+ VERIFICATION:
+     Verify the system is not frozen and the wifi and bluetooth applets are still visible and functional
+
+plugin:shell
+category_id: com.canonical.plainbox::stress
+id: stress/s2idle_pm-graph_30
+estimated_duration: 10m
+requires: 
+ executable.name == 'sleepgraph'
+ sleep.mem_sleep == 's2idle'
+user: root
+_summary: Resume from idle by using Intel pm-graph
+command:
+ sleepgraph -m freeze -rtcwake 10 -sync -gzip -multi 30 0 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph/s2idle-"$(date -d today +%Y-%m-%d-%H%M)"
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/s2idle_pm-graph_30.tar.xz
+estimated_duration: 1
+requires: 
+ sleep.mem_sleep == 's2idle'
+after:
+ stress/s2idle_pm-graph_30
+user: root
+_summary: Attach pm-graph logs (s2idle)
+command:
+ tar Jcf "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph && cat "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz
+
+plugin:shell
+category_id: com.canonical.plainbox::stress
+id: stress/s3_pm-graph_30
+estimated_duration: 10m
+requires:
+ executable.name == 'sleepgraph'
+ sleep.mem_sleep == 'deep'
+user: root
+_summary: Resume from suspend by using Intel pm-graph
+command:
+ sleepgraph -m mem -rtcwake 10 -sync -gzip -multi 30 0 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s3_pm-graph/suspend-"$(date -d today +%Y-%m-%d-%H%M)"
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/s3_pm-graph_30.tar.xz
+estimated_duration: 1
+requires:
+ sleep.mem_sleep == 'deep'
+after:
+ stress/s3_pm-graph_30
+user: root
+_summary: Attach pm-graph logs (s3)
+command:
+ tar Jcf "$PLAINBOX_SESSION_SHARE"/s3_pm-graph_30.tar.xz "$PLAINBOX_SESSION_SHARE"/s3_pm-graph && cat "$PLAINBOX_SESSION_SHARE"/s3_pm-graph_30.tar.xz
+
+unit: job
+id: stress/wireless_bluetooth_coex_connect_stress
+_summary: Connect to 802.11n Wi-Fi network when Bluetooth is connected
+_purpose:
+ Check stability of connect to 2.4GHz 802.11n AP when Bluetooth is connected
+_steps:
+ 1. Connect to BT device (keyboard|mouse|headset|...)
+ 2. Make sure the BT device function works
+_verification:
+ The verification of this test is automated.
+plugin: user-interact
+command:
+ set -e
+ echo "How many times would you like to test? [default=1000]:"
+ read -t 20 -r NUM || NUM=1000
+ echo "Test AP SSID? [default=WPA_N_SSID]:"
+ read -t 20 -r SSID || SSID=${WPA_N_SSID}
+ echo "Test AP password? [default=WPA_N_PSK]:"
+ read -t 20 -r PSK || PSK=${WPA_N_PSK}
+ [ -n "${NUM}" ] || NUM=1000
+ [ -n "${SSID}" ] || SSID=${WPA_N_SSID}
+ [ -n "${PSK}" ] || PSK=${WPA_N_PSK}
+ for n in $(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*"); do
+     nmcli c delete "${n}"
+ done
+ nmcli d wifi connect "${SSID}" password "${PSK}"
+ UUID=$(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*")
+ i=1
+ while [ ! $i -gt $NUM ]
+ do
+     echo "Connect/Disconnect Round ${i}"
+     nmcli c up uuid "${UUID}"
+     sleep 5
+     if nmcli | grep ^wl | grep -q disconnected; then
+         exit 1
+     fi
+     nmcli c down uuid "${UUID}"
+     sleep 3
+     i=$((i+1))
+ done
+environ: WPA_N_SSID WPA_N_PSK
+category_id: com.canonical.plainbox::stress
+flags: preserve-locale also-after-suspend

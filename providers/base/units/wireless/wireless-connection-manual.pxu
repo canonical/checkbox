@@ -1,0 +1,211 @@
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_open_ax_{interface}
+_summary: Connect to unencrypted 802.11ax Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to insecure 802.11ax AP
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$OPEN_AX_SSID"
+environ: OPEN_AX_SSID
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_open_ac_{interface}
+_summary: Connect to unencrypted 802.11ac Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to insecure 802.11ac AP
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$OPEN_AC_SSID"
+environ: OPEN_AC_SSID
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_open_bg_{interface}
+_summary: Connect to unencrypted 802.11b/g Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to insecure 802.11b/g AP
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$OPEN_BG_SSID"
+environ: OPEN_BG_SSID
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_open_n_{interface}
+_summary: Connect to unencrypted 802.11n Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to insecure 802.11n AP
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$OPEN_N_SSID"
+environ: OPEN_N_SSID
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_wpa_ax_{interface}
+_summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to 802.11ax AP with wpa security
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$WPA_AX_SSID" -k "$WPA_AX_PSK"
+environ: WPA_AX_SSID WPA_AX_PSK
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_wpa_ac_{interface}
+_summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to 802.11ac AP with wpa security
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$WPA_AC_SSID" -k "$WPA_AC_PSK"
+environ: WPA_AC_SSID WPA_AC_PSK
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_wpa_bg_{interface}
+_summary: Connect to WPA-encrypted 802.11b/g Wi-Fi network {interface}
+_purpose:
+ Check system can connect to 802.11b/g AP with wpa security
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$WPA_BG_SSID" -k "$WPA_BG_PSK"
+environ: WPA_BG_SSID WPA_BG_PSK
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
+id: wireless/wireless_connection_wpa_n_{interface}
+_summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to 802.11n AP with wpa security
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$WPA_N_SSID" -k "$WPA_N_PSK"
+environ: WPA_N_SSID WPA_N_PSK
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+id: wireless/monitor_wireless_connection_udp_{{ interface }}
+requires:
+  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+environ:
+ WPA_BG_SSID
+ WPA_BG_PSK
+ TEST_TARGET_IPERF
+command:
+    if ! nmcli g > /dev/null; then
+        exit 1
+    fi
+    trap "nmcli dev disconnect {{ interface }}; nmcli con delete id WIFI_TEST_CREATED_BY_CHECKBOX" EXIT
+    nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*" | xargs nmcli c delete
+    nmcli dev wifi rescan
+    nmcli dev wifi connect "$WPA_BG_SSID" password "$WPA_BG_PSK" ifname {{ interface }} name WIFI_TEST_CREATED_BY_CHECKBOX
+    iw dev {{ interface }} link
+    iperf3 -c "$TEST_TARGET_IPERF" -t 300 -i 30 -u -b 100m -p 5050
+    exit $?
+estimated_duration: 330.0
+_summary: Wireless connection iperf3 test
+_description:
+ Tests the performance of a system's wireless connection through the iperf3 tool using UDP packets.
+
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+id: after-suspend-wifi/wifi_resume_time_auto
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto
+requires:
+  device.category == 'WIRELESS'
+user: root
+command: network_reconnect_resume_test.py -t 90 -d wifi
+_summary: Network reconnect resume test (wifi)
+_description:
+ Checks the length of time it takes to reconnect an existing wifi connection
+ after a suspend/resume cycle.

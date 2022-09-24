@@ -1,28 +1,23 @@
-Source: plainbox-provider-checkbox
+Source: checkbox-provider-base
 Section: utils
 Priority: optional
 Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
-Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
-           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
-           Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>
 Build-Depends: debhelper (>= 9),
                intltool,
                libasound2-dev,
-               plainbox-provider-resource-generic (>= 0.25),
+               checkbox-provider-resource,
                python3,
-               python3-checkbox-support (>= 0.25),
+               python3-checkbox-support,
                python3-checkbox-ng,
                python3-debian
 Standards-Version: 3.9.6
-Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-checkbox/trunk/
-Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-checkbox/trunk/
-Homepage: http://launchpad.net/plainbox-provider-checkbox
 
-Package: plainbox-provider-checkbox
+Package: checkbox-provider-base
 Architecture: any
-Depends: plainbox-provider-resource-generic (>= 0.25),
+Depends: checkbox-provider-resource,
          python3,
-         python3-checkbox-support (>= 0.25),
+         python3-checkbox-support,
          ${misc:Depends},
          ${plainbox:Depends},
          ${shlibs:Depends}
@@ -57,12 +52,21 @@ Suggests: fswebcam,
           stress,
           wmctrl,
           ${plainbox:Suggests}
+Replaces: plainbox-provider-checkbox (<< 2.0.0)
+Breaks: plainbox-provider-checkbox (<< 2.0.0)
 X-Plainbox-Provider: yes
-Description: CheckBox provider for PlainBox
- This package provides the CheckBox jobs collection, i.e the hardware test
- definitions and scripts originally included with CheckBox.
- It is used together alongside with PlainBox.
+Description: Checkbox base provider
+ This package provides the Checkbox jobs collection, i.e the hardware test
+ definitions and scripts originally included with Checkbox.
  .
- Jobs are smallest units of testing that can be performed by PlainBox.
+ Jobs are smallest units of testing that can be performed by Checkbox.
  All jobs have an unique name. There are many types of jobs, some are fully
  automated others are fully manual.
+
+Package: plainbox-provider-checkbox
+Depends: checkbox-provider-base, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

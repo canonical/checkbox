@@ -7,17 +7,16 @@ Build-Depends: checkbox-ng,
                debhelper (>= 9),
                intltool,
                pkg-config,
-               plainbox-provider-checkbox (>= 0.31),
+               checkbox-provider-base,
                python3,
                python3-checkbox-ng,
                python3-debian,
                python3-setuptools
 Standards-Version: 3.9.6
-Homepage: https://launchpad.net/checkbox-provider-gpgpu
 
 Package: checkbox-provider-gpgpu
 Architecture: all
-Depends: plainbox-provider-checkbox (>= 0.27~), ${plainbox:Depends}, ${misc:Depends}
+Depends: checkbox-provider-base, ${plainbox:Depends}, ${misc:Depends}
 X-Plainbox-Provider: yes
 Description: Checkbox provider for GPGPU testing
  This package provides a test plan and tooling to be used by Canonical for the

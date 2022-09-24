@@ -3,22 +3,23 @@ export PYBUILD_NAME=checkbox-ng
 export LANG=
 export LANGUAGE=
 export NO_PNG_PKG_MANGLE=1
+export SRCTOP=checkbox-ng
 
 %:
-	dh $@ --with=python3,sphinxdoc --buildsystem=pybuild
+	dh $@ --sourcedirectory=$(SRCTOP) --with=python3,sphinxdoc --buildsystem=pybuild
 
 override_dh_auto_build:
 	dh_auto_build --buildsystem=pybuild
 	# Build sphinx html documentation and man pages 
 	# Use TEMP_HOME to work around https://bugs.launchpad.net/plainbox/+bug/1478906
-	TEMP_HOME=`mktemp -d`; HOME=$$TEMP_HOME python3 setup.py build_sphinx -b html; rm -rf $$TEMP_HOME;
-	TEMP_HOME=`mktemp -d`; HOME=$$TEMP_HOME python3 setup.py build_sphinx -b man; rm -rf $$TEMP_HOME;
+	TEMP_HOME=`mktemp -d`; HOME=$$TEMP_HOME python3 $(SRCTOP)/setup.py build_sphinx -b html -s $(SRCTOP)/docs; rm -rf $$TEMP_HOME;
+	TEMP_HOME=`mktemp -d`; HOME=$$TEMP_HOME python3 $(SRCTOP)/setup.py build_sphinx -b man -s $(SRCTOP)/docs; rm -rf $$TEMP_HOME;
 	# Build translations
-	python3 setup.py build_i18n --merge-po
+	python3 $(SRCTOP)/setup.py build_i18n --merge-po
 	# Build translations for the bundled provider
-	PYTHONPATH=. ./plainbox/impl/providers/categories/manage.py i18n --dont-update-pot --dont-merge-po
-	PYTHONPATH=. ./plainbox/impl/providers/manifest/manage.py i18n --dont-update-pot --dont-merge-po
-	PYTHONPATH=. ./plainbox/impl/providers/exporters/manage.py i18n --dont-update-pot --dont-merge-po
+	PYTHONPATH=$(SRCTOP) $(SRCTOP)/plainbox/impl/providers/categories/manage.py i18n --dont-update-pot --dont-merge-po
+	PYTHONPATH=$(SRCTOP) $(SRCTOP)/plainbox/impl/providers/manifest/manage.py i18n --dont-update-pot --dont-merge-po
+	PYTHONPATH=$(SRCTOP) $(SRCTOP)/plainbox/impl/providers/exporters/manage.py i18n --dont-update-pot --dont-merge-po
 
 # Override dh_install to ensure that console_scripts are in the
 # checkbox-ng package and not in the python3-checkbox-ng package.
@@ -29,7 +30,7 @@ override_dh_install:
 	mkdir -p debian/checkbox-ng/usr/bin
 	mkdir -p debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
 	mv debian/python3-checkbox-ng/usr/bin/checkbox-cli debian/checkbox-ng/usr/bin
-	cp -R plainbox/test-data debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
+	cp -R $(SRCTOP)/plainbox/test-data debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
 	find debian/python3-checkbox-ng -type d -empty -delete
 	rm -rf $(foreach version,$(shell py3versions -s), debian/python3-checkbox-ng/usr/lib/$(version)/dist-packages/plainbox/data)
 	rm -rf $(foreach version,$(shell py3versions -s), debian/python3-checkbox-ng/usr/lib/$(version)/dist-packages/plainbox/test-data)

@@ -1,64 +1,12 @@
-plainbox-provider-certification-client (0.50.0-1) UNRELEASED; urgency=medium
+checkbox-provider-certification-client (2.0.0) unstable; urgency=medium
 
-  [ pierre ]
-  * "new upstream version"
-  * "new upstream version"
+  * new upstream version
 
-  [ Pierre Equoy ]
-  * "new upstream version"
-  * "new upstream version"
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Sat, 24 Sep 2022 10:26:08 +0200
 
-  [ Sylvain Pineau ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
+plainbox-provider-certification-client (0.50.0) unstable; urgency=medium
 
   [ Jenkins ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
   * "new upstream version"
 
  -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:49 +0000

@@ -1,29 +1,30 @@
-Source: plainbox-provider-certification-client
+Source: checkbox-provider-certification-client
 Section: utils
 Priority: optional
 Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
-Uploaders: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Standards-Version: 3.9.3
 Build-Depends: checkbox-ng,
                debhelper (>= 9.2),
                intltool,
-               plainbox-provider-resource-generic (>= 0.25~),
+               checkbox-provider-resource,
                python3-all (>= 3.2),
                python3-docutils,
+               python3-debian,
                python3-setuptools
 
-Package: plainbox-provider-certification-client
+Package: checkbox-provider-certification-client
 Architecture: all
 Depends: dbus-x11,
-         plainbox-provider-checkbox (>= 0.27~),
-         plainbox-provider-resource-generic (>= 0.25~),
-         plainbox-provider-tpm2,
+         checkbox-provider-base,
+         checkbox-provider-resource,
+         checkbox-provider-tpm2,
          pyotherside,
          python3-checkbox-ng,
          qml-module-qtquick-controls,
          qml-module-qtquick-layouts,
          qmlscene,
-         ${misc:Depends}
+         ${misc:Depends},
+         ${plainbox:Depends}
 Recommends: ethtool,
             fswebcam,
             fwts (>= 16.02.00-0ubuntu1~),
@@ -39,20 +40,25 @@ Recommends: ethtool,
             shutter,
             stress,
             wmctrl,
-            pm-graph
-Description: Client Certification provider for Plainbox
+            pm-graph,
+            ${plainbox:Recommends}
+Suggests: ${plainbox:Suggests}
+X-Plainbox-Provider: yes
+Replaces: plainbox-provider-certification-client (<< 2.0.0)
+Breaks: plainbox-provider-certification-client (<< 2.0.0)
+Description: Client Certification provider for Checkbox
  This package provides a test set of test plans that are used by Canonical
  for the testing and certification of "client" devices. Client devices include
  laptops, desktops and all-in-one machines.
  .
- The actual tests (also known as plainbox jobs) are sourced from checkbox and
- plainbox resource providers. This package only contains the test plans
+ The actual tests (also known as checkbox jobs) are sourced from base and
+ checkbox resource providers. This package only contains the test plans
  themselves.
 
 Package: canonical-certification-client
 Architecture: all
-Depends: checkbox-ng (>= 0.25~),
-         plainbox-provider-certification-client (= ${source:Version}),
+Depends: checkbox-ng,
+         checkbox-provider-certification-client (= ${source:Version}),
          ${misc:Depends}
 Description: Client Certification Launcher
  This package provides the Client Certification Launcher. The launcher is an
@@ -61,18 +67,26 @@ Description: Client Certification Launcher
 
 Package: canonical-certification-submit
 Architecture: all
-Depends: checkbox-ng (>= 0.25~), ${misc:Depends}
+Depends: checkbox-ng, ${misc:Depends}
 Description: Tool for sending test results to Canonical Certification Website
  This package provides a simple command line tool for sending a "submission"
  file to the Canonical Certification Website. It is useful for sending test
  results that were collected in an off-line environment.
 
-Package: plainbox-glmark2-es2-meta
+Package: checkbox-glmark2-es2-meta
 Architecture: any
 Depends: glmark2-es2 [arm64 armhf], ${misc:Depends}
 Description: Meta-package to selectively install glmark2-es2
  The objective of this metapackage is not introducing architecture specificity
- in plainbox-provider-certification-client. This metapackage will cause
+ in checkbox-provider-certification-client. This metapackage will cause
  installation of glmark2-es2 on arm architectures, while just being a dummy
  package on others. Arch-independent packages can depend on this one to (maybe)
  install glmark2-es2.
+
+Package: plainbox-provider-certification-client
+Depends: checkbox-provider-certification-client, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

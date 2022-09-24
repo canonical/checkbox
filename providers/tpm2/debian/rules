@@ -1,22 +1,24 @@
 #!/usr/bin/make -f
+export SRCTOP=providers/tpm2
 
 %:
-	dh $@
+	dh $@ --sourcedirectory=$(SRCTOP)
 
 override_dh_auto_clean:
-	python3 manage.py clean
+	python3 $(SRCTOP)/manage.py clean
 
 override_dh_auto_build:
-	python3 manage.py build
-	python3 manage.py i18n
+	python3 $(SRCTOP)/manage.py build
+	python3 $(SRCTOP)/manage.py i18n
 
 override_dh_auto_test:
-	python3 manage.py validate
+	python3 $(SRCTOP)/manage.py validate
 
 override_dh_auto_install:
-	python3 manage.py install --prefix=/usr --layout=unix \
-		--root=$(CURDIR)/debian/plainbox-provider-tpm2/
+	python3 $(SRCTOP)/manage.py install \
+		--prefix=/usr --layout=unix \
+		--root=$(CURDIR)/debian/checkbox-provider-tpm2/
 
 override_dh_gencontrol:
-	python3 manage.py packaging
+	python3 $(SRCTOP)/manage.py packaging
 	dh_gencontrol

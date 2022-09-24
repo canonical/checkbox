@@ -23,9 +23,9 @@ from plainbox.provider_manager import setup
 from plainbox.provider_manager import N_
 
 setup(
-    name='plainbox-provider-tpm2',
+    name='checkbox-provider-tpm2',
     namespace='com.canonical.certification',
-    version="1.20.0.dev0",
-    description=N_("Plainbox Provider for TPM 2.0 (trusted platform module)"),
-    gettext_domain='plainbox-provider-tpm2',
+    version="2.0.0",
+    description=N_("Checkbox Provider for TPM 2.0 (trusted platform module)"),
+    gettext_domain='checkbox-provider-tpm2',
 )

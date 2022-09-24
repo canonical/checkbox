@@ -10,9 +10,9 @@ from plainbox.provider_manager import setup
 from plainbox.provider_manager import N_
 
 setup(
-    name='plainbox-provider-ipdt',
+    name='checkbox-provider-ipdt',
     namespace='com.intel.ipdt',
-    version="0.6.0.dev0",
-    description=N_("Plainbox Provider for IPDT"),
-    gettext_domain='plainbox-provider-ipdt',
+    version="2.0.0",
+    description=N_("Checkbox Provider for IPDT"),
+    gettext_domain='checkbox-provider-ipdt',
 )

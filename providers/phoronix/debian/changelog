@@ -1,26 +1,10 @@
-checkbox-provider-phoronix (0.9.0-1) UNRELEASED; urgency=medium
+checkbox-provider-phoronix (2.0.0) unstable; urgency=medium
 
-  [ Sylvain Pineau ]
-  * "new upstream version"
+  * new upstream version
 
-  [ Jenkins ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Sat, 24 Sep 2022 10:02:57 +0200
 
-  [ Sylvain Pineau ]
-  * "new upstream version"
+checkbox-provider-phoronix (0.9.0) unstable; urgency=medium
 
   [ Jenkins ]
   * "new upstream version"

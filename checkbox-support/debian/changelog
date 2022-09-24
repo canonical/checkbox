@@ -1,75 +1,12 @@
-checkbox-support (0.55.0-1) UNRELEASED; urgency=medium
+checkbox-support (2.0.0) unstable; urgency=medium
 
-  [ Pierre Equoy ]
-  * Open for development (remove this message before releasing)
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
+  * new upstream version
 
-  [ kissiel ]
-  * "new upstream version"
-  * "new upstream version"
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 23 Sep 2022 19:18:30 +0200
 
-  [ Sylvain Pineau ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
+checkbox-support (0.55.0) unstable; urgency=medium
 
   [ Jenkins ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
   * "new upstream version"
 
  -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Tue, 05 Jul 2022 07:31:48 +0000

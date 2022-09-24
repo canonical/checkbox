@@ -1,4 +1,4 @@
-Source: plainbox-provider-ipdt
+Source: checkbox-provider-ipdt
 Section: utils
 Priority: optional
 Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
@@ -10,14 +10,13 @@ Build-Depends: autoconf,
                libnl-3-dev,
                libnl-genl-3-dev,
                pkg-config,
-               plainbox-provider-checkbox (>= 0.31),
+               checkbox-provider-base,
                python3,
                python3-checkbox-ng,
                python3-debian
 Standards-Version: 3.9.6
-Homepage: https://launchpad.net/plainbox-provider-ipdt
 
-Package: plainbox-provider-ipdt
+Package: checkbox-provider-ipdt
 Architecture: all
 Depends: apt-file,
          autoconf,
@@ -39,5 +38,15 @@ Depends: apt-file,
          xorg-dev,
          ${misc:Depends},
          ${plainbox:Depends}
+Replaces: plainbox-provider-ipdt (<< 2.0.0)
+Breaks: plainbox-provider-ipdt (<< 2.0.0)
 X-Plainbox-Provider: yes
 Description: Checkbox provider for Intel Processor Diagnostic Test Suite
+
+Package: plainbox-provider-ipdt
+Depends: checkbox-provider-ipdt, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

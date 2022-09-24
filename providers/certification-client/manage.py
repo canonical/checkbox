@@ -77,11 +77,11 @@ class InstallCommandExt(InstallCommand):
 
 
 setup(
-    name='certification-client',
+    name='checkbox-provider-certification-client',
     namespace='com.canonical.certification',
-    version="0.51.0.dev0",
+    version="2.0.0",
     description=N_("Client Certification provider"),
-    gettext_domain="certification-client",
+    gettext_domain="checkbox-provider-certification-client",
     deprecated=False,
     strict=False
 )

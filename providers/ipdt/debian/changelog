@@ -1,14 +1,12 @@
-plainbox-provider-ipdt (0.5.0-1) UNRELEASED; urgency=medium
+checkbox-provider-ipdt (2.0.0) unstable; urgency=medium
 
-  [ Sylvain Pineau ]
-  * "new upstream version"
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Sat, 24 Sep 2022 10:09:48 +0200
+
+plainbox-provider-ipdt (0.5.0) unstable; urgency=medium
 
   [ Jenkins ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
   * "new upstream version"
 
  -- Jenkins <jenkins@cert-jenkins-master-201506-18558.maas>  Mon, 10 Jan 2022 16:25:46 +0000

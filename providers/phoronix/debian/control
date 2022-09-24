@@ -10,12 +10,11 @@ Build-Depends: autoconf,
                libnl-3-dev,
                libnl-genl-3-dev,
                pkg-config,
-               plainbox-provider-checkbox (>= 0.31),
+               checkbox-provider-base,
                python3,
                python3-checkbox-ng,
                python3-debian
 Standards-Version: 3.9.6
-Homepage: https://launchpad.net/checkbox-provider-phoronix
 
 Package: checkbox-provider-phoronix
 Architecture: amd64

@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: plainbox-provider-certification-server
+Upstream-Name: checkbox-provider-certification-server
 Source: https://launchpad.net/checkbox
 
 Files: *

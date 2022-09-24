@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([plainbox-provider-resource], [0.3], [https://bugs.launchpad.net/plainbox-provider-resource/+filebug])
+AC_INIT([checkbox-provider-resource], [0.3], [https://bugs.launchpad.net/plainbox-provider-resource/+filebug])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([80211_resource.c])
 AC_CONFIG_HEADERS([config.h])

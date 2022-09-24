@@ -1,47 +1,12 @@
-plainbox-provider-tpm2 (1.19.0-1) UNRELEASED; urgency=low
+checkbox-provider-tpm2 (2.0.0) unstable; urgency=medium
 
-  [ Sylvain Pineau ]
-  * Initial release
+  * new upstream version
 
-  [ Pierre Equoy ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Sat, 24 Sep 2022 09:51:51 +0200
 
-  [ Sylvain Pineau ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
+plainbox-provider-tpm2 (1.19.0) unstable; urgency=low
 
   [ Jenkins ]
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
-  * "new upstream version"
   * "new upstream version"
 
  -- Jenkins <ubuntu@cert-jenkins-master-201506-18558.maas>  Fri, 19 Aug 2022 07:21:33 +0000

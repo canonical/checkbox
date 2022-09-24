@@ -14,9 +14,9 @@ from plainbox.provider_manager import setup, N_
 # (optional)
 
 setup(
-    name='plainbox-provider-sru',
+    name='checkbox-provider-sru',
     namespace='com.canonical.certification',
-    version="1.24.0.dev0",
+    version="2.0.0",
     description=N_("The SRU provider"),
-    gettext_domain="plainbox-provider-sru",
+    gettext_domain="checkbox-provider-sru",
 )

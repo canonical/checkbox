@@ -1,10 +1,8 @@
-Source: plainbox-provider-resource-generic
+Source: checkbox-provider-resource
 Section: utils
 Priority: optional
 Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
-Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
-           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
-           Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>
 Build-Depends: autoconf,
                automake,
                debhelper (>= 9),
@@ -16,21 +14,20 @@ Build-Depends: autoconf,
                python3-checkbox-ng,
                python3-debian
 Standards-Version: 3.9.6
-Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-resource-generic/trunk/
-Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-resource-generic/trunk/
-Homepage: http://launchpad.net/plainbox-provider-resource
 
-Package: plainbox-provider-resource-generic
+Package: checkbox-provider-resource
 Architecture: any
 Depends: ${misc:Depends}, ${plainbox:Depends}, ${shlibs:Depends}
 Suggests: ${plainbox:Suggests}
 Recommends: ${plainbox:Recommends}
+Replaces: plainbox-provider-resource-generic (<< 2.0.0)
+Breaks: plainbox-provider-resource-generic (<< 2.0.0)
 X-Plainbox-Provider: yes
-Description: CheckBox generic resource jobs provider
- This package provides the generic resource jobs. It is used together
- alongside with PlainBox.
+Description: Checkbox resource jobs provider
+ This package provides the resource jobs. It is used together
+ alongside with Checkbox.
  .
- Jobs are smallest units of testing that can be performed by PlainBox.
+ Jobs are smallest units of testing that can be performed by Checkbox.
  All jobs have an unique name. There are many types of jobs, some are fully
  automated others are fully manual.
  .
@@ -38,3 +35,11 @@ Description: CheckBox generic resource jobs provider
  special resource jobs. They are extensively used to indicate hardware or
  software dependencies. For example a bluetooth test may indicate it
  requires bluetooth hardware and appropriate software packages installed.
+
+Package: plainbox-provider-resource-generic
+Depends: checkbox-provider-resource, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 export PYBUILD_NAME=checkbox-support
+export SRCTOP=checkbox-support
 
 %:
-	dh $@ --with=python3 --buildsystem=pybuild
+	dh $@ --sourcedirectory=$(SRCTOP) --with=python3 --buildsystem=pybuild

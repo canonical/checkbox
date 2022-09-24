@@ -42,10 +42,10 @@ class SourceDistributionCommandExt(SourceDistributionCommand):
             os.remove(os.path.join(self.src_dir, item))
 
 setup(
-    name='plainbox-provider-resource-generic',
+    name='checkbox-provider-resource',
     namespace='com.canonical.certification',
-    version="0.52.0.dev0",
-    description=N_("PlainBox resources provider"),
-    gettext_domain='plainbox-provider-resource-generic',
-    deprecated=False, strict=False,
+    version="2.0.0",
+    description=N_("Checkbox provider resource"),
+    gettext_domain='checkbox-provider-resource',
+    strict=False, deprecated=False,
 )

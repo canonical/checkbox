@@ -1,0 +1,5 @@
+providers/certification-server/configs/canonical-certification.conf /etc/xdg
+debian/tmp/usr/share/checkbox-provider-certification-server/*
+debian/tmp/usr/share/plainbox-providers-1/*.provider
+providers/certification-server/tools/canonical-certification-precheck /usr/bin
+providers/certification-server/tools/canonical-certification-server /usr/bin

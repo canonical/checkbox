@@ -917,10 +917,10 @@ def main():
     # Run the actual listener and wait till it either times out of discovers
     # the appropriate media changes
     if args.zapper_usb_address:
-        zapper_host = os.environ.get('ZAPPER_ADDRESS')
+        zapper_host = os.environ.get('ZAPPER_HOST')
         if not zapper_host:
             raise SystemExit(
-                "ZAPPER_ADDRESS environment variable not found!")
+                "ZAPPER_HOST environment variable not found!")
         zapper_control = ControlVersionDecider().decide(zapper_host)
         usb_address = args.zapper_usb_address
         delay = 5  # in seconds

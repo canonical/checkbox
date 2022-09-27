@@ -1,5 +1,5 @@
 id: client-cert-odm-desktop-22-04-manual
-_name: [DRAFT] ODM Client Certification for Desktop 22.04 - (1/2) Manual tests
+_name: ODM Client Certification for Desktop 22.04 - (1/2) Manual tests
 unit: test plan
 _description:
  This test plan is intended for use by ODMs in their own facilities as part of
@@ -98,7 +98,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-led/microphone-mute
 
 id: client-cert-odm-desktop-22-04-automated
-_name: [DRAFT] ODM Client Certification for Desktop 22.04 - (2/2) Automated tests
+_name: ODM Client Certification for Desktop 22.04 - (2/2) Automated tests
 unit: test plan
 _description:
  This test plan is intended for use by ODMs in their own facilities as part of
@@ -210,7 +210,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-led/microphone-mute
 
 id: client-cert-odm-desktop-22-04
-_name: [DRAFT] DONT USE - desktop-22-04 - placeholder to establish that total number of tests has not changed
+_name: DO NOT USE - desktop-22-04 - placeholder to establish that total number of tests has not changed
 unit: test plan
 include:
 nested_part:

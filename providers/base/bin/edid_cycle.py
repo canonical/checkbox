@@ -26,8 +26,8 @@ def check_resolution():
 
 def change_edid(host, edid_file):
     with open(edid_file, 'rb') as f:
-        cmd = ['ssh', host, '\'v4l2-ctl --set-edid=file=-,'
-               'format=raw --fix-edid-checksums\'']
+        cmd = ['ssh', host, 'v4l2-ctl --set-edid=file=-,'
+               'format=raw --fix-edid-checksums']
         subprocess.check_output(cmd, input=f.read())
 
 

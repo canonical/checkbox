@@ -16,7 +16,7 @@ _summary: Zapper-driven USB insertion test on port {{ port_alias }}
 requires: usb.usb3 == 'supported'
 plugin: shell
 user: root
-environ: ZAPPER_ADDRESS
+environ: ZAPPER_HOST
 command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} insertion usb3
@@ -35,7 +35,7 @@ _summary: Zapper-driven USB removal test on port {{ port_alias }}
 requires: usb.usb3 == 'supported'
 plugin: shell
 user: root
-environ: ZAPPER_ADDRESS
+environ: ZAPPER_HOST
 command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} removal usb3

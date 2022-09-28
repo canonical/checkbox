@@ -162,9 +162,9 @@ def main():
     # generate argparse from the interface of Zapper Control
     parser = AutoArgParser(cls=IZapperControl)
     parser.add_argument(
-        '--host', default=os.environ.get('ZAPPER_ADDRESS'),
+        '--host', default=os.environ.get('ZAPPER_HOST'),
         help=("Address of Zapper to connect to. If not supplied, "
-              "ZAPPER_ADDRESS environment variable will be used.")
+              "ZAPPER_HOST environment variable will be used.")
     )
     # turn Namespace into a normal dict
     args = parser.parse_args()
@@ -174,7 +174,7 @@ def main():
     if host is None:
         raise SystemExit(
             "You have to provide Zapper host, either via '--host' or via "
-            "ZAPPER_ADDRESS environment variable")
+            "ZAPPER_HOST environment variable")
     zapper_control = decider.decide(host)
     parser.run(zapper_control)
 

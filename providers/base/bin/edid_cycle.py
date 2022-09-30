@@ -40,7 +40,7 @@ def main():
         edid_file = os.path.expandvars(os.path.join(
             '$PLAINBOX_PROVIDER_DATA', 'edids', '{}.edid'.format(res)))
         change_edid(sys.argv[1], edid_file)
-        time.sleep(1)
+        time.sleep(5)
         print('checking resolution... ', end='')
         actual_res = check_resolution()
         if actual_res != res:

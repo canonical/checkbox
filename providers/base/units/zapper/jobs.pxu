@@ -8,7 +8,7 @@ command: edid_cycle.py "$ZAPPER_HOST"
 
 unit: template
 template-resource: zapper_capabilities
-template-filter: zapper_capabilities.capability == 'USB hotplug'
+template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '2'
 category_id: com.canonical.plainbox::usb
 id: usb/zapper-usb-insert-{{ port_alias }}
 template-engine: jinja2
@@ -46,7 +46,7 @@ estimated_duration: 20
 
 unit: template
 template-resource: zapper_capabilities
-template-filter: zapper_capabilities.capability == 'USB hotplug'
+template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '2'
 category_id: com.canonical.plainbox::usb
 id: usb/zapper-usb-remove-{{ port_alias }}
 template-engine: jinja2

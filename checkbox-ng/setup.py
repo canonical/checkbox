@@ -63,6 +63,7 @@ setup(
     platforms=["POSIX"],
     description="Checkbox - Command Line Test Runner",
     long_description=long_description,
+    long_description_content_type="text/x-rst",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',

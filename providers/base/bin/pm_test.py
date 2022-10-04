@@ -540,6 +540,7 @@ class CountdownDialog(Gtk.Dialog):
         self.schedule_next_event()
         response = super(CountdownDialog, self).run()
         self.destroy()
+        self.show()
 
         if response != Gtk.ResponseType.ACCEPT:
             raise TestCancelled()

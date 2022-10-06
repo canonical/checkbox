@@ -1,0 +1,75 @@
+
+function append_path() {
+  local var="$1"
+  local dir="$2"
+  if [ -e "$dir" ]; then
+    eval "export $var=\"\${$var:+\$$var:}\$dir\""
+  fi
+}
+
+function prepend_dir() {
+  local var="$1"
+  local dir="$2"
+  if [ -d "$dir" ]; then
+    eval "export $var=\"\$dir\${$var:+:\$$var}\""
+  fi
+}
+
+if [ -z "$RUNTIME" ]; then
+  RUNTIME=$SNAP
+else
+  # add general paths not added by snapcraft due to runtime snap
+  append_path PERL5LIB $RUNTIME/usr/lib/$ARCH/perl/$PERL_VERSION
+  append_path PERL5LIB $RUNTIME/usr/lib/$ARCH/perl5/$PERL_VERSION
+  append_path PERL5LIB $RUNTIME/usr/share/perl/$PERL_VERSION
+  append_path PERL5LIB $RUNTIME/usr/share/perl5
+  append_path LD_LIBRARY_PATH $RUNTIME/lib
+  append_path LD_LIBRARY_PATH $RUNTIME/lib/$ARCH
+  append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH
+  append_path LD_LIBRARY_PATH $RUNTIME/lib/fwts
+  append_path GI_TYPELIB_PATH $RUNTIME/usr/lib/girepository-1.0
+  append_path GI_TYPELIB_PATH $RUNTIME/usr/lib/$ARCH/girepository-1.0
+  prepend_dir PATH $RUNTIME/bin
+  prepend_dir PATH $RUNTIME/usr/bin
+  prepend_dir PATH $RUNTIME/sbin
+  prepend_dir PATH $RUNTIME/usr/sbin
+  prepend_dir PATH $RUNTIME/usr/lib/qt5/bin
+  append_path ALSA_CONFIG_PATH $RUNTIME/usr/share/alsa/alsa.conf
+  append_path ALSA_CONFIG_PATH $RUNTIME/usr/share/alsa/pcm/default.conf
+  append_path PYTHONUSERBASE $RUNTIME
+  append_path PYTHONHOME $RUNTIME/usr
+  append_path PYTHONPATH $RUNTIME/usr/lib/python3/dist-packages
+  append_path PYTHONPATH $RUNTIME/lib/python3*/site-packages
+fi
+
+# make sure we always know where the content snap is especially for classic
+# checkbox snaps where the checkbox-runtime bind mount does not exist
+export CHECKBOX_RUNTIME=$RUNTIME
+
+# Use a modules directory which doesn't exist so we don't load random things
+# which may then get deleted (or their dependencies) and potentially segfault
+export GIO_MODULE_DIR=$SNAP/gio/modules-dummy
+
+export QML2_IMPORT_PATH="$RUNTIME/usr/lib/$ARCH/qt5/qml:$QML2_IMPORT_PATH"
+export QT_PLUGIN_PATH=$RUNTIME/usr/lib/$ARCH/qt5/plugins
+export QT_QPA_PLATFORM=xcb
+export QT_QPA_PLATFORMTHEME=appmenu-qt5
+
+# Tell GStreamer where to find its plugins
+export GST_PLUGIN_PATH=$RUNTIME/usr/lib/$ARCH/gstreamer-1.0
+export GST_PLUGIN_SYSTEM_PATH=$RUNTIME/usr/lib/$ARCH/gstreamer-1.0
+# gst plugin scanner doesn't install in the correct path: https://github.com/ubuntu/snapcraft-desktop-helpers/issues/43
+export GST_PLUGIN_SCANNER=$RUNTIME/usr/lib/$ARCH/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+
+# Make PulseAudio socket available inside the snap-specific $XDG_RUNTIME_DIR
+if [ -n "$XDG_RUNTIME_DIR" ]; then
+    export PULSE_RUNTIME_PATH="$XDG_RUNTIME_DIR/../pulse"
+    export PULSE_SYSTEM=1
+fi
+
+# Method for making providers available from the checkbox core snap without the
+# content interface
+BASE_PROVIDERS=($RUNTIME/providers/*)
+BASE_PROVIDERS_PATH=$(IFS=:; echo "${BASE_PROVIDERS[*]}")
+PROVIDERS=($SNAP/providers/*)
+export PROVIDERPATH=$(IFS=:; echo "${PROVIDERS[*]}"):$BASE_PROVIDERS_PATH

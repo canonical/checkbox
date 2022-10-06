@@ -1,0 +1,44 @@
+
+function append_path() {
+  local var="$1"
+  local dir="$2"
+  if [ -e "$dir" ]; then
+    eval "export $var=\"\${$var:+\$$var:}\$dir\""
+  fi
+}
+
+if [ -z "$RUNTIME" ]; then
+  RUNTIME=$SNAP
+else
+  # add general paths not added by snapcraft due to runtime snap
+  append_path PERL5LIB $RUNTIME/usr/lib/$ARCH/perl/$PERL_VERSION
+  append_path PERL5LIB $RUNTIME/usr/lib/$ARCH/perl5/$PERL_VERSION
+  append_path PERL5LIB $RUNTIME/usr/share/perl/$PERL_VERSION
+  append_path PERL5LIB $RUNTIME/usr/share/perl5
+  append_path LD_LIBRARY_PATH $RUNTIME/lib
+  append_path LD_LIBRARY_PATH $RUNTIME/lib/$ARCH
+  append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH
+  append_path LD_LIBRARY_PATH $RUNTIME/lib/fwts
+  append_path GI_TYPELIB_PATH $RUNTIME/usr/lib/girepository-1.0
+  append_path GI_TYPELIB_PATH $RUNTIME/usr/lib/$ARCH/girepository-1.0
+  append_path PATH $RUNTIME/bin
+  append_path PATH $RUNTIME/usr/bin
+  append_path PATH $RUNTIME/sbin
+  append_path PATH $RUNTIME/usr/sbin
+  append_path ALSA_CONFIG_PATH $RUNTIME/usr/share/alsa/alsa.conf
+  append_path ALSA_CONFIG_PATH $RUNTIME/usr/share/alsa/pcm/default.conf
+  append_path PYTHONUSERBASE $RUNTIME
+  append_path PYTHONHOME $RUNTIME/usr
+  append_path PYTHONPATH $RUNTIME/usr/lib/python3/dist-packages
+  append_path PYTHONPATH $RUNTIME/lib/python3*/site-packages
+fi
+
+# make sure we always know where the content snap is especially for classic
+# checkbox snaps where the checkbox-runtime bind mount does not exist
+export CHECKBOX_RUNTIME=$(findmnt -oTARGET -n $(findmnt -oSOURCE -n $RUNTIME) | grep -P "^\/snap\/checkbox(|\d{2})\/")
+
+# Tell GStreamer where to find its plugins
+export GST_PLUGIN_PATH=$RUNTIME/usr/lib/$ARCH/gstreamer-1.0
+export GST_PLUGIN_SYSTEM_PATH=$RUNTIME/usr/lib/$ARCH/gstreamer-1.0
+# gst plugin scanner doesn't install in the correct path: https://github.com/ubuntu/snapcraft-desktop-helpers/issues/43
+export GST_PLUGIN_SCANNER=$RUNTIME/usr/lib/$ARCH/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner

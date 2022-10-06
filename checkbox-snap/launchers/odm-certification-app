@@ -1,0 +1,24 @@
+#!/bin/sh
+
+print_usage() {
+    echo "Usage:"
+    echo "  cdts.odm-certification IP"
+    echo ""
+    echo "  IP  Provide IP address of the System Under Test"
+    echo ""
+    exit 1
+}
+
+if [ $# -ne 1 ]; then
+    print_usage
+fi
+
+if expr "$1" : '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' >/dev/null; then
+    true
+elif [ "$1" = "localhost" ]; then
+    true
+else
+    print_usage
+fi
+
+exec checkbox-cli remote "$1" "$SNAP"/bin/odm-certification

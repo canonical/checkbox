@@ -42,6 +42,19 @@ class ZapperProxyV1Tests(TestCase):
             mocked_print.assert_called_once_with(
                 'State for address 0 is ON')
 
+    def test_usb_get_state_fails(self):
+        """
+        Check if usb_get_state quits with the exception from
+        the rpyc server on failure.
+        """
+        self._mocked_conn.root.zombiemux_get_state = Mock(
+            side_effect=Exception("Failure message"))
+        zapctl = ZapperControlV1(self._mocked_conn)
+        with self.assertRaises(Exception) as context:
+            zapctl.usb_get_state(0)
+        self.assertEqual(
+            str(context.exception), 'Failure message')
+
     def test_usb_set_state_smoke(self):
         """
         Check if usb_set_state calls appropriate functions on the rpyc client.
@@ -52,6 +65,19 @@ class ZapperProxyV1Tests(TestCase):
             zapctl.usb_set_state(0, 'ON')
             mocked_print.assert_called_once_with(
                 "State 'ON' set for the address 0.")
+
+    def test_usb_set_state_fails(self):
+        """
+        Check if usb_set_state quits with the exception from
+        the rpcy server on failure.
+        """
+        self._mocked_conn.root.zombiemux_set_state = Mock(
+            side_effect=Exception("Failure message"))
+        zapctl = ZapperControlV1(self._mocked_conn)
+        with self.assertRaises(Exception) as context:
+            zapctl.usb_set_state(0, 'ON')
+        self.assertEqual(
+            str(context.exception), 'Failure message')
 
     def test_get_capabilities_one_cap(self):
         """

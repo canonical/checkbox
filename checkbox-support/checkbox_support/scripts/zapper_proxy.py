@@ -1,6 +1,7 @@
 # Copyright 2022 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#   Paolo Gentili <paolo.gentili@canonical.com>
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -72,19 +73,11 @@ class ZapperControlV1(IZapperControl):
         self._conn = connection
 
     def usb_get_state(self, address):
-        ret = []
-        success = self._conn.root.zombiemux_get_state(address, ret)
-        if not success:
-            raise SystemExit(
-                "Failed to get state for address {}.".format(address))
-        print("State for address {} is {}".format(address, ret[0]))
+        state = self._conn.root.zombiemux_get_state(address)
+        print("State for address {} is {}".format(address, state))
 
     def usb_set_state(self, address, state):
-        success = self._conn.root.zombiemux_set_state(address, state)
-        if not success:
-            raise SystemExit(
-                "Failed to set '{}' state for address {}.".format(
-                    state, address))
+        self._conn.root.zombiemux_set_state(address, state)
         print("State '{}' set for the address {}.".format(state, address))
 
     def get_capabilities(self):

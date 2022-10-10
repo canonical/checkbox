@@ -927,12 +927,12 @@ def main():
 
         def do_the_insert():
             logging.info("Calling zapper to connect the USB device")
-            zapper_control.usb_set_state(usb_address, 'dut')
+            zapper_control.usb_set_state(usb_address, 'DUT')
         insert_timer = threading.Timer(delay, do_the_insert)
 
         def do_the_remove():
             logging.info("Calling zapper to disconnect the USB device")
-            zapper_control.usb_set_state(usb_address, 'off')
+            zapper_control.usb_set_state(usb_address, 'OFF')
         remove_timer = threading.Timer(delay, do_the_remove)
         if args.action == "insert":
             logging.info("Starting timer for delayed insertion")

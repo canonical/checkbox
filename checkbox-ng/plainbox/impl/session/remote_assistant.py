@@ -224,6 +224,7 @@ class RemoteSessionAssistant():
         uid = pwd.getpwnam(self._normal_user).pw_uid
         return {
             'DISPLAY': self._set_envvar_from_proc('DISPLAY'),
+            'WAYLAND_DISPLAY': self._set_envvar_from_proc('WAYLAND_DISPLAY'),
             'XAUTHORITY': self._set_envvar_from_proc('XAUTHORITY'),
             'XDG_SESSION_TYPE': self._set_envvar_from_proc('XDG_SESSION_TYPE'),
             'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
@@ -256,6 +257,7 @@ class RemoteSessionAssistant():
                 uid = pwd.getpwnam(self._normal_user).pw_uid
                 return {
                     'DISPLAY': p_environ['DISPLAY'],
+                    'WAYLAND_DISPLAY': p_environ['WAYLAND_DISPLAY'],
                     'XAUTHORITY': p_environ['XAUTHORITY'],
                     'XDG_SESSION_TYPE': p_environ['XDG_SESSION_TYPE'],
                     'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),

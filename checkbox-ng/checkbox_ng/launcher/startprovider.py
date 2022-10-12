@@ -314,7 +314,7 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             plugin: shell
             estimated_duration: 0.01
             command:
-               test "$(cat $PLAINBOX_PROVIDER_DATA/example.dat)" = "DATA"
+               test "$(cat "$PLAINBOX_PROVIDER_DATA"/example.dat)" = "DATA"
             flags: preserve-locale
 
             unit: job

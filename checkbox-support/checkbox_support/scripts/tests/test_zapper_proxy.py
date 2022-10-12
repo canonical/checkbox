@@ -1,6 +1,7 @@
 # Copyright 2022 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#   Paolo Gentili <paolo.gentili@canonical.com>
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -31,16 +32,9 @@ class ZapperProxyV1Tests(TestCase):
     def test_usb_get_state_smoke(self):
         """
         Check if usb_get_state calls appropriate function on the rpyc client.
-
-        Current implementation on the service side uses mutable arguments for
-        returning values (C-style stuff that should be removed) this is why we
-        need the stateful side_effect below
         """
-        def side_effect_fn(_, ret):
-            ret.append('ON')
-            return True
         self._mocked_conn.root.zombiemux_get_state = Mock(
-            side_effect=side_effect_fn)
+            return_value="ON")
         zapctl = ZapperControlV1(self._mocked_conn)
 
         with patch('builtins.print') as mocked_print:
@@ -49,19 +43,23 @@ class ZapperProxyV1Tests(TestCase):
                 'State for address 0 is ON')
 
     def test_usb_get_state_fails(self):
-        """Check if usb_get_state quits with a proper message on failure."""
-        self._mocked_conn.root.zombiemux_get_state = Mock(return_value=False)
+        """
+        Check if usb_get_state quits with the exception from
+        the rpyc server on failure.
+        """
+        self._mocked_conn.root.zombiemux_get_state = Mock(
+            side_effect=Exception("Failure message"))
         zapctl = ZapperControlV1(self._mocked_conn)
-        with self.assertRaises(SystemExit) as context:
+        with self.assertRaises(Exception) as context:
             zapctl.usb_get_state(0)
         self.assertEqual(
-            context.exception.code, 'Failed to get state for address 0.')
+            str(context.exception), 'Failure message')
 
     def test_usb_set_state_smoke(self):
         """
         Check if usb_set_state calls appropriate functions on the rpyc client.
         """
-        self._mocked_conn.root.zombiemux_set_state = Mock(return_value=True)
+        self._mocked_conn.root.zombiemux_set_state = Mock()
         zapctl = ZapperControlV1(self._mocked_conn)
         with patch('builtins.print') as mocked_print:
             zapctl.usb_set_state(0, 'ON')
@@ -69,13 +67,17 @@ class ZapperProxyV1Tests(TestCase):
                 "State 'ON' set for the address 0.")
 
     def test_usb_set_state_fails(self):
-        """Check if usb_set_state quits with a proper message on failure."""
-        self._mocked_conn.root.zombiemux_set_state = Mock(return_value=False)
+        """
+        Check if usb_set_state quits with the exception from
+        the rpcy server on failure.
+        """
+        self._mocked_conn.root.zombiemux_set_state = Mock(
+            side_effect=Exception("Failure message"))
         zapctl = ZapperControlV1(self._mocked_conn)
-        with self.assertRaises(SystemExit) as context:
+        with self.assertRaises(Exception) as context:
             zapctl.usb_set_state(0, 'ON')
         self.assertEqual(
-            context.exception.code, "Failed to set 'ON' state for address 0.")
+            str(context.exception), 'Failure message')
 
     def test_get_capabilities_one_cap(self):
         """

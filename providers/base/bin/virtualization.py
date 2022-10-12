@@ -572,7 +572,7 @@ class LXDTest(object):
     def run_command(self, cmd):
         task = RunCommand(cmd)
         if task.returncode != 0:
-            logging.error('Command {} returnd a code of {}'.format(
+            logging.error('Command {} returned a code of {}'.format(
                 task.cmd, task.returncode))
             logging.error(' STDOUT: {}'.format(task.stdout))
             logging.error(' STDERR: {}'.format(task.stderr))
@@ -593,7 +593,7 @@ class LXDTest(object):
         logging.debug("Attempting to initialize LXD")
         # TODO: Need a method to see if LXD is already initialized
         if not self.run_command('lxd init --auto'):
-            logging.debug('Error encounterd while initializing LXD')
+            logging.debug('Error encountered while initializing LXD')
             result = False
 
         # Retrieve and insert LXD images
@@ -737,7 +737,7 @@ class LXDTest_vm(object):
     def run_command(self, cmd):
         task = RunCommand(cmd)
         if task.returncode != 0:
-            logging.error('Command {} returnd a code of {}'.format(
+            logging.error('Command {} returned a code of {}'.format(
                 task.cmd, task.returncode))
             logging.error(' STDOUT: {}'.format(task.stdout))
             logging.error(' STDERR: {}'.format(task.stderr))

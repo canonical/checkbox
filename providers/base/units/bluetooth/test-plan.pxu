@@ -154,6 +154,26 @@ exclude:
     "after-suspend-bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs"
     "after-suspend-bluetooth/bluez-internal-hci-tests_LE Generate DHKey"
 
+id: after-suspend-bluetooth-cert-full
+unit: test plan
+_name: Bluetooth tests full (after suspend)
+_description:
+ Bluetooth tests full (after suspend)
+include:
+nested_part:
+ com.canonical.certification::after-suspend-bluetooth-cert-manual
+ com.canonical.certification::after-suspend-bluetooth-cert-automated
+
+id: after-suspend-bluetooth-cert-manual
+unit: test plan
+_name: Bluetooth tests manual (after suspend)
+_description:
+ Bluetooth tests manual (after suspend)
+include:
+ after-suspend-bluetooth/audio-a2dp                           certification-status=blocker
+ after-suspend-bluetooth4/HOGP-mouse                          certification-status=blocker
+ after-suspend-bluetooth4/HOGP-keyboard                       certification-status=blocker
+
 id: after-suspend-bluetooth-cert-automated
 unit: test plan
 _name: Automated Bluetooth tests (after suspend)

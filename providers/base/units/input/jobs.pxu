@@ -87,6 +87,7 @@ user: root
 requires:
  executable.name == 'udevadm'
  executable.name == 'dbus-send'
+ lsb.release < '22.04' or (lsb.release >= '22.04' and device.category == 'TOUCHSCREEN')
 command: fixed_screen_orientation.sh
 _summary: Check whether screen orientation is fixed on {product}
 _purpose:

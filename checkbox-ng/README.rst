@@ -1,7 +1,7 @@
 Checkbox-ng
 ===========
 
-:term:`Checkbox-ng` is a hardware testing tool useful for certifying laptops,
+``Checkbox-ng`` is a hardware testing tool useful for certifying laptops,
 desktops, servers and IOT devices with Ubuntu.
 
 Installation

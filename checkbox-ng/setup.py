@@ -49,6 +49,7 @@ else:
         'urwid >= 1.1.1',
         'Jinja2 >= 2.7',
         'xlsxwriter',
+        'tqdm',
     ]
 
 setup(
@@ -63,6 +64,7 @@ setup(
     platforms=["POSIX"],
     description="Checkbox - Command Line Test Runner",
     long_description=long_description,
+    long_description_content_type="text/x-rst",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',

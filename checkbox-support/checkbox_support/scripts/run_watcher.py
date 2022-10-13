@@ -70,10 +70,10 @@ class USBWatcher:
             usb_address = self.args.zapper_usb_address
             if self.args.testcase == "insertion":
                 print("Calling zapper to connect the USB device")
-                zapper_control.usb_set_state(usb_address, 'dut')
+                zapper_control.usb_set_state(usb_address, 'DUT')
             elif self.args.testcase == "removal":
                 print("Calling zapper to disconnect the USB device")
-                zapper_control.usb_set_state(usb_address, 'off')
+                zapper_control.usb_set_state(usb_address, 'OFF')
         else:
             if self.args.testcase == "insertion":
                 print("\n\nINSERT NOW\n\n", flush=True)

@@ -638,7 +638,7 @@ class UDisks2StorageDeviceListener:
                     found.add('mounted')
                     # On some systems partition are reported as mounted
                     # filesystems, without 'partition' record
-                    if set(['partition', 'mounted']).issubset(needs):
+                    if set(['partition']).issubset(needs):
                         needs.remove('partition')
                 # Finally memorize the drive the block device belongs to
                 elif (record.value.iface_name ==
@@ -917,22 +917,22 @@ def main():
     # Run the actual listener and wait till it either times out of discovers
     # the appropriate media changes
     if args.zapper_usb_address:
-        zapper_host = os.environ.get('ZAPPER_ADDRESS')
+        zapper_host = os.environ.get('ZAPPER_HOST')
         if not zapper_host:
             raise SystemExit(
-                "ZAPPER_ADDRESS environment variable not found!")
+                "ZAPPER_HOST environment variable not found!")
         zapper_control = ControlVersionDecider().decide(zapper_host)
         usb_address = args.zapper_usb_address
         delay = 5  # in seconds
 
         def do_the_insert():
             logging.info("Calling zapper to connect the USB device")
-            zapper_control.usb_set_state(usb_address, 'dut')
+            zapper_control.usb_set_state(usb_address, 'DUT')
         insert_timer = threading.Timer(delay, do_the_insert)
 
         def do_the_remove():
             logging.info("Calling zapper to disconnect the USB device")
-            zapper_control.usb_set_state(usb_address, 'off')
+            zapper_control.usb_set_state(usb_address, 'OFF')
         remove_timer = threading.Timer(delay, do_the_remove)
         if args.action == "insert":
             logging.info("Starting timer for delayed insertion")

@@ -32,11 +32,11 @@ def find_largest_partition(device):
     for entry in out.decode(sys.stdout.encoding).splitlines():
         params = entry.strip().split()
         if len(params) == 3:
-            # filesystem info missing, so it's unknown
-            params.append(None)
+            # filesystem info missing, so it's unknown - skip
+            continue
         blk_devs.append(BlkDev(*params))
     blk_devs[:] = [bd for bd in blk_devs if (
-        bd.type in ('part', 'md') and bd.fstype is not None)]
+        bd.type in ('part', 'md') and bd.fstype != "crypto_LUKS")]
     if not blk_devs:
         raise SystemExit(
             'ERROR: No suitable partitions found on device {}'.format(device))

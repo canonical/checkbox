@@ -1,5 +1,5 @@
 id: client-cert-odm-server-22-04-manual
-_name: [DRAFT] ODM Client Certification for Server 22.04 - (1/2) Manual tests
+_name: ODM Client Certification for Server 22.04 - (1/2) Manual tests
 unit: test plan
 _description:
  This test plan is intended for use by ODMs in their own facilities as part of
@@ -60,7 +60,7 @@ exclude:
     rtc/battery
 
 id: client-cert-odm-server-22-04-automated
-_name: [DRAFT] ODM Client Certification for Server 22.04 - (2/2) Automated tests
+_name: ODM Client Certification for Server 22.04 - (2/2) Automated tests
 unit: test plan
 _description:
  This test plan is intended for use by ODMs in their own facilities as part of

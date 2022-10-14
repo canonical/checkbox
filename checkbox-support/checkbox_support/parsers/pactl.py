@@ -54,10 +54,6 @@ from collections import OrderedDict
 from inspect import isroutine
 
 import pyparsing as p
-try:
-    p.__compat__.collect_all_And_tokens = False
-except AttributeError:
-    pass
 
 # Enable packrat paring.
 #
@@ -214,7 +210,9 @@ class Port(Node):
         'name': 'port-name',
         'label': 'port-label',
         'priority': 'port-priority',
-        'availability': 'port-availability'
+        'availability': lambda t: t["port-availability"][0]
+        if isinstance(t["port-availability"], p.ParseResults)
+        else t["port-availability"],
     }
 
     __syntax__ = (
@@ -283,10 +281,16 @@ class PortWithProfile(Node):
         'name': 'port-name',
         'label': 'port-label',
         'priority': 'port-priority',
-        'latency_offset': 'port-latency-offset',
-        'availability': 'port-availability',
-        'properties': lambda t: t['port-properties'].asList(),
-        'profile_list': lambda t: t['port-profile-list'].asList(),
+        'latency_offset': lambda t: t["port-latency-offset"][0]
+        if isinstance(t["port-latency-offset"], p.ParseResults)
+        else t["port-latency-offset"],
+        'availability': lambda t: t["port-availability"][0]
+        if isinstance(t["port-availability"], p.ParseResults)
+        else t["port-availability"],
+        'properties': lambda t: t["port-properties"].asList()[0]
+        if any(isinstance(i, list) for i in t["port-properties"].asList())
+        else t["port-properties"].asList(),
+        'profile_list': lambda t: t["port-profile-list"].asList(),
     }
 
     __syntax__ = (

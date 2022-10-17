@@ -128,10 +128,12 @@ class PAVolumeController(object):
             return False
         if not self.identifier:
             return False
-        command = ['pactl',
-                   'set-%s-volume' % (self.pa_types[self.type]),
-                   str(self.identifier[0]),
-                   str(int(volume)) + "%"]
+        command = [
+            "pactl",
+            "set-%s-volume" % (self.pa_types[self.type]),
+            self.identifier,
+            str(int(volume)) + "%",
+        ]
         self._pactl_output(command)
         self._volume = volume
         return True
@@ -145,10 +147,12 @@ class PAVolumeController(object):
         mute = str(int(mute))
         if not self.identifier:
             return False
-        command = ['pactl',
-                   'set-%s-mute' % (self.pa_types[self.type]),
-                   str(self.identifier[0]),
-                   mute]
+        command = [
+            "pactl",
+            "set-%s-mute" % (self.pa_types[self.type]),
+            self.identifier,
+            mute,
+        ]
         self._pactl_output(command)
         return True
 
@@ -156,46 +160,57 @@ class PAVolumeController(object):
         if self.type:
             self.identifier = self._get_identifier_for(self.type)
             if self.identifier and self.logger:
-                message = "Using PulseAudio identifier %s (%s) for %s" %\
-                       (self.identifier + (self.type,))
+                message = "Using PulseAudio identifier %s for %s" % (
+                    self.identifier,
+                    self.type,
+                )
                 self.logger.info(message)
             return self.identifier
 
     def _get_identifier_for(self, type):
         """Gets default PulseAudio identifier for given type.
 
-           Arguments:
-           type: either input or output
+        Arguments:
+        type: either input or output
 
-           Returns:
-           A tuple: (pa_id, pa_description)
+        Returns:
+        A string: device_name
 
         """
 
-        if type not in self.pa_types:
+        # parse `pactl info`, and get "Default Source:" or "Default Sink:" line
+        command = ["pactl", "info"]
+        result = self._pactl_output(command).splitlines()
+        identifier = self.pa_types[type].capitalize()
+        find_string = "Default %s: " % identifier
+
+        line = next(
+            (line for line in result if line.startswith(find_string)), None
+        )
+        if line is None:
+            if self.identifier and self.logger:
+                self.logger.error(
+                    'Cannot find "%s" from `pactl info`.' % find_string
+                )
             return None
-        command = ['pactl', 'list', self.pa_types[type] + "s", 'short']
 
-        # Expect lines of this form (field separator is tab):
-        # <ID>\t<NAME>\t<MODULE>\t<SAMPLE_SPEC_WITH_SPACES>\t<STATE>
-        # What we need to return is the ID for the first element on this list
-        # that does not contain auto_null or monitor.
-        pa_info = self._pactl_output(command)
-        valid_elements = None
+        # .removeprefix() but need to support Python 3.8
+        # Refer to https://stackoverflow.com/a/16891418
+        name = line[len(find_string):].strip()
 
-        if pa_info:
-            reject_regex = '.*(monitor|auto_null).*'
-            valid_elements = [element for element in pa_info.splitlines()
-                              if not re.match(reject_regex, element)]
-        if not valid_elements:
+        if (
+            name.startswith("auto_null")
+            or name.endswith(".monitor")
+            or name.startswith("@DEFAULT_")
+        ):
             if self.logger:
-                self.logger.error("No valid PulseAudio elements"
-                                  " for %s" % (self.type))
+                self.logger.error(
+                    "Default PulseAudio element for %s is invalid (%s)"
+                    % (self.type, name)
+                )
             return None
-        # We only need the pulseaudio numeric ID and long name for each element
-        valid_elements = [(int(e.split()[0]), e.split()[1])
-                          for e in valid_elements]
-        return valid_elements[0]
+
+        return name
 
     def _pactl_output(self, command):
         # This method mainly calls pactl (hence the name). Since pactl may

@@ -233,6 +233,7 @@ class RemoteSessionAssistant():
         }
 
     def prepare_extra_env(self):
+        extra_env = {}
         # If possible also set the DISPLAY env var
         # i.e when a user desktop session is running
         for p in psutil.pids():
@@ -255,16 +256,15 @@ class RemoteSessionAssistant():
                 p_user != 'gdm'
             ):  # gdm uses :1024
                 uid = pwd.getpwnam(self._normal_user).pw_uid
-                return {
-                    'DISPLAY': p_environ['DISPLAY'],
-                    'WAYLAND_DISPLAY': p_environ['WAYLAND_DISPLAY'],
-                    'XAUTHORITY': p_environ['XAUTHORITY'],
-                    'XDG_SESSION_TYPE': p_environ['XDG_SESSION_TYPE'],
-                    'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
-                    'DBUS_SESSION_BUS_ADDRESS':
-                        'unix:path=/run/user/{}/bus'.format(uid)
-                }
-        return {}
+                extra_env['DISPLAY'] = p_environ['DISPLAY']
+                extra_env['XAUTHORITY'] = p_environ['XAUTHORITY']
+                extra_env['XDG_SESSION_TYPE'] = p_environ['XDG_SESSION_TYPE']
+                extra_env['XDG_RUNTIME_DIR'] = '/run/user/{}'.format(uid)
+                extra_env['DBUS_SESSION_BUS_ADDRESS'] = 'unix:path=/run/user/{}/bus'.format(uid)
+            if "WAYLAND_DISPLAY" in p_environ:
+                extra_env['WAYLAND_DISPLAY'] = p_environ['WAYLAND_DISPLAY']
+
+        return extra_env
 
     @allowed_when(Idle)
     def start_session(self, configuration):

@@ -118,7 +118,6 @@ parts:
       - libatomic1
       - libjudy-dev
       - libjpeg-dev
-      - libipsec-mb-dev
       - libglvnd-dev
       - libgbm-dev
       - libxxhash-dev

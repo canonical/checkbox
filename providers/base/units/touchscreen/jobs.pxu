@@ -264,7 +264,7 @@ _description:
      Validate that 3-touch tap is properly detected
  STEPS:
      1. Commence the test
-     2. Tap the screen with 34 fingers simultaneously.
+     2. Tap the screen with 3 fingers simultaneously.
  VERIFICATION:
      If the tap is not detected the test will time out after 10 seconds.
 user: root

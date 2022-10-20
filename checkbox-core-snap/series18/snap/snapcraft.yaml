@@ -177,11 +177,9 @@ parts:
     after: [checkbox-support]
 ################################################################################
   plainbox-provider-resource:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-resource
-    source-type: git
+    source: providers/resource
+    source-type: local
     stage-packages:
       - cpu-checker
       - dpkg
@@ -206,11 +204,9 @@ parts:
     after: [checkbox-ng]
 ################################################################################
   plainbox-provider-checkbox:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-checkbox
-    source-type: git
+    source: providers/base
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -287,11 +283,9 @@ parts:
     after: [plainbox-provider-resource]
 ################################################################################
   plainbox-provider-ipdt:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-ipdt
-    source-type: git
+    source: providers/ipdt
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -303,11 +297,9 @@ parts:
     after: [plainbox-provider-checkbox]
 ################################################################################
   plainbox-provider-docker:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-docker
-    source-type: git
+    source: providers/docker
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -319,11 +311,9 @@ parts:
     after: [plainbox-provider-ipdt]
 ################################################################################
   plainbox-provider-tpm2:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-tpm2
-    source-type: git
+    source: providers/tpm2
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -333,11 +323,9 @@ parts:
     after: [plainbox-provider-docker]
 ################################################################################
   plainbox-provider-sru:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-sru
-    source-type: git
+    source: providers/sru
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -347,11 +335,9 @@ parts:
     after: [plainbox-provider-tpm2, tpm2-tools-3]
 ################################################################################
   checkbox-provider-edgex:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/checkbox-provider-edgex
-    source-type: git
+    source: providers/edgex
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -363,11 +349,9 @@ parts:
     after: [plainbox-provider-sru]
 ################################################################################
   checkbox-provider-gpgpu:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/checkbox-provider-gpgpu
-    source-type: git
+    source: providers/gpgpu
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -377,11 +361,9 @@ parts:
     after: [checkbox-provider-edgex]
 ################################################################################
   plainbox-provider-certification-client:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-certification-client
-    source-type: git
+    source: providers/certification-client
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -391,11 +373,9 @@ parts:
     after: [checkbox-provider-gpgpu]
 ################################################################################
   plainbox-provider-certification-server:
-    source-tag: ""
-    source-depth: 1
     plugin: dump
-    source: https://git.launchpad.net/plainbox-provider-certification-server
-    source-type: git
+    source: providers/certification-server
+    source-type: local
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done

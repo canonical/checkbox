@@ -17,8 +17,10 @@ include:
  touchscreen/drag-n-drop                    certification-status=blocker
  touchscreen/multitouch-zoom                certification-status=blocker
  touchscreen/multitouch-rotate
- touchscreen/3-touch-tap                    certification-status=blocker
- touchscreen/4-touch-tap                    certification-status=blocker
+ touchscreen/evdev/3-touch-tap-.*           certification-status=blocker
+ touchscreen/evdev/4-touch-tap-.*           certification-status=blocker
+bootstrap_include:
+ device
 
 id: touchscreen-cert-automated
 unit: test plan
@@ -46,8 +48,10 @@ include:
  after-suspend-touchscreen/drag-n-drop             certification-status=blocker
  after-suspend-touchscreen/multitouch-zoom         certification-status=blocker
  after-suspend-touchscreen/multitouch-rotate
- after-suspend-touchscreen/3-touch-tap       certification-status=blocker
- after-suspend-touchscreen/4-touch-tap       certification-status=blocker
+ after-suspend-touchscreen/evdev/3-touch-tap-.*    certification-status=blocker
+ after-suspend-touchscreen/evdev/4-touch-tap-.*    certification-status=blocker
+bootstrap_include:
+ device
 
 id: after-suspend-touchscreen-cert-automated
 unit: test plan
@@ -61,20 +65,24 @@ unit: test plan
 _name: Touchscreen tests (certification blockers only)
 _description: Touchscreen tests (certification blockers only)
 include:
-    touchscreen/3-touch-tap                    certification-status=blocker
-    touchscreen/4-touch-tap                    certification-status=blocker
  touchscreen/drag-n-drop                    certification-status=blocker
  touchscreen/multitouch-zoom                certification-status=blocker
+ touchscreen/evdev/3-touch-tap-.*           certification-status=blocker
+ touchscreen/evdev/4-touch-tap-.*           certification-status=blocker
+bootstrap_include:
+ device
 
 id: after-suspend-touchscreen-cert-blockers
 unit: test plan
 _name: Touchscreen tests (after suspend, certification blockers only)
 _description: Touchscreen tests (after suspend, certification blockers only)
 include:
-    after-suspend-touchscreen/3-touch-tap        certification-status=blocker
-    after-suspend-touchscreen/4-touch-tap        certification-status=blocker
   after-suspend-touchscreen/drag-n-drop             certification-status=blocker
   after-suspend-touchscreen/multitouch-zoom         certification-status=blocker
+  after-suspend-touchscreen/evdev/3-touch-tap-.*    certification-status=blocker
+  after-suspend-touchscreen/evdev/4-touch-tap-.*    certification-status=blocker
+bootstrap_include:
+ device
 
 id: touchscreen-evdev
 unit: test plan

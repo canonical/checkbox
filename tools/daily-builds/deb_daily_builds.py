@@ -20,8 +20,6 @@
 import os
 import subprocess
 
-from pathlib import Path
-
 
 def run(*args, **kwargs):
     """wrapper for subprocess.run."""
@@ -45,8 +43,10 @@ def main():
     projects = {}
     for path, dirs, files in os.walk('.'):
         if "debian" in dirs:
-            project_path = str(Path(*Path(path).parts))
-            project_name = str(project_path).replace('s/', '-')
+            project_path = os.path.relpath(path)
+            # Tweak the provider paths to get names in the following form:
+            # providers/base -> checkbox-provider-base
+            project_name = project_path.replace('s/', '-')
             if project_name.startswith('provider'):
                 project_name = "checkbox-"+project_name
             projects[project_name] = project_path

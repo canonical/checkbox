@@ -15,6 +15,7 @@ depends:
  snap
  requirements
  uname
+ device
  dmi_attachment
  lsblk_attachment
  sysfs_attachment

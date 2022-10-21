@@ -5,6 +5,8 @@ on:
       - closed
     paths:
       - 'checkbox-ng/docs/**'
+      - 'checkbox-ng/setup.py'
+  workflow_dispatch:
 
 jobs:
   if_merged:

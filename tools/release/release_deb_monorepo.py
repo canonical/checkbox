@@ -294,15 +294,14 @@ class Release:
         for project_name, project_info in settings["projects"].items():
             if not project_info["release_required"]:
                 continue
-            project_path = str(Path(*Path(project_info["path"]).parts[2:]))
             cmd = ['git', 'log', '--no-merges', "--pretty='format:+ %s'",
                    '{}...{}'.format(
                        project_info["last_stable_tag"],
                        project_info["last_tag"]),
-                   '--', "':{}'".format(project_path)]
+                   '--', "':{}'".format(project_info["path"])]
             # TODO remove the exclude pathspec on debian after
             # the next release
-            cmd += ["':(exclude){}/debian'".format(project_path)]
+            cmd += ["':(exclude){}/debian'".format(project_info["path"])]
             log = run(
                 ' '.join(cmd), check=True, shell=True).stdout.decode()
             if log:

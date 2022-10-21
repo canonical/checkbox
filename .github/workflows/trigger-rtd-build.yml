@@ -1,4 +1,4 @@
-name: Trigger a new checkbox.readthedocs.io build
+name: Rebuild checkbox.readthedocs.io
 on:
   pull_request:
     types:

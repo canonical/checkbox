@@ -1,0 +1,25 @@
+name: Debian packages daily build
+
+on:
+  schedule:
+    - cron: '00 04 * * *'
+  workflow_dispatch:
+
+jobs:
+  deb_daily_builds:
+    name: Debian packages daily build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -qq -y python3-launchpadlib
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check for checkbox projects new commits
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+        run: |
+          tools/daily-builds/deb_daily_builds.py

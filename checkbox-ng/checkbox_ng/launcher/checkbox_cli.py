@@ -56,13 +56,13 @@ class Context:
 
 
 class WarnDeprecated(argparse._SubParsersAction):
-    replacements = {
+    REPLACEMENTS = {
         'slave': 'service',
         'master': 'remote',
     }
     def __call__(self, parser, namespace, values, option_string=None):
         cmd_name = values[0]
-        replacement = WarnDeprecated.replacements.get(cmd_name)
+        replacement = WarnDeprecated.REPLACEMENTS.get(cmd_name)
         if replacement is not None:
             print()
             print('WARNING: "{}" deprecated'.format(cmd_name), end='')
@@ -89,7 +89,7 @@ def main():
     }
 
     known_cmds = list(commands.keys())
-    known_cmds += list(WarnDeprecated.replacements.keys())
+    known_cmds += list(WarnDeprecated.REPLACEMENTS.keys())
     known_cmds += ['-h', '--help']
     if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
@@ -108,7 +108,7 @@ def main():
 
     subparsers = top_parser.add_subparsers(dest="subcommand", help=_(
         "subcommand to run"), action=WarnDeprecated)
-    deprecated_aliases = {v: [k] for k, v in WarnDeprecated.replacements.items()}
+    deprecated_aliases = {v: [k] for k, v in WarnDeprecated.REPLACEMENTS.items()}
     for cmd_name in commands:
         aliases = deprecated_aliases.get(cmd_name) or []
         subcmd_parser = subparsers.add_parser(cmd_name, aliases=aliases)

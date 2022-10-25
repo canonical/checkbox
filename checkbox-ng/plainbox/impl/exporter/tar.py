@@ -34,7 +34,7 @@ from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.providers import get_providers
 from plainbox.impl.unit.exporter import ExporterUnitSupport
-
+from plainbox.impl.session.storage import WellKnownDirsHelper
 
 class TARSessionStateExporter(SessionStateExporterBase):
     """Session state exporter creating Tar archives."""
@@ -93,6 +93,7 @@ class TARSessionStateExporter(SessionStateExporterBase):
                             arcname = os.path.splitext(arcname)[0]
                         tar.add(filename, os.path.join(folder, arcname),
                                 recursive=False)
+            tar.add(WellKnownDirsHelper.session_share(manager.storage.id), 'session-share')
 
     def dump(self, session, stream):
         pass

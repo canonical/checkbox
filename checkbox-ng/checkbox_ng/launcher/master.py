@@ -340,11 +340,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
     @staticmethod
     def register_arguments(parser):
-        from argparse import FileType
-        from argcomplete.completers import ChoicesCompleter
+        from argcomplete.completers import ChoicesCompleter, FilesCompleter
         parser.add_argument('host', help=_("target host"))
-        parser.add_argument('launcher', nargs='?', type=FileType('r'),
-            help=_("launcher definition file to use"))
+        parser.add_argument('launcher', nargs='?',
+            help=_("launcher definition file to use")
+        ).completer = FilesCompleter
         parser.add_argument('--port', type=int, default=18871, help=_(
             "port to connect to"))
         user_arg = parser.add_argument('-u', '--user', help=_(

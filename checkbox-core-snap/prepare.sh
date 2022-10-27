@@ -46,4 +46,4 @@ rsync -r --links ../providers $series/
 echo "Copying over checkbox-ng to $series"
 rsync -r --links ../checkbox-ng $series/
 echo "Copying over checkbox-support to $series"
-rsync -r --links ../checkbox-support $series"
+rsync -r --links ../checkbox-support $series

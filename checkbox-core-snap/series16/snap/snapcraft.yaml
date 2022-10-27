@@ -128,11 +128,9 @@ parts:
     after: [stress-ng]
 ################################################################################
   checkbox-support:
-    source-tag: ""
-    source-depth: 1
     plugin: python
-    source: https://git.launchpad.net/checkbox-support
-    source-type: git
+    source: ../checkbox-support
+    source-type: local
     stage-packages:
       - python3-requests-unixsocket
       - python3-systemd
@@ -155,11 +153,9 @@ parts:
       snapcraftctl pull
 ################################################################################
   checkbox-ng:
-    source-tag: ""
-    source-depth: 1
     plugin: python
-    source: https://git.launchpad.net/checkbox-ng
-    source-type: git
+    source: ../checkbox-ng
+    source-type: local
     build-packages:
       - zlib1g-dev
       - build-essential

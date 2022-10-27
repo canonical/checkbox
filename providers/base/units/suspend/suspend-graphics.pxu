@@ -212,7 +212,6 @@ depends:
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {{ driver }} {{ index }}
- graphics_driver.py
  if [[ $XDG_SESSION_TYPE == "wayland" ]]
  then
    inxi_snapshot -Gazy

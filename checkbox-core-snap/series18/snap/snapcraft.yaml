@@ -14,35 +14,35 @@ slots:
   provider-resource:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-resource
+      - $SNAP/providers/checkbox-provider-resource
   provider-checkbox:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-checkbox
+      - $SNAP/providers/checkbox-provider-checkbox
   provider-snappy:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-snappy
+      - $SNAP/providers/checkbox-provider-snappy
   provider-ipdt:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-ipdt
+      - $SNAP/providers/checkbox-provider-ipdt
   provider-docker:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-docker
+      - $SNAP/providers/checkbox-provider-docker
   provider-tpm2:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-tpm2
+      - $SNAP/providers/checkbox-provider-tpm2
   provider-engineering-tests:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-engineering-tests
+      - $SNAP/providers/checkbox-provider-engineering-tests
   provider-sru:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-sru
+      - $SNAP/providers/checkbox-provider-sru
   provider-edgex:
     interface: content
     read:
@@ -54,11 +54,11 @@ slots:
   provider-certification-client:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-certification-client
+      - $SNAP/providers/checkbox-provider-certification-client
   provider-certification-server:
     interface: content
     read:
-      - $SNAP/providers/plainbox-provider-certification-server
+      - $SNAP/providers/checkbox-provider-certification-server
   checkbox-runtime:
     interface: content
     read:
@@ -176,7 +176,7 @@ parts:
       - tqdm
     after: [checkbox-support]
 ################################################################################
-  plainbox-provider-resource:
+  checkbox-provider-resource:
     plugin: dump
     source: providers/resource
     source-type: local
@@ -194,7 +194,7 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-resource --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-resource --root="$SNAPCRAFT_PART_INSTALL"
     build-packages:
       - autoconf
       - automake
@@ -203,7 +203,7 @@ parts:
       - pkg-config
     after: [checkbox-ng]
 ################################################################################
-  plainbox-provider-checkbox:
+  checkbox-provider-checkbox:
     plugin: dump
     source: providers/base
     source-type: local
@@ -212,7 +212,7 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-checkbox --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-checkbox --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - bc
       - bluez-tests
@@ -280,9 +280,9 @@ parts:
       - libcap-dev
     organize:
       usr/lib/lib*.so*: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
-    after: [plainbox-provider-resource]
+    after: [checkbox-provider-resource]
 ################################################################################
-  plainbox-provider-ipdt:
+  checkbox-provider-ipdt:
     plugin: dump
     source: providers/ipdt
     source-type: local
@@ -291,12 +291,12 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-ipdt --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ipdt --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - util-linux
-    after: [plainbox-provider-checkbox]
+    after: [checkbox-provider-checkbox]
 ################################################################################
-  plainbox-provider-docker:
+  checkbox-provider-docker:
     plugin: dump
     source: providers/docker
     source-type: local
@@ -305,12 +305,12 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-docker --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-docker --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - apache2-utils
-    after: [plainbox-provider-ipdt]
+    after: [checkbox-provider-ipdt]
 ################################################################################
-  plainbox-provider-tpm2:
+  checkbox-provider-tpm2:
     plugin: dump
     source: providers/tpm2
     source-type: local
@@ -319,10 +319,10 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-tpm2 --root="$SNAPCRAFT_PART_INSTALL"
-    after: [plainbox-provider-docker]
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tpm2 --root="$SNAPCRAFT_PART_INSTALL"
+    after: [checkbox-provider-docker]
 ################################################################################
-  plainbox-provider-sru:
+  checkbox-provider-sru:
     plugin: dump
     source: providers/sru
     source-type: local
@@ -331,8 +331,8 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-sru --root="$SNAPCRAFT_PART_INSTALL"
-    after: [plainbox-provider-tpm2, tpm2-tools-3]
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-sru --root="$SNAPCRAFT_PART_INSTALL"
+    after: [checkbox-provider-tpm2, tpm2-tools-3]
 ################################################################################
   checkbox-provider-edgex:
     plugin: dump
@@ -343,10 +343,10 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-edgex --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-edgex --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - curl
-    after: [plainbox-provider-sru]
+    after: [checkbox-provider-sru]
 ################################################################################
   checkbox-provider-gpgpu:
     plugin: dump
@@ -357,10 +357,10 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-gpgpu --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-gpgpu --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-edgex]
 ################################################################################
-  plainbox-provider-certification-client:
+  checkbox-provider-certification-client:
     plugin: dump
     source: providers/certification-client
     source-type: local
@@ -369,10 +369,10 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-certification-client --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-client --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-gpgpu]
 ################################################################################
-  plainbox-provider-certification-server:
+  checkbox-provider-certification-server:
     plugin: dump
     source: providers/certification-server
     source-type: local
@@ -381,11 +381,11 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/plainbox-provider-certification-server --root="$SNAPCRAFT_PART_INSTALL"
-    after: [plainbox-provider-certification-client]
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-server --root="$SNAPCRAFT_PART_INSTALL"
+    after: [checkbox-provider-certification-client]
 ################################################################################
   # This module is a dependency for the job gpio/gpiomem_loopback_pairs_{model}
-  # in plainbox-provider-snappy only available in pypi and so can't be addded
+  # in checkbox-provider-snappy only available in pypi and so can't be addded
   # to stage-packages
   rpi-support-libs:
     plugin: python
@@ -502,7 +502,7 @@ parts:
             )
           fi
       done
-    after: [plainbox-provider-certification-server]
+    after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:
     plugin: dump

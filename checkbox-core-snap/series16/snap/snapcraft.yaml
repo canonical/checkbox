@@ -129,7 +129,7 @@ parts:
 ################################################################################
   checkbox-support:
     plugin: python
-    source: ../checkbox-support
+    source: checkbox-support
     source-type: local
     stage-packages:
       - python3-requests-unixsocket
@@ -154,7 +154,7 @@ parts:
 ################################################################################
   checkbox-ng:
     plugin: python
-    source: ../checkbox-ng
+    source: checkbox-ng
     source-type: local
     build-packages:
       - zlib1g-dev

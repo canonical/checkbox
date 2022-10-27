@@ -17,11 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-# This simple script finds a bluetooth source and sink, and records from the
-# source for 6 seconds, playing the recording back into the sink.  It helps a
-# human validate that record/playback is working, human can speak into
-# microphone and just ensure the speech can be heard instantly in the headset.
 
 # All the sudirectories here contain sources for snaps for different series.
 # Those snaps have files in common, those files are placed in common_series_uc

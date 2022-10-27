@@ -45,8 +45,8 @@ if [ ! -d "$series" ]; then
 fi
 
 echo "Copying over common_files/* to $series"
-rsync -r common_files/ $series/
+rsync -r --links common_files/ $series/
 echo "Copying over providers to $series"
-rsync -r ../providers $series/
+rsync -r --links ../providers $series/
 
 

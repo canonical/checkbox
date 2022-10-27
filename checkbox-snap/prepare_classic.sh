@@ -45,6 +45,6 @@ if [ ! -d "$series" ]; then
 fi
 
 echo "Copying over common_series_classic/* to $series"
-rsync -r common_series_classic/ $series/
+rsync -r --links common_series_classic/ $series/
 
 

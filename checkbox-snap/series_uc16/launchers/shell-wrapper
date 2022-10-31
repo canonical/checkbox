@@ -1,0 +1,7 @@
+#!/bin/bash
+
+. $(dirname "$(realpath $BASH_SOURCE)")/wrapper_local
+
+echo "$SNAP_NAME runtime shell, type 'exit' to quit the session"
+
+exec bash

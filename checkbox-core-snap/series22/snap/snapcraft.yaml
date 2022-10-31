@@ -18,7 +18,7 @@ slots:
   provider-checkbox:
     interface: content
     read:
-      - $SNAP/providers/checkbox-provider-checkbox
+      - $SNAP/providers/checkbox-provider-base
   provider-ipdt:
     interface: content
     read:
@@ -241,7 +241,7 @@ parts:
       - pkg-config
     after: [checkbox-ng]
 ################################################################################
-  checkbox-provider-checkbox:
+  checkbox-provider-base:
     plugin: dump
     source: providers/base
     source-type: local
@@ -250,7 +250,7 @@ parts:
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-checkbox --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-base --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - bc
       - bluez-tests
@@ -339,7 +339,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ipdt --root="$SNAPCRAFT_PART_INSTALL"
     stage-packages:
       - util-linux
-    after: [checkbox-provider-checkbox]
+    after: [checkbox-provider-base]
 ################################################################################
   checkbox-provider-docker:
     plugin: dump

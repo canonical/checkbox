@@ -65,6 +65,84 @@ def get_installed_memory_size():
     else:
         return result.banks_reported
 
+# Return 0, if not found the memory for amdgpu
+# Return >0, reserved vram for amdgpu
+def get_amdgpu_gpu_vram(addr=None):
+    size = 0
+    if addr is None:
+        return size
+    path = "/sys/module/amdgpu/drivers/pci:amdgpu/%s" % addr
+    if not os.path.isfile("%s/mem_info_vram_total" % path):
+        return size
+    with open('%s/mem_info_vram_total' % path) as vram:
+        size = int(vram.read())
+        size = int(size / (1024 * 1024))
+    return size
+
+# Return 0, if not found the memory for the pci device
+# Return >0, reserved memory for the pci device
+def get_allocated_pci_memory(addr=None):
+    if addr is None:
+        return 0
+    try:
+        lspci = check_output(['lspci', '-v', '-s', addr], universal_newlines=True)
+    except CalledProcessError as exc:
+        return exc.returncode
+
+    size = 0
+
+    for line in lspci.split('\n'):
+        # Skip G, K and lower than K, if lspci changes the format and
+        # this needs to be adjusted. So far, in 4G allocation, it shows
+        # in M (mega-bytes).
+        match = re.search('(.*)prefetchable\)(.*)\[size=(.*)M\](.*)', line)
+        if match is not None:
+            size += int(match.group(3))
+        match = re.search('(.*)prefetchable\)(.*)\[size=(.*)G\](.*)', line)
+        if match is not None:
+            size += int(match.group(3)) * 1024
+
+    return size
+
+# Get the FW allocated memory for PCI based GPU
+# Returns >= 0 allocated RAM size for PCI based gpu in mega-bytes
+# Returns -1 if failed, either ARM or related utilities not found
+def get_allocated_memory_for_each_pci_gpu():
+    try:
+        arch = check_output(['arch'], universal_newlines=True).strip()
+    except CalledProcessError as exc:
+        return exc.returncode
+
+    # If ARM, then exit
+    if arch != 'x86_64':
+        return 1
+
+    try:
+        lspci = check_output(['lspci', '-v'], universal_newlines=True)
+    except CalledProcessError as exc:
+        return exc.returncode
+
+    size = 0
+
+    pci_bus = "/sys/bus/pci/devices/"
+    drivers = ['nvidia', 'amdgpu', 'i915', 'radeon']
+    for driver in drivers:
+        path = "/sys/module/%s/drivers/pci:%s/" % (driver, driver)
+        if not os.path.exists(path):
+            continue
+        for f in os.scandir(path):
+            if not f.is_dir():
+                continue
+            if not re.match(r'\d{4}:\d{2}:\d{2}.\d{1}', f.name):
+                continue
+            if driver == 'amdgpu':
+                val = get_amdgpu_gpu_vram(f.name)
+            else:
+                val = get_allocated_pci_memory(f.name)
+            print("INFO: Found %s MB memory for %s gpu" % (val, driver))
+            size += val
+
+    return size
 
 class MeminfoResult:
 
@@ -73,14 +151,12 @@ class MeminfoResult:
     def setMemory(self, memory):
         self.memtotal = memory['total']
 
-
 def get_visible_memory_size():
     parser = MeminfoParser(open('/proc/meminfo'))
     result = MeminfoResult()
     parser.run(result)
 
     return result.memtotal
-
 
 def get_threshold(installed_memory):
     GB = 1024**3
@@ -98,10 +174,15 @@ def main():
         return 1
 
     installed_memory = HumanReadableBytes(get_installed_memory_size())
+    fw_allocated_memory_for_pci = get_allocated_memory_for_each_pci_gpu();
     visible_memory = HumanReadableBytes(get_visible_memory_size())
     threshold = get_threshold(installed_memory)
 
-    difference = HumanReadableBytes(installed_memory - visible_memory)
+    if fw_allocated_memory_for_pci >= 0:
+        difference = HumanReadableBytes(installed_memory - visible_memory -
+                fw_allocated_memory_for_pci * 1024 * 1024)
+    else:
+        difference = HumanReadableBytes(installed_memory - visible_memory)
     try:
         percentage = difference / installed_memory * 100
     except ZeroDivisionError:
@@ -118,6 +199,8 @@ def main():
         print("Results:")
         print("\t/proc/meminfo reports:\t{}".format(visible_memory))
         print("\tlshw reports:\t{}".format(installed_memory))
+        print("\tFound FW allocated %d MB for PCI GPUs" %
+                fw_allocated_memory_for_pci)
         print("\nPASS: Meminfo reports %s less than lshw, a "
               "difference of %.2f%%. This is less than the "
               "%d%% variance allowed." % (difference, percentage, threshold))
@@ -127,6 +210,8 @@ def main():
         print("\t/proc/meminfo reports:\t{}".format(visible_memory),
               file=sys.stderr)
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
+        print("\tFound FW allocated %d MB for PCI GPUs" %
+                fw_allocated_memory_for_pci)
         print("\nFAIL: Meminfo reports %d less than lshw, "
               "a difference of %.2f%%. Only a variance of %d%% in "
               "reported memory is allowed." %

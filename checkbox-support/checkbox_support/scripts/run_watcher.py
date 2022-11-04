@@ -16,6 +16,7 @@ import re
 import select
 import signal
 import sys
+import time
 from systemd import journal
 
 from checkbox_support.scripts.zapper_proxy import ControlVersionDecider
@@ -58,7 +59,7 @@ class USBWatcher:
 
     def run(self):
         j = journal.Reader()
-        j.seek_tail()
+        j.seek_realtime(time.time())
         p = select.poll()
         p.register(j, j.get_events())
         if self.args.zapper_usb_address:

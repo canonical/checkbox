@@ -1,6 +1,10 @@
 checkbox-ng (2.0.0) unstable; urgency=medium
 
+  [ Sylvain Pineau ]
   * new upstream version
+
+  [ Atlas Yu ]
+  * bash completion for checkbox-ng. 
 
  -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 23 Sep 2022 19:08:47 +0200
 

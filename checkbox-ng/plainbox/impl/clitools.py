@@ -78,7 +78,8 @@ class CommandBase(metaclass=abc.ABCMeta):
         """
 
     # This method is optional
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
         """
         Implement to customize which arguments need to be added to a parser.
 

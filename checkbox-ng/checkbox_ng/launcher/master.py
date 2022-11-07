@@ -338,14 +338,22 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self.sa.finish_job_selection()
         self.run_jobs()
 
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
+        from argparse import FileType
+        from argcomplete.completers import ChoicesCompleter
         parser.add_argument('host', help=_("target host"))
-        parser.add_argument('launcher', nargs='?', help=_(
-            "launcher definition file to use"))
+        parser.add_argument('launcher', nargs='?', type=FileType('r'),
+            help=_("launcher definition file to use"))
         parser.add_argument('--port', type=int, default=18871, help=_(
             "port to connect to"))
-        parser.add_argument('-u', '--user', help=_(
+        user_arg = parser.add_argument('-u', '--user', help=_(
             "normal user to run non-root jobs"))
+        try:
+            import psutil
+            user_arg.completer = ChoicesCompleter(psutil.users())
+        except:
+            pass
 
     def _handle_interrupt(self):
         """

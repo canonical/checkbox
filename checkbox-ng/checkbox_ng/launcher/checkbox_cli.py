@@ -20,6 +20,7 @@
 Checkbox Launcher Interpreter Application
 """
 
+import argparse
 import gettext
 import logging
 import os
@@ -54,8 +55,23 @@ class Context:
         self.sa = sa
 
 
+class WarnDeprecated(argparse._SubParsersAction):
+    replacements = {
+        'slave': 'service',
+        'master': 'remote',
+    }
+    def __call__(self, parser, namespace, values, option_string=None):
+        cmd_name = values[0]
+        replacement = WarnDeprecated.replacements.get(cmd_name)
+        if replacement is not None:
+            print()
+            print('WARNING: "{}" deprecated'.format(cmd_name), end='')
+            print(' please use "{}" instead.'.format(replacement), end='\n\n')
+            values[0] = replacement
+        return super().__call__(parser, namespace, values, option_string)
+
 def main():
-    import argparse
+    import argcomplete
     commands = {
         'check-config': CheckConfig,
         'launcher': Launcher,
@@ -71,24 +87,12 @@ def main():
         'service': RemoteSlave,
         'remote': RemoteMaster,
     }
-    deprecated_commands = {
-        'slave': 'service',
-        'master': 'remote',
-    }
 
     known_cmds = list(commands.keys())
-    known_cmds += list(deprecated_commands.keys())
+    known_cmds += list(WarnDeprecated.replacements.keys())
     known_cmds += ['-h', '--help']
     if not (set(known_cmds) & set(sys.argv[1:])):
         sys.argv.insert(1, 'launcher')
-
-    for i, arg in enumerate(sys.argv):
-        if arg in deprecated_commands:
-            sys.argv[i] = deprecated_commands[arg]
-            print()
-            print('WARNING: "{}" deprecated'.format(arg), end='')
-            print(' please use "{}" instead.'.format(
-                deprecated_commands[arg]), end='\n\n')
 
     top_parser = argparse.ArgumentParser()
     top_parser.add_argument('-v', '--verbose', action='store_true', help=_(
@@ -101,34 +105,36 @@ def main():
         "remove previous sessions' data"))
     top_parser.add_argument('--version', action='store_true', help=_(
         "show program's version information and exit"))
-    top_parser.add_argument('subcommand', help=_("subcommand to run"),
-                            choices=commands.keys())
-    # parse all the cli invocation until a subcommand is found
-    # subcommand doesn't start with a '-'
-    subcmd_index = 1
-    for i, arg in enumerate(sys.argv[1:]):
-        if not arg.startswith('-'):
-            subcmd_index = i + 1
-            break
-    args = top_parser.parse_args(sys.argv[1:subcmd_index + 1])
-    subcmd_parser = argparse.ArgumentParser()
+
+    subparsers = top_parser.add_subparsers(dest="subcommand", help=_(
+        "subcommand to run"), action=WarnDeprecated)
+    deprecated_aliases = {v: [k] for k, v in WarnDeprecated.replacements.items()}
+    for cmd_name in commands:
+        aliases = deprecated_aliases.get(cmd_name) or []
+        subcmd_parser = subparsers.add_parser(cmd_name, aliases=aliases)
+        subcmd_class = commands[cmd_name]
+        subcmd_class.register_arguments(subcmd_parser)
+
+    # shadow the deprecated aliases: {check-config,launcher,...}
+    subparsers.metavar = "{{{}}}".format(','.join(commands.keys()))
+
+    argcomplete.autocomplete(top_parser)
+    args = top_parser.parse_args()
     subcmd = commands[args.subcommand]()
-    subcmd.register_arguments(subcmd_parser)
-    sub_args = subcmd_parser.parse_args(sys.argv[subcmd_index + 1:])
     sa = SessionAssistant(
         "com.canonical:checkbox-cli",
         "0.99",
         "0.99",
         ["restartable"],
     )
-    ctx = Context(sub_args, sa)
+    ctx = Context(args, sa)
     try:
         socket.getaddrinfo('localhost', 443)  # 443 for HTTPS
     except Exception:
         pass
-    if '--clear-cache' in sys.argv:
+    if args.clear_cache:
         ResourceJobCache().clear()
-    if '--clear-old-sessions' in sys.argv:
+    if args.clear_old_sessions:
         old_sessions = [s[0] for s in sa.get_old_sessions()]
         sa.delete_sessions(old_sessions)
     if args.verbose:

@@ -51,5 +51,6 @@ class CheckConfig():
             print(_("No validation problems found"))
             return 0
 
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
         pass

@@ -1,8 +1,10 @@
 # This file is part of Checkbox.
 #
-# Copyright 2016-2019 Canonical Ltd.
+# Copyright 2016-2022 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+# Updated by:
+#   Atlas Yu <atlas.yu@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -44,7 +46,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
-from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.assistant import SA_RESTARTABLE, SessionAssistant
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.session.storage import WellKnownDirsHelper
@@ -67,9 +69,30 @@ _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
 
+_sa4cpt= None
+
+def _completer_get_sa():
+    global _sa4cpt
+    if _sa4cpt is None:
+        _sa4cpt = SessionAssistant("com.canonical:checkbox-cli")
+    return _sa4cpt
+
+def _fetch_test_plans():
+    sa = _completer_get_sa()
+    sa.start_new_session('checkbox-listing-ephemeral')
+    return sa.get_test_plans()
+
+class LazyChoicesCompleter(object):
+    def __init__(self, load_callback):
+        self.load_callback = load_callback
+    
+    def __call__(self, prefix, **kwargs):
+        return self.load_callback()
 
 class Submit():
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
+        from argcomplete.completers import FilesCompleter
         def secureid(secure_id):
             if not re.match(SECURE_ID_PATTERN, secure_id):
                 raise ArgumentTypeError(
@@ -81,7 +104,8 @@ class Submit():
             help=_("associate submission with a machine using this SECURE-ID"))
         parser.add_argument(
             "submission", metavar=_("SUBMISSION"),
-            help=_("The path to the results file"))
+            help=_("The path to the results file")
+        ).completer = FilesCompleter
         parser.add_argument(
             "-s", "--staging", action="store_true",
             help=_("Use staging environment"))
@@ -139,7 +163,8 @@ class Submit():
 
 
 class StartProvider():
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
         parser.add_argument(
             'name', metavar=_('name'), type=IQN,
             # TRANSLATORS: please keep the YYYY.example... text unchanged or at
@@ -539,10 +564,13 @@ class Launcher(MainLoopStage, ReportsStage):
             show_out = True
         return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
+        from argcomplete.completers import FilesCompleter
         parser.add_argument(
             'launcher', metavar=_('LAUNCHER'), nargs='?',
-            help=_('launcher definition file to use'))
+            help=_('launcher definition file to use')
+        ).completer = FilesCompleter
         parser.add_argument(
             '--resume', dest='session_id', metavar='SESSION_ID',
             help=SUPPRESS)
@@ -580,10 +608,45 @@ class CheckboxUI(NormalUI):
 
 
 class Run(MainLoopStage):
-    def register_arguments(self, parser):
+    @staticmethod
+    def _get_output_options(sa):
+        exporter_map = sa._manager.exporter_map
+        uniq_options = set()
+        for key in exporter_map:
+            supporter = exporter_map[key]
+            options = supporter.exporter_cls.supported_option_list
+            if type(options) is str:
+                options = (options,)
+            uniq_options.update(options)
+        return sorted(list(uniq_options))
+
+    @staticmethod
+    def register_arguments(parser):
+        from argcomplete.completers import FilesCompleter
+
+        def fetch_output_formats():
+            sa = _completer_get_sa()
+            wobjs = walk_objs('exporter', sa)
+            return sorted([w.value for w in wobjs])
+        
+        def fetch_output_options():
+            sa = _completer_get_sa()
+            return Run._get_output_options(sa)
+
+        def pattern_completer(prefix, parsed_args, **kwargs):
+            sa = _completer_get_sa()
+            all_jobs = [job['full_id'] for job in get_all_jobs(sa)]
+            if parsed_args is not None:
+                patterns = parsed_args.PATTERN or []
+                if len(patterns) > 0:
+                    return all_jobs
+            all_test_plans = _fetch_test_plans()
+            return all_test_plans + all_jobs
+
         parser.add_argument(
             'PATTERN', nargs="*",
-            help=_("run jobs matching the given regular expression"))
+            help=_("run jobs matching the given regular expression")
+        ).completer = pattern_completer
         parser.add_argument(
             '--non-interactive', action='store_true',
             help=_("skip tests that require interactivity"))
@@ -592,17 +655,20 @@ class Run(MainLoopStage):
             default='com.canonical.plainbox::text',
             metavar=_('FORMAT'),
             help=_('save test results in the specified FORMAT'
-                   ' (pass ? for a list of choices)'))
+                   ' (pass ? for a list of choices)')
+        ).completer = LazyChoicesCompleter(fetch_output_formats)
         parser.add_argument(
             '-p', '--output-options', default='',
             metavar=_('OPTIONS'),
             help=_('comma-separated list of options for the export mechanism'
-                   ' (pass ? for a list of choices)'))
+                   ' (pass ? for a list of choices)')
+        ).completer = LazyChoicesCompleter(fetch_output_options)
         parser.add_argument(
             '-o', '--output-file', default='-',
             metavar=_('FILE'),  # type=FileType("wb"),
             help=_('save test results to the specified FILE'
-                   ' (or to stdout if FILE is -)'))
+                   ' (or to stdout if FILE is -)')
+        ).completer = FilesCompleter
         parser.add_argument(
             '-t', '--transport',
             metavar=_('TRANSPORT'),
@@ -671,7 +737,7 @@ class Run(MainLoopStage):
                 self._run_jobs(self.sa.get_dynamic_todo_list())
                 # there might have been new jobs instantiated
                 while True:
-                    self.sa.hand_pick_jobs(ctx.args.PATTERN)
+                    self.sa.hand_pick_jobs(selection)
                     todos = self.sa.get_dynamic_todo_list()
                     if not todos:
                         break
@@ -692,6 +758,11 @@ class Run(MainLoopStage):
         """Configure transport and exporter."""
         if self.ctx.args.output_format == '?':
             print_objs('exporter', self.ctx.sa)
+            raise SystemExit(0)
+        if self.ctx.args.output_options == '?':
+            options = Run._get_output_options(self.sa)
+            for option in options:
+                print(option)
             raise SystemExit(0)
         if self.ctx.args.transport == '?':
             print(', '.join(get_all_transports()))
@@ -752,20 +823,43 @@ class Run(MainLoopStage):
 
 
 class List():
-    def register_arguments(self, parser):
+    GROUP_WILDCARD = 'all-jobs'
+    @staticmethod
+    def register_arguments(parser):
+        def fetch_groups():
+            sa = _completer_get_sa()
+            wobjs = walk_objs(None, sa)
+            uniq_groups = set([w.key for w in wobjs if w.key is not None])
+            return sorted([List.GROUP_WILDCARD] + list(uniq_groups))
+
         parser.add_argument(
             'GROUP', nargs='?',
-            help=_("list objects from the specified group"))
+            help=_("list objects from the specified group")
+        ).completer = LazyChoicesCompleter(fetch_groups)
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",
             help=_("show object attributes"))
         parser.add_argument(
             '-f', '--format', type=str,
             help=_(("output format, as passed to print function. "
-                    "Use '?' to list possible values")))
+                    "Use '?' to list possible values"))
+        ).completer = LazyChoicesCompleter(List._fetch_format)
+
+    @staticmethod
+    def _fetch_format():
+        sa = _completer_get_sa()
+        jobs = get_all_jobs(sa)
+        return List._get_all_job_keys(jobs)
+
+    @staticmethod
+    def _get_all_job_keys(jobs):
+        all_keys = set()
+        for job in jobs:
+            all_keys.update(job.keys())
+        return sorted(list(all_keys))
 
     def invoked(self, ctx):
-        if ctx.args.GROUP == 'all-jobs':
+        if ctx.args.GROUP == List.GROUP_WILDCARD:
             if ctx.args.attrs:
                 print_objs('job', ctx.sa, True)
 
@@ -773,11 +867,8 @@ class List():
                 print_objs('template', ctx.sa, True, filter_fun)
             jobs = get_all_jobs(ctx.sa)
             if ctx.args.format == '?':
-                all_keys = set()
-                for job in jobs:
-                    all_keys.update(job.keys())
                 print(_('Available fields are:'))
-                print(', '.join(sorted(list(all_keys))))
+                print(', '.join(List._get_all_job_keys(jobs)))
                 return
             if not ctx.args.format:
                 # setting default in parser.add_argument would apply to all
@@ -811,14 +902,17 @@ class ListBootstrapped():
     def sa(self):
         return self.ctx.sa
 
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
         parser.add_argument(
             'TEST_PLAN',
-            help=_("test-plan id to bootstrap"))
+            help=_("test-plan id to bootstrap")
+        ).completer = LazyChoicesCompleter(_fetch_test_plans)
         parser.add_argument(
             '-f', '--format', type=str, default="{full_id}\n",
             help=_(("output format, as passed to print function. "
-                    "Use '?' to list possible values")))
+                    "Use '?' to list possible values"))
+        ).completer = LazyChoicesCompleter(List._fetch_format)
 
     def invoked(self, ctx):
         self.ctx = ctx
@@ -836,11 +930,8 @@ class ListBootstrapped():
             attrs['id'] = job_unit.partial_id
             jobs.append(attrs)
         if ctx.args.format == '?':
-            all_keys = set()
-            for job in jobs:
-                all_keys.update(job.keys())
             print(_('Available fields are:'))
-            print(', '.join(sorted(list(all_keys))))
+            print(', '.join(List._get_all_job_keys(jobs)))
             return
         if ctx.args.format:
             for job in jobs:
@@ -863,10 +954,12 @@ class TestPlanExport():
     def sa(self):
         return self.ctx.sa
 
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
         parser.add_argument(
             'TEST_PLAN',
-            help=_("test-plan id to bootstrap"))
+            help=_("test-plan id to bootstrap")
+        ).completer = LazyChoicesCompleter(_fetch_test_plans)
         parser.add_argument(
             '-n', '--nofake', action='store_true')
 
@@ -906,34 +999,62 @@ def get_all_jobs(sa):
         return jobs
     return sorted(get_jobs(root), key=operator.itemgetter('full_id'))
 
+class WalkObject(object):
+    def __init__(self, depth, key, value, is_attr=False):
+        self.depth = depth
+        self.key = key
+        self.value = value
+        self.is_attr = is_attr
+    
+    @staticmethod
+    def step_into(depth):
+        return WalkObject(depth, None, None)
+    
+    @property
+    def is_step_into(self):
+        return self.key is None and self.value is None
 
-def print_objs(group, sa, show_attrs=False, filter_fun=None):
+def walk_objs(group, sa, show_attrs=False, filter_fun=None):
+    wobjs = []
     providers = sa.get_selected_providers()
     obj = Explorer(providers).get_object_tree()
 
-    def _show(obj, indent):
+    def _walk(obj, depth=0):
         if group is None or obj.group == group:
-            # object must satisfy filter_fun (if supplied) to be printed
+            # object must satisfy filter_fun (if supplied) to be included
             if filter_fun and not filter_fun(obj):
                 return
-            # Display the object name and group
-            print("{}{} {!r}".format(indent, obj.group, obj.name))
-            indent += "  "
+            wobjs.append(WalkObject(depth, obj.group, obj.name))
+            depth += 1
             if show_attrs:
                 for key, value in obj.attrs.items():
-                    print("{}{:15}: {!r}".format(indent, key, value))
+                    wobjs.append(WalkObject(depth, key, value, True))
         if obj.children:
             if group is None:
-                print("{}{}".format(indent, _("children")))
-                indent += "  "
+                wobjs.append(WalkObject.step_into(depth))
+                depth += 1
             for child in obj.children:
-                _show(child, indent)
+                _walk(child, depth)
 
-    _show(obj, "")
+    _walk(obj)
+    return wobjs
 
+def print_objs(group, sa, show_attrs=False, filter_fun=None):
+    wobjs = walk_objs(group, sa, show_attrs, filter_fun)
+    indent = "  "
+    for wobj in wobjs:
+        indents = indent * wobj.depth
+        if wobj.is_step_into:
+            print("{}{}".format(indents, _("children")))
+        elif wobj.is_attr:
+            print("{}{:15}: {!r}".format(indents, wobj.key, wobj.value))
+        else:
+            # Display the object name and group
+            print("{}{}: {!r}".format(indents, wobj.key, wobj.value))
 
 class Show():
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
         parser.add_argument(
             'IDs', nargs='+', help=_("Show the definitions of objects"))
 

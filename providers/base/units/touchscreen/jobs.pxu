@@ -221,7 +221,7 @@ _description:
  VERIFICATION:
      If the tap is not detected the test will time out after 10 seconds.
 user: root
-command: evdev_touch_test.py '{{ product }}' -x 1
+command: timeout 10 evdev_touch_test.py '{{ product }}' -x 1
 flags: also-after-suspend
 
 unit: template
@@ -244,7 +244,7 @@ _description:
  VERIFICATION:
      If the tap is not detected the test will time out after 10 seconds.
 user: root
-command: evdev_touch_test.py '{{ product }}' -x 2
+command: timeout 10 evdev_touch_test.py '{{ product }}' -x 2
 flags: also-after-suspend
 after: touchscreen/evdev/single-touch-tap-{{ product_slug }}
 
@@ -264,11 +264,11 @@ _description:
      Validate that 3-touch tap is properly detected
  STEPS:
      1. Commence the test
-     2. Tap the screen with 34 fingers simultaneously.
+     2. Tap the screen with 3 fingers simultaneously.
  VERIFICATION:
      If the tap is not detected the test will time out after 10 seconds.
 user: root
-command: evdev_touch_test.py '{{ product }}' -x 3
+command: timeout 10 evdev_touch_test.py '{{ product }}' -x 3
 flags: also-after-suspend
 after: touchscreen/evdev/2-touch-tap-{{ product_slug }}
 
@@ -292,6 +292,6 @@ _description:
  VERIFICATION:
      If the tap is not detected the test will time out after 10 seconds.
 user: root
-command: evdev_touch_test.py '{{ product }}' -x 4
+command: timeout 10 evdev_touch_test.py '{{ product }}' -x 4
 flags: also-after-suspend
 after: touchscreen/evdev/3-touch-tap-{{ product_slug }}

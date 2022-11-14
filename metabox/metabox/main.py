@@ -21,11 +21,18 @@
 Entry point to the Metabox program.
 """
 import argparse
+import logging
 import warnings
 from pathlib import Path
 
 from loguru._logger import Core
 from metabox.core.runner import Runner
+
+
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Mute all ws4py ConnectionResetError
+        return
 
 
 def main():
@@ -61,6 +68,7 @@ def main():
         '--debug-machine-setup', action='store_true',
         help="Turn on verbosity during machine setup. "
              "Only works with --log TRACE")
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
     # Ignore warnings issued by pylxd/models/operation.py
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

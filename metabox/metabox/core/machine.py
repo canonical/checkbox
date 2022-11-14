@@ -221,7 +221,9 @@ class ContainerBaseMachine():
         # session (A virtual framebuffer and a pulseaudio server with a dummy
         # output)
         interactive_execute(
-            self._container, "/usr/bin/Xvfb -screen 0 1280x1024x24")
+            self._container,
+            "DISPLAY=:0 XAUTHORITY=/run/user/1000/gdm/Xauthority "
+            "XDG_SESSION_TYPE=x11 /usr/bin/Xvfb -screen 0 1280x1024x24")
         # Note: running the following commands as part of standard setup does
         # not make them persistent as after restoring snapshots user/1000
         # is gone from /run

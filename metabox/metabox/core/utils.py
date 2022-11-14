@@ -47,3 +47,6 @@ class _re:
 
     def search(self, data):
         return bool(self._pattern.search(data))
+
+    def split(self, data):
+        return re.split(self._pattern, data, maxsplit=1)[-1]

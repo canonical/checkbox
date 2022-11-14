@@ -69,7 +69,7 @@ class AudioPlayback(Scenario):
         Expect('Pick an action'),
         Send(keys.KEY_ENTER),
         Expect('Pipeline initialized, now starting playback.'),
-        Expect('Pick an action'),
+        Expect('Pick an action', timeout=10),
         Send('p' + keys.KEY_ENTER),
         AssertNotPrinted('Connection failure: Connection refused'),
         Expect(_re('(☑|job passed).*audio/playback_auto'), timeout=10),

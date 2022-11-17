@@ -73,11 +73,16 @@ class LxdMachineProvider():
 
     def _get_existing_machines(self):
         for container in self.client.containers.all():
+            if not container.name.startswith('metabox'):
+                continue
             try:
+                container.start(wait=True)
                 content = container.files.get(self.LXD_INTERNAL_CONFIG_PATH)
+                container.stop(wait=True)
                 config_dict = json.loads(content)
                 config = MachineConfig(config_dict['role'], config_dict)
-            except (KeyError, LXDAPIException):
+            except Exception as e:
+                print(container.name, e)
                 continue
             if config in self._machine_config:
                 self._owned_containers.append(

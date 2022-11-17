@@ -182,7 +182,8 @@ class Runner:
             scn.run()
             if not scn.has_passed():
                 self.failed = True
-                logger.error("{} scenario has failed.".format(scn.name))
+                logger.error("[{}][{}] {} scenario has failed.".format(
+                    scn.mode, scn.releases, scn.name))
                 if self.hold_on_fail:
                     if scn.mode == "remote":
                         msg = (
@@ -200,7 +201,8 @@ class Runner:
                     print(msg)
                     input()
             else:
-                logger.success("{} scenario has passed.".format(scn.name))
+                logger.success("[{}][{}] {} scenario has passed.".format(
+                    scn.mode, scn.releases, scn.name))
             self.machine_provider.cleanup()
         del self.machine_provider
         stopTime = time.perf_counter()

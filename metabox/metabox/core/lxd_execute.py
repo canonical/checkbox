@@ -72,11 +72,15 @@ class InteractiveWebsocket(WebSocketClient):
                 check = data.encode('utf-8') in self.stdout_data
             if check:
                 with self.stdout_lock:
-                    self.stdout_data = bytearray()
+                    if type(data) != str:
+                        self.stdout_data = data.split(self.stdout_data)
+                    else:
+                        self.stdout_data = self.stdout_data.split(
+                            data.encode('utf-8'), maxsplit=1)[-1]
                 not_found = False
             if timeout and time.time() > start_time + timeout:
                 logger.warning(
-                    "{} not found! Timeout is reached (set to {})",
+                    "'{}' not found! Timeout is reached (set to {})",
                     data, timeout)
                 raise TimeoutError
         return not_found is False
@@ -115,6 +119,7 @@ class InteractiveWebsocket(WebSocketClient):
                 time.sleep(0.1)
                 attempt += 1
         if not_found:
+            logger.warning("test plan {} not found!", data)
             return False
         data = '(X) ' + data
         attempt = 0

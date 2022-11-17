@@ -58,16 +58,6 @@ class RunTestplanWithEnvvar(Scenario):
     ]
 
 
-class RunTestplanWithTimeout(Scenario):
-
-    mode = ['local']
-    steps = [
-        Start('run 2021.com.canonical.certification::'
-              'basic-automated-passing', timeout='0.1s'),
-        AssertRetCode(0)
-    ]
-
-
 class RunManualplan(Scenario):
 
     mode = ['local']

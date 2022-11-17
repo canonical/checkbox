@@ -12,7 +12,7 @@ from plainbox.provider_manager import N_
 setup(
     name='checkbox-provider-ipdt',
     namespace='com.intel.ipdt',
-    version="2.0.0",
+    version="2.1.0",
     description=N_("Checkbox Provider for IPDT"),
     gettext_domain='checkbox-provider-ipdt',
 )

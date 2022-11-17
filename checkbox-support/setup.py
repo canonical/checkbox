@@ -38,7 +38,7 @@ with open(os.path.join(base_dir, "README.rst"), encoding="UTF-8") as stream:
 
 setup(
     name="checkbox-support",
-    version="2.0.0",
+    version="2.1.0",
     url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     test_suite='checkbox_support.tests.test_suite',
@@ -49,7 +49,7 @@ setup(
     long_description=long_description,
     package_data={"checkbox_support": ["parsers/cputable"]},
     install_requires=[
-        'pyparsing >= 2.0.0',
+        'pyparsing >= 2.1.0',
         'requests >= 1.0',
         'distro >= 1.0'
     ] + (['configparser'] if sys.version_info.major == 2 else []) + (

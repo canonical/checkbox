@@ -79,7 +79,7 @@ class InstallCommandExt(InstallCommand):
 setup(
     name='checkbox-provider-gpgpu',
     namespace='com.canonical.certification',
-    version="2.0.0",
+    version="2.1.0",
     description=N_("Checkbox Provider for GPGPU Testing"),
     gettext_domain='checkbox-provider-gpgpu',
 )

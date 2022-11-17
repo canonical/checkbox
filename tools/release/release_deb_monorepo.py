@@ -210,14 +210,7 @@ class Release:
                         cwd=project_path, check=True)
                 else:
                     # bump to jump to rc1
-                    run(['bumpversion', '--current-version',
-                         # FIXME Using 1.99.0 here ensures all packages will
-                         # get the same version number for the next RC.
-                         # There a mix of 1.x and 0.x packages and a major bump
-                         # is required because of the new native packaging.
-                         # After the first release, let's use `last_tag`
-                         # instead
-                         '1.99.0',
+                    run(['bumpversion', '--current-version', last_tag,
                          '--allow-dirty',
                          '--tag', '--no-commit', self.args.part],
                         cwd=project_path, check=True)
@@ -299,9 +292,6 @@ class Release:
                        project_info["last_stable_tag"],
                        project_info["last_tag"]),
                    '--', "':{}'".format(project_info["path"])]
-            # TODO remove the exclude pathspec on debian after
-            # the next release
-            cmd += ["':(exclude){}/debian'".format(project_info["path"])]
             log = run(
                 ' '.join(cmd), check=True, shell=True).stdout.decode()
             if log:

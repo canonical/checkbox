@@ -5,7 +5,7 @@ from plainbox.provider_manager import N_
 setup(
     name='checkbox-provider-base',
     namespace='com.canonical.certification',
-    version="2.0.0",
+    version="2.1.0",
     description=N_("Checkbox provider base"),
     gettext_domain='checkbox-provider-base',
     strict=False, deprecated=False,

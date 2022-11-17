@@ -2,7 +2,7 @@ configuration = {
     'local': {
         'origin': 'ppa',
         'uri': 'ppa:checkbox-dev/testing',
-        'releases': ['bionic', 'focal'],
+        'releases': ['focal', 'jammy'],
     },
     'remote': {
         'origin': 'ppa',
@@ -12,6 +12,6 @@ configuration = {
     'service': {
         'origin': 'ppa',
         'uri': 'ppa:checkbox-dev/testing',
-        'releases': ['bionic', 'focal'],
+        'releases': ['focal', 'jammy'],
     },
 }

@@ -157,7 +157,7 @@ class ContainerBaseMachine():
         return []
 
     def start_remote(self, host, launcher, interactive=False, timeout=0):
-        assert(self.config.role == 'remote')
+        assert (self.config.role == 'remote')
 
         if interactive:
             # Return a PTS object to interact with
@@ -171,7 +171,7 @@ class ContainerBaseMachine():
                 timeout=timeout)
 
     def start(self, cmd=None, env={}, interactive=False, timeout=0):
-        assert(self.config.role == 'local')
+        assert (self.config.role == 'local')
         if interactive:
             # Return a PTS object to interact with
             return self.interactive_execute(
@@ -216,12 +216,14 @@ class ContainerBaseMachine():
         pass
 
     def start_user_session(self):
-        assert(self.config.role in ('service', 'local'))
+        assert (self.config.role in ('service', 'local'))
         # Start a set of ubuntu-user-owned processes to fake an active GDM user
         # session (A virtual framebuffer and a pulseaudio server with a dummy
         # output)
         interactive_execute(
-            self._container, "/usr/bin/Xvfb -screen 0 1280x1024x24")
+            self._container,
+            "DISPLAY=:0 XAUTHORITY=/run/user/1000/gdm/Xauthority "
+            "XDG_SESSION_TYPE=x11 /usr/bin/Xvfb -screen 0 1280x1024x24")
         # Note: running the following commands as part of standard setup does
         # not make them persistent as after restoring snapshots user/1000
         # is gone from /run
@@ -273,12 +275,12 @@ class ContainerVenvMachine(ContainerBaseMachine):
         ]
 
     def start_service(self, force=False):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         self._pts = self.interactive_execute('service', verbose=True)
         return self._pts
 
     def stop_service(self):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         return self._pts.send_signal(signal.SIGINT.value)
 
     def reboot_service(self):
@@ -289,7 +291,7 @@ class ContainerVenvMachine(ContainerBaseMachine):
         raise RuntimeError
 
     def is_service_active(self):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         return run_or_raise(
             self._container, 'pgrep -f "python3.*checkbox-cli service"')
 
@@ -317,18 +319,18 @@ class ContainerPPAMachine(ContainerBaseMachine):
         ]
 
     def start_service(self, force=False):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         if force:
             return run_or_raise(
                 self._container, "sudo systemctl start checkbox-ng.service")
 
     def stop_service(self):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         return run_or_raise(
             self._container, "sudo systemctl stop checkbox-ng.service")
 
     def is_service_active(self):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         return run_or_raise(
             self._container,
             "systemctl is-active checkbox-ng.service").stdout == 'active'
@@ -401,7 +403,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return cmds
 
     def start_service(self, force=False):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         if force:
             return run_or_raise(
                 self._container,
@@ -409,14 +411,14 @@ class ContainerSnapMachine(ContainerBaseMachine):
                     self._snap_name))
 
     def stop_service(self):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         return run_or_raise(
             self._container,
             "sudo systemctl stop snap.{}.service.service".format(
                 self._snap_name))
 
     def is_service_active(self):
-        assert(self.config.role == 'service')
+        assert (self.config.role == 'service')
         return run_or_raise(
             self._container,
             "systemctl is-active snap.{}.service.service".format(
@@ -426,8 +428,8 @@ class ContainerSnapMachine(ContainerBaseMachine):
 
 def machine_selector(config, container):
     if config.origin in ('snap', 'classic_snap'):
-        return(ContainerSnapMachine(config, container))
+        return (ContainerSnapMachine(config, container))
     elif config.origin == 'ppa':
-        return(ContainerPPAMachine(config, container))
+        return (ContainerPPAMachine(config, container))
     elif config.origin == 'source':
-        return(ContainerVenvMachine(config, container))
+        return (ContainerVenvMachine(config, container))

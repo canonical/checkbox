@@ -1,9 +1,5 @@
 unit: packaging meta-data
 os-id: debian
-Depends: checkbox-provider-phoronix [amd64]
-
-unit: packaging meta-data
-os-id: debian
 Depends: checkbox-provider-certification-client
 
 plugin: shell
@@ -102,7 +98,6 @@ nested_part:
     # with.
     power-management-reboot-poweroff-cert-automated
     tpm-cert-automated
-    pts
     stress-pm-graph
     stress-ng-cert-automated
     stress-10-reboot-poweroff-automated

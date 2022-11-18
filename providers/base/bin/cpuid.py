@@ -104,6 +104,7 @@ is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
 CPUIDS = {
         "Amber Lake":       ['0x806e9'],
         "AMD EPYC":         ['0x800f12'],
+        "AMD Genoa":        ['0xa10f11'],
         "AMD Lisbon":       ['0x100f81'],
         "AMD Magny-Cours":  ['0x100f91'],
         "AMD Milan":        ['0xa00f11'],

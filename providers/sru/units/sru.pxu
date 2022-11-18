@@ -1,10 +1,6 @@
 unit: packaging meta-data
 os-id: debian
-Depends: checkbox-provider-phoronix [amd64]
-
-unit: packaging meta-data
-os-id: debian
-Depends: plainbox-provider-certification-client
+Depends: checkbox-provider-certification-client
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -102,7 +98,6 @@ nested_part:
     # with.
     power-management-reboot-poweroff-cert-automated
     tpm-cert-automated
-    pts
     stress-pm-graph
     stress-ng-cert-automated
     stress-10-reboot-poweroff-automated

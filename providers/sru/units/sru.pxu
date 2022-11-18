@@ -4,7 +4,7 @@ Depends: checkbox-provider-phoronix [amd64]
 
 unit: packaging meta-data
 os-id: debian
-Depends: plainbox-provider-certification-client
+Depends: checkbox-provider-certification-client
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

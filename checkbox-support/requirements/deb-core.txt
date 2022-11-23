@@ -1,5 +1,0 @@
-python3-pyparsing
-python3-requests
-python3-requests-unixsocket
-python3-distro
-python3-bluez

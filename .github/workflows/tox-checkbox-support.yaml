@@ -1,0 +1,30 @@
+name: Test checkbox-support with tox
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - checkbox-support/**
+  workflow_dispatch:
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: checkbox-support
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.5", "3.6", "3.8", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tox
+        run: pip install tox
+      - name: Run tox
+        run: tox

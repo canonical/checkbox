@@ -3,6 +3,8 @@ name: Test provider-docker with tox
 on:
   push:
     branches: [ main ]
+    paths:
+      - providers/docker/**
   pull_request:
     branches: [ main ]
     paths:

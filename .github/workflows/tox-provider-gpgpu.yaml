@@ -3,6 +3,8 @@ name: Test provider-gpgpu with tox
 on:
   push:
     branches: [ main ]
+    paths:
+      - providers/gpgpu/**
   pull_request:
     branches: [ main ]
     paths:

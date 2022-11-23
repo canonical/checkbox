@@ -130,7 +130,7 @@ class Netplan():
         new_interfaces = set()
 
         try:
-            yaml_data = yaml.load(yaml_stream, Loader=yaml.CSafeLoader)
+            yaml_data = yaml.safe_load(yaml_stream)
             network = None
             if yaml_data is not None:
                 network = yaml_data.get('network')

@@ -3,6 +3,8 @@ name: Test provider-sru with tox
 on:
   push:
     branches: [ main ]
+    paths:
+      - providers/sru/**
   pull_request:
     branches: [ main ]
     paths:

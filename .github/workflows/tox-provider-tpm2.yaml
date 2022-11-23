@@ -3,6 +3,8 @@ name: Test provider-tpm2 with tox
 on:
   push:
     branches: [ main ]
+    paths:
+      - providers/tpm2/**
   pull_request:
     branches: [ main ]
     paths:

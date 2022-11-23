@@ -3,6 +3,8 @@ name: Test provider-certification-client with tox
 on:
   push:
     branches: [ main ]
+    paths:
+      - providers/certification-client/**
   pull_request:
     branches: [ main ]
     paths:

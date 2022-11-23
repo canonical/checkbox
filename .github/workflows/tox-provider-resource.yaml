@@ -3,6 +3,8 @@ name: Test provider-resource with tox
 on:
   push:
     branches: [ main ]
+    paths:
+      - providers/resource/**
   pull_request:
     branches: [ main ]
     paths:

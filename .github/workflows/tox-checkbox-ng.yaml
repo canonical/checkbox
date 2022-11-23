@@ -3,6 +3,8 @@ name: Test checkbox-ng with tox
 on:
   push:
     branches: [ main ]
+    paths:
+      - checkbox-ng/**
   pull_request:
     branches: [ main ]
     paths:

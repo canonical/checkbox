@@ -362,7 +362,7 @@ class FauxKeyboard():
         # EV_SYN, 0, 0
         # EV_KEY, {KEY_CODE}, 0
         # XXX: ATM there's no distinction between left and right modifiers
-        assert(repetitions >= 0)
+        assert (repetitions >= 0)
         # sending "special" codes (like media control ones) to a general kbd
         # device doesn't work, so we have to send them to the event-mouse one
         SPECIAL_CODES = [
@@ -488,7 +488,7 @@ class HotKeyTesting:
         filename = os.path.join('/tmp/hotkey-testing-{}'.format(timestamp))
         self.kb.press_key(KeyCodes.KEY_T, {'ctrl', 'alt'})
         # wait for the terminal window to appear
-        assert(not os.path.exists(filename))
+        assert (not os.path.exists(filename))
         time.sleep(2)
         self.kb.type_text('touch {}'.format(filename))
         self.kb.press_key(KeyCodes.KEY_ENTER)
@@ -507,7 +507,7 @@ class HotKeyTesting:
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         filename = os.path.join('/tmp/hotkey-testing-cmd-{}'.format(timestamp))
         self.kb.press_key(KeyCodes.KEY_F2, {'alt'})
-        assert(not os.path.exists(filename))
+        assert (not os.path.exists(filename))
         time.sleep(2)
         self.kb.type_text('touch {}'.format(filename))
         self.kb.press_key(KeyCodes.KEY_ENTER)

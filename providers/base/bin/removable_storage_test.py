@@ -550,7 +550,7 @@ class DiskTest():
         if (
             (pci_slot_name in dl) and
             (dl.index(pci_slot_name) < dl.index('block')) and
-            (not(pci_slot_name in s))
+            (not (pci_slot_name in s))
         ):
             # 1. there is such pci_slot_name
             # 2. sysfs topology looks like
@@ -862,7 +862,7 @@ def main():
                         # 2. int from _probe_disks_udisks1.
                         # This is really a mess. : (
                         print("\t\t--------------------------------")
-                        if(500000000 < int(test.rem_disks_speed[disk])):
+                        if (500000000 < int(test.rem_disks_speed[disk])):
                             print("\t\tDevice Detected: SuperSpeed USB")
                             # Unlike rem_disks_speed,
                             # which must has the connect speed

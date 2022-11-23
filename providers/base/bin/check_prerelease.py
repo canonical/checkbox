@@ -139,7 +139,7 @@ def main():
     else:
         print("** Test FAILS; running pre-release OS with ineligible kernel!")
 
-    return(retval)
+    return retval
 
 
 if __name__ == '__main__':

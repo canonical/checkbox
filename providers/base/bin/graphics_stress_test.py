@@ -155,7 +155,7 @@ class RotationWrapper(object):
         for rot in self._rotations:
             try:
                 status = self._rotate_screen(self._rotations[rot])
-            except(xrandr.RRError, xrandr.UnsupportedRRError) as err:
+            except (xrandr.RRError, xrandr.UnsupportedRRError) as err:
                 status = 1
                 error = err
             else:
@@ -167,7 +167,7 @@ class RotationWrapper(object):
         # Try to set the screen back to normal
         try:
             self._rotate_screen(xrandr.RR_ROTATE_0)
-        except(xrandr.RRError, xrandr.UnsupportedRRError) as error:
+        except (xrandr.RRError, xrandr.UnsupportedRRError) as error:
             print(error)
 
         result = 0

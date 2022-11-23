@@ -567,7 +567,7 @@ def make_target_list(iface, test_targets, log_warnings):
                 return_list.remove(test_target)
     return_list.reverse()
     if (return_list == ['']):
-        del(return_list[0])
+        del (return_list[0])
     return return_list
 
 

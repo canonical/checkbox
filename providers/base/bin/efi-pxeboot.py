@@ -125,10 +125,10 @@ def main():
 
     if shutil.which("efibootmgr") is None:
         print("The efibootmgr utility is not installed; exiting!")
-        return(4)
+        return 4
     if not os.geteuid() == 0:
         print("This program must be run as root (or via sudo); exiting!")
-        return(4)
+        return 4
 
     retval = 0
     boot_entries, boot_order, boot_current = discover_data()
@@ -148,7 +148,7 @@ def main():
         retval = 4
     if (retval == 0):
         retval = is_pxe_booted(boot_entries, boot_order, boot_current)
-    return(retval)
+    return retval
 
 
 if __name__ == '__main__':

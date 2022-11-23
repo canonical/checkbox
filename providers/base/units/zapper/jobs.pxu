@@ -7,7 +7,7 @@ plugin: shell
 estimated_duration: 20
 _summary: Check if the system recognizes hotplug events on HDMI
 category_id: com.canonical.plainbox::monitor
-command: hdmi_hotplug.py "$ZAPPER_HOST"
+command: monitor_hotplug.py hdmi {index} "$ZAPPER_HOST"
 
 id: monitor/zapper-edid
 category_id: com.canonical.plainbox::monitor
@@ -15,7 +15,7 @@ plugin: shell
 estimated_duration: 60
 _summary: Check if the system automatically changes the resolution based on EDID
 environ: ZAPPER_HOST
-command: edid_cycle.py "$ZAPPER_HOST" {index}
+command: edid_cycle.py "$ZAPPER_HOST"
 
 unit: template
 template-resource: zapper_capabilities

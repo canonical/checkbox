@@ -59,6 +59,17 @@ class IZapperControl:
         """
 
     @abstractmethod
+    def change_edid(self, edid_file=None):
+        """
+        Set EDID on HDMI output. If input is None, clear EDID.
+        Note that the argument is used as-is without any checks done on
+        this side. Any validation and use of it will be done on the
+        remote end.
+
+        :param bytes edid_file: EDID binary file
+        """
+
+    @abstractmethod
     def get_capabilities(self):
         """Get Zapper's setup capabilities in checkbox resource form."""
 
@@ -79,6 +90,9 @@ class ZapperControlV1(IZapperControl):
     def usb_set_state(self, address, state):
         self._conn.root.zombiemux_set_state(address, state)
         print("State '{}' set for the address {}.".format(state, address))
+
+    def change_edid(self, edid_file=None):
+        self._conn.root.change_edid(edid_file)
 
     def get_capabilities(self):
         capabilities = self._conn.root.get_capabilities()

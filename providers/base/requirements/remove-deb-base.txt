@@ -1,1 +1,0 @@
-plainbox-provider-checkbox

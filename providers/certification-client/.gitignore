@@ -1,3 +1,7 @@
+# packaging folders
 build
 dist
 po/*.pot
+
+# tox working folder
+/.tox

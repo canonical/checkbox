@@ -406,7 +406,7 @@ class Interface(socket.socket):
                                     stderr=STDOUT).split('\n')
                 regex = re.compile(r'(\d+)(base)([A-Z]+)')
                 speeds = [0]
-                for line in filter(lambda l: 'capabilities' in l, info):
+                for line in filter(lambda c: 'capabilities' in c, info):
                     for s in line.split(' '):
                         hit = regex.search(s)
                         if hit:

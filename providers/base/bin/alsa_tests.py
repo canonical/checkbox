@@ -62,7 +62,7 @@ class Player:
         self.pcm.setperiodsize(PERIOD)
 
     def play(self, chunk):
-        assert(len(chunk) == PERIOD)
+        assert (len(chunk) == PERIOD)
         # alsa expects bytes, so we need to repack the list of floats into a
         # bytes sequence
         buff = b''.join([struct.pack("<f", x) for x in chunk])
@@ -166,7 +166,7 @@ def main():
         device = os.environ['ALSADEVICE']
     else:
         device = None
-    return(actions[args.action](args.duration, device))
+    return (actions[args.action](args.duration, device))
 
 
 if __name__ == '__main__':

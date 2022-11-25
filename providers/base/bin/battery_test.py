@@ -170,7 +170,7 @@ def main():
         return 1
     print(battery_after)
 
-    return(battery_life(battery_before, battery_after, test_time))
+    return (battery_life(battery_before, battery_after, test_time))
 
 
 if __name__ == "__main__":

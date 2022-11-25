@@ -1,9 +1,16 @@
+# python
 *.egg-info
 *.pyc
 .coverage
 MANIFEST
 graphs/
 __pycache__
+
+# packaging folders
 build
 dist
 htmlcov
+html
+
+# tox working folder
+/.tox

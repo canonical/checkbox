@@ -18,7 +18,7 @@ from checkbox_support.scripts.zapper_proxy import (  # noqa: E402
 def _check_hdmi_connected(index):
     xrandr = subprocess.check_output("xrandr", encoding="utf-8")
     hdmi = next(
-        line for line in xrandr.splitlines() if f"HDMI-{index}" in line
+        line for line in xrandr.splitlines() if "HDMI-{}".format(index) in line
     )
     return "disconnected" not in hdmi
 
@@ -53,7 +53,7 @@ def main():
     zapper_control = ControlVersionDecider().decide(args.host)
 
     failed = False
-    print(f"unplugging {args.peripheral}... ", end="")
+    print("unplugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](zapper_control, "disconnected")
     if _check_fn[args.peripheral](args.index) is False:
         print("PASS")
@@ -61,7 +61,7 @@ def main():
         failed = True
         print("FAILED")
 
-    print(f"plugging {args.peripheral}... ", end="")
+    print("plugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](zapper_control, "connected")
     if _check_fn[args.peripheral](args.index) is True:
         print("PASS")
@@ -69,7 +69,7 @@ def main():
         failed = True
         print("FAILED")
 
-    print(f"unplugging {args.peripheral}... ", end="")
+    print("unplugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](zapper_control, "disconnected")
     if _check_fn[args.peripheral](args.index) is False:
         print("PASS")

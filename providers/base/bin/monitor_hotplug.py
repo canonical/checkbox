@@ -15,12 +15,16 @@ from checkbox_support.scripts.zapper_proxy import (  # noqa: E402
     ControlVersionDecider)
 
 
-def _check_hdmi_connected(index):
-    xrandr = subprocess.check_output("xrandr", encoding="utf-8")
-    hdmi = next(
-        line for line in xrandr.splitlines() if "HDMI-{}".format(index) in line
-    )
-    return "disconnected" not in hdmi
+def _check_connected(device):
+    if os.getenv('XDG_SESSION_TYPE') == 'wayland':
+        xrandr_output = subprocess.check_output(
+            ["gnome-randr", "query", device],
+            universal_newlines=True, encoding="utf-8")
+    else:
+        xrandr_output = subprocess.check_output(
+            ["xrandr", "--listactivemonitors"],
+            universal_newlines=True, encoding="utf-8")
+    return device in xrandr_output
 
 
 def _change_hdmi_status(zapper_control, status):
@@ -29,14 +33,10 @@ def _change_hdmi_status(zapper_control, status):
     if status == "connected":
         with open(edid_file, 'rb') as edid_bin:
             zapper_control.change_edid(edid_bin.read())
-        time.sleep(5)
     else:
         zapper_control.change_edid(None)
+    time.sleep(5)
 
-
-_check_fn = {
-    "hdmi": _check_hdmi_connected,
-}
 
 _change_fn = {
     "hdmi": _change_hdmi_status,
@@ -53,9 +53,12 @@ def main():
     zapper_control = ControlVersionDecider().decide(args.host)
 
     failed = False
+    device = "{}-{}".format(
+            args.peripheral.upper(), args.index)
+
     print("unplugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](zapper_control, "disconnected")
-    if _check_fn[args.peripheral](args.index) is False:
+    if _check_connected(device) is False:
         print("PASS")
     else:
         failed = True
@@ -63,7 +66,7 @@ def main():
 
     print("plugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](zapper_control, "connected")
-    if _check_fn[args.peripheral](args.index) is True:
+    if _check_connected(device) is True:
         print("PASS")
     else:
         failed = True
@@ -71,7 +74,7 @@ def main():
 
     print("unplugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](zapper_control, "disconnected")
-    if _check_fn[args.peripheral](args.index) is False:
+    if _check_connected(device) is False:
         print("PASS")
     else:
         failed = True

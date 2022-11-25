@@ -17,6 +17,7 @@ import time
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
     ControlVersionDecider)
 
+
 def check_resolution():
     output = subprocess.check_output('xdpyinfo')
     for line in output.decode(sys.stdout.encoding).splitlines():

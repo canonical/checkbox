@@ -103,18 +103,6 @@ nutshell:
 > -   Use the imperative mode (your title should always be able to
 >     complete the sentence “If applied, this commit will...”)
 
-In addition, if it makes sense to do so, prefix the title with one of
-the following terms:
-
-> -   Add
-> -   Change
-> -   Remove
-> -   Fix
-
-Example:
-
-    Add: New screen to re-run failed jobs
-
 ### Commit message body
 
 Quoting again from Chris Beams’ article, use the body to explain what
@@ -122,7 +110,7 @@ and why vs. how.
 
 Example:
 
-    Change: Shellcheck on bin dir scripts
+    Run Shellcheck on bin dir scripts
 
     The test command to manage.py currently looks for python unittests
     in the provider tests/ directory. This change searches the bin/

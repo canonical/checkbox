@@ -19,36 +19,52 @@ issues that could come up later in the review process.
 ### Hacking on Checkbox and/or its providers
 
 If you want to hack on Checkbox or its providers, one method is to
-install everything you need in a Python virtual environment:
+install everything you need in a Python virtual environment.
+
+Install the required tools:
 
 ``` bash
-# Install the required tools
 $ sudo apt install git python3-virtualenv
+```
 
-# Prepare the development environment
-$ mkdir ~/checkbox-dev/
-$ cd ~/checkbox-dev/
-$ git clone git+ssh://pieq@git.launchpad.net/checkbox-ng
-$ git clone git+ssh://pieq@git.launchpad.net/checkbox-support
-$ git clone git+ssh://pieq@git.launchpad.net/plainbox-provider-resource
-$ git clone git+ssh://pieq@git.launchpad.net/plainbox-provider-checkbox
+Prepare the development environment. If you are an external contributor and
+plan on submitting some changes, you will have to [fork the Checkbox repository
+first](https://docs.github.com/en/get-started/quickstart/fork-a-repo), and
+clone your own version locally. Otherwise:
 
-# Create and activate the Python virtual environment
-$ cd ~/checkbox-dev/checkbox-ng
+``` bash
+$ cd ~
+$ git clone git@github.com:canonical/checkbox.git
+```
+
+Create and activate the Python virtual environment:
+
+``` bash
+$ cd ~/checkbox/checkbox-ng
 $ ./mk-venv
-$ . ~/checkbox-dev/checkbox-ng/venv/bin/activate
+$ . ~/checkbox-ng/venv/bin/activate
+```
 
-# Activate the base providers in the virtual environment
-(venv) $ cd ~/checkbox-dev/plainbox-provider-resource/
-(venv) $ ./manage.py develop -d $PROVIDERPATH
-(venv) $ cd ~/checkbox-dev/plainbox-provider-checkbox
-(venv) $ ./manage.py develop -d $PROVIDERPATH
+Activate the base providers in the virtual environment from within the virtual
+environment:
 
-# Install the Checkbox support library in the virtual environment
-(venv) $ cd ~/checkbox-dev/checkbox-support
+``` bash
+(venv) $ cd ~/checkbox/providers/resource/
+(venv) $ ./manage.py develop -d $PROVIDERPATH
+(venv) $ cd ~/checkbox/providers/base
+(venv) $ ./manage.py develop -d $PROVIDERPATH
+```
+
+Install the Checkbox support library in the virtual environment:
+
+``` bash
+(venv) $ cd ~/checkbox/checkbox-support
 (venv) $ ./setup.py install
+```
 
-# You should now be able to run checkbox, select a test plan and run it
+You should now be able to run checkbox, select a test plan and run it:
+
+``` bash
 (venv) $ checkbox-cli
 ```
 
@@ -111,17 +127,11 @@ Example:
     directory for files with suffix .sh and automatically generates
     a unittest that runs the shellcheck command on the file.
 
-### Linking a commit to a Launchpad bug
+### Linking a pull request to a GitHub issue
 
-If your commit fixes a Launchpad bug, you can link to it by adding the
-following line in the commit message body (where “123456” is the
-Launchpad bug number):
-
-    LP: #123456
-
-See [this article on the Launchpad
-blog](https://blog.launchpad.net/code/linking-git-merge-proposals-to-bugs)
-for more information.
+See the [GitHub documentation](https://docs.github.com/en/
+issues/tracking-your-work-with-issues/linking-a-pull-
+request-to-an-issue) for more information.
 
 ### Splitting work in separate commits if required
 
@@ -152,99 +162,47 @@ rework your existing commits.
 
 ### General workflow
 
-Follow these steps to make a change to a Checkbox-related project. We
-will use the [Checkbox
-provider](https://launchpad.net/plainbox-provider-checkbox) for this
-example, but the same applies for other projects.
+Follow these steps to make a change to a Checkbox-related project.
 
-1.  Using the instructions provided in the Code section, get the Git
-    repository on your device:
+1. Check the [GitHub documentation](https://docs.github.com) on how to get
+   started. If you are a Checkbox contributor, you can clone the [Checkbox
+   repository](https://github.com/canonical/checkbox) directly; if you are an
+   external contributor, you will probably have to [fork the repository](https:
+   //docs.github.com/en/get-started/quickstart/fork-a-repo) first.
 
-        git clone git+ssh://your-launchpad-id@git.launchpad.net/plainbox-provider-checkbox
+1. If you created a fork, you need to [configure Git to sync your fork with the
+   original repository.](https://docs.github.com/en/get-started/quickstart/
+   fork-a-repo#configuring-git-to-sync-your-fork-with-the-original-repository)
 
-2.  Add a remote pointing to your own Launchpad account. This will be
-    helpful when pushing the changes and asking for it to be reviewed
-    and merged. Here, I create a remote called “perso” that points to my
-    fork of the repository on Launchpad (replace “pieq” with your own
-    Launchpad username):
-
-        $ git remote add perso git+ssh://pieq@git.launchpad.net/~pieq/plainbox-provider-checkbox
-        $ git remote -v
-        origin    git+ssh://pieq@git.launchpad.net/plainbox-provider-checkbox (fetch)
-        origin    git+ssh://pieq@git.launchpad.net/plainbox-provider-checkbox (push)
-        perso    git+ssh://pieq@git.launchpad.net/~pieq/plainbox-provider-checkbox (fetch)
-        perso    git+ssh://pieq@git.launchpad.net/~pieq/plainbox-provider-checkbox (push)
-
-3.  Create a branch and switch to it to start working on your changes.
-    You can use any branch name, but it is generally good to include the
-    Launchpad bug number it relates to as well as a quick explanation of
-    what the branch is about:
+1. Create a branch and switch to it to start working on your changes.
+   You can use any branch name, but it is generally good to include the
+   GitHub issue number it relates to as well as a quick explanation of
+   what the branch is about:
 
         $ git checkout -b 123456-invalid-session-content
 
-4.  Work on your changes, test them, iterate, commit your work.
+1. Work on your changes, test them, iterate, commit your work.
 
-5.  Before sending your changes for review, make sure to rebase your
-    work using the most up-to-date data from the main repository:
+1. Before sending your changes for review, make sure to rebase your
+   work using the most up-to-date data from the main repository:
 
-        $ git checkout master
-        $ git pull
+        $ git checkout main
+        # If you are a Checkbox contributor:
+        $ git fetch origin
+        # If you are an external contributor:
+        $ git fetch upstream
+        # Then, rebase your branch:
         $ git checkout 123456-invalid-session-content
-        $ git rebase master
+        $ git rebase main
         First, rewinding head to replay your work on top of it...
         Applying: <your commits>
 
-6.  Push your changes to your Launchpad repository:
-
-        $ git push perso
-        Enumerating objects: 741, done.
-        Counting objects: 100% (612/612), done.
-        Delta compression using up to 4 threads
-        Compressing objects: 100% (242/242), done.
-        Writing objects: 100% (522/522), 80.41 KiB | 26.80 MiB/s, done.
-        Total 522 (delta 336), reused 460 (delta 280)
-        remote: Resolving deltas: 100% (336/336), completed with 54 local objects.
-        remote:           
-        remote: Create a merge proposal for '123456-invalid-session-content' on Launchpad by visiting:
-        remote:           https://code.launchpad.net/~pieq/plainbox-provider-checkbox/+git/plainbox-provider-checkbox/+ref/123456-invalid-session-content/+register-merge
-        remote:           
-        To git+ssh://git.launchpad.net/~pieq/plainbox-provider-checkbox
-         * [new branch]          123456-invalid-session-content -> 123456-invalid-session-content
-
-7.  Follow the link provided by Launchpad in the previous step to create a merge request. The most important options of the “Propose for merging” page are:  
-    1.  `Repository` and `Branch`: Where your changes should land once
-        they are approved. It should be already filled with the
-        appropriate information.
-    2.  `Description of the change`: Explain why this change is
-        required, how it was tested (and on what hardware) and how other
-        people can test it.
-    3.  Other fields do not have to be changed. Press the
-        `Propose Merge` button and wait for feedback ;-)
-
-### What to do if reviewers suggest changes in your merge request?
-
-1.  Change the top status of the MR to “Work in progress”. This both
-    stops people wasting time reviewing some code which will be changed
-    and also allows Launchpad to indicate to people who have already
-    reviewed that the code should be reviewed again.
-2.  Instead of adding extra commits to fix your previous commits, use
-    [git rebase
-    features](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History)
-    to modify your existing commits. You can push your changes again to
-    your personal repository; you will probably need to use the
-    `git push --force my_repo` command since you “modified history”, but
-    this is fine since you are pushing changes that have not been merged
-    into the main repository yet.
-3.  When you have pushed the new version addressing the previous round
-    of reviews, switch the top status back to “Needs review”. Launchpad
-    will send out an e-mail indicating that reviews are needed again. Do
-    not post a comment with type “Resubmit”; this is not the purpose of
-    that sort of comment.
+1. [Push your changes](https://docs.github.com/en/get-started/using-git/
+   pushing-commits-to-a-remote-repository) to your GitHub repository.
 
 ### Finally...
 
-Once enough people have reviewed and approved your work, it can be
-merged into the main repository. Ask a member of the Checkbox team to
-switch the merge request status from “Needs review” to “Approved”. The
-branch should be then shortly automatically merged. Its status will then
-change from “Approved” to “Merged”.
+Once enough people have reviewed and approved your work, it can be merged into
+the main branch of the main repository. Ask a member of the Checkbox team to do
+this. The branch should be then shortly automatically merged. The pull request
+status will then switch to “Merged”.

@@ -1,0 +1,36 @@
+# this workflow requires to provide JIRA webhook URL via JIRA_URL GitHub Secret
+# read more: https://support.atlassian.com/cloud-automation/docs/jira-automation-triggers/#Automationtriggers-Incomingwebhook
+# original code source: https://github.com/beliaev-maksim/github-to-jira-automation
+
+name: Issues to JIRA
+
+on:
+  issues:
+    # available via github.event.action
+    types: [opened, reopened, closed]
+
+jobs:
+  update:
+    name: Update Issue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create JIRA ticket
+        run: |              
+          # Determine Bug/Enhancement
+          if ${{ contains(github.event.*.labels.*.name, 'Bug') }}; then
+            type=bug
+          else
+            type=story
+          fi
+          
+          # send JIRA request
+          data=$( jq -n \
+                  --arg title "${{github.event.issue.title }}" \
+                  --arg url "${{ github.event.issue.html_url }}" \
+                  --arg submitter "${{ github.event.issue.user.login }}" \
+                  --arg body "${{ github.event.issue.body }}" \
+                  --arg type "$type" \
+                  --arg action ${{ github.event.action }} \
+                  '{title: $title, url: $url, submitter: $submitter, body: $body, type: $type, action: $action}' )
+                          
+          curl -X POST -H 'Content-type: application/json' --data "${data}" "${{ secrets.JIRA_URL }}"

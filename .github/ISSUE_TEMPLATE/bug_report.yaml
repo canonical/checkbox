@@ -6,8 +6,7 @@ body:
     attributes:
       value: >
         Thanks for taking the time to fill out this bug report! Before submitting your issue, please make
-        sure you are using the latest version of the charm. If not, please switch to this image prior to 
-        posting your report to make sure it's not already solved.
+        sure you have checked existing issues.
   - type: textarea
     id: bug-description
     attributes:

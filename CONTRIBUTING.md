@@ -76,12 +76,14 @@ with an easily defined input and output, use
 complex units of code use the standard [unittest
 library](https://docs.python.org/3/library/unittest.html).
 
-### Writing and running unit tests for providers
+### Validate the providers
 
 Ensure the job and test plan definitions follow the correct syntax using
-the validate command:
+the `validate` command:
 
     $ ./manage.py validate
+
+### Writing and running unit tests for providers
 
 Run checks for code quality of provider hosted scripts and any unit
 tests for providers:

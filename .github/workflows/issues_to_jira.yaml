@@ -35,7 +35,7 @@ jobs:
           # --arg body "$ISSUE_DESCRIPTION" 
                   
           data=$( jq -n \
-                  --arg title '${{ github.event.issue.title }}' \
+                  --arg title "$ISSUE_DESCRIPTION" \
                   --arg url '${{ github.event.issue.html_url }}' \
                   --arg submitter '${{ github.event.issue.user.login }}' \
                   --arg body "" \

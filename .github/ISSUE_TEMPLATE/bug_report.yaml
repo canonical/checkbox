@@ -34,6 +34,7 @@ body:
       label: Environment
       description: >
         We need to know a bit more about the context in which you face the issue.
+      placeholder: |
         - OS [e.g. UC20]:
         - Checkbox Type [Debian, Snap]:
         - Checkbox Version [e.g. 2.0.0]:

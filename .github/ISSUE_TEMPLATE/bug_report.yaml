@@ -47,7 +47,7 @@ body:
       label: Relevant log output
       description: >
         Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-      value:
+      value: |
         - Checkbox session(s) (located in `/var/tmp/checkbox-ng/sessions/`, you usually want to select the most recent one)
         
         - logs from the impacted components (e.g. `lsblk` if this is related to an issue when testing a disk...); a safe option is to install and run `sosreport` to gather as much log as possible.

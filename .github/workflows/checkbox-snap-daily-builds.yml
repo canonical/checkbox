@@ -6,25 +6,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  snap:
-    strategy:
-      matrix:
-        type: [classic, uc]
-        releases: [16, 18, 20, 22]
+  check_history:
     runs-on: ubuntu-latest
-    env:
-      SERIES: series_${{ matrix.type }}${{ matrix.releases }}
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Checkbox snap for series ${{ matrix.type }}${{ matrix.releases }}
-
+    name: Check for new commits
+    outputs:
+      should_run: ${{ steps.check_log.outputs.should_run }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Check for checkbox snap new commits
+        id: check_log
         run: |
           git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-snap
-          [[ ! -z $(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-snap) ]]
+          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-snap)
+          if [[ -z $changes ]]
+            then
+              echo "should_run=false" >> $GITHUB_OUTPUT
+            else
+              echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
+  snap:
+    strategy:
+      matrix:
+        type: [classic, uc]
+        releases: [16, 18, 20, 22]
+    needs: check_history
+    if: ${{ needs.check_history.outputs.should_run != 'false' }}
+    runs-on: ubuntu-latest
+    env:
+      SERIES: series_${{ matrix.type }}${{ matrix.releases }}
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    name: Checkbox snap for series ${{ matrix.type }}${{ matrix.releases }}
+    steps:
+      - uses: actions/checkout@v3
       - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
         run: |
           cd checkbox-snap/

@@ -6,6 +6,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  check_history:
+    runs-on: ubuntu-latest
+    name: Check for new commits
+    outputs:
+      should_run: ${{ steps.check_log.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check for checkbox projects new commits
+        id: check_log
+        run: |
+          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap
+          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap)
+          if [[ -z $changes ]]
+            then
+              echo "should_run=false" >> $GITHUB_OUTPUT
+            else
+              echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
   snap:
     strategy:
       matrix:
@@ -15,15 +36,8 @@ jobs:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
     name: Checkbox Core snap for series ${{ matrix.releases }}
-
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Check for checkbox projects new commits
-        run: |
-          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap
-          [[ ! -z $(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap) ]]
       - name: Copy over the common files for series ${{ matrix.releases }}
         run: |
           cd checkbox-core-snap/

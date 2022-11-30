@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '1.31.dev'
+version: '1.32.dev'
 
 base: core22
 

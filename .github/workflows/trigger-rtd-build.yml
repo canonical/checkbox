@@ -3,6 +3,7 @@ on:
   pull_request:
     types:
       - closed
+    branches: [ main ]
     paths:
       - 'checkbox-ng/docs/**'
       - 'checkbox-ng/setup.py'

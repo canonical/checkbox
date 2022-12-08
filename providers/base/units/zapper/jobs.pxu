@@ -10,6 +10,7 @@ category_id: com.canonical.plainbox::monitor
 command: monitor_hotplug.py hdmi {index} "$ZAPPER_HOST"
 
 id: monitor/zapper-edid
+requires: zapper_capabilities.capability == 'HDMI' and zapper_capabilities.edid_cycling == 'True'
 category_id: com.canonical.plainbox::monitor
 plugin: shell
 estimated_duration: 60

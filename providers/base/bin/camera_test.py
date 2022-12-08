@@ -308,6 +308,8 @@ class CameraTest:
 
         try:
             check_call(command, stdout=open(os.devnull, 'w'), stderr=STDOUT)
+            if os.path.getsize(filename) == 0:
+                use_camerabin = True
         except (CalledProcessError, OSError):
             use_camerabin = True
         if use_camerabin:

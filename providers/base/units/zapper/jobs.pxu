@@ -2,7 +2,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_zapper_hdmi_{product_slug}
-requires: display.hdmi == 'supported'
+requires: display.hdmi == 'supported' and zapper_capabilities.capability == 'HDMI' and zapper_capabilities.hotplug == 'True'
 plugin: shell
 estimated_duration: 20
 _summary: Check if the system recognizes hotplug events on HDMI

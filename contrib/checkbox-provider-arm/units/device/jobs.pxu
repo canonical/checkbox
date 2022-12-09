@@ -1,0 +1,28 @@
+id: devie-tree/dump
+plugin: resource
+_summary: Dump the device tree from runtime system
+imports: from com.canonical.certification import cpuinfo
+requires: cpuinfo.platform in ("aarch64", "armv7l")
+user: root
+command:
+    gadget=$(python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print(get_gadget_snap())')
+    dest="${PLAINBOX_SESSION_SHARE}"/"$gadget"-device-tree.dts
+    dtc -I fs -O dts -o $dest /proc/device-tree/ > /dev/null 2>&1
+    if [ -e "$dest" ]; then
+        cat "$dest"
+    else
+        echo "Unable to genarte device tree dts file"
+        exit 1
+    fi
+estimated_duration: 30s
+
+plugin: attachment
+id: devie-tree/log-attach
+depends: devie-tree/dump
+estimated_duration: 2.0
+_description: Attach device tree dts file
+category_id: dtb
+command:
+    gadget=$(python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print(get_gadget_snap())')
+    dest="${PLAINBOX_SESSION_SHARE}"/"$gadget"-device-tree.dts
+    [ -e "$dest" ] && cat "$dest"

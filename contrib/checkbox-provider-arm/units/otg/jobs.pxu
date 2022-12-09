@@ -1,0 +1,134 @@
+id: usb-otg/g_serial
+_summary: Check if USB OTG can work as serial.
+category_id: com.canonical.plainbox::usb
+plugin: user-interact-verify
+user: root
+estimated_duration: 300.0
+command:
+   modprobe g_serial
+_purpose:
+ Check if USB OTG can work as serial.
+_steps:
+ 1. Press enter to probe OTG g_serial
+ 2. Connect usb cable from laptop to USB OTG port.
+ 3. On your laptop, check is ttyACM0 been probed
+    ls /dev/ttyACM0
+ 4. On your laptop, open a terminal
+    sudo su
+    cat /dev/ttyACM0
+ 5. On DUT, open a terminal and send a string via /dev/ttyGS0
+    sudo su
+    echo 123 > /dev/ttyGS0
+ 6. Check laptop received the string "123"
+ 7. Check the reverse string sending from Laptop to DUT. On DUT,
+    cat /dev/ttyGS0
+ 8. On your laptop
+    echo 123 /dev/ttyACM0
+ 9. Check DUT recieved the string "123"
+_verification:
+    Does string send and receive worked?
+flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_otg == 'True'
+
+id: usb-otg/g_serial-cleanup
+_summary: Cleanup USB OTG serial interface setup after serial device test
+plugin: shell
+after: usb-otg/g_serial
+category_id: com.canonical.plainbox::usb
+command:
+  echo "Removing g_serial module..."
+  modprobe -r g_serial
+user: root
+estimated_duration: 1s
+flags: also-after-suspend
+
+id: usb-otg/g_mass_storage
+_summary: Check DUT can be detected as mass storage device
+_purpose:
+  Check that after connecting the device under test (DUT) to another device
+  (host), DUT can be detected as mass storage device by the host.
+_steps:
+  1. Press Enter to setup a 16 MB FAT32 image on the device.
+  2. From an Ubuntu host, connect a cable to the USB OTG port 
+     (it's the USB type C connector) of the DUT.
+_verification:
+  The host detects and mounts a mass storage device. It has read and write 
+  permissions on it.
+plugin: user-interact-verify
+command:
+  echo "Creating 16 MB image file..."
+  dd if=/dev/zero of="${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img bs=1M count=16
+  echo "Formatting image file as FAT32..."
+  mkdosfs -F 32 "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
+  echo "loading g_mass_storage module..."
+  modprobe g_mass_storage file="${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img stall=0
+user: root
+category_id: com.canonical.plainbox::usb
+estimated_duration: 5m
+flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_otg == 'True'
+
+id: usb-otg/g_mass_storage-cleanup
+_summary: Cleanup mass storage setup after mass storage device test
+plugin: shell
+after: usb-otg/g_mass_storage
+command:
+  echo "Removing g_mass_storage module..."
+  modprobe -r g_mass_storage
+  if [ -f "${PLAINBOX_SESSION_SHARE}/checkbox-mass-storage-test.img" ]; then
+    echo "Removing image file..."
+    rm "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
+  fi
+user: root
+estimated_duration: 1s
+category_id: com.canonical.plainbox::usb
+flags: also-after-suspend
+
+id: usb-otg/g_ether
+_summary: Check DUT can be detected as usb ethernet device
+_purpose:
+  Check that after connecting the device under test (DUT) to another device
+  (host), DUT can be detected as usb ethernet device by the host.
+_steps:
+  1. From an Ubuntu host, connect a cable to the USB OTG port 
+     (it's the USB type C connector) of the DUT.
+  2. Press Enter to config the IP address for USB OTG ethernet interface on the device.
+     (IP will be 192.168.9.1/24)
+  3. On the host, config the IP address for USB OTG ethernet interface. And it should be 
+     the same subnet with DUT. (eg. 192.168.9.2/24)
+  4. Try to ping between host and DUT.
+_verification:
+  The host and DUT can ping each other.
+plugin: user-interact-verify
+command:
+   echo "Setting up the IP address for USB OTG ethernet interface..."
+   modprobe g_ether
+   if  (ip -c a | grep -q usb0) ; then 
+      echo "USB OTG ethernet interface exist. Configuring..."
+      ip addr add 192.168.9.1/24 dev usb0
+      echo "USB OTG ethernet interface IP address been set as 192.168.9.1/24"
+      ip link set dev usb0 up
+   else 
+      echo "USB OTG ethernet interface seems not exist."
+      exit 1
+   fi
+user: root
+category_id: com.canonical.plainbox::usb
+estimated_duration: 5m
+flags: preserve-locale also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_otg == 'True'
+
+id: usb-otg/g_ether-cleanup
+_summary: Cleanup USB OTG ethernet interface setup after ethernet device test
+plugin: shell
+after: usb-otg/g_ether
+command:
+  echo "Removing g_ether module..."
+  modprobe -r g_ether
+user: root
+estimated_duration: 1s
+category_id: com.canonical.plainbox::usb
+flags: also-after-suspend

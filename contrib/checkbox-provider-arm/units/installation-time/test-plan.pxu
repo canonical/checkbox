@@ -1,0 +1,24 @@
+id: arm-installation-info-full
+unit: test plan
+_name: ARM installation info gather test
+_description: Full installation info gather tests for ARM devices
+include:
+nested_part:
+    arm-installation-info-manual
+    arm-installation-info-automated
+
+id: arm-installation-info-manual
+unit: test plan
+_name: ARM installation info gather manual
+_description: Manual installation info gather tests for ARM devices
+include:
+
+
+id: arm-installation-info-automated
+unit: test plan
+_name: ARM installation info gather auto tests
+_description: Automated installation info gather tests for ARM devices
+include:
+    info/snapd_installation_.*
+    info/cloud_init_.*
+    info/install_.*

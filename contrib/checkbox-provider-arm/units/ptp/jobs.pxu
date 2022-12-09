@@ -1,0 +1,127 @@
+unit: job
+category_id: ptp
+id: ptp/ptp-devices
+plugin: resource
+_summary: List hardware PTP-supported Ethernet devices in the DUT
+_description: 
+    Check all the ethernet devices in the DUT and list PTP-supported devices
+user: root
+estimated_duration: 2s
+flags: preserve-locale
+command:
+    KEYWORDS="SOF_TIMESTAMPING_RAW_HARDWARE
+              SOF_TIMESTAMPING_TX_HARDWARE
+              SOF_TIMESTAMPING_RX_HARDWARE"
+    for iface in /sys/class/net/*; do
+        iface=${iface##*/}
+        supported=true
+        if [[ $iface == e* ]]; then
+            output=$(ethtool -T "$iface")
+            for keyword in $KEYWORDS; do
+                if ! grep -q "$keyword" <<< "$output"; then
+                    supported=false
+                    break
+                fi
+            done
+            if [[ $supported == true ]]; then
+                echo "eth-interface: $iface"
+                echo 
+            fi
+        fi
+    done
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ptp == 'True'
+
+unit: template
+template-resource: ptp/ptp-devices
+template-unit: job
+id: ptp/verify-PTP-support-for-{eth-interface}
+category_id: ptp
+_summary: Verify Ethernet interface {eth-interface} supports PTP HW Clock
+_description: 
+    Check that the Ethernet interface {eth-interface} has a PTP Hardware Clock
+    If it does, it will have a number identifying which clock ID it is using,
+    and a corresponding entry in /dev/ptp#.
+    If it does not support PTP, it will list "none", and the test will fail.
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 2s
+command:
+    PTP_ID=$(ethtool -T {eth-interface} | grep "PTP Hardware Clock:" | cut -d' ' -f4)
+    if [ "$PTP_ID" = "none" ]; then
+        echo "Device {eth-interface} does not support hardware PTP."
+        exit 1
+    else
+        if [ -e "/dev/ptp$PTP_ID" ]; then
+            echo "/dev/ptp$PTP_ID exists"
+            exit 0
+        else
+            echo "/dev/ptp$PTP_ID not found!"
+            exit 1
+        fi
+    fi
+
+unit: template
+template-resource: ptp/ptp-devices
+template-unit: job
+id: ptp/ptp4l-time-sync-for-{eth-interface}-auto
+category_id: ptp
+_summary: Verify Ethernet interface {eth-interface} can establish clock sync by ptp4l
+_description: 
+    Use {eth-interface} on the DUT to synchronize its clock with the clock
+    of the Grand Master on another host device.
+    This automated test needs another host device which runs the ptp4l as a Grand Master
+    in the same network domain of the DUT.
+    Command for launch ptp4l as a Grand Master:
+    $ sudo ptp4l -i <if_name_on_host> -m --step_threshold=1\
+    --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2
+plugin: shell
+flags: also-after-suspend
+user: root
+estimated_duration: 32s
+depends: ptp/verify-PTP-support-for-{eth-interface}
+command:
+    output_file='/var/tmp/ptp4l_output.txt'
+    echo "Executing ptp4l for 30s"
+    (set -x; timeout 30s ptp4l -i {eth-interface} -m -s --network_transport=L2 | tee $output_file)
+    rms_data=$(tail -5 $output_file | awk '/rms/{{print $3}}')
+    if [[ -z $rms_data ]]; then
+        echo "ERROR: unable to get rms value from the output file"
+        exit 1
+    fi
+    echo
+    for rms in $rms_data; do
+        if [[ $rms -gt 1000 ]]; then
+            echo "FAIL: rms value ${{rms}}ns too big (greater than 1000ns)"
+            rm $output_file
+            exit 1
+        fi
+    done
+    echo "PASS: rms value is valid. Clock sync succeed."
+    rm $output_file
+    exit 0
+
+unit: template
+template-resource: ptp/ptp-devices
+template-unit: job
+id: ptp/ptp4l-time-sync-for-{eth-interface}-manual
+catageory_id: ptp
+_summary: Verify Ethernet interface {eth-interface} can establish clock sync
+_purpose: 
+    Use {eth-interface} on the DUT to synchronize its clock with the clock
+    of the Grand Master on another device.
+plugin: manual
+estimated_duration: 5m
+flags: also-after-suspend
+_steps:
+    1. Connect an Ethernet cable from another device's Ethernet interface which supports ptp
+       which supports ptp directly to the {eth-interface} Ethernet interface of our DUT.
+    2. On the Host (another device), execute the command: 
+       $ sudo ./ptp4l -i <if_name_on_host> -m --step_threshold=1 --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2
+    3. Wait for the system to announce it is the Grand Master.
+    4. On the DUT, run the command:
+       $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2
+    5. The DUT should announce it has selected a foreign master (Host)
+    6. Clock readings will appear on the DUT.  When the "rms" value remains below 100ns, 
+       the DUT has successfully synchronized to the clock on the Host.

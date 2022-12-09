@@ -1,0 +1,10 @@
+id: location/gps_coordinate 
+_summary: To check GPS can get the coordinate
+category_id: com.canonical.certification::location 
+plugin: user-interact
+user: root
+estimated_duration: 1.0
+flags: also-after-suspend
+command: location.sh
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gps == 'True'

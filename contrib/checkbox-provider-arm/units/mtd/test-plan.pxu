@@ -1,0 +1,42 @@
+id: arm-mtd-full
+unit: test plan
+_name: ARM Memory Technology Device tests
+_description: Full Memory Technology Device tests for ARM devices
+include:
+nested_part:
+    arm-mtd-manual
+    arm-mtd-automated
+    after-suspend-arm-mtd-manual
+    after-suspend-arm-mtd-automated
+
+id: arm-mtd-manual
+unit: test plan
+_name: ARM Memory Technology Device manual tests
+_description: Manual Memory Technology Device tests for ARM devices
+include:
+
+id: arm-mtd-automated
+unit: test plan
+_name: ARM Memory Technology Device auto tests
+_description: Automated Memory Technology Device tests for ARM devices
+bootstrap_include:
+    mtd/mtd-list
+include:
+    mtd/check-total-numbers
+    mtd/read-write-test-.*
+
+id: after-suspend-arm-mtd-manual
+unit: test plan
+_name: ARM after suspend Memory Technology Device manual tests
+_description: Manual after-suspend Memory Technology Device tests for ARM devices
+include:
+
+id: after-suspend-arm-mtd-automated
+unit: test plan
+_name: ARM after suspend Memory Technology Device auto tests
+_description: Automated after-suspend Memory Technology Device tests for ARM devices
+bootstrap_include:
+    mtd/mtd-list
+include:
+    also-after-suspend-mtd/check-total-numbers
+    also-after-suspend-mtd/read-write-test-.*

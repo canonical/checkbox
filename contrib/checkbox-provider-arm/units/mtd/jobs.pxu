@@ -1,0 +1,38 @@
+id: mtd/check-total-numbers
+category_id: mtd
+_summary: Check the total MTD numbers for the platform
+_description:
+ Check the total MTD numbers for the platform, relies on the user specifying the number of mtd. 
+ Usage of parameter: {numbers}
+ TOTAL_MTD_NUM=2
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 5
+command: mtd.sh count "$TOTAL_MTD_NUM"
+
+id: mtd/mtd-list
+plugin: resource
+_summary: Gather list of mtd on the platform
+_description:
+ Gather list of all Memory Technology Device on the platform
+estimated_duration: 1s
+command: mtd.sh list  
+
+unit: template
+template-resource: mtd/mtd-list
+template-unit: job
+id: mtd/read-write-test-{MTD_NAME}
+category_id: mtd
+_summary: Test {MTD_NAME} on the platform
+_description:
+  Write a random value into {MTD_NAME}, and read it back to compare with.
+  To make sure {MTD_NAME} read and write working properly.
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 30
+command:
+  mtd.sh compare {MTD_NAME}
+requires: manifest.has_mtd == 'True'
+imports: from com.canonical.plainbox import manifest

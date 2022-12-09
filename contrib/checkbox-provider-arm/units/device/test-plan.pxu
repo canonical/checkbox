@@ -1,0 +1,40 @@
+id: arm-dtb-full
+unit: test plan
+_name: ARM Device Tree tests
+_description: Full Device Tree tests for ARM devices
+include:
+nested_part:
+    arm-dtb-manual
+    arm-dtb-automated
+    after-suspend-arm-dtb-manual
+    after-suspend-arm-dtb-automated
+
+id: arm-dtb-manual
+unit: test plan
+_name: ARM Device Tree manual tests
+_description: Manual Device Tree tests for ARM devices
+bootstrap_include:
+include:
+    
+id: arm-dtb-automated
+unit: test plan
+_name: ARM Device Tree auto tests
+_description: Automated Device Tree tests for ARM devices
+bootstrap_include:
+    devie-tree/dump
+include:
+    devie-tree/log-attach
+
+id: after-suspend-arm-dtb-manual
+unit: test plan
+_name: ARM after suspend Device Tree manual tests
+_description: Manual after suspend Device Tree tests for ARM devices
+bootstrap_include:
+include:
+    
+id: after-suspend-arm-dtb-automated
+unit: test plan
+_name: ARM after suspend Device Tree auto tests
+_description: Automated after suspend Device Tree tests for ARM devices
+bootstrap_include:
+include:

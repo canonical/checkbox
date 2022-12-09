@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_rs485_server
+_name: Has RS485 connect to RS485 test server?
+value-type: bool
+
+unit: manifest entry
+id: has_rs485
+_name: Does platform supported RS485 serial?
+value-type: bool

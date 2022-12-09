@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_mtd
+_name: Does platfrom supported Memory Technology Device?
+value-type: bool

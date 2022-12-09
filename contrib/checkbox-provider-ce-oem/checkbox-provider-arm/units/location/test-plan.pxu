@@ -1,0 +1,38 @@
+id: arm-gps-full
+unit: test plan
+_name: ARM gps tests
+_description: Full gps tests for ARM devices
+include:
+nested_part:
+    arm-gps-manual
+    arm-gps-automated
+    after-suspend-arm-gps-manual
+    after-suspend-arm-gps-automated
+
+id: arm-gps-manual
+unit: test plan
+_name: ARM gps manual tests
+_description: Manual gps tests for ARM devices
+bootstrap_include:
+include:
+    location/gps_coordinate 
+
+id: arm-gps-automated
+unit: test plan
+_name: ARM gps auto tests
+_description: Automated gps tests for ARM devices
+include:
+
+id: after-suspend-arm-gps-manual
+unit: test plan
+_name: ARM after suspend gps manual tests
+_description: Manual after-suspend gps tests for ARM devices
+bootstrap_include:
+include:
+    after-suspend-location/gps_coordinate 
+
+id: after-suspend-arm-gps-automated
+unit: test plan
+_name: ARM after suspend gps auto tests
+_description: Automated gps tests for ARM devices
+include:

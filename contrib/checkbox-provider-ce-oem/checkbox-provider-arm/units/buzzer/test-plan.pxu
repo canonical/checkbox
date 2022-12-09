@@ -1,0 +1,44 @@
+id: arm-buzzer-full
+unit: test plan
+_name: ARM buzzer tests
+_description: Full buzzer tests for ARM devices
+include:
+nested_part:
+    arm-buzzer-manual
+    arm-buzzer-automated
+    after-suspend-arm-buzzer-manual
+    after-suspend-arm-buzzer-automated
+
+id: arm-buzzer-manual
+unit: test plan
+_name: ARM buzzer manual tests
+_description: Manual buzzer tests for ARM devices
+bootstrap_include:
+    gpio-buzzer-mapping
+    pwm-buzzer-mapping
+include:
+    buzzer/input-pcspkr
+    buzzer/sound-test-.*
+
+id: arm-buzzer-automated
+unit: test plan
+_name: ARM buzzer auto tests
+_description: Automated buzzer tests for ARM devices
+include:
+
+id: after-suspend-arm-buzzer-manual
+unit: test plan
+_name: ARM after suspend buzzer manual tests
+_description: Manual after suspend buzzer tests for ARM devices
+bootstrap_include:
+    gpio-buzzer-mapping
+    pwm-buzzer-mapping
+include:
+    after-suspend-buzzer/input-pcspkr
+    after-suspend-buzzer/sound-test-.*
+
+id: after-suspend-arm-buzzer-automated
+unit: test plan
+_name: ARM after suspend buzzer auto tests
+_description: Automated after suspend buzzer tests for ARM devices
+include:

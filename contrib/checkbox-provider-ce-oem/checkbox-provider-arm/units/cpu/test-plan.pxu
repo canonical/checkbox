@@ -1,0 +1,40 @@
+id: arm-cpu-full
+unit: test plan
+_name: ARM cpu tests
+_description: Full cpu tests for ARM devices
+include:
+nested_part:
+    arm-cpu-manual
+    arm-cpu-automated
+    after-suspend-arm-cpu-manual
+    after-suspend-arm-cpu-automated
+
+id: arm-cpu-manual
+unit: test plan
+_name: ARM cpu manual tests
+_description: Manual cpu tests for ARM devices
+bootstrap_include:
+include:
+
+id: arm-cpu-automated
+unit: test plan
+_name: ARM cpu auto tests
+_description: Automated cpu tests for ARM devices
+include:
+    arm_cpu/offlining_test
+    arm_cpu/frequency_governors
+
+id: after-suspend-arm-cpu-manual
+unit: test plan
+_name: ARM after suspend cpu manual tests
+_description: Manual after-suspend cpu tests for ARM devices
+bootstrap_include:
+include:
+
+id: after-suspend-arm-cpu-automated
+unit: test plan
+_name: ARM cpu auto tests
+_description: Automated after suspend cpu tests for ARM devices
+include:
+    after-suspend-arm_cpu/offlining_test
+    after-suspend-arm_cpu/frequency_governors

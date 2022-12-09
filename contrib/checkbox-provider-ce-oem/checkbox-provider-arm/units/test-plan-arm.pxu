@@ -1,0 +1,106 @@
+# Copyright 2022 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the Ubuntu Core ARM devices.
+#
+
+id: arm-full
+unit: test plan
+_name: ARM - Full manual + automated tests for Ubuntu Core
+_description:
+ Combined manual and automated test plans for Ubuntu Core ARM devices.
+include:
+nested_part:
+    arm-manual
+    arm-automated
+    after-suspend-arm-manual
+    after-suspend-arm-automated
+
+id: arm-manual
+unit: test plan
+_name: ARM - Manual only QA tests for Ubuntu Core
+_description:
+ Ubuntu Core QA test plan for the ARM hardware. This test plan contains
+ all of the tests that require manual control of device hardware
+ or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    arm-installation-info-manual
+    arm-cpu-manual
+    arm-button-manual
+    arm-ptp-manual
+    arm-sensor-manual
+    arm-gps-manual
+    arm-mtd-manual
+    arm-buzzer-manual
+    arm-audio-manual
+    arm-otg-manual
+    arm-rtc-manual
+    arm-rs485-manual
+
+id: arm-automated
+unit: test plan
+_name: ARM - Automated only QA tests for Ubuntu Core
+_description:
+ Ubuntu Core QA test plan for the ARM hardware. This test plan contains
+ all of the automated tests used to validate the ARM device.
+estimated_duration: 120
+include:
+nested_part:
+    arm-installation-info-automated
+    arm-dtb-automated
+    arm-cpu-automated
+    arm-button-automated
+    arm-ptp-automated
+    arm-sensor-automated
+    arm-gps-automated
+    arm-mtd-automated
+    arm-buzzer-automated
+    arm-audio-automated
+    arm-otg-automated
+    arm-rtc-automated
+    arm-rs485-automated
+
+id: after-suspend-arm-manual
+unit: test plan
+_name: ARM - Manual only QA tests for Ubuntu Core
+_description:
+ Ubuntu Core QA test plan for the ARM hardware. This test plan contains
+ all of the tests that require manual control of device hardware
+ or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    after-suspend-arm-cpu-manual
+    after-suspend-arm-button-manual
+    after-suspend-arm-ptp-manual
+    after-suspend-arm-sensor-manual
+    after-suspend-arm-gps-manual
+    after-suspend-arm-mtd-manual
+    after-suspend-arm-buzzer-manual
+    after-suspend-arm-audio-manual
+    after-suspend-arm-otg-manual
+    after-suspend-arm-rtc-manual
+    after-suspend-arm-rs485-manual
+
+id: after-suspend-arm-automated
+unit: test plan
+_name: ARM - Automated only QA tests for Ubuntu Core
+_description:
+ Ubuntu Core QA test plan for the ARM hardware. This test plan contains
+ all of the automated tests used to validate the ARM device.
+estimated_duration: 120
+include:
+nested_part:
+    after-suspend-arm-cpu-automated
+    after-suspend-arm-button-automated
+    after-suspend-arm-ptp-automated
+    after-suspend-arm-sensor-automated
+    after-suspend-arm-gps-automated
+    after-suspend-arm-mtd-automated
+    after-suspend-arm-buzzer-automated
+    after-suspend-arm-audio-automated
+    after-suspend-arm-otg-automated
+    after-suspend-arm-rtc-automated
+    after-suspend-arm-rs485-automated

@@ -1,0 +1,38 @@
+id: arm-otg-full
+unit: test plan
+_name: ARM OTG tests
+_description: Full OTG tests for ARM devices
+include:
+nested_part:
+    arm-otg-manual
+    arm-otg-automated
+
+id: arm-otg-manual
+unit: test plan
+_name: ARM OTG manual tests
+_description: Manual OTG tests for ARM devices
+include:
+    usb-otg/g_serial.*
+    usb-otg/g_mass_storage.*
+    usb-otg/g_ether.*
+
+id: arm-otg-automated
+unit: test plan
+_name: ARM OTG auto tests
+_description: Automated OTG tests for ARM devices
+include:
+
+id: after-suspend-arm-otg-manual
+unit: test plan
+_name: ARM after suspend OTG manual tests
+_description: Manual after suspend OTG tests for ARM devices
+include:
+    after-suspend-usb-otg/g_serial.*
+    after-suspend-usb-otg/g_mass_storage.*
+    after-suspend-usb-otg/g_ether.*
+
+id: after-suspend-arm-otg-automated
+unit: test plan
+_name: ARM after suspend OTG auto tests
+_description: Automated after suspend OTG tests for ARM devices
+include:

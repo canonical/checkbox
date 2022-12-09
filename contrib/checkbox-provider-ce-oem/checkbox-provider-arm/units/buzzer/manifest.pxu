@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_buzzer
+_name: Does platfrom supported buzzer?
+value-type: bool

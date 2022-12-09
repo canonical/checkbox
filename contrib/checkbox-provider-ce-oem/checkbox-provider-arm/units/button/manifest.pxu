@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_button
+_name: Does platfrom supported the push button?
+value-type: bool

@@ -43,7 +43,7 @@ from metabox.core.lxd_execute import run_or_raise
 class LxdMachineProvider():
     """Machine provider that uses container managed by LXD as targets."""
 
-    LXD_CREATE_TIMEOUT = 120
+    LXD_CREATE_TIMEOUT = 300
     LXD_POLL_INTERVAL = 5
     LXD_INTERNAL_CONFIG_PATH = '/var/tmp/machine_config.json'
 

@@ -1,0 +1,47 @@
+name: checkbox-arm
+summary: Checkbox ARM and public providers
+description: "Checkbox ARM and public providers"
+confinement: strict
+grade: stable
+
+version: '0.1.dev'
+
+base: core20
+
+slots:
+  provider-arm:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-arm
+
+parts:
+  checkbox-provider-arm:
+    plugin: dump
+    source: ../checkbox-provider-arm
+    source-type: local
+    stage-packages:
+      - alsa-utils
+      - mtd-utils
+      - u-boot-tools
+      - v4l-utils
+      - device-tree-compiler
+    override-prime: |
+      snapcraftctl prime
+      rm lib/systemd/system/alsa-utils.service
+    override-build: |
+      export PYTHONPATH=/snap/checkbox20/current/lib/python3.8/site-packages/
+      for path in $(find "/snap/checkbox20/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-arm --root="$SNAPCRAFT_PART_INSTALL"
+    build-snaps:
+      - checkbox20
+  input-pcspkr:
+    plugin: nil
+    build-packages:
+      - gcc
+      - libc6-dev
+    override-build: |
+      mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/bin
+      gcc ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-arm/src/src/input-pcspkr.c -o ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-arm/src/src/beep
+      cp -v ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-arm/src/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/

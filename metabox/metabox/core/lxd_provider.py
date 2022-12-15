@@ -76,15 +76,18 @@ class LxdMachineProvider():
             if not container.name.startswith('metabox'):
                 continue
             try:
+                logger.debug("Getting information about {}...", container.name)
                 container.start(wait=True)
                 content = container.files.get(self.LXD_INTERNAL_CONFIG_PATH)
                 container.stop(wait=True)
                 config_dict = json.loads(content)
                 config = MachineConfig(config_dict['role'], config_dict)
+                logger.debug("Config: {}", repr(config))
             except Exception as e:
-                print(container.name, e)
+                logger.warning("{}: {}", container.name, e)
                 continue
             if config in self._machine_config:
+                logger.debug("Adding {} to list of owned containers...", repr(config))
                 self._owned_containers.append(
                     machine_selector(config, container))
 
@@ -151,8 +154,11 @@ class LxdMachineProvider():
                 attempt += 1
             else:
                 raise SystemExit("Timeout reached (still running cloud-init)")
+            logger.debug("Stopping container {}...", container.name)
             container.stop(wait=True)
+            logger.debug("Creating 'base' snapshot for {}...", container.name)
             container.snapshots.create('base', stateful=False, wait=True)
+            logger.debug("Starting container {}...", container.name)
             container.start(wait=True)
             logger.opt(colors=True).debug(
                 "[<y>created</y>     ] {}", container.name)
@@ -162,9 +168,12 @@ class LxdMachineProvider():
             time.sleep(5)  # FIXME: is it still needed?
             self._run_setup_commands(machine)
             self._store_config(machine)
+            logger.debug("Stopping container {}...", container.name)
             container.stop(wait=True)
+            logger.debug("Creating 'provisioned' snapshot for {}...", container.name)
             container.snapshots.create(
                 'provisioned', stateful=False, wait=True)
+            logger.debug("Starting container {}...", container.name)
             container.start(wait=True)
             self._owned_containers.append(machine)
             logger.opt(colors=True).debug(

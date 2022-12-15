@@ -117,7 +117,7 @@ def _decl_has_a_valid_origin(decl):
         return False
     if decl['origin'] == 'snap':
         return True
-    elif decl['origin'] == 'classic_snap':
+    elif decl['origin'] == 'classic-snap':
         return True
     elif decl['origin'] == 'ppa':
         return True

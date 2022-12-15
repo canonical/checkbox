@@ -40,10 +40,7 @@ class MachineConfig:
         self.checkbox_snap = config.get("checkbox_snap", {})
         self.snap_name = config.get("name", "")
         if not self.snap_name:
-            if self.origin == 'snap':
-                self.snap_name = 'checkbox-snappy'
-            elif self.origin == 'classic_snap':
-                self.snap_name = 'checkbox-snappy-classic'
+            self.snap_name = 'checkbox'
 
     def __members(self):
         return (self.role, self.alias, self.origin, self.snap_name, self.uri,
@@ -56,7 +53,7 @@ class MachineConfig:
             self.role, self.alias, self.origin)
 
     def __str__(self):
-        return "{}-{}".format(self.role, self.alias)
+        return "{}-{}-{}".format(self.role, self.alias, self.origin)
 
     def __hash__(self):
         return hash(self.__members())
@@ -346,11 +343,13 @@ class ContainerSnapMachine(ContainerBaseMachine):
         'xenial': 'checkbox',
         'bionic': 'checkbox18',
         'focal':  'checkbox20',
+        'jammy': 'checkbox22',
     }
     CHECKBOX_SNAP_TRACK_MAP = {
-        'xenial': '16',
-        'bionic': '18',
-        'focal':  '20',
+        'xenial': '16.04',
+        'bionic': '18.04',
+        'focal':  '20.04',
+        'jammy': '22.04',
     }
 
     def __init__(self, config, container):
@@ -385,7 +384,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
                     f'sudo snap install {core_snap} --channel={channel}')
         # Then install the checkbox snap
         confinement = 'devmode'
-        if self.config.origin == 'classic_snap':
+        if self.config.origin == 'classic-snap':
             confinement = 'classic'
         if self.config.checkbox_snap.get('uri'):
             cmds.append(
@@ -427,7 +426,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
 
 
 def machine_selector(config, container):
-    if config.origin in ('snap', 'classic_snap'):
+    if config.origin in ('snap', 'classic-snap'):
         return (ContainerSnapMachine(config, container))
     elif config.origin == 'ppa':
         return (ContainerPPAMachine(config, container))

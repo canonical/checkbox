@@ -149,6 +149,7 @@ class Runner:
                 logger.warning('No match found!')
                 raise SystemExit(1)
         self._gather_all_machine_spec()
+        logger.debug("Combo: {}", self.combo)
         self.machine_provider = LxdMachineProvider(
             self.config, self.combo,
             self.debug_machine_setup, self.dispose)

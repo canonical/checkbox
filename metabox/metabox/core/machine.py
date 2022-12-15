@@ -343,11 +343,13 @@ class ContainerSnapMachine(ContainerBaseMachine):
         'xenial': 'checkbox',
         'bionic': 'checkbox18',
         'focal':  'checkbox20',
+        'jammy': 'checkbox22',
     }
     CHECKBOX_SNAP_TRACK_MAP = {
-        'xenial': '16',
-        'bionic': '18',
-        'focal':  '20',
+        'xenial': '16.04',
+        'bionic': '18.04',
+        'focal':  '20.04',
+        'jammy': '22.04',
     }
 
     def __init__(self, config, container):

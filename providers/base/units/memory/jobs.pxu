@@ -55,3 +55,16 @@ _description:
  swapping to disk, thus SUTs should have suitably large swap files for the
  amount of RAM they have installed.
 
+plugin:shell
+category_id: com.canonical.plainbox::memory
+id: memory/change_oodm_config
+estimated_duration: 3.0
+user: root
+_summary: Change oodm config
+command:
+  if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
+    echo -e "[Service]\nManagedOOMMemoryPressure=auto\nManagedOOMMemoryPressureLimit=50%" > /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  else
+    echo "odm config doesn't exist..."
+    echo "Change nothing"
+  fi

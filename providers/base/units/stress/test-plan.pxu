@@ -99,8 +99,10 @@ unit: test plan
 _name: Stress NG tests (automated)
 _description: Stress NG tests (automated)
 include:
-    stress/cpu_stress_ng_test                      certification-status=blocker
+    memory/change_oodm_config
+    power-management/warm-reboot
     memory/memory_stress_ng                        certification-status=blocker
+    stress/cpu_stress_ng_test                      certification-status=blocker
 
 id: stress-full
 unit: test plan

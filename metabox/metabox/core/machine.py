@@ -42,8 +42,8 @@ class MachineConfig:
         if not self.snap_name:
             if self.origin == 'snap':
                 self.snap_name = 'checkbox-snappy'
-            elif self.origin == 'classic_snap':
                 self.snap_name = 'checkbox-snappy-classic'
+            elif self.origin == 'classic-snap':
 
     def __members(self):
         return (self.role, self.alias, self.origin, self.snap_name, self.uri,
@@ -385,7 +385,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
                     f'sudo snap install {core_snap} --channel={channel}')
         # Then install the checkbox snap
         confinement = 'devmode'
-        if self.config.origin == 'classic_snap':
+        if self.config.origin == 'classic-snap':
             confinement = 'classic'
         if self.config.checkbox_snap.get('uri'):
             cmds.append(
@@ -427,7 +427,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
 
 
 def machine_selector(config, container):
-    if config.origin in ('snap', 'classic_snap'):
+    if config.origin in ('snap', 'classic-snap'):
         return (ContainerSnapMachine(config, container))
     elif config.origin == 'ppa':
         return (ContainerPPAMachine(config, container))

@@ -56,7 +56,7 @@ class MachineConfig:
             self.role, self.alias, self.origin)
 
     def __str__(self):
-        return "{}-{}".format(self.role, self.alias)
+        return "{}-{}-{}".format(self.role, self.alias, self.origin)
 
     def __hash__(self):
         return hash(self.__members())

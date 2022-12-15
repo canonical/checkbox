@@ -42,6 +42,7 @@ _siblings: [
 plugin: shell
 category_id: com.canonical.plainbox::memory
 id: memory/memory_stress_ng
+depends: memory/change_oodm_config, power-management/warm-reboot
 estimated_duration: 11000.0
 user: root
 environ: STRESS_NG_MIN_SWAP_SIZE
@@ -58,15 +59,16 @@ _description:
 plugin:shell
 category_id: com.canonical.plainbox::memory
 id: memory/change_oodm_config
-depends: memory/store_oodm_config, power-management/warm-reboot
+depends: memory/store_oodm_config
 estimated_duration: 3.0
 user: root
 _summary: Change oodm config
 command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
+    echo "Changing oodm config..."
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
   else
-    echo "odm config doesn't exist..."
+    echo "oodm config doesn't exist."
     echo "Change nothing"
   fi
 
@@ -83,6 +85,7 @@ command:
   else
     echo "Config doesn't exist."
     echo "Won't store anything."
+  fi
 
 plugin:shell
 category_id: com.canonical.plainbox::memory
@@ -97,3 +100,4 @@ command:
   else
     echo "Config doesn't exist."
     echo "Won't restore anything."
+  fi

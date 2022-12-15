@@ -102,7 +102,7 @@ class Scenario:
         """
         Check if during Checkbox execution a line did not produced that matches
         the pattern.
-        :param patter: regular expresion to check against the lines.
+        :param pattern: regular expression to check against the lines.
         """
         regex = re.compile(pattern)
         if self._pts:

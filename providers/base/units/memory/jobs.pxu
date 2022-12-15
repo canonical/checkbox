@@ -68,3 +68,12 @@ command:
     echo "odm config doesn't exist..."
     echo "Change nothing"
   fi
+
+plugin:shell
+category_id: com.canonical.plainbox::memory
+id: memory/check_user
+estimated_duration: 3.0
+_summary: check user
+command:
+  id -u
+

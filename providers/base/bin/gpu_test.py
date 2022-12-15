@@ -70,7 +70,7 @@ class RotateGlxThread(Thread):
         self.cancel = False
 
     def run(self):
-        while(1):
+        while True:
             for j in range(60):
                 x = int(200 * self.offset + 100 * sin(j * 0.2))
                 y = int(200 * self.offset + 100 * cos(j * 0.2))
@@ -98,7 +98,7 @@ class ChangeWorkspace(Thread):
         self.cancel = False
 
     def run(self):
-        while(1):
+        while True:
             for i in range(self.hsize):
                 for j in range(self.vsize):
                     subprocess.call(

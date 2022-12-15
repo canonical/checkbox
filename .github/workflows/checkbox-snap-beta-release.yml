@@ -1,0 +1,84 @@
+name: Autorelease beta version of checkbox-snap
+run-name: Beta release of checkbox-snap ${{ github.ref_name }}
+
+on:
+  push:
+    tags:
+        - "checkbox-snap-v*"
+  workflow_dispatch:
+
+jobs:
+  snap:
+    strategy:
+      matrix:
+        type: [classic, uc]
+        releases: [16, 18, 20, 22]
+    runs-on: ubuntu-latest
+    env:
+      SERIES: series_${{ matrix.type }}${{ matrix.releases }}
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    name: Checkbox snap for series ${{ matrix.type }}${{ matrix.releases }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
+        run: |
+          cd checkbox-snap/
+          ./prepare_${{ matrix.type }}.sh $SERIES
+      - name: Remove '.dev' suffix from the version name
+        run: |
+          cd checkbox-snap
+          # in the following sed onliner the '0,/^version/' bit specifies the range
+          # of lines it should act upon, this way only the first occurence of '^version'
+          # is getting affected.
+          sed -i '0,/^version/s/\(^version\:.*\).dev/\1/' $SERIES/snap/snapcraft.yaml
+      - name: add LP credentials
+        run: |
+          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          git config --global user.email "robot@lists.canonical.com"
+          git config --global user.name "Certification bot"
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+        with:
+          path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
+          snapcraft-channel: 7.x/stable
+          snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
+      - uses: actions/upload-artifact@v3
+        with:
+          name: series_${{ matrix.type }}${{ matrix.releases }}
+          path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
+      - name: Upload checkbox snaps to the store
+        run: |
+          for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
+          do
+            echo "Uploading $snap..."
+            if [[ ${{ matrix.type }} == 'classic' ]]; then
+              if [[ ${{ matrix.releases }} == '22' ]]; then
+                snapcraft upload $snap --release ${{ matrix.releases }}.04/beta,latest/beta
+              else
+                snapcraft upload $snap --release ${{ matrix.releases }}.04/beta
+              fi
+            else
+              snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/beta
+            fi
+          done
+
+  changelog:
+    runs-on: ubuntu-latest
+    name: checkbox-snap changelog (${{ github.ref_name }})
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Create changelog
+        run: |
+          git config --global user.email "robot@canonical.com"
+          git config --global user.name "Devices Certification Bot"
+          echo 'checkbox-snap (${{ github.ref_name }}):' > changelog
+          git log --no-merges --pretty='format:+ %s' $(git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/tags/checkbox-snap-v* | tail -n 2 | head -n 1)...${{ github.ref_name }} -- ':checkbox-snap' >> changelog
+      - name: Archive changelog
+        uses: actions/upload-artifact@v3
+        with:
+          name: Changelog
+          path: changelog

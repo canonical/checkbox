@@ -14,6 +14,9 @@ import subprocess
 import sys
 import time
 
+from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
+    ControlVersionDecider)
+
 
 def check_resolution():
     output = subprocess.check_output('xdpyinfo')
@@ -25,10 +28,10 @@ def check_resolution():
 
 
 def change_edid(host, edid_file):
+    zapper_control = ControlVersionDecider().decide(host)
+
     with open(edid_file, 'rb') as f:
-        cmd = ['ssh', host, 'v4l2-ctl --set-edid=file=-,'
-               'format=raw --fix-edid-checksums']
-        subprocess.check_output(cmd, input=f.read())
+        zapper_control.change_edid(f.read())
 
 
 def main():

@@ -80,17 +80,17 @@ def booted_kernel_location(bl_name):
         grub_path = result.params.get('BOOT_IMAGE')
         if grub_path:
             if os.path.isabs(grub_path):
-                return(grub_path, 'fs')
+                return (grub_path, 'fs')
             with contextlib.suppress(ValueError):
                 # if we know where the parameter is referencing,
                 # replace it
                 if re.search(r'\(hd\d,gpt\d\)', grub_path, re.M):
                     path = os.path.join(
                         '/boot/efi', grub_path[grub_path.index(')')+2:])
-                    return(path, 'fs')
+                    return (path, 'fs')
         return ('unknown', 'fs')
     elif bl_name == 'lk':
-        return(get_lk_bootimg_path(), 'raw')
+        return (get_lk_bootimg_path(), 'raw')
     return ('unknown', 'unknown')  # bl_name in ('uboot', 'androidboot')
 
 

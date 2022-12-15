@@ -1,0 +1,69 @@
+name: checkbox core snap daily build
+
+on:
+  schedule:
+    - cron: '00 04 * * *'
+  workflow_dispatch:
+
+jobs:
+  check_history:
+    runs-on: ubuntu-latest
+    name: Check for new commits
+    outputs:
+      should_run: ${{ steps.check_log.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check for checkbox projects new commits
+        id: check_log
+        run: |
+          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap
+          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap)
+          if [[ -z $changes ]]
+            then
+              echo "should_run=false" >> $GITHUB_OUTPUT
+            else
+              echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
+  snap:
+    strategy:
+      matrix:
+        releases: [16, 18, 20, 22]
+    needs: check_history
+    if: ${{ needs.check_history.outputs.should_run != 'false' }}
+    runs-on: ubuntu-latest
+    env:
+      SERIES: series${{ matrix.releases }}
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    name: Checkbox Core snap for series ${{ matrix.releases }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Copy over the common files for series ${{ matrix.releases }}
+        run: |
+          cd checkbox-core-snap/
+          ./prepare.sh $SERIES
+      - name: add LP credentials
+        run: |
+          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          git config --global user.email "robot@lists.canonical.com"
+          git config --global user.name "Certification bot"
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+        with:
+          path: checkbox-core-snap/series${{ matrix.releases }}
+          snapcraft-channel: 7.x/stable
+          snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
+      - uses: actions/upload-artifact@v3
+        with:
+          name: series${{ matrix.releases }}
+          path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
+      - name: Upload checkbox core snaps to the store
+        run: |
+          for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap
+          do
+            echo "Uploading $snap..."
+            snapcraft upload $snap --release edge
+          done

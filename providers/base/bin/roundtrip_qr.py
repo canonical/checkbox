@@ -80,7 +80,7 @@ def decode_image(filename):
     result = None
     for code in image:
         result = code.data
-    del(image)
+    del (image)
     if result is None:
         raise SystemExit('ERROR: no qrcodes decoded')
     return result

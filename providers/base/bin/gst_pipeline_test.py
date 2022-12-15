@@ -71,7 +71,7 @@ def main():
         print("Specified pipeline couldn't be processed.")
         print("Error when processing pipeline: {}".format(error))
         # Exit harmlessly
-        return(2)
+        return 2
 
     print("Pipeline initialized, now starting playback.")
     element.set_state(Gst.State.PLAYING)

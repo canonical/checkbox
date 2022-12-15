@@ -15,6 +15,7 @@ include:
     miscellanea/klog_results.log
     miscellanea/sosreport                      certification-status=non-blocker
     miscellanea/sosreport_attachment           certification-status=non-blocker
+    miscellanea/submission-resources           certification-status=non-blocker
     miscellanea/test_iso_install               certification-status=non-blocker
 bootstrap_include:
     device

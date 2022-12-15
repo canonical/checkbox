@@ -58,6 +58,7 @@ _description:
 plugin:shell
 category_id: com.canonical.plainbox::memory
 id: memory/change_oodm_config
+depends: memory/store_oodm_config, power-management/warm-reboot
 estimated_duration: 3.0
 user: root
 _summary: Change oodm config

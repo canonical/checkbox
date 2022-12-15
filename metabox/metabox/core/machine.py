@@ -40,10 +40,7 @@ class MachineConfig:
         self.checkbox_snap = config.get("checkbox_snap", {})
         self.snap_name = config.get("name", "")
         if not self.snap_name:
-            if self.origin == 'snap':
-                self.snap_name = 'checkbox-snappy'
-                self.snap_name = 'checkbox-snappy-classic'
-            elif self.origin == 'classic-snap':
+            self.snap_name = 'checkbox'
 
     def __members(self):
         return (self.role, self.alias, self.origin, self.snap_name, self.uri,

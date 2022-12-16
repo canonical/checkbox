@@ -99,8 +99,7 @@ unit: test plan
 _name: Stress NG tests (automated)
 _description: Stress NG tests (automated)
 include:
-    memory/store_oodm_config
-    memory/change_oodm_config
+    memory/store_and_change_oomd_config
     memory/memory_stress_ng                        certification-status=blocker
     memory/restore_oodm_config
     stress/cpu_stress_ng_test                      certification-status=blocker

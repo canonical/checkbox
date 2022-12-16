@@ -42,7 +42,7 @@ _siblings: [
 plugin: shell
 category_id: com.canonical.plainbox::memory
 id: memory/memory_stress_ng
-depends: memory/change_oodm_config, power-management/warm-reboot
+depends: memory/store_and_change_oomd_config
 estimated_duration: 11000.0
 user: root
 environ: STRESS_NG_MIN_SWAP_SIZE
@@ -58,42 +58,27 @@ _description:
 
 plugin:shell
 category_id: com.canonical.plainbox::memory
-id: memory/change_oodm_config
-depends: memory/store_oodm_config
+id: memory/store_and_change_oomd_config
 estimated_duration: 3.0
 user: root
 _summary:
   Change oodm config
 command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
-    echo "Changing oodm config..."
+    echo "Storing original oomd config..."
+    cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
+    echo "Changing oomd config to auto..."
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
     reboot
   else
     echo "oodm config doesn't exist."
-    echo "Change nothing"
+    echo "Won't change anything"
   fi
 flags: autorestart
 
 plugin:shell
 category_id: com.canonical.plainbox::memory
-id: memory/store_oodm_config
-estimated_duration: 3.0
-user: root
-_summary:
-  Store 10-oomd-user-service-defaults.conf
-command:
-  if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
-    cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
-    echo "Original config stored!"
-  else
-    echo "Config doesn't exist."
-    echo "Won't store anything."
-  fi
-
-plugin:shell
-category_id: com.canonical.plainbox::memory
-id: memory/restore_oodm_config
+id: memory/restore_oomd_config
 estimated_duration: 3.0
 user: root
 _summary:

@@ -101,10 +101,8 @@ _description: Stress NG tests (automated)
 include:
     memory/store_oodm_config
     memory/change_oodm_config
-    power-management/warm-reboot
     memory/memory_stress_ng                        certification-status=blocker
     memory/restore_oodm_config
-    power-management/warm-reboot
     stress/cpu_stress_ng_test                      certification-status=blocker
 
 id: stress-full

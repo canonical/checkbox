@@ -68,10 +68,12 @@ command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     echo "Changing oodm config..."
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+    reboot
   else
     echo "oodm config doesn't exist."
     echo "Change nothing"
   fi
+flags: autorestart
 
 plugin:shell
 category_id: com.canonical.plainbox::memory
@@ -100,7 +102,9 @@ command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
     echo "Original config restored!"
+    reboot
   else
     echo "Config doesn't exist."
     echo "Won't restore anything."
   fi
+flags: autorestart

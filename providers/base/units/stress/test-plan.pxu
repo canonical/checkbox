@@ -101,7 +101,7 @@ _description: Stress NG tests (automated)
 include:
     memory/store_and_change_oomd_config
     memory/memory_stress_ng                        certification-status=blocker
-    memory/restore_oodm_config
+    memory/restore_oomd_config
     stress/cpu_stress_ng_test                      certification-status=blocker
 
 id: stress-full

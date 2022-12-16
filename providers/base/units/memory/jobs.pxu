@@ -67,7 +67,7 @@ command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     echo "Storing original oomd config..."
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
-    echo "Changing oomd config to auto..."
+    echo "Changing oomd config from kill to auto..."
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
     sleep 2
     reboot
@@ -86,8 +86,8 @@ _summary:
   Restore 10-oomd-user-service-defaults.conf
 command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
+    echo "Restoring original oomd config"
     cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
-    echo "Original config restored!"
     sleep 2
     reboot
   else

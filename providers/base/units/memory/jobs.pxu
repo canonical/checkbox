@@ -69,6 +69,7 @@ command:
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
     echo "Changing oomd config to auto..."
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+    sleep 2
     reboot
   else
     echo "Config doesn't exist."
@@ -87,6 +88,7 @@ command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
     echo "Original config restored!"
+    sleep 2
     reboot
   else
     echo "Config doesn't exist."

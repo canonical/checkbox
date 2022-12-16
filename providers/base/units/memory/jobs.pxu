@@ -62,7 +62,7 @@ id: memory/store_and_change_oomd_config
 estimated_duration: 3.0
 user: root
 _summary:
-  Change oodm config
+  Store and change oomd config
 command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     echo "Storing original oomd config..."
@@ -71,10 +71,10 @@ command:
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
     reboot
   else
-    echo "oodm config doesn't exist."
+    echo "Config doesn't exist."
     echo "Won't change anything"
   fi
-flags: autorestart
+flags: autorestart, noreturn
 
 plugin:shell
 category_id: com.canonical.plainbox::memory
@@ -92,4 +92,4 @@ command:
     echo "Config doesn't exist."
     echo "Won't restore anything."
   fi
-flags: autorestart
+flags: autorestart, noreturn

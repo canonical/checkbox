@@ -62,7 +62,8 @@ id: memory/change_oodm_config
 depends: memory/store_oodm_config
 estimated_duration: 3.0
 user: root
-_summary: Change oodm config
+_summary:
+  Change oodm config
 command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     echo "Changing oodm config..."
@@ -77,7 +78,8 @@ category_id: com.canonical.plainbox::memory
 id: memory/store_oodm_config
 estimated_duration: 3.0
 user: root
-_summary: store 10-oomd-user-service-defaults.conf
+_summary:
+  Store 10-oomd-user-service-defaults.conf
 command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     cat /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
@@ -92,7 +94,8 @@ category_id: com.canonical.plainbox::memory
 id: memory/restore_oodm_config
 estimated_duration: 3.0
 user: root
-_summary: restore 10-oomd-user-service-defaults.conf
+_summary:
+  Restore 10-oomd-user-service-defaults.conf
 command:
   if [ -e /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf ]; then
     cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > /usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf

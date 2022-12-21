@@ -44,6 +44,7 @@ class Scenario:
     def __init__(self, mode, *releases):
         self.mode = mode
         self.releases = releases
+        self.problems = []
         self._checks = []
         self._ret_code = None
         self._stdout = ''
@@ -75,6 +76,7 @@ class Scenario:
                 step(self)
             except TimeoutError:
                 self._checks.append(False)
+                self.problems.append("Timeout reached")
                 break
         if self._pts:
             self._stdout = self._pts.stdout_data_full
@@ -96,7 +98,11 @@ class Scenario:
         :param patter: regular expresion to check against the lines.
         """
         regex = re.compile(pattern)
-        self._checks.append(bool(regex.search(self._stdout)))
+        outcome = bool(regex.search(self._stdout))
+        self._checks.append(outcome)
+        if not outcome:
+            self.problems.append(
+                '"{}" not found in checkbox standard output'.format(pattern))
 
     def assert_not_printed(self, pattern):
         """

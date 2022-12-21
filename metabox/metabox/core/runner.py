@@ -39,22 +39,32 @@ class Runner:
         logger.add(
             sys.stdout,
             format=self._formatter,
-            level=args.log_level)
+            level=args.scenario_log_level)
         logger.level("TRACE", color="<w><dim>")
         logger.level("DEBUG", color="<w><dim>")
         # session config
-        if not args.config.exists():
+        if not args.config or not args.config.exists():
             raise SystemExit('Config file not found!')
         else:
             self.config = read_config(args.config)
             validate_config(self.config)
         # effective set of machine configs required by scenarios
         self.combo = set()
+        self.scn_variants = []
         self.machine_provider = None
         self.failed = False
-        self.tags = set(self.args.tags or [])
-        self.exclude_tags = set(self.args.exclude_tags or [])
-        self.hold_on_fail = self.args.hold_on_fail
+        try:
+            self.tags = set(self.args.tags or [])
+        except AttributeError:
+            self.tags = []
+        try:
+            self.exclude_tags = set(self.args.exclude_tags or [])
+        except AttributeError:
+            self.exclude_tags = []
+        try:
+            self.hold_on_fail = self.args.hold_on_fail
+        except AttributeError:
+            self.hold_on_fail = False
         self.debug_machine_setup = self.args.debug_machine_setup
         self.dispose = not self.args.do_not_dispose
         aggregator.load_all()
@@ -99,9 +109,8 @@ class Runner:
                 filtered_suite.append(scn)
         return filtered_suite
 
-    def setup(self):
+    def collect(self):
         self.scenarios = aggregator.all_scenarios()
-        self.scn_variants = []
         # Generate all scenario variants
         for scenario_cls in self.scenarios:
             for mode in scenario_cls.mode:
@@ -137,17 +146,19 @@ class Runner:
                         if alias not in local_releases:
                             continue
                         self.scn_variants.append(scenario_cls(mode, alias))
-        if self.args.tags or self.args.exclude_tags:
-            if self.args.tags:
+        if self.tags or self.exclude_tags:
+            if self.tags:
                 logger.info('Including scenario tag(s): %s' % ', '.join(
-                    sorted(self.args.tags)))
-            if self.args.exclude_tags:
+                    sorted(self.tags)))
+            if self.exclude_tags:
                 logger.info('Excluding scenario tag(s): %s' % ', '.join(
-                    sorted(self.args.exclude_tags)))
+                    sorted(self.exclude_tags)))
             self.scn_variants = self._filter_scn_by_tags()
             if not self.scn_variants:
                 logger.warning('No match found!')
                 raise SystemExit(1)
+
+    def setup(self):
         self._gather_all_machine_spec()
         logger.debug("Combo: {}", self.combo)
         self.machine_provider = LxdMachineProvider(

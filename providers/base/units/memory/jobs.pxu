@@ -62,7 +62,7 @@ id: memory/store_and_change_oomd_config
 estimated_duration: 3.0
 user: root
 _summary:
-  Store and change oomd config
+  Store and change 10-oomd-user-service-defaults.conf
 command:
   config_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
   if [ -e ${config_path} ]; then

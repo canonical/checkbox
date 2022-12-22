@@ -4,12 +4,12 @@ id: arm_cpu/offlining_test
 estimated_duration: 128.0
 imports: from com.canonical.certification import cpuinfo
 user: root
-command: /snap/checkbox20/current/providers/plainbox-provider-checkbox/bin/cpu_offlining.py
+command: python3 $CHECKBOX_RUNTIME/providers/checkbox-provider-base/bin/cpu_offlining.py
 _summary:
  Test offlining of each CPU core
 _description:
  Attempts to offline each core in a multicore system.
-requires: int(cpuinfo.count) > 1 and cpuinfo.platform == 'aarch64'
+requires: cpuinfo.count > "1"
 flag: also-after-suspend
 
 plugin: shell

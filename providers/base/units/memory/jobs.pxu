@@ -70,13 +70,11 @@ command:
     cat ${config_path} > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
     echo "Changing oomd config to auto..."
     cat ${config_path} | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' ${config_path}
-    sleep 2
     systemctl daemon-reload
   else
     echo "Config doesn't exist."
     echo "Won't change anything"
   fi
-flags: autorestart, noreturn
 
 plugin:shell
 category_id: com.canonical.plainbox::memory
@@ -90,10 +88,8 @@ command:
   if [ -e ${config_path} ]; then
     echo "Restoring original oomd config..."
     cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > ${config_path}
-    sleep 2
     systemctl daemon-reload
   else
     echo "Config doesn't exist."
     echo "Won't restore anything."
   fi
-flags: autorestart, noreturn

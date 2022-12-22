@@ -27,6 +27,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::networking
 id: networking/modem_connection
+flags: also-after-suspend
 command: network_check.py
 _description:
  PURPOSE:

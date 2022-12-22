@@ -1,6 +1,7 @@
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/basic
+flags: also-after-suspend
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
 _purpose:
@@ -86,6 +87,7 @@ _siblings:
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-rightclick
+flags: also-after-suspend
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 120.0
 _purpose:
@@ -103,6 +105,7 @@ _siblings:
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch
+flags: also-after-suspend
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 command: touchpad_test.py up down right left
 estimated_duration: 120.0
@@ -188,6 +191,7 @@ _siblings:
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/continuous-move
+flags: also-after-suspend
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
 estimated_duration: 12
 command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/touch_continuous_move_test.qml 2>&1 | grep -o PASS
@@ -219,6 +223,7 @@ _description:
  make sure that firmware/labeling bit is set in touchpad firmware.
 
 id: touchpad/palm-rejection
+flags: also-after-suspend
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']

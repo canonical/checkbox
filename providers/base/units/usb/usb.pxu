@@ -34,6 +34,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::usb
 id: usb/HID
+flags: also-after-suspend
 depends: usb/detect
 estimated_duration: 1.0
 command: keyboard_test.py
@@ -48,6 +49,7 @@ _description:
      Did the device work as expected?
 
 id: usb/insert
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 2.0 storage device insertion detected
 _purpose:
@@ -74,6 +76,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/insert
+flags: also-after-suspend
 template-engine: jinja2
 requires:
  usb.usb3 == 'supported'
@@ -102,6 +105,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb/remove
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 2.0 storage device removal detected
 _purpose:
@@ -127,6 +131,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/remove
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 3.0 storage device removal detected
 _purpose:
@@ -190,6 +195,7 @@ _description:
      automatically selected result.
 
 id: usb/storage-automated
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 2.0 storage device read & write works
 _purpose:
@@ -212,6 +218,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 300
 
 id: usb3/storage-automated
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 3.0 storage device read & write works
 _purpose:

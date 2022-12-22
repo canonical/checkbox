@@ -1,3 +1,23 @@
+plugin:shell
+category_id: com.canonical.plainbox::memory
+id: memory/store_and_change_oomd_config
+estimated_duration: 3.0
+user: root
+_summary:
+  Store and change 10-oomd-user-service-defaults.conf
+command:
+  config_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  if [ -e ${config_path} ]; then
+    echo "Storing original oomd config..."
+    cat ${config_path} > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
+    echo "Changing oomd config to auto..."
+    cat ${config_path} | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' ${config_path}
+    systemctl daemon-reload
+  else
+    echo "Config doesn't exist."
+    echo "Won't change anything"
+  fi
+
 plugin: shell
 category_id: com.canonical.plainbox::memory
 id: memory/info
@@ -39,26 +59,6 @@ _siblings: [
       "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}
  ]
 
-plugin:shell
-category_id: com.canonical.plainbox::memory
-id: memory/store_and_change_oomd_config
-estimated_duration: 3.0
-user: root
-_summary:
-  Store and change 10-oomd-user-service-defaults.conf
-command:
-  config_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
-  if [ -e ${config_path} ]; then
-    echo "Storing original oomd config..."
-    cat ${config_path} > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
-    echo "Changing oomd config to auto..."
-    cat ${config_path} | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' ${config_path}
-    systemctl daemon-reload
-  else
-    echo "Config doesn't exist."
-    echo "Won't change anything"
-  fi
-
 plugin: shell
 category_id: com.canonical.plainbox::memory
 id: memory/memory_stress_ng
@@ -79,10 +79,11 @@ _description:
 plugin:shell
 category_id: com.canonical.plainbox::memory
 id: memory/restore_oomd_config
+depends: memory/store_and_change_oomd_config
 estimated_duration: 3.0
 user: root
 _summary:
-  Restore 10-oomd-user-service-defaults.conf
+  Restore to original 10-oomd-user-service-defaults.conf
 command:
   config_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
   if [ -e ${config_path} ]; then

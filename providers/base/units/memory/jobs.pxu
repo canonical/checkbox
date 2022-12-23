@@ -12,6 +12,7 @@ command:
     cat ${config_path} > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
     echo "Before changing config (Original config):"
     cat ${config_path}
+    echo
     echo "Changing oomd config to auto..."
     cat ${config_path} | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' ${config_path}
     systemctl daemon-reload
@@ -93,6 +94,7 @@ command:
   if [ -e ${config_path} ]; then
     echo "Before changing config:"
     cat ${config_path}
+    echo
     echo "Restoring original oomd config..."
     cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > ${config_path}
     systemctl daemon-reload

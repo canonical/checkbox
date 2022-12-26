@@ -2,14 +2,14 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_vga_{product_slug}
-requires: display.vga == 'supported' or display.dp == 'supported'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_vga == 'True'
 flags: also-after-suspend
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your VGA port as a monitor interconnect for {vendor} {product}.
 _steps:
-    Skip this test if your system does not have a VGA port.
     1. Connect a display (if not already connected) to the VGA port on your system
     2. Switch display modes between in your Display Settings, check if it can be
     set to mirrored, extended, displayed on external or onboard only
@@ -21,14 +21,14 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dvi_{product_slug}
-requires: display.dvi == 'supported'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_dvi == 'True'
 flags: also-after-suspend
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your DVI port as a monitor interconnect for {vendor} {product}.
 _steps:
-    Skip this test if your system does not have a DVI port.
     1. Connect a display (if not already connected) to the DVI port on your system
     2. Switch display modes between in your Display Settings, check if it can be
     set to mirrored, extended, displayed on external or onboard only
@@ -40,14 +40,14 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_displayport_{product_slug}
-requires: display.dp == 'supported'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_dp == 'True'
 flags: also-after-suspend
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
      This test will check your DisplayPort port as a monitor interconnect for {vendor} {product}.
 _steps:
-     Skip this test if your system does not have a DisplayPort port.
      1. Connect a display (if not already connected) to the DisplayPort port on your system
      2. Switch display modes between in your Display Settings, check if it can be
      set to mirrored, extended, displayed on external or onboard only
@@ -59,14 +59,14 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_hdmi_{product_slug}
-requires: display.hdmi == 'supported'
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi == 'True'
 flags: also-after-suspend
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your HDMI port as a monitor interconnect for {vendor} {product}.
 _steps:
-    Skip this test if your system does not have a HDMI port.
     1. Connect a display (if not already connected) to the HDMI port on your system
     2. Switch display modes between in your Display Settings, check if it can be
     set to mirrored, extended, displayed on external or onboard only
@@ -78,7 +78,6 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_svideo_{product_slug}
-requires: display.svideo == 'supported'
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
@@ -96,7 +95,6 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_rca_{product_slug}
-requires: display.rca == 'supported'
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
@@ -216,7 +214,8 @@ template-resource: graphics_card
 id: monitor/{index}_type-c_displayport_{product_slug}
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires:
+  manifest.has_usbc_video == 'True'
 flags: also-after-suspend
 estimated_duration: 15.0
 plugin: manual
@@ -238,7 +237,8 @@ template-resource: graphics_card
 id: monitor/{index}_type-c_hdmi_{product_slug}
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires:
+  manifest.has_usbc_video == 'True'
 flags: also-after-suspend
 estimated_duration: 15.0
 plugin: manual
@@ -260,7 +260,8 @@ template-resource: graphics_card
 id: monitor/{index}_type-c_vga_{product_slug}
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires:
+  manifest.has_usbc_video == 'True'
 flags: also-after-suspend
 estimated_duration: 15.0
 plugin: manual
@@ -279,7 +280,8 @@ _verification:
 
 id: monitor/type-c-to-hdmi
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires:
+  manifest.has_usbc_video == 'True'
 flags: also-after-suspend
 estimated_duration: 15.0
 plugin: manual
@@ -298,7 +300,8 @@ _verification:
 
 id: monitor/type-c-to-vga
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires:
+  manifest.has_usbc_video == 'True'
 flags: also-after-suspend
 estimated_duration: 15.0
 plugin: manual

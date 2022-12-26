@@ -13,7 +13,7 @@ plugin: manual
 flags: also-after-suspend
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires: manifest.has_usbc_data == 'True'
 estimated_duration: 60
 
 id: usb-c/c-to-a-adapter/insert
@@ -44,7 +44,7 @@ category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 30
 
 id: usb-c/c-to-a-adapter/storage-automated
@@ -63,7 +63,7 @@ command:
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 depends: usb-c/c-to-a-adapter/insert
 estimated_duration: 60
 
@@ -92,7 +92,7 @@ category_id: com.canonical.plainbox::usb
 depends: usb-c/c-to-a-adapter/insert
 imports: from com.canonical.plainbox import manifest
 requires:
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 30
 
 id: usb-c/hid
@@ -110,7 +110,7 @@ plugin: manual
 flags: also-after-suspend
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires: manifest.has_usbc_data == 'True'
 estimated_duration: 60
 
 id: usb-c/insert
@@ -140,7 +140,7 @@ category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 30
 
 id: usb-c/storage-automated
@@ -160,7 +160,7 @@ command:
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 depends: usb-c/insert
 estimated_duration: 60
 
@@ -188,7 +188,7 @@ category_id: com.canonical.plainbox::usb
 depends: usb-c/insert
 imports: from com.canonical.plainbox import manifest
 requires:
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 30
 
 id: usb-c/c-to-ethernet-adapter-insert
@@ -196,7 +196,7 @@ plugin: user-interact
 flags: also-after-suspend
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usb_type_c == 'True'
+requires: manifest.has_usbc_data == 'True'
 command:
  net_if_watcher.py
 _summary: Check if USB Type-C to Ethernet adapter works

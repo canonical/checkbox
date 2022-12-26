@@ -43,11 +43,13 @@ category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120.0
 _summary: DisplayPort test on the dock
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_dp == 'True'
 plugin: manual
 _purpose:
     This test will check the DisplayPort(s) on the dock.
 _steps:
-    Skip this test if the dock does not have a DisplayPort.
     1. Connect a display (if not already connected) to the DisplayPort on the dock
     2. Repeat step 1 for each additional DisplayPorts, if any
 _verification:
@@ -58,11 +60,13 @@ category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120.0
 _summary: DVI port test on the dock
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_dvi == 'True'
 plugin: manual
 _purpose:
     This test will check the DVI port(s) on the dock.
 _steps:
-    Skip this test if the dock does not have a DVI port.
     1. Connect a display (if not already connected) to the DVI port on the dock
     2. Repeat step 1 for each additional DVI port, if any
 _verification:
@@ -73,11 +77,13 @@ category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120.0
 _summary: HDMI port test on the dock
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_hdmi == 'True'
 plugin: manual
 _purpose:
     This test will check the HDMI port(s) on the dock.
 _steps:
-    Skip this test if the dock does not have a HDMI port.
     1. Connect a display (if not already connected) to the HDMI port on the dock
     2. Repeat step 1 for each additional HDMI port, if any
 _verification:
@@ -88,11 +94,13 @@ category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120.0
 _summary: VGA port test on the dock
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vga == 'True'
 plugin: manual
 _purpose:
     This test will check the VGA port(s) on the dock.
 _steps:
-    Skip this test if the dock does not have a VGA port.
     1. Connect a display (if not already connected) to the VGA port on the dock
     2. Repeat step 1 for each additional VGA port, if any
 _verification:
@@ -102,12 +110,14 @@ id: dock/monitor_type-c_displayport
 category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_usbc_video == 'True'
 plugin: manual
 _summary: Display connected via DisplayPort using an USB Type-C port
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to DisplayPort" adapter.
 _steps:
-    Skip this test if the dock does not have a USB Type-C port.
     1. Connect a display (if not already connected) to the USB Type-C port on
        your system using a "USB Type-C to DisplayPort" adapter
     2. Switch display modes between in your Display Settings, check if it can be
@@ -120,12 +130,14 @@ id: dock/monitor_type-c_hdmi
 category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_usbc_video == 'True'
 plugin: manual
 _summary: Display connected via HDMI using an USB Type-C port
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to HDMI" adapter.
 _steps:
-    Skip this test if the dock does not have a USB Type-C port.
     1. Connect a display (if not already connected) to the USB Type-C port on
        your system using a "USB Type-C to HDMI" adapter
     2. Switch display modes between in your Display Settings, check if it can be
@@ -138,12 +150,14 @@ id: dock/monitor_type-c_vga
 category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_usbc_video == 'True'
 plugin: manual
 _summary: Display connected via VGA using an USB Type-C port
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to VGA" adapter.
 _steps:
-    Skip this test if the dock does not have a USB Type-C port.
     1. Connect a display (if not already connected) to the USB Type-C port on
        your system using a "USB Type-C to VGA" adapter
     2. Switch display modes between in your Display Settings, check if it can be
@@ -291,7 +305,9 @@ _verification:
 id: dock/audio-playback-type-c-hdmi
 category_id: dock-audio
 depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_usbc_video == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -318,7 +334,9 @@ _verification:
 id: dock/audio-playback-type-c-displayport
 category_id: dock-audio
 depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_usbc_video == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'

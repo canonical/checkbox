@@ -64,8 +64,9 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_hdmi_{product_slug}
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
 requires:
- display.hdmi == 'supported'
+ manifest.has_hdmi == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -93,8 +94,9 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_displayport_{product_slug}
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
 requires:
- display.dp == 'supported'
+ manifest.has_dp == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -184,8 +186,7 @@ id: audio/{index}_playback_type-c_displayport_{product_slug}
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
- manifest.has_usb_type_c == 'True'
- display.dp == 'supported'
+ manifest.has_usbc_video == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -215,8 +216,7 @@ id: audio/{index}_playback_type-c_hdmi_{product_slug}
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
- manifest.has_usb_type_c == 'True'
- display.dp == 'supported'
+ manifest.has_usbc_video == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'

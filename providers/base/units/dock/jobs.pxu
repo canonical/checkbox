@@ -728,7 +728,7 @@ id: dock/usb-c/c-to-a-adapter/insert
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
@@ -752,7 +752,7 @@ id: dock/usb-c/insert
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
@@ -776,7 +776,7 @@ imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/c-to-a-adapter/insert
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
@@ -797,7 +797,7 @@ imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/insert
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
@@ -816,7 +816,7 @@ id: dock/usb-c/c-to-a-adapter/storage-automated
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
@@ -831,7 +831,7 @@ id: dock/usb-c/storage-automated
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0
@@ -847,7 +847,7 @@ depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
@@ -872,7 +872,7 @@ depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
@@ -896,7 +896,7 @@ imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/c-to-a-adapter/insert-after-suspend
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
@@ -917,7 +917,7 @@ imports: from com.canonical.plainbox import manifest
 depends: dock/usb-c/insert-after-suspend
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
@@ -936,7 +936,7 @@ id: dock/usb-c/c-to-a-adapter/storage-automated-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
@@ -951,7 +951,7 @@ id: dock/usb-c/storage-automated-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
- manifest.has_usb_type_c == 'True'
+ manifest.has_usbc_data == 'True'
 depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0

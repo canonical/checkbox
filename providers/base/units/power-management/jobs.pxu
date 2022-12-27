@@ -134,6 +134,53 @@ _description:
  VERIFICATION:
      Did the system resume when the lid was opened?
 
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::power-management
+id: power-management/lid_close_suspend_open
+estimated_duration: 20.0
+requires: device.product == 'Lid Switch'
+_purpose:
+    This test will check your lid sensor can detect lid close/open, and DUT will suspend when the lid closed
+_steps:
+    1. Press "Enter" to start the test
+    2. Close the lid (Plese close the lid within 10 sec)
+    3. Wait 5 seconds with the lid closed.
+    5. Open the lid
+_verification:
+    Did the system suspend when lid closed, and resume back when the lid opened?
+command:
+  prev_suspend_times=$(cat /sys/power/suspend_stats/success)
+  echo "Times of previous suspend: $prev_suspend_times"
+  echo "Please close the lid and wait for 5 sec to make it suspend~"
+  # shellcheck disable=SC2034
+  for i in {1..20}; do
+      state=$(cat /proc/acpi/button/lid/*/state | awk '{print $2}')
+      # shellcheck disable=SC2015
+      if [ "$state" = "closed" ]
+      then
+          for j in {1..20}; do
+              state=$(cat /proc/acpi/button/lid/*/state | awk '{print $2}')
+              # shellcheck disable=SC2015
+              if [ "$state" = "open" ]
+              then
+                  now_suspend_times=$(cat /sys/power/suspend_stats/success)
+                  if [ "$now_suspend_times" -gt "$prev_suspend_times" ]
+                  then
+                      echo "Times of now suspend: $now_suspend_times"
+                      exit 0
+                  else
+                      sleep 0.5
+                  fi
+              else
+                  sleep 0.5
+              fi
+          done
+      else
+          sleep 0.5
+      fi
+  done
+  exit 1
+
 plugin: shell
 category_id: com.canonical.plainbox::power-management
 id: power-management/rtc

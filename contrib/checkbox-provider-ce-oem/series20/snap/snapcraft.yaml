@@ -25,6 +25,7 @@ parts:
       - u-boot-tools
       - v4l-utils
       - device-tree-compiler
+      - linuxptp
     override-prime: |
       snapcraftctl prime
       rm lib/systemd/system/alsa-utils.service

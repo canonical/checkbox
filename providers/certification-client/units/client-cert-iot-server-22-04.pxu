@@ -1,5 +1,5 @@
 id: client-cert-iot-server-22-04
-_name: [DRAFT] IoT Client Certification for 22.04 classic images
+_name: IoT Client Certification for 22.04 classic images
 unit: test plan
 _description:
   This is classic 22.04
@@ -10,7 +10,7 @@ nested_part:
 
 
 id: client-cert-iot-server-22-04-manual
-_name: [DRAFT] IoT Client Certification for 22.04 classic images (Manual Tests)
+_name: IoT Client Certification for 22.04 classic images (Manual Tests)
 unit: test plan
 _description:
   This is classic 22.04
@@ -24,7 +24,7 @@ exclude:
 
 
 id: client-cert-iot-server-22-04-automated
-_name: [DRAFT] IoT Client Certification for 22.04 classic images (Automated Tests)
+_name: IoT Client Certification for 22.04 classic images (Automated Tests)
 unit: test plan
 _description:
   This is classic 22.04
@@ -36,7 +36,7 @@ nested_part:
 
 
 id: client-cert-iot-server-22-04-stress
-_name: [DRAFT] IoT Client Certification for 22.04 classic images (Stress Tests)
+_name: IoT Client Certification for 22.04 classic images (Stress Tests)
 unit: test plan
 _description:
   This is classic 22.04

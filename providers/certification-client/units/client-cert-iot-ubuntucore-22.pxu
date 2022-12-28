@@ -1,5 +1,5 @@
 id: client-cert-iot-ubuntucore-22
-_name: [DRAFT] IoT Client Certification for Ubuntu Core 22
+_name: IoT Client Certification for Ubuntu Core 22
 unit: test plan
 _description:
   This is UC22
@@ -10,7 +10,7 @@ nested_part:
 
 
 id: client-cert-iot-ubuntucore-22-manual
-_name: [DRAFT] IoT Client Certification for Ubuntu Core 22 (Manual Tests)
+_name: IoT Client Certification for Ubuntu Core 22 (Manual Tests)
 unit: test plan
 _description:
   This is UC22
@@ -80,7 +80,7 @@ nested_part:
 
 
 id: client-cert-iot-ubuntucore-22-automated
-_name: [DRAFT] IoT Client Certification for Ubuntu Core 22 (Automated Tests)
+_name: IoT Client Certification for Ubuntu Core 22 (Automated Tests)
 unit: test plan
 _description:
   This is UC22
@@ -150,7 +150,7 @@ nested_part:
 
 
 id: client-cert-iot-ubuntucore-22-stress
-_name: [DRAFT] IoT Client Certification for Ubuntu Core 22 (Stress Tests)
+_name: IoT Client Certification for Ubuntu Core 22 (Stress Tests)
 unit: test plan
 _description:
   This is UC22

@@ -17,7 +17,7 @@ _description:
 include:
 nested_part:
   # until there is reason to diverge, nest these plans
-  client-cert-iot-ubuntucore-20-manual
+  client-cert-iot-ubuntucore-22-manual
 exclude:
   ubuntucore/os-.*
   snappy/os-.*
@@ -31,7 +31,7 @@ _description:
 include:
 nested_part:
   # until there is reason to diverge, nest these plans
-  client-cert-iot-ubuntucore-20-automated
+  client-cert-iot-ubuntucore-22-automated
   ## snappy-snap-automated-lightweight ??
 
 

@@ -21,9 +21,9 @@ unit: test plan
 _name: ARM Device Tree auto tests
 _description: Automated Device Tree tests for ARM devices
 bootstrap_include:
-    devie-tree/dump
+    device-tree/dump
 include:
-    devie-tree/log-attach
+    device-tree/log-attach
 
 id: after-suspend-arm-dtb-manual
 unit: test plan

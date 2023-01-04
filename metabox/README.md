@@ -16,6 +16,8 @@ Users define **configurations** to execute these scenarios. A configuration is a
 
 # Installation
 
+Metabox requires LXD. Check the [LXD documentation to install and initialize it].
+
 Create a Python virtual environment and install Metabox in it:
 
 ```shell
@@ -79,3 +81,4 @@ $ metabox local-daily-builds-config.py --do-not-dispose --tag basic
 [`desktop_env` scenario]: ./metabox/scenarios/desktop_env/
 [`basic` scenario]: ./metabox/scenarios/basic/
 [`configs` directory]: ./configs/
+[LXD documentation to install and initialize it]: https://linuxcontainers.org/lxd/getting-started-cli/

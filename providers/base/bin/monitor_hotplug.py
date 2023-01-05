@@ -12,7 +12,7 @@ import subprocess
 import time
 
 from checkbox_support.scripts.zapper_proxy import (  # noqa: E402
-    ControlVersionDecider)
+    zapper_run)
 
 
 def _check_connected(device):
@@ -27,14 +27,14 @@ def _check_connected(device):
     return device in xrandr_output
 
 
-def _change_hdmi_status(zapper_control, status):
+def _change_hdmi_status(zapper_host, status):
     edid_file = os.path.expandvars(os.path.join(
         '$PLAINBOX_PROVIDER_DATA', 'edids', '1920x1080.edid'))
     if status == "connected":
         with open(edid_file, 'rb') as edid_bin:
-            zapper_control.change_edid(edid_bin.read())
+            zapper_run(zapper_host, "change_edid", edid_bin.read())
     else:
-        zapper_control.change_edid(None)
+        zapper_run(zapper_host, "change_edid", None)
     time.sleep(5)
 
 
@@ -50,14 +50,12 @@ def main():
     parser.add_argument("host", help="Zapper IP address")
     args = parser.parse_args()
 
-    zapper_control = ControlVersionDecider().decide(args.host)
-
     failed = False
     device = "{}-{}".format(
             args.peripheral.upper(), args.index)
 
     print("unplugging {}... ".format(args.peripheral), end="")
-    _change_fn[args.peripheral](zapper_control, "disconnected")
+    _change_fn[args.peripheral](args.host, "disconnected")
     if _check_connected(device) is False:
         print("PASS")
     else:
@@ -65,7 +63,7 @@ def main():
         print("FAILED")
 
     print("plugging {}... ".format(args.peripheral), end="")
-    _change_fn[args.peripheral](zapper_control, "connected")
+    _change_fn[args.peripheral](args.host, "connected")
     if _check_connected(device) is True:
         print("PASS")
     else:
@@ -73,7 +71,7 @@ def main():
         print("FAILED")
 
     print("unplugging {}... ".format(args.peripheral), end="")
-    _change_fn[args.peripheral](zapper_control, "disconnected")
+    _change_fn[args.peripheral](args.host, "disconnected")
     if _check_connected(device) is False:
         print("PASS")
     else:

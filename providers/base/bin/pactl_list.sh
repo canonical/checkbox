@@ -2,9 +2,9 @@
 
 EXIT_CODE=0
 
-for device in "sources" "sinks"
+for device in "$@"
 do
-    if ! pactl list $device short | grep -v -E "monitor|auto_null"
+    if ! pactl list "$device" short | grep -v -E "monitor|auto_null"
     then
         echo "No available $device found"
         case $device in

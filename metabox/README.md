@@ -15,13 +15,13 @@ Users define what configuration(s) they want, and Metabox handles the rest!
 # How does it work?
 
 Metabox comes with **scenarios** to test different parts of Checkbox. A
-scenario is a Python package that defines what to run, and what is expected to
+scenario is a Python module that defines what to run, and what is expected to
 happen. For instance, the [`desktop_env` scenario] prepares a launcher with a
 simple test plan containing desktop jobs, executes it and makes sure the jobs
 pass and their output contain some expected information.
 
 Users define **configurations** to execute these scenarios. A configuration is
-a Python package that contains what version(s) of Checkbox must be tested, and
+a Python module that contains what version(s) of Checkbox must be tested, and
 on what Ubuntu release(s). Some configurations can be found in the [`configs`
 directory], but users can write their own.
 

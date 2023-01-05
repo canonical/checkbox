@@ -34,7 +34,9 @@ def zapper_run(host, cmd, *args, **kwargs):
     :param cmd: command to be executed
     :param args: command arguments
     :returns: whatever is returned by Zapper service
-    :raises SystemExit: if command is unknown or service errors occur
+    :raises SystemExit: if the connection cannot be established
+                        or the command is unknown
+                        or a service error occurs
     """
     try:
         _rpyc = import_module('rpyc')

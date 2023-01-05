@@ -37,7 +37,11 @@ class ZapperProxyV1Tests(TestCase):
         """
         import_mock.return_value = self._rpyc_mock
         self._mocked_conn.root.command.return_value = "test"
-        assert zapper_run("0.0.0.0", "command") == "test"
+
+        result = zapper_run("0.0.0.0", "command")
+        self._mocked_conn.root.command.assert_called_once()
+        assert result == "test"
+        
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_zapper_run_wrong_cmd(self, import_mock):
@@ -54,19 +58,30 @@ class ZapperProxyV1Tests(TestCase):
         """
         Check if SystemExit is raised when an error occurs on Zapper Service.
         """
+        import_mock.return_value = self._rpyc_mock
 
         class TestException(Exception):
             pass
-
         self._rpyc_mock.core.vinegar.GenericException = TestException
-
-        import_mock.return_value = self._rpyc_mock
-
         self._mocked_conn.root.command.side_effect = TestException()
+
         with self.assertRaises(SystemExit):
             zapper_run("0.0.0.0", "command")
 
-    # TODO test retry exception
+    @patch("time.sleep", Mock())
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_zapper_run_connection_error(self, import_mock):
+        """
+        Check if SystemExit is raised when the connections cannot be established
+        after two tentatives.
+        """
+        import_mock.return_value = self._rpyc_mock
+        self._rpyc_mock.connect.side_effect = ConnectionRefusedError()
+
+        with self.assertRaises(SystemExit):
+            zapper_run("0.0.0.0", "command")
+        assert self._rpyc_mock.connect.call_count == 2
+        
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_one_cap(self, import_mock):

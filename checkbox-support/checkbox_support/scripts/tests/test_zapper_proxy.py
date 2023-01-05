@@ -33,7 +33,7 @@ class ZapperProxyV1Tests(TestCase):
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_zapper_run_smoke(self, import_mock):
         """
-        Check if zapper_run calls the appropriate function on Zapper Service.
+        Check if zapper_run calls the appropriate function on the rpyc client.
         """
         import_mock.return_value = self._rpyc_mock
         self._mocked_conn.root.command.return_value = "test"
@@ -56,7 +56,7 @@ class ZapperProxyV1Tests(TestCase):
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_zapper_run_service_error(self, import_mock):
         """
-        Check if SystemExit is raised when an error occurs on Zapper Service.
+        Check if SystemExit is raised when an error occurs on Zapper service.
         """
         import_mock.return_value = self._rpyc_mock
 

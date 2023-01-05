@@ -33,6 +33,7 @@ def zapper_run(host, cmd, *args, **kwargs):
     :param host: Zapper IP address
     :param cmd: command to be executed
     :param args: command arguments
+    :param kwargs: command keyword arguments
     :returns: whatever is returned by Zapper service
     :raises SystemExit: if the connection cannot be established
                         or the command is unknown

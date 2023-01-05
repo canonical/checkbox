@@ -64,7 +64,6 @@ _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -93,7 +92,6 @@ _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -119,7 +117,6 @@ _verification:
  Do not change the automatically selected result.
 plugin: user-interact
 depends: usb/insert
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -144,7 +141,6 @@ _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
-flags: also-after-suspend
 depends: usb3/insert
 user: root
 command:
@@ -206,7 +202,6 @@ _verification:
  This task is fully automatic and will verify the result for you.
 plugin: shell
 depends: usb/insert
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -229,7 +224,6 @@ _verification:
  This task is fully automatic and will verify the result for you.
 plugin: shell
 depends: usb3/insert
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}

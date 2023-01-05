@@ -81,6 +81,10 @@ _name: Manual ethernet tests (after suspend)
 _description: Manual ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:
+    ethernet/detect                                certification-status=blocker
+    after-suspend-ethernet/hotplug-.*              certification-status=blocker
+bootstrap_include:
+    device
 
 id: after-suspend-ethernet-automated
 unit: test plan

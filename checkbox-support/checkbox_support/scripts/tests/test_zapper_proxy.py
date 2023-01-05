@@ -38,8 +38,10 @@ class ZapperProxyV1Tests(TestCase):
         import_mock.return_value = self._rpyc_mock
         self._mocked_conn.root.command.return_value = "test"
 
-        result = zapper_run("0.0.0.0", "command")
-        self._mocked_conn.root.command.assert_called_once()
+        args = ["a", "b"]
+        kwargs = {"k1": "v1", "k2": "v2"}
+        result = zapper_run("0.0.0.0", "command", *args, **kwargs)
+        self._mocked_conn.root.command.assert_called_once_with(*args, **kwargs)
         assert result == "test"
         
 

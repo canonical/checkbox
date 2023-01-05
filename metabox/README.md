@@ -5,7 +5,7 @@ variety of releases (18.04, 20.04, etc.), in a few different ways (run locally,
 using Checkbox remote). Over the years, manually testing Checkbox before each
 stable release has become more and more difficult.
 
-Comes Metabox.
+Enter Metabox.
 
 Metabox is a program that uses [Linux containers (LXC)] to deploy and test
 Checkbox in many different configurations, using many different scenarios.

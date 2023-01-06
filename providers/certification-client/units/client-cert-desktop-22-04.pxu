@@ -1,5 +1,5 @@
 id: client-cert-desktop-22-04
-_name: [DRAFT] Desktop Preload Certification Tests for 22.04
+_name: Desktop Preload Certification Tests for 22.04
 unit: test plan
 _description:
  This test plan is intended for use inside Canonical's test labs. It will be
@@ -13,7 +13,7 @@ nested_part:
 
 
 id: client-cert-desktop-22-04-manual
-_name: [DRAFT] Desktop Preload Certification Tests for 22.04 (Manual Tests)
+_name: Desktop Preload Certification Tests for 22.04 (Manual Tests)
 unit: test plan
 _description:
  Includes tests that require input from an operator to complete.
@@ -79,7 +79,7 @@ exclude:
 
 
 id: client-cert-desktop-22-04-automated
-_name: [DRAFT] Desktop Preload Certification Tests for 22.04 (Automated Tests)
+_name: Desktop Preload Certification Tests for 22.04 (Automated Tests)
 unit: test plan
 _description: 
  Includes tests that do not require operator input.
@@ -141,7 +141,7 @@ bootstrap_include:
     graphics_card
 
 id: client-cert-desktop-22-04-stress
-_name: [DRAFT] Desktop Preload Certification Tests for 22.04 (Stress Tests)
+_name: Desktop Preload Certification Tests for 22.04 (Stress Tests)
 unit: test plan
 _description:
  Includes tests that are long running device stress tests.

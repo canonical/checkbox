@@ -1,5 +1,5 @@
 id: client-cert-iot-server-22-04
-_name: [DRAFT] IoT Client Certification for 22.04 classic images
+_name: IoT Client Certification for 22.04 classic images
 unit: test plan
 _description:
   This is classic 22.04
@@ -10,33 +10,33 @@ nested_part:
 
 
 id: client-cert-iot-server-22-04-manual
-_name: [DRAFT] IoT Client Certification for 22.04 classic images (Manual Tests)
+_name: IoT Client Certification for 22.04 classic images (Manual Tests)
 unit: test plan
 _description:
   This is classic 22.04
 include:
 nested_part:
   # until there is reason to diverge, nest these plans
-  client-cert-iot-ubuntucore-20-manual
+  client-cert-iot-ubuntucore-22-manual
 exclude:
   ubuntucore/os-.*
   snappy/os-.*
 
 
 id: client-cert-iot-server-22-04-automated
-_name: [DRAFT] IoT Client Certification for 22.04 classic images (Automated Tests)
+_name: IoT Client Certification for 22.04 classic images (Automated Tests)
 unit: test plan
 _description:
   This is classic 22.04
 include:
 nested_part:
   # until there is reason to diverge, nest these plans
-  client-cert-iot-ubuntucore-20-automated
+  client-cert-iot-ubuntucore-22-automated
   ## snappy-snap-automated-lightweight ??
 
 
 id: client-cert-iot-server-22-04-stress
-_name: [DRAFT] IoT Client Certification for 22.04 classic images (Stress Tests)
+_name: IoT Client Certification for 22.04 classic images (Stress Tests)
 unit: test plan
 _description:
   This is classic 22.04

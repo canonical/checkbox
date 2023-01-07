@@ -1,6 +1,11 @@
 unit: manifest entry
-id: has_usb_type_c
-_name: USB Type-C Support
+id: has_usbc_data
+_name: USB Type-C Data (e.g. HID, Drives, Ethernet)
+value-type: bool
+
+unit: manifest entry
+id: has_usbc_video
+_name: USB Type-C Video Adapter (USB-C to HDMI/DP/...)
 value-type: bool
 
 unit: manifest entry

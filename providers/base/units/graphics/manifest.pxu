@@ -1,0 +1,23 @@
+unit: manifest entry
+id: has_hdmi
+_name: HDMI
+_prompt: Does this machine have the following graphics ports?
+value-type: bool
+
+unit: manifest entry
+id: has_dp
+_name: DisplayPort
+_prompt: Does this machine have the following graphics ports?
+value-type: bool
+
+unit: manifest entry
+id: has_vga
+_name: VGA
+_prompt: Does this machine have the following graphics ports?
+value-type: bool
+
+unit: manifest entry
+id: has_dvi
+_name: DVI
+_prompt: Does this machine have the following graphics ports?
+value-type: bool

@@ -9,13 +9,6 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3-checkbox-support (>= 0.22)
 
-# This is for bin/display_resource.py
-unit: packaging meta-data
-os-id: debian
-# NOTE: This is not a hard dependency so that
-# plainbox-provider-resource-generic has minimalistic dependencies.
-Suggests: x11-server-utils
-
 # This is for bin/dmi_resource.py
 unit: packaging meta-data
 os-id: debian
@@ -198,13 +191,6 @@ plugin: resource
 user: root
 command: block_device_resource.py
 _summary: Create resource info for removable block devices
-
-id: display
-estimated_duration: 0.43
-plugin: resource
-command: display_resource.py
-requires: package.name == "x11-xserver-utils"
-_summary: Creates display resource info from xrandr output
 
 id: usb
 template-engine: jinja2

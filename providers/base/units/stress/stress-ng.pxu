@@ -38,3 +38,52 @@ command:
     0|3|4) exit 0;;
     *)     exit 1;;
  esac
+
+plugin:shell
+category_id: com.canonical.plainbox::stress
+id: stress/store_and_change_oomd_config
+estimated_duration: 3.0
+user: root
+_summary:
+  Store and change 10-oomd-user-service-defaults.conf
+command:
+  systemd_oomd_conf_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  if [ -e ${systemd_oomd_conf_path} ]; then
+    echo "Storing original oomd config..."
+    cat ${systemd_oomd_conf_path} > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
+    echo "Before changing config (Original config):"
+    cat ${systemd_oomd_conf_path}
+    echo
+    echo "Changing oomd config to auto..."
+    sed -i 's/ManagedOOMMemoryPressure=kill/ManagedOOMMemoryPressure=auto/g' ${systemd_oomd_conf_path}
+    systemctl daemon-reload
+    echo "After changing config:"
+    cat ${systemd_oomd_conf_path}
+  else
+    echo "Config doesn't exist."
+    echo "Won't change anything"
+  fi
+
+plugin:shell
+category_id: com.canonical.plainbox::stress
+id: stress/restore_oomd_config
+depends: stress/store_and_change_oomd_config
+estimated_duration: 3.0
+user: root
+_summary:
+  Restore to original 10-oomd-user-service-defaults.conf
+command:
+  systemd_oomd_conf_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  if [ -e ${systemd_oomd_conf_path} ]; then
+    echo "Before restoring config:"
+    cat ${systemd_oomd_conf_path}
+    echo
+    echo "Restoring original oomd config..."
+    cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > ${systemd_oomd_conf_path}
+    systemctl daemon-reload
+    echo "After restoring config (Original config):"
+    cat ${systemd_oomd_conf_path}
+  else
+    echo "Config doesn't exist."
+    echo "Won't restore anything."
+  fi

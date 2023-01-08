@@ -55,3 +55,51 @@ _description:
  swapping to disk, thus SUTs should have suitably large swap files for the
  amount of RAM they have installed.
 
+plugin:shell
+category_id: com.canonical.plainbox::memory
+id: memory/store_and_change_oomd_config
+estimated_duration: 3.0
+user: root
+_summary:
+  Store and change 10-oomd-user-service-defaults.conf
+command:
+  config_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  if [ -e ${config_path} ]; then
+    echo "Storing original oomd config..."
+    cat ${config_path} > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
+    echo "Before changing config (Original config):"
+    cat ${config_path}
+    echo
+    echo "Changing oomd config to auto..."
+    cat ${config_path} | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' ${config_path}
+    systemctl daemon-reload
+    echo "After changing config:"
+    cat ${config_path}
+  else
+    echo "Config doesn't exist."
+    echo "Won't change anything"
+  fi
+
+plugin:shell
+category_id: com.canonical.plainbox::memory
+id: memory/restore_oomd_config
+depends: memory/store_and_change_oomd_config
+estimated_duration: 3.0
+user: root
+_summary:
+  Restore to original 10-oomd-user-service-defaults.conf
+command:
+  config_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  if [ -e ${config_path} ]; then
+    echo "Before changing config:"
+    cat ${config_path}
+    echo
+    echo "Restoring original oomd config..."
+    cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > ${config_path}
+    systemctl daemon-reload
+    echo "After changing config (Original config):"
+    cat ${config_path}
+  else
+    echo "Config doesn't exist."
+    echo "Won't restore anything."
+  fi

@@ -42,6 +42,7 @@ _siblings: [
 plugin: shell
 category_id: com.canonical.plainbox::memory
 id: memory/memory_stress_ng
+depends: memory/store_and_change_oomd_config
 estimated_duration: 11000.0
 user: root
 environ: STRESS_NG_MIN_SWAP_SIZE

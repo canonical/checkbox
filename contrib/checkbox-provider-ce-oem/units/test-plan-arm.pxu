@@ -38,6 +38,7 @@ nested_part:
     arm-otg-manual
     arm-rtc-manual
     arm-rs485-manual
+    eeprom-manual
 
 id: arm-automated
 unit: test plan
@@ -61,6 +62,7 @@ nested_part:
     arm-otg-automated
     arm-rtc-automated
     arm-rs485-automated
+    eeprom-automated
 
 id: after-suspend-arm-manual
 unit: test plan
@@ -83,6 +85,7 @@ nested_part:
     after-suspend-arm-otg-manual
     after-suspend-arm-rtc-manual
     after-suspend-arm-rs485-manual
+    after-suspend-eeprom-manual
 
 id: after-suspend-arm-automated
 unit: test plan
@@ -104,3 +107,4 @@ nested_part:
     after-suspend-arm-otg-automated
     after-suspend-arm-rtc-automated
     after-suspend-arm-rs485-automated
+    after-suspend-eeprom-automated

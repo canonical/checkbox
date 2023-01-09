@@ -19,113 +19,130 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from checkbox_support.scripts.zapper_proxy import ZapperControlV1
+from checkbox_support.scripts.zapper_proxy import get_capabilities, zapper_run
 
 
 class ZapperProxyV1Tests(TestCase):
-    """Unit tests for ZapperProxyV1 class."""
+    """Unit tests for ZapperProxy module."""
 
     def setUp(self):
+        self._rpyc_mock = Mock()
         self._mocked_conn = Mock()
-        self._mocked_conn.root = Mock()
+        self._rpyc_mock.connect.return_value = self._mocked_conn
 
-    def test_usb_get_state_smoke(self):
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_zapper_run_smoke(self, import_mock):
         """
-        Check if usb_get_state calls appropriate function on the rpyc client.
+        Check if zapper_run calls the appropriate function on the rpyc client.
         """
-        self._mocked_conn.root.zombiemux_get_state = Mock(
-            return_value="ON")
-        zapctl = ZapperControlV1(self._mocked_conn)
+        import_mock.return_value = self._rpyc_mock
+        self._mocked_conn.root.command.return_value = "test"
 
-        with patch('builtins.print') as mocked_print:
-            zapctl.usb_get_state(0)
-            mocked_print.assert_called_once_with(
-                'State for address 0 is ON')
+        args = ["a", "b"]
+        kwargs = {"k1": "v1", "k2": "v2"}
+        result = zapper_run("0.0.0.0", "command", *args, **kwargs)
+        self._mocked_conn.root.command.assert_called_once_with(*args, **kwargs)
+        assert result == "test"
+        
 
-    def test_usb_get_state_fails(self):
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_zapper_run_wrong_cmd(self, import_mock):
         """
-        Check if usb_get_state quits with the exception from
-        the rpyc server on failure.
+        Check if SystemExit is raised when an unavailable command is requested.
         """
-        self._mocked_conn.root.zombiemux_get_state = Mock(
-            side_effect=Exception("Failure message"))
-        zapctl = ZapperControlV1(self._mocked_conn)
-        with self.assertRaises(Exception) as context:
-            zapctl.usb_get_state(0)
-        self.assertEqual(
-            str(context.exception), 'Failure message')
+        import_mock.return_value = self._rpyc_mock
+        self._mocked_conn.root.command.side_effect = AttributeError()
+        with self.assertRaises(SystemExit):
+            zapper_run("0.0.0.0", "command")
 
-    def test_usb_set_state_smoke(self):
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_zapper_run_service_error(self, import_mock):
         """
-        Check if usb_set_state calls appropriate functions on the rpyc client.
+        Check if SystemExit is raised when an error occurs on Zapper service.
         """
-        self._mocked_conn.root.zombiemux_set_state = Mock()
-        zapctl = ZapperControlV1(self._mocked_conn)
-        with patch('builtins.print') as mocked_print:
-            zapctl.usb_set_state(0, 'ON')
-            mocked_print.assert_called_once_with(
-                "State 'ON' set for the address 0.")
+        import_mock.return_value = self._rpyc_mock
 
-    def test_usb_set_state_fails(self):
-        """
-        Check if usb_set_state quits with the exception from
-        the rpcy server on failure.
-        """
-        self._mocked_conn.root.zombiemux_set_state = Mock(
-            side_effect=Exception("Failure message"))
-        zapctl = ZapperControlV1(self._mocked_conn)
-        with self.assertRaises(Exception) as context:
-            zapctl.usb_set_state(0, 'ON')
-        self.assertEqual(
-            str(context.exception), 'Failure message')
+        class TestException(Exception):
+            pass
+        self._rpyc_mock.core.vinegar.GenericException = TestException
+        self._mocked_conn.root.command.side_effect = TestException()
 
-    def test_get_capabilities_one_cap(self):
+        with self.assertRaises(SystemExit):
+            zapper_run("0.0.0.0", "command")
+
+    @patch("time.sleep", Mock())
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_zapper_run_connection_error(self, import_mock):
+        """
+        Check if SystemExit is raised when the connections cannot be established
+        after two tentatives.
+        """
+        import_mock.return_value = self._rpyc_mock
+        self._rpyc_mock.connect.side_effect = ConnectionRefusedError()
+
+        with self.assertRaises(SystemExit):
+            zapper_run("0.0.0.0", "command")
+        assert self._rpyc_mock.connect.call_count == 2
+        
+
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_get_capabilities_one_cap(self, import_mock):
         """
         Check if get_capabilities properly prints one record.
 
         The record should be in Checkbox resource syntax and should not be
         surrounded by any newlines.
         """
+        import_mock.return_value = self._rpyc_mock
+
         ret_val = [{'foo': 'bar'}]
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
-        zapctl = ZapperControlV1(self._mocked_conn)
+
         with patch('builtins.print') as mocked_print:
-            zapctl.get_capabilities()
+            get_capabilities("0.0.0.0")
             mocked_print.assert_called_once_with('foo: bar')
 
-    def test_get_capabilities_empty(self):
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_get_capabilities_empty(self, import_mock):
         """Check if get_capabilities prints nothing on no capabilities."""
+        import_mock.return_value = self._rpyc_mock
+
         ret_val = []
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
-        zapctl = ZapperControlV1(self._mocked_conn)
         with patch('builtins.print') as mocked_print:
-            zapctl.get_capabilities()
+            get_capabilities("0.0.0.0")
             mocked_print.assert_called_once_with('')
 
-    def test_get_capabilities_multiple_caps(self):
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_get_capabilities_multiple_caps(self, import_mock):
         """
         Check if get_capabilities properly prints multiple records.
 
         The records should be in Checkbox resource syntax. Records should be
         separated by an empty line.
         """
+        import_mock.return_value = self._rpyc_mock
+
         ret_val = [{'foo': 'bar'}, {'baz': 'biz'}]
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
-        zapctl = ZapperControlV1(self._mocked_conn)
+
         with patch('builtins.print') as mocked_print:
-            zapctl.get_capabilities()
+            get_capabilities("0.0.0.0")
             mocked_print.assert_called_once_with('foo: bar\n\nbaz: biz')
 
-    def test_get_capabilities_one_cap_multi_rows(self):
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_get_capabilities_one_cap_multi_rows(self, import_mock):
         """
         Check if get_capabilities properly prints a record with multiple caps.
 
         Each capability should be printed in a separate line.
         No additional newlines should be printed.
         """
+        import_mock.return_value = self._rpyc_mock
+
         ret_val = [{'foo': 'bar', 'foo2': 'bar2'}]
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
-        zapctl = ZapperControlV1(self._mocked_conn)
+
         with patch('builtins.print') as mocked_print:
-            zapctl.get_capabilities()
+            get_capabilities("0.0.0.0")
             mocked_print.assert_called_once_with('foo: bar\nfoo2: bar2')

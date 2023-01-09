@@ -25,7 +25,7 @@ from checkbox_support.parsers.udevadm import CARD_READER_RE     # noqa: E402
 from checkbox_support.parsers.udevadm import GENERIC_RE         # noqa: E402
 from checkbox_support.parsers.udevadm import FLASH_RE           # noqa: E402
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
-    ControlVersionDecider)
+    zapper_run)
 from checkbox_support.udev import get_interconnect_speed        # noqa: E402
 from checkbox_support.udev import get_udev_block_devices        # noqa: E402
 
@@ -921,18 +921,17 @@ def main():
         if not zapper_host:
             raise SystemExit(
                 "ZAPPER_HOST environment variable not found!")
-        zapper_control = ControlVersionDecider().decide(zapper_host)
         usb_address = args.zapper_usb_address
         delay = 5  # in seconds
 
         def do_the_insert():
             logging.info("Calling zapper to connect the USB device")
-            zapper_control.usb_set_state(usb_address, 'DUT')
+            zapper_run(zapper_host, "zombiemux_set_state", usb_address, 'DUT')
         insert_timer = threading.Timer(delay, do_the_insert)
 
         def do_the_remove():
             logging.info("Calling zapper to disconnect the USB device")
-            zapper_control.usb_set_state(usb_address, 'OFF')
+            zapper_run(zapper_host, "zombiemux_set_state", usb_address, 'OFF')
         remove_timer = threading.Timer(delay, do_the_remove)
         if args.action == "insert":
             logging.info("Starting timer for delayed insertion")

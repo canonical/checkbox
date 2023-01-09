@@ -15,7 +15,7 @@ import sys
 import time
 
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
-    ControlVersionDecider)
+    zapper_run)
 
 
 def check_resolution():
@@ -28,10 +28,8 @@ def check_resolution():
 
 
 def change_edid(host, edid_file):
-    zapper_control = ControlVersionDecider().decide(host)
-
     with open(edid_file, 'rb') as f:
-        zapper_control.change_edid(f.read())
+        zapper_run(host, "change_edid", f.read())
 
 
 def main():

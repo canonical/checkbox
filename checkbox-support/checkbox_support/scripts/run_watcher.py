@@ -19,7 +19,7 @@ import sys
 import time
 from systemd import journal
 
-from checkbox_support.scripts.zapper_proxy import ControlVersionDecider
+from checkbox_support.scripts.zapper_proxy import zapper_run
 
 
 logger = logging.getLogger(__file__)
@@ -67,14 +67,13 @@ class USBWatcher:
             if not zapper_host:
                 raise SystemExit(
                     "ZAPPER_ADDRESS environment variable not found!")
-            zapper_control = ControlVersionDecider().decide(zapper_host)
             usb_address = self.args.zapper_usb_address
             if self.args.testcase == "insertion":
                 print("Calling zapper to connect the USB device")
-                zapper_control.usb_set_state(usb_address, 'DUT')
+                zapper_run(zapper_host, "zombiemux_set_state", usb_address, "DUT")
             elif self.args.testcase == "removal":
                 print("Calling zapper to disconnect the USB device")
-                zapper_control.usb_set_state(usb_address, 'OFF')
+                zapper_run(zapper_host, "zombiemux_set_state", usb_address, "OFF")
         else:
             if self.args.testcase == "insertion":
                 print("\n\nINSERT NOW\n\n", flush=True)

@@ -30,13 +30,17 @@ from plainbox.impl.session import SessionManager
 class MergeSubmissions(MergeReports):
     name = 'merge-submissions'
 
-    def register_arguments(self, parser):
+    @staticmethod
+    def register_arguments(parser):
+        from argcomplete.completers import FilesCompleter
         parser.add_argument(
             'submission', nargs='*', metavar='SUBMISSION',
-            help='submission tarball')
+            help='submission tarball'
+        ).completer = FilesCompleter(['tar.xz'])
         parser.add_argument(
             '-o', '--output-file', metavar='FILE',  required=True,
-            help='save combined test results to the specified FILE')
+            help='save combined test results to the specified FILE'
+        ).completer = FilesCompleter
         parser.add_argument(
             '--title', action='store', metavar='SESSION_NAME',
             help='title of the session to use')

@@ -6,7 +6,7 @@ export NO_PNG_PKG_MANGLE=1
 export SRCTOP=checkbox-ng
 
 %:
-	dh $@ --sourcedirectory=$(SRCTOP) --with=python3,sphinxdoc --buildsystem=pybuild
+	dh $@ --sourcedirectory=$(SRCTOP) --with=python3,sphinxdoc,bash-completion --buildsystem=pybuild
 
 override_dh_auto_build:
 	dh_auto_build --buildsystem=pybuild

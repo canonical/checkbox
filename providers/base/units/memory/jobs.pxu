@@ -72,7 +72,7 @@ command:
     cat ${config_path}
     echo
     echo "Changing oomd config to auto..."
-    cat ${config_path} | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' ${config_path}
+    < ${config_path} | grep ManagedOOMMemoryPressure= | sudo sed -i 's/kill/auto/g' ${config_path}
     systemctl daemon-reload
     echo "After changing config:"
     cat ${config_path}

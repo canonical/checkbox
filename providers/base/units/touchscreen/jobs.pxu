@@ -209,6 +209,7 @@ template-unit: job
 plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
@@ -222,7 +223,6 @@ _description:
      If the tap is not detected the test will time out after 10 seconds.
 user: root
 command: timeout 10 evdev_touch_test.py '{{ product }}' -x 1
-flags: also-after-suspend
 
 unit: template
 template-resource: device

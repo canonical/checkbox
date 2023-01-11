@@ -127,6 +127,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: graphics/{index}_maximum_resolution_{product_slug}
+flags: also-after-suspend
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
@@ -176,6 +177,7 @@ _summary: Test graphic memory info for {vendor} {product}.
 unit: template
 template-resource: graphics_card
 id: graphics/{index}_video_{product_slug}
+flags: also-after-suspend
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
@@ -208,6 +210,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_cycle_resolution_{product_slug}
+flags: also-after-suspend
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
 command:
@@ -235,6 +238,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
+flags: also-after-suspend
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
@@ -284,6 +288,7 @@ template-resource: graphics_card
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_glxgears_{product_slug}
+flags: also-after-suspend
 requires: executable.name == 'glxgears'
 command:
  # shellcheck disable=SC1091
@@ -306,6 +311,7 @@ template-resource: graphics_card
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_glxgears_fullscreen_{product_slug}
+flags: also-after-suspend
 requires: executable.name == 'glxgears'
 command:
  # shellcheck disable=SC1091

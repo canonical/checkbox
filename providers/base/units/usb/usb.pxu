@@ -34,6 +34,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::usb
 id: usb/HID
+flags: also-after-suspend
 depends: usb/detect
 estimated_duration: 1.0
 command: keyboard_test.py
@@ -48,6 +49,7 @@ _description:
      Did the device work as expected?
 
 id: usb/insert
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 2.0 storage device insertion detected
 _purpose:
@@ -62,7 +64,6 @@ _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -74,6 +75,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/insert
+flags: also-after-suspend
 template-engine: jinja2
 requires:
  usb.usb3 == 'supported'
@@ -90,7 +92,6 @@ _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -102,6 +103,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb/remove
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 2.0 storage device removal detected
 _purpose:
@@ -115,7 +117,6 @@ _verification:
  Do not change the automatically selected result.
 plugin: user-interact
 depends: usb/insert
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -127,6 +128,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/remove
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 3.0 storage device removal detected
 _purpose:
@@ -139,7 +141,6 @@ _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
-flags: also-after-suspend
 depends: usb3/insert
 user: root
 command:
@@ -190,6 +191,7 @@ _description:
      automatically selected result.
 
 id: usb/storage-automated
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 2.0 storage device read & write works
 _purpose:
@@ -200,7 +202,6 @@ _verification:
  This task is fully automatic and will verify the result for you.
 plugin: shell
 depends: usb/insert
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}
@@ -212,6 +213,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 300
 
 id: usb3/storage-automated
+flags: also-after-suspend
 template-engine: jinja2
 _summary: USB 3.0 storage device read & write works
 _purpose:
@@ -222,7 +224,6 @@ _verification:
  This task is fully automatic and will verify the result for you.
 plugin: shell
 depends: usb3/insert
-flags: also-after-suspend
 user: root
 command:
  {%- if __on_ubuntucore__ %}

@@ -54,6 +54,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/chvt
+flags: also-after-suspend
 requires:
  package.name == 'kbd'
 user: root

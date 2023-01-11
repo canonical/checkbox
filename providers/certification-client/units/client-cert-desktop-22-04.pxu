@@ -62,10 +62,14 @@ nested_part:
     after-suspend-audio-cert-full
     after-suspend-bluetooth-cert-manual
     after-suspend-camera-cert-full
+    after-suspend-thunderbolt-cert-manual
     after-suspend-input-cert-full
+    after-suspend-fingerprint-manual
     after-suspend-keys-cert-full
     after-suspend-led-cert-full
     after-suspend-mediacard-cert-full
+    after-suspend-ethernet-manual
+    after-suspend-networking-manual
     after-suspend-optical-cert-full
     after-suspend-touchpad-cert-full
     after-suspend-touchscreen-cert-manual

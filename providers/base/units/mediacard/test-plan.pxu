@@ -31,9 +31,9 @@ unit: test plan
 _name: Mediacard tests (after suspend)
 _description: Mediacard tests (after suspend)
 include:
-    suspend/sdhc-insert-after-suspend              certification-status=blocker
-    suspend/sdhc-storage-after-suspend             certification-status=blocker
-    suspend/sdhc-remove-after-suspend              certification-status=blocker
+ after-suspend-mediacard/sdhc-insert                          certification-status=blocker
+ after-suspend-mediacard/sdhc-storage                         certification-status=blocker
+ after-suspend-mediacard/sdhc-remove                          certification-status=blocker
 
 id: mediacard-cert-blockers
 unit: test plan

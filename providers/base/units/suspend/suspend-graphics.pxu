@@ -113,7 +113,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
-depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}_graphics
+depends: after-suspend-graphics/{index}_cycle_resolution_{product_slug}
 command: [ -f "$PLAINBOX_SESSION_SHARE"/xrandr_screens_{index}_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/xrandr_screens_{index}_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 

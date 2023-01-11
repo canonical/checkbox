@@ -53,6 +53,7 @@ include:
     after-suspend-keys/keyboard-backlight       certification-status=blocker
     after-suspend-keys/microphone-mute          certification-status=blocker
     after-suspend-keys/power-button             certification-status=blocker
+    after-suspend-keys/power-button-event       certification-status=blocker
     after-suspend-keys/fn-lock                  certification-status=non-blocker
 
 id: keys-cert-blockers

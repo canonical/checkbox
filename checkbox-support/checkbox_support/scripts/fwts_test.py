@@ -113,21 +113,37 @@ def get_sleep_times(log, start_marker):
 
 
 def average_times(runs):
+    sleep_run_count = 0
     sleep_total = 0.0
+    resume_run_count = 0
     resume_total = 0.0
-    run_count = 0
-    try:
-        for run in runs.keys():
-            run_count += 1
-            sleep_total += runs[run][0]
-            resume_total += runs[run][1]
-        sleep_avg = sleep_total / run_count
-        resume_avg = resume_total / run_count
+    print()
+    print("{} iterations total.".format(len(runs)))
+    for i in runs.values():
+        if type(i[0]) == float:
+            sleep_run_count += 1
+            sleep_total += i[0]
+        if type(i[1]) == float:
+            resume_run_count += 1
+            resume_total += i[1]
+    if sleep_run_count != len(runs):
+        print(("Warning: Time to sleep was only reported {} times out of {} "
+               "iterations!").format(sleep_run_count, len(runs)))
+    if resume_run_count != len(runs):
+        print(("Warning: Time to resume was only reported {} times out of {} "
+               "iterations!").format(resume_run_count, len(runs)))
+    print()
+    if sleep_run_count:
+        sleep_avg = sleep_total / sleep_run_count
         print('Average time to sleep: %0.5f' % sleep_avg)
-        print('Average time to resume: %0.5f' % resume_avg)
-    except TypeError:
+    else:
         print('Average time to sleep: N/A')
+    if resume_run_count:
+        resume_avg = resume_total / resume_run_count
+        print('Average time to resume: %0.5f' % resume_avg)
+    else:
         print('Average time to resume: N/A')
+    print()
 
 
 def fix_sleep_args(args):

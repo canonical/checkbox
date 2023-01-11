@@ -39,45 +39,59 @@ def main():
     sleep_times = []
     resume_time = None
     resume_times = []
+    failed = 0
     # find our times
     for line in lines:
-        try:
-            if "Average time to sleep" in line:
+        # Warning message from fwts_test.py
+        if "Warning: Time to" in line:
+            print(line)
+            failed = 1
+        if "Average time to sleep" in line:
+            print(line)
+            try:
                 sleep_time = float(line.split(':')[1].strip())
                 sleep_times.append(sleep_time)
-            elif "Average time to resume" in line:
+            except ValueError as e:
+                print(("ERROR: One or more sleep times was not reported "
+                       "correctly:"))
+                print(e)
+                failed = 1
+        elif "Average time to resume" in line:
+            print(line)
+            try:
                 resume_time = float(line.split(':')[1].strip())
                 resume_times.append(resume_time)
-        except ValueError as e:
-            print("ERROR: One or more times was not reported correctly:")
-            print(e)
-            return 1
+            except ValueError as e:
+                print(("ERROR: One or more resume times was not reported "
+                       "correctly:"))
+                print(e)
+                failed = 1
 
-    if (
-        (sleep_time is None or resume_time is None) or
-        (len(sleep_times) != len(resume_times))
-    ):
-        print("ERROR: One or more times was not reported correctly")
-        return 1
-
-    print(
-        "Average time to enter sleep state: %.4f seconds" % mean(sleep_times))
-    print(
-        "Average time to resume from sleep state: %.4f seconds" % mean(
+    print()
+    if sleep_times:
+        print("=================================================")
+        print("Average time to enter sleep state: %.4f seconds" % mean(
+            sleep_times))
+        if max(sleep_times) > args.sleep_threshold:
+            print("System failed to suspend in less than %s seconds" %
+                  args.sleep_threshold)
+            failed = 1
+        if min(sleep_times) <= 0.0:
+            print("ERROR: One or more sleep times was not reported correctly")
+            failed = 1
+        print("=================================================")
+    if resume_times:
+        print("=================================================")
+        print("Average time to resume from sleep state: %.4f seconds" % mean(
             resume_times))
-
-    failed = 0
-    if sleep_time > args.sleep_threshold:
-        print("System failed to suspend in less than %s seconds" %
-              args.sleep_threshold)
-        failed = 1
-    if resume_time > args.resume_threshold:
-        print("System failed to resume in less than %s seconds" %
-              args.resume_threshold)
-        failed = 1
-    if sleep_time <= 0.00 or resume_time <= 0.00:
-        print("ERROR: One or more times was not reported correctly")
-        failed = 1
+        if max(resume_times) > args.resume_threshold:
+            print("System failed to resume in less than %s seconds" %
+                  args.resume_threshold)
+            failed = 1
+        if min(resume_times) <= 0.0:
+            print("ERROR: One or more resume times was not reported correctly")
+            failed = 1
+        print("=================================================")
 
     return failed
 

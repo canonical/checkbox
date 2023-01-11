@@ -48,7 +48,7 @@ _description: Suspend stress tests (with reboots)
 include:
     power-management/suspend_30_cycles_with_reboots
     power-management/suspend-30-cycles-log-check-with-reboots
-    power-management/suspend-30-cycle-log-attach-with-reboots
+    power-management/suspend-30-cycle-log-attach-with-reboots-pm_test.reboot.3.log
     power-management/suspend-30-cycles-time-check-with-reboots
 
 id: stress-suspend-30-cycles-with-coldboots-automated
@@ -58,7 +58,7 @@ _description: Suspend stress tests (with coldboots)
 include:
     power-management/suspend_30_cycles_with_coldboots
     power-management/suspend-30-cycles-log-check-with-coldboots
-    power-management/suspend-30-cycle-log-attach-with-coldboots
+    power-management/suspend-30-cycle-log-attach-with-coldboots-pm_test.poweroff.3.log
     power-management/suspend-30-cycles-time-check-with-coldboots
 
 id: stress-hibernate-30-cycles-automated

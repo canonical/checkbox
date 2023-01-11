@@ -159,7 +159,7 @@ _description:
 
 plugin: attachment
 category_id: com.canonical.plainbox::stress
-id: power-management/suspend-30-cycle-log-attach-with-reboots
+id: power-management/suspend-30-cycle-log-attach-with-reboots-pm_test.reboot.3.log
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles_with_reboots
 command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && cat "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
@@ -167,7 +167,7 @@ _summary: 30 suspend/resume cycles and 1 reboot, 3 times (attach logs)
 _description:
  Attaches the log from the '30 cycle suspend/resume and one reboot times 3' test if it exists
 _siblings: [
-    { "id": "power-management/suspend-30-cycle-log-attach-with-coldboots",
+    { "id": "power-management/suspend-30-cycle-log-attach-with-coldboots-pm_test.poweroff.3.log",
       "depends": "power-management/suspend_30_cycles_with_coldboots",
       "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && cat $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
       "_description": "Attaches the log from the '30 cycle Suspend/Resume and one poweroff times 3' test if it exists",

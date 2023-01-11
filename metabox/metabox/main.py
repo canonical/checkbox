@@ -54,9 +54,9 @@ def main():
              'Can be used multiple times.',
     )
     parser.add_argument(
-        "--log", dest="log_level", choices=Core().levels.keys(),
+        "--log", dest="scenario_log_level", choices=Core().levels.keys(),
         default='SUCCESS',
-        help="Set the logging level",
+        help="Set the scenario logging level",
     )
     parser.add_argument(
         '--do-not-dispose', action='store_true',
@@ -73,6 +73,7 @@ def main():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         runner = Runner(parser.parse_args())
+        runner.collect()
         runner.setup()
         runner.run()
         raise SystemExit(not runner.wasSuccessful())

@@ -36,7 +36,7 @@ class GlxGears(Scenario):
     launcher_version = 1
     stock_reports = text
     [test plan]
-    unit = 2021.com.canonical.certification::display-manual
+    unit = com.canonical.certification::display-metabox
     forced = yes
     [test selection]
     forced = yes
@@ -60,7 +60,7 @@ class AudioPlayback(Scenario):
     launcher_version = 1
     stock_reports = text
     [test plan]
-    unit = 2021.com.canonical.certification::audio-manual
+    unit = com.canonical.certification::audio-metabox
     forced = yes
     [test selection]
     forced = yes

@@ -2,8 +2,9 @@
 from plainbox.provider_manager import setup, N_
 
 setup(
-    name='2021.com.canonical.certification:metabox',
+    name='checkbox-provider-metabox',
+    namespace='com.canonical.certification',
     version="1.0",
-    description=N_("The 2021.com.canonical.certification:metabox provider"),
-    gettext_domain="2021_com_canonical_certification_metabox",
+    description=N_("Metabox provider"),
+    gettext_domain="checkbox-provider-metabox",
 )

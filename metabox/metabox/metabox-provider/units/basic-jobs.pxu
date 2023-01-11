@@ -210,7 +210,7 @@ command: false
 estimated_duration: 25
 
 plugin: user-interact-verify
-id: graphics/glxgears
+id: graphics/glxgears_metabox
 command: glxgears; true
 _summary: Test that glxgears works
 _description:
@@ -222,3 +222,25 @@ _description:
  VERIFICATION:
      1. Did the 3d animation appear?
      2. Was the animation free from slowness/jerkiness?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_auto_metabox
+estimated_duration: 5.0
+command:
+  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  audio_settings.py set --device=pci --volume=50
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that internal speakers work correctly
+ STEPS:
+     1. Make sure that no external speakers or headphones are connected
+        When testing a desktop, you can skip this test if there is no
+        internal speaker, we will test the external output later
+     2. Commence the test to play a brief tone on your audio device
+ VERIFICATION:
+     Did you hear a tone?

@@ -119,9 +119,7 @@ Example:
 
 ### Linking a pull request to a GitHub issue
 
-See the [GitHub documentation](https://docs.github.com/en/
-issues/tracking-your-work-with-issues/linking-a-pull-
-request-to-an-issue) for more information.
+See the [GitHub documentation](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) for more information.
 
 ### Splitting work in separate commits if required
 
@@ -187,8 +185,7 @@ Follow these steps to make a change to a Checkbox-related project.
         First, rewinding head to replay your work on top of it...
         Applying: <your commits>
 
-1. [Push your changes](https://docs.github.com/en/get-started/using-git/
-   pushing-commits-to-a-remote-repository) to your GitHub repository.
+1. [Push your changes](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository) to your GitHub repository.
 
 ### Finally...
 

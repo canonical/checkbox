@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_led_indicator
+_name: Does device supported LED indicator?
+value-type: bool

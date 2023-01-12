@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_touchpad
+_name: Touchpad
+value-type: bool

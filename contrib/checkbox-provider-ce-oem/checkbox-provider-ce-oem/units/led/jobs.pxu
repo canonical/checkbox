@@ -1,0 +1,77 @@
+id: gpio-leds
+plugin: resource
+_summary: Gather list of test led indicators for device that control via GPIO.
+_description:
+    A led GPIO number mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: GPIO_LEDS={name1}:{port1} {name2}:{port2} ...
+    e.g. GPIO_LEDS=dl1:488 dl2:489 dl44:507
+estimated_duration: 1s
+flags: preserve-locale
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "name: %s\nport: %s\n\n", data[1], data[2]
+        }
+    }' <<< "$GPIO_LEDS"
+
+unit: template
+template-resource: gpio-leds
+template-unit: job
+category_id: led-indicator
+id: led-indicator/gpio-leds-{name}
+estimated_duration: 10.0
+plugin: user-interact-verify
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_led_indicator == 'True'
+flags: also-after-suspend
+_summary: Check control of {name} led indecator.
+_description:
+ PURPOSE:
+     Check that {name} LED turns on and off.
+ STEPS:
+     1. Press Enter and observe LED behavior on DUT.
+ VERIFICATION:
+     Does the "{name}" LED blinking?
+command:
+    led_test.sh -t gpio -n {name} -p {port}
+
+id: sysfs-leds
+plugin: resource
+_summary: Gather list of test led indicators for device that control via sysfs path.
+_description:
+    A led sysfs path mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: SYS_LEDS={name1} {name2} {name3} ...
+    e.g. SYS_LEDS=beat-yel-led shtdwn-grn-led
+estimated_duration: 1s
+flags: preserve-locale
+command:
+    for c in $SYS_LEDS; do
+        echo "name: $c"
+        echo ""
+    done
+
+unit: template
+template-resource: sysfs-leds
+template-unit: job
+id: led-indicator/sysfs-leds-{name}
+category_id: led-indicator
+_summary: Check control of {name} led.
+_description:
+  Light on and off {name} led for 3 times.
+ PURPOSE:
+     Check that {name} led is controlable
+ STEPS:
+     1.Press enter and observe led behavior
+ VERIFICATION:
+     Does the {name} led blinking?
+plugin: user-interact-verify
+user: root
+flags: also-after-suspend
+estimated_duration: 20.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_led_indicator == 'True'
+command:
+    led_test.sh -t sysfs -n {name}

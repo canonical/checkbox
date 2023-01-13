@@ -119,9 +119,7 @@ Example:
 
 ### Linking a pull request to a GitHub issue
 
-See the [GitHub documentation](https://docs.github.com/en/
-issues/tracking-your-work-with-issues/linking-a-pull-
-request-to-an-issue) for more information.
+See the [GitHub documentation](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) for more information.
 
 ### Splitting work in separate commits if required
 
@@ -157,12 +155,10 @@ Follow these steps to make a change to a Checkbox-related project.
 1. Check the [GitHub documentation](https://docs.github.com) on how to get
    started. If you are a Checkbox contributor, you can clone the [Checkbox
    repository](https://github.com/canonical/checkbox) directly; if you are an
-   external contributor, you will probably have to [fork the repository](https:
-   //docs.github.com/en/get-started/quickstart/fork-a-repo) first.
+   external contributor, you will probably have to [fork the repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo) first.
 
 1. If you created a fork, you need to [configure Git to sync your fork with the
-   original repository.](https://docs.github.com/en/get-started/quickstart/
-   fork-a-repo#configuring-git-to-sync-your-fork-with-the-original-repository)
+   original repository.](https://docs.github.com/en/get-started/quickstart/fork-a-repo#configuring-git-to-sync-your-fork-with-the-original-repository)
 
 1. Create a branch and switch to it to start working on your changes.
    You can use any branch name, but it is generally good to include the
@@ -187,8 +183,7 @@ Follow these steps to make a change to a Checkbox-related project.
         First, rewinding head to replay your work on top of it...
         Applying: <your commits>
 
-1. [Push your changes](https://docs.github.com/en/get-started/using-git/
-   pushing-commits-to-a-remote-repository) to your GitHub repository.
+1. [Push your changes](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository) to your GitHub repository.
 
 ### Finally...
 

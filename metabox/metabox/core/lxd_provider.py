@@ -41,7 +41,7 @@ from metabox.core.machine import machine_selector
 from metabox.core.lxd_execute import run_or_raise
 
 
-class LxdMachineProvider():
+class LxdMachineProvider:
     """Machine provider that uses container managed by LXD as targets."""
 
     LXD_CREATE_TIMEOUT = 300

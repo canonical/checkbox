@@ -65,7 +65,7 @@ class MachineConfig:
             return False
 
 
-class ContainerBaseMachine():
+class ContainerBaseMachine:
     """Base implementation of Machine using LXD container as the backend."""
 
     CHECKBOX = 'checkbox-cli '  # mind the trailing space !
@@ -427,8 +427,8 @@ class ContainerSnapMachine(ContainerBaseMachine):
 
 def machine_selector(config, container):
     if config.origin in ('snap', 'classic-snap'):
-        return (ContainerSnapMachine(config, container))
+        return ContainerSnapMachine(config, container)
     elif config.origin == 'ppa':
-        return (ContainerPPAMachine(config, container))
+        return ContainerPPAMachine(config, container)
     elif config.origin == 'source':
         return (ContainerVenvMachine(config, container))

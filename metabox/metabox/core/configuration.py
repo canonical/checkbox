@@ -138,7 +138,7 @@ def _decl_has_a_valid_origin(decl):
             logger.error("{} --name failed", setup_file)
             return False
         if not package_name == 'checkbox-ng':
-            logger.error("{} must be a lp:checkbox-ng fork", source)
+            logger.error("{} must be a fork of gh:canonical/checkbox", source)
             return False
         return True
     return False

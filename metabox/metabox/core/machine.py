@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import itertools
-import signal
 import time
 from pathlib import Path
+import textwrap
 
 from loguru import logger
 from metabox.core.lxd_execute import interactive_execute
@@ -65,7 +65,7 @@ class MachineConfig:
             return False
 
 
-class ContainerBaseMachine():
+class ContainerBaseMachine:
     """Base implementation of Machine using LXD container as the backend."""
 
     CHECKBOX = 'checkbox-cli '  # mind the trailing space !
@@ -240,57 +240,90 @@ class ContainerBaseMachine():
         return run_or_raise(self._container, "sudo ip link set eth0 up")
 
 
-class ContainerVenvMachine(ContainerBaseMachine):
+class ContainerSourceMachine(ContainerBaseMachine):
     """
-    Machine using LXD container as the backend and running checkbox
-    in a virtualenv.
+    Machine using LXD container as the backend and running checkbox from
+    source code repository.
     """
 
     def __init__(self, config, container):
         super().__init__(config, container)
-        if self.config.role == 'service':
-            self._checkbox_wrapper = 'sudo /home/ubuntu/run.sh {}'.format(
-                self.CHECKBOX)
-        else:
-            self._checkbox_wrapper = '/home/ubuntu/run.sh {}'.format(
-                self.CHECKBOX)
         self._pts = None  # Keep a pointer to started pts for easy kill
 
     def get_early_dir_transfer(self):
-        return [(self.config.uri, '/home/ubuntu/checkbox-ng')]
+        dirs = [
+            (self.config.uri, "/home/ubuntu/checkbox"),
+            (Path(self.config.uri) / "providers/base",
+             "/var/tmp/checkbox-providers/base"),
+            (Path(self.config.uri) / "providers/resource",
+             "/var/tmp/checkbox-providers/resource"),
+            (Path(self.config.uri) / "providers/certification-client",
+             "/var/tmp/checkbox-providers/certification-client"),
+        ]
+        return dirs
 
     def get_early_setup(self):
-        """Virtualenv creation."""
-        return [
-            '''bash -c "printf '#!/bin/bash\\n. '''
-            '''/home/ubuntu/checkbox-ng/venv/bin/activate\\n$@' > '''
-            '''/home/ubuntu/run.sh"''',
-            'chmod +x /home/ubuntu/run.sh',
-            'chmod +x /home/ubuntu/checkbox-ng/setup.py',
-            'chmod +x /home/ubuntu/checkbox-ng/mk-venv',
-            "bash -c 'pushd /home/ubuntu/checkbox-ng ; ./mk-venv venv'",
+        """
+        Installation from source and, if required, creation of systemd service.
+        """
+
+        commands = [
+            "bash -c 'chmod +x /var/tmp/checkbox-providers/base/bin/*'",
+            "bash -c 'chmod +x /var/tmp/checkbox-providers/resource/bin/*'",
+            ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
+             "sudo pip install -e .'"),
+            ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
+             "sudo pip install -e .'"),
         ]
 
+        if self.config.role in ('remote', 'service'):
+            commands += [
+                "sudo bash -c 'systemctl daemon-reload'",
+                "sudo bash -c 'systemctl enable checkbox-ng.service'",
+            ]
+            service_content = textwrap.dedent("""
+                [Unit]
+                Description=Checkbox Remote Service
+                Wants=network.target
+
+                [Service]
+                ExecStart=/usr/local/bin/checkbox-cli service
+                SyslogIdentifier=checkbox-ng.service
+                Environment="XDG_CACHE_HOME=/var/cache/"
+                Restart=on-failure
+                TimeoutStopSec=30
+                Type=simple
+
+                [Install]
+                WantedBy=multi-user.target
+                """).lstrip()
+            self.put("/usr/lib/systemd/system/checkbox-ng.service",
+                     service_content, uid=0, gid=0)
+
+        return commands
+
     def start_service(self, force=False):
-        assert (self.config.role == 'service')
-        self._pts = self.interactive_execute('service', verbose=True)
-        return self._pts
+        assert (self.config.role in ('remote', 'service'))
+        if force:
+            return run_or_raise(
+                self._container, "sudo systemctl start checkbox-ng.service")
 
     def stop_service(self):
-        assert (self.config.role == 'service')
-        return self._pts.send_signal(signal.SIGINT.value)
+        assert (self.config.role in ('remote', 'service'))
+        return run_or_raise(
+            self._container, 'sudo systemctl stop checkbox-ng.service')
 
     def reboot_service(self):
-        """
-        Venv Service is not a systemd service.
-        It won't show up after a reboot.
-        """
-        raise RuntimeError
+        assert (self.config.role == 'service')
+        verbose = True
+        return run_or_raise(
+            self._container, "sudo reboot", verbose)
 
     def is_service_active(self):
-        assert (self.config.role == 'service')
+        assert (self.config.role in ('remote', 'service'))
         return run_or_raise(
-            self._container, 'pgrep -f "python3.*checkbox-cli service"')
+            self._container,
+            "systemctl is-active checkbox-ng.service").stdout == 'active'
 
 
 class ContainerPPAMachine(ContainerBaseMachine):
@@ -427,8 +460,8 @@ class ContainerSnapMachine(ContainerBaseMachine):
 
 def machine_selector(config, container):
     if config.origin in ('snap', 'classic-snap'):
-        return (ContainerSnapMachine(config, container))
+        return ContainerSnapMachine(config, container)
     elif config.origin == 'ppa':
-        return (ContainerPPAMachine(config, container))
+        return ContainerPPAMachine(config, container)
     elif config.origin == 'source':
-        return (ContainerVenvMachine(config, container))
+        return ContainerSourceMachine(config, container)

@@ -26,6 +26,7 @@ LXD machines are containers that can run metabox scenarios in them.
 """
 import json
 import os
+import sys
 import time
 import yaml
 from pathlib import Path
@@ -40,7 +41,7 @@ from metabox.core.machine import machine_selector
 from metabox.core.lxd_execute import run_or_raise
 
 
-class LxdMachineProvider():
+class LxdMachineProvider:
     """Machine provider that uses container managed by LXD as targets."""
 
     LXD_CREATE_TIMEOUT = 300
@@ -61,7 +62,9 @@ class LxdMachineProvider():
             # TODO: Find a suitable timeout value here
             self.client = pylxd.Client(timeout=None)
         except ClientConnectionFailed as exc:
-            raise SystemExit from exc
+            msg = f"Cannot connect to LXD. Is it installed? {exc}"
+            logger.exception(msg)
+            raise SystemExit(msg) from exc
 
     def setup(self):
         self._create_profiles()
@@ -77,8 +80,11 @@ class LxdMachineProvider():
                 continue
             try:
                 logger.debug("Getting information about {}...", container.name)
+                logger.debug("Starting {}...", container.name)
                 container.start(wait=True)
+                logger.debug("Retrieving config file for {}...", container.name)
                 content = container.files.get(self.LXD_INTERNAL_CONFIG_PATH)
+                logger.debug("Stopping {}...", container.name)
                 container.stop(wait=True)
                 config_dict = json.loads(content)
                 config = MachineConfig(config_dict['role'], config_dict)
@@ -208,12 +214,13 @@ class LxdMachineProvider():
         pre_cmds = machine.get_early_setup()
         post_cmds = machine.get_late_setup()
         for cmd in pre_cmds + machine.config.setup + post_cmds:
+            logger.info(f"Running command: {cmd}")
             res = run_or_raise(
                 machine._container, cmd,
                 verbose=self._debug_machine_setup)
             if res.exit_code:
                 msg = "Failed to run command in the container! Command: \n"
-                msg += cmd + '\n' + res.stderr
+                msg += cmd + '\n' + res.stdout + '\n' + res.stderr
                 logger.critical(msg)
                 raise SystemExit()
 

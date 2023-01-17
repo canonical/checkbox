@@ -18,6 +18,7 @@ config:
       - gir1.2-gstreamer-1.0
       - gstreamer1.0-plugins-good
       - gstreamer1.0-pulseaudio
+      - jq
       - libgstreamer1.0-0
       - mesa-utils
       - pulseaudio

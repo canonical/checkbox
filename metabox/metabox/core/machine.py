@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import itertools
-import signal
 import time
 from pathlib import Path
+import textwrap
 
 from loguru import logger
 from metabox.core.lxd_execute import interactive_execute
@@ -266,20 +266,6 @@ class ContainerSourceMachine(ContainerBaseMachine):
         """
         Installation from source and, if required, creation of systemd service.
         """
-        service_file = ("[Unit]\\n"
-                        "Description=Checkbox Remote Service\\n"
-                        "Wants=network.target\\n"
-                        "\\n"
-                        "[Service]\\n"
-                        "ExecStart=/usr/local/bin/checkbox-cli service\\n"
-                        "SyslogIdentifier=checkbox-ng.service\\n"
-                        "Environment=\\\"XDG_CACHE_HOME=/var/cache/\\\"\\n"
-                        "Restart=on-failure\\n"
-                        "TimeoutStopSec=30\\n"
-                        "Type=simple\\n"
-                        "\\n"
-                        "[Install]\\n"
-                        "WantedBy=multi-user.target")
 
         commands = [
             "bash -c 'chmod +x /var/tmp/checkbox-providers/base/bin/*'",
@@ -292,11 +278,27 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
         if self.config.role in ('remote', 'service'):
             commands += [
-                (f"sudo bash -c 'printf \"{service_file}\" "
-                 "> /usr/lib/systemd/system/checkbox-ng.service'"),
                 "sudo bash -c 'systemctl daemon-reload'",
                 "sudo bash -c 'systemctl enable checkbox-ng.service'",
             ]
+            service_content = textwrap.dedent("""
+                [Unit]
+                Description=Checkbox Remote Service
+                Wants=network.target
+
+                [Service]
+                ExecStart=/usr/local/bin/checkbox-cli service
+                SyslogIdentifier=checkbox-ng.service
+                Environment="XDG_CACHE_HOME=/var/cache/"
+                Restart=on-failure
+                TimeoutStopSec=30
+                Type=simple
+
+                [Install]
+                WantedBy=multi-user.target
+                """).lstrip()
+            self.put("/usr/lib/systemd/system/checkbox-ng.service",
+                     service_content, uid=0, gid=0)
 
         return commands
 

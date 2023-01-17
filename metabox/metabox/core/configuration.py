@@ -126,7 +126,7 @@ def _decl_has_a_valid_origin(decl):
         if not source.is_dir():
             logger.error("{} doesn't look like a directory", source)
             return False
-        setup_file = source / 'setup.py'
+        setup_file = source / 'checkbox-ng' / 'setup.py'
         if not setup_file.exists():
             logger.error("{} not found", setup_file)
             return False
@@ -138,7 +138,7 @@ def _decl_has_a_valid_origin(decl):
             logger.error("{} --name failed", setup_file)
             return False
         if not package_name == 'checkbox-ng':
-            logger.error("{} must be a lp:checkbox-ng fork", source)
+            logger.error("{} must be a fork of gh:canonical/checkbox", source)
             return False
         return True
     return False

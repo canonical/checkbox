@@ -61,10 +61,10 @@ class LxdMachineProvider:
         try:
             # TODO: Find a suitable timeout value here
             self.client = pylxd.Client(timeout=None)
-        except ClientConnectionFailed:
-            msg = "Cannot connect to LXD. Is it installed?"
+        except ClientConnectionFailed as exc:
+            msg = f"Cannot connect to LXD. Is it installed? {exc}"
             logger.exception(msg)
-            raise SystemExit(msg)
+            raise SystemExit(msg) from exc
 
     def setup(self):
         self._create_profiles()

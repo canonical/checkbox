@@ -243,6 +243,12 @@ class Port(Node):
         + p.Word(p.nums).setParseAction(
             lambda t: int(t[0])
         ).setResultsName('port-priority')
+        + p.Optional(
+            p.Suppress(',')
+            + p.Keyword('availability group').suppress()
+            + p.Suppress(':')
+            + p.Word(p.alphanums + " -;").suppress()
+        )
         + p.MatchFirst([
             p.Suppress(',') + p.Literal('not available'),
             p.Suppress(',') + p.Literal('available'),
@@ -337,6 +343,12 @@ class PortWithProfile(Node):
                 + p.Literal("usec").suppress(),
                 p.Empty().setParseAction(lambda t: '')
             ]).setResultsName('port-latency-offset')
+        )
+        + p.Optional(
+            p.Suppress(',')
+            + p.Keyword('availability group').suppress()
+            + p.Suppress(':')
+            + p.Word(p.alphanums + " -;").suppress()
         )
         + p.Optional(
             p.MatchFirst([

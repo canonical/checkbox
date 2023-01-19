@@ -38,18 +38,18 @@ Checkbox can be installed from a :abbr:`PPA (Personal Package Archive)`.
 .. code-block:: bash
 
     $ sudo add-apt-repository ppa:hardware-certification/public
-    $ sudo apt-get update
-    $ sudo apt-get install checkbox-ng plainbox-provider-resource-generic plainbox-provider-certification-client plainbox-provider-checkbox canonical-certification-client
+    $ sudo apt update
+    $ sudo apt install canonical-certification-client
 
-The ``plainbox-provider-certification-client`` package will pull a lot of
+The ``canonical-certification-client`` package will pull a lot of
 desktop-related packages. If you intend to run tests on a server, run these
 commands instead:
 
 .. code-block:: bash
 
     $ sudo add-apt-repository ppa:hardware-certification/public
-    $ sudo apt-get update
-    $ sudo apt-get install checkbox-ng plainbox-provider-resource-generic plainbox-provider-certification-server plainbox-provider-checkbox canonical-certification-server
+    $ sudo apt update
+    $ sudo apt install canonical-certification-server
 
 Table of contents
 =================

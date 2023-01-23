@@ -104,39 +104,48 @@ class Runner:
         self.scn_variants = []
         # Generate all scenario variants
         for scenario_cls in self.scenarios:
-            for mode in scenario_cls.mode:
-                if mode not in self.config:
-                    logger.debug(
-                        "Skipping a scenario: [{}] {}",
-                        mode, scenario_cls.name)
-                    continue
-                scn_config = scenario_cls.config_override
-                if mode == 'remote':
-                    try:
-                        remote_releases = scn_config['remote']['releases']
-                    except KeyError:
-                        remote_releases = self.config['remote']['releases']
-                    try:
-                        service_releases = scn_config['service']['releases']
-                    except KeyError:
-                        service_releases = self.config['service']['releases']
-                    for r_alias in self.config['remote']['releases']:
-                        if r_alias not in remote_releases:
-                            continue
-                        for s_alias in self.config['service']['releases']:
-                            if s_alias not in service_releases:
+            for mode in scenario_cls.modes:
+                for origin in scenario_cls.origins:
+                    if mode not in self.config:
+                        logger.debug(
+                            "Skipping a scenario: [{}] {}",
+                            mode, scenario_cls.name)
+                        continue
+                    if origin != self.config[mode]["origin"]:
+                        logger.debug(
+                            "Skipping a scenario: [{}][{}] {}",
+                            mode, origin, scenario_cls.name)
+                        continue
+                    scn_config = scenario_cls.config_override
+                    if mode == 'remote':
+                        try:
+                            remote_releases = scn_config['remote']['releases']
+                        except KeyError:
+                            remote_releases = self.config['remote']['releases']
+                        try:
+                            service_releases = scn_config['service']['releases']
+                        except KeyError:
+                            service_releases = self.config['service']['releases']
+                        for r_alias in self.config['remote']['releases']:
+                            if r_alias not in remote_releases:
                                 continue
-                            self.scn_variants.append(
-                                scenario_cls(mode, r_alias, s_alias))
-                elif mode == 'local':
-                    try:
-                        local_releases = scn_config[mode]['releases']
-                    except KeyError:
-                        local_releases = self.config[mode]['releases']
-                    for alias in self.config[mode]['releases']:
-                        if alias not in local_releases:
-                            continue
-                        self.scn_variants.append(scenario_cls(mode, alias))
+                            for s_alias in self.config['service']['releases']:
+                                if s_alias not in service_releases:
+                                    continue
+                                logger.debug("Adding scenario: [{}][{}] {}", mode, origin, scenario_cls.name)
+                                self.scn_variants.append(
+                                    scenario_cls(mode, r_alias, s_alias))
+                    elif mode == 'local':
+                        try:
+                            local_releases = scn_config[mode]['releases']
+                        except KeyError:
+                            local_releases = self.config[mode]['releases']
+                        for alias in self.config[mode]['releases']:
+                            if alias not in local_releases:
+                                continue
+                            logger.debug("Adding scenario: [{}][{}] {}", mode, origin,
+                                         scenario_cls.name)
+                            self.scn_variants.append(scenario_cls(mode, alias))
         if self.args.tags or self.args.exclude_tags:
             if self.args.tags:
                 logger.info('Including scenario tag(s): %s' % ', '.join(

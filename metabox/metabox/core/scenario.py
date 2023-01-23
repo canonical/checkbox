@@ -39,6 +39,16 @@ class Scenario:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.name = '{}.{}'.format(cls.__module__, cls.__name__)
+        # If a scenario does not declare the modes it should run in,
+        # assume it will run in both local and remote modes.
+        if not hasattr(cls, "modes"):
+            cls.modes = ["local", "remote"]
+        # If a scenario does not include what version of Checkbox it should run
+        # in, assume it will run in every possible ones, as defined in
+        # configuration._decl_has_a_valid_origin().
+        # TODO: don't hardcode it here, use shared values
+        if not hasattr(cls, "origins"):
+            cls.origins = ["source", "ppa", "classic-snap", "snap"]
         aggregator.add_scenario(cls)
 
     def __init__(self, mode, *releases):

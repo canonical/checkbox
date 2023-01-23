@@ -50,6 +50,7 @@ class Runner:
             validate_config(self.config)
         # effective set of machine configs required by scenarios
         self.combo = set()
+        self.scn_variants = None
         self.machine_provider = None
         self.failed = False
         self.tags = set(self.args.tags or [])

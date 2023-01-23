@@ -11,6 +11,11 @@ flags: simple
 command: echo foo: $foo
 environ: foo
 
+id: config-environ-source
+flags: simple
+command: echo source: $source
+environ: source
+
 id: stub/manual
 _summary: A simple manual job
 _description:

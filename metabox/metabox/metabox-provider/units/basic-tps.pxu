@@ -37,3 +37,9 @@ id: audio-manual
 _name: Audio Manual
 include:
   com.canonical.certification::audio/playback_auto
+
+unit: test plan
+id: config-automated
+_name: Checkbox Configuration Tests
+include:
+ config-environ-source

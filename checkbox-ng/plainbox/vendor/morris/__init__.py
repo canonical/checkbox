@@ -218,7 +218,7 @@ Here's a simple example using all of the above:
     >>> suite = unittest.TestLoader().loadTestsFromTestCase(AppTests)
     >>> runner = unittest.TextTestRunner(stream=sys.stdout, verbosity=2)
     >>> runner.run(suite)  # doctest: +ELLIPSIS
-    test_login (plainbox.vendor.morris.AppTests) ... ok
+    test_login (plainbox.vendor.morris.AppTests... ok
     <BLANKLINE>
     ----------------------------------------------------------------------
     Ran 1 test in ...s

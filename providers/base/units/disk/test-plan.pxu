@@ -17,7 +17,7 @@ include:
     disk/storage_device_.*                     certification-status=blocker
     benchmarks/disk/hdparm-read_.*
     benchmarks/disk/hdparm-cache-read_.*
-    disk/apste_support_on_.*
+    disk/apste_support_on.*
 
 id: disk-cert-blockers
 unit: test plan
@@ -67,4 +67,3 @@ include:
     disk/fstrim_.*                             certification-status=non-blocker
     disk/disk_stress_ng_.*                     certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=blocker
-    disk/apste_support_on_.*                   certification-status=non-blocker

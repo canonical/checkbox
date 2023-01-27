@@ -277,8 +277,11 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     # or roughly after April of 2022
     if session_type in ('remote', 'checkbox-slave'):
         try:
+            env = os.environ
+            env["SYSTEMD_IGNORE_CHROOT"] = "1"
             subprocess.run(
                 ['systemctl', 'is-active', '--quiet', 'checkbox-ng.service'],
+                env=env,  # http://pad.lv/2003955
                 check=True)
             return RemoteDebRestartStrategy()
         except subprocess.CalledProcessError:

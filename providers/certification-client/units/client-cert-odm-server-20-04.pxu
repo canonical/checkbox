@@ -46,7 +46,6 @@ nested_part:
     after-suspend-ethernet-manual
     after-suspend-wwan-manual
 exclude:
-    com.intel.ipdt::ipdt/PCH-.*
     usb-c/c-to-a-adapter.*
     mediacard/mmc-.*
     mediacard/cf-.*
@@ -99,7 +98,6 @@ nested_part:
     usb-dwc3-automated
     watchdog-automated
     wwan-automated
-    com.intel.ipdt::ipdt-plan
     cpu-automated
     disk-automated
     ethernet-automated
@@ -118,7 +116,6 @@ nested_part:
     warm-boot-stress-test
     cold-boot-stress-test
 exclude:
-    com.intel.ipdt::ipdt/PCH-.*
     usb-c/c-to-a-adapter.*
     mediacard/mmc-.*
     mediacard/cf-.*

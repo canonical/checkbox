@@ -108,7 +108,6 @@ nested_part:
   submission-cert-automated
   self-automated
   ubuntucore-automated
-  com.intel.ipdt::ipdt-plan
   iot-fwts-automated
   audio-automated
   bluez-automated

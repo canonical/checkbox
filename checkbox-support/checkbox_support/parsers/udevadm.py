@@ -96,7 +96,7 @@ FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
 ROOT_MOUNTPOINT = re.compile(
-    r'MOUNTPOINT=.*/(writable|hostfs|ubuntu-seed|ubuntu-boot)')
+    r'MOUNTPOINT=.*/(writable|hostfs|ubuntu-seed|ubuntu-boot|boot)')
 
 
 def slugify(_string):
@@ -530,6 +530,8 @@ class UdevadmDevice(object):
             if self._list_partitions and devtype == "partition":
                 if self._stack:
                     parent = self._stack[-1]
+                    if find_pkname_is_root_mountpoint(self.name, self._lsblk):
+                        return
                     if parent.category != 'DISK':
                         return "PARTITION"
 

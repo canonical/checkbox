@@ -106,7 +106,6 @@ bootstrap_include:
 nested_part:
   submission-cert-automated
   self-automated
-  com.intel.ipdt::ipdt-plan
   iot-fwts-automated
   audio-automated
   bluez-automated

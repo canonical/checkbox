@@ -201,6 +201,30 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
+id: wireless/wireless_connection_wpa3_ax_nm_{{ interface }}
+_summary: Connect to WPA3-encrypted 802.11ax Wi-Fi network on {{ interface }}
+_purpose:
+  Check system can connect to 802.11ax AP with wpa3 security
+plugin: shell
+user: root
+command:
+  net_driver_info.py "$NET_DRIVER_INFO"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA3_AX_SSID" "$WPA3_AX_PSK"
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
+ {%- endif %}
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
 id: wireless/wireless_connection_open_ax_nm_{{ interface }}
 _summary: Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:

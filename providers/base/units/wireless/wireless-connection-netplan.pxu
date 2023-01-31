@@ -122,6 +122,30 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
+id: wireless/wireless_connection_wpa3_ax_np_{{ interface }}
+_summary:
+ Connect to WPA3-encrypted 802.11ax Wi-Fi network on {{ interface }} - netplan
+_purpose:
+ Check system can connect to 802.11ax AP with wpa3 security using netplan
+plugin: shell
+command:
+    net_driver_info.py "$NET_DRIVER_INFO"
+    wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK" -d
+user: root
+environ: LD_LIBRARY_PATH WPA3_AX_SSID WPA3_AX_PSK NET_DRIVER_INFO
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 15
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_ax == 'supported'
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
+
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
 id: wireless/wireless_connection_wpa_ac_np_{{ interface }}
 _summary:
  Connect to WPA-encrypted 802.11ac Wi-Fi network on {{ interface }} - netplan

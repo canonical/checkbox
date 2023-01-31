@@ -125,7 +125,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
-    source-tag: "R03_31_22"
+    source-tag: "R10_20_22"
     source-depth: 1
     plugin: make
     source: https://github.com/acpica/acpica.git

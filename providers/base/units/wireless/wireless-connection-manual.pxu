@@ -107,6 +107,27 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
+id: wireless/wireless_connection_wpa3_ax_{interface}
+_summary: Connect to WPA3-encrypted 802.11ax Wi-Fi network on {interface}
+_purpose:
+ Check system can connect to 802.11ax AP with wpa3 security
+_steps:
+ 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Commence the test
+_verification:
+ If there's "Connection test passed" message in result, mark the test as passed.
+plugin: user-interact
+command: wifi_client_test.py -i {interface} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK"
+environ: WPA3_AX_SSID WPA3_AX_PSK
+user: root
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 90
+flags: preserve-locale also-after-suspend
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-unit: job
 id: wireless/wireless_connection_wpa_ac_{interface}
 _summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {interface}
 _purpose:

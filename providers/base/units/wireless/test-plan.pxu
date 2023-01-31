@@ -40,6 +40,7 @@ include:
     wireless/wireless_connection_wpa_ac_nm_.*      certification-status=blocker
     wireless/wireless_connection_open_ac_nm_.*     certification-status=blocker
     wireless/wireless_connection_wpa_ax_nm_.*      certification-status=blocker
+    wireless/wireless_connection_wpa3_ax_nm_.*     certification-status=blocker
     wireless/wireless_connection_open_ax_nm_.*     certification-status=blocker
     wireless/nm_connection_restore_.*
     wireless/check_iwlwifi_microcode_crash_.*
@@ -59,6 +60,7 @@ include:
     after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
     after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
     after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*   certification-status=blocker
     after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
     after-suspend-wireless/nm_connection_restore_.*
     after-suspend-wireless/check_iwlwifi_microcode_crash_.*
@@ -79,6 +81,7 @@ include:
     wireless/wireless_connection_wpa_ac_nm_.*      certification-status=blocker
     wireless/wireless_connection_open_ac_nm_.*     certification-status=blocker
     wireless/wireless_connection_wpa_ax_nm_.*      certification-status=blocker
+    wireless/wireless_connection_wpa3_ax_nm_.*     certification-status=blocker
     wireless/wireless_connection_open_ax_nm_.*     certification-status=blocker
     wireless/nm_connection_restore_.*
 
@@ -98,6 +101,7 @@ include:
     after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
     after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
     after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
+    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*   certification-status=blocker
     after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
     after-suspend-wireless/nm_connection_restore_.*
 
@@ -131,6 +135,7 @@ include:
     wireless/wireless_connection_open_bg_nm_.*
     wireless/wireless_connection_open_n_nm_.*
     wireless/wireless_connection_wpa_ax_nm_.*
+    wireless/wireless_connection_wpa3_ax_nm_.*
     wireless/wireless_connection_wpa_ac_nm_.*
     wireless/wireless_connection_wpa_bg_nm_.*
     wireless/wireless_connection_wpa_n_nm_.*
@@ -139,6 +144,7 @@ include:
     wireless/wireless_connection_open_bg_np_.*
     wireless/wireless_connection_open_n_np_.*
     wireless/wireless_connection_wpa_ax_np_.*
+    wireless/wireless_connection_wpa3_ax_np_.*
     wireless/wireless_connection_wpa_ac_np_.*
     wireless/wireless_connection_wpa_bg_np_.*
     wireless/wireless_connection_wpa_n_np_.*
@@ -160,6 +166,7 @@ include:
     wireless/wireless_connection_open_bg_nm_.*
     wireless/wireless_connection_open_n_nm_.*
     wireless/wireless_connection_wpa_ax_nm_.*
+    wireless/wireless_connection_wpa3_ax_nm_.*
     wireless/wireless_connection_wpa_ac_nm_.*
     wireless/wireless_connection_wpa_bg_nm_.*
     wireless/wireless_connection_wpa_n_nm_.*
@@ -168,6 +175,7 @@ include:
     wireless/wireless_connection_open_bg_np_.*
     wireless/wireless_connection_open_n_np_.*
     wireless/wireless_connection_wpa_ax_np_.*
+    wireless/wireless_connection_wpa3_ax_np_.*
     wireless/wireless_connection_wpa_ac_np_.*
     wireless/wireless_connection_wpa_bg_np_.*
     wireless/wireless_connection_wpa_n_np_.*
@@ -329,6 +337,7 @@ include:
     after-suspend-wireless/wireless_connection_open_bg_nm_.*
     after-suspend-wireless/wireless_connection_open_n_nm_.*
     after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
+    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*
     after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
     after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
     after-suspend-wireless/wireless_connection_wpa_n_nm_.*
@@ -337,6 +346,7 @@ include:
     after-suspend-wireless/wireless_connection_open_bg_np_.*
     after-suspend-wireless/wireless_connection_open_n_np_.*
     after-suspend-wireless/wireless_connection_wpa_ax_np_.*
+    after-suspend-wireless/wireless_connection_wpa3_ax_np_.*
     after-suspend-wireless/wireless_connection_wpa_ac_np_.*
     after-suspend-wireless/wireless_connection_wpa_bg_np_.*
     after-suspend-wireless/wireless_connection_wpa_n_np_.*
@@ -357,6 +367,7 @@ include:
     after-suspend-wireless/wireless_connection_open_bg_nm_.*
     after-suspend-wireless/wireless_connection_open_n_nm_.*
     after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
+    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*
     after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
     after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
     after-suspend-wireless/wireless_connection_wpa_n_nm_.*
@@ -365,6 +376,7 @@ include:
     after-suspend-wireless/wireless_connection_open_bg_np_.*
     after-suspend-wireless/wireless_connection_open_n_np_.*
     after-suspend-wireless/wireless_connection_wpa_ax_np_.*
+    after-suspend-wireless/wireless_connection_wpa3_ax_np_.*
     after-suspend-wireless/wireless_connection_wpa_ac_np_.*
     after-suspend-wireless/wireless_connection_wpa_bg_np_.*
     after-suspend-wireless/wireless_connection_wpa_n_np_.*

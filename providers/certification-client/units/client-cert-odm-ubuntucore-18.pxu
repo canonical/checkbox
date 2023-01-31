@@ -47,7 +47,6 @@ nested_part:
     after-suspend-wwan-manual
     after-suspend-thunderbolt-cert-manual 
 exclude:
-    com.intel.ipdt::ipdt/PCH-.*
     usb-c/c-to-a-adapter.*
     mediacard/mmc-.*
     mediacard/cf-.*
@@ -97,7 +96,6 @@ nested_part:
     thunderbolt-cert-automated
     watchdog-automated
     wwan-automated
-    com.intel.ipdt::ipdt-plan
     cpu-automated
     disk-automated
     ethernet-automated
@@ -117,7 +115,6 @@ nested_part:
     warm-boot-stress-test
     cold-boot-stress-test
 exclude:
-    com.intel.ipdt::ipdt/PCH-.*
     usb-c/c-to-a-adapter.*
     mediacard/mmc-.*
     mediacard/cf-.*

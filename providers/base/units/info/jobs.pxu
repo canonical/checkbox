@@ -510,7 +510,7 @@ estimated_duration: 0.2
 requires:
  package.name == 'mokutil'
 command:
- mokutil --sb-state
+ mokutil --sb-state || true
 _summary: Check secure boot state
 _description:
  Output secure boot is enabled or disabled

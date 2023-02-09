@@ -134,6 +134,23 @@ _description:
  VERIFICATION:
      Did the system resume when the lid was opened?
 
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::power-management
+id: power-management/lid_close_suspend_open
+estimated_duration: 20.0
+requires: device.product == 'Lid Switch'
+_purpose:
+    This test will check your lid sensor can detect lid close/open, and DUT will suspend when the lid closed
+_steps:
+    1. Press "Enter" to start the test
+    2. Close the lid (Please close the lid within 10 sec)
+    3. Wait 5 seconds with the lid closed.
+    5. Open the lid
+_verification:
+    Did the system suspend when lid closed, and resume back when the lid opened?
+command:
+    lid_close_suspend_open.sh
+
 plugin: shell
 category_id: com.canonical.plainbox::power-management
 id: power-management/rtc

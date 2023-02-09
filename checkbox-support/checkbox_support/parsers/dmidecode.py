@@ -49,7 +49,7 @@ class DmidecodeParser(object):
 
     _key_map = {
         "Form Factor": "form",
-        "ID": "serial",
+        "ID": "id",
         "Manufacturer": "vendor",
         "Product Name": "name",
         "Serial Number": "serial",

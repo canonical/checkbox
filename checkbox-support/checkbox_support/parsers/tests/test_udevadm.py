@@ -935,11 +935,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
     def test_SHUTTLE_DH170_WITH_USB_DISK(self):
         """ DH170 with USB stick comparing pre and post reboot. """
         devices_pre = self.parse("SHUTTLE_DH170_WITH_USB_DISK",
-                                 with_partitions=True)
+                                 with_partitions=True, with_lsblk=False)
         self.assertEqual(len(devices_pre), 70)
         self.assertEqual(self.count(devices_pre, "PARTITION"), 1)
         devices_post = self.parse("SHUTTLE_DH170_WITH_USB_DISK_REBOOTED",
-                                  with_partitions=True)
+                                  with_partitions=True, with_lsblk=False)
         self.assertEqual(len(devices_post), 70)
         self.assertEqual(self.count(devices_post, "PARTITION"), 1)
         # Pre and post have same number of deviecs and partitions

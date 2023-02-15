@@ -1,0 +1,106 @@
+
+id: init-boot-loop-data
+category_id: com.canonical.certification::stress-tests
+_summary: Generate the baseline data set to test against
+_description: This creates baseline data sets which be considered the master
+ copies and all further tests will be compared against these.
+unit: job
+plugin: shell
+command:
+    reboot_check_test.sh -d "$PLAINBOX_SESSION_SHARE/before_reboot"
+environ: LD_LIBRARY_PATH
+user: root
+estimated_duration: 1s
+flags: preserve-locale
+
+
+id: cold-boot-loop-by-pdu-reboot1
+category_id: com.canonical.certification::stress-tests/cold-boot
+_summary: Cold reboot with PDU - loop 1
+_description:
+    This tests powers off the system and then powers it on using Network PDU
+    The 'NETWORK_PDU_CONF,NETWORK_PDU_TYPE,STRESS_BOOT_WAIT_DELAY,STRESS_BOOT_WAKEUP_DELAY' need to be provided as following format
+    format:
+        NETWORK_PDU_CONF=$ip:$outlet_port
+        NETWORK_PDU_TYPE=$vendor
+        STRESS_BOOT_WAKEUP_DELAY=$seconds
+        STRESS_BOOT_WAIT_DELAY=$seconds
+    e.g.
+        NETWORK_PDU_CONF=10.102.30.40:2
+        NETWORK_PDU_TYPE=apc
+        STRESS_BOOT_WAKEUP_DELAY=100
+        STRESS_BOOT_WAIT_DELAY=60
+unit: job
+plugin: shell
+environ: STRESS_BOOT_WAKEUP_DELAY
+command:
+    cold_reboot_by_pdu.sh -t $NETWORK_PDU_TYPE -p $NETWORK_PDU_CONF -d "$STRESS_BOOT_WAKEUP_DELAY"
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 300
+depends: init-boot-loop-data
+
+
+id: post-cold-boot-loop-by-pdu-reboot1
+after: cold-boot-loop-by-pdu-reboot1
+category_id: com.canonical.certification::stress-tests/cold-boot
+_summary: Post cold reboot service check - loop 1
+_description: Check there are no failed services after the cold reboot
+unit: job
+plugin: shell
+environ: LD_LIBRARY_PATH
+command:
+    reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/reboot_cycle1" -s
+user: root
+flags: preserve-locale
+estimated_duration: 1.0
+depends: cold-boot-loop-by-pdu-reboot1
+
+
+id: cold-boot-loop-by-pdu-reboot{reboot_id}
+category_id: com.canonical.certification::stress-tests/cold-boot
+_summary: Cold reboot with PDU - loop {reboot_id}
+_description:
+    This tests powers off the system and then powers it on using Network PDU
+    The 'NETWORK_PDU_CONF,NETWORK_PDU_TYPE,STRESS_BOOT_WAIT_DELAY,STRESS_BOOT_WAKEUP_DELAY' need to be provided as following format
+    format:
+        NETWORK_PDU_CONF=$ip:$outlet_port
+        NETWORK_PDU_TYPE=$vendor
+        STRESS_BOOT_WAKEUP_DELAY=$seconds
+        STRESS_BOOT_WAIT_DELAY=$seconds
+    e.g.
+        NETWORK_PDU_CONF=10.102.30.40:2
+        NETWORK_PDU_TYPE=apc
+        STRESS_BOOT_WAKEUP_DELAY=100
+        STRESS_BOOT_WAIT_DELAY=60
+unit: template
+template-resource: com.canonical.certification::reboot-run-generator
+template-unit: job
+plugin: shell
+environ: STRESS_BOOT_WAKEUP_DELAY STRESS_BOOT_WAIT_DELAY NETWORK_PDU_TYPE NETWORK_PDU_CONF
+command:
+    sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
+    cold_reboot_by_pdu.sh -t "${{NETWORK_PDU_TYPE}}" -p "${{NETWORK_PDU_CONF}}" -d "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 300
+after: post-cold-boot-loop-by-pdu-reboot{reboot_id_previous}
+depends: init-boot-loop-data
+
+
+id: post-cold-boot-loop-by-pdu-reboot{reboot_id}
+after: cold-boot-loop-by-pdu-reboot{reboot_id}
+category_id: com.canonical.certification::stress-tests/cold-boot
+_summary: Post cold reboot service check - loop {reboot_id}
+_description: Check there are no failed services after the cold reboot
+unit: template
+template-resource: com.canonical.certification::reboot-run-generator
+template-unit: job
+plugin: shell
+environ: LD_LIBRARY_PATH
+command:
+    reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/reboot_cycle{reboot_id}" -s
+user: root
+flags: preserve-locale
+estimated_duration: 1.0
+depends: cold-boot-loop-by-pdu-reboot{reboot_id}

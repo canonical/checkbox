@@ -1,0 +1,7 @@
+id: power-automated-by-pdu
+unit: test plan
+_name: Automated power tests
+_description: Automated power tests for Snappy Ubuntu Core devices
+include:
+    power-management/cold-reboot-by-pdu
+    power-management/post-cold-reboot-by-pdu

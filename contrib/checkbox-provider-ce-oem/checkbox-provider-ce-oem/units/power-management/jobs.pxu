@@ -1,0 +1,36 @@
+id: power-management/cold-reboot-by-pdu
+category_id: com.canonical.plainbox::power-management
+_summary: Cold reboot
+_description:
+    This tests powers off the system and then powers it on using Network PDU
+    The 'NETWORK_PDU_CONF,NETWORK_PDU_TYPE,STRESS_BOOT_WAIT_DELAY,STRESS_BOOT_WAKEUP_DELAY' need to be provided as following format
+    format:
+        NETWORK_PDU_CONF=$ip:$outlet_port
+        NETWORK_PDU_TYPE=$vendor
+        STRESS_BOOT_WAKEUP_DELAY=$seconds
+        STRESS_BOOT_WAIT_DELAY=$seconds
+    e.g.
+        NETWORK_PDU_CONF=10.102.30.40:2
+        NETWORK_PDU_TYPE=apc
+        STRESS_BOOT_WAKEUP_DELAY=100
+        STRESS_BOOT_WAIT_DELAY=60
+unit: job
+plugin: shell
+command:
+    sleep 5
+    [[ -z "$STRESS_BOOT_WAKEUP_DELAY" ]] && STRESS_BOOT_WAKEUP_DELAY=60
+    cold_reboot_by_pdu.sh -t $NETWORK_PDU_TYPE -p $NETWORK_PDU_CONF -d "$STRESS_BOOT_WAKEUP_DELAY"
+user: root
+flags: preserve-locale noreturn autorestart
+estimated_duration: 300
+
+
+id: power-management/post-cold-reboot-by-pdu
+after: power-management/cold-reboot-by-pdu
+category_id: com.canonical.plainbox::power-management
+_summary: Post cold reboot service check
+_description: Check there are no failed services after the cold reboot
+unit: job
+plugin: shell
+command: reboot_check_test.sh -s
+estimated_duration: 1.0

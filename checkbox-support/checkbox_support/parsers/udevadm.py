@@ -96,7 +96,8 @@ FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
 ROOT_MOUNTPOINT = re.compile(
-    r'MOUNTPOINT=.*/(writable|hostfs|ubuntu-seed|ubuntu-boot|boot)')
+    r'MOUNTPOINT=.*/(writable|hostfs|'
+    r'ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)')
 
 
 def slugify(_string):

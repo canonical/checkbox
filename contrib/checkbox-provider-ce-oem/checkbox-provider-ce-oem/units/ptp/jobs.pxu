@@ -1,6 +1,6 @@
 unit: job
 category_id: ptp
-id: ptp/ptp-devices
+id: ce-oem-ptp/ptp-devices
 plugin: resource
 _summary: List hardware PTP-supported Ethernet devices in the DUT
 _description: 
@@ -33,9 +33,9 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_ptp == 'True'
 
 unit: template
-template-resource: ptp/ptp-devices
+template-resource: ce-oem-ptp/ptp-devices
 template-unit: job
-id: ptp/verify-PTP-support-for-{eth-interface}
+id: ce-oem-ptp/verify-PTP-support-for-{eth-interface}
 category_id: ptp
 _summary: Verify Ethernet interface {eth-interface} supports PTP HW Clock
 _description: 
@@ -63,9 +63,9 @@ command:
     fi
 
 unit: template
-template-resource: ptp/ptp-devices
+template-resource: ce-oem-ptp/ptp-devices
 template-unit: job
-id: ptp/ptp4l-time-sync-for-{eth-interface}-auto
+id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-auto
 category_id: ptp
 _summary: Verify Ethernet interface {eth-interface} can establish clock sync by ptp4l
 _description: 
@@ -80,7 +80,7 @@ plugin: shell
 flags: also-after-suspend
 user: root
 estimated_duration: 32s
-depends: ptp/verify-PTP-support-for-{eth-interface}
+depends: ce-oem-ptp/verify-PTP-support-for-{eth-interface}
 command:
     output_file='/var/tmp/ptp4l_output.txt'
     echo "Executing ptp4l for 30s"
@@ -103,9 +103,9 @@ command:
     exit 0
 
 unit: template
-template-resource: ptp/ptp-devices
+template-resource: ce-oem-ptp/ptp-devices
 template-unit: job
-id: ptp/ptp4l-time-sync-for-{eth-interface}-manual
+id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-manual
 catageory_id: ptp
 _summary: Verify Ethernet interface {eth-interface} can establish clock sync
 _purpose: 

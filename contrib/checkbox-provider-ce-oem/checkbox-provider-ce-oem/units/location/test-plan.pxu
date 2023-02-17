@@ -1,38 +1,38 @@
-id: arm-gps-full
+id: ce-oem-gps-full
 unit: test plan
-_name: ARM gps tests
-_description: Full gps tests for ARM devices
+_name: GPS tests
+_description: Full GPS tests for devices
 include:
 nested_part:
-    arm-gps-manual
-    arm-gps-automated
-    after-suspend-arm-gps-manual
-    after-suspend-arm-gps-automated
+    ce-oem-gps-manual
+    ce-oem-gps-automated
+    after-suspend-ce-oem-gps-manual
+    after-suspend-ce-oem-gps-automated
 
-id: arm-gps-manual
+id: ce-oem-gps-manual
 unit: test plan
-_name: ARM gps manual tests
-_description: Manual gps tests for ARM devices
+_name: GPS manual tests
+_description: Manual GPS tests for devices
 bootstrap_include:
 include:
-    location/gps_coordinate 
+    ce-oem-location/gps_coordinate 
 
-id: arm-gps-automated
+id: ce-oem-gps-automated
 unit: test plan
-_name: ARM gps auto tests
-_description: Automated gps tests for ARM devices
+_name: GPS auto tests
+_description: Automated GPS tests for devices
 include:
 
-id: after-suspend-arm-gps-manual
+id: after-suspend-ce-oem-gps-manual
 unit: test plan
-_name: ARM after suspend gps manual tests
-_description: Manual after-suspend gps tests for ARM devices
+_name: After suspend GPS manual tests
+_description: Manual after-suspend GPS tests for devices
 bootstrap_include:
 include:
-    after-suspend-location/gps_coordinate 
+    after-suspend-ce-oem-location/gps_coordinate 
 
-id: after-suspend-arm-gps-automated
+id: after-suspend-ce-oem-gps-automated
 unit: test plan
-_name: ARM after suspend gps auto tests
-_description: Automated gps tests for ARM devices
+_name: After suspend GPS auto tests
+_description: Automated GPS tests for devices
 include:

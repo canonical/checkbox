@@ -1,49 +1,49 @@
-id: arm-ptp-full
+id: ce-oem-ptp-full
 unit: test plan
-_name: ARM PTP tests
-_description: Full PTP tests for ARM devices
+_name: PTP tests
+_description: Full PTP tests for devices
 include:
 nested_part:
-    arm-ptp-manual
-    arm-ptp-automated
-    after-suspend-arm-ptp-manual
-    after-suspend-arm-ptp-automated
+    ce-oem-ptp-manual
+    ce-oem-ptp-automated
+    after-suspend-ce-oem-ptp-manual
+    after-suspend-ce-oem-ptp-automated
 
-id: arm-ptp-manual
+id: ce-oem-ptp-manual
 unit: test plan
-_name: ARM PTP manual tests
-_description: Manual PTP tests for ARM devices
+_name: PTP manual tests
+_description: Manual PTP tests for devices
 bootstrap_include:
-    ptp/ptp-devices
+    ce-oem-ptp/ptp-devices
 include:
-    ptp/ptp4l-time-sync-for-.*-manual
+    ce-oem-ptp/ptp4l-time-sync-for-.*-manual
     
-id: arm-ptp-automated
+id: ce-oem-ptp-automated
 unit: test plan
-_name: ARM PTP auto tests
-_description: Automated PTP tests for ARM devices
+_name: PTP auto tests
+_description: Automated PTP tests for devices
 bootstrap_include:
-    ptp/ptp-devices
+    ce-oem-ptp/ptp-devices
 include:
-    ptp/verify-PTP-support-for-.*
-    ptp/ptp4l-time-sync-for-.*-auto
+    ce-oem-ptp/verify-PTP-support-for-.*
+    ce-oem-ptp/ptp4l-time-sync-for-.*-auto
 
-id: after-suspend-arm-ptp-manual
+id: after-suspend-ce-oem-ptp-manual
 unit: test plan
-_name: ARM after suspend PTP manual tests
-_description: Manual after suspend PTP tests for ARM devices
+_name: After suspend PTP manual tests
+_description: Manual after suspend PTP tests for devices
 bootstrap_include:
-    ptp/ptp-devices
+    ce-oem-ptp/ptp-devices
 include:
-    after-suspend-ptp/ptp4l-time-sync-for-.*-manual
+    after-suspend-ce-oem-ptp/ptp4l-time-sync-for-.*-manual
     
-id: after-suspend-arm-ptp-automated
+id: after-suspend-ce-oem-ptp-automated
 unit: test plan
-_name: ARM after suspend PTP auto tests
-_description: Automated after suspend PTP tests for ARM devices
+_name: After suspend PTP auto tests
+_description: Automated after suspend PTP tests for devices
 bootstrap_include:
-    ptp/ptp-devices
+    ce-oem-ptp/ptp-devices
 include:
-    after-suspend-ptp/verify-PTP-support-for-.*
-    after-suspend-ptp/ptp4l-time-sync-for-.*-auto
+    after-suspend-ce-oem-ptp/verify-PTP-support-for-.*
+    after-suspend-ce-oem-ptp/ptp4l-time-sync-for-.*-auto
 

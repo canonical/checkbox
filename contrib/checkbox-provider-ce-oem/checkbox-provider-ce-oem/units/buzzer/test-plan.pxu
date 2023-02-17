@@ -1,44 +1,44 @@
-id: arm-buzzer-full
+id: ce-oem-buzzer-full
 unit: test plan
-_name: ARM buzzer tests
-_description: Full buzzer tests for ARM devices
+_name: Buzzer tests
+_description: Full buzzer tests for devices
 include:
 nested_part:
-    arm-buzzer-manual
-    arm-buzzer-automated
-    after-suspend-arm-buzzer-manual
-    after-suspend-arm-buzzer-automated
+    ce-oem-buzzer-manual
+    ce-oem-buzzer-automated
+    after-suspend-ce-oem-buzzer-manual
+    after-suspend-ce-oem-buzzer-automated
 
-id: arm-buzzer-manual
+id: ce-oem-buzzer-manual
 unit: test plan
-_name: ARM buzzer manual tests
-_description: Manual buzzer tests for ARM devices
+_name: Buzzer manual tests
+_description: Manual buzzer tests for devices
 bootstrap_include:
-    gpio-buzzer-mapping
-    pwm-buzzer-mapping
+    ce-oem-gpio-buzzer-mapping
+    ce-oem-pwm-buzzer-mapping
 include:
-    buzzer/input-pcspkr
-    buzzer/sound-test-.*
+    ce-oem-buzzer/input-pcspkr
+    ce-oem-buzzer/sound-test-.*
 
-id: arm-buzzer-automated
+id: ce-oem-buzzer-automated
 unit: test plan
-_name: ARM buzzer auto tests
-_description: Automated buzzer tests for ARM devices
+_name: Buzzer auto tests
+_description: Automated buzzer tests for devices
 include:
 
-id: after-suspend-arm-buzzer-manual
+id: after-suspend-ce-oem-buzzer-manual
 unit: test plan
-_name: ARM after suspend buzzer manual tests
-_description: Manual after suspend buzzer tests for ARM devices
+_name: After suspend buzzer manual tests
+_description: Manual after suspend buzzer tests for devices
 bootstrap_include:
-    gpio-buzzer-mapping
-    pwm-buzzer-mapping
+    ce-oem-gpio-buzzer-mapping
+    ce-oem-pwm-buzzer-mapping
 include:
-    after-suspend-buzzer/input-pcspkr
-    after-suspend-buzzer/sound-test-.*
+    after-suspend-ce-oem-buzzer/input-pcspkr
+    after-suspend-ce-oem-buzzer/sound-test-.*
 
-id: after-suspend-arm-buzzer-automated
+id: after-suspend-ce-oem-buzzer-automated
 unit: test plan
-_name: ARM after suspend buzzer auto tests
-_description: Automated after suspend buzzer tests for ARM devices
+_name: After suspend buzzer auto tests
+_description: Automated after suspend buzzer tests for devices
 include:

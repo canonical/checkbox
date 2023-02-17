@@ -1,4 +1,4 @@
-id: gpio-leds
+id: ce-oem-gpio-leds
 plugin: resource
 _summary: Gather list of test led indicators for device that control via GPIO.
 _description:
@@ -17,10 +17,10 @@ command:
     }' <<< "$GPIO_LEDS"
 
 unit: template
-template-resource: gpio-leds
+template-resource: ce-oem-gpio-leds
 template-unit: job
 category_id: led-indicator
-id: led-indicator/gpio-leds-{name}
+id: ce-oem-led-indicator/gpio-leds-{name}
 estimated_duration: 10.0
 plugin: user-interact-verify
 user: root
@@ -38,7 +38,7 @@ _description:
 command:
     led_test.sh -t gpio -n {name} -p {port}
 
-id: sysfs-leds
+id: ce-oem-sysfs-leds
 plugin: resource
 _summary: Gather list of test led indicators for device that control via sysfs path.
 _description:
@@ -54,9 +54,9 @@ command:
     done
 
 unit: template
-template-resource: sysfs-leds
+template-resource: ce-oem-sysfs-leds
 template-unit: job
-id: led-indicator/sysfs-leds-{name}
+id: ce-oem-led-indicator/sysfs-leds-{name}
 category_id: led-indicator
 _summary: Check control of {name} led.
 _description:

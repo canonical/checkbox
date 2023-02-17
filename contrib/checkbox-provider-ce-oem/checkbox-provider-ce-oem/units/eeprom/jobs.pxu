@@ -1,4 +1,4 @@
-id: eeprom/read-write
+id: ce-oem-eeprom/read-write
 _summary: Test EEPROM read and write for system 
 _purpose:
  Check EEPROM can write 10 Bytes of data into it, and read it back correctly. 

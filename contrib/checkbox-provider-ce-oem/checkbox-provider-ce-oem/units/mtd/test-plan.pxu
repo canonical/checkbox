@@ -1,42 +1,42 @@
-id: arm-mtd-full
+id: ce-oem-mtd-full
 unit: test plan
-_name: ARM Memory Technology Device tests
-_description: Full Memory Technology Device tests for ARM devices
+_name: Memory Technology Device tests
+_description: Full Memory Technology Device tests for devices
 include:
 nested_part:
-    arm-mtd-manual
-    arm-mtd-automated
-    after-suspend-arm-mtd-manual
-    after-suspend-arm-mtd-automated
+    ce-oem-mtd-manual
+    ce-oem-mtd-automated
+    after-suspend-ce-oem-mtd-manual
+    after-suspend-ce-oem-mtd-automated
 
-id: arm-mtd-manual
+id: ce-oem-mtd-manual
 unit: test plan
-_name: ARM Memory Technology Device manual tests
-_description: Manual Memory Technology Device tests for ARM devices
+_name: Memory Technology Device manual tests
+_description: Manual Memory Technology Device tests for devices
 include:
 
-id: arm-mtd-automated
+id: ce-oem-mtd-automated
 unit: test plan
-_name: ARM Memory Technology Device auto tests
-_description: Automated Memory Technology Device tests for ARM devices
+_name: Memory Technology Device auto tests
+_description: Automated Memory Technology Device tests for devices
 bootstrap_include:
-    mtd/mtd-list
+    ce-oem-mtd/mtd-list
 include:
-    mtd/check-total-numbers
-    mtd/read-write-test-.*
+    ce-oem-mtd/check-total-numbers
+    ce-oem-mtd/read-write-test-.*
 
-id: after-suspend-arm-mtd-manual
+id: after-suspend-ce-oem-mtd-manual
 unit: test plan
-_name: ARM after suspend Memory Technology Device manual tests
-_description: Manual after-suspend Memory Technology Device tests for ARM devices
+_name: After suspend Memory Technology Device manual tests
+_description: Manual after-suspend Memory Technology Device tests for devices
 include:
 
-id: after-suspend-arm-mtd-automated
+id: after-suspend-ce-oem-mtd-automated
 unit: test plan
-_name: ARM after suspend Memory Technology Device auto tests
-_description: Automated after-suspend Memory Technology Device tests for ARM devices
+_name: After suspend Memory Technology Device auto tests
+_description: Automated after-suspend Memory Technology Device tests for devices
 bootstrap_include:
-    mtd/mtd-list
+    ce-oem-mtd/mtd-list
 include:
-    also-after-suspend-mtd/check-total-numbers
-    also-after-suspend-mtd/read-write-test-.*
+    also-after-suspend-ce-oem-mtd/check-total-numbers
+    also-after-suspend-ce-oem-mtd/read-write-test-.*

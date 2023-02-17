@@ -1,6 +1,6 @@
 plugin: shell
 category_id: com.canonical.plainbox::cpu
-id: arm_cpu/offlining_test
+id: ce-oem-cpu/offlining_test
 estimated_duration: 128.0
 imports: from com.canonical.certification import cpuinfo
 user: root
@@ -14,7 +14,7 @@ flag: also-after-suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::cpu
-id: arm_cpu/frequency_governors
+id: ce-oem-cpu/frequency_governors
 estimated_duration: 22.0
 user: root
 command: nice -n -20 frequency_governors_test.py --debug

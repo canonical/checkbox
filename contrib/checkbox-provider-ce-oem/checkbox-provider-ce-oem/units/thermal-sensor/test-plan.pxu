@@ -1,36 +1,36 @@
-id: arm-sensor-full
+id: ce-oem-sensor-full
 unit: test plan
-_name: ARM sensor tests
-_description: Full sensor tests for ARM devices
+_name: Thermal sensor tests
+_description: Full thermal sensor tests for devices
 include:
 nested_part:
-    arm-sensor-manual
-    arm-sensor-automated
-    after-suspend-arm-sensor-manual
-    after-suspend-arm-sensor-automated
+    ce-oem-sensor-manual
+    ce-oem-sensor-automated
+    after-suspend-ce-oem-sensor-manual
+    after-suspend-ce-oem-sensor-automated
 
-id: arm-sensor-manual
+id: ce-oem-sensor-manual
 unit: test plan
-_name: ARM sensor manual tests
-_description: Manual sensor tests for ARM devices
+_name: Thermal sensor manual tests
+_description: Manual thermal sensor tests for devices
 include:
 
-id: arm-sensor-automated
+id: ce-oem-sensor-automated
 unit: test plan
-_name: ARM sensor auto tests
-_description: Automated sensor tests for ARM devices
+_name: Thermal sensor auto tests
+_description: Automated thermal sensor tests for devices
 include:
-    sensor/arm-thermal
+    ce-oem-sensor/thermal
 
-id: after-suspend-arm-sensor-manual
+id: after-suspend-ce-oem-sensor-manual
 unit: test plan
-_name: ARM after suspend sensor manual tests
-_description: Manual after suspend sensor tests for ARM devices
+_name: After suspend thermal sensor manual tests
+_description: Manual after suspend thermal sensor tests for devices
 include:
 
-id: after-suspend-arm-sensor-automated
+id: after-suspend-ce-oem-sensor-automated
 unit: test plan
-_name: ARM after suspend sensor auto tests
-_description: Automated after suspend sensor tests for ARM devices
+_name: After suspend thermal sensor auto tests
+_description: Automated after suspend thermal sensor tests for devices
 include:
-    after-suspend-sensor/arm-thermal
+    after-suspend-ce-oem-sensor/thermal

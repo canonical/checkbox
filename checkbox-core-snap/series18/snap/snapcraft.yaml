@@ -72,7 +72,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V22.09.00"
+    source-tag: "V23.01.00"
     source-depth: 1
     plugin: autotools
     source: git://kernel.ubuntu.com/hwe/fwts

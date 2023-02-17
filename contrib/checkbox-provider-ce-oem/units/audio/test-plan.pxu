@@ -1,36 +1,36 @@
-id: arm-audio-full
+id: ce-oem-audio-full
 unit: test plan
-_name: ARM Audio tests
-_description: Full audio tests for ARM devices
+_name: Audio tests
+_description: Full audio tests for devices
 include:
 nested_part:
-    arm-audio-manual
-    arm-audio-automated
+    ce-oem-audio-manual
+    ce-oem-audio-automated
 
-id: arm-audio-manual
+id: ce-oem-audio-manual
 unit: test plan
-_name: ARM Audio manual tests
-_description: Manual audio tests for ARM devices
+_name: Audio manual tests
+_description: Manual audio tests for devices
 include:
-    audio/alsa-utils-record-mono
-    audio/alsa-utils-record-stereo
+    ce-oem-audio/alsa-utils-record-mono
+    ce-oem-audio/alsa-utils-record-stereo
 
-id: arm-audio-automated
+id: ce-oem-audio-automated
 unit: test plan
-_name: ARM Audio auto tests
-_description: Automated audio tests for ARM devices
+_name: Audio auto tests
+_description: Automated audio tests for devices
 include:
 
-id: after-suspend-arm-audio-manual
+id: after-suspend-ce-oem-audio-manual
 unit: test plan
-_name: ARM after suspend Audio manual tests
-_description: Manual after suspend audio tests for ARM devices
+_name: After suspend Audio manual tests
+_description: Manual after suspend audio tests for devices
 include:
-    after-suspend-audio/alsa-utils-record-mono
-    after-suspend-audio/alsa-utils-record-stereo
+    after-suspend-ce-oem-audio/alsa-utils-record-mono
+    after-suspend-ce-oem-audio/alsa-utils-record-stereo
 
-id: after-suspend-arm-audio-automated
+id: after-suspend-ce-oem-audio-automated
 unit: test plan
-_name: ARM after suspend Audio auto tests
-_description: Automated after suspend audio tests for ARM devices
+_name: After suspend Audio auto tests
+_description: Automated after suspend audio tests for devices
 include:

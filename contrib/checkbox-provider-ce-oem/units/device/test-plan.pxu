@@ -1,40 +1,40 @@
-id: arm-dtb-full
+id: ce-oem-dtb-full
 unit: test plan
-_name: ARM Device Tree tests
-_description: Full Device Tree tests for ARM devices
+_name: Device Tree tests
+_description: Full Device Tree tests for devices
 include:
 nested_part:
-    arm-dtb-manual
-    arm-dtb-automated
-    after-suspend-arm-dtb-manual
-    after-suspend-arm-dtb-automated
+    ce-oem-dtb-manual
+    ce-oem-dtb-automated
+    after-suspend-ce-oem-dtb-manual
+    after-suspend-ce-oem-dtb-automated
 
-id: arm-dtb-manual
+id: ce-oem-dtb-manual
 unit: test plan
-_name: ARM Device Tree manual tests
-_description: Manual Device Tree tests for ARM devices
+_name: Device Tree manual tests
+_description: Manual Device Tree tests for devices
 bootstrap_include:
 include:
     
-id: arm-dtb-automated
+id: ce-oem-dtb-automated
 unit: test plan
-_name: ARM Device Tree auto tests
-_description: Automated Device Tree tests for ARM devices
+_name: Device Tree auto tests
+_description: Automated Device Tree tests for devices
 bootstrap_include:
-    device-tree/dump
+    ce-oem-device-tree/dump
 include:
-    device-tree/log-attach
+    ce-oem-device-tree/log-attach
 
-id: after-suspend-arm-dtb-manual
+id: after-suspend-ce-oem-dtb-manual
 unit: test plan
-_name: ARM after suspend Device Tree manual tests
-_description: Manual after suspend Device Tree tests for ARM devices
+_name: After suspend Device Tree manual tests
+_description: Manual after suspend Device Tree tests for devices
 bootstrap_include:
 include:
     
-id: after-suspend-arm-dtb-automated
+id: after-suspend-ce-oem-dtb-automated
 unit: test plan
-_name: ARM after suspend Device Tree auto tests
-_description: Automated after suspend Device Tree tests for ARM devices
+_name: After suspend Device Tree auto tests
+_description: Automated after suspend Device Tree tests for devices
 bootstrap_include:
 include:

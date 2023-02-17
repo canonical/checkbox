@@ -1,44 +1,44 @@
-id: arm-button-full
+id: ce-oem-button-full
 unit: test plan
-_name: ARM button tests
-_description: Full button tests for ARM devices
+_name: Button tests
+_description: Full button tests for devices
 include:
 nested_part:
-    arm-button-manual
-    arm-button-automated
-    after-suspend-arm-button-manual
-    after-suspend-arm-button-automated
+    ce-oem-button-manual
+    ce-oem-button-automated
+    after-suspend-ce-oem-button-manual
+    after-suspend-ce-oem-button-automated
 
-id: arm-button-manual
+id: ce-oem-button-manual
 unit: test plan
-_name: ARM button manual tests
-_description: Manual button tests for ARM devices
+_name: Button manual tests
+_description: Manual button tests for devices
 bootstrap_include:
-    gpio-button-mapping
-    interrupts-button-mapping
+    ce-oem-gpio-button-mapping
+    ce-oem-interrupts-button-mapping
 include:
-    button/detect-by-gpio-press-.*
-    button/detect-by-interrupts-press-.*
+    ce-oem-button/detect-by-gpio-press-.*
+    ce-oem-button/detect-by-interrupts-press-.*
 
-id: arm-button-automated
+id: ce-oem-button-automated
 unit: test plan
-_name: ARM button auto tests
-_description: Automated button tests for ARM devices
+_name: Button auto tests
+_description: Automated button tests for devices
 include:
 
-id: after-suspend-arm-button-manual
+id: after-suspend-ce-oem-button-manual
 unit: test plan
-_name: ARM after suspend button manual tests
-_description: Manual after suspend button tests for ARM devices
+_name: After suspend button manual tests
+_description: Manual after suspend button tests for devices
 bootstrap_include:
-    gpio-button-mapping
-    interrupts-button-mapping
+    ce-oem-gpio-button-mapping
+    ce-oem-interrupts-button-mapping
 include:
-    after-suspend-button/detect-by-gpio-press-.*
-    after-suspend-button/detect-by-interrupts-press-.*
+    after-suspend-ce-oem-button/detect-by-gpio-press-.*
+    after-suspend-ce-oem-button/detect-by-interrupts-press-.*
 
-id: after-suspend-arm-button-automated
+id: after-suspend-ce-oem-button-automated
 unit: test plan
-_name: ARM after suspend button auto tests
-_description: Automated after suspend button tests for ARM devices
+_name: After suspend button auto tests
+_description: Automated after suspend button tests for devices
 include:

@@ -1,4 +1,4 @@
-id: power-management/cold-reboot-by-pdu
+id: ce-oem-power-management/cold-reboot-by-pdu
 category_id: com.canonical.plainbox::power-management
 _summary: Cold reboot
 _description:
@@ -25,8 +25,8 @@ flags: preserve-locale noreturn autorestart
 estimated_duration: 300
 
 
-id: power-management/post-cold-reboot-by-pdu
-after: power-management/cold-reboot-by-pdu
+id: ce-oem-power-management/post-cold-reboot-by-pdu
+after: ce-oem-power-management/cold-reboot-by-pdu
 category_id: com.canonical.plainbox::power-management
 _summary: Post cold reboot service check
 _description: Check there are no failed services after the cold reboot

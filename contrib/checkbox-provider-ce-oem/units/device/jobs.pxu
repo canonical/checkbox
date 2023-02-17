@@ -1,4 +1,4 @@
-id: device-tree/dump
+id: ce-oem-device-tree/dump
 plugin: resource
 _summary: Dump the device tree from runtime system
 imports: from com.canonical.certification import cpuinfo
@@ -17,8 +17,8 @@ command:
 estimated_duration: 30s
 
 plugin: attachment
-id: device-tree/log-attach
-depends: device-tree/dump
+id: ce-oem-device-tree/log-attach
+depends: ce-oem-device-tree/dump
 estimated_duration: 2.0
 _description: Attach device tree dts file
 category_id: dtb

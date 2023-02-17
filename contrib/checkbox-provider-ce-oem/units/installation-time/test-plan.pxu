@@ -1,24 +1,24 @@
-id: arm-installation-info-full
+id: ce-oem-installation-info-full
 unit: test plan
-_name: ARM installation info gather test
-_description: Full installation info gather tests for ARM devices
+_name: Installation info gather test for Ubuntu Core
+_description: Full installation info gather tests for devices
 include:
 nested_part:
-    arm-installation-info-manual
-    arm-installation-info-automated
+    ce-oem-installation-info-manual
+    ce-oem-installation-info-automated
 
-id: arm-installation-info-manual
+id: ce-oem-installation-info-manual
 unit: test plan
-_name: ARM installation info gather manual
-_description: Manual installation info gather tests for ARM devices
+_name: Installation info gather manual for Ubuntu Core
+_description: Manual installation info gather tests for devices
 include:
 
 
-id: arm-installation-info-automated
+id: ce-oem-installation-info-automated
 unit: test plan
-_name: ARM installation info gather auto tests
-_description: Automated installation info gather tests for ARM devices
+_name: Installation info gather auto tests for Ubuntu Core
+_description: Automated installation info gather tests for devices
 include:
-    info/snapd_installation_.*
-    info/cloud_init_.*
-    info/install_.*
+    ce-oem-info/snapd_installation_.*
+    ce-oem-info/cloud_init_.*
+    ce-oem-info/install_.*

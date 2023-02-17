@@ -1,28 +1,28 @@
-id: eeprom-full
+id: ce-oem-eeprom-full
 unit: test plan
 _name: EEPROM tests
 _description: Full eeprom tests for devices
 include:
 nested_part:
-    eeprom-manual
-    eeprom-automated
-    after-suspend-eeprom-manual
-    after-suspend-eeprom-automated
+    ce-oem-eeprom-manual
+    ce-oem-eeprom-automated
+    after-suspend-ce-oem-eeprom-manual
+    after-suspend-ce-oem-eeprom-automated
 
-id: eeprom-manual
+id: ce-oem-eeprom-manual
 unit: test plan
 _name: EEPROM manual tests
 _description: Manual EEPROM tests for devices
 include:
 
-id: eeprom-automated
+id: ce-oem-eeprom-automated
 unit: test plan
 _name: EEPROM auto tests
 _description: Automated EEPROM tests for devices
 include:
-    eeprom/read-write
+    ce-oem-eeprom/read-write
 
-id: after-suspend-eeprom-manual
+id: after-suspend-ce-oem-eeprom-manual
 unit: test plan
 _name: EEPROM manual tests
 _description: Manual EEPROM tests for devices
@@ -33,4 +33,4 @@ unit: test plan
 _name: EEPROM auto tests
 _description: Automated EEPROM tests for devices
 include:
-    after-suspend-eeprom/read-write
+    after-suspend-ce-oem-eeprom/read-write

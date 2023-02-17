@@ -1,41 +1,41 @@
-id: led-full
+id: ce-oem-led-full
 unit: test plan
 _name: LED tests
 _description: Full LED tests for devices
 include:
 nested_part:
-    led-manual
-    led-automated
-    after-suspend-led-manual
-    after-suspend-led-automated
+    ce-oem-led-manual
+    ce-oem-led-automated
+    after-suspend-ce-oem-led-manual
+    after-suspend-ce-oem-led-automated
 
-id: led-manual
+id: ce-oem-led-manual
 unit: test plan
 _name: LED manual tests
 _description: Manual LED tests for devices
 bootstrap_include:
-    gpio-leds
-    sysfs-leds
+    ce-oem-gpio-leds
+    ce-oem-sysfs-leds
 include:
-    led-indicator/gpio-leds-.*
-    led-indicator/sysfs-leds-.*
+    ce-oem-led-indicator/gpio-leds-.*
+    ce-oem-led-indicator/sysfs-leds-.*
     
-id: led-automated
+id: ce-oem-led-automated
 unit: test plan
 _name: LED auto tests
 _description: Automated led tests for devices
 include:
 
-id: after-suspend-led-manual
+id: after-suspend-ce-oem-led-manual
 unit: test plan
 _name: LED manual tests
 _description: Manual LED tests for devices
 bootstrap_include:
 include:
-    after-suspend-led-indicator/gpio-leds-.*
-    after-suspend-led-indicator/sysfs-leds-.*
+    after-suspend-ce-oem-led-indicator/gpio-leds-.*
+    after-suspend-ce-oem-led-indicator/sysfs-leds-.*
     
-id: after-suspend-led-automated
+id: after-suspend-ce-oem-led-automated
 unit: test plan
 _name: LED auto tests
 _description: Automated led tests for devices

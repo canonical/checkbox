@@ -1,4 +1,4 @@
-id: sensor/arm-thermal
+id: ce-oem-sensor/thermal
 _summary: Check Thermal sensor
 plugin: shell
 user: root

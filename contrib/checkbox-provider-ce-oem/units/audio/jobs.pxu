@@ -1,4 +1,4 @@
-id: audio/alsa-utils-record-mono
+id: ce-oem-audio/alsa-utils-record-mono
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 depends:
@@ -17,7 +17,7 @@ command:
     arecord -d 5 -t wav $PLAINBOX_SESSION_SHARE/mono.wav
     aplay $PLAINBOX_SESSION_SHARE/mono.wav
 
-id: audio/alsa-utils-record-stereo
+id: ce-oem-audio/alsa-utils-record-stereo
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 depends:

@@ -1,40 +1,40 @@
-id: arm-cpu-full
+id: ce-oem-cpu-full
 unit: test plan
-_name: ARM cpu tests
-_description: Full cpu tests for ARM devices
+_name: CPU tests
+_description: Full CPU tests for devices
 include:
 nested_part:
-    arm-cpu-manual
-    arm-cpu-automated
-    after-suspend-arm-cpu-manual
-    after-suspend-arm-cpu-automated
+    ce-oem-cpu-manual
+    ce-oem-cpu-automated
+    after-suspend-ce-oem-cpu-manual
+    after-suspend-ce-oem-cpu-automated
 
-id: arm-cpu-manual
+id: ce-oem-cpu-manual
 unit: test plan
-_name: ARM cpu manual tests
-_description: Manual cpu tests for ARM devices
+_name: CPU manual tests
+_description: Manual CPU tests for devices
 bootstrap_include:
 include:
 
-id: arm-cpu-automated
+id: ce-oem-cpu-automated
 unit: test plan
-_name: ARM cpu auto tests
-_description: Automated cpu tests for ARM devices
+_name: CPU auto tests
+_description: Automated CPU tests for devices
 include:
-    arm_cpu/offlining_test
-    arm_cpu/frequency_governors
+    ce-oem-cpu/offlining_test
+    ce-oem-cpu/frequency_governors
 
-id: after-suspend-arm-cpu-manual
+id: after-suspend-ce-oem-cpu-manual
 unit: test plan
-_name: ARM after suspend cpu manual tests
-_description: Manual after-suspend cpu tests for ARM devices
+_name: after suspend CPU manual tests
+_description: Manual after-suspend CPU tests for devices
 bootstrap_include:
 include:
 
-id: after-suspend-arm-cpu-automated
+id: after-suspend-ce-oem-cpu-automated
 unit: test plan
-_name: ARM cpu auto tests
-_description: Automated after suspend cpu tests for ARM devices
+_name: CPU auto tests
+_description: Automated after suspend CPU tests for devices
 include:
-    after-suspend-arm_cpu/offlining_test
-    after-suspend-arm_cpu/frequency_governors
+    after-suspend-ce-oem-cpu/offlining_test
+    after-suspend-ce-oem-cpu/frequency_governors

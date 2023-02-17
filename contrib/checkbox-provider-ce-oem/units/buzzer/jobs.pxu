@@ -1,4 +1,4 @@
-id: buzzer/input-pcspkr
+id: ce-oem-buzzer/input-pcspkr
 plugin: user-interact-verify
 category_id: buzzer
 user: root
@@ -15,7 +15,7 @@ flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_buzzer == 'True'
 
-id: gpio-buzzer-mapping
+id: ce-oem-gpio-buzzer-mapping
 _summary: Generates a GPIO and buzzer mappings for further buzzer test
 _description:
     A buzzer-gpio mapping resource that relies on the user specifying in config varirable.
@@ -34,9 +34,9 @@ command:
     }' <<< "$GPIO_BUZZER"
 
 unit: template
-template-resource: gpio-buzzer-mapping
+template-resource: ce-oem-gpio-buzzer-mapping
 template-unit: job
-id: buzzer/sound-test-{name}
+id: ce-oem-buzzer/sound-test-{name}
 _summary: To test {name} could be make a sound by GPIO
 _purpose:
     To test {name} could be make a sound by GPIO.
@@ -49,7 +49,7 @@ command: buzzer_test.sh -n {name} -p {port} -e {enable_value} -t gpio
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_buzzer == 'True'
 
-id: pwm-buzzer-mapping
+id: ce-oem-pwm-buzzer-mapping
 _summary: Generates a PWM and buzzer mappings for further buzzer test
 _description:
     A buzzer-pwm mapping resource that relies on the user specifying in config varirable.
@@ -68,9 +68,9 @@ command:
     }' <<< "$PWM_BUZZER"
 
 unit: template
-template-resource: pwm-buzzer-mapping
+template-resource: ce-oem-pwm-buzzer-mapping
 template-unit: job
-id: buzzer/sound-test-{name}
+id: ce-oem-buzzer/sound-test-{name}
 _summary: To test {name} could be make a sound by PWM
 _purpose:
     To test {name} could be make a sound by PWM.

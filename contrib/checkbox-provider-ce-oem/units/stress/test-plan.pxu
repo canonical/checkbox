@@ -1,5 +1,5 @@
 unit: test plan
-id: cold-boot-stress-test-by-pdu
+id: ce-oem-cold-boot-stress-test-by-pdu
 _name: Cold boot stress test with Network PDU
 _description:
     Reboots the machine a pre-defined number of times and on
@@ -10,8 +10,8 @@ estimated_duration: 42h
 bootstrap_include:
     com.canonical.certification::reboot-run-generator
 include:
-    cold-boot-loop-by-pdu-reboot.*
-    post-cold-boot-loop-by-pdu-reboot.*
+    ce-oem-cold-boot-loop-by-pdu-reboot.*
+    ce-oem-post-cold-boot-loop-by-pdu-reboot.*
 mandatory_include:
     com.canonical.plainbox::manifest
     com.canonical.certification::package

@@ -1,5 +1,4 @@
-
-id: init-boot-loop-data
+id: ce-oem-init-boot-loop-data
 category_id: com.canonical.certification::stress-tests
 _summary: Generate the baseline data set to test against
 _description: This creates baseline data sets which be considered the master
@@ -14,7 +13,7 @@ estimated_duration: 1s
 flags: preserve-locale
 
 
-id: cold-boot-loop-by-pdu-reboot1
+id: ce-oem-cold-boot-loop-by-pdu-reboot1
 category_id: com.canonical.certification::stress-tests/cold-boot
 _summary: Cold reboot with PDU - loop 1
 _description:
@@ -38,11 +37,11 @@ command:
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 300
-depends: init-boot-loop-data
+depends: ce-oem-init-boot-loop-data
 
 
-id: post-cold-boot-loop-by-pdu-reboot1
-after: cold-boot-loop-by-pdu-reboot1
+id: ce-oem-post-cold-boot-loop-by-pdu-reboot1
+after: ce-oem-cold-boot-loop-by-pdu-reboot1
 category_id: com.canonical.certification::stress-tests/cold-boot
 _summary: Post cold reboot service check - loop 1
 _description: Check there are no failed services after the cold reboot
@@ -54,10 +53,10 @@ command:
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
-depends: cold-boot-loop-by-pdu-reboot1
+depends: ce-oem-cold-boot-loop-by-pdu-reboot1
 
 
-id: cold-boot-loop-by-pdu-reboot{reboot_id}
+id: ce-oem-cold-boot-loop-by-pdu-reboot{reboot_id}
 category_id: com.canonical.certification::stress-tests/cold-boot
 _summary: Cold reboot with PDU - loop {reboot_id}
 _description:
@@ -84,12 +83,12 @@ command:
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 300
-after: post-cold-boot-loop-by-pdu-reboot{reboot_id_previous}
-depends: init-boot-loop-data
+after: ce-oem-post-cold-boot-loop-by-pdu-reboot{reboot_id_previous}
+depends: ce-oem-init-boot-loop-data
 
 
-id: post-cold-boot-loop-by-pdu-reboot{reboot_id}
-after: cold-boot-loop-by-pdu-reboot{reboot_id}
+id: ce-oem-post-cold-boot-loop-by-pdu-reboot{reboot_id}
+after: ce-oem-cold-boot-loop-by-pdu-reboot{reboot_id}
 category_id: com.canonical.certification::stress-tests/cold-boot
 _summary: Post cold reboot service check - loop {reboot_id}
 _description: Check there are no failed services after the cold reboot
@@ -103,4 +102,4 @@ command:
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
-depends: cold-boot-loop-by-pdu-reboot{reboot_id}
+depends: ce-oem-cold-boot-loop-by-pdu-reboot{reboot_id}

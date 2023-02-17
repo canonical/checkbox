@@ -1,4 +1,4 @@
-id: rtc/rtc_number
+id: ce-oem-rtc/rtc_number
 _summary: Check the number of RTC as expected.
 _description:
     Check the number of RTC on platform as expected.
@@ -21,7 +21,7 @@ command:
     fi
 flags: also-after-suspend
 
-id: rtc_list
+id: ce-oem-rtc_list
 _summary: Generates a rtc list for the platform
 _description:
  List out all rtc devices on platform, and generate a list for it.
@@ -39,9 +39,9 @@ command:
     done
 
 unit: template
-template-resource: rtc_list
+template-resource: ce-oem-rtc_list
 template-unit: job
-id: rtc/rtc_alarm_{rtc}
+id: ce-oem-rtc/rtc_alarm_{rtc}
 _summary: RTC alarm of {rtc} is worked
 _purpose:
     Check if RTC alarm of {rtc}
@@ -59,9 +59,9 @@ command:
 flags: also-after-suspend
 
 unit: template
-template-resource: rtc_list
+template-resource: ce-oem-rtc_list
 template-unit: job
-id: rtc/rtc_clock_{rtc}
+id: ce-oem-rtc/rtc_clock_{rtc}
 _summary: RTC clock of {rtc} is synced
 _purpose:
     Check if RTC clock of {rtc}

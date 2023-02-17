@@ -1,4 +1,4 @@
-id: usb-otg/g_serial
+id: ce-oem-usb-otg/g_serial
 _summary: Check if USB OTG can work as serial.
 category_id: com.canonical.plainbox::usb
 plugin: user-interact-verify
@@ -31,10 +31,10 @@ flags: preserve-locale also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_otg == 'True'
 
-id: usb-otg/g_serial-cleanup
+id: ce-oem-usb-otg/g_serial-cleanup
 _summary: Cleanup USB OTG serial interface setup after serial device test
 plugin: shell
-after: usb-otg/g_serial
+after: ce-oem-usb-otg/g_serial
 category_id: com.canonical.plainbox::usb
 command:
   echo "Removing g_serial module..."
@@ -43,7 +43,7 @@ user: root
 estimated_duration: 1s
 flags: also-after-suspend
 
-id: usb-otg/g_mass_storage
+id: ce-oem-usb-otg/g_mass_storage
 _summary: Check DUT can be detected as mass storage device
 _purpose:
   Check that after connecting the device under test (DUT) to another device
@@ -70,10 +70,10 @@ flags: preserve-locale also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_otg == 'True'
 
-id: usb-otg/g_mass_storage-cleanup
+id: ce-oem-usb-otg/g_mass_storage-cleanup
 _summary: Cleanup mass storage setup after mass storage device test
 plugin: shell
-after: usb-otg/g_mass_storage
+after: ce-oem-usb-otg/g_mass_storage
 command:
   echo "Removing g_mass_storage module..."
   modprobe -r g_mass_storage
@@ -86,7 +86,7 @@ estimated_duration: 1s
 category_id: com.canonical.plainbox::usb
 flags: also-after-suspend
 
-id: usb-otg/g_ether
+id: ce-oem-usb-otg/g_ether
 _summary: Check DUT can be detected as usb ethernet device
 _purpose:
   Check that after connecting the device under test (DUT) to another device
@@ -121,10 +121,10 @@ flags: preserve-locale also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_otg == 'True'
 
-id: usb-otg/g_ether-cleanup
+id: ce-oem-usb-otg/g_ether-cleanup
 _summary: Cleanup USB OTG ethernet interface setup after ethernet device test
 plugin: shell
-after: usb-otg/g_ether
+after: ce-oem-usb-otg/g_ether
 command:
   echo "Removing g_ether module..."
   modprobe -r g_ether

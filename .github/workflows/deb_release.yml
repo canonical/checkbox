@@ -30,7 +30,7 @@ jobs:
         run: |
           git config --global user.email "robot@canonical.com"
           git config --global user.name "Devices Certification Bot"
-          tools/release/release_deb_monorepo.py bump --part major
+          tools/release/release_deb_monorepo.py bump --part minor
       - name: Create changelog
         run: |
           tools/release/release_deb_monorepo.py changelog

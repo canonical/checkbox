@@ -245,11 +245,11 @@ unit: test plan
 _name: Automated stress-ng tests
 _description: Automated stress-ng tests for Snappy Ubuntu Core devices
 include:
-    stress/stress-ng-test-for-class-.*
+    stress/stress-ng-test-for-stressor-.*
     disk/disk_stress_ng_.*
 bootstrap_include:
     device
-    stress-ng-classes
+    stress-ng-stressors
 
 id: stress-iperf3-automated
 unit: test plan

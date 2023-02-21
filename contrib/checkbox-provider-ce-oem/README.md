@@ -39,3 +39,49 @@ example for using utility:
 $ sudo checkbox{interface snap}.shell
 $ checkbox{interface snap}.shell> lsmtd
 ```
+### Config informations
+Some of the jobs that in provider-ce-oem requires addtional variables define in checkbox config. Please refer to following:
+
+```
+id: ce-oem-gpio-leds 
+GPIO_LEDS={name1}:{port1} {name2}:{port2} ...
+e.g. GPIO_LEDS=dl1:488 dl2:489 dl44:507 
+
+id: ce-oem-sysfs-leds
+SYS_LEDS={path1}:{position1} {path2}:{position1} ...
+{path} under "/sys/class/leds/{path}"
+e.g. SYS_LEDS=beat-yel-led:DL1 shtdwn-grn-led:DL2
+
+id: ce-oem-gpio-button-mapping
+GPIO_BUTTONS={name1}:{port1} {name2}:{port2} ...
+e.g. GPIO_BUTTONS=sys_restore:71 ip_addr:72 sys_discover:465
+
+id: ce-oem-interrupts-button-mapping
+INTERRUPTS_BUTTONS={name1} {name2} ...
+Button {name} under "/proc/interrupts"
+e.g. INTERRUPTS_BUTTONS=s1 s2
+
+id: ce-oem-mtd/check-total-numbers
+TOTAL_MTD_NUM = {numbers}
+e.g. TOTAL_MTD_NUM=2
+
+id: ce-oem-buzzer/input-pcspkr
+BEEP_PATH={pc-speaker-path}
+e.g. BEEP_PATH=/dev/input/event1
+
+id: ce-oem-gpio-buzzer-mapping
+GPIO_BUZZER=name1:port1:enable_value1 name2:port2:enable_value2 ...
+e.g. GPIO_BUZZER=buzzer1:498:0
+
+id: ce-oem-pwm-buzzer-mapping
+PWM_BUZZER=name1:chip1:port1:enable_value1 name2:chip2:port2:enable_value2 ...
+e.g. PWM_BUZZER=buzzer1:1:0:1
+
+id: ce-oem-rtc/rtc_number
+TOTAL_RTC_NUM={total-num-of-rtc}
+e.g. TOTAL_RTC_NUM=2
+
+id: ce-oem-serial/rs485-list
+RS485_PORTS={port1} {port2}
+e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
+``` 

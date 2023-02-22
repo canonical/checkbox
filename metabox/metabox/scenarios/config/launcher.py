@@ -50,11 +50,12 @@ class CheckboxConfXDG(Scenario):
     ]
 
 
-class CheckboxConfHome(Scenario):
+class CheckboxConfLocalHome(Scenario):
     """
     Check that environment variables are read from the $HOME directory when
     nothing else is available.
     """
+    modes = ["local"]
     checkbox_conf = read_text(config_files, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
@@ -119,7 +120,12 @@ class CheckboxConfLauncher(Scenario):
     ]
 
 
-class CheckboxConfPrecedence(Scenario):
+class CheckboxConfLocalHomePrecedence(Scenario):
+    """
+    Check that the environment variables defined in the ~/.config/ directory
+    take precedence over the ones defined in /etc/xdg/.
+    """
+    modes = ["local"]
     checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(config_files, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""

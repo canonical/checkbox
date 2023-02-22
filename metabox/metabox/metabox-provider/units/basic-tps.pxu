@@ -43,3 +43,4 @@ id: config-automated
 _name: Checkbox Configuration Tests
 include:
  config-environ-source
+ config-environ-vars

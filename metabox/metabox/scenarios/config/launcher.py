@@ -74,6 +74,30 @@ class CheckboxConfLocalHome(Scenario):
     ]
 
 
+class CheckboxConfRemoteHome(Scenario):
+    """
+    Check that environment variables are read from the $HOME directory when
+    nothing else is available.
+    """
+    modes = ["remote"]
+    checkbox_conf = read_text(config_files, "checkbox_home_dir.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
+    steps = [
+        Put("/root/.config/checkbox.conf", checkbox_conf),
+        Start(),
+        AssertPrinted("source: HOME"),
+    ]
+
+
 class CheckboxConfSnap(Scenario):
     """
     Check that environment variables are read from the $SNAP_DATA directory when
@@ -143,4 +167,100 @@ class CheckboxConfLocalHomePrecedence(Scenario):
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home),
         Start(),
         AssertPrinted("source: HOME"),
+    ]
+
+
+class CheckboxConfLauncherPrecedence(Scenario):
+    """
+    Check that the environment variables defined in the launcher take precedence
+    over the ones defined in /etc/xdg/.
+    """
+    modes = ["remote"]
+    checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        [environment]
+        source = REMOTE LAUNCHER
+        """)
+    steps = [
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
+        Start(),
+        AssertPrinted("source: REMOTE LAUNCHER"),
+    ]
+
+
+class CheckboxConfLocalResolutionOrder(Scenario):
+    """
+    According to the documentation, resolution order should be:
+
+    1. config file from ~/.config
+    2. launcher being invoked (only the new syntax launchers)
+    3. config file from /etc/xdg
+
+    This scenario sets 3 environment variables in different config locations
+    and checks the resolution order is as defined.
+    """
+    modes = ["local"]
+    checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
+    checkbox_conf_home = read_text(config_files, "checkbox_home_dir.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        [environment]
+        var1 = LAUNCHER
+        var2 = LAUNCHER
+        """)
+    steps = [
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
+        Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home),
+        Start(),
+        AssertPrinted("variables: HOME LAUNCHER XDG"),
+    ]
+
+
+class CheckboxConfRemoteServiceResolutionOrder(Scenario):
+    """
+    According to the documentation, when the Checkbox Remote starts, it looks
+    for config files in the same places that local Checkbox session would look
+    (on the Service side). If the Remote uses a Launcher, then the values from
+    that Launcher take precedence over the values from configs on the Service
+    side.
+
+    This scenario sets 3 environment variables in different config locations
+    and checks the resolution order is as defined.
+    """
+    modes = ["remote"]
+    checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
+    checkbox_conf_home = read_text(config_files, "checkbox_home_dir.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        [environment]
+        var2 = LAUNCHER
+        """)
+    steps = [
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/root/.config/checkbox.conf", checkbox_conf_home,
+            target="service"),
+        Start(),
+        AssertPrinted("variables: HOME LAUNCHER XDG"),
     ]

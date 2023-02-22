@@ -33,10 +33,19 @@ class CheckboxConfXDG(Scenario):
     nothing else is available.
     """
     checkbox_conf = read_text(config_files, "checkbox_etc_xdg.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf),
-        Start('run 2021.com.canonical.certification::config-automated',
-              timeout=30),
+        Start(),
         AssertPrinted("source: XDG"),
     ]
 
@@ -47,10 +56,19 @@ class CheckboxConfHome(Scenario):
     nothing else is available.
     """
     checkbox_conf = read_text(config_files, "checkbox_home_dir.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
     steps = [
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf),
-        Start('run 2021.com.canonical.certification::config-automated',
-              timeout=30),
+        Start(),
         AssertPrinted("source: HOME"),
     ]
 
@@ -62,10 +80,19 @@ class CheckboxConfSnap(Scenario):
     """
     origins = ["snap", "classic-snap"]
     checkbox_conf = read_text(config_files, "checkbox_snap_dir.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
     steps = [
         Put("/var/snap/checkbox/current/checkbox.conf", checkbox_conf),
-        Start('run 2021.com.canonical.certification::config-automated',
-              timeout=30),
+        Start(),
         AssertPrinted("source: SNAP"),
     ]
 
@@ -95,10 +122,19 @@ class CheckboxConfLauncher(Scenario):
 class CheckboxConfPrecedence(Scenario):
     checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(config_files, "checkbox_home_dir.conf")
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home),
-        Start('run 2021.com.canonical.certification::config-automated',
-              timeout=30),
+        Start(),
         AssertPrinted("source: HOME"),
     ]

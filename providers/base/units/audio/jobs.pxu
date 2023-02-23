@@ -346,7 +346,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_automated
-depends: audio/detect_sinks_sources
+depends: audio/detect_sinks audio/detect_sources
 estimated_duration: 10.0
 requires:
  package.name == 'python3-gi'
@@ -363,14 +363,29 @@ _description:
 
 plugin: shell
 category_id: com.canonical.plainbox::audio
-id: audio/detect_sinks_sources
+id: audio/detect_sinks
 estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
 requires:
   package.name == 'pulseaudio-utils'
+  manifest.has_audio_playback == 'True'
 command:
-  pactl_list.sh
+  pactl_list.sh sinks
 _description:
-  Test to detect if there's available sources and sinks.
+  Test to detect if there's available sinks
+
+plugin: shell
+category_id: com.canonical.plainbox::audio
+id: audio/detect_sources
+estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
+requires:
+  package.name == 'pulseaudio-utils'
+  manifest.has_audio_capture == 'True'
+command:
+  pactl_list.sh sources
+_description:
+  Test to detect if there's available sources.
 
 plugin: shell
 category_id: com.canonical.plainbox::audio

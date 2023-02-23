@@ -43,30 +43,34 @@ plugin: resource
 _summary: Gather list of test led indicators for device that control via sysfs path.
 _description:
     A led sysfs path mapping resource that relies on the user specifying in config varirable.
-    Usage of parameter: SYS_LEDS={name1} {name2} {name3} ...
-    e.g. SYS_LEDS=beat-yel-led shtdwn-grn-led
+    Usage of parameter: SYS_LEDS={path1}:{position1} {path2}:{position1} ...
+    path under "/sys/class/leds/{path}"
+    e.g. SYS_LEDS=beat-yel-led:DL1 shtdwn-grn-led:DL2
 estimated_duration: 1s
 flags: preserve-locale
 command:
-    for c in $SYS_LEDS; do
-        echo "name: $c"
-        echo ""
-    done
+    awk '{
+    split($0, record, " ")
+    for (i in record) {
+        split(record[i], data, ":")
+        printf "path: %s\nposition: %s\n\n", data[1], data[2]
+        }
+    }' <<< "$SYS_LEDS"
 
 unit: template
 template-resource: ce-oem-sysfs-leds
 template-unit: job
-id: ce-oem-led-indicator/sysfs-leds-{name}
+id: ce-oem-led-indicator/sysfs-leds-{position}-{path}
 category_id: led-indicator
-_summary: Check control of {name} led.
+_summary: Check control of {position} led.
 _description:
-  Light on and off {name} led for 3 times.
+  Light on and off {position} led for 3 times.
  PURPOSE:
-     Check that {name} led is controlable
+     Check that {position} led is controlable
  STEPS:
      1.Press enter and observe led behavior
  VERIFICATION:
-     Does the {name} led blinking?
+     Does the {position} led blinking?
 plugin: user-interact-verify
 user: root
 flags: also-after-suspend
@@ -74,4 +78,4 @@ estimated_duration: 20.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_led_indicator == 'True'
 command:
-    led_test.sh -t sysfs -n {name}
+    led_test.sh -t sysfs -n {path}

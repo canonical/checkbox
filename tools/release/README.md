@@ -2,9 +2,10 @@
 
 ## PPA/Repositories
 
-* [Stable](https://launchpad.net/~hardware-certification/+archive/ubuntu/public): The official release of Checkbox.
-* [Testing](https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/testing): Release candidates of Checkbox before it becomes the official release.
-* [Development](https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/ppa): Daily builds (that may contain experimental features).
+* [Stable]\: The official release of Checkbox
+* [Testing]\: Release candidates of Checkbox before it becomes the official
+release
+* [Development]\: Daily builds (that may contain experimental features)
 
 ## Projects released as Debian packages
 
@@ -34,16 +35,18 @@ Create a pull request including the new [SemVer](https://semver.org/spec/v2.0.0.
 
 ## How to trigger the GitHub Actions release workflow
 
-All the release steps above are fully automated but initiating a release is a manual
-process requiring some user input.
+All the release steps above are fully automated but initiating a release is a
+manual process requiring some user input.
 
 The same workflow support two types of release, **testing** and **stable**.
 Additionally, the release manager can perform a **dry run** to:
 * Identify which projects are going to be released 
 * Review the release changelog
 
-Since `workflow_dispatch` only supports a maximum of 10 user inputs[^2], all config options are grouped into a single JSON parameter.
-For all the release scenarios below, just copy-paste the JSON snippet into the workflow input field (pre-filled with `{}`)
+Since `workflow_dispatch` only supports a maximum of 10 user inputs[^2], all
+config options are grouped into a single JSON parameter. For all the release
+scenarios below, just copy-paste the JSON snippet into the workflow input field
+(pre-filled with `{}`).
 
 ```
 ╭-----------------------------------^----╮
@@ -107,9 +110,11 @@ After reviewing the changelog, **dry run** can be set to false:
 
 ### Requesting another release candidate for a subset of projects
 
-If the validation of the release candidates identifies issues or regressions, running the workflow again will create new RC tags (project-vX.Y.Zrc**N+1**).
+If the validation of the release candidates identifies issues or regressions,
+running the workflow again will create new RC tags (project-vX.Y.Zrc**N+1**).
 
-In the example below, new RC are required for `checkbox-support` and the `base` provider: 
+In the example below, new RC are required for `checkbox-support` and the `base`
+provider:
 
 ```
 {
@@ -166,3 +171,9 @@ stable release tag to the same commit the latest RC tag was applied to.
 
 [^1]:Actually a `git push --dry-run` is executed
 [^2]:https://github.com/community/community/discussions/8774
+
+[Stable]: https://launchpad.net/~hardware-certification/+archive/ubuntu/public
+[Testing]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/testing
+[Development]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/ppa
+[Launchpad Builders status]: https://launchpad.net/builders
+

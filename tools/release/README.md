@@ -114,7 +114,9 @@ After reviewing the changelog, **dry run** can be set to false:
 
 In the Github Action Release logs, you will find a section called "Update the
 PPA recipe and kick-off the builds". In there, you will find links to the build
-status for each package.
+status for each package. Please note the Github Action may complete
+successfully, but the packages may not be built. **Remember to check the build
+status for each package!**
 
 ### Requesting another release candidate for a subset of projects
 

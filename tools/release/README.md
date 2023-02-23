@@ -68,6 +68,10 @@ scenarios below, just copy-paste the JSON snippet into the workflow input field
 
 ### Triggering the first release candidate
 
+**Note:** Check the [Launchpad Builders status] before triggering a release.
+Sometimes, the builders will be down and this might prevent building the
+packages.
+
 Before applying RC tags, it's recommended to first perform a **dry run** of the **testing** mode and select all the projects:
 
 ```
@@ -107,6 +111,10 @@ After reviewing the changelog, **dry run** can be set to false:
     "provider-phoronix": true
 }
 ```
+
+In the Github Action Release logs, you will find a section called "Update the
+PPA recipe and kick-off the builds". In there, you will find links to the build
+status for each package.
 
 ### Requesting another release candidate for a subset of projects
 

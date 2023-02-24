@@ -50,10 +50,10 @@ user: root
 category_id: com.canonical.certification::rtc_category
 estimated_duration: 5
 command: 
-    if [ -f "/sys/class/rtc/{rtc}/device/power/wakeup" ]; then 
+    if [ -f "/sys/class/rtc/{rtc}/wakealarm" ]; then 
         rtcwake -d {rtc} -v -m on -s 30
     else 
-        echo "{rtc} not support wakeup"
+        echo "{rtc} not support wakealarm"
         exit 1 
     fi
 flags: also-after-suspend

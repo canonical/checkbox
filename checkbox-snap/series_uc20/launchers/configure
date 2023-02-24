@@ -37,7 +37,6 @@ snap connect $SNAP_NAME:provider-ipdt     checkbox20:provider-ipdt
 snap connect $SNAP_NAME:provider-docker   checkbox20:provider-docker
 snap connect $SNAP_NAME:provider-tpm2     checkbox20:provider-tpm2
 snap connect $SNAP_NAME:provider-sru      checkbox20:provider-sru
-snap connect $SNAP_NAME:provider-edgex    checkbox20:provider-edgex
     """
     print(os.path.expandvars(msg), file=sys.stderr)
     sys.exit(1)

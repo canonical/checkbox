@@ -104,7 +104,6 @@ testing suite from plainbox-provider-snappy.
 
     nested_part:
 	device-connections-tp
-	2016.com.intel.ipdt::ipdt-plan
 	com.canonical.certification::usb-automated
 	# com.canonical.certification::audio-automated # no working auto tests
 	com.canonical.certification::cpu-automated

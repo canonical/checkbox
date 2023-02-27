@@ -128,7 +128,7 @@ CPUIDS = {
         "Penryn":           ['0x1067a'],
         "Rocket Lake":      ['0xa0671'],
         "Sandy Bridge":     ['0x206a', '0x206d6', '0x206d7'],
-        "Sapphire Rapids":  ['0x806f3', '0x806f8'],
+        "Sapphire Rapids":  ['0x806f3', '0x806f7', '0x806f8'],
         "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
         "Tiger Lake":       ['0x806c1'],
         "Westmere":         ['0x2065', '0x206c', '0x206f'],

@@ -22,10 +22,6 @@ plugs:
     interface: content
     target: $SNAP/providers/checkbox-provider-checkbox
     default-provider: checkbox20
-  provider-ipdt:
-    interface: content
-    target: $SNAP/providers/checkbox-provider-ipdt
-    default-provider: checkbox20
   provider-docker:
     interface: content
     target: $SNAP/providers/checkbox-provider-docker

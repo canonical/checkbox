@@ -17,7 +17,6 @@ release
 * [providers/certification-server](https://github.com/canonical/checkbox/tree/main/providers/certification-server)
 * [providers/sru](https://github.com/canonical/checkbox/tree/main/providers/sru)
 * [providers/tpm2](https://github.com/canonical/checkbox/tree/main/providers/tpm2)
-* [providers/ipdt](https://github.com/canonical/checkbox/tree/main/providers/ipdt)
 * [providers/phoronix](https://github.com/canonical/checkbox/tree/main/providers/phoronix)
 * [providers/gpgpu](https://github.com/canonical/checkbox/tree/main/providers/gpgpu)
 
@@ -87,7 +86,6 @@ Before applying RC tags, it's recommended to first perform a **dry run** of the 
     "provider-certification-server": true,
     "provider-certification-client": true,
     "provider-gpgpu": true,
-    "provider-ipdt": true,
     "provider-phoronix": true
 }
 ```
@@ -107,7 +105,6 @@ After reviewing the changelog, **dry run** can be set to false:
     "provider-certification-server": true,
     "provider-certification-client": true,
     "provider-gpgpu": true,
-    "provider-ipdt": true,
     "provider-phoronix": true
 }
 ```
@@ -150,7 +147,6 @@ The same workflow can run using the JSON config below of course:
     "provider-certification-server": false,
     "provider-certification-client": false,
     "provider-gpgpu": false,
-    "provider-ipdt": false,
     "provider-phoronix": false
 }
 ```
@@ -174,7 +170,6 @@ stable release tag to the same commit the latest RC tag was applied to.
     "provider-certification-server": true,
     "provider-certification-client": true,
     "provider-gpgpu": true,
-    "provider-ipdt": true,
     "provider-phoronix": true
 }
 ```

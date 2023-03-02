@@ -58,7 +58,6 @@ snap connect $SNAP_NAME:provider-checkbox checkbox22:provider-checkbox
 snap connect $SNAP_NAME:provider-docker   checkbox22:provider-docker
 snap connect $SNAP_NAME:provider-tpm2     checkbox22:provider-tpm2
 snap connect $SNAP_NAME:provider-sru      checkbox22:provider-sru
-snap connect $SNAP_NAME:provider-edgex    checkbox22:provider-edgex
 snap connect $SNAP_NAME:provider-certification-client  checkbox22:provider-certification-client
     """
     print(os.path.expandvars(msg), file=sys.stderr)

@@ -55,7 +55,6 @@ You can do this with those commands:
 snap connect $SNAP_NAME:checkbox-runtime  checkbox18:checkbox-runtime
 snap connect $SNAP_NAME:provider-resource checkbox18:provider-resource
 snap connect $SNAP_NAME:provider-checkbox checkbox18:provider-checkbox
-snap connect $SNAP_NAME:provider-ipdt     checkbox18:provider-ipdt
 snap connect $SNAP_NAME:provider-docker   checkbox18:provider-docker
 snap connect $SNAP_NAME:provider-tpm2     checkbox18:provider-tpm2
 snap connect $SNAP_NAME:provider-sru      checkbox18:provider-sru

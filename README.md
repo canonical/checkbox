@@ -35,10 +35,8 @@ To get started, setup a test environment, run Checkbox and its providers, run th
     ├── certification-client
     ├── certification-server
     ├── docker
-    ├── edgex
     ├── gpgpu
     ├── iiotg
-    ├── ipdt
     ├── resource
     ├── sru
     └── tpm2

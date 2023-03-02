@@ -31,13 +31,11 @@ snap.
 Make sure that checkbox snap is installed. It comes with following providers
 available::
 
-    plainbox-provider-checkbox
-    plainbox-provider-docker
-    plainbox-provider-ipdt
-    plainbox-provider-resource-generic
-    plainbox-provider-snappy
-    plainbox-provider-sru
-    plainbox-provider-tpm2
+    checkbox-provider-base
+    checkbox-provider-docker
+    checkbox-provider-resource
+    checkbox-provider-sru
+    checkbox-provider-tpm2
 
 Create ``checkbox-providers`` directory in ``/var/tmp/``::
 

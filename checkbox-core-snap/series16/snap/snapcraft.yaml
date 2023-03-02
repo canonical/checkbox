@@ -35,10 +35,6 @@ slots:
     interface: content
     read:
       - $SNAP/providers/checkbox-provider-sru
-  provider-edgex:
-    interface: content
-    read:
-      - $SNAP/providers/checkbox-provider-edgex
   provider-gpgpu:
     interface: content
     read:
@@ -313,20 +309,6 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-sru --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-tpm2]
 ################################################################################
-  checkbox-provider-edgex:
-    plugin: dump
-    source: providers/edgex
-    source-type: local
-    override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
-      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
-      python3 manage.py validate
-      python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-edgex --root="$SNAPCRAFT_PART_INSTALL"
-    stage-packages:
-      - curl
-    after: [checkbox-provider-sru]
-################################################################################
   checkbox-provider-gpgpu:
     plugin: dump
     source: providers/gpgpu
@@ -337,7 +319,7 @@ parts:
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-gpgpu --root="$SNAPCRAFT_PART_INSTALL"
-    after: [checkbox-provider-edgex]
+    after: [checkbox-provider-sru]
 ################################################################################
   checkbox-provider-certification-client:
     plugin: dump

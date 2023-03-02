@@ -38,7 +38,6 @@ To get started, setup a test environment, run Checkbox and its providers, run th
     ├── edgex
     ├── gpgpu
     ├── iiotg
-    ├── ipdt
     ├── phoronix
     ├── resource
     ├── sru

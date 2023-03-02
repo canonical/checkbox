@@ -17,7 +17,6 @@ release
 * [providers/certification-server](https://github.com/canonical/checkbox/tree/main/providers/certification-server)
 * [providers/sru](https://github.com/canonical/checkbox/tree/main/providers/sru)
 * [providers/tpm2](https://github.com/canonical/checkbox/tree/main/providers/tpm2)
-* [providers/phoronix](https://github.com/canonical/checkbox/tree/main/providers/phoronix)
 * [providers/gpgpu](https://github.com/canonical/checkbox/tree/main/providers/gpgpu)
 
 ## Release steps summary
@@ -85,8 +84,7 @@ Before applying RC tags, it's recommended to first perform a **dry run** of the 
     "provider-sru": true,
     "provider-certification-server": true,
     "provider-certification-client": true,
-    "provider-gpgpu": true,
-    "provider-phoronix": true
+    "provider-gpgpu": true
 }
 ```
 
@@ -104,8 +102,7 @@ After reviewing the changelog, **dry run** can be set to false:
     "provider-sru": true,
     "provider-certification-server": true,
     "provider-certification-client": true,
-    "provider-gpgpu": true,
-    "provider-phoronix": true
+    "provider-gpgpu": true
 }
 ```
 
@@ -146,8 +143,7 @@ The same workflow can run using the JSON config below of course:
     "provider-sru": false,
     "provider-certification-server": false,
     "provider-certification-client": false,
-    "provider-gpgpu": false,
-    "provider-phoronix": false
+    "provider-gpgpu": false
 }
 ```
 
@@ -169,8 +165,7 @@ stable release tag to the same commit the latest RC tag was applied to.
     "provider-sru": true,
     "provider-certification-server": true,
     "provider-certification-client": true,
-    "provider-gpgpu": true,
-    "provider-phoronix": true
+    "provider-gpgpu": true
 }
 ```
 

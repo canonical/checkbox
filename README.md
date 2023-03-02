@@ -37,7 +37,6 @@ To get started, setup a test environment, run Checkbox and its providers, run th
     ├── docker
     ├── gpgpu
     ├── iiotg
-    ├── phoronix
     ├── resource
     ├── sru
     └── tpm2

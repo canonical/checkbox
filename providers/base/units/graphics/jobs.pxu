@@ -4,6 +4,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_driver_version_{product_slug}
+flags: also-after-suspend
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
@@ -110,6 +111,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_minimum_resolution_{product_slug}
+flags: also-after-suspend
 requires:
  device.category == 'VIDEO'
 command:
@@ -197,6 +199,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/VESA_drivers_not_in_use
+flags: also-after-suspend
 command: cat /var/log/Xorg.0.log ~/.local/share/xorg/Xorg.0.log 2>&1 | perl -e '$a=0;while(<>){$a++ if /Loading.*vesa_drv\.so/;$a-- if /Unloading.*vesa/&&$a}exit 1 if $a'
 estimated_duration: 0.011
 _description: Check that VESA drivers are not in use
@@ -255,6 +258,7 @@ template-resource: graphics_card
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
+flags: also-after-suspend
 command:
   "$CHECKBOX_RUNTIME"/usr/lib/nux/unity_support_test -p 2>&1
 estimated_duration: 0.131

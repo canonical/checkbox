@@ -1,6 +1,7 @@
 plugin: shell
 category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/gsm_connection
+flags: also-after-suspend
 estimated_duration: 20.0
 requires:
     package.name == 'network-manager'
@@ -32,6 +33,7 @@ _description: Creates a mobile broadband connection for a GSM based modem and ch
 plugin: shell
 category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/cdma_connection
+flags: also-after-suspend
 estimated_duration: 20.0
 requires:
     package.name == 'network-manager'

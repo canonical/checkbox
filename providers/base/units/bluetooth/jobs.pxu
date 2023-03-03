@@ -30,6 +30,7 @@ flags: preserve-locale
 plugin: shell
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output
+flags: also-after-suspend
 estimated_duration: 1.2
 requires:
  package.name == 'bluez' or snap.name == 'bluez'

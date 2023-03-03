@@ -68,7 +68,9 @@ class IPerfPerformanceTest(object):
             data_size="1",
             run_time=None,
             scan_timeout=3600,
-            iface_timeout=120):
+            iface_timeout=120,
+            vrf=None,
+            port=None):
 
         self.iface = Interface(interface)
         self.target = target
@@ -82,11 +84,16 @@ class IPerfPerformanceTest(object):
         self.scan_timeout = scan_timeout
         self.iface_timeout = iface_timeout
         self.reverse = reverse
+        self.vrf = vrf
+        self.port = port
 
     def run_one_thread(self, cmd, port_num):
         """Run a single test thread, storing the output in the global results[]
         variable."""
-        cmd = cmd + " -p {}".format(port_num)
+        if self.vrf:
+            cmd = f"ip vrf exec {self.vrf} " + cmd + " -p {}".format(port_num)
+        else:
+            cmd = cmd + " -p {}".format(port_num)
         logging.debug("Executing command {}".format(cmd))
         logging.info("Connecting to port {} on server....".format(port_num))
         try:
@@ -223,6 +230,10 @@ class IPerfPerformanceTest(object):
             cmd = "timeout -k 1 {} {} -c {} -n {}G -i 1 -f -m -P {}".format(
                 self.timeout, self.executable, self.target, self.data_size,
                 iperf_threads)
+
+        if self.port:
+            python_threads = 1
+            start_port = self.port
 
         # Handle threading -- start Python threads (even if just one is
         # used), then use join() to wait for them all to complete....
@@ -406,7 +417,7 @@ class Interface(socket.socket):
                                     stderr=STDOUT).split('\n')
                 regex = re.compile(r'(\d+)(base)([A-Z]+)')
                 speeds = [0]
-                for line in filter(lambda c: 'capabilities' in c, info):
+                for line in filter(lambda l: 'capabilities' in l, info):
                     for s in line.split(' '):
                         hit = regex.search(s)
                         if hit:
@@ -496,7 +507,9 @@ def run_test(args, test_target):
                                                args.fail_threshold,
                                                args.cpu_load_fail_threshold,
                                                args.iperf3, args.num_threads,
-                                               args.reverse)
+                                               args.reverse,
+                                               vrf=args.vrf,
+                                               port=args.port)
         if args.datasize:
             iperf_benchmark.data_size = args.datasize
         if args.runtime:
@@ -517,7 +530,7 @@ def run_test(args, test_target):
     return error_number
 
 
-def make_target_list(iface, test_targets, log_warnings):
+def make_target_list(iface, test_targets, log_warnings, skip_cidr_checks=False):
     """Convert comma-separated string of test targets into a list form.
 
     Converts test target list in string form into Python list form, omitting
@@ -559,7 +572,8 @@ def make_target_list(iface, test_targets, log_warnings):
                                         format(test_target, target))
                         logging.warning("test list since it's not within {}.".
                                         format(net))
-                    return_list.remove(test_target)
+                    if not skip_cidr_checks:
+                        return_list.remove(test_target)
             except ValueError:
                 if log_warnings:
                     logging.warning("Invalid address: {}; skipping".
@@ -567,7 +581,7 @@ def make_target_list(iface, test_targets, log_warnings):
                 return_list.remove(test_target)
     return_list.reverse()
     if (return_list == ['']):
-        del (return_list[0])
+        del(return_list[0])
     return return_list
 
 
@@ -603,7 +617,7 @@ def interface_test(args):
             args.test_type.lower() == "stress"):
         test_targets = test_parameters["test_target_iperf"]
         test_targets_list = make_target_list(args.interface, test_targets,
-                                             True)
+                                             True, args.skip_cidr_check)
 
     # Validate that we got reasonable values
     if not test_targets_list or "example.com" in test_targets:
@@ -865,6 +879,15 @@ TEST_TARGET_IPERF = iperf-server.example.com
     test_parser.add_argument(
         '--dont-toggle-ifaces', default=False, action="store_true",
         help="Do not turn of other interfaces while testing.")
+    test_parser.add_argument(
+        '--port', default=None, type=int,
+        help=("Force test to run single threaded on a specified port"))
+    test_parser.add_argument(
+        '--vrf', default=None, type=str,
+        help=("Force test to run single threaded on a VRF"))
+    test_parser.add_argument(
+        '--skip-cidr-check', default=False, action="store_true",
+        help=("Do not validate NIC CIDRs against interfaces."))
 
     # Sub info options
     info_parser.add_argument(

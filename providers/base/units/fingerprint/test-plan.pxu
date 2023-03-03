@@ -20,6 +20,18 @@ include:
     fingerprint/unlock               certification-status=non-blocker
     fingerprint/delete               certification-status=non-blocker
 
+id: after-suspend-fingerprint-manual
+unit: test plan
+_name: Fingerprint reader tests after suspend
+_description: Manual tests for fingerprint reader after suspend
+include:
+    after-suspend-fingerprint/detect               certification-status=non-blocker
+    after-suspend-fingerprint/enroll               certification-status=non-blocker
+    after-suspend-fingerprint/verify-no-match      certification-status=non-blocker
+    after-suspend-fingerprint/verify-match         certification-status=non-blocker
+    after-suspend-fingerprint/unlock               certification-status=non-blocker
+    after-suspend-fingerprint/delete               certification-status=non-blocker
+
 id: fingerprint-automated
 unit: test plan
 _name: Fingerprint reader tests (Automated)

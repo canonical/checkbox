@@ -75,6 +75,9 @@ unit: test plan
 _name: Manual networking tests for devices (after suspend)
 _description: Manual networking tests for devices (after suspend)
 include:
+    after-suspend-networking/info_device.*                       certification-status=blocker
+bootstrap_include:
+    device
 
 id: after-suspend-networking-automated
 unit: test plan
@@ -93,5 +96,4 @@ _description: Networking tests for Server Cert
 include:
     networking/predictable_names    certification-status=blocker
     networking/ntp                  certification-status=non-blocker
-
 

@@ -5,6 +5,7 @@ _description: QA RTC tests for Snappy Ubuntu Core devices
 include:
 nested_part:
     rtc-manual
+    rtc-automated
 
 id: rtc-manual
 unit: test plan
@@ -17,4 +18,35 @@ id: rtc-automated
 unit: test plan
 _name: Automated RTC tests
 _description: Automated RTC tests for Snappy Ubuntu Core devices
+bootstrap_include:
+    rtc_list
 include:
+    rtc/rtc_number
+    rtc/rtc_alarm_.*
+    rtc/rtc_clock_.*
+
+id: after-suspend-rtc-full
+unit: test plan
+_name: RTC tests (after suspend)
+_description: QA RTC tests for Snappy Ubuntu Core devices
+include:
+nested_part:
+    after-suspend-rtc-manual
+    after-suspend-rtc-automated
+
+id: after-suspend-rtc-manual
+unit: test plan
+_name: Multiple RTC manual tests (after suspend)
+_description: Manual after suspend multiple RTC tests
+include:
+
+id: after-suspend-rtc-automated
+unit: test plan
+_name: Multiple RTC auto tests (after suspend)
+_description: Automated after suspend multiple RTC tests
+bootstrap_include:
+    rtc_list
+include:
+    after-suspend-rtc/rtc_number
+    after-suspend-rtc/rtc_alarm_.*
+    after-suspend-rtc/rtc_clock_.*

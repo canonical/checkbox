@@ -84,7 +84,6 @@ unit: test plan
 _description: 
  Includes tests that do not require operator input.
 include:
-    audio/alsa_record_playback_automated
     recovery_info_attachment
 nested_part:
     submission-cert-automated
@@ -123,14 +122,27 @@ nested_part:
     after-suspend-reference-cert-full
     # Test discrete card first, if present, since it's the one we will be using
     # after coming back from suspend if the system has hybrid graphics.
+    after-suspend-audio-cert-automated
     after-suspend-graphics-discrete-gpu-cert-automated
     # after-suspend-monitor-discrete-gpu-cert-automated # not defined
     # Now we ask to switch to the integrated graphics card.
     after-suspend-graphics-integrated-gpu-cert-automated
     # after-suspend-monitor-integrated-gpu-cert-automated # not defined
+    after-suspend-cpu-cert-automated
+    after-suspend-input-cert-automated
+    after-suspend-disk-cert-automated
+    after-suspend-mobilebroadband-cert-automated
+    after-suspend-ethernet-cert-automated
+    after-suspend-networking-cert-automated
+    after-suspend-optical-cert-automated
+    after-suspend-power-management-precheck-cert-automated
+    after-suspend-touchpad-cert-automated
     after-suspend-touchscreen-cert-automated
+    after-suspend-usb-cert-automated
+    after-suspend-usb-automated
     after-suspend-wireless-cert-automated
     after-suspend-bluetooth-cert-automated
+    after-suspend-camera-cert-automated
     # The following tests should run BEFORE the automated tests. The reboot and
     # power off tests will also give us a clean system to start the stress run
     # with.
@@ -151,9 +163,9 @@ nested_part:
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
-    stress-ng-cert-automated
     stress-iperf3-automated
     #stress-cert-full
     stress-suspend-30-cycles-with-reboots-automated
+    stress-ng-cert-automated
     stress-30-reboot-poweroff-automated
     stress-pm-graph

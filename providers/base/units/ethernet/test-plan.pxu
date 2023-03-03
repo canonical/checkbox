@@ -23,6 +23,13 @@ _description: Ethernet tests (automated)
 include:
     ethernet/detect                                certification-status=blocker
 
+id: after-suspend-ethernet-cert-automated
+unit: test plan
+_name: Ethernet tests after suspend (automated)
+_description: Ethernet tests after suspend (automated)
+include:
+    after-suspend-ethernet/detect                   certification-status=blocker
+
 id: ethernet-cert-blockers
 unit: test plan
 _name: Ethernet tests (certification blockers only)

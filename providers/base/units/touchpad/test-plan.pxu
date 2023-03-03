@@ -31,6 +31,14 @@ include:
  touchpad/detected-as-mouse                     certification-status=blocker
  touchpad/palm-rejection-firmware-labeling_.*   certification-status=non-blocker
 
+id: after-suspend-touchpad-cert-automated
+unit: test plan
+_name: Touchpad tests after suspend (Automated)
+_description:
+ Touchpad tests after suspend (Automated)
+include:
+ after-suspend-touchpad/detected-as-mouse                     certification-status=blocker
+ after-suspend-touchpad/palm-rejection-firmware-labeling_.*   certification-status=non-blocker
 
 id: after-suspend-touchpad-cert-full
 unit: test plan

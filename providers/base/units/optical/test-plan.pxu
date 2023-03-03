@@ -31,6 +31,16 @@ include:
 bootstrap_include:
     device
 
+id: after-suspend-optical-cert-automated
+unit: test plan
+_name: Optical drive tests after suspend (Automated)
+_description:
+ Optical drive tests after suspend (Automated)
+include:
+ after-suspend-optical/detect                    certification-status=blocker
+bootstrap_include:
+    device
+
 id: after-suspend-optical-cert-full
 unit: test plan
 _name: Optical drive tests (after suspend)
@@ -64,4 +74,3 @@ include:
     after-suspend-optical/bluray-read_.*                                certification-status=blocker
 bootstrap_include:
     device
-

@@ -30,6 +30,21 @@ include:
     cpu/topology                                   certification-status=blocker
     cpu/clocktest
 
+id: after-suspend-cpu-cert-automated
+unit: test plan
+_name: CPU tests after suspend (automated)
+_description: CPU tests after suspend (automated)
+include:
+    after-suspend-cpu/cstates                      certification-status=blocker
+    after-suspend-cpu/cstates_results.log
+    after-suspend-cpu/scaling_test                               certification-status=blocker
+    after-suspend-cpu/scaling_test-log-attach
+    after-suspend-cpu/maxfreq_test                               certification-status=blocker
+    after-suspend-cpu/maxfreq_test-log-attach
+    after-suspend-cpu/offlining_test                             certification-status=blocker
+    after-suspend-cpu/topology                     certification-status=blocker
+    after-suspend-cpu/clocktest
+
 id: cpu-cert-blockers
 unit: test plan
 _name: CPU tests (certification blockers only)

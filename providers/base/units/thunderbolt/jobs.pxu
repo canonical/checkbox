@@ -107,6 +107,7 @@ _description:
 plugin: user-interact
 category_id: com.canonical.plainbox::disk
 id: thunderbolt3/insert
+flags: also-after-suspend
 user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
@@ -118,11 +119,6 @@ command:
     {%- else %}
         removable_storage_watcher.py insert --timeout 40 scsi
     {% endif -%}
-_siblings: [
-    { "id": "after-suspend-thunderbolt3/insert",
-      "_summary": "thunderbolt3/insert after suspend",
-      "depends": "suspend/suspend_advanced_auto"}
-    ]
 _summary: Storage insert detection on Thunderbolt 3 port
 _description:
  PURPOSE:
@@ -139,17 +135,13 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: thunderbolt3/storage-test
+flags: also-after-suspend
 user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 scsi
-_siblings: [
-    { "id": "after-suspend-thunderbolt3/storage-test",
-      "_summary": "thunderbolt3/storage-test after suspend",
-      "depends": "after-suspend-thunderbolt3/insert"}
-    ]
 _summary: Storage test on Thunderbolt 3
 _description:
  This is an automated test which performs read/write operations on an attached
@@ -173,6 +165,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::disk
 id: thunderbolt3/remove
 user: root
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
@@ -184,11 +177,6 @@ command:
     {%- else %}
         removable_storage_watcher.py remove scsi
     {% endif -%}
-_siblings: [
-    { "id": "after-suspend-thunderbolt3/remove",
-      "_summary": "thunderbolt3/remove after suspend",
-      "depends": "after-suspend-thunderbolt3/insert"}
-    ]
 _summary: Storage removal detection on Thunderbolt 3 port
 _description:
  PURPOSE:
@@ -224,4 +212,3 @@ _description:
      1. The verification for storage is automated, please select the result combine
         with the result for the display.
      2. Was the desktop displayed correctly on the Thunderbolt-connected screen?
-

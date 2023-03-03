@@ -303,7 +303,7 @@ command:
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 60.0
 user: root
-flags: preserve-locale
+flags: preserve-locale also-after-suspend
 
 unit: template
 template-resource: device

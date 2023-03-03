@@ -69,7 +69,11 @@ def reboot_to_firmware_check():
     if os.path.isdir(osis_dir):
         if os.path.isfile(osis_var):
             with open(osis_var) as fh:
-                fw_info = fh.read()
+                try:
+                    fw_info = fh.read()
+                except IOError:
+                    logging.error("FAIL: I/O error reading EFI data")
+                    return 1
             if ord(fw_info[4]) & 1:
                 logging.info("PASS: Reboot-to-firmware feature is present.")
                 return 0
@@ -97,7 +101,11 @@ def secure_boot_check():
     if os.path.isdir(sb_dir):
         if os.path.isfile(sb_var):
             with open(sb_var) as fh:
-                sb_info = fh.read()
+                try:
+                    sb_info = fh.read()
+                except IOError:
+                    logging.error("FAIL: I/O error reading EFI data")
+                    return 1
             if ord(sb_info[4]) == 1:
                 logging.info("PASS: System booted with Secure Boot active.")
                 return 0

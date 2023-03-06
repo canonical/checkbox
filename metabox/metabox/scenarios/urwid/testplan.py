@@ -26,7 +26,7 @@ from metabox.core.scenario import Scenario
 
 class UrwidTestPlanSelection(Scenario):
 
-    mode = ['local']
+    modes = ['local']
     steps = [
         Expect('Select test plan'),
         SelectTestPlan('com.canonical.certification::stress-pm-graph'),

@@ -33,6 +33,7 @@ class _ScenarioAggregator:
     def add_scenario(self, scenario_cls):
         """Add a scenario to the collection."""
         logger.debug("Registering a scenario: {}", scenario_cls.name)
+        logger.debug("For following modes: {}", scenario_cls.modes)
         self._scenarios.append(scenario_cls)
 
     @staticmethod

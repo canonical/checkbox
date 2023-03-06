@@ -30,7 +30,6 @@ from metabox.core.utils import _re
 
 class GlxGears(Scenario):
 
-    mode = ['local', 'remote']
     launcher = textwrap.dedent("""
     [launcher]
     launcher_version = 1
@@ -54,7 +53,6 @@ class GlxGears(Scenario):
 
 class AudioPlayback(Scenario):
 
-    mode = ['local', 'remote']
     launcher = textwrap.dedent("""
     [launcher]
     launcher_version = 1

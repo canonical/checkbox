@@ -39,11 +39,25 @@ class Scenario:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.name = '{}.{}'.format(cls.__module__, cls.__name__)
+        # If a scenario does not declare the modes it should run in,
+        # assume it will run in both local and remote modes.
+        if not hasattr(cls, "modes"):
+            cls.modes = ["local", "remote"]
+        # If a scenario does not include what version of Checkbox it should run
+        # in, assume it will run in every possible ones, as defined in
+        # configuration._decl_has_a_valid_origin().
+        # TODO: don't hardcode it here, use shared values
+        if not hasattr(cls, "origins"):
+            cls.origins = ["source", "ppa", "classic-snap", "snap"]
         aggregator.add_scenario(cls)
 
     def __init__(self, mode, *releases):
         self.mode = mode
         self.releases = releases
+        # machines set up by Runner.run()
+        self.local_machine = None
+        self.remote_machine = None
+        self.service_machine = None
         self._checks = []
         self._ret_code = None
         self._stdout = ''
@@ -209,6 +223,18 @@ class Scenario:
                 self.service_machine.reboot(timeout)
         else:
             self.local_machine.reboot(timeout)
+
+    def put(self, filepath, data, mode=None, uid=1000, gid=1000, target='all'):
+        if self.mode == 'remote':
+            if target == 'remote':
+                self.remote_machine.put(filepath, data, mode, uid, gid)
+            elif target == 'service':
+                self.service_machine.put(filepath, data, mode, uid, gid)
+            else:
+                self.remote_machine.put(filepath, data, mode, uid, gid)
+                self.service_machine.put(filepath, data, mode, uid, gid)
+        else:
+            self.local_machine.put(filepath, data, mode, uid, gid)
 
     def switch_on_networking(self, target='all'):
         if self.mode == 'remote':

@@ -22,9 +22,10 @@ _description:
 plugin: shell
 user: root
 estimated_duration: 1.0
-category_id: com.canonical.certification::rtc_category
+category_id: rtc_category
 command:
-    if [ -z "$TOTAL_RTC_NUM" ]; then 
+    if [ -z "$TOTAL_RTC_NUM" ]; then
+        echo "TOTAL_RTC_NUM not defined, defaulting to 1"
         TOTAL_RTC_NUM=1; 
     fi
     SYSFS_RTC_NUM=$(find /dev/ -name "rtc[0-9]" | wc -l)
@@ -37,17 +38,16 @@ command:
         echo "RTC number matched"
     fi
 flags: also-after-suspend
+environ:  TOTAL_RTC_NUM
 
 id: rtc_list
-_summary: Generates a rtc list for the platform
+_summary: Generates a RTC list for the platform
 _description:
- List out all rtc devices on platform, and generate a list for it.
- Define TOTAL_RTC_NUM in config file if platform have more then one
- RTC deivces.
+ List out all RTC devices on platform, and generate a list for it.
 plugin: resource
 user: root
 estimated_duration: 1.0
-category_id: com.canonical.certification::rtc_category
+category_id: rtc_category
 command:
     rtcs=$(find /dev/ -name "rtc[0-9]"| awk -F "/" '{print $3}')
     for c in ${rtcs}; do
@@ -59,18 +59,16 @@ unit: template
 template-resource: rtc_list
 template-unit: job
 id: rtc/rtc_alarm_{rtc}
-_summary: RTC alarm of {rtc} is worked
-_purpose:
-    Check if RTC alarm of {rtc}
+_summary: Check that RTC alarm of {rtc} works
 plugin: shell
 user: root
-category_id: com.canonical.certification::rtc_category
+category_id: rtc_category
 estimated_duration: 40
 command: 
     if [ -f "/sys/class/rtc/{rtc}/wakealarm" ]; then 
         rtcwake -d {rtc} -v -m on -s 30
     else 
-        echo "{rtc} not support wakealarm"
+        echo "{rtc} does not support wakealarm"
         exit 1 
     fi
 flags: also-after-suspend
@@ -79,12 +77,10 @@ unit: template
 template-resource: rtc_list
 template-unit: job
 id: rtc/rtc_clock_{rtc}
-_summary: RTC clock of {rtc} is synced
-_purpose:
-    Check if RTC clock of {rtc}
+_summary: Check that {rtc} clock is synchronized with system clock
 plugin: shell
 user: root
-category_id: com.canonical.certification::rtc_category
+category_id: rtc_category
 estimated_duration: 5
 command: 
     rtctime=$(date +"%s" -d "$( hwclock --rtc /dev/{rtc} -u)")
@@ -93,10 +89,10 @@ command:
     systime_date=$(date -d "@$systime")
     result=$(("$systime" - "$rtctime"))
     if [[ "$result" -le "5" ]]; then
-        echo "{rtc} Clock sync with System Clock"
+        echo "{rtc} Clock synchronized with System Clock"
         echo "$rtc_date"
     else
-        echo "{rtc} Clock doesn't sync with System Clock"
+        echo "{rtc} Clock not synchronized with System Clock"
         echo "System clock=" "$systime_date"
         echo "RTC clock=" "$rtc_date"
         exit 1

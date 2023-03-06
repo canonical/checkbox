@@ -36,14 +36,14 @@ nested_part:
 
 id: after-suspend-rtc-manual
 unit: test plan
-_name: Multiple RTC manual tests (after suspend)
-_description: Manual after suspend multiple RTC tests
+_name: RTC manual tests (after suspend)
+_description: Manual after suspend RTC tests
 include:
 
 id: after-suspend-rtc-automated
 unit: test plan
-_name: Multiple RTC auto tests (after suspend)
-_description: Automated after suspend multiple RTC tests
+_name: RTC auto tests (after suspend)
+_description: Automated after suspend RTC tests
 bootstrap_include:
     rtc_list
 include:

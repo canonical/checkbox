@@ -22,6 +22,7 @@ import time
 from loguru import logger
 from metabox.core.aggregator import aggregator
 from metabox.core.configuration import read_config
+from metabox.core.configuration import guess_source_uri
 from metabox.core.configuration import validate_config
 from metabox.core.lxd_provider import LxdMachineProvider
 from metabox.core.machine import MachineConfig
@@ -47,6 +48,7 @@ class Runner:
             raise SystemExit('Config file not found!')
         else:
             self.config = read_config(args.config)
+            self.config = guess_source_uri(self.config)
             validate_config(self.config)
         # effective set of machine configs required by scenarios
         self.combo = set()

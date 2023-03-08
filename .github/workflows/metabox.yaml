@@ -1,0 +1,34 @@
+name: Run Metabox when PR is approved
+
+on:
+  pull_request_review:
+    types: [submitted]
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  Metabox:
+    if: github.event.review.state == 'approved'
+    strategy:
+      matrix:
+        # Version of Ubuntu
+        os: [18.04, 20.04, 22.04]
+        # Checkbox mode to test
+        mode: [local, remote]
+    defaults:
+      run:
+        working-directory: metabox
+    runs-on: ubuntu-latest
+    env:
+      # Workaround to get loguru colored output
+      # See https://github.com/Delgan/loguru/issues/604
+      PYCHARM_HOSTED: True
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@v3
+      - name: Setup LXD
+        uses: canonical/setup-lxd@90d76101915da56a42a562ba766b1a77019242fd
+      - name: Install Metabox
+        run: python3 -m pip install -e .
+      - name: Run Metabox scenarios
+        run: metabox configs/${{ matrix.mode }}-source-${{ matrix.os }}.py --log TRACE

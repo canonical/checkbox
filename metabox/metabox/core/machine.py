@@ -281,9 +281,9 @@ class ContainerSourceMachine(ContainerBaseMachine):
             "bash -c 'chmod +x /var/tmp/checkbox-providers/base/bin/*'",
             "bash -c 'chmod +x /var/tmp/checkbox-providers/resource/bin/*'",
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
-             "sudo pip install -e .'"),
+             "sudo python3 -m pip install -e .'"),
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
-             "sudo pip install -e .'"),
+             "sudo python3 -m pip install -e .'"),
         ]
 
         if self.config.role in ('remote', 'service'):

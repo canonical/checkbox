@@ -65,7 +65,7 @@ class FreeIpmiTest:
             get_path('ipmi-chassis'), '--get-status']
         self._cmd_ipmi_channel = [
             get_path('ipmi-config'), '--checkout',
-            '--lan-channel-number']
+            '-S', 'User1', '--lan-channel-number']
         self._cmd_get_bmc_info = [
             get_path('bmc-info')]
         self._cmd_ipmi_locate = [
@@ -225,7 +225,7 @@ class FreeIpmiTest:
     def _ipmi_channel_hlpr(self, i, regex, channel):
         """get_ipmi_channel discovery loop."""
         cmd = self._cmd_ipmi_channel
-        if len(cmd) > 3:
+        if len(cmd) > 5:
             cmd.pop(-1)
         cmd.append(str(i))
         output = self._subproc_logging(cmd)

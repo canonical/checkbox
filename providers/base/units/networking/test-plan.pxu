@@ -24,6 +24,15 @@ include:
     networking/gateway_ping                        certification-status=blocker
     networking/ntp                                 certification-status=blocker
 
+id: after-suspend-networking-cert-automated
+unit: test plan
+_name: Networking tests after suspend(automated)
+_description: Networking tests after suspend (automated)
+include:
+    after-suspend-networking/gateway_ping           certification-status=blocker
+    after-suspend-networking/ntp                    certification-status=blocker
+
+
 id: networking-cert-blockers
 unit: test plan
 _name: Networking tests (certification blockers only)

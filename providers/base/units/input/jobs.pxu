@@ -86,6 +86,7 @@ plugin: shell
 category_id: com.canonical.plainbox::input
 estimated_duration: 2
 id: input/fixed_screen_orientation_on_{product}_{__index__}
+flags: also-after-suspend
 user: root
 requires:
  executable.name == 'udevadm'

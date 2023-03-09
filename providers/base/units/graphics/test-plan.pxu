@@ -104,8 +104,10 @@ include:
     # or suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto (two GPUs)
     suspend/1_suspend-time-check_.*_auto                     certification-status=non-blocker
     suspend/1_suspend-single-log-attach_.*_auto              certification-status=non-blocker
-    suspend/1_gl_support_after_suspend_.*_auto               certification-status=blocker
-    suspend/1_driver_version_after_suspend_.*_auto           certification-status=blocker
+    after-suspend-graphics/VESA_drivers_not_in_use           certification-status=blocker
+    after-suspend-graphics/1_driver_version_.*               certification-status=blocker
+    after-suspend-graphics/1_gl_support_.*                   certification-status=blocker
+    after-suspend-graphics/1_minimum_resolution_.*
     suspend/1_resolution_after_suspend_.*_auto               certification-status=blocker
 
 id: after-suspend-graphics-integrated-gpu-cert-manual
@@ -120,6 +122,8 @@ include:
     power-management/lid_close_suspend_open                  certification-status=blocker
     after-suspend-miscellanea/chvt
     power-management/lid                                     certification-status=blocker
+    power-management/lid_close                               certification-status=blocker
+    power-management/lid_open                                certification-status=blocker
     suspend/1_display_after_suspend_.*_graphics              certification-status=blocker
     after-suspend-graphics/1_maximum_resolution_.*           certification-status=blocker
     after-suspend-graphics/1_glxgears_.*                     certification-status=blocker
@@ -145,8 +149,9 @@ include:
     suspend/2_suspend_after_switch_to_card_.*_auto           certification-status=blocker
     suspend/2_suspend-time-check_.*_auto                     certification-status=non-blocker
     suspend/2_suspend-single-log-attach_.*_auto              certification-status=non-blocker
-    suspend/2_gl_support_after_suspend_.*_auto               certification-status=blocker
-    suspend/2_driver_version_after_suspend_.*_auto           certification-status=blocker
+    after-suspend-graphics/2_driver_version_.*               certification-status=blocker
+    after-suspend-graphics/2_gl_support_.*                   certification-status=blocker
+    after-suspend-graphics/2_minimum_resolution_.*
     suspend/2_resolution_after_suspend_.*_auto               certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-manual
@@ -202,8 +207,9 @@ _description: After suspend tests (integrated GPU, certification blockers only)
 include:
     after-suspend-graphics/1_auto_switch_card_.*           certification-status=blocker
     suspend/1_suspend_after_switch_to_card_.*_auto         certification-status=blocker
-    power-management/lid_close_suspend_open                certification-status=blocker
     power-management/lid                                   certification-status=blocker
+    power-management/lid_close                             certification-status=blocker
+    power-management/lid_open                              certification-status=blocker
     suspend/1_gl_support_after_suspend_.*_auto             certification-status=blocker
     suspend/1_driver_version_after_suspend_.*_auto         certification-status=blocker
     suspend/1_resolution_after_suspend_.*_auto             certification-status=blocker

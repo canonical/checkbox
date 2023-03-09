@@ -27,6 +27,13 @@ _description:
 include:
  usb/detect                                 certification-status=blocker
 
+id: after-suspend-usb-cert-automated
+unit: test plan
+_name: USB tests (Automated)
+_description:
+ USB tests (Automated)
+include:
+ after-suspend-usb/detect                                 certification-status=blocker
 
 id: usb3-cert-full
 unit: test plan

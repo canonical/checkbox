@@ -1,6 +1,7 @@
 plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/detect
+flags: also-after-suspend
 estimated_duration: 1.2
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -102,6 +103,7 @@ plugin: shell
 template-engine: jinja2
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images_{{ name }}
+flags: also-after-suspend
 _summary: Webcam multiple resolution capture test for {{ product_slug }}
 estimated_duration: 1.2
 depends: camera/detect

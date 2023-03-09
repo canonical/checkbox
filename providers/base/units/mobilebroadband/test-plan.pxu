@@ -22,3 +22,11 @@ _description: Mobile broadband tests (automated)
 include:
     mobilebroadband/gsm_connection             certification-status=non-blocker
     mobilebroadband/cdma_connection            certification-status=non-blocker
+
+id: after-suspend-mobilebroadband-cert-automated
+unit: test plan
+_name: Mobile broadband tests After suspend (automated)
+_description: Mobile broadband tests after suspend (automated)
+include:
+    after-suspend-mobilebroadband/gsm_connection             certification-status=non-blocker
+    after-suspend-mobilebroadband/cdma_connection            certification-status=non-blocker

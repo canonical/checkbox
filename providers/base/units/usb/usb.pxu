@@ -1,6 +1,7 @@
 plugin: shell
 category_id: com.canonical.plainbox::usb
 id: usb/detect
+flags: also-after-suspend
 requires:
  cpuinfo.platform != 's390x'
 estimated_duration: 1.0
@@ -18,6 +19,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::usb
 id: usb/disk_detect
 depends: usb/detect
+flags: also-after-suspend
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
 estimated_duration: 1.0

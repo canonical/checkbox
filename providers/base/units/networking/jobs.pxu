@@ -1,6 +1,7 @@
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/gateway_ping
+flags: also-after-suspend
 depends: ethernet/detect
 command: gateway_ping_test.py
 estimated_duration: 2.000
@@ -61,6 +62,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/ntp
+flags: also-after-suspend
 requires: package.name == 'ntpdate'
 user: root
 command: network_ntp_test.py

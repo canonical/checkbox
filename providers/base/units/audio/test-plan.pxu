@@ -48,6 +48,8 @@ _name: Audio tests (automated)
 _description:
  Audio tests (automated)
 include:
+    audio/detect_sinks_sources
+    audio/alsa_record_playback_automated
     audio/alsa_info_collect
     audio/alsa_info_attachment
     audio/list_devices
@@ -79,6 +81,15 @@ include:
     suspend/microphone-plug-detection-after-suspend        certification-status=blocker
     suspend/playback_headphones-after-suspend              certification-status=blocker
     suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+
+id: after-suspend-audio-cert-automated
+unit: test plan
+_name: Audio tests After Suspend (automated)
+_description:
+ Audio tests After Suspend (automated)
+include:
+    after-suspend-audio/detect_sinks_sources
+    after-suspend-audio/alsa_record_playback_automated
 
 id: audio-full
 unit: test plan

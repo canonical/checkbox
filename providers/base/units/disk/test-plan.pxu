@@ -19,6 +19,19 @@ include:
     benchmarks/disk/hdparm-cache-read_.*
     disk/apste_support_on_.*
 
+id: after-suspend-disk-cert-automated
+unit: test plan
+_name: Disk tests after suspend (automated)
+_description: Disk tests after suspend (automated)
+include:
+    after-suspend-disk/detect                                certification-status=blocker
+    after-suspend-disk/stats_.*
+    after-suspend-disk/read_performance_.*                   certification-status=blocker
+    after-suspend-disk/storage_device_.*                     certification-status=blocker
+    after-suspend-benchmarks/disk/hdparm-read_.*
+    after-suspend-benchmarks/disk/hdparm-cache-read_.*
+    after-suspend-disk/apste_support_on_.*
+
 id: disk-cert-blockers
 unit: test plan
 _name: Disk tests (certification blockers only)
@@ -67,3 +80,4 @@ include:
     disk/fstrim_.*                             certification-status=non-blocker
     disk/disk_stress_ng_.*                     certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=blocker
+    disk/apste_support_on_.*                   certification-status=non-blocker

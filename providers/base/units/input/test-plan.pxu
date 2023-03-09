@@ -29,6 +29,16 @@ include:
 bootstrap_include:
  dmi
 
+id: after-suspend-input-cert-automated
+unit: test plan
+_name: Input tests (Automated)
+_description:
+ Input tests (Automated)
+include:
+ after-suspend-input/fixed_screen_orientation_on_.*       certification-status=non-blocker
+bootstrap_include:
+ dmi
+
 id: after-suspend-input-cert-full
 unit: test plan
 _name: Input tests (after suspend)

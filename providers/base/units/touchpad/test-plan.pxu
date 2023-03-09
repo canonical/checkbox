@@ -45,14 +45,13 @@ unit: test plan
 _name: Touchpad tests
 _description: Touchpad tests
 include:
-    touchpad/basic-after-suspend                   certification-status=blocker
-    touchpad/detected-as-mouse-after-suspend       certification-status=blocker
-    touchpad/palm-rejection-after-suspend          certification-status=non-blocker
-    touchpad/continuous-move-after-suspend         certification-status=blocker
-    touchpad/singletouch-selection-after-suspend   certification-status=blocker
-    touchpad/drag-and-drop-after-suspend           certification-status=blocker
-    touchpad/multitouch-rightclick-after-suspend   certification-status=blocker
-    touchpad/multitouch-after-suspend              certification-status=blocker
+    after-suspend-touchpad/basic                                 certification-status=blocker
+    after-suspend-touchpad/palm-rejection                        certification-status=non-blocker
+    after-suspend-touchpad/continuous-move                       certification-status=blocker
+    after-suspend-touchpad/singletouch-selection                 certification-status=blocker
+    after-suspend-touchpad/drag-and-drop                         certification-status=blocker
+    after-suspend-touchpad/multitouch-rightclick                 certification-status=blocker
+    after-suspend-touchpad/multitouch                            certification-status=blocker
 
 id: touchpad-cert-blockers
 unit: test plan

@@ -32,10 +32,15 @@ unit: test plan
 _name: Audio tests (after suspend)
 _description: Audio tests (after suspend)
 include:
-    suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
-    suspend/microphone-plug-detection-after-suspend        certification-status=blocker
-    suspend/playback_headphones-after-suspend              certification-status=blocker
-    suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+    after-suspend-audio/speaker-headphone-plug-detection            certification-status=blocker
+    after-suspend-audio/microphone-plug-detection                   certification-status=blocker
+    after-suspend-audio/playback_headphones                         certification-status=blocker
+    after-suspend-audio/alsa_record_playback_external               certification-status=blocker
+    after-suspend-audio/playback_auto                               certification-status=blocker
+    after-suspend-audio/alsa_record_playback_internal               certification-status=blocker
+    after-suspend-audio/channels
+    after-suspend-audio/external-linein
+    after-suspend-audio/external-lineout
 
 id: audio-cert-automated
 unit: test plan

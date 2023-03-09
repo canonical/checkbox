@@ -1,4 +1,5 @@
 id: led/power
+flags: also-after-suspend
 _summary: Power LED behavior when powered
 _purpose:
  Check power led is on when system is powered on
@@ -95,6 +96,7 @@ _description:
 plugin: user-interact-verify
 category_id: led
 id: led/numeric-keypad
+flags: also-after-suspend
 estimated_duration: 30.0
 command: keyboard_test.py
 _description:
@@ -111,6 +113,7 @@ _description:
 plugin: manual
 category_id: led
 id: led/caps-lock
+flags: also-after-suspend
 estimated_duration: 30.0
 _description:
  PURPOSE:

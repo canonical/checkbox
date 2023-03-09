@@ -20,6 +20,7 @@
 This module implements functions necessary to load metabox configs.
 """
 import importlib.util
+from importlib.resources import files
 import subprocess
 from pathlib import Path
 
@@ -43,6 +44,22 @@ def read_config(filename):
         logger.critical(exc)
         raise SystemExit()
 
+
+def guess_source_uri(config):
+    """
+    If 'uri' is not present for a 'source' origin, assume it's two directories
+    above metabox Python package.
+    """
+    for kind in config:
+        if config[kind]["origin"] == "source":
+            if "uri" not in config[kind]:
+                logger.info("Config: No 'uri' element defined.")
+                # e.g. '/mnt/documents/dev/work/checkbox/metabox/metabox'
+                metabox_pkg_path = files('metabox')
+                uri = metabox_pkg_path.parent.parent
+                logger.info("Config: Setting 'uri' to '{}'.", uri)
+                config[kind]["uri"] = str(uri)
+    return config
 
 def validate_config(config):
     """

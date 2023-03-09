@@ -135,6 +135,7 @@ command: disk_cpu_load.sh {name}
 plugin: user-interact
 category_id: com.canonical.plainbox::disk
 id: disk/hdd-parking
+flags: also-after-suspend
 estimated_duration: 60.0
 requires:
     device.category == 'DISK'

@@ -60,6 +60,10 @@ optional arguments:
                         Turn on verbosity during machine setup. Only works with --log TRACE
 ```
 
+## Examples
+
+### Testing Checkbox from a PPA
+
 Let's say I want to test:
 
 - the [`basic` scenario] (which focuses on Checkbox local)
@@ -94,9 +98,39 @@ container once the testing is done. The next time you run the command, Metabox
 will reopen the existing container and rollback to a clean state in it before
 starting the new tests.
 
+### Testing Checkbox from a local repository
+
+It is possible to test Checkbox directly from a local Git repository using the
+`source` origin. To test all the available Metabox scenarios on Jammy using
+a local copy of Checkbox, create the following `source-local-config.py` file:
+
+```python
+configuration = {
+    'local': {
+        'origin': 'source',
+        # Path to the Checkbox source code repository.
+        # Can be omitted, see below.
+        'uri': '~/checkbox',
+        'releases': ['jammy'],
+    },
+}
+```
+
+Then call Metabox using it:
+
+```
+$ metabox source-local-config.py
+```
+
+**Note:** if `origin` is set to `source`, `uri` is not mandatory. If it is not
+set, it will point to the parent directory of the Metabox package. For
+instance, if Metabox was [installed] from `/home/user/code/checkbox/metabox/`,
+`uri` will be set to `/home/user/code/checkbox/`.
+
 [Checkbox]: https://checkbox.readthedocs.io/
 [Linux containers (LXC)]: https://linuxcontainers.org/
 [`desktop_env` scenario]: ./metabox/scenarios/desktop_env/
 [`basic` scenario]: ./metabox/scenarios/basic/
 [`configs` directory]: ./configs/
 [LXD documentation to install and initialize it]: https://linuxcontainers.org/lxd/getting-started-cli/
+[installed]: #installation

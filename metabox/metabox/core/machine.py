@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import itertools
+import os.path
 import time
 from pathlib import Path
 import textwrap
 
+import pylxd.exceptions
 from loguru import logger
 from metabox.core.lxd_execute import interactive_execute
 from metabox.core.lxd_execute import run_or_raise
@@ -118,7 +120,15 @@ class ContainerBaseMachine:
                     savepoint))
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000):
-        self._container.files.put(filepath, data, mode, uid, gid)
+        try:
+            self._container.files.put(filepath, data, mode, uid, gid)
+        except pylxd.exceptions.NotFound:
+            dirname = os.path.dirname(filepath)
+            logger.debug(("Cannot put {} on container. Trying to create"
+                          " directory {} and put the file again..."), filepath,
+                         dirname)
+            self._container.files.mk_dir(dirname, mode, uid, gid)
+            self._container.files.put(filepath, data, mode, uid, gid)
 
     def get_connecting_cmd(self):
         return "lxc exec {} -- sudo --user ubuntu --login".format(
@@ -271,9 +281,9 @@ class ContainerSourceMachine(ContainerBaseMachine):
             "bash -c 'chmod +x /var/tmp/checkbox-providers/base/bin/*'",
             "bash -c 'chmod +x /var/tmp/checkbox-providers/resource/bin/*'",
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
-             "sudo pip install -e .'"),
+             "sudo python3 -m pip install -e .'"),
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
-             "sudo pip install -e .'"),
+             "sudo python3 -m pip install -e .'"),
         ]
 
         if self.config.role in ('remote', 'service'):

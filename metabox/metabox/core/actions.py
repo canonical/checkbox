@@ -25,7 +25,7 @@ __all__ = [
     "Start", "Expect", "Send", "SelectTestPlan",
     "AssertPrinted", "AssertNotPrinted", "AssertRetCode",
     "AssertServiceActive", "Sleep", "RunCmd", "Signal", "Reboot",
-    "NetUp", "NetDown",
+    "NetUp", "NetDown", "Put"
 ]
 
 
@@ -95,3 +95,7 @@ class NetUp(ActionBase):
 
 class NetDown(ActionBase):
     handler = 'switch_off_networking'
+
+
+class Put(ActionBase):
+    handler = 'put'

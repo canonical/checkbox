@@ -13,6 +13,7 @@ template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::networking
 id: networking/info_device{__index__}_{interface}
+flags: also-after-suspend
 _summary: Network Information of device {__index__} ({interface})
 estimated_duration: 1.0
 command:
@@ -28,6 +29,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::networking
 id: networking/modem_connection
+flags: also-after-suspend
 command: network_check.py
 _description:
  PURPOSE:

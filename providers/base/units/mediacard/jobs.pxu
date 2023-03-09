@@ -160,6 +160,7 @@ plugin: user-interact
 template-engine: jinja2
 category_id: com.canonical.plainbox::mediacard
 id: mediacard/sdhc-insert
+flags: also-after-suspend
 estimated_duration: 30.0
 command:
  {%- if __on_ubuntucore__ %}
@@ -192,7 +193,7 @@ id: mediacard/sdhc-storage
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
 user: root
-flags: preserve-cwd reset-locale
+flags: preserve-cwd reset-locale also-after-suspend
 command:
  {%- if __on_ubuntucore__ %}
      checkbox-support-usb_read_write
@@ -208,6 +209,7 @@ plugin: user-interact
 template-engine: jinja2
 category_id: com.canonical.plainbox::mediacard
 id: mediacard/sdhc-remove
+flags: also-after-suspend
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
 command:

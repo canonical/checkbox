@@ -45,6 +45,10 @@ jobs:
           snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
       - uses: actions/upload-artifact@v3
         with:
+          name: snapcraft-log-series-${{ matrix.type }}${{ matrix.releases }}
+          path: /home/runner/.cache/snapcraft/log
+      - uses: actions/upload-artifact@v3
+        with:
           name: series_${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
       - name: Upload checkbox snaps to the store

@@ -12,13 +12,13 @@ jobs:
     strategy:
       matrix:
         # Version of Ubuntu
-        os: [18.04, 20.04, 22.04]
+        os: [16.04, 18.04, 20.04, 22.04]
         # Checkbox mode to test
         mode: [local, remote]
     defaults:
       run:
         working-directory: metabox
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       # Workaround to get loguru colored output
       # See https://github.com/Delgan/loguru/issues/604

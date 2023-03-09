@@ -32,6 +32,7 @@ _description: Valid sof firmware signature
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_auto
+flags: also-after-suspend
 estimated_duration: 5.0
 depends: audio/list_devices
 requires:
@@ -266,6 +267,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_internal
+flags: also-after-suspend
 estimated_duration: 20.0
 depends: audio/playback_auto
 requires:
@@ -293,6 +295,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_external
+flags: also-after-suspend
 estimated_duration: 20.0
 depends: audio/playback_headphones
 requires:
@@ -409,6 +412,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/channels
+flags: also-after-suspend
 estimated_duration:  20.0
 command: speaker-test -c 2 -l 1 -t wav
 _description:
@@ -438,6 +442,7 @@ _description:
 plugin: manual
 category_id: com.canonical.plainbox::audio
 id: audio/external-lineout
+flags: also-after-suspend
 estimated_duration: 30.0
 requires:
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
@@ -456,6 +461,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/external-linein
+flags: also-after-suspend
 estimated_duration: 120.0
 requires:
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
@@ -483,6 +489,7 @@ _description:
 plugin: user-interact
 category_id: com.canonical.plainbox::audio
 id: audio/speaker-headphone-plug-detection
+flags: also-after-suspend
 estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
@@ -504,6 +511,7 @@ _description:
 plugin: user-interact
 category_id: com.canonical.plainbox::audio
 id: audio/microphone-plug-detection
+flags: also-after-suspend
 estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
@@ -554,6 +562,7 @@ _description:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/balance_headphones
+flags: also-after-suspend
 depends: audio/playback_headphones
 estimated_duration: 30.0
 requires:

@@ -295,6 +295,7 @@ category_id: com.canonical.plainbox::keys
 _summary:
   Check power button event filtering
 id: keys/power-button-event
+flags: also-after-suspend
 estimated_duration: 15.0
 requires:
   package.name == 'acpid'
@@ -329,4 +330,3 @@ _steps:
      2. Press the Fn+any hotkey.
 _verification:
     Do the keys work as expected?
-

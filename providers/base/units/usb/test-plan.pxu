@@ -76,18 +76,19 @@ unit: test plan
 _name: USB tests (after suspend)
 _description: USB tests (after suspend)
 include:
-    suspend/usb_insert_after_suspend                       certification-status=blocker
-    suspend/usb_storage_automated_after_suspend            certification-status=blocker
-    suspend/usb_remove_after_suspend                       certification-status=blocker
+ after-suspend-usb/HID                                    certification-status=blocker
+ after-suspend-usb/insert                                 certification-status=blocker
+ after-suspend-usb/storage-automated                      certification-status=blocker
+ after-suspend-usb/remove                                 certification-status=blocker
 
 id: after-suspend-usb3-cert-full
 unit: test plan
 _name: USB3 tests (after suspend)
 _description: USB3 tests (after suspend)
 include:
-    suspend/usb3_insert_after_suspend                      certification-status=blocker
-    suspend/usb3_storage_automated_after_suspend           certification-status=blocker
-    suspend/usb3_remove_after_suspend                      certification-status=blocker
+ after-suspend-usb3/insert                                certification-status=blocker
+ after-suspend-usb3/storage-automated                     certification-status=blocker
+ after-suspend-usb3/remove                                certification-status=blocker
 
 id: after-suspend-usb-c-cert-full
 unit: test plan

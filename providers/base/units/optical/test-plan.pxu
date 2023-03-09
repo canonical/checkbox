@@ -16,6 +16,7 @@ _name: Optical drive tests (Manual)
 _description:
  Optical drive tests (Manual)
 include:
+ optical/detect                                 certification-status=blocker
  optical/read_.*                                certification-status=blocker
  optical/bluray-read_.*                         certification-status=blocker
 bootstrap_include:
@@ -64,4 +65,3 @@ include:
     after-suspend-optical/bluray-read_.*                                certification-status=blocker
 bootstrap_include:
     device
-

@@ -280,6 +280,12 @@ include:
     usb-c/insert
     usb-c/storage-automated
     usb-c/remove
+    usb-c-otg/g_serial
+    usb-c-otg/g_serial-cleanup
+    usb-c-otg/g_mass_storage
+    usb-c-otg/g_mass_storage-cleanup
+    usb-c-otg/g_ether
+    usb-c-otg/g_ether-cleanup
 
 id: usb-c-automated
 unit: test plan
@@ -349,6 +355,12 @@ include:
     after-suspend-usb-c/insert
     after-suspend-usb-c/storage-automated
     after-suspend-usb-c/remove
+    after-suspend-usb-c-otg/g_serial
+    after-suspend-usb-c-otg/g_serial-cleanup
+    after-suspend-usb-c-otg/g_mass_storage
+    after-suspend-usb-c-otg/g_mass_storage-cleanup
+    after-suspend-usb-c-otg/g_ether
+    after-suspend-usb-c-otg/g_ether-cleanup
 
 id: after-suspend-usb-c-automated
 unit: test plan

@@ -169,6 +169,11 @@ stable release tag to the same commit the latest RC tag was applied to.
 }
 ```
 
+### Version bump
+
+The stable release process will create a pull request to bump the version
+number (see [this example]). Don't forget to approve it and get it merged!
+
 [^1]:Actually a `git push --dry-run` is executed
 [^2]:https://github.com/community/community/discussions/8774
 
@@ -176,4 +181,4 @@ stable release tag to the same commit the latest RC tag was applied to.
 [Testing]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/testing
 [Development]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/ppa
 [Launchpad Builders status]: https://launchpad.net/builders
-
+[this example]: https://github.com/canonical/checkbox/pull/359

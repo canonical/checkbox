@@ -167,9 +167,9 @@ nested_part:
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
+    stress-ng-cert-automated
     stress-iperf3-automated
     #stress-cert-full
     stress-suspend-30-cycles-with-reboots-automated
-    stress-ng-cert-automated
     stress-30-reboot-poweroff-automated
     stress-pm-graph

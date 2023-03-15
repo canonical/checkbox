@@ -265,3 +265,86 @@ _steps:
      2. Fn key LED should be switched on/off every time the key is pressed.
 _verification:
     Did the Fn key LED light as expected?
+
+id: led-indicator/gpio-leds
+plugin: resource
+_summary: Gather a list of LED indicators for the device that controls via GPIO.
+_description:
+    A LED GPIO number mapping resource that relies on the user specifying in config variable.
+    Usage of parameter: GPIO_LEDS={name1}:{port1} {name2}:{port2} ...
+    e.g. GPIO_LEDS=dl1:488 dl2:489 dl44:507
+estimated_duration: 3
+environ: GPIO_LEDS
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "name: %s\nport: %s\n\n", data[1], data[2]
+        }
+    }' <<< "$GPIO_LEDS"
+
+unit: template
+template-resource: led-indicator/gpio-leds
+template-unit: job
+category_id: led
+id: led-indicator/gpio-leds-{name}
+estimated_duration: 10
+plugin: user-interact-verify
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_led_indicator == 'True'
+flags: also-after-suspend
+_summary: Check control of {name} LED indecator.
+_description:
+    Check that {name} LED turns on and off.
+_steps:
+    1. Press Enter and observe LED behavior on DUT.
+_verification:
+    Does the "{name}" LED blink?
+command:
+    led_test.sh -t gpio -n {name} -p {port}
+
+id: led-indicator/sysfs-leds
+plugin: resource
+_summary: Gather a list of LED indicators for the device that control via sysfs path.
+_description:
+    A LED path mapping resource that relies on the user specifying in config variable.
+    Usage of parameter: SYS_LEDS={name1}:{path1} {name2}:{path2} ...
+    path under "/sys/class/leds/{path}"
+    e.g. SYS_LEDS=DL1:beat-yel-led DL2:shtdwn-grn-led.
+    Note: make sure name of LED not includes symbol ":"
+estimated_duration: 3
+environ: SYS_LEDS
+command:
+    awk '{
+    split($0, record, " ")
+    for (i in record) {
+        # To handle that led path includes symbol ":"
+        # Get the index of the first match ":" in record[i]
+        pos = index(record[i],":");
+        # Split string by matching ":" to get the string before first ":"
+        printf "name: %s\npath: %s\n\n", substr(record[i],1,pos-1),substr(record[i],pos+1)
+        }
+    }' <<< "$SYS_LEDS"
+
+unit: template
+template-resource: led-indicator/sysfs-leds
+template-unit: job
+id: led-indicator/sysfs-leds-{name}
+category_id: led
+_summary: Check control of {name} LED.
+_description:
+  Check that {name} LED turns on and off.
+_steps:
+    1. Press enter and observe LED behavior on DUT.
+_verification:
+    Does the {name} LED blink?
+plugin: user-interact-verify
+user: root
+flags: also-after-suspend
+estimated_duration: 10
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_led_indicator == 'True'
+command:
+    led_test.sh -t sysfs -n {path}

@@ -209,7 +209,7 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  wifi_nmcli_test.py secured {{ interface }} "$WPA3_AX_SSID" "$WPA3_AX_PSK"
+  wifi_nmcli_test.py secured {{ interface }} "$WPA3_AX_SSID" "$WPA3_AX_PSK" --exchange sae
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend

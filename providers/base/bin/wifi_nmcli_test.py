@@ -210,11 +210,12 @@ def secured_connection(args):
            "type wifi "
            "ssid '{}' "
            "-- "
-           "wifi-sec.key-mgmt wpa-psk "
+           "wifi-sec.key-mgmt {} "
            "wifi-sec.psk {} "
            "ipv4.method auto "
            "ipv4.dhcp-timeout 30 "
-           "ipv6.method ignore".format(args.device, args.essid, args.psk))
+           "ipv6.method ignore"
+           .format(args.device, args.essid, args.exchange, args.psk))
     print_cmd(cmd)
     sp.call(cmd, shell=True)
 
@@ -316,6 +317,9 @@ if __name__ == '__main__':
         'device', type=str, help='Device name e.g. wlan0')
     parser_secured.add_argument('essid', type=str, help='ESSID')
     parser_secured.add_argument('psk', type=str, help='Pre-Shared Key')
+    parser_secured.add_argument(
+        '--exchange', type=str, default='wpa-psk',
+        help='exchange type (default: %(default)s)')
     parser_secured.set_defaults(func=secured_connection)
 
     parser_ap = subparsers.add_parser(

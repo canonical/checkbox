@@ -24,7 +24,7 @@ setup(
     name='metabox',
     version='0.3',
     packages=find_packages(),
-    install_requires=['loguru', 'pylxd', 'pyyaml'],
+    install_requires=['loguru', 'pylxd', 'pyyaml', 'importlib-resources'],
     entry_points={
         'console_scripts': [
             'metabox = metabox.main:main',

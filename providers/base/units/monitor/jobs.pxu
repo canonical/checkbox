@@ -329,6 +329,7 @@ _verification:
  Output to display works
 plugin: manual
 category_id: com.canonical.plainbox::monitor
+requires: manifest.has_dvi == 'True'
 estimated_duration: 300
 flags: also-after-suspend
 
@@ -343,6 +344,7 @@ _verification:
  Output to display works
 plugin: manual
 category_id: com.canonical.plainbox::monitor
+requires: manifest.has_hdmi == 'True'
 estimated_duration: 300
 flags: also-after-suspend
 
@@ -357,6 +359,7 @@ _verification:
  Output to display works
 plugin: manual
 category_id: com.canonical.plainbox::monitor
+requires: manifest.has_dp == 'True'
 estimated_duration: 300
 flags: also-after-suspend
 
@@ -371,6 +374,7 @@ _verification:
  Output to display works
 plugin: manual
 category_id: com.canonical.plainbox::monitor
+requires: manifest.has_dvi == 'True'
 estimated_duration: 300
 flags: also-after-suspend
 
@@ -385,6 +389,7 @@ _verification:
  Output to display works
 plugin: manual
 category_id: com.canonical.plainbox::monitor
+requires: manifest.has_hdmi == 'True'
 estimated_duration: 300
 flags: also-after-suspend
 
@@ -392,6 +397,7 @@ id: monitor/displayport_hotplug
 _summary: Can hotplug monitor (DisplayPort)
 plugin: manual
 category_id: com.canonical.plainbox::monitor
+requires: manifest.has_dp == 'True'
 _purpose:
      This test will check the DisplayPort port and the ability to do hotplugging.
 _steps:
@@ -413,6 +419,7 @@ _verification:
  Output to display works
 plugin: manual
 category_id: com.canonical.plainbox::monitor
+requires: manifest.has_vga == 'True'
 estimated_duration: 300
 flags: also-after-suspend
 

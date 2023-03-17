@@ -7,6 +7,26 @@ on:
   workflow_dispatch:
 
 jobs:
+  metabox_run_required:
+    runs-on: ubuntu-latest
+    name: Check for changes in metabox and checkbox-ng dirs
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Use git diff to see if there are any changes in the metabox and checkbox-ng directories
+        id: check_diff
+        run: |
+          git diff --exit-code HEAD origin/main -- checkbox-ng metabox
+          if [[ $? -eq 0 ]]
+            then
+              echo "No changes found. Nothing to do!"
+              exit 1
+            else
+              echo "Changes found that require Metabox to run."
+              exit 0
+          fi
+
   Metabox:
     if: (github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch')
     strategy:
@@ -19,6 +39,7 @@ jobs:
     defaults:
       run:
         working-directory: metabox
+    needs: metabox_run_required
     runs-on: ubuntu-20.04
     env:
       # Workaround to get loguru colored output

@@ -926,12 +926,12 @@ def main():
 
         def do_the_insert():
             logging.info("Calling zapper to connect the USB device")
-            zapper_run(zapper_host, "zombiemux_set_state", usb_address, 'DUT')
+            zapper_run(zapper_host, "typecmux_set_state", usb_address, 'DUT')
         insert_timer = threading.Timer(delay, do_the_insert)
 
         def do_the_remove():
             logging.info("Calling zapper to disconnect the USB device")
-            zapper_run(zapper_host, "zombiemux_set_state", usb_address, 'OFF')
+            zapper_run(zapper_host, "typecmux_set_state", usb_address, 'OFF')
         remove_timer = threading.Timer(delay, do_the_remove)
         if args.action == "insert":
             logging.info("Starting timer for delayed insertion")

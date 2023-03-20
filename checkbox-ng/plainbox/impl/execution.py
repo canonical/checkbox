@@ -275,6 +275,9 @@ class UnifiedRunner(IJobRunner):
                                             nest_dir)
             if self._user_provider():
                 env['NORMAL_USER'] = self._user_provider()
+            # Always set SYSTEMD_IGNORE_CHROOT
+            # See https://bugs.launchpad.net/snapd/+bug/2003955
+            env["SYSTEMD_IGNORE_CHROOT"] = "1"
             # run the command
             logger.debug(_("job[%(ID)s] executing %(CMD)r with env %(ENV)r"),
                          {"ID": job.id, "CMD": cmd,

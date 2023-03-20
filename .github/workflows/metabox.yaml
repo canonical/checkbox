@@ -20,15 +20,13 @@ jobs:
           git diff --exit-code HEAD origin/main -- checkbox-ng metabox
           if [[ $? -eq 0 ]]
             then
-              echo "No changes found. Nothing to do!"
-              exit 1
+              echo "required_run=false" >> $GITHUB_OUTPUT
             else
-              echo "Changes found that require Metabox to run."
-              exit 0
+              echo "required_run=true" >> $GITHUB_OUTPUT
           fi
 
   Metabox:
-    if: (github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch')
+    if: (github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch') && needs.metabox_run_required.outputs.required_run == 'true'
     strategy:
       fail-fast: false
       matrix:

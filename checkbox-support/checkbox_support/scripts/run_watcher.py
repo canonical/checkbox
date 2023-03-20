@@ -78,11 +78,11 @@ class StorageWatcher:
             if self.args.testcase == "insertion":
                 print("Calling zapper to connect the USB device")
                 zapper_run(
-                    zapper_host, "zombiemux_set_state", usb_address, "DUT")
+                    zapper_host, "typecmux_set_state", usb_address, "DUT")
             elif self.args.testcase == "removal":
                 print("Calling zapper to disconnect the USB device")
                 zapper_run(
-                    zapper_host, "zombiemux_set_state", usb_address, "OFF")
+                    zapper_host, "typecmux_set_state", usb_address, "OFF")
         else:
             if self.args.testcase == "insertion":
                 print("\n\nINSERT NOW\n\n", flush=True)

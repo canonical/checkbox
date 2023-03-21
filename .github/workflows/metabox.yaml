@@ -16,6 +16,7 @@ jobs:
           fetch-depth: 0
       - name: Use git diff to see if there are any changes in the metabox and checkbox-ng directories
         id: check_diff
+        continue-on-error: true
         run: |
           git diff --exit-code HEAD origin/main -- checkbox-ng metabox
           if [[ $? -eq 0 ]]

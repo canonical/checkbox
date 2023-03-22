@@ -115,3 +115,25 @@ include:
     led/sysfs_led_brightness_off_.*
 bootstrap_include:
     dmi
+
+id: led-indicator-manual
+unit: test plan
+_name: Manual LED indicator tests for IoT
+_description: Manual LED indicator tests for IoT devices
+include:
+    led-indicator/gpio-leds-.*
+    led-indicator/sysfs-leds-.*
+bootstrap_include:
+    led-indicator/gpio-leds
+    led-indicator/sysfs-leds
+
+id: after-suspend-led-indicator-manual
+unit: test plan
+_name: Manual LED indicator tests for IoT (after_suspend)
+_description: Manual LED indicator tests for IoT devices (after_suspend)
+include:
+    after-suspend-led-indicator/gpio-leds-.*
+    after-suspend-led-indicator/sysfs-leds-.*
+bootstrap_include:
+    led-indicator/gpio-leds
+    led-indicator/sysfs-leds

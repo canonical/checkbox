@@ -48,7 +48,7 @@ _name: Audio tests (automated)
 _description:
  Audio tests (automated)
 include:
-    audio/detect_sinks_sources
+    audio/detect_sinks
     audio/alsa_record_playback_automated
     audio/alsa_info_collect
     audio/alsa_info_attachment
@@ -88,7 +88,8 @@ _name: Audio tests After Suspend (automated)
 _description:
  Audio tests After Suspend (automated)
 include:
-    after-suspend-audio/detect_sinks_sources
+    after-suspend-audio/detect_sinks
+    after-suspend-audio/detect_sources
     after-suspend-audio/alsa_record_playback_automated
 
 id: audio-full

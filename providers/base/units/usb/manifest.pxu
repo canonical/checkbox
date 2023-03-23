@@ -15,5 +15,5 @@ value-type: bool
 
 unit: manifest entry
 id: has_usbc_otg
-_name: Does the platform support USB OTG?
+_name: Does the platform support USB-C OTG?
 value-type: bool

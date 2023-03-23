@@ -246,7 +246,11 @@ command:
   modprobe -r g_serial
 user: root
 estimated_duration: 1s
-flags: also-after-suspend
+_siblings: [
+     { "id": "after-suspend-usb-c-otg/g_serial-cleanup",
+       "_summary": "Cleanup USB OTG serial interface setup after serial device test (after suspend)",
+       "after": "after-suspend-usb-c-otg/g_serial"
+     }]
 
 id: usb-c-otg/g_mass_storage
 _summary: Check DUT can be detected as a mass storage device
@@ -289,7 +293,11 @@ command:
 user: root
 estimated_duration: 1s
 category_id: com.canonical.plainbox::usb
-flags: also-after-suspend
+_siblings: [
+     { "id": "after-suspend-usb-c-otg/g_mass_storage-cleanup",
+       "_summary": "Cleanup mass storage setup after mass storage device test (after suspend)",
+       "after": "after-suspend-usb-c-otg/g_mass_storage"
+     }]
 
 id: usb-c-otg/g_ether
 _summary: Check DUT can be detected as USB ethernet device
@@ -333,4 +341,8 @@ command:
 user: root
 estimated_duration: 1s
 category_id: com.canonical.plainbox::usb
-flags: also-after-suspend
+_siblings: [
+     { "id": "after-suspend-usb-c-otg/g_ether-cleanup",
+       "_summary": "Cleanup USB OTG ethernet interface setup after ethernet device test (after suspend)",
+       "after": "after-suspend-usb-c-otg/g_ether"
+     }]

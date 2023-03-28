@@ -45,6 +45,7 @@ if on_rtd:
     install_requires = []
 else:
     install_requires = [
+        'packaging',
         'requests >= 1.0',
         'urwid >= 1.1.1',
         'Jinja2 >= 2.7',

@@ -6,6 +6,7 @@ NET_DEVICE_INFO=ven_rsi_sdio ven_rsi_91x
 OPEN_N_SSID=ubuntu-cert-n-open
 OPEN_BG_SSID=ubuntu-cert-bg-open
 OPEN_AC_SSID=ubuntu-cert-ac-open
+OPEN_AX_SSID=ubuntu-cert-ax-open
 WPA_N_SSID=ubuntu-cert-n-wpa
 WPA_BG_SSID=ubuntu-cert-bg-wpa
 WPA_AC_SSID=ubuntu-cert-ac-wpa

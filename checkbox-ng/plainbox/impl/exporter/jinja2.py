@@ -29,12 +29,19 @@ import json
 import re
 from collections import OrderedDict
 from datetime import datetime
+from packaging import version
 
+import jinja2
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
-from jinja2 import Markup
-from jinja2 import environmentfilter
-from jinja2 import escape
+try:
+    from jinja2 import escape
+    from jinja2.filters import environmentfilter as pass_environment
+    from jinja2 import Markup
+except ImportError:  # renamed in jinja2 3.1
+    from jinja2.filters import pass_environment
+    from markupsafe import escape, Markup
+
 
 from plainbox import get_version_string
 from plainbox.abc import ISessionStateExporter
@@ -47,7 +54,7 @@ from plainbox.impl.unit.exporter import ExporterError
 CERTIFICATION_NS = 'com.canonical.certification::'
 
 
-@environmentfilter
+@pass_environment
 def do_strip_ns(_environment, unit_id, ns=CERTIFICATION_NS):
     """Remove the namespace part of the identifier."""
     # com.my.namespace::category/job-id → category/job-id
@@ -111,7 +118,13 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         self.option_list = tuple(exporter_unit.option_list or ()) + tuple(
                 option_list or ())
         loader = FileSystemLoader(paths)
-        env = Environment(loader=loader, extensions=['jinja2.ext.autoescape'])
+        # For jinja2 version > 2.9.0 autoescape functionality is built-in,
+        # no need to add extensions
+        if version.parse(jinja2.__version__) >= version.parse('2.9.0'):
+            env = Environment(loader=loader)
+        else:
+            env = Environment(
+                loader=loader, extensions=['jinja2.ext.autoescape'])
         self.customize_environment(env)
 
         def include_file(name):

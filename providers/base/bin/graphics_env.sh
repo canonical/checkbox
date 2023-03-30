@@ -30,7 +30,9 @@ if [[ $DRIVER == "amdgpu" || $DRIVER == "radeon" ]]; then
 elif [[ $DRIVER == "nvidia" || $DRIVER == "pcieport" ]]; then
     NB_GPU=$(udev_resource.py -l VIDEO | grep -oP -m1 '\d+')
     if [[ $NB_GPU -gt 1 ]]; then
-        if [[ $INDEX -gt 1 ]]; then
+        nvidia_nvlink_check.sh
+        NVLINK=$?
+        if [[ $INDEX -gt 1 && ${NVLINK} -ne 0 ]]; then
             echo "Setting up PRIME GPU offloading for nvidia discrete GPU"
             export __NV_PRIME_RENDER_OFFLOAD=1
             export __GLX_VENDOR_LIBRARY_NAME=nvidia

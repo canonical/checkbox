@@ -1,5 +1,5 @@
-name: Autorelease beta version of checkbox-snap
-run-name: Beta release of checkbox-snap ${{ github.ref_name }}
+name: Beta version of checkbox-snap
+run-name: Beta version of checkbox-snap ${{ github.ref_name }}
 
 on:
   push:

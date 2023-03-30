@@ -23,6 +23,25 @@ import collections
 import subprocess
 import shlex
 import string
+import re
+
+
+def get_ubuntu_version():
+    """Get Ubuntu release version for checking."""
+    try:
+        import distro
+        return float(distro.version())
+    except (ImportError, subprocess.CalledProcessError):
+        try:
+            with open('/etc/lsb-release', 'r') as lsb:
+                for line in lsb.readlines():
+                    (key, value) = line.split('=', 1)
+                    if key == 'DISTRIB_RELEASE':
+                        return float(re.sub('["\n]', '', value))
+        except OSError:
+            # Missing file or permissions? Return the default lsb_release
+            pass
+    return 0
 
 
 def slugify(_string):
@@ -170,7 +189,12 @@ def main():
                 record['driver'] = 'unknown'
             # lp:1636060 – If discrete GPU is using amdgpu driver,
             # we set the prime_gpu_offload flag to 'On'
-            if index == 2 and record['driver'] == 'amdgpu':
+            # NVIDIA driver since version 435.17 supports PRIME render offload,
+            # and Ubuntu doesn't support intel mode after 22.04.
+            if index == 2 and (record['driver'] == 'amdgpu'
+                               or (get_ubuntu_version() >= 22.04
+                                   and (record['driver'] == 'nvidia'
+                                        or record['driver'] == 'pcieport'))):
                 record['prime_gpu_offload'] = 'On'
             else:
                 record['prime_gpu_offload'] = 'Off'

@@ -1,0 +1,27 @@
+name: Debian packages beta release
+run-name: Beta release of checkbox deb packages ${{ github.ref_name }}
+
+on:
+  push:
+    tags:
+        - "v*"
+  workflow_dispatch:
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -qq -y python3-launchpadlib
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
+      - name: Update the PPA recipe and kick-off the builds
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          CHECKBOX_REPO: ${{ github.repository }}
+        run: |
+          gh release create $(git describe --tags --abbrev=0 --match v*) -d --generate-notes
+          tools/release/release_deb_monorepo.py

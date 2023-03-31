@@ -44,7 +44,7 @@ class SourceDistributionCommandExt(SourceDistributionCommand):
 setup(
     name='checkbox-provider-resource',
     namespace='com.canonical.certification',
-    version="2.3",
+    version="2.4",
     description=N_("Checkbox provider resource"),
     gettext_domain='checkbox-provider-resource',
     strict=False, deprecated=False,

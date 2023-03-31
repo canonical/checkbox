@@ -1,10 +1,10 @@
-name: Autorelease beta version of checkbox-core-snap
-run-name: Beta release of checkbox-core-snap ${{ github.ref_name }}
+name: Beta version of checkbox-core-snap
+run-name: Beta version of checkbox-core-snap ${{ github.ref_name }}
 
 on:
   push:
     tags:
-        - "checkbox-core-snap-v*"
+        - "v*"
   workflow_dispatch:
 
 jobs:

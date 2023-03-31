@@ -38,7 +38,7 @@ with open(os.path.join(base_dir, "README.rst"), encoding="UTF-8") as stream:
 
 setup(
     name="checkbox-support",
-    version="2.2.0",
+    version="2.3",
     url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     test_suite='checkbox_support.tests.test_suite',

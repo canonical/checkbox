@@ -1,8 +1,8 @@
-checkbox-provider-sru (2.3) UNRELEASED; urgency=medium
+checkbox-provider-sru (2.4) UNRELEASED; urgency=medium
 
   * new upstream version
 
- -- Devices Certification Bot <robot@canonical.com>  Thu, 30 Mar 2023 23:18:15 +0000
+ -- Devices Certification Bot <robot@canonical.com>  Fri, 31 Mar 2023 11:45:09 +0000
 
 checkbox-provider-sru (2.1.0) unstable; urgency=medium
 

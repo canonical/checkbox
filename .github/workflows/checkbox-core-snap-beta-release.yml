@@ -4,7 +4,7 @@ run-name: Beta version of checkbox-core-snap ${{ github.ref_name }}
 on:
   push:
     tags:
-        - "checkbox-core-snap-v*"
+        - "v*"
   workflow_dispatch:
 
 jobs:

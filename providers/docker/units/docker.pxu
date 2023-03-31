@@ -250,11 +250,11 @@ command:
  set -e
  compose_file={root_dir}/docker-compose.yaml
  echo "version: '2'
-   services:
-     test:
-       image: ubuntu
-       command: bash
-       tty: true" > $compose_file
+ services:
+   test:
+     image: ubuntu
+     command: bash
+     tty: true" > $compose_file
  {compose_command} -f $compose_file up -d
  ID=$({compose_command} -f $compose_file ps -q test)
  [ `docker inspect -f {status} $ID` != running ] && exit 1
@@ -418,11 +418,11 @@ command:
  set -e
  compose_file={root_dir}/docker-compose.yaml
  echo "version: '2'
-   services:
-     test:
-       image: ubuntu
-       command: sleep 1
-       restart: always" > $compose_file
+ services:
+   test:
+     image: ubuntu
+     command: sleep 1
+     restart: always" > $compose_file
  {compose_command} -f $compose_file up -d
  ID=$({compose_command} -f $compose_file ps -q test)
  restartPolicy=$(docker inspect -f {restartPolicy} $ID)

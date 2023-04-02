@@ -1,0 +1,84 @@
+name: Stable version of checkbox
+run-name: Promote beta versions of checkbox to stable
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Publish the release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Edit the draft release and publish it
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit $(git describe --tags --abbrev=0 --match v*) --draft=false
+
+  checkbox_deb_packages:
+    name: Checkbox Debian packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -qq -y python3-launchpadlib
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
+      - name: Copy deb packages from testing to stable ppa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          CHECKBOX_REPO: ${{ github.repository }}
+        run: |
+          tools/release/lp-copy-packages.py
+
+  checkbox_core_snap:
+    name: Checkbox core snap packages:
+    runs-on: ubuntu-latest
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    steps:
+      - name: Setup Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+      - name: Promote checkbox core snaps to the stable channel
+        run: |
+          snapcraft promote checkbox16 --from-channel latest/beta --to-channel latest/candidate --yes
+          snapcraft promote checkbox16 --from-channel latest/beta --to-channel latest/stable --yes
+          snapcraft promote checkbox18 --from-channel latest/beta --to-channel latest/candidate --yes
+          snapcraft promote checkbox18 --from-channel latest/beta --to-channel latest/stable --yes
+          snapcraft promote checkbox20 --from-channel latest/beta --to-channel latest/candidate --yes
+          snapcraft promote checkbox20 --from-channel latest/beta --to-channel latest/stable --yes
+          snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/candidate --yes
+          snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/stable --yes
+
+  checkbox_snap:
+    name: Checkbox snap packages:
+    runs-on: ubuntu-latest
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    steps:
+      - name: Setup Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+      - name: Promote checkbox snaps to the stable channel
+        run: |
+          snapcraft promote checkbox --from-channel uc16/beta --to-channel uc16/candidate --yes
+          snapcraft promote checkbox --from-channel uc16/beta --to-channel uc16/stable --yes
+          snapcraft promote checkbox --from-channel uc18/beta --to-channel uc18/candidate --yes
+          snapcraft promote checkbox --from-channel uc18/beta --to-channel uc18/stable --yes
+          snapcraft promote checkbox --from-channel uc20/beta --to-channel uc20/candidate --yes
+          snapcraft promote checkbox --from-channel uc20/beta --to-channel uc20/stable --yes
+          snapcraft promote checkbox --from-channel uc22/beta --to-channel uc22/candidate --yes
+          snapcraft promote checkbox --from-channel uc22/beta --to-channel uc22/stable --yes
+          snapcraft promote checkbox --from-channel 16.04/beta --to-channel 16.04/candidate --yes
+          snapcraft promote checkbox --from-channel 16.04/beta --to-channel 16.04/stable --yes
+          snapcraft promote checkbox --from-channel 18.04/beta --to-channel 18.04/candidate --yes
+          snapcraft promote checkbox --from-channel 18.04/beta --to-channel 18.04/stable --yes
+          snapcraft promote checkbox --from-channel 20.04/beta --to-channel 20.04/candidate --yes
+          snapcraft promote checkbox --from-channel 20.04/beta --to-channel 20.04/stable --yes
+          snapcraft promote checkbox --from-channel 22.04/beta --to-channel 22.04/candidate --yes
+          snapcraft promote checkbox --from-channel 22.04/beta --to-channel 22.04/stable --yes
+          snapcraft promote checkbox --from-channel 22.04/beta --to-channel latest/candidate --yes
+          snapcraft promote checkbox --from-channel 22.04/beta --to-channel latest/stable --yes

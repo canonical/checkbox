@@ -9,6 +9,8 @@ jobs:
     name: Publish the release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
       - name: Edit the draft release and publish it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

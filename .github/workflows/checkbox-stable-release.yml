@@ -16,7 +16,7 @@ jobs:
           gh release edit $(git describe --tags --abbrev=0 --match v*) --draft=false
 
   checkbox_deb_packages:
-    name: Checkbox Debian packages:
+    name: Checkbox Debian packages
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
@@ -34,7 +34,7 @@ jobs:
           tools/release/lp-copy-packages.py
 
   checkbox_core_snap:
-    name: Checkbox core snap packages:
+    name: Checkbox core snap packages
     runs-on: ubuntu-latest
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -54,7 +54,7 @@ jobs:
           snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/stable --yes
 
   checkbox_snap:
-    name: Checkbox snap packages:
+    name: Checkbox snap packages
     runs-on: ubuntu-latest
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}

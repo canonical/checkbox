@@ -94,3 +94,13 @@ command:
      removable_storage_watcher.py --unmounted -m 500000000 --zapper-usb-address={{ port_alias }} remove usb
  {% endif -%}
 estimated_duration: 20
+
+id: bluetooth/zapper-a2dp
+requires: zapper_capabilities.capability == 'bluetooth' and 'a2dp' in zapper_capabilities.profiles
+category_id: com.canonical.plainbox::bluetooth
+plugin: shell
+estimated_duration: 60
+_summary: Check if the system can connect to a Bluetooth speaker using A2DP profile
+environ: ZAPPER_HOST
+command: bt_a2dp.py "$ZAPPER_HOST"
+depends: bluetooth/detect-output

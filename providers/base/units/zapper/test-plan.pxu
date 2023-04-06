@@ -11,6 +11,7 @@ unit: test plan
 _name: Tests using Zapper
 _description: Tests using Zapper
 include:
+  bluetooth/zapper-a2dp
   monitor/zapper-edid
   monitor/1_zapper_hdmi_.*
   usb/zapper-usb-insert-.*

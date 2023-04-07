@@ -62,6 +62,7 @@ nested_part:
     after-suspend-usb-c-cert-full # no manual only
     # after-suspend-wireless-cert-full # auto only
     info-attachment-cert-full
+    acpi_oem_osi_strings
 exclude:
     com.canonical.certification::keys/hibernate
     com.canonical.certification::keys/lock-screen
@@ -174,6 +175,7 @@ nested_part:
     stress-ng-cert-automated
     tpm-cert-automated
     info-attachment-cert-full
+    acpi_oem_osi_strings
 exclude:
     com.canonical.certification::keys/hibernate
     com.canonical.certification::keys/lock-screen

@@ -428,7 +428,7 @@ command:
         fi
     fi
   done
-  echo "There are no avaiable BT devices."
+  echo "There are no available BT devices."
   exit 1
 flags: also-after-suspend
 _summary: Bluetooth OBEX send

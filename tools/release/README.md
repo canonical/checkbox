@@ -4,10 +4,11 @@
 Sometimes, the builders will be down and this might prevent building the
 packages.
 
-## Bump the checkbox version
-Run the [Bumpversion workflow] (the default increment is **minor**)  
+## Bump the Checkbox version
+Run the [Bumpversion workflow] (the default increment is **minor**).
+
 Steps in this workflow:
-- Run [Bumpversion] for all checkbox sub-projects, snaps and debian packages
+- Run [Bumpversion] for all Checkbox sub-projects, Snaps and Debian packages
 - Open a new PR to approve and merge
 - Provide tagging instructions
 
@@ -24,32 +25,37 @@ Steps in this workflow:
   ```
   git push --tags
   ```
-  > **_NOTE:_** Having to clone and not push the tag from the bumpversion workflow is actually a Github action limitation[^1]:
-  > *if a workflow run pushes code using the repository's GITHUB_TOKEN, a new workflow will not run even when the repository contains a workflow configured to run when push events occur.*
+  > **_NOTE:_** Having to clone and not push the tag from the bumpversion
+  workflow is actually a Github Action limitation[^1]:
+  > *if a workflow run pushes code using the repository's GITHUB_TOKEN, a new
+  workflow will not run even when the repository contains a workflow configured
+  to run when push events occur.*
 
 ## Monitor the build and publish workflows
 3 workflows are triggered on tag push events:
 - [checkbox deb packages] *(built and published to the testing PPA)*
-- [checkbox snap packages] *(built and uploaded to their respective beta channels)*
-- [checkbox core snap packages] *(built and uploaded to their respective beta channels)*
+- [checkbox snap packages] *(built and uploaded to their respective beta
+  channels)*
+- [checkbox core snap packages] *(built and uploaded to their respective beta
+  channels)*
 
 In addition to the above workflows, a draft release is created on Github with
 an auto-generated changelog.
 
 Check the related Github Action logs to see if everything runs as expected:
 
-- snapcraft is not blocked during the snap build process. For example, in this 
-[build](https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336), the i386 build was blocked on an error (`Chroot problem`) for hours 
+- Snapcraft is not blocked during the snap build process. For example, in this
+[build], the i386 build was blocked on an error (`Chroot problem`) for hours
 before finally completing
-- the expected number of snaps are built. snapcraft 
-does not return 1 when only a few of the snaps are built, which leads to GHA 
-being marked as successful even though some snaps are not built (and therefore 
-not pushed to the store)
+- the expected number of snaps are built. Snapcraft does not return 1 when only
+a few of the snaps are built, which leads to Github Actions being marked as
+successful even though some snaps are not built (and therefore not pushed to
+the store)
 
 ## Promote the release to stable
 
-When all tests are successfully completed, run the [Stable release workflow] to copy deb packages to the stable
-PPA and promote all snaps to stable
+When all tests are successfully completed, run the [Stable release workflow] to
+copy deb packages to the stable PPA and promote all snaps to stable
 
 # References
 
@@ -84,4 +90,4 @@ release
 [checkbox deb packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
 [checkbox snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-beta-release.yml
 [checkbox core snap packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
-
+[build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336

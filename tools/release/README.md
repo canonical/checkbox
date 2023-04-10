@@ -1,4 +1,63 @@
-# Checkbox release process (Debian packages)
+# Checkbox release process
+
+> **_NOTE:_** Check the [Launchpad Builders status] before triggering a release.
+Sometimes, the builders will be down and this might prevent building the
+packages.
+
+## Bump the Checkbox version
+Run the [Bumpversion workflow] (the default increment is **minor**).
+
+Steps in this workflow:
+- Run [Bumpversion] for all Checkbox sub-projects, Snaps and Debian packages
+- Open a new PR to approve and merge
+- Provide tagging instructions
+
+## Tag the release
+- Clone the repository once the PR is merged
+  ```
+  git clone git@github.com:canonical/checkbox.git
+  ```
+- Tag the release following the instructions given in the PR
+  ```
+  git tag -s "v2.4" -m "Bump version: 2.3 → 2.4"
+  ```
+- Push the tag to origin
+  ```
+  git push --tags
+  ```
+  > **_NOTE:_** Having to clone and not push the tag from the bumpversion
+  workflow is actually a Github Action limitation[^1]:
+  > *if a workflow run pushes code using the repository's GITHUB_TOKEN, a new
+  workflow will not run even when the repository contains a workflow configured
+  to run when push events occur.*
+
+## Monitor the build and publish workflows
+3 workflows are triggered on tag push events:
+- [checkbox deb packages] *(built and published to the testing PPA)*
+- [checkbox snap packages] *(built and uploaded to their respective beta
+  channels)*
+- [checkbox core snap packages] *(built and uploaded to their respective beta
+  channels)*
+
+In addition to the above workflows, a draft release is created on Github with
+an auto-generated changelog.
+
+Check the related Github Action logs to see if everything runs as expected:
+
+- Snapcraft is not blocked during the snap build process. For example, in this
+[build], the i386 build was blocked on an error (`Chroot problem`) for hours
+before finally completing
+- the expected number of snaps are built. Snapcraft does not return 1 when only
+a few of the snaps are built, which leads to Github Actions being marked as
+successful even though some snaps are not built (and therefore not pushed to
+the store)
+
+## Promote the release to stable
+
+When all tests are successfully completed, run the [Stable release workflow] to
+copy deb packages to the stable PPA and promote all snaps to stable
+
+# References
 
 ## PPA/Repositories
 
@@ -19,161 +78,16 @@ release
 * [providers/tpm2](https://github.com/canonical/checkbox/tree/main/providers/tpm2)
 * [providers/gpgpu](https://github.com/canonical/checkbox/tree/main/providers/gpgpu)
 
-## Release steps summary
+[^1]:https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
 
-Steps | Release candidate(s) (RC) | Stable release | Dry mode
-:--- | :---: | :---: | :---:
-Parse each project and check for new commits | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:
-Bump and tag versions | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:
-Create release changelog (since the latest stable tag) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:
-Push release tags to Github | :heavy_check_mark: | :heavy_check_mark: | :x:[^1]
-Update the PPA recipes and kick-off the builds | :heavy_check_mark: | :heavy_check_mark: | :x:
-Open a new release for development | :x: | :heavy_check_mark: | :x:
-Create a pull request including the new [SemVer](https://semver.org/spec/v2.0.0.html) | :x: | :heavy_check_mark: | :x:
-
-## How to trigger the GitHub Actions release workflow
-
-All the release steps above are fully automated but initiating a release is a
-manual process requiring some user input.
-
-The same workflow support two types of release, **testing** and **stable**.
-Additionally, the release manager can perform a **dry run** to:
-* Identify which projects are going to be released 
-* Review the release changelog
-
-Since `workflow_dispatch` only supports a maximum of 10 user inputs[^2], all
-config options are grouped into a single JSON parameter. For all the release
-scenarios below, just copy-paste the JSON snippet into the workflow input field
-(pre-filled with `{}`).
-
-```
-╭-----------------------------------^----╮
-|  Use workflow from                     |
-|  ╭----------------╮                    |
-|  | Branch: main v |                    |
-|  ╰----------------╯                    |
-|                                        |
-|  JSON of options *                     |
-|  ╭--------------------------------╮    |
-|  | {}                             |    |
-|  ╰--------------------------------╯    |
-|                                        |
-|  ╭--------------╮                      |
-|  | Run workflow |                      |
-|  ╰--------------╯                      |
-╰----------------------------------------╯
-```
-
-### Triggering the first release candidate
-
-**Note:** Check the [Launchpad Builders status] before triggering a release.
-Sometimes, the builders will be down and this might prevent building the
-packages.
-
-Before applying RC tags, it's recommended to first perform a **dry run** of the **testing** mode and select all the projects:
-
-```
-{
-    "mode": "testing",
-    "dry_run": true,
-    "checkbox-ng": true,
-    "checkbox-support": true,
-    "provider-base": true,
-    "provider-resource": true,
-    "provider-tpm2": true,
-    "provider-sru": true,
-    "provider-certification-server": true,
-    "provider-certification-client": true,
-    "provider-gpgpu": true
-}
-```
-
-After reviewing the changelog, **dry run** can be set to false:
-
-```
-{
-    "mode": "testing",
-    "dry_run": false,
-    "checkbox-ng": true,
-    "checkbox-support": true,
-    "provider-base": true,
-    "provider-resource": true,
-    "provider-tpm2": true,
-    "provider-sru": true,
-    "provider-certification-server": true,
-    "provider-certification-client": true,
-    "provider-gpgpu": true
-}
-```
-
-In the Github Action Release logs, you will find a section called "Update the
-PPA recipe and kick-off the builds". In there, you will find links to the build
-status for each package. Please note the Github Action may complete
-successfully, but the packages may not be built. **Remember to check the build
-status for each package!**
-
-### Requesting another release candidate for a subset of projects
-
-If the validation of the release candidates identifies issues or regressions,
-running the workflow again will create new RC tags (project-vX.Y.Zrc**N+1**).
-
-In the example below, new RC are required for `checkbox-support` and the `base`
-provider:
-
-```
-{
-    "mode": "testing",
-    "dry_run": false,
-    "checkbox-support": true,
-    "provider-base": true
-}
-```
-
-The same workflow can run using the JSON config below of course:
-
-```
-{
-    "mode": "testing",
-    "dry_run": false,
-    "checkbox-ng": false,
-    "checkbox-support": true,
-    "provider-base": true,
-    "provider-resource": false,
-    "provider-tpm2": false,
-    "provider-sru": false,
-    "provider-certification-server": false,
-    "provider-certification-client": false,
-    "provider-gpgpu": false
-}
-```
-
-### Triggering a stable release
-
-Stable releases **MUST** follow release candidates, it's not possible to jump
-from a stable tag to an other stable tag. The next JSON config will apply the
-stable release tag to the same commit the latest RC tag was applied to.
-
-```
-{
-    "mode": "stable",
-    "dry_run": false,
-    "checkbox-ng": true,
-    "checkbox-support": true,
-    "provider-base": true,
-    "provider-resource": true,
-    "provider-tpm2": true,
-    "provider-sru": true,
-    "provider-certification-server": true,
-    "provider-certification-client": true,
-    "provider-gpgpu": true
-}
-```
-
-[^1]:Actually a `git push --dry-run` is executed
-[^2]:https://github.com/community/community/discussions/8774
-
+[Bumpversion workflow]: https://github.com/canonical/checkbox/actions/workflows/bumpversion.yml
+[Stable release workflow]: https://github.com/canonical/checkbox/actions/workflows/checkbox-stable-release.yml
+[Bumpversion]: https://github.com/c4urself/bump2version
 [Stable]: https://launchpad.net/~hardware-certification/+archive/ubuntu/public
 [Testing]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/testing
 [Development]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/ppa
 [Launchpad Builders status]: https://launchpad.net/builders
-
+[checkbox deb packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
+[checkbox snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-beta-release.yml
+[checkbox core snap packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
+[build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336

@@ -415,7 +415,21 @@ command:
     echo "btdevaddr option not set to device address of Bluetooth target in checkbox.conf"
     exit 1
   fi
-  set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" send 2>&1 | ansi_parser.py
+  for bt in $(echo "${BTDEVADDR}" | cut -d = -f 2 | sed s/,/\\n/g)
+  do
+    echo "Host:[${bt}]"
+    if echo 'u' | sudo -S l2ping -c 5 -t 5 "${bt}"
+        then
+        echo "Get avaiable BTDEVADDR:[${bt}]"
+        set -o pipefail
+        if bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "${bt}" send 2>&1 | ansi_parser.py
+        then
+            exit 0
+        fi
+    fi
+  done
+  echo "There are no avaiable BT devices."
+  exit 1
 flags: also-after-suspend
 _summary: Bluetooth OBEX send
 _description:

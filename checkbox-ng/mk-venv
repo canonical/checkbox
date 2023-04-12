@@ -17,6 +17,7 @@ pip install tqdm psutil
 
 mkdir -p "$venv_path/share/plainbox-providers-1"
 echo "export PROVIDERPATH=$venv_path/share/plainbox-providers-1" >> $venv_path/bin/activate
+echo "set -gx PROVIDERPATH $venv_path/share/plainbox-providers-1" >> $venv_path/bin/activate.fish
 
 echo "virtualenv with an empty provider database created at $venv_path"
 echo "To activate your virtualenv run:"

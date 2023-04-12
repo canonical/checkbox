@@ -539,6 +539,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
     def _run_jobs(self, jobs_repr, total_num=0):
         for job in jobs_repr:
+            job_state = self.sa._sa.get_job_state(job['id'])
             SimpleUI.header(
                 _('Running job {} / {}').format(
                     job['num'], total_num,
@@ -584,7 +585,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         job_lite = JobAdapter(job['command'])
                         try:
                             cmd = SimpleUI(None)._interaction_callback(
-                                job_lite, interaction.extra._builder)
+                                job_lite, job_state, interaction.extra._builder)
                             self.sa.remember_users_response(cmd)
                             self.finish_job(
                                 interaction.extra._builder.get_result())

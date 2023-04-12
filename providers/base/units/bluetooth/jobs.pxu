@@ -420,7 +420,7 @@ command:
     echo "Host:[${bt}]"
     if echo 'u' | sudo -S l2ping -c 5 -t 5 "${bt}"
         then
-        echo "Get avaiable BTDEVADDR:[${bt}]"
+        echo "Get available BTDEVADDR:[${bt}]"
         set -o pipefail
         if bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "${bt}" send 2>&1 | ansi_parser.py
         then

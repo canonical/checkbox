@@ -21,5 +21,8 @@ echo "set -gx PROVIDERPATH $venv_path/share/plainbox-providers-1" >> $venv_path/
 
 echo "virtualenv with an empty provider database created at $venv_path"
 echo "To activate your virtualenv run:"
-echo "$ . $venv_path/bin/activate"
-
+if [ "$(basename "$SHELL")" = "fish" ]; then
+    echo "$ . $venv_path/bin/activate.fish"
+else
+    echo "$ . $venv_path/bin/activate"
+fi

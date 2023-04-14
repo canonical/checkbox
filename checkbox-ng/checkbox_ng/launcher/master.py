@@ -602,10 +602,26 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                             _('Please enter your comments:') + '\n'))
                         self.sa.remember_users_response(new_comment + '\n')
                     elif interaction.kind == 'skip':
-                        self.finish_job(
-                            interaction.extra._builder.get_result())
-                        next_job = True
-                        break
+                        if (
+                            job_state.effective_certification_status == "blocker"
+                            and not isinstance(interaction.extra._builder.comments, str)
+                        ):
+                            print(self.C.RED(_("This job is required to issue"
+                                               " a certificate.")))
+                            print(
+                                self.C.RED(_("Please add a comment to explain"
+                                             " why you want to skip it."))
+                            )
+                            next_job = False
+                            self.sa.rerun_job(
+                                job['id'],
+                                interaction.extra._builder.get_result())
+                            break
+                        else:
+                            self.finish_job(
+                                interaction.extra._builder.get_result())
+                            next_job = True
+                            break
                 else:
                     self.wait_for_job()
                     break

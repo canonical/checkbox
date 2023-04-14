@@ -441,10 +441,11 @@ class RemoteSessionAssistant():
             if self._last_response == 'skip':
                 def skipped_builder(*args, **kwargs):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP,
-                        comments=_("Explicitly skipped before execution"))
+                        outcome=IJobResult.OUTCOME_SKIP)
                     if self._current_comments != "":
                         result_builder.comments = self._current_comments
+                    elif job_state.effective_certification_status != "blocker":
+                        result_builder.comments = "Explicitly skipped before execution"
                     return result_builder
                 self._be = BackgroundExecutor(
                     self, job_id, skipped_builder)

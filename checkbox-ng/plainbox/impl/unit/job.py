@@ -121,29 +121,22 @@ class _CertificationStatusValues(SymbolDef):
     Particular values have the following meanings.
 
     unspecified:
-        One of the new possible certification status values. This value means
-        that a job was not analyzed in the context of certification status
-        classification and it has no classification at this time. This is also
-        the implicit certification status for all jobs.
+        This value means that a job was not analyzed in the context of
+        certification status classification and it has no classification at this
+        time. This is also the implicit certification status for all jobs.
     not-part-of-certification:
-        One of the new possible certification status values. This value means
-        that a given job may fail and this will not affect the certification
-        process in any way. Typically jobs with this certification status are
-        not executed during the certification process. In the past this was
-        informally referred to as a *blacklist item*.
+        This value means that a given job may fail and this will not affect the
+        certification process in any way. Typically jobs with this certification
+        status are not executed during the certification process.
     non-blocker:
-        One of the new possible certification status values. This value means
-        that a given job may fail and while that should be regarded as a
-        possible future problem it will not block the certification process. In
-        the past this was informally referred to as a *graylist item*.
-        Canonical reserves the right to promote jobs from the *non-blocker* to
-        *blocker*.
+        This value means that a given job may fail and while that should be
+        regarded as a possible future problem it will not block the
+        certification process. Canonical reserves the right to promote jobs from
+        *non-blocker* to *blocker*.
     blocker:
-        One of the new possible certification status values. This value means
-        that a given job must pass for the certification process to succeed. In
-        the past this was informally referred to as a *whitelist item*. The
-        term *blocker* was chosen to disambiguate the meaning of the two
-        concepts.
+        This value means that a given job must pass for the certification
+        process to succeed. The term *blocker* was chosen to disambiguate the
+        meaning of the two concepts.
     """
     unspecified = 'unspecified'
     not_part_of_certification = 'not-part-of-certification'

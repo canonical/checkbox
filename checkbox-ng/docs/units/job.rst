@@ -59,6 +59,39 @@ Following fields may be used by the job unit:
           records, containing key/value pairs, and that can be used in other
           jobs' ``requires`` expressions.
 
+``certification-status``:
+    (optional) - Certification status for the given job. This is used by
+    Canonical to determine the jobs that **must** be run in order to be able to
+    issue a certificate. The allowed values are:
+
+    :unspecified:
+        This value means that a job was not analyzed in the context of
+        certification status classification and it has no classification at this
+        time. This is also the default certification status for all jobs.
+    :not-part-of-certification:
+        This value means that a given job may fail and this will not affect the
+        certification process in any way. Typically jobs with this certification
+        status are not executed during the certification process.
+    :non-blocker:
+        This value means that a given job may fail and while that should be
+        regarded as a possible future problem it will not block the
+        certification process. Canonical reserves the right to promote jobs from
+        *non-blocker* to *blocker*.
+    :blocker:
+        This value means that a given job **must** pass for the certification
+        process to succeed.
+
+    .. note::
+        The certification status can be overridden in a test plan.
+
+    .. warning::
+        If a job requiring user interaction (i.e. its ``plugin`` value is set to
+        ``manual``, ``user-interact`` or ``user-interact-verify``) has a
+        ``certification-status`` set to ``blocker``, it cannot be skipped or
+        failed unless the user provides a comment. This is so that the
+        Certification team can evaluate the test report and investigate the
+        reasons behind such an outcome.
+
 ``requires``:
     (optional). If specified, the job will only run if the conditions
     expressed in this field are met.

@@ -78,7 +78,6 @@ nested_part:
     after-suspend-usb-c-cert-full
     # after-suspend-wireless-cert-full # auto only
     info-attachment-cert-manual
-    acpi_oem_osi_strings
 exclude:
     keys/hibernate
 
@@ -93,6 +92,7 @@ include:
 nested_part:
     submission-cert-automated
     info-attachment-cert-automated
+    acpi-automated
     audio-cert-automated
     bluetooth-cert-automated
     camera-cert-automated
@@ -153,7 +153,6 @@ nested_part:
     # with.
     power-management-reboot-poweroff-cert-automated
     tpm-cert-automated
-    acpi_oem_osi_strings
 bootstrap_include:
     device
     graphics_card

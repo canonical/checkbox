@@ -45,7 +45,6 @@ nested_part:
     after-suspend-bluetooth-manual
     after-suspend-ethernet-manual
     after-suspend-wwan-manual
-    acpi_oem_osi_strings
 exclude:
     usb-c/c-to-a-adapter.*
     mediacard/mmc-.*
@@ -87,6 +86,7 @@ bootstrap_include:
 nested_part:
     submission-cert-automated
     self-automated
+    acpi-automated
     bluez-automated
     camera-automated
     edac-automated
@@ -116,7 +116,6 @@ nested_part:
     after-suspend-wwan-automated
     warm-boot-stress-test
     cold-boot-stress-test
-    acpi_oem_osi_strings
 exclude:
     usb-c/c-to-a-adapter.*
     mediacard/mmc-.*

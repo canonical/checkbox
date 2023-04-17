@@ -76,7 +76,6 @@ nested_part:
   after-suspend-wireless-manual
   after-suspend-wireless-wifi-master-mode-manual
   after-suspend-wwan-manual
-  acpi_oem_osi_strings
 
 id: client-cert-iot-ubuntucore-18-automated
 _name: IoT Client Certification for Ubuntu Core 18 (Automated Tests)
@@ -107,6 +106,7 @@ nested_part:
   submission-cert-automated
   self-automated
   iot-fwts-automated
+  acpi-automated
   audio-automated
   bluez-automated
   camera-automated
@@ -144,7 +144,6 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
-  acpi_oem_osi_strings
 
 id: client-cert-iot-ubuntucore-18-stress
 _name: IoT Client Certification for Ubuntu Core 18 (Stress Tests)

@@ -318,6 +318,12 @@ plugin: resource
 _summary: Generate an entry for each graphics card present in the system.
 command: graphics_card_resource.py
 
+id: nv_graphics_card
+estimated_duration: 0.05
+plugin: resource
+_summary: Generate an entry for NVIDIA graphics card present in the system.
+command: nv_card_resource.sh
+
 id: fwts
 estimated_duration: 0.5
 plugin: resource

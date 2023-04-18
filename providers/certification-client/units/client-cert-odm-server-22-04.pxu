@@ -87,6 +87,7 @@ bootstrap_include:
 nested_part:
     submission-cert-automated
     self-automated
+    acpi-automated
     bluez-automated
     camera-automated
     edac-automated

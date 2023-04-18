@@ -1,0 +1,10 @@
+id: acpi/oem_osi
+_summary: test ACPI OEM _OSI strings
+_description:
+  This checks if the depreciated OEM _OSI strings are still used by checking the ACPI DSDT and SSDT tables
+plugin: shell
+requires:
+ cpuinfo.platform in ("i386", "x86_64")
+user: root
+estimated_duration: 1
+command: acpi_tests.sh

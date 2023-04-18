@@ -107,6 +107,7 @@ _description:
 include:
 nested_part:
     submission-cert-full
+    acpi-automated
     audio-cert-automated
     bluetooth-cert-automated
     camera-cert-automated

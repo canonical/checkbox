@@ -1,0 +1,8 @@
+# Copyright 2020 Canonical Ltd.
+# All rights reserved.
+#
+# Author: Alex Hung<alex.hung@canonical.com>
+
+unit: category
+id: acpi
+_name: Advanced Configuration and Power Interface

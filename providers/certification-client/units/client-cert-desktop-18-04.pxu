@@ -85,6 +85,7 @@ include:
 nested_part:
     submission-cert-automated
     info-attachment-cert-automated
+    acpi-automated
     audio-cert-automated
     bluetooth-cert-automated
     camera-cert-automated

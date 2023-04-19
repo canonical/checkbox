@@ -5,14 +5,17 @@ Sometimes, the builders will be down and this might prevent building the
 packages.
 
 ## Bump the Checkbox version
+
 Run the [Bumpversion workflow] (the default increment is **minor**).
 
-Steps in this workflow:
+This workflow will:
+
 - Run [Bumpversion] for all Checkbox sub-projects, Snaps and Debian packages
 - Open a new PR to approve and merge
 - Provide tagging instructions
 
 ## Tag the release
+
 - Clone the repository once the PR is merged
   ```
   git clone git@github.com:canonical/checkbox.git
@@ -32,7 +35,9 @@ Steps in this workflow:
   to run when push events occur.*
 
 ## Monitor the build and publish workflows
+
 3 workflows are triggered on tag push events:
+
 - [checkbox deb packages] *(built and published to the testing PPA)*
 - [checkbox snap packages] *(built and uploaded to their respective beta
   channels)*
@@ -89,5 +94,5 @@ release
 [Launchpad Builders status]: https://launchpad.net/builders
 [checkbox deb packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
 [checkbox snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-beta-release.yml
-[checkbox core snap packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
+[checkbox core snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-core-snap-beta-release.yml
 [build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336

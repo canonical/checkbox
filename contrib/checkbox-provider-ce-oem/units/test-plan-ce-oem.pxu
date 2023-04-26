@@ -65,7 +65,6 @@ nested_part:
     ce-oem-rs485-automated
     ce-oem-eeprom-automated
     ce-oem-led-automated
-    ce-oem-power-automated-by-pdu
 
 id: after-suspend-ce-oem-manual
 unit: test plan

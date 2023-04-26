@@ -1,0 +1,124 @@
+# Copyright 2023 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the IoT devices running Ubuntu Core.
+#
+
+id: ce-oem-iot-ubuntucore-22
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated tests for Ubuntu Core 22
+_description:
+ Combined manual and automated test plans for IoT device running Ubuntu Core.
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-22-manual
+    ce-oem-iot-ubuntucore-22-automated
+
+id: ce-oem-iot-ubuntucore-20
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated tests for Ubuntu Core 20
+_description:
+ Combined manual and automated test plans for IoT device running Ubuntu Core.
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-20-manual
+    ce-oem-iot-ubuntucore-20-automated
+
+id: ce-oem-iot-ubuntucore-22-manual
+unit: test plan
+_name: CE-OEM-IOT - Manual only QA tests for Ubuntu Core 22
+_description:
+ Ubuntu Core QA test plan for the IoT hardware. This test plan contains
+ all of the tests that require manual control of device hardware
+ or some other user input to complete.
+estimated_duration: 3600
+include:
+    com.canonical.certification::disk/encryption/check-fde-tpm                 # keep if FDE with TPM is enabled
+    com.canonical.certification::ubuntucore/kernel-failboot-.*                 # keep if kernel snap is not pc-kernel
+nested_part:
+    ce-oem-manual
+    com.canonical.certification::client-cert-iot-ubuntucore-22-manual
+    after-suspend-ce-oem-manual
+exclude:
+    com.canonical.certification::ethernet/wol_S4_.*
+
+
+id: ce-oem-ubuntucore-20-manual
+unit: test plan
+_name: CE-OEM-IOT - Manual only QA tests for Ubuntu Core 20
+_description:
+ Ubuntu Core QA test plan for the IoT hardware. This test plan contains
+ all of the tests that require manual control of device hardware
+ or some other user input to complete.
+estimated_duration: 3600
+include:
+    com.canonical.certification::disk/encryption/check-fde-tpm                 # keep if FDE with TPM is enabled
+    com.canonical.certification::ubuntucore/kernel-failboot-.*                 # keep if kernel snap is not pc-kernel
+nested_part:
+    ce-oem-manual
+    com.canonical.certification::client-cert-iot-ubuntucore-20-manual
+    after-suspend-ce-oem-manual
+exclude:
+    com.canonical.certification::ethernet/wol_S4_.*
+
+
+id: ce-oem-iot-ubuntucore-22-automated
+unit: test plan
+_name: CE-OEM-IOT - Automated only QA tests for Ubuntu Core 22
+_description:
+ Ubuntu Core QA test plan for the IoT hardware. This test plan contains
+ all of the automated tests used to validate the IoT device.
+include:
+    com.canonical.certification::image/model-grade
+    com.canonical.certification::miscellanea/secure_boot_mode_.*               # keep if secure boot is enabled
+    com.canonical.certification::disk/encryption/detect                        # keep if FDE is enabled
+nested_part:
+    ce-oem-automated
+    com.canonical.certification::client-cert-iot-ubuntucore-22-automated
+    after-suspend-ce-oem-automated
+exclude:
+
+
+id: ce-oem-iot-ubuntucore-20-automated
+unit: test plan
+_name: CE-OEM-IOT - Automated only QA tests for Ubuntu Core 20
+_description:
+ Ubuntu Core QA test plan for the IoT hardware. This test plan contains
+ all of the automated tests used to validate the IoT device.
+include:
+    com.canonical.certification::image/model-grade
+    com.canonical.certification::miscellanea/secure_boot_mode_.*               # keep if secure boot is enabled
+    com.canonical.certification::disk/encryption/detect                        # keep if FDE is enabled
+nested_part:
+    ce-oem-automated
+    com.canonical.certification::client-cert-iot-ubuntucore-20-automated
+    after-suspend-ce-oem-automated
+exclude:
+
+
+id: ce-oem-iot-ubuntucore-22-stress
+unit: test plan
+_name: CE-OEM-IOT - Stress tests for Ubuntu Core 22
+_description:
+ Ubuntu Core QA test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+    com.canonical.certification::stress-iperf3-automated                       # keep if ethernet is supported
+    com.canonical.certification::client-cert-iot-ubuntucore-22-stress
+    ce-oem-stress
+exclude:
+    com.canonical.certification::stress-tests/hibernate.*
+
+
+id: ce-oem-iot-ubuntucore-20-stress
+unit: test plan
+_name: CE-OEM-IOT - Stress tests for Ubuntu Core 20
+_description:
+ Ubuntu Core QA test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+    com.canonical.certification::stress-iperf3-automated                       # keep if ethernet is supported
+    com.canonical.certification::client-cert-iot-ubuntucore-20-stress
+    ce-oem-stress
+exclude:
+    com.canonical.certification::stress-tests/hibernate.*

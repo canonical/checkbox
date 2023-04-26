@@ -430,16 +430,14 @@ replaced with something meaningful, like ``html``.
 ``unit``
 
 ID of an exporter to use. To get the list of available exporters on your system
-run ``$ plainbox dev list exporter``.
+run ``$ checkbox-cli list exporter``.
 
 ``options``
 
 A list of options that will be supplied to the exporter. Items should be separated by
 spaces or commas.
 
-Example:
-
-::
+Example::
 
     [exporter:html]
     unit = com.canonical.plainbox::html

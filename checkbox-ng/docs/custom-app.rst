@@ -100,7 +100,7 @@ testing suite from plainbox-provider-snappy.
 .. code-block:: none
     :caption: unit/test-plan.pxu
     :name: test-plan.pxu-with-nested
-    :emphasize-lines: 14
+    :emphasize-lines: 5
 
     nested_part:
 	device-connections-tp

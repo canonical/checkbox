@@ -9,7 +9,7 @@ can interoperate, you're good to go.
 from functools import partial
 
 from plainbox.vendor.rpyc.lib import hybridmethod
-from plainbox.vendor.rpyc.lib.compat import execute, is_py_3k
+from plainbox.vendor.rpyc.lib.compat import execute
 from plainbox.vendor.rpyc.core.protocol import Connection
 
 
@@ -137,7 +137,10 @@ class ModuleNamespace(object):
         return self.__cache[name]
 
     def __getattr__(self, name):
-        return self[name]
+        try:
+            return self[name]
+        except ImportError:
+            raise AttributeError(name)
 
 
 class Slave(object):
@@ -215,14 +218,13 @@ class MasterService(Service):
     @staticmethod
     def _install(conn, slave):
         modules = ModuleNamespace(slave.getmodule)
-        builtin = modules.builtins if is_py_3k else modules.__builtin__
         conn.modules = modules
         conn.eval = slave.eval
         conn.execute = slave.execute
         conn.namespace = slave.namespace
-        conn.builtin = builtin
-        conn.builtins = builtin
-        from plainbox.vendor.rpyc.utils.classic import teleport_function
+        conn.builtins = modules.builtins
+        conn.builtin = modules.builtins  # TODO: cruft from py2 that requires cleanup elsewhere and CHANGELOG note
+        from rpyc.utils.classic import teleport_function
         conn.teleport = partial(teleport_function, conn)
 
 

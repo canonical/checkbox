@@ -46,7 +46,7 @@ def _export_codeobj(cobj):
         elif isinstance(const, CodeType):
             consts2.append(_export_codeobj(const))
         else:
-            raise TypeError(f"Cannot export a function with non-brinable constants: {const!r}")
+            raise TypeError("Cannot export a function with non-brinable constants: {!r}".format(const))
 
     if is_py_gte38:
         # Constructor was changed in 3.8 to support "advanced" programming styles

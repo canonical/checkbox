@@ -111,7 +111,7 @@ class DeployedServer(object):
             major = sys.version_info[0]
             minor = sys.version_info[1]
             cmd = None
-            for opt in [f"python{major}.{minor}", f"python{major}"]:
+            for opt in ["python{}.{}".format(major, minor), "python{}".format(major)]:
                 try:
                     cmd = remote_machine[opt]
                 except CommandNotFound:

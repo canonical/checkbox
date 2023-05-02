@@ -34,7 +34,7 @@ def buffiter(obj, chunk=10, max_chunk=1000, factor=2):
             print id, name, dob
     """
     if factor < 1:
-        raise ValueError(f"factor must be >= 1, got {factor!r}")
+        raise ValueError("factor must be >= 1, got {!r}".format(factor))
     it = iter(obj)
     count = chunk
     while True:
@@ -102,7 +102,7 @@ class _Async(object):
         return asyncreq(self.proxy, HANDLE_CALL, args, tuple(kwargs.items()))
 
     def __repr__(self):
-        return f"async_({self.proxy!r})"
+        return "async_({!r})".format(self.proxy)
 
 
 _async_proxies_cache = WeakValueDict()
@@ -145,9 +145,9 @@ def async_(proxy):
     if pid in _async_proxies_cache:
         return _async_proxies_cache[pid]
     if not hasattr(proxy, "____conn__") or not hasattr(proxy, "____id_pack__"):
-        raise TypeError(f"'proxy' must be a Netref: {proxy!r}")
+        raise TypeError("'proxy' must be a Netref: {!r}".format(proxy))
     if not callable(proxy):
-        raise TypeError(f"'proxy' must be callable: {proxy!r}")
+        raise TypeError("'proxy' must be callable: {!r}".format(proxy))
     caller = _Async(proxy)
     _async_proxies_cache[id(caller)] = _async_proxies_cache[pid] = caller
     return caller
@@ -186,7 +186,7 @@ class timed(object):
         return res
 
     def __repr__(self):
-        return f"timed({self.proxy.proxy!r}, {self.timeout!r})"
+        return "timed({!r}, {!r})".format(self.proxy.proxy, self.timeout)
 
 
 class BgServingThread(object):

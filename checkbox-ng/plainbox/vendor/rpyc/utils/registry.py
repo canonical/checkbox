@@ -75,7 +75,7 @@ class RegistryServer(object):
     def cmd_query(self, host, name):
         """implementation of the ``query`` command"""
         name = name.upper()
-        self.logger.debug(f"querying for {name!r}")
+        self.logger.debug("querying for {!r}".format(name))
         if name not in self.services:
             self.logger.debug("no such service")
             return ()
@@ -85,12 +85,12 @@ class RegistryServer(object):
         servers = []
         for addrinfo, t in all_servers:
             if t < oldest:
-                self.logger.debug(f"discarding stale {addrinfo[0]}:{addrinfo[1]}")
+                self.logger.debug("discarding stale {}:{}".format(addrinfo[0], addrinfo[1]))
                 self._remove_service(name, addrinfo)
             else:
                 servers.append(addrinfo)
 
-        self.logger.debug(f"replying with {servers!r}")
+        self.logger.debug("replying with {!r}".format(servers))
         return tuple(servers)
 
     def cmd_list(self, host):
@@ -100,20 +100,20 @@ class RegistryServer(object):
             self.logger.debug("listing is disabled")
             return None
         services = tuple(self.services.keys())
-        self.logger.debug(f"replying with {services}")
+        self.logger.debug("replying with {}".format(services))
 
         return services
 
     def cmd_register(self, host, names, port):
         """implementation of the ``register`` command"""
-        self.logger.debug(f"registering {host}:{port} as {', '.join(names)}")
+        self.logger.debug("registering {}:{} as {}".format(host, port, ', '.join(names)))
         for name in names:
             self._add_service(name.upper(), (host, port))
         return "OK"
 
     def cmd_unregister(self, host, port):
         """implementation of the ``unregister`` command"""
-        self.logger.debug(f"unregistering {host}:{port}")
+        self.logger.debug("unregistering {}:{}".format(host, port))
         for name in list(self.services.keys()):
             self._remove_service(name, (host, port))
         return "OK"
@@ -135,11 +135,11 @@ class RegistryServer(object):
             except Exception:
                 continue
             if magic != "RPYC":
-                self.logger.warn(f"invalid magic: {magic!r}")
+                self.logger.warn("invalid magic: {!r}".format(magic))
                 continue
-            cmdfunc = getattr(self, f"cmd_{cmd.lower()}", None)
+            cmdfunc = getattr(self, "cmd_{}".format(cmd.lower()), None)
             if not cmdfunc:
-                self.logger.warn(f"unknown command: {cmd!r}")
+                self.logger.warn("unknown command: {!r}".format(cmd))
                 continue
 
             try:
@@ -156,7 +156,7 @@ class RegistryServer(object):
         if self.sock is None:
             raise ValueError("object disposed")
         addrinfo = self.sock.getsockname()[:2]
-        self.logger.debug(f"server started on {addrinfo[0]}:{addrinfo[1]}")
+        self.logger.debug("server started on {}:{}".format(addrinfo[0], addrinfo[1]))
         try:
             self.active = True
             self._work()
@@ -192,7 +192,7 @@ class UDPRegistryServer(RegistryServer):
                                 logger=logger, allow_listing=allow_listing)
 
     def _get_logger(self):
-        return logging.getLogger(f"REGSRV/UDP/{self.port}")
+        return logging.getLogger("REGSRV/UDP/{}".format(self.port))
 
     def _recv(self):
         return self.sock.recvfrom(MAX_DGRAM_SIZE)
@@ -227,7 +227,7 @@ class TCPRegistryServer(RegistryServer):
         self._connected_sockets = {}
 
     def _get_logger(self):
-        return logging.getLogger(f"REGSRV/TCP/{self.port}")
+        return logging.getLogger("REGSRV/TCP/{}".format(self.port))
 
     def _recv(self):
         sock2, _ = self.sock.accept()
@@ -368,7 +368,7 @@ class UDPRegistryClient(RegistryClient):
         return services
 
     def register(self, aliases, port, interface=""):
-        self.logger.info(f"registering on {self.ip}:{self.port}")
+        self.logger.info("registering on {}:{}".format(self.ip, self.port))
         sock = socket.socket(self.sock_family, socket.SOCK_DGRAM)
         with closing(sock):
             sock.bind((interface, 0))
@@ -393,14 +393,14 @@ class UDPRegistryClient(RegistryClient):
                 except Exception:
                     continue
                 if reply == "OK":
-                    self.logger.info(f"registry {rip}:{rport} acknowledged")
+                    self.logger.info("registry {}:{} acknowledged".format(rip, rport))
                     return True
             else:
                 self.logger.warn("no registry acknowledged")
                 return False
 
     def unregister(self, port):
-        self.logger.info(f"unregistering from {self.ip}:{self.port}")
+        self.logger.info("unregistering from {}:{}".format(self.ip, self.port))
         sock = socket.socket(self.sock_family, socket.SOCK_DGRAM)
         with closing(sock):
             if self.bcast:
@@ -463,7 +463,7 @@ class TCPRegistryClient(RegistryClient):
         return servers
 
     def register(self, aliases, port, interface=""):
-        self.logger.info(f"registering on {self.ip}:{self.port}")
+        self.logger.info("registering on {}:{}".format(self.ip, self.port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         with closing(sock):
             sock.bind((interface, 0))
@@ -486,12 +486,12 @@ class TCPRegistryClient(RegistryClient):
                 self.logger.warn("received corrupted data from registry")
                 return False
             if reply == "OK":
-                self.logger.info(f"registry {self.ip}:{self.port} acknowledged")
+                self.logger.info("registry {}:{} acknowledged".format(self.ip, self.port))
 
             return True
 
     def unregister(self, port):
-        self.logger.info(f"unregistering from {self.ip}:{self.port}")
+        self.logger.info("unregistering from {}:{}".format(self.ip, self.port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         with closing(sock):
             sock.settimeout(self.timeout)

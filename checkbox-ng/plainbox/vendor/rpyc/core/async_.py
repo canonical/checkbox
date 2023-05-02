@@ -28,7 +28,7 @@ class AsyncResult(object):
             state = "expired"
         else:
             state = "pending"
-        return f"<AsyncResult object ({state}) at 0x{id(self):08x}>"
+        return "<AsyncResult object ({}) at 0x{:08x}>".format(state, id(self))
 
     def __call__(self, is_exc, obj):
         if self.expired:

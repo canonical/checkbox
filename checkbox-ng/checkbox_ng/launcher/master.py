@@ -539,6 +539,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
     def _run_jobs(self, jobs_repr, total_num=0):
         for job in jobs_repr:
+            job_state = self.sa._sa.get_job_state(job['id'])
             SimpleUI.header(
                 _('Running job {} / {}').format(
                     job['num'], total_num,
@@ -584,7 +585,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         job_lite = JobAdapter(job['command'])
                         try:
                             cmd = SimpleUI(None)._interaction_callback(
-                                job_lite, interaction.extra._builder)
+                                job_lite, job_state, interaction.extra._builder)
                             self.sa.remember_users_response(cmd)
                             self.finish_job(
                                 interaction.extra._builder.get_result())
@@ -601,10 +602,26 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                             _('Please enter your comments:') + '\n'))
                         self.sa.remember_users_response(new_comment + '\n')
                     elif interaction.kind == 'skip':
-                        self.finish_job(
-                            interaction.extra._builder.get_result())
-                        next_job = True
-                        break
+                        if (
+                            job_state.effective_certification_status == "blocker"
+                            and not isinstance(interaction.extra._builder.comments, str)
+                        ):
+                            print(self.C.RED(_("This job is required in order"
+                                               " to issue a certificate.")))
+                            print(
+                                self.C.RED(_("Please add a comment to explain"
+                                             " why you want to skip it."))
+                            )
+                            next_job = False
+                            self.sa.rerun_job(
+                                job['id'],
+                                interaction.extra._builder.get_result())
+                            break
+                        else:
+                            self.finish_job(
+                                interaction.extra._builder.get_result())
+                            next_job = True
+                            break
                 else:
                     self.wait_for_job()
                     break

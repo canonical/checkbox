@@ -460,29 +460,69 @@ class Launcher(MainLoopStage, ReportsStage):
 
         print(_("Previous session run tried to execute job: {}").format(
             last_job))
-        cmd = self._pick_action_cmd([
-            Action('s', _("skip that job"), 'skip'),
-            Action('p', _("mark it as passed and continue"), 'pass'),
-            Action('f', _("mark it as failed and continue"), 'fail'),
-            Action('r', _("run it again"), 'run'),
-        ], _("What do you want to do with that job?"))
-        if cmd == 'skip' or cmd is None:
-            result = MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_SKIP,
-                'comments': _("Skipped after resuming execution")
-            })
-        elif cmd == 'pass':
-            result = MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_PASS,
-                'comments': _("Passed after resuming execution")
-            })
-        elif cmd == 'fail':
-            result = MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_FAIL,
-                'comments': _("Failed after resuming execution")
-            })
-        elif cmd == 'run':
-            result = None
+        last_job_cert_status = self.ctx.sa.get_job_state(last_job).effective_certification_status
+        result_dict = {
+            "outcome": IJobResult.OUTCOME_NONE,
+            "comments": ""
+        }
+        while True:
+            cmd = self._pick_action_cmd([
+                Action("c", _("add comment"), "comment"),
+                Action("s", _("skip that job"), "skip"),
+                Action("p", _("mark it as passed and continue"), "pass"),
+                Action("f", _("mark it as failed and continue"), "fail"),
+                Action("r", _("run it again"), "run"),
+            ], _("What do you want to do with that job?"))
+            if cmd == "skip" or cmd is None:
+                if (last_job_cert_status == "blocker" and not result_dict["comments"]):
+                    print(
+                        self.C.RED(_("This job is required in order to issue a certificate."))
+                    )
+                    print(
+                        self.C.RED(
+                            _(
+                                "Please add a comment to explain why you want to skip it."
+                            )
+                        )
+                    )
+                    continue
+                else:
+                    if not result_dict["comments"]:
+                        result_dict["comments"] = _("Skipped after resuming execution")
+                    result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+                    result = MemoryJobResult(result_dict)
+                    break
+            elif cmd == "pass":
+                if not result_dict["comments"]:
+                    result_dict["comments"] = _("Passed after resuming execution")
+                result_dict["outcome"] = IJobResult.OUTCOME_PASS
+                result = MemoryJobResult(result_dict)
+                break
+            elif cmd == "fail":
+                if (last_job_cert_status == "blocker" and not result_dict["comments"]):
+                    print(
+                        self.C.RED(_("This job is required in order to issue a certificate."))
+                    )
+                    print(
+                        self.C.RED(_("Please add a comment to explain why it failed."))
+                    )
+                    continue
+                else:
+                    if not result_dict["comments"]:
+                        result_dict["comments"] = _("Failed after resuming execution")
+                    result_dict["outcome"] = IJobResult.OUTCOME_FAIL
+                    result = MemoryJobResult(result_dict)
+                    break
+            elif cmd == "comment":
+                new_comment = input(
+                    self.C.BLUE(_("Please enter your comments:") + "\n")
+                )
+                if new_comment:
+                    result_dict["comments"] += new_comment + "\n"
+                continue
+            elif cmd == "run":
+                result = None
+                break
         if result:
             self.ctx.sa.use_job_result(last_job, result)
 

@@ -88,15 +88,15 @@ class MainLoopStage(CheckboxUiStage):
 
 
     def _run_single_job_with_ui_loop(self, job, ui):
+        job_state = self.sa.get_job_state(job.id)
         print(self.C.header(job.tr_summary(), fill='-'))
         print(_("ID: {0}").format(job.id))
         print(_("Category: {0}").format(
-            self.sa.get_job_state(job.id).effective_category_id))
+            job_state.effective_category_id))
         comments = ""
         while True:
             if job.plugin in ('user-interact', 'user-interact-verify',
                               'user-verify', 'manual'):
-                job_state = self.sa.get_job_state(job.id)
                 if (not self.is_interactive and
                         job.plugin in ('user-interact',
                                        'user-interact-verify',
@@ -132,13 +132,30 @@ class MainLoopStage(CheckboxUiStage):
                             comments += new_comment + '\n'
                         continue
                     elif cmd == 'skip':
-                        result_builder = JobResultBuilder(
-                            outcome=IJobResult.OUTCOME_SKIP,
-                            comments=_("Explicitly skipped before"
-                                       " execution"))
-                        if comments != "":
-                            result_builder.comments = comments
-                        break
+                        if (
+                            job_state.effective_certification_status == "blocker"
+                            and comments == ""
+                        ):
+                            print(
+                                self.C.RED(
+                                    _("This job is required in order to issue a certificate.")
+                                )
+                            )
+                            print(
+                                self.C.RED(
+                                    _(
+                                        "Please add a comment to explain why you want to skip it."
+                                    )
+                                )
+                            )
+                            continue
+                        else:
+                            result_builder = JobResultBuilder(
+                                outcome=IJobResult.OUTCOME_SKIP,
+                                comments=_("Explicitly skipped before execution"))
+                            if comments != "":
+                                result_builder.comments = comments
+                            break
                     elif cmd == 'quit':
                         raise SystemExit()
                 else:
@@ -153,14 +170,14 @@ class MainLoopStage(CheckboxUiStage):
                     if comments != "":
                         result_builder.comments = comments
                     ui.notify_about_verification(job)
-                    self._interaction_callback(job, result_builder)
+                    self._interaction_callback(job, job_state, result_builder)
                 except ReRunJob:
                     self.sa.use_job_result(job.id, result_builder.get_result())
                     continue
             break
         return result_builder
 
-    def _interaction_callback(self, job, result_builder,
+    def _interaction_callback(self, job, job_state, result_builder,
                               prompt=None, allowed_outcome=None):
         result = result_builder.get_result()
         if prompt is None:
@@ -212,9 +229,33 @@ class MainLoopStage(CheckboxUiStage):
             if cmd == 'set-pass':
                 result_builder.outcome = IJobResult.OUTCOME_PASS
             elif cmd == 'set-fail':
-                result_builder.outcome = IJobResult.OUTCOME_FAIL
+                if (
+                    job_state.effective_certification_status == "blocker"
+                    and not isinstance(result_builder.comments, str)
+                ):
+                    print(self.C.RED(_("This job is required in order to issue a certificate.")))
+                    print(
+                        self.C.RED(_("Please add a comment to explain why it failed."))
+                    )
+                    continue
+                else:
+                    result_builder.outcome = IJobResult.OUTCOME_FAIL
             elif cmd == 'set-skip' or cmd is None:
-                result_builder.outcome = IJobResult.OUTCOME_SKIP
+                if (
+                   job_state.effective_certification_status == "blocker"
+                   and not isinstance(result_builder.comments, str)
+                ):
+                    print(self.C.RED(_("This job is required in order to issue a certificate.")))
+                    print(
+                        self.C.RED(
+                            _(
+                                "Please add a comment to explain why you want to skip it."
+                            )
+                        )
+                    )
+                    continue
+                else:
+                    result_builder.outcome = IJobResult.OUTCOME_SKIP
             elif cmd == 'set-suggested':
                 result_builder.outcome = suggested_outcome
             elif cmd == 'set-comments':

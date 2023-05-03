@@ -119,7 +119,7 @@ def unix_connect(path, service=VoidService, config={}):
 
 def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
                 cert_reqs=None, ssl_version=None, ciphers=None,
-                service=VoidService, config={}, ipv6=False, keepalive=False):
+                service=VoidService, config={}, ipv6=False, keepalive=False, verify_mode=None):
     """
     creates an SSL-wrapped connection to the given host (encrypted and
     authenticated).
@@ -131,17 +131,17 @@ def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
     :param ipv6: whether to create an IPv6 socket or an IPv4 one(defaults to ``False``)
     :param keepalive: whether to set TCP keepalive on the socket (defaults to ``False``)
 
-    The following arguments are passed directly to
-    `ssl.wrap_socket <http://docs.python.org/dev/library/ssl.html#ssl.wrap_socket>`_:
-
-    :param keyfile: see ``ssl.wrap_socket``. May be ``None``
-    :param certfile: see ``ssl.wrap_socket``. May be ``None``
-    :param ca_certs: see ``ssl.wrap_socket``. May be ``None``
-    :param cert_reqs: see ``ssl.wrap_socket``. By default, if ``ca_cert`` is specified,
-                      the requirement is set to ``CERT_REQUIRED``; otherwise it is
-                      set to ``CERT_NONE``
-    :param ssl_version: see ``ssl.wrap_socket``. The default is ``PROTOCOL_TLSv1``
-    :param ciphers: see ``ssl.wrap_socket``. May be ``None``. New in Python 2.7/3.2
+    :param keyfile: see ``ssl.SSLContext.load_cert_chain``. May be ``None``
+    :param certfile: see ``ssl.SSLContext.load_cert_chain``. May be ``None``
+    :param ca_certs: see ``ssl.SSLContext.load_verify_locations``. May be ``None``
+    :param cert_reqs: see ``ssl.SSLContext.verify_mode``. By default, if ``ca_cert`` is
+                      specified, the requirement is set to ``CERT_REQUIRED``; otherwise
+                      it is set to ``CERT_NONE``
+    :param ssl_version: see ``ssl.SSLContext``. The default is defined by
+                        ``ssl.create_default_context``
+    :param ciphers: see ``ssl.SSLContext.set_ciphers``. May be ``None``. New in
+                    Python 2.7/3.2
+    :param verify_mode: see ``ssl.SSLContext.verify_mode``
 
     :returns: an RPyC connection
     """
@@ -150,14 +150,18 @@ def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
         ssl_kwargs["keyfile"] = keyfile
     if certfile is not None:
         ssl_kwargs["certfile"] = certfile
+    if verify_mode is not None:
+        ssl_kwargs["cert_reqs"] = verify_mode
+    else:
+        ssl_kwargs["cert_reqs"] = ssl.CERT_NONE
     if ca_certs is not None:
         ssl_kwargs["ca_certs"] = ca_certs
         ssl_kwargs["cert_reqs"] = ssl.CERT_REQUIRED
     if cert_reqs is not None:
         ssl_kwargs["cert_reqs"] = cert_reqs
-    if ssl_version is None:
-        ssl_kwargs["ssl_version"] = ssl.PROTOCOL_TLSv1
-    else:
+    elif cert_reqs != ssl.CERT_NONE:
+        ssl_kwargs["check_hostname"] = False
+    if ssl_version is not None:
         ssl_kwargs["ssl_version"] = ssl_version
     if ciphers is not None:
         ssl_kwargs["ciphers"] = ciphers
@@ -220,20 +224,20 @@ def discover(service_name, host=None, registrar=None, timeout=2):
         registrar = UDPRegistryClient(timeout=timeout)
     addrs = registrar.discover(service_name)
     if not addrs:
-        raise DiscoveryError("no servers exposing {!r} were found".format(service_name))
+        raise DiscoveryError(f"no servers exposing {service_name!r} were found")
     if host:
         ips = socket.gethostbyname_ex(host)[2]
         addrs = [(h, p) for h, p in addrs if h in ips]
     if not addrs:
-        raise DiscoveryError("no servers exposing {} were found on {}".format(service_name, host))
+        raise DiscoveryError(f"no servers exposing {service_name} were found on {host}")
     return addrs
 
 
-def list_services(registrar=None, timeout=2):
+def list_services(registrar=None, filter_host=None, timeout=2):
     services = ()
     if registrar is None:
         registrar = UDPRegistryClient(timeout=timeout)
-    services = registrar.list()
+    services = registrar.list(filter_host)
     if services is None:
         raise ForbiddenError("Registry doesn't allow listing")
     return services
@@ -260,7 +264,7 @@ def connect_by_service(service_name, host=None, registrar=None, timeout=2, servi
             return connect(host, port, service, config=config)
         except socket.error:
             pass
-    raise DiscoveryError("All services are down: {}".format(addrs))
+    raise DiscoveryError(f"All services are down: {addrs}")
 
 
 def connect_subproc(args, service=VoidService, config={}):

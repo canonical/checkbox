@@ -80,7 +80,8 @@ class Server(object):
             else:
                 family = socket.AF_INET
             self.listener = socket.socket(family, socket.SOCK_STREAM)
-            address = socket.getaddrinfo(hostname, port, family=family, type=socket.SOCK_STREAM, proto=socket.IPPROTO_TCP, flags=socket.AI_PASSIVE)[0][-1]
+            address = socket.getaddrinfo(hostname, port, family=family, type=socket.SOCK_STREAM,
+                                         proto=socket.IPPROTO_TCP, flags=socket.AI_PASSIVE)[0][-1]
 
             if reuse_addr and sys.platform != "win32":
                 # warning: reuseaddr is not what you'd expect on windows!
@@ -95,7 +96,7 @@ class Server(object):
             self.host, self.port = sockname[0], sockname[1]
 
         if logger is None:
-            logger = logging.getLogger("{}/{}".format(self.service.get_service_name(), self.port))
+            logger = logging.getLogger(f"{self.service.get_service_name()}/{self.port}")
         self.logger = logger
         if "logger" not in self.protocol_config:
             self.protocol_config["logger"] = self.logger
@@ -108,7 +109,6 @@ class Server(object):
         also unregisters from the registry server"""
         if self._closed:
             return
-        self._closed = True
         self.active = False
         if self.auto_register:
             try:
@@ -128,6 +128,7 @@ class Server(object):
                 pass
             c.close()
         self.clients.clear()
+        self._closed = True
 
     def fileno(self):
         """returns the listener socket's file descriptor"""
@@ -153,7 +154,7 @@ class Server(object):
             return
 
         sock.setblocking(True)
-        self.logger.info("accepted {} with fd {}".format(addrinfo, sock.fileno()))
+        self.logger.info(f"accepted {addrinfo} with fd {sock.fileno()}")
         self.clients.add(sock)
         self._accept_method(sock)
 
@@ -171,10 +172,10 @@ class Server(object):
                 try:
                     sock2, credentials = self.authenticator(sock)
                 except AuthenticationError:
-                    self.logger.info("{} failed to authenticate... rejecting connection".format(addrinfo))
+                    self.logger.info(f"{addrinfo} failed to authenticate... rejecting connection")
                     return
                 else:
-                    self.logger.info("{} authenticated successfully".format(addrinfo))
+                    self.logger.info(f"{addrinfo} authenticated successfully")
             else:
                 credentials = None
                 sock2 = sock
@@ -194,16 +195,16 @@ class Server(object):
     def _serve_client(self, sock, credentials):
         addrinfo = sock.getpeername()
         if credentials:
-            self.logger.info("welcome {} ({!r})".format(addrinfo, credentials))
+            self.logger.info(f"welcome {addrinfo} ({credentials!r})")
         else:
-            self.logger.info("welcome {}".format(addrinfo))
+            self.logger.info(f"welcome {addrinfo}")
         try:
             config = dict(self.protocol_config, credentials=credentials,
                           endpoints=(sock.getsockname(), addrinfo), logger=self.logger)
             conn = self.service._connect(Channel(SocketStream(sock)), config)
             self._handle_connection(conn)
         finally:
-            self.logger.info("goodbye {}".format(addrinfo))
+            self.logger.info(f"goodbye {addrinfo}")
 
     def _handle_connection(self, conn):
         """This methoed should implement the server's logic."""
@@ -212,7 +213,7 @@ class Server(object):
     def _bg_register(self):
         interval = self.registrar.REREGISTER_INTERVAL
         self.logger.info("started background auto-register thread "
-                         "(interval = {})".format(interval))
+                         f"(interval = {interval})")
         tnext = 0
         try:
             while self.active:
@@ -247,7 +248,7 @@ class Server(object):
             # Note that for AF_UNIX the following won't work (but we are safe
             # since we already saved the socket_path into self.port):
             self.port = self.listener.getsockname()[1]
-        self.logger.info("server started on [{}]:{}".format(self.host, self.port))
+        self.logger.info(f"server started on [{self.host}]:{self.port}")
         self.active = True
 
     def _register(self):
@@ -341,7 +342,7 @@ class ThreadPoolServer(Server):
         self.workers = []
         for i in range(self.nbthreads):
             t = spawn(self._serve_clients)
-            t.setName("Worker{}".format(i))
+            t.name = f"Worker{i}"
             self.workers.append(t)
         # setup a thread for polling inactive connections
         self.polling_thread = spawn(self._poll_inactive_clients)
@@ -382,7 +383,7 @@ class ThreadPoolServer(Server):
             pass
 
         # close connection
-        self.logger.info("Closing connection for fd {}".format(fd))
+        self.logger.info(f"Closing connection for fd {fd}")
         if conn:
             conn.close()
 
@@ -420,7 +421,7 @@ class ThreadPoolServer(Server):
             except Exception:
                 ex = sys.exc_info()[1]
                 # "Caught exception in Worker thread" message
-                self.logger.warning("Failed to poll clients, caught exception : {}".format(ex))
+                self.logger.warning(f"Failed to poll clients, caught exception : {ex}")
                 # wait a bit so that we do not loop too fast in case of error
                 time.sleep(0.2)
 

@@ -1,6 +1,6 @@
 import opcode
 
-from plainbox.vendor.rpyc.lib.compat import is_py_gte38
+from plainbox.vendor.rpyc.lib.compat import is_py_gte38, is_py_gte310, is_py_gte311
 from types import CodeType, FunctionType
 from plainbox.vendor.rpyc.core import brine, netref
 from dis import _unpack_opargs
@@ -46,14 +46,21 @@ def _export_codeobj(cobj):
         elif isinstance(const, CodeType):
             consts2.append(_export_codeobj(const))
         else:
-            raise TypeError("Cannot export a function with non-brinable constants: {!r}".format(const))
+            raise TypeError(f"Cannot export a function with non-brinable constants: {const!r}")
 
-    if is_py_gte38:
+    if is_py_gte311:
+        # Constructor was changed in 3.11 by adding exceptionable and qualname
+        exported = (cobj.co_argcount, cobj.co_posonlyargcount, cobj.co_kwonlyargcount, cobj.co_nlocals,
+                    cobj.co_stacksize, cobj.co_flags, cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames,
+                    cobj.co_filename, cobj.co_name, cobj.co_qualname, cobj.co_firstlineno, cobj.co_linetable,
+                    cobj.co_exceptiontable, cobj.co_freevars, cobj.co_cellvars)
+    elif is_py_gte38:
         # Constructor was changed in 3.8 to support "advanced" programming styles
         exported = (cobj.co_argcount, cobj.co_posonlyargcount, cobj.co_kwonlyargcount, cobj.co_nlocals,
                     cobj.co_stacksize, cobj.co_flags, cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames,
-                    cobj.co_filename, cobj.co_name, cobj.co_firstlineno, cobj.co_lnotab, cobj.co_freevars,
-                    cobj.co_cellvars)
+                    cobj.co_filename, cobj.co_name, cobj.co_firstlineno,
+                    cobj.co_linetable if is_py_gte310 else cobj.co_lnotab,  # 3.10 switched from lnotab to linetable
+                    cobj.co_freevars, cobj.co_cellvars)
     else:
         exported = (cobj.co_argcount, cobj.co_kwonlyargcount, cobj.co_nlocals, cobj.co_stacksize, cobj.co_flags,
                     cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames, cobj.co_filename,
@@ -81,14 +88,25 @@ def export_function(func):
 
 
 def _import_codetup(codetup):
-    # Handle tuples sent from 3.8 as well as 3 < version < 3.8.
-    if len(codetup) == 16:
+    posonlyargcount = 0
+    exceptiontable = b""
+    qualname = ""
+    # Handle tuples sent from >=3.11, >=3.8 and <=3.8
+    if len(codetup) == 18:
+        (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
+         filename, name, qualname, firstlineno, lnotab, exceptiontable, freevars, cellvars) = codetup
+        if not is_py_gte310:
+            # Since version, codetup length, and lnotab length, lnotab is set as though there is no linenumber
+            lnotab = b''  # lnotab_notes.txt describes lnotab as imperfect anyway
+    elif len(codetup) == 16:
         (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
          filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
+        if not is_py_gte310 and len(lnotab) > 2:
+            # Since version, codetup length, and lnotab length, lnotab is set as though there is no linenumber
+            lnotab = b''  # lnotab_notes.txt describes lnotab as imperfect anyway
     else:
         (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
          filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
-        posonlyargcount = 0
 
     consts2 = []
     for const in consts:
@@ -97,7 +115,10 @@ def _import_codetup(codetup):
         else:
             consts2.append(const)
     consts = tuple(consts2)
-    if is_py_gte38:
+    if is_py_gte311:
+        codetup = (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
+                   filename, name, qualname, firstlineno, lnotab, exceptiontable, freevars, cellvars)
+    elif is_py_gte38:
         codetup = (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
                    filename, name, firstlineno, lnotab, freevars, cellvars)
     else:

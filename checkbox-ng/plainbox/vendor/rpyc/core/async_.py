@@ -13,14 +13,14 @@ class AsyncResult(object):
 
     def __init__(self, conn):
         self._conn = conn
-        self._is_ready = Event()
+        self._is_ready = False
         self._is_exc = None
         self._obj = None
         self._callbacks = []
         self._ttl = Timeout(None)
 
     def __repr__(self):
-        if self._is_ready.is_set():
+        if self._is_ready:
             state = "ready"
         elif self._is_exc:
             state = "error"
@@ -28,14 +28,14 @@ class AsyncResult(object):
             state = "expired"
         else:
             state = "pending"
-        return "<AsyncResult object ({}) at 0x{:08x}>".format(state, id(self))
+        return f"<AsyncResult object ({state}) at 0x{id(self):08x}>"
 
     def __call__(self, is_exc, obj):
         if self.expired:
             return
         self._is_exc = is_exc
         self._obj = obj
-        self._is_ready.set()
+        self._is_ready = True
         for cb in self._callbacks:
             cb(self)
         del self._callbacks[:]
@@ -44,9 +44,14 @@ class AsyncResult(object):
         """Waits for the result to arrive. If the AsyncResult object has an
         expiry set, and the result did not arrive within that timeout,
         an :class:`AsyncResultTimeout` exception is raised"""
-        while not self._is_ready.is_set() and not self._ttl.expired():
+        while not (self._is_ready or self.expired):
+            # Serve the connection since we are not ready. Suppose
+            # the reply for our seq is served. The callback is this class
+            # so __call__ sets our obj and _is_ready to true.
             self._conn.serve(self._ttl)
-        if not self._is_ready.is_set():
+
+        # Check if we timed out before result was ready
+        if not self._is_ready:
             raise AsyncResultTimeout("result expired")
 
     def add_callback(self, func):
@@ -57,7 +62,7 @@ class AsyncResult(object):
 
         :param func: the callback function to add
         """
-        if self._is_ready.is_set():
+        if self._is_ready:
             func(self)
         else:
             self._callbacks.append(func)
@@ -73,12 +78,12 @@ class AsyncResult(object):
     @property
     def ready(self):
         """Indicates whether the result has arrived"""
-        if self._is_ready.is_set():
+        if self._is_ready:
             return True
-        if self._ttl.expired():
+        if self.expired:
             return False
         self._conn.poll_all()
-        return self._is_ready.is_set()
+        return self._is_ready
 
     @property
     def error(self):
@@ -88,7 +93,7 @@ class AsyncResult(object):
     @property
     def expired(self):
         """Indicates whether the AsyncResult has expired"""
-        return not self._is_ready.is_set() and self._ttl.expired()
+        return not self._is_ready and self._ttl.expired()
 
     @property
     def value(self):

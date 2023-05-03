@@ -11,6 +11,9 @@ import random
 from plainbox.vendor.rpyc.lib.compat import maxint  # noqa: F401
 
 
+SPAWN_THREAD_PREFIX = 'RpycSpawnThread'
+
+
 class MissingModule(object):
     __slots__ = ["__name"]
 
@@ -19,8 +22,8 @@ class MissingModule(object):
 
     def __getattr__(self, name):
         if name.startswith("__"):  # issue 71
-            raise AttributeError("module {!r} not found".format(self.__name))
-        raise ImportError("module {!r} not found".format(self.__name))
+            raise AttributeError(f"module {self.__name!r} not found")
+        raise ImportError(f"module {self.__name!r} not found")
 
     def __bool__(self):
         return False
@@ -41,15 +44,20 @@ def safe_import(name):
     return mod
 
 
-def setup_logger(quiet=False, logfile=None):
+def setup_logger(quiet=False, logfile=None, namespace=None):
     opts = {}
     if quiet:
         opts['level'] = logging.ERROR
+        opts['format'] = '%(asctime)s %(levelname)s: %(message)s'
+        opts['datefmt'] = '%b %d %H:%M:%S'
     else:
         opts['level'] = logging.DEBUG
+        opts['format'] = '%(asctime)s %(levelname)s %(name)s[%(threadName)s]: %(message)s'
+        opts['datefmt'] = '%b %d %H:%M:%S'
     if logfile:
         opts['filename'] = logfile
     logging.basicConfig(**opts)
+    return logging.getLogger('rpyc' if namespace is None else f'rpyc.{namespace}')
 
 
 class hybridmethod(object):
@@ -67,10 +75,21 @@ class hybridmethod(object):
         raise AttributeError("Cannot overwrite method")
 
 
+def hasattr_static(obj, attr):
+    """Returns if `inspect.getattr_static` can find an attribute of ``obj``."""
+    try:
+        inspect.getattr_static(obj, attr)
+    except AttributeError:
+        return False
+    else:
+        return True
+
+
 def spawn(*args, **kwargs):
     """Start and return daemon thread. ``spawn(func, *args, **kwargs)``."""
     func, args = args[0], args[1:]
-    thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+    str_id_pack = '-'.join([f'{i}' for i in get_id_pack(func)])
+    thread = threading.Thread(name=f'{SPAWN_THREAD_PREFIX}-{str_id_pack}', target=func, args=args, kwargs=kwargs)
     thread.daemon = True
     thread.start()
     return thread

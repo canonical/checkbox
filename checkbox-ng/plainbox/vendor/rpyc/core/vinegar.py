@@ -76,7 +76,7 @@ def dump(typ, val, tb, include_local_traceback, include_local_version):
                 attrval = repr(attrval)
             attrs.append((name, attrval))
     if include_local_version:
-        attrs.append(("_remote_version", version.version_string))
+        attrs.append(("_remote_version", version.__version__))
     else:
         attrs.append(("_remote_version", "<version denied>"))
     return (typ.__module__, typ.__name__), tuple(args), tuple(attrs), tbtext
@@ -131,11 +131,11 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
         cls = None
 
     if cls is None:
-        fullname = "{}.{}".format(modname, clsname)
+        fullname = f"{modname}.{clsname}"
         # py2: `type()` expects `str` not `unicode`!
         fullname = str(fullname)
         if fullname not in _generic_exceptions_cache:
-            fakemodule = {"__module__": "{}/{}".format(__name__, modname)}
+            fakemodule = {"__module__": f"{__name__}/{modname}"}
             if isinstance(GenericException, ClassType):
                 _generic_exceptions_cache[fullname] = ClassType(fullname, (GenericException,), fakemodule)
             else:
@@ -161,7 +161,7 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
     remote_ver = getattr(exc, "_remote_version", "<version denied>")
     if remote_ver != "<version denied>" and remote_ver.split('.')[0] != str(version.version[0]):
         _warn = '\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n'
-        tbtext += _warn.format(remote_ver, version.version_string)
+        tbtext += _warn.format(remote_ver, version.__version__)
 
     exc._remote_tb = tbtext
     return exc

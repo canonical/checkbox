@@ -21,9 +21,10 @@ is used.
 Note that if same configuration variable is defined in more than one place, the
 value resolution is as follows:
 
-1. config file from ``~/.config``
-2. launcher being invoked (only the new syntax launchers)
+1. launcher being invoked
+2. config file from ``~/.config``
 3. config file from ``/etc/xdg``
+4. config file from ``$SNAP_DATA``
 
 Configs with Checkbox Remote
 ============================

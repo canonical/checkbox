@@ -476,7 +476,7 @@ class Launcher(MainLoopStage, ReportsStage):
             if cmd == "skip" or cmd is None:
                 if (last_job_cert_status == "blocker" and not result_dict["comments"]):
                     print(
-                        self.C.RED(_("This job is required to issue a certificate."))
+                        self.C.RED(_("This job is required in order to issue a certificate."))
                     )
                     print(
                         self.C.RED(
@@ -501,7 +501,7 @@ class Launcher(MainLoopStage, ReportsStage):
             elif cmd == "fail":
                 if (last_job_cert_status == "blocker" and not result_dict["comments"]):
                     print(
-                        self.C.RED(_("This job is required to issue a certificate."))
+                        self.C.RED(_("This job is required in order to issue a certificate."))
                     )
                     print(
                         self.C.RED(_("Please add a comment to explain why it failed."))

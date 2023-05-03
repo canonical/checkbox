@@ -138,7 +138,7 @@ class MainLoopStage(CheckboxUiStage):
                         ):
                             print(
                                 self.C.RED(
-                                    _("This job is required to issue a certificate.")
+                                    _("This job is required in order to issue a certificate.")
                                 )
                             )
                             print(
@@ -233,7 +233,7 @@ class MainLoopStage(CheckboxUiStage):
                     job_state.effective_certification_status == "blocker"
                     and not isinstance(result_builder.comments, str)
                 ):
-                    print(self.C.RED(_("This job is required to issue a certificate.")))
+                    print(self.C.RED(_("This job is required in order to issue a certificate.")))
                     print(
                         self.C.RED(_("Please add a comment to explain why it failed."))
                     )
@@ -245,7 +245,7 @@ class MainLoopStage(CheckboxUiStage):
                    job_state.effective_certification_status == "blocker"
                    and not isinstance(result_builder.comments, str)
                 ):
-                    print(self.C.RED(_("This job is required to issue a certificate.")))
+                    print(self.C.RED(_("This job is required in order to issue a certificate.")))
                     print(
                         self.C.RED(
                             _(

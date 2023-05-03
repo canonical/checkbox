@@ -108,7 +108,7 @@ class ClassicServer(cli.Application):
                           registrar=self.registrar, auto_register=self.auto_register)
         t._listen()
         sys.stdout.write("rpyc-oneshot\n")
-        sys.stdout.write(f"{t.host}\t{t.port}\n")
+        sys.stdout.write("{}\t{}\n".format(t.host, t.port))
         sys.stdout.flush()
         t.start()
 

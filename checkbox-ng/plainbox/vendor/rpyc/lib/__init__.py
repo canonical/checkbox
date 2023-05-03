@@ -22,8 +22,8 @@ class MissingModule(object):
 
     def __getattr__(self, name):
         if name.startswith("__"):  # issue 71
-            raise AttributeError(f"module {self.__name!r} not found")
-        raise ImportError(f"module {self.__name!r} not found")
+            raise AttributeError("module {!r} not found".format(self.__name))
+        raise ImportError("module {!r} not found".format(self.__name))
 
     def __bool__(self):
         return False
@@ -57,7 +57,7 @@ def setup_logger(quiet=False, logfile=None, namespace=None):
     if logfile:
         opts['filename'] = logfile
     logging.basicConfig(**opts)
-    return logging.getLogger('rpyc' if namespace is None else f'rpyc.{namespace}')
+    return logging.getLogger('rpyc' if namespace is None else 'rpyc.{}'.format(namespace))
 
 
 class hybridmethod(object):
@@ -88,8 +88,8 @@ def hasattr_static(obj, attr):
 def spawn(*args, **kwargs):
     """Start and return daemon thread. ``spawn(func, *args, **kwargs)``."""
     func, args = args[0], args[1:]
-    str_id_pack = '-'.join([f'{i}' for i in get_id_pack(func)])
-    thread = threading.Thread(name=f'{SPAWN_THREAD_PREFIX}-{str_id_pack}', target=func, args=args, kwargs=kwargs)
+    str_id_pack = '-'.join(['{}'.format(i) for i in get_id_pack(func)])
+    thread = threading.Thread(name='{}-{}'.format(SPAWN_THREAD_PREFIX, str_id_pack), target=func, args=args, kwargs=kwargs)
     thread.daemon = True
     thread.start()
     return thread

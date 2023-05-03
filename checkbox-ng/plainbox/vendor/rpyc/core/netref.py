@@ -88,9 +88,9 @@ class NetrefMetaclass(type):
 
     def __repr__(self):
         if self.__module__:
-            return f"<netref class '{self.__module__}.{self.__name__}'>"
+            return "<netref class '{}.{}'>".format(self.__module__, self.__name__)
         else:
-            return f"<netref class '{self.__name__}'>"
+            return "<netref class '{}'>".format(self.__name__)
 
 
 class BaseNetref(with_metaclass(NetrefMetaclass, object)):

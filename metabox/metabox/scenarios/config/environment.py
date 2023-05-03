@@ -24,7 +24,7 @@ from metabox.core.actions import Start
 from metabox.core.actions import Put
 from metabox.core.scenario import Scenario
 
-from . import config_files
+from .config_files import environment
 
 
 class CheckboxConfXDG(Scenario):
@@ -32,7 +32,7 @@ class CheckboxConfXDG(Scenario):
     Check that environment variables are read from the XDG directory when
     nothing else is available.
     """
-    checkbox_conf = read_text(config_files, "checkbox_etc_xdg.conf")
+    checkbox_conf = read_text(environment, "checkbox_etc_xdg.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -56,7 +56,7 @@ class CheckboxConfLocalHome(Scenario):
     nothing else is available.
     """
     modes = ["local"]
-    checkbox_conf = read_text(config_files, "checkbox_home_dir.conf")
+    checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -80,7 +80,7 @@ class CheckboxConfRemoteHome(Scenario):
     nothing else is available.
     """
     modes = ["remote"]
-    checkbox_conf = read_text(config_files, "checkbox_home_dir.conf")
+    checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -104,7 +104,7 @@ class CheckboxConfSnap(Scenario):
     nothing else is available.
     """
     origins = ["snap", "classic-snap"]
-    checkbox_conf = read_text(config_files, "checkbox_snap_dir.conf")
+    checkbox_conf = read_text(environment, "checkbox_snap_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -150,8 +150,8 @@ class CheckboxConfLocalHomePrecedence(Scenario):
     take precedence over the ones defined in /etc/xdg/.
     """
     modes = ["local"]
-    checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
-    checkbox_conf_home = read_text(config_files, "checkbox_home_dir.conf")
+    checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
+    checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -176,7 +176,7 @@ class CheckboxConfLauncherPrecedence(Scenario):
     over the ones defined in /etc/xdg/.
     """
     modes = ["remote"]
-    checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
+    checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -200,16 +200,21 @@ class CheckboxConfLocalResolutionOrder(Scenario):
     """
     According to the documentation, resolution order should be:
 
-    1. config file from ~/.config
-    2. launcher being invoked (only the new syntax launchers)
-    3. config file from /etc/xdg
+    1. launcher being invoked
+    2. config file from ``~/.config``
+    3. config file from ``/etc/xdg``
 
     This scenario sets 3 environment variables in different config locations
-    and checks the resolution order is as defined.
+    and checks the resolution order is as defined:
+
+    var1 XDG HOME LAUNCHER
+    var2 XDG HOME
+    var3 XDG
+    --------------------->
     """
     modes = ["local"]
-    checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
-    checkbox_conf_home = read_text(config_files, "checkbox_home_dir.conf")
+    checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
+    checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -221,13 +226,12 @@ class CheckboxConfLocalResolutionOrder(Scenario):
         forced = yes
         [environment]
         var1 = LAUNCHER
-        var2 = LAUNCHER
         """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home),
         Start(),
-        AssertPrinted("variables: HOME LAUNCHER XDG"),
+        AssertPrinted("variables: LAUNCHER HOME XDG"),
     ]
 
 
@@ -243,8 +247,8 @@ class CheckboxConfRemoteServiceResolutionOrder(Scenario):
     and checks the resolution order is as defined.
     """
     modes = ["remote"]
-    checkbox_conf_xdg = read_text(config_files, "checkbox_etc_xdg.conf")
-    checkbox_conf_home = read_text(config_files, "checkbox_home_dir.conf")
+    checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
+    checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1

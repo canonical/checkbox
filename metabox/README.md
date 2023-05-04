@@ -127,6 +127,29 @@ set, it will point to the parent directory of the Metabox package. For
 instance, if Metabox was [installed] from `/home/user/code/checkbox/metabox/`,
 `uri` will be set to `/home/user/code/checkbox/`.
 
+### Testing Checkbox remote
+
+You can test your local modifications to Checkbox Remote with the following
+configuration:
+
+```python
+configuration = {
+    'remote': {
+        'origin': 'source',
+        'uri': '~/checkbox',
+        'releases': ['jammy', 'focal', 'bionic'],
+    },
+    'service': {
+        'origin': 'source',
+        'uri': '~/checkbox',
+        'releases': ['jammy', 'focal', 'bionic'],
+    },
+}
+```
+
+**Note:** Metabox is always going to check **all possible combinations** of
+`releases`, that means that this example will execute 9 test runs.
+
 [Checkbox]: https://checkbox.readthedocs.io/
 [Linux containers (LXC)]: https://linuxcontainers.org/
 [`desktop_env` scenario]: ./metabox/scenarios/desktop_env/

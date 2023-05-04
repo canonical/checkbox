@@ -21,8 +21,10 @@ jobs:
           git diff --exit-code HEAD origin/main -- checkbox-ng metabox
           if [[ $? -eq 0 ]]
             then
+              echo "No Metabox run required."
               echo "required_run=false" >> $GITHUB_OUTPUT
             else
+              echo "Metabox run required!"
               echo "required_run=true" >> $GITHUB_OUTPUT
           fi
 

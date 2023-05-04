@@ -67,6 +67,24 @@ You should now be able to run checkbox, select a test plan and run it:
 ``` bash
 (venv) $ checkbox-cli
 ```
+### Running/Testing checkbox remote
+
+By default `checkbox-cli` runs locally. If you want to run the 
+[remote version](https://checkbox.readthedocs.io/en/latest/remote.html) you
+have to activate the `checkbox-cli service` on the Machine under test:
+```bash
+(venv) # checkbox-cli service
+```
+> Note: Keep in mind that service has to be run as root and needs the 
+> virtual env, you may have to re-enable/activate it after a `sudo -s`
+
+Now you can run the remote command to connect to it:
+```bash
+(venv) $ checkbox-cli remote IP 
+```
+
+> Note: `service` and `remote` can both run on the same machine. 
+> in that situation, simply use `127.0.0.1`
 
 ### Writing and running unit tests for Checkbox
 

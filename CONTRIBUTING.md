@@ -7,12 +7,10 @@ and its providers.
 
 ## General recommendations
 
-Setup your editor of choice to run
-[autopep8](https://pypi.org/project/autopep8/) on save. This helps keep
-everything passing [flake8](https://flake8.pycqa.org/en/latest/). The
-code doesn’t have to be pylint-clean, but running
-[pylint](https://www.pylint.org/) on your code may inform you about
-issues that could come up later in the review process.
+Setup your editor of choice to run [autopep8] on save. This helps keep
+everything passing [flake8]. The code doesn’t have to be pylint-clean, but
+running [pylint] on your code may inform you about issues that could come up
+later in the review process.
 
 ## Testing
 
@@ -29,8 +27,7 @@ $ sudo apt install git python3-virtualenv
 
 Prepare the development environment. If you are an external contributor and
 plan on submitting some changes, you will have to [fork the Checkbox repository
-first](https://docs.github.com/en/get-started/quickstart/fork-a-repo), and
-clone your own version locally. Otherwise:
+first], and clone your own version locally. Otherwise:
 
 ``` bash
 $ cd ~
@@ -69,9 +66,9 @@ You should now be able to run checkbox, select a test plan and run it:
 ```
 ### Running/Testing checkbox remote
 
-By default `checkbox-cli` runs locally. If you want to run the 
-[remote version](https://checkbox.readthedocs.io/en/latest/remote.html) you
-have to activate the `checkbox-cli service` on the Machine under test:
+By default `checkbox-cli` runs locally. If you want to run the [remote version]
+you have to activate the `checkbox-cli service` on the Machine under test:
+
 ```bash
 (venv) # checkbox-cli service
 ```
@@ -88,11 +85,9 @@ Now you can run the remote command to connect to it:
 
 ### Writing and running unit tests for Checkbox
 
-Writing unit tests for your code is strongly recommended. For functions
-with an easily defined input and output, use
-[doctest](https://docs.python.org/3/library/doctest.html). For more
-complex units of code use the standard [unittest
-library](https://docs.python.org/3/library/unittest.html).
+Writing unit tests for your code is strongly recommended. For functions with an
+easily defined input and output, use [doctest]. For more complex units of code
+use the standard [unittest library].
 
 ### Validate the providers
 
@@ -112,9 +107,7 @@ tests for providers:
 
 ### Commit title
 
-In general, try to follow [Chris Beams’
-recommendations](https://chris.beams.io/posts/git-commit/). In a
-nutshell:
+In general, try to follow [Chris Beams’ recommendations]. In a nutshell:
 
 > -   Limit the length of the title to 50 characters
 > -   Begin title with a capital letter
@@ -137,34 +130,29 @@ Example:
 
 ### Linking a pull request to a GitHub issue
 
-See the [GitHub documentation](https://docs.github.com/en/
-issues/tracking-your-work-with-issues/linking-a-pull-
-request-to-an-issue) for more information.
+See the [GitHub documentation] for more information.
 
 ### Splitting work in separate commits if required
 
-If the changes you provide affect different parts of the project, it is
-better to split them in different commits. This helps others when
-reviewing the changes, helps investigation later on if a problem is
-found and usually helps the original developer to better explain and
-organize his/her changes.
+If the changes you provide affect different parts of the project, it is better
+to split them in different commits. This helps others when reviewing the
+changes, helps investigation later on if a problem is found and usually helps
+the original developer to better explain and organize his/her changes.
 
-For example, if you add a new screen to the Checkbox text user interface
-(TUI) and then modify Checkbox internals to work with this new screen,
-it is good to have one commit for the new screen, and one for the
-internals changes.
+For example, if you add a new screen to the Checkbox text user interface (TUI)
+and then modify Checkbox internals to work with this new screen, it is good to
+have one commit for the new screen, and one for the internals changes.
 
-Each commit should be stable, i.e. not introduce regressions or make
-tests fail. If two or more commits have to be used together, then they
-should become one commit.
+Each commit should be stable, i.e. not introduce regressions or make tests
+fail. If two or more commits have to be used together, then they should become
+one commit.
 
 ### Rework your changes
 
-Sometimes it is necessary to modify your changes (for instance after
-they have been reviewed by others). Instead of creating new commits with
-these new modifications, it is preferred to use Git features such as
-[rebase](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History) to
-rework your existing commits.
+Sometimes it is necessary to modify your changes (for instance after they have
+been reviewed by others). Instead of creating new commits with these new
+modifications, it is preferred to use Git features such as [rebase] to rework
+your existing commits.
 
 ## Merge requests
 
@@ -172,27 +160,25 @@ rework your existing commits.
 
 Follow these steps to make a change to a Checkbox-related project.
 
-1. Check the [GitHub documentation](https://docs.github.com) on how to get
-   started. If you are a Checkbox contributor, you can clone the [Checkbox
-   repository](https://github.com/canonical/checkbox) directly; if you are an
-   external contributor, you will probably have to [fork the repository](https:
-   //docs.github.com/en/get-started/quickstart/fork-a-repo) first.
+1. Check the [GitHub documentation] on how to get started. If you are a
+   Checkbox contributor, you can clone the [Checkbox repository] directly; if
+you are an external contributor, you will probably have to [fork the
+repository] first.
 
 1. If you created a fork, you need to [configure Git to sync your fork with the
-   original repository.](https://docs.github.com/en/get-started/quickstart/
-   fork-a-repo#configuring-git-to-sync-your-fork-with-the-original-repository)
+   original repository.]
 
-1. Create a branch and switch to it to start working on your changes.
-   You can use any branch name, but it is generally good to include the
-   GitHub issue number it relates to as well as a quick explanation of
-   what the branch is about:
+1. Create a branch and switch to it to start working on your changes.  You can
+   use any branch name, but it is generally good to include the GitHub issue
+number it relates to as well as a quick explanation of what the branch is
+about:
 
         $ git checkout -b 123456-invalid-session-content
 
 1. Work on your changes, test them, iterate, commit your work.
 
-1. Before sending your changes for review, make sure to rebase your
-   work using the most up-to-date data from the main repository:
+1. Before sending your changes for review, make sure to rebase your work using
+   the most up-to-date data from the main repository:
 
         $ git checkout main
         # If you are a Checkbox contributor:
@@ -205,8 +191,7 @@ Follow these steps to make a change to a Checkbox-related project.
         First, rewinding head to replay your work on top of it...
         Applying: <your commits>
 
-1. [Push your changes](https://docs.github.com/en/get-started/using-git/
-   pushing-commits-to-a-remote-repository) to your GitHub repository.
+1. [Push your changes] to your GitHub repository.
 
 ### Finally...
 
@@ -214,3 +199,20 @@ Once enough people have reviewed and approved your work, it can be merged into
 the main branch of the main repository. Ask a member of the Checkbox team to do
 this. The branch should be then shortly automatically merged. The pull request
 status will then switch to “Merged”.
+
+
+[autopep8]: https://pypi.org/project/autopep8/
+[flake8]: https://flake8.pycqa.org/en/latest/
+[pylint]: https://www.pylint.org/
+[fork the Checkbox repository first]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
+[remote version]: https://checkbox.readthedocs.io/en/latest/remote.html
+[doctest]: https://docs.python.org/3/library/doctest.html
+[unittest library]: https://docs.python.org/3/library/unittest.html
+[Chris Beams’ recommendations]: https://chris.beams.io/posts/git-commit/
+[GitHub documentation]: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue
+[rebase]: https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History
+[GitHub documentation]: https://docs.github.com
+[Checkbox repository]: https://github.com/canonical/checkbox
+[fork the repository]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
+[configure Git to sync your fork with the original repository.]: https://docs.github.com/en/get-started/quickstart/fork-a-repo#configuring-git-to-sync-your-fork-with-the-original-repository
+[Push your changes]: https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository

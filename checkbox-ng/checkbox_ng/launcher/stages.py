@@ -277,29 +277,31 @@ class MainLoopStage(CheckboxUiStage):
         return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
     def _run_jobs(self, jobs_to_run):
+        # some jobs that are planned to be run don't have an
+        # estimated_duration defined, but we still want to keep track of
+        # the ones that do.  if any of the job doesn't have it we have to
+        # add "at least" to the estimate
         estimated_time = 0
+        had_unknown_time = False
         for job_id in jobs_to_run:
             job = self.sa.get_job(job_id)
-            if (job.estimated_duration is not None and
-                    estimated_time is not None):
+            if job.estimated_duration is not None:
                 estimated_time += job.estimated_duration
             else:
-                estimated_time = None
+                had_unknown_time = True
+        header = _("Running job {} / {}. Estimated time left{}: {}")
         for job_no, job_id in enumerate(jobs_to_run, start=1):
-            print(self.C.header(
-                _('Running job {} / {}. Estimated time left: {}').format(
-                    job_no, len(jobs_to_run),
-                    seconds_to_human_duration(max(0, estimated_time))
-                    if estimated_time is not None else _("unknown")),
-                fill='-'))
+            print(self.C.header(header.format(
+                job_no, len(jobs_to_run),
+                _(" (at least)") if had_unknown_time else "",
+                seconds_to_human_duration(estimated_time),
+                fill='-')))
             job = self.sa.get_job(job_id)
             builder = self._run_single_job_with_ui_loop(
                 job, self._get_ui_for_job(job))
             result = builder.get_result()
             self.sa.use_job_result(job_id, result)
-            if (job.estimated_duration is not None and
-                    estimated_time is not None):
-                estimated_time -= job.estimated_duration
+            estimated_time -= job.estimated_duration or 0
 
     def _run_bootstrap_jobs(self, jobs_to_run):
         for job_no, job_id in enumerate(jobs_to_run, start=1):

@@ -39,13 +39,12 @@ def expand_all(path):
     return os.path.expandvars(os.path.expanduser(path))
 
 def load_configs(launcher_file=None):
-    # launcher can override the default name of config files to look for
-    # so first we need to establish the filename to look for
     configs = []
     config_filename = 'checkbox.conf'
     launcher = DefaultLauncherDefinition()
+    # launcher can override the default name of config files to look for
+    # so first we need to establish the filename to look for
     if launcher_file:
-        configs.append(launcher_file)
         generic_launcher = LauncherDefinition()
         if not os.path.exists(launcher_file):
             _logger.error(_(
@@ -68,6 +67,9 @@ def load_configs(launcher_file=None):
             config = expand_all(os.path.join(d, config_filename))
             if os.path.exists(config):
                 configs.append(config)
+    # Add config from launcher last so it gets precedence over others
+    if launcher_file:
+        configs.append(launcher_file)
     launcher.read(configs)
     if launcher.problem_list:
         _logger.error(_("Unable to start launcher because of errors:"))

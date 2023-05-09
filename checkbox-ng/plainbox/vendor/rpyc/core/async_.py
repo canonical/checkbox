@@ -1,4 +1,5 @@
 import time  # noqa: F401
+from threading import Event
 from plainbox.vendor.rpyc.lib import Timeout
 from plainbox.vendor.rpyc.lib.compat import TimeoutError as AsyncResultTimeout
 
@@ -27,7 +28,7 @@ class AsyncResult(object):
             state = "expired"
         else:
             state = "pending"
-        return "<AsyncResult object (%s) at 0x%08x>" % (state, id(self))
+        return "<AsyncResult object ({}) at 0x{:08x}>".format(state, id(self))
 
     def __call__(self, is_exc, obj):
         if self.expired:
@@ -43,8 +44,13 @@ class AsyncResult(object):
         """Waits for the result to arrive. If the AsyncResult object has an
         expiry set, and the result did not arrive within that timeout,
         an :class:`AsyncResultTimeout` exception is raised"""
-        while not self._is_ready and not self._ttl.expired():
+        while not (self._is_ready or self.expired):
+            # Serve the connection since we are not ready. Suppose
+            # the reply for our seq is served. The callback is this class
+            # so __call__ sets our obj and _is_ready to true.
             self._conn.serve(self._ttl)
+
+        # Check if we timed out before result was ready
         if not self._is_ready:
             raise AsyncResultTimeout("result expired")
 
@@ -74,7 +80,7 @@ class AsyncResult(object):
         """Indicates whether the result has arrived"""
         if self._is_ready:
             return True
-        if self._ttl.expired():
+        if self.expired:
             return False
         self._conn.poll_all()
         return self._is_ready

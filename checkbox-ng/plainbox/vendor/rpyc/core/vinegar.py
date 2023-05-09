@@ -22,19 +22,11 @@ except ImportError:
 from plainbox.vendor.rpyc.core import brine
 from plainbox.vendor.rpyc.core import consts
 from plainbox.vendor.rpyc import version
-from plainbox.vendor.rpyc.lib.compat import is_py_3k
 
 
 REMOTE_LINE_START = "\n\n========= Remote Traceback "
 REMOTE_LINE_END = " =========\n"
 REMOTE_LINE = "{0}({{}}){1}".format(REMOTE_LINE_START, REMOTE_LINE_END)
-
-
-try:
-    BaseException
-except NameError:
-    # python 2.4 compatible
-    BaseException = Exception
 
 
 def dump(typ, val, tb, include_local_traceback, include_local_version):
@@ -84,7 +76,7 @@ def dump(typ, val, tb, include_local_traceback, include_local_version):
                 attrval = repr(attrval)
             attrs.append((name, attrval))
     if include_local_version:
-        attrs.append(("_remote_version", version.version_string))
+        attrs.append(("_remote_version", version.__version__))
     else:
         attrs.append(("_remote_version", "<version denied>"))
     return (typ.__module__, typ.__name__), tuple(args), tuple(attrs), tbtext
@@ -135,23 +127,15 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
     else:
         cls = None
 
-    if is_py_3k:
-        if not isinstance(cls, type) or not issubclass(cls, BaseException):
-            cls = None
-    else:
-        if not isinstance(cls, (type, ClassType)):
-            cls = None
-        elif issubclass(cls, ClassType) and not instantiate_oldstyle_exceptions:
-            cls = None
-        elif not issubclass(cls, BaseException):
-            cls = None
+    if not isinstance(cls, type) or not issubclass(cls, BaseException):
+        cls = None
 
     if cls is None:
-        fullname = "%s.%s" % (modname, clsname)
+        fullname = "{}.{}".format(modname, clsname)
         # py2: `type()` expects `str` not `unicode`!
         fullname = str(fullname)
         if fullname not in _generic_exceptions_cache:
-            fakemodule = {"__module__": "%s/%s" % (__name__, modname)}
+            fakemodule = {"__module__": "{}/{}".format(__name__, modname)}
             if isinstance(GenericException, ClassType):
                 _generic_exceptions_cache[fullname] = ClassType(fullname, (GenericException,), fakemodule)
             else:
@@ -177,7 +161,7 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
     remote_ver = getattr(exc, "_remote_version", "<version denied>")
     if remote_ver != "<version denied>" and remote_ver.split('.')[0] != str(version.version[0]):
         _warn = '\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n'
-        tbtext += _warn.format(remote_ver, version.version_string)
+        tbtext += _warn.format(remote_ver, version.__version__)
 
     exc._remote_tb = tbtext
     return exc

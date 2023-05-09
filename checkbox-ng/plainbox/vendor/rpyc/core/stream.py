@@ -8,9 +8,11 @@ import socket
 import errno
 from plainbox.vendor.rpyc.lib import safe_import, Timeout, socket_backoff_connect
 from plainbox.vendor.rpyc.lib.compat import poll, select_error, BYTES_LITERAL, get_exc_errno, maxint  # noqa: F401
+from plainbox.vendor.rpyc.core.consts import STREAM_CHUNK
 win32file = safe_import("win32file")
 win32pipe = safe_import("win32pipe")
 win32event = safe_import("win32event")
+ssl = safe_import("ssl")
 
 
 retry_errnos = (errno.EAGAIN, errno.EWOULDBLOCK)
@@ -111,7 +113,7 @@ class SocketStream(Stream):
     """A stream over a socket"""
 
     __slots__ = ("sock",)
-    MAX_IO_CHUNK = 64000  # read/write chunk is 64KB, too large of a value will degrade response for other clients
+    MAX_IO_CHUNK = STREAM_CHUNK
 
     def __init__(self, sock):
         self.sock = sock
@@ -195,8 +197,8 @@ class SocketStream(Stream):
 
         :param host: the host name
         :param port: the TCP port
-        :param ssl_kwargs: a dictionary of keyword arguments to be passed
-                           directly to ``ssl.wrap_socket``
+        :param ssl_kwargs: a dictionary of keyword arguments for
+                           ``ssl.SSLContext`` and ``ssl.SSLContext.wrap_socket``
         :param kwargs: additional keyword arguments: ``family``, ``socktype``,
                        ``proto``, ``timeout``, ``nodelay``, passed directly to
                        the ``socket`` constructor, or ``ipv6``.
@@ -205,12 +207,31 @@ class SocketStream(Stream):
 
         :returns: a :class:`SocketStream`
         """
-        import ssl
         if kwargs.pop("ipv6", False):
             kwargs["family"] = socket.AF_INET6
         s = cls._connect(host, port, **kwargs)
         try:
-            s2 = ssl.wrap_socket(s, **ssl_kwargs)
+            if "ssl_version" in ssl_kwargs:
+                context = ssl.SSLContext(ssl_kwargs.pop("ssl_version"))
+            else:
+                context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
+            certfile = ssl_kwargs.pop("certfile", None)
+            keyfile = ssl_kwargs.pop("keyfile", None)
+            if certfile is not None:
+                context.load_cert_chain(certfile, keyfile=keyfile)
+            ca_certs = ssl_kwargs.pop("ca_certs", None)
+            if ca_certs is not None:
+                context.load_verify_locations(ca_certs)
+            ciphers = ssl_kwargs.pop("ciphers", None)
+            if ciphers is not None:
+                context.set_ciphers(ciphers)
+            check_hostname = ssl_kwargs.pop("check_hostname", None)
+            if check_hostname is not None:
+                context.check_hostname = check_hostname
+            cert_reqs = ssl_kwargs.pop("cert_reqs", None)
+            if cert_reqs is not None:
+                context.verify_mode = cert_reqs
+            s2 = context.wrap_socket(s, server_hostname=host, **ssl_kwargs)
             return cls(s2)
         except BaseException:
             s.close()
@@ -291,7 +312,7 @@ class PipeStream(Stream):
     """A stream over two simplex pipes (one used to input, another for output)"""
 
     __slots__ = ("incoming", "outgoing")
-    MAX_IO_CHUNK = 32000
+    MAX_IO_CHUNK = STREAM_CHUNK
 
     def __init__(self, incoming, outgoing):
         outgoing.flush()
@@ -369,7 +390,7 @@ class Win32PipeStream(Stream):
 
     __slots__ = ("incoming", "outgoing", "_fileno", "_keepalive")
     PIPE_BUFFER_SIZE = 130000
-    MAX_IO_CHUNK = 32000
+    MAX_IO_CHUNK = STREAM_CHUNK
 
     def __init__(self, incoming, outgoing):
         import msvcrt

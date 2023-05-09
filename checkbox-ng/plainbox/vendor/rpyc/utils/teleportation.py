@@ -1,48 +1,21 @@
 import opcode
-import sys
-try:
-    import __builtin__
-except ImportError:
-    import builtins as __builtin__  # noqa: F401
-from plainbox.vendor.rpyc.lib.compat import is_py_3k, is_py_gte38
+
+from plainbox.vendor.rpyc.lib.compat import is_py_gte38, is_py_gte310, is_py_gte311
 from types import CodeType, FunctionType
-from plainbox.vendor.rpyc.core import brine
-from plainbox.vendor.rpyc.core import netref
+from plainbox.vendor.rpyc.core import brine, netref
+from dis import _unpack_opargs
 
 CODEOBJ_MAGIC = "MAg1c J0hNNzo0hn ZqhuBP17LQk8"
 
 
 # NOTE: dislike this kind of hacking on the level of implementation details,
 # should search for a more reliable/future-proof way:
-CODE_HAVEARG_SIZE = 2 if sys.version_info >= (3, 6) else 3
-try:
-    from dis import _unpack_opargs
-except ImportError:
-    # COPIED from 3.5's `dis.py`, this should hopefully be correct for <=3.5:
-    def _unpack_opargs(code):
-        extended_arg = 0
-        n = len(code)
-        i = 0
-        while i < n:
-            op = code[i]
-            offset = i
-            i = i + 1
-            arg = None
-            if op >= opcode.HAVE_ARGUMENT:
-                arg = code[i] + code[i + 1] * 256 + extended_arg
-                extended_arg = 0
-                i = i + 2
-                if op == opcode.EXTENDED_ARG:
-                    extended_arg = arg * 65536
-            yield (offset, op, arg)
+CODE_HAVEARG_SIZE = 3
 
 
 def decode_codeobj(codeobj):
     # adapted from dis.dis
-    if is_py_3k:
-        codestr = codeobj.co_code
-    else:
-        codestr = [ord(ch) for ch in codeobj.co_code]
+    codestr = codeobj.co_code
     free = None
     for i, op, oparg in _unpack_opargs(codestr):
         opname = opcode.opname[op]
@@ -73,57 +46,66 @@ def _export_codeobj(cobj):
         elif isinstance(const, CodeType):
             consts2.append(_export_codeobj(const))
         else:
-            raise TypeError("Cannot export a function with non-brinable constants: %r" % (const,))
+            raise TypeError("Cannot export a function with non-brinable constants: {!r}".format(const))
 
-    if is_py_gte38:
+    if is_py_gte311:
+        # Constructor was changed in 3.11 by adding exceptionable and qualname
+        exported = (cobj.co_argcount, cobj.co_posonlyargcount, cobj.co_kwonlyargcount, cobj.co_nlocals,
+                    cobj.co_stacksize, cobj.co_flags, cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames,
+                    cobj.co_filename, cobj.co_name, cobj.co_qualname, cobj.co_firstlineno, cobj.co_linetable,
+                    cobj.co_exceptiontable, cobj.co_freevars, cobj.co_cellvars)
+    elif is_py_gte38:
         # Constructor was changed in 3.8 to support "advanced" programming styles
         exported = (cobj.co_argcount, cobj.co_posonlyargcount, cobj.co_kwonlyargcount, cobj.co_nlocals,
                     cobj.co_stacksize, cobj.co_flags, cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames,
-                    cobj.co_filename, cobj.co_name, cobj.co_firstlineno, cobj.co_lnotab, cobj.co_freevars,
-                    cobj.co_cellvars)
-    elif is_py_3k:
+                    cobj.co_filename, cobj.co_name, cobj.co_firstlineno,
+                    cobj.co_linetable if is_py_gte310 else cobj.co_lnotab,  # 3.10 switched from lnotab to linetable
+                    cobj.co_freevars, cobj.co_cellvars)
+    else:
         exported = (cobj.co_argcount, cobj.co_kwonlyargcount, cobj.co_nlocals, cobj.co_stacksize, cobj.co_flags,
                     cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames, cobj.co_filename,
                     cobj.co_name, cobj.co_firstlineno, cobj.co_lnotab, cobj.co_freevars, cobj.co_cellvars)
-    else:
-        exported = (cobj.co_argcount, cobj.co_nlocals, cobj.co_stacksize, cobj.co_flags,
-                    cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames, cobj.co_filename,
-                    cobj.co_name, cobj.co_firstlineno, cobj.co_lnotab, cobj.co_freevars, cobj.co_cellvars)
-
     assert brine.dumpable(exported)
     return (CODEOBJ_MAGIC, exported)
 
 
 def export_function(func):
-    if is_py_3k:
-        func_closure = func.__closure__
-        func_code = func.__code__
-        func_defaults = func.__defaults__
-    else:
-        func_closure = func.func_closure
-        func_code = func.func_code
-        func_defaults = func.func_defaults
+    closure = func.__closure__
+    code = func.__code__
+    defaults = func.__defaults__
+    kwdefaults = func.__kwdefaults__
+    if kwdefaults is not None:
+        kwdefaults = tuple(kwdefaults.items())
 
-    if func_closure:
+    if closure:
         raise TypeError("Cannot export a function closure")
-    if not brine.dumpable(func_defaults):
-        raise TypeError("Cannot export a function with non-brinable defaults (func_defaults)")
+    if not brine.dumpable(defaults):
+        raise TypeError("Cannot export a function with non-brinable defaults (__defaults__)")
+    if not brine.dumpable(kwdefaults):
+        raise TypeError("Cannot export a function with non-brinable defaults (__kwdefaults__)")
 
-    return func.__name__, func.__module__, func_defaults, _export_codeobj(func_code)[1]
+    return func.__name__, func.__module__, defaults, kwdefaults, _export_codeobj(code)[1]
 
 
 def _import_codetup(codetup):
-    if is_py_3k:
-        # Handle tuples sent from 3.8 as well as 3 < version < 3.8.
-        if len(codetup) == 16:
-            (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-             filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
-        else:
-            (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-             filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
-            posonlyargcount = 0
+    posonlyargcount = 0
+    exceptiontable = b""
+    qualname = ""
+    # Handle tuples sent from >=3.11, >=3.8 and <=3.8
+    if len(codetup) == 18:
+        (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
+         filename, name, qualname, firstlineno, lnotab, exceptiontable, freevars, cellvars) = codetup
+        if not is_py_gte310:
+            # Since version, codetup length, and lnotab length, lnotab is set as though there is no linenumber
+            lnotab = b''  # lnotab_notes.txt describes lnotab as imperfect anyway
+    elif len(codetup) == 16:
+        (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
+         filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
+        if not is_py_gte310 and len(lnotab) > 2:
+            # Since version, codetup length, and lnotab length, lnotab is set as though there is no linenumber
+            lnotab = b''  # lnotab_notes.txt describes lnotab as imperfect anyway
     else:
-        (argcount, nlocals, stacksize, flags, code, consts, names, varnames,
+        (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
          filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
 
     consts2 = []
@@ -133,20 +115,20 @@ def _import_codetup(codetup):
         else:
             consts2.append(const)
     consts = tuple(consts2)
-    if is_py_gte38:
+    if is_py_gte311:
+        codetup = (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
+                   filename, name, qualname, firstlineno, lnotab, exceptiontable, freevars, cellvars)
+    elif is_py_gte38:
         codetup = (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
                    filename, name, firstlineno, lnotab, freevars, cellvars)
-    elif is_py_3k:
+    else:
         codetup = (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames, filename, name,
                    firstlineno, lnotab, freevars, cellvars)
-    else:
-        codetup = (argcount, nlocals, stacksize, flags, code, consts, names, varnames, filename, name, firstlineno,
-                   lnotab, freevars, cellvars)
     return CodeType(*codetup)
 
 
 def import_function(functup, globals=None, def_=True):
-    name, modname, defaults, codetup = functup
+    name, modname, defaults, kwdefaults, codetup = functup
     if globals is None:
         try:
             mod = __import__(modname, None, None, "*")
@@ -155,11 +137,13 @@ def import_function(functup, globals=None, def_=True):
         globals = mod.__dict__
     # function globals must be real dicts, sadly:
     if isinstance(globals, netref.BaseNetref):
-        from plainbox.vendor.rpyc.utils.classic import obtain
+        from rpyc.utils.classic import obtain
         globals = obtain(globals)
     globals.setdefault('__builtins__', __builtins__)
     codeobj = _import_codetup(codetup)
     funcobj = FunctionType(codeobj, globals, name, defaults)
+    if kwdefaults is not None:
+        funcobj.__kwdefaults__ = {t[0]: t[1] for t in kwdefaults}
     if def_:
         globals[name] = funcobj
     return funcobj

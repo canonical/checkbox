@@ -11,6 +11,9 @@ import random
 from plainbox.vendor.rpyc.lib.compat import maxint  # noqa: F401
 
 
+SPAWN_THREAD_PREFIX = 'RpycSpawnThread'
+
+
 class MissingModule(object):
     __slots__ = ["__name"]
 
@@ -19,8 +22,8 @@ class MissingModule(object):
 
     def __getattr__(self, name):
         if name.startswith("__"):  # issue 71
-            raise AttributeError("module %r not found" % (self.__name,))
-        raise ImportError("module %r not found" % (self.__name,))
+            raise AttributeError("module {!r} not found".format(self.__name))
+        raise ImportError("module {!r} not found".format(self.__name))
 
     def __bool__(self):
         return False
@@ -41,15 +44,20 @@ def safe_import(name):
     return mod
 
 
-def setup_logger(quiet=False, logfile=None):
+def setup_logger(quiet=False, logfile=None, namespace=None):
     opts = {}
     if quiet:
         opts['level'] = logging.ERROR
+        opts['format'] = '%(asctime)s %(levelname)s: %(message)s'
+        opts['datefmt'] = '%b %d %H:%M:%S'
     else:
         opts['level'] = logging.DEBUG
+        opts['format'] = '%(asctime)s %(levelname)s %(name)s[%(threadName)s]: %(message)s'
+        opts['datefmt'] = '%b %d %H:%M:%S'
     if logfile:
         opts['filename'] = logfile
     logging.basicConfig(**opts)
+    return logging.getLogger('rpyc' if namespace is None else 'rpyc.{}'.format(namespace))
 
 
 class hybridmethod(object):
@@ -67,10 +75,21 @@ class hybridmethod(object):
         raise AttributeError("Cannot overwrite method")
 
 
+def hasattr_static(obj, attr):
+    """Returns if `inspect.getattr_static` can find an attribute of ``obj``."""
+    try:
+        inspect.getattr_static(obj, attr)
+    except AttributeError:
+        return False
+    else:
+        return True
+
+
 def spawn(*args, **kwargs):
     """Start and return daemon thread. ``spawn(func, *args, **kwargs)``."""
     func, args = args[0], args[1:]
-    thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+    str_id_pack = '-'.join(['{}'.format(i) for i in get_id_pack(func)])
+    thread = threading.Thread(name='{}-{}'.format(SPAWN_THREAD_PREFIX, str_id_pack), target=func, args=args, kwargs=kwargs)
     thread.daemon = True
     thread.start()
     return thread
@@ -96,7 +115,7 @@ def spawn_waitready(init, main):
     return thread, stack.pop()
 
 
-class Timeout:
+class Timeout(object):
 
     def __init__(self, timeout):
         if isinstance(timeout, Timeout):
@@ -175,7 +194,7 @@ def get_id_pack(obj):
                 else:
                     name_pack = '{0}.{1}'.format(obj.__class__.__module__, obj.__name__)
             elif inspect.ismodule(obj):
-                name_pack = '{0}.{1}'.format(obj__module__, obj.__name__)
+                name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
                 print(name_pack)
             elif hasattr(obj, '__module__'):
                 name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)

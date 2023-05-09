@@ -5,7 +5,7 @@ cases)
 from __future__ import with_statement
 import socket
 from contextlib import closing
-
+from functools import partial
 import threading
 try:
     from thread import interrupt_main
@@ -19,13 +19,17 @@ except ImportError:
 
 from plainbox.vendor.rpyc.core.channel import Channel
 from plainbox.vendor.rpyc.core.stream import SocketStream, TunneledSocketStream, PipeStream
-from plainbox.vendor.rpyc.core.service import VoidService
+from plainbox.vendor.rpyc.core.service import VoidService, MasterService, SlaveService
 from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient
 from plainbox.vendor.rpyc.lib import safe_import, spawn
 ssl = safe_import("ssl")
 
 
 class DiscoveryError(Exception):
+    pass
+
+
+class ForbiddenError(Exception):
     pass
 
 
@@ -115,7 +119,7 @@ def unix_connect(path, service=VoidService, config={}):
 
 def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
                 cert_reqs=None, ssl_version=None, ciphers=None,
-                service=VoidService, config={}, ipv6=False, keepalive=False):
+                service=VoidService, config={}, ipv6=False, keepalive=False, verify_mode=None):
     """
     creates an SSL-wrapped connection to the given host (encrypted and
     authenticated).
@@ -127,17 +131,17 @@ def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
     :param ipv6: whether to create an IPv6 socket or an IPv4 one(defaults to ``False``)
     :param keepalive: whether to set TCP keepalive on the socket (defaults to ``False``)
 
-    The following arguments are passed directly to
-    `ssl.wrap_socket <http://docs.python.org/dev/library/ssl.html#ssl.wrap_socket>`_:
-
-    :param keyfile: see ``ssl.wrap_socket``. May be ``None``
-    :param certfile: see ``ssl.wrap_socket``. May be ``None``
-    :param ca_certs: see ``ssl.wrap_socket``. May be ``None``
-    :param cert_reqs: see ``ssl.wrap_socket``. By default, if ``ca_cert`` is specified,
-                      the requirement is set to ``CERT_REQUIRED``; otherwise it is
-                      set to ``CERT_NONE``
-    :param ssl_version: see ``ssl.wrap_socket``. The default is ``PROTOCOL_TLSv1``
-    :param ciphers: see ``ssl.wrap_socket``. May be ``None``. New in Python 2.7/3.2
+    :param keyfile: see ``ssl.SSLContext.load_cert_chain``. May be ``None``
+    :param certfile: see ``ssl.SSLContext.load_cert_chain``. May be ``None``
+    :param ca_certs: see ``ssl.SSLContext.load_verify_locations``. May be ``None``
+    :param cert_reqs: see ``ssl.SSLContext.verify_mode``. By default, if ``ca_cert`` is
+                      specified, the requirement is set to ``CERT_REQUIRED``; otherwise
+                      it is set to ``CERT_NONE``
+    :param ssl_version: see ``ssl.SSLContext``. The default is defined by
+                        ``ssl.create_default_context``
+    :param ciphers: see ``ssl.SSLContext.set_ciphers``. May be ``None``. New in
+                    Python 2.7/3.2
+    :param verify_mode: see ``ssl.SSLContext.verify_mode``
 
     :returns: an RPyC connection
     """
@@ -146,14 +150,18 @@ def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
         ssl_kwargs["keyfile"] = keyfile
     if certfile is not None:
         ssl_kwargs["certfile"] = certfile
+    if verify_mode is not None:
+        ssl_kwargs["cert_reqs"] = verify_mode
+    else:
+        ssl_kwargs["cert_reqs"] = ssl.CERT_NONE
     if ca_certs is not None:
         ssl_kwargs["ca_certs"] = ca_certs
         ssl_kwargs["cert_reqs"] = ssl.CERT_REQUIRED
     if cert_reqs is not None:
         ssl_kwargs["cert_reqs"] = cert_reqs
-    if ssl_version is None:
-        ssl_kwargs["ssl_version"] = ssl.PROTOCOL_TLSv1
-    else:
+    elif cert_reqs != ssl.CERT_NONE:
+        ssl_kwargs["check_hostname"] = False
+    if ssl_version is not None:
         ssl_kwargs["ssl_version"] = ssl_version
     if ciphers is not None:
         ssl_kwargs["ciphers"] = ciphers
@@ -216,16 +224,26 @@ def discover(service_name, host=None, registrar=None, timeout=2):
         registrar = UDPRegistryClient(timeout=timeout)
     addrs = registrar.discover(service_name)
     if not addrs:
-        raise DiscoveryError("no servers exposing %r were found" % (service_name,))
+        raise DiscoveryError("no servers exposing {!r} were found".format(service_name))
     if host:
         ips = socket.gethostbyname_ex(host)[2]
         addrs = [(h, p) for h, p in addrs if h in ips]
     if not addrs:
-        raise DiscoveryError("no servers exposing %r were found on %r" % (service_name, host))
+        raise DiscoveryError("no servers exposing {} were found on {}".format(service_name, host))
     return addrs
 
 
-def connect_by_service(service_name, host=None, service=VoidService, config={}):
+def list_services(registrar=None, filter_host=None, timeout=2):
+    services = ()
+    if registrar is None:
+        registrar = UDPRegistryClient(timeout=timeout)
+    services = registrar.list(filter_host)
+    if services is None:
+        raise ForbiddenError("Registry doesn't allow listing")
+    return services
+
+
+def connect_by_service(service_name, host=None, registrar=None, timeout=2, service=VoidService, config={}):
     """create a connection to an arbitrary server that exposes the requested service
 
     :param service_name: the service to discover
@@ -240,13 +258,13 @@ def connect_by_service(service_name, host=None, service=VoidService, config={}):
     # some of which could be dead. We iterate over the list returned and return the first
     # one we could connect to. If none of the registered servers is responsive we re-throw
     # the exception
-    addrs = discover(service_name, host=host)
+    addrs = discover(service_name, host=host, registrar=registrar, timeout=timeout)
     for host, port in addrs:
         try:
             return connect(host, port, service, config=config)
         except socket.error:
             pass
-    raise DiscoveryError("All services are down: %s" % (addrs,))
+    raise DiscoveryError("All services are down: {}".format(addrs))
 
 
 def connect_subproc(args, service=VoidService, config={}):
@@ -264,6 +282,27 @@ def connect_subproc(args, service=VoidService, config={}):
     return conn
 
 
+def _server(listener, remote_service, remote_config, args=None):
+    try:
+        with closing(listener):
+            client = listener.accept()[0]
+        conn = connect_stream(SocketStream(client), service=remote_service, config=remote_config)
+        if isinstance(args, dict):
+            _oldstyle = (MasterService, SlaveService)
+            is_newstyle = isinstance(remote_service, type) and not issubclass(remote_service, _oldstyle)
+            is_newstyle |= not isinstance(remote_service, type) and not isinstance(remote_service, _oldstyle)
+            is_voidservice = isinstance(remote_service, type) and issubclass(remote_service, VoidService)
+            is_voidservice |= not isinstance(remote_service, type) and isinstance(remote_service, VoidService)
+            if is_newstyle and not is_voidservice:
+                conn._local_root.exposed_namespace.update(args)
+            elif not is_voidservice:
+                conn._local_root.namespace.update(args)
+
+        conn.serve_all()
+    except KeyboardInterrupt:
+        interrupt_main()
+
+
 def connect_thread(service=VoidService, config={}, remote_service=VoidService, remote_config={}):
     """starts an rpyc server on a new thread, bound to an arbitrary port,
     and connects to it over a socket.
@@ -276,18 +315,8 @@ def connect_thread(service=VoidService, config={}, remote_service=VoidService, r
     listener = socket.socket()
     listener.bind(("localhost", 0))
     listener.listen(1)
-
-    def server(listener=listener):
-        with closing(listener):
-            client = listener.accept()[0]
-        conn = connect_stream(SocketStream(client), service=remote_service,
-                              config=remote_config)
-        try:
-            conn.serve_all()
-        except KeyboardInterrupt:
-            interrupt_main()
-
-    spawn(server)
+    remote_server = partial(_server, listener, remote_service, remote_config)
+    spawn(remote_server)
     host, port = listener.getsockname()
     return connect(host, port, service=service, config=config)
 
@@ -311,19 +340,8 @@ def connect_multiprocess(service=VoidService, config={}, remote_service=VoidServ
     listener = socket.socket()
     listener.bind(("localhost", 0))
     listener.listen(1)
-
-    def server(listener=listener, args=args):
-        with closing(listener):
-            client = listener.accept()[0]
-        conn = connect_stream(SocketStream(client), service=remote_service, config=remote_config)
-        try:
-            for k in args:
-                conn._local_root.exposed_namespace[k] = args[k]
-            conn.serve_all()
-        except KeyboardInterrupt:
-            interrupt_main()
-
-    t = Process(target=server)
+    remote_server = partial(_server, listener, remote_service, remote_config, args)
+    t = Process(target=remote_server)
     t.start()
     host, port = listener.getsockname()
     return connect(host, port, service=service, config=config)

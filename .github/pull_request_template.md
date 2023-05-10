@@ -17,7 +17,11 @@ Make sure that the linked issue titles & descriptions are also up to date.
 ## Documentation
 
 <!--
-- Please make sure tests are included for the changed functionality in this PR. If to be merged without tests, please elaborate why.
+Please make sure that...
+- Documentation impacted by the changes is up to date (becomes so, remains so).
+  - Documentation in the repository, including contribution guidelines.
+  - Process documentation outside the repository.
+- Tests are included for the changed functionality in this PR. If to be merged without tests, please elaborate why.
 - Please ensure the necessary documentation is provided for the changed functionality in this PR (tests are documentation, too).
 -->
 

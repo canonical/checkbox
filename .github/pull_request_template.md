@@ -10,7 +10,8 @@ Describe your changes here:
 ## Resolved issues
 
 <!--
-Note the Jira/Launchpad issue(s) resolved by this PR (`Fixes|Resolves ...`).
+Note the Jira and GitHub issue(s) resolved by this PR (`Fixes|Resolves ...`).
+Make sure that the linked issue titles & descriptions are also up to date.
 -->
 
 ## Documentation

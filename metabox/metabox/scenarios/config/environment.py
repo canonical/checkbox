@@ -23,6 +23,7 @@ from metabox.core.actions import AssertPrinted
 from metabox.core.actions import Start
 from metabox.core.actions import Put
 from metabox.core.scenario import Scenario
+from metabox.core.utils import tag
 
 from .config_files import environment
 
@@ -260,11 +261,13 @@ class CheckboxConfRemoteServiceResolutionOrder(Scenario):
         forced = yes
         [environment]
         var2 = LAUNCHER
-        """)
+        """
+    )
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
-        Put("/root/.config/checkbox.conf", checkbox_conf_home,
-            target="service"),
+        Put(
+            "/root/.config/checkbox.conf", checkbox_conf_home, target="service"
+        ),
         Start(),
         AssertPrinted("variables: HOME LAUNCHER XDG"),
     ]

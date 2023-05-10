@@ -1,0 +1,9 @@
+id: whoami_as_user
+plugin: shell
+command: echo -n user:&& whoami
+_summary: Print who is running the job
+
+id: whoami_as_user_tp
+unit: test plan
+_name: Priting who runs the job
+include: whoami_as_user

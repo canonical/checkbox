@@ -161,3 +161,26 @@ class RemoteTestSelectionResolution(Scenario):
         Start(),
         AssertPrinted(".*config-environ-source.*"),
     ]
+
+class TestSelectionSkipPlan(Scenario):
+    """
+    If the launcher file lists a unit and forces the selection
+    the test selection screen should be skipped and the unit
+    should be selected automatically.
+
+    This scenario has to work locally and remotely
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = com.canonical.certification::smoke
+        forced = yes
+        """)
+    steps = [
+        # Assert that we have reached test selection
+        Expect("Choose tests to run on your system")
+    ]
+
+

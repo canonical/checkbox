@@ -224,7 +224,7 @@ class TestSelectionPlanPreselectFailWrongName(Scenario):
         AssertPrintedError(".+The test plan .+ is not available!")
     ]
 
-class TestSlectionPlanPreselectNothing(Scenario):
+class TestSelectionPlanPreselectNothing(Scenario):
     """
     If no unit is provided to checkbox, when prompted to continue
     or forced to do so in the test plan selection screen it should 

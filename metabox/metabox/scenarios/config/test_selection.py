@@ -221,7 +221,7 @@ class TestSelectionPlanPreselectFailWrongName(Scenario):
         forced = yes
         """)
     steps = [
-        AssertPrintedError(".+The test plan .+ is not available!")
+        AssertPrintedError(".*The test plan .+ is not available!.*")
     ]
 
 class TestSelectionPlanPreselectNothing(Scenario):
@@ -239,6 +239,6 @@ class TestSelectionPlanPreselectNothing(Scenario):
         forced = yes
         """)
     steps = [
-        AssertPrinted("No test plan selected.")
+        AssertPrintedError(".*The test plan selection was forced but no unit was provided")
     ]
     

@@ -268,6 +268,10 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         except RuntimeError as exc:
             raise SystemExit(exc.args[0]) from exc
         if self.launcher.test_plan_forced:
+            if self.launcher.test_plan_default_selection is Unset:
+                _logger.error(_(
+                    'The test plan selection was forced but no unit was provided'))
+                raise SystemExit(1)
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)
         else:

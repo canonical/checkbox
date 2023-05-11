@@ -183,4 +183,26 @@ class TestSelectionSkipPlan(Scenario):
         Expect("Choose tests to run on your system")
     ]
 
+class TestSelectionPlanPreselected(Scenario):
+    """
+    If the launcher selects a unit, it should be selected
+    in the plan selection screen
+
+    This scenario has to work locally and remotely
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        # filtering to avoid the test being out of bound
+        filter = *smoke*
+        unit = com.canonical.certification::smoke
+        """)
+    steps = [
+        #( ) Some other test
+        #(X) All Smoke Tests
+        #( ) Some other test
+        Expect("(X)")
+    ]
 

@@ -300,7 +300,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
     def select_tp(self, tp):
         _logger.info("remote: Selected test plan: %s", tp)
-        self.sa.prepare_bootstrapping(tp)
+        try:
+            self.sa.prepare_bootstrapping(tp)
+        except KeyError as e:
+            _logger.error('The test plan "%s" is not available!', tp)
+            raise SystemExit(1)
         self._is_bootstrapping = True
         bs_todo = self.sa.get_bootstrapping_todo_list()
         for job_no, job_id in enumerate(bs_todo, start=1):

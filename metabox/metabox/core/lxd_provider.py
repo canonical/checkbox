@@ -160,18 +160,11 @@ class LxdMachineProvider:
                 attempt += 1
             else:
                 raise SystemExit("Timeout reached (still running cloud-init)")
-            logger.debug("Stopping container {}...", container.name)
-            container.stop(wait=True)
-            logger.debug("Creating 'base' snapshot for {}...", container.name)
-            container.snapshots.create('base', stateful=False, wait=True)
-            logger.debug("Starting container {}...", container.name)
-            container.start(wait=True)
             logger.opt(colors=True).debug(
                 "[<y>created</y>     ] {}", container.name)
             logger.opt(colors=True).debug(
                 "[<y>provisioning</y>] {}", container.name)
             self._run_transfer_commands(machine)
-            time.sleep(5)  # FIXME: is it still needed?
             self._run_setup_commands(machine)
             self._store_config(machine)
             logger.debug("Stopping container {}...", container.name)

@@ -285,7 +285,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             raise SystemExit(0)
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
-            tp_info_list, None).run()
+            tp_info_list, 
+            self.launcher.test_plan_default_selection).run()
         if selected_tp is None:
             print(_("Nothing selected"))
             raise SystemExit(0)

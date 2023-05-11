@@ -350,6 +350,10 @@ class Launcher(MainLoopStage, ReportsStage):
         self.ctx.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
         if self.launcher.test_plan_forced:
             tp_id = self.launcher.test_plan_default_selection
+            if tp_id is Unset:
+                _logger.error(_(
+                    'The test plan selection was forced but no unit was provided'))
+                raise SystemExit(1)
             if tp_id not in self.ctx.sa.get_test_plans():
                 _logger.error(_(
                     'The test plan "%s" is not available!'), tp_id)

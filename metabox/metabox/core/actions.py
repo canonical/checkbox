@@ -60,6 +60,8 @@ class SelectTestPlan(ActionBase):
 class AssertPrinted(ActionBase):
     handler = 'assert_printed'
 
+class AssertPrintedError(ActionBase):
+    handler = 'assert_printed_error'
 
 class AssertNotPrinted(ActionBase):
     handler = 'assert_not_printed'

@@ -105,14 +105,23 @@ class Scenario:
     # TODO: add storing of what actually failed in the assert methods
     def assert_printed(self, pattern):
         """
-        Check if during Checkbox execution a line produced that matches the
-        pattern.
+        Check if during Checkbox execution a line was produced in stdout
+        that matches the pattern.
         :param patter: regular expresion to check against the lines.
         """
         regex = re.compile(pattern)
         self._checks.append(
             bool(regex.search(self._stdout)) or bool(regex.search(self._stderr))
         )
+
+    def assert_printed_error(self, pattern):
+        """
+        Check if during Checkbox execution a line was produced in stderr
+        that matches the pattern.
+        :param patter: regular expresion to check against the lines.
+        """
+        regex = re.compile(pattern)
+        self._checks.append(bool(regex.search(self._stderr)))
 
     def assert_not_printed(self, pattern):
         """

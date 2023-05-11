@@ -29,7 +29,7 @@ jobs:
           fi
 
   Metabox:
-    if: (github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch') && needs.metabox_run_required.outputs.required_run == 'true'
+    if: (github.event.review.state == 'approved' && needs.metabox_run_required.outputs.required_run == 'true') || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:

@@ -19,11 +19,8 @@
 import textwrap
 from importlib.resources import read_text
 
-from metabox.core.actions import AssertPrinted
-from metabox.core.actions import AssertNotPrinted
-from metabox.core.actions import Expect
-from metabox.core.actions import Start
-from metabox.core.actions import Put
+from metabox.core.actions import AssertPrinted, AssertNotPrinted, Expect,\
+        Start, Put, Send, AssertPrintedError
 from metabox.core.scenario import Scenario
 
 from .config_files import test_selection
@@ -204,5 +201,21 @@ class TestSelectionPlanPreselected(Scenario):
         #(X) All Smoke Tests
         #( ) Some other test
         Expect("(X)")
+    ]
+
+class TestSelectionPlanPreselectFailWrongName(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        # This name has to be wrong, if this is failing
+        # this may be no longer the case
+        unit = this_unit_does_not_exist
+        # This forces to continue but nothing is selected
+        forced = yes
+        """)
+    steps = [
+        AssertPrintedError(".+The test plan .+ is not available!")
     ]
 

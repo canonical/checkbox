@@ -289,7 +289,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
         if self.config.role in ('remote', 'service'):
             commands += [
                 "sudo bash -c 'systemctl daemon-reload'",
-                "sudo bash -c 'systemctl enable checkbox-ng.service'",
+                "sudo bash -c 'systemctl enable checkbox-ng.service --now'",
             ]
             service_content = textwrap.dedent("""
                 [Unit]

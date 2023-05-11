@@ -12,3 +12,8 @@ unit: manifest entry
 id: has_usb_storage
 _name: USB Storage Device Connected
 value-type: bool
+
+unit: manifest entry
+id: has_usbc_otg
+_name: Does the platform support USB-C OTG?
+value-type: bool

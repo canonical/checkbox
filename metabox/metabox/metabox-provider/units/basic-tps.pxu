@@ -27,16 +27,16 @@ include:
  stub/user-interact-verify
 
 unit: test plan
-id: display-manual
-_name: Display Manual
+id: display-metabox
+_name: Display
 include:
-  graphics/glxgears
+  metabox/graphics/glxgears
 
 unit: test plan
-id: audio-manual
-_name: Audio Manual
+id: audio-metabox
+_name: Audio
 include:
-  com.canonical.certification::audio/playback_auto
+  metabox/audio/playback_auto
 
 unit: test plan
 id: config-automated

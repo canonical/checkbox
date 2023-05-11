@@ -38,7 +38,7 @@ class CheckboxConfXDG(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -62,7 +62,7 @@ class CheckboxConfLocalHome(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -86,7 +86,7 @@ class CheckboxConfRemoteHome(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -110,7 +110,7 @@ class CheckboxConfSnap(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -132,7 +132,7 @@ class CheckboxConfLauncher(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -157,7 +157,7 @@ class CheckboxConfLocalHomePrecedence(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -182,7 +182,7 @@ class CheckboxConfLauncherPrecedence(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -220,7 +220,7 @@ class CheckboxConfLocalResolutionOrder(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -254,7 +254,7 @@ class CheckboxConfRemoteServiceResolutionOrder(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes

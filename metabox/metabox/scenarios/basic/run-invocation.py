@@ -29,9 +29,8 @@ from metabox.core.scenario import Scenario
 class RunTestplan(Scenario):
 
     modes = ['local']
-    config_override = {'local': {'releases': ['bionic']}}
     steps = [
-        Start('run 2021.com.canonical.certification::'
+        Start('run com.canonical.certification::'
               'basic-automated-passing', timeout=30),
         AssertRetCode(0)
     ]
@@ -41,7 +40,7 @@ class RunFailingTestplan(Scenario):
 
     modes = ['local']
     steps = [
-        Start('run 2021.com.canonical.certification::'
+        Start('run com.canonical.certification::'
               'basic-automated-failing', timeout=30),
         AssertRetCode(0)
     ]
@@ -52,7 +51,7 @@ class RunTestplanWithEnvvar(Scenario):
     modes = ['local']
     environment = {'foo': 42}
     steps = [
-        Start('run 2021.com.canonical.certification::basic-automated',
+        Start('run com.canonical.certification::basic-automated',
               timeout=30),
         AssertPrinted("foo: 42"),
     ]
@@ -62,7 +61,7 @@ class RunManualplan(Scenario):
 
     modes = ['local']
     steps = [
-        Start('run 2021.com.canonical.certification::basic-manual'),
+        Start('run com.canonical.certification::basic-manual'),
         Expect('Pick an action'),
         Send(keys.KEY_ENTER),
         Expect('Pick an action', timeout=30),

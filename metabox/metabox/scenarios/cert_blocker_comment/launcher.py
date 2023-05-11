@@ -38,7 +38,7 @@ class ManualJobFailed(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-manual
+        unit = com.canonical.certification::cert-blocker-manual
         forced = yes
         [test selection]
         forced = yes
@@ -71,7 +71,7 @@ class ManualJobSkipped(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-manual
+        unit = com.canonical.certification::cert-blocker-manual
         forced = yes
         [test selection]
         forced = yes
@@ -105,7 +105,7 @@ class UserInteractVerifyJobFailed(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-user-interact-verify
+        unit = com.canonical.certification::cert-blocker-user-interact-verify
         forced = yes
         [test selection]
         forced = yes
@@ -141,7 +141,7 @@ class UserInteractVerifyJobSkippedAfterRun(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-user-interact-verify
+        unit = com.canonical.certification::cert-blocker-user-interact-verify
         forced = yes
         [test selection]
         forced = yes
@@ -177,7 +177,7 @@ class UserInteractVerifyJobSkippedBeforeRun(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-user-interact-verify
+        unit = com.canonical.certification::cert-blocker-user-interact-verify
         forced = yes
         [test selection]
         forced = yes
@@ -211,7 +211,7 @@ class UserInteractJobSkippedBeforeRun(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-user-interact
+        unit = com.canonical.certification::cert-blocker-user-interact
         forced = yes
         [test selection]
         forced = yes
@@ -245,7 +245,7 @@ class ManualJobSkippedWhenResumingSession(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-manual-resume
+        unit = com.canonical.certification::cert-blocker-manual-resume
         forced = yes
         [test selection]
         forced = yes

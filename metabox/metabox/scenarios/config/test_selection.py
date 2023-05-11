@@ -56,7 +56,6 @@ class TestSelectionForced(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        #unit = 2021.com.canonical.certification::config-automated
         unit = com.canonical.certification::smoke
         forced = yes
         [test selection]
@@ -79,7 +78,7 @@ class TestSelectionExcludedJob(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         forced = yes
@@ -112,7 +111,7 @@ class LocalTestSelectionResolution(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         exclude =
@@ -147,7 +146,7 @@ class RemoteTestSelectionResolution(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = com.canonical.certification::config-automated
         forced = yes
         [test selection]
         exclude =

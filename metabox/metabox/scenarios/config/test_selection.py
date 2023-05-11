@@ -204,6 +204,11 @@ class TestSelectionPlanPreselected(Scenario):
     ]
 
 class TestSelectionPlanPreselectFailWrongName(Scenario):
+    """
+    If a test with an unknown name is selected via unit
+    checkbox should exit providing an error explaining
+    that it did not find the test plan.
+    """
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -219,3 +224,21 @@ class TestSelectionPlanPreselectFailWrongName(Scenario):
         AssertPrintedError(".+The test plan .+ is not available!")
     ]
 
+class TestSlectionPlanPreselectNothing(Scenario):
+    """
+    If no unit is provided to checkbox, when prompted to continue
+    or forced to do so in the test plan selection screen it should 
+    quit given that no test plan was selected.
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        # This forces to continue but nothing is selected
+        forced = yes
+        """)
+    steps = [
+        AssertPrinted("No test plan selected.")
+    ]
+    

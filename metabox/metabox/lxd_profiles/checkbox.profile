@@ -24,9 +24,11 @@ config:
       - pulseaudio
       - python3-jinja2
       - python3-markupsafe
+      - python3-packaging
       - python3-padme
       - python3-pip
       - python3-psutil
+      - python3-pyparsing
       - python3-requests-oauthlib
       - python3-tqdm
       - python3-urwid

@@ -159,7 +159,7 @@ class RemoteTestSelectionResolution(Scenario):
         AssertPrinted(".*config-environ-source.*"),
     ]
 
-class TestSelectionSkipPlan(Scenario):
+class TestPlanSelectionSkip(Scenario):
     """
     If the launcher file lists a unit and forces the selection
     the test selection screen should be skipped and the unit
@@ -180,7 +180,7 @@ class TestSelectionSkipPlan(Scenario):
         Expect("Choose tests to run on your system")
     ]
 
-class TestSelectionPlanPreselected(Scenario):
+class TestPlanPreselected(Scenario):
     """
     If the launcher selects a unit, it should be selected
     in the plan selection screen
@@ -203,7 +203,7 @@ class TestSelectionPlanPreselected(Scenario):
         Expect("(X)")
     ]
 
-class TestSelectionPlanPreselectFailWrongName(Scenario):
+class TestPlanSelectionPreselectFailWrongName(Scenario):
     """
     If a test with an unknown name is selected via unit
     checkbox should exit providing an error explaining
@@ -224,7 +224,7 @@ class TestSelectionPlanPreselectFailWrongName(Scenario):
         AssertPrintedError(".*The test plan .+ is not available!.*")
     ]
 
-class TestSelectionPlanPreselectNothing(Scenario):
+class TestPlanSelectionPreselectNothing(Scenario):
     """
     If no unit is provided to checkbox, when prompted to continue
     or forced to do so in the test plan selection screen it should 
@@ -242,7 +242,7 @@ class TestSelectionPlanPreselectNothing(Scenario):
         AssertPrintedError(".*The test plan selection was forced but no unit was provided")
     ]
 
-class TestSelectionPlanFilterEmpty(Scenario):
+class TestPlanSelectionFilterEmpty(Scenario):
     """
     If a filter excludes every test, checkbox should exit
     printing an error.
@@ -259,7 +259,7 @@ class TestSelectionPlanFilterEmpty(Scenario):
         AssertPrintedError(".*There were no test plans to select from.*")
     ]
 
-class TestSelectionPlanFilter(Scenario):
+class TestPlanSelectionFilter(Scenario):
     """
     Test plan selection should be filtered from the launcher
     """

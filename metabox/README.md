@@ -150,6 +150,39 @@ configuration = {
 **Note:** Metabox is always going to check **all possible combinations** of
 `releases`, that means that this example will execute 9 test runs.
 
+# Running Metabox with pytest
+
+Pytest offers a richer command-line and complements nicely the metabox runner.
+A [conftest.py] turns metabox scenarios into a pytest compatible session.
+
+### List the scenarios using keywords expression
+
+An expression is a Python evaluatable expression where all names are
+substring-matched against test names and their parent classes.
+The matching is case-insensitive.
+```
+$ pytest --config configs/source-remote-config.py -k "remote and reboot" --collect-only
+$ pytest --config configs/source-remote-config.py -k "remote and not reboot" --collect-only
+$ pytest --config configs/source-remote-config.py -k "remote and not reboot and not desktop" --collect-only
+$ pytest --config configs/testing-ppa-config.py -k "remote and not jammy" --collect-only
+$ pytest --config configs/source-local-config.py -k CheckboxConfLocalResolutionOrder --collect-only
+```
+### Run scenarios using the TRACE logging level
+**Note:** `--log-lvl` option adjust loguru logging level
+(`log-level` is already a pytest option)
+```
+$ pytest --config configs/source-local-config.py --log-lvl TRACE -v -k CheckboxConfLocalResolutionOrder
+```
+### Exit instantly on first error or failed test  with -x
+**Note:** `metabox --hold-on-fail` is handled with the pytest exitfirst option.
+```
+$ pytest --config configs/source-local-config.py --log-lvl TRACE -v -x
+```
+### Do not capture test output with -s
+```
+$ pytest --config configs/source-local-config.py --log-lvl TRACE -v -s
+```
+
 [Checkbox]: https://checkbox.readthedocs.io/
 [Linux containers (LXC)]: https://linuxcontainers.org/
 [`desktop_env` scenario]: ./metabox/scenarios/desktop_env/
@@ -157,3 +190,4 @@ configuration = {
 [`configs` directory]: ./configs/
 [LXD documentation to install and initialize it]: https://linuxcontainers.org/lxd/getting-started-cli/
 [installed]: #installation
+[conftest.py]: ./conftest.py

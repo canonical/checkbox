@@ -241,4 +241,37 @@ class TestSelectionPlanPreselectNothing(Scenario):
     steps = [
         AssertPrintedError(".*The test plan selection was forced but no unit was provided")
     ]
-    
+
+class TestSelectionPlanFilterEmpty(Scenario):
+    """
+    If a filter excludes every test, checkbox should exit
+    printing an error.
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        # This should not match any valid test name (no word, no digit)
+        filter = [^\w\d]
+        """)
+    steps = [
+        AssertPrintedError(".*There were no test plans to select from.*")
+    ]
+
+class TestSelectionPlanFilter(Scenario):
+    """
+    Test plan selection should be filtered from the launcher
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        filter = com.canonical.certification::[!s]*
+    """)
+    steps = [
+        Send("i"),
+        AssertNotPrinted("smoke")
+    ]
+

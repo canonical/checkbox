@@ -281,7 +281,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         _logger.info("remote: Interactively choosing TP.")
         tp_info_list = [{'id': tp[0], 'name': tp[1]} for tp in tps]
         if not tp_info_list:
-            print(_("There were no test plans to select from!"))
+            _logger.error(_("There were no test plans to select from!"))
             raise SystemExit(0)
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
@@ -293,7 +293,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
         self.select_tp(selected_tp)
         if not self.jobs:
-            print(self.C.RED(_("There were no tests to select from!")))
+            _logger.error(self.C.RED(_("There were no tests to select from!")))
             self.sa.finalize_session()
             return
         self.select_jobs(self.jobs)

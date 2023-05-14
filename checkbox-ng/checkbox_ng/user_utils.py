@@ -50,3 +50,4 @@ def guess_normal_user() -> str:
         user = pwd.getpwuid(1001).pw_name
         _logger.warning("Using `%s` user", user)
         return user
+    raise RuntimeError("Cannot guess which user should run unprivileged jobs!")

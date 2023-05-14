@@ -86,6 +86,15 @@ class TestGuessNormalUser(unittest.TestCase):
         ]
         self.assertEqual(guess_normal_user(), "user1001")
 
+    @patch("pwd.getpwall")
+    @patch("pwd.getpwuid")
+    def test_cannot_guess_the_user(self, mock_getpwuid, mock_getpwall):
+        mock_getpwall.return_value = []
+        mock_getpwuid.side_effect = [KeyError(), KeyError()]
+
+        with self.assertRaises(RuntimeError):
+            guess_normal_user()
+
 
 if __name__ == "__main__":
     unittest.main()

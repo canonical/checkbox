@@ -185,7 +185,6 @@ class Scenario:
         return self.service_machine.start_service(force)
 
     def expect(self, data, timeout=60):
-        breakpoint()
         assert(self._pts is not None)
         outcome = self._pts.expect(data, timeout)
         self._checks.append(outcome)

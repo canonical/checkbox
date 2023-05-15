@@ -5,17 +5,18 @@
 # Required
 version: 2
 
+# Set the version of Python and other tools you might need
 build:
-  os: ubuntu-20.04
+  os: ubuntu-22.04
   tools:
-    python: "3.9"
+    python: "3.11"
 
+# Build documentation in the docs/ directory with Sphinx
 sphinx:
-   configuration: checkbox-ng/docs/conf.py
+   configuration: docs/conf.py
 
-# Python requirements to build the docs
-# See: <https://docs.readthedocs.io/en/stable/faq.html#can-i-document-a-python-
-# package-that-is-not-at-the-root-of-my-repository>
+
+# Optionally declare the Python requirements required to build your docs
 python:
    install:
-   - requirements: checkbox-ng/docs/requirements.txt
+   - requirements: docs/.sphinx/requirements.txt

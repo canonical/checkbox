@@ -123,8 +123,9 @@ class Scenario:
         regex = re.compile(pattern)
         if self._pts:
             found = (
-                regex.search(self._pts.stdout_data_full.decode('utf-8', errors='ignore')) or
-                regex.search(self._pts.stderr.decode('utf-8', errors='ignore'))
+                regex.search(
+                    self._pts.stdout_data_full.decode('utf-8', errors='ignore')
+                )
             )
         else:
             found = regex.search(self._stdout) or regex.search(self._stderr)
@@ -184,6 +185,7 @@ class Scenario:
         return self.service_machine.start_service(force)
 
     def expect(self, data, timeout=60):
+        breakpoint()
         assert(self._pts is not None)
         outcome = self._pts.expect(data, timeout)
         self._checks.append(outcome)

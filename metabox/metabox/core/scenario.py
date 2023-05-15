@@ -35,6 +35,7 @@ class Scenario:
 
     config_override = {}
     environment = {}
+    cmd_args = ""
     launcher = None
     LAUNCHER_PATH = "/home/ubuntu/launcher.checkbox"
 
@@ -171,7 +172,7 @@ class Scenario:
             if self.launcher:
                 cmd = self.LAUNCHER_PATH
             outcome = self.local_machine.start(
-                cmd=cmd,
+                cmd="{} {}".format(self.cmd_args, cmd),
                 env=self.environment,
                 interactive=interactive,
                 timeout=timeout,
@@ -194,7 +195,8 @@ class Scenario:
         outcome = self.remote_machine.start_remote(
             self.service_machine.address,
             self.LAUNCHER_PATH,
-            interactive,
+            cmd_args=self.cmd_args,
+            interactive=interactive,
             timeout=timeout,
         )
         if interactive:

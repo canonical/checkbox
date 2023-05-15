@@ -165,18 +165,18 @@ class ContainerBaseMachine:
         """
         return []
 
-    def start_remote(self, host, launcher, interactive=False, timeout=0):
+    def start_remote(self, host, launcher, cmd_args="", interactive=False, timeout=0):
         assert self.config.role == "remote"
 
         if interactive:
             # Return a PTS object to interact with
             return self.interactive_execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
+                "remote {} {} {}".format(cmd_args, host, launcher), verbose=True, timeout=timeout
             )
         else:
             # Return an ExecuteResult named tuple
             return self.execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
+                "remote {} {} {}".format(cmd_args, host, launcher), verbose=True, timeout=timeout
             )
 
     def start(self, cmd=None, env={}, interactive=False, timeout=0):

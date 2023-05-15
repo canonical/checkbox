@@ -133,6 +133,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._normal_user = ""
+        self._dry_run = ctx.args.dry_run
         self.launcher = Configuration()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -309,6 +310,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         configuration = dict()
         configuration["launcher"] = self._launcher_text
         configuration["normal_user"] = self._normal_user
+        configuration["dry-run"] = self._dry_run
 
         try:
             tps = self.sa.start_session(configuration)
@@ -434,6 +436,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         parser.add_argument(
             "-u", "--user", help=_("normal user to run non-root jobs")
         )
+        parser.add_argument("-n", "--dry-run", default=False, action="store_true", help=_(
+            "don't actually do anything"))
 
     def _handle_interrupt(self):
         """

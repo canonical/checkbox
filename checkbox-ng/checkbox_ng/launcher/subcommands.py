@@ -388,6 +388,7 @@ class Launcher(MainLoopStage, ReportsStage):
         if app_version:
             title += " {}".format(app_version)
         runner_kwargs = {
+            "dry_run" : self.ctx.args.dry_run,
             "normal_user_provider": lambda: self.configuration.get_value(
                 "daemon", "normal_user"
             ),
@@ -715,6 +716,9 @@ class Launcher(MainLoopStage, ReportsStage):
             help=_("launcher definition file to use"),
         )
         parser.add_argument(
+            "-n", "--dry-run", default=False, action="store_true",
+            help=_("don't actually do anything"))
+        parser.add_argument(
             "--resume", dest="session_id", metavar="SESSION_ID", help=SUPPRESS
         )
         parser.add_argument(
@@ -780,6 +784,9 @@ class Run(MainLoopStage):
             nargs="*",
             help=_("run jobs matching the given regular expression"),
         )
+        parser.add_argument(
+            "-n", "--dry-run", default=False, action="store_true",
+            help=_("don't actually do anything"))
         parser.add_argument(
             "--non-interactive",
             action="store_true",
@@ -877,8 +884,12 @@ class Run(MainLoopStage):
             self._configure_restart()
             config = load_configs()
             self.sa.use_alternate_configuration(config)
+
+            runner_kwargs = {
+                "dry_run" : self.ctx.args.dry_run,
+            }
             self.sa.start_new_session(
-                self.ctx.args.title or "checkbox-run", UnifiedRunner
+                self.ctx.args.title or "checkbox-run", UnifiedRunner, runner_kwargs
             )
             tps = self.sa.get_test_plans()
             self._configure_report()

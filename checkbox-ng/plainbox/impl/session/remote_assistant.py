@@ -312,6 +312,7 @@ class RemoteSessionAssistant:
         else:
             self._normal_user = guess_normal_user()
         runner_kwargs = {
+            "dry_run" : configuration.get("dry-run", False),
             "normal_user_provider": lambda: self._normal_user,
             "stdin": self._pipe_to_subproc,
             "extra_env": self.prepare_extra_env,

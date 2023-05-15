@@ -167,6 +167,11 @@ class TestPlanSelectionSkip(Scenario):
 
     This scenario has to work locally and remotely
     """
+    # the conf file should be overwritten by the launcher, 
+    # if it is not, this will make the test fail intentionally
+    checkbox_conf = read_text(
+        test_selection, "checkbox_testplan_unit_forced.conf"
+    )
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
@@ -176,6 +181,10 @@ class TestPlanSelectionSkip(Scenario):
         forced = yes
         """)
     steps = [
+        Put("/home/ubuntu/.config/checkbox.conf", 
+            checkbox_conf, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf,
+            target = "service"),
         # Assert that we have reached test selection
         Expect("Choose tests to run on your system")
     ]
@@ -187,16 +196,26 @@ class TestPlanPreselected(Scenario):
 
     This scenario has to work locally and remotely
     """
+    # the conf file should be overwritten by the launcher, 
+    # if it is not, this will make the test fail intentionally
+    checkbox_conf = read_text(
+        test_selection, "checkbox_testplan_unit_forced.conf"
+    )
     launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test plan]
+        forced = no
         # filtering to avoid the test being out of bound
         filter = *smoke*
         unit = com.canonical.certification::smoke
         """)
     steps = [
+        Put("/home/ubuntu/.config/checkbox.conf", 
+            checkbox_conf, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf,
+            target = "service"),
         #( ) Some other test
         #(X) All Smoke Tests
         #( ) Some other test

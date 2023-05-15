@@ -40,6 +40,9 @@ from plainbox.abc import IJobResult
 
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.run import SilentUI
+from checkbox_ng.user_utils import check_user_exists
+from checkbox_ng.user_utils import guess_normal_user
+
 
 import psutil
 
@@ -283,13 +286,17 @@ class RemoteSessionAssistant():
                 session_desc = self._launcher.session_desc
 
         self._sa.use_alternate_configuration(self._launcher)
-
         if configuration['normal_user']:
             self._normal_user = configuration['normal_user']
         else:
             self._normal_user = self._launcher.normal_user
-            if not self._normal_user:
-                self._normal_user = _guess_normal_user()
+        if self._normal_user:
+            if not check_user_exists(self._normal_user):
+                raise RuntimeError(
+                    "User '{}' doesn't exist!".format(self._normal_user)
+                )
+        else:
+            self._normal_user = guess_normal_user()
         runner_kwargs = {
             'normal_user_provider': lambda: self._normal_user,
             'stdin': self._pipe_to_subproc,
@@ -734,21 +741,3 @@ class RemoteSessionAssistant():
         exporter.dump_from_session_manager(self._sa._manager, exported_stream)
         exported_stream.flush()
         return exported_stream
-
-def _guess_normal_user():
-    _logger.warning("normal_user not supplied via config(s).")
-    for entry in pwd.getpwall():
-        if entry.pw_name == 'ubuntu':
-            _logger.warning("Using `ubuntu` user")
-            return 'ubuntu'
-    with suppress(KeyError):
-        user = pwd.getpwuid(1000).pw_name
-        _logger.warning("Using `%s` user", user)
-        return user
-    with suppress(KeyError):
-        user = pwd.getpwuid(1001).pw_name
-        _logger.warning("Using `%s` user", user)
-        return user
-    raise RuntimeError(
-        ("normal_user not supplied via config(s). "
-            "User `ubuntu` and username for uid 1000 or 1001 were not found"))

@@ -185,6 +185,7 @@ class TestPlanSelectionSkip(Scenario):
             checkbox_conf, target="service"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf,
             target = "service"),
+        Start(),
         # Assert that we have reached test selection
         Expect("Choose tests to run on your system")
     ]
@@ -216,6 +217,7 @@ class TestPlanPreselected(Scenario):
             checkbox_conf, target="service"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf,
             target = "service"),
+        Start(),
         #( ) Some other test
         #(X) All Smoke Tests
         #( ) Some other test

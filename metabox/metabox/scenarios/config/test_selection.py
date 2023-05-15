@@ -20,7 +20,7 @@ import textwrap
 from importlib.resources import read_text
 
 from metabox.core.actions import AssertPrinted, AssertNotPrinted, Expect,\
-        Start, Put, Send, AssertPrintedError
+        Start, Put, Send
 from metabox.core.scenario import Scenario
 
 from .config_files import test_selection
@@ -242,7 +242,7 @@ class TestPlanSelectionPreselectFailWrongName(Scenario):
         forced = yes
         """)
     steps = [
-        AssertPrintedError(".*The test plan .+ is not available!.*")
+        AssertPrinted(".*The test plan .+ is not available!.*")
     ]
 
 class TestPlanSelectionPreselectNothing(Scenario):
@@ -260,7 +260,7 @@ class TestPlanSelectionPreselectNothing(Scenario):
         forced = yes
         """)
     steps = [
-        AssertPrintedError(".*The test plan selection was forced but no unit was provided")
+        AssertPrinted(".*The test plan selection was forced but no unit was provided")
     ]
 
 class TestPlanSelectionFilterEmpty(Scenario):
@@ -277,7 +277,7 @@ class TestPlanSelectionFilterEmpty(Scenario):
         filter = [^\w\d]
         """)
     steps = [
-        AssertPrintedError(".*There were no test plans to select from.*")
+        AssertPrinted(".*There were no test plans to select from.*")
     ]
 
 class TestPlanSelectionFilter(Scenario):

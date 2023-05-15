@@ -110,7 +110,9 @@ class Scenario:
         :param patter: regular expresion to check against the lines.
         """
         regex = re.compile(pattern)
-        self._checks.append(bool(regex.search(self._stdout)))
+        self._checks.append(
+            bool(regex.search(self._stdout)) or bool(regex.search(self._stderr))
+        )
 
     def assert_not_printed(self, pattern):
         """
@@ -120,11 +122,14 @@ class Scenario:
         """
         regex = re.compile(pattern)
         if self._pts:
-            self._checks.append(
-                bool(not regex.search(self._pts.stdout_data_full.decode(
-                    'utf-8', errors='ignore'))))
+            found = (
+                regex.search(
+                    self._pts.stdout_data_full.decode('utf-8', errors='ignore')
+                )
+            )
         else:
-            self._checks.append(bool(not regex.search(self._stdout)))
+            found = regex.search(self._stdout) or regex.search(self._stderr)
+        self._checks.append(not found)
 
     def assert_ret_code(self, code):
         """Check if Checkbox returned given code."""

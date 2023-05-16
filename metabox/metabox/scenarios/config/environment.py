@@ -260,11 +260,13 @@ class CheckboxConfRemoteServiceResolutionOrder(Scenario):
         forced = yes
         [environment]
         var2 = LAUNCHER
-        """)
+        """
+    )
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
-        Put("/root/.config/checkbox.conf", checkbox_conf_home,
-            target="service"),
+        Put(
+            "/root/.config/checkbox.conf", checkbox_conf_home, target="service"
+        ),
         Start(),
         AssertPrinted("variables: HOME LAUNCHER XDG"),
     ]

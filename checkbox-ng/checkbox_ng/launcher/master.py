@@ -268,6 +268,10 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         except RuntimeError as exc:
             raise SystemExit(exc.args[0]) from exc
         if self.launcher.test_plan_forced:
+            if self.launcher.test_plan_default_selection is Unset:
+                _logger.error(_(
+                    'The test plan selection was forced but no unit was provided'))
+                raise SystemExit(1)
             self.select_tp(self.launcher.test_plan_default_selection)
             self.select_jobs(self.jobs)
         else:
@@ -277,25 +281,30 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         _logger.info("remote: Interactively choosing TP.")
         tp_info_list = [{'id': tp[0], 'name': tp[1]} for tp in tps]
         if not tp_info_list:
-            print(_("There were no test plans to select from!"))
+            _logger.error(_("There were no test plans to select from!"))
             raise SystemExit(0)
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
-            tp_info_list, None).run()
+            tp_info_list, 
+            self.launcher.test_plan_default_selection).run()
         if selected_tp is None:
             print(_("Nothing selected"))
             raise SystemExit(0)
 
         self.select_tp(selected_tp)
         if not self.jobs:
-            print(self.C.RED(_("There were no tests to select from!")))
+            _logger.error(self.C.RED(_("There were no tests to select from!")))
             self.sa.finalize_session()
             return
         self.select_jobs(self.jobs)
 
     def select_tp(self, tp):
         _logger.info("remote: Selected test plan: %s", tp)
-        self.sa.prepare_bootstrapping(tp)
+        try:
+            self.sa.prepare_bootstrapping(tp)
+        except KeyError as e:
+            _logger.error('The test plan "%s" is not available!', tp)
+            raise SystemExit(1)
         self._is_bootstrapping = True
         bs_todo = self.sa.get_bootstrapping_todo_list()
         for job_no, job_id in enumerate(bs_todo, start=1):

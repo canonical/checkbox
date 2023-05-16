@@ -94,30 +94,18 @@ class ContainerBaseMachine:
         self._container.start(wait=True)
         logger.opt(colors=True).debug(
             "[<y>restored</y>    ] {}", self._container.name)
-        attempt = 0
-        # FIXME: in case containers are restarted after reboot, sometime we hit
-        # the degraded state.
-        # So be sure to wait long enough to claim it started.
-        # https://discuss.linuxcontainers.org/t/snap-lxd-activate-service-hanging-after-system-reboot/8374/16
-        max_attempt = 60
-        old_out = ''
-        while attempt < max_attempt:
-            time.sleep(1)
-            (ret, out, err) = self._container.execute(
-                ['systemctl', 'is-system-running'])
-            if out != old_out:
-                logger.opt(colors=True).debug(
-                    "[<y>{: <12}</y>] {}", out.rstrip(), self._container.name)
-                old_out = out
-            if 'running' in out:
-                break
-            elif 'degraded' in out:
-                break
-            attempt += 1
-        else:
-            raise SystemExit(
-                "Rollback to {} failed (systemd not in running state)".format(
-                    savepoint))
+        if self.config.role == 'service':
+            attempts_left = 60
+            out = ''
+            while attempts_left and out.rstrip() not in (
+                'starting', 'running', 'degraded'
+            ):
+                time.sleep(1)
+                (ret, out, err) = self._container.execute(
+                    ['systemctl', 'is-system-running'])
+                attempts_left -= 1
+            else:
+                raise SystemExit("Rollback failed (systemd not ready)")
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000):
         try:
@@ -289,7 +277,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
         if self.config.role in ('remote', 'service'):
             commands += [
                 "sudo bash -c 'systemctl daemon-reload'",
-                "sudo bash -c 'systemctl enable checkbox-ng.service'",
+                "sudo bash -c 'systemctl enable checkbox-ng.service --now'",
             ]
             service_content = textwrap.dedent("""
                 [Unit]

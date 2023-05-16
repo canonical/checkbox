@@ -50,9 +50,17 @@ jobs:
       - name: Checkout Checkbox monorepo
         uses: actions/checkout@v3
       - name: Setup LXD
-        uses: canonical/setup-lxd@90d76101915da56a42a562ba766b1a77019242fd
-      - name: Install pyopenssl
-        run: python3 -m pip install pyopenssl --upgrade
+        uses: canonical/setup-lxd@v0.1.1
+      - name: Add ZFS storage
+        run: |
+          lxc storage list
+          lxc profile device remove default root
+          lxc storage delete default
+          lxc storage create metabox${{ matrix.os }} zfs
+          lxc profile device add default root disk path=/ pool=metabox${{ matrix.os }}
+          lxc storage list
+      - name: Install dependencies
+        run: python3 -m pip install --upgrade pyopenssl
       - name: Install Metabox
         run: python3 -m pip install -e .
       - name: Run Metabox scenarios

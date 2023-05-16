@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+import textwrap
 
 from metabox.core.actions import AssertPrinted, AssertNotPrinted, Expect,\
         Start, Put, Send

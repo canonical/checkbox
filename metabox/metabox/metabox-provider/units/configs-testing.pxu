@@ -5,5 +5,5 @@ _summary: Print who is running the job
 
 id: whoami_as_user_tp
 unit: test plan
-_name: Priting who runs the job
+_name: Printing who runs the job
 include: whoami_as_user

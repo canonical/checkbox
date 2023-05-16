@@ -23,7 +23,6 @@ from metabox.core.actions import AssertPrinted
 from metabox.core.actions import Start
 from metabox.core.actions import Put
 from metabox.core.scenario import Scenario
-from metabox.core.utils import tag
 
 from .config_files import environment
 

@@ -1,4 +1,6 @@
-checkbox-ng
+psutil
+urwid
+tqdm
 sphinx
 sphinx-autobuild
 sphinx-design

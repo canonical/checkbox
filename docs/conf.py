@@ -1,10 +1,12 @@
 import datetime
+import os
 import sys
 
-try:
-    import checkbox_ng
-except ImportError:
-    raise SystemExit("checkbox_ng has to be importable")
+sys.path.append(os.path.abspath(
+    os.path.join(__file__, "../../checkbox-ng")
+))
+
+import checkbox_ng
 
 # Configuration file for the Sphinx documentation builder.
 #

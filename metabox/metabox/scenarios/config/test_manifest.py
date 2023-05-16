@@ -42,4 +42,29 @@ class ManifestLauncherAuto(Scenario):
         AssertPrinted(".*Outcome: job passed.*")
     ]
 
+class ManifestLauncherManual(Scenario):
+    """
+    When provided with a manifest in the launcher
+    checkbox reads it correctly regardless if 
+    tests selection was skipped or not
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        unit = com.canonical.certification::manifest_test_support
+        forced = yes
+        #[test selection]
+        #forced = yes
+        [manifest]
+        com.canonical.certification::manifest_location = 0
+    """)
+    steps = [
+        Expect("testing with metabox"), 
+        Send("T"), 
+        Expect("Location where the manifest"),
+        Send("T"), 
+        Expect("Outcome: job passed")
+    ]
 

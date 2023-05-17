@@ -2,27 +2,22 @@
 
 .. _home:
 
-Starter pack
-============
+Checkbox
+========
 
-**A single sentence that says what the product is, succinctly and memorably.**
-consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-dolore magna aliqua.
+Checkbox is a testing framework used to validate device compatibility with
+Ubuntu Linux.
 
-**A paragraph of one to three short sentences, that describe what the product
-does.** Urna cursus eget nunc scelerisque viverra mauris in. Nibh mauris
-cursus mattis molestie a iaculis at vestibulum rhoncus est pellentesque
-elit. Diam phasellus vestibulum lorem sed.
+It runs test plans made of test cases (or jobs) and generates test reports.
+Jobs can be manual or automated. Any Linux command can be turned into a job.
 
-**A third paragraph of similar length, this time explaining what need the
-product meets.** Dui ut ornare lectus sit amet est. Nunc sed augue lacus
-viverra vitae congue eu consequat ac libero id faucibus nisl tincidunt eget
-nullam.
+Checkbox was developed as part of the `Ubuntu Certified`_ program. It runs
+tests that ensure all the required features of a given device are working as
+expected on Ubuntu Linux. It is compatible with any version of Ubuntu (Desktop,
+Server, Core).
 
-**Finally, a paragraph that describes whom the product is useful for.** Nunc
-non blandit massa enim nec dui nunc mattis enim. Ornare arcu odio ut sem
-nulla pharetra diam porttitor leo a diam sollicitudin tempor id eu. Ipsum
-dolor sit amet consectetur adipiscing elit pellentesque habitant.
+Checkbox is useful for anyone who wants to make sure their devices are running
+as expected on Ubuntu.
 
 ---------
 
@@ -75,3 +70,4 @@ Example Project is a member of the Ubuntu family. It’s an open source project 
    explanation/index
    community/index
 
+.. _Ubuntu Certified: https://ubuntu.com/certified

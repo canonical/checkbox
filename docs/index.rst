@@ -58,7 +58,6 @@ constructive feedback.
 * :ref:`Get support <home>`
 * :ref:`Join our online chat <home>`
 * :doc:`Contribute <community/contributing>`
-* :ref:`Roadmap <home>`
 * :ref:`Thinking about using Checkbox for your next project? Get in touch! <home>`
 
 

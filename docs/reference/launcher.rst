@@ -51,7 +51,7 @@ Example::
     [config]
     config_filename = /home/ubuntu/next-testing.conf
 
-For more details about value resolution order see :doc:`configs</configs>`
+For more details about value resolution order see :doc:`configs <../explanation/configs>`
 
 Launcher meta-information
 =========================
@@ -218,7 +218,7 @@ with ``com.canonical.certification::dock/wireless``:
     exclude = .*bluetooth.* com.canonical.certification::dock/wireless.*
 
 Note: Exclude field set in launcher can be overridden in a config, following
-Checkbox values resolution order. See :doc:`configs</configs>` for more info.
+Checkbox values resolution order. See :doc:`configs <../explanation/configs>` for more info.
 
 Note: To clear the exclude list use...
 

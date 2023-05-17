@@ -8,7 +8,7 @@ Glossary
         A process of ensuring that a specific device works well with Ubuntu.
         For more details see our certification program:
 
-        https://certification.ubuntu.com/certification/
+        https://ubuntu.com/certified
 
     Hardware certification team
 

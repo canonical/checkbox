@@ -4,7 +4,7 @@ Using Checkbox
 Getting Started
 ---------------
 
-You've got Checkbox installed, right? :ref:`installation`
+You've got Checkbox installed, right?
 
 To run command line version of Checkbox, in your terminal run ``checkbox-cli``.
 You should be greeted with test plan selection screen:

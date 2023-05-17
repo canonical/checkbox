@@ -552,8 +552,8 @@ class ReportsStage(CheckboxUiStage):
                         # again
                         self.transports.pop(params['transport'])
                         continue
-                except InvalidSecureIDError:
-                    _logger.warning(_("Invalid secure_id"))
+                except InvalidSecureIDError as exc:
+                    _logger.warning( _("Invalid secure_id: %s"), exc)
                     if not self.is_interactive:
                         # secure_id will not magically change if the session
                         # is a non-interactive one, so let's stop trying

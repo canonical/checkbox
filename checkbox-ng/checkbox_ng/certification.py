@@ -121,5 +121,8 @@ class SubmissionServiceTransport(TransportBase):
 
     def _validate_secure_id(self, secure_id):
         if not re.match(SECURE_ID_PATTERN, secure_id):
-            raise InvalidSecureIDError(
-                _("secure_id must be 15-character (or more) alphanumeric string"))
+            message = _((
+                "{} is not a valid secure_id. secure_id must be a "
+                "15-character (or more) alphanumeric string"
+            ).format(secure_id))
+            raise InvalidSecureIDError(message)

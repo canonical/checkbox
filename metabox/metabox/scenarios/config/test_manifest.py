@@ -76,18 +76,34 @@ class ManifestLauncherAuto(Scenario):
 class ManifestLauncherManual(Scenario):
     """
     When provided with a manifest in the launcher
-    checkbox reads it correctly regardless if 
+    checkbox reads it correctly regardless if
     tests selection was skipped or not
     """
     launcher = launcher_manual + textwrap.dedent("""
         [manifest]
         com.canonical.certification::manifest_location = 0
     """)
+    steps = steps_manual
+
+class ManifestConfigCacheAuto(Scenario):
+    """
+    The manifest value is correctly loaded from
+    the cache in manual tests
+    """
+    launcher = launcher_auto
     steps = [
-        Expect("testing with metabox"), 
-        Send("T"), 
-        Expect("Location where the manifest"),
-        Send("T"), 
-        Expect("Outcome: job passed")
-    ]
+        Put(MANIFEST_CACHE_LOCATION, conf_correct),
+        Start()
+    ] + steps_auto
+
+class ManifestConfigCacheManual(Scenario):
+    """
+    The manifest value is correctly loaded from
+    the cache in auto tests
+    """
+    launcher = launcher_manual
+    steps = [
+        Put(MANIFEST_CACHE_LOCATION, conf_correct),
+        Start()
+    ] + steps_manual
 

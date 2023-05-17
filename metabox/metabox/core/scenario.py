@@ -241,7 +241,7 @@ class Scenario:
                     self.service_machine.put(filepath, data, mode, uid, gid)
                 )
         else:
-            res = self.local_machine.put(filepath, data, mode, uid, gid)
+            ok = self.local_machine.put(filepath, data, mode, uid, gid)
         self._checks.append(ok)
 
     def switch_on_networking(self, target='all'):

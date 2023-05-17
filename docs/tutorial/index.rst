@@ -35,11 +35,5 @@ Extended tutorial
 
 Once you have completed the core tutorial, the extended optional tutorial sections can be followed in any order - they don’t depend on each other.
 
-.. toctree::
-   :maxdepth: 1
-
-   widget
-   gadget
-
 Follow the core tutorial steps in sequence; they take you on a learning journey through the product.
 Installation - install <product> in a Multipass virtual machine

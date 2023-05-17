@@ -60,7 +60,7 @@ Example Project is a member of the Ubuntu family. It’s an open source project 
 * :ref:`Code of conduct <home>`
 * :ref:`Get support <home>`
 * :ref:`Join our online chat <home>`
-* :ref:`Contribute <home>`
+* :doc:`Contribute <community/contributing>`
 * :ref:`Roadmap <home>`
 * :ref:`Thinking about using Example Product for your next project? Get in touch! <home>`
 
@@ -73,4 +73,5 @@ Example Project is a member of the Ubuntu family. It’s an open source project 
    how-to/index
    reference/index
    explanation/index
-   ReadMe <readme>
+   community/index
+

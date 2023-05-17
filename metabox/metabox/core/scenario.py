@@ -242,7 +242,7 @@ class Scenario:
                 )
         else:
             res = self.local_machine.put(filepath, data, mode, uid, gid)
-        self._check.append(ok)
+        self._checks.append(ok)
 
     def switch_on_networking(self, target='all'):
         if self.mode == 'remote':

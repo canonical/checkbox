@@ -50,9 +50,11 @@ In this documentation
 Project and community
 ---------------------
 
-Checkbox is a member of the Ubuntu family. It’s an open source project that warmly welcomes community projects, contributions, suggestions, fixes and constructive feedback.
+Checkbox is a member of the Ubuntu family. It’s an open source project that
+warmly welcomes community projects, contributions, suggestions, fixes and
+constructive feedback.
 
-* :ref:`Code of conduct <home>`
+* This project follows the `Ubuntu Code of Conduct`_
 * :ref:`Get support <home>`
 * :ref:`Join our online chat <home>`
 * :doc:`Contribute <community/contributing>`
@@ -71,3 +73,4 @@ Checkbox is a member of the Ubuntu family. It’s an open source project that wa
    community/index
 
 .. _Ubuntu Certified: https://ubuntu.com/certified
+.. _Ubuntu Code of Conduct: https://ubuntu.com/community/ethos/code-of-conduct

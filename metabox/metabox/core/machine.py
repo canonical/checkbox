@@ -104,7 +104,7 @@ class ContainerBaseMachine:
                 (ret, out, err) = self._container.execute(
                     ['systemctl', 'is-system-running'])
                 attempts_left -= 1
-            else:
+            if not attempts_left:
                 raise SystemExit("Rollback failed (systemd not ready)")
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000):

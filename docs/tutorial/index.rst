@@ -27,11 +27,8 @@ journey through the product.
 .. toctree::
    :maxdepth: 1
 
-   install
-   launch
-   configure
-   dashboard
-   webhook
+   tutorial
+   custom-app
 
 Extended tutorial
 -----------------

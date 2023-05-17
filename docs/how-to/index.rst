@@ -9,9 +9,11 @@ Fictional
 .. toctree::
    :maxdepth: 1
 
-   Prettify an instance <prettify>
-   Unroll a network <unroll>
-
+   using
+   testing-ubuntu-core
+   nested-test-plan
+   side-loading
+   slave-daemon
 
 Actual
 ------

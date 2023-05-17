@@ -107,3 +107,26 @@ class ManifestConfigCacheManual(Scenario):
         Start()
     ] + steps_manual
 
+class ManifestConfigDiskAuto(Scenario):
+    """
+    The manifest value is correctly loaded from
+    the documented disk location in auto test runs
+    """
+    launcher = launcher_auto
+    steps = [
+        RunCmd("mkdir {}".format(os.path.dirname(MANIFEST_DISK_LOCATION))),
+        Put(MANIFEST_DISK_LOCATION, conf_correct),
+        Start()
+    ] + steps_auto
+
+class ManifestConfigDiskManual(Scenario):
+    """
+    The manifest value is correctly loaded from
+    the documented disk location in manual test runs
+    """
+    launcher = launcher_manual
+    steps = [
+        RunCmd("mkdir {}".format(os.path.dirname(MANIFEST_DISK_LOCATION))),
+        Put(MANIFEST_DISK_LOCATION, conf_correct),
+        Start()
+    ] + steps_manual

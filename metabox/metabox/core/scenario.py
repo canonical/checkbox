@@ -232,14 +232,17 @@ class Scenario:
     def put(self, filepath, data, mode=None, uid=1000, gid=1000, target='all'):
         if self.mode == 'remote':
             if target == 'remote':
-                self.remote_machine.put(filepath, data, mode, uid, gid)
+                ok = self.remote_machine.put(filepath, data, mode, uid, gid)
             elif target == 'service':
-                self.service_machine.put(filepath, data, mode, uid, gid)
+                ok = self.service_machine.put(filepath, data, mode, uid, gid)
             else:
-                self.remote_machine.put(filepath, data, mode, uid, gid)
-                self.service_machine.put(filepath, data, mode, uid, gid)
+                ok = (
+                    self.remote_machine.put(filepath, data, mode, uid, gid) and
+                    self.service_machine.put(filepath, data, mode, uid, gid)
+                )
         else:
-            self.local_machine.put(filepath, data, mode, uid, gid)
+            res = self.local_machine.put(filepath, data, mode, uid, gid)
+        self._check.append(ok)
 
     def switch_on_networking(self, target='all'):
         if self.mode == 'remote':

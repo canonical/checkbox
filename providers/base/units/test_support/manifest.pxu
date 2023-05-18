@@ -1,7 +1,0 @@
-# Copyright 2015 Canonical Ltd.
-# All rights reserved.
-
-unit: manifest entry
-id: manifest_location
-_name: Location where the manifest was loaded
-value-type: natural

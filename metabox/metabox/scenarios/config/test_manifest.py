@@ -48,12 +48,12 @@ class ManifestLauncherAuto(Scenario):
         launcher_version = 1
         [test plan]
         # filtering to avoid the test being out of bound
-        unit = com.canonical.certification::manifest_test_support
+        unit = 2021.com.canonical.certification::manifest_test_support
         forced = yes
         [test selection]
         forced = yes
         [manifest]
-        com.canonical.certification::manifest_location = 0
+        2021.com.canonical.certification::manifest_location = 0
     """)
 
     steps = [AssertPrinted(".*Outcome: job passed.*")]
@@ -72,9 +72,9 @@ class ManifestLauncherManual(Scenario):
         [test plan]
         # filtering to avoid the test being out of bound
         forced = yes
-        unit = com.canonical.certification::manifest_test_support
+        unit = 2021.com.canonical.certification::manifest_test_support
         [manifest]
-        com.canonical.certification::manifest_location = 0
+        2021.com.canonical.certification::manifest_location = 0
     """)
 
     steps = [
@@ -99,7 +99,7 @@ class ManifestConfigCacheAuto(Scenario):
         launcher_version = 1
         [test plan]
         # filtering to avoid the test being out of bound
-        unit = com.canonical.certification::manifest_test_support
+        unit = 2021.com.canonical.certification::manifest_test_support
         forced = yes
         [test selection]
         forced = yes
@@ -126,7 +126,7 @@ class ManifestConfigCacheManual(Scenario):
         [test plan]
         # filtering to avoid the test being out of bound
         forced = yes
-        unit = com.canonical.certification::manifest_test_support
+        unit = 2021.com.canonical.certification::manifest_test_support
     """)
 
     steps = [
@@ -153,7 +153,7 @@ class ManifestConfigDiskAuto(Scenario):
         launcher_version = 1
         [test plan]
         # filtering to avoid the test being out of bound
-        unit = com.canonical.certification::manifest_test_support
+        unit = 2021.com.canonical.certification::manifest_test_support
         forced = yes
         [test selection]
         forced = yes
@@ -181,7 +181,7 @@ class ManifestConfigDiskManual(Scenario):
         [test plan]
         # filtering to avoid the test being out of bound
         forced = yes
-        unit = com.canonical.certification::manifest_test_support
+        unit = 2021.com.canonical.certification::manifest_test_support
     """)
 
     steps = [

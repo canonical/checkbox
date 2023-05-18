@@ -15,7 +15,6 @@ value-type: natural
 
 unit: job
 id: manifest_order_resolution
-category_id: test_support
 _summary: Test the resolution order of the manifest
 _purpose:
   This is used in manifest testing jobs for metabox

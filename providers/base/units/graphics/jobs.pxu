@@ -279,12 +279,9 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_opengl_renderer_{product_slug}
 requires: executable.name == 'glxinfo'
 command:
- # shellcheck disable=SC2050
- if [[ "{driver}" == "nvidia" || "{driver}" == "pcieport" ]]; then
-     renderer=$(__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia glxinfo | grep "OpenGL re")
- else
-     renderer=$(DRI_PRIME=1 glxinfo | grep "OpenGL re")
- fi
+ # shellcheck disable=SC1091
+ source graphics_env.sh {driver} {index}
+ renderer=$(glxinfo | grep "OpenGL re")
  echo "$renderer"
  if grep -qi 'Intel' <<<"$renderer"; then
      echo 'ERROR: renderer is Intel when DRI_PRIME=1'

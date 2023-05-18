@@ -30,18 +30,31 @@ def get_ubuntu_version():
     """Get Ubuntu release version for checking."""
     try:
         import distro
-        return float(distro.version())
+        return distro.version()
     except (ImportError, subprocess.CalledProcessError):
         try:
             with open('/etc/lsb-release', 'r') as lsb:
                 for line in lsb.readlines():
                     (key, value) = line.split('=', 1)
                     if key == 'DISTRIB_RELEASE':
-                        return float(re.sub('["\n]', '', value))
+                        return re.sub('["\n]', '', value)
         except OSError:
             # Missing file or permissions? Return the default lsb_release
             pass
     return 0
+
+
+def compare_ubuntu_release_version(_version):
+    """
+    Compare ubuntu release version.
+    If host version is higher or equal provided, it will return True.
+    """
+    os_version = get_ubuntu_version()
+    try:
+        from packaging import version
+        return version.parse(os_version) >= version.parse(_version)
+    except (ImportError, subprocess.CalledProcessError):
+        return os_version >= _version
 
 
 def slugify(_string):
@@ -191,10 +204,9 @@ def main():
             # we set the prime_gpu_offload flag to 'On'
             # NVIDIA driver since version 435.17 supports PRIME render offload,
             # and Ubuntu doesn't support intel mode after 22.04.
-            if index == 2 and (record['driver'] == 'amdgpu'
-                               or (get_ubuntu_version() >= 22.04
-                                   and (record['driver'] == 'nvidia'
-                                        or record['driver'] == 'pcieport'))):
+            if index == 2 and ((record['driver'] in ('nvidia', 'pcieport')
+                                and compare_ubuntu_release_version('22.04'))
+                               or record['driver'] == 'amdgpu'):
                 record['prime_gpu_offload'] = 'On'
             else:
                 record['prime_gpu_offload'] = 'Off'

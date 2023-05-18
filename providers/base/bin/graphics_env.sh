@@ -1,10 +1,11 @@
 #!/bin/bash
-# This script checks if the submitted VIDEO resource is from AMD or nvidia and if it is
-# a discrete GPU (graphics_card_resource orders GPUs by index: 1 is the
-# integrated one, 2 is the discrete one).
+# This script checks if the submitted VIDEO resource is from AMD or nvidia
+# and if it is a discrete GPU (graphics_card_resource orders GPUs by index:
+# 1 is theintegrated one, 2 is the discrete one).
 #
 # This script has to be sourced in order to set an environment variable that
-# is used by the open source AMD driver and properties nvidia driver to trigger the use of discrete GPU.
+# is used by the open source AMD driver and properties nvidia driver to
+# trigger the use of discrete GPU.
 
 DRIVER=$1
 INDEX=$2
@@ -32,7 +33,7 @@ elif [[ $DRIVER == "nvidia" || $DRIVER == "pcieport" ]]; then
     if [[ $NB_GPU -gt 1 ]]; then
         nvidia_nvlink_check.sh
         NVLINK=$?
-        if [[ $INDEX -gt 1 && ${NVLINK} -ne 0 ]]; then
+        if [[ $INDEX -gt 1 && ${NVLINK} -ne 0 && "$(prime-select query)" = 'on-demand' ]]; then
             echo "Setting up PRIME GPU offloading for nvidia discrete GPU"
             export __NV_PRIME_RENDER_OFFLOAD=1
             export __GLX_VENDOR_LIBRARY_NAME=nvidia

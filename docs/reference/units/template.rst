@@ -174,12 +174,14 @@ Template engine additional features
 Plainbox populates the template parameter dictionary with some extra keys to aid the author.
 
 ``__index__``:
-    If a template unit can result in N content jobs then this variable is equal to how many jobs have been created so far.
+    If a template unit can result in N content jobs then this variable is equal
+    to how many jobs have been created so far.
 
 Following parameters are only available for ``template-engine``: ``jinja2``:
 
 ``__system_env__``:
-    When checkbox encounters a template to render it will populate this variable with the executing shell's enviroment variables as ``os.environ``
+    When checkbox encounters a template to render it will populate this
+    variable with the executing shell's environment variables as ``os.environ``
 
 ``__on_ubuntucore__``:
     Helper function (boolean) checking if checkbox runs from on ubuntu core

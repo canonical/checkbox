@@ -213,7 +213,7 @@ those dependencies; for instance, the provider used for server testing
 doesn't actually contain the server-specific test definitions (we try to
 keep all the test definitions in the Checkbox provider), but it does depend
 on all the packages needed for server testing. Most users will want the
-resource and Checkbox providers which contain many premade tests, but this
+resource and Checkbox providers which contain many generic tests, but this
 organization allows shipping the tiny core and a fully customized provider
 without extraneous dependencies.
 

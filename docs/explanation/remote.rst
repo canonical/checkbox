@@ -15,7 +15,7 @@ Comparison with SSH
 ===================
 
 It's easy to lose SSH connection with the DUT, and if the device doesn't offer
-screen-like funcitonality then the Checkbox session has to be started over.
+screen-like functionality then the Checkbox session has to be started over.
 
 When a UI is drawn a lot of data is transmitted through the network. Checkbox
 Remote sends lean data only.

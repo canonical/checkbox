@@ -29,8 +29,8 @@ Rationale
 =========
 
 The unit is a separate entity so that it can be shipped separately of job
-definitions and so that it can gain a localizable name that can still be
-referred to uniquely by any job definition.
+definitions and so that its name can be localized, yet still be referred to
+uniquely by any job definition.
 
 In the future it is likely that the unit will be extended with additional
 fields, for example to define an icon.

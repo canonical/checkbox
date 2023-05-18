@@ -45,7 +45,7 @@ Glossary
 
     Provider
 
-        A container for jobs, test plans, private executables and data.
+        A container for jobs, test plans, private executable files and data.
         Providers are the foundation of Checkbox as they *provide* all of the
         content. Providers can be created and managed by any entity, separately
         from the Checkbox project.

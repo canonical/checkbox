@@ -58,7 +58,7 @@ Following fields may be used by a manifest entry unit.
     unit definition file (so without the name space of the provider)
 
 ``prompt``:
-    (optional) - Allows the manifest unit to customise the prompt presented
+    (optional) - Allows the manifest unit to customize the prompt presented
     when collecting values from a user. When the ``value-type`` is ``bool`` the
     default prompt is "Does this machine have this piece of hardware?", when
     the ``value-type`` is ``natural`` the default prompt is "Please enter the

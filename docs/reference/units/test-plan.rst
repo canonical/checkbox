@@ -144,9 +144,9 @@ copy such constructs when working on a new test plan from scratch
 ``nested_part``:
    A multi-line list of test-plan identifiers whose contents will become part
    of this test-plan. This is a method of creating a tree of test plans,
-   something that can be useful for organisation and de-duplication of test plan
+   something that can be useful for organization and de-duplication of test plan
    definitions. For a full discussion of this capability see
-   :ref:`nested-test-plan`
+   :ref:`nested-test-plan`.
 
 ``exclude``:
     A multi-line list of job identifiers or patterns matching such identifiers

@@ -52,7 +52,7 @@ See :ref:`units` for :ref:`more info on job units <job>`
 Test Plan
 ---------
 
-When Checkbox is run from commandline without any parameters, i.e.::
+When Checkbox is run from the command line without any parameters, i.e.::
 
     $ checkbox-cli
 

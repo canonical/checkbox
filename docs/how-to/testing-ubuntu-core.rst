@@ -32,7 +32,7 @@ Installing Checkbox Snap
 ````````````````````````
 
 Now you are ready to install the Checkbox snap your Ubuntu Core device. It can
-be found in the Ubuntu store and there are versions targetting each Ubuntu Core
+be found in the Ubuntu store and there are versions targeting each Ubuntu Core
 series. For Series 20::
 
     $ snap install checkbox-snappy --devmode --channel=20/stable

@@ -18,8 +18,15 @@ import os
 import textwrap
 from importlib.resources import read_text
 
-from metabox.core.actions import AssertPrinted, AssertNotPrinted, Expect,\
-        Start, Put, Send, RunCmd
+from metabox.core.actions import (
+    AssertPrinted,
+    AssertNotPrinted,
+    Expect,
+    Start,
+    Put,
+    Send,
+    RunCmd,
+)
 from metabox.core.scenario import Scenario
 
 from .config_files import test_manifest
@@ -27,39 +34,7 @@ from .config_files import test_manifest
 MANIFEST_CACHE_LOCATION = "/var/tmp/checkbox-ng/machine-manifest.json"
 MANIFEST_DISK_LOCATION = "/home/ubuntu/.local/share/plainbox/machine-manifest.json"
 
-conf_correct = read_text(test_manifest, "correct.json")
 conf_wrong = read_text(test_manifest, "wrong.json")
-launcher_auto = textwrap.dedent("""
-    [launcher]
-    launcher_version = 1
-    [test plan]
-    # filtering to avoid the test being out of bound
-    unit = com.canonical.certification::manifest_test_support
-    forced = yes
-    [test selection]
-    forced = yes""")
-steps_auto = [
-    # Used in auto tests, checks that the selected test
-    #  ran to completion
-    AssertPrinted(".*Outcome: job passed.*")
-]
-launcher_manual = textwrap.dedent("""
-    [launcher]
-    launcher_version = 1
-    [test plan]
-    # filtering to avoid the test being out of bound
-    forced = yes
-    unit = com.canonical.certification::manifest_test_support""")
-steps_manual = [
-    # Used in manual tests, checks that checkbox starts
-    Expect("testing with metabox"),
-    Send("T"),
-    # Prompts for manifest value selection
-    Expect("Location where the manifest"),
-    Send("T"),
-    # The manifst job is ran to completion
-    Expect("Outcome: job passed")
-]
 
 class ManifestLauncherAuto(Scenario):
     """
@@ -67,11 +42,22 @@ class ManifestLauncherAuto(Scenario):
     checkbox reads it correctly regardless if
     tests selection was skipped or not
     """
-    launcher = launcher_auto + textwrap.dedent("""
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        unit = com.canonical.certification::manifest_test_support
+        forced = yes
+        [test selection]
+        forced = yes
         [manifest]
         com.canonical.certification::manifest_location = 0
     """)
-    steps = steps_auto
+
+    steps = [AssertPrinted(".*Outcome: job passed.*")]
+
 
 class ManifestLauncherManual(Scenario):
     """
@@ -79,54 +65,132 @@ class ManifestLauncherManual(Scenario):
     checkbox reads it correctly regardless if
     tests selection was skipped or not
     """
-    launcher = launcher_manual + textwrap.dedent("""
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        forced = yes
+        unit = com.canonical.certification::manifest_test_support
         [manifest]
         com.canonical.certification::manifest_location = 0
     """)
-    steps = steps_manual
+
+    steps = [
+        Expect("testing with metabox"),
+        Send("T"),
+        Expect("Location where the manifest"),
+        Send("T"),
+        Expect("Outcome: job passed"),
+    ]
+
 
 class ManifestConfigCacheAuto(Scenario):
     """
     The manifest value is correctly loaded from
     the cache in manual tests
     """
-    launcher = launcher_auto
+
+    conf_correct = read_text(test_manifest, "correct.json")
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        unit = com.canonical.certification::manifest_test_support
+        forced = yes
+        [test selection]
+        forced = yes
+    """)
+
     steps = [
         Put(MANIFEST_CACHE_LOCATION, conf_correct),
-        Start()
-    ] + steps_auto
+        Start(),
+        AssertPrinted(".*Outcome: job passed.*"),
+    ]
+
 
 class ManifestConfigCacheManual(Scenario):
     """
     The manifest value is correctly loaded from
     the cache in auto tests
     """
-    launcher = launcher_manual
+
+    conf_correct = read_text(test_manifest, "correct.json")
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        forced = yes
+        unit = com.canonical.certification::manifest_test_support
+    """)
+
     steps = [
         Put(MANIFEST_CACHE_LOCATION, conf_correct),
-        Start()
-    ] + steps_manual
+        Start(),
+        Expect("testing with metabox"),
+        Send("T"),
+        Expect("Location where the manifest"),
+        Send("T"),
+        Expect("Outcome: job passed"),
+    ]
+
 
 class ManifestConfigDiskAuto(Scenario):
     """
     The manifest value is correctly loaded from
     the documented disk location in auto test runs
     """
-    launcher = launcher_auto
+
+    conf_correct = read_text(test_manifest, "correct.json")
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        unit = com.canonical.certification::manifest_test_support
+        forced = yes
+        [test selection]
+        forced = yes
+    """)
+
     steps = [
         RunCmd("mkdir {}".format(os.path.dirname(MANIFEST_DISK_LOCATION))),
         Put(MANIFEST_DISK_LOCATION, conf_correct),
-        Start()
-    ] + steps_auto
+        Start(),
+        AssertPrinted(".*Outcome: job passed.*"),
+    ]
+
 
 class ManifestConfigDiskManual(Scenario):
     """
     The manifest value is correctly loaded from
     the documented disk location in manual test runs
     """
-    launcher = launcher_manual
+
+    conf_correct = read_text(test_manifest, "correct.json")
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        forced = yes
+        unit = com.canonical.certification::manifest_test_support
+    """)
+
     steps = [
         RunCmd("mkdir {}".format(os.path.dirname(MANIFEST_DISK_LOCATION))),
         Put(MANIFEST_DISK_LOCATION, conf_correct),
-        Start()
-    ] + steps_manual
+        Start(),
+        Expect("testing with metabox"),
+        Send("T"),
+        Expect("Location where the manifest"),
+        Send("T"),
+        Expect("Outcome: job passed"),
+    ]

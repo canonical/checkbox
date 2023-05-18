@@ -117,14 +117,16 @@ class ContainerBaseMachine:
         Returns:
             True if successful, False otherwise.
         """
-        with suppress(pylxd.exceptions.NotFound):
+        # Catch LXDAPIException because sometimes it is raised instead of
+        #  NotFound
+        with suppress(pylxd.exceptions.LXDAPIException):
             self._container.files.put(filepath, data, mode, uid, gid)
             return True
         dirname = os.path.dirname(filepath)
         logger.debug(("Cannot put {} on container. Trying to create"
                       " directory {} and put the file again..."), filepath,
                      dirname)
-        with suppress(pylxd.exceptions.NotFound):
+        with suppress(pylxd.exceptions.LXDAPIException):
             self._container.files.mk_dir(dirname, mode, uid, gid)
             self._container.files.put(filepath, data, mode, uid, gid)
             return True

@@ -57,6 +57,7 @@ constructive feedback.
 * This project follows the `Ubuntu Code of Conduct`_
 * :ref:`Get support <home>`
 * :ref:`Join our online chat <home>`
+* :doc:`Report bugs <community/bugs>`
 * :doc:`Contribute <community/contributing>`
 * :ref:`Thinking about using Checkbox for your next project? Get in touch! <home>`
 
@@ -69,7 +70,6 @@ constructive feedback.
    how-to/index
    reference/index
    explanation/index
-   community/index
 
 .. _Ubuntu Certified: https://ubuntu.com/certified
 .. _Ubuntu Code of Conduct: https://ubuntu.com/community/ethos/code-of-conduct

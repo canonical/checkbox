@@ -1,8 +1,8 @@
 Reporting Bugs
 ==============
 
-To report bugs on the Checkbox project you will need a launchpad account. You
-may find `instructions on how to create one
-<https://help.launchpad.net/YourAccount/NewAccount>`_ useful. Once you have an
-account you can `report bugs
-<https://bugs.launchpad.net/checkbox-project/+filebug>`_.
+If you have an issue with Checkbox or with the test cases coming from its
+providers, head over our `project on GitHub`_ and `open an issue`_. Thanks!
+
+.. _project on Github: https://github.com/canonical/checkbox/
+.. _open an issue: https://github.com/canonical/checkbox/issues/new/choose

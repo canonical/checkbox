@@ -285,7 +285,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             raise SystemExit(0)
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
-            tp_info_list, 
+            tp_info_list,
             self.launcher.test_plan_default_selection).run()
         if selected_tp is None:
             print(_("Nothing selected"))
@@ -319,14 +319,35 @@ class RemoteMaster(ReportsStage, MainLoopStage):
     def _strtobool(self, val):
         return val.lower() in ('y', 'yes', 't', 'true', 'on', '1')
 
+    def _save_manifest(self, interactive):
+        manifest_repr = self.sa.get_manifest_repr()
+        if not manifest_repr:
+            _logger.info("Skipping manifest")
+            return
+        if interactive:
+            # Ask the user the values
+            to_save_manifest = ManifestBrowser(
+                "System Manifest:",
+                manifest_repr
+            ).run()
+        else:
+            # Use the one provided in repr
+            # repr is question : [manifests]
+            #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
+            # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
+            all_preconf = (
+                conf for conf_list in manifest_repr.values()
+                    for conf in conf_list
+            )
+            to_save_manifest = {
+                conf['id'] : conf['value'] for conf in all_preconf
+            }
+        self.sa.save_manifest(to_save_manifest)
+
     def select_jobs(self, all_jobs):
         if self.launcher.test_selection_forced:
             if self.launcher.manifest is not Unset:
-                self.sa.save_manifest(
-                    {manifest_id:
-                     self._strtobool(self.launcher.manifest[manifest_id]) for
-                     manifest_id in self.launcher.manifest}
-                )
+                self._save_manifest(interactive = False)
         else:
             _logger.info("remote: Selecting jobs.")
             reprs = json.loads(self.sa.get_jobs_repr(all_jobs))
@@ -339,11 +360,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 chosen_jobs = [job for job in all_jobs if job in wanted_set]
                 _logger.debug("remote: Selected jobs: %s", chosen_jobs)
                 self.sa.modify_todo_list(chosen_jobs)
-            manifest_repr = self.sa.get_manifest_repr()
-            if manifest_repr:
-                manifest_answers = ManifestBrowser(
-                    "System Manifest:", manifest_repr).run()
-                self.sa.save_manifest(manifest_answers)
+            self._save_manifest(interact = True)
         self.sa.finish_job_selection()
         self.run_jobs()
 

@@ -80,7 +80,7 @@ id: stress-tests/suspend-{s3_iterations}-cycles-log-check
 after: stress-tests/suspend_{s3_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
-command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
 _description:
  Automated check of the {s3_iterations} cycles suspend log for errors detected by fwts.
 
@@ -133,7 +133,7 @@ id: stress-tests/hibernate-{s4_iterations}-cycles-log-check
 after: stress-tests/hibernate_{s4_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
-command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v s4 "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
 _description:
  Automated check of the {s4_iterations} cycles hibernate log for errors detected by fwts.
 

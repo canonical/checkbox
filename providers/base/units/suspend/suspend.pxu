@@ -296,7 +296,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-check
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
-command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_single.log
 _summary: Automated check of the suspend log for errors reported by fwts
 
 plugin: attachment
@@ -323,7 +323,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-check
 depends: suspend/{index}_hybrid_sleep_{product_slug}
 estimated_duration: 1.2
-command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
 _summary: Automated check of the hybrid sleep log for errors reported by fwts
 
 unit: template

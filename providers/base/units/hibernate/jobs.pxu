@@ -72,7 +72,7 @@ _verification:
 plugin: shell
 category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-check
-command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate-single.log ] && sleep_test_log_check.py -v s4 "$PLAINBOX_SESSION_SHARE"/hibernate-single.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate-single.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/hibernate-single.log
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 

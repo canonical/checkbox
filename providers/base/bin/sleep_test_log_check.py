@@ -42,11 +42,11 @@ import logging
 # and when a level ends.
 start_level_re = r'^(?P<level>.+) failures: (?P<numfails>NONE|\d+)$'
 start_level_re = re.compile(start_level_re)
-failure_re = re.compile(r'^ (?P<test>(s3|s4)): (?P<details>.+)$')
+failure_re = re.compile(r'^ (?P<test>(\w*)): (?P<details>.+)$')
 end_level_re = re.compile(r"$^")
 
 
-def parse_summary(summary, results):
+def parse_summary(summary, results, filter_test, ignore_warning):
     """
     Parses an entire "Test Failure Summary" section, which contains a short
     summary of failures observed per level. Returns nothing, but adds the
@@ -78,7 +78,8 @@ def parse_summary(summary, results):
                 # reports failures or not.  This is OK because we can later
                 # check results' keys to ensure we saw at least one level; if
                 # results has no keys, it could mean a malformed fwts log file.
-                parse_level(current_acum, results[current_level])
+                parse_level(current_acum, results[current_level],
+                            filter_test, ignore_warning)
             else:
                 logging.debug("Discarding junk")
             current_acum = []
@@ -87,7 +88,8 @@ def parse_summary(summary, results):
             current_acum.append(logline)
 
 
-def parse_level(level_lines, level_results):
+def parse_level(level_lines, level_results,
+                level_filter_test, level_ignore_warning):
     """
     Parses the level's lines, appending the failures to the level's results.
     level_results is a dictionary with a key per test type (s3, s4, and so on).
@@ -108,7 +110,12 @@ def parse_level(level_lines, level_results):
             test = failure_matches.group('test')
             details = failure_matches.group('details')
             logging.debug("fail %s was %s", test, details)
-            level_results[test].append(details)
+            if level_filter_test == 'all' or level_filter_test in test:
+                if level_ignore_warning:
+                    if 'Warning:' not in details:
+                        level_results[test].append(details)
+                else:
+                    level_results[test].append(details)
 
 
 def main():
@@ -126,13 +133,20 @@ def main():
                               provide a list of UNIQUE errors encountered in \
                               the log file. It will not display duplicates. \
                               Default is [%(default)s]")
-    parser.add_argument('test',
+    parser.add_argument('-t', '--test',
                         action='store',
-                        choices=['s3', 's4'],
-                        help='The test to check (s3 or s4)')
+                        default='all',
+                        help="The test (ie.s3 ,s4 ,klog ,oope ,...etc) \
+                              to check. Default is [%(default)s]")
     parser.add_argument('logfile',
                         action='store',
                         help='The log file to parse')
+    parser.add_argument('--ignore-warning',
+                        action='store_true',
+                        default=False,
+                        help="If ignore warning option is set, it will \
+                              not show any warning items. \
+                              Default is [%(default)s]")
 
     args = parser.parse_args()
 
@@ -156,14 +170,14 @@ def main():
     # levels and tests.
     for logline in log:
         if "Test Failure Summary" in logline:
-            parse_summary(sum_acum, results)
+            parse_summary(sum_acum, results, args.test, args.ignore_warning)
             summaries_found += 1
             sum_acum = []
         else:
             sum_acum.append(logline)
     # We reached the end, so add the last accumulated summary
     if sum_acum:
-        parse_summary(sum_acum, results)
+        parse_summary(sum_acum, results, args.test, args.ignore_warning)
 
     # Report what I found
     for level in sorted(results.keys()):

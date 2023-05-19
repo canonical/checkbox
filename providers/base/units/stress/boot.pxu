@@ -92,7 +92,7 @@ unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle1" -s
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle1" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
@@ -108,7 +108,7 @@ template-unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle{reboot_id}" -s
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle{reboot_id}" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
@@ -156,7 +156,7 @@ unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle1" -s
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle1" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
@@ -172,7 +172,7 @@ template-unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle{reboot_id}" -s
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle{reboot_id}" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0

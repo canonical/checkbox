@@ -62,7 +62,7 @@ plugin: shell
 category_id: com.canonical.plainbox::stress
 id: power-management/hibernate-30-cycles-log-check
 estimated_duration: 1.0
-command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log ] && sleep_test_log_check.py -v s4 "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
 _description:
  Automated check of the 30 cycle hibernate log for errors detected by fwts.
 
@@ -126,7 +126,7 @@ category_id: com.canonical.plainbox::stress
 id: power-management/suspend-30-cycles-log-check
 depends: power-management/suspend_30_cycles
 estimated_duration: 1.0
-command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_30_cycles.log
 _description:
  Automated check of the 30 cycle suspend log for errors detected by fwts.
 
@@ -135,14 +135,14 @@ category_id: com.canonical.plainbox::stress
 id: power-management/suspend-30-cycles-log-check-with-reboots
 depends: power-management/suspend_30_cycles_with_reboots
 estimated_duration: 1.0
-command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
+command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
 _summary: 30 suspend/resume cycles and 1 reboot, 3 times (check logs for errors)
 _description:
  Automated check of the '30 cycle suspend and 1 reboot times 3' logs for errors detected by fwts.
 _siblings: [
     { "id": "power-management/suspend-30-cycles-log-check-with-coldboots",
       "depends": "power-management/suspend_30_cycles_with_coldboots",
-      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_test_log_check.py -v s3 $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_test_log_check.py -v --ignore-warning -t all $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
       "_description": "Automated check of the '30 cycle suspend and 1 poweroff times 3' logs for errors detected by fwts.",
       "_summary": "30 suspend/resume cycles and 1 poweroff, 3 times (check logs for errors)"
     }

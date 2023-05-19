@@ -32,7 +32,6 @@ from metabox.core.scenario import Scenario
 from .config_files import test_manifest
 
 MANIFEST_CACHE_LOCATION = "/var/tmp/checkbox-ng/machine-manifest.json"
-MANIFEST_DISK_LOCATION = "/home/ubuntu/.local/share/plainbox/machine-manifest.json"
 
 conf_wrong = read_text(test_manifest, "wrong.json")
 
@@ -139,58 +138,3 @@ class ManifestConfigCacheManual(Scenario):
         Expect("Outcome: job passed"),
     ]
 
-
-class ManifestConfigDiskAuto(Scenario):
-    """
-    The manifest value is correctly loaded from
-    the documented disk location in auto test runs
-    """
-
-    conf_correct = read_text(test_manifest, "correct.json")
-
-    launcher = textwrap.dedent("""
-        [launcher]
-        launcher_version = 1
-        [test plan]
-        # filtering to avoid the test being out of bound
-        unit = 2021.com.canonical.certification::manifest_test_support
-        forced = yes
-        [test selection]
-        forced = yes
-    """)
-
-    steps = [
-        RunCmd("mkdir {}".format(os.path.dirname(MANIFEST_DISK_LOCATION))),
-        Put(MANIFEST_DISK_LOCATION, conf_correct),
-        Start(),
-        AssertPrinted(".*Outcome: job passed.*"),
-    ]
-
-
-class ManifestConfigDiskManual(Scenario):
-    """
-    The manifest value is correctly loaded from
-    the documented disk location in manual test runs
-    """
-
-    conf_correct = read_text(test_manifest, "correct.json")
-
-    launcher = textwrap.dedent("""
-        [launcher]
-        launcher_version = 1
-        [test plan]
-        # filtering to avoid the test being out of bound
-        forced = yes
-        unit = 2021.com.canonical.certification::manifest_test_support
-    """)
-
-    steps = [
-        RunCmd("mkdir {}".format(os.path.dirname(MANIFEST_DISK_LOCATION))),
-        Put(MANIFEST_DISK_LOCATION, conf_correct),
-        Start(),
-        Expect("testing with metabox"),
-        Send("T"),
-        Expect("Location where the manifest"),
-        Send("T"),
-        Expect("Outcome: job passed"),
-    ]

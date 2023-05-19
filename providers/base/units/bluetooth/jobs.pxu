@@ -368,7 +368,7 @@ _purpose:
  Check bluetooth input device works
 _steps:
  1. Run the following command to start bluetoothctl console:
- sudo bluetoothctl -a
+ sudo bluetoothctl
  ***Following steps are run in bluetoothctl console***
  2. Power on the device:
  power on

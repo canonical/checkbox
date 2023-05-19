@@ -104,6 +104,15 @@ include:
     memory/memory_stress_ng                        certification-status=blocker
     stress/restore_oomd_config
 
+id: stress-warmboot-coldboot-automated
+unit: test plan
+_name: Stress of warm boot and cold boot cycles (automated)
+_description: Stress of warm boot and cold boot cycles (automated)
+include:
+nested_part:
+    warm-boot-stress-test
+    cold-boot-stress-test
+
 id: stress-full
 unit: test plan
 _name: Stress tests

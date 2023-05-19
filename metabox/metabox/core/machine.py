@@ -109,28 +109,11 @@ class ContainerBaseMachine:
                 raise SystemExit("Rollback failed (systemd not ready)")
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000):
-        """
-        Puts the `data` into the `filepath` with the specified `mode`, `uid`, and `gid`.
-
-        This function attempts to create the file (including its parent directory).
-
-        Returns:
-            True if successful, False otherwise.
-        """
-        # Catch LXDAPIException because sometimes it is raised instead of
-        #  NotFound
-        with suppress(pylxd.exceptions.LXDAPIException):
+        try:
             self._container.files.put(filepath, data, mode, uid, gid)
-            return True
-        dirname = os.path.dirname(filepath)
-        logger.debug(("Cannot put {} on container. Trying to create"
-                      " directory {} and put the file again..."), filepath,
-                     dirname)
-        with suppress(pylxd.exceptions.LXDAPIException):
-            self._container.files.mk_dir(dirname, mode, uid, gid)
-            self._container.files.put(filepath, data, mode, uid, gid)
-            return True
-        return False
+        except pylxd.exceptions.LXDAPIException:
+            logger.error("Failed to create {}", filepath)
+            raise
 
     def get_connecting_cmd(self):
         return "lxc exec {} -- sudo --user ubuntu --login".format(

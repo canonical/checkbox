@@ -160,7 +160,7 @@ _purpose:
  Check bluetooth LED behavior is correct
 _steps:
  1. Run following command to start bluetoothctl console:
-  sudo bluetoothctl -a
+  sudo bluetoothctl
  ***Following steps are run in bluetoothctl console***
  2. Power on the device:
   power on

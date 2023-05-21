@@ -202,12 +202,14 @@ def main():
                 record['driver'] = 'unknown'
             # lp:1636060 – If discrete GPU is using amdgpu driver,
             # we set the prime_gpu_offload flag to 'On'
-            # NVIDIA driver since version 435.17 supports PRIME render offload,
-            # and Ubuntu doesn't support intel mode after 22.04.
-            if index == 2 and ((record['driver'] in ('nvidia', 'pcieport')
-                                and compare_ubuntu_release_version('22.04'))
-                               or record['driver'] == 'amdgpu'):
-                record['prime_gpu_offload'] = 'On'
+            if index == 2:
+                if record['driver'] == 'amdgpu':
+                    record['prime_gpu_offload'] = 'On'
+                # NVIDIA driver supports PRIME render offload since version
+                # 435.17, and Ubuntu doesn't support Intel mode after 22.04.
+                elif (record['driver'] in ('nvidia', 'pcieport')
+                        and compare_ubuntu_release_version('22.04')):
+                    record['prime_gpu_offload'] = 'On'
             else:
                 record['prime_gpu_offload'] = 'Off'
             record['switch_to_cmd'] = switch_cmds[record['driver']][0]

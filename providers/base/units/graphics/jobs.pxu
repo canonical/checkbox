@@ -213,18 +213,10 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_cycle_resolution_{product_slug}
-flags: also-after-suspend
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
 command:
- # shellcheck disable=SC1091
- source graphics_env.sh {driver} {index}
- if [[ $XDG_SESSION_TYPE == "wayland" ]]
- then
-   gnome_randr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
- else
-   xrandr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
- fi
+    graphic_cycle_resolution.sh
 estimated_duration: 250.000
 _summary: Test resolution cycling for {vendor} {product}
 _description:
@@ -234,6 +226,11 @@ _description:
      1. Click "Test" to start cycling through the video modes
  VERIFICATION:
      Did the screen appear to be working for each mode?
+_siblings: [
+    {{ "id": "after-suspend-graphics/{index}_cycle_resolution_{product_slug}",
+      "command": "graphic_cycle_resolution.sh --index {index} --after-suspend",
+      "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}}
+    ]
 
 unit: template
 template-resource: graphics_card

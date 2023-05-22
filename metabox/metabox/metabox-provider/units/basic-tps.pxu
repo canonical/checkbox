@@ -36,7 +36,7 @@ unit: test plan
 id: audio-manual
 _name: Audio Manual
 include:
-  com.canonical.certification::audio/playback_auto
+  audio/playback_auto
 
 unit: test plan
 id: config-automated

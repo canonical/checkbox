@@ -232,3 +232,20 @@ _description:
  VERIFICATION:
      1. Did the 3d animation appear?
      2. Was the animation free from slowness/jerkiness?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_auto
+estimated_duration: 5.0
+command:
+  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+_description:
+ PURPOSE:
+     This test will check that internal speakers work correctly
+ STEPS:
+     1. Make sure that no external speakers or headphones are connected
+        When testing a desktop, you can skip this test if there is no
+        internal speaker, we will test the external output later
+     2. Commence the test to play a brief tone on your audio device
+ VERIFICATION:
+     Did you hear a tone?

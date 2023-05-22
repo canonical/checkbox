@@ -2444,7 +2444,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-monitor-multi-head"},
      {"id": "dock/all-hotplug-monitor-multi-head"},
-     {"id": "dock/all-susepnd-monitor-multi-head"},
+     {"id": "dock/all-suspend-monitor-multi-head"},
      {"id": "dock/all-poweroff-monitor-multi-head"}]
 
 id: dock/all-init-monitor-multi-head-audio-playback
@@ -2476,7 +2476,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-monitor-multi-head-audio-playback"},
      {"id": "dock/all-hotplug-monitor-multi-head-audio-playback"},
-     {"id": "dock/all-susepnd-monitor-multi-head-audio-playback"},
+     {"id": "dock/all-suspend-monitor-multi-head-audio-playback"},
      {"id": "dock/all-poweroff-monitor-multi-head-audio-playback"}]
 
 id: dock/all-init-networking-gateway-ping
@@ -2499,7 +2499,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-networking-gateway-ping"},
      {"id": "dock/all-hotplug-networking-gateway-ping"},
-     {"id": "dock/all-susepnd-networking-gateway-ping"},
+     {"id": "dock/all-suspend-networking-gateway-ping"},
      {"id": "dock/all-poweroff-networking-gateway-ping"}]
 
 id: dock/all-init-networking-ntp
@@ -2521,7 +2521,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-networking-ntp"},
      {"id": "dock/all-hotplug-networking-ntp"},
-     {"id": "dock/all-susepnd-networking-ntp"},
+     {"id": "dock/all-suspend-networking-ntp"},
      {"id": "dock/all-poweroff-networking-ntp"}]
 
 id: dock/all-init-thunderbolt3-insert
@@ -2546,7 +2546,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-thunderbolt3-insert"},
      {"id": "dock/all-hotplug-thunderbolt3-insert"},
-     {"id": "dock/all-susepnd-thunderbolt3-insert"},
+     {"id": "dock/all-suspend-thunderbolt3-insert"},
      {"id": "dock/all-poweroff-thunderbolt3-insert"}]
 
 id: dock/all-init-thunderbolt3-storage-automated
@@ -2568,8 +2568,8 @@ _siblings:
       "depends": "dock/all-reboot-thunderbolt3-insert"},
      {"id": "dock/all-hotplug-thunderbolt3-storage-automated",
       "depends": "dock/all-hotplug-thunderbolt3-insert"},
-     {"id": "dock/all-susepnd-thunderbolt3-storage-automated",
-      "depends": "dock/all-susepnd-thunderbolt3-insert"},
+     {"id": "dock/all-suspend-thunderbolt3-storage-automated",
+      "depends": "dock/all-suspend-thunderbolt3-insert"},
      {"id": "dock/all-poweroff-thunderbolt3-storage-automated",
       "depends": "dock/all-poweroff-thunderbolt3-insert"}]
 
@@ -2597,8 +2597,8 @@ _siblings:
       "depends": "dock/all-reboot-thunderbolt3-insert"},
      {"id": "dock/all-hotplug-thunderbolt3-remove",
       "depends": "dock/all-hotplug-thunderbolt3-insert"},
-     {"id": "dock/all-susepnd-thunderbolt3-remove",
-      "depends": "dock/all-susepnd-thunderbolt3-insert"},
+     {"id": "dock/all-suspend-thunderbolt3-remove",
+      "depends": "dock/all-suspend-thunderbolt3-insert"},
      {"id": "dock/all-poweroff-thunderbolt3-remove",
       "depends": "dock/all-poweroff-thunderbolt3-insert"}]
 
@@ -2628,7 +2628,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-usb-c/insert"},
      {"id": "dock/all-hotplug-usb-c/insert"},
-     {"id": "dock/all-susepnd-usb-c/insert"},
+     {"id": "dock/all-suspend-usb-c/insert"},
      {"id": "dock/all-poweroff-usb-c/insert"}]
 
 id: dock/all-init-usb-c/storage-automated
@@ -2649,7 +2649,7 @@ _siblings:
       "depends": "dock/all-reboot-usb-c/insert"},
      {"id": "dock/all-hotplug-usb-c/storage-automated",
       "depends": "dock/all-hotplug-usb-c/insert"},
-     {"id": "dock/all-susepnd-usb-c/storage-automated",
+     {"id": "dock/all-suspend-usb-c/storage-automated",
       "depends": "dock/all-suspend-usb-c/insert"},
      {"id": "dock/all-poweroff-usb-c/storage-automated",
       "depends": "dock/all-poweroff-usb-c/insert"}]
@@ -2678,7 +2678,7 @@ _siblings:
       "depends": "dock/all-reboot-usb-c/insert"},
      {"id": "dock/all-hotplug-usb-c/remove",
       "depends": "dock/all-hotplug-usb-c/insert"},
-     {"id": "dock/all-susepnd-usb-c/remove",
+     {"id": "dock/all-suspend-usb-c/remove",
       "depends": "dock/all-suspend-usb-c/insert"},
      {"id": "dock/all-poweroff-usb-c/remove",
       "depends": "dock/all-poweroff-usb-c/insert"}]
@@ -2706,7 +2706,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-usb3-insert"},
      {"id": "dock/all-hotplug-usb3-insert"},
-     {"id": "dock/all-susepnd-usb3-insert"},
+     {"id": "dock/all-suspend-usb3-insert"},
      {"id": "dock/all-poweroff-usb3-insert"}]
 
 plugin: shell
@@ -2724,7 +2724,7 @@ _siblings:
       "depends": "dock/all-reboot-usb3-insert"},
      {"id": "dock/all-hotplug-usb3-storage-automated",
       "depends": "dock/all-hotplug-usb3-insert"},
-     {"id": "dock/all-susepnd-usb3-storage-automated",
+     {"id": "dock/all-suspend-usb3-storage-automated",
       "depends": "dock/all-suspend-usb3-insert"},
      {"id": "dock/all-poweroff-usb3-storage-automated",
       "depends": "dock/all-poweroff-usb3-insert"}]
@@ -2750,7 +2750,7 @@ _siblings:
       "depends": "dock/all-reboot-usb3-insert"},
      {"id": "dock/all-hotplug-usb3-remove",
       "depends": "dock/all-hotplug-usb3-insert"},
-     {"id": "dock/all-susepnd-usb3-remove",
+     {"id": "dock/all-suspend-usb3-remove",
       "depends": "dock/all-suspend-usb3-insert"},
      {"id": "dock/all-poweroff-usb3-remove",
       "depends": "dock/all-poweroff-usb3-insert"}]
@@ -2779,7 +2779,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-audio-speaker-headphone-plug-detection"},
      {"id": "dock/all-hotplug-audio-speaker-headphone-plug-detection"},
-     {"id": "dock/all-susepnd-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-speaker-headphone-plug-detection"},
      {"id": "dock/all-poweroff-audio-speaker-headphone-plug-detection"}]
 
 id: dock/all-init-audio-playback-headphones
@@ -2815,8 +2815,8 @@ _siblings:
       "depends": "dock/all-reboot-audio-speaker-headphone-plug-detection"},
      {"id": "dock/all-hotplug-audio-playback-headphones",
       "depends": "dock/all-hotplug-audio-speaker-headphone-plug-detection"},
-     {"id": "dock/all-susepnd-audio-playback-headphones",
-      "depends": "dock/all-susepnd-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-playback-headphones",
+      "depends": "dock/all-suspend-audio-speaker-headphone-plug-detection"},
      {"id": "dock/all-poweroff-audio-playback-headphones",
       "depends": "dock/all-poweroff-audio-speaker-headphone-plug-detection"}]
 
@@ -2845,7 +2845,7 @@ _verification:
 _siblings:
     [{"id": "dock/all-reboot-audio-microphone-plug-detection"},
      {"id": "dock/all-hotplug-audio-microphone-plug-detection"},
-     {"id": "dock/all-susepnd-audio-microphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-microphone-plug-detection"},
      {"id": "dock/all-poweroff-audio-microphone-plug-detection"}]
 
 plugin: user-interact-verify
@@ -2882,7 +2882,7 @@ _siblings:
       "depends": "dock/all-reboot-audio-microphone-plug-detection"},
      {"id": "dock/all-hotplug-audio-alsa-record-playback-external",
       "depends": "dock/all-hotplug-audio-microphone-plug-detection"},
-     {"id": "dock/all-susepnd-audio-alsa-record-playback-external",
-      "depends": "dock/all-susepnd-audio-microphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-alsa-record-playback-external",
+      "depends": "dock/all-suspend-audio-microphone-plug-detection"},
      {"id": "dock/all-poweroff-audio-alsa-record-playback-external",
       "depends": "dock/all-poweroff-audio-microphone-plug-detection"}]

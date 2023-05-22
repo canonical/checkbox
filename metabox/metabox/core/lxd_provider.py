@@ -198,17 +198,17 @@ class LxdMachineProvider:
             run_or_raise(
                 machine._container, 'mkdir -p {}'.format(dest),
                 verbose=self._debug_machine_setup)
+            dir_mode = os.stat(src).st_mode # preserve permissions
             machine._container.files.recursive_put(
-                os.path.expanduser(src), dest)
+                os.path.expanduser(src), dest, mode=dir_mode)
             run_or_raise(
                 machine._container,
                 'sudo chown -R ubuntu:ubuntu {}'.format(dest),
                 verbose=self._debug_machine_setup)
-            # FIXME: preserve the +x bit
         for src, dest in machine.get_file_transfer():
+            file_mode = os.stat(src).st_mode
             with open(src, "rb") as f:
-                machine._container.files.put(dest, f.read())
-                # FIXME: preserve the +x bit
+                machine._container.files.put(dest, f.read(), mode=file_mode)
 
     def _run_setup_commands(self, machine):
         pre_cmds = machine.get_early_setup()

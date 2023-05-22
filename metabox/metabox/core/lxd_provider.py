@@ -29,7 +29,9 @@ import os
 import sys
 import time
 import yaml
+import subprocess
 from pathlib import Path
+from contextlib import contextmanager
 
 import pkg_resources
 import pylxd
@@ -47,6 +49,8 @@ class LxdMachineProvider:
     LXD_CREATE_TIMEOUT = 300
     LXD_POLL_INTERVAL = 5
     LXD_INTERNAL_CONFIG_PATH = '/var/tmp/machine_config.json'
+    LXD_SOURCE_MOUNT_POINT='source'
+    LXD_MOUNT_DEVICE = 'sde'
 
     def __init__(self, session_config, effective_machine_config,
                  debug_machine_setup=False, dispose=False):
@@ -189,26 +193,65 @@ class LxdMachineProvider:
             error = self._api_exc_to_human(exc)
             raise SystemExit(error) from exc
 
+    def _transfer_file_preserve_mode(self, machine, src, dest):
+        file_mode = os.stat(src).st_mode
+        with open(src, "rb") as f:
+            machine._container.files.put(dest, f.read(), mode=file_mode)
+
+    def _mount_source(self, machine, path):
+        logger.debug("Mounting dir {}", path)
+        output = subprocess.check_output([
+            "lxc", "config", "device", "add",
+            machine._container.name, self.LXD_MOUNT_DEVICE,
+            "disk", "source={}".format(path),
+            "path={}".format(self.LXD_SOURCE_MOUNT_POINT)
+        ], stderr=subprocess.PIPE, text=True)
+        logger.debug(output)
+
+    def _unmount_source(self, machine):
+        logger.debug("Unmounting dir...")
+        output = subprocess.check_output([
+            "lxc", "config", "device", "remove",
+            machine._container.name, self.LXD_MOUNT_DEVICE
+        ], stderr=subprocess.PIPE, text=True)
+        logger.debug(output)
+
+    @contextmanager
+    def _mounted_source(self, machine, path):
+        self._mount_source(machine, path)
+        try:
+            yield ...
+        finally:
+            self._unmount_source(machine)
+
     def _run_transfer_commands(self, machine):
         provider_path = pkg_resources.resource_filename(
             'metabox', 'metabox-provider')
         metabox_dir_transfers = machine.get_early_dir_transfer() + [
             (provider_path, '/var/tmp/checkbox-providers/metabox-provider')]
         for src, dest in metabox_dir_transfers + machine.config.transfer:
-            run_or_raise(
-                machine._container, 'mkdir -p {}'.format(dest),
-                verbose=self._debug_machine_setup)
-            dir_mode = os.stat(src).st_mode # preserve permissions
-            machine._container.files.recursive_put(
-                os.path.expanduser(src), dest, mode=dir_mode)
-            run_or_raise(
-                machine._container,
-                'sudo chown -R ubuntu:ubuntu {}'.format(dest),
-                verbose=self._debug_machine_setup)
+            logger.debug("Working on {}", dest)
+            with self._mounted_source(machine, src):
+                # First create parent dir
+                run_or_raise(
+                    machine._container,
+                    "sudo mkdir -p {}".format(os.path.dirname(dest)),
+                    verbose=self._debug_machine_setup
+                )
+                # Copy the mounted dir to the desired location
+                run_or_raise(
+                    machine._container,
+                    "sudo cp -r /{} {}".format(self.LXD_SOURCE_MOUNT_POINT, dest),
+                    verbose=self._debug_machine_setup
+                )
+                # Own it to the correct user
+                run_or_raise(
+                    machine._container,
+                    'sudo chown -R ubuntu:ubuntu {}'.format(dest),
+                    verbose=self._debug_machine_setup)
         for src, dest in machine.get_file_transfer():
-            file_mode = os.stat(src).st_mode
-            with open(src, "rb") as f:
-                machine._container.files.put(dest, f.read(), mode=file_mode)
+            logger.debug("Working on {}", dest)
+            self._transfer_file_preserve_mode(machine, src, dest)
 
     def _run_setup_commands(self, machine):
         pre_cmds = machine.get_early_setup()

@@ -2010,6 +2010,7 @@ plugin: user-interact
 id: dock/thunderbolt3-remove
 category_id: dock
 estimated_duration: 20.0
+depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend

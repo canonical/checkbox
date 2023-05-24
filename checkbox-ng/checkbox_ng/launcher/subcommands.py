@@ -800,7 +800,7 @@ class List():
     def register_arguments(self, parser):
         all_units.load()
         parser.add_argument(
-            'GROUP', nargs='?', choices=all_units.get_all_names(),
+            'GROUP', nargs='?', choices=all_units.get_all_names() + ['all-jobs'],
             help=_("list objects from the specified group"))
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",

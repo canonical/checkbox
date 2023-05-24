@@ -1,24 +1,13 @@
 How-to guides
 =============
 
-These how-to guides cover key operations and processes in Example Product.
-
-Fictional
----------
+These how-to guides cover key operations and processes in Checkbox.
 
 .. toctree::
    :maxdepth: 1
 
-   Prettify an instance <prettify>
-   Unroll a network <unroll>
-
-
-Actual
-------
-
-.. toctree::
-   :maxdepth: 1
-
-   Manage rate-limiting <rate-limiting>
-   Spawn new instance <spawning>
-   Include a Markdown file <markdown>
+   using
+   testing-ubuntu-core
+   nested-test-plan
+   side-loading
+   slave-daemon

@@ -51,6 +51,7 @@ from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
+from plainbox.impl.unit import all_units
 
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
@@ -797,8 +798,9 @@ class Run(MainLoopStage):
 
 class List():
     def register_arguments(self, parser):
+        all_units.load()
         parser.add_argument(
-            'GROUP', nargs='?',
+            'GROUP', nargs='?', choices=all_units.get_all_names(),
             help=_("list objects from the specified group"))
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",

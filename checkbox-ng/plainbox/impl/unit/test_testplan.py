@@ -271,7 +271,7 @@ class TestTestPlan(TestCase):
 
     def test_get_qualifier__full(self):
         # Let's pretend the unit looks like this:
-        # +0 unit: test-plan
+        # +0 unit: test plan
         # +1 name: An example test plan
         # +2 include:
         # +3 foo
@@ -289,7 +289,7 @@ class TestTestPlan(TestCase):
             'exclude': 6
         }
         unit = TestPlanUnit({
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan',
             'include': (
                 'foo\n'
@@ -396,14 +396,14 @@ class TestNestedTestPlan(TestCase):
         self.provider2.namespace = 'ns2'
         self.tp1 = TestPlanUnit({
             'id': 'tp1',
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan 1',
             'include': 'Foo',
             'nested_part': 'tp2'
         }, provider=self.provider1)
         self.tp2 = TestPlanUnit({
             'id': 'tp2',
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan 2',
             'include': 'Bar',
             'mandatory_include': 'Baz',
@@ -411,7 +411,7 @@ class TestNestedTestPlan(TestCase):
         }, provider=self.provider1)
         self.tp3 = TestPlanUnit({
             'id': 'tp3',
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan 3',
             'include': '# nothing\n',
             'nested_part': 'tp2',
@@ -419,7 +419,7 @@ class TestNestedTestPlan(TestCase):
         }, provider=self.provider1)
         self.tp4 = TestPlanUnit({
             'id': 'tp4',
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan 4',
             'include': '# nothing\n',
             'nested_part': (
@@ -429,20 +429,20 @@ class TestNestedTestPlan(TestCase):
         }, provider=self.provider1)
         self.tp5 = TestPlanUnit({
             'id': 'tp5',
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan 5',
             'include': 'Baz2',
         }, provider=self.provider1)
         self.tp6 = TestPlanUnit({
             'id': 'tp6',
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan 6',
             'include': 'Foo',
             'nested_part': 'ns2::tp7'
         }, provider=self.provider1)
         self.tp7 = TestPlanUnit({
             'id': 'tp7',
-            'unit': 'test-plan',
+            'unit': 'test plan',
             'name': 'An example test plan 7',
             'include': 'Bar'
         }, provider=self.provider2)

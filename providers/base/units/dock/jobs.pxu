@@ -2360,20 +2360,20 @@ category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-    This test is to setup the initial stauts for all I/O ports on docking.
+    This test is to setup the initial status for all I/O ports on docking.
     Note:
         Try to meet the limitation in the spec of the dock.
         If there's no port as description below, you can just skip it.
 _steps:
     1. If the laptop is currently undocked, dock it now.
-    2. Connect to a Ethernet cable.
-    3. Connect to a DP monitor.
-    4. Connect to a HDMI monitor.
-    5. Connect to a Thunderbolt monitor.
-    6. Connect to a Thunderbolt3 storage.
-    7. Connect to a Type-C storage.
-    8. Connect to a USB3.0 storage.
-    9. Connect to a headset.
+    2. Connect a Ethernet cable to the docking station.
+    3. Connect a DP monitor to the docking station.
+    4. Connect a HDMI monitor to the docking station.
+    5. Connect a Thunderbolt monitor to the docking station.
+    6. Connect a Thunderbolt3 storage to the docking station.
+    7. Connect a USB Type-C storage to the docking station.
+    8. Connect a USB3.0 storage to the docking station.
+    9. Connect a headset to the docking station.
 _verification:
     Mark it Pass if you have connected all I/O ports as mentioned above.
 
@@ -2399,7 +2399,7 @@ _steps:
     2. Wait for 30 seconds.
     3. Plug in the docking station.
 _verification:
-    Mark it Pass if you have hotpluged the docking station.
+    Mark it Pass if you have hotplugged the docking station.
 
 id: dock/all-suspend
 category_id: dock
@@ -2409,7 +2409,7 @@ _purpose:
     This test is to check if the device is still working after suspend.
 _steps:
     1. Suspend the system.
-    2. Waiting 30 seconds.
+    2. Wait for 30 seconds.
     3. Resume the system.
 _verification:
     Mark it Pass if you have suspended and resumed the system.
@@ -2425,7 +2425,7 @@ _steps:
     2. Wait for 30 seconds.
     3. Poweron the system.
 _verification:
-    Mark it Pass if you have powered on and powered off the system.
+    Mark it Pass if you have powered off and powered on the system.
 
 id: dock/all-init-monitor-multi-head
 category_id: dock-display

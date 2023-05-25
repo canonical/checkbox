@@ -8,8 +8,8 @@ nested_part:
   dock-all-init-cert
   dock-all-reboot-cert
   dock-all-hotplug-cert
-  dock-all-suspend-cert
   dock-all-poweroff-cert
+  dock-all-suspend-cert
 
 id: dock-all-init-cert
 unit: test plan

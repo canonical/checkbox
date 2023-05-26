@@ -28,6 +28,7 @@ from metabox.core.actions import (
     RunCmd,
 )
 from metabox.core.scenario import Scenario
+from metabox.core.utils import tag
 
 from .config_files import test_manifest
 
@@ -35,6 +36,7 @@ MANIFEST_CACHE_LOCATION = "/var/tmp/checkbox-ng/machine-manifest.json"
 
 conf_wrong = read_text(test_manifest, "wrong.json")
 
+@tag("manifest", "normal_user")
 class ManifestLauncherAuto(Scenario):
     """
     When provided with a manifest in the launcher
@@ -57,7 +59,7 @@ class ManifestLauncherAuto(Scenario):
 
     steps = [AssertPrinted(".*Outcome: job passed.*")]
 
-
+@tag("manifest", "normal_user")
 class ManifestLauncherManual(Scenario):
     """
     When provided with a manifest in the launcher
@@ -86,7 +88,7 @@ class ManifestLauncherManual(Scenario):
         Expect("Test the resolution order of the manifest")
     ]
 
-
+@tag("manifest", "normal_user")
 class ManifestConfigCacheAuto(Scenario):
     """
     The manifest value is correctly loaded from
@@ -112,7 +114,7 @@ class ManifestConfigCacheAuto(Scenario):
         AssertPrinted(".*Outcome: job passed.*"),
     ]
 
-
+@tag("manifest", "normal_user")
 class ManifestConfigCacheManual(Scenario):
     """
     The manifest value is correctly loaded from

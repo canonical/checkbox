@@ -261,6 +261,7 @@ parts:
       - gir1.2-clutter-1.0
       - gir1.2-gst-plugins-base-1.0
       - gir1.2-gudev-1.0
+      - glmark2-es2
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-pulseaudio
@@ -408,26 +409,6 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-server --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-certification-client]
-################################################################################
-  glmark2:
-    source: https://github.com/glmark2/glmark2.git
-    plugin: meson
-    build-packages:
-      - libpng-dev
-      - libjpeg-dev
-      - libdrm-dev
-      - libgbm-dev
-      - libudev-dev
-      - libx11-dev
-      - meson
-      - python3-distro
-    meson-parameters:
-      #- -Dflavors=drm-gl,drm-glesv2,wayland-gl,wayland-glesv2,x11-gl,x11-glesv2
-      - -Dflavors=x11-glesv2
-      - --prefix=/usr
-    after: [checkbox-provider-certification-server]
-    stage-packages:
-      - python3-distro
 ################################################################################
   gnome-randr:
     source: https://github.com/maxwellainatchi/gnome-randr-rust.git

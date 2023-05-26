@@ -77,11 +77,13 @@ class ManifestLauncherManual(Scenario):
     """)
 
     steps = [
-        Expect("testing with metabox"),
+        Expect("tests to run on your system"),
         Send("T"),
         Expect("Location where the manifest"),
         Send("T"),
-        Expect("Outcome: job passed"),
+        Expect("job passed"),
+        Expect("job passed"),
+        Expect("Test the resolution order of the manifest")
     ]
 
 
@@ -131,10 +133,12 @@ class ManifestConfigCacheManual(Scenario):
     steps = [
         Put(MANIFEST_CACHE_LOCATION, conf_correct),
         Start(),
-        Expect("testing with metabox"),
+        Expect("tests to run on your system"),
         Send("T"),
         Expect("Location where the manifest"),
         Send("T"),
-        Expect("Outcome: job passed"),
+        Expect("job passed"),
+        Expect("job passed"),
+        Expect("Test the resolution order of the manifest")
     ]
 

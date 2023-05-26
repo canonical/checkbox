@@ -221,7 +221,7 @@ class LxdMachineProvider:
         provider_path = pkg_resources.resource_filename(
             'metabox', 'metabox-provider')
         metabox_dir_transfers = machine.get_early_dir_transfer() + [
-            (provider_path, '/var/tmp/checkbox-providers/metabox-provider')]
+            (provider_path, '/var/tmp/metabox-provider')] # avoid sideloading
         for src, dest in metabox_dir_transfers + machine.config.transfer:
             logger.debug("Working on {}", dest)
             with self._mounted_source(machine, src):
@@ -247,7 +247,9 @@ class LxdMachineProvider:
             self._transfer_file_preserve_mode(machine, src, dest)
 
     def _run_setup_commands(self, machine):
-        pre_cmds = machine.get_early_setup()
+        pre_cmds = machine.get_early_setup() + [
+            "bash -c 'sudo python3 /var/tmp/metabox-provider/manage.py install'"
+        ]
         post_cmds = machine.get_late_setup()
         for cmd in pre_cmds + machine.config.setup + post_cmds:
             logger.info(f"Running command: {cmd}")

@@ -250,13 +250,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def get_early_dir_transfer(self):
         dirs = [
-            (self.config.uri, "/home/ubuntu/checkbox"),
-            (Path(self.config.uri) / "providers/base",
-             "/var/tmp/checkbox-providers/base"),
-            (Path(self.config.uri) / "providers/resource",
-             "/var/tmp/checkbox-providers/resource"),
-            (Path(self.config.uri) / "providers/certification-client",
-             "/var/tmp/checkbox-providers/certification-client"),
+            (self.config.uri, "/home/ubuntu/checkbox")
         ]
         return dirs
 
@@ -266,12 +260,13 @@ class ContainerSourceMachine(ContainerBaseMachine):
         """
 
         commands = [
-            "bash -c 'chmod +x /var/tmp/checkbox-providers/base/bin/*'",
-            "bash -c 'chmod +x /var/tmp/checkbox-providers/resource/bin/*'",
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
              "sudo python3 -m pip install -e .'"),
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
              "sudo python3 -m pip install -e .'"),
+            "bash -c 'sudo mkdir -p /usr/local/share/plainbox-providers-1/'",
+            ("bash -c 'ls /home/ubuntu/checkbox/providers/**/manage.py"
+             "| xargs -I{} -n1 sudo python3 {} install'")
         ]
 
         if self.config.role in ('remote', 'service'):

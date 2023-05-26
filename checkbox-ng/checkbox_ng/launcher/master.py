@@ -347,7 +347,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
     def select_jobs(self, all_jobs):
         if self.launcher.test_selection_forced:
             if self.launcher.manifest is not Unset:
-                self._save_manifest(interactive = False)
+                self._save_manifest(interactive=False)
         else:
             _logger.info("remote: Selecting jobs.")
             reprs = json.loads(self.sa.get_jobs_repr(all_jobs))

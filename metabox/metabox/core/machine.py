@@ -264,8 +264,15 @@ class ContainerSourceMachine(ContainerBaseMachine):
              "sudo python3 -m pip install -e .'"),
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
              "sudo python3 -m pip install -e .'"),
+            # Create the providers dir that the install command will use
             "bash -c 'sudo mkdir -p /usr/local/share/plainbox-providers-1/'",
-            ("bash -c 'ls /home/ubuntu/checkbox/providers/**/manage.py"
+            # This installs the providers. This is based on the fact
+            # that each provider dir (that is in `checkbox/providers`)
+            # has a manage.py script that will install the provider
+            # if called with the install parameter.
+            # This lists all manage.py in these locations and calls
+            # them as sudo with an install parameter
+            ("bash -c 'ls /home/ubuntu/checkbox/providers/*/manage.py"
              "| xargs -I{} -n1 sudo python3 {} install'")
         ]
 

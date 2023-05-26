@@ -32,7 +32,7 @@ from metabox.core.utils import tag
 
 from .config_files import test_manifest
 
-MANIFEST_CACHE_LOCATION = "/var/tmp/checkbox-ng/machine-manifest.json"
+MANIFEST_LOCATION = "/var/tmp/checkbox-ng/machine-manifest.json"
 
 conf_wrong = read_text(test_manifest, "wrong.json")
 
@@ -109,7 +109,7 @@ class ManifestConfigCacheAuto(Scenario):
     """)
 
     steps = [
-        Put(MANIFEST_CACHE_LOCATION, conf_correct),
+        Put(MANIFEST_LOCATION, conf_correct),
         Start(),
         AssertPrinted(".*Outcome: job passed.*"),
     ]
@@ -133,7 +133,7 @@ class ManifestConfigCacheManual(Scenario):
     """)
 
     steps = [
-        Put(MANIFEST_CACHE_LOCATION, conf_correct),
+        Put(MANIFEST_LOCATION, conf_correct),
         Start(),
         Expect("tests to run on your system"),
         Send("T"),
@@ -152,7 +152,7 @@ class ManifestConfigPrecedenceAuto(Scenario):
     Namely: launcher overwrites the disk config.
     """
 
-    conf_correct = read_text(test_manifest, "wrong.json")
+    conf_wrong = read_text(test_manifest, "wrong.json")
 
     launcher = textwrap.dedent("""
         [launcher]
@@ -167,7 +167,11 @@ class ManifestConfigPrecedenceAuto(Scenario):
         2021.com.canonical.certification::manifest_location = 0
     """)
 
-    steps = [AssertPrinted(".*Outcome: job passed.*")]
+    steps = [
+        Put(MANIFEST_LOCATION, conf_wrong),
+        Start(),
+        AssertPrinted(".*Outcome: job passed.*")
+    ]
 
 @tag("manifest", "normal_user")
 class ManifestConfigPrecedenceManual(Scenario):
@@ -177,7 +181,7 @@ class ManifestConfigPrecedenceManual(Scenario):
     Namely: launcher overwrites the disk config.
     """
 
-    conf_correct = read_text(test_manifest, "wrong.json")
+    conf_wrong = read_text(test_manifest, "wrong.json")
 
     launcher = textwrap.dedent("""
         [launcher]
@@ -191,6 +195,8 @@ class ManifestConfigPrecedenceManual(Scenario):
     """)
 
     steps = [
+        Put(MANIFEST_LOCATION, conf_wrong),
+        Start(),
         Expect("tests to run on your system"),
         Send("T"),
         Expect("Location where the manifest"),

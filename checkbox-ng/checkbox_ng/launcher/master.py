@@ -360,7 +360,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 chosen_jobs = [job for job in all_jobs if job in wanted_set]
                 _logger.debug("remote: Selected jobs: %s", chosen_jobs)
                 self.sa.modify_todo_list(chosen_jobs)
-            self._save_manifest(interact = True)
+            self._save_manifest(interactive=True)
         self.sa.finish_job_selection()
         self.run_jobs()
 

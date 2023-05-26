@@ -144,3 +144,58 @@ class ManifestConfigCacheManual(Scenario):
         Expect("Test the resolution order of the manifest")
     ]
 
+@tag("manifest", "normal_user")
+class ManifestConfigPrecedenceAuto(Scenario):
+    """
+    Manifest values should follow the precedence order
+    described in the docs in auto tests.
+    Namely: launcher overwrites the disk config.
+    """
+
+    conf_correct = read_text(test_manifest, "wrong.json")
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        unit = 2021.com.canonical.certification::manifest_test_support
+        forced = yes
+        [test selection]
+        forced = yes
+        [manifest]
+        2021.com.canonical.certification::manifest_location = 0
+    """)
+
+    steps = [AssertPrinted(".*Outcome: job passed.*")]
+
+@tag("manifest", "normal_user")
+class ManifestConfigPrecedenceManual(Scenario):
+    """
+    Manifest values should follow the precedence order
+    described in the docs in manual tests.
+    Namely: launcher overwrites the disk config.
+    """
+
+    conf_correct = read_text(test_manifest, "wrong.json")
+
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        [test plan]
+        # filtering to avoid the test being out of bound
+        forced = yes
+        unit = 2021.com.canonical.certification::manifest_test_support
+        [manifest]
+        2021.com.canonical.certification::manifest_location = 0
+    """)
+
+    steps = [
+        Expect("tests to run on your system"),
+        Send("T"),
+        Expect("Location where the manifest"),
+        Send("T"),
+        Expect("job passed"),
+        Expect("job passed"),
+        Expect("Test the resolution order of the manifest")
+    ]

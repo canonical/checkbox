@@ -322,7 +322,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
     def _save_manifest(self, interactive):
         manifest_repr = self.sa.get_manifest_repr()
         if not manifest_repr:
-            _logger.info("Skipping manifest")
+            _logger.info("Skipping saving of the manifest")
             return
         if interactive:
             # Ask the user the values

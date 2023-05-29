@@ -88,7 +88,7 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.07"
+    source-tag: "V0.15.08"
     source-depth: 1
     plugin: make
     source: https://github.com/ColinIanKing/stress-ng.git

@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2016 Canonical Ltd.
+# Copyright 2012-2023 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
@@ -36,7 +36,6 @@ from jinja2 import Template
 from plainbox.i18n import gettext as _
 from plainbox.impl.decorators import cached_property
 from plainbox.impl.decorators import instance_method_lru_cache
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.symbol import Symbol
@@ -52,7 +51,7 @@ from plainbox.impl.unit.validators import UnitFieldIssue
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
-__all__ = ['Unit', 'UnitValidator']
+__all__ = ["Unit", "UnitValidator"]
 
 
 logger = logging.getLogger("plainbox.unit")
@@ -65,7 +64,7 @@ def on_ubuntucore():
     """
     snap = os.getenv("SNAP")
     if snap:
-        with open(os.path.join(snap, 'meta/snap.yaml')) as f:
+        with open(os.path.join(snap, "meta/snap.yaml")) as f:
             for l in f.readlines():
                 if l == "confinement: classic\n":
                     return False
@@ -91,8 +90,9 @@ class MissingParam(Exception):
         return _("failed to find value for paramter {}").format(self.parameter)
 
     def __repr__(self):
-        return "<{} paramter:{}>".format(self.__class__.__name__,
-                                         self.parameter)
+        return "<{} paramter:{}>".format(
+            self.__class__.__name__, self.parameter
+        )
 
 
 class UnitValidator:
@@ -140,37 +140,67 @@ class UnitValidator:
         for field, validators in sorted(unit.Meta.field_validators.items()):
             for validator in validators:
                 for issue in validator.check_in_context(
-                        self, unit, field, context):
+                    self, unit, field, context
+                ):
                     yield issue
 
-    def advice(self, unit, field, kind, message=None, *, offset=0,
-               origin=None):
+    def advice(
+        self, unit, field, kind, message=None, *, offset=0, origin=None
+    ):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.advice
         """
         return self.report_issue(
-            unit, field, kind, Severity.advice, message,
-            offset=offset, origin=origin)
+            unit,
+            field,
+            kind,
+            Severity.advice,
+            message,
+            offset=offset,
+            origin=origin,
+        )
 
-    def warning(self, unit, field, kind, message=None, *, offset=0,
-                origin=None):
+    def warning(
+        self, unit, field, kind, message=None, *, offset=0, origin=None
+    ):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.warning
         """
         return self.report_issue(
-            unit, field, kind, Severity.warning, message,
-            offset=offset, origin=origin)
+            unit,
+            field,
+            kind,
+            Severity.warning,
+            message,
+            offset=offset,
+            origin=origin,
+        )
 
     def error(self, unit, field, kind, message=None, *, offset=0, origin=None):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.error
         """
         return self.report_issue(
-            unit, field, kind, Severity.error, message,
-            offset=offset, origin=origin)
+            unit,
+            field,
+            kind,
+            Severity.error,
+            message,
+            offset=offset,
+            origin=origin,
+        )
 
-    def report_issue(self, unit, field, kind, severity, message=None,
-                     *, offset=0, origin=None):
+    def report_issue(
+        self,
+        unit,
+        field,
+        kind,
+        severity,
+        message=None,
+        *,
+        offset=0,
+        origin=None
+    ):
         """
         Helper method that aids in adding issues
 
@@ -206,10 +236,12 @@ class UnitValidator:
         """
         # compute the actual message
         message = self.explain(
-            unit[0] if isinstance(unit, list) else unit, field, kind, message)
+            unit[0] if isinstance(unit, list) else unit, field, kind, message
+        )
         if message is None:
             raise ValueError(
-                _("unable to deduce message and no message provided"))
+                _("unable to deduce message and no message provided")
+            )
         # compute the origin
         if isinstance(unit, list):
             cls = MultiUnitFieldIssue
@@ -219,11 +251,12 @@ class UnitValidator:
                     origin = origin.with_offset(
                         unit[0].field_offset_map[field] + offset
                     ).just_line()
-                elif '_{}'.format(field) in unit[0].field_offset_map:
+                elif "_{}".format(field) in unit[0].field_offset_map:
                     if origin is None:
                         origin = origin.with_offset(
-                            unit[0].field_offset_map['_{}'.format(field)] +
-                            offset).just_line()
+                            unit[0].field_offset_map["_{}".format(field)]
+                            + offset
+                        ).just_line()
         else:
             cls = UnitFieldIssue
             if origin is None:
@@ -232,11 +265,11 @@ class UnitValidator:
                     origin = origin.with_offset(
                         unit.field_offset_map[field] + offset
                     ).just_line()
-                elif '_{}'.format(field) in unit.field_offset_map:
+                elif "_{}".format(field) in unit.field_offset_map:
                     if origin is None:
                         origin = origin.with_offset(
-                            unit.field_offset_map['_{}'.format(field)] +
-                            offset).just_line()
+                            unit.field_offset_map["_{}".format(field)] + offset
+                        ).just_line()
         issue = cls(message, severity, kind, origin, unit, field)
         self.issue_list.append(issue)
         return issue
@@ -252,7 +285,8 @@ class UnitValidator:
         stock_msg = self._explain_map.get(kind)
         if message or stock_msg:
             return _("field {field!a}, {message}").format(
-                field=str(field), message=message or stock_msg)
+                field=str(field), message=message or stock_msg
+            )
 
     _explain_map = {
         Problem.missing: _("required field missing"),
@@ -265,7 +299,8 @@ class UnitValidator:
         Problem.not_unique: _("field value is not unique"),
         Problem.expected_i18n: _("field should be marked as translatable"),
         Problem.unexpected_i18n: (
-            _("field should not be marked as translatable")),
+            _("field should not be marked as translatable")
+        ),
         Problem.syntax_error: _("syntax error inside the field"),
         Problem.bad_reference: _("bad reference to another unit"),
     }
@@ -284,12 +319,13 @@ class UnitType(abc.ABCMeta):
 
     def __new__(mcls, name, bases, ns):
         # mro = super().__new__(mcls, name, bases, ns).__mro__
-        base_meta_list = [
-            base.Meta for base in bases if hasattr(base, 'Meta')]
-        our_meta = ns.get('Meta')
+        base_meta_list = [base.Meta for base in bases if hasattr(base, "Meta")]
+        our_meta = ns.get("Meta")
         if our_meta is not None and base_meta_list:
             new_meta_ns = dict(our_meta.__dict__)
-            new_meta_ns['__doc__'] = """
+            new_meta_ns[
+                "__doc__"
+            ] = """
                 Collection of meta-data about :class:`{}`
 
                 This class is partially automatically generated.
@@ -310,25 +346,28 @@ class UnitType(abc.ABCMeta):
                     `validator_cls`:
                         A :class:`UnitValidator` subclass that can be used to
                         check this unit for correctness
-            """.format(name)
+            """.format(
+                name
+            )
             new_meta_bases = tuple(base_meta_list)
             # Merge custom field_validators with base unit validators
-            if 'field_validators' in our_meta.__dict__:
+            if "field_validators" in our_meta.__dict__:
                 merged_validators = dict()
                 for base_meta in base_meta_list:
-                    if hasattr(base_meta, 'field_validators'):
+                    if hasattr(base_meta, "field_validators"):
                         merged_validators.update(base_meta.field_validators)
                 merged_validators.update(our_meta.field_validators)
-                new_meta_ns['field_validators'] = merged_validators
+                new_meta_ns["field_validators"] = merged_validators
             # Merge fields with base unit fields
-            if 'fields' in our_meta.__dict__:
+            if "fields" in our_meta.__dict__:
                 # Look at all the base Meta classes and collect each
                 # Meta.fields class as our (real) list of base classes.
                 assert our_meta.fields.__bases__ == (SymbolDef,)
                 merged_fields_bases = [
                     base_meta.fields
                     for base_meta in base_meta_list
-                    if hasattr(base_meta, 'fields')]
+                    if hasattr(base_meta, "fields")
+                ]
                 # If there are no base classes then let's just inherit from the
                 # base SymbolDef class (not that we're actually ignoring any
                 # base classes on the our_meta.fields class as it can only be
@@ -344,25 +383,30 @@ class UnitType(abc.ABCMeta):
                     sym = getattr(our_meta.fields, sym_name)
                     if isinstance(sym, Symbol):
                         merged_fields_ns[sym_name] = sym
-                merged_fields_ns['__doc__'] = """
+                merged_fields_ns[
+                    "__doc__"
+                ] = """
                 A symbol definition containing all fields used by :class:`{}`
 
                 This class is partially automatically generated. It always
                 inherits from the Meta.fields class of the base unit class.
-                """.format(name)
+                """.format(
+                    name
+                )
                 # Create a new class in place of the 'fields' defined in
                 # our_meta.fields.
                 fields = SymbolDefMeta(
-                    'fields', merged_fields_bases, merged_fields_ns)
-                fields.__qualname__ = '{}.Meta.fields'.format(name)
-                new_meta_ns['fields'] = fields
+                    "fields", merged_fields_bases, merged_fields_ns
+                )
+                fields.__qualname__ = "{}.Meta.fields".format(name)
+                new_meta_ns["fields"] = fields
             # Ensure that Meta.name is explicitly defined
-            if 'name' not in our_meta.__dict__:
-                raise TypeError(_(
-                    "Please define 'name' in {}.Meta"
-                ).format(name))
-            ns['Meta'] = type('Meta', new_meta_bases, new_meta_ns)
-        ns['fields'] = ns['Meta'].fields
+            if "name" not in our_meta.__dict__:
+                raise TypeError(
+                    _("Please define 'name' in {}.Meta").format(name)
+                )
+            ns["Meta"] = type("Meta", new_meta_bases, new_meta_ns)
+        ns["fields"] = ns["Meta"].fields
         return super().__new__(mcls, name, bases, ns)
 
 
@@ -383,8 +427,16 @@ class Unit(metaclass=UnitType):
 
     config = None
 
-    def __init__(self, data, raw_data=None, origin=None, provider=None,
-                 parameters=None, field_offset_map=None, virtual=False):
+    def __init__(
+        self,
+        data,
+        raw_data=None,
+        origin=None,
+        provider=None,
+        parameters=None,
+        field_offset_map=None,
+        virtual=False,
+    ):
         """
         Initialize a new unit
 
@@ -432,8 +484,9 @@ class Unit(metaclass=UnitType):
         self._hash_cache = None
 
     @classmethod
-    def instantiate_template(cls, data, raw_data, origin, provider, parameters,
-                             field_offset_map):
+    def instantiate_template(
+        cls, data, raw_data, origin, provider, parameters, field_offset_map
+    ):
         """
         Instantiate this unit from a template.
 
@@ -446,10 +499,12 @@ class Unit(metaclass=UnitType):
         # This assertion is a low-cost trick to ensure that we override this
         # method in all of the subclasses to ensure that the initializer is
         # called with correctly-ordered arguments.
-        assert cls is Unit, \
-            "{}.instantiate_template() not customized".format(cls.__name__)
-        return cls(data, raw_data, origin, provider, parameters,
-                   field_offset_map)
+        assert cls is Unit, "{}.instantiate_template() not customized".format(
+            cls.__name__
+        )
+        return cls(
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
 
     def __eq__(self, other):
         return self.checksum == other.checksum
@@ -472,7 +527,7 @@ class Unit(metaclass=UnitType):
         This property _may_ be overridden by certain subclasses but this
         behavior is not generally recommended.
         """
-        return self.get_record_value('unit')
+        return self.get_record_value("unit")
 
     @instance_method_lru_cache(maxsize=None)
     def tr_unit(self):
@@ -529,7 +584,7 @@ class Unit(metaclass=UnitType):
         This attribute stores the template engine to use, default is python
         string formatting (See PEP 3101).
         """
-        return self._data.get('template-engine', 'default')
+        return self._data.get("template-engine", "default")
 
     @cached_property
     def virtual(self):
@@ -552,8 +607,9 @@ class Unit(metaclass=UnitType):
         """
         return self._parameters is not None
 
-    def get_accessed_parameters(self, *, force=False,
-                                template_engine='default'):
+    def get_accessed_parameters(
+        self, *, force=False, template_engine="default"
+    ):
         """
         Get a set of attributes accessed from each template attribute
 
@@ -578,8 +634,9 @@ class Unit(metaclass=UnitType):
         """
         if force or self.is_parametric:
             return {
-                key: get_accessed_parameters(value,
-                                             template_engine=template_engine)
+                key: get_accessed_parameters(
+                    value, template_engine=template_engine
+                )
                 for key, value in self._data.items()
             }
         else:
@@ -600,16 +657,19 @@ class Unit(metaclass=UnitType):
         # RFC822 parser. We don't need them and they don't match gettext keys
         # (xgettext strips out those newlines)
         changed_raw_data = {
-            key: value.rstrip('\n')
-            for key, value in record.raw_data.items()
+            key: value.rstrip("\n") for key, value in record.raw_data.items()
         }
-        return cls(record.data, origin=record.origin,
-                   raw_data=changed_raw_data, provider=provider,
-                   field_offset_map=record.field_offset_map)
+        return cls(
+            record.data,
+            origin=record.origin,
+            raw_data=changed_raw_data,
+            provider=provider,
+            field_offset_map=record.field_offset_map,
+        )
 
     @instance_method_lru_cache(maxsize=None)
     def _checkbox_env(self):
-        if self.config is not None and self.config.environment is not Unset:
+        if self.config is not None and self.config.environment:
             return self.config.environment
         else:
             return {}
@@ -627,34 +687,38 @@ class Unit(metaclass=UnitType):
             The value of the field, possibly with parameters inserted, or the
             default value
         """
-        value = self._data.get('_{}'.format(name))
+        value = self._data.get("_{}".format(name))
         if value is None:
             value = self._data.get(name, default)
         if value is not None and self.is_parametric:
-            if self.template_engine == 'jinja2':
+            if self.template_engine == "jinja2":
                 # Add the current system environment variables to the
                 # parameters so that they can be used in all fields (i.e. not
                 # just in the command shell). By adding here rather than in the
                 # template instantiation we avoid problems with creation of
                 # checkpoints
                 tmp_params = self.parameters.copy()
-                tmp_params.update({'__checkbox_env__': self._checkbox_env()})
-                tmp_params.update({'__system_env__': os.environ})
-                tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
+                tmp_params.update({"__checkbox_env__": self._checkbox_env()})
+                tmp_params.update({"__system_env__": os.environ})
+                tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
                 value = Template(value).render(tmp_params)
             else:
                 try:
-                    value = string.Formatter().vformat(value, (),
-                                                       self.parameters)
+                    value = string.Formatter().vformat(
+                        value, (), self.parameters
+                    )
                 except KeyError as e:
                     raise MissingParam(e.args[0])
-        elif (value is not None and self.template_engine == 'jinja2'
-                                and not self.is_parametric):
+        elif (
+            value is not None
+            and self.template_engine == "jinja2"
+            and not self.is_parametric
+        ):
             tmp_params = {
-                '__checkbox_env__': self._checkbox_env(),
-                '__system_env__': os.environ,
-                '__on_ubuntucore__': on_ubuntucore()
-                }
+                "__checkbox_env__": self._checkbox_env(),
+                "__system_env__": os.environ,
+                "__on_ubuntucore__": on_ubuntucore(),
+            }
             value = Template(value).render(tmp_params)
         return value
 
@@ -675,25 +739,28 @@ class Unit(metaclass=UnitType):
         text. It will also not have the magic RFC822 dots removed. In general
         the text will be just as it was parsed from the unit file.
         """
-        value = self._raw_data.get('_{}'.format(name))
+        value = self._raw_data.get("_{}".format(name))
         if value is None:
-            value = self._raw_data.get('{}'.format(name), default)
+            value = self._raw_data.get("{}".format(name), default)
         if value is not None and self.is_parametric:
-            if self.template_engine == 'jinja2':
+            if self.template_engine == "jinja2":
                 tmp_params = self.parameters.copy()
-                tmp_params.update({'__checkbox_env__': self._checkbox_env()})
-                tmp_params.update({'__system_env__': os.environ})
-                tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
+                tmp_params.update({"__checkbox_env__": self._checkbox_env()})
+                tmp_params.update({"__system_env__": os.environ})
+                tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
                 value = Template(value).render(tmp_params)
             else:
                 value = string.Formatter().vformat(value, (), self.parameters)
-        elif (value is not None and self.template_engine == 'jinja2'
-                                and not self.is_parametric):
+        elif (
+            value is not None
+            and self.template_engine == "jinja2"
+            and not self.is_parametric
+        ):
             tmp_params = {
-                '__checkbox_env__': self._checkbox_env(),
-                '__system_env__': os.environ,
-                '__on_ubuntucore__': on_ubuntucore()
-                }
+                "__checkbox_env__": self._checkbox_env(),
+                "__system_env__": os.environ,
+                "__on_ubuntucore__": on_ubuntucore(),
+            }
             value = Template(value).render(tmp_params)
         return value
 
@@ -718,7 +785,7 @@ class Unit(metaclass=UnitType):
             formatting and prevent an otherwise valid unit from working.
         """
         # Try to access the marked-for-translation record
-        msgid = self._raw_data.get('_{}'.format(name))
+        msgid = self._raw_data.get("_{}".format(name))
         if msgid is not None:
             # We now have a translatable message that we can look up in the
             # provider translation database.
@@ -734,21 +801,24 @@ class Unit(metaclass=UnitType):
                 # might fail due to broken translations. Perhaps we should
                 # handle exceptions here and hint that this might be the cause
                 # of the problem?
-                if self.template_engine == 'jinja2':
+                if self.template_engine == "jinja2":
                     tmp_params = self.parameters.copy()
-                    tmp_params.update({'__checkbox_env__': self._checkbox_env()})
-                    tmp_params.update({'__system_env__': os.environ})
-                    tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
+                    tmp_params.update(
+                        {"__checkbox_env__": self._checkbox_env()}
+                    )
+                    tmp_params.update({"__system_env__": os.environ})
+                    tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(
-                        msgstr, (), self.parameters)
-            elif self.template_engine == 'jinja2':
+                        msgstr, (), self.parameters
+                    )
+            elif self.template_engine == "jinja2":
                 tmp_params = {
-                    '__checkbox_env__': self._checkbox_env(),
-                    '__system_env__': os.environ,
-                    '__on_ubuntucore__': on_ubuntucore()
-                    }
+                    "__checkbox_env__": self._checkbox_env(),
+                    "__system_env__": os.environ,
+                    "__on_ubuntucore__": on_ubuntucore(),
+                }
                 msgstr = Template(msgstr).render(tmp_params)
             return msgstr
         # If there was no marked-for-translation value then let's just return
@@ -758,21 +828,24 @@ class Unit(metaclass=UnitType):
             # NOTE: there is no need to normalize anything as we already got
             # the non-raw value here.
             if self.is_parametric:
-                if self.template_engine == 'jinja2':
+                if self.template_engine == "jinja2":
                     tmp_params = self.parameters.copy()
-                    tmp_params.update({'__checkbox_env__': self._checkbox_env()})
-                    tmp_params.update({'__system_env__': os.environ})
-                    tmp_params.update({'__on_ubuntucore__': on_ubuntucore()})
+                    tmp_params.update(
+                        {"__checkbox_env__": self._checkbox_env()}
+                    )
+                    tmp_params.update({"__system_env__": os.environ})
+                    tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(
-                        msgstr, (), self.parameters)
-            elif self.template_engine == 'jinja2':
+                        msgstr, (), self.parameters
+                    )
+            elif self.template_engine == "jinja2":
                 tmp_params = {
-                    '__checkbox_env__': self._checkbox_env(),
-                    '__system_env__': os.environ,
-                    '__on_ubuntucore__': on_ubuntucore()
-                    }
+                    "__checkbox_env__": self._checkbox_env(),
+                    "__system_env__": os.environ,
+                    "__on_ubuntucore__": on_ubuntucore(),
+                }
                 msgstr = Template(msgstr).render(tmp_params)
             return msgstr
         # If we have nothing better let's just return the default value
@@ -788,7 +861,7 @@ class Unit(metaclass=UnitType):
         :returns:
             True if the field is marked as translatable, False otherwise
         """
-        return '_{}'.format(name) in self._data
+        return "_{}".format(name) in self._data
 
     def qualify_id(self, some_id):
         """
@@ -841,25 +914,30 @@ class Unit(metaclass=UnitType):
             if isinstance(obj, Symbol):
                 return str(obj)
             raise TypeError
+
         # add a namespace iformation to the data, so same units located
         # in different providers won't clash
         if self._provider and self._provider.namespace:
-            sorted_data['namespace'] = self._provider.namespace
+            sorted_data["namespace"] = self._provider.namespace
         # Compute the canonical form which is arbitrarily defined as sorted
         # json text with default indent and separator settings.
         canonical_form = json.dumps(
-            sorted_data, indent=None, separators=(',', ':'),
-            default=default_fn)
-        text = canonical_form.encode('UTF-8')
+            sorted_data, indent=None, separators=(",", ":"), default=default_fn
+        )
+        text = canonical_form.encode("UTF-8")
         # Parametric units also get a copy of their parameters stored as an
         # additional piece of data
         if self.is_parametric:
             sorted_parameters = collections.OrderedDict(
-                sorted(self.parameters.items()))
+                sorted(self.parameters.items())
+            )
             canonical_parameters = json.dumps(
-                sorted_parameters, indent=None, separators=(',', ':'),
-                default=default_fn)
-            text += canonical_parameters.encode('UTF-8')
+                sorted_parameters,
+                indent=None,
+                separators=(",", ":"),
+                default=default_fn,
+            )
+            text += canonical_parameters.encode("UTF-8")
         # Compute the sha256 hash of the UTF-8 encoding of the canonical form
         # and return the hex digest as the checksum that can be displayed.
         return hashlib.sha256(text).hexdigest()
@@ -941,13 +1019,14 @@ class Unit(metaclass=UnitType):
             A dictionary mapping each field to a list of field validators
         """
 
-        name = 'unit'
+        name = "unit"
 
         class fields(SymbolDef):
             """
             Unit defines only one field, the 'unit'
             """
-            unit = 'unit'
+
+            unit = "unit"
 
         validator_cls = UnitValidator
 
@@ -957,6 +1036,7 @@ class Unit(metaclass=UnitType):
                 concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     severity=Severity.advice,
-                    message=_("unit should explicitly define its type")),
+                    message=_("unit should explicitly define its type"),
+                ),
             ]
         }

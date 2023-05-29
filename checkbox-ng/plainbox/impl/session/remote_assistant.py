@@ -27,7 +27,7 @@ from collections import namedtuple
 from contextlib import suppress
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
-
+from plainbox.impl.config import Configuration
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
@@ -50,24 +50,24 @@ _ = gettext.gettext
 
 _logger = logging.getLogger("plainbox.session.remote_assistant")
 
-Interaction = namedtuple('Interaction', ['kind', 'message', 'extra'])
+Interaction = namedtuple("Interaction", ["kind", "message", "extra"])
 
 
-class Interaction(namedtuple('Interaction', ['kind', 'message', 'extra'])):
+class Interaction(namedtuple("Interaction", ["kind", "message", "extra"])):
     __slots__ = ()
 
     def __new__(cls, kind, message="", extra=None):
         return super(Interaction, cls).__new__(cls, kind, message, extra)
 
 
-Idle = 'idle'
-Started = 'started'
-Bootstrapping = 'bootstrapping'
-Bootstrapped = 'bootstrapped'
-TestsSelected = 'testsselected'
-Running = 'running'
-Interacting = 'interacting'
-Finalizing = 'finalizing'
+Idle = "idle"
+Started = "started"
+Bootstrapping = "bootstrapping"
+Bootstrapped = "bootstrapped"
+TestsSelected = "testsselected"
+Running = "running"
+Interacting = "interacting"
+Finalizing = "finalizing"
 
 
 class BufferedUI(SilentUI):
@@ -107,7 +107,7 @@ class RemoteSilentUI(SilentUI):
 
     def get_output(self):
         msg = self._msg
-        self._msg = ''
+        self._msg = ""
         return msg
 
 
@@ -140,7 +140,7 @@ class BackgroundExecutor(Thread):
         return self._builder.outcome
 
 
-class RemoteSessionAssistant():
+class RemoteSessionAssistant:
     """Remote execution enabling wrapper for the SessionAssistant"""
 
     REMOTE_API_VERSION = 11
@@ -154,7 +154,7 @@ class RemoteSessionAssistant():
         self._input_piping = os.pipe()
         self._passwordless_sudo = is_passwordless_sudo()
         self.terminate_cb = None
-        self._pipe_from_master = open(self._input_piping[1], 'w')
+        self._pipe_from_master = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
         self._reset_sa()
         self._currently_running_job = None
@@ -162,7 +162,7 @@ class RemoteSessionAssistant():
     def _reset_sa(self):
         _logger.info("Resetting RSA")
         self._state = Idle
-        self._sa = SessionAssistant('service', api_flags={SA_RESTARTABLE})
+        self._sa = SessionAssistant("service", api_flags={SA_RESTARTABLE})
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
@@ -171,7 +171,7 @@ class RemoteSessionAssistant():
         self._last_job = None
         self._current_comments = ""
         self._last_response = None
-        self._normal_user = ''
+        self._normal_user = ""
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
 
@@ -191,9 +191,12 @@ class RemoteSessionAssistant():
             def fun(self, *args):
                 if self._state not in states:
                     raise AssertionError(
-                        "expected %s, is %s" % (states, self._state))
+                        "expected %s, is %s" % (states, self._state)
+                    )
                 return f(self, *args)
+
             return fun
+
         return wrap
 
     def interact(self, interaction):
@@ -203,7 +206,7 @@ class RemoteSessionAssistant():
 
     @allowed_when(Interacting)
     def remember_users_response(self, response):
-        if response == 'rollback':
+        if response == "rollback":
             self._currently_running_job = None
             self.session_change_lock.acquire(blocking=False)
             self.session_change_lock.release()
@@ -214,25 +217,29 @@ class RemoteSessionAssistant():
         self._state = Running
 
     def _set_envvar_from_proc(self, name):
-        for path in os.listdir('/proc/'):
+        for path in os.listdir("/proc/"):
             with suppress(Exception):
-                env = open(
-                    os.path.join('/proc/', path, 'environ')).read().split('\0')
-                for key, val in [item.split('=') for item in env]:
+                env = (
+                    open(os.path.join("/proc/", path, "environ"))
+                    .read()
+                    .split("\0")
+                )
+                for key, val in [item.split("=") for item in env]:
                     if key == name:
                         return val
-        return ''
+        return ""
 
     def _prepare_display_without_psutil(self):
         uid = pwd.getpwnam(self._normal_user).pw_uid
         return {
-            'DISPLAY': self._set_envvar_from_proc('DISPLAY'),
-            'WAYLAND_DISPLAY': self._set_envvar_from_proc('WAYLAND_DISPLAY'),
-            'XAUTHORITY': self._set_envvar_from_proc('XAUTHORITY'),
-            'XDG_SESSION_TYPE': self._set_envvar_from_proc('XDG_SESSION_TYPE'),
-            'XDG_RUNTIME_DIR': '/run/user/{}'.format(uid),
-            'DBUS_SESSION_BUS_ADDRESS':
-                'unix:path=/run/user/{}/bus'.format(uid)
+            "DISPLAY": self._set_envvar_from_proc("DISPLAY"),
+            "WAYLAND_DISPLAY": self._set_envvar_from_proc("WAYLAND_DISPLAY"),
+            "XAUTHORITY": self._set_envvar_from_proc("XAUTHORITY"),
+            "XDG_SESSION_TYPE": self._set_envvar_from_proc("XDG_SESSION_TYPE"),
+            "XDG_RUNTIME_DIR": "/run/user/{}".format(uid),
+            "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/{}/bus".format(
+                uid
+            ),
         }
 
     def prepare_extra_env(self):
@@ -253,19 +260,21 @@ class RemoteSessionAssistant():
                 # to read the environment from them
                 continue
             if (
-                "DISPLAY" in p_environ and
-                "XAUTHORITY" in p_environ and
-                "XDG_SESSION_TYPE" in p_environ and
-                p_user != 'gdm'
+                "DISPLAY" in p_environ
+                and "XAUTHORITY" in p_environ
+                and "XDG_SESSION_TYPE" in p_environ
+                and p_user != "gdm"
             ):  # gdm uses :1024
                 uid = pwd.getpwnam(self._normal_user).pw_uid
-                extra_env['DISPLAY'] = p_environ['DISPLAY']
-                extra_env['XAUTHORITY'] = p_environ['XAUTHORITY']
-                extra_env['XDG_SESSION_TYPE'] = p_environ['XDG_SESSION_TYPE']
-                extra_env['XDG_RUNTIME_DIR'] = '/run/user/{}'.format(uid)
-                extra_env['DBUS_SESSION_BUS_ADDRESS'] = 'unix:path=/run/user/{}/bus'.format(uid)
+                extra_env["DISPLAY"] = p_environ["DISPLAY"]
+                extra_env["XAUTHORITY"] = p_environ["XAUTHORITY"]
+                extra_env["XDG_SESSION_TYPE"] = p_environ["XDG_SESSION_TYPE"]
+                extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
+                extra_env[
+                    "DBUS_SESSION_BUS_ADDRESS"
+                ] = "unix:path=/run/user/{}/bus".format(uid)
             if "WAYLAND_DISPLAY" in p_environ:
-                extra_env['WAYLAND_DISPLAY'] = p_environ['WAYLAND_DISPLAY']
+                extra_env["WAYLAND_DISPLAY"] = p_environ["WAYLAND_DISPLAY"]
 
         return extra_env
 
@@ -273,23 +282,28 @@ class RemoteSessionAssistant():
     def start_session(self, configuration):
         self._reset_sa()
         _logger.info("start_session: %r", configuration)
-        session_title = 'remote'
-        session_desc = 'remote session'
-        session_type = 'remote'
+        session_title = "remote"
+        session_desc = "remote session"
+        session_type = "remote"
 
         self._launcher = load_configs()
-        if configuration['launcher']:
-            self._launcher.read_string(configuration['launcher'], False)
-            if self._launcher.session_title:
-                session_title = self._launcher.session_title
-            if self._launcher.session_desc:
-                session_desc = self._launcher.session_desc
+        if configuration["launcher"]:
+            launcher_from_controller = Configuration.from_text(
+                configuration["launcher"], "Remote launcher"
+            )
+            self._launcher.update_from_another(
+                launcher_from_controller, "Remote launcher")
+            session_title = (
+                self._launcher.get_value("launcher", "session_title")
+                or session_title
+            )
+            session_desc = (
+                self._launcher.get_value("launcher", "session_desc")
+                or session_desc
+            )
 
         self._sa.use_alternate_configuration(self._launcher)
-        if configuration['normal_user']:
-            self._normal_user = configuration['normal_user']
-        else:
-            self._normal_user = self._launcher.normal_user
+        self._normal_user = self._launcher.get_value("daemon", "normal_user")
         if self._normal_user:
             if not check_user_exists(self._normal_user):
                 raise RuntimeError(
@@ -298,39 +312,49 @@ class RemoteSessionAssistant():
         else:
             self._normal_user = guess_normal_user()
         runner_kwargs = {
-            'normal_user_provider': lambda: self._normal_user,
-            'stdin': self._pipe_to_subproc,
-            'extra_env': self.prepare_extra_env,
+            "normal_user_provider": lambda: self._normal_user,
+            "stdin": self._pipe_to_subproc,
+            "extra_env": self.prepare_extra_env,
         }
         self._sa.start_new_session(session_title, UnifiedRunner, runner_kwargs)
-        new_blob = json.dumps({
-            'description': session_desc,
-            'type': session_type,
-            'launcher': configuration['launcher'],
-            'effective_normal_user': self._normal_user,
-        }).encode("UTF-8")
+        new_blob = json.dumps(
+            {
+                "description": session_desc,
+                "type": session_type,
+                "launcher": configuration["launcher"],
+                "effective_normal_user": self._normal_user,
+            }
+        ).encode("UTF-8")
         self._sa.update_app_blob(new_blob)
         self._sa.configure_application_restart(self._cmd_callback)
 
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
         filtered_tps = set()
-        for filter in self._launcher.test_plan_filters:
+        for filter in self._launcher.get_value("test plan", "filter"):
             filtered_tps.update(fnmatch.filter(tps, filter))
         filtered_tps = list(filtered_tps)
-        response = zip(filtered_tps, [self._sa.get_test_plan(
-            tp).name for tp in filtered_tps])
+        response = zip(
+            filtered_tps,
+            [self._sa.get_test_plan(tp).name for tp in filtered_tps],
+        )
         self._state = Started
         self._available_testplans = sorted(
-            response, key=lambda x: x[1])  # sorted by name
+            response, key=lambda x: x[1]
+        )  # sorted by name
         return self._available_testplans
 
     @allowed_when(Started)
     def prepare_bootstrapping(self, test_plan_id):
         """Save picked test plan to the app blob."""
         _logger.debug("prepare_bootstrapping: %r", test_plan_id)
-        self._sa.update_app_blob(json.dumps(
-            {'testplan_id': test_plan_id, }).encode("UTF-8"))
+        self._sa.update_app_blob(
+            json.dumps(
+                {
+                    "testplan_id": test_plan_id,
+                }
+            ).encode("UTF-8")
+        )
         self._sa.select_test_plan(test_plan_id)
         # TODO: REMOTE API RAPI: Change this API on the next RAPI bump
         # previously the function returned bool signifying the need for sudo
@@ -345,10 +369,12 @@ class RemoteSessionAssistant():
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
         self._state = Bootstrapped
-        if self._launcher.auto_retry:
+        if self._launcher.get_value("ui", "auto_retry"):
             for job_id in self._sa.get_static_todo_list():
                 job_state = self._sa.get_job_state(job_id)
-                job_state.attempts = self._launcher.max_attempts
+                job_state.attempts = self._launcher.get_value(
+                    "ui", "max_attempts"
+                )
         return self._sa.get_static_todo_list()
 
     def get_manifest_repr(self):
@@ -373,13 +399,19 @@ class RemoteSessionAssistant():
 
     def _get_ui_for_job(self, job):
         show_out = True
-        if self._launcher.output == 'hide-resource-and-attachment':
-            if job.plugin in ('local', 'resource', 'attachment'):
+        if (
+            self._launcher.get_value("ui", "output")
+            == "hide-resource-and-attachment"
+        ):
+            if job.plugin in ("local", "resource", "attachment"):
                 show_out = False
-        elif self._launcher.output in ['hide', 'hide-automated']:
-            if job.plugin in ('shell', 'local', 'resource', 'attachment'):
+        elif self._launcher.get_value("ui", "output") in [
+            "hide",
+            "hide-automated",
+        ]:
+            if job.plugin in ("shell", "local", "resource", "attachment"):
                 show_out = False
-        if 'suppress-output' in job.get_flag_set():
+        if "suppress-output" in job.get_flag_set():
             show_out = False
         if show_out:
             self._ui = BufferedUI()
@@ -394,8 +426,9 @@ class RemoteSessionAssistant():
         of Interaction instances.
         """
         _logger.debug("run_job: %r", job_id)
-        self._job_index = self._jobs_count - len(
-            self._sa.get_dynamic_todo_list()) + 1
+        self._job_index = (
+            self._jobs_count - len(self._sa.get_dynamic_todo_list()) + 1
+        )
         self._currently_running_job = job_id
         self._current_comments = ""
         job = self._sa.get_job(job_id)
@@ -405,71 +438,86 @@ class RemoteSessionAssistant():
             outcome = IJobResult.OUTCOME_NOT_SUPPORTED
             for inhibitor in job_state.readiness_inhibitor_list:
                 if (
-                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE and
-                    'fail-on-resource' in job.get_flag_set()
+                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE
+                    and "fail-on-resource" in job.get_flag_set()
                 ):
                     outcome = IJobResult.OUTCOME_FAIL
                     break
                 elif inhibitor.cause != InhibitionCause.FAILED_DEP:
                     continue
                 related_job_state = self._sa._context.state.job_state_map[
-                    inhibitor.related_job.id]
+                    inhibitor.related_job.id
+                ]
                 if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
                     outcome = IJobResult.OUTCOME_SKIP
 
             def cant_start_builder(*args, **kwargs):
                 result_builder = JobResultBuilder(
                     outcome=outcome,
-                    comments=job_state.get_readiness_description())
+                    comments=job_state.get_readiness_description(),
+                )
                 return result_builder
-            self._be = BackgroundExecutor(self, job_id, cant_start_builder)
-            yield from self.interact(Interaction('skip', None, self._be))
 
-        if job.plugin in [
-                'manual', 'user-interact-verify', 'user-interact']:
+            self._be = BackgroundExecutor(self, job_id, cant_start_builder)
+            yield from self.interact(Interaction("skip", None, self._be))
+
+        if job.plugin in ["manual", "user-interact-verify", "user-interact"]:
             may_comment = True
             while may_comment:
                 may_comment = False
                 if job.tr_description() and not job.tr_purpose():
                     yield from self.interact(
-                        Interaction('description', job.tr_description()))
+                        Interaction("description", job.tr_description())
+                    )
                 if job.tr_purpose():
                     yield from self.interact(
-                        Interaction('purpose', job.tr_purpose()))
+                        Interaction("purpose", job.tr_purpose())
+                    )
                 if job.tr_steps():
                     yield from self.interact(
-                        Interaction('steps', job.tr_steps()))
-                if self._last_response == 'comment':
-                    yield from self.interact(Interaction('comment'))
+                        Interaction("steps", job.tr_steps())
+                    )
+                if self._last_response == "comment":
+                    yield from self.interact(Interaction("comment"))
                     if self._last_response:
                         self._current_comments += self._last_response
                     may_comment = True
                     continue
-            if self._last_response == 'skip':
+            if self._last_response == "skip":
+
                 def skipped_builder(*args, **kwargs):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP)
+                        outcome=IJobResult.OUTCOME_SKIP
+                    )
                     if self._current_comments != "":
                         result_builder.comments = self._current_comments
                     elif job_state.effective_certification_status != "blocker":
-                        result_builder.comments = "Explicitly skipped before execution"
+                        result_builder.comments = (
+                            "Explicitly skipped before execution"
+                        )
                     return result_builder
-                self._be = BackgroundExecutor(
-                    self, job_id, skipped_builder)
+
+                self._be = BackgroundExecutor(self, job_id, skipped_builder)
                 yield from self.interact(
-                    Interaction('skip', job.verification, self._be))
+                    Interaction("skip", job.verification, self._be)
+                )
         if job.command:
             self._state = Running
             ui = self._get_ui_for_job(job)
             self._be = BackgroundExecutor(self, job_id, self._sa.run_job, ui)
         else:
+
             def undecided_builder(*args, **kwargs):
                 return JobResultBuilder(outcome=IJobResult.OUTCOME_UNDECIDED)
+
             self._be = BackgroundExecutor(self, job_id, undecided_builder)
         if self._sa.get_job(self._currently_running_job).plugin in [
-                'manual', 'user-interact-verify']:
+            "manual",
+            "user-interact-verify",
+        ]:
             yield from self.interact(
-                Interaction('verification', job.verification, self._be))
+                Interaction("verification", job.verification, self._be)
+            )
 
     @allowed_when(Started, Bootstrapping)
     def run_bootstrapping_job(self, job_id):
@@ -491,9 +539,9 @@ class RemoteSessionAssistant():
         # either return [done, running, awaiting response]
         # TODO: handle awaiting_response (reading from stdin by the job)
         if self._be and self._be.is_alive():
-            return ('running', self._ui.get_output())
+            return ("running", self._ui.get_output())
         else:
-            return ('done', self._ui.get_output())
+            return ("done", self._ui.get_output())
 
     def get_remote_api_version(self):
         return self.REMOTE_API_VERSION
@@ -508,10 +556,12 @@ class RemoteSessionAssistant():
         payload = None
         if self._state == Running:
             payload = (
-                self._job_index, self._jobs_count, self._currently_running_job
+                self._job_index,
+                self._jobs_count,
+                self._currently_running_job,
             )
         if self._state == TestsSelected and not self._currently_running_job:
-            payload = {'last_job': self._last_job}
+            payload = {"last_job": self._last_job}
         elif self._state == Started:
             payload = self._available_testplans
         elif self._state == Interacting:
@@ -538,14 +588,15 @@ class RemoteSessionAssistant():
         # this key is only for RAPI compliance. It will never be used as
         # this master requires slave to be completely sudoless
         return (
-            b'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMII'
-            b'BCgKCAQEA5r0bjOA+IH5lDKkW3OYb\nDuEjf5VKgUlDSJJuyBlfLTBIXZ8j3s98'
-            b'6AbV0zB62rAcgiFrBOzx51IzBDBmHI8V\nYYpEa+q4OP4yprYpSg6xzX6LRQapC'
-            b'Iv9BAqN4MWrKBukGMzJyemIVEPv4BSHL5L/\nLY98Mwh4dAXxj5ZdsoVPqgeMo8'
-            b'dxfYEOwVRJvSkseIhxRL6tvgP37c48ApUyjdUO\n3C2YgqJRx7mKKDyLOvhDVEl'
-            b'MqkAfp6qS/8xcGBTEqn08dDQIgPl8KofpC9GXMGbK\nV9FGP+c1bpA3vMOfnpsE'
-            b'WCju2qDoTSKJTm3VMZj88mqH7nOpbk7JI/Yz0EmtNXOM\n6QIDAQAB\n-----EN'
-            b'D PUBLIC KEY-----')
+            b"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMII"
+            b"BCgKCAQEA5r0bjOA+IH5lDKkW3OYb\nDuEjf5VKgUlDSJJuyBlfLTBIXZ8j3s98"
+            b"6AbV0zB62rAcgiFrBOzx51IzBDBmHI8V\nYYpEa+q4OP4yprYpSg6xzX6LRQapC"
+            b"Iv9BAqN4MWrKBukGMzJyemIVEPv4BSHL5L/\nLY98Mwh4dAXxj5ZdsoVPqgeMo8"
+            b"dxfYEOwVRJvSkseIhxRL6tvgP37c48ApUyjdUO\n3C2YgqJRx7mKKDyLOvhDVEl"
+            b"MqkAfp6qS/8xcGBTEqn08dDQIgPl8KofpC9GXMGbK\nV9FGP+c1bpA3vMOfnpsE"
+            b"WCju2qDoTSKJTm3VMZj88mqH7nOpbk7JI/Yz0EmtNXOM\n6QIDAQAB\n-----EN"
+            b"D PUBLIC KEY-----"
+        )
 
     def save_password(self, password):
         """Store sudo password"""
@@ -558,8 +609,11 @@ class RemoteSessionAssistant():
         # assert the thread completed
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
-        if self._sa.get_job(self._currently_running_job).plugin in [
-                'manual', 'user-interact-verify'] and not result:
+        if (
+            self._sa.get_job(self._currently_running_job).plugin
+            in ["manual", "user-interact-verify"]
+            and not result
+        ):
             # for manually verified jobs we don't set the outcome here
             # it is already determined
             return
@@ -568,10 +622,9 @@ class RemoteSessionAssistant():
         self._sa.use_job_result(self._currently_running_job, result)
         if self._state != Bootstrapping:
             if not self._sa.get_dynamic_todo_list():
-                if (
-                    self._launcher.auto_retry and
-                    self.get_rerun_candidates('auto')
-                ):
+                if self._launcher.get_value(
+                    "ui", "auto_retry"
+                ) and self.get_rerun_candidates("auto"):
                     self._state = TestsSelected
                 else:
                     self._state = Idle
@@ -579,7 +632,7 @@ class RemoteSessionAssistant():
                 self._state = TestsSelected
         return result
 
-    def get_rerun_candidates(self, session_type='manual'):
+    def get_rerun_candidates(self, session_type="manual"):
         return self._sa.get_rerun_candidates(session_type)
 
     def prepare_rerun_candidates(self, rerun_candidates):
@@ -606,14 +659,15 @@ class RemoteSessionAssistant():
         for job_no, job_id in enumerate(job_ids, start=offset + 1):
             job = self._sa.get_job(job_id)
             cat_id = self._sa.get_job_state(job.id).effective_category_id
-            duration_txt = _('No estimated duration provided for this job')
+            duration_txt = _("No estimated duration provided for this job")
             if job.estimated_duration is not None:
-                duration_txt = '{} {}'.format(job.estimated_duration, _(
-                    'seconds'))
+                duration_txt = "{} {}".format(
+                    job.estimated_duration, _("seconds")
+                )
             # the next dict is only to get test_info generating code tidier
             automated_desc = {
-                True: _('this job is fully automated'),
-                False: _('this job requires some manual interaction')
+                True: _("this job is fully automated"),
+                False: _("this job requires some manual interaction"),
             }
             test_info = {
                 "id": job.id,
@@ -623,15 +677,17 @@ class RemoteSessionAssistant():
                 "category_name": self._sa.get_category(cat_id).tr_name(),
                 "automated": automated_desc[job.automated],
                 "duration": duration_txt,
-                "description": (job.tr_description() or
-                                _('No description provided for this job')),
+                "description": (
+                    job.tr_description()
+                    or _("No description provided for this job")
+                ),
                 "outcome": self._sa.get_job_state(job.id).result.outcome,
                 "user": job.user,
                 "command": job.command,
                 "num": job_no,
                 "plugin": job.plugin,
             }
-            test_info_list = test_info_list + ((test_info, ))
+            test_info_list = test_info_list + ((test_info,))
         return json.dumps(test_info_list)
 
     def resume_by_id(self, session_id=None):
@@ -640,7 +696,7 @@ class RemoteSessionAssistant():
         resume_candidates = list(self._sa.get_resumable_sessions())
         if not session_id:
             if not resume_candidates:
-                print('No session to resume')
+                print("No session to resume")
                 return
             session_id = resume_candidates[0].id
         if session_id not in [s.id for s in resume_candidates]:
@@ -648,42 +704,53 @@ class RemoteSessionAssistant():
             return
         _logger.warning("Resuming session: %r", session_id)
         runner_kwargs = {
-            'normal_user_provider': lambda: self._normal_user,
-            'stdin': self._pipe_to_subproc,
-            'extra_env': self.prepare_extra_env,
+            "normal_user_provider": lambda: self._normal_user,
+            "stdin": self._pipe_to_subproc,
+            "extra_env": self.prepare_extra_env,
         }
         meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
-        launcher = app_blob['launcher']
-        self._launcher.read_string(launcher, False)
+        launcher = app_blob["launcher"]
+        launcher_from_controller = Configuration.from_text(
+            app_blob["launcher"], "Remote launcher"
+        )
+        self._launcher.update_from_another(
+            launcher_from_controller, "Remote launcher")
         self._sa.use_alternate_configuration(self._launcher)
 
         self._normal_user = app_blob.get(
-            'effective_normal_user', self._launcher.normal_user)
+            "effective_normal_user",
+            self._launcher.get_value("daemon", "normal_user"),
+        )
         _logger.info(
-            "normal_user after loading metadata: %r", self._normal_user)
-        test_plan_id = app_blob['testplan_id']
+            "normal_user after loading metadata: %r", self._normal_user
+        )
+        test_plan_id = app_blob["testplan_id"]
         self._sa.select_test_plan(test_plan_id)
         self._sa.bootstrap()
         self._last_job = meta.running_job_name
 
         result_dict = {
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': _("Automatically passed after resuming execution"),
+            "outcome": IJobResult.OUTCOME_PASS,
+            "comments": _("Automatically passed after resuming execution"),
         }
         session_share = WellKnownDirsHelper.session_share(
-            self._sa._manager.storage.id)
-        result_path = os.path.join(session_share, '__result')
+            self._sa._manager.storage.id
+        )
+        result_path = os.path.join(session_share, "__result")
         if os.path.exists(result_path):
             try:
-                with open(result_path, 'rt') as f:
+                with open(result_path, "rt") as f:
                     result_dict = json.load(f)
                     # the only really important field in the result is
                     # 'outcome' so let's make sure it doesn't contain
                     # anything stupid
-                    if result_dict.get('outcome') not in [
-                            'pass', 'fail', 'skip']:
-                        result_dict['outcome'] = IJobResult.OUTCOME_PASS
+                    if result_dict.get("outcome") not in [
+                        "pass",
+                        "fail",
+                        "skip",
+                    ]:
+                        result_dict["outcome"] = IJobResult.OUTCOME_PASS
             except json.JSONDecodeError:
                 pass
         result = MemoryJobResult(result_dict)
@@ -695,12 +762,14 @@ class RemoteSessionAssistant():
 
         # some jobs have already been run, so we need to update the attempts
         # count for future auto-rerunning
-        if self._launcher.auto_retry:
+        if self._launcher.get_value("ui", "auto_retry"):
             for job_id in [
-                    job.id for job in self.get_rerun_candidates('auto')]:
+                job.id for job in self.get_rerun_candidates("auto")
+            ]:
                 job_state = self._sa.get_job_state(job_id)
-                job_state.attempts = self._launcher.max_attempts - len(
-                    job_state.result_history)
+                job_state.attempts = self._launcher.get_value(
+                    "ui", "max_attempts"
+                ) - len(job_state.result_history)
 
         self._state = TestsSelected
 
@@ -737,7 +806,7 @@ class RemoteSessionAssistant():
 
     def exposed_cache_report(self, exporter_id, options):
         exporter = self._sa._manager.create_exporter(exporter_id, options)
-        exported_stream = SpooledTemporaryFile(max_size=102400, mode='w+b')
+        exported_stream = SpooledTemporaryFile(max_size=102400, mode="w+b")
         exporter.dump_from_session_manager(self._sa._manager, exported_stream)
         exported_stream.flush()
         return exported_stream

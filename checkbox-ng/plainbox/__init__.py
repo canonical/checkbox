@@ -27,7 +27,14 @@ All abstract base classes are in :mod:`plainbox.abc`.
 # PEP440 compliant version declaration.
 #
 # This is used by @public decorator to enforce our public API guarantees.
-__version__ = '2.6'
+from importlib_metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("checkbox-ng")
+except PackageNotFoundError:
+    import logging
+    logging.error('Failed to retieve checkbox-ng version')
+    __version__ = 'unknown'
 
 def get_version_string():
     import os

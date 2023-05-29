@@ -36,6 +36,7 @@ circumstances.
 import abc
 import contextlib
 import errno
+
 try:
     import grp
 except ImportError:
@@ -60,7 +61,6 @@ from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import ResourceProgramError
 from plainbox.impl.resource import Resource
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
@@ -75,8 +75,8 @@ from plainbox.vendor import morris
 from plainbox.vendor import extcmd
 
 __all__ = [
-    'CheckBoxSessionStateController',
-    'checkbox_session_state_ctrl',
+    "CheckBoxSessionStateController",
+    "checkbox_session_state_ctrl",
 ]
 
 
@@ -125,10 +125,13 @@ class CheckBoxSessionStateController(ISessionStateController):
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:
             resource_deps = ()
-        result = set(itertools.chain(
-            zip(itertools.repeat(direct), direct_deps),
-            zip(itertools.repeat(resource), resource_deps),
-            zip(itertools.repeat(ordering), after_deps)))
+        result = set(
+            itertools.chain(
+                zip(itertools.repeat(direct), direct_deps),
+                zip(itertools.repeat(resource), resource_deps),
+                zip(itertools.repeat(ordering), after_deps),
+            )
+        )
         return result
 
     def get_inhibitor_list(self, session_state, job):
@@ -153,7 +156,10 @@ class CheckBoxSessionStateController(ISessionStateController):
                 prog.evaluate_or_raise(session_state.resource_map)
             except ExpressionCannotEvaluateError as exc:
                 for resource_id in exc.expression.resource_id_list:
-                    if session_state.job_state_map[resource_id].result.outcome == 'pass':
+                    if (
+                        session_state.job_state_map[resource_id].result.outcome
+                        == "pass"
+                    ):
                         continue
                     # Lookup the related job (the job that provides the
                     # resources needed by the expression that cannot be
@@ -168,7 +174,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                     inhibitor = JobReadinessInhibitor(
                         cause=InhibitionCause.PENDING_RESOURCE,
                         related_job=related_job,
-                        related_expression=exc.expression)
+                        related_expression=exc.expression,
+                    )
                     inhibitors.append(inhibitor)
             except ExpressionFailedError as exc:
                 # When expressions fail then all the associated resources are
@@ -185,7 +192,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                     inhibitor = JobReadinessInhibitor(
                         cause=InhibitionCause.FAILED_RESOURCE,
                         related_job=related_job,
-                        related_expression=exc.expression)
+                        related_expression=exc.expression,
+                    )
                     inhibitors.append(inhibitor)
         # Check if all job dependencies ran successfully
         for dep_id in sorted(job.get_direct_dependencies()):
@@ -195,7 +203,8 @@ class CheckBoxSessionStateController(ISessionStateController):
             if dep_job_state.result.outcome == IJobResult.OUTCOME_NONE:
                 inhibitor = JobReadinessInhibitor(
                     cause=InhibitionCause.PENDING_DEP,
-                    related_job=dep_job_state.job)
+                    related_job=dep_job_state.job,
+                )
                 inhibitors.append(inhibitor)
             # If the dependency is anything but successful add the
             # FAILED_DEP inhibitor. In theory the PENDING_DEP code above
@@ -205,7 +214,8 @@ class CheckBoxSessionStateController(ISessionStateController):
             elif dep_job_state.result.outcome != IJobResult.OUTCOME_PASS:
                 inhibitor = JobReadinessInhibitor(
                     cause=InhibitionCause.FAILED_DEP,
-                    related_job=dep_job_state.job)
+                    related_job=dep_job_state.job,
+                )
                 inhibitors.append(inhibitor)
         # Check if all "after" dependencies ran yet
         for dep_id in sorted(job.get_after_dependencies()):
@@ -215,19 +225,20 @@ class CheckBoxSessionStateController(ISessionStateController):
             if dep_job_state.result.outcome == IJobResult.OUTCOME_NONE:
                 inhibitor = JobReadinessInhibitor(
                     cause=InhibitionCause.PENDING_DEP,
-                    related_job=dep_job_state.job)
+                    related_job=dep_job_state.job,
+                )
                 inhibitors.append(inhibitor)
         for dep_id in sorted(job.get_salvage_dependencies()):
             dep_job_state = session_state.job_state_map[dep_id]
             if dep_job_state.result.outcome != IJobResult.OUTCOME_FAIL:
                 inhibitor = JobReadinessInhibitor(
                     cause=InhibitionCause.NOT_FAILED_DEP,
-                    related_job=dep_job_state.job)
+                    related_job=dep_job_state.job,
+                )
                 inhibitors.append(inhibitor)
         return inhibitors
 
-    def observe_result(self, session_state, job, result,
-                       fake_resources=False):
+    def observe_result(self, session_state, job, result, fake_resources=False):
         """
         Notice the specified test result and update readiness state.
 
@@ -263,10 +274,12 @@ class CheckBoxSessionStateController(ISessionStateController):
         # Treat some jobs specially and interpret their output
         if job.plugin == "resource":
             self._process_resource_result(
-                session_state, job, result, fake_resources)
+                session_state, job, result, fake_resources
+            )
 
-    def _process_resource_result(self, session_state, job, result,
-                                 fake_resources=False):
+    def _process_resource_result(
+        self, session_state, job, result, fake_resources=False
+    ):
         """
         Analyze a result of a CheckBox "resource" job and generate
         or replace resource records.
@@ -274,7 +287,8 @@ class CheckBoxSessionStateController(ISessionStateController):
         self._parse_and_store_resource(session_state, job, result)
         if session_state.resource_map[job.id] != [Resource({})]:
             self._instantiate_templates(
-                session_state, job, result, fake_resources)
+                session_state, job, result, fake_resources
+            )
 
     def _parse_and_store_resource(self, session_state, job, result):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
@@ -290,8 +304,7 @@ class CheckBoxSessionStateController(ISessionStateController):
             # XXX: Consider forwarding the origin object here.  I guess we
             # should have from_frc822_record as with JobDefinition
             resource = Resource(record.data)
-            logger.debug(
-                _("Storing resource record %r: %s"), job.id, resource)
+            logger.debug(_("Storing resource record %r: %s"), job.id, resource)
             new_resource_list.append(resource)
         # Create an empty resource object to properly fail __getattr__ calls
         if not new_resource_list:
@@ -299,8 +312,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         # Replace any old resources with the new resource list
         session_state.set_resource_list(job.id, new_resource_list)
 
-    def _instantiate_templates(self, session_state, job, result,
-                               fake_resources=False):
+    def _instantiate_templates(
+        self, session_state, job, result, fake_resources=False
+    ):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
         # If we are resuming from a session that had a resource job that
         # never ran, we will see an empty MemoryJobResult object.
@@ -313,22 +327,31 @@ class CheckBoxSessionStateController(ISessionStateController):
             if isinstance(unit, TemplateUnit) and unit.resource_id == job.id:
                 logger.info(_("Instantiating unit: %s"), unit)
                 for new_unit in unit.instantiate_all(
-                        session_state.resource_map[job.id], fake_resources):
+                    session_state.resource_map[job.id], fake_resources
+                ):
                     try:
                         check_result = new_unit.check()
                     except MissingParam as m:
-                        logger.debug(_("Ignoring %s with missing "
-                                         "template parameter %s"),
-                                         new_unit._raw_data.get('id'),
-                                         m.parameter)
+                        logger.debug(
+                            _(
+                                "Ignoring %s with missing "
+                                "template parameter %s"
+                            ),
+                            new_unit._raw_data.get("id"),
+                            m.parameter,
+                        )
                         continue
                     # Only ignore jobs for which check() returns an error
-                    if [c for c in check_result
-                            if c.severity == Severity.error]:
-                        logger.error(_("Ignoring invalid generated job %s"),
-                                     new_unit.id)
+                    if [
+                        c for c in check_result if c.severity == Severity.error
+                    ]:
+                        logger.error(
+                            _("Ignoring invalid generated job %s"), new_unit.id
+                        )
                     else:
-                        session_state.add_unit(new_unit, via=job, recompute=False)
+                        session_state.add_unit(
+                            new_unit, via=job, recompute=False
+                        )
         session_state._recompute_job_readiness()
 
 
@@ -338,9 +361,11 @@ def gen_rfc822_records_from_io_log(job, result):
     """
     logger.debug(_("processing output from a job: %r"), job)
     # Select all stdout lines from the io log
-    line_gen = (record[2].decode('UTF-8', errors='replace')
-                for record in result.get_io_log()
-                if record[1] == 'stdout')
+    line_gen = (
+        record[2].decode("UTF-8", errors="replace")
+        for record in result.get_io_log()
+        if record[1] == "stdout"
+    )
     # Allow the generated records to be traced back to the job that defined
     # the command which produced (printed) them.
     source = JobOutputTextSource(job)
@@ -356,7 +381,9 @@ def gen_rfc822_records_from_io_log(job, result):
             # TRANSLATORS: keep the word "local" untranslated. It is a
             # special type of job that needs to be distinguished.
             _("local script %s returned invalid RFC822 data: %s"),
-            job.id, exc)
+            job.id,
+            exc,
+        )
 
 
 checkbox_session_state_ctrl = CheckBoxSessionStateController()
@@ -385,8 +412,8 @@ class SymLinkNest:
         Add a executable to the control directory
         """
         logger.debug(
-            _("Adding executable %s to nest %s"),
-            filename, self._dirname)
+            _("Adding executable %s to nest %s"), filename, self._dirname
+        )
         dest = os.path.join(self._dirname, os.path.basename(filename))
         try:
             os.symlink(filename, dest)
@@ -395,4 +422,7 @@ class SymLinkNest:
             # untold voodoo magic to work (aka running as root)
             logger.error(
                 _("Unable to create symlink s%s -> %s: %r"),
-                filename, dest, exc)
+                filename,
+                dest,
+                exc,
+            )

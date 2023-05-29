@@ -50,7 +50,6 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import JobResultBuilder
-from plainbox.impl.secure.config import Unset
 from plainbox.vendor import extcmd
 from plainbox.vendor import morris
 
@@ -61,8 +60,9 @@ logger = logging.getLogger("plainbox.runner")
 def slugify(_string):
     """Transform any string to one that can be used in filenames."""
     valid_chars = frozenset(
-        "-_.{}{}".format(string.ascii_letters, string.digits))
-    return ''.join(c if c in valid_chars else '_' for c in _string)
+        "-_.{}{}".format(string.ascii_letters, string.digits)
+    )
+    return "".join(c if c in valid_chars else "_" for c in _string)
 
 
 class IOLogRecordGenerator(extcmd.DelegateBase):
@@ -156,9 +156,9 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
         Called for each line of output.
         """
-        if stream_name == 'stdout':
+        if stream_name == "stdout":
             self.stdout.write(line)
-        elif stream_name == 'stderr':
+        elif stream_name == "stderr":
             self.stderr.write(line)
 
 
@@ -189,9 +189,14 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
             return
         self._lineno[stream_name] += 1
         try:
-            print("(job {}, <{}:{:05}>) {}".format(
-                self._prompt, stream_name, self._lineno[stream_name],
-                line.decode('UTF-8').rstrip()))
+            print(
+                "(job {}, <{}:{:05}>) {}".format(
+                    self._prompt,
+                    stream_name,
+                    self._lineno[stream_name],
+                    line.decode("UTF-8").rstrip(),
+                )
+            )
         except UnicodeDecodeError:
             self._abort = True
 

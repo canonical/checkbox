@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 
+import plainbox
 from plainbox.provider_manager import N_
 from plainbox.provider_manager import SourceDistributionCommand
 from plainbox.provider_manager import manage_py_extension
@@ -44,7 +45,7 @@ class SourceDistributionCommandExt(SourceDistributionCommand):
 setup(
     name='checkbox-provider-resource',
     namespace='com.canonical.certification',
-    version="2.6",
+    version=plainbox.__version__,
     description=N_("Checkbox provider resource"),
     gettext_domain='checkbox-provider-resource',
     strict=False, deprecated=False,

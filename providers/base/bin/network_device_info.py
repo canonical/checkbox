@@ -96,10 +96,15 @@ class Utils():
 
     @staticmethod
     def get_ipv6_address(interface):
-        cmd = ['/sbin/ip', '-6', '-o', 'addr', 'show', 'dev', interface,
-               'scope', 'link']
+        cmd = ['/sbin/ip', '-6', '-o', 'addr', 'show', 'dev', interface, 'scope', 'link']
         proc = check_output(cmd, universal_newlines=True)
-        return proc.split()[3].strip()
+        try:
+            ipv6_addr = proc.split()[3].strip()
+        except Exception as e:
+            print("ERROR: getting the IPv6 address for %s: %s" %
+                  (interface, repr(e)))
+            ipv6_addr = "***NOT CONFIGURED***"
+        return ipv6_addr
 
     @classmethod
     def get_mac_address(cls, interface):

@@ -96,7 +96,7 @@ class Utils():
 
     @staticmethod
     def get_ipv6_address(interface):
-        cmd = ['/sbin/ip', '-6', '-o', 'addr', 'show', 'dev', interface, 
+        cmd = ['/sbin/ip', '-6', '-o', 'addr', 'show', 'dev', interface,
                'scope', 'link']
         proc = check_output(cmd, universal_newlines=True)
         try:

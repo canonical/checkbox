@@ -12,3 +12,4 @@ sphinxext-opengraph
 lxd-sphinx-extensions
 sphinx-copybutton
 myst-parser
+importlib_metadata

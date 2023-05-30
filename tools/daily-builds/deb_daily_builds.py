@@ -20,6 +20,13 @@
 import os
 import subprocess
 
+CONFIG_PPA_PATH = "/tmp/ppa_tools_config.yaml"
+CONFIG_PPA_DEV_TOOLS = """{
+    'wait_max_age_hours' : 24,
+    'exit_on_only_build_failure' : True,
+    'name' : 'checkbox'
+}
+"""
 
 def run(*args, **kwargs):
     """wrapper for subprocess.run."""
@@ -31,7 +38,6 @@ def run(*args, **kwargs):
     except subprocess.CalledProcessError as e:
         print('{}\n{}'.format(e, e.output.decode()))
         raise SystemExit(1)
-
 
 def main():
     """Parse the checkbox monorepo to trigger deb daily builds in Launchpad."""
@@ -64,7 +70,14 @@ def main():
                 "--recipe {}".format(name+'-daily'),
                 shell=True, check=True).stdout.decode().rstrip()
             print(output)
-
+            # this assumes ppa-dev-tools was cloned in ~
+            with open(CONFIG_PPA_PATH, "w+") as f:
+                f.write(CONFIG_PPA_DEV_TOOLS)
+            output = run([
+                "/tmp/ppa-dev-tools/scripts/ppa",
+                "wait", "ppa:checkbox-dev/ppa", "-C", CONFIG_PPA_PATH
+            ], check=True)
+            print(output)
 
 if __name__ == "__main__":
     main()

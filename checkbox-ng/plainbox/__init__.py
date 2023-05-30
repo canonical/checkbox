@@ -33,7 +33,7 @@ try:
     __version__ = version("checkbox-ng")
 except PackageNotFoundError:
     import logging
-    logging.error('Failed to retieve checkbox-ng version')
+    logging.error('Failed to retrieve checkbox-ng version')
     __version__ = 'unknown'
 
 def get_version_string():

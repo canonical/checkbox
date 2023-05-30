@@ -28,8 +28,6 @@ import struct
 from subprocess import check_output, CalledProcessError, STDOUT
 import sys
 
-import dbus
-
 from checkbox_support.parsers.modinfo import ModinfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
 
@@ -284,7 +282,6 @@ class NetworkDeviceInfo():
 
 
 class NMDevices():
-
     # This example lists basic information about network interfaces known to NM
     devtypes = {1: "Ethernet",
                 2: "WiFi",
@@ -302,6 +299,7 @@ class NMDevices():
         return len(self._devices)
 
     def _collect_devices(self):
+        import dbus
         bus = dbus.SystemBus()
         proxy = bus.get_object("org.freedesktop.NetworkManager",
                                "/org/freedesktop/NetworkManager")

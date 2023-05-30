@@ -110,7 +110,7 @@ def main():
     for name, ok in checked:
         if not ok:
             print("Failed to build:", name)
-    if any(not ok for (_,ok) in to_check):
+    if any(not ok for (_,ok) in checked):
         raise SystemExit(1)
 
 

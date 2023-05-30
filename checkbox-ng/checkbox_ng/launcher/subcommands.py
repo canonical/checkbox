@@ -815,7 +815,7 @@ class Run(MainLoopStage):
 class List():
     def register_arguments(self, parser):
         parser.add_argument(
-            'GROUP', nargs='?',
+            'GROUP', nargs='?', choices=Explorer.OBJECT_TYPES,
             help=_("list objects from the specified group"))
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",

@@ -111,6 +111,7 @@ CPUIDS = {
         "AMD Milan-X":      ['0xa00f12'],
         "AMD ROME":         ['0x830f10'],
         "AMD Ryzen":        ['0x810f81'],
+        "AMD Bergamo":      ['0xaa0f01'],
         "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
         "Canon Lake":       ['0x6066'],
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],

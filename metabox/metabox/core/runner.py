@@ -18,13 +18,14 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import time
+import os
 
 from loguru import logger
 from metabox.core.aggregator import aggregator
 from metabox.core.configuration import read_config
 from metabox.core.configuration import guess_source_uri
 from metabox.core.configuration import validate_config
-from metabox.core.lxd_provider import LxdMachineProvider
+from metabox.core.vm.vm_provider_factory import MachineProviderFactory
 from metabox.core.machine import MachineConfig
 
 logger = logger.opt(colors=True)
@@ -162,7 +163,7 @@ class Runner:
                 raise SystemExit(1)
         self._gather_all_machine_spec()
         logger.debug("Combo: {}", self.combo)
-        self.machine_provider = LxdMachineProvider(
+        self.machine_provider = MachineProviderFactory.create(
             self.config, self.combo,
             self.debug_machine_setup, self.dispose)
         self.machine_provider.setup()

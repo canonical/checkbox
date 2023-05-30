@@ -39,11 +39,11 @@ from loguru import logger
 from pylxd.exceptions import ClientConnectionFailed, LXDAPIException
 
 from metabox.core.machine import MachineConfig
-from metabox.core.machine import machine_selector
+from metabox.core.vm.machine_factory import machine_selector
 from metabox.core.lxd_execute import run_or_raise
+from metabox.core.vm.vm_provider_abstract import AbstractMachineProvider
 
-
-class LxdMachineProvider:
+class LxdMachineProvider(AbstractMachineProvider):
     """Machine provider that uses container managed by LXD as targets."""
 
     LXD_CREATE_TIMEOUT = 300

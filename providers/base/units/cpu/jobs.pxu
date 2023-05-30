@@ -145,7 +145,7 @@ _summary:
  Test offlining of each CPU core
 _description:
  Attempts to offline each core in a multicore system.
-requires: cpuinfo.platform not in ("aarch64", "armv7l")
+requires: cpuinfo.platform not in ("armv7l")
 
 plugin: shell
 category_id: com.canonical.plainbox::cpu

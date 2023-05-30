@@ -21,6 +21,7 @@ import os.path
 import time
 from pathlib import Path
 import textwrap
+from contextlib import suppress
 
 import pylxd.exceptions
 from loguru import logger
@@ -110,13 +111,9 @@ class ContainerBaseMachine:
     def put(self, filepath, data, mode=None, uid=1000, gid=1000):
         try:
             self._container.files.put(filepath, data, mode, uid, gid)
-        except pylxd.exceptions.NotFound:
-            dirname = os.path.dirname(filepath)
-            logger.debug(("Cannot put {} on container. Trying to create"
-                          " directory {} and put the file again..."), filepath,
-                         dirname)
-            self._container.files.mk_dir(dirname, mode, uid, gid)
-            self._container.files.put(filepath, data, mode, uid, gid)
+        except pylxd.exceptions.LXDAPIException:
+            logger.error("Failed to create {}", filepath)
+            raise
 
     def get_connecting_cmd(self):
         return "lxc exec {} -- sudo --user ubuntu --login".format(

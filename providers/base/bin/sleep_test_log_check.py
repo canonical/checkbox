@@ -53,13 +53,19 @@ def parse_summary(summary, results, filter_test, ignore_warning):
     results to the passed results dictionary.
 
     :param summary:
-        A list of lines comprised in this summary section
-
+        A list of lines comprised in this summary section.
     :param results:
         The results dictionary into which to put the end result. Should be a
         dict with keys for each level, the values are dicts with keys for each
         test (s3, s4) which in turn contain a list of all the failures observed
         for that level and test.
+    :param filter_test:
+        A string to filter out the results is match with the test type.
+        And `all` will not filter anything.
+    :param ignore_warning:
+        A bool if warning message need to be ignored.
+    :return:
+        None
     """
     current_level = None
     current_acum = []
@@ -99,10 +105,17 @@ def parse_level(level_lines, level_results,
     :param level_lines:
         A list of lines comprised in this level's list of failures.
 
-    : param level_results:
+    :param level_results:
         A dictionary containing this level's results. Should be a dict with
         keys for each test, to which the failures for the level will be
         appended.
+    :param level_filter_test:
+        A string to filter out the results is match with the test type.
+        And `all` will not filter anything.
+    :param level_ignore_warning:
+        A bool if warning message need to be ignored.
+    :return:
+        None
     """
     for failureline in level_lines:
         failure_matches = failure_re.search(failureline)
@@ -136,8 +149,9 @@ def main():
     parser.add_argument('-t', '--test',
                         action='store',
                         default='all',
-                        help="The test (ie.s3 ,s4 ,klog ,oope ,...etc) \
-                              to check. Default is [%(default)s]")
+                        help="The test (ie.all, s3 ,s4 ,klog ,oops ,...etc) \
+                              to check. Default is [%(default)s]. And `all` \
+                              is a special entry to check everything at once.")
     parser.add_argument('logfile',
                         action='store',
                         help='The log file to parse')

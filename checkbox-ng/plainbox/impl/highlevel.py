@@ -122,6 +122,21 @@ class Explorer:
     Class simplifying discovery of various PlainBox objects.
     """
 
+    OBJECT_TYPES = [
+            'category',
+            'exporter',
+            'job',
+            'manifest entry',
+            'packaging meta-data',
+            'template',
+            'test plan',
+            'file',
+            'provider',
+            'storage',
+            'service',
+            'all-jobs'
+    ]
+
     def __init__(self, provider_list=None):
         """
         Initialize a new Explorer

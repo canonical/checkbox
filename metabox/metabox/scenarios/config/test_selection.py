@@ -277,7 +277,7 @@ class TestPlanSelectionFilterEmpty(Scenario):
         filter = [^\w\d]
         """)
     steps = [
-        AssertPrinted(".*There were no test plans to select from.*")
+        Expect("There were no test plans to select from"),
     ]
 
 class TestPlanSelectionFilter(Scenario):

@@ -32,4 +32,3 @@ except PackageNotFoundError:
     import logging
     logging.error('Failed to retrieve checkbox-ng version')
     __version__ = 'unknown'
-

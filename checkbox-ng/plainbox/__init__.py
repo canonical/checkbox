@@ -36,6 +36,7 @@ except PackageNotFoundError:
     logging.error('Failed to retrieve checkbox-ng version')
     __version__ = 'unknown'
 
+
 def get_version_string():
     import os
     version_string = ''

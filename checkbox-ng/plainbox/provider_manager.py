@@ -552,7 +552,10 @@ class DevelopCommand(ManageCommand):
     def invoked(self, ns):
         pp_env = os.getenv("PROVIDERPATH")
         if pp_env and not os.path.samefile(pp_env, ns.directory):
-            _logger.warning("$PROVIDERPATH is defined, ignoring -d/--directory and developing there")
+            _logger.warning(
+                "$PROVIDERPATH is defined, ignoring -d/--directory"
+                " and developing in: %s", pp_env
+            )
             ns.directory = pp_env
         pathname = os.path.join(
             ns.directory, "{}.provider".format(

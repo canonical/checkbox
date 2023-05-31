@@ -308,6 +308,7 @@ class NMDevices():
 
     def devices(self):
         """Convert to list of NetworkDevice with NM derived attrs set"""
+        import dbus
         for d in self._devices:
             bus = dbus.SystemBus()
             dev_proxy = bus.get_object("org.freedesktop.NetworkManager", d)

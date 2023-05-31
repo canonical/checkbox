@@ -10,6 +10,7 @@ on:
 jobs:
   snap:
     strategy:
+      fail-fast: false
       matrix:
         releases: [16, 18, 20, 22]
     runs-on: ubuntu-latest
@@ -50,6 +51,25 @@ jobs:
         with:
           name: series${{ matrix.releases }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
+      - name: Check that snapcraft built the expected amount of snaps
+        run: |
+          NB_SNAPS=$(ls -l checkbox-core-snap/series${{ matrix.releases }}/*.snap | wc -l)
+          # Expecting 3 snaps for checkbox20 and checkbox22 (amd64, armhf, arm64)
+          # and 4 snaps for checkbox16 and checkbox18 (i386, amd64, armhf, arm64)
+          if [ ${{ matrix.releases }} == "16" ] || [ ${{ matrix.releases }} == "18" ]
+          then
+            if [ ${NB_SNAPS} != "4" ]
+            then
+              echo "Error: Snapcraft should have produced 4 snaps, found ${NB_SNAPS} instead."
+                exit 1
+            fi
+          else
+            if [ ${NB_SNAPS} != "3" ]
+            then
+              echo "Error: Snapcraft should have produced 3 snaps, found ${NB_SNAPS} instead."
+              exit 1
+            fi
+          fi
       - name: Upload checkbox core snaps to the store
         run: |
           for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap

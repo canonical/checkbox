@@ -51,6 +51,7 @@ else:
         'Jinja2 >= 2.7',
         'xlsxwriter',
         'tqdm',
+        'importlib_metadata',
     ]
 
 setup(

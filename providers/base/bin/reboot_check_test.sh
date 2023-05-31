@@ -7,7 +7,7 @@ fwts_check="true"
 
 
 fwts_support_check(){
-    echo -e "\n## Check if support fwts.."
+    echo -e "\n## Checking if support fwts..."
     if  type -p fwts > /dev/null ; then
         echo "FWTS supported"
         fwts_supported="true"
@@ -15,12 +15,12 @@ fwts_support_check(){
 }
 
 run_fwts(){
-    echo -e "\n## Run fwts of test: $*"
+    echo -e "\n## Running FWTS of test: $*..."
     fwts -r "$output_dir"/fwts_klog_oops.log "$@"
 }
 
 fwts_log_check(){
-    echo -e "\n## Check fwts log failures.."
+    echo -e "\n## Checking FWTS log failures..."
     fwts_log_path="$output_dir"/fwts_klog_oops.log
     if [[ -f "$fwts_log_path" ]]; then
         sleep_test_log_check.py -v --ignore-warning -t all "$output_dir"/fwts_klog_oops.log
@@ -34,7 +34,7 @@ fwts_log_check(){
 }
 
 service_check() {
-    echo -e "\n## Check system service.."
+    echo -e "\n## Checking system services..."
     COUNT=$(systemctl --system --no-ask-password --no-pager --no-legend list-units --state=failed | wc -l)
     printf "Found %s failed units\n" "$COUNT"
     if [ "$COUNT" != 0 ]; then
@@ -45,27 +45,30 @@ service_check() {
 }
 
 dump() {
-    echo "## Dump the devices information to $output_dir.."
+    echo "## Dumping the devices information to $output_dir..."
     mkdir -p "$output_dir"
+    echo "Gathering information about PCI devices (lspci)..."
     lspci -i "$SNAP"/usr/share/misc/pci.ids > "$output_dir"/lspci_log
+    echo "Gathering information about WiFi connections (iw)..."
     iw dev | grep "Interface\|addr\|ssid" > "$output_dir"/wifi_conn
+    echo "Gathering information about USB devices (lsusb)..."
     checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$output_dir"/lsusb_log
     echo "dump devices complete"
     sync
 }
 
 compare() {
-    echo -e "\n## Compare the devices.."
+    echo -e "\n## Comparing the devices..."
     if ! diff -u "$compare_dir"/lspci_log "$output_dir"/lspci_log; then
-        echo "lspci mismatch during cycle"
+        echo "The list of PCI devices (lspci) is different from the original list gathered at the beginning of the session!"
         device_check="false"
     fi
     if ! diff -u "$compare_dir"/wifi_conn "$output_dir"/wifi_conn; then
-        echo "wifi mismatch during cycle"
+        echo "The list of WiFi connections (iw) is different from the original list gathered at the beginning of the session!"
         device_check="false"
     fi
     if ! diff -u "$compare_dir"/lsusb_log "$output_dir"/lsusb_log; then
-        echo "lsusb mismatch during cycle"
+        echo "The list of USB devices (lsusb) is different from the original list gathered at the beginning of the session!"
         device_check="false"
     fi
 
@@ -104,9 +107,10 @@ main() {
 
 
 help_function() {
-    echo "This script is uses for collect device and compare the difference of device during every reboot iteration"
+    echo "This script is used to collect device information and to check for differences between reboots."
     echo
-    echo "Usage: cold_reboot_by_pdu.sh -t type -p pud-ip:outlet-port"
+    echo "Usage: reboot_check_test.sh -d Output_directory"
+    echo "       reboot_check_test.sh -d Output_directory -c Comparing_directory -s -f"
     echo -e "\t-d    Output directory."
     echo -e "\t-c    The target directory for comparing device"
     echo -e "\t-s    Do service check"

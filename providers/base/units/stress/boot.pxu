@@ -42,12 +42,13 @@ id: init-boot-loop-data
 category_id: stress-tests
 _summary: Generate the baseline data set to test against
 _description: This creates baseline data sets which be considered the master
- copies and all further tests will be compared against these.
+ copies and all further tests will be compared against these. Baseline data
+ including network status, SSID and USB device.
 unit: job
 plugin: shell
 command:
   lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_original || true
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_original || true
+  nmcli -t -f active,SSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_original || true
   checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_original || true
 environ: LD_LIBRARY_PATH
 user: root
@@ -57,9 +58,7 @@ flags: preserve-locale
 id: cold-boot-loop-reboot1
 category_id: stress-tests/cold-boot
 _summary: Perform cold reboot 1
-_description: This is a template that will be used to generate a stress test
-  of the system boot. Specifically this is how the device will be request a
-  reboot.
+_description: Enter sleep mode after 120s.
 unit: job
 plugin: shell
 environ: STRESS_BOOT_WAKEUP_DELAY
@@ -72,9 +71,7 @@ depends: init-boot-loop-data
 id: cold-boot-loop-reboot{reboot_id}
 category_id: stress-tests/cold-boot
 _summary: Perform cold reboot {reboot_id}
-_description: This is a template that will be used to generate a stress test
-  of the system boot. Specifically this is how the device will be request a
-  reboot.
+_description: Enter sleep mode after 240s.
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -92,15 +89,13 @@ depends: init-boot-loop-data
 id: cold-boot-loop-test1
 category_id: stress-tests/cold-boot
 _summary: Cold boot system configuration test 1
-_description: This is a template that will be used to generate a stress test
-  of the system boot. Specifically this is the test that will be performed
-  on each cycle to verify that all hardware is detected.
+_description: Compare the data after waking up the system with the base data set
 unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
   lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  nmcli -t -f active,SSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
   checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
   if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle 1"
@@ -122,9 +117,7 @@ depends: cold-boot-loop-reboot1
 id: cold-boot-loop-test{reboot_id}
 category_id: stress-tests/cold-boot
 _summary: Cold boot system configuration test {reboot_id}
-_description: This is a template that will be used to generate a stress test
-  of the system boot. Specifically this is the test that will be performed
-  on each cycle to verify that all hardware is detected.
+_description: Compare the data after waking up the system with the base data set
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -132,7 +125,7 @@ plugin: shell
 environ: LD_LIBRARY_PATH
 command:
   lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  nmcli -t -f active,SSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
   checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
   if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle {reboot_id}"
@@ -155,7 +148,7 @@ depends: cold-boot-loop-reboot{reboot_id}
 id: warm-boot-loop-reboot1
 category_id: stress-tests/warm-boot
 _summary: Perform warm reboot 1
-_description: This is a template that will be used to generate a stress test
+_description: Perform warm reboot
   of the system boot. Specifically this is how the device will be request a
   reboot.
 unit: job
@@ -170,9 +163,7 @@ depends: init-boot-loop-data
 id: warm-boot-loop-reboot{reboot_id}
 category_id: stress-tests/warm-boot
 _summary: Perform warm reboot {reboot_id}
-_description: This is a template that will be used to generate a stress test
-  of the system boot. Specifically this is how the device will be request a
-  reboot.
+_description: Perform warm reboot after 120s
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -190,15 +181,13 @@ depends: init-boot-loop-data
 id: warm-boot-loop-test1
 category_id: stress-tests/warm-boot
 _summary:  Warm boot system configuration test 1
-_description: This is a template that will be used to generate a stress test
-  of the system boot. Specifically this is the test that will be performed
-  on each cycle to verify that all hardware is detected.
+_description: Compare data after warm boot with baseline data set
 unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
   lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  nmcli -t -f active,SSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
   checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
   if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle 1"
@@ -220,9 +209,7 @@ depends: warm-boot-loop-reboot1
 id: warm-boot-loop-test{reboot_id}
 category_id: stress-tests/warm-boot
 _summary:  Warm boot system configuration test {reboot_id}
-_description: This is a template that will be used to generate a stress test
-  of the system boot. Specifically this is the test that will be performed
-  on each cycle to verify that all hardware is detected.
+_description: Compare data after warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -230,7 +217,7 @@ plugin: shell
 environ: LD_LIBRARY_PATH
 command:
   lspci -i "$SNAP"/usr/share/misc/pci.ids > "$PLAINBOX_SESSION_SHARE"/lspci_test
-  nmcli -t -f active,BSSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
+  nmcli -t -f active,SSID d w l | grep -oP "(?<=^yes:).*" > "$PLAINBOX_SESSION_SHARE"/wifi_test
   checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids -s | sort > "$PLAINBOX_SESSION_SHARE"/lsusb_test
   if ! diff -u "$PLAINBOX_SESSION_SHARE"/lspci_original "$PLAINBOX_SESSION_SHARE"/lspci_test; then
     echo "lspci mismatch during cycle {reboot_id}"

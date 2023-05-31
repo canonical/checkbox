@@ -79,7 +79,7 @@ class InstallCommandExt(InstallCommand):
 setup(
     name='checkbox-provider-certification-server',
     namespace='com.canonical.certification',
-    version="2.6",
+    version="2.7",
     description=N_("Server Certification provider"),
     gettext_domain="checkbox-provider-certification-server",
     strict=False, deprecated=False,

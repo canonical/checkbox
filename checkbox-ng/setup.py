@@ -55,7 +55,7 @@ else:
 
 setup(
     name="checkbox-ng",
-    version="2.6",
+    version="2.7",
     url="https://launchpad.net/checkbox-ng/",
     packages=find_packages(),
     author="Zygmunt Krynicki",

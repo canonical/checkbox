@@ -24,6 +24,7 @@ the interface to a Scenario.
 """
 import re
 import time
+import shlex
 
 from metabox.core.actions import Start, Expect, Send, SelectTestPlan
 from metabox.core.aggregator import aggregator
@@ -273,3 +274,13 @@ class Scenario:
 
     def is_service_active(self):
         return self.service_machine.is_service_active()
+
+    def mktree(self, path, privileged=False, timeout=0, target='all'):
+        """
+        Creates a directory including any missing parent
+        """
+        cmd = ["mkdir", "-p", path]
+        if privileged:
+            cmd = ["sudo"] + cmd
+        cmd_str = shlex.join(cmd)
+        self.run_cmd(cmd_str, target=target, timeout=timeout)

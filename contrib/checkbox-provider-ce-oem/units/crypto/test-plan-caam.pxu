@@ -1,0 +1,61 @@
+id: ce-oem-caam-full
+unit: test plan
+_name: CAAM tests
+_description: Full caam tests for devices
+include:
+nested_part:
+    ce-oem-caam-manual
+    ce-oem-caam-automated
+
+id: ce-oem-caam-manual
+unit: test plan
+_name: CAAM manual tests
+_description: Manual CAAM tests for devices
+include:
+
+id: ce-oem-caam-automated
+unit: test plan
+_name: CAAM auto tests
+_description: Automated CAAM tests for devices
+bootstrap_include:
+    cryptoinfo
+    hwrng
+include:
+    ce-oem-crypto/caam/rng-available
+    ce-oem-crypto/caam/caam_hwrng_test
+    ce-oem-crypto/caam/algo_check
+    ce-oem-crypto/caam/af_alg_hash_test
+    ce-oem-crypto/caam/af_alg_aead_test
+    ce-oem-crypto/caam/af_alg_skcipher_test
+    ce-oem-crypto/caam/af_alg_rng_test
+
+id: after-suspend-ce-oem-caam-full
+unit: test plan
+_name: After suspend CAAM tests
+_description: Full after-suspend CAAM tests for devices
+include:
+nested_part:
+    after-suspend-ce-oem-caam-manual
+    after-suspend-ce-oem-caam-automated
+
+id: after-suspend-ce-oem-caam-manual
+unit: test plan
+_name: After suspend CAAM manual tests
+_description: Manual after-suspend CAAM tests for devices
+include:
+
+id: after-suspend-ce-oem-caam-automated
+unit: test plan
+_name: After suspend CAAM auto tests
+_description: Automated after-suspend CAAM tests for devices
+bootstrap_include:
+    cryptoinfo
+    hwrng
+include:
+    also-after-suspend-ce-oem-crypto/caam/rng-available
+    also-after-suspend-ce-oem-crypto/caam/caam_hwrng_test
+    also-after-suspend-ce-oem-crypto/caam/algo_check
+    also-after-suspend-ce-oem-crypto/caam/af_alg_hash_test
+    also-after-suspend-ce-oem-crypto/caam/af_alg_aead_test
+    also-after-suspend-ce-oem-crypto/caam/af_alg_skcipher_test
+    also-after-suspend-ce-oem-crypto/caam/af_alg_rng_test

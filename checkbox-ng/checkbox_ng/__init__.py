@@ -24,10 +24,13 @@
 CheckBoxNG is a new version of CheckBox built on top of PlainBox
 """
 
-from importlib_metadata import version, PackageNotFoundError
+try:
+    from importlib.metadata import version, PackageNotFoundError
+except ImportError:
+    from importlib_metadata import version, PackageNotFoundError
 
 try:
-    __version__ = version("checkbox-ng")
+    __version__ = version(__package__)
 except PackageNotFoundError:
     import logging
     logging.error('Failed to retrieve checkbox-ng version')

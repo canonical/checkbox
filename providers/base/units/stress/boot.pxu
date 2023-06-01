@@ -58,7 +58,7 @@ flags: preserve-locale
 id: cold-boot-loop-reboot1
 category_id: stress-tests/cold-boot
 _summary: Perform cold reboot 1
-_description: Enter sleep mode after 120s.
+_description: Enter sleep mode after a configurable delay.
 unit: job
 plugin: shell
 environ: STRESS_BOOT_WAKEUP_DELAY
@@ -71,7 +71,7 @@ depends: init-boot-loop-data
 id: cold-boot-loop-reboot{reboot_id}
 category_id: stress-tests/cold-boot
 _summary: Perform cold reboot {reboot_id}
-_description: Enter sleep mode after 240s.
+_description: Enter sleep mode after a configurable delay.
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -163,7 +163,7 @@ depends: init-boot-loop-data
 id: warm-boot-loop-reboot{reboot_id}
 category_id: stress-tests/warm-boot
 _summary: Perform warm reboot {reboot_id}
-_description: Perform warm reboot after 120s
+_description: Perform warm reboot after a configurable delay.
 unit: template
 template-resource: reboot-run-generator
 template-unit: job

@@ -51,8 +51,10 @@ else:
         'Jinja2 >= 2.7',
         'xlsxwriter',
         'tqdm',
-        'importlib_metadata',
     ]
+    if sys.version_info[0] == 3 and sys.version_info[1] < 8:
+        # in version 3.8+ we can use importlib.metadata
+        install_requires.append('importlib_metadata')
 
 setup(
     name="checkbox-ng",

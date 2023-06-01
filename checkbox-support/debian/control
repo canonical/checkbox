@@ -36,6 +36,7 @@ Depends: gir1.2-gudev-1.0,
          python3-yaml,
          udev,
          udisks2,
+         python3-importlib-metadata | python3 (>> 3.8),
          ${misc:Depends},
          ${python3:Depends}
 Description: collection of Python modules used by PlainBox providers

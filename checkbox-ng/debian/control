@@ -51,6 +51,7 @@ Depends: python3-jinja2,
          python3-tqdm,
          python3-urwid,
          python3-xlsxwriter,
+         python3-importlib-metadata | python3 (>> 3.8),
          ${misc:Depends},
          ${python3:Depends}
 Breaks: python3-plainbox (<<1)

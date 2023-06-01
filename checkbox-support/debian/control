@@ -17,7 +17,8 @@ Build-Depends:
  python3-requests,
  python3-requests-unixsocket,
  python3-setuptools,
- python3-yaml
+ python3-yaml,
+ python3-importlib-metadata | python3 (>> 3.8)
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.5
 XS-Testsuite: autopkgtest

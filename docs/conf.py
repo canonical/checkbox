@@ -1,12 +1,10 @@
 import datetime
 import os
+import re
 import sys
 
-sys.path.append(os.path.abspath(
-    os.path.join(__file__, "../../checkbox-ng")
-))
 
-import checkbox_ng
+
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -19,7 +17,28 @@ import checkbox_ng
 project = 'Checkbox'
 author = 'Canonical Group Ltd'
 copyright = "%s, %s" % (datetime.date.today().year, author)
-release = checkbox_ng.__version__
+
+# This is hack-ish and will break once setup.py calculates the version instead of having
+#  it hardcoded
+setup_py_path = os.path.abspath(os.path.join(__file__, "../../checkbox-ng/setup.py"))
+with open(setup_py_path, "r") as f:
+    # get all lines starting with version=... in setup.py
+    versions = (line.strip() for line in f if line.strip().startswith("version="))
+    try:
+        # version is in the setup function written as
+        #  version="...",
+        version = next(versions).split("=", 1)[-1]
+        # remove string quotes and ,
+        version = version.replace('"', "").replace(",", "")
+    except StopIteration:
+        version = "unknown"
+# version should be in the form x.y.z where x, y, z etc. are numbers
+#  check this or log an error to be robust to any future chage to setup.py
+if not re.match(r"\d+(\.\d+)*", version):
+    import logging
+    logging.error("Invalid version `{}` fetched, did setup.py change?".format(version))
+
+release = version
 
 # Open Graph configuration - defines what is displayed in the website preview
 ogp_site_url = "https://checkbox.readthedocs-hosted.com/"

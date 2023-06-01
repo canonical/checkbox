@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_caam
+_name: CAAM(Cryptographic Acceleration and Assurance Module) support
+value-type: bool

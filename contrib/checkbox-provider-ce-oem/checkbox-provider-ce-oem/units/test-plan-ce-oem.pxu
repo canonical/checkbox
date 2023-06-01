@@ -40,6 +40,8 @@ nested_part:
     ce-oem-rs485-manual
     ce-oem-eeprom-manual
     ce-oem-led-manual
+    ce-oem-caam-manual
+    ce-oem-crypto-manual
 
 id: ce-oem-automated
 unit: test plan
@@ -65,6 +67,8 @@ nested_part:
     ce-oem-rs485-automated
     ce-oem-eeprom-automated
     ce-oem-led-automated
+    ce-oem-caam-automated
+    ce-oem-crypto-automated
 
 id: after-suspend-ce-oem-manual
 unit: test plan
@@ -89,6 +93,8 @@ nested_part:
     after-suspend-ce-oem-rs485-manual
     after-suspend-ce-oem-eeprom-manual
     after-suspend-ce-oem-led-manual
+    after-suspend-ce-oem-caam-manual
+    after-suspend-ce-oem-crypto-manual
 
 id: after-suspend-ce-oem-automated
 unit: test plan
@@ -112,6 +118,8 @@ nested_part:
     after-suspend-ce-oem-rs485-automated
     after-suspend-ce-oem-eeprom-automated
     after-suspend-ce-oem-led-automated
+    after-suspend-ce-oem-caam-automated
+    after-suspend-ce-oem-crypto-automated
 
 id: ce-oem-stress
 unit: test plan

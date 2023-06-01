@@ -1,0 +1,49 @@
+id: ce-oem-crypto-full
+unit: test plan
+_name: Crypto tests
+_description: Full crypto tests for devices
+include:
+nested_part:
+    ce-oem-crypto-manual
+    ce-oem-crypto-automated
+
+id: ce-oem-crypto-manual
+unit: test plan
+_name: Crypto manual tests
+_description: Manual crypto tests for devices
+include:
+
+id: ce-oem-crypto-automated
+unit: test plan
+_name: Crypto auto tests
+_description: Automated crypto tests for devices
+bootstrap_include:
+    cryptoinfo
+    hwrng
+include:
+    ce-oem-crypto/benchmark
+
+id: after-suspend-ce-oem-crypto-full
+unit: test plan
+_name: After suspend crypto tests
+_description: Full after-suspend crypto tests for devices
+include:
+nested_part:
+    after-suspend-ce-oem-crypto-manual
+    after-suspend-ce-oem-crypto-automated
+
+id: after-suspend-ce-oem-crypto-manual
+unit: test plan
+_name: After suspend crypto manual tests
+_description: Manual after-suspend crypto tests for devices
+include:
+
+id: after-suspend-ce-oem-crypto-automated
+unit: test plan
+_name: After suspend crypto auto tests
+_description: Automated after-suspend crypto tests for devices
+bootstrap_include:
+    cryptoinfo
+    hwrng
+include:
+    also-after-suspend-ce-oem-crypto/benchmark

@@ -24,14 +24,13 @@ from metabox.core.actions import (
     Start,
     Put,
     Send,
-    RunCmd,
+    MkTree,
+
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
 from .config_files import test_manifest
-
-MANIFEST_LOCATION = "/var/tmp/checkbox-ng/machine-manifest.json"
 
 conf_wrong = read_text(test_manifest, "wrong.json")
 
@@ -108,7 +107,8 @@ class ManifestConfigCacheAuto(Scenario):
     """)
 
     steps = [
-        Put(MANIFEST_LOCATION, conf_correct),
+        MkTree("/var/tmp/checkbox-ng"),
+        Put("/var/tmp/checkbox-ng/machine-manifest.json", conf_correct),
         Start(),
         AssertPrinted(".*Outcome: job passed.*"),
     ]
@@ -132,7 +132,8 @@ class ManifestConfigCacheManual(Scenario):
     """)
 
     steps = [
-        Put(MANIFEST_LOCATION, conf_correct),
+        MkTree("/var/tmp/checkbox-ng"),
+        Put("/var/tmp/checkbox-ng/machine-manifest.json", conf_correct),
         Start(),
         Expect("tests to run on your system"),
         Send("T"),
@@ -167,7 +168,8 @@ class ManifestConfigPrecedenceAuto(Scenario):
     """)
 
     steps = [
-        Put(MANIFEST_LOCATION, conf_wrong),
+        MkTree("/var/tmp/checkbox-ng"),
+        Put("/var/tmp/checkbox-ng/machine-manifest.json", conf_wrong),
         Start(),
         AssertPrinted(".*Outcome: job passed.*")
     ]
@@ -194,7 +196,8 @@ class ManifestConfigPrecedenceManual(Scenario):
     """)
 
     steps = [
-        Put(MANIFEST_LOCATION, conf_wrong),
+        MkTree("/var/tmp/checkbox-ng"),
+        Put("/var/tmp/checkbox-ng/machine-manifest.json", conf_wrong),
         Start(),
         Expect("tests to run on your system"),
         Send("T"),

@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 9),
                python3-all,
                python3-distutils-extra,
                python3-docutils,
+               python3-importlib-metadata | python3 (>> 3.8),
                python3-jinja2,
                python3-packaging,
                python3-padme,
@@ -21,7 +22,6 @@ Build-Depends: debhelper (>= 9),
                python3-tqdm,
                python3-urwid,
                python3-xlsxwriter
-               python3-importlib-metadata | python3 (>> 3.8),
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 
@@ -42,7 +42,8 @@ Description: CheckBoxNG test runner
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: python3-jinja2,
+Depends: python3-importlib-metadata | python3 (>> 3.8),
+         python3-jinja2,
          python3-packaging,
          python3-padme,
          python3-pkg-resources,
@@ -52,7 +53,6 @@ Depends: python3-jinja2,
          python3-tqdm,
          python3-urwid,
          python3-xlsxwriter,
-         python3-importlib-metadata | python3 (>> 3.8),
          ${misc:Depends},
          ${python3:Depends}
 Breaks: python3-plainbox (<<1)

@@ -2355,85 +2355,535 @@ _description: Check dock MAC address pass-through function, please make sure fol
     2. MAC address pass-through is enabled in BIOS settings
     3. Dock is connected
 
-id: dock/all-initial
+id: dock/all-init
 category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-     This test is to setup the initial stauts for all I/O port on docking
+    This test is to setup the initial status for all I/O ports on docking.
+    Note:
+        Try to meet the limitation in the spec of the dock.
+        If there's no port as description below, you can just skip it.
 _steps:
-     1. If the laptop is currently undocked, dock it now.
-     2. Connect a DP monitor.
-     3. Connect a Type-C to HDMI monitor.
-     4. Connect a TB3 storage.
-     5. Connect a Type-C storage.
-     6. Connect a USB3.0 storage.
-     7. Connect a headset.
-     8. Connect a Ethernet cable.
+    1. If the laptop is currently undocked, dock it now.
+    2. Connect a Ethernet cable to the docking station.
+    3. Connect a DP monitor to the docking station.
+    4. Connect a HDMI monitor to the docking station.
+    5. Connect a Thunderbolt monitor to the docking station.
+    6. Connect a Thunderbolt3 storage to the docking station.
+    7. Connect a USB Type-C storage to the docking station.
+    8. Connect a USB3.0 storage to the docking station.
+    9. Connect a headset to the docking station.
 _verification:
-     1. Did the display works fine?
-     2. Did the storage works fine?
-     3. Did the audio works fine?
-     4. Did the network works fine?
+    Mark it Pass if you have connected all I/O ports as mentioned above.
 
 id: dock/all-reboot
 category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-     This test is to test devices still working after reboot
+    This test is to check if the device is still working after reboot.
 _steps:
-     Reboot the system.
+    Reboot the system.
 _verification:
-     1. Did the display works fine after reboot?
-     2. Did the storage works fine after reboot?
-     3. Did the audio works fine after reboot?
-     4. Did the network works fine after reboot?
+    Mark it Pass if you have rebooted the system.
 
 id: dock/all-hotplug
 category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-     This test is to test devices still working after hotplug
+    This test is to check if the device is still working after hotplug.
 _steps:
-     1. Unplug docking station.
-     2. Waiting 30 seconds.
-     3. Plug in docking station.
+    1. Unplug the docking station.
+    2. Wait for 30 seconds.
+    3. Plug in the docking station.
 _verification:
-     1. Did the display works fine after hotplug?
-     2. Did the storage works fine after hotplug?
-     3. Did the audio works fine after hotplug?
-     4. Did the network works fine after hotplug?
+    Mark it Pass if you have hotplugged the docking station.
 
 id: dock/all-suspend
 category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-     This test is to test devices still working after suspend
+    This test is to check if the device is still working after suspend.
 _steps:
-     1. Suspend the system.
-     2. Waiting 30 seconds.
-     3. Resume the system.
+    1. Suspend the system.
+    2. Wait for 30 seconds.
+    3. Resume the system.
 _verification:
-     1. Did the display works fine after suspend?
-     2. Did the storage works fine after suspend?
-     3. Did the audio works fine after suspend?
-     4. Did the network works fine after suspend?
+    Mark it Pass if you have suspended and resumed the system.
 
 id: dock/all-poweroff
 category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-     This test is to test devices still working after poweroff
+    This test is to check if the device is still working after power-off.
 _steps:
-     1. Poweroff the system.
-     2. Waiting 30 seconds.
-     3. Poweron the system.
+    1. Poweroff the system.
+    2. Wait for 30 seconds.
+    3. Poweron the system.
 _verification:
-     1. Did the display works fine after poweroff?
-     2. Did the storage works fine after poweroff?
-     3. Did the audio works fine after poweroff?
-     4. Did the network works fine after poweroff?
+    Mark it Pass if you have powered off and powered on the system.
+
+id: dock/all-init-monitor-multi-head
+category_id: dock-display
+estimated_duration: 120.0
+_summary: Dual monitors test while docked
+plugin: manual
+_purpose:
+    This test is to verify that multi-monitor output works using the dock. You will need multiple external monitors to perform this test. Depends on the specification of the device to use 4K monitor or FHD monitor.
+_steps:
+    Skip this test if your video card or the dock do not support multiple monitors.
+    1. If your dock provides more than one monitor outputs, connect multiple monitors.
+    2. Open the "Displays" tool (open the dash and search for "Displays").
+    3. Configure your output to provide one desktop across all the monitors.
+    4. Open any application and drag its window from one monitor to the next.
+_verification:
+    Was the stretched desktop displayed correctly across all the screens?
+_siblings:
+    [{"id": "dock/all-reboot-monitor-multi-head"},
+     {"id": "dock/all-hotplug-monitor-multi-head"},
+     {"id": "dock/all-suspend-monitor-multi-head"},
+     {"id": "dock/all-poweroff-monitor-multi-head"}]
+
+id: dock/all-init-monitor-multi-head-audio-playback
+category_id: dock-audio
+requires:
+    device.category == 'AUDIO'
+_summary: Multiple monitor audio test
+plugin: user-interact-verify
+estimated_duration: 60.0
+command:
+    indexes=$(pacmd list-sinks | grep -e 'index' -e 'available' | grep -B 1 -e 'available: unknown' -e 'available: yes' | grep index | awk '{print $NF}')
+    for index in $indexes
+    do
+            pacmd set-default-sink "$index"
+            audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/dockaudio_settings
+            pacmd set-sink-volume "$index" 65536
+            speaker-test -c 2 -l 1 -t wav
+            audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/dockaudio_settings
+    done
+_purpose:
+    This test is to check if every external monitor on the dock can play sound.
+_steps:
+    1. Launch the test to play sound on every monitor.
+_verification:
+    Does every external monitor can play sound?
+    If no sound output, try:
+        1. Go to Settings > Sound > Output > Test > Try Front Left and Front Right.
+        2. Repeat Step 1 for each monitor.
+_siblings:
+    [{"id": "dock/all-reboot-monitor-multi-head-audio-playback"},
+     {"id": "dock/all-hotplug-monitor-multi-head-audio-playback"},
+     {"id": "dock/all-suspend-monitor-multi-head-audio-playback"},
+     {"id": "dock/all-poweroff-monitor-multi-head-audio-playback"}]
+
+id: dock/all-init-networking-gateway-ping
+plugin: user-interact-verify
+category_id: dock-network
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ethernet_adapter == 'True'
+depends: ethernet/detect
+command: gateway_ping_test.py
+estimated_duration: 10.00
+_summary: Ping test using dock's Ethernet connectivity
+_purpose:
+    Tests whether the system has a working Internet connection.
+_steps:
+    1. Make sure the dock is connected to network using an Ethernet cable.
+    2. Make sure the laptop itself is not connected to any Ethernet cable.
+    3. Launch the test.
+_verification:
+    Was the test able to ping the network using the Ethernet connection?
+_siblings:
+    [{"id": "dock/all-reboot-networking-gateway-ping"},
+     {"id": "dock/all-hotplug-networking-gateway-ping"},
+     {"id": "dock/all-suspend-networking-gateway-ping"},
+     {"id": "dock/all-poweroff-networking-gateway-ping"}]
+
+id: dock/all-init-networking-ntp
+category_id: dock-network
+plugin: user-interact-verify
+requires: package.name == 'ntpdate'
+user: root
+command: network_ntp_test.py
+estimated_duration: 10.00
+_summary: NTP sync test using dock's Ethernet connectivity
+_purpose:
+    Test to see if we can sync local clock to an NTP server
+_steps:
+    1. Make sure the dock is connected to network using an Ethernet cable.
+    2. Make sure the laptop itself is not connected to any Ethernet cable.
+    3. Launch the test.
+_verification:
+    Was the test able to synchronize system time using the Ethernet connection?
+_siblings:
+    [{"id": "dock/all-reboot-networking-ntp"},
+     {"id": "dock/all-hotplug-networking-ntp"},
+     {"id": "dock/all-suspend-networking-ntp"},
+     {"id": "dock/all-poweroff-networking-ntp"}]
+
+id: dock/all-init-thunderbolt3-insert
+category_id: dock
+estimated_duration: 40.0
+plugin: user-interact
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+flags: also-after-suspend
+command: removable_storage_watcher.py insert --timeout 40 scsi
+_summary: Thunderbolt3 storage insertion detection
+_purpose:
+    This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
+_steps:
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 40 seconds.
+    2. Plug a Thunderbolt3 HDD into an available Thunderbolt3 port on the dock.
+       If it's not mounted automatically, please click the HDD icon to mount it.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result.
+_siblings:
+    [{"id": "dock/all-reboot-thunderbolt3-insert"},
+     {"id": "dock/all-hotplug-thunderbolt3-insert"},
+     {"id": "dock/all-suspend-thunderbolt3-insert"},
+     {"id": "dock/all-poweroff-thunderbolt3-insert"}]
+
+id: dock/all-init-thunderbolt3-storage-automated
+category_id: dock
+estimated_duration: 45.0
+user: root
+plugin: shell
+depends: dock/all-init-thunderbolt3-insert
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+flags: also-after-suspend
+command: removable_storage_test.py -s 268400000 scsi
+_summary: Thunderbolt3 storage test
+_description:
+    This is an automated test which performs read/write operations on an attached
+    Thunderbolt storage.
+_siblings:
+    [{"id": "dock/all-reboot-thunderbolt3-storage-automated",
+      "depends": "dock/all-reboot-thunderbolt3-insert"},
+     {"id": "dock/all-hotplug-thunderbolt3-storage-automated",
+      "depends": "dock/all-hotplug-thunderbolt3-insert"},
+     {"id": "dock/all-suspend-thunderbolt3-storage-automated",
+      "depends": "dock/all-suspend-thunderbolt3-insert"},
+     {"id": "dock/all-poweroff-thunderbolt3-storage-automated",
+      "depends": "dock/all-poweroff-thunderbolt3-insert"}]
+
+id: dock/all-init-thunderbolt3-remove
+category_id: dock
+estimated_duration: 20.0
+plugin: user-interact
+depends: dock/all-init-thunderbolt3-insert
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt3 == 'True'
+flags: also-after-suspend
+command: removable_storage_watcher.py remove scsi
+_summary: Thunderbolt3 storage removal detection
+_purpose:
+    This test will check the system can detect the removal of a Thunderbolt3 storage.
+_steps:
+    1. Click 'Test' to begin the test. This test will timeout and fail if
+       the removal has not been detected within 20 seconds.
+    2. Remove the previously attached Thunderbolt3 HDD from the Thunderbolt3 port.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result
+_siblings:
+    [{"id": "dock/all-reboot-thunderbolt3-remove",
+      "depends": "dock/all-reboot-thunderbolt3-insert"},
+     {"id": "dock/all-hotplug-thunderbolt3-remove",
+      "depends": "dock/all-hotplug-thunderbolt3-insert"},
+     {"id": "dock/all-suspend-thunderbolt3-remove",
+      "depends": "dock/all-suspend-thunderbolt3-insert"},
+     {"id": "dock/all-poweroff-thunderbolt3-remove",
+      "depends": "dock/all-poweroff-thunderbolt3-insert"}]
+
+
+id: dock/all-init-usb-c/insert
+plugin: user-interact
+category_id: dock-usb
+imports: from com.canonical.plainbox import manifest
+requires:
+    usb.usb3 == 'supported'
+    manifest.has_usbc_data == 'True'
+estimated_duration: 10.0
+command: removable_storage_watcher.py -m 500000000 insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB 3 storage device in a USB Type-C connector on the dock.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
+_steps:
+    1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
+       on the dock.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb-c/insert"},
+     {"id": "dock/all-hotplug-usb-c/insert"},
+     {"id": "dock/all-suspend-usb-c/insert"},
+     {"id": "dock/all-poweroff-usb-c/insert"}]
+
+id: dock/all-init-usb-c/storage-automated
+plugin: shell
+category_id: dock-usb
+imports: from com.canonical.plainbox import manifest
+requires:
+    usb.usb3 == 'supported'
+    manifest.has_usbc_data == 'True'
+depends: dock/all-init-usb-c/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+    This test executes automatically after the usb-c/insert test is run.
+_siblings:
+    [{"id": "dock/all-reboot-usb-c/storage-automated",
+      "depends": "dock/all-reboot-usb-c/insert"},
+     {"id": "dock/all-hotplug-usb-c/storage-automated",
+      "depends": "dock/all-hotplug-usb-c/insert"},
+     {"id": "dock/all-suspend-usb-c/storage-automated",
+      "depends": "dock/all-suspend-usb-c/insert"},
+     {"id": "dock/all-poweroff-usb-c/storage-automated",
+      "depends": "dock/all-poweroff-usb-c/insert"}]
+
+id: dock/all-init-usb-c/remove
+plugin: user-interact
+category_id: dock-usb
+imports: from com.canonical.plainbox import manifest
+depends: dock/all-init-usb-c/insert
+requires:
+ usb.usb3 == 'supported'
+ manifest.has_usbc_data == 'True'
+estimated_duration: 10.0
+command: removable_storage_watcher.py -m 500000000 remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB 3 storage device connected to a USB Type-C port.
+_steps:
+    1. Click "Test" and remove the USB 3 device.
+        (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb-c/remove",
+      "depends": "dock/all-reboot-usb-c/insert"},
+     {"id": "dock/all-hotplug-usb-c/remove",
+      "depends": "dock/all-hotplug-usb-c/insert"},
+     {"id": "dock/all-suspend-usb-c/remove",
+      "depends": "dock/all-suspend-usb-c/insert"},
+     {"id": "dock/all-poweroff-usb-c/remove",
+      "depends": "dock/all-poweroff-usb-c/insert"}]
+
+plugin: user-interact
+id: dock/all-init-usb3-insert
+category_id: dock-usb
+estimated_duration: 10.0
+_summary: USB3 drive insertion test
+command: removable_storage_watcher.py -m 500000000 insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB 3.0 storage device.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
+_steps:
+    1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
+       in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
+       be used it might cause performance related tests to fail.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb3-insert"},
+     {"id": "dock/all-hotplug-usb3-insert"},
+     {"id": "dock/all-suspend-usb3-insert"},
+     {"id": "dock/all-poweroff-usb3-insert"}]
+
+plugin: shell
+id: dock/all-init-usb3-storage-automated
+category_id: dock-usb
+depends: dock/all-init-usb3-insert
+user: root
+estimated_duration: 45.0
+_summary: USB3 drive storage test
+command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+ This test is automated and executes after the dock/usb3_insert test is run.
+_siblings:
+    [{"id": "dock/all-reboot-usb3-storage-automated",
+      "depends": "dock/all-reboot-usb3-insert"},
+     {"id": "dock/all-hotplug-usb3-storage-automated",
+      "depends": "dock/all-hotplug-usb3-insert"},
+     {"id": "dock/all-suspend-usb3-storage-automated",
+      "depends": "dock/all-suspend-usb3-insert"},
+     {"id": "dock/all-poweroff-usb3-storage-automated",
+      "depends": "dock/all-poweroff-usb3-insert"}]
+
+plugin: user-interact
+id: dock/all-init-usb3-remove
+category_id: dock-usb
+depends: dock/all-init-usb3-insert
+estimated_duration: 10.0
+_summary: USB3 drive removal test
+command: removable_storage_watcher.py -m 500000000 remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB 3.0 storage device
+_steps:
+    1. Click "Test" and remove the USB 3.0 device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb3-remove",
+      "depends": "dock/all-reboot-usb3-insert"},
+     {"id": "dock/all-hotplug-usb3-remove",
+      "depends": "dock/all-hotplug-usb3-insert"},
+     {"id": "dock/all-suspend-usb3-remove",
+      "depends": "dock/all-suspend-usb3-insert"},
+     {"id": "dock/all-poweroff-usb3-remove",
+      "depends": "dock/all-poweroff-usb3-insert"}]
+
+id: dock/all-init-audio-speaker-headphone-plug-detection
+category_id: dock-audio
+plugin: user-interact
+estimated_duration: 60.0
+_summary: Headphones recognized when plugged to the dock test
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse_active_port_change.py sinks
+_purpose:
+    Check that system detects speakers or headphones being plugged in.
+    (Skip this test if the dock does not have headphones connector)
+_steps:
+    1. Prepare a pair of headphones or speakers with a standard 3.5mm jack.
+    2. Locate the speaker / headphone jack on the dock under test.
+    3. Run the test (you have 30 seconds from now on).
+    4. Plug headphones or speakers into the appropriate jack.
+    5. Unplug the device for subsequent tests.
+_verification:
+    Verification is automatic, no action is required.
+    The test times out after 30 seconds (and fails in that case).
+_siblings:
+    [{"id": "dock/all-reboot-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-hotplug-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-poweroff-audio-speaker-headphone-plug-detection"}]
+
+id: dock/all-init-audio-playback-headphones
+category_id: dock-audio
+plugin: user-interact-verify
+flags: also-after-suspend
+estimated_duration: 30.0
+_summary: Headphones output test
+depends: dock/all-init-audio-speaker-headphone-plug-detection
+requires:
+    device.category == 'AUDIO'
+    package.name == 'alsa-base'
+    package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+    package.name == 'pulseaudio-utils'
+command:
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --device=pci --volume=50
+    gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    exit $EXIT_CODE
+_purpose:
+    This test will check that headphones connector works correctly.
+    (Skip this test if there is no headphone connector on the dock)
+_steps:
+    1. Connect a pair of headphones to the dock.
+    2. Go to the Sound settings and make sure the correct Output is selected.
+    3. Click the Test button to play a sound to your audio device.
+_verification:
+    Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
+_siblings:
+    [{"id": "dock/all-reboot-audio-playback-headphones",
+      "depends": "dock/all-reboot-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-hotplug-audio-playback-headphones",
+      "depends": "dock/all-hotplug-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-playback-headphones",
+      "depends": "dock/all-suspend-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-poweroff-audio-playback-headphones",
+      "depends": "dock/all-poweroff-audio-speaker-headphone-plug-detection"}]
+
+id: dock/all-init-audio-microphone-plug-detection
+category_id: dock-audio
+plugin: user-interact
+estimated_duration: 60.0
+_summary: Microphone recognized when plugged to the dock test
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse_active_port_change.py sources
+_purpose:
+    Check that system detects a microphone being plugged in.
+    (Skip this test if the dock does not have a microphone connector)
+_steps:
+    1. Prepare a microphone with a standard 3.5mm jack.
+    2. Locate the microphone jack on the dock under test.
+       Keep in mind that it may be shared with the headphone jack.
+    3. Run the test (you have 30 seconds from now on)
+    4. Plug the microphone into the appropriate jack.
+    5. Unplug the device for subsequent tests.
+_verification:
+    Verification is automatic, no action is required.
+    The test times out after 30 seconds (and fails in that case).
+_siblings:
+    [{"id": "dock/all-reboot-audio-microphone-plug-detection"},
+     {"id": "dock/all-hotplug-audio-microphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-microphone-plug-detection"},
+     {"id": "dock/all-poweroff-audio-microphone-plug-detection"}]
+
+plugin: user-interact-verify
+category_id: dock-audio
+id: dock/all-init-audio-alsa-record-playback-external
+estimated_duration: 30.0
+flags: also-after-suspend
+_summary: External microphone plugged to the dock to record sound test
+depends: dock/all-init-audio-microphone-plug-detection
+requires:
+    device.category == 'AUDIO'
+    package.name == 'alsa-base'
+    package.name == 'pulseaudio-utils'
+    package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --device=pci --volume=50
+    alsa_record_playback.sh
+    EXIT_CODE=$?
+    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    exit $EXIT_CODE
+_purpose:
+    This test will check that recording sound using an external microphone works correctly.
+    (Skip this test if the dock does not have a microphone connector)
+_steps:
+    1. Connect a microphone to the dock's microphone port.
+    2. Go to the Sound settings and make sure the correct Output is selected.
+    3. Click "Test", then speak into the external microphone.
+    4. After a few seconds, your speech will be played back to you.
+_verification:
+    Did you hear your speech played back?
+_siblings:
+    [{"id": "dock/all-reboot-audio-alsa-record-playback-external",
+      "depends": "dock/all-reboot-audio-microphone-plug-detection"},
+     {"id": "dock/all-hotplug-audio-alsa-record-playback-external",
+      "depends": "dock/all-hotplug-audio-microphone-plug-detection"},
+     {"id": "dock/all-suspend-audio-alsa-record-playback-external",
+      "depends": "dock/all-suspend-audio-microphone-plug-detection"},
+     {"id": "dock/all-poweroff-audio-alsa-record-playback-external",
+      "depends": "dock/all-poweroff-audio-microphone-plug-detection"}]

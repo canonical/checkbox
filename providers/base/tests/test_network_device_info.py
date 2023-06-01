@@ -27,13 +27,12 @@ class GetIpv4AddressTests(unittest.TestCase):
 
     # 2. Connected with WiFi
     #    It will pulls out a 256 bytes data into buffer, then we get to parse the IP address
-    def test_get_ipv4_address_without_connection(self):
-        test_input = b""
-        mock_ioctl = Mock(return_value=test_input)
-        with patch("fcntl.ioctl", mock_ioctl):
-            interface = "wlo1"
-            addr = Utils.get_ipv4_address(interface)
-            self.assertEqual(addr, "***NOT CONFIGURED***")
+    @patch("fcntl.ioctl")
+    def test_get_ipv4_address_without_connection(self, mock_ioctl):
+        mock_ioctl.side_effect = OSError()
+        interface = "wlo1"
+        addr = Utils.get_ipv4_address(interface)
+        self.assertEqual(addr, "***NOT CONFIGURED***")
 
     def test_get_ipv4_address_with_connection(self):
         test_input = (b'wlo1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
@@ -53,7 +52,6 @@ class GetIpv4AddressTests(unittest.TestCase):
         b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
         b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
         b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-        # test_input = b"I'm fake!!!"
         mock_inet_ntoa = Mock(return_value=test_input)
         with patch("fcntl.ioctl", mock_inet_ntoa):
             interface = "wlo1"
@@ -61,12 +59,13 @@ class GetIpv4AddressTests(unittest.TestCase):
             self.assertEqual(addr, "192.168.68.101")
 
 class GetIpv6AddressTests(unittest.TestCase):
-    # There are 3 output we could get, but only 2 cases will happen due to the way we command it
+    # There are 3 kind of output it could return, but only 2 will happen in this case.
     # 1. No WiFi connected 
 
     # 2. Connected with WiFi
 
-    # 3. Connected with WiFi, but we ask the wrong interface name (This would not happen in our case, because the name is given by NetworkManager)
+    # 3. Connected with WiFi, but we ask the wrong interface name 
+    #    (This would not happen in our case, because the name is given by NetworkManager)
     def test_get_ipv6_address_without_connection(self):
         test_input = ""
         mock_check_output = Mock(return_value=test_input)

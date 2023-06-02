@@ -51,8 +51,7 @@ else:
         'Jinja2 >= 2.7',
         'xlsxwriter',
         'tqdm',
-        'importlib_metadata',
-    ]
+    ] + (["importlib_metadata"] if sys.version_info < (3, 8) else [])
 
 setup(
     name="checkbox-ng",

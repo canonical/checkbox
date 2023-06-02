@@ -120,6 +120,7 @@ CPUIDS = {
         "Comet Lake":       ['0x806ec', '0xa065'],
         "Cooper Lake":      ['0x5065a', '0x5065b'],
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
+        "Hygon Dhyana Plus": ['0x900f22'],
         "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6', '0x606c1'],
         "Ivy Bridge":       ['0x306a', '0x306e'],
         "Kaby Lake":        ['0x806e9', '0x906e9'],
@@ -203,7 +204,7 @@ def main():
     complete = False
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:
-            if value.lower() in my_id.lower():
+            if value in my_id:
                 print("CPUID: %s which appears to be a %s processor" %
                       (my_id, key))
                 complete = True

@@ -10,6 +10,28 @@
 DRIVER=$1
 INDEX=$2
 
+# Some environment variables(like XDG_SESSION_TYPE) are set by some services
+# (like graphical-session.target), but during system suspend/resume, they will
+# be unset.
+ensure_xdg_session_type() {
+    local max_attempts=5
+    local attempt=0
+    while [ -z "$XDG_SESSION_TYPE" ]; do
+        sleep 1
+
+        echo "Waiting for XDG_SESSION_TYPE to be set"
+        XDG_SESSION_TYPE=$(systemctl --user show-environment | grep XDG_SESSION_TYPE | cut -d= -f2)
+
+        attempt=$((attempt+1))
+        if [ $attempt -eq $max_attempts ]; then
+            >&2 echo "XDG_SESSION_TYPE was not set after $max_attempts attempts"
+            exit 1
+        fi
+    done
+
+    export XDG_SESSION_TYPE
+}
+
 # We only want to set the variable on systems with more than
 # 1 GPU running the amdgpu/radeon/nvidia drivers.
 if [[ $DRIVER == "amdgpu" || $DRIVER == "radeon" ]]; then
@@ -43,3 +65,5 @@ elif [[ $DRIVER == "nvidia" || $DRIVER == "pcieport" ]]; then
         fi
     fi
 fi
+
+ensure_xdg_session_type

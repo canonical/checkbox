@@ -85,9 +85,9 @@ class Utils():
             # retrieve the IP address associated with a network interface.
             data = fcntl.ioctl(s.fileno(), 0x8915, buffer)
             ipv4_addr = socket.inet_ntoa(data[20:24])
-        except OSError:
-            print("OSError: failed to get the IPv4 address for %s" %
-                  interface, file=sys.stderr)
+        except OSError as e:
+            print("OSError: failed to get the IPv4 address for %s: %s" %
+                  (interface, repr(e)), file=sys.stderr)
             ipv4_addr = "***NOT CONFIGURED***"
         finally:
             return ipv4_addr
@@ -98,11 +98,11 @@ class Utils():
                'scope', 'link']
         proc = check_output(cmd, universal_newlines=True)
         try:
-            # if it failed at split(), it means there is no output from cmd.
+            # If it failed at split(), it means there is no output from cmd.
             ipv6_addr = proc.split()[3].strip()
-        except IndexError:
-            print("IndexError: failed to get the IPv6 address for %s" %
-                  interface, file=sys.stderr)
+        except IndexError as e:
+            print("IndexError: failed to get the IPv6 address for %s: %s" %
+                  (interface, repr(e)), file=sys.stderr)
             ipv6_addr = "***NOT CONFIGURED***"
         return ipv6_addr
 

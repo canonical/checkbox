@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from io import StringIO
 from unittest.mock import Mock, patch
+from contextlib import redirect_stderr
 
 from network_device_info import Utils
 
@@ -31,7 +33,9 @@ class GetIpv4AddressTests(unittest.TestCase):
     def test_get_ipv4_address_without_connection(self, mock_ioctl):
         mock_ioctl.side_effect = OSError()
         interface = "wlo1"
-        addr = Utils.get_ipv4_address(interface)
+        with redirect_stderr(StringIO()) as stderr:
+            addr = Utils.get_ipv4_address(interface)
+
         self.assertEqual(addr, "***NOT CONFIGURED***")
 
     def test_get_ipv4_address_with_connection(self):
@@ -71,7 +75,9 @@ class GetIpv6AddressTests(unittest.TestCase):
         mock_check_output = Mock(return_value=test_input)
         with patch("network_device_info.check_output", mock_check_output):
             interface = "wlo1"
-            addr = Utils.get_ipv6_address(interface)
+            with redirect_stderr(StringIO()) as stderr:
+                addr = Utils.get_ipv6_address(interface)
+
             self.assertEqual(addr, "***NOT CONFIGURED***")
 
     def test_get_ipv6_address_with_connection(self):

@@ -3,7 +3,7 @@ summary: Checkbox test runner
 description: |
   Checkbox is a flexible test automation software.
   It’s the main tool used in Ubuntu Certification program.
-version: '2.6'
+version: '2.7'
 grade: stable
 confinement: classic
 

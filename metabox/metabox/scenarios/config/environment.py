@@ -19,10 +19,8 @@
 import textwrap
 from importlib.resources import read_text
 
-from metabox.core.actions import AssertPrinted
-from metabox.core.actions import Start
-from metabox.core.actions import Put
 from metabox.core.scenario import Scenario
+from metabox.core.actions import AssertPrinted, Start, MkTree, Put
 
 from .config_files import environment
 
@@ -68,6 +66,7 @@ class CheckboxConfLocalHome(Scenario):
         forced = yes
         """)
     steps = [
+        MkTree("/home/ubuntu/.config/"),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf),
         Start(),
         AssertPrinted("source: HOME"),
@@ -92,6 +91,7 @@ class CheckboxConfRemoteHome(Scenario):
         forced = yes
         """)
     steps = [
+        MkTree("/root/.config/", privileged=True),
         Put("/root/.config/checkbox.conf", checkbox_conf),
         Start(),
         AssertPrinted("source: HOME"),
@@ -116,6 +116,7 @@ class CheckboxConfSnap(Scenario):
         forced = yes
         """)
     steps = [
+        MkTree("/var/snap/checkbox/current/"),
         Put("/var/snap/checkbox/current/checkbox.conf", checkbox_conf),
         Start(),
         AssertPrinted("source: SNAP"),
@@ -164,6 +165,7 @@ class CheckboxConfLocalHomePrecedence(Scenario):
         """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
+        MkTree("/home/ubuntu/.config/"),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home),
         Start(),
         AssertPrinted("source: HOME"),
@@ -229,6 +231,7 @@ class CheckboxConfLocalResolutionOrder(Scenario):
         """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
+        MkTree("/home/ubuntu/.config/"),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home),
         Start(),
         AssertPrinted("variables: LAUNCHER HOME XDG"),
@@ -264,6 +267,7 @@ class CheckboxConfRemoteServiceResolutionOrder(Scenario):
     )
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        MkTree("/root/.config", privileged=True),
         Put(
             "/root/.config/checkbox.conf", checkbox_conf_home, target="service"
         ),

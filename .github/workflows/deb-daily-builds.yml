@@ -14,11 +14,12 @@ jobs:
         run: |
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
+          git clone -b main https://git.launchpad.net/~hook25/ppa-dev-tools /tmp/ppa-dev-tools
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Check for checkbox projects new commits
+      - name: Check for new commits, push build and wait result
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
         run: |

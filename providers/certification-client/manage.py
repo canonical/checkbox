@@ -21,6 +21,7 @@
 import shutil
 import os
 
+import plainbox
 from plainbox.provider_manager import InstallCommand
 from plainbox.provider_manager import SourceDistributionCommand
 from plainbox.provider_manager import _logger
@@ -79,7 +80,7 @@ class InstallCommandExt(InstallCommand):
 setup(
     name='checkbox-provider-certification-client',
     namespace='com.canonical.certification',
-    version="2.6",
+    version=plainbox.__version__,
     description=N_("Client Certification provider"),
     gettext_domain="checkbox-provider-certification-client",
     deprecated=False,

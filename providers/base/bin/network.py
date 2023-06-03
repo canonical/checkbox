@@ -71,6 +71,7 @@ class IPerfPerformanceTest(object):
             iface_timeout=120):
 
         self.iface = Interface(interface)
+        self.interface = interface
         self.target = target
         self.protocol = protocol
         self.fail_threshold = fail_threshold
@@ -166,27 +167,71 @@ class IPerfPerformanceTest(object):
                 avg_cpu = sum_cpu / n
         return avg_cpu
 
+    def find_numa(self, device):
+        """Return the NUMA node of the specified network device."""
+        filename = "/sys/class/net/" + device + "/device/numa_node"
+        try:
+            with open(filename, "r") as file:
+                node_num = int(file.read())
+        except FileNotFoundError:
+            logging.warning("WARNING: Could not find the NUMA node "
+                            "associated with {}!".format(device))
+            logging.warning("Setting the association to NUMA node 0, "
+                            "which may not be optimal!")
+            node_num = 0
+        # Some systems (that don't support NUMA?) produce a node_num of -1.
+        # Change this to 0, which seems to be correct....
+        if node_num == -1:
+            node_num = 0
+        logging.info("NUMA node of {} is {}....".format(device, node_num))
+        return node_num
+
+    def extract_core_list(self, line):
+        """Extract a list of CPU cores from a line of the form:
+        NUMA node# CPU(s):    a-b[,c-d[,...]]"""
+        colon = line.find(":")
+        cpu_list = line[colon+1:]
+        core_list = []
+        for core_range in cpu_list.split(","):
+            # core_range should be of the form "a-b" or "a"
+            range_list = core_range.split("-")
+            if len(range_list) > 1:
+                # core_range was a range ("a-b"), so we must add all cores in
+                # that range....
+                for i in range(int(range_list[0]), int(range_list[1]) + 1):
+                    core_list.append(i)
+            elif len(range_list) == 1:
+                # core_range was a single CPU, so add just it....
+                core_list.append(int(range_list[0]))
+            else:
+                # Weirdness, so alert the user....
+                logging.error("Cannot parse CPU list:")
+                logging.error(cpu_list)
+        logging.debug("Will use CPU cores: {}....".format(core_list))
+        return core_list
+
+    def find_cores(self, numa_node):
+        """Return a list of CPU cores tied to the specified NUMA node."""
+        numa_return = check_output("lscpu", universal_newlines=True,
+                                   stderr=STDOUT).split("\n")
+        expression = "NUMA node.*" + str(numa_node) + ".*CPU"
+
+        regex = re.compile(expression)
+        core_list = []
+        if numa_return:
+            for i in numa_return:
+                hit = regex.search(i)
+                if hit:
+                    core_list = self.extract_core_list(i)
+        return core_list
+
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
         if self.iface.max_speed == 0:
             logging.warning("No max speed detected, assuming Wireless device "
                             "and continuing with test.")
 
-        # Set the correct binary to run
-        if (self.iperf3):
-            self.executable = "iperf3 -V"
-        else:
-            self.executable = "iperf"
-
-        # Determine number of parallel threads
-        if self.num_threads == -1:
-            # Below is a really crude guesstimate based on our
-            # initial testing. It's likely possible to improve
-            # this method of setting the number of threads.
-            threads = math.ceil(self.iface.link_speed / 10000)
-        else:
-            threads = self.num_threads
-
+        threads = self.num_threads
         if threads == 1:
             logging.info("Using 1 thread.")
         else:
@@ -198,18 +243,32 @@ class IPerfPerformanceTest(object):
         # for running iperf -- but only one; within that thread, iperf 2's
         # own multi-threading handles that detail.)
         if self.iperf3:
+            self.executable = "iperf3 -V"
             start_port = 5201
             iperf_threads = 1
             python_threads = threads
+            node = self.find_numa(self.interface)
+            core_list = self.find_cores(node)
         else:
+            self.executable = "iperf"
             start_port = 5001
             iperf_threads = threads
             python_threads = 1
 
+        # IN THEORY, limiting the per-thread bit rate should help spread the
+        # load across all the threads and prevent huge discrepancies in CPU
+        # load, which can lead to test failures. IN PRACTICE, doing so helps,
+        # but there are still big differences in per-thread CPU load.
+        # Boost the theoretical exact split a bit so that one thread can take
+        # up a little slack if another falls behind.
+        thread_bit_rate = int(self.iface.max_speed / threads) + 1000
+        logging.debug("thread_bit_rate is {}".format(thread_bit_rate))
+
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
-            cmd = "{} -c {} -t {} -i 1 -f m -P {}".format(
-                self.executable, self.target, self.run_time, iperf_threads)
+            cmd = "{} -b {}M -c {} -t {} -i 1 -f m -P {}".format(
+                self.executable, thread_bit_rate, self.target, self.run_time,
+                iperf_threads)
             if self.reverse:
                 cmd += " -R"
         else:
@@ -220,18 +279,23 @@ class IPerfPerformanceTest(object):
             # time without timeout to catch devices that slow down, and also
             # not prematurely end iperf on low-bandwidth devices.
             self.timeout = 1080*int(self.data_size)
-            cmd = "timeout -k 1 {} {} -c {} -n {}G -i 1 -f -m -P {}".format(
-                self.timeout, self.executable, self.target, self.data_size,
-                iperf_threads)
+            cmd = "timeout -k 1 {} {} -b {}M -c {} -n {}G -i 1 -f m -P {}". \
+                format(self.timeout, self.executable, thread_bit_rate,
+                       self.target, self.data_size, iperf_threads)
 
         # Handle threading -- start Python threads (even if just one is
         # used), then use join() to wait for them all to complete....
         t = []
         results.clear()
         for thread_num in range(0, python_threads):
+            if self.iperf3:
+                core = core_list[thread_num % len(core_list)]
+                full_cmd = cmd + " -A {}".format(core)
+            else:
+                full_cmd = cmd
             port_num = start_port + thread_num
             t.append(threading.Thread(target=self.run_one_thread,
-                                      args=(cmd, port_num)))
+                                      args=(full_cmd, port_num)))
             t[thread_num].start()
         for thread_num in range(0, python_threads):
             t[thread_num].join()
@@ -283,6 +347,40 @@ class IPerfPerformanceTest(object):
             return 30
 
         logging.debug("Passed benchmark against {}".format(self.target))
+
+    def optimize_num_threads(self):
+        """Find the approximate optimal number of threads."""
+        logging.info(" Optimizing Number of Threads ".center(60, "-"))
+        orig_run_time = self.run_time
+        orig_scan_timeout = self.scan_timeout
+        orig_num_threads = self.num_threads
+        self.run_time = 60
+        self.scan_timeout = 30
+        multiples = [0.5, 1, 1.5, 2]
+        max_throughput = 0
+        max_multiple = 0.5
+        for multiple in multiples:
+            self.num_threads = int(orig_num_threads * multiple)
+            logging.info("Testing optimization with {} threads".
+                         format(self.num_threads))
+            # Disable logging for the test runs that determine the optimum
+            # number of threads, since the output becomes too cluttered and
+            # confusing if we don't do so....
+            logger = logging.getLogger()
+            logger.disabled = True
+            self.run()
+            logger.disabled = False
+            throughput = self.summarize_speeds()
+            logging.info("Found throughput of {} with {} threads".
+                         format(int(throughput), self.num_threads))
+            if throughput > max_throughput:
+                max_throughput = throughput
+                max_multiple = multiple
+        self.run_time = orig_run_time
+        self.scan_timeout = orig_scan_timeout
+        self.num_threads = int(max_multiple * orig_num_threads)
+        logging.info("Setting number of threads to {}.".
+                     format(self.num_threads))
 
 
 class StressPerformanceTest:
@@ -502,6 +600,14 @@ def run_test(args, test_target):
         if args.runtime:
             iperf_benchmark.run_time = args.runtime
         run_num = 0
+        if iperf_benchmark.num_threads == -1:
+            # Below is a really crude initial guesstimate based on our
+            # initial testing. This number is optimized (to some extent)
+            # by calling optimize_num_threads() below....
+            iperf_benchmark.num_threads = \
+                math.ceil(iperf_benchmark.iface.link_speed / 10000)
+            if (iperf_benchmark.num_threads > 2):
+                iperf_benchmark.optimize_num_threads()
         while not error_number and run_num < args.num_runs:
             run_num += 1
             logging.info(" Test Run Number %s ".center(60, "-"), run_num)
@@ -587,9 +693,9 @@ def wait_for_iface_up(iface, timeout):
             isdown = False
         else:
             logging.debug("Interface {} not yet up; waiting....".format(iface))
-        # Sleep whether or not interface is up because sometimes the IP
-        # address gets assigned after "ip" claims it's up.
-        time.sleep(5)
+            # Sleep whether or not interface is up because sometimes the IP
+            # address gets assigned after "ip" claims it's up.
+            time.sleep(5)
 
 
 def interface_test(args):

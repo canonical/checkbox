@@ -7,3 +7,28 @@ id: whoami_as_user_tp
 unit: test plan
 _name: Printing who runs the job
 include: whoami_as_user
+
+unit: manifest entry
+id: manifest_location
+_name: Location where the manifest was loaded
+value-type: natural
+
+unit: job
+id: manifest_order_resolution
+_summary: Test the resolution order of the manifest
+_purpose:
+  This is used in manifest testing jobs for metabox
+plugin: shell
+command: true
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.manifest_location == '0'
+
+id: manifest_test_support
+unit: test plan
+_name: Manifest test support
+_description: 
+  Test plan used in manifest testing
+include:
+    manifest_order_resolution

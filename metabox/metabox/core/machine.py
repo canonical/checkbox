@@ -22,6 +22,7 @@ import os
 import time
 from pathlib import Path
 import textwrap
+from contextlib import suppress
 
 import pylxd.exceptions
 from loguru import logger
@@ -79,13 +80,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def get_early_dir_transfer(self):
         dirs = [
-            (self.config.uri, "/home/ubuntu/checkbox"),
-            (Path(self.config.uri) / "providers/base",
-             "/var/tmp/checkbox-providers/base"),
-            (Path(self.config.uri) / "providers/resource",
-             "/var/tmp/checkbox-providers/resource"),
-            (Path(self.config.uri) / "providers/certification-client",
-             "/var/tmp/checkbox-providers/certification-client"),
+            (self.config.uri, "/home/ubuntu/checkbox")
         ]
         return dirs
 
@@ -95,12 +90,20 @@ class ContainerSourceMachine(ContainerBaseMachine):
         """
 
         commands = [
-            "bash -c 'chmod +x /var/tmp/checkbox-providers/base/bin/*'",
-            "bash -c 'chmod +x /var/tmp/checkbox-providers/resource/bin/*'",
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
              "sudo python3 -m pip install -e .'"),
             ("bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
              "sudo python3 -m pip install -e .'"),
+            # Create the providers dir that the install command will use
+            "bash -c 'sudo mkdir -p /usr/local/share/plainbox-providers-1/'",
+            # This installs the providers. This is based on the fact
+            # that each provider dir (that is in `checkbox/providers`)
+            # has a manage.py script that will install the provider
+            # if called with the install parameter.
+            # This lists all manage.py in these locations and calls
+            # them as sudo with an install parameter
+            ("bash -c 'ls /home/ubuntu/checkbox/providers/*/manage.py"
+             "| xargs -I{} -n1 sudo python3 {} install'")
         ]
 
         if self.config.role in ('remote', 'service'):

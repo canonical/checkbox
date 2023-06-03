@@ -398,14 +398,35 @@ class Launcher(MainLoopStage, ReportsStage):
     def _strtobool(self, val):
         return val.lower() in ('y', 'yes', 't', 'true', 'on', '1')
 
+    def _save_manifest(self, interactive):
+        manifest_repr = self.ctx.sa.get_manifest_repr()
+        if not manifest_repr:
+            _logger.info("Skipping saving of the manifest")
+            return
+        if interactive:
+            # Ask the user the values
+            to_save_manifest = ManifestBrowser(
+                "System Manifest:",
+                manifest_repr
+            ).run()
+        else:
+            # Use the one provided in repr
+            # repr is question : [manifests]
+            #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
+            # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
+            all_preconf = (
+                conf for conf_list in manifest_repr.values()
+                    for conf in conf_list
+            )
+            to_save_manifest = {
+                conf['id'] : conf['value'] for conf in all_preconf
+            }
+        self.ctx.sa.save_manifest(to_save_manifest)
+
     def _pick_jobs_to_run(self):
         if self.launcher.test_selection_forced:
             if self.launcher.manifest is not Unset:
-                self.ctx.sa.save_manifest(
-                    {manifest_id:
-                     self._strtobool(self.launcher.manifest[manifest_id]) for
-                     manifest_id in self.launcher.manifest}
-                )
+                self._save_manifest(interactive = False)
             # by default all tests are selected; so we're done here
             return
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
@@ -416,11 +437,7 @@ class Launcher(MainLoopStage, ReportsStage):
         test_info_list = self._generate_job_infos(job_list)
         wanted_set = CategoryBrowser(
             _("Choose tests to run on your system:"), test_info_list).run()
-        manifest_repr = self.ctx.sa.get_manifest_repr()
-        if manifest_repr:
-            manifest_answers = ManifestBrowser(
-                "System Manifest:", manifest_repr).run()
-            self.ctx.sa.save_manifest(manifest_answers)
+        self._save_manifest(interactive = True)
         # no need to set an alternate selection if the job list not changed
         if len(test_info_list) == len(wanted_set):
             return
@@ -798,7 +815,7 @@ class Run(MainLoopStage):
 class List():
     def register_arguments(self, parser):
         parser.add_argument(
-            'GROUP', nargs='?',
+            'GROUP', nargs='?', choices=Explorer.OBJECT_TYPES,
             help=_("list objects from the specified group"))
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",

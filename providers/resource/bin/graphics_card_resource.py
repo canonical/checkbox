@@ -23,6 +23,38 @@ import collections
 import subprocess
 import shlex
 import string
+import re
+
+
+def get_ubuntu_version():
+    """Get Ubuntu release version for checking."""
+    try:
+        import distro
+        return distro.version()
+    except (ImportError, subprocess.CalledProcessError):
+        try:
+            with open('/etc/lsb-release', 'r') as lsb:
+                for line in lsb.readlines():
+                    (key, value) = line.split('=', 1)
+                    if key == 'DISTRIB_RELEASE':
+                        return re.sub('["\n]', '', value)
+        except OSError:
+            # Missing file or permissions? Return the default lsb_release
+            pass
+    return 0
+
+
+def compare_ubuntu_release_version(_version):
+    """
+    Compare ubuntu release version.
+    If host version is higher or equal provided, it will return True.
+    """
+    os_version = get_ubuntu_version()
+    try:
+        from packaging import version
+        return version.parse(os_version) >= version.parse(_version)
+    except (ImportError, subprocess.CalledProcessError):
+        return os_version >= _version
 
 
 def slugify(_string):
@@ -170,8 +202,14 @@ def main():
                 record['driver'] = 'unknown'
             # lp:1636060 – If discrete GPU is using amdgpu driver,
             # we set the prime_gpu_offload flag to 'On'
-            if index == 2 and record['driver'] == 'amdgpu':
-                record['prime_gpu_offload'] = 'On'
+            if index == 2:
+                if record['driver'] == 'amdgpu':
+                    record['prime_gpu_offload'] = 'On'
+                # NVIDIA driver supports PRIME render offload since version
+                # 435.17, and Ubuntu doesn't support Intel mode after 22.04.
+                elif (record['driver'] in ('nvidia', 'pcieport')
+                        and compare_ubuntu_release_version('22.04')):
+                    record['prime_gpu_offload'] = 'On'
             else:
                 record['prime_gpu_offload'] = 'Off'
             record['switch_to_cmd'] = switch_cmds[record['driver']][0]

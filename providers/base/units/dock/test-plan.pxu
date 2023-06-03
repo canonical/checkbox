@@ -2,11 +2,139 @@ id: dock-cert-full
 unit: test plan
 _name: Dock Cert tests
 _description:
- Cert tests for dock devices.
+  Cert tests for dock devices.
 include:
 nested_part:
-  dock-cold-plug-cert
-  dock-hot-plug
+  dock-all-init-cert
+  dock-all-reboot-cert
+  dock-all-hotplug-cert
+  dock-all-poweroff-cert
+  dock-all-suspend-cert
+
+id: dock-all-init-cert
+unit: test plan
+_name: Dock Cert tests after init
+_description:
+  Cert tests for initial dock devices.
+include:
+  dock/all-init
+  dock/all-init-monitor-multi-head                        certification-status=blocker
+  dock/all-init-monitor-multi-head-audio-playback         certification-status=blocker
+  dock/all-init-networking-gateway-ping                   certification-status=blocker
+  dock/all-init-networking-ntp                            certification-status=blocker
+  dock/all-init-thunderbolt3-insert                       certification-status=blocker
+  dock/all-init-thunderbolt3-storage-automated            certification-status=blocker
+  dock/all-init-thunderbolt3-remove                       certification-status=blocker
+  dock/all-init-usb-c/insert                              certification-status=blocker
+  dock/all-init-usb-c/storage-automated                   certification-status=blocker
+  dock/all-init-usb-c/remove                              certification-status=blocker
+  dock/all-init-usb3-insert                               certification-status=blocker
+  dock/all-init-usb3-storage-automated                    certification-status=blocker
+  dock/all-init-usb3-remove                               certification-status=blocker
+  dock/all-init-audio-speaker-headphone-plug-detection    certification-status=blocker
+  dock/all-init-audio-playback-headphones                 certification-status=blocker
+  dock/all-init-audio-microphone-plug-detection           certification-status=blocker
+  dock/all-init-audio-alsa-record-playback-external       certification-status=blocker
+
+id: dock-all-reboot-cert
+unit: test plan
+_name: Dock Cert tests after reboot
+_description:
+  Cert tests for reboot dock devices.
+include:
+  dock/all-reboot
+  dock/all-reboot-monitor-multi-head                        certification-status=blocker
+  dock/all-reboot-monitor-multi-head-audio-playback         certification-status=blocker
+  dock/all-reboot-networking-gateway-ping                   certification-status=blocker
+  dock/all-reboot-networking-ntp                            certification-status=blocker
+  dock/all-reboot-thunderbolt3-insert                       certification-status=blocker
+  dock/all-reboot-thunderbolt3-storage-automated            certification-status=blocker
+  dock/all-reboot-thunderbolt3-remove                       certification-status=blocker
+  dock/all-reboot-usb-c/insert                              certification-status=blocker
+  dock/all-reboot-usb-c/storage-automated                   certification-status=blocker
+  dock/all-reboot-usb-c/remove                              certification-status=blocker
+  dock/all-reboot-usb3-insert                               certification-status=blocker
+  dock/all-reboot-usb3-storage-automated                    certification-status=blocker
+  dock/all-reboot-usb3-remove                               certification-status=blocker
+  dock/all-reboot-audio-speaker-headphone-plug-detection    certification-status=blocker
+  dock/all-reboot-audio-playback-headphones                 certification-status=blocker
+  dock/all-reboot-audio-microphone-plug-detection           certification-status=blocker
+  dock/all-reboot-audio-alsa-record-playback-external       certification-status=blocker
+
+id: dock-all-hotplug-cert
+unit: test plan
+_name: Dock Cert tests after hotplug
+_description:
+  Cert tests for hotplug dock devices.
+include:
+  dock/all-hotplug
+  dock/all-hotplug-monitor-multi-head                        certification-status=blocker
+  dock/all-hotplug-monitor-multi-head-audio-playback         certification-status=blocker
+  dock/all-hotplug-networking-gateway-ping                   certification-status=blocker
+  dock/all-hotplug-networking-ntp                            certification-status=blocker
+  dock/all-hotplug-thunderbolt3-insert                       certification-status=blocker
+  dock/all-hotplug-thunderbolt3-storage-automated            certification-status=blocker
+  dock/all-hotplug-thunderbolt3-remove                       certification-status=blocker
+  dock/all-hotplug-usb-c/insert                              certification-status=blocker
+  dock/all-hotplug-usb-c/storage-automated                   certification-status=blocker
+  dock/all-hotplug-usb-c/remove                              certification-status=blocker
+  dock/all-hotplug-usb3-insert                               certification-status=blocker
+  dock/all-hotplug-usb3-storage-automated                    certification-status=blocker
+  dock/all-hotplug-usb3-remove                               certification-status=blocker
+  dock/all-hotplug-audio-speaker-headphone-plug-detection    certification-status=blocker
+  dock/all-hotplug-audio-playback-headphones                 certification-status=blocker
+  dock/all-hotplug-audio-microphone-plug-detection           certification-status=blocker
+  dock/all-hotplug-audio-alsa-record-playback-external       certification-status=blocker
+
+id: dock-all-suspend-cert
+unit: test plan
+_name: Dock Cert tests after suspend
+_description:
+  Cert tests for suspend dock devices.
+include:
+  dock/all-suspend
+  dock/all-suspend-monitor-multi-head                        certification-status=blocker
+  dock/all-suspend-monitor-multi-head-audio-playback         certification-status=blocker
+  dock/all-suspend-networking-gateway-ping                   certification-status=blocker
+  dock/all-suspend-networking-ntp                            certification-status=blocker
+  dock/all-suspend-thunderbolt3-insert                       certification-status=blocker
+  dock/all-suspend-thunderbolt3-storage-automated            certification-status=blocker
+  dock/all-suspend-thunderbolt3-remove                       certification-status=blocker
+  dock/all-suspend-usb-c/insert                              certification-status=blocker
+  dock/all-suspend-usb-c/storage-automated                   certification-status=blocker
+  dock/all-suspend-usb-c/remove                              certification-status=blocker
+  dock/all-suspend-usb3-insert                               certification-status=blocker
+  dock/all-suspend-usb3-storage-automated                    certification-status=blocker
+  dock/all-suspend-usb3-remove                               certification-status=blocker
+  dock/all-suspend-audio-speaker-headphone-plug-detection    certification-status=blocker
+  dock/all-suspend-audio-playback-headphones                 certification-status=blocker
+  dock/all-suspend-audio-microphone-plug-detection           certification-status=blocker
+  dock/all-suspend-audio-alsa-record-playback-external       certification-status=blocker
+
+id: dock-all-poweroff-cert
+unit: test plan
+_name: Dock Cert tests after poweroff
+_description:
+  Cert tests for poweroff dock devices.
+include:
+  dock/all-poweroff
+  dock/all-poweroff-monitor-multi-head                        certification-status=blocker
+  dock/all-poweroff-monitor-multi-head-audio-playback         certification-status=blocker
+  dock/all-poweroff-networking-gateway-ping                   certification-status=blocker
+  dock/all-poweroff-networking-ntp                            certification-status=blocker
+  dock/all-poweroff-thunderbolt3-insert                       certification-status=blocker
+  dock/all-poweroff-thunderbolt3-storage-automated            certification-status=blocker
+  dock/all-poweroff-thunderbolt3-remove                       certification-status=blocker
+  dock/all-poweroff-usb-c/insert                              certification-status=blocker
+  dock/all-poweroff-usb-c/storage-automated                   certification-status=blocker
+  dock/all-poweroff-usb-c/remove                              certification-status=blocker
+  dock/all-poweroff-usb3-insert                               certification-status=blocker
+  dock/all-poweroff-usb3-storage-automated                    certification-status=blocker
+  dock/all-poweroff-usb3-remove                               certification-status=blocker
+  dock/all-poweroff-audio-speaker-headphone-plug-detection    certification-status=blocker
+  dock/all-poweroff-audio-playback-headphones                 certification-status=blocker
+  dock/all-poweroff-audio-microphone-plug-detection           certification-status=blocker
+  dock/all-poweroff-audio-alsa-record-playback-external       certification-status=blocker
 
 id: after-suspend-dock-cert-full
 unit: test plan

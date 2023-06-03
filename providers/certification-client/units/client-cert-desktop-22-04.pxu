@@ -172,5 +172,5 @@ nested_part:
     stress-iperf3-automated
     #stress-cert-full
     stress-suspend-30-cycles-with-reboots-automated
-    stress-30-reboot-poweroff-automated
+    stress-warmboot-coldboot-automated
     stress-pm-graph

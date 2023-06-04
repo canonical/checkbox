@@ -1,0 +1,42 @@
+id: mtd-full
+unit: test plan
+_name: Memory Technology Device tests
+_description: Full Memory Technology Device tests for devices
+include:
+nested_part:
+    mtd-manual
+    mtd-automated
+    after-suspend-mtd-manual
+    after-suspend-mtd-automated
+
+id: mtd-manual
+unit: test plan
+_name: Memory Technology Device manual tests
+_description: Manual Memory Technology Device tests for devices
+include:
+
+id: mtd-automated
+unit: test plan
+_name: Memory Technology Device auto tests
+_description: Automated Memory Technology Device tests for devices
+bootstrap_include:
+    mtd/mtd-list
+include:
+    mtd/check-total-numbers
+    mtd/read-write-test-.*
+
+id: after-suspend-mtd-manual
+unit: test plan
+_name: After suspend Memory Technology Device manual tests
+_description: Manual after-suspend Memory Technology Device tests for devices
+include:
+
+id: after-suspend-mtd-automated
+unit: test plan
+_name: After suspend Memory Technology Device auto tests
+_description: Automated after-suspend Memory Technology Device tests for devices
+bootstrap_include:
+    mtd/mtd-list
+include:
+    also-after-suspend-mtd/check-total-numbers
+    also-after-suspend-mtd/read-write-test-.*

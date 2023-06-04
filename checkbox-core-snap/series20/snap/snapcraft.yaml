@@ -310,6 +310,7 @@ parts:
       - wget
       - wmctrl
       - xz-utils
+      - mtd-utils
       - on armhf:
         - python3-rpi.gpio # only in focal
       - on arm64:

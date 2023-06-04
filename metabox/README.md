@@ -150,6 +150,27 @@ configuration = {
 **Note:** Metabox is always going to check **all possible combinations** of
 `releases`, that means that this example will execute 9 test runs.
 
+### Use docker backend ####
+
+Beside LXD, Docker can be used as metabox backend.
+docker and docker-compose must be installed and available in your system.
+Follow these [instructions](https://docs.docker.com/engine/install/ubuntu/) for installing docker on Ubuntu.
+
+The docker images are available on ghcr.io, image source can be found on [github](https://github.com/petitfou/checkbox-docker)
+You must login to ghcr.io with Github credentials
+
+```
+docker login ghcr.io
+username: <github_username>
+password: <github_token>
+```
+
+To run metabox with docker backend instead of LXD, set environment variable
+
+```
+export METABOX_RUNTIME_ENV=docker
+```
+
 [Checkbox]: https://checkbox.readthedocs.io/
 [Linux containers (LXC)]: https://linuxcontainers.org/
 [`desktop_env` scenario]: ./metabox/scenarios/desktop_env/

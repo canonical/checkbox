@@ -53,7 +53,7 @@ class DockerMachineProvider(AbstractMachineProvider):
         """
         checkbox_version = '2.6'
         ubuntu_release = config.alias
-        return f'hectorcao84/checkbox:{checkbox_version}-{ubuntu_release}'
+        return f'ghcr.io/petitfou/checkbox:{checkbox_version}-{ubuntu_release}'
 
     def docker_devel_mode(self, config, compose):
         """

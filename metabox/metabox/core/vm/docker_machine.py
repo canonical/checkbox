@@ -126,23 +126,21 @@ class ContainerDockerMachine(ContainerBaseMachine):
         cmd = cmd.replace('\n','')
         cmd = f'docker exec {env_arg} -it {machine_name} {cmd}'
         cmd = cmd.split()
-        process = subprocess.Popen(cmd,
-                                   stderr=subprocess.PIPE,
-                                   stdout=subprocess.PIPE)
+
+        exit_code = 0
         try:
-            stdout, stderr = process.communicate(timeout=10)
-            exit_code = process.returncode
-            stdout_str = stdout.decode('utf-8')
-            stderr_str = stderr.decode('utf-8')
-            logger.info(f'[{machine_name}] execute : {cmd}, timeout={timeout}')
-            #logger.info(f'[{machine_name}] output : {stdout_str}')
-        except Exception as e:
-            logger.error(f'[{machine_name}] execute : {cmd} : FAILED {e}')
-            exit_code = 1
-            stdout_str = ''
-            stderr_str = ''
-        return exit_code, stdout_str, stderr_str
-    
+            # use of run() function for a better timeout handling (retrieving stdout)
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+            stdout = proc.stdout
+            stderr = proc.stderr
+        except subprocess.TimeoutExpired as timeErr:
+            stdout = timeErr.stdout.decode('utf-8')
+            if timeErr.stderr is not None:
+                stderr = timeErr.stderr.decode('utf-8')
+            else:
+                stderr = ''
+        return exit_code, stdout, stderr
+
     def interactive_execute(self, cmd, env={}, verbose=False, timeout=0):
         cmd = self._checkbox_wrapper + cmd
         env_arg = ' '.join(f'{k}={v}' for k,v in env.items())

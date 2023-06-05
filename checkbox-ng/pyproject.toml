@@ -30,6 +30,10 @@
     'Topic :: Utilities',
   ]
   dynamic = ["version"]
+  include_package_data=true
+[metadata]
+  long_description={'file' = 'README.md'}
+  long_description_content_type='text/x-rst'
 [options]
   install_requires=[
     'packaging',

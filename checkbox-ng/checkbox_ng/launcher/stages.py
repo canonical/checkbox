@@ -443,16 +443,16 @@ class ReportsStage(CheckboxUiStage):
             additional_config = Configuration.from_text(
                 textwrap.dedent(
                     """
-                [exporter:text]
-                unit = com.canonical.plainbox::text
-                [transport:stdout]
-                stream = stdout
-                type = stream
-                [report:1_text_to_screen]
-                exporter = text
-                forced = yes
-                transport = stdout
-            """
+                    [exporter:text]
+                    unit = com.canonical.plainbox::text
+                    [transport:stdout]
+                    stream = stdout
+                    type = stream
+                    [report:1_text_to_screen]
+                    exporter = text
+                    forced = yes
+                    transport = stdout
+                    """
                 ),
                 new_origin,
             )
@@ -461,14 +461,14 @@ class ReportsStage(CheckboxUiStage):
             additional_config = Configuration.from_text(
                 textwrap.dedent(
                     """
-                [exporter:tar]
-                unit = com.canonical.plainbox::tar
-                [transport:c3]
-                type = submission-service
-                [report:upload to certification]
-                exporter = tar
-                transport = c3
-            """
+                    [exporter:tar]
+                    unit = com.canonical.plainbox::tar
+                    [transport:c3]
+                    type = submission-service
+                    [report:upload to certification]
+                    exporter = tar
+                    transport = c3
+                    """
                 ),
                 new_origin,
             )
@@ -477,15 +477,15 @@ class ReportsStage(CheckboxUiStage):
             additional_config = Configuration.from_text(
                 textwrap.dedent(
                     """
-                [exporter:tar]
-                unit = com.canonical.plainbox::tar
-                [transport:c3]
-                staging = yes
-                type = submission-service
-                [report:upload to certification-staging]
-                exporter = tar
-                transport = c3
-            """
+                    [exporter:tar]
+                    unit = com.canonical.plainbox::tar
+                    [transport:c3]
+                    staging = yes
+                    type = submission-service
+                    [report:upload to certification-staging]
+                    exporter = tar
+                    transport = c3
+                    """
                 ),
                 new_origin,
             )
@@ -517,7 +517,7 @@ class ReportsStage(CheckboxUiStage):
                     exporter = {exporter}
                     forced = yes
                     transport = {exporter}_file
-                """
+                    """
                 )
                 additional_config = Configuration.from_text(
                     template.format(exporter=exporter, path=path), new_origin
@@ -605,7 +605,7 @@ class ReportsStage(CheckboxUiStage):
                     # config files or launchers, and the UI is non-interactive
                     # (silent)
                     if (
-                        "transport:c3" not in self.sa.config.sections.keys()
+                        "transport:c3" not in self.sa.config.sections
                         and not self.is_interactive
                     ):
                         continue
@@ -723,6 +723,9 @@ class ReportsStage(CheckboxUiStage):
                         transport.url,
                         exc,
                     )
+                    import traceback
+
+                    traceback.print_tb(exc)
 
                 self._reset_auto_submission_retries()
                 done_sending = True

@@ -60,17 +60,17 @@ class Configuration:
             self._origins[section] = dict()
             for name, spec in sorted(contents.items()):
                 self.sections[section][name] = spec.default
-                self._origins[section][name] = ''
+                self._origins[section][name] = ""
 
     @property
     def environment(self):
         """Return contents of the environment section."""
-        return self.sections['environment']
+        return self.sections["environment"]
 
     @property
     def manifest(self):
         """Return contents of the manifest section."""
-        return self.sections['manifest']
+        return self.sections["manifest"]
 
     @property
     def sources(self):
@@ -78,7 +78,7 @@ class Configuration:
         return self._sources
 
     def notice_problem(self, problem):
-        """ Record and log problem encountered when building configuration."""
+        """Record and log problem encountered when building configuration."""
         self._problems.append(problem)
         logger.warning(problem)
 
@@ -105,11 +105,12 @@ class Configuration:
             for name in variables.keys():
                 new_origin = configuration.get_origin(section, name)
                 if new_origin:
-                    if ':' in section and section not in self.sections.keys():
+                    if ":" in section and section not in self.sections:
                         self.sections[section] = OrderedDict()
                         self._origins[section] = dict()
                     self.sections[section][name] = configuration.get_value(
-                        section, name)
+                        section, name
+                    )
                     self._origins[section][name] = origin or new_origin
         self._sources += configuration.sources
         self._problems += configuration.get_problems()
@@ -127,9 +128,9 @@ class Configuration:
             self.dyn_set_value(section, name, value, origin)
             return
         parametrized = False
-        if ':' in section:
+        if ":" in section:
             parametrized = True
-            prefix, _ = section.split(':')
+            prefix, _ = section.split(":")
         if parametrized:
             # TODO: do the check here for typing
             pass
@@ -143,14 +144,16 @@ class Configuration:
                     if name not in spec:
                         problem = (
                             "Unexpected variable '{}' in section [{}] "
-                            "Origin: {}").format(name, section, origin)
+                            "Origin: {}"
+                        ).format(name, section, origin)
                         self.notice_problem(problem)
                         return
                     index = i
         if index == -1:
             # this should happen only for parametric sections
             problem = "Unexpected section [{}]. Origin: {}".format(
-                section, origin)
+                section, origin
+            )
             self.notice_problem(problem)
             return
 
@@ -158,9 +161,9 @@ class Configuration:
         kind = CONFIG_SPEC[index][1][name].kind
         try:
             if kind == list:
-                value = shlex.split(value.replace(',', ' '))
+                value = shlex.split(value.replace(",", " "))
             elif kind == bool:
-                value = value.lower() in ['yes', 'true']
+                value = value.lower() in ["yes", "true"]
             else:
                 value = kind(value)
             if parametrized:
@@ -175,8 +178,8 @@ class Configuration:
         except TypeError:
             problem = (
                 "Problem with setting field {} in section [{}] "
-                "'{}' cannot be used as {}. Origin: {}").format(
-                    name, section, value, kind, origin)
+                "'{}' cannot be used as {}. Origin: {}"
+            ).format(name, section, value, kind, origin)
             self.notice_problem(problem)
 
     def get_parametric_sections(self, prefix):
@@ -200,7 +203,7 @@ class Configuration:
         else:
             raise ValueError("No such section in the spec ({}".format(prefix))
         for sect_name, section in self.sections.items():
-            sect_prefix, _, sect_param = sect_name.partition(':')
+            sect_prefix, _, sect_param = sect_name.partition(":")
             if sect_prefix == prefix:
                 result[sect_param] = section
         return result
@@ -222,7 +225,7 @@ class Configuration:
         if not os.path.isfile(path):
             cfg.notice_problem("{} file not found".format(path))
             return cfg
-        with open(path, 'rt') as ini_file:
+        with open(path, "rt") as ini_file:
             return cls.from_ini_file(ini_file, path)
 
     @classmethod
@@ -237,21 +240,25 @@ class Configuration:
         should be kept. Each such problem is kept in the self._problems list.
         """
         cfg = Configuration(origin)
-        parser = ConfigParser(delimiters='=')
+        parser = ConfigParser(delimiters="=")
         parser.read_string(ini_file.read())
         for sect_name, section in parser.items():
-            if sect_name == 'DEFAULT':
+            if sect_name == "DEFAULT":
                 for var_name in section:
-                    problem = "[DEFAULT] section is not supported"
+                    problem = (
+                        "[DEFAULT] section is not supported. "
+                        "Variable '{}' will be ignored"
+                    ).format(var_name)
                     cfg.notice_problem(problem)
                 continue
-            if ':' in sect_name:
+            if ":" in sect_name:
                 for var_name, var in section.items():
                     cfg.set_value(sect_name, var_name, var, origin)
                 continue
             if sect_name not in cfg.sections:
                 problem = "Unexpected section [{}]. Origin: {}".format(
-                    sect_name, origin)
+                    sect_name, origin
+                )
                 cfg.notice_problem(problem)
                 continue
             for var_name, var in section.items():
@@ -259,20 +266,21 @@ class Configuration:
                 if var_name not in cfg.sections[sect_name] and not is_dyn:
                     problem = (
                         "Unexpected variable '{}' in section [{}] "
-                        "Origin: {}").format(var_name, sect_name, origin)
+                        "Origin: {}"
+                    ).format(var_name, sect_name, origin)
                     cfg.notice_problem(problem)
                     continue
                 cfg.set_value(sect_name, var_name, var, origin)
         return cfg
 
-    _DYNAMIC_SECTIONS = ('environment', 'manifest')
+    _DYNAMIC_SECTIONS = ("environment", "manifest")
 
 
-VarSpec = namedtuple('VarSpec', ['kind', 'default', 'help'])
+VarSpec = namedtuple("VarSpec", ["kind", "default", "help"])
 
 
 class ParametricSection(dict):
-    """ Dict for storing parametric section's contents."""
+    """Dict for storing parametric section's contents."""
 
 
 class DynamicSection(dict):
@@ -289,95 +297,171 @@ class DynamicSection(dict):
 # where the first value is the name of the section and the other is a dict
 # of variable specs.
 CONFIG_SPEC = [
-    ('config', {
-        'config_filename': VarSpec(
-            str, 'checkbox.conf',
-            'Name of the configuration file to look for.'),
-    }),
-    ('launcher', {
-        'launcher_version': VarSpec(
-            int, 1, "Version of launcher to use"),
-        'app_id': VarSpec(
-            str, 'checkbox-cli', "Identifier of the application"),
-        'app_version': VarSpec(
-            str, '', "Version of the application"),
-        'stock_reports': VarSpec(
-            list, ['text', 'certification', 'submission_files'],
-            "List of stock reports to use"),
-        'local_submission': VarSpec(
-            bool, True, ("Send/generate submission report locally when using "
-                         "checkbox remote")),
-        'session_title': VarSpec(
-            str, 'session title',
-            ("A title to be applied to the sessions created using this "
-                "launcher that can be used in report generation")),
-        'session_desc': VarSpec(
-            str, '', ("A string that can be applied to sessions created using "
-                      "this launcher. Useful for storing some contextual "
-                      "infomation about the session")),
-    }),
-    ('test plan', {
-        'filter': VarSpec(
-            list, ['*'],
-            "Constrain interactive choice to test plans matching this glob"),
-        'unit': VarSpec(str, '', "Select this test plan by default."),
-        'forced': VarSpec(
-            bool, False, "Don't allow the user to change test plan."),
-    }),
-    ('test selection', {
-        'forced': VarSpec(
-            bool, False, "Don't allow the user to alter test selection."),
-        'exclude': VarSpec(
-            list, [], "Exclude test matching patterns from running."),
-    }),
-    ('ui', {
-        'type': VarSpec(str, 'interactive', "Type of user interface to use."),
-        'output': VarSpec(str, 'show', "Silence or restrict command output."),
-        'dont_suppress_output': VarSpec(
-            bool, False,
-            "Don't suppress the output of certain job plugin types."),
-        'verbosity': VarSpec(str, 'normal', "Verbosity level."),
-        'auto_retry': VarSpec(
-            bool, False,
-            "Automatically retry failed jobs at the end of the session."),
-        'max_attempts': VarSpec(
-            int, 3,
-            "Number of attempts to run a job when in auto-retry mode."),
-        'delay_before_retry': VarSpec(
-            int, 1, ("Delay (in seconds) before "
-                     "retrying failed jobs in auto-retry mode.")),
-    }),
-    ('daemon', {
-        'normal_user': VarSpec(
-            str, '', "Username to use for jobs that don't specify user."),
-    }),
-    ('restart', {
-        'strategy': VarSpec(str, '', "Use alternative restart strategy."),
-    }),
-    ('report', ParametricSection({
-        'exporter': VarSpec(
-            str, '', "Name of the exporter to use"),
-        'transport': VarSpec(
-            str, '', "Name of the transport to use"),
-        'forced': VarSpec(
-            bool, False, "Don't ask the user if they want the report."),
-    })),
-    ('transport', ParametricSection({
-        'type': VarSpec(
-            str, '', "Type of transport to use."),
-        'stream': VarSpec(
-            str, 'stdout', "Stream to use - stdout or stderr."),
-        'path': VarSpec(
-            str, '', "Path to where the report should be saved to."),
-        'secure_id': VarSpec(
-            str, '',  "Secure ID to use."),
-        'staging': VarSpec(
-            bool, False, "Pushes to staging C3 instead of normal C3."),
-    })),
-    ('exporter', ParametricSection({
-        'unit': VarSpec(str, '', "ID of the exporter to use."),
-        'options': VarSpec(list, [], "Flags to forward to the exporter."),
-    })),
-    ('environment', DynamicSection()),
-    ('manifest', DynamicSection()),
+    (
+        "config",
+        {
+            "config_filename": VarSpec(
+                str,
+                "checkbox.conf",
+                "Name of the configuration file to look for.",
+            ),
+        },
+    ),
+    (
+        "launcher",
+        {
+            "launcher_version": VarSpec(int, 1, "Version of launcher to use"),
+            "app_id": VarSpec(
+                str, "checkbox-cli", "Identifier of the application"
+            ),
+            "app_version": VarSpec(str, "", "Version of the application"),
+            "stock_reports": VarSpec(
+                list,
+                ["text", "certification", "submission_files"],
+                "List of stock reports to use",
+            ),
+            "local_submission": VarSpec(
+                bool,
+                True,
+                (
+                    "Send/generate submission report locally when using "
+                    "checkbox remote"
+                ),
+            ),
+            "session_title": VarSpec(
+                str,
+                "session title",
+                (
+                    "A title to be applied to the sessions created using this "
+                    "launcher that can be used in report generation"
+                ),
+            ),
+            "session_desc": VarSpec(
+                str,
+                "",
+                (
+                    "A string that can be applied to sessions created using "
+                    "this launcher. Useful for storing some contextual "
+                    "infomation about the session"
+                ),
+            ),
+        },
+    ),
+    (
+        "test plan",
+        {
+            "filter": VarSpec(
+                list,
+                ["*"],
+                "Constrain interactive choice to test plans matching this glob",
+            ),
+            "unit": VarSpec(str, "", "Select this test plan by default."),
+            "forced": VarSpec(
+                bool, False, "Don't allow the user to change test plan."
+            ),
+        },
+    ),
+    (
+        "test selection",
+        {
+            "forced": VarSpec(
+                bool, False, "Don't allow the user to alter test selection."
+            ),
+            "exclude": VarSpec(
+                list, [], "Exclude test matching patterns from running."
+            ),
+        },
+    ),
+    (
+        "ui",
+        {
+            "type": VarSpec(
+                str, "interactive", "Type of user interface to use."
+            ),
+            "output": VarSpec(
+                str, "show", "Silence or restrict command output."
+            ),
+            "dont_suppress_output": VarSpec(
+                bool,
+                False,
+                "Don't suppress the output of certain job plugin types.",
+            ),
+            "verbosity": VarSpec(str, "normal", "Verbosity level."),
+            "auto_retry": VarSpec(
+                bool,
+                False,
+                "Automatically retry failed jobs at the end of the session.",
+            ),
+            "max_attempts": VarSpec(
+                int,
+                3,
+                "Number of attempts to run a job when in auto-retry mode.",
+            ),
+            "delay_before_retry": VarSpec(
+                int,
+                1,
+                (
+                    "Delay (in seconds) before "
+                    "retrying failed jobs in auto-retry mode."
+                ),
+            ),
+        },
+    ),
+    (
+        "daemon",
+        {
+            "normal_user": VarSpec(
+                str, "", "Username to use for jobs that don't specify user."
+            ),
+        },
+    ),
+    (
+        "restart",
+        {
+            "strategy": VarSpec(str, "", "Use alternative restart strategy."),
+        },
+    ),
+    (
+        "report",
+        ParametricSection(
+            {
+                "exporter": VarSpec(str, "", "Name of the exporter to use"),
+                "transport": VarSpec(str, "", "Name of the transport to use"),
+                "forced": VarSpec(
+                    bool, False, "Don't ask the user if they want the report."
+                ),
+            }
+        ),
+    ),
+    (
+        "transport",
+        ParametricSection(
+            {
+                "type": VarSpec(str, "", "Type of transport to use."),
+                "stream": VarSpec(
+                    str, "stdout", "Stream to use - stdout or stderr."
+                ),
+                "path": VarSpec(
+                    str, "", "Path to where the report should be saved to."
+                ),
+                "secure_id": VarSpec(str, "", "Secure ID to use."),
+                "staging": VarSpec(
+                    bool, False, "Pushes to staging C3 instead of normal C3."
+                ),
+            }
+        ),
+    ),
+    (
+        "exporter",
+        ParametricSection(
+            {
+                "unit": VarSpec(str, "", "ID of the exporter to use."),
+                "options": VarSpec(
+                    list, [], "Flags to forward to the exporter."
+                ),
+            }
+        ),
+    ),
+    ("environment", DynamicSection()),
+    ("manifest", DynamicSection()),
 ]

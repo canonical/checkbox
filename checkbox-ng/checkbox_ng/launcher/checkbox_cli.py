@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2023 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -90,6 +90,11 @@ def main():
     for i, arg in enumerate(sys.argv):
         if arg in deprecated_commands:
             sys.argv[i] = deprecated_commands[arg]
+            logging.warning(
+                "%s is deprecated. Please use %s instead",
+                arg,
+                deprecated_commands[arg],
+            )
             print()
             print('WARNING: "{}" deprecated'.format(arg), end="")
             print(

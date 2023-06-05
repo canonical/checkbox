@@ -28,8 +28,6 @@ import struct
 from subprocess import check_output, CalledProcessError, STDOUT
 import sys
 
-import dbus
-
 from checkbox_support.parsers.modinfo import ModinfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
 
@@ -82,14 +80,14 @@ class Utils():
     def get_ipv4_address(interface):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
-            ipv4_addr = socket.inet_ntoa(fcntl.ioctl(
-                s.fileno(),
-                0x8915,  # SIOCGIFADDR
-                struct.pack('256s', interface[:15].encode())
-            )[20:24])
-        except Exception as e:
-            print("ERROR: getting the IPv4 address for %s: %s" %
-                  (interface, repr(e)))
+
+            buffer = struct.pack('256s', interface[:15].encode())
+            # retrieve the IP address associated with a network interface.
+            data = fcntl.ioctl(s.fileno(), 0x8915, buffer)
+            ipv4_addr = socket.inet_ntoa(data[20:24])
+        except OSError as e:
+            print("OSError: failed to get the IPv4 address for %s: %s" %
+                  (interface, repr(e)), file=sys.stderr)
             ipv4_addr = "***NOT CONFIGURED***"
         finally:
             return ipv4_addr
@@ -99,7 +97,14 @@ class Utils():
         cmd = ['/sbin/ip', '-6', '-o', 'addr', 'show', 'dev', interface,
                'scope', 'link']
         proc = check_output(cmd, universal_newlines=True)
-        return proc.split()[3].strip()
+        try:
+            # If it failed at split(), it means there is no output from cmd.
+            ipv6_addr = proc.split()[3].strip()
+        except IndexError as e:
+            print("IndexError: failed to get the IPv6 address for %s: %s" %
+                  (interface, repr(e)), file=sys.stderr)
+            ipv6_addr = "***NOT CONFIGURED***"
+        return ipv6_addr
 
     @classmethod
     def get_mac_address(cls, interface):
@@ -278,7 +283,6 @@ class NetworkDeviceInfo():
 
 
 class NMDevices():
-
     # This example lists basic information about network interfaces known to NM
     devtypes = {1: "Ethernet",
                 2: "WiFi",
@@ -296,6 +300,7 @@ class NMDevices():
         return len(self._devices)
 
     def _collect_devices(self):
+        import dbus
         bus = dbus.SystemBus()
         proxy = bus.get_object("org.freedesktop.NetworkManager",
                                "/org/freedesktop/NetworkManager")
@@ -304,6 +309,7 @@ class NMDevices():
 
     def devices(self):
         """Convert to list of NetworkDevice with NM derived attrs set"""
+        import dbus
         for d in self._devices:
             bus = dbus.SystemBus()
             dev_proxy = bus.get_object("org.freedesktop.NetworkManager", d)

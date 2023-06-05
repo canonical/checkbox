@@ -112,7 +112,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_multi-head_{product_slug}
-requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
+requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving', 'Mini PC']
 flags: also-after-suspend
 plugin: manual
 category_id: com.canonical.plainbox::monitor

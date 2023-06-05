@@ -187,7 +187,7 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command:
  # shellcheck disable=SC1091
- source graphics_env.sh {driver} {index}
+ source graphics_env.sh {driver} {index} {path}
  gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
 _summary: Test that video can be displayed with {vendor} {product}
 _description:
@@ -280,7 +280,7 @@ id: graphics/{index}_valid_opengl_renderer_{product_slug}
 requires: executable.name == 'glxinfo'
 command:
  # shellcheck disable=SC1091
- source graphics_env.sh {driver} {index}
+ source graphics_env.sh {driver} {index} {path}
  renderer=$(glxinfo | grep "OpenGL re")
  echo "$renderer"
  if grep -qi 'Intel' <<<"$renderer"; then
@@ -298,7 +298,7 @@ flags: also-after-suspend
 requires: executable.name == 'glxgears'
 command:
  # shellcheck disable=SC1091
- source graphics_env.sh {driver} {index}
+ source graphics_env.sh {driver} {index} {path}
  glxgears
  true
 _summary: Test that glxgears works for {vendor} {product}
@@ -321,7 +321,7 @@ flags: also-after-suspend
 requires: executable.name == 'glxgears'
 command:
  # shellcheck disable=SC1091
- source graphics_env.sh {driver} {index}
+ source graphics_env.sh {driver} {index} {path}
  glxgears -fullscreen
  true
 _summary: Test that glxgears works on fullscreen for {vendor} {product}

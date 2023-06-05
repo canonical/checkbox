@@ -154,7 +154,7 @@ depends:
 requires: executable.name == 'glxgears'
 command:
  # shellcheck disable=SC1091
- source graphics_env.sh {{ driver }} {{ index }}
+ source graphics_env.sh {{ driver }} {{ index }} {{ path }}
  glxgears
  true
 _summary: Test that glxgears works for {{ vendor }} {{ product }} after suspend

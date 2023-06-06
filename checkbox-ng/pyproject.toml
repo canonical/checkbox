@@ -1,5 +1,6 @@
 [build-system]
   requires = ["setuptools>=42", "setuptools_scm[toml]>=3.4"]
+  build-backend = "setuptools.build_meta"
 [project]
   name = "checkbox-ng"
   #url="https://launchpad.net/checkbox-ng/"
@@ -29,58 +30,9 @@
     'Topic :: System :: Benchmark',
     'Topic :: Utilities',
   ]
-  dynamic = ["version"]
-  include_package_data=true
+  dynamic = ["version", "entry-points"]
+[tool.setuptools_scm]
+  root=".."
 [metadata]
   long_description={'file' = 'README.md'}
   long_description_content_type='text/x-rst'
-[options]
-  install_requires=[
-    'packaging',
-    'requests >= 1.0',
-    'urwid >= 1.1.1',
-    'Jinja2 >= 2.7',
-    'xlsxwriter',
-    'tqdm',
-    'importlib_metadata; python_version < "3.8"'
-  ]
-[options.entry_points]
-  'console_scripts'=[
-    'checkbox-cli=checkbox_ng.launcher.checkbox_cli:main',
-    'checkbox-provider-tools=checkbox_ng.launcher.provider_tools:main'
-  ]
-  'plainbox.exporter'=[
-    'text=plainbox.impl.exporter.text:TextSessionStateExporter',
-    'tar=plainbox.impl.exporter.tar:TARSessionStateExporter',
-    'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter',
-    'jinja2=plainbox.impl.exporter.jinja2:Jinja2SessionStateExporter'
-  ]
-  'plainbox.buildsystem'=[
-    'make=plainbox.impl.buildsystems:MakefileBuildSystem',
-    'go=plainbox.impl.buildsystems:GoBuildSystem',
-    'autotools=plainbox.impl.buildsystems:AutotoolsBuildSystem'
-  ]
-  'plainbox.unit'=[
-    'unit=plainbox.impl.unit.unit:Unit',
-    'job=plainbox.impl.unit.job:JobDefinition',
-    'template=plainbox.impl.unit.template:TemplateUnit',
-    'category=plainbox.impl.unit.category:CategoryUnit',
-    'test plan=plainbox.impl.unit.testplan:TestPlanUnit',
-    'manifest entry=plainbox.impl.unit.manifest:ManifestEntryUnit',
-    'packaging meta-data=plainbox.impl.unit.packaging:PackagingMetaDataUnit',
-    'exporter=plainbox.impl.unit.exporter:ExporterUnit'
-  ]
-  'plainbox.parsers'=[
-    'pxu=plainbox.impl.secure.rfc822:load_rfc822_records',
-    'regex=plainbox.impl.xparsers:Re.parse',
-    'pxu-override=plainbox.impl.xparsers:FieldOverride.parse'
-  ]
-  'plainbox.transport'=[
-    'file=plainbox.impl.transport:FileTransport',
-    'stream=plainbox.impl.transport:StreamTransport',
-    'submission-service=checkbox_ng.certification:SubmissionServiceTransport'
-  ]
-[tool.setuptools]
-  packages=["checkbox_ng", "plainbox"]
-[tool.setuptools_scm]
-  root=".."

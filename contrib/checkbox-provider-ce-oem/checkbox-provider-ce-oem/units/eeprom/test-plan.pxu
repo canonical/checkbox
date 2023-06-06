@@ -28,7 +28,7 @@ _name: EEPROM manual tests
 _description: Manual EEPROM tests for devices
 include:
 
-id: after-suspend-eeprom-automated
+id: after-suspend-ce-oem-eeprom-automated
 unit: test plan
 _name: EEPROM auto tests
 _description: Automated EEPROM tests for devices

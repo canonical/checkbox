@@ -10,9 +10,9 @@ Checkbox optionally generates test reports in different formats (HTML, JSON, tex
 
 For more information, check the [official documentation].
 
-![Test report exported in HTML](checkbox-ng/docs/_images/checkbox-test-report.png)
+![Test report exported in HTML](docs/_images/checkbox-test-report.png)
 
-![Test selection screen in Checkbox](checkbox-ng/docs/_images/checkbox-snappy-3-select-jobs.png)
+![Test selection screen in Checkbox](docs/_images/checkbox-snappy-3-select-jobs.png)
 
 # Getting started
 

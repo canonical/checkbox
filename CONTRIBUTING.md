@@ -56,7 +56,7 @@ Install the Checkbox support library in the virtual environment:
 
 ``` bash
 (venv) $ cd ~/checkbox/checkbox-support
-(venv) $ ./setup.py install
+(venv) $ python3 -m pip install -e .
 ```
 
 You should now be able to run checkbox, select a test plan and run it:

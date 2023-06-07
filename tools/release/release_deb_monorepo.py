@@ -18,10 +18,22 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import atexit
+import tempfile
 import subprocess
 
 from pathlib import Path
 
+from functools import partial
+from contextlib import suppress
+
+CONFIG_PPA_DEV_TOOLS = """{{
+    'wait_max_age_hours' : 10,
+    'exit_on_only_build_failure' : True,
+    'wait_seconds' : 60,
+    'name' : '{}'
+}}
+"""
 
 def run(*args, **kwargs):
     """wrapper for subprocess.run."""
@@ -34,6 +46,31 @@ def run(*args, **kwargs):
         print('{}\n{}'.format(e, e.output.decode()))
         raise SystemExit(1)
 
+def _del_file(path):
+    with suppress(FileNotFoundError):
+        os.remove(path)
+
+def check_build(name) -> bool:
+    """
+    Checks if a build was succesful, returns true if it was
+    """
+    handle, path = tempfile.mkstemp(text=True)
+    # try to remove the file before exit
+    atexit.register(partial(_del_file, path))
+    with os.fdopen(handle, "w") as f:
+        f.write(CONFIG_PPA_DEV_TOOLS.format(name))
+    with suppress(subprocess.CalledProcessError):
+        subprocess.check_call(
+            [
+                "/tmp/ppa-dev-tools/scripts/ppa",
+                "wait",
+                "ppa:checkbox-dev/testing",
+                "-C",
+                path
+            ]
+        )
+        return True
+    return False
 
 def main():
     """Update the PPA testing recipes and kick-off the builds."""
@@ -47,6 +84,7 @@ def main():
             "~checkbox-dev/checkbox/+git/checkbox"+staging),
         shell=True, check=True).stdout.decode().rstrip()
     print(output)
+    to_check = []
     for path, dirs, files in os.walk('.'):
         if "debian" in dirs:
             project_path = str(Path(*Path(path).parts))
@@ -61,12 +99,21 @@ def main():
             new_version = cmd.stdout.decode().rstrip().split('v')[1]
             print("Request {} build ({})".format(
                 package_name, new_version))
+            recipes_name = package_name + '-testing'
             output = run(
                 "./tools/release/lp-recipe-update-build.py checkbox "
                 "--recipe {} -n {}".format(
-                    package_name+'-testing', new_version),
+                    recipes_name, new_version),
                 shell=True, check=True).stdout.decode().rstrip()
             print(output)
+            to_check.append(recipes_name)
+
+    checked = [(name, check_build(name)) for name in to_check]
+    for name, ok in checked:
+        if not ok:
+            print("Failed to build:", name)
+    if any(not ok for (_,ok) in checked):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

@@ -142,4 +142,3 @@
 ./plainbox/vendor/sphinxarg/__init__.py
 ./plainbox/vendor/sphinxarg/ext.py
 ./plainbox/vendor/sphinxarg/parser.py
-./setup.py

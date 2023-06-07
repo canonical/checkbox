@@ -2,12 +2,7 @@ import datetime
 import os
 import sys
 
-sys.path.append(os.path.abspath(
-    os.path.join(__file__, "../../checkbox-ng")
-))
-
 import checkbox_ng
-
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:

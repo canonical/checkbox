@@ -20,7 +20,9 @@ ensure_xdg_session_type() {
         sleep 1
 
         echo "Waiting for XDG_SESSION_TYPE to be set"
-        XDG_SESSION_TYPE=$(systemctl --user show-environment | grep XDG_SESSION_TYPE | cut -d= -f2)
+        SESSION=$(loginctl list-sessions --no-legend | grep 'seat0' | cut -d ' ' -f 1)
+
+        XDG_SESSION_TYPE=$(loginctl show-session "${SESSION}" | grep 'Type' | cut -d '=' -f 2)
 
         attempt=$((attempt+1))
         if [ $attempt -eq $max_attempts ]; then

@@ -691,11 +691,11 @@ def interrupt_dialog(host):
         ('start', 'dark green,bold', 'black'),
     ]
     choices = [
-        _("Cancel the interruption and resume the session (ESC)"),
-        _("Kill test in progress and move on to next"),
-        _("Disconnect the master (Same as CTRL+C)"),
-        _("Stop the checkbox slave @{}".format(host)),
-        _("Abandon the session on the slave @{}".format(host)),
+        _("Nothing, continue testing (ESC)"),
+        _("Kill test in progress and move on to the next"),
+        _("Exit but let the service test run continue (CTRL+C)"),
+        _("Exit and kill the service test runer at {}".format(host)),
+        _("Finalize this session and launch a new test plan"),
     ]
     footer_text = [
         ('Press '), ('start', '<Enter>'), (' or '),

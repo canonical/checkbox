@@ -41,6 +41,6 @@ class Reboot(Scenario):
     """)
     steps = [
         AssertPrinted('Connection lost!'),
-        AssertPrinted('Reconnecting...'),
+        AssertPrinted('Reconnecting'),
         AssertPrinted('job passed   : Warm reboot'),
     ]

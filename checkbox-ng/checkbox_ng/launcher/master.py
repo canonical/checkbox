@@ -31,6 +31,7 @@ import socket
 import time
 import signal
 import sys
+import itertools
 
 from collections import namedtuple
 from functools import partial
@@ -164,6 +165,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         server_msg = None
         self._prepare_transports()
         interrupted = False
+        # Used to cleanly print reconnecting
+        #  this is used to print reconnecting
+        first_reconnecting = True
+        #  this to animate the dash
+        spinner = itertools.cycle('-/|\\')
         while True:
             try:
                 if interrupted:
@@ -213,6 +219,9 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         slave_api_version, master_api_version))
                 state, payload = self.sa.whats_up()
                 _logger.info("remote: Main dispatch with state: %s", state)
+                if not first_reconnecting:
+                    print()
+                    first_reconnecting = True
                 keep_running = {
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
@@ -249,8 +258,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 if not keep_running:
                     raise
                 # it's reconnecting, so we can ignore refuses
-                print('Reconnecting...')
-                time.sleep(0.5)
+                if first_reconnecting:
+                    print('Reconnecting ', end="")
+                    first_reconnecting = False
+                print(next(spinner), end="\b", flush=True)
+                time.sleep(1)
             except KeyboardInterrupt:
                 interrupted = True
 

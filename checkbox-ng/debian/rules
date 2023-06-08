@@ -10,16 +10,6 @@ export SRCTOP=checkbox-ng
 
 override_dh_auto_build:
 	dh_auto_build --buildsystem=pybuild
-	# Build sphinx html documentation and man pages 
-	# Use TEMP_HOME to work around https://bugs.launchpad.net/plainbox/+bug/1478906
-	TEMP_HOME=`mktemp -d`; HOME=$$TEMP_HOME python3 $(SRCTOP)/setup.py build_sphinx -b html -s $(SRCTOP)/docs; rm -rf $$TEMP_HOME;
-	TEMP_HOME=`mktemp -d`; HOME=$$TEMP_HOME python3 $(SRCTOP)/setup.py build_sphinx -b man -s $(SRCTOP)/docs; rm -rf $$TEMP_HOME;
-	# Build translations
-	python3 $(SRCTOP)/setup.py build_i18n --merge-po
-	# Build translations for the bundled provider
-	PYTHONPATH=$(SRCTOP) $(SRCTOP)/plainbox/impl/providers/categories/manage.py i18n --dont-update-pot --dont-merge-po
-	PYTHONPATH=$(SRCTOP) $(SRCTOP)/plainbox/impl/providers/manifest/manage.py i18n --dont-update-pot --dont-merge-po
-	PYTHONPATH=$(SRCTOP) $(SRCTOP)/plainbox/impl/providers/exporters/manage.py i18n --dont-update-pot --dont-merge-po
 
 # Override dh_install to ensure that console_scripts are in the
 # checkbox-ng package and not in the python3-checkbox-ng package.

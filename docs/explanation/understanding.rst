@@ -1,8 +1,6 @@
 Understanding Checkbox
 ======================
 
-.. contents::
-
 Checkbox by itself doesn't test anything. It uses unit definitions grouped in
 providers to actually run or do something.
 

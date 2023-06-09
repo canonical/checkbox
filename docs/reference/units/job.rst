@@ -235,12 +235,18 @@ Following fields may be used by the job unit:
     commas that might induce plainbox to run the job in particular way.
     Currently, following flags are inspected by plainbox:
 
+    .. _reset-locale flag:
+
     ``reset-locale``:
         This flag makes Checkbox reset locale before running the job.
+
+    .. _win32 flag:
 
     ``win32``:
         This flag makes plainbox run jobs' commands in windows-specific manner.
         Attach this flag to jobs that are run on Windows OS.
+
+    .. _noreturn flag:
 
     ``noreturn``:
         This flag makes plainbox suspend execution after job's command is run.
@@ -253,9 +259,13 @@ Following fields may be used by the job unit:
         in the ``$PLAINBOX_SESSION_SHARE`` directory which can be used by the
         test to automatically resume session. (For instance after a reboot).
 
+    .. _explicit-fail flag:
+
     ``explicit-fail``:
         Use this flag to make entering comment mandatory, when the user
         manually fails the job.
+
+    .. _has-leftovers flag:
 
     ``has-leftovers``:
         This flag makes plainbox silently ignore (and not log) any files left
@@ -263,6 +273,8 @@ Following fields may be used by the job unit:
         is useful for jobs that don't bother with maintenance of temporary
         directories and just want to rely on the one already created by
         plainbox.
+
+    .. _simple flag:
 
     ``simple``:
         This flag makes plainbox disable certain validation advice and have
@@ -283,21 +295,31 @@ Following fields may be used by the job unit:
             command: echo "Jobs are simple!"
             flags: simple
 
+    .. _preserve-cwd flag:
+
     ``preserve-cwd``:
         This flag makes plainbox run the job command in the current working
         directory without creating a temp folder (and running the command from
         this temp folder). Sometimes needed on snappy
         (See http://pad.lv/1618197)
 
+    .. _fail-on-resource flag:
+
     ``fail-on-resource``:
         This flag makes plainbox fail the job if one of the resource
         requirements evaluates to False.
 
+    .. _also-after-suspend flag:
+
     ``also-after-suspend``: See :ref:`Job siblings field` below.
+
+    .. _also-after-suspend-manual flag:
 
     ``also-after-suspend-manual``: See :ref:`Job siblings field` below.
 
     Additional flags may be present in job definition; they are ignored.
+
+    .. _cachable flag:
 
     ``cachable``:
         Saves the output of a resource job in the system, so the next time

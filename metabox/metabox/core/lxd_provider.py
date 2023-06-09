@@ -161,7 +161,7 @@ class LxdMachineProvider:
         if use_existing:
             with suppress(NotFound):
                 container = self.client.containers.get(name)
-            logger.opt(colors=True).debug("[<y>re-using</y>    ] {}", name)
+                logger.opt(colors=True).debug("[<y>re-using</y>    ] {}", name)
         try:
             if container is None:
                 logger.opt(colors=True).debug("[<y>creating</y>    ] {}", name)

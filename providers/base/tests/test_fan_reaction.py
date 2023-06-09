@@ -17,9 +17,11 @@
 
 import os
 import unittest
-from unittest import mock
-from unittest.mock import patch, mock_open
 import tempfile
+from io import StringIO
+from unittest import mock
+from contextlib import redirect_stdout
+from unittest.mock import patch, mock_open
 
 from fan_reaction_test import FanMonitor
 
@@ -75,7 +77,8 @@ class FanMonitorTests(unittest.TestCase):
             # The following call is patching open(pci_class_path, 'r')
             with patch("builtins.open", mock_open(read_data='0x030000')) as f:
                 with self.assertRaises(SystemExit) as cm:
-                    FanMonitor()
+                    with redirect_stdout(StringIO()):
+                        FanMonitor()
                 the_exception = cm.exception
                 self.assertEqual(the_exception.code, 0)
 
@@ -107,3 +110,6 @@ class FanMonitorTests(unittest.TestCase):
                 self.assertTrue(fan_mon.hwmons[0].endswith('fan2_input'))
             self.assertEqual(
                 fan_mon.get_rpm(), {'hwmon6/fan2_input': 412})
+
+if __name__ == '__main__':
+    unittest.main()

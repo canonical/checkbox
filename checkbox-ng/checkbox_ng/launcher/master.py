@@ -167,9 +167,13 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         interrupted = False
         # Used to cleanly print reconnecting
         #  this is used to print reconnecting
-        first_reconnecting = True
+        printed_reconnecting = False
+        #  check if ever disconnected
+        ever_disconnected = False
         #  this to animate the dash
         spinner = itertools.cycle('-/|\\')
+        #  this tracks the disconnection time
+        disconnection_time = 0
         while True:
             try:
                 if interrupted:
@@ -219,9 +223,13 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         slave_api_version, master_api_version))
                 state, payload = self.sa.whats_up()
                 _logger.info("remote: Main dispatch with state: %s", state)
-                if not first_reconnecting:
-                    print()
-                    first_reconnecting = True
+                if printed_reconnecting and ever_disconnected:
+                    print(
+                        "...\nReconnected (took: {}s)".format(
+                            int(time.time() - disconnection_time)
+                        )
+                    )
+                    printed_reconnecting = False
                 keep_running = {
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
@@ -258,9 +266,11 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 if not keep_running:
                     raise
                 # it's reconnecting, so we can ignore refuses
-                if first_reconnecting:
+                if not printed_reconnecting:
                     print('Reconnecting ', end="")
-                    first_reconnecting = False
+                    disconnection_time = time.time()
+                    ever_disconnected = True
+                    printed_reconnecting = True
                 print(next(spinner), end="\b", flush=True)
                 time.sleep(1)
             except KeyboardInterrupt:

@@ -191,11 +191,11 @@ class LxdMachineProvider:
             self._store_config(machine)
             logger.debug("Stopping container {}...", container.name)
             container.stop(wait=True)
-            logger.debug("Creating 'provisioned' snapshot for {}...", container.name)
             if use_existing:
                 with suppress(NotFound):
                     container.snapshots.get('provisioned').delete(wait=True)
-                    logger.debug("Deleted old provisioned")
+                    logger.debug("Deleted old 'provisioned'")
+            logger.debug("Creating 'provisioned' snapshot for {}...", container.name)
             container.snapshots.create(
                 'provisioned', stateful=False, wait=True)
             logger.debug("Starting container {}...", container.name)
@@ -253,6 +253,13 @@ class LxdMachineProvider:
                     machine._container,
                     "sudo mkdir -p {}".format(os.path.dirname(dest)),
                     verbose=self._debug_machine_setup
+                )
+                # Ensure that the location is not already there
+                #  else cp will copy inside it
+                run_or_raise(
+                    machine._container,
+                    "sudo rm -rf {} 2>/dev/null || true".format(dest),
+                    verbose = self._debug_machine_setup
                 )
                 # Copy the mounted dir to the desired location
                 run_or_raise(

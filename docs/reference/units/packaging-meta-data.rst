@@ -22,10 +22,14 @@ Fields
 
 Following fields may be used by a manifest entry unit.
 
+.. _Packaging Meta Data os-id field:
+
 ``os-id``:
     (mandatory) - the identifier of the operating system this rule applies to.
     This is the same value as the ``ID`` field in the file ``/etc/os-release``.
     Typical values include ``debian``, ``ubuntu`` or ``fedora``.
+
+.. _Packaging Meta Data os-version-id field:
 
 ``os-version-id``:
     (optional) - the identifier of the specific version of the operating system
@@ -36,13 +40,21 @@ Following fields may be used by a manifest entry unit.
 The remaining fields are custom and depend on the packaging driver. The values
 for **Debian** are:
 
+.. _Packaging Meta Data Depends field:
+
 ``Depends``:
     (optional) - a comma separated list of dependencies for the binary package.
     The syntax is the same as in normal Debian control files (including package
     version dependencies). This field can be split into multiple lines, for
     readability, as newlines are discarded.
+
+.. _Packaging Meta Data Suggests field:
+
 ``Suggests``:
     (optional) - same as ``Depends``.
+
+.. _Packaging Meta Data Recommends field:
+
 ``Recommends``:
     (optional) - same as ``Depends``.
 

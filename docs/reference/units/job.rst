@@ -21,6 +21,8 @@ Job Fields
 
 Following fields may be used by the job unit:
 
+.. _Job id field:
+
 ``id``:
     (mandatory) - A name for the job. Should be unique, an error will
     be generated if there are duplicates. Should contain characters in
@@ -29,15 +31,19 @@ Following fields may be used by the job unit:
     backwards compatibility it is still recognized and used if ``id`` is
     missing.
 
+.. _Job summary field:
+
 ``summary``:
     (mandatory) - A human readable name for the job. This value is available
     for translation into other languages. It is used when listing jobs. It must
     be one line long, ideally it should be short (50-70 characters max).
 
-.. _category_id:
+.. _Job category_id field:
 
 ``category_id``:
     (optional) - Identifier of the :doc:`category` this job belongs to.
+
+.. _Job plugin field:
 
 ``plugin``:
     (mandatory) - For historical reasons it's called "plugin" but it's
@@ -58,6 +64,8 @@ Following fields may be used by the job unit:
      :resource: A job whose command output results in a set of rfc822
           records, containing key/value pairs, and that can be used in other
           jobs' ``requires`` expressions.
+
+.. _Job certification-status field:
 
 ``certification-status``:
     (optional) - Certification status for the given job. This is used by
@@ -92,6 +100,8 @@ Following fields may be used by the job unit:
         Certification team can evaluate the test report and investigate the
         reasons behind such an outcome.
 
+.. _Job requires field:
+
 ``requires``:
     (optional). If specified, the job will only run if the conditions
     expressed in this field are met.
@@ -107,10 +117,14 @@ Following fields may be used by the job unit:
     respecting the rfc822 multi-line syntax, in which case all
     requirements must be met for the job to run ( ``and`` ed).
 
+.. _Job depends field:
+
 ``depends``:
     (optional). If specified, the job will only run if all the listed
     jobs have run and passed. Multiple job names, separated by spaces,
     can be specified.
+
+.. _Job after field:
 
 ``after``:
     (optional). If specified, the job will only run if all the listed jobs have
@@ -119,10 +133,14 @@ Following fields may be used by the job unit:
 
     This feature is available since plainbox 0.24.
 
+.. _Job salvages field:
+
 ``salvages``:
     (optional). If specified, the job will only run if all the listed jobs have
     failed. This is useful for obtaining logs from a system when something
     fails. Multiple job names, separated by spaces, can be specified.
+
+.. _Job command field:
 
 ``command``:
     (optional). A command can be provided, to be executed under specific
@@ -140,12 +158,16 @@ Following fields may be used by the job unit:
 
     Note that a ``shell`` job without a command will do nothing.
 
+.. _Job purpose field:
+
 ``purpose``:
     (optional). Purpose field is used in tests requiring human interaction as
     an information about what a given test is supposed to do. User interfaces
     should display content of this field prior to test execution. This field
     may be omitted if the summary field is supplied.
     Note that this field is applicable only for human interaction jobs.
+
+.. _Job steps field:
 
 ``steps``:
     (optional). Steps field depicts actions that user should perform as a part
@@ -154,16 +176,22 @@ Following fields may be used by the job unit:
     Note that this field is applicable only for jobs requiring the user to
     perform some actions.
 
+.. _Job verification field:
+
 ``verification``:
     (optional). Verification field is used to inform the user how they can
     resolve a given job outcome.
     Note that this field is applicable only for jobs the result of which is
     determined by the user.
 
+.. _Job user field:
+
 ``user``:
     (optional). If specified, the job will be run as the user specified
     here. This is most commonly used to run jobs as the superuser
     (root).
+
+.. _Job environ field:
 
 ``environ``:
     (optional). If specified, the listed environment variables
@@ -178,7 +206,7 @@ Following fields may be used by the job unit:
     environment, with the downside that useful configuration specified
     in environment variables may be lost in the process.
 
-.. _job_estimated_duration:
+.. _Job estimated_duration field:
 
 ``estimated_duration``:
     (optional) This field contains metadata about how long the job is
@@ -199,6 +227,8 @@ Following fields may be used by the job unit:
     The values can no longer be fractional (you cannot say ``2.5m`` you need to
     say ``2m 30s``). We feel that sub-second granularity does is too
     unpredictable to be useful so that will not be supported in the future.
+
+.. _Job flags field:
 
 ``flags``:
     (optional) This fields contains list of flags separated by spaces or
@@ -292,6 +322,8 @@ Following fields may be used by the job unit:
 
     This flag has no effect on jobs other than resource.
 
+.. _Job siblings field:
+
 ``siblings``:
     (optional) This field creates copies of the current job definition
     but using a dictionary of overridden fields. The intend is to reduce the
@@ -367,6 +399,8 @@ Following fields may be used by the job unit:
                   "_summary": "bar after suspend",
                   "depends": "suspend/advanced"}}
                 ]
+
+.. _Job imports field:
 
 ``imports``:
     (optional) This field lists all the resource jobs that will have to be

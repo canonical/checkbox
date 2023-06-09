@@ -25,10 +25,14 @@ Fields
 
 Following fields may be used by a manifest entry unit.
 
+.. _Manifest Entry id field:
+
 ``id``:
     (mandatory) - Unique identifier of the entry. This field is used to look up
     and store data so please keep it stable across the lifetime of your
     provider.
+
+.. _Manifest Entry name field:
 
 ``name``:
     (mandatory) - A human readable name of the entry. This should read as in a
@@ -41,21 +45,29 @@ Following fields may be used by a manifest entry unit.
     The name is a translatable field so please prefix it with ``_`` as in
     ``_name: Example``.
 
+.. _Manifest Entry value-type field:
+
 ``value-type``:
     (mandatory) - Type of value for this entry. Currently two values are
     allowed: ``bool`` for a yes/no value and ``natural`` for any natural number
     (negative numbers are rejected).
+
+.. _Manifest Entry value-units field:
 
 ``value-units``:
     (optional) - Units in which value is measured in. This is only used when
     ``value-type`` is equal to ``natural``. For example a *"Screen size"*
     manifest entry could be measured in *"inch"* units.
 
+.. _Manifest Entry resource-key field:
+
 ``resource-key``:
     (optional) - Name of the resource key used to store the manifest value when
     representing the manifest as a resource record. This field defaults to the
     so-called *partial id* which is just the ``id:`` field as spelled in the
     unit definition file (so without the name space of the provider)
+
+.. _Manifest Entry prompt field:
 
 ``prompt``:
     (optional) - Allows the manifest unit to customize the prompt presented

@@ -16,12 +16,16 @@ Template-Specific Fields
 
 There are four fields that are specific to the template unit:
 
+.. _Template template-unit field:
+
 ``template-unit``:
     Name of the unit type this template will generate. By default job
     definition units are generated (as if the field was specified with the
     value of ``job``) eventually but other values may be used as well.
 
     This field is optional.
+
+.. _Template template-resource field:
 
 ``template-resource``:
     Name of the resource job (if it is a compatible resource identifier) to use
@@ -31,6 +35,8 @@ There are four fields that are specific to the template unit:
     field.
 
     This field is mandatory.
+
+.. _Template template-imports field:
 
 ``template-imports``:
     A resource import statement. It can be used to refer to arbitrary resource
@@ -50,6 +56,8 @@ There are four fields that are specific to the template unit:
     job definition is from another provider namespace or when it is not a valid
     resource identifier and needs to be aliased.
 
+.. _Template template-filter field:
+
 ``template-filter``:
     A resource program that limits the set of records from which template
     instances will be made. The syntax of this field is the same as the syntax
@@ -61,6 +69,8 @@ There are four fields that are specific to the template unit:
     object is used to instantiate a new unit.
 
     This field is optional.
+
+.. _Template template-engine field:
 
 ``template-engine``:
     Name of the template engine to use, default is python string formatting

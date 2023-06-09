@@ -30,6 +30,8 @@ maintain backwards compatibility so some of the test plans it defines may have
 non-typical constructs required to ensure proper behavior. You don't have to
 copy such constructs when working on a new test plan from scratch
 
+.. _Test Plan id field:
+
 ``id``:
     Each test plan needs to have a unique identifier. This is exactly the same
     as with other units that have an identifier (like job definitions
@@ -37,6 +39,8 @@ copy such constructs when working on a new test plan from scratch
 
     This field is not used for display purposes but you may need to refer
     to it on command line so keeping it descriptive is useful
+
+.. _Test Plan name field:
 
 ``name``:
     A human-readable name of the test plan. The name should be relatively short
@@ -57,6 +61,8 @@ copy such constructs when working on a new test plan from scratch
     lines. This field should be marked as translatable by prepending the
     underscore character (\_) in front. This field is mandatory.
 
+.. _Test Plan description field:
+
 ``description``:
     A human-readable description of this test plan. Here you can include as
     many or few details as you'd like. Some applications may offer a way
@@ -73,6 +79,8 @@ copy such constructs when working on a new test plan from scratch
     The field has no size limit. It can contain newline characters. This field
     should be marked as translatable by prepending the underscore character
     (\_) in front. This field is optional.
+
+.. _Test Plan include field:
 
 ``include``:
     A multi-line list of job identifiers or patterns matching such identifiers
@@ -106,6 +114,8 @@ copy such constructs when working on a new test plan from scratch
     on how you can refer to jobs from other providers (you simply use their
     fully qualified name for that)
 
+.. _Test Plan mandatory_include field:
+
 ``mandatory_include``:
     A multi-line list of job identifiers or patterns matching such identifiers
     that should always be executed.
@@ -126,6 +136,8 @@ copy such constructs when working on a new test plan from scratch
     Note that mandatory jobs will always be run first (along with their
     dependent jobs)
 
+.. _Test Plan bootstrap_include field:
+
 ``bootstrap_include``:
     A multi-line list of job identifiers that should be run first, before the
     main body of testing begins. The job that should be included in the
@@ -141,12 +153,16 @@ copy such constructs when working on a new test plan from scratch
     identifier and cannot be a regular expression pattern.
     Also note that only resource jobs are allowed in this section.
 
+.. _Test Plan nested_part field:
+
 ``nested_part``:
    A multi-line list of test-plan identifiers whose contents will become part
    of this test-plan. This is a method of creating a tree of test plans,
    something that can be useful for organization and de-duplication of test plan
    definitions. For a full discussion of this capability see
    :ref:`nested-test-plan`.
+
+.. _Test Plan exclude field:
 
 ``exclude``:
     A multi-line list of job identifiers or patterns matching such identifiers
@@ -162,6 +178,8 @@ copy such constructs when working on a new test plan from scratch
     as the ``include``.
 
     When a job is both included and excluded, exclusion always takes priority.
+
+.. _Test Plan category-overrides field:
 
 ``category-overrides``:
     A multi-line list of category override statements.
@@ -213,7 +231,7 @@ copy such constructs when working on a new test plan from scratch
     The job definition with the partial identifier ``foo`` will be associated
     with the ``cat-2`` category.
 
-.. _testplan_estimated_duration:
+.. _Test Plan estimated_duration field:
 
 ``estimated_duration``:
     An approximate time to execute this test plan, in seconds.

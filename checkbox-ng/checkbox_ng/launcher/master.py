@@ -171,7 +171,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         #  check if ever disconnected
         ever_disconnected = False
         #  this to animate the dash
-        spinner = itertools.cycle('-/|\\')
+        spinner = itertools.cycle('-\\|/')
         #  this tracks the disconnection time
         disconnection_time = 0
         while True:
@@ -267,12 +267,12 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     raise
                 # it's reconnecting, so we can ignore refuses
                 if not printed_reconnecting:
-                    print('Reconnecting ', end="")
+                    print("Reconnecting ", end="")
                     disconnection_time = time.time()
                     ever_disconnected = True
                     printed_reconnecting = True
                 print(next(spinner), end="\b", flush=True)
-                time.sleep(1)
+                time.sleep(.25)
             except KeyboardInterrupt:
                 interrupted = True
 

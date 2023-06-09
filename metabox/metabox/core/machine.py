@@ -89,10 +89,14 @@ class ContainerBaseMachine:
             timeout)
 
     def rollback_to(self, savepoint):
-        if self._container.status != 'Stopped':
+        # Note: Use _container.state().status and not .status
+        #       it *seems* to not be always updated
+        if self._container.state().status != 'Stopped':
             self._container.stop(wait=True)
         self._container.restore_snapshot(savepoint, wait=True)
+        assert self._container.state().status == "Stopped"
         self._container.start(wait=True)
+        assert self._container.state().status == "Running"
         logger.opt(colors=True).debug(
             "[<y>restored</y>    ] {}", self._container.name)
         if self.config.role == 'service':

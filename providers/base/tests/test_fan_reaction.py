@@ -95,6 +95,3 @@ class FanMonitorTests(unittest.TestCase):
                         mock_open.return_value.__enter__().read.return_value = "1000"
                         rpm = fan_monitor.get_rpm()
                         self.assertEqual(rpm, {"hwmon2/fan2_input": 1000})
-
-if __name__ == '__main__':
-    unittest.main()

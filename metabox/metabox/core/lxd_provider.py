@@ -53,13 +53,13 @@ class LxdMachineProvider:
     LXD_MOUNT_DEVICE = 'sde'
 
     def __init__(self, session_config, effective_machine_config,
-                 debug_machine_setup=False, dispose=False, redeploy_existing=False):
+                 debug_machine_setup=False, dispose=False, use_existing=False):
         self._session_config = session_config
         self._machine_config = effective_machine_config
         self._debug_machine_setup = debug_machine_setup
         self._owned_containers = []
         self._dispose = dispose
-        self._redeploy_existing = redeploy_existing
+        self._use_existing = use_existing
 
         # TODO: maybe add handlers for more complicated client connections
         #       like a remote LXD host and/or authenticated access
@@ -76,13 +76,13 @@ class LxdMachineProvider:
         self._get_existing_machines()
         for config in self._machine_config:
             if config in [oc.config for oc in self._owned_containers]:
-                if self._redeploy_existing:
-                    # if redeploy_existing, try to piggy back on the already
-                    # existing machine, deploy and install the new code.
+                if self._use_existing:
+                    # if use_existing, try to piggy back on the already
+                    # existing container(if any), deploy and install the new code.
                     # this will probably take way less than reprovisioning a
                     # full machine, but may not work!
                     self._create_machine(
-                        config, use_existing=self._redeploy_existing)
+                        config, use_existing=self._use_existing)
                 continue
             self._create_machine(config)
 

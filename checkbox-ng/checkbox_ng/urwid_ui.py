@@ -692,9 +692,9 @@ def interrupt_dialog(host):
     ]
     choices = [
         _("Nothing, continue testing (ESC)"),
-        _("Kill test in progress and move on to the next"),
-        _("Exit but let the service test run continue (CTRL+C)"),
-        _("Exit and kill the service test runer at {}".format(host)),
+        _("Stop the test in progress and move on to the next"),
+        _("Disconnect but let the test session continue (CTRL+C)"),
+        _("Exit and stop the Checkbox service on the testbed at {}".format(host)),
         _("Finalize this session and launch a new test plan"),
     ]
     footer_text = [

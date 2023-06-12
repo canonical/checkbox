@@ -5,7 +5,7 @@
   name = "checkbox-ng"
   #url="https://launchpad.net/checkbox-ng/"
   authors = [
-      {name = "Zygmunt Krynicki", email = "zygmunt.krynicki@canonical.com"}
+      {name = 'Sylvain Pineau', email = 'sylvain.pineau@canonical.com'}
   ]
   #test_suite='checkbox_ng.tests.test_suite'
   license={"text" = "GPLv3"}

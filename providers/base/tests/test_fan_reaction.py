@@ -31,12 +31,14 @@ class FanMonitorTests(unittest.TestCase):
         # Mock the glob.glob function to return a fan path
         with patch("glob.glob") as mock_glob:
             mock_glob.return_value = ["/sys/class/hwmon/hwmon1/fan1_input"]
-            fan_monitor = FanMonitor()
-            # Mock the open function to return a mocked file objects
-            with patch("builtins.open") as mock_open:
-                mock_open.return_value.__enter__().read.return_value = "1000"
-                rpm = fan_monitor.get_rpm()
-                self.assertEqual(rpm, {"hwmon1/fan1_input": 1000})
+            with patch("os.path.realpath") as mock_path:
+                mock_path.return_value = "foo"
+                fan_monitor = FanMonitor()
+                # Mock the open function to return a mocked file objects
+                with patch("builtins.open") as mock_open:
+                    mock_open.return_value.__enter__().read.return_value = "1000"
+                    rpm = fan_monitor.get_rpm()
+                    self.assertEqual(rpm, {"hwmon1/fan1_input": 1000})
 
     def test_multiple(self):
         # Mock the glob.glob function to return a list of fan paths
@@ -45,14 +47,16 @@ class FanMonitorTests(unittest.TestCase):
                 "/sys/class/hwmon/hwmon1/fan1_input",
                 "/sys/class/hwmon/hwmon2/fan2_input"
             ]
-            fan_monitor = FanMonitor()
-            with patch("builtins.open") as mock_open:
-                mock_open.return_value.__enter__().read.return_value = "1000"
-                rpm = fan_monitor.get_rpm()
-                self.assertEqual(rpm, {
-                    "hwmon1/fan1_input": 1000,
-                    "hwmon2/fan2_input": 1000
-                })
+            with patch("os.path.realpath") as mock_path:
+                mock_path.return_value = "foo"
+                fan_monitor = FanMonitor()
+                with patch("builtins.open") as mock_open:
+                    mock_open.return_value.__enter__().read.return_value = "1000"
+                    rpm = fan_monitor.get_rpm()
+                    self.assertEqual(rpm, {
+                        "hwmon1/fan1_input": 1000,
+                        "hwmon2/fan2_input": 1000
+                    })
 
     def test_discard_gpu_fan(self):
         # Testing if GPU fan will be discard or not, so pci code & path should be mocked

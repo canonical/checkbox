@@ -134,10 +134,10 @@ class LxdMachineProvider:
                     '{} LXD profile created successfully', profile_name)
 
     def _create_machine(self, config, use_existing=False):
-        assert (
-            not use_existing or
-            (use_existing and config.origin == 'source')
-        ), "Use existing can not be enabled in non source runs"
+        if use_existing and config.origin == 'source':
+            raise ValueError(
+                "Use existing can not be enabled in non source runs"
+            )
         name = 'metabox-{}'.format(config)
         base_profiles = ["default", "checkbox"]
         alias = config.alias

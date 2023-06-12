@@ -254,17 +254,10 @@ class LxdMachineProvider:
                     "sudo mkdir -p {}".format(os.path.dirname(dest)),
                     verbose=self._debug_machine_setup
                 )
-                # Ensure that the location is not already there
-                #  else cp will copy inside it
-                run_or_raise(
-                    machine._container,
-                    "sudo rm -rf {} 2>/dev/null || true".format(dest),
-                    verbose = self._debug_machine_setup
-                )
                 # Copy the mounted dir to the desired location
                 run_or_raise(
                     machine._container,
-                    "sudo cp -r /{} {}".format(self.LXD_SOURCE_MOUNT_POINT, dest),
+                    "sudo cp -rT /{} {}".format(self.LXD_SOURCE_MOUNT_POINT, dest),
                     verbose=self._debug_machine_setup
                 )
                 # Own it to the correct user

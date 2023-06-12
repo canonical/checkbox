@@ -733,6 +733,8 @@ class LXDTest_vm(object):
         self.image_alias = uuid4().hex
         self.default_remote = "ubuntu:"
         self.os_version = get_release_to_test()
+        self.stdout = None
+        self.maxcore = 288
 
     def run_command(self, cmd):
         task = RunCommand(cmd)
@@ -746,6 +748,7 @@ class LXDTest_vm(object):
             logging.debug('Command {}:'.format(task.cmd))
             if task.stdout != '':
                 logging.debug(' STDOUT: {}'.format(task.stdout))
+                self.stdout = task.stdout
             elif task.stderr != '':
                 logging.debug(' STDERR: {}'.format(task.stderr))
             else:
@@ -865,10 +868,27 @@ class LXDTest_vm(object):
             cmd = ('lxc init {}{} {} --vm '.format(
                self.default_remote, self.os_version, self.name))
         else:
-            cmd = ('lxc init {} {} --vm'.format(self.image_alias, self.name))
+            cmd = ('lxc init {} {} --vm'.format(
+                        self.image_alias, self.name))
 
         if not self.run_command(cmd):
             return False
+
+        # Set Max CPU for systems with high core counts
+        # Workaround for Bug 2012763
+
+        logging.debug("Ensure Max Core Count is < 288")
+        cmd = "nproc --all"
+        if not self.run_command(cmd):
+            return False
+
+        current_core_count = int(self.stdout)
+        if (current_core_count > self.maxcore):
+            logging.debug("Setting Max Core Count to 288")
+            cmd = ("lxc config set {} limits.cpu {}".format(
+                    self.name, self.maxcore))
+            if not self.run_command(cmd):
+                return False
 
         logging.debug("Start VM:")
         cmd = ("lxc start {} ".format(self.name))

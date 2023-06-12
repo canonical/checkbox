@@ -31,6 +31,7 @@ import socket
 import time
 import signal
 import sys
+import itertools
 
 from collections import namedtuple
 from functools import partial
@@ -164,6 +165,15 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         server_msg = None
         self._prepare_transports()
         interrupted = False
+        # Used to cleanly print reconnecting
+        #  this is used to print reconnecting
+        printed_reconnecting = False
+        #  check if ever disconnected
+        ever_disconnected = False
+        #  this to animate the dash
+        spinner = itertools.cycle('-\\|/')
+        #  this tracks the disconnection time
+        disconnection_time = 0
         while True:
             try:
                 if interrupted:
@@ -213,6 +223,13 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         slave_api_version, master_api_version))
                 state, payload = self.sa.whats_up()
                 _logger.info("remote: Main dispatch with state: %s", state)
+                if printed_reconnecting and ever_disconnected:
+                    print(
+                        "...\nReconnected (took: {}s)".format(
+                            int(time.time() - disconnection_time)
+                        )
+                    )
+                    printed_reconnecting = False
                 keep_running = {
                     'idle': self.new_session,
                     'running': self.wait_and_continue,
@@ -249,8 +266,13 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 if not keep_running:
                     raise
                 # it's reconnecting, so we can ignore refuses
-                print('Reconnecting...')
-                time.sleep(0.5)
+                if not printed_reconnecting:
+                    print("Reconnecting ", end="")
+                    disconnection_time = time.time()
+                    ever_disconnected = True
+                    printed_reconnecting = True
+                print(next(spinner), end="\b", flush=True)
+                time.sleep(.25)
             except KeyboardInterrupt:
                 interrupted = True
 

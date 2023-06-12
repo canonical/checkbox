@@ -22,7 +22,6 @@ import textwrap
 from metabox.core.actions import AssertPrinted
 from metabox.core.scenario import Scenario
 
-
 class Reboot(Scenario):
 
     modes = ['remote']
@@ -41,6 +40,7 @@ class Reboot(Scenario):
     """)
     steps = [
         AssertPrinted('Connection lost!'),
-        AssertPrinted('Reconnecting...'),
+        AssertPrinted('Reconnecting'),
+        AssertPrinted("Reconnected\s+\(took"),
         AssertPrinted('job passed   : Warm reboot'),
     ]

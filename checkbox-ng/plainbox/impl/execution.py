@@ -373,10 +373,13 @@ class UnifiedRunner(IJobRunner):
                             "{}.record.gz".format(slugify(job.id)))
 
     def send_signal(self, signal, target_user):
-        if not target_user:
-            if self._running_jobs_pid:
-                return os.kill(self._running_jobs_pid, signal)
+        if not self._running_jobs_pid:
+            # this can happen because the kill command is issued
+            # just as the job finishes
             logger.error("No job is currently running")
+            return
+        if not target_user:
+            os.kill(self._running_jobs_pid, signal)
         else:
             # process used sudo, so sudo is needed to kill it
             in_r, in_w = os.pipe()

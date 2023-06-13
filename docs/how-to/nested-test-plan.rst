@@ -19,7 +19,7 @@ test plan sections in sync and up-to-date.
 What if it could be possible now to have nested test plans. One being built by
 aggregating sections from one or more "base test plans"?
 
-Let's review in detail this new feature available in checkbox since plainbox 0.29
+Let's review this feature in detail.
 
 Quick start
 ===========
@@ -196,8 +196,7 @@ The jobs execution order is:
 How to change category or certification status of jobs coming from nested parts?
 --------------------------------------------------------------------------------
 
-The `test plan override mechanism
-<http://plainbox.readthedocs.io/en/latest/manpages/plainbox-test-plan-units.html?highlight=category-overrides>`_
+The :ref:`test plan override mechanism<Test Plan category-overrides field>`
 still works with nested parts. For example the ``hello`` job from the Baz
 provider was defined as a blocker and did not have a category.
 

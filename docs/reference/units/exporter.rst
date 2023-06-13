@@ -21,10 +21,14 @@ Fields
 
 Following fields may be used by an exporter unit.
 
+.. _Exporter id field:
+
 ``id``:
     (mandatory) - Unique identifier of the exporter. This field is used to look
     up and store data so please keep it stable across the lifetime of your
     provider.
+
+.. _Exporter summary field:
 
 ``summary``:
     (optional) - A human readable name for the exporter. This value is
@@ -32,14 +36,20 @@ Following fields may be used by an exporter unit.
     exporters. It must be one line long, ideally it should be short (50-70
     characters max).
 
+.. _Exporter entry_point field:
+
 ``entry_point``:
     (mandatory) - This is a key for a pkg_resources entry point from the
     plainbox.exporters namespace.
     Allowed values are: jinja2, text, xlsx, json and rfc822.
 
+.. _Exporter file_extension field:
+
 ``file_extension``:
     (mandatory) - Filename extension to use when the exporter stream is saved
     to a file.
+
+.. _Exporter options field:
 
 ``options``:
     (optional) - comma/space/semicolon separated list of options for this
@@ -74,6 +84,8 @@ Following fields may be used by an exporter unit.
 
     jinja2:
         - without-session-desc
+
+.. _Exporter data field:
 
 ``data``:
     (optional) - Extra data sent to the exporter code, to allow all kind of

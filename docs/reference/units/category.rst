@@ -15,9 +15,13 @@ Category Fields
 
 There are two fields that are used by the category unit:
 
+.. _Category id field:
+
 ``id``:
     (mandatory) - This field defines the partial identifier of the category. It
     is similar to the ``id`` field on the job definition units.
+
+.. _Category name field:
 
 ``name``:
     (mandatory) - This field defines a human readable name of the category. It

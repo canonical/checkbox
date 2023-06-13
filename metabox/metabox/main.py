@@ -62,6 +62,9 @@ def main():
         '--do-not-dispose', action='store_true',
         help="Do not delete LXD containers after the run")
     parser.add_argument(
+        '--use-existing', action='store_true',
+        help="Use existing containers updating the source inside them")
+    parser.add_argument(
         '--hold-on-fail', action='store_true',
         help="Pause testing when a scenario fails")
     parser.add_argument(

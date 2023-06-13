@@ -60,6 +60,7 @@ class Runner:
         self.hold_on_fail = self.args.hold_on_fail
         self.debug_machine_setup = self.args.debug_machine_setup
         self.dispose = not self.args.do_not_dispose
+        self.use_existing = self.args.use_existing
         aggregator.load_all()
 
     def _formatter(self, record):
@@ -164,7 +165,8 @@ class Runner:
         logger.debug("Combo: {}", self.combo)
         self.machine_provider = LxdMachineProvider(
             self.config, self.combo,
-            self.debug_machine_setup, self.dispose)
+            self.debug_machine_setup, self.dispose,
+            use_existing=self.use_existing)
         self.machine_provider.setup()
 
     def _load(self, mode, release_alias):

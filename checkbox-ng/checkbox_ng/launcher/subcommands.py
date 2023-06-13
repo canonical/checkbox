@@ -31,6 +31,7 @@ import logging
 import operator
 import os
 import re
+import shlex
 import sys
 import tarfile
 import time
@@ -297,22 +298,20 @@ class Launcher(MainLoopStage, ReportsStage):
             _logger.warning(_("Automatic restart disabled!"))
             return
 
-        # gluing the command with pluses b/c the middle part
-        # (launcher path) is optional
         snap_name = os.getenv("SNAP_NAME")
         if snap_name:
             # NOTE: This implies that any snap wishing to include a
             # Checkbox snap to be autostarted creates a snapcraft
             # app called "checkbox-cli"
-            respawn_cmd = "/snap/bin/{}.checkbox-cli".format(snap_name)
+            respawn_cmd = ["/snap/bin/{}.checkbox-cli".format(snap_name)]
         else:
-            respawn_cmd = sys.argv[0]  # entry-point to checkbox
-        respawn_cmd += " launcher "
+            respawn_cmd = [sys.argv[0]]  # entry-point to checkbox
+        respawn_cmd.append(launcher)
         if ctx.args.launcher:
-            respawn_cmd += os.path.abspath(ctx.args.launcher) + " "
-        respawn_cmd += "--resume {}"  # interpolate with session_id
+            respawn_cmd.append(os.path.abspath(ctx.args.launcher))
+        respawn_cmd.extend(["--resume", session_id])
         ctx.sa.configure_application_restart(
-            lambda session_id: [respawn_cmd.format(session_id)]
+            lambda session_id: [shlex.join(respawn_cmd)]
         )
 
     def _maybe_resume_session(self):

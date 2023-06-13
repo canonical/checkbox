@@ -3,7 +3,7 @@
 # Copyright 2013-2023 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
-#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -55,12 +55,13 @@ def _search_configs_by_name(name: str) -> list[str]:
     if os.path.isabs(expand_all(name)):
         return [name]
     to_r = []
+    _logger.debug("Searching for %s files...", name)
     for sdir in SEARCH_DIRS:
         config = expand_all(os.path.join(sdir, name))
         if os.path.exists(config):
             to_r.append(config)
         else:
-            _logger.info("Referenced config file doesn't exist: %s", config)
+            _logger.debug("not found in %s", sdir)
     return to_r
 
 
@@ -93,7 +94,7 @@ def load_configs(launcher_file=None, cfg=None):
             launcher_file_conf.get_value("config", "config_filename")
         )
     else:
-        # configs to read who may have a redirect in them
+        # configs to read which may reference other configs
         to_load_conf_names = _search_configs_by_name(
             cfg.get_value("config", "config_filename")
         )

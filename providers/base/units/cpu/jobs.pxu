@@ -137,6 +137,8 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/offlining_test
+requires:
+  cpu_offlining.state == 'supported'
 flags: also-after-suspend
 estimated_duration: 128.0
 user: root
@@ -145,7 +147,6 @@ _summary:
  Test offlining of each CPU core
 _description:
  Attempts to offline each core in a multicore system.
-requires: cpuinfo.platform not in ("aarch64", "armv7l")
 
 plugin: shell
 category_id: com.canonical.plainbox::cpu

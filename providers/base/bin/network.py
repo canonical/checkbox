@@ -288,7 +288,7 @@ class IPerfPerformanceTest(object):
         t = []
         results.clear()
         for thread_num in range(0, python_threads):
-            if self.iperf3:
+            if self.iperf3 and len(core_list) > 0:
                 core = core_list[thread_num % len(core_list)]
                 full_cmd = cmd + " -A {}".format(core)
             else:

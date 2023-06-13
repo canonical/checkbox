@@ -81,6 +81,12 @@ class LxdMachineProvider:
                     # existing container(if any), deploy and install the new code.
                     # this will probably take way less than reprovisioning a
                     # full machine, but may not work!
+                    # Also: remove the old owned container, this is re-created by
+                    #       by _create_machine and causes problems because it
+                    #       will not contain up to date infos
+                    self._owned_containers = [
+                        oc for oc in self._owned_containers if oc.config != config
+                    ]
                     self._create_machine(
                         config, use_existing=self._use_existing)
                 continue
@@ -299,7 +305,7 @@ class LxdMachineProvider:
         """Stop and delete (on request) all the containers."""
         for machine in self._owned_containers:
             container = machine._container
-            if container.state().status == "Running":
+            if container.status == "Running":
                 container.stop(wait=True)
                 logger.opt(colors=True).debug(
                     "[<y>stopped</y>     ] {}", container.name)

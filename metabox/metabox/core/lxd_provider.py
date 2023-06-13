@@ -134,7 +134,7 @@ class LxdMachineProvider:
                     '{} LXD profile created successfully', profile_name)
 
     def _create_machine(self, config, use_existing=False):
-        if use_existing and config.origin == 'source':
+        if use_existing and not config.origin == 'source':
             raise ValueError(
                 "Use existing can not be enabled in non source runs"
             )

@@ -95,12 +95,6 @@ def main():
                 arg,
                 deprecated_commands[arg],
             )
-            print()
-            print('WARNING: "{}" deprecated'.format(arg), end="")
-            print(
-                ' please use "{}" instead.'.format(deprecated_commands[arg]),
-                end="\n\n",
-            )
 
     top_parser = argparse.ArgumentParser()
     top_parser.add_argument(

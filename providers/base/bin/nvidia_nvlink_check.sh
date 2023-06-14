@@ -8,7 +8,7 @@ if [ -z "$O" ]; then
     echo "System does not support NVLINK."
     exit 1
 # If any inactive in output that means NVLINK not connected porpery or malfunction, -n use for verify output
-elif echo "$O" | grep -q inactive; then
+elif echo "$O" | grep -iq inactive; then
     echo "NVLINK either the bridge is missing/defective or not configured correctly.";
     exit 1
 else

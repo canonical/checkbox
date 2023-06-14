@@ -373,6 +373,11 @@ class UnifiedRunner(IJobRunner):
                             "{}.record.gz".format(slugify(job.id)))
 
     def send_signal(self, signal, target_user):
+        if not self._running_jobs_pid:
+            # this can happen because the kill command is issued
+            # just as the job finishes
+            logger.error("No job is currently running")
+            return
         if not target_user:
             os.kill(self._running_jobs_pid, signal)
         else:

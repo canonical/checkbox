@@ -98,8 +98,9 @@ class LxdMachineProvider:
                 continue
             try:
                 logger.debug("Getting information about {}...", container.name)
-                logger.debug("Starting {}...", container.name)
-                container.start(wait=True)
+                if container.status != 'Running':
+                    logger.debug("Starting {}...", container.name)
+                    container.start(wait=True)
                 logger.debug("Retrieving config file for {}...", container.name)
                 content = container.files.get(self.LXD_INTERNAL_CONFIG_PATH)
                 logger.debug("Stopping {}...", container.name)
@@ -107,6 +108,11 @@ class LxdMachineProvider:
                 config_dict = json.loads(content)
                 config = MachineConfig(config_dict['role'], config_dict)
                 logger.debug("Config: {}", repr(config))
+            except NotFound:
+                logger.debug("Deleting {} because it has no config", container.name)
+                container.stop(wait=True)
+                container.delete(wait=True)
+                continue
             except Exception as e:
                 logger.warning("{}: {}", container.name, e)
                 continue

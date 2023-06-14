@@ -1,8 +1,8 @@
-checkbox-ng (2.7) UNRELEASED; urgency=medium
+checkbox-ng (2.8) UNRELEASED; urgency=medium
 
   * new upstream version
 
- -- Devices Certification Bot <robot@canonical.com>  Wed, 31 May 2023 03:02:38 +0000
+ -- Devices Certification Bot <robot@canonical.com>  Wed, 14 Jun 2023 06:35:57 +0000
 
 checkbox-ng (2.2.0) unstable; urgency=medium
 

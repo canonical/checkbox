@@ -885,8 +885,8 @@ class LXDTest_vm(object):
         current_core_count = int(self.stdout)
         if (current_core_count > self.maxcore):
             logging.debug("Setting Max Core Count to 288")
-            cmd = ("lxc config set {} limits.cpu {}".format(
-                    self.name, self.maxcore))
+            cmd = ("lxc config set {} limits.cpu 1".format(
+                    self.name))
             if not self.run_command(cmd):
                 return False
 

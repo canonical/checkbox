@@ -188,12 +188,19 @@ class Configuration:
         The resulting dict will have two keys: myrep and other.
         """
         result = dict()
-        # check if there is such section declared in the SPEC
+
         non_param_sec_names = [
             name for name, _ in _get_non_param_spec_sections()
         ]
-        if prefix not in non_param_sec_names:
-            raise ValueError("No such section in the spec ({}".format(prefix))
+        for sect_name, section in CONFIG_SPEC:
+            if section in non_param_sec_names:
+                continue
+            if sect_name == prefix:
+                # found the section
+                break
+        else:
+            # the loop completed without finding the section
+            raise ValueError("No such section in the spec ({})".format(prefix))
 
         for sect_name, section in self.sections.items():
             sect_prefix, _, sect_param = sect_name.partition(":")

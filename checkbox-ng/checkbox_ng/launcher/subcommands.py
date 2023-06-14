@@ -309,9 +309,9 @@ class Launcher(MainLoopStage, ReportsStage):
         respawn_cmd.append("launcher")
         if ctx.args.launcher:
             respawn_cmd.append(os.path.abspath(ctx.args.launcher))
-        respawn_cmd.extend(["--resume", session_id])
+        respawn_cmd.append("--resume")
         ctx.sa.configure_application_restart(
-            lambda session_id: [shlex.join(respawn_cmd)]
+            lambda session_id: [shlex.join(respawn_cmd.append(session_id))]
         )
 
     def _maybe_resume_session(self):

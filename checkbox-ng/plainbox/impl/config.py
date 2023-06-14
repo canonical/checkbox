@@ -48,11 +48,7 @@ class Configuration:
         # sources is similar to origins, but instead of keeping an info on
         # each variable, we note what configs got read in general
         self._sources = [source] if source else []
-        for section, contents in CONFIG_SPEC:
-            if isinstance(contents, ParametricSection):
-                # we don't know what the actual section name will be,
-                # so let's wait with the creation until we know the full name
-                continue
+        for section, contents in _get_non_param_spec_sections():
             if isinstance(contents, DynamicSection):
                 self.sections[section] = DynamicSection()
             else:
@@ -127,13 +123,11 @@ class Configuration:
         if section in self._DYNAMIC_SECTIONS:
             self.dyn_set_value(section, name, value, origin)
             return
-        parametrized = False
-        if ":" in section:
+        parametrized = ":" in section
+        if parametrized:
             parametrized = True
             prefix, _ = section.split(":")
-        if parametrized:
             # TODO: do the check here for typing
-            pass
 
         index = -1
         for i, (sect_name, spec) in enumerate(CONFIG_SPEC):
@@ -195,13 +189,12 @@ class Configuration:
         """
         result = dict()
         # check if there is such section declared in the SPEC
-        for sect_name, section in CONFIG_SPEC:
-            if not isinstance(section, ParametricSection):
-                continue
-            if sect_name == prefix:
-                break
-        else:
+        non_param_sec_names = [
+            name for name, _ in _get_non_param_spec_sections()
+        ]
+        if prefix not in non_param_sec_names:
             raise ValueError("No such section in the spec ({}".format(prefix))
+
         for sect_name, section in self.sections.items():
             sect_prefix, _, sect_param = sect_name.partition(":")
             if sect_prefix == prefix:
@@ -465,3 +458,9 @@ CONFIG_SPEC = [
     ("environment", DynamicSection()),
     ("manifest", DynamicSection()),
 ]
+
+
+def _get_non_param_spec_sections():
+    for section, contents in CONFIG_SPEC:
+        if not isinstance(contents, ParametricSection):
+            yield section, contents

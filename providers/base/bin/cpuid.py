@@ -134,7 +134,7 @@ CPUIDS = {
         "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
         "Tiger Lake":       ['0x806c1'],
         "Aderlake":         ['0x906a4', '0x906A3', '0x90675', '0x90672'],
-        "Raptorlake":       ['0xB0671'],
+        "Raptorlake":       ['0xB0671', '0xB06F2', '0xB06F5', '0xB06A2'],
         "Westmere":         ['0x2065', '0x206c', '0x206f'],
         "Whisky Lake":      ['0x806eb', '0x806ec'],
         }

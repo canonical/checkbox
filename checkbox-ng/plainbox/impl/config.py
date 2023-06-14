@@ -125,7 +125,6 @@ class Configuration:
             return
         parametrized = ":" in section
         if parametrized:
-            parametrized = True
             prefix, _ = section.split(":")
             # TODO: do the check here for typing
 

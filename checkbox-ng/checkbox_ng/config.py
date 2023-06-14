@@ -1,14 +1,13 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013-2019 Canonical Ltd.
+# Copyright 2013-2023 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
-#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,57 +22,110 @@
 =====================================================
 """
 import gettext
-import itertools
 import logging
 import os
 
-from plainbox.impl.launcher import DefaultLauncherDefinition
-from plainbox.impl.launcher import LauncherDefinition
+from plainbox.impl.config import Configuration
 
 
 _ = gettext.gettext
 
 _logger = logging.getLogger("config")
 
+
+# The order here defines the priority
+# launcher > ~/.config > /etc/xdg > $SNAP_DATA
+SEARCH_DIRS = [
+    "~/.config/",
+    "/etc/xdg/",
+    "$SNAP_DATA",
+]
+
+
 def expand_all(path):
+    """Expand both: envvars and ~ in `path`."""
     return os.path.expandvars(os.path.expanduser(path))
 
-def load_configs(launcher_file=None):
-    configs = []
-    config_filename = 'checkbox.conf'
-    launcher = DefaultLauncherDefinition()
-    # launcher can override the default name of config files to look for
-    # so first we need to establish the filename to look for
+
+def _search_configs_by_name(name: str) -> list[str]:
+    """
+    Returns all well known config locations that have a `name` file
+    in them
+    """
+    if os.path.isabs(expand_all(name)):
+        return [name]
+    to_r = []
+    _logger.debug("Searching for %s files...", name)
+    for sdir in SEARCH_DIRS:
+        config = expand_all(os.path.join(sdir, name))
+        if os.path.exists(config):
+            to_r.append(config)
+        else:
+            _logger.debug("not found in %s", sdir)
+    return to_r
+
+
+def load_configs(launcher_file=None, cfg=None):
+    """
+    Read a chain of configs/launchers.
+
+    In theory there can be a very long list of configs that are linked by
+    specifying config_filename in each. Each config that defines a
+    config_filename imports the values that are defined in the path/name
+    provided. The imported are overwritten by the importee and whoever has
+    an higher priority.
+
+    Ex: If ~/.config/checkbox.conf has config_filename A and we have both
+        ~/.config/A and /etc/xdg/A:
+
+        - ~/.config/A has an higher priority than /etc/xdg/A
+        - anything that ~/.config/A imports has a higher priority
+            than /etc/xdg/A but lower than ~/.config/A itself
+        - anything that /etc/xdg/A imports has the lowest possible
+            priority
+    """
+    assert not (launcher_file and cfg), "config_filename in cfg will be ignored, FIXME"
+    if not cfg:
+        cfg = Configuration()
     if launcher_file:
-        generic_launcher = LauncherDefinition()
-        if not os.path.exists(launcher_file):
-            _logger.error(_(
-                "Unable to load launcher '%s'. File not found!"),
-                launcher_file)
-            raise SystemExit(1)
-        generic_launcher.read(launcher_file)
-        config_filename = os.path.expandvars(os.path.expanduser(
-            generic_launcher.config_filename))
-        launcher = generic_launcher.get_concrete_launcher()
-    if os.path.isabs(config_filename):
-        configs.append(config_filename)
+        # Use the config_filename if it is defined in launcher
+        launcher_file_conf = Configuration.from_path(launcher_file)
+        to_load_conf_names = _search_configs_by_name(
+            launcher_file_conf.get_value("config", "config_filename")
+        )
     else:
-        search_dirs = [
-            '$SNAP_DATA',
-            '/etc/xdg/',
-            '~/.config/',
-        ]
-        for d in search_dirs:
-            config = expand_all(os.path.join(d, config_filename))
-            if os.path.exists(config):
-                configs.append(config)
-    # Add config from launcher last so it gets precedence over others
+        # configs to read which may reference other configs
+        to_load_conf_names = _search_configs_by_name(
+            cfg.get_value("config", "config_filename")
+        )
+    # used to avoid "loops"
+    # Note: checkbox.conf is always the default "config_filename"
+    #       so we *always* have a loop eventually
+    already_loaded = {cfg.get_value("config", "config_filename")}
+    loaded_confs_sources = []
+    while to_load_conf_names:
+        to_load = to_load_conf_names.pop(0)
+        curr_cfg = Configuration.from_path(to_load)
+        imported_cfg_name = curr_cfg.get_value("config", "config_filename")
+        if imported_cfg_name and imported_cfg_name not in already_loaded:
+            # next load what this conf imports
+            to_load_conf_names = (
+                _search_configs_by_name(imported_cfg_name) + to_load_conf_names
+            )
+            already_loaded.add(imported_cfg_name)
+        loaded_confs_sources.append((curr_cfg, to_load))
+
+    # here if A -> B -> C in loaded_confs_sources we have [A_conf, B_conf, C_conf]
+    #  but A -> B means A overrides B so we reverse order
+    _logger.debug("Applying conf, latest applied has the highest priority")
+    for conf, source in reversed(loaded_confs_sources):
+        _logger.debug("Applying %s", source)
+        cfg.update_from_another(conf, "config file: {}".format(source))
+
     if launcher_file:
-        configs.append(launcher_file)
-    launcher.read(configs)
-    if launcher.problem_list:
-        _logger.error(_("Unable to start launcher because of errors:"))
-        for problem in launcher.problem_list:
-            _logger.error("%s", str(problem))
-        raise SystemExit(1)
-    return launcher
+        cfg.update_from_another(
+            launcher_file_conf,
+            "Launcher file: {}".format(launcher_file),
+        )
+
+    return cfg

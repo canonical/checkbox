@@ -66,35 +66,19 @@ def run_job_if_possible(session, runner, config, job, update=True, ui=None):
         for inhibitor in job_state.readiness_inhibitor_list:
             if inhibitor.cause != InhibitionCause.FAILED_DEP:
                 continue
-            related_job_state = session.job_state_map[
-                inhibitor.related_job.id]
+            related_job_state = session.job_state_map[inhibitor.related_job.id]
             if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
                 outcome = IJobResult.OUTCOME_SKIP
-        job_result = MemoryJobResult({
-            'outcome': outcome,
-            'comments': job_state.get_readiness_description()
-        })
+        job_result = MemoryJobResult(
+            {
+                "outcome": outcome,
+                "comments": job_state.get_readiness_description(),
+            }
+        )
     assert job_result is not None
     if update:
         session.update_job_result(job, job_result)
     return job_state, job_result
-
-
-class PlainBoxConfig(config.Config):
-    """
-    Configuration for PlainBox itself
-    """
-
-    environment = config.Section(
-        help_text=_("Environment variables for scripts and jobs"))
-
-    class Meta:
-
-        # TODO: properly depend on xdg and use real code that also handles
-        # XDG_CONFIG_HOME.
-        filename_list = [
-            '/etc/xdg/plainbox.conf',
-            os.path.expanduser('~/.config/plainbox.conf')]
 
 
 def get_all_exporter_names():

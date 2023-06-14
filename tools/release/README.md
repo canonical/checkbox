@@ -4,6 +4,19 @@
 Sometimes, the builders will be down and this might prevent building the
 packages.
 
+## Promote the previous beta release to stable
+
+Internal teams (mostly QA and Certification) are using the version in the beta
+snap channels or the Testing PPA to complete their tests. If this version is
+validated, it can then be pushed to stable for other teams and external
+stakeholders.
+
+Therefore, if there has been no negative feedback from internal teams after a
+cycle of testing the beta release, run the [Stable release workflow] to copy deb
+packages to the stable PPA and promote all snaps to stable.
+
+Then, it's time to build the new beta version.
+
 ## Bump the Checkbox version
 
 Run the [Bumpversion workflow] (the default increment is **minor**).
@@ -56,11 +69,6 @@ before finally completing
 a few of the snaps are built, which leads to Github Actions being marked as
 successful even though some snaps are not built (and therefore not pushed to
 the store)
-
-## Promote the release to stable
-
-When all tests are successfully completed, run the [Stable release workflow] to
-copy deb packages to the stable PPA and promote all snaps to stable
 
 # References
 

@@ -24,6 +24,7 @@
 
 # Modifications: 2019 Jeffrey Lane (jeffrey.lane@canonical.com)
 
+import argparse
 import ctypes
 import platform
 import sys
@@ -139,6 +140,26 @@ CPUIDS = {
         "Whisky Lake":      ['0x806eb', '0x806ec'],
         }
 
+# Server chips use different generations, so skip them
+INTEL_GEN_TO_NUM = {
+        "Raptorlake":       13,
+        "Alderlake":        12,
+        "Rocket Lake":      11,
+        "Tiger Lake":       11,
+        "Comet Lake":       10,
+        "Amber Lake":       10,
+        "Ice Lake":         10,
+        "Whiskey Lake":     10,
+        "Canon Lake":       8,
+        "Coffee Lake":      8,
+        "Kaby Lake":        7,
+        "Skylake":          6,
+        "Broadwell":        5,
+        "Haswell":          4,
+        "Ivy Bridge":       3,
+        "Sandy Bridge":     2,
+        "Westmere":         1,
+}
 
 class CPUID_struct(ctypes.Structure):
     _fields_ = [(r, c_uint32) for r in ("eax", "ebx", "ecx", "edx")]
@@ -189,6 +210,12 @@ class CPUID(object):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+                    prog='cpuid',
+                    description='Identifies the Intel generation based on cpu ids')
+    parser.add_argument('--intel_gen_number', action='store_true')
+    args = parser.parse_args()
+
     cpuid = CPUID()
     cpu = cpuid(1)
 
@@ -196,16 +223,22 @@ def main():
     # First lets get the name from /proc/cpuinfo
     cpu_data = check_output('lscpu', universal_newlines=True).split('\n')
     for line in cpu_data:
-        if line.startswith('Model name:'):
+        if line.startswith('Model name:') and not args.intel_gen_number:
             print("CPU Model: %s" % line.split(':')[1].lstrip())
 
     my_id = (hex(cpu[0]))
     complete = False
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:
-            if value in my_id:
-                print("CPUID: %s which appears to be a %s processor" %
-                      (my_id, key))
+            if value.lower() in my_id:
+                if not args.intel_gen_number:
+                    print("CPUID: %s which appears to be a %s processor" %
+                        (my_id, key))
+                else:
+                    if key in INTEL_GEN_TO_NUM:
+                        print(INTEL_GEN_TO_NUM[key])
+                    else:
+                        print("%s is not supported for conversion to Intel generation number")
                 complete = True
 
     if not complete:

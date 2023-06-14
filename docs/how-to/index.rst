@@ -11,4 +11,4 @@ These how-to guides cover key operations and processes in Checkbox.
    custom-app
    nested-test-plan
    side-loading
-   slave-daemon
+   testbed-service

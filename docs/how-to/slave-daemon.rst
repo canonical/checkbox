@@ -21,7 +21,7 @@ To enable the Daemon first you have to enable it in the snap:
 
     $ snap set checkbox-snappy slave=enabled
 
-And then ensure the Systemd service is running
+And then ensure the systemd service is running:
 
 .. code-block:: bash
 
@@ -33,7 +33,7 @@ Disabling the daemon
 In a rare case where you want to have multiple Checkbox snaps installed on the
 system, it's necessary to disable all, but one.
 
-To disable the daemon run
+To disable the daemon, run
 
 .. code-block:: bash
 

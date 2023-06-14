@@ -1,7 +1,7 @@
-.. _launcher-tutorial:
+.. _launcher:
 
-Checkbox launchers tutorial
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Checkbox launchers
+^^^^^^^^^^^^^^^^^^
 
 Checkbox launchers are INI files that customize checkbox experience. The
 customization includes:
@@ -15,6 +15,8 @@ Each section in the launcher is optional, when not supplied, the default values
 will be used.
 
 This tutorial describes Launchers version 1.
+
+.. _launcher_config:
 
 External configuration files
 ============================
@@ -108,13 +110,13 @@ specify exporter, transport and a report section in a launcher, you can use any
 number of the stock ones. In launchers version 1 there are 4 stock reports you
 may use:
 
-    * ``text`` - print results as text on standard output
-    * ``submission_files`` - write ``html``, ``json`` and ``tar.xz``
-      files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
-      ``$XDG_DATA_HOME`` is not defined.
-    * ``certification`` - send results to certification site
-    * ``certification-staging`` - send results to staging version of
-      certification site
+* ``text``: Print results as text on standard output
+* ``submission_files``: Write ``html``, ``json`` and ``tar.xz``
+  files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
+  ``$XDG_DATA_HOME`` is not defined)
+* ``certification``: Send results to certification site
+* ``certification-staging``: Send results to staging version of
+  certification site
 
 If you don't want to have any stock report automatically generated use
 ``none`` as the value.

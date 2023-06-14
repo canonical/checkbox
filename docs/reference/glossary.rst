@@ -14,6 +14,14 @@ Glossary
 
         A team inside Canonical working on :term:`Hardware Certification`.
 
+    DUT
+
+        Device Under Test. The device being tested by Checkbox.
+
+    Testbed
+
+        Synonym of :term:`DUT`.
+
     Checkbox
 
         Checkbox is a hardware testing tool developed by Canonical for
@@ -24,10 +32,15 @@ Glossary
 
         Name of the package in Ubuntu Archive that contains Checkbox.
 
-    Plainbox
+    Checkbox Controller
 
-        Plainbox is a functional core of the Checkbox.
-        These days it's almost synonymous with Checkbox.
+      Checkbox instance that **controls the execution** of tests on the
+      :term:`DUT` or :term:`testbed`, such as a laptop.
+
+    Checkbox Testbed
+
+      Checkbox instance that runs on the :term:`DUT` or :term:`testbed` and
+      **executes** tests.
 
     Test plan
 

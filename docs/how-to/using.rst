@@ -55,17 +55,17 @@ checkbox-cli list
 
 Currently there are following types you can list:
 
-    - job
-    - test plan
-    - category
-    - file
-    - template
-    - file
-    - manifest entry
-    - packaging meta-data
-    - exporter
-    - all-jobs (this special type list both, jobs and templates generating
-      jobs and has a different output formatting)
+- job
+- test plan
+- category
+- file
+- template
+- file
+- manifest entry
+- packaging meta-data
+- exporter
+- all-jobs (this special type list both, jobs and templates generating jobs and
+  has a different output formatting)
 
 Example::
 
@@ -239,29 +239,29 @@ the job. In the case of this example, the description is shown to the user,
 who must respond because the ``plugin`` type is ``manual``. ``plugin``
 types include (but are not limited to):
 
- * ``manual`` -- A test that requires the user to perform some action and
-   report the results.
- * ``shell`` -- An automated test that requires no user interaction; the
-   test is passed or failed on the basis of the return value of the script
-   or command.
- * ``resource`` -- Job that identifies the resources that the system has.
-   (e.g. discrete GPU, Wi-Fi module). This information can later be used by
-   other jobs to control other jobs' execution. (E.g. skip Wi-Fi tests if
-   there's no Wi-Fi chip).
- * ``user-interact`` -- A test that asks the user to perform some action
-   *before* the test is performed. The test then passes or fails
-   automatically based on the output of the test. An example is
-   ``keys/media-control``, which runs a tool to detect keypresses, asks the
-   user to press volume keys, and then exits automatically once the last
-   key has been pressed or the user clicks the skip button in the tool.
- * ``user-interact-verify`` -- This type of test is similar to the
-   ``user-interact`` test, except that the test's output is displayed for
-   the user, who must then decide whether it has passed or failed. An
-   example of this would be the ``usb/disk_detect`` test, which asks the
-   user to insert a USB key, click the ``test`` button, and then verify
-   manually that the USB key was detected correctly.
- * ``user-verify`` -- A test that the user manually performs or runs
-   automatically and requires the user to verify the result as passed or
-   failed.  An example of this is the graphics maximum resolution test
-   which probes the system to determine the maximum supported resolution
-   and then asks the user to confirm that the resolution is correct.
+* ``manual`` -- A test that requires the user to perform some action and
+  report the results.
+* ``shell`` -- An automated test that requires no user interaction; the
+  test is passed or failed on the basis of the return value of the script
+  or command.
+* ``resource`` -- Job that identifies the resources that the system has.
+  (e.g. discrete GPU, Wi-Fi module). This information can later be used by
+  other jobs to control other jobs' execution. (E.g. skip Wi-Fi tests if
+  there's no Wi-Fi chip).
+* ``user-interact`` -- A test that asks the user to perform some action
+  *before* the test is performed. The test then passes or fails
+  automatically based on the output of the test. An example is
+  ``keys/media-control``, which runs a tool to detect keypresses, asks the
+  user to press volume keys, and then exits automatically once the last
+  key has been pressed or the user clicks the skip button in the tool.
+* ``user-interact-verify`` -- This type of test is similar to the
+  ``user-interact`` test, except that the test's output is displayed for
+  the user, who must then decide whether it has passed or failed. An
+  example of this would be the ``usb/disk_detect`` test, which asks the
+  user to insert a USB key, click the ``test`` button, and then verify
+  manually that the USB key was detected correctly.
+* ``user-verify`` -- A test that the user manually performs or runs
+  automatically and requires the user to verify the result as passed or
+  failed.  An example of this is the graphics maximum resolution test
+  which probes the system to determine the maximum supported resolution
+  and then asks the user to confirm that the resolution is correct.

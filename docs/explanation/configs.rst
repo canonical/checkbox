@@ -5,18 +5,24 @@ Configuration values resolution order
 =====================================
 
 The directories that are searched for config files are:
-``/etc/xdg/``
-``~/.config/``
+
+* ``/etc/xdg/``
+* ``~/.config/``
+* ``$SNAP_DATA`` if run as a snap
 
 Invoking ``checkbox-cli`` (without launcher)
 --------------------------------------------
-Assumed config file name is ``checkbox.conf``
+
+By default, Checkbox will look for a config file named ``checkbox.conf`` in the
+directories mentioned above.
 
 Invoking launcher
 -----------------
-The file name to look for is specified using ``config_filename`` variable from
-launcher, from the ``[config]`` section. If it's not present, ``checkbox.conf``
-is used.
+
+If using a :ref:`launcher<launcher>`, the file name to look for is specified
+using the ``config_filename`` variable from the ``[config]`` section (see
+:ref:`launcher_config` for more information). If it's not present,
+``checkbox.conf`` is used.
 
 Note that if same configuration variable is defined in more than one place, the
 value resolution is as follows:

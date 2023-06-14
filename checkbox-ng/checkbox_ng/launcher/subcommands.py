@@ -306,7 +306,7 @@ class Launcher(MainLoopStage, ReportsStage):
             respawn_cmd = ["/snap/bin/{}.checkbox-cli".format(snap_name)]
         else:
             respawn_cmd = [sys.argv[0]]  # entry-point to checkbox
-        respawn_cmd.append(launcher)
+        respawn_cmd.append("launcher")
         if ctx.args.launcher:
             respawn_cmd.append(os.path.abspath(ctx.args.launcher))
         respawn_cmd.extend(["--resume", session_id])

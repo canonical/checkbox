@@ -1,16 +1,13 @@
-.. _daemonic_slave:
-
-Checkbox Slave Daemon Service
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Checkbox Testbed Daemon Service
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Checkbox snaps supporting Checkbox Remote functionality usually come with a
-Systemd service that can ensure Checkbox Slave is loaded and active.
+systemd service that can ensure :term:`Checkbox Testbed` is loaded and active.
 
 .. note::
 
-    In the examples below checkbox-snappy snap is used. For project specific
-    snaps replace ``checkbox-snappy`` with the name of Checkbox snap for your
-    project.
+    In the examples below checkbox snap is used. For project-specific snaps,
+    replace ``checkbox`` with the name of the Checkbox snap for your project.
 
 Enabling the daemon
 ===================
@@ -19,13 +16,13 @@ To enable the Daemon first you have to enable it in the snap:
 
 .. code-block:: bash
 
-    $ snap set checkbox-snappy slave=enabled
+    $ snap set checkbox slave=enabled
 
 And then ensure the systemd service is running:
 
 .. code-block:: bash
 
-    $ sudo systemctl restart snap.checkbox-snappy.remote-slave.service
+    $ sudo systemctl restart snap.checkbox.testbed.service
 
 Disabling the daemon
 ====================
@@ -37,59 +34,60 @@ To disable the daemon, run
 
 .. code-block:: bash
 
-    $ snap set checkbox-snappy slave=disabled
-    $ sudo systemctl stop snap.checkbox-snappy.remote-slave.service
+    $ snap set checkbox slave=disabled
+    $ sudo systemctl stop snap.checkbox.testbed.service
 
 
 Stopping the daemon
 ===================
 
-If you wish to stop currently running Slave instance, run
+If you wish to stop the currently running Testbed instance, run
 
 .. code-block:: bash
 
-    $ sudo systemctl stop snap.checkbox-snappy.remote-slave.service
+    $ sudo systemctl stop snap.checkbox.testbed.service
 
-Or press ctrl+c on the Master controlling that particular slave, and select
-``stop the checkbox slave @your_host``.
+Or press ``Ctrl+C`` on the Checkbox instance controlling that particular DUT,
+and select ``Exit and stop the Checkbox service on the testbed at your_host``.
 
-Note that if the Daemon is enabled, the Slave will go back up after a reboot.
+Note that if the Daemon is enabled, the Testbed service will go back up after a
+reboot.
 
 
 Troubleshooting
 ===============
 
 Whenever you have a problem with misbehaving daemon, it's advisable to start
-troubleshooting by restarting the host running the Slave.
+troubleshooting by restarting the :term:`DUT`.
 
-Daemon looks enabled but I cannot connect to it from the master
----------------------------------------------------------------
+Daemon looks enabled but I cannot connect to it from the Controller
+-------------------------------------------------------------------
 
 Check if the daemon is enabled:
 
 .. code-block:: bash
 
-    $ snap get checkbox-snappy slave
+    $ snap get checkbox slave
 
 Check if the service is enabled:
 
 .. code-block:: bash
 
-    $ sudo systemctl status snap.checkbox-snappy.remote-slave.service
+    $ sudo systemctl status snap.checkbox.testbed.service
 
 The output should state it's ``active (running)``.
 
 If it's not running, make sure the service and the Daemon are enabled.
 
-Master connects but I'm seeing wrong test plans
------------------------------------------------
+The Controller connects to the DUT but I'm seeing wrong test plans
+------------------------------------------------------------------
 
 There is a chance that you have two services running that compete to listen
 on the default port.
 
-Try listing statuses of all Checkbox Slave services and make sure only one is
-running.
+Try listing statuses of all Checkbox Testbed services and make sure only one is
+running:
 
 .. code-block:: bash
 
-    $ sudo systemctl status '*checkbox*slave*'
+    $ sudo systemctl status "*checkbox*service*"

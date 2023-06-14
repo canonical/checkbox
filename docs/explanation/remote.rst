@@ -24,63 +24,76 @@ Remote sends lean data only.
 Nomenclature
 ============
 
-*Checkbox Slave* - the Checkbox instance that runs on the System or Device
-under test and _executes_ the tests.
+Checkbox Testbed
+  See :term:`Checkbox Testbed` in the glossary.
 
-*Checkbox Master* - Checkbox instance that controls the execution of tests on
-the Slave, such as a laptop.
+Checkbox Controller
+  See :term:`Checkbox Controller` in the glossary.
 
-Invocation:
-  Slave:
-    ``checkbox-cli slave``
+Invocation
+==========
 
-  Master:
-    ``checkbox-cli master HOST [/PATH/TO/LAUNCHER]``
+Testbed
+  ``checkbox-cli testbed``
 
-    HOST can be an IP or a hostname that your device can resolve.
+Controller
+  ``checkbox-cli control HOST [/PATH/TO/LAUNCHER]``
 
-    LAUNCHER (optional) a launcher file to use that exists somewhere on the
-    machine you are using as the Master.
+  ``HOST`` can be an IP or a hostname that the controller can resolve.
 
+  ``LAUNCHER`` (optional) a launcher file to use that exists somewhere on the
+  machine you are using as the controller.
 
   Example:
-    ``checkbox-cli master dut8.local /home/ubuntu/testplans/sutton-client``
+    ``checkbox-cli control dut8.local /home/ubuntu/testplans/sutton-client``
 
 Custom port
 ===========
 
-By default Slave listens on port 18871. To change that ``--port`` option can be
-used. The same option used on Master specifies which port to connect to.
+By default, the Testbed listens on port 18871. To change that ``--port`` option
+can be used. The same option used on the Controller specifies which port to
+connect to.
 
-  Example:
-    ``checkbox-cli slave --port 10101``
+Examples:
+  ``checkbox-cli testbed --port 10101``
 
-    ``checkbox-cli master dut8.local --port 10101``
+  ``checkbox-cli control dut8.local --port 10101``
 
 Session control
 ===============
 
-  While Master is connected, sending SIGINT (hitting ctrl+c) to the application
-  invokes the interrupt screen:
+While Controller is connected, sending ``SIGINT`` (pressing ``Ctrl+C``) to the
+application invokes the interrupt screen::
 
-  .. image:: ../_images/interrupt.png
+      What do you want to interrupt?
 
-  First action is "Cancel the interruption", which returns to the session (Does
-  nothing). You can also press ESC on the Interruption screen to select that
-  action.
+  (X) Nothing, continue testing (ESC)
+  ( ) Stop the test case in progress and move on to the next
+  ( ) Disconnect but let the test session continue (CTRL+C)
+  ( ) Exit and stop the Checkbox service on the testbed at 127.0.0.1
+  ( ) End this test session preserving its data and launch a new one
 
-  Second action is "Disconnect the master". It leaves the session on the Slave
-  running, but the Master exits. You can also hit ctrl+c again to select that
-  action (terminate the master). You can reconnect to the Slave and resume
-  testing like the interruption never happened.
 
-  Third action is "Stop the Checkbox slave". It stops the session and terminates
-  the Checkbox process on the Slave. It also stops the master.
+Nothing, continue testing (ESC)
+  As the name implies, it returns to the session. You can press the ``Esc`` key
+  to get the same result.
 
-  Fourth action is "Abandon the session". It stops and _removes_ the session on
-  the Slave and immediately starts another one. After the new session is started
-  Master is greeted with test plan selection screen. This is a good moment to
-  disconnect the master if you wish to run testing at a later time.
+Stop the test case in progress and move on to the next
+  Not sure since it currently crashes Checkbox: GitHub#550
+
+Disconnect but let the test session continue (CTRL+C)
+  Leaves the session on the Testbed running, but let the Controller exit.
+  Pressing ``Ctrl+C`` a second time will have the same effect. It is possible
+  to reconnect to the Testbed later on and resume the testing session.
+
+Exit and stop the Checkbox service on the testbed at 127.0.0.1
+  Stops the session on and terminates the Checkbox process on the Testbed. In
+  addition, stops the Controller.
+
+End this test session preserving its data and launch a new one
+  Stops the current session on the Testbed and mark it so it is not possible to resume
+  it, then immediately starts a new one. The Controller will be greeted with
+  the test plan selection screen.
 
 Remote session characteristics
 ==============================

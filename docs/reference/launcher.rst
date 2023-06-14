@@ -383,15 +383,16 @@ Daemon-specific configuration
 ``[daemon]``
 
 Beginning of the daemon-specific section.
-Settings in this section only apply to sessions that are run by checkbox-slave
-spawned as a daemon.
+
+Settings in this section only apply to sessions that are run by :term:`Checkbox
+Testbed` spawned as a daemon (or Systemd service).
 
 ``normal_user``
 
 Username to use when job doesn't specify which user to run as.
 
-Checkbox-slave daemon is run by root so in order to run some jobs as an
-unprivileged user this variable can be used.
+The systemd service run on the :term:`testbed` is run by root so in order to
+run some jobs as an unprivileged user this variable can be used.
 
 
 Manifest section

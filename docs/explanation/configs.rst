@@ -35,16 +35,16 @@ value resolution is as follows:
 Configs with Checkbox Remote
 ============================
 
-When the Checkbox Slave starts, it looks for config files in the same places
-that local Checkbox session would look (on the Slave side).
-If the Master uses a Launcher, then the values from that Launcher take
-precedence over the values from configs on the Slave side.
+When the :term:`Checkbox Testbed` starts, it looks for config files in the same
+places that local Checkbox session would look (on the :term:`DUT` side). If
+the :term:`Checkbox Controller` uses a Launcher, then the values from that
+Launcher take precedence over the values from configs on the :term:`DUT` side.
 
 Example:
 
 ::
 
-    # checkbox.conf on the Slave
+    # checkbox.conf on the DUT
 
     [environment]
     FOO = 12
@@ -52,7 +52,7 @@ Example:
 
 ::
 
-    # Launcher used by the master
+    # Launcher used by the Controller
 
     # (...)
     [environment]
@@ -60,5 +60,5 @@ Example:
 
 A Checkbox job that runs ``echo $FOO $BAR`` would print ``42 6``
 
-Note that ``BAR`` is still available even though Master used Launcher that did
-not define it.
+Note that ``BAR`` is still available even though the Controller used a Launcher
+that did not define it.

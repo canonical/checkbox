@@ -139,6 +139,38 @@ class LxdMachineProvider:
                 logger.debug(
                     '{} LXD profile created successfully', profile_name)
 
+    def _create_container(self, config, name, use_existing=False):
+        """
+        Create a container from the given config or when use_existing,
+        try to get the old one by name and rollback it to provisioned
+        """
+        if use_existing:
+            container = None
+            with suppress(NotFound):
+                container = self.client.containers.get(name)
+                logger.opt(colors=True).debug("[<y>re-using</y>    ] {}", name)
+            if container:
+                if container.status != 'Stopped':
+                    container.stop(wait=True)
+                with suppress(NotFound):
+                    # this will fail if provisioned is not there, this happens if the
+                    # previous build failed before creating the snapshot but after
+                    # creating the machine
+                    #
+                    # Note: get is used here because restore_snapshot returns a
+                    #       a generic api exception on missing
+                    _ = container.snapshots.get("provisioned")
+                    container.restore_snapshot("provisioned", wait=True)
+                    logger.opt(colors=True).debug(
+                        "[<y>restored</y>    ] {}", container.name)
+                    return container
+                logger.opt(colors=True).debug(
+                    "[<y>deleting</y>    ] {}, missing snapshot, invalid container", name)
+                container.delete(wait=True)
+        logger.opt(colors=True).debug("[<y>creating</y>    ] {}", name)
+        container = self.client.containers.create(config, wait=True)
+        return container
+
     def _create_machine(self, config, use_existing=False):
         if use_existing and not config.origin == 'source':
             raise ValueError(
@@ -163,15 +195,9 @@ class LxdMachineProvider:
                 'server': server
             }
         }
-        container = None
-        if use_existing:
-            with suppress(NotFound):
-                container = self.client.containers.get(name)
-                logger.opt(colors=True).debug("[<y>re-using</y>    ] {}", name)
+
         try:
-            if container is None:
-                logger.opt(colors=True).debug("[<y>creating</y>    ] {}", name)
-                container = self.client.containers.create(lxd_config, wait=True)
+            container = self._create_container(lxd_config, name, use_existing=use_existing)
             machine = machine_selector(config, container)
             container.start(wait=True)
             attempt = 0

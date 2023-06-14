@@ -22,9 +22,13 @@ Checkbox Launcher Interpreter Application
 
 import gettext
 import logging
+import argparse
 import os
 import subprocess
 import sys
+import itertools
+import contextlib
+import functools
 
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.session.assistant import SessionAssistant
@@ -58,44 +62,7 @@ class Context:
         self.sa = sa
 
 
-def main():
-    import argparse
-
-    commands = {
-        "check-config": CheckConfig,
-        "launcher": Launcher,
-        "list": List,
-        "run": Run,
-        "startprovider": StartProvider,
-        "submit": Submit,
-        "show": Show,
-        "list-bootstrapped": ListBootstrapped,
-        "merge-reports": MergeReports,
-        "merge-submissions": MergeSubmissions,
-        "tp-export": TestPlanExport,
-        "service": RemoteSlave,
-        "remote": RemoteMaster,
-    }
-    deprecated_commands = {
-        "slave": "service",
-        "master": "remote",
-    }
-
-    known_cmds = list(commands.keys())
-    known_cmds += list(deprecated_commands.keys())
-    known_cmds += ["-h", "--help"]
-    if not (set(known_cmds) & set(sys.argv[1:])):
-        sys.argv.insert(1, "launcher")
-
-    for i, arg in enumerate(sys.argv):
-        if arg in deprecated_commands:
-            sys.argv[i] = deprecated_commands[arg]
-            logging.warning(
-                "%s is deprecated. Please use %s instead",
-                arg,
-                deprecated_commands[arg],
-            )
-
+def parse_args(default_command, commands, deprecated_commands={}):
     top_parser = argparse.ArgumentParser()
     top_parser.add_argument(
         "-v",
@@ -124,34 +91,103 @@ def main():
         help=_("show program's version information and exit"),
     )
     top_parser.add_argument(
-        "subcommand", help=_("subcommand to run"), choices=commands.keys()
+        "--launcher",
+        nargs="?",
+        dest="launcher_file",
+        help=_("launcher definition file to use"),
     )
-    # parse all the cli invocation until a subcommand is found
-    # subcommand doesn't start with a '-'
-    subcmd_index = 1
-    for i, arg in enumerate(sys.argv[1:]):
-        if not arg.startswith("-"):
-            subcmd_index = i + 1
-            break
-    args = top_parser.parse_args(sys.argv[1 : subcmd_index + 1])
-    subcmd_parser = argparse.ArgumentParser()
-    subcmd = commands[args.subcommand]()
-    subcmd.register_arguments(subcmd_parser)
-    sub_args = subcmd_parser.parse_args(sys.argv[subcmd_index + 1 :])
+    # This is used to remove deprecated commands from the usage
+    metavar_str = "{{{}}}".format(
+        ",".join(
+            sub_command
+            for sub_command in commands
+            if sub_command not in deprecated_commands
+        )
+    )
+    sub_command_parsers = top_parser.add_subparsers(
+        title="subcommand",
+        help=_("subcommand to run"),
+        dest="subcommand",
+        metavar=metavar_str,
+    )
+    for sub_command, action_type in commands.items():
+        sub_command_parser = sub_command_parsers.add_parser(sub_command)
+        action_type.register_arguments(sub_command_parser)
+
+    args, remaning = top_parser.parse_known_args()
+    if args.subcommand is None:
+        remaning.insert(0, default_command)
+        args = top_parser.parse_args(remaning, namespace=args)
+    if "launcher" in args and args.launcher is None:
+        if args.launcher_file:
+            args_dict = vars(args)
+            # set launcher = launcher_file
+            # this is done this way because you can not overwrite default
+            # values in Namespaces and having overlapping (same name)
+            # args makes them overwrite each other
+            args_dict["launcher"] = args.launcher_file
+            args = argparse.Namespace(**args_dict)
+    return args
+
+
+def deprecated_command(old_name, new_name, obj):
+    class _wrap(obj):
+        def __init__(self, *args, **kwargs):
+            _logger.warning(
+                "%s is deprecated. Please use %s instead!", old_name, new_name
+            )
+            super().__init__(*args, **kwargs)
+
+    return _wrap
+
+
+def main():
+    commands = {
+        "check-config": CheckConfig,
+        "launcher": Launcher,
+        "list": List,
+        "run": Run,
+        "startprovider": StartProvider,
+        "submit": Submit,
+        "show": Show,
+        "list-bootstrapped": ListBootstrapped,
+        "merge-reports": MergeReports,
+        "merge-submissions": MergeSubmissions,
+        "tp-export": TestPlanExport,
+        "service": RemoteSlave,
+        "remote": RemoteMaster,
+    }
+    deprecated_commands = {
+        "slave": "service",
+        "master": "remote",
+    }
+
+    for deprecated_name, new_name in deprecated_commands.items():
+        commands[deprecated_name] = deprecated_command(
+            deprecated_name, new_name, commands[new_name]
+        )
+
     sa = SessionAssistant(
         "com.canonical:checkbox-cli",
         "0.99",
         "0.99",
         ["restartable"],
     )
-    ctx = Context(sub_args, sa)
+
+    args = parse_args(
+        default_command="launcher",
+        commands=commands,
+        deprecated_commands=deprecated_commands,
+    )
+
+    ctx = Context(args, sa)
     try:
         socket.getaddrinfo("localhost", 443)  # 443 for HTTPS
     except Exception:
         pass
-    if "--clear-cache" in sys.argv:
+    if args.clear_cache:
         ResourceJobCache().clear()
-    if "--clear-old-sessions" in sys.argv:
+    if args.clear_old_sessions:
         old_sessions = [s[0] for s in sa.get_old_sessions()]
         sa.delete_sessions(old_sessions)
     if args.verbose:
@@ -160,4 +196,5 @@ def main():
     if args.debug:
         logging_level = logging.DEBUG
         logging.basicConfig(level=logging_level)
+    subcmd = commands[args.subcommand]()
     subcmd.invoked(ctx)

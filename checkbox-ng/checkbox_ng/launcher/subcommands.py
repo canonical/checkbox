@@ -72,7 +72,9 @@ _logger = logging.getLogger("checkbox-ng.launcher.subcommands")
 
 
 class Submit:
-    def register_arguments(self, parser):
+
+    @classmethod
+    def register_arguments(cls, parser):
         def secureid(secure_id):
             if not re.match(SECURE_ID_PATTERN, secure_id):
                 raise ArgumentTypeError(
@@ -166,7 +168,9 @@ class Submit:
 
 
 class StartProvider:
-    def register_arguments(self, parser):
+
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument(
             "name",
             metavar=_("name"),
@@ -702,7 +706,8 @@ class Launcher(MainLoopStage, ReportsStage):
             show_out = True
         return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
-    def register_arguments(self, parser):
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument(
             "launcher",
             metavar=_("LAUNCHER"),
@@ -769,7 +774,9 @@ class CheckboxUI(NormalUI):
 
 
 class Run(MainLoopStage):
-    def register_arguments(self, parser):
+
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument(
             "PATTERN",
             nargs="*",
@@ -988,7 +995,9 @@ class Run(MainLoopStage):
 
 
 class List:
-    def register_arguments(self, parser):
+
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument(
             'GROUP', nargs='?', choices=Explorer.OBJECT_TYPES,
             help=_("list objects from the specified group"))
@@ -1066,7 +1075,8 @@ class ListBootstrapped:
     def sa(self):
         return self.ctx.sa
 
-    def register_arguments(self, parser):
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument("TEST_PLAN", help=_("test-plan id to bootstrap"))
         parser.add_argument(
             "-f",
@@ -1129,7 +1139,8 @@ class TestPlanExport:
     def sa(self):
         return self.ctx.sa
 
-    def register_arguments(self, parser):
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument("TEST_PLAN", help=_("test-plan id to bootstrap"))
         parser.add_argument("-n", "--nofake", action="store_true")
 
@@ -1201,7 +1212,9 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None):
 
 
 class Show:
-    def register_arguments(self, parser):
+
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument(
             "IDs", nargs="+", help=_("Show the definitions of objects")
         )

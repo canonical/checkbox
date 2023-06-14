@@ -40,7 +40,9 @@ CERTIFICATION_NS = 'com.canonical.certification::'
 
 
 class MergeReports():
-    def register_arguments(self, parser):
+
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument(
             'submission', nargs='*', metavar='SUBMISSION',
             help='submission tarball')

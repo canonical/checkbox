@@ -49,5 +49,6 @@ class CheckConfig:
             print("- ", problem)
         return 1
 
-    def register_arguments(self, parser):
+    @classmethod
+    def register_arguments(cls, parser):
         """Register extra args for this subcmd. No extra args ATM."""

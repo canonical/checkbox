@@ -159,7 +159,8 @@ class RemoteSlave():
             self._server.close)
         self._server.start()
 
-    def register_arguments(self, parser):
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument('--resume', action='store_true', help=_(
             "resume last session"))
         parser.add_argument('--port', type=int, default=18871, help=_(

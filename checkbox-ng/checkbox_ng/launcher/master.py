@@ -423,7 +423,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self.sa.finish_job_selection()
         self.run_jobs()
 
-    def register_arguments(self, parser):
+    @classmethod
+    def register_arguments(cls, parser):
         parser.add_argument("host", help=_("target host"))
         parser.add_argument(
             "launcher", nargs="?", help=_("launcher definition file to use")

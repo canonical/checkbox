@@ -62,7 +62,7 @@ Examples:
 Session control
 ===============
 
-While Controller is connected, sending ``SIGINT`` (pressing ``Ctrl+C``) to the
+While Controller is connected, sending ``SIGINT`` (pressing ``Ctrl-C``) to the
 application invokes the interrupt screen::
 
       What do you want to interrupt?
@@ -79,11 +79,11 @@ Nothing, continue testing (ESC)
   to get the same result.
 
 Stop the test case in progress and move on to the next
-  Not sure since it currently crashes Checkbox: GitHub#550
+  Skip current test case and move to the next.
 
 Disconnect but let the test session continue (CTRL+C)
   Leaves the session on the Testbed running, but let the Controller exit.
-  Pressing ``Ctrl+C`` a second time will have the same effect. It is possible
+  Pressing ``Ctrl-C`` a second time will have the same effect. It is possible
   to reconnect to the Testbed later on and resume the testing session.
 
 Exit and stop the Checkbox service on the testbed at 127.0.0.1

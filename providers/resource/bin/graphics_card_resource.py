@@ -210,6 +210,10 @@ def main():
                 elif (record['driver'] in ('nvidia', 'pcieport')
                         and compare_ubuntu_release_version('22.04')):
                     record['prime_gpu_offload'] = 'On'
+                elif record['driver'] == 'i915':
+                    record['prime_gpu_offload'] = 'On'
+                else:
+                    record['prime_gpu_offload'] = 'Off'
             else:
                 record['prime_gpu_offload'] = 'Off'
             record['switch_to_cmd'] = switch_cmds[record['driver']][0]

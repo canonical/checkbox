@@ -161,7 +161,7 @@ checkbox-cli launcher
 
 ``launcher`` command lets you customize checkbox experience.
 
-See :ref:`launcher-tutorial` for more details.
+See :ref:`launcher` for more details.
 
 .. note::
     ``launcher`` is implied when invoking checkbox-cli with a file as the only

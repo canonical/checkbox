@@ -100,4 +100,4 @@ Those can for instance preset:
     - which tests to exclude
     - how and where to submit the results
 
-There is a full launcher tutorial here: :ref:`launcher-tutorial`.
+There is a full launcher reference here: :ref:`launcher`.

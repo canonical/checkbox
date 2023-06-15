@@ -24,9 +24,9 @@ class CheckConfig:
     """Implementation of the `check-config` sub-command."""
 
     @staticmethod
-    def invoked(_):
+    def invoked(context):
         """Function that's run with `check-config` invocation."""
-        config = load_configs()
+        config = load_configs(context.args.launcher)
         print("Configuration files:")
         for source in config.sources:
             print(" - {}".format(source))
@@ -52,3 +52,6 @@ class CheckConfig:
     @classmethod
     def register_arguments(cls, parser):
         """Register extra args for this subcmd. No extra args ATM."""
+        parser.add_argument(
+            "launcher", nargs="?", help="launcher definition file to use"
+        )

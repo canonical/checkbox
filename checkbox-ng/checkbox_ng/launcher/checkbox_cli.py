@@ -127,6 +127,11 @@ def parse_args(default_command, commands, deprecated_commands={}):
             # args makes them overwrite each other
             args_dict["launcher"] = args.launcher_file
             args = argparse.Namespace(**args_dict)
+    elif "launcher" in args and args.launcher_file:
+        # both args.launcher and args.launcher_file provided
+        raise SystemExit(
+            "Launcher provided twice, use either --launcher or the positional arg"
+        )
     return args
 
 

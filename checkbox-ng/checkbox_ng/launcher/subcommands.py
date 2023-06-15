@@ -783,6 +783,9 @@ class Run(MainLoopStage):
             help=_("run jobs matching the given regular expression"),
         )
         parser.add_argument(
+            "launcher", nargs="?", help=_("launcher definition file to use")
+        )
+        parser.add_argument(
             "--non-interactive",
             action="store_true",
             help=_("skip tests that require interactivity"),
@@ -877,7 +880,7 @@ class Run(MainLoopStage):
             self.ctx = ctx
 
             self._configure_restart()
-            config = load_configs()
+            config = load_configs(ctx.args.launcher)
             self.sa.use_alternate_configuration(config)
             self.sa.start_new_session(
                 self.ctx.args.title or "checkbox-run", UnifiedRunner

@@ -934,6 +934,8 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_ELEMENT_BIOSCIENCES_INSTRUMENT(self):
         devices = self.parse("ELEMENT_BIOSCIENCES_INSTRUMENT")
+        print(len(devices))
+        print(self.count(devices, "WATCHDOG"))
         self.assertEqual(len(devices), 92)
         self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 

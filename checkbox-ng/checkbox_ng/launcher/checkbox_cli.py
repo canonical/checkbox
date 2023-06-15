@@ -66,9 +66,6 @@ class Context:
 
 def parse_args(parser, default_command, deprecated_commands):
     sys_argv = copy(sys.argv)
-    if len(sys_argv) == 1:
-        # this is necessary because defaults are not supported for subparsers
-        sys_argv = [sys_argv[0], default_command]
     try:
         return parser.parse_args(args=sys_argv[1:])
     except argparse.ArgumentError as e:
@@ -91,10 +88,19 @@ def parse_args(parser, default_command, deprecated_commands):
             sys_argv[sys_argv.index(dep_command)] = new_command
         else:
             # -> usage of default_command
-            sys_argv.insert(1, default_command)
+            # discover where the args for the default_command start
+            i = len(sys_argv)
+            while i > 1:
+                try:
+                    parser.parse_args(args=sys_argv[1:i])
+                    break
+                except argparse.ArgumentError:
+                    i-=1
+            # apply the default command
+            sys_argv.insert(i, default_command)
         with contextlib.suppress(argparse.ArgumentError):
             return parser.parse_args(args=sys_argv[1:])
-    # -> typo
+    # -> typo is some arg
     parser.print_usage()
     raise SystemExit(str(error))
 
@@ -146,6 +152,8 @@ def setup_and_parse_args(default_command, commands, deprecated_commands={}):
         action_type.register_arguments(sub_command_parser)
 
     args = parse_args(top_parser, default_command, deprecated_commands)
+    if args.subcommand is None:
+        top_parser.parse_args(args=[default_command], namespace=args)
 
     if "launcher" in args and args.launcher is None:
         if args.launcher_file:
@@ -214,6 +222,5 @@ def main():
     if args.debug:
         logging_level = logging.DEBUG
         logging.basicConfig(level=logging_level)
-    if args.subcommand:
-        subcmd = commands[args.subcommand]()
-        subcmd.invoked(ctx)
+    subcmd = commands[args.subcommand]()
+    subcmd.invoked(ctx)

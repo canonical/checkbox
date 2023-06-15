@@ -30,6 +30,8 @@ import itertools
 import contextlib
 import functools
 
+from copy import copy
+
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.session.assistant import SessionAssistant
 
@@ -62,8 +64,45 @@ class Context:
         self.sa = sa
 
 
-def parse_args(default_command, commands, deprecated_commands={}):
-    top_parser = argparse.ArgumentParser()
+def parse_args(parser, default_command, deprecated_commands):
+    sys_argv = copy(sys.argv)
+    if len(sys_argv) == 1:
+        # this is necessary because defaults are not supported for subparsers
+        sys_argv = [sys_argv[0], default_command]
+    try:
+        return parser.parse_args(args=sys_argv[1:])
+    except argparse.ArgumentError as e:
+        error = e
+    # this could be caused by:
+    #   usage of default_command
+    #   usage of a deprecated command
+    #   a typo
+    if error.argument_name == "subcommand":
+        # get all deprecated command used
+        deprecated_sys_argv = [arg for arg in sys_argv if arg in deprecated_commands]
+        if deprecated_sys_argv:
+            # -> usage of deprecated command
+            dep_command = deprecated_sys_argv[0]
+            new_command = deprecated_commands[dep_command]
+            _logger.warning(
+                "%s is deprecated. Please use %s instead!", dep_command, new_command
+            )
+            # replace the first deprecated command (assuming any other is a file arg)
+            sys_argv[sys_argv.index(dep_command)] = new_command
+        else:
+            # -> usage of default_command
+            sys_argv.insert(1, default_command)
+        with contextlib.suppress(argparse.ArgumentError):
+            return parser.parse_args(args=sys_argv[1:])
+    # -> typo
+    parser.print_usage()
+    raise SystemExit(str(error))
+
+
+def setup_and_parse_args(default_command, commands, deprecated_commands={}):
+    top_parser = argparse.ArgumentParser(
+        conflict_handler="resolve", exit_on_error=False
+    )
     top_parser.add_argument(
         "-v",
         "--verbose",
@@ -96,28 +135,18 @@ def parse_args(default_command, commands, deprecated_commands={}):
         dest="launcher_file",
         help=_("launcher definition file to use"),
     )
-    # This is used to remove deprecated commands from the usage
-    metavar_str = "{{{}}}".format(
-        ",".join(
-            sub_command
-            for sub_command in commands
-            if sub_command not in deprecated_commands
-        )
-    )
+
     sub_command_parsers = top_parser.add_subparsers(
         title="subcommand",
         help=_("subcommand to run"),
         dest="subcommand",
-        metavar=metavar_str,
     )
     for sub_command, action_type in commands.items():
         sub_command_parser = sub_command_parsers.add_parser(sub_command)
         action_type.register_arguments(sub_command_parser)
 
-    args, remaning = top_parser.parse_known_args()
-    if args.subcommand is None:
-        remaning.insert(0, default_command)
-        args = top_parser.parse_args(remaning, namespace=args)
+    args = parse_args(top_parser, default_command, deprecated_commands)
+
     if "launcher" in args and args.launcher is None:
         if args.launcher_file:
             args_dict = vars(args)
@@ -133,17 +162,6 @@ def parse_args(default_command, commands, deprecated_commands={}):
             "Launcher provided twice, use either --launcher or the positional arg"
         )
     return args
-
-
-def deprecated_command(old_name, new_name, obj):
-    class _wrap(obj):
-        def __init__(self, *args, **kwargs):
-            _logger.warning(
-                "%s is deprecated. Please use %s instead!", old_name, new_name
-            )
-            super().__init__(*args, **kwargs)
-
-    return _wrap
 
 
 def main():
@@ -167,11 +185,6 @@ def main():
         "master": "remote",
     }
 
-    for deprecated_name, new_name in deprecated_commands.items():
-        commands[deprecated_name] = deprecated_command(
-            deprecated_name, new_name, commands[new_name]
-        )
-
     sa = SessionAssistant(
         "com.canonical:checkbox-cli",
         "0.99",
@@ -179,7 +192,7 @@ def main():
         ["restartable"],
     )
 
-    args = parse_args(
+    args = setup_and_parse_args(
         default_command="launcher",
         commands=commands,
         deprecated_commands=deprecated_commands,
@@ -201,5 +214,6 @@ def main():
     if args.debug:
         logging_level = logging.DEBUG
         logging.basicConfig(level=logging_level)
-    subcmd = commands[args.subcommand]()
-    subcmd.invoked(ctx)
+    if args.subcommand:
+        subcmd = commands[args.subcommand]()
+        subcmd.invoked(ctx)

@@ -119,7 +119,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_DELL_LATITUDEE4310(self):
         devices = self.parse("DELL_LATITUDEE4310")
-        self.assertEqual(len(devices), 74)
+        self.assertEqual(len(devices), 75)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -474,7 +474,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_LENOVO_E431(self):
         devices = self.parse("LENOVO_E431")
-        self.assertEqual(len(devices), 68)
+        self.assertEqual(len(devices), 100)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
@@ -526,7 +526,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
                             ("H5321 gw",
                              "WWAN", "usb", 0x0bdb, 0x1926)
                             ]
-        self.assertEqual(len(devices), 114)
+        self.assertEqual(len(devices), 115)
         # Check that the Thinkpad hotkeys are not a CAPTURE device
         self.assertEqual(devices[113].product, "ThinkPad Extra Buttons")
         self.assertEqual(devices[113].category, "OTHER")
@@ -645,7 +645,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
                             ("82579LM Gigabit Network Connection",
                              "NETWORK", "pci", 0x8086, 0x1502)
                             ]
-        self.assertEqual(len(devices), 68)
+        self.assertEqual(len(devices), 69)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
@@ -782,7 +782,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         # A system with only one BD drive but previously seen as two devices.
         # See https://bugs.launchpad.net/bugs/1328481
         devices = self.parse("ONE_CDROM_ONLY")
-        self.assertEqual(len(devices), 97)
+        self.assertEqual(len(devices), 98)
         self.assertEqual(self.count(devices, "CDROM"), 1)
         self.assertEqual(self.count(devices, "HIDRAW"), 1)
 

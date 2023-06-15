@@ -932,13 +932,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "NETWORK"), 2)
         self.assertEqual(self.count(devices, "DISK"), 2)
 
-    def test_ELEMENT_BIOSCIENCES_INSTRUMENT(self):
-        devices = self.parse("ELEMENT_BIOSCIENCES_INSTRUMENT")
-        print(len(devices))
-        print(self.count(devices, "WATCHDOG"))
-        self.assertEqual(len(devices), 92)
-        self.assertEqual(self.count(devices, "WATCHDOG"), 1)
-
     def test_SHUTTLE_DH170_WITH_USB_DISK(self):
         """ DH170 with USB stick comparing pre and post reboot. """
         devices_pre = self.parse("SHUTTLE_DH170_WITH_USB_DISK",

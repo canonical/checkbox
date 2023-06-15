@@ -1129,7 +1129,7 @@ class UdevadmParser(object):
             return False
 
         if device.category == "WATCHDOG":
-            return False
+            return "virtual" in device.path
 
         # Ignore devices without bus information
         if not device.bus:

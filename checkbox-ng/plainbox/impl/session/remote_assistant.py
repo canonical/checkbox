@@ -143,7 +143,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant:
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 11
+    REMOTE_API_VERSION = 12
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -582,28 +582,6 @@ class RemoteSessionAssistant:
             "done": self._sa.get_dynamic_done_list(),
             "todo": self._sa.get_dynamic_todo_list(),
         }
-
-    def get_master_public_key(self):
-        # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-        # this key is only for RAPI compliance. It will never be used as
-        # this master requires slave to be completely sudoless
-        return (
-            b"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMII"
-            b"BCgKCAQEA5r0bjOA+IH5lDKkW3OYb\nDuEjf5VKgUlDSJJuyBlfLTBIXZ8j3s98"
-            b"6AbV0zB62rAcgiFrBOzx51IzBDBmHI8V\nYYpEa+q4OP4yprYpSg6xzX6LRQapC"
-            b"Iv9BAqN4MWrKBukGMzJyemIVEPv4BSHL5L/\nLY98Mwh4dAXxj5ZdsoVPqgeMo8"
-            b"dxfYEOwVRJvSkseIhxRL6tvgP37c48ApUyjdUO\n3C2YgqJRx7mKKDyLOvhDVEl"
-            b"MqkAfp6qS/8xcGBTEqn08dDQIgPl8KofpC9GXMGbK\nV9FGP+c1bpA3vMOfnpsE"
-            b"WCju2qDoTSKJTm3VMZj88mqH7nOpbk7JI/Yz0EmtNXOM\n6QIDAQAB\n-----EN"
-            b"D PUBLIC KEY-----"
-        )
-
-    def save_password(self, password):
-        """Store sudo password"""
-        # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-        # if the slave is running it means we don't need password
-        # so we can consider call to this function as passing
-        return True
 
     def finish_job(self, result=None):
         # assert the thread completed

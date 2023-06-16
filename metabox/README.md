@@ -139,7 +139,7 @@ configuration = {
         'uri': '~/checkbox',
         'releases': ['jammy', 'focal', 'bionic'],
     },
-    'service': {
+    'agent': {
         'origin': 'source',
         'uri': '~/checkbox',
         'releases': ['jammy', 'focal', 'bionic'],

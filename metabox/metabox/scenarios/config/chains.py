@@ -42,7 +42,7 @@ class ConfigChainsPriority(Scenario):
     home_checkbox_includes = read_text(chains, "home_checkbox_includes.conf")
     etc_checkbox_includes = read_text(chains, "etc_checkbox_includes.conf")
     home_checkbox = read_text(chains, "home_checkbox.conf")
-
+    modes = ['local']
     steps = [
         Put("/etc/xdg/checkbox.conf", etc_checkbox),
         Put("/etc/xdg/includes.conf", etc_checkbox_includes),

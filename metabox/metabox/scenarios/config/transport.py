@@ -73,7 +73,7 @@ class TransportSecureIDSetInConfigOnly(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         Start(),
         AssertPrinted("config is not a valid secure_id"),
     ]
@@ -106,7 +106,7 @@ class TransportSecureIDOverwrittenByLauncher(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         Start(),
         AssertPrinted("launcher is not a valid secure_id"),
     ]

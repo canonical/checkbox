@@ -21,4 +21,4 @@ else
     print_usage
 fi
 
-exec checkbox-cli remote "$1" "$SNAP"/bin/odm-certification
+exec checkbox-cli controller "$1" "$SNAP"/bin/odm-certification

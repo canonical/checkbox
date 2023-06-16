@@ -52,7 +52,7 @@ class DaemonNormalUserSetInConfig(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         RunCmd("sudo useradd config_user"),
         Start(),
         AssertPrinted("user:config_user"),
@@ -78,7 +78,7 @@ class DaemonNormalUserOverwittenByLauncher(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         RunCmd("sudo useradd launcher_user"),
         Start(),
         AssertPrinted("user:launcher_user"),
@@ -127,3 +127,48 @@ class DaemonNormalUserDoesntExist(Scenario):
         Start(),
         AssertPrinted("User 'testuser' doesn't exist!"),
     ]
+
+@tag("daemon", "agent", "normal_user")
+class NewNameForDaemonWorks(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::whoami_as_user_tp
+        forced = yes
+        [test selection]
+        forced = yes
+        [agent]
+        normal_user = testuser
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted("User 'testuser' doesn't exist!"),
+    ]
+
+@tag("daemon", "agent", "normal_user")
+class DeprecatedDaemon(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::whoami_as_user_tp
+        forced = yes
+        [test selection]
+        forced = yes
+        [daemon]
+        normal_user = testuser
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted("Config: daemon section name is deprecated. Use agent instead."),
+    ]
+

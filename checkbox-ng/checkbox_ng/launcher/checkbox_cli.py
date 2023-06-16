@@ -43,8 +43,8 @@ from checkbox_ng.launcher.subcommands import (
 from checkbox_ng.launcher.check_config import CheckConfig
 from checkbox_ng.launcher.merge_reports import MergeReports
 from checkbox_ng.launcher.merge_submissions import MergeSubmissions
-from checkbox_ng.launcher.master import RemoteMaster
-from checkbox_ng.launcher.slave import RemoteSlave
+from checkbox_ng.launcher.controller import RemoteController
+from checkbox_ng.launcher.agent import RemoteAgent
 
 
 _ = gettext.gettext
@@ -73,12 +73,14 @@ def main():
         "merge-reports": MergeReports,
         "merge-submissions": MergeSubmissions,
         "tp-export": TestPlanExport,
-        "service": RemoteSlave,
-        "remote": RemoteMaster,
+        "run-agent": RemoteAgent,
+        "control": RemoteController,
     }
     deprecated_commands = {
-        "slave": "service",
-        "master": "remote",
+        "slave": "run-agent",
+        "service": "run-agent",
+        "master": "control",
+        "remote": "control"
     }
 
     known_cmds = list(commands.keys())
@@ -91,7 +93,8 @@ def main():
         if arg in deprecated_commands:
             sys.argv[i] = deprecated_commands[arg]
             logging.warning(
-                "%s is deprecated. Please use %s instead",
+                # "%s is deprecated. Please use %s instead",
+                "%s is deprecated and will be removed in the next major release of Checkbox. Please use %s instead",
                 arg,
                 deprecated_commands[arg],
             )

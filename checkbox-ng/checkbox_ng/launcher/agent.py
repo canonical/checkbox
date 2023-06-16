@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-This module contains implementation of the service end of the remote execution
+This module contains implementation of the agent end of the remote execution
 functionality.
 """
 import gettext
@@ -32,89 +32,89 @@ from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
 
 _ = gettext.gettext
-_logger = logging.getLogger("service")
+_logger = logging.getLogger("agent")
 
 
-class SessionAssistantSlave(rpyc.Service):
+class SessionAssistantAgent(rpyc.Service):
 
     session_assistant = None
-    controlling_master_conn = None
-    master_blaster = None
+    controlling_controller_conn = None
+    controller_blaster = None
 
     def exposed_get_sa(*args):
-        return SessionAssistantSlave.session_assistant
+        return SessionAssistantAgent.session_assistant
 
-    def exposed_register_master_blaster(self, callable):
+    def exposed_register_controller_blaster(self, callable):
         """
-        Register a callable that will be called when the slave decides to
-        disconnect the master. This should be used to prepare the master for
+        Register a callable that will be called when the agent decides to
+        disconnect the controller. This should be used to prepare the controller for
         the disconnection, so it can differentiate between network failures
         and a planned disconnect.
         The callable will be called with one param - a string with a reason
         for the disconnect.
         """
-        SessionAssistantSlave.master_blaster = callable
+        SessionAssistantAgent.controller_blaster = callable
 
     def on_connect(self, conn):
         try:
-            if SessionAssistantSlave.master_blaster:
-                msg = 'Forcefully disconnected by new master from {}:{}'.format(
+            if SessionAssistantAgent.controller_blaster:
+                msg = 'Forcefully disconnected by new controller from {}:{}'.format(
                     conn._config['endpoints'][1][0], conn._config['endpoints'][1][1])
-                SessionAssistantSlave.master_blaster(msg)
-                old_master = SessionAssistantSlave.controlling_master_conn
-                if old_master is not None:
-                    old_master.close()
-                SessionAssistantSlave.master_blaster = None
+                SessionAssistantAgent.controller_blaster(msg)
+                old_controller = SessionAssistantAgent.controlling_controller_conn
+                if old_controller is not None:
+                    old_controller.close()
+                SessionAssistantAgent.controller_blaster = None
 
-            SessionAssistantSlave.controlling_master_conn = conn
+            SessionAssistantAgent.controlling_controller_conn = conn
         except TimeoutError as exc:
-            # this happens when the reference to .master_blaster times out,
-            # meaning the master is blocked on an urwid screen or some other
+            # this happens when the reference to .controller_blaster times out,
+            # meaning the controller is blocked on an urwid screen or some other
             # thread blocking operation. In any case it means there was a
-            # previous master, so we need to kill it
-            old_master = SessionAssistantSlave.controlling_master_conn
-            SessionAssistantSlave.master_blaster = None
-            old_master.close()
-            SessionAssistantSlave.controlling_master_conn = conn
+            # previous controller, so we need to kill it
+            old_controller = SessionAssistantAgent.controlling_controller_conn
+            SessionAssistantAgent.controller_blaster = None
+            old_controller.close()
+            SessionAssistantAgent.controlling_controller_conn = conn
 
     def on_disconnect(self, conn):
-        SessionAssistantSlave.master_blaster = None
-        self.controlling_master_conn = None
+        SessionAssistantAgent.controller_blaster = None
+        self.controlling_controller_conn = None
 
 
-class RemoteSlave():
+class RemoteAgent():
     """
-    Run checkbox instance as a service
+    Run checkbox instance as a agent
 
-    RemoteSlave implements functionality for the half that's actually running
-    the tests - the one that was summoned using `checkbox-cli service`. This
+    RemoteAgent implements functionality for the half that's actually running
+    the tests - the one that was summoned using `checkbox-cli run-agent`. This
     part should be run on system-under-test.
     """
 
-    name = 'service'
+    name = 'agent'
 
     def invoked(self, ctx):
         if os.geteuid():
-            raise SystemExit(_("Checkbox service must be run by root!"))
+            raise SystemExit(_("Checkbox agent must be run by root!"))
         if not is_passwordless_sudo():
             raise SystemExit(
                 _("System is not configured to run sudo without a password!"))
-        slave_port = ctx.args.port
+        agent_port = ctx.args.port
 
-        # Check if able to connect to the slave port as indicator of there
-        # already being a slave running
-        def slave_port_open():
+        # Check if able to connect to the agent port as indicator of there
+        # already being a agent running
+        def agent_port_open():
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(0.5)
-            result = sock.connect_ex(('127.0.0.1', slave_port))
+            result = sock.connect_ex(('127.0.0.1', agent_port))
             sock.close()
             return result
-        if slave_port_open() == 0:
-            raise SystemExit(_("Found port {} is open. Is Checkbox service"
-                               " already running?").format(slave_port))
+        if agent_port_open() == 0:
+            raise SystemExit(_("Found port {} is open. Is Checkbox agent"
+                               " already running?").format(agent_port))
 
-        SessionAssistantSlave.session_assistant = RemoteSessionAssistant(
-            lambda s: [sys.argv[0] + 'service'])
+        SessionAssistantAgent.session_assistant = RemoteSessionAssistant(
+            lambda s: [sys.argv[0] + 'agent'])
         snap_data = os.getenv('SNAP_DATA')
         snap_rev = os.getenv('SNAP_REVISION')
         remote_restart_strategy_debug = os.getenv('REMOTE_RESTART_DEBUG')
@@ -126,12 +126,12 @@ class RemoteSlave():
             if os.path.exists(strategy.session_resume_filename):
                 with open(strategy.session_resume_filename, 'rt') as f:
                     session_id = f.readline()
-                SessionAssistantSlave.session_assistant.resume_by_id(
+                SessionAssistantAgent.session_assistant.resume_by_id(
                     session_id)
             elif ctx.args.resume:
                 # XXX: explicitly passing None to not have to bump Remote API
                 # TODO: remove on the next Remote API bump
-                SessionAssistantSlave.session_assistant.resume_by_id(None)
+                SessionAssistantAgent.session_assistant.resume_by_id(None)
         else:
             _logger.info("RemoteDebRestartStrategy")
             if remote_restart_strategy_debug:
@@ -143,11 +143,11 @@ class RemoteSlave():
                     session_id = f.readline()
                 _logger.info(
                     "RemoteDebRestartStrategy resume_by_id %r", session_id)
-                SessionAssistantSlave.session_assistant.resume_by_id(
+                SessionAssistantAgent.session_assistant.resume_by_id(
                     session_id)
         self._server = ThreadedServer(
-            SessionAssistantSlave,
-            port=slave_port,
+            SessionAssistantAgent,
+            port=agent_port,
             protocol_config={
                 "allow_all_attrs": True,
                 "allow_setattr": True,
@@ -155,7 +155,7 @@ class RemoteSlave():
                 "propagate_SystemExit_locally": True
             },
         )
-        SessionAssistantSlave.session_assistant.terminate_cb = (
+        SessionAssistantAgent.session_assistant.terminate_cb = (
             self._server.close)
         self._server.start()
 

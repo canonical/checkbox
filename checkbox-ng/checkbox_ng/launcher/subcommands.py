@@ -389,7 +389,7 @@ class Launcher(MainLoopStage, ReportsStage):
             title += " {}".format(app_version)
         runner_kwargs = {
             "normal_user_provider": lambda: self.configuration.get_value(
-                "daemon", "normal_user"
+                "agent", "normal_user"
             ),
             "password_provider": sudo_password_provider.get_sudo_password,
             "stdin": None,

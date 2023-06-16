@@ -1,10 +1,10 @@
 configuration = {
-    'remote': {
+    'controller': {
         'origin': 'source',
         'uri': '~/dev/work/checkbox',
         'releases': ['focal'],
     },
-    'service': {
+    'agent': {
         'origin': 'source',
         'uri': '~/dev/work/checkbox',
         'releases': ['focal'],

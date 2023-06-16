@@ -586,7 +586,7 @@ class TestPlanBrowser():
         urwid.Text("Exit (abandon session)          Ctrl+C")]))
 
     def __init__(self, title, test_plan_list, selection=None):
-        self.master_list = sorted(
+        self.controller_list = sorted(
             test_plan_list, key=lambda tp_info: tp_info.get('name'))
         # Header
         self.header = urwid.Padding(urwid.Text(title), left=1)
@@ -594,7 +594,7 @@ class TestPlanBrowser():
         self.radio_button_group = []
         self.button_pile = None
         self._preselected_tp = selection
-        self._update_button_pile(self.master_list)
+        self._update_button_pile(self.controller_list)
         listbox_content = [
             urwid.Divider(),
             urwid.Padding(self.button_pile, left=4, right=3, min_width=13),
@@ -644,10 +644,10 @@ class TestPlanBrowser():
                     filter_str = self.filter_footer.get_edit_text()
                     self.radio_button_group = []
                     if filter_str == '':
-                        self._update_button_pile(self.master_list)
+                        self._update_button_pile(self.controller_list)
                     else:
                         self._update_button_pile(
-                            [x for x in self.master_list
+                            [x for x in self.controller_list
                              if filter_str in x.get('name')])
                 if key in ('esc', 'enter'):
                     self.frame.contents['footer'] = (self.default_footer, None)
@@ -693,8 +693,8 @@ def interrupt_dialog(host):
     choices = [
         _("Nothing, continue testing (ESC)"),
         _("Stop the test case in progress and move on to the next"),
-        _("Pause the test session and disconnect from the agent (CTRL+C)"),
-        _("Exit and stop the Checkbox service on the testbed at {}".format(host)),
+        _("Disconnect but let the test session continue (CTRL+C)"),
+        _("Exit and stop the Checkbox agent on the device at {}".format(host)),
         _("End this test session preserving its data and launch a new one"),
     ]
     footer_text = [
@@ -739,7 +739,7 @@ def interrupt_dialog(host):
         index = next(
             radio_button_group.index(i) for i in radio_button_group if i.state)
         return ['cancel', 'kill-command', 'kill-controller',
-                'kill-service', 'abandon'][index]
+                'kill-agent', 'abandon'][index]
     except StopIteration:
         return None
 
@@ -912,7 +912,7 @@ def resume_dialog(duration):
     timer = CountdownWidget(duration)
     timer_pad = urwid.Padding(timer, align='center', width='clip')
     timer_fill = urwid.Filler(timer_pad)
-    title = _("Checkbox slave is about to resume the session!")
+    title = _("Checkbox agent is about to resume the session!")
     header = urwid.AttrWrap(urwid.Padding(urwid.Text(title), left=1), 'header')
     footer = urwid.AttrWrap(
         urwid.Padding(urwid.Text(footer_text), left=1), 'foot')

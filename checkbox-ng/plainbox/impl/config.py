@@ -40,6 +40,11 @@ class Configuration:
     For instance what reports to generate, should the session be interactive,
     and many others. Look at CONFIG_SPEC for details.
     """
+
+    DEPRECATED_SECTION_NAMES = {
+        "daemon": "agent"
+    }
+
     def __init__(self, source=None):
         """Create a new configuration object filled with default values."""
         self.sections = OrderedDict()
@@ -253,6 +258,14 @@ class Configuration:
                     ).format(var_name)
                     cfg.notice_problem(problem)
                 continue
+
+            if sect_name in cls.DEPRECATED_SECTION_NAMES:
+                current_name = cls.DEPRECATED_SECTION_NAMES[sect_name]
+                logger.warning(
+                    "Config: %s section name is deprecated. Use %s instead.",
+                    sect_name, current_name
+                )
+                sect_name = current_name
             if ":" in sect_name:
                 for var_name, var in section.items():
                     cfg.set_value(sect_name, var_name, var, origin)
@@ -410,7 +423,7 @@ CONFIG_SPEC = [
         },
     ),
     (
-        "daemon",
+        "agent",
         {
             "normal_user": VarSpec(
                 str, "", "Username to use for jobs that don't specify user."

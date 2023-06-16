@@ -152,11 +152,11 @@ class RemoteTestSelectionResolution(Scenario):
         forced = yes
         """)
     steps = [
-        MkTree("/home/ubuntu/.config", target="service"),
+        MkTree("/home/ubuntu/.config", target="agent"),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home,
-            target="service"),
+            target="agent"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf_etc,
-            target="service"),
+            target="agent"),
         Start(),
         AssertPrinted(".*config-environ-source.*"),
     ]
@@ -183,11 +183,11 @@ class TestPlanSelectionSkip(Scenario):
         forced = yes
         """)
     steps = [
-        MkTree("/home/ubuntu/.config", target="service"),
+        MkTree("/home/ubuntu/.config", target="agent"),
         Put("/home/ubuntu/.config/checkbox.conf",
-            checkbox_conf, target="service"),
+            checkbox_conf, target="agent"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf,
-            target = "service"),
+            target = "agent"),
         Start(),
         # Assert that we have reached test selection
         Expect("Choose tests to run on your system")
@@ -216,11 +216,11 @@ class TestPlanPreselected(Scenario):
         unit = com.canonical.certification::smoke
         """)
     steps = [
-        MkTree("/home/ubuntu/.config", target="service"),
+        MkTree("/home/ubuntu/.config", target="agent"),
         Put("/home/ubuntu/.config/checkbox.conf",
-            checkbox_conf, target="service"),
+            checkbox_conf, target="agent"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf,
-            target = "service"),
+            target = "agent"),
         Start(),
         #( ) Some other test
         #(X) All Smoke Tests

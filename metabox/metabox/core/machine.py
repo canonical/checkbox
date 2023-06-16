@@ -118,7 +118,7 @@ class ContainerBaseMachine:
         logger.opt(colors=True).debug(
             "[<y>restored</y>    ] {}", self._container.name
         )
-        if self.config.role == "service":
+        if self.config.role == "agent":
             attempts_left = 60
             out = ""
             while attempts_left and out.rstrip() not in (
@@ -175,20 +175,20 @@ class ContainerBaseMachine:
         """
         return []
 
-    def start_remote(self, host, launcher, interactive=False, timeout=0):
-        assert self.config.role == "remote"
+    def start_controller(self, host, launcher, interactive=False, timeout=0):
+        assert self.config.role == "controller"
 
         if interactive:
             # Return a PTS object to interact with
             return self.interactive_execute(
-                "remote {} {}".format(host, launcher),
+                "control {} {}".format(host, launcher),
                 verbose=True,
                 timeout=timeout,
             )
         else:
             # Return an ExecuteResult named tuple
             return self.execute(
-                "remote {} {}".format(host, launcher),
+                "control {} {}".format(host, launcher),
                 verbose=True,
                 timeout=timeout,
             )
@@ -238,7 +238,7 @@ class ContainerBaseMachine:
         pass
 
     def start_user_session(self):
-        assert self.config.role in ("service", "local")
+        assert self.config.role in ("agent", "local")
         # Start a set of ubuntu-user-owned processes to fake an active GDM user
         # session (A virtual framebuffer and a pulseaudio server with a dummy
         # output)
@@ -342,7 +342,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
             + self._get_provider_setup_cmds()
         )
 
-        if self.config.role in ("remote", "service"):
+        if self.config.role in ("controller", "agent"):
             commands += [
                 "sudo bash -c 'systemctl daemon-reload'",
                 "sudo bash -c 'systemctl enable checkbox-ng.service --now'",
@@ -350,11 +350,11 @@ class ContainerSourceMachine(ContainerBaseMachine):
             service_content = textwrap.dedent(
                 """
                 [Unit]
-                Description=Checkbox Remote Service
+                Description=Checkbox Agent Service
                 Wants=network.target
 
                 [Service]
-                ExecStart=/usr/local/bin/checkbox-cli service
+                ExecStart=/usr/local/bin/checkbox-cli run-agent
                 SyslogIdentifier=checkbox-ng.service
                 Environment="XDG_CACHE_HOME=/var/cache/"
                 Restart=on-failure
@@ -376,25 +376,25 @@ class ContainerSourceMachine(ContainerBaseMachine):
         return commands
 
     def start_service(self, force=False):
-        assert self.config.role in ("remote", "service")
+        assert self.config.role in ("controller", "agent")
         if force:
             return run_or_raise(
                 self._container, "sudo systemctl start checkbox-ng.service"
             )
 
     def stop_service(self):
-        assert self.config.role in ("remote", "service")
+        assert self.config.role in ("controller", "agent")
         return run_or_raise(
             self._container, "sudo systemctl stop checkbox-ng.service"
         )
 
     def reboot_service(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         verbose = True
         return run_or_raise(self._container, "sudo reboot", verbose)
 
     def is_service_active(self):
-        assert self.config.role in ("remote", "service")
+        assert self.config.role in ("controller", "agent")
         return (
             run_or_raise(
                 self._container, "systemctl is-active checkbox-ng.service"
@@ -415,7 +415,7 @@ class ContainerPPAMachine(ContainerBaseMachine):
     def get_early_setup(self):
         if self.config.setup:
             return []
-        if self.config.role == "remote":
+        if self.config.role == "controller":
             deb = "checkbox-ng"
         else:
             deb = "canonical-certification-client"
@@ -426,20 +426,20 @@ class ContainerPPAMachine(ContainerBaseMachine):
         ]
 
     def start_service(self, force=False):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         if force:
             return run_or_raise(
                 self._container, "sudo systemctl start checkbox-ng.service"
             )
 
     def stop_service(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         return run_or_raise(
             self._container, "sudo systemctl stop checkbox-ng.service"
         )
 
     def is_service_active(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         return (
             run_or_raise(
                 self._container, "systemctl is-active checkbox-ng.service"
@@ -603,7 +603,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return cmds
 
     def start_service(self, force=False):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         if force:
             return run_or_raise(
                 self._container,
@@ -613,7 +613,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
             )
 
     def stop_service(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         return run_or_raise(
             self._container,
             "sudo systemctl stop snap.{}.service.service".format(
@@ -622,7 +622,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         )
 
     def is_service_active(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         return (
             run_or_raise(
                 self._container,

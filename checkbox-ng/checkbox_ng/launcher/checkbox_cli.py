@@ -79,7 +79,6 @@ def main():
     }
     deprecated_commands = {
         "slave": "service",
-        "master": "remote",
         "remote": "controll"
     }
 

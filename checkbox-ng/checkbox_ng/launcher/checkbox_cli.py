@@ -74,11 +74,13 @@ def main():
         "merge-submissions": MergeSubmissions,
         "tp-export": TestPlanExport,
         "service": RemoteSlave,
-        "remote": RemoteMaster,
+        # "remote": RemoteMaster,
+        "controll": RemoteMaster,
     }
     deprecated_commands = {
         "slave": "service",
         "master": "remote",
+        "remote": "controll"
     }
 
     known_cmds = list(commands.keys())

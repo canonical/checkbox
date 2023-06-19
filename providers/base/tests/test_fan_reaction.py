@@ -17,93 +17,85 @@
 
 import os
 import unittest
-from unittest import mock
-from unittest.mock import patch, mock_open
 import tempfile
+from io import StringIO
+from unittest.mock import Mock, patch
+from contextlib import redirect_stdout
+from unittest.mock import patch, mock_open
 
 from fan_reaction_test import FanMonitor
 
-
 class FanMonitorTests(unittest.TestCase):
-
     """Tests for several type of sysfs hwmon fan files."""
+    def test_simple(self):
+        # Mock the glob.glob function to return a fan path
+        with patch("glob.glob") as mock_glob:
+            mock_glob.return_value = ["/sys/class/hwmon/hwmon1/fan1_input"]
+            with patch("os.path.realpath") as mock_path:
+                mock_path.return_value = "foo"
+                fan_monitor = FanMonitor()
+                # Mock the open function to return a mocked file objects
+                with patch("builtins.open") as mock_open:
+                    mock_open.return_value.__enter__().read.return_value = "1000"
+                    rpm = fan_monitor.get_rpm()
+                    self.assertEqual(rpm, {"hwmon1/fan1_input": 1000})
 
-    @mock.patch('glob.glob')
-    @mock.patch.object(os.path, 'relpath', autospec=True)
-    def test_simple(self, relpath_mock, glob_mock):
-        with tempfile.TemporaryDirectory() as fake_sysfs:
-            fan_input_file = os.path.join(fake_sysfs, 'fan1_input')
-            with open(fan_input_file, 'w') as f:
-                f.write('150')
-            glob_mock.return_value = [fan_input_file]
-            relpath_mock.side_effect = ['hwmon4/fan1_input']
-            fan_mon = FanMonitor()
-            self.assertEqual(fan_mon.get_rpm(), {'hwmon4/fan1_input': 150})
+    def test_multiple(self):
+        # Mock the glob.glob function to return a list of fan paths
+        with patch("glob.glob") as mock_glob:
+            mock_glob.return_value = [
+                "/sys/class/hwmon/hwmon1/fan1_input",
+                "/sys/class/hwmon/hwmon2/fan2_input"
+            ]
+            with patch("os.path.realpath") as mock_path:
+                mock_path.return_value = "foo"
+                fan_monitor = FanMonitor()
+                with patch("builtins.open") as mock_open:
+                    mock_open.return_value.__enter__().read.return_value = "1000"
+                    rpm = fan_monitor.get_rpm()
+                    self.assertEqual(rpm, {
+                        "hwmon1/fan1_input": 1000,
+                        "hwmon2/fan2_input": 1000
+                    })
 
-    @mock.patch('glob.glob')
-    @mock.patch.object(os.path, 'relpath', autospec=True)
-    def test_multiple(self, relpath_mock, glob_mock):
-        with tempfile.TemporaryDirectory() as fake_sysfs:
-            fan_input_file1 = os.path.join(fake_sysfs, 'fan1_input')
-            with open(fan_input_file1, 'w') as f1:
-                f1.write('150')
-            fan_input_file2 = os.path.join(fake_sysfs, 'fan2_input')
-            with open(fan_input_file2, 'w') as f2:
-                f2.write('1318')
-            glob_mock.return_value = [fan_input_file1, fan_input_file2]
-            relpath_mock.side_effect = [
-                'hwmon4/fan1_input', 'hwmon6/fan2_input']
-            fan_mon = FanMonitor()
-            self.assertEqual(
-                fan_mon.get_rpm(),
-                {'hwmon4/fan1_input': 150, 'hwmon6/fan2_input': 1318})
+    def test_discard_gpu_fan(self):
+        # Testing if GPU fan will be discard or not, so pci code & path should be mocked
+        with patch('glob.glob') as mock_glob:
+            mock_glob.return_value = ['/sys/class/hwmon/hwmon1/fan1_input']
+            # Mock the open function to return a mocked file objects
+            with patch("os.path.realpath") as mock_path:
+                mock_path.return_value = "/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0"
+                with patch('builtins.open') as mock_open:
+                    mock_open.return_value.__enter__().read.return_value = "0x030000"
+                    # This test case includes the possibility that there is no CPU fan
+                    # If considering the absence of a CPU fan as a failure, then modification is needed here
+                    # (Because there is no CPU fan to test with)
+                    with self.assertRaises(SystemExit) as cm:
+                        with redirect_stdout(StringIO()) as stdout:
+                            FanMonitor()
 
-    @mock.patch('glob.glob')
-    @mock.patch('os.path.realpath')
-    def test_discard_gpu_fan(self, realpath_mock, glob_mock):
-        with tempfile.TemporaryDirectory() as fake_sysfs:
-            amdgpu_hwmon = os.path.join(fake_sysfs, 'amdgpu-1002-7340')
-            amdgpu_pci = os.path.join(amdgpu_hwmon, 'device')
-            os.makedirs(amdgpu_pci)
-            amdgpu_fan_input_file = os.path.join(amdgpu_hwmon, 'fan1_input')
-            with open(amdgpu_fan_input_file, 'w') as f:
-                f.write('65536')
-            glob_mock.return_value = [amdgpu_fan_input_file]
-            realpath_mock.return_value = \
-                ("/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0/"
-                 "0000:02:00.0/0000:03:00.0")
-            # The following call is patching open(pci_class_path, 'r')
-            with patch("builtins.open", mock_open(read_data='0x030000')) as f:
-                with self.assertRaises(SystemExit) as cm:
-                    FanMonitor()
-                the_exception = cm.exception
-                self.assertEqual(the_exception.code, 0)
+                    the_exception = cm.exception
+                    self.assertEqual(the_exception.code, 0)
 
-    @mock.patch('glob.glob')
-    @mock.patch('os.path.realpath')
-    @mock.patch.object(os.path, 'relpath', autospec=True)
-    def test_discard_gpu_fan_keep_cpu_fan(
-        self, relpath_mock, realpath_mock, glob_mock
-    ):
-        with tempfile.TemporaryDirectory() as fake_sysfs:
-            amdgpu_hwmon = os.path.join(fake_sysfs, 'amdgpu-1002-7340')
-            amdgpu_pci = os.path.join(amdgpu_hwmon, 'device')
-            os.makedirs(amdgpu_pci)
-            amdgpu_fan_input_file = os.path.join(amdgpu_hwmon, 'fan1_input')
-            with open(amdgpu_fan_input_file, 'w') as f:
-                f.write('65536')
-            fan_input_file2 = os.path.join(fake_sysfs, 'fan2_input')
-            with open(fan_input_file2, 'w') as f2:
-                f2.write('412')
-            glob_mock.return_value = [amdgpu_fan_input_file, fan_input_file2]
-            realpath_mock.side_effect = [
-                    "/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0/"
-                    "0000:02:00.0/0000:03:00.0", "foo"]
-            relpath_mock.side_effect = ['hwmon6/fan2_input']
-            # The following call is patching open(pci_class_path, 'r')
-            with patch("builtins.open", mock_open(read_data='0x030000')) as f:
-                fan_mon = FanMonitor()
-                self.assertEqual(len(fan_mon.hwmons), 1)
-                self.assertTrue(fan_mon.hwmons[0].endswith('fan2_input'))
-            self.assertEqual(
-                fan_mon.get_rpm(), {'hwmon6/fan2_input': 412})
+    def test_discard_gpu_fan_keep_cpu_fan(self):
+        with patch('glob.glob') as mock_glob:
+            mock_glob.return_value = [
+                "/sys/class/hwmon/hwmon1/fan1_input", # GPU
+                "/sys/class/hwmon/hwmon2/fan2_input"  # CPU
+            ]
+            with patch("os.path.realpath") as mock_path:
+                # Mock the return value of the first fan path (GPU fan)
+                mock_path.side_effect = [
+                    # Each section is a PCI address (Domain:Bus:Device.Function)
+                    # In this case, the GPU has a 4-layer structure
+                    "/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0/0000:02:00.0/0000:03:00.0",
+                    "foo"
+                ]
+                with patch('builtins.open') as mock_open:
+                    # Mock the return values for the two fans
+                    mock_open.return_value.__enter__().read.return_value = "0x030000"
+                    fan_monitor = FanMonitor()
+                    with patch("builtins.open") as mock_open:
+                        mock_open.return_value.__enter__().read.return_value = "1000"
+                        rpm = fan_monitor.get_rpm()
+                        self.assertEqual(rpm, {"hwmon2/fan2_input": 1000})

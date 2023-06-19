@@ -7,6 +7,18 @@
   authors = [
       {name = 'Sylvain Pineau', email = 'sylvain.pineau@canonical.com'}
   ]
+  # duplicated from setup.cfg because it is needed with the empty `setup.py`
+  #  hack till snapcraft is updated
+  dependencies = [
+    'packaging',
+    'psutil',
+    'requests >= 1.0',
+    'urwid >= 1.1.1',
+    'Jinja2 >= 2.7',
+    'xlsxwriter',
+    'tqdm',
+    'importlib_metadata; python_version < "3.8"'
+  ]
   #test_suite='checkbox_ng.tests.test_suite'
   license={"text" = "GPLv3"}
   #platforms=["POSIX"]

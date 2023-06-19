@@ -44,6 +44,7 @@ rsync -r --links common_files/ $series/
 echo "Copying over providers to $series"
 rsync -r --links ../providers $series/
 echo "Copying over checkbox-ng to $series"
-rsync -r --links ../checkbox-ng $series/
+rm -f  ~/checkbox/checkbox-core-snap/series22/checkbox-ng ~/checkbox/checkbox-core-snap/series22/checkbox-support
+ln -s $(realpath ../checkbox-ng) $(realpath $series/checkbox-ng)
 echo "Copying over checkbox-support to $series"
-rsync -r --links ../checkbox-support $series
+ln -s $(realpath ../checkbox-support) $(realpath $series/checkbox-support)

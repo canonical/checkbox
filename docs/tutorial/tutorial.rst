@@ -5,7 +5,7 @@ Checkbox tutorials
 
 .. note::
     If you're planning to develop tests for a Ubuntu Core system or
-    planning to package your tests as a Snap, see :doc:`custom-app`.
+    planning to package your tests as a Snap, see :doc:`/how-to/custom-app`.
 
 Creating an empty provider
 --------------------------

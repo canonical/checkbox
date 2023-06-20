@@ -166,7 +166,7 @@ parts:
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.10
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
-    override-build:
+    override-build: |
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       # this is a bodge because snapcraft does not have .git
@@ -211,7 +211,7 @@ parts:
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
-    override-build:
+    override-build: |
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       # this is a bodge because snapcraft does not have .git

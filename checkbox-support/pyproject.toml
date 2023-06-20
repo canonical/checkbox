@@ -23,12 +23,12 @@
 [tool.setuptools_scm]
   root=".."
 [project.scripts]
-  checkbox-support-run_watcher=checkbox_support.scripts.run_watcher:main
-  checkbox-support-fwts_test=checkbox_support.scripts.fwts_test:main
-  checkbox-support-usb_read_write=checkbox_support.scripts.usb_read_write:run_read_write_test
-  checkbox-support-nmea_test=checkbox_support.scripts.nmea_test:main
-  checkbox-support-snap_connect=checkbox_support.scripts.snap_connect:main
-  checkbox-support-eddystone_scanner=checkbox_support.scripts.eddystone_scanner:main
-  checkbox-support-lsusb=checkbox_support.scripts.lsusb:main
-  checkbox-support-parse=checkbox_support.parsers:main
-  checkbox-support-zapper-proxy=checkbox_support.scripts.zapper_proxy:main
+  checkbox-support-run_watcher = "checkbox_support.scripts.run_watcher:main"
+  checkbox-support-fwts_test = "checkbox_support.scripts.fwts_test:main"
+  checkbox-support-usb_read_write = "checkbox_support.scripts.usb_read_write:run_read_write_test"
+  checkbox-support-nmea_test = "checkbox_support.scripts.nmea_test:main"
+  checkbox-support-snap_connect = "checkbox_support.scripts.snap_connect:main"
+  checkbox-support-eddystone_scanner = "checkbox_support.scripts.eddystone_scanner:main"
+  checkbox-support-lsusb = "checkbox_support.scripts.lsusb:main"
+  checkbox-support-parse = "checkbox_support.parsers:main"
+  checkbox-support-zapper-proxy = "checkbox_support.scripts.zapper_proxy:main"

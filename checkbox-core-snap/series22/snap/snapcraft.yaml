@@ -170,7 +170,8 @@ parts:
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       # this is a bodge because snapcraft does not have .git
-      SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../version.txt` snapcraftctl build
+      git init ..
+      SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../../../version.txt` snapcraftctl build
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -215,7 +216,8 @@ parts:
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       # this is a bodge because snapcraft does not have .git
-      SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../version.txt` snapcraftctl build
+      git init ..
+      SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../../../version.txt` snapcraftctl build
 
 ################################################################################
   checkbox-provider-resource:

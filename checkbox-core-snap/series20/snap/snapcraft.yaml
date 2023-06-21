@@ -90,12 +90,39 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
+    plugin: make
     source-tag: "V0.15.08"
     source-depth: 1
-    plugin: make
-    source: https://github.com/ColinIanKing/stress-ng.git
+    source: https://github.com/ColinIanKing/stress-ng
+    source-type: git
+    override-pull: |
+      snapcraftctl pull
+      description="$(git describe HEAD --tags)"
+      sha=$(echo $description | tr '-' ' ' | awk '{print $NF}')
+      version=${description%$sha}
+      commits=$(git log --oneline | wc -l)
+      date=$(date +'%Y%m%d')
+      if test "$description" = "$sha"
+      then
+        version="$description"
+      else
+        version=$(echo $version$date-$commits-$sha | cut -c1-32)
+      fi
+      snapcraftctl set-version "$version"
     make-parameters:
-      - STATIC=1
+      - STATIC=1 VERBOSE=1
+      - LDFLAGS=-lrt
+    stage-packages:
+      - libdrm2
+      - libegl1
+      - libgbm1
+      - libgles2
+      - libglvnd0
+      - libjpeg-turbo8
+      - libjudydebian1
+      - libsctp1
+      - libwayland-server0
+      - libxxhash0
     build-packages:
       - gcc
       - make
@@ -110,11 +137,12 @@ parts:
       - libatomic1
       - libjudy-dev
       - libjpeg-dev
-      - libglvnd-dev
-      - libgbm-dev
+      - libkmod-dev
+      - libattr1-dev
       - libxxhash-dev
-    after: [fwts]
-################################################################################
+      - libmd-dev
+      - on amd64: [ libipsec-mb-dev ]
+  ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
     source-tag: "R10_20_22"
@@ -171,7 +199,8 @@ parts:
       echo "from setuptools import setup; setup()" > setup.py
       # this is a bodge because snapcraft does not have .git
       git init ..
-      SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../../../version.txt` snapcraftctl build
+      git init /tmp
+      (export SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../../../version.txt`; snapcraftctl build)
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -217,7 +246,8 @@ parts:
       echo "from setuptools import setup; setup()" > setup.py
       # this is a bodge because snapcraft does not have .git
       git init ..
-      SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../../../version.txt` snapcraftctl build
+      git init /tmp
+      (SETUPTOOLS_SCM_PRETEND_VERSION=`cat ../../../version.txt`; snapcraftctl build)
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

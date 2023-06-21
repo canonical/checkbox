@@ -44,9 +44,12 @@ jobs:
           snapcraft-channel: 7.x/stable
           snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
       - uses: actions/upload-artifact@v3
+        if: failure()
         with:
           name: snapcraft-log-series${{ matrix.releases }}
-          path: /home/runner/.cache/snapcraft/log
+          path: |
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
       - uses: actions/upload-artifact@v3
         with:
           name: series${{ matrix.releases }}

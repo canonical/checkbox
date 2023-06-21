@@ -12,10 +12,11 @@ listAllMtd() {
 
 countMtd() {
     count=$( listAllMtd | grep -c "MTD_NAME")
-    if [ "${1}" == "$count" ]; then
-        echo "The number of MTD is correct!"
-    else
-        echo "The number of MTD is incorrect!"
+    echo "The expected count is ${1}"
+    echo "The actual count is $count"
+
+    if [ "${1}" -ne "$count" ]; then
+        lsmtd
         exit 1 
     fi
 }

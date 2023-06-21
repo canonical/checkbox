@@ -22,7 +22,7 @@ _description: Automated Memory Technology Device tests for devices
 bootstrap_include:
     mtd/mtd-list
 include:
-    mtd/check-total-numbers
+    mtd/check-total-count
     mtd/read-write-test-.*
 
 id: after-suspend-mtd-manual
@@ -38,5 +38,5 @@ _description: Automated after-suspend Memory Technology Device tests for devices
 bootstrap_include:
     mtd/mtd-list
 include:
-    also-after-suspend-mtd/check-total-numbers
+    also-after-suspend-mtd/check-total-count
     also-after-suspend-mtd/read-write-test-.*

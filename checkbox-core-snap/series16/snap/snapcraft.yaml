@@ -90,6 +90,7 @@ parts:
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1
+      - LDFLAGS=-lrt
     build-packages:
       - gcc
       - make
@@ -133,6 +134,7 @@ parts:
     after: [acpi-tools]
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
+      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     override-stage: |
       snapcraftctl stage
       sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/distro.py
@@ -143,6 +145,10 @@ parts:
     override-pull: |
       PYTHONHOME=/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --upgrade 'pip; python_version >= "3.6"' 'pip<21; python_version < "3.6"' --user
       snapcraftctl pull
+    override-build: |
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -165,6 +171,11 @@ parts:
     after: [checkbox-support]
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
+      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
+    override-build: |
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

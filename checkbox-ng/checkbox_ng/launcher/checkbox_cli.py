@@ -64,6 +64,28 @@ class Context:
         self.sa = sa
 
 
+def get_argparser_no_exit(*args, **kwargs):
+    try:
+        return argparse.ArgumentParser(*args, **kwargs)
+    except TypeError:
+        if "exit_on_error" not in kwargs:
+            raise
+
+    class ArgumentParserNoExit(argparse.ArgumentParser):
+        # this is a bodge because exit_on_error is py3.9+
+        # TODO: remove this once support for py<3.9 is dropped
+        def __init__(self, *args, **kwargs):
+            kwargs.pop("exit_on_error", None)
+            super().__init__(*args, **kwargs)
+
+        def error(self, message):
+            # this works because if argument is none
+            # __str__ will print message
+            raise argparse.ArgumentError(None, message)
+
+    return ArgumentParserNoExit(*args, **kwargs)
+
+
 def parse_args(parser, default_command, deprecated_commands):
     sys_argv = copy(sys.argv)
     try:
@@ -74,41 +96,39 @@ def parse_args(parser, default_command, deprecated_commands):
     #   usage of default_command
     #   usage of a deprecated command
     #   a typo
-    if error.argument_name == "subcommand":
-        # get all deprecated command used
-        deprecated_sys_argv = [arg for arg in sys_argv if arg in deprecated_commands]
-        if deprecated_sys_argv:
-            # -> usage of deprecated command
-            dep_command = deprecated_sys_argv[0]
-            new_command = deprecated_commands[dep_command]
-            _logger.warning(
-                "%s is deprecated. Please use %s instead!", dep_command, new_command
-            )
-            # replace the first deprecated command (assuming any other is a file arg)
-            sys_argv[sys_argv.index(dep_command)] = new_command
-        else:
-            # -> usage of default_command
-            # discover where the args for the default_command start
-            i = len(sys_argv)
-            while i > 1:
-                try:
-                    parser.parse_args(args=sys_argv[1:i])
-                    break
-                except argparse.ArgumentError:
-                    i-=1
-            # apply the default command
-            sys_argv.insert(i, default_command)
-        with contextlib.suppress(argparse.ArgumentError):
-            return parser.parse_args(args=sys_argv[1:])
+
+    # get all deprecated command used
+    deprecated_sys_argv = [arg for arg in sys_argv if arg in deprecated_commands]
+    if deprecated_sys_argv:
+        # -> usage of deprecated command
+        dep_command = deprecated_sys_argv[0]
+        new_command = deprecated_commands[dep_command]
+        _logger.warning(
+            "%s is deprecated. Please use %s instead!", dep_command, new_command
+        )
+        # replace the first deprecated command (assuming any other is a file arg)
+        sys_argv[sys_argv.index(dep_command)] = new_command
+    else:
+        # -> usage of default_command
+        # discover where the args for the default_command start
+        i = len(sys_argv)
+        while i > 1:
+            try:
+                parser.parse_args(args=sys_argv[1:i])
+                break
+            except argparse.ArgumentError:
+                i -= 1
+        # apply the default command
+        sys_argv.insert(i, default_command)
+    with contextlib.suppress(argparse.ArgumentError):
+        return parser.parse_args(args=sys_argv[1:])
     # -> typo is some arg
     parser.print_usage()
     raise SystemExit(str(error))
 
 
 def setup_and_parse_args(default_command, commands, deprecated_commands={}):
-    top_parser = argparse.ArgumentParser(
-        conflict_handler="resolve", exit_on_error=False
-    )
+    top_parser = get_argparser_no_exit(conflict_handler="resolve", exit_on_error=False)
     top_parser.add_argument(
         "-v",
         "--verbose",

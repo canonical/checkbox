@@ -139,18 +139,11 @@ parts:
     build-environment:
       - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     python-packages:
-      - wheel
-      - build
       - pynmea2
       - pybluez
-      - setuptools_scm[toml]>=3.4
     build-packages:
       - libbluetooth-dev
-      - python3-distutils
       - python3-dev
-      - python3-pip
-      - python3-build
-      - python3-venv
     after: [acpi-tools]
     override-stage: |
       snapcraftctl stage
@@ -161,6 +154,7 @@ parts:
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
+      python3 -m pip install build setuptools_scm[toml]>=3.4
       python3 -m build --no-isolation
 ################################################################################
   checkbox-ng:
@@ -182,9 +176,6 @@ parts:
       - python3-xlsxwriter
     python-packages:
       - tqdm
-      - wheel
-      - build
-      - setuptools_scm[toml]>=3.4
     after: [checkbox-support]
     override-build: |
       # this is a bodge to be backward compatible
@@ -192,6 +183,7 @@ parts:
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
+      python3 -m pip install setuptools_scm[toml]>=3.4 build
       python3 -m build --no-isolation
 ################################################################################
   checkbox-provider-resource:

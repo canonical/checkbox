@@ -21,6 +21,7 @@
 :mod:`checkbox_ng.config` -- CheckBoxNG configuration
 =====================================================
 """
+from __future__ import annotations
 import gettext
 import logging
 import os

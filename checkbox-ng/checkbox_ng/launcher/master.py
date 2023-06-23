@@ -313,7 +313,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         try:
             tps = self.sa.start_session(configuration)
             if self.sa.sideloaded_providers:
-                _logger.warning("Using sideloaded providers")
+                _logger.warning("Agent is using sideloaded providers")
         except RuntimeError as exc:
             raise SystemExit(exc.args[0]) from exc
         if self.launcher.get_value("test plan", "forced"):

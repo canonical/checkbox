@@ -22,5 +22,6 @@ jobs:
       - name: Check for new commits, push build and wait result
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
         run: |
           tools/daily-builds/deb_daily_builds.py

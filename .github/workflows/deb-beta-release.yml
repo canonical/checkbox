@@ -23,6 +23,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           CHECKBOX_REPO: ${{ github.repository }}
+          PYTHONUNBUFFERED: 1
         run: |
           gh release create $(git describe --tags --abbrev=0 --match v*) -d --generate-notes
           tools/release/release_deb_monorepo.py

@@ -145,8 +145,6 @@ parts:
     stage-packages:
       - python3-requests-unixsocket
       - python3-systemd
-    build-environment:
-      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     python-packages:
       - pynmea2
       - pybluez
@@ -158,6 +156,7 @@ parts:
       snapcraftctl stage
       sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' $SNAPCRAFT_STAGE/lib/python3.*/site-packages/**/**/distro.py
     override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build
@@ -173,8 +172,6 @@ parts:
     build-packages:
       - zlib1g-dev
       - build-essential
-    build-environment:
-      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     stage-packages:
       - python3-markupsafe
       - python3-jinja2
@@ -187,6 +184,7 @@ parts:
       - tqdm
     after: [checkbox-support]
     override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build

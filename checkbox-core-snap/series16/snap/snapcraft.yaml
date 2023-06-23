@@ -143,7 +143,6 @@ parts:
     after: [acpi-tools]
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
-      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     override-stage: |
       snapcraftctl stage
       sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/**/**/distro.py
@@ -155,6 +154,7 @@ parts:
       - python3-dev
       - python3-pip
     override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)
@@ -186,8 +186,8 @@ parts:
     after: [checkbox-support]
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
-      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)

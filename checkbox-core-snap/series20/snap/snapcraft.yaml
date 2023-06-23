@@ -203,8 +203,8 @@ parts:
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.8
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
-      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build
@@ -248,8 +248,8 @@ parts:
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
-      - SETUPTOOLS_SCM_PRETEND_VERSION: $SNAP_VERSION
     override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build

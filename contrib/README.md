@@ -1,8 +1,79 @@
 # checkbox-provider-ce-oem
-This is a checkbox provider for both IoT and PC devices. And it will be built as SNAP named *checkbox-ce-oem*. 
+This is a checkbox provider for both IoT and PC devices. And it will be built as SNAP named *checkbox-ce-oem*.
 You can define specific plugs to connect to it and start using the test jobs and plans included in checkbox-provider-ce-oem.
 
-# Getting started
+# Use it as checkbox launcher
+## Install required packages
+
+### On Ubuntu classic environment (server and desktop)
+```
+# Install the generic checkbox content provider based on Ubuntu 22.04
+$ sudo snap install checkbox22
+$ sudo snap install checkbox-ce-oem --channel=22.04/edge --classic
+```
+
+### On Ubuntu Core environment
+```
+$ sudo snap install checkbox22
+$ sudo snap install checkbox-ce-oem --channel=latest/stable --devmode
+$ sudo snap connect checkbox-ce-oem:checkbox-runtime checkbox22:checkbox-runtime
+$ sudo snap connect checkbox-ce-oem:provider-certification-client checkbox22:provider-certification-client
+$ sudo snap connect checkbox-ce-oem:provider-checkbox checkbox22:provider-checkbox
+$ sudo snap connect checkbox-ce-oem:provider-resource checkbox22:provider-resource
+$ sudo snap connect checkbox-ce-oem:provider-tpm2 checkbox22:provider-tpm2
+```
+
+## Modify the checkbox configuration to fit your test environment
+```
+# show the checkbox configuration
+$ sudo checkbox-ce-oem.configure -l
+ALSADEVICE=hw:CARD=bytrt5660,DEV=0
+MODEL_GRADE=signed
+NET_DEVICE_INFO=ven_rsi_sdio ven_rsi_91x
+OBEX_TARGET=00:02:72:C5:F9:1F
+OPEN_AC_SSID=ubuntu-cert-ac-open
+OPEN_BG_SSID=ubuntu-cert-bg-open
+OPEN_N_SSID=ubuntu-cert-n-open
+STRESS_BOOT_ITERATIONS=100
+STRESS_BOOT_WAIT_DELAY=120
+STRESS_BOOT_WAKEUP_DELAY=60
+STRESS_S3_ITERATIONS=100
+STRESS_S3_SLEEP_DELAY=60
+STRESS_S3_WAIT_DELAY=120
+STRESS_S4_ITERATIONS=100
+STRESS_S4_SLEEP_DELAY=60
+STRESS_S4_WAIT_DELAY=120
+TEST_TARGET_IPERF=10.101.47.93
+TPM2TOOLS_DEVICE_FILE=/dev/tpm0
+TPM2TOOLS_TCTI_NAME=device
+WATCHDOG_KERNEL_MOD=iTCO_wdt
+WIFI_AP_SETUPTIME=30
+WIFI_INTERFACE=mlan0
+WPA_AC_PSK=insecure
+WPA_AC_SSID=ubuntu-cert-ac-wpa
+WPA_AX_PSK=insecure
+WPA_AX_SSID=ubuntu-cert-ax-wpa
+WPA_BG_PSK=insecure
+WPA_BG_SSID=ubuntu-cert-bg-wpa
+WPA_N_PSK=insecure
+WPA_N_SSID=ubuntu-cert-n-wpa
+WPA3_AX_PSK=insecure
+WPA3_AX_SSID=ubuntu-cert-ax-wpa3
+WWAN_APN=internet
+WWAN_CONTROL_IF=ttyACM3
+WWAN_NET_IF=ppp0
+WWAN_SETUPTIME=30
+# modify checkbox configuration
+$ sudo checkbox-ce-oem.configure WIFI_AP_SETUPTIME=50
+```
+
+## Launch checkbox session
+```
+$ checkbox-ce-oem.test-runner
+```
+
+# Use it as checkbox content provider
+## Getting started
 checkbox-ce-oem will define a slot *provider-ce-oem* to allow checkbox interface sanp to connect to access the test jobs and plans.
 
 ## In checkbox interface snap
@@ -43,9 +114,9 @@ $ checkbox{interface snap}.shell> lsmtd
 Some of the jobs that in provider-ce-oem requires addtional variables define in checkbox config. Please refer to following:
 
 ```
-id: ce-oem-gpio-leds 
+id: ce-oem-gpio-leds
 GPIO_LEDS={name1}:{port1} {name2}:{port2} ...
-e.g. GPIO_LEDS=dl1:488 dl2:489 dl44:507 
+e.g. GPIO_LEDS=dl1:488 dl2:489 dl44:507
 
 id: ce-oem-sysfs-leds
 SYS_LEDS={path1}:{position1} {path2}:{position1} ...
@@ -84,4 +155,4 @@ e.g. TOTAL_RTC_NUM=2
 id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
-``` 
+```

@@ -101,6 +101,9 @@ parts:
     source-tag: "V0.15.08"
     source-depth: 1
     plugin: make
+    build-environment:
+      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
+      - LDFLAGS: "Wl,-z,relro -lrt"
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1

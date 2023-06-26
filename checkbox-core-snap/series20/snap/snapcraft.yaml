@@ -103,22 +103,10 @@ parts:
     plugin: make
     source-tag: "V0.15.08"
     source-depth: 1
-    source: https://github.com/ColinIanKing/stress-ng
-    source-type: git
-    override-pull: |
-      snapcraftctl pull
-      description="$(git describe HEAD --tags)"
-      sha=$(echo $description | tr '-' ' ' | awk '{print $NF}')
-      version=${description%$sha}
-      commits=$(git log --oneline | wc -l)
-      date=$(date +'%Y%m%d')
-      if test "$description" = "$sha"
-      then
-        version="$description"
-      else
-        version=$(echo $version$date-$commits-$sha | cut -c1-32)
-      fi
-      snapcraftctl set-version "$version"
+    build-environment:
+      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
+      - LDFLAGS: "Wl,-z,relro -lrt"
+    source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1 VERBOSE=1
       - LDFLAGS=-lrt

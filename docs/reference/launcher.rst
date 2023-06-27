@@ -260,7 +260,7 @@ test selection and test plan selection.
 
 ``dont_suppress_output``
 
-.. note::
+.. warning::
 
     This field is deprecated, use 'output' to specify which jobs should have
     their output printed to the screen.

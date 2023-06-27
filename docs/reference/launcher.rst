@@ -385,13 +385,13 @@ Daemon-specific configuration
 Beginning of the daemon-specific section.
 
 Settings in this section only apply to sessions that are run by :term:`Checkbox
-Testbed` spawned as a daemon (or Systemd service).
+Agent` spawned as Systemd service.
 
 ``normal_user``
 
 Username to use when job doesn't specify which user to run as.
 
-The systemd service run on the :term:`testbed` is run by root so in order to
+The systemd service run on the :term:`agent` is run by root so in order to
 run some jobs as an unprivileged user this variable can be used.
 
 

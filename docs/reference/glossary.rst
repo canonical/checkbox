@@ -18,7 +18,7 @@ Glossary
 
         Device Under Test. The device being tested by Checkbox.
 
-    Testbed
+    Agent
 
         Synonym of :term:`DUT`.
 
@@ -35,11 +35,11 @@ Glossary
     Checkbox Controller
 
       Checkbox instance that **controls the execution** of tests on the
-      :term:`DUT` or :term:`testbed`, such as a laptop.
+      :term:`DUT` or :term:`agent`, such as a laptop.
 
-    Checkbox Testbed
+    Checkbox Agent
 
-      Checkbox instance that runs on the :term:`DUT` or :term:`testbed` and
+      Checkbox instance that runs on the :term:`DUT` or :term:`agent` and
       **executes** tests.
 
     Test plan

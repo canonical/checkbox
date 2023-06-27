@@ -87,7 +87,6 @@ sudo
 sys
 systemd
 templating
-testbed
 testplan
 tmp
 tp

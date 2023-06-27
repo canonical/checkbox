@@ -14,7 +14,7 @@ This is especially useful on headless devices.
 Comparison with SSH
 ===================
 
-It's easy to lose SSH connection with the :term:`DUT`, and if the device
+It's easy to lose SSH connection with the :term:`Agent`, and if the device
 doesn't offer screen-like functionality then the Checkbox session has to be
 started over.
 
@@ -24,8 +24,8 @@ Remote sends lean data only.
 Nomenclature
 ============
 
-Checkbox Testbed
-  See :term:`Checkbox Testbed` in the glossary.
+Checkbox Agent
+  See :term:`Checkbox Agent` in the glossary.
 
 Checkbox Controller
   See :term:`Checkbox Controller` in the glossary.
@@ -33,8 +33,8 @@ Checkbox Controller
 Invocation
 ==========
 
-Testbed
-  ``checkbox-cli testbed``
+Agent
+  ``checkbox-cli run-agent``
 
 Controller
   ``checkbox-cli control HOST [/PATH/TO/LAUNCHER]``
@@ -50,12 +50,12 @@ Controller
 Custom port
 ===========
 
-By default, the Testbed listens on port 18871. To change that ``--port`` option
+By default, the Agent listens on port 18871. To change that ``--port`` option
 can be used. The same option used on the Controller specifies which port to
 connect to.
 
 Examples:
-  ``checkbox-cli testbed --port 10101``
+  ``checkbox-cli run-agent --port 10101``
 
   ``checkbox-cli control dut8.local --port 10101``
 
@@ -70,7 +70,7 @@ application invokes the interrupt screen::
   (X) Nothing, continue testing (ESC)
   ( ) Stop the test case in progress and move on to the next
   ( ) Disconnect but let the test session continue (CTRL+C)
-  ( ) Exit and stop the Checkbox service on the testbed at 127.0.0.1
+  ( ) Exit and stop the Checkbox service on the agent at 127.0.0.1
   ( ) End this test session preserving its data and launch a new one
 
 
@@ -82,16 +82,16 @@ Stop the test case in progress and move on to the next
   Skip current test case and move to the next.
 
 Disconnect but let the test session continue (CTRL+C)
-  Leaves the session on the Testbed running, but let the Controller exit.
+  Leaves the session on the Agent running, but let the Controller exit.
   Pressing ``Ctrl-C`` a second time will have the same effect. It is possible
-  to reconnect to the Testbed later on and resume the testing session.
+  to reconnect to the Agent later on and resume the testing session.
 
-Exit and stop the Checkbox service on the testbed at 127.0.0.1
-  Stops the session on and terminates the Checkbox process on the Testbed. In
+Exit and stop the Checkbox service on the agent at 127.0.0.1
+  Stops the session on and terminates the Checkbox process on the Agent. In
   addition, stops the Controller.
 
 End this test session preserving its data and launch a new one
-  Stops the current session on the Testbed and mark it so it is not possible to resume
+  Stops the current session on the Agent and mark it so it is not possible to resume
   it, then immediately starts a new one. The Controller will be greeted with
   the test plan selection screen.
 
@@ -100,9 +100,9 @@ Remote session characteristics
 
 Differences between a remote session and a local one are:
 
-* Unless the session is explicitly abandoned, Checkbox Testbed always resumes
+* Unless the session is explicitly abandoned, Checkbox Agent always resumes
   the last session.
-* After testing is done, Checkbox Testbed starts a new session
+* After testing is done, Checkbox Agent starts a new session
 * Submission is done from the Controller by default (use
   ``local_submission = No`` in launcher or config to change this).
 * When the Controller reconnects mid interactive test, the test is restarted.

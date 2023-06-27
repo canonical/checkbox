@@ -48,4 +48,4 @@ rsync -r --links ../checkbox-ng $series/
 echo "Copying over checkbox-support to $series"
 rsync -r --links ../checkbox-support $series
 echo "Dumping version in version file for $series"
-echo `git describe --tags --match "*[0-9]*" | grep -oP "(?<=v)\d+\.\d+"` > $series/version.txt
+echo `git describe --tags --match "*[0-9]*" | grep -oP "(?<=v)\S+"` > $series/version.txt

@@ -27,7 +27,6 @@ journey through the product.
    :maxdepth: 1
 
    tutorial
-   custom-app
 
 Extended tutorial
 -----------------

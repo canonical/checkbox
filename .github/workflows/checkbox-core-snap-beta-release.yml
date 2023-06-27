@@ -24,13 +24,6 @@ jobs:
         run: |
           cd checkbox-core-snap/
           ./prepare.sh $SERIES
-      - name: Remove '.dev' suffix from the version name
-        run: |
-          cd checkbox-core-snap
-          # in the following sed onliner the '0,/^version/' bit specifies the range
-          # of lines it should act upon, this way only the first occurence of '^version'
-          # is getting affected.
-          sed -i '0,/^version/s/\(^version\:.*\).dev/\1/' $SERIES/snap/snapcraft.yaml
       - name: add LP credentials
         run: |
           mkdir -p ~/.local/share/snapcraft/provider/launchpad/

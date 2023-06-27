@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '2.8'
+adopt-info: version-calculator
 
 base: core20
 
@@ -61,6 +61,14 @@ package-repositories:
     ppa: hardware-certification/public
 
 parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
@@ -87,15 +95,43 @@ parts:
       - libglib2.0-dev
       - libfdt-dev
       - libbsd-dev
+    after: [version-calculator]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
+    plugin: make
     source-tag: "V0.15.08"
     source-depth: 1
-    plugin: make
-    source: https://github.com/ColinIanKing/stress-ng.git
+    source: https://github.com/ColinIanKing/stress-ng
+    source-type: git
+    override-pull: |
+      snapcraftctl pull
+      description="$(git describe HEAD --tags)"
+      sha=$(echo $description | tr '-' ' ' | awk '{print $NF}')
+      version=${description%$sha}
+      commits=$(git log --oneline | wc -l)
+      date=$(date +'%Y%m%d')
+      if test "$description" = "$sha"
+      then
+        version="$description"
+      else
+        version=$(echo $version$date-$commits-$sha | cut -c1-32)
+      fi
+      snapcraftctl set-version "$version"
     make-parameters:
-      - STATIC=1
+      - STATIC=1 VERBOSE=1
+      - LDFLAGS=-lrt
+    stage-packages:
+      - libdrm2
+      - libegl1
+      - libgbm1
+      - libgles2
+      - libglvnd0
+      - libjpeg-turbo8
+      - libjudydebian1
+      - libsctp1
+      - libwayland-server0
+      - libxxhash0
     build-packages:
       - gcc
       - make
@@ -110,11 +146,12 @@ parts:
       - libatomic1
       - libjudy-dev
       - libjpeg-dev
-      - libglvnd-dev
-      - libgbm-dev
+      - libkmod-dev
+      - libattr1-dev
       - libxxhash-dev
-    after: [fwts]
-################################################################################
+      - libmd-dev
+      - on amd64: [ libipsec-mb-dev ]
+  ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
     source-tag: "R10_20_22"
@@ -166,6 +203,11 @@ parts:
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.8
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
+    override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -206,6 +248,11 @@ parts:
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
+    override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

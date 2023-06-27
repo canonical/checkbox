@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '2.8'
+adopt-info: version-calculator
 
 base: core22
 
@@ -61,6 +61,14 @@ package-repositories:
     ppa: hardware-certification/public
 
 parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
@@ -87,6 +95,7 @@ parts:
       - libglib2.0-dev
       - libfdt-dev
       - libbsd-dev
+    after: [version-calculator]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
@@ -166,6 +175,11 @@ parts:
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.10
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
+    override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -206,6 +220,12 @@ parts:
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
+    override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
+
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

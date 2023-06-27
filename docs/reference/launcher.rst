@@ -380,9 +380,13 @@ Example:
 Daemon-specific configuration
 =============================
 
-``[daemon]``
+``[agent]``
 
-Beginning of the daemon-specific section.
+.. warning::
+    This section was previously called ``[daemon]``. This term has been
+    deprecated as of Checkbox 2.9 and is planned for removal.
+
+Beginning of the agent-specific section.
 
 Settings in this section only apply to sessions that are run by :term:`Checkbox
 Agent` spawned as Systemd service.

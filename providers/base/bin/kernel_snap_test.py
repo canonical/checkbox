@@ -23,8 +23,7 @@ import logging
 import sys
 import time
 
-# from checkbox_support.snap_utils.snapd import Snapd
-from snapd import Snapd
+from checkbox_support.snap_utils.snapd import Snapd
 
 
 class KernelSnapTest:
@@ -54,9 +53,15 @@ class KernelSnapTest:
 
     def kernel_refresh(self):
         data = {}
-        data["original_revision"] = self.kernel_info["installed_revision"]
+        original_revision = self.kernel_info["installed_revision"]
+        data["original_revision"] = original_revision
         channel = "{}stable".format(self.kernel_info["tracking_prefix"])
-        logging.info("Refreshing kernel snap to stable...")
+        stable_rev = self.kernel_info["revisions"].get(channel, "")
+        logging.info(
+            "Refreshing kernel snap to stable (from rev %s to rev %s)",
+            original_revision,
+            stable_rev,
+        )
         r = self.snapd.refresh(
             self.kernel_info["name"], channel=channel, reboot=True
         )
@@ -110,7 +115,14 @@ class KernelSnapTest:
     def kernel_revert(self):
         with open(self.path, "r") as file:
             data = json.load(file)
-        logging.info("Reverting kernel snap...")
+        original_rev = data["original_revision"]
+        channel = "{}stable".format(self.kernel_info["tracking_prefix"])
+        stable_rev = self.kernel_info["revisions"].get(channel, "")
+        logging.info(
+            "Reverting kernel snap (from rev %s to rev %s)",
+            stable_rev,
+            original_rev,
+        )
         r = self.snapd.revert(self.kernel_info["name"], reboot=True)
         logging.info("Reverting requested")
         with open(self.path, "w") as file:

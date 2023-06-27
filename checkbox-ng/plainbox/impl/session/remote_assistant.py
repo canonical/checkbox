@@ -634,6 +634,10 @@ class RemoteSessionAssistant():
             test_info_list = test_info_list + ((test_info, ))
         return json.dumps(test_info_list)
 
+    def get_resumable_sessions(self):
+        return self._sa.get_resumable_sessions()
+
+
     def resume_by_id(self, session_id=None):
         _logger.info("resume_by_id: %r", session_id)
         self._launcher = load_configs()

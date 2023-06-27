@@ -110,9 +110,3 @@ Glossary
         certification. This identifier is used when interacting with the
         Certification Website, it does not reveal anything about the actual
         hardware (like the manufacturer name or device name).
-
-    PyPI
-
-        The Python Package Index where any developer can share their python
-        programs and libraries. PyPI is available at:
-        https://pypi.org/.

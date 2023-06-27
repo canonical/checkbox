@@ -11,6 +11,23 @@ exception that all the fields starting with the string ``template-`` are
 reserved for the template itself while all the other fields are a definition of
 all the eventual instances of the template.
 
+There is one particular requirement on the job's ``id`` field for the instances
+to be generated. This ``id`` field value must be template-based, for example ::
+
+  unit: template
+  template-resource: graphics_card
+  template-engine: jinja2
+  template-unit: job
+  id: chromium_webcam_encoding_{{driver}}_{{bus}}
+
+instead of::
+
+  unit: template
+  template-resource: graphics_card
+  template-engine: jinja2
+  template-unit: job
+  id: chromium_webcam_encoding
+
 Template-Specific Fields
 ------------------------
 
@@ -147,6 +164,8 @@ the ``udev_resource`` script to get information about the system. The
 ``udev_resource`` script returns a list of items with attributes such as
 ``path`` and ``name``, so we can use these directly in our template.
 
+``block_device`` is an other resource unit used for setting a requirement on the state of the current device.
+
 Simple Jinja templates example
 ------------------------------
 
@@ -162,8 +181,8 @@ First here is the previous disk stats example converted to jinja2::
     category_id: com.canonical.plainbox::disk
     id: disk/stats_{{ name }}
     requires:
-    device.path == "{{ path }}"
-    block_device.{{ name }}_state != 'removable'
+     device.path == "{{ path }}"
+     block_device.{{ name }}_state != 'removable'
     user: root
     command: disk_stats_test {{ name }}
     _description: This test checks {{ name }} disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.

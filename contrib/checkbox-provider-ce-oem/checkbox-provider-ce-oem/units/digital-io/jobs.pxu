@@ -27,6 +27,7 @@ plugin: shell
 user: root
 category_id: digital-io
 estimated_duration: 40s
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_digital_io == 'True'
 flags: also-after-suspend
 command:
@@ -68,6 +69,7 @@ plugin: shell
 user: root
 category_id: digital-io
 estimated_duration: 40s
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_digital_io == 'True'
 flags: also-after-suspend
 command:

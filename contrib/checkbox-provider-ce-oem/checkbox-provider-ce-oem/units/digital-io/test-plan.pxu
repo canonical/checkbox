@@ -44,5 +44,5 @@ bootstrap_include:
     ce-oem-digital-io/loopback_mapping_gpio
     ce-oem-digital-io/loopback_mapping_serial
 include:
-    ce-oem-digital-io/loopback_gpio_DO.*-DI.*
-    ce-oem-digital-io/loopback_serial_DO.*-DI.*
+    after-suspend-ce-oem-digital-io/loopback_gpio_DO.*-DI.*
+    after-suspend-ce-oem-digital-io/loopback_serial_DO.*-DI.*

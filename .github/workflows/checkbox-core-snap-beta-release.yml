@@ -23,6 +23,7 @@ jobs:
       - name: Copy over the common files for series${{ matrix.releases }}
         run: |
           cd checkbox-core-snap/
+          apt install python3-setuptools-scm
           ./prepare.sh $SERIES
       - name: add LP credentials
         run: |

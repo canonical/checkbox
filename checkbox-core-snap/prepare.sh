@@ -48,4 +48,4 @@ rsync -r --links ../checkbox-ng $series/
 echo "Copying over checkbox-support to $series"
 rsync -r --links ../checkbox-support $series
 echo "Dumping version in version file for $series"
-python3 -m setuptools_scm -r ../ 2>/dev/null 1>$series/version.txt
+(cd .. && python3 -m setuptools_scm | grep -oP "\S+$") 2>/dev/null 1>$series/version.txt

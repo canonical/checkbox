@@ -38,7 +38,7 @@ Configs with Checkbox Remote
 When the :term:`Checkbox Agent` starts, it looks for config files in the same
 places that local Checkbox session would look (on the :term:`Agent` side). If
 the :term:`Checkbox Controller` uses a Launcher, then the values from that
-Launcher take precedence over the values from configs on the :term:`DUT` side.
+Launcher take precedence over the values from configs on the :term:`Agent` side.
 
 Example:
 

@@ -94,23 +94,7 @@ class Configuration:
         # The depracated section names are here so we can still read the old
         # configs. It's a fallback mechanism.
 
-        try:
-            return self.sections[section][name]
-        except KeyError as exc:
-            for deprecated_section_name in self.DEPRECATED_SECTION_NAMES[section]:
-                try:
-                    fallback_section_value = self.sections[
-                        deprecated_section_name
-                    ][name]
-                    logger.warning(
-                        "Using deprecated section name %s",
-                        deprecated_section_name,
-                    )
-                    return fallback_section_value
-
-                except KeyError:
-                    pass
-            raise exc
+        return self.sections[section][name]
 
     def get_origin(self, section, name):
         """Return origin of the value."""

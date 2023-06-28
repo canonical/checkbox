@@ -303,7 +303,7 @@ class RemoteSessionAssistant:
             )
 
         self._sa.use_alternate_configuration(self._launcher)
-        self._normal_user = self._launcher.get_value("daemon", "normal_user")
+        self._normal_user = self._launcher.get_value("agent", "normal_user")
         if self._normal_user:
             if not check_user_exists(self._normal_user):
                 raise RuntimeError(
@@ -698,7 +698,7 @@ class RemoteSessionAssistant:
 
         self._normal_user = app_blob.get(
             "effective_normal_user",
-            self._launcher.get_value("daemon", "normal_user"),
+            self._launcher.get_value("agent", "normal_user"),
         )
         _logger.info(
             "normal_user after loading metadata: %r", self._normal_user

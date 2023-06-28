@@ -127,3 +127,25 @@ class DaemonNormalUserDoesntExist(Scenario):
         Start(),
         AssertPrinted("User 'testuser' doesn't exist!"),
     ]
+
+@tag("daemon", "agent", "normal_user", "dio-wrote-this")
+class NewNameForDaemonWorks(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::whoami_as_user_tp
+        forced = yes
+        [test selection]
+        forced = yes
+        [agent]
+        normal_user = testuser
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted("User 'testuser' doesn't exist!"),
+    ]

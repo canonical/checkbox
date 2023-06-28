@@ -32,6 +32,7 @@ from collections import namedtuple, OrderedDict
 logger = logging.getLogger(__name__)
 
 
+
 class Configuration:
     """
     Checkbox configuration storing objects.
@@ -40,6 +41,12 @@ class Configuration:
     For instance what reports to generate, should the session be interactive,
     and many others. Look at CONFIG_SPEC for details.
     """
+
+    DEPRECATED_SECTION_NAMES = {
+        # current section name: list of old names we want to support
+        "agent": ["daemon"],
+    }
+
     def __init__(self, source=None):
         """Create a new configuration object filled with default values."""
         self.sections = OrderedDict()
@@ -84,7 +91,26 @@ class Configuration:
 
     def get_value(self, section, name):
         """Return a value of given `name` from given `section`,"""
-        return self.sections[section][name]
+        # The depracated section names are here so we can still read the old
+        # configs. It's a fallback mechanism.
+
+        try:
+            return self.sections[section][name]
+        except KeyError as exc:
+            for deprecated_section_name in self.DEPRECATED_SECTION_NAMES[section]:
+                try:
+                    fallback_section_value = self.sections[
+                        deprecated_section_name
+                    ][name]
+                    logger.warning(
+                        "Using deprecated section name %s",
+                        deprecated_section_name,
+                    )
+                    return fallback_section_value
+
+                except KeyError:
+                    pass
+            raise exc
 
     def get_origin(self, section, name):
         """Return origin of the value."""
@@ -120,6 +146,7 @@ class Configuration:
         """Set a new value for variable and update its origin."""
         # we are kind off guaranteed that section will be found in the spec
         # but let's make linters happy
+
         if section in self._DYNAMIC_SECTIONS:
             self.dyn_set_value(section, name, value, origin)
             return
@@ -241,6 +268,8 @@ class Configuration:
         cfg = Configuration(origin)
         parser = ConfigParser(delimiters="=")
         parser.read_string(ini_file.read())
+        # some section names got changed over time
+        # to support the old names let's look themem up and translate them
         for sect_name, section in parser.items():
             if sect_name == "DEFAULT":
                 for var_name in section:
@@ -254,6 +283,16 @@ class Configuration:
                 for var_name, var in section.items():
                     cfg.set_value(sect_name, var_name, var, origin)
                 continue
+            deprecated_section_names = {
+                "daemon": "agent"
+            }
+            if sect_name in deprecated_section_names:
+                current_name = deprecated_section_names[sect_name]
+                logger.warning(
+                    "[%s] section name is deprecated. Use %s instead.",
+                    sect_name, current_name
+                )
+                sect_name = current_name
             if sect_name not in cfg.sections:
                 problem = "Unexpected section [{}]. Origin: {}".format(
                     sect_name, origin
@@ -407,7 +446,7 @@ CONFIG_SPEC = [
         },
     ),
     (
-        "daemon",
+        "agent",
         {
             "normal_user": VarSpec(
                 str, "", "Username to use for jobs that don't specify user."

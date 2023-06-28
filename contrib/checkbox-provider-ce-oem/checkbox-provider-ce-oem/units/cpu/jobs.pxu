@@ -21,3 +21,102 @@ command: nice -n -20 frequency_governors_test.py --debug
 _description:
  This test checks that CPU frequency governors are obeyed when set.
 flag: also-after-suspend
+
+id: governors_list
+_summary: Collect supported scaling governors in this system
+_description:
+    Get the capabilities of CPU scaling governors in this system
+plugin: resource
+user: root
+command: cpufreq_governors.py --resource-format
+estimated_duration: 1s
+
+id: ce-oem-cpu/cpufreq-governor-performance
+_summary: Test "performance" scaling governor
+_description:
+    This job sets the governor to "performance" and 
+    verifies whether the frequency is maximum.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 1s
+requires: governors_list.driver != 'intel_pstate'
+imports: from com.canonical.qa.ceoem import governors_list
+command: nice -n -20 cpufreq_governors.py --governor performance
+
+id: ce-oem-cpu/cpufreq-governor-powersave
+_summary: Test "powersave" scaling governor
+_description:
+    This job sets the governor to "powersave" and 
+    verifies whether the frequency is minimum.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 1s
+requires: governors_list.driver != 'intel_pstate'
+imports: from com.canonical.qa.ceoem import governors_list
+command: nice -n -20 cpufreq_governors.py --governor powersave
+
+id: ce-oem-cpu/cpufreq-governor-userspace
+_summary: Test "userspace" scaling governor
+_description:
+    This job sets the governor to "userspace" and 
+    verifies the frequency when setting it to maximum
+    and minimum.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 1s
+requires: governors_list.driver != 'intel_pstate'
+imports: from com.canonical.qa.ceoem import governors_list
+command: nice -n -20 cpufreq_governors.py --governor userspace
+
+id: ce-oem-cpu/cpufreq-governor-schedutil
+_summary: Test "schedutil" scaling governor
+_description:
+    This job sets the governor to "schedutil" and
+    verifies whether the frequency will be maximum
+    after CPU doing some caculation.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 3s
+requires: governors_list.driver != 'intel_pstate'
+imports: from com.canonical.qa.ceoem import governors_list
+command: nice -n -20 cpufreq_governors.py --governor schedutil
+
+id: ce-oem-cpu/cpufreq-governor-ondemand
+_summary: Test "ondemand" scaling governor
+_description:
+    This job sets the governor to "ondemand" and
+    verifies whether the frequency will be maximum
+    after CPU doing some caculation, and minimum
+    after system sleep for a few seconds.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 10s
+requires: governors_list.driver != 'intel_pstate'
+imports: from com.canonical.qa.ceoem import governors_list
+command: nice -n -20 cpufreq_governors.py --governor ondemand
+
+id: ce-oem-cpu/cpufreq-governor-conservative
+_summary: Test "conservative" scaling governor
+_description:
+    This job sets the governor to "conservative" and
+    verifies whether the frequency will be maximum
+    after CPU doing some caculation, and minimum
+    after system sleep for a few seconds.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 10s
+requires: governors_list.driver != 'intel_pstate'
+imports: from com.canonical.qa.ceoem import governors_list
+command: nice -n -20 cpufreq_governors.py --governor conservative

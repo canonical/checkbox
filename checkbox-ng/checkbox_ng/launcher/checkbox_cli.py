@@ -73,12 +73,19 @@ def main():
         "merge-reports": MergeReports,
         "merge-submissions": MergeSubmissions,
         "tp-export": TestPlanExport,
-        "service": RemoteSlave,
+
+        # "service": RemoteSlave,
+        "run-agent": RemoteSlave,
+
         # "remote": RemoteMaster,
         "controll": RemoteMaster,
     }
     deprecated_commands = {
-        "slave": "service",
+        # "slave": "service",
+        # "master": "remote"
+
+        "slave": "run-agent",
+        "service": "run-agent",
         "remote": "controll"
     }
 

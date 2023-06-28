@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import itertools
 import os.path
+import re
 import time
 from pathlib import Path
 import textwrap
@@ -28,10 +29,9 @@ from loguru import logger
 from metabox.core.lxd_execute import interactive_execute
 from metabox.core.lxd_execute import run_or_raise
 
-
 class MachineConfig:
-
-    def __init__(self, role, config):
+    NAME_VALID_CHAR_RE = re.compile(r"[\w\d]+")
+    def __init__(self, role, config, revision="HEAD"):
         self.role = role
         self.alias = config['alias']
         self.origin = config['origin']
@@ -42,11 +42,17 @@ class MachineConfig:
         self.checkbox_core_snap = config.get("checkbox_core_snap", {})
         self.checkbox_snap = config.get("checkbox_snap", {})
         self.snap_name = config.get("name", "")
+        self.revision = revision
         if not self.snap_name:
             self.snap_name = 'checkbox'
 
+    def _revision_to_str(self):
+        # make revision a valid name str
+        return "-".join(self.NAME_VALID_CHAR_RE.findall(self.revision))
+
     def __members(self):
-        return (self.role, self.alias, self.origin, self.snap_name, self.uri,
+        return (self.role, self.alias, self.origin,
+                self.snap_name, self.uri, self.revision,
                 ' '.join(self.profiles),
                 ' '.join(itertools.chain(*self.transfer)),
                 ' '.join(self.setup))
@@ -56,7 +62,7 @@ class MachineConfig:
             self.role, self.alias, self.origin)
 
     def __str__(self):
-        return "{}-{}-{}".format(self.role, self.alias, self.origin)
+        return "{}-{}-{}-{}".format(self.role, self.alias, self.origin, self._revision_to_str())
 
     def __hash__(self):
         return hash(self.__members())

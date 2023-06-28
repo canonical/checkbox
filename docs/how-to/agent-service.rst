@@ -1,5 +1,5 @@
-Checkbox Agent Service
-^^^^^^^^^^^^^^^^^^^^^^^^
+Checkbox Agent Systemd Service
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Checkbox snaps supporting Checkbox Remote functionality usually come with a
 systemd service that can ensure :term:`Checkbox Agent` is loaded and active.
@@ -24,7 +24,7 @@ Stopping the service
 ====================
 
 In a rare case where you want to have multiple Checkbox snaps installed on the
-system, it's necessary to disable all but one services.
+system, it's necessary to disable all but one service.
 
 To do this, run
 

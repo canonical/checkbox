@@ -461,6 +461,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 )
 
             result_dict["outcome"] = IJobResult.OUTCOME_FAIL
+
         elif resume_params.action == "skip":
             if is_cert_blocker:
                 if not resume_params.comments:

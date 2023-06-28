@@ -1696,20 +1696,29 @@ class SessionAssistant:
         them.
         """
         UsageExpectation.of(self).enforce()
-        if SessionMetaData.FLAG_INCOMPLETE not in self._metadata.flags:
+        finalizable_flags = [
+            SessionMetaData.FLAG_INCOMPLETE,
+            SessionMetaData.FLAG_BOOTSTRAPPING,
+        ]
+
+        if all(flag not in self._metadata.flags for flag in finalizable_flags):
             _logger.info(
                 "finalize_session called for already finalized" " session: %s",
                 self._manager.storage.id,
             )
             # leave the same usage expectations
             return
-        if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
+        submitted = SessionMetaData.FLAG_SUBMITTED in self._metadata.flags
+        fresh = SessionMetaData.FLAG_BOOTSTRAPPING in self._metadata.flags
+        if not fresh and not submitted:
             _logger.warning(
                 "Finalizing session that hasn't been submitted "
                 "anywhere: %s",
                 self._manager.storage.id,
             )
-        self._metadata.flags.remove(SessionMetaData.FLAG_INCOMPLETE)
+        for flag in finalizable_flags:
+            if flag in self._metadata.flags:
+                self._metadata.flags.remove(flag)
         self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
             self.finalize_session: "to finalize session",
@@ -1718,6 +1727,7 @@ class SessionAssistant:
             self.export_to_stream: "to export the results to a stream",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
+            self.resume_session: "to resume a session",
             self.get_old_sessions: ("get previously created sessions"),
             self.delete_sessions: ("delete previously created sessions"),
         }

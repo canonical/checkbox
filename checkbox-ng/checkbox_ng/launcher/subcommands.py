@@ -21,6 +21,7 @@ Definition of sub-command classes for checkbox-cli
 from argparse import ArgumentTypeError
 from argparse import SUPPRESS
 from collections import defaultdict
+from datetime import datetime
 from string import Formatter
 from tempfile import TemporaryDirectory
 import copy
@@ -34,6 +35,7 @@ import re
 import shlex
 import sys
 import tarfile
+import textwrap
 import time
 
 from plainbox.abc import IJobResult
@@ -61,10 +63,13 @@ from checkbox_ng.launcher.startprovider import (
 )
 from checkbox_ng.launcher.run import Action
 from checkbox_ng.launcher.run import NormalUI
+from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import CategoryBrowser
 from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
+from checkbox_ng.urwid_ui import ResumeInstead
 from checkbox_ng.urwid_ui import TestPlanBrowser
+from checkbox_ng.utils import newline_join
 
 _ = gettext.gettext
 
@@ -242,9 +247,22 @@ class Launcher(MainLoopStage, ReportsStage):
             self._configure_restart(ctx)
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.configuration)
-            if not self._maybe_resume_session():
-                self._start_new_session()
-                self._pick_jobs_to_run()
+            self.resume_candidates = list(ctx.sa.get_resumable_sessions())
+            if not self._maybe_auto_resume_session(self.resume_candidates):
+                something_got_chosen = False
+                while not something_got_chosen:
+                    try:
+                        self._start_new_session()
+                        self._pick_jobs_to_run()
+                        something_got_chosen = True
+                    except ResumeInstead:
+                        self.sa.finalize_session()
+                        something_got_chosen = (
+                            self._maybe_manually_resume_session(
+                                self.resume_candidates
+                            )
+                        )
+
             if not self.ctx.sa.get_static_todo_list():
                 return 0
             if "submission_files" in self.configuration.get_value(
@@ -319,8 +337,7 @@ class Launcher(MainLoopStage, ReportsStage):
             lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
 
-    def _maybe_resume_session(self):
-        resume_candidates = list(self.ctx.sa.get_resumable_sessions())
+    def _maybe_auto_resume_session(self, resume_candidates):
         if self.ctx.args.session_id:
             requested_sessions = [
                 s
@@ -333,18 +350,48 @@ class Launcher(MainLoopStage, ReportsStage):
                 return True
             else:
                 raise RuntimeError("Requested session is not resumable!")
-        elif self.is_interactive:
-            print(self.C.header(_("Resume Incomplete Session")))
-            print(
-                ngettext(
-                    "There is {0} incomplete session that might be resumed",
-                    "There are {0} incomplete sessions that might be resumed",
-                    len(resume_candidates),
-                ).format(len(resume_candidates))
-            )
-            return self._run_resume_ui_loop(resume_candidates)
         else:
             return False
+
+    def _maybe_manually_resume_session(self, resume_candidates):
+        entries = [
+            (
+                candidate.id,
+                _generate_resume_candidate_description(candidate),
+            )
+            for candidate in resume_candidates
+        ]
+        while True:
+            # let's loop until someone selects something else than "delete"
+            # in other words, after each delete action let's go back to the
+            # resume menu
+
+            resume_params = ResumeMenu(entries).run()
+            if resume_params.action == "delete":
+                self.ctx.sa.finalize_session()
+                self.ctx.sa.delete_sessions([resume_params.session_id])
+                self.resume_candidates = list(
+                    self.ctx.sa.get_resumable_sessions()
+                )
+
+                # the entries list is just a copy of the resume_candidates,
+                # and it's not updated when we delete a session, so we need
+                # to update it manually
+                entries = [
+                    en for en in entries if en[0] != resume_params.session_id
+                ]
+
+                if not entries:
+                    # if everything got deleted let's go back to the test plan
+                    # selection menu
+                    return False
+            else:
+                break
+
+        if resume_params.session_id:
+            self._resume_session(resume_params)
+            return True
+        return False
 
     def _run_resume_ui_loop(self, resume_candidates):
         for candidate in resume_candidates:
@@ -369,16 +416,55 @@ class Launcher(MainLoopStage, ReportsStage):
                 self._delete_old_sessions(ids)
                 return False
 
-    def _resume_session(self, session):
-        metadata = self.ctx.sa.resume_session(session.id)
+    def _resume_session(self, resume_params):
+        metadata = self.ctx.sa.resume_session(resume_params.session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
             self.ctx.sa.select_test_plan(test_plan_id)
             self.ctx.sa.bootstrap()
         last_job = metadata.running_job_name
+        is_cert_blocker = (
+            self.ctx.sa.get_job_state(last_job).effective_certification_status
+            == "blocker"
+        )
         # If we resumed maybe not rerun the same, probably broken job
-        self._handle_last_job_after_resume(last_job)
+        result_dict = {
+            "comments": resume_params.comments,
+        }
+        if resume_params.action == "pass":
+            result_dict["outcome"] = IJobResult.OUTCOME_PASS
+            result_dict["comments"] = newline_join(
+                result_dict["comments"], "Passed after resuming execution"
+            )
+
+        elif resume_params.action == "fail":
+            if is_cert_blocker:
+                if not resume_params.comments:
+                    result_dict["comments"] = request_comment("why it failed.")
+            else:
+                result_dict["outcome"] = IJobResult.OUTCOME_FAIL
+                result_dict["comments"] = newline_join(
+                    result_dict["comments"], "Failed after resuming execution"
+                )
+
+        elif resume_params.action == "skip":
+            if is_cert_blocker:
+                if not resume_params.comments:
+                    result_dict["comments"] = request_comment(
+                        "why you want to skip it."
+                    )
+            else:
+                result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+                result_dict["comments"] = newline_join(
+                    result_dict["comments"], "Skipped after resuming execution"
+                )
+
+        elif resume_params.action == "rerun":
+            # if we don't call use_job_result it means we'll rerun the job
+            return
+        result = MemoryJobResult(result_dict)
+        self.ctx.sa.use_job_result(last_job, result)
 
     def _start_new_session(self):
         print(_("Preparing..."))
@@ -452,6 +538,7 @@ class Launcher(MainLoopStage, ReportsStage):
             _("Select test plan"),
             tp_info_list,
             self.configuration.get_value("test plan", "unit"),
+            len(self.resume_candidates),
         ).run()
         return selected_tp
 
@@ -997,8 +1084,11 @@ class Run(MainLoopStage):
 class List:
     def register_arguments(self, parser):
         parser.add_argument(
-            'GROUP', nargs='?', choices=Explorer.OBJECT_TYPES,
-            help=_("list objects from the specified group"))
+            "GROUP",
+            nargs="?",
+            choices=Explorer.OBJECT_TYPES,
+            help=_("list objects from the specified group"),
+        )
         parser.add_argument(
             "-a",
             "--attrs",
@@ -1255,3 +1345,54 @@ class Show:
             # provider and service does not have origin
             for k, v in obj.attrs.items():
                 print("{}: {}".format(k, v))
+
+
+def _generate_resume_candidate_description(candidate):
+    template = textwrap.dedent(
+        """
+        Session Title:
+            {session_title}
+        
+        Test plan used:
+            {tp_id}
+        
+        Last job that was run:
+            {last_job_id}
+
+        Last job was started at:
+            {last_job_start_time}
+        """
+    )
+    app_blob = json.loads(candidate.metadata.app_blob)
+    session_title = candidate.metadata.title or "Unknown"
+    tp_id = app_blob.get("testplan_id", "Unknown")
+    last_job_id = candidate.metadata.running_job_name or "Unknown"
+    last_job_timestamp = candidate.metadata.last_job_start_time or None
+    if last_job_timestamp:
+        dt = datetime.utcfromtimestamp(last_job_timestamp)
+        last_job_start_time = dt.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        last_job_start_time = "Unknown"
+    return template.format(
+        session_title=session_title,
+        tp_id=tp_id,
+        last_job_id=last_job_id,
+        last_job_start_time=last_job_start_time,
+    )
+
+
+def request_comment(prompt: str) -> str:
+    """
+    Request a comment from the user.
+    :param prompt: the thing that user has to explain with their comment
+    :return: the comment provided by the user
+    """
+    colorizer = Colorizer()
+    red = colorizer.C.RED
+    blue = colorizer.C.BLUE
+    comment = ""
+    while not comment:
+        print(red("This job is required in order to issue a certificate."))
+        print(red("Please add a comment to explain {}.".format(prompt)))
+        comment = input(blue("Please enter your comments:\n"))
+    return comment

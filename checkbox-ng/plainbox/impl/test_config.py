@@ -44,7 +44,7 @@ class ConfigurationTests(TestCase):
         cfg = Configuration()
         self.assertEqual(cfg.get_value("test plan", "filter"), ["*"])
         self.assertTrue(cfg.get_value("launcher", "local_submission"))
-        self.assertEqual(cfg.get_value("daemon", "normal_user"), "")
+        self.assertEqual(cfg.get_value("agent", "normal_user"), "")
 
     @patch("os.path.isfile", return_value=True)
     def test_one_var_overwrites(self, _):
@@ -62,8 +62,8 @@ class ConfigurationTests(TestCase):
             cfg = Configuration.from_path("unit test")
         self.assertEqual(cfg.get_value("test plan", "filter"), ["*"])
         self.assertTrue(cfg.get_value("launcher", "local_submission"))
-        self.assertEqual(cfg.get_value("daemon", "normal_user"), "")
-        self.assertEqual(cfg.get_origin("daemon", "normal_user"), "")
+        self.assertEqual(cfg.get_value("agent", "normal_user"), "")
+        self.assertEqual(cfg.get_origin("agent", "normal_user"), "")
         self.assertEqual(cfg.get_value("launcher", "stock_reports"), ["text"])
         self.assertEqual(
             cfg.get_origin("launcher", "stock_reports"), "unit test"
@@ -129,3 +129,13 @@ class ConfigurationTests(TestCase):
         with muted_logging():
             cfg = Configuration.from_path("invalid path")
         self.assertEqual(len(cfg.get_problems()), 1)
+
+    @patch("os.path.isfile", return_value=True)
+    def test_depracated_section_name_works(self, _):
+        ini_data = """
+        [daemon]
+        normal_user = testuser
+        """
+        with patch("builtins.open", mock_open(read_data=ini_data)):
+            cfg = Configuration.from_path("unit test")
+        self.assertEqual(cfg.get_value("agent", "normal_user"), "testuser")

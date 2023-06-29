@@ -144,6 +144,12 @@ parts:
     after: [acpi-tools]
     override-stage: |
       snapcraftctl stage
+      # The oneliner below was required in 2019 to fix an upstream bug:
+      # https://github.com/python-distro/distro/issues/260
+      # This patch was meant to catch and ignore subprocess.CalledProcessError
+      # when running lsb_release on ubuntu core
+      # The fix was finally released with the distro 1.6 release available as of
+      # 22.04 (i.e base: core22)
       sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/distro/distro.py
 ################################################################################
   checkbox-ng:

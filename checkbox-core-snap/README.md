@@ -74,7 +74,7 @@ Let's begin by creating the container and installing the needed packages.
 (jammy)> snap install snapcraft --classic
 # Now clone the checkbox repository
 (jammy)> git clone https://github.com/canonical/checkbox
-(jammy)> apt install python3-setuptools-scm
+(jammy)> apt install python3-setuptools-scm git snapd
 ```
 If you are debugging a build, this is a good step to make a backup of the
 environment, so that you don't need to repeat the above steps if something

@@ -31,7 +31,7 @@ from metabox.core.lxd_execute import run_or_raise
 
 class MachineConfig:
     NAME_VALID_CHAR_RE = re.compile(r"[\w\d]+")
-    def __init__(self, role, config, revision="HEAD"):
+    def __init__(self, role, config):
         self.role = role
         self.alias = config['alias']
         self.origin = config['origin']
@@ -42,7 +42,7 @@ class MachineConfig:
         self.checkbox_core_snap = config.get("checkbox_core_snap", {})
         self.checkbox_snap = config.get("checkbox_snap", {})
         self.snap_name = config.get("name", "")
-        self.revision = revision
+        self.revision = config.get("revision", "current")
         if not self.snap_name:
             self.snap_name = 'checkbox'
 
@@ -58,8 +58,8 @@ class MachineConfig:
                 ' '.join(self.setup))
 
     def __repr__(self):
-        return "<{} alias:{!r} origin:{!r}>".format(
-            self.role, self.alias, self.origin)
+        return "<{} alias:{!r} origin:{!r} revision: {!r}>".format(
+            self.role, self.alias, self.origin, self.revision)
 
     def __str__(self):
         return "{}-{}-{}-{}".format(self.role, self.alias, self.origin, self._revision_to_str())

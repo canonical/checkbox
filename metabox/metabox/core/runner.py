@@ -35,6 +35,8 @@ logger = logger.opt(colors=True)
 class Runner:
     """Metabox scenario discovery and runner."""
 
+    SCENARIO_DESCRIPTION_FMT = "[{mode}][{release_version}] {name}"
+
     def __init__(self, args):
         self.args = args
         # logging
@@ -81,10 +83,10 @@ class Runner:
                 service_config["alias"] = service_release
                 revisions = self._get_revisions_jobs()
                 for remote_revision, service_revision in revisions:
-                    remote_config['revision'] = remote_revision
-                    self.combo.add(MachineConfig("remote", remote_config, revision=remote_revision))
-                    service_config['revision'] = service_revision
-                    self.combo.add(MachineConfig("service", service_config, revision=service_revision))
+                    remote_config["revision"] = remote_revision
+                    self.combo.add(MachineConfig("remote", remote_config))
+                    service_config["revision"] = service_revision
+                    self.combo.add(MachineConfig("service", service_config))
             elif v.mode == "local":
                 local_config = self.config["local"].copy()
                 local_config["alias"] = v.releases[0]
@@ -115,12 +117,12 @@ class Runner:
         return self.config[root_key][inner_key]
 
     def _get_revisions_jobs(self):
-        remote_revisions = self.config["remote"].get("revisions", ["HEAD"])
-        service_revisions = self.config["service"].get("revisions", ["HEAD"])
-        if "HEAD" not in remote_revisions:
-            logger.warning("Remote revisions does not include HEAD")
-        if "HEAD" not in service_revisions:
-            logger.warning("Service revisions does not include HEAD")
+        remote_revisions = self.config["remote"].get("revisions", ["current"])
+        service_revisions = self.config["service"].get("revisions", ["current"])
+        if "current" not in remote_revisions:
+            logger.warning("Remote revisions does not include current")
+        if "current" not in service_revisions:
+            logger.warning("Service revisions does not include current")
         return product(remote_revisions, service_revisions)
 
     def setup(self):
@@ -149,27 +151,39 @@ class Runner:
                 service_releases = self._override_filter_or_get(
                     scn_config, "service", "releases"
                 )
-                releases = (
+                releases = list(
                     (mode, r_alias, s_alias)
                     for (r_alias, s_alias) in product(
                         self.config["remote"]["releases"],
                         self.config["service"]["releases"],
                     )
                 )
+                revisions = self._get_revisions_jobs()
+                # names to kwargs
+                revisions = (
+                    {
+                        "remote_revision": remote_revision,
+                        "service_revision": service_revision,
+                    }
+                    for (remote_revision, service_revision) in revisions
+                )
+                releases = product(releases, revisions)
             elif mode == "local":
                 releases = (
-                    (mode, alias)
+                    # empty dict because local mode has no kwargs yet
+                    ((mode, alias), {})
                     for alias in self._override_filter_or_get(
                         scn_config, mode, "releases"
                     )
                 )
             else:
                 raise ValueError("Unknown mode {}".format(mode))
-            for mode_release in releases:
+            for args, kwargs in releases:
+                print(args, kwargs)
                 logger.debug(
                     "Adding scenario: [{}][{}] {}", mode, origin, scenario_cls.name
                 )
-                self.scn_variants.append(scenario_cls(*mode_release))
+                self.scn_variants.append(scenario_cls(*args, **kwargs))
         if self.args.tags or self.args.exclude_tags:
             if self.args.tags:
                 logger.info(
@@ -201,6 +215,23 @@ class Runner:
         config["role"] = mode
         return self.machine_provider.get_machine_by_config(MachineConfig(mode, config))
 
+    def _get_scenario_description(self, scn):
+        if scn.mode == "local":
+            return self.SCENARIO_DESCRIPTION_FMT.format(
+                mode=scn.mode, release_version=scn.releases, name=scn.name
+            )
+        remote_rv = scn.releases[0]
+        service_rv = scn.releases[1]
+        if scn.remote_revision != "current":
+            remote_rv += " {}".format(scn.remote_revision)
+        if scn.service_revision != "current":
+            service_rv += " {}".format(scn.service_revision)
+        return self.SCENARIO_DESCRIPTION_FMT.format(
+            mode=scn.mode,
+            release_version="({}, {})".format(remote_rv, service_rv),
+            name=scn.name,
+        )
+
     def run(self):
         startTime = time.perf_counter()
         for scn in self.scn_variants:
@@ -218,15 +249,13 @@ class Runner:
                 if scn.launcher:
                     scn.local_machine.put(scn.LAUNCHER_PATH, scn.launcher)
                 scn.local_machine.start_user_session()
-            logger.info("Starting scenario: {}".format(scn.name))
+
+            scenario_description = self._get_scenario_description(scn)
+            logger.info("Starting scenario: {}".format(scenario_description))
             scn.run()
             if not scn.has_passed():
                 self.failed = True
-                logger.error(
-                    "[{}][{}] {} scenario has failed.".format(
-                        scn.mode, scn.releases, scn.name
-                    )
-                )
+                logger.error(scenario_description + " scenario has failed.")
                 if self.hold_on_fail:
                     if scn.mode == "remote":
                         msg = (
@@ -247,9 +276,7 @@ class Runner:
                     input()
             else:
                 logger.success(
-                    "[{}][{}] {} scenario has passed.".format(
-                        scn.mode, scn.releases, scn.name
-                    )
+                    scenario_description + " scenario has passed."
                 )
             self.machine_provider.cleanup()
         del self.machine_provider

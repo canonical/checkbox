@@ -179,7 +179,6 @@ class Runner:
             else:
                 raise ValueError("Unknown mode {}".format(mode))
             for args, kwargs in releases:
-                print(args, kwargs)
                 logger.debug(
                     "Adding scenario: [{}][{}] {}", mode, origin, scenario_cls.name
                 )

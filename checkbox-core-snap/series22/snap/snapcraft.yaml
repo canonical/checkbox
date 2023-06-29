@@ -178,7 +178,7 @@ parts:
     override-build: |
       export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup()" > setup.py
+      echo "from setuptools import setup; import os; os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = '`cat $SNAPCRAFT_PROJECT_DIR/version.txt`'; setup();" > setup.py
       snapcraftctl build
 ################################################################################
   checkbox-ng:
@@ -223,7 +223,7 @@ parts:
     override-build: |
       export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup()" > setup.py
+      echo "from setuptools import setup; import os; os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = '`cat $SNAPCRAFT_PROJECT_DIR/version.txt`'; setup();" > setup.py
       snapcraftctl build
 
 ################################################################################

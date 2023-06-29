@@ -78,15 +78,13 @@ def main():
         "run-agent": RemoteSlave,
 
         # "remote": RemoteMaster,
-        "controll": RemoteMaster,
+        "control": RemoteMaster,
     }
     deprecated_commands = {
-        # "slave": "service",
-        # "master": "remote"
-
         "slave": "run-agent",
         "service": "run-agent",
-        "remote": "controll"
+        "master": "control",
+        "remote": "control"
     }
 
     known_cmds = list(commands.keys())
@@ -99,7 +97,8 @@ def main():
         if arg in deprecated_commands:
             sys.argv[i] = deprecated_commands[arg]
             logging.warning(
-                "%s is deprecated. Please use %s instead",
+                # "%s is deprecated. Please use %s instead",
+                "%s is deprecated and will be removed in the next major release of Checkbox. Please use %s instead",
                 arg,
                 deprecated_commands[arg],
             )

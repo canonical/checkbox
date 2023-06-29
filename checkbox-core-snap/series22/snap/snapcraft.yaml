@@ -104,11 +104,11 @@ parts:
     source-depth: 1
     plugin: make
     build-environment:
-      - LDFLAGS: "Wl,-z,relro -lrt"
+      - LDFLAGS: "-Wl,-z,relro -lrt"
       - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
-      - STATIC=1
+      - STATIC=1 VERBOSE=1
     build-packages:
       - gcc
       - make
@@ -123,9 +123,11 @@ parts:
       - libatomic1
       - libjudy-dev
       - libjpeg-dev
-      - libglvnd-dev
-      - libgbm-dev
+      - libkmod-dev
+      - libattr1-dev
       - libxxhash-dev
+      - libmd-dev
+      - on amd64: [ libipsec-mb-dev ]
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml

@@ -104,23 +104,11 @@ parts:
     source-tag: "V0.15.08"
     source-depth: 1
     build-environment:
-      - LDFLAGS: "Wl,-z,relro -lrt"
+      - LDFLAGS: "-Wl,-z,relro -lrt"
       - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1 VERBOSE=1
-      - LDFLAGS=-lrt
-    stage-packages:
-      - libdrm2
-      - libegl1
-      - libgbm1
-      - libgles2
-      - libglvnd0
-      - libjpeg-turbo8
-      - libjudydebian1
-      - libsctp1
-      - libwayland-server0
-      - libxxhash0
     build-packages:
       - gcc
       - make
@@ -140,7 +128,8 @@ parts:
       - libxxhash-dev
       - libmd-dev
       - on amd64: [ libipsec-mb-dev ]
-  ################################################################################
+    after: [fwts]
+################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
     source-tag: "R10_20_22"

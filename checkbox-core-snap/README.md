@@ -1,10 +1,13 @@
 # Building checkbox-core-snap
 This snap is the core reusable part of checkbox, it includes all the utilities
-and some core providers.
+and some core providers. The snap can be built for multiple 
+[base snaps](https://snapcraft.io/docs/base-snaps). Each recipe is in a `seriesXX`
+ directory where `XX` is the base snap. For instance `series22` contains
+ the `core22 or jammy` snap.
 
 ## Building guide
-This section convers how to build the snap in a normal settings. 
-via either the `multipass` or the `lxd` backend. This guide will focus on the latter
+This section covers how to build the snap via either the `multipass` or the 
+`lxd` backend. This guide will focus on the latter
 but with small adjustments can be used for the former. Also, this guide will
 build the `series22` snap, adjust the commands to build any other.
 
@@ -23,6 +26,9 @@ After installing all the dependencies do the following:
 > cd series22
 ```
 
+> Note: `prepare.sh` will prepare the series creating the build environment, 
+> refer to its output for further detail
+
 Finally build the snap with:
 ```
 > snapcraft --use-lxd
@@ -32,32 +38,36 @@ If the build has failed, check either the **Building guide for debugging**, if
 it completed succesfully, refer to **Testing the build**.
 
 ## Testing the build
-To test the build one must install it and see if the content is correct. This
-process is not perfect, but one way to do it is the following:
+To test the build one must install it and see if the content is correct.
+One way to do it is the following:
 
 ```bash
 > snap install checkbox22_(version)_(arch).snap --dangerous
 ```
-Now we have installed the core snap, but we can not use it directly. To use it
+Now we have installed the core snap, but we cannnot use it directly. To use it
 we need a simple user snap. 
 ```bash
 # Note: install the correct channel for your series
 > snap install checkbox --classic --channel=22.04
 ```
-Now you can test the checkbox snap, you can try to run test plans as follows.
+To test the checkbox snap, you can try to run test plans as follows.
 For example, you may want to run the smoke test plan.
 ```
 > checkbox.checkbox_cli
 ```
 
-## Builing guide for debugging
-This small guide mainly covers offline builds with `--destructive-mode`
-enabled. These builds must be carried out in single-use containers as the name
-implies. This guide will explain how to build the `series22` snap, in order to
-build the others the process is the same, the guide will point out what to
-change. This mode is useful for debugging a build because one can quickly 
-iterate on the environment installing packages, changing versions or editing
-the recipe without restarting every build from scratch afterwards. 
+## Building for debugging
+To build the checkbox core snap for debugging you might find 
+`snapcraft --destructive-mode` executed in a single-use container a handy trick 
+(see [Faster snap development – additional tips and tricks](https://snapcraft.io/blog/faster-snap-development-additional-tips-and-tricks)
+for more info). 
+Below you will find build stepts for the series22 snap as an example 
+(changes needed for earlier series pointed out where applicable).
+
+The destructive mode is useful for debugging a build because of incremental 
+build time: with direct host system one can quickly iterate on the environment
+installing packages, changing versions or editing the recipe, without restarting
+every build from scratch afterwards.
 
 ### Container configuration
 Let's begin by creating the container and installing the needed packages.
@@ -110,7 +120,7 @@ that guide from within the container you have created in this chapter!
 
 ### Recovering from a failure
 
-Recovering from a failure is tricky, this is why this guide makes you create a
+Recovering from a failure is tricky, which is why you should create a
 snapshot. Most of the time you will not need it, but sometimes it will be
 necessary. Depending on what failed you may want to follow these strategies
 re-run the build:

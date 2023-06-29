@@ -233,7 +233,8 @@ class Runner:
 
     def run(self):
         startTime = time.perf_counter()
-        for scn in self.scn_variants:
+        total = len(self.scn_variants)
+        for idx, scn in enumerate(self.scn_variants, 1):
             if scn.mode == "remote":
                 scn.remote_machine = self._load("remote", scn.releases[0])
                 scn.service_machine = self._load("service", scn.releases[1])
@@ -250,7 +251,9 @@ class Runner:
                 scn.local_machine.start_user_session()
 
             scenario_description = self._get_scenario_description(scn)
-            logger.info("Starting scenario: {}".format(scenario_description))
+            logger.info(
+                "Starting scenario ({}/{}): {}".format(idx, total, scenario_description)
+            )
             scn.run()
             if not scn.has_passed():
                 self.failed = True
@@ -274,15 +277,12 @@ class Runner:
                     print(msg)
                     input()
             else:
-                logger.success(
-                    scenario_description + " scenario has passed."
-                )
+                logger.success(scenario_description + " scenario has passed.")
             self.machine_provider.cleanup()
         del self.machine_provider
         stopTime = time.perf_counter()
         timeTaken = stopTime - startTime
         print("-" * 80)
-        total = len(self.scn_variants)
         status = "Ran {} scenario{} in {:.3f}s".format(
             total, total != 1 and "s" or "", timeTaken
         )

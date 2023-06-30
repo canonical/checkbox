@@ -31,8 +31,14 @@ estimated_duration: 1.0
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: Record mixer settings before suspending.
-command: audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
+command:
+  if check_audio_deamon.sh ; then
+    wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
+  else
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
+  fi
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -432,10 +438,15 @@ estimated_duration: 1.0
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
+ package.name in ['pulseaudio-utils', 'pipewire']
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  if check_audio_deamon.sh ; then
+      wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  else
+      audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  fi
   diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
 
 plugin: shell
@@ -445,10 +456,15 @@ estimated_duration: 1.2
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
+ package.name in ['pulseaudio-utils', 'pipewire']
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  if check_audio_deamon.sh ; then
+    wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  else
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+  fi
   diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
 
 plugin: user-interact

@@ -102,15 +102,22 @@ estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
+ package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  idx=$(pactl list cards short | awk '/bluez/{print $1}')
-  bt_sink=$(pactl list sinks short | awk '/bluez/{print $2}')
-  pactl set-card-profile "$idx" a2dp
-  pactl set-default-sink "$bt_sink"
-  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-  EXIT_CODE=$?
-  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  if check_audio_deamon.sh ; then
+    show_default_audio_device.sh
+    pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    idx=$(pactl list cards short | awk '/bluez/{print $1}')
+    bt_sink=$(pactl list sinks short | awk '/bluez/{print $2}')
+    pactl set-card-profile "$idx" a2dp
+    pactl set-default-sink "$bt_sink"
+    gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  fi
   exit $EXIT_CODE
 _description:
  PURPOSE:
@@ -444,26 +451,33 @@ flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_bt_smart == 'True'
+ package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  idx=$(pactl list cards short | awk '/bluez/{print $1}')
-  if [ "$idx" = "" ]; then
-    echo "Please enable and pair the bluetooth headset device"
-    exit 1
+  if check_audio_deamon.sh ; then
+    show_default_audio_device.sh
+    alsa_record_playback.sh
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    idx=$(pactl list cards short | awk '/bluez/{print $1}')
+    if [ "$idx" = "" ]; then
+      echo "Please enable and pair the bluetooth headset device"
+      exit 1
+    fi
+    bt_sink=$(pactl list sinks short | awk '/bluez/{print $2}')
+    bt_profile=$(pactl list cards | awk -v RS='' '/bluez/' | awk -F':' '{print $1}' | awk '/head_unit/{print $1}')
+    pactl set-card-profile "$idx" "$bt_profile"
+    pactl set-default-sink "$bt_sink"
+    bt_source=$(pactl list sources short | awk '/bluez_source/{print $2}')
+    if [ "$bt_source" = "" ]; then
+      echo "Please check your bluetooth support HSP/HFP profile"
+      exit 1
+    fi
+    pactl set-default-source "$bt_source"
+    alsa_record_playback.sh
+    EXIT_CODE=$?
+    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
   fi
-  bt_sink=$(pactl list sinks short | awk '/bluez/{print $2}')
-  bt_profile=$(pactl list cards | awk -v RS='' '/bluez/' | awk -F':' '{print $1}' | awk '/head_unit/{print $1}')
-  pactl set-card-profile "$idx" "$bt_profile"
-  pactl set-default-sink "$bt_sink"
-  bt_source=$(pactl list sources short | awk '/bluez_source/{print $2}')
-  if [ "$bt_source" = "" ]; then
-    echo "Please check your bluetooth support HSP/HFP profile"
-    exit 1
-  fi
-  pactl set-default-source "$bt_source"
-  alsa_record_playback.sh
-  EXIT_CODE=$?
-  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
   exit $EXIT_CODE
 _purpose:
      This test will check the Headset Head Unit (HSP/HFP) capability of your Bluetooth device,

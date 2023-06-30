@@ -94,7 +94,8 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.08"
+    source-tag: "V0.15.07"
+    # stress-ng remains at version 0.15.07 because libipsec-mb-dev and libxxhash-dev are not available for Ubuntu 16.04 (Xenial).
     source-depth: 1
     plugin: make
     build-environment:

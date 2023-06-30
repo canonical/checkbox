@@ -45,7 +45,7 @@ One way to do it is the following:
 > snap install checkbox22_(version)_(arch).snap --dangerous
 ```
 Now we have installed the core snap, but we cannnot use it directly. To use it
-we need a simple user snap. 
+we need a frontend snap. 
 ```bash
 # Note: install the correct channel for your series
 > snap install checkbox --classic --channel=22.04

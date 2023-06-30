@@ -6,6 +6,7 @@ Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>
 Build-Depends:
  debhelper (>= 9),
  dh-python,
+ pybuild-plugin-pyproject,
  python3-all,
  python3-bluez,
  python3-dbus,

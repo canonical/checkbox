@@ -3,7 +3,7 @@ summary: Checkbox test runner
 description: |
   Checkbox is a flexible test automation software.
   It’s the main tool used in Ubuntu Certification program.
-version: '2.8'
+adopt-info: version-calculator
 grade: stable
 confinement: strict
 
@@ -89,6 +89,14 @@ passthrough:
       command-chain: [bin/wrapper_local]
 
 parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
   launchers:
     plugin: dump
     source: launchers/

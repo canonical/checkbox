@@ -1,0 +1,46 @@
+[build-system]
+  requires = ['setuptools>=42', 'setuptools_scm[toml]>=3.4']
+  build-backend = "setuptools.build_meta"
+[project]
+  name='checkbox-support'
+  authors = [
+      {name = 'Sylvain Pineau', email = 'sylvain.pineau@canonical.com'}
+  ]
+  license={'text' = 'GPLv3'}
+  description='CheckBox support library'
+  dynamic = ["version"]
+  dependencies=[
+    'pyparsing>=2.2.0', 
+    'requests>=1.0', 
+    'distro>=1.0',
+    'configparser; python_version=="2.7"',
+    'requests_unixsocket>=0.1.2; python_version>="3.5"',
+    'importlib_metadata; python_version<"3.8"'
+  ]
+[metadata]
+  long_description={'file' = 'README.md'}
+  long_description_content_type='text/x-rst'
+[tool.setuptools_scm]
+  root=".."
+[project.scripts]
+  checkbox-support-run_watcher = "checkbox_support.scripts.run_watcher:main"
+  checkbox-support-fwts_test = "checkbox_support.scripts.fwts_test:main"
+  checkbox-support-usb_read_write = "checkbox_support.scripts.usb_read_write:run_read_write_test"
+  checkbox-support-nmea_test = "checkbox_support.scripts.nmea_test:main"
+  checkbox-support-snap_connect = "checkbox_support.scripts.snap_connect:main"
+  checkbox-support-eddystone_scanner = "checkbox_support.scripts.eddystone_scanner:main"
+  checkbox-support-lsusb = "checkbox_support.scripts.lsusb:main"
+  checkbox-support-parse = "checkbox_support.parsers:main"
+  checkbox-support-zapper-proxy = "checkbox_support.scripts.zapper_proxy:main"
+[project.entry-points."plainbox.parsers"]
+  pactl-list="checkbox_support.parsers.pactl:parse_pactl_output"
+  udevadm="checkbox_support.parsers.udevadm:parse_udevadm_output"
+  modprobe="checkbox_support.parsers.modprobe:parse_modprobe_d_output"
+  pci-subsys-id="checkbox_support.parsers.pci_config:parse_pci_subsys_id"
+  dkms-info="checkbox_support.parsers.dkms_info:parse_dkms_info"
+  dmidecode="checkbox_support.parsers.dmidecode:parse_dmidecode_output"
+  modinfo="checkbox_support.parsers.modinfo:parse_modinfo_attachment_output"
+  buildstamp="checkbox_support.parsers.image_info:parse_buildstamp_attachment_output"
+  recovery-info="checkbox_support.parsers.image_info:parse_recovery_info_attachment_output"
+  bto="checkbox_support.parsers.image_info:parse_bto_attachment_output"
+  kernelcmdline="checkbox_support.parsers.kernel_cmdline:parse_kernel_cmdline"

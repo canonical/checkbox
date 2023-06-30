@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '2.8'
+adopt-info: version-calculator
 
 base: core18
 
@@ -61,6 +61,14 @@ package-repositories:
     ppa: hardware-certification/public
 
 parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      # version.txt created by prepare.sh.  Refer to it for more info
+      export version=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
@@ -85,6 +93,7 @@ parts:
       - libglib2.0-dev
       - libfdt-dev
       - libbsd-dev
+    after: [version-calculator]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
@@ -94,6 +103,7 @@ parts:
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1
+      - LDFLAGS=-lrt
     build-packages:
       - gcc
       - make
@@ -150,7 +160,16 @@ parts:
       # when running lsb_release on ubuntu core
       # The fix was finally released with the distro 1.6 release available as of
       # 22.04 (i.e base: core22)
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/distro/distro.py
+      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' $SNAPCRAFT_STAGE/lib/python3.*/site-packages/**/**/distro.py
+    override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
+      # also use build to ensure install (pip is not compinat to pyproject)
+      # on this version
+      python3 -m pip install build setuptools_scm[toml]>=3.4
+      python3 -m build --no-isolation
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -170,6 +189,15 @@ parts:
     python-packages:
       - tqdm
     after: [checkbox-support]
+    override-build: |
+      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
+      # also use build to ensure install (pip is not compinat to pyproject)
+      # on this version
+      python3 -m pip install setuptools_scm[toml]>=3.4 build
+      python3 -m build --no-isolation
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

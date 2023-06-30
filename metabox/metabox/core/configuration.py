@@ -143,18 +143,26 @@ def _decl_has_a_valid_origin(decl):
         if not source.is_dir():
             logger.error("{} doesn't look like a directory", source)
             return False
-        setup_file = source / 'checkbox-ng' / 'setup.py'
-        if not setup_file.exists():
+        setup_file_location = source / 'checkbox-ng'
+        if not setup_file_location.exists():
             logger.error("{} not found", setup_file)
             return False
         try:
-            package_name = subprocess.check_output(
-                [setup_file, '--name'],
-                stderr=subprocess.DEVNULL).decode('utf-8').rstrip()
+            # this tries to install the package without actually doing it
+            # the command will print:
+            #   Would install [package_name-version]
+            #
+            # Note: The fact that this does run makes the config syntactically
+            #       correct and also somewhat sematically correct. There
+            #       may still be errors (like missing dependencies)
+            package_dry_install_log = subprocess.check_output(
+                ["python3", "-m", "pip", "install", "--dry-run", "."],
+                cwd=setup_file_location, text=True, stderr=subprocess.DEVNULL
+            )
         except subprocess.CalledProcessError:
-            logger.error("{} --name failed", setup_file)
+            logger.error("Failed to dry-run install {}", setup_file_location)
             return False
-        if not package_name == 'checkbox-ng':
+        if 'checkbox-ng' not in package_dry_install_log:
             logger.error("{} must be a fork of gh:canonical/checkbox", source)
             return False
         return True

@@ -43,15 +43,8 @@ jobs:
       - name: Copy over the common files for series ${{ matrix.releases }}
         run: |
           cd checkbox-core-snap/
+          apt install python3-setuptools-scm
           ./prepare.sh $SERIES
-      - name: Add git short sha suffix to the version name
-        run: |
-          cd checkbox-core-snap
-          # in the following sed onliner the '0,/^version/' bit specifies the range
-          # of lines it should act upon, this way only the first occurence of '^version'
-          # is getting affected.
-          sed -i '0,/^version/s/\(^version\:.*\).dev/\1/' $SERIES/snap/snapcraft.yaml
-          sed -i "0,/^version/s/\(^version\:.*\)'/\1+git$(git rev-parse --short HEAD)'/" $SERIES/snap/snapcraft.yaml
       - name: add LP credentials
         run: |
           mkdir -p ~/.local/share/snapcraft/provider/launchpad/

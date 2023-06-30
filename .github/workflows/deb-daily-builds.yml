@@ -13,7 +13,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -qq -y python3-launchpadlib
+          sudo apt install -qq -y python3-launchpadlib python3-setuptools-scm
           git clone -b main https://git.launchpad.net/~hook25/ppa-dev-tools /tmp/ppa-dev-tools
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v3

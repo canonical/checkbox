@@ -61,7 +61,7 @@ parts:
     plugin: dump
     source: .
     override-pull: |
-      # version.txt created by prepare.sh
+      # version.txt created by prepare.sh. Refer to it for more info
       export version=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version

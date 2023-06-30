@@ -24,6 +24,7 @@ jobs:
       - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
         run: |
           cd checkbox-snap/
+          sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare_${{ matrix.type }}.sh $SERIES
       - name: Remove '.dev' suffix from the version name
         run: |

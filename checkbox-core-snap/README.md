@@ -61,7 +61,7 @@ To build the checkbox core snap for debugging you might find
 `snapcraft --destructive-mode` executed in a single-use container a handy trick 
 (see [Faster snap development – additional tips and tricks](https://snapcraft.io/blog/faster-snap-development-additional-tips-and-tricks)
 for more info). 
-Below you will find build stepts for the series22 snap as an example 
+Below you will find build steps for the series22 snap as an example 
 (changes needed for earlier series pointed out where applicable).
 
 The destructive mode is useful for debugging a build because of incremental 

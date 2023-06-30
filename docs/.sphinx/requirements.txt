@@ -13,4 +13,3 @@ lxd-sphinx-extensions
 sphinx-copybutton
 myst-parser
 setuptools-scm
-checkbox-ng/

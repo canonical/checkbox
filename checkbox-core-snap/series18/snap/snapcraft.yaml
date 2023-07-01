@@ -65,8 +65,9 @@ parts:
     plugin: dump
     source: .
     override-pull: |
-      # version.txt created by prepare.sh.  Refer to it for more info
-      export version=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      snapcraftctl pull
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version
 ################################################################################
@@ -152,6 +153,8 @@ parts:
       - libbluetooth-dev
       - python3-dev
     after: [acpi-tools]
+    build-environment:
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-stage: |
       snapcraftctl stage
       # The oneliner below was required in 2019 to fix an upstream bug:
@@ -162,7 +165,6 @@ parts:
       # 22.04 (i.e base: core22)
       sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' $SNAPCRAFT_STAGE/lib/python3.*/site-packages/**/**/distro.py
     override-build: |
-      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build
@@ -188,9 +190,10 @@ parts:
       - python3-xlsxwriter
     python-packages:
       - tqdm
+    build-environment:
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     after: [checkbox-support]
     override-build: |
-      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build

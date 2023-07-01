@@ -65,8 +65,9 @@ parts:
     plugin: dump
     source: .
     override-pull: |
-      # version.txt created by prepare.sh. Refer to it for more info
-      export version=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
+      snapcraftctl pull
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version
 ################################################################################
@@ -141,7 +142,7 @@ parts:
 ################################################################################
   checkbox-support:
     plugin: python
-    source: checkbox-support
+    source: checkbox-support 
     source-type: local
     stage-packages:
       # actual requirements
@@ -175,10 +176,10 @@ parts:
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.10
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
-      echo "from setuptools import setup; import os; os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = '`cat $SNAPCRAFT_PROJECT_DIR/version.txt`'; setup();" > setup.py
+      echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
 ################################################################################
   checkbox-ng:
@@ -220,10 +221,10 @@ parts:
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      export SETUPTOOLS_SCM_PRETEND_VERSION=`cat $SNAPCRAFT_PROJECT_DIR/version.txt`
       # this is a bodge to be backward compatible
-      echo "from setuptools import setup; import os; os.environ['SETUPTOOLS_SCM_PRETEND_VERSION'] = '`cat $SNAPCRAFT_PROJECT_DIR/version.txt`'; setup();" > setup.py
+      echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
 
 ################################################################################

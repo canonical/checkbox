@@ -107,6 +107,11 @@ parts:
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1 VERBOSE=1
+    stage-packages:
+      - libjpeg-turbo8
+      - libjudydebian1
+      - libsctp1
+      - libxxhash0
     build-packages:
       - gcc
       - make
@@ -150,6 +155,7 @@ parts:
     stage-packages:
       - python3-requests-unixsocket
       - python3-systemd
+      - libbluetooth3
     python-packages:
       - pynmea2
       - pybluez

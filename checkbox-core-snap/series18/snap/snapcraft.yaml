@@ -269,6 +269,10 @@ parts:
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-pulseaudio
+      - libgpm2
+      - libGLU
+      - libglut
+      - libslang
       - on amd64: [hdapsd] # optional as not available for arm
       - hdparm
       - i2c-tools

@@ -289,8 +289,6 @@ parts:
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-pulseaudio
-      - libGLU
-      - libglut
       - on amd64: [hdapsd] # optional as not available for arm
       - hdparm
       - i2c-tools
@@ -303,6 +301,8 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libGLU
+      - libglut
       - lsb-release
       - lshw
       - mesa-utils

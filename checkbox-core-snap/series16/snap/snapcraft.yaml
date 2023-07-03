@@ -116,6 +116,8 @@ parts:
       - libcap-dev
       - libsctp-dev
       - libjudy-dev
+      - libjudydebian1
+      - libsctp1
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
@@ -141,6 +143,7 @@ parts:
       - python3-requests-unixsocket
       - python3-systemd
       - python3-setuptools
+      - libbluetooth3
     python-packages:
       - pynmea2
       - pybluez
@@ -277,6 +280,9 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libGLU
+      - libglut
+      - libgpm
       - lsb-release
       - lshw
       - mesa-utils

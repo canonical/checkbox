@@ -21,7 +21,6 @@
 :mod:`checkbox_ng.config` -- CheckBoxNG configuration
 =====================================================
 """
-from __future__ import annotations
 import gettext
 import logging
 import os
@@ -48,7 +47,7 @@ def expand_all(path):
     return os.path.expandvars(os.path.expanduser(path))
 
 
-def _search_configs_by_name(name: str) -> list[str]:
+def _search_configs_by_name(name: str) -> "list[str]":
     """
     Returns all well known config locations that have a `name` file
     in them

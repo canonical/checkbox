@@ -17,14 +17,25 @@ import time
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
     zapper_run)
 
+# randr highlights the currently used resolution with a *
+PATTERN = "^HDMI-1.*\n.* (\\d+x\\d+).*\\*"
+
 
 def check_resolution():
-    output = subprocess.check_output('xdpyinfo')
-    for line in output.decode(sys.stdout.encoding).splitlines():
-        if 'dimensions' in line:
-            match = re.search(r'(\d+)x(\d+)\ pixels', line)
-            if match and len(match.groups()) == 2:
-                return '{}x{}'.format(*match.groups())
+    if os.getenv('XDG_SESSION_TYPE') == 'wayland':
+        cmd = "gnome-randr"
+    else:
+        cmd = "xrandr"
+
+    randr_output = subprocess.check_output([cmd],
+        universal_newlines=True, encoding="utf-8")
+
+    match = re.search(PATTERN, randr_output, re.MULTILINE | re.DOTALL)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
 
 
 def change_edid(host, edid_file):

@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 export PYBUILD_NAME=checkbox-support
 export SRCTOP=checkbox-support
+export SETUPTOOLS_SCM_PRETEND_VERSION=$(shell dpkg-parsechangelog -S version)
 
 %:
 	dh $@ --sourcedirectory=$(SRCTOP) --with=python3 --buildsystem=pybuild

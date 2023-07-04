@@ -31,15 +31,14 @@ def check_resolution():
     else:
         cmd = "xrandr"
 
-    randr_output = subprocess.check_output([cmd],
+    randr_output = subprocess.check_output(
+        [cmd],
         universal_newlines=True, encoding="utf-8")
 
     match = re.search(PATTERN, randr_output, re.MULTILINE | re.DOTALL)
     if match:
         return match.group(1)
-    else:
-        return None
-
+    return None
 
 
 def change_edid(host, edid_file):

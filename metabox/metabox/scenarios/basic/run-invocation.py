@@ -25,7 +25,7 @@ from metabox.core.actions import Send
 from metabox.core.actions import Start
 from metabox.core.scenario import Scenario
 
-
+'''
 class RunTestplan(Scenario):
 
     modes = ['local']
@@ -73,4 +73,39 @@ class RunManualplan(Scenario):
         Send('p' + keys.KEY_ENTER),
         Expect(' [32;1m☑ [0m: '
                'A simple user interaction and verification job'),
+    ]
+'''
+
+class RunSlave(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('slave'),
+        AssertPrinted("slave is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
+    ]
+
+
+class RunMaster(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('master'),
+        AssertPrinted("master is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
+    ]
+
+
+class RunService(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('service'),
+        AssertPrinted("service is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
+    ]
+
+class RunRemote(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('remote'),
+        AssertPrinted("remote is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
     ]

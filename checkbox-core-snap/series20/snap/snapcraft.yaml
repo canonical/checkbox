@@ -101,38 +101,14 @@ parts:
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
     plugin: make
-    source-tag: "V0.15.08"
+    source-tag: "V0.15.09"
     source-depth: 1
-    source: https://github.com/ColinIanKing/stress-ng
-    source-type: git
-    override-pull: |
-      snapcraftctl pull
-      description="$(git describe HEAD --tags)"
-      sha=$(echo $description | tr '-' ' ' | awk '{print $NF}')
-      version=${description%$sha}
-      commits=$(git log --oneline | wc -l)
-      date=$(date +'%Y%m%d')
-      if test "$description" = "$sha"
-      then
-        version="$description"
-      else
-        version=$(echo $version$date-$commits-$sha | cut -c1-32)
-      fi
-      snapcraftctl set-version "$version"
+    build-environment:
+      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
+      - LDFLAGS: "-Wl,-z,relro -lrt"
+    source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1 VERBOSE=1
-      - LDFLAGS=-lrt
-    stage-packages:
-      - libdrm2
-      - libegl1
-      - libgbm1
-      - libgles2
-      - libglvnd0
-      - libjpeg-turbo8
-      - libjudydebian1
-      - libsctp1
-      - libwayland-server0
-      - libxxhash0
     build-packages:
       - gcc
       - make
@@ -152,6 +128,7 @@ parts:
       - libxxhash-dev
       - libmd-dev
       - on amd64: [ libipsec-mb-dev ]
+    after: [fwts]
   ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
@@ -195,7 +172,7 @@ parts:
       - python3-dev
     python-packages:
       - pynmea2
-    after: [acpi-tools]
+    after: [acpi-tools, version-calculator]
     stage:
       - -pyvenv.cfg
       - -bin/activate*
@@ -240,7 +217,7 @@ parts:
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
-    after: [checkbox-support]
+    after: [checkbox-support, version-calculator]
     stage:
       - -pyvenv.cfg
       - -bin/activate*
@@ -280,7 +257,7 @@ parts:
       - libnl-3-dev
       - libnl-genl-3-dev
       - pkg-config
-    after: [checkbox-ng]
+    after: [checkbox-ng, checkbox-support]
 ################################################################################
   checkbox-provider-base:
     plugin: dump

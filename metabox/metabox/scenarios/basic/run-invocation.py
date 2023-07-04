@@ -25,7 +25,7 @@ from metabox.core.actions import Send
 from metabox.core.actions import Start
 from metabox.core.scenario import Scenario
 
-'''
+
 class RunTestplan(Scenario):
 
     modes = ['local']
@@ -74,7 +74,7 @@ class RunManualplan(Scenario):
         Expect(' [32;1m☑ [0m: '
                'A simple user interaction and verification job'),
     ]
-'''
+
 
 class RunSlave(Scenario):
 

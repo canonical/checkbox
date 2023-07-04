@@ -5,8 +5,8 @@ user: root
 category_id: caam
 flags: also-after-suspend
 estimated_duration: 1
-requires: 'rng-caam' in hwrng.HWRNG_Current
-imports: from com.canonical.qa.ceoem import hwrng
+requires: manifest.has_caam == 'True'
+imports: from com.canonical.plainbox import manifest
 command:
     hwrng_path="/sys/class/misc/hw_random/rng_current"
     echo "Hardware RNG currently using in system is: "$(cat $hwrng_path)""
@@ -50,18 +50,23 @@ command:
     fi
 
 id: ce-oem-crypto/caam/algo_check
-_summary: Test CAAM algorithm is in the system
-_purpose:
- Check if caam crypto algorithms exist in /proc/crypto
+_summary: Check CAAM algorithm is in the system /proc/crypto
 plugin: shell
 category_id: caam
-flags: also-after-suspend fail-on-resource
+flags: also-after-suspend
 estimated_duration: 1
-requires: 'caam' in cryptoinfo.driver
-imports: from com.canonical.qa.ceoem import cryptoinfo
+requires: manifest.has_caam == 'True'
+imports: from com.canonical.plainbox import manifest
 command:
-    echo "PASS: Found caam algorithm"
-    echo "Please refer to resource job cryptoinfo for more detail"
+    status=0
+    if grep -q caam /proc/crypto; then
+        echo -e "\nInfo: Found CAAM algorithm in /proc/crypto"
+    else
+        echo -e "\nError: No any CAAM algorithm has been found in /proc/crytpo"
+        status=1
+    fi
+    echo -e "\nPlease refer to resource job cryptoinfo for more detail"
+    exit "$status"
 
 id: ce-oem-crypto/caam/af_alg_hash_test
 _summary: Check if CAAM job ring increased after using AF_ALG with type HASH.

@@ -186,6 +186,13 @@ parts:
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
+      # This is a bodge to avoid conflicts with checkbox-ng and checkbox-support
+      # these files should not be necessary either way
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/changelog
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/compat
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/control
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/copyright
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/rules
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -231,6 +238,13 @@ parts:
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
+      # This is a bodge to avoid conflicts with checkbox-ng and checkbox-support
+      # these files should not be necessary either way
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/changelog
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/compat
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/control
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/copyright
+      rm -f $SNAPCRAFT_PART_INSTALL/ lib/python3.8/site-packages/debian/rules
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

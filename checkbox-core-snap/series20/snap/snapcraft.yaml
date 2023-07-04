@@ -244,7 +244,7 @@ parts:
       rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/compat
       rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/control
       rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/copyright
-      rm -f $SNAPCRAFT_PART_INSTALL/ lib/python3.8/site-packages/debian/rules
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/rules
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

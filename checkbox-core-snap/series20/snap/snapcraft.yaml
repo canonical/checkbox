@@ -102,6 +102,7 @@ parts:
   stress-ng:
     source-tag: "V0.15.09"
     source-depth: 1
+    plugin: make
     build-environment:
       - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
       - LDFLAGS: "-Wl,-z,relro -lrt"

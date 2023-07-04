@@ -17,11 +17,15 @@ import time
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
     zapper_run)
 
-# randr highlights the currently used resolution with a *
 PATTERN = "^HDMI-1.*\n.* (\\d+x\\d+).*\\*"
 
 
 def check_resolution():
+    """
+    Check output resolution on HDMI using randr.
+    Both gnome-randr and xrandr highlight the currently
+    selected resolution for each monitor with a `*`.
+    """
     if os.getenv('XDG_SESSION_TYPE') == 'wayland':
         cmd = "gnome-randr"
     else:
@@ -39,6 +43,9 @@ def check_resolution():
 
 
 def change_edid(host, edid_file):
+    """Clear EDID and then 'plug' back a new monitor."""
+    zapper_run(host, "change_edid", None)
+    time.sleep(1)
     with open(edid_file, 'rb') as f:
         zapper_run(host, "change_edid", f.read())
 

@@ -43,7 +43,7 @@ class Configuration:
 
     DEPRECATED_SECTION_NAMES = {
         # current section name: list of old names we want to support
-        "agent": ["daemon"],
+        "daemon": ["agent"],
     }
 
     def __init__(self, source=None):
@@ -260,8 +260,11 @@ class Configuration:
                     cfg.notice_problem(problem)
                 continue
 
-            if sect_name in DEPRECATED_SECTION_NAMES:
-                current_name = DEPRECATED_SECTION_NAMES[sect_name]
+            deprecated_section_names = {
+                "daemon": "agent"
+            }
+            if sect_name in deprecated_section_names:
+                current_name = deprecated_section_names[sect_name]
                 logger.warning(
                     "[%s] section name is deprecated. Use %s instead.",
                     sect_name, current_name
@@ -424,7 +427,7 @@ CONFIG_SPEC = [
         },
     ),
     (
-        "daemon",
+        "agent",
         {
             "normal_user": VarSpec(
                 str, "", "Username to use for jobs that don't specify user."

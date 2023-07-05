@@ -24,7 +24,7 @@ apps:
     command: bin/client-cert-iot-server
   configure:
     command: bin/configure
-  service:
+  agent:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper service
     daemon: simple

@@ -1,4 +1,4 @@
-name: checkbox
+vname: checkbox
 summary: Checkbox test runner
 description: |
   Checkbox is a flexible test automation software.
@@ -68,7 +68,7 @@ apps:
     plugs: *standard
   configure:
     command: bin/configure
-  service:
+  agent:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper service
     daemon: simple

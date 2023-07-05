@@ -79,7 +79,7 @@ class RunManualplan(Scenario):
 
 class RunSlave(Scenario):
 
-    modes = ['local']
+    modes = ['local', 'remote']
     steps = [
         Start('slave'),
         AssertPrinted("slave is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
@@ -88,7 +88,7 @@ class RunSlave(Scenario):
 
 class RunMaster(Scenario):
 
-    modes = ['local']
+    modes = ['local', 'remote']
     steps = [
         Start('master'),
         AssertPrinted("master is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
@@ -97,7 +97,7 @@ class RunMaster(Scenario):
 
 class RunService(Scenario):
 
-    modes = ['local']
+    modes = ['local', 'remote']
     steps = [
         Start('service'),
         AssertPrinted("service is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
@@ -105,7 +105,7 @@ class RunService(Scenario):
 
 class RunRemote(Scenario):
 
-    modes = ['local']
+    modes = ['local', 'remote']
     steps = [
         Start('remote'),
         AssertPrinted("remote is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
@@ -114,7 +114,7 @@ class RunRemote(Scenario):
 
 class RunRunAgent(Scenario):
 
-    modes = ['local']
+    modes = ['local', 'remote']
     steps = [
         Start('run-agent'),
         AssertNotPrinted("Unable to load launcher 'run-agent'. File not found!")
@@ -122,7 +122,7 @@ class RunRunAgent(Scenario):
 
 class RunControl(Scenario):
 
-    modes = ['local']
+    modes = ['local', 'remote']
     steps = [
         Start('control'),
         AssertNotPrinted("Unable to load launcher 'control'. File not found!")

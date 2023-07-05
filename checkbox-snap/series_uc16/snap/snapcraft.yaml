@@ -1,4 +1,4 @@
-vname: checkbox
+name: checkbox
 summary: Checkbox test runner
 description: |
   Checkbox is a flexible test automation software.

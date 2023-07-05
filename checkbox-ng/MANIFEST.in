@@ -33,3 +33,4 @@ recursive-exclude daily-package-testing *
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf
 recursive-include plainbox/test-data *.json *.html *.tar.xz
+recursive-exclude debian *

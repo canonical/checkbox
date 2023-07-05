@@ -19,6 +19,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import metabox.core.keys as keys
 from metabox.core.actions import AssertPrinted
+from metabox.core.actions import AssertNotPrinted
 from metabox.core.actions import AssertRetCode
 from metabox.core.actions import Expect
 from metabox.core.actions import Send
@@ -108,4 +109,21 @@ class RunRemote(Scenario):
     steps = [
         Start('remote'),
         AssertPrinted("remote is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
+    ]
+
+
+class RunRunAgent(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('run-agent'),
+        AssertNotPrinted("Unable to load launcher 'run-agent'. File not found!")
+    ]
+
+class RunControl(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('control'),
+        AssertNotPrinted("Unable to load launcher 'control'. File not found!")
     ]

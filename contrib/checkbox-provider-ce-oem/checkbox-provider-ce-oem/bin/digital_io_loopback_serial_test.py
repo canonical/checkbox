@@ -23,7 +23,7 @@ class DigitalIOSerialController():
     TEST_STATES = (0, 1)
     # DIGITAL_IN_PINS = [6, 7, 8, 9]
     # DIGITAL_OUT_PINS = [2, 3, 4, 5]
-    PREFIX_BYTE = 68 # equal to 0x44
+    PREFIX_BYTE = 68  # equal to 0x44
 
     def __init__(self, port):
         self.conn = serial.Serial("/dev/{}".format(port), timeout=2)
@@ -127,6 +127,7 @@ class DigitalIOSerialController():
             )
         return result
 
+
 def main():
     parser = ArgumentParser()
     parser.add_argument(
@@ -150,6 +151,7 @@ def main():
 
     obj = DigitalIOSerialController(args.serial_port)
     obj.run_test(args.do_byte, args.di_byte)
+
 
 if __name__ == "__main__":
     main()

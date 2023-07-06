@@ -19,6 +19,7 @@ Build-Depends:
  python3-requests,
  python3-requests-unixsocket,
  python3-setuptools,
+ python3-setuptools-scm,
  python3-yaml
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.5

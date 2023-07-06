@@ -4,13 +4,9 @@ export LANG=
 export LANGUAGE=
 export NO_PNG_PKG_MANGLE=1
 export SRCTOP=checkbox-ng
-export SETUPTOOLS_SCM_PRETEND_VERSION=$(shell dpkg-parsechangelog -S version)
 
 %:
-	dh $@ --sourcedirectory=$(SRCTOP) --with=python3,sphinxdoc --buildsystem=pybuild
-
-override_dh_auto_build:
-	dh_auto_build --buildsystem=pybuild
+	dh $@ --sourcedirectory=$(SRCTOP) --with=python3 --buildsystem=pybuild
 
 # Override dh_install to ensure that console_scripts are in the
 # checkbox-ng package and not in the python3-checkbox-ng package.

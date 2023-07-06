@@ -4,6 +4,7 @@ export LANG=
 export LANGUAGE=
 export NO_PNG_PKG_MANGLE=1
 export SRCTOP=checkbox-ng
+export SETUPTOOLS_SCM_PRETEND_VERSION=$(shell dpkg-parsechangelog -S version)
 
 %:
 	dh $@ --sourcedirectory=$(SRCTOP) --with=python3,sphinxdoc --buildsystem=pybuild

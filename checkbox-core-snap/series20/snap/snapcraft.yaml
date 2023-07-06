@@ -172,7 +172,7 @@ parts:
       - python3-dev
     python-packages:
       - pynmea2
-    after: [acpi-tools]
+    after: [acpi-tools, version-calculator]
     stage:
       - -pyvenv.cfg
       - -bin/activate*
@@ -186,6 +186,13 @@ parts:
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
+      # This is a bodge to avoid conflicts with checkbox-ng and checkbox-support
+      # these files should not be necessary either way
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/changelog
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/compat
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/control
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/copyright
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/rules
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -217,7 +224,7 @@ parts:
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
-    after: [checkbox-support]
+    after: [checkbox-support, version-calculator]
     stage:
       - -pyvenv.cfg
       - -bin/activate*
@@ -231,6 +238,13 @@ parts:
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
+      # This is a bodge to avoid conflicts with checkbox-ng and checkbox-support
+      # these files should not be necessary either way
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/changelog
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/compat
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/control
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/copyright
+      rm -f $SNAPCRAFT_PART_INSTALL/lib/python3.8/site-packages/debian/rules
 ################################################################################
   checkbox-provider-resource:
     plugin: dump
@@ -257,7 +271,7 @@ parts:
       - libnl-3-dev
       - libnl-genl-3-dev
       - pkg-config
-    after: [checkbox-ng]
+    after: [checkbox-ng, checkbox-support]
 ################################################################################
   checkbox-provider-base:
     plugin: dump

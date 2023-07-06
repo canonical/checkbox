@@ -67,7 +67,9 @@ class DigitalIOSysFsController():
         """
         print("# Set GPIO {} direction to {}".format(port, value))
         with open(
-            "{}/gpio{}/direction".format(self.ROOT_PATH, port), "w") as fp:
+            "{}/gpio{}/direction".format(self.ROOT_PATH, port),
+            "w"
+        ) as fp:
             fp.write("{}\n".format(value))
 
     def configure_gpio(self, port, direction):
@@ -92,7 +94,9 @@ class DigitalIOSysFsController():
             # Set direction
             self.set_direction(port, direction)
         except Exception as err:
-            IOError("Failed to configure GPIO %s to %s", port, direction)
+            raise IOError(
+                "{} \nError: Failed to configure GPIO {} to {}".format
+                (err, port, direction))
 
     def loopback_test(self, out_port, in_port):
         """Launch GPIO loopback test
@@ -141,6 +145,7 @@ def main():
 
     obj = DigitalIOSysFsController()
     obj.run_test(args.do_pin, args.di_pin)
+
 
 if __name__ == "__main__":
     main()

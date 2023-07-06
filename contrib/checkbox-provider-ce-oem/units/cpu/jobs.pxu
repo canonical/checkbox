@@ -1,27 +1,3 @@
-plugin: shell
-category_id: com.canonical.plainbox::cpu
-id: ce-oem-cpu/offlining_test
-estimated_duration: 128.0
-imports: from com.canonical.certification import cpuinfo
-user: root
-command: python3 $CHECKBOX_RUNTIME/providers/checkbox-provider-base/bin/cpu_offlining.py
-_summary:
- Test offlining of each CPU core
-_description:
- Attempts to offline each core in a multicore system.
-requires: cpuinfo.count > "1"
-flag: also-after-suspend
-
-plugin: shell
-category_id: com.canonical.plainbox::cpu
-id: ce-oem-cpu/frequency_governors
-estimated_duration: 22.0
-user: root
-command: nice -n -20 frequency_governors_test.py --debug
-_description:
- This test checks that CPU frequency governors are obeyed when set.
-flag: also-after-suspend
-
 id: governors_list
 _summary: Collect supported scaling governors in this system
 _description:

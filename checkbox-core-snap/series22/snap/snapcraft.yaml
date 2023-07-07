@@ -173,6 +173,7 @@ parts:
       - -bin/activate*
       - -**/RECORD
       - -**/__pycache__
+      - -debian
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.10
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
@@ -218,6 +219,7 @@ parts:
       - -bin/activate*
       - -**/RECORD
       - -**/__pycache__
+      - -debian
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
@@ -226,7 +228,6 @@ parts:
       # this is a bodge to be backward compatible
       echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
-
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

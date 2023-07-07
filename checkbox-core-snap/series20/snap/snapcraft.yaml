@@ -295,6 +295,7 @@ parts:
       - efibootmgr
       - ethtool
       - freeipmi-tools
+      - freeglut3
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -316,8 +317,7 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
-      - libGLU
-      - libglut
+      - libglu1-mesa
       - lsb-release
       - lshw
       - mesa-utils

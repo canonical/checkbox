@@ -10,7 +10,7 @@ Usage::
 Classic-style usage::
 
     >>> import rpyc
-    >>> # `hostname` is assumed to be running a slave-service server
+    >>> # `hostname` is assumed to be running a agent-service server
     >>> c = rpyc.classic.connect("hostname")
     >>> print(c.execute("x = 5"))
     None
@@ -28,7 +28,7 @@ Classic-style usage::
 # flake8: noqa: F401
 from plainbox.vendor.rpyc.core import (SocketStream, TunneledSocketStream, PipeStream, Channel,
                        Connection, Service, BaseNetref, AsyncResult, GenericException,
-                       AsyncResultTimeout, VoidService, SlaveService, MasterService, ClassicService)
+                       AsyncResultTimeout, VoidService, AgentService, ControllerService, ClassicService)
 from plainbox.vendor.rpyc.utils.factory import (connect_stream, connect_channel, connect_pipes,
                                 connect_stdpipes, connect, ssl_connect, list_services, discover, connect_by_service, connect_subproc,
                                 connect_thread, ssh_connect)

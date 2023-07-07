@@ -86,7 +86,7 @@ class BufferedUI(SilentUI):
             try:
                 self._output.write(stream_name + line.decode("UTF-8"))
             except UnicodeDecodeError:
-                # Don't start a slave->master transfer for binary attachments
+                # Don't start a agent->controller transfer for binary attachments
                 self._output.write("hidden(Hiding binary test output)\n")
                 self.got_program_output = self._ignore_program_output
 
@@ -154,7 +154,7 @@ class RemoteSessionAssistant:
         self._input_piping = os.pipe()
         self._passwordless_sudo = is_passwordless_sudo()
         self.terminate_cb = None
-        self._pipe_from_master = open(self._input_piping[1], "w")
+        self._pipe_from_controller = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
         self._reset_sa()
         self._currently_running_job = None
@@ -358,7 +358,7 @@ class RemoteSessionAssistant:
         self._sa.select_test_plan(test_plan_id)
         # TODO: REMOTE API RAPI: Change this API on the next RAPI bump
         # previously the function returned bool signifying the need for sudo
-        # password. With slave being guaranteed to never need it anymor
+        # password. With agent being guaranteed to never need it anymor
         # we can make this funciton return nothing
         return False
 
@@ -757,10 +757,10 @@ class RemoteSessionAssistant:
 
     def transmit_input(self, text):
         if not text:
-            self._pipe_from_master.close()
+            self._pipe_from_controller.close()
             return
-        self._pipe_from_master.write(text)
-        self._pipe_from_master.flush()
+        self._pipe_from_controller.write(text)
+        self._pipe_from_controller.flush()
 
     def send_signal(self, signal):
         if not self._currently_running_job:
@@ -775,7 +775,7 @@ class RemoteSessionAssistant:
     @property
     def passwordless_sudo(self):
         # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-        # if the slave is still running it means it's very passwordless
+        # if the agent is still running it means it's very passwordless
         return True
 
     @property

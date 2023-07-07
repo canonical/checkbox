@@ -4,5 +4,5 @@ from plainbox.vendor.rpyc.core.channel import Channel
 from plainbox.vendor.rpyc.core.protocol import Connection, DEFAULT_CONFIG
 from plainbox.vendor.rpyc.core.netref import BaseNetref
 from plainbox.vendor.rpyc.core.async_ import AsyncResult, AsyncResultTimeout
-from plainbox.vendor.rpyc.core.service import Service, VoidService, SlaveService, MasterService, ClassicService
+from plainbox.vendor.rpyc.core.service import Service, VoidService, AgentService, ControllerService, ClassicService
 from plainbox.vendor.rpyc.core.vinegar import GenericException

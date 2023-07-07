@@ -275,7 +275,7 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     #  session_type == 'remote':
     # with the next release or when we do inclusive naming refactor
     # or roughly after April of 2022
-    if session_type in ('remote', 'checkbox-slave'):
+    if session_type in ('remote', 'checkbox-agent'):
         try:
             env = os.environ
             env["SYSTEMD_IGNORE_CHROOT"] = "1"
@@ -295,9 +295,9 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     # set by the launcher script
     if on_ubuntucore():
         try:
-            slave_status = subprocess.check_output(
-                ['snapctl', 'get', 'slave'], universal_newlines=True).rstrip()
-            if slave_status == 'disabled':
+            agent_status = subprocess.check_output(
+                ['snapctl', 'get', 'agent'], universal_newlines=True).rstrip()
+            if agent_status == 'disabled':
                 return SnappyRestartStrategy()
             else:
                 return RemoteSnappyRestartStrategy()
@@ -323,12 +323,12 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
         #  session_type == 'remote':
         # with the next release or when we do inclusive naming refactor
         # or roughly after April of 2022
-        if session_type in ('remote', 'checkbox-slave'):
+        if session_type in ('remote', 'checkbox-agent'):
             try:
-                slave_status = subprocess.check_output(
-                    ['snapctl', 'get', 'slave'],
+                agent_status = subprocess.check_output(
+                    ['snapctl', 'get', 'agent'],
                     universal_newlines=True).rstrip()
-                if slave_status == 'enabled':
+                if agent_status == 'enabled':
                     return RemoteSnappyRestartStrategy()
             except subprocess.CalledProcessError:
                 pass

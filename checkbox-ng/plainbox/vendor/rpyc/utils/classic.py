@@ -3,7 +3,7 @@ import sys
 import os
 import inspect
 from plainbox.vendor.rpyc.lib.compat import pickle, execute
-from plainbox.vendor.rpyc.core.service import ClassicService, Slave
+from plainbox.vendor.rpyc.core.service import ClassicService, Agent
 from plainbox.vendor.rpyc.utils import factory
 from plainbox.vendor.rpyc.core.service import ModuleNamespace  # noqa: F401
 from plainbox.vendor.rpyc.core.consts import STREAM_CHUNK
@@ -13,7 +13,7 @@ from contextlib import contextmanager
 DEFAULT_SERVER_PORT = 18812
 DEFAULT_SERVER_SSL_PORT = 18821
 
-SlaveService = ClassicService   # avoid renaming SlaveService in this module for now
+AgentService = ClassicService
 
 # ===============================================================================
 # connecting
@@ -26,9 +26,9 @@ def connect_channel(channel):
 
     :param channel: the :class:`rpyc.core.channel.Channel` instance
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.connect_channel(channel, SlaveService)
+    return factory.connect_channel(channel, AgentService)
 
 
 def connect_stream(stream):
@@ -37,18 +37,18 @@ def connect_stream(stream):
 
     :param channel: the :class:`rpyc.core.stream.Stream` instance
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.connect_stream(stream, SlaveService)
+    return factory.connect_stream(stream, AgentService)
 
 
 def connect_stdpipes():
     """
     Creates an RPyC connection over the standard pipes (``stdin`` and ``stdout``)
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.connect_stdpipes(SlaveService)
+    return factory.connect_stdpipes(AgentService)
 
 
 def connect_pipes(input, output):
@@ -58,9 +58,9 @@ def connect_pipes(input, output):
     :param input: the input pipe
     :param output: the output pipe
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.connect_pipes(input, output, SlaveService)
+    return factory.connect_pipes(input, output, AgentService)
 
 
 def connect(host, port=DEFAULT_SERVER_PORT, ipv6=False, keepalive=False):
@@ -71,9 +71,9 @@ def connect(host, port=DEFAULT_SERVER_PORT, ipv6=False, keepalive=False):
     :param port: the TCP port
     :param ipv6: whether to create an IPv6 socket or IPv4
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.connect(host, port, SlaveService, ipv6=ipv6, keepalive=keepalive)
+    return factory.connect(host, port, AgentService, ipv6=ipv6, keepalive=keepalive)
 
 
 def unix_connect(path):
@@ -82,9 +82,9 @@ def unix_connect(path):
 
     :param path: the path to the unix domain socket
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.unix_connect(path, SlaveService)
+    return factory.unix_connect(path, AgentService)
 
 
 def ssl_connect(host, port=DEFAULT_SERVER_SSL_PORT, keyfile=None,
@@ -112,12 +112,12 @@ def ssl_connect(host, port=DEFAULT_SERVER_SSL_PORT, keyfile=None,
     :param ciphers: see ``ssl.SSLContext.set_ciphers``. May be ``None``. New in
                     Python 2.7/3.2
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
 
     .. _wrap_socket:
     """
     return factory.ssl_connect(host, port, keyfile=keyfile, certfile=certfile,
-                               ssl_version=ssl_version, ca_certs=ca_certs, service=SlaveService,
+                               ssl_version=ssl_version, ca_certs=ca_certs, service=AgentService,
                                ipv6=ipv6)
 
 
@@ -128,9 +128,9 @@ def ssh_connect(remote_machine, remote_port):
     :param remote_machine: the :class:`plumbum.remote.RemoteMachine` instance
     :param remote_port: the remote TCP port
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.ssh_connect(remote_machine, remote_port, SlaveService)
+    return factory.ssh_connect(remote_machine, remote_port, AgentService)
 
 
 def connect_subproc(server_file=None):
@@ -140,35 +140,35 @@ def connect_subproc(server_file=None):
     :param server_file: The full path to the server script (``rpyc_classic.py``).
                         If not given, ``which rpyc_classic.py`` will be attempted.
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
     if server_file is None:
         server_file = os.popen("which rpyc_classic.py").read().strip()
         if not server_file:
             raise ValueError("server_file not given and could not be inferred")
     return factory.connect_subproc([sys.executable, "-u", server_file, "-q", "-m", "stdio"],
-                                   SlaveService)
+                                   AgentService)
 
 
 def connect_thread():
     """
-    Starts a SlaveService on a thread and connects to it. Useful for testing
+    Starts a AgentService on a thread and connects to it. Useful for testing
     purposes. See :func:`rpyc.utils.factory.connect_thread`
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.connect_thread(SlaveService, remote_service=SlaveService)
+    return factory.connect_thread(AgentService, remote_service=AgentService)
 
 
 def connect_multiprocess(args={}):
     """
-    Starts a SlaveService on a multiprocess process and connects to it.
+    Starts a AgentService on a multiprocess process and connects to it.
     Useful for testing purposes and running multicore code thats uses shared
     memory. See :func:`rpyc.utils.factory.connect_multiprocess`
 
-    :returns: an RPyC connection exposing ``SlaveService``
+    :returns: an RPyC connection exposing ``AgentService``
     """
-    return factory.connect_multiprocess(SlaveService, remote_service=SlaveService, args=args)
+    return factory.connect_multiprocess(AgentService, remote_service=AgentService, args=args)
 
 
 # ===============================================================================
@@ -370,7 +370,7 @@ class MockClassicConnection(object):
     """
 
     def __init__(self):
-        self.root = Slave()
+        self.root = Agent()
         ClassicService._install(self, self.root)
 
 

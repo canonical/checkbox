@@ -113,7 +113,7 @@ class VoidService(Service):
 
 
 class ModuleNamespace(object):
-    """used by the :class:`SlaveService` to implement the magical
+    """used by the :class:`AgentService` to implement the magical
     'module namespace'"""
 
     __slots__ = ["__getmodule", "__cache", "__weakref__"]
@@ -140,7 +140,7 @@ class ModuleNamespace(object):
             raise AttributeError(name)
 
 
-class Slave(object):
+class Agent(object):
     __slots__ = ["_conn", "namespace"]
 
     def __init__(self):
@@ -166,8 +166,8 @@ class Slave(object):
         return self._conn
 
 
-class SlaveService(Slave, Service):
-    """The SlaveService allows the other side to perform arbitrary imports and
+class AgentService(Agent, Service):
+    """The AgentService allows the other side to perform arbitrary imports and
     execution arbitrary code on the server. This is provided for compatibility
     with the classic RPyC (2.6) modus operandi.
 
@@ -191,10 +191,10 @@ class SlaveService(Slave, Service):
         super().on_connect(conn)
 
 
-class FakeSlaveService(VoidService):
+class FakeAgentService(VoidService):
     """VoidService that can be used for connecting to peers that operate a
-    :class:`MasterService`, :class:`ClassicService`, or the old
-    ``SlaveService`` (pre v3.5) without exposing any functionality to them."""
+    :class:`ControllerService`, :class:`ClassicService`, or the old
+    ``AgentService`` (pre v3.5) without exposing any functionality to them."""
     __slots__ = ()
     exposed_namespace = None
     exposed_execute = None
@@ -203,10 +203,10 @@ class FakeSlaveService(VoidService):
     exposed_getconn = None
 
 
-class MasterService(Service):
+class ControllerService(Service):
 
-    """Peer for a new-style (>=v3.5) :class:`SlaveService`. Use this service
-    if you want to connect to a ``SlaveService`` without exposing any
+    """Peer for a new-style (>=v3.5) :class:`AgentService`. Use this service
+    if you want to connect to a ``AgentService`` without exposing any
     functionality to them."""
     __slots__ = ()
 
@@ -215,26 +215,26 @@ class MasterService(Service):
         self._install(conn, conn.root)
 
     @staticmethod
-    def _install(conn, slave):
-        modules = ModuleNamespace(slave.getmodule)
+    def _install(conn, agent):
+        modules = ModuleNamespace(agent.getmodule)
         conn.modules = modules
-        conn.eval = slave.eval
-        conn.execute = slave.execute
-        conn.namespace = slave.namespace
+        conn.eval = agent.eval
+        conn.execute = agent.execute
+        conn.namespace = agent.namespace
         conn.builtins = modules.builtins
         conn.builtin = modules.builtins  # TODO: cruft from py2 that requires cleanup elsewhere and CHANGELOG note
         from rpyc.utils.classic import teleport_function
         conn.teleport = partial(teleport_function, conn)
 
 
-class ClassicService(MasterService, SlaveService):
-    """Full duplex master/slave service, i.e. both parties have full control
+class ClassicService(ControllerService, AgentService):
+    """Full duplex controller/agent service, i.e. both parties have full control
     over the other. Must be used by both parties."""
     __slots__ = ()
 
 
-class ClassicClient(MasterService, FakeSlaveService):
-    """MasterService that can be used for connecting to peers that operate a
-    :class:`MasterService`, :class:`ClassicService` without exposing any
+class ClassicClient(ControllerService, FakeAgentService):
+    """ControllerService that can be used for connecting to peers that operate a
+    :class:`ControllerService`, :class:`ClassicService` without exposing any
     functionality to them."""
     __slots__ = ()

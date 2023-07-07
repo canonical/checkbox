@@ -15,7 +15,7 @@ from checkbox_support.scripts.zapper_proxy import (  # noqa: E402
     zapper_run)
 
 
-def _check_connected(device):
+def check_connected(device):
     if os.getenv('XDG_SESSION_TYPE') == 'wayland':
         xrandr_output = subprocess.check_output(
             ["gnome-randr", "query", device],
@@ -56,7 +56,7 @@ def main():
 
     print("unplugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](args.host, "disconnected")
-    if _check_connected(device) is False:
+    if check_connected(device) is False:
         print("PASS")
     else:
         failed = True
@@ -64,7 +64,7 @@ def main():
 
     print("plugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](args.host, "connected")
-    if _check_connected(device) is True:
+    if check_connected(device) is True:
         print("PASS")
     else:
         failed = True
@@ -72,7 +72,7 @@ def main():
 
     print("unplugging {}... ".format(args.peripheral), end="")
     _change_fn[args.peripheral](args.host, "disconnected")
-    if _check_connected(device) is False:
+    if check_connected(device) is False:
         print("PASS")
     else:
         failed = True

@@ -14,6 +14,8 @@ import subprocess
 import sys
 import time
 
+from monitor_hotplug import check_connected
+
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
     zapper_run)
 
@@ -96,12 +98,30 @@ def check_resolution():
     return _match(randr_output)
 
 
+def _wait_edid_change(expected):
+    """
+    Wait until `expected` connection state is reached.
+    Times out after 5 seconds.
+    """
+    iteration = 0
+    max_iter = 5
+    while check_connected("HDMI-1") != expected and iteration < max_iter:
+        time.sleep(1)
+        iteration += 1
+
+    if iteration == max_iter:
+        raise TimeoutError
+
+
 def change_edid(host, edid_file):
     """Clear EDID and then 'plug' back a new monitor."""
     zapper_run(host, "change_edid", None)
-    time.sleep(1)
+    _wait_edid_change(False)
+
     with open(edid_file, 'rb') as f:
         zapper_run(host, "change_edid", f.read())
+
+    _wait_edid_change(True)
 
 
 def main():
@@ -112,8 +132,14 @@ def main():
         print('changing EDID to {}'.format(res))
         edid_file = os.path.expandvars(os.path.join(
             '$PLAINBOX_PROVIDER_DATA', 'edids', '{}.edid'.format(res)))
-        change_edid(sys.argv[1], edid_file)
-        time.sleep(5)
+
+        try:
+            change_edid(sys.argv[1], edid_file)
+        except TimeoutError:
+            print("FAIL, timed out.")
+            failed = True
+            continue
+
         print('checking resolution... ', end='')
         actual_res = check_resolution()
         if actual_res != res:
@@ -121,6 +147,7 @@ def main():
             failed = True
         else:
             print('PASS')
+
     return failed
 
 

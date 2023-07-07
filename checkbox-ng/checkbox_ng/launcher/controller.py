@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-This module contains implementation of the master end of the remote execution
+This module contains implementation of the controller end of the remote execution
 functionality.
 """
 import contextlib
@@ -53,7 +53,7 @@ from checkbox_ng.launcher.stages import ReportsStage
 from tqdm import tqdm
 
 _ = gettext.gettext
-_logger = logging.getLogger("master")
+_logger = logging.getLogger("controller")
 
 
 class SimpleUI(NormalUI, MainLoopStage):
@@ -100,9 +100,9 @@ class SimpleUI(NormalUI, MainLoopStage):
         None
 
 
-class RemoteMaster(ReportsStage, MainLoopStage):
+class RemoteController(ReportsStage, MainLoopStage):
     """
-    Control remote slave instance
+    Control remote agent instance
 
     This class implements the part that presents UI to the operator and
     steers the session.
@@ -198,8 +198,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 keep_running = True
 
                 def quitter(msg):
-                    # this will be called when the slave decides to disconnect
-                    # this master
+                    # this will be called when the agent decides to disconnect
+                    # this controller
                     nonlocal server_msg
                     nonlocal keep_running
                     keep_running = False
@@ -209,13 +209,13 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     # TODO: REMOTE_API
                     # when bumping the remote api make this bit obligatory
                     # i.e. remove the suppressing
-                    conn.root.register_master_blaster(quitter)
+                    conn.root.register_controller_blaster(quitter)
                 self._sa = conn.root.get_sa()
                 self.sa.conn = conn
                 # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-                # the check and bailout is not needed if the slave as up to
-                # date as this master, so after bumping RAPI we can assume
-                # that slave is always passwordless
+                # the check and bailout is not needed if the agent as up to
+                # date as this controller, so after bumping RAPI we can assume
+                # that agent is always passwordless
                 if not self.sa.passwordless_sudo:
                     raise SystemExit(
                         _(
@@ -224,7 +224,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                         )
                     )
                 try:
-                    slave_api_version = self.sa.get_remote_api_version()
+                    agent_api_version = self.sa.get_remote_api_version()
                 except AttributeError:
                     raise SystemExit(
                         _(
@@ -233,13 +233,13 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                             " SUT!"
                         )
                     )
-                master_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
-                if slave_api_version != master_api_version:
+                controller_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
+                if agent_api_version != controller_api_version:
                     raise SystemExit(
                         _(
                             "Remote API version mismatch. Service "
                             "uses: {}. Remote uses: {}"
-                        ).format(slave_api_version, master_api_version)
+                        ).format(agent_api_version, controller_api_version)
                     )
                 state, payload = self.sa.whats_up()
                 _logger.info("remote: Main dispatch with state: %s", state)
@@ -270,7 +270,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 if keep_running:
                     print("Connection lost!")
                     # this is yucky but it works, in case of explicit
-                    # connection closing by the slave we get this msg
+                    # connection closing by the agent we get this msg
                     _logger.info("remote: Connection lost due to: %s", exc)
                     if str(exc) == "stream has been closed":
                         print(
@@ -282,8 +282,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     time.sleep(1)
                 else:
                     # if keep_running got set to False it means that the
-                    # network interruption was planned, AKA slave disconnected
-                    # this master
+                    # network interruption was planned, AKA agent disconnected
+                    # this controller
                     print(server_msg)
                     break
             except (ConnectionRefusedError, socket.timeout, OSError) as exc:

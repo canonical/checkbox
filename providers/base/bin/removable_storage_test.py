@@ -433,7 +433,7 @@ class DiskTest():
                     if device_props.Get(udisks, "DeviceIsPartition"):
                         parent_obj = bus.get_object(
                             "org.freedesktop.UDisks",
-                            device_props.Get(udisks, "PartitionSlave"))
+                            device_props.Get(udisks, "PartitionAgent"))
                         parent_props = dbus.Interface(
                             parent_obj, dbus.PROPERTIES_IFACE)
                         parent_model = parent_props.Get(udisks, "DriveModel")

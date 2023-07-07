@@ -17,7 +17,7 @@ import time
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
     zapper_run)
 
-PATTERN = "^HDMI-1.*\n.* (\\d+x\\d+).*\\*"
+PATTERN = r"^HDMI-1.*\n.*^\s+(\d+x\d+).*\*"
 
 
 def check_resolution():

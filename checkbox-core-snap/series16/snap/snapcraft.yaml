@@ -104,6 +104,9 @@ parts:
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
       - STATIC=1 VERBOSE=1
+    stage-packages:
+      - libjudydebian1
+      - libsctp1
     build-packages:
       - gcc
       - make
@@ -116,8 +119,6 @@ parts:
       - libcap-dev
       - libsctp-dev
       - libjudy-dev
-      - libjudydebian1
-      - libsctp1
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml

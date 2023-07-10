@@ -245,7 +245,7 @@ class UDisks1StorageDeviceListener:
                 if device_props.Get(udisks, "DeviceIsPartition"):
                     parent_obj = self._bus.get_object(
                         "org.freedesktop.UDisks",
-                        device_props.Get(udisks, "PartitionAgent"))
+                        device_props.Get(udisks, "PartitionSlave"))
                     parent_props = dbus.Interface(
                         parent_obj, dbus.PROPERTIES_IFACE)
                     _parent_model = parent_props.Get(udisks, "DriveModel")

@@ -26,7 +26,7 @@ journey through the product.
 .. toctree::
    :maxdepth: 1
 
-   tutorial
+   core_tutorial
 
 Extended tutorial
 -----------------
@@ -36,3 +36,8 @@ sections can be followed in any order - they don’t depend on each other.
 
 Follow the core tutorial steps in sequence; they take you on a learning journey
 through the product.
+
+.. toctree::
+   :maxdepth: 1
+
+   extended_tutorial

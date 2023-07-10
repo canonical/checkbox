@@ -6,17 +6,19 @@ Checkbox Remote
 It is possible to run Checkbox tests on a device that you don't or cannot have
 traditional control over (mouse/keyboard).
 
-By using Checkbox Remote facilities you can use Checkbox on one device to
-control Checkbox running on a different device.
+By using Checkbox Remote facilities you can use Checkbox on one device
+(the :term:`controller<Checkbox Controller>`) to control Checkbox running on a
+different device (the :term:`agent<Checkbox Agent>`).
 
 This is especially useful on headless devices.
 
 Comparison with SSH
 ===================
 
-It's easy to lose SSH connection with the :term:`Agent`, and if the device
-doesn't offer screen-like functionality then the Checkbox session has to be
-started over.
+Although it is possible to connect to a device using SSH and run Checkbox
+locally on it, if the device doesn't offer screen-like functionality then the
+Checkbox session might have to be started over if the connection to the device
+is lost.
 
 When a UI is drawn a lot of data is transmitted through the network. Checkbox
 Remote sends lean data only.

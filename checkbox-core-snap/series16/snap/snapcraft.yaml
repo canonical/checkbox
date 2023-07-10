@@ -413,23 +413,6 @@ parts:
     organize:
       usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
 ################################################################################
-  parts-meta-info:
-    plugin: nil
-    override-build: |
-      snapcraftctl build
-      echo $PWD
-      ls -1 -d ../../*
-      for p in `ls -d ../../*`; do
-          if [ -d $p/src ]; then
-            (cd $p/src
-                if [ -d $p/src/.git ]; then
-                    (echo `basename $p`\: && git show --pretty=format:"%h%d %aN %ci%n%s%n" -q ; echo ) >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
-                fi # for additional `source-type` support, elif them here
-            )
-          fi
-      done
-    after: [checkbox-provider-certification-server]
-################################################################################
   common-config:
     plugin: dump
     source: config/

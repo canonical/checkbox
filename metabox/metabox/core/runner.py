@@ -220,7 +220,7 @@ class Runner:
     def _get_scenario_description(self, scn):
         scenario_description_fmt = "[{mode}][{release_version}] {name}"
         if scn.mode == "local":
-            return self.scenario_description_fmt.format(
+            return scenario_description_fmt.format(
                 mode=scn.mode, release_version=scn.releases, name=scn.name
             )
         remote_rv = scn.releases[0]
@@ -229,7 +229,7 @@ class Runner:
             remote_rv += " {}".format(scn.remote_revision)
         if scn.service_revision != "current":
             service_rv += " {}".format(scn.service_revision)
-        return self.scenario_description_fmt.format(
+        return scenario_description_fmt.format(
             mode=scn.mode,
             release_version="({}, {})".format(remote_rv, service_rv),
             name=scn.name,

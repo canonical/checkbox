@@ -7,11 +7,11 @@ providers to actually run or do something.
 To better understand how Checkbox works let's concentrate on the relationship
 between the following entities:
 
-    - test command (program that is invoked as a test)
-    - job unit
-    - test plan
-    - provider
-    - launcher
+- test command (program that is invoked as a test)
+- job unit
+- test plan
+- provider
+- launcher
 
 Test Command
 ------------
@@ -100,4 +100,4 @@ Those can for instance preset:
     - which tests to exclude
     - how and where to submit the results
 
-There is a full launcher tutorial here: :ref:`launcher-tutorial`.
+There is a full launcher reference here: :ref:`launcher`.

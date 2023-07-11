@@ -1,7 +1,7 @@
-.. _launcher-tutorial:
+.. _launcher:
 
-Checkbox launchers tutorial
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Checkbox launchers
+^^^^^^^^^^^^^^^^^^
 
 Checkbox launchers are INI files that customize checkbox experience. The
 customization includes:
@@ -15,6 +15,8 @@ Each section in the launcher is optional, when not supplied, the default values
 will be used.
 
 This tutorial describes Launchers version 1.
+
+.. _launcher_config:
 
 External configuration files
 ============================
@@ -108,13 +110,13 @@ specify exporter, transport and a report section in a launcher, you can use any
 number of the stock ones. In launchers version 1 there are 4 stock reports you
 may use:
 
-    * ``text`` - print results as text on standard output
-    * ``submission_files`` - write ``html``, ``json`` and ``tar.xz``
-      files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
-      ``$XDG_DATA_HOME`` is not defined.
-    * ``certification`` - send results to certification site
-    * ``certification-staging`` - send results to staging version of
-      certification site
+* ``text``: Print results as text on standard output
+* ``submission_files``: Write ``html``, ``json`` and ``tar.xz``
+  files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
+  ``$XDG_DATA_HOME`` is not defined)
+* ``certification``: Send results to certification site
+* ``certification-staging``: Send results to staging version of
+  certification site
 
 If you don't want to have any stock report automatically generated use
 ``none`` as the value.
@@ -258,7 +260,7 @@ test selection and test plan selection.
 
 ``dont_suppress_output``
 
-.. note::
+.. warning::
 
     This field is deprecated, use 'output' to specify which jobs should have
     their output printed to the screen.
@@ -378,18 +380,23 @@ Example:
 Daemon-specific configuration
 =============================
 
-``[daemon]``
+``[agent]``
 
-Beginning of the daemon-specific section.
-Settings in this section only apply to sessions that are run by checkbox-slave
-spawned as a daemon.
+.. warning::
+    This section was previously called ``[daemon]``. This term has been
+    deprecated as of Checkbox 2.9 and is planned for removal.
+
+Beginning of the agent-specific section.
+
+Settings in this section only apply to sessions that are run by :term:`Checkbox
+Agent` spawned as Systemd service.
 
 ``normal_user``
 
 Username to use when job doesn't specify which user to run as.
 
-Checkbox-slave daemon is run by root so in order to run some jobs as an
-unprivileged user this variable can be used.
+The systemd service run on the :term:`agent` is run by root so in order to
+run some jobs as an unprivileged user this variable can be used.
 
 
 Manifest section

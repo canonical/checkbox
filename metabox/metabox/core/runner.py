@@ -35,7 +35,6 @@ logger = logger.opt(colors=True)
 class Runner:
     """Metabox scenario discovery and runner."""
 
-    SCENARIO_DESCRIPTION_FMT = "[{mode}][{release_version}] {name}"
 
     def __init__(self, args):
         self.args = args
@@ -117,12 +116,16 @@ class Runner:
         return self.config[root_key][inner_key]
 
     def _get_revisions_jobs(self):
-        remote_revisions = self.config["remote"].get("revisions", ["current"])
-        service_revisions = self.config["service"].get("revisions", ["current"])
-        if "current" not in remote_revisions:
-            logger.warning("Remote revisions does not include current")
-        if "current" not in service_revisions:
-            logger.warning("Service revisions does not include current")
+        """
+        If revision testing is requested, returns revisions to test
+        for remote or/and service
+        """
+        remote_revisions = ["current"]
+        service_revisions = ["current"]
+        if self.config["remote"].get("revision_testing", False):
+            remote_revisions.append("origin/main")
+        if self.config["service"].get("revision_testing", False):
+            service_revisions.append("origin/main")
         return product(remote_revisions, service_revisions)
 
     def setup(self):
@@ -215,8 +218,9 @@ class Runner:
         return self.machine_provider.get_machine_by_config(MachineConfig(mode, config))
 
     def _get_scenario_description(self, scn):
+        scenario_description_fmt = "[{mode}][{release_version}] {name}"
         if scn.mode == "local":
-            return self.SCENARIO_DESCRIPTION_FMT.format(
+            return self.scenario_description_fmt.format(
                 mode=scn.mode, release_version=scn.releases, name=scn.name
             )
         remote_rv = scn.releases[0]
@@ -225,7 +229,7 @@ class Runner:
             remote_rv += " {}".format(scn.remote_revision)
         if scn.service_revision != "current":
             service_rv += " {}".format(scn.service_revision)
-        return self.SCENARIO_DESCRIPTION_FMT.format(
+        return self.scenario_description_fmt.format(
             mode=scn.mode,
             release_version="({}, {})".format(remote_rv, service_rv),
             name=scn.name,

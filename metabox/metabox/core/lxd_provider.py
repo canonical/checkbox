@@ -312,10 +312,12 @@ class LxdMachineProvider:
     def _run_setup_commands(self, machine):
         pre_cmds = []
         if machine.config.revision != "current":
+            # if not testing current revision, reset and clean before switching
+            # to avoid clashes with target revision
             pre_cmds.append(
                 "bash -c 'cd /home/ubuntu/checkbox && "
                 "git clean -xfd && " # clean all untracked and changes to
-                "git checkout . && " # avoid clashes with revision
+                "git reset --hard && " # avoid clashes with revision
                 "git checkout {} -- .'".format( # checkout to revision
                     machine.config.revision
                 )

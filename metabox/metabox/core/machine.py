@@ -30,7 +30,6 @@ from metabox.core.lxd_execute import interactive_execute
 from metabox.core.lxd_execute import run_or_raise
 
 class MachineConfig:
-    NAME_VALID_CHAR_RE = re.compile(r"[\w\d]+")
     def __init__(self, role, config):
         self.role = role
         self.alias = config['alias']
@@ -46,9 +45,10 @@ class MachineConfig:
         if not self.snap_name:
             self.snap_name = 'checkbox'
 
-    def _revision_to_str(self):
+    def _slug_revision(self):
         # make revision a valid name str
-        return "-".join(self.NAME_VALID_CHAR_RE.findall(self.revision))
+        # avoid slash, not valid in lxd names
+        return self.revision.replace("/", "-")
 
     def __members(self):
         return (self.role, self.alias, self.origin,
@@ -62,7 +62,7 @@ class MachineConfig:
             self.role, self.alias, self.origin, self.revision)
 
     def __str__(self):
-        return "{}-{}-{}-{}".format(self.role, self.alias, self.origin, self._revision_to_str())
+        return "{}-{}-{}-{}".format(self.role, self.alias, self.origin, self._slug_revision())
 
     def __hash__(self):
         return hash(self.__members())

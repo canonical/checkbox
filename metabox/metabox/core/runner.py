@@ -287,8 +287,9 @@ class Runner:
         stopTime = time.perf_counter()
         timeTaken = stopTime - startTime
         print("-" * 80)
-        status = "Ran {} scenario{} in {:.3f}s".format(
-            total, total != 1 and "s" or "", timeTaken
+        form = "scenario" if total == 1 else "scenarios"
+        status = "Ran {} {} in {:.3f}s".format(
+            total, form, timeTaken
         )
         if self.wasSuccessful():
             logger.success(status)

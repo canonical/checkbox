@@ -1,7 +1,7 @@
 .. _tutorials:
 
 =============
-Core Tutorial
+Base Tutorial
 =============
 
    This uses a new tutorial TP, its a small addition but could make a

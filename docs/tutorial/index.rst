@@ -20,21 +20,21 @@ problems, we want to help you, so please let us know - `get support <#>`_.
 Core tutorial
 -------------
 
-Follow the core tutorial steps in sequence; they take you on a learning
+Follow the base tutorial steps in sequence; they take you on a learning
 journey through the product.
 
 .. toctree::
    :maxdepth: 1
 
-   core_tutorial
+   base_tutorial
 
 Extended tutorial
 -----------------
 
-Once you have completed the core tutorial, the extended optional tutorial
+Once you have completed the base tutorial, the extended optional tutorial
 sections can be followed in any order - they don’t depend on each other.
 
-Follow the core tutorial steps in sequence; they take you on a learning journey
+Follow the base tutorial steps in sequence; they take you on a learning journey
 through the product.
 
 .. toctree::

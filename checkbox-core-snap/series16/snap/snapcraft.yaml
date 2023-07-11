@@ -94,13 +94,19 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.08"
+    source-tag: "V0.15.07"
+    # stress-ng remains at version 0.15.07 because libipsec-mb-dev and libxxhash-dev are not available for Ubuntu 16.04 (Xenial).
     source-depth: 1
     plugin: make
+    build-environment:
+      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
+      - LDFLAGS: "-Wl,-z,relro -lrt"
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
-      - STATIC=1
-      - LDFLAGS=-lrt
+      - STATIC=1 VERBOSE=1
+    stage-packages:
+      - libjudydebian1
+      - libsctp1
     build-packages:
       - gcc
       - make
@@ -138,6 +144,7 @@ parts:
       - python3-requests-unixsocket
       - python3-systemd
       - python3-setuptools
+      - libbluetooth3
     python-packages:
       - pynmea2
       - pybluez
@@ -254,6 +261,7 @@ parts:
       - efibootmgr
       - ethtool
       - freeipmi-tools
+      - freeglut3
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -274,6 +282,8 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libglu1-mesa
+      - libgpm2
       - lsb-release
       - lshw
       - mesa-utils

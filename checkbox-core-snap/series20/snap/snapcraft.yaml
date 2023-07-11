@@ -100,9 +100,9 @@ parts:
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    plugin: make
     source-tag: "V0.15.09"
     source-depth: 1
+    plugin: make
     build-environment:
       - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
       - LDFLAGS: "-Wl,-z,relro -lrt"
@@ -129,7 +129,7 @@ parts:
       - libmd-dev
       - on amd64: [ libipsec-mb-dev ]
     after: [fwts]
-  ################################################################################
+################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:
     source-tag: "R10_20_22"
@@ -295,6 +295,7 @@ parts:
       - efibootmgr
       - ethtool
       - freeipmi-tools
+      - freeglut3
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -316,6 +317,7 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libglu1-mesa
       - lsb-release
       - lshw
       - mesa-utils

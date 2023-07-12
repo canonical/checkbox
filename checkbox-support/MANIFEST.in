@@ -7,3 +7,4 @@ recursive-include checkbox_support/parsers/tests/fixtures *.txt
 recursive-include checkbox_support/parsers/tests/pactl_data *.txt
 recursive-include checkbox_support/parsers/tests/udevadm_data *.txt *.lsblk
 recursive-include checkbox_support/snap_utils/tests/asserts_data *.txt
+recursive-exclude debian *

@@ -45,6 +45,8 @@
   dynamic = ["version"]
 [tool.setuptools_scm]
   root=".."
+[tool.setuptools.packages.find]
+  exclude = ["debian*"]
 [project.scripts]
   checkbox-cli = "checkbox_ng.launcher.checkbox_cli:main"
   checkbox-provider-tools = "checkbox_ng.launcher.provider_tools:main"

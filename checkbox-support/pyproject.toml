@@ -22,6 +22,8 @@
   long_description_content_type='text/x-rst'
 [tool.setuptools_scm]
   root=".."
+[tool.setuptools.packages.find]
+  exclude = ["debian*"]
 [project.scripts]
   checkbox-support-run_watcher = "checkbox_support.scripts.run_watcher:main"
   checkbox-support-fwts_test = "checkbox_support.scripts.fwts_test:main"

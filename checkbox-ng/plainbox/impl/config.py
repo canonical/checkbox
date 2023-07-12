@@ -41,6 +41,10 @@ class Configuration:
     and many others. Look at CONFIG_SPEC for details.
     """
 
+    DEPRECATED_SECTION_NAMES = {
+        "daemon": "agent"
+    }
+
     def __init__(self, source=None):
         """Create a new configuration object filled with default values."""
         self.sections = OrderedDict()
@@ -255,11 +259,8 @@ class Configuration:
                     cfg.notice_problem(problem)
                 continue
 
-            deprecated_section_names = {
-                "daemon": "agent"
-            }
-            if sect_name in deprecated_section_names:
-                current_name = deprecated_section_names[sect_name]
+            if sect_name in cls.DEPRECATED_SECTION_NAMES:
+                current_name = cls.DEPRECATED_SECTION_NAMES[sect_name]
                 logger.warning(
                     "%s section name is deprecated. Use %s instead.",
                     sect_name, current_name

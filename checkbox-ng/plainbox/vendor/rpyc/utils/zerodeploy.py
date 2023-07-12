@@ -48,12 +48,12 @@ except Exception:
 
 sys.path.insert(0, here)
 from $MODULE$ import $SERVER$ as ServerCls
-from plainbox.vendor.rpyc.core.service import AgentService
+from plainbox.vendor.rpyc.core.service import SlaveService
 
 logger = None
 $EXTRA_SETUP$
 
-t = ServerCls(AgentService, hostname = "localhost", port = 0, reuse_addr = True, logger = logger)
+t = ServerCls(SlaveService, hostname = "localhost", port = 0, reuse_addr = True, logger = logger)
 thd = t._start_in_thread()
 
 sys.stdout.write("{}\n".format(t.port))

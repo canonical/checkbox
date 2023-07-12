@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-classic rpyc server (threaded, forking or std) running a AgentService
+classic rpyc server (threaded, forking or std) running a SlaveService
 usage:
     rpyc_classic.py                         # default settings
     rpyc_classic.py -m forking -p 12345     # custom settings
@@ -18,7 +18,7 @@ from plainbox.vendor.rpyc.utils.registry import REGISTRY_PORT
 from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient, TCPRegistryClient
 from plainbox.vendor.rpyc.utils.authenticators import SSLAuthenticator
 from plainbox.vendor.rpyc.lib import setup_logger
-from plainbox.vendor.rpyc.core import AgentService
+from plainbox.vendor.rpyc.core import SlaveService
 
 
 class ClassicServer(cli.Application):
@@ -97,13 +97,13 @@ class ClassicServer(cli.Application):
             self._serve_stdio()
 
     def _serve_mode(self, factory):
-        t = factory(AgentService, hostname=self.host, port=self.port,
+        t = factory(SlaveService, hostname=self.host, port=self.port,
                     reuse_addr=True, ipv6=self.ipv6, authenticator=self.authenticator,
                     registrar=self.registrar, auto_register=self.auto_register)
         t.start()
 
     def _serve_oneshot(self):
-        t = OneShotServer(AgentService, hostname=self.host, port=self.port,
+        t = OneShotServer(SlaveService, hostname=self.host, port=self.port,
                           reuse_addr=True, ipv6=self.ipv6, authenticator=self.authenticator,
                           registrar=self.registrar, auto_register=self.auto_register)
         t._listen()

@@ -19,7 +19,7 @@ except ImportError:
 
 from plainbox.vendor.rpyc.core.channel import Channel
 from plainbox.vendor.rpyc.core.stream import SocketStream, TunneledSocketStream, PipeStream
-from plainbox.vendor.rpyc.core.service import VoidService, ControllerService, AgentService
+from plainbox.vendor.rpyc.core.service import VoidService, MasterService, SlaveService
 from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient
 from plainbox.vendor.rpyc.lib import safe_import, spawn
 ssl = safe_import("ssl")
@@ -288,7 +288,7 @@ def _server(listener, remote_service, remote_config, args=None):
             client = listener.accept()[0]
         conn = connect_stream(SocketStream(client), service=remote_service, config=remote_config)
         if isinstance(args, dict):
-            _oldstyle = (ControllerService, AgentService)
+            _oldstyle = (MasterService, SlaveService)
             is_newstyle = isinstance(remote_service, type) and not issubclass(remote_service, _oldstyle)
             is_newstyle |= not isinstance(remote_service, type) and not isinstance(remote_service, _oldstyle)
             is_voidservice = isinstance(remote_service, type) and issubclass(remote_service, VoidService)

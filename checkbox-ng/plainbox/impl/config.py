@@ -41,11 +41,6 @@ class Configuration:
     and many others. Look at CONFIG_SPEC for details.
     """
 
-    DEPRECATED_SECTION_NAMES = {
-        # current section name: list of old names we want to support
-        "daemon": ["agent"],
-    }
-
     def __init__(self, source=None):
         """Create a new configuration object filled with default values."""
         self.sections = OrderedDict()

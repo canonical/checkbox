@@ -149,3 +149,24 @@ class NewNameForDaemonWorks(Scenario):
         Start(),
         AssertPrinted("User 'testuser' doesn't exist!"),
     ]
+
+@tag("daemon", "normal_user", "fuck")
+class DeprecatedDaemon(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::whoami_as_user_tp
+        forced = yes
+        [test selection]
+        forced = yes
+        [daemon]
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted("daemon section name is deprecated. Use agent instead."),
+    ]

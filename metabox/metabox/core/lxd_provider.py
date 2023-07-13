@@ -321,8 +321,7 @@ class LxdMachineProvider:
             if res.exit_code:
                 msg = "Failed to run command in the container! Command: \n"
                 msg += cmd + '\n' + res.stdout + '\n' + res.stderr
-                logger.critical(msg)
-                raise SystemExit()
+                raise SystemExit(msg)
 
     def _store_config(self, machine):
         machine._container.files.put(

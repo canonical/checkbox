@@ -19,10 +19,8 @@ jobs:
       - name: Use git diff to see if there are any changes in the metabox and checkbox-ng directories
         id: check_diff
         run: |
-          # catch the return code in subshell to avoid github stopping the job 
-          # due to it being non-0, non-0 means: "found some diff"
-          SHOULD=$(git diff --exit-code HEAD origin/main -- checkbox-ng metabox 1>/dev/null 2>/dev/null; echo $?)
-          if [[ $SHOULD -eq 0 ]]
+          DIFF_LENGTH=`git diff HEAD origin/main -- checkbox-ng metabox | wc -l`
+          if [[ $DIFF_LENGTH -eq 0 ]]
             then
               echo "No Metabox run required."
               echo "required_run=false" >> $GITHUB_OUTPUT

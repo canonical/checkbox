@@ -29,8 +29,6 @@ command:
             fi
         fi
     done
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_ptp == 'True'
 
 unit: template
 template-resource: ce-oem-ptp/ptp-devices
@@ -47,6 +45,8 @@ plugin: shell
 user: root
 flags: also-after-suspend
 estimated_duration: 2s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ptp == 'True'
 command:
     PTP_ID=$(ethtool -T {eth-interface} | grep "PTP Hardware Clock:" | cut -d' ' -f4)
     if [ "$PTP_ID" = "none" ]; then
@@ -80,6 +80,8 @@ plugin: shell
 flags: also-after-suspend
 user: root
 estimated_duration: 32s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ptp == 'True'
 depends: ce-oem-ptp/verify-PTP-support-for-{eth-interface}
 command:
     output_file='/var/tmp/ptp4l_output.txt'
@@ -114,6 +116,8 @@ _purpose:
 plugin: manual
 estimated_duration: 5m
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ptp == 'True'
 _steps:
     1. Connect an Ethernet cable from another device's Ethernet interface which supports ptp
        which supports ptp directly to the {eth-interface} Ethernet interface of our DUT.

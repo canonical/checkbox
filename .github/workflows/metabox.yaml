@@ -61,7 +61,7 @@ jobs:
           lxc profile device add default root disk path=/ pool=metabox${{ matrix.os }}
           lxc storage list
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pyopenssl
+        run: python3 -m pip install --upgrade pyopenssl pip
       - name: Install Metabox
         run: python3 -m pip install -e .
       - name: Run Metabox scenarios

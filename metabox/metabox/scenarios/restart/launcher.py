@@ -24,7 +24,7 @@ from metabox.core.scenario import Scenario
 
 class Reboot(Scenario):
 
-    modes = ['remote']
+    modes = ['controller']
     launcher = textwrap.dedent("""
     [launcher]
     launcher_version = 1

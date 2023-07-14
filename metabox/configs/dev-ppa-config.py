@@ -4,12 +4,12 @@ configuration = {
         'uri': 'ppa:checkbox-dev/ppa',
         'releases': ['bionic', 'focal'],
     },
-    'remote': {
+    'controller': {
         'origin': 'ppa',
         'uri': 'ppa:checkbox-dev/ppa',
         'releases': ['focal'],
     },
-    'service': {
+    'agent': {
         'origin': 'ppa',
         'uri': 'ppa:checkbox-dev/ppa',
         'releases': ['bionic', 'focal'],

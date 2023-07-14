@@ -29,7 +29,7 @@ from . import config_files
 
 @tag("config", "transport")
 class TransportSecureIDSetInLauncherOnly(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -57,7 +57,7 @@ class TransportSecureIDSetInLauncherOnly(Scenario):
 
 @tag("config", "transport")
 class TransportSecureIDSetInConfigOnly(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf_xdg = read_text(config_files, "custom_transport.conf")
     launcher = textwrap.dedent(
         """
@@ -73,7 +73,7 @@ class TransportSecureIDSetInConfigOnly(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         Start(),
         AssertPrinted("config is not a valid secure_id"),
     ]
@@ -81,7 +81,7 @@ class TransportSecureIDSetInConfigOnly(Scenario):
 
 @tag("config", "transport")
 class TransportSecureIDOverwrittenByLauncher(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf_xdg = read_text(config_files, "custom_transport.conf")
     launcher = textwrap.dedent(
         """
@@ -106,7 +106,7 @@ class TransportSecureIDOverwrittenByLauncher(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         Start(),
         AssertPrinted("launcher is not a valid secure_id"),
     ]

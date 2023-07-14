@@ -2,7 +2,7 @@
 
 [Checkbox] is used on a wide variety of devices (laptops, servers, IoT), with a
 variety of releases (18.04, 20.04, etc.), in a few different ways (run locally,
-using Checkbox remote). Over the years, manually testing Checkbox before each
+using Checkbox controller). Over the years, manually testing Checkbox before each
 stable release has become more and more difficult.
 
 Enter Metabox.
@@ -69,7 +69,7 @@ Let's say I want to test:
 - the [`basic` scenario] (which focuses on Checkbox local)
 - using the latest Debian version of Checkbox available in the Daily Builds PPA
 - on bionic (18.04) and focal (20.04)
-- for Checkbox local only (not Checkbox remote)
+- for Checkbox local only (not Checkbox controller)
 
 I can create the following `local-daily-builds-config.py` file:
 
@@ -127,19 +127,19 @@ set, it will point to the parent directory of the Metabox package. For
 instance, if Metabox was [installed] from `/home/user/code/checkbox/metabox/`,
 `uri` will be set to `/home/user/code/checkbox/`.
 
-### Testing Checkbox remote
+### Testing Checkbox controller
 
-You can test your local modifications to Checkbox Remote with the following
+You can test your local modifications to Checkbox Controller with the following
 configuration:
 
 ```python
 configuration = {
-    'remote': {
+    'controller': {
         'origin': 'source',
         'uri': '~/checkbox',
         'releases': ['jammy', 'focal', 'bionic'],
     },
-    'service': {
+    'agent': {
         'origin': 'source',
         'uri': '~/checkbox',
         'releases': ['jammy', 'focal', 'bionic'],

@@ -13,7 +13,7 @@ from . import config_files
 
 @tag("daemon", "normal_user")
 class DaemonNormalUserSetInLauncherNoConfig(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -37,7 +37,7 @@ class DaemonNormalUserSetInLauncherNoConfig(Scenario):
 
 @tag("daemon", "normal_user")
 class DaemonNormalUserSetInConfig(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf_xdg = read_text(config_files, "daemon_section_only.conf")
     launcher = textwrap.dedent(
         """
@@ -52,7 +52,7 @@ class DaemonNormalUserSetInConfig(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         RunCmd("sudo useradd config_user"),
         Start(),
         AssertPrinted("user:config_user"),
@@ -61,7 +61,7 @@ class DaemonNormalUserSetInConfig(Scenario):
 
 @tag("daemon", "normal_user")
 class DaemonNormalUserOverwittenByLauncher(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf_xdg = read_text(config_files, "daemon_section_only.conf")
     launcher = textwrap.dedent(
         """
@@ -78,7 +78,7 @@ class DaemonNormalUserOverwittenByLauncher(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         RunCmd("sudo useradd launcher_user"),
         Start(),
         AssertPrinted("user:launcher_user"),
@@ -87,7 +87,7 @@ class DaemonNormalUserOverwittenByLauncher(Scenario):
 
 @tag("daemon", "normal_user")
 class DaemonNormalUserGuessed(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -108,7 +108,7 @@ class DaemonNormalUserGuessed(Scenario):
 
 @tag("daemon", "normal_user")
 class DaemonNormalUserDoesntExist(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -130,7 +130,7 @@ class DaemonNormalUserDoesntExist(Scenario):
 
 @tag("daemon", "agent", "normal_user")
 class NewNameForDaemonWorks(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -152,7 +152,7 @@ class NewNameForDaemonWorks(Scenario):
 
 @tag("daemon", "agent", "normal_user")
 class DeprecatedDaemon(Scenario):
-    modes = ["remote"]
+    modes = ["controller"]
     launcher = textwrap.dedent(
         """
         [launcher]

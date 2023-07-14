@@ -124,7 +124,7 @@ class LocalTestSelectionResolution(Scenario):
     ]
 
 
-class RemoteTestSelectionResolution(Scenario):
+class ControllerTestSelectionResolution(Scenario):
     """
     According to Checkbox documentation, the resolution order is:
 
@@ -135,9 +135,9 @@ class RemoteTestSelectionResolution(Scenario):
     If a test is excluded from 2 and 3, but the exclusion list is cleaned in 1,
     the test should be run.
 
-    This scenario tests this in remote mode.
+    This scenario tests this in controller mode.
     """
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf_etc = read_text(test_selection, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(test_selection, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
@@ -152,11 +152,11 @@ class RemoteTestSelectionResolution(Scenario):
         forced = yes
         """)
     steps = [
-        MkTree("/home/ubuntu/.config", target="service"),
+        MkTree("/home/ubuntu/.config", target="agent"),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf_home,
-            target="service"),
+            target="agent"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf_etc,
-            target="service"),
+            target="agent"),
         Start(),
         AssertPrinted(".*config-environ-source.*"),
     ]
@@ -183,11 +183,11 @@ class TestPlanSelectionSkip(Scenario):
         forced = yes
         """)
     steps = [
-        MkTree("/home/ubuntu/.config", target="service"),
+        MkTree("/home/ubuntu/.config", target="agent"),
         Put("/home/ubuntu/.config/checkbox.conf",
-            checkbox_conf, target="service"),
+            checkbox_conf, target="agent"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf,
-            target = "service"),
+            target = "agent"),
         Start(),
         # Assert that we have reached test selection
         Expect("Choose tests to run on your system")
@@ -216,11 +216,11 @@ class TestPlanPreselected(Scenario):
         unit = com.canonical.certification::smoke
         """)
     steps = [
-        MkTree("/home/ubuntu/.config", target="service"),
+        MkTree("/home/ubuntu/.config", target="agent"),
         Put("/home/ubuntu/.config/checkbox.conf",
-            checkbox_conf, target="service"),
+            checkbox_conf, target="agent"),
         Put("/etc/xdg/checkbox.conf", checkbox_conf,
-            target = "service"),
+            target = "agent"),
         Start(),
         #( ) Some other test
         #(X) All Smoke Tests

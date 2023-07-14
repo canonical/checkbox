@@ -73,18 +73,18 @@ class Runner:
 
     def _gather_all_machine_spec(self):
         for v in self.scn_variants:
-            if v.mode == "remote":
-                remote_config = self.config["remote"].copy()
-                service_config = self.config["service"].copy()
-                remote_release, service_release = v.releases
-                remote_config["alias"] = remote_release
-                service_config["alias"] = service_release
+            if v.mode == "controller":
+                controller_config = self.config["controller"].copy()
+                agent_config = self.config["agent"].copy()
+                controller_release, agent_release = v.releases
+                controller_config["alias"] = controller_release
+                agent_config["alias"] = agent_release
                 revisions = self._get_revisions_jobs()
-                for remote_revision, service_revision in revisions:
-                    remote_config["revision"] = remote_revision
-                    self.combo.add(MachineConfig("remote", remote_config))
-                    service_config["revision"] = service_revision
-                    self.combo.add(MachineConfig("service", service_config))
+                for controller_revision, agent_revision in revisions:
+                    controller_config["revision"] = controller_revision
+                    self.combo.add(MachineConfig("controller", controller_config))
+                    agent_config["revision"] = agent_revision
+                    self.combo.add(MachineConfig("agent", agent_config))
             elif v.mode == "local":
                 local_config = self.config["local"].copy()
                 local_config["alias"] = v.releases[0]
@@ -117,15 +117,15 @@ class Runner:
     def _get_revisions_jobs(self):
         """
         If revision testing is requested, returns revisions to test
-        for remote or/and service
+        for controller or/and agent
         """
-        remote_revisions = ["current"]
-        service_revisions = ["current"]
-        if self.config["remote"].get("revision_testing", False):
-            remote_revisions.append("origin/main")
-        if self.config["service"].get("revision_testing", False):
-            service_revisions.append("origin/main")
-        return product(remote_revisions, service_revisions)
+        controller_revisions = ["current"]
+        agent_revisions = ["current"]
+        if self.config["controller"].get("revision_testing", False):
+            controller_revisions.append("origin/main")
+        if self.config["agent"].get("revision_testing", False):
+            agent_revisions.append("origin/main")
+        return product(controller_revisions, agent_revisions)
 
     def setup(self):
         self.scenarios = aggregator.all_scenarios()
@@ -153,28 +153,28 @@ class Runner:
                 )
                 continue
             scn_config = scenario_cls.config_override
-            if mode == "remote":
-                remote_releases = self._override_filter_or_get(
-                    scn_config, "remote", "releases"
+            if mode == "controller":
+                controller_releases = self._override_filter_or_get(
+                    scn_config, "controller", "releases"
                 )
-                service_releases = self._override_filter_or_get(
-                    scn_config, "service", "releases"
+                agent_releases = self._override_filter_or_get(
+                    scn_config, "agent", "releases"
                 )
                 releases = list(
                     (mode, r_alias, s_alias)
                     for (r_alias, s_alias) in product(
-                        self.config["remote"]["releases"],
-                        self.config["service"]["releases"],
+                        self.config["controller"]["releases"],
+                        self.config["agent"]["releases"],
                     )
                 )
                 revisions = self._get_revisions_jobs()
                 # names to kwargs
                 revisions = (
                     {
-                        "remote_revision": remote_revision,
-                        "service_revision": service_revision,
+                        "controller_revision": controller_revision,
+                        "agent_revision": agent_revision,
                     }
-                    for (remote_revision, service_revision) in revisions
+                    for (controller_revision, agent_revision) in revisions
                 )
                 releases = product(releases, revisions)
             elif mode == "local":
@@ -235,15 +235,15 @@ class Runner:
             return scenario_description_fmt.format(
                 mode=scn.mode, release_version=scn.releases, name=scn.name
             )
-        remote_rv = scn.releases[0]
-        service_rv = scn.releases[1]
-        if scn.remote_revision != "current":
-            remote_rv += " {}".format(scn.remote_revision)
-        if scn.service_revision != "current":
-            service_rv += " {}".format(scn.service_revision)
+        controller_rv = scn.releases[0]
+        agent_rv = scn.releases[1]
+        if scn.controller_revision != "current":
+            controller_rv += " {}".format(scn.controller_revision)
+        if scn.agent_revision != "current":
+            agent_rv += " {}".format(scn.agent_revision)
         return scenario_description_fmt.format(
             mode=scn.mode,
-            release_version="({}, {})".format(remote_rv, service_rv),
+            release_version="({}, {})".format(controller_rv, agent_rv),
             name=scn.name,
         )
 
@@ -251,14 +251,14 @@ class Runner:
         startTime = time.perf_counter()
         total = len(self.scn_variants)
         for idx, scn in enumerate(self.scn_variants, 1):
-            if scn.mode == "remote":
-                scn.remote_machine = self._load("remote", scn.releases[0])
-                scn.service_machine = self._load("service", scn.releases[1])
-                scn.remote_machine.rollback_to("provisioned")
-                scn.service_machine.rollback_to("provisioned")
+            if scn.mode == "controller":
+                scn.controller_machine = self._load("controller", scn.releases[0])
+                scn.agent_machine = self._load("agent", scn.releases[1])
+                scn.controller_machine.rollback_to("provisioned")
+                scn.agent_machine.rollback_to("provisioned")
                 if scn.launcher:
-                    scn.remote_machine.put(scn.LAUNCHER_PATH, scn.launcher)
-                scn.service_machine.start_user_session()
+                    scn.controller_machine.put(scn.LAUNCHER_PATH, scn.launcher)
+                scn.agent_machine.start_user_session()
             elif scn.mode == "local":
                 scn.local_machine = self._load("local", scn.releases[0])
                 scn.local_machine.rollback_to("provisioned")
@@ -280,14 +280,14 @@ class Runner:
                     "Scenario output:\n" + scn.get_output_streams().strip()
                 )
                 if self.hold_on_fail:
-                    if scn.mode == "remote":
+                    if scn.mode == "controller":
                         msg = (
                             "You may hop onto the target machines by issuing "
                             "the following commands:\n{}\n{}\n"
                             "Press enter to continue testing"
                         ).format(
-                            scn.remote_machine.get_connecting_cmd(),
-                            scn.service_machine.get_connecting_cmd(),
+                            scn.controller_machine.get_connecting_cmd(),
+                            scn.agent_machine.get_connecting_cmd(),
                         )
                     elif scn.mode == "local":
                         msg = (

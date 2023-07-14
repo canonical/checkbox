@@ -98,12 +98,12 @@ class CheckboxConfLocalHome(Scenario):
     ]
 
 
-class CheckboxConfRemoteHome(Scenario):
+class CheckboxConfControllerHome(Scenario):
     """
     Check that environment variables are read from the $HOME directory when
     nothing else is available.
     """
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
@@ -202,7 +202,7 @@ class CheckboxConfLauncherPrecedence(Scenario):
     Check that the environment variables defined in the launcher take precedence
     over the ones defined in /etc/xdg/.
     """
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     launcher = textwrap.dedent("""
         [launcher]
@@ -263,18 +263,18 @@ class CheckboxConfLocalResolutionOrder(Scenario):
     ]
 
 
-class CheckboxConfRemoteServiceResolutionOrder(Scenario):
+class CheckboxConfControllerAgentResolutionOrder(Scenario):
     """
-    According to the documentation, when the Checkbox Remote starts, it looks
+    According to the documentation, when the Checkbox Controller starts, it looks
     for config files in the same places that local Checkbox session would look
-    (on the Service side). If the Remote uses a Launcher, then the values from
-    that Launcher take precedence over the values from configs on the Service
+    (on the Agent side). If the Controller uses a Launcher, then the values from
+    that Launcher take precedence over the values from configs on the Agent
     side.
 
     This scenario sets 3 environment variables in different config locations
     and checks the resolution order is as defined.
     """
-    modes = ["remote"]
+    modes = ["controller"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
@@ -291,10 +291,10 @@ class CheckboxConfRemoteServiceResolutionOrder(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         MkTree("/root/.config", privileged=True),
         Put(
-            "/root/.config/checkbox.conf", checkbox_conf_home, target="service"
+            "/root/.config/checkbox.conf", checkbox_conf_home, target="agent"
         ),
         Start(),
         AssertPrinted("variables: HOME LAUNCHER XDG"),

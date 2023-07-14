@@ -1,0 +1,33 @@
+name: Test checkbox-provider-ce-oem with tox
+
+on:
+  push:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - checkbox-provider-ce-oem/**
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python: ["3.5", "3.6", "3.8", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: install stable checkbox and checkbox-provider-ce-oem
+        run: |
+          cd ~
+          git clone --depth=1 https://github.com/canonical/checkbox.git
+          cd -
+          cp -r checkbox-provider-ce-oem ~/checkbox/providers
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tox
+        run: pip install tox
+      - name: Run tox
+        working-directory: /home/runner/checkbox/providers/checkbox-provider-ce-oem/
+        run: tox 

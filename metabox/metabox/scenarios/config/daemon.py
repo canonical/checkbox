@@ -168,5 +168,6 @@ class DeprecatedDaemon(Scenario):
     )
     steps = [
         Start(),
-        AssertPrinted("daemon section name is deprecated. Use agent instead."),
+        AssertPrinted("Scenario config: daemon section name is deprecated. Use agent instead."),
     ]
+

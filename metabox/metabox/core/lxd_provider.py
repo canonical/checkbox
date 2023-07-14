@@ -258,16 +258,18 @@ class LxdMachineProvider:
             machine._container.name, self.LXD_MOUNT_DEVICE,
             "disk", "source={}".format(path),
             "path={}".format(self.LXD_SOURCE_MOUNT_POINT)
-        ], stderr=subprocess.PIPE, text=True)
-        logger.debug(output)
+        ], stderr=subprocess.PIPE, text=True).strip()
+        if output:
+            logger.debug(output)
 
     def _unmount_source(self, machine):
         logger.debug("Unmounting dir...")
         output = subprocess.check_output([
             "lxc", "config", "device", "remove",
             machine._container.name, self.LXD_MOUNT_DEVICE
-        ], stderr=subprocess.PIPE, text=True)
-        logger.debug(output)
+        ], stderr=subprocess.PIPE, text=True).strip()
+        if output:
+            logger.debug(output)
 
     @contextmanager
     def _mounted_source(self, machine, path):
@@ -308,8 +310,20 @@ class LxdMachineProvider:
             self._transfer_file_preserve_mode(machine, src, dest)
 
     def _run_setup_commands(self, machine):
+        pre_cmds = []
+        if machine.config.revision != "current":
+            # if not testing current revision, reset and clean before switching
+            # to avoid clashes with target revision
+            pre_cmds.append(
+                "bash -c 'cd /home/ubuntu/checkbox && "
+                "git clean -xfd && " # clean all untracked and changes to
+                "git reset --hard && " # avoid clashes with revision
+                "git checkout {} -- .'".format( # checkout to revision
+                    machine.config.revision
+                )
+            )
         # Also install the metabox provider
-        pre_cmds = machine.get_early_setup() + [
+        pre_cmds += machine.get_early_setup() + [
             "bash -c 'sudo python3 /home/ubuntu/metabox-provider/manage.py install'"
         ]
         post_cmds = machine.get_late_setup()

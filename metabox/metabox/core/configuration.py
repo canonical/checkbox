@@ -150,17 +150,19 @@ def _decl_has_a_valid_origin(decl):
             # Note: The fact that this does run makes the config syntactically
             #       correct and also somewhat sematically correct. There
             #       may still be errors (like missing dependencies)
-            package_dry_install_log = subprocess.check_output(
+            package_dry_install_log = subprocess.run(
                 ["python3", "-m", "pip", "install", "--dry-run", "."],
                 cwd=setup_file_location,
                 text=True,
-                stderr=subprocess.DEVNULL,
+                capture_output=True,
             )
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
             logger.error("Failed to dry-run install {}", setup_file_location)
-            return False
-        if "checkbox-ng" not in package_dry_install_log:
-            logger.error("{} must be a fork of gh:canonical/checkbox", source)
+            raise
+        if "checkbox-ng" not in package_dry_install_log.stdout:
+            logger.error("{} did not install a package named `checkbox-ng`", source)
+            logger.error("Installation stdout:\n{}", package_dry_install_log.stdout)
+            logger.error("Installation stderr:\n{}", package_dry_install_log.stderr)
             return False
         return True
     return False

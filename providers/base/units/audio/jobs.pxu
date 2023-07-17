@@ -697,7 +697,7 @@ category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
-  manifest.has_audio_playback == 'True'
+  audio_card.Playback == '1'
 command:
  COUNT=$(alsa_pcm_info.py | grep -c Playback)
  echo "Count: $COUNT"
@@ -713,7 +713,7 @@ category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
-  manifest.has_audio_capture == 'True'
+  audio_card.Capture == '1'
 command:
  COUNT=$(alsa_pcm_info.py | grep -c Capture)
  echo "Count: $COUNT"

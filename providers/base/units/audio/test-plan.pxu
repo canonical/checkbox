@@ -128,6 +128,8 @@ include:
     audio/detect-playback-devices
     audio/detect-capture-devices
     audio/alsa-loopback-automated
+bootstrap_include:
+ audio_card
 
 id: after-suspend-audio-full
 unit: test plan
@@ -165,3 +167,5 @@ include:
     after-suspend-audio/detect-playback-devices
     after-suspend-audio/detect-capture-devices
     after-suspend-audio/alsa-loopback-automated
+bootstrap_include:
+ audio_card

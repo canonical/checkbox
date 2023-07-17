@@ -22,6 +22,7 @@ import re
 import time
 from pathlib import Path
 import textwrap
+import shlex
 from contextlib import suppress
 
 import pylxd.exceptions
@@ -165,19 +166,25 @@ class ContainerBaseMachine:
         """
         return []
 
-    def start_remote(self, host, launcher, interactive=False, timeout=0):
+    def start_remote(self, host, launcher, cmd="remote", interactive=False, timeout=0):
+        """
+        Start remote
+        Note: This method will inject host and launcher at the end of cmd, if this is
+              undesirable, use run_cmd
+        """
+        if not cmd:
+            cmd = "remote"
         assert self.config.role == "remote"
+        cmd_arr = shlex.split(cmd)
+        cmd_arr += [host, launcher]
+        cmd = shlex.join(cmd_arr)
 
         if interactive:
             # Return a PTS object to interact with
-            return self.interactive_execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
-            )
+            return self.interactive_execute(cmd, verbose=True, timeout=timeout)
         else:
             # Return an ExecuteResult named tuple
-            return self.execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
-            )
+            return self.execute(cmd, verbose=True, timeout=timeout)
 
     def start(self, cmd=None, env={}, interactive=False, timeout=0):
         assert self.config.role == "local"
@@ -353,9 +360,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 WantedBy=multi-user.target
                 """
             ).lstrip()
-            self.run_cmd(
-                "sudo mkdir -p '/usr/lib/systemd/system'"
-            )
+            self.run_cmd("sudo mkdir -p '/usr/lib/systemd/system'")
             self.put(
                 "/usr/lib/systemd/system/checkbox-ng.service",
                 service_content,

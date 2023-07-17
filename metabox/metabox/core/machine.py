@@ -353,6 +353,9 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 WantedBy=multi-user.target
                 """
             ).lstrip()
+            self.run_cmd(
+                "sudo mkdir -p '/usr/lib/systemd/system'"
+            )
             self.put(
                 "/usr/lib/systemd/system/checkbox-ng.service",
                 service_content,

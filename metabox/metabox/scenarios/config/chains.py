@@ -33,6 +33,8 @@ from .config_files import chains
 
 
 class ConfigChainsPriority(Scenario):
+    modes = ["local"]
+
     etc_checkbox = read_text(chains, "etc_checkbox.conf")
     etc_checkbox_includes_includes = read_text(
         chains, "etc_checkbox_includes_includes.conf"

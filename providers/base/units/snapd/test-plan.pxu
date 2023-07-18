@@ -68,7 +68,7 @@ include:
     snappy/test-store-install-beta
     snappy/test-store-install-edge
     snappy/test-store-config-.*
-    snappy/test-snap-confinement-mode
+    snappy/test-system-confinement
 mandatory_include:
     snap
 bootstrap_include:

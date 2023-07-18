@@ -274,13 +274,12 @@ category_id: snapd
 estimated_duration: 1.0
 flags: preserve-locale
 
-id: snappy/test-snap-confinement-mode
-_summary: Test if the snap confinement mode is strict
+id: snappy/test-system-confinement
+_summary: Test if the system confinement is strict
 _purpose:
- Test if the snap confinement mode is `strict`
- If not, list the missing features
+  Test if the system confinement is "strict"
+  If not, list the missing features
 plugin: shell
-command: snap_confinement_test.py
-user: root
+command: snap_confinement_test.py system
 category_id: snapd
-estimated_duration: 1s
+estimated_duration: 2s

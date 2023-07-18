@@ -283,3 +283,14 @@ plugin: shell
 command: snap_confinement_test.py system
 category_id: snapd
 estimated_duration: 2s
+
+id: snappy/test-snaps-confinement
+_summary: Test all the snaps' confinement
+_purpose:
+  Test all the snaps' confinement, devmode, revision.
+  Make sure the confinement is "strict", devmode is "False",
+  and revision should not be sideloded.
+plugin: shell
+command: snap_confinement_test.py snaps
+category_id: snapd
+estimated_duration: 3s

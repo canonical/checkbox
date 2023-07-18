@@ -20,6 +20,7 @@
 import argparse
 import json
 import logging
+import re
 import sys
 from checkbox_support.snap_utils.snapd import Snapd
 
@@ -99,11 +100,85 @@ class SystemConfinement:
         return sandbox_features_output
 
 
+class SnapsConfinement:
+    """
+    Test the confinement status of all installed snaps.
+
+    Attributes:
+        whitelist_snaps (list): A list of snap names or regex patterns
+            that are exempted from the confinement check.
+    """
+
+    whitelist_snaps = [
+        "bugit",
+        r"checkbox.*",
+        "mir-test-tools",
+        "graphics-test-tools",
+    ]
+
+    def invoked(self):
+        """
+        Check the confinement of all snaps installed in the system.
+
+        A snap confinement should be 'strict', devmode should be False,
+        and should not have a sideloded revision starts with 'x'.
+
+        Returns:
+            int: Exit code. 0 if the test passes for all snaps,
+            otherwise 1.
+        """
+        data = Snapd().list()
+        exit_code = 0
+        for snap in data:
+            snap_name = snap.get("name")
+            snap_confinement = snap.get("confinement")
+            snap_devmode = snap.get("devmode")
+            snap_revision = snap.get("revision")
+
+            if snap_name is None:
+                logging.error("Snap 'name' not found in the snap data.")
+                exit_code = 1
+
+            if any(
+                re.match(pattern, snap_name)
+                for pattern in self.whitelist_snaps
+            ):
+                print("Skipping whitelisted snap: {}".format(snap_name))
+                continue
+
+            if snap_confinement != "strict":
+                exit_code = 1
+                logging.error(
+                    "Snap '%s' confinement is expected to be 'strict' "
+                    "but got '%s'", snap_name, snap_confinement,
+                )
+
+            if snap_devmode is not False:
+                exit_code = 1
+                logging.error(
+                    "Snap '%s' devmode is expected to be False but "
+                    "got '%s'", snap_name, snap_devmode,
+                )
+
+            if snap_revision and snap_revision.startswith("x"):
+                exit_code = 1
+                logging.error(
+                    "Snap '%s' has sideloaded revision '%s', which "
+                    "is not allowed", snap_name, snap_revision,
+                )
+            elif snap_revision is None:
+                exit_code = 1
+                logging.error(
+                    "'revision' not found in snap '%s'", snap_name,
+                )
+        return exit_code
+
+
 def main():
     logging.basicConfig(format='%(levelname)s: %(message)s')
     sub_commands = {
         "system": SystemConfinement,
-        # "snaps": SnapsConfinement,
+        "snaps": SnapsConfinement,
     }
     parser = argparse.ArgumentParser()
     parser.add_argument("subcommand", type=str, choices=sub_commands)

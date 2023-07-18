@@ -262,7 +262,7 @@ class Configuration:
             if sect_name in cls.DEPRECATED_SECTION_NAMES:
                 current_name = cls.DEPRECATED_SECTION_NAMES[sect_name]
                 logger.warning(
-                    "%s section name is deprecated. Use %s instead.",
+                    "Config: %s section name is deprecated. Use %s instead.",
                     sect_name, current_name
                 )
                 sect_name = current_name

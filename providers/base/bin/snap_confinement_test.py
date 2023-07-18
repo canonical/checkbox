@@ -82,19 +82,19 @@ class SystemConfinement:
 
         if missing_features:
             logging.error(
-                "Cannot find '{}' in apparmor".format(missing_features)
+                "Cannot find '%s' in apparmor", missing_features
             )
 
         categories_to_check = ["mount", "udev"]
         for category in categories_to_check:
             if category not in sandbox_features:
                 logging.error(
-                    "Cannot find '{}' in sandbox-features".format(category)
+                    "Cannot find '%s' in sandbox-features", category
                 )
                 break
             for feature in sandbox_features[category]:
                 if "cgroup-v2" in feature:
-                    logging.error("cgroup({}) must NOT be v2".format(feature))
+                    logging.error("cgroup(%s) must NOT be v2", feature)
 
         return sandbox_features_output
 

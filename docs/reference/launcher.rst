@@ -14,7 +14,7 @@ customization includes:
 Each section in the launcher is optional, when not supplied, the default values
 will be used.
 
-This tutorial describes Launchers version 1.
+This document describes Launchers version 1.
 
 .. _launcher_config:
 

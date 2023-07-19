@@ -3,7 +3,7 @@ Installing checkbox
 ===================
 
 In order to install checkbox you are going to need two parts, a ``runtime``
-and a ``fronted``.
+and a ``frontend``.
 
 First we need to install the ``runtime``::
 

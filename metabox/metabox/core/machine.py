@@ -175,8 +175,8 @@ class ContainerBaseMachine:
         """
         return []
 
-    def start_controller(self, host, launcher, interactive=False, timeout=0):
-        assert self.config.role == "controller"
+    def start_remote(self, host, launcher, interactive=False, timeout=0):
+        assert self.config.role == "remote"
 
         if interactive:
             # Return a PTS object to interact with
@@ -360,7 +360,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
             + self._get_provider_setup_cmds()
         )
 
-        if self.config.role in ("controller", "agent"):
+        if self.config.role in ("remote", "agent"):
             commands += [
                 "sudo bash -c 'systemctl daemon-reload'",
                 "sudo bash -c 'systemctl enable checkbox-ng.service --now'",
@@ -368,7 +368,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
             service_content = textwrap.dedent(
                 """
                 [Unit]
-                Description=Checkbox Control Agent
+                Description=Checkbox Agent Service
                 Wants=network.target
 
                 [Service]
@@ -394,14 +394,14 @@ class ContainerSourceMachine(ContainerBaseMachine):
         return commands
 
     def start_service(self, force=False):
-        assert self.config.role in ("controller", "agent")
+        assert self.config.role in ("remote", "agent")
         if force:
             return run_or_raise(
                 self._container, "sudo systemctl start checkbox-ng.service"
             )
 
     def stop_service(self):
-        assert self.config.role in ("controller", "agent")
+        assert self.config.role in ("remote", "agent")
         return run_or_raise(
             self._container, "sudo systemctl stop checkbox-ng.service"
         )
@@ -412,7 +412,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
         return run_or_raise(self._container, "sudo reboot", verbose)
 
     def is_service_active(self):
-        assert self.config.role in ("controller", "agent")
+        assert self.config.role in ("remote", "agent")
         return (
             run_or_raise(
                 self._container, "systemctl is-active checkbox-ng.service"
@@ -433,7 +433,7 @@ class ContainerPPAMachine(ContainerBaseMachine):
     def get_early_setup(self):
         if self.config.setup:
             return []
-        if self.config.role == "controller":
+        if self.config.role == "remote":
             deb = "checkbox-ng"
         else:
             deb = "canonical-certification-client"

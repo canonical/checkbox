@@ -29,7 +29,7 @@ from . import config_files
 
 @tag("config", "transport")
 class TransportSecureIDSetInLauncherOnly(Scenario):
-    modes = ["controller"]
+    modes = ["remote"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -57,7 +57,7 @@ class TransportSecureIDSetInLauncherOnly(Scenario):
 
 @tag("config", "transport")
 class TransportSecureIDSetInConfigOnly(Scenario):
-    modes = ["controller"]
+    modes = ["remote"]
     checkbox_conf_xdg = read_text(config_files, "custom_transport.conf")
     launcher = textwrap.dedent(
         """
@@ -81,7 +81,7 @@ class TransportSecureIDSetInConfigOnly(Scenario):
 
 @tag("config", "transport")
 class TransportSecureIDOverwrittenByLauncher(Scenario):
-    modes = ["controller"]
+    modes = ["remote"]
     checkbox_conf_xdg = read_text(config_files, "custom_transport.conf")
     launcher = textwrap.dedent(
         """

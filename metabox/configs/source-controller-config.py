@@ -1,5 +1,5 @@
 configuration = {
-    'controller': {
+    'remote': {
         'origin': 'source',
         'uri': '~/dev/work/checkbox',
         'releases': ['focal'],

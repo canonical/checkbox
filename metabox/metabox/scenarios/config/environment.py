@@ -98,12 +98,12 @@ class CheckboxConfLocalHome(Scenario):
     ]
 
 
-class CheckboxConfControllerHome(Scenario):
+class CheckboxConfRemoteHome(Scenario):
     """
     Check that environment variables are read from the $HOME directory when
     nothing else is available.
     """
-    modes = ["controller"]
+    modes = ["remote"]
     checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""
         [launcher]
@@ -202,7 +202,7 @@ class CheckboxConfLauncherPrecedence(Scenario):
     Check that the environment variables defined in the launcher take precedence
     over the ones defined in /etc/xdg/.
     """
-    modes = ["controller"]
+    modes = ["remote"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     launcher = textwrap.dedent("""
         [launcher]
@@ -263,7 +263,7 @@ class CheckboxConfLocalResolutionOrder(Scenario):
     ]
 
 
-class CheckboxConfControllerAgentResolutionOrder(Scenario):
+class CheckboxConfRemoteAgentResolutionOrder(Scenario):
     """
     According to the documentation, when the Checkbox Controller starts, it looks
     for config files in the same places that local Checkbox session would look
@@ -274,7 +274,7 @@ class CheckboxConfControllerAgentResolutionOrder(Scenario):
     This scenario sets 3 environment variables in different config locations
     and checks the resolution order is as defined.
     """
-    modes = ["controller"]
+    modes = ["remote"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""

@@ -42,9 +42,9 @@ class Scenario:
         super().__init_subclass__(**kwargs)
         cls.name = "{}.{}".format(cls.__module__, cls.__name__)
         # If a scenario does not declare the modes it should run in,
-        # assume it will run in both local and controller modes.
+        # assume it will run in both local and remote modes.
         if not hasattr(cls, "modes"):
-            cls.modes = ["local", "controller"]
+            cls.modes = ["local", "remote"]
         # If a scenario does not include what version of Checkbox it should run
         # in, assume it will run in every possible ones, as defined in
         # configuration._decl_has_a_valid_origin().
@@ -57,15 +57,15 @@ class Scenario:
         self,
         mode,
         *releases,
-        controller_revision="current",
+        remote_revision="current",
         agent_revision="current"
     ):
         self.mode = mode
         self.releases = releases
         # machines set up by Runner.run()
         self.local_machine = None
-        self.controller_machine = None
-        self.controller_revision = controller_revision
+        self.remote_machine = None
+        self.remote_revision = remote_revision
         self.agent_machine = None
         self.agent_revision = agent_revision
         self._checks = []
@@ -160,8 +160,8 @@ class Scenario:
     def assertNotEqual(self, first, second):
         self._checks.append(first != second)
 
-    def start(self, cmd="", interactive=False, timeout=0):
-        if self.mode == "controller":
+    def start(self, cmd='', interactive=False, timeout=0):
+        if self.mode == 'remote':
             outcome = self.start_all(interactive=interactive, timeout=timeout)
             if interactive:
                 self._pts = outcome
@@ -183,15 +183,15 @@ class Scenario:
 
     def start_all(self, interactive=False, timeout=0):
         self.start_agent()
-        outcome = self.start_controller(interactive, timeout)
+        outcome = self.start_remote(interactive, timeout)
         if interactive:
             self._pts = outcome
         else:
             self._assign_outcome(*outcome)
         return outcome
 
-    def start_controller(self, interactive=False, timeout=0):
-        outcome = self.controller_machine.start_controller(
+    def start_remote(self, interactive=False, timeout=0):
+        outcome = self.remote_machine.start_remote(
             self.agent_machine.address,
             self.LAUNCHER_PATH,
             interactive,
@@ -228,61 +228,61 @@ class Scenario:
         self._checks.append(outcome)
 
     def run_cmd(self, cmd, env={}, interactive=False, timeout=0, target="all"):
-        if self.mode == "controller":
-            if target == "controller":
-                self.controller_machine.run_cmd(cmd, env, interactive, timeout)
+        if self.mode == "remote":
+            if target == "remote":
+                self.remote_machine.run_cmd(cmd, env, interactive, timeout)
             elif target == "agent":
                 self.agent_machine.run_cmd(cmd, env, interactive, timeout)
             else:
-                self.controller_machine.run_cmd(cmd, env, interactive, timeout)
+                self.remote_machine.run_cmd(cmd, env, interactive, timeout)
                 self.agent_machine.run_cmd(cmd, env, interactive, timeout)
         else:
             self.local_machine.run_cmd(cmd, env, interactive, timeout)
 
     def reboot(self, timeout=0, target="all"):
-        if self.mode == "controller":
-            if target == "controller":
-                self.controller_machine.reboot(timeout)
+        if self.mode == "remote":
+            if target == "remote":
+                self.remote_machine.reboot(timeout)
             elif target == "agent":
                 self.agent_machine.reboot(timeout)
             else:
-                self.controller_machine.reboot(timeout)
+                self.remote_machine.reboot(timeout)
                 self.agent_machine.reboot(timeout)
         else:
             self.local_machine.reboot(timeout)
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000, target="all"):
-        if self.mode == "controller":
-            if target == "controller":
-                self.controller_machine.put(filepath, data, mode, uid, gid)
+        if self.mode == "remote":
+            if target == "remote":
+                self.remote_machine.put(filepath, data, mode, uid, gid)
             elif target == "agent":
                 self.agent_machine.put(filepath, data, mode, uid, gid)
             else:
-                self.controller_machine.put(filepath, data, mode, uid, gid)
+                self.remote_machine.put(filepath, data, mode, uid, gid)
                 self.agent_machine.put(filepath, data, mode, uid, gid)
         else:
             self.local_machine.put(filepath, data, mode, uid, gid)
 
     def switch_on_networking(self, target="all"):
-        if self.mode == "controller":
-            if target == "controller":
-                self.controller_machine.switch_on_networking()
+        if self.mode == "remote":
+            if target == "remote":
+                self.remote_machine.switch_on_networking()
             elif target == "agent":
                 self.agent_machine.switch_on_networking()
             else:
-                self.controller_machine.switch_on_networking()
+                self.remote_machine.switch_on_networking()
                 self.agent_machine.switch_on_networking()
         else:
             self.local_machine.switch_on_networking()
 
     def switch_off_networking(self, target="all"):
-        if self.mode == "controller":
-            if target == "controller":
-                self.controller_machine.switch_off_networking()
+        if self.mode == "remote":
+            if target == "remote":
+                self.remote_machine.switch_off_networking()
             elif target == "agent":
                 self.agent_machine.switch_off_networking()
             else:
-                self.controller_machine.switch_off_networking()
+                self.remote_machine.switch_off_networking()
                 self.agent_machine.switch_off_networking()
         else:
             self.local_machine.switch_off_networking()

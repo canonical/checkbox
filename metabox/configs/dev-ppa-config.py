@@ -4,7 +4,7 @@ configuration = {
         'uri': 'ppa:checkbox-dev/ppa',
         'releases': ['bionic', 'focal'],
     },
-    'controller': {
+    'remote': {
         'origin': 'ppa',
         'uri': 'ppa:checkbox-dev/ppa',
         'releases': ['focal'],

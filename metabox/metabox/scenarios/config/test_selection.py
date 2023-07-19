@@ -124,7 +124,7 @@ class LocalTestSelectionResolution(Scenario):
     ]
 
 
-class ControllerTestSelectionResolution(Scenario):
+class RemoteTestSelectionResolution(Scenario):
     """
     According to Checkbox documentation, the resolution order is:
 
@@ -135,9 +135,9 @@ class ControllerTestSelectionResolution(Scenario):
     If a test is excluded from 2 and 3, but the exclusion list is cleaned in 1,
     the test should be run.
 
-    This scenario tests this in controller mode.
+    This scenario tests this in remote mode.
     """
-    modes = ["controller"]
+    modes = ["remote"]
     checkbox_conf_etc = read_text(test_selection, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(test_selection, "checkbox_home_dir.conf")
     launcher = textwrap.dedent("""

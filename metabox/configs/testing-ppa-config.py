@@ -4,7 +4,7 @@ configuration = {
         'uri': 'ppa:checkbox-dev/testing',
         'releases': ['focal', 'jammy'],
     },
-    'controller': {
+    'remote': {
         'origin': 'ppa',
         'uri': 'ppa:checkbox-dev/testing',
         'releases': ['focal'],

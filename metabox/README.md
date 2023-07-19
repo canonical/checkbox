@@ -69,7 +69,7 @@ Let's say I want to test:
 - the [`basic` scenario] (which focuses on Checkbox local)
 - using the latest Debian version of Checkbox available in the Daily Builds PPA
 - on bionic (18.04) and focal (20.04)
-- for Checkbox local only (not Checkbox controller)
+- for Checkbox local only (not Checkbox remote)
 
 I can create the following `local-daily-builds-config.py` file:
 
@@ -127,9 +127,9 @@ set, it will point to the parent directory of the Metabox package. For
 instance, if Metabox was [installed] from `/home/user/code/checkbox/metabox/`,
 `uri` will be set to `/home/user/code/checkbox/`.
 
-### Testing Checkbox controller
+### Testing Checkbox remote
 
-You can test your local modifications to Checkbox Controller with the following
+You can test your local modifications to Checkbox remote with the following
 configuration:
 
 ```python

@@ -70,7 +70,7 @@ apps:
     command: bin/configure
   agent:
     command-chain: [bin/wrapper_local]
-    command: bin/checkbox-cli-wrapper service
+    command: bin/checkbox-cli-wrapper agent
     daemon: simple
     restart-condition: on-failure
     plugs: *standard

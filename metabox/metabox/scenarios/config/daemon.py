@@ -164,6 +164,7 @@ class DeprecatedDaemon(Scenario):
         [test selection]
         forced = yes
         [daemon]
+        normal_user = testuser
         """
     )
     steps = [

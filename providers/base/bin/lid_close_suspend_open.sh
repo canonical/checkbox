@@ -4,7 +4,7 @@ echo "Number of successful suspends until now: $prev_suspend_number"
 echo "Please close the lid and wait for 5 sec to make it suspend~"
 echo "============================================================="
 echo ""
-runTime="20 second"
+runTime="10 second"
 endTimeout=$(date -d "$runTime" +%s)
 echo "Wait for lid close ..."
 echo "-------------------------------------------------------------"

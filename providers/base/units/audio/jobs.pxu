@@ -374,7 +374,7 @@ estimated_duration: 1.0
 imports: from com.canonical.plainbox import manifest
 requires:
   package.name == 'pulseaudio-utils'
-  manifest.has_audio_playback == 'True'
+  audio_card.Playback == 'supported'
 command:
   pactl_list.sh sinks
 _description:
@@ -388,7 +388,7 @@ estimated_duration: 1.0
 imports: from com.canonical.plainbox import manifest
 requires:
   package.name == 'pulseaudio-utils'
-  manifest.has_audio_capture == 'True'
+  audio_card.Capture == 'supported'
 command:
   pactl_list.sh sources
 _description:
@@ -911,3 +911,4 @@ flags: also-after-suspend
 requires: snap.name == 'pulseaudio'
 category_id: com.canonical.plainbox::audio
 estimated_duration: 1m
+

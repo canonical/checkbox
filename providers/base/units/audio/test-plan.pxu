@@ -91,6 +91,8 @@ include:
     after-suspend-audio/detect_sinks
     after-suspend-audio/detect_sources
     after-suspend-audio/alsa_record_playback_automated
+bootstrap_include:
+ audio_card
 
 id: audio-full
 unit: test plan

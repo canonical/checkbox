@@ -2,7 +2,7 @@
 
 [Checkbox] is used on a wide variety of devices (laptops, servers, IoT), with a
 variety of releases (18.04, 20.04, etc.), in a few different ways (run locally,
-using Checkbox controller). Over the years, manually testing Checkbox before each
+using Checkbox remote). Over the years, manually testing Checkbox before each
 stable release has become more and more difficult.
 
 Enter Metabox.
@@ -129,12 +129,12 @@ instance, if Metabox was [installed] from `/home/user/code/checkbox/metabox/`,
 
 ### Testing Checkbox remote
 
-You can test your local modifications to Checkbox remote with the following
+You can test your local modifications to Checkbox Remote with the following
 configuration:
 
 ```python
 configuration = {
-    'controller': {
+    'remote': {
         'origin': 'source',
         'uri': '~/checkbox',
         'releases': ['jammy', 'focal', 'bionic'],

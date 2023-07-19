@@ -37,7 +37,7 @@ jobs:
         # Version of Ubuntu
         os: [16.04, 18.04, 20.04, 22.04]
         # Checkbox mode to test
-        mode: [local, controller]
+        mode: [local, remote]
     defaults:
       run:
         working-directory: metabox

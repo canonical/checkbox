@@ -265,9 +265,9 @@ class CheckboxConfLocalResolutionOrder(Scenario):
 
 class CheckboxConfRemoteAgentResolutionOrder(Scenario):
     """
-    According to the documentation, when the Checkbox Controller starts, it looks
+    According to the documentation, when the Checkbox Remote starts, it looks
     for config files in the same places that local Checkbox session would look
-    (on the Agent side). If the Controller uses a Launcher, then the values from
+    (on the Agent side). If the Remote uses a Launcher, then the values from
     that Launcher take precedence over the values from configs on the Agent
     side.
 

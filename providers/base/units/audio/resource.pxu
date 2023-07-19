@@ -8,10 +8,3 @@ command: alsa_pcm_info.py
 estimated_duration: 1s
 flags: preserve-locale
 
-id: audio_card
-category_id: com.canonical.plainbox::audio
-plugin: resource
-_summary: Collect information about the audio card
-_description: Gets audio resource info from /proc/asound/pcm
-command: audiocard_resource.py
-estimated_duration: 1s

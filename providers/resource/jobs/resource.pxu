@@ -468,3 +468,11 @@ command:
  else
      echo "detected: false"
  fi
+
+id: audio_card
+estimated_duration: 0.05
+plugin: resource
+_summary: Collect information about the audio card
+_description: Gets audio resource info from /proc/asound/pcm
+command: audio_card_resource.py
+

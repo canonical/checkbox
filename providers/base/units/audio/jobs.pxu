@@ -695,32 +695,22 @@ _summary: Check that at least one audio playback device exits
 plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
-imports: from com.canonical.plainbox import manifest
 requires:
-  audio_card.Playback == '1'
+  audio_card.Playback == 'supported'
 command:
- COUNT=$(alsa_pcm_info.py | grep -c Playback)
- echo "Count: $COUNT"
- if [ "$COUNT" -eq 0 ]; then
-  exit 1
- fi
-estimated_duration: 1s
+  audio_card_resource.py
+estimated_duration: 0.5
 
 id: audio/detect-capture-devices
 _summary: Check that at least one audio capture device exists
 plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
-imports: from com.canonical.plainbox import manifest
 requires:
-  audio_card.Capture == '1'
+  audio_card.Capture == 'supported'
 command:
- COUNT=$(alsa_pcm_info.py | grep -c Capture)
- echo "Count: $COUNT"
- if [ "$COUNT" -eq 0 ]; then
-   exit 1
- fi
-esimated_duration: 1s
+  audio_card_resource.py
+esimated_duration: 0.5
 
 id: audio/alsa-playback
 _summary: Playback works

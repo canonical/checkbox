@@ -1,38 +1,33 @@
 ===================
-Installing checkbox
+Installing Checkbox
 ===================
 
-In order to install checkbox you are going to need two parts, a ``runtime``
+In order to install Checkbox you are going to need two parts, a ``runtime``
 and a ``frontend``.
 
-First we need to install the ``runtime``::
+First we need to install the ``runtime``, this tutorial will use the ``checkbox22``
+runtime on Ubuntu22. We also offer versions for ``16``, ``18`` and ``20``
+Use the one that matches your Ubuntu version or refer to `ref_which_snap`_ to
+understand and pick the one that fits your needs::
 
    $ sudo snap install checkbox22
-   Ensure prerequisites for "checkbox22" are available
-   Fetch and check assertions for snap "checkbox22"
-   Mount snap "checkbox22"
-   Mount snap "checkbox22"
-   Copy snap "checkbox22" data
-   Run configure hook of "checkbox22" snap if present
+   [...]
    checkbox22 X.Y.Z from Canonical Certification Team (ce-certification-qa) installed
 
 Now that we have the ``checkbox22`` runtime, we need a ``frontend``, to install it
 run the following::
 
   $ sudo snap install checkbox --channel uc22
-  Ensure prerequisites for "checkbox" are available
-  Mount snap "checkbox"
-  Copy snap "checkbox" data
-  Automatically connect eligible plugs and slots of snap "checkbox"
-  Start snap "checkbox" services
-  Run configure hook of "checkbox" snap if present
+  [...]
   checkbox (22.04/stable) X.Y.Z from Canonical Certification Team (ce-certification-qa) installed
 
 .. note::
+  There are multiple frontends as you may discover by typing ``snap info checkbox``.
   If you are unsure about what ``frontend`` you should use, consider
-  reading this page: `ref_which_snap`_
+  reading this page: `ref_which_snap`_ but for the scope of this tutorial the one
+  installed in this snipped is enough.
 
-Now that we have installed both we can launch checkbox running:
+Now that we have installed both we can launch Checkbox running:
 
 .. code-block:: none
 
@@ -49,8 +44,8 @@ Now that we have installed both we can launch checkbox running:
   Press <Enter> to continue                                                      (H) Help
 
 If your screen is similar to this one, rejoyce! You can start using
-checkbox! For now you can close it using ``Ctrl+C``.
+Checkbox! For now you can close it using ``Ctrl+C``.
 
 You may have noticed that this tutorial has guided you to install a specific version of
-checkbox: ``checkbox22``. We offer more, please refer to `ref_which_snap`_ to know which
+Checkbox: ``checkbox22``. We offer more, please refer to `ref_which_snap`_ to know which
 one you should use.

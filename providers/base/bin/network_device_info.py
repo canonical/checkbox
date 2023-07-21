@@ -39,7 +39,7 @@ class Utils():
     @staticmethod
     def get_ethtool_info(interface, key):
         """Return ethtool information identified by key"""
-        cmd = ['/sbin/ethtool', interface]
+        cmd = ['ethtool', interface]
         try:
             output = check_output(cmd, stderr=STDOUT, universal_newlines=True)
         except CalledProcessError:

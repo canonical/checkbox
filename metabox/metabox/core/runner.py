@@ -77,9 +77,6 @@ class Runner:
                 controller_config = self.config["controller"].copy()
                 agent_config = self.config["agent"].copy()
                 controller_release, agent_release = v.releases
-                print("runner 81")
-                print(v.releases)
-                print()
                 controller_config["alias"] = controller_release
                 agent_config["alias"] = agent_release
                 revisions = self._get_revisions_jobs() # DIO what does revisions jobs do?
@@ -120,15 +117,15 @@ class Runner:
     def _get_revisions_jobs(self):
         """
         If revision testing is requested, returns revisions to test
-        for remote or/and agent
+        for controller or/and agent
         """
-        remote_revisions = ["current"]
+        controller_revisions = ["current"]
         agent_revisions = ["current"]
-        if self.config["remote"].get("revision_testing", False):
-            remote_revisions.append("origin/main")
+        if self.config["controller"].get("revision_testing", False):
+            controller_revisions.append("origin/main")
         if self.config["agent"].get("revision_testing", False):
             agent_revisions.append("origin/main")
-        return product(remote_revisions, agent_revisions)
+        return product(controller_revisions, agent_revisions)
 
     def setup(self):
         self.scenarios = aggregator.all_scenarios()
@@ -141,16 +138,13 @@ class Runner:
                 scenario_cls.modes, scenario_cls.origins
             )
         )
-        print("runner 140")
-        print(self.config)
-        print()
         for scenario_cls, mode, origin in scenarios_modes_origins:
             if mode not in self.config:
                 logger.debug(
                     "Skipping a scenario: [{}] {}", mode, scenario_cls.name
                 )
                 continue
-            if origin != self.config[CORRESPONDING_NAME_BETWEEN_MODE_AND_ROLE[mode]]["origin"]: # Max over here!! same as 165
+            if origin != self.config[role]["origin"]:
                 logger.debug(
                     "Skipping a scenario: [{}][{}] {}",
                     mode,
@@ -169,7 +163,7 @@ class Runner:
                 releases = list(
                     (mode, r_alias, s_alias)
                     for (r_alias, s_alias) in product(
-                        self.config["remote"]["releases"],
+                        self.config["controller"]["releases"],
                         self.config["agent"]["releases"],
                     )
                 )
@@ -177,10 +171,10 @@ class Runner:
                 # names to kwargs
                 revisions = (
                     {
-                        "remote_revision": remote_revision,
+                        "controller_revision": controller_revision,
                         "agent_revision": agent_revision,
                     }
-                    for (remote_revision, agent_revision) in revisions
+                    for (controller_revision, agent_revision) in revisions
                 )
                 releases = product(releases, revisions)
             elif mode == "local":
@@ -241,15 +235,15 @@ class Runner:
             return scenario_description_fmt.format(
                 mode=scn.mode, release_version=scn.releases, name=scn.name
             )
-        remote_rv = scn.releases[0]
+        controller_rv = scn.releases[0]
         agent_rv = scn.releases[1]
-        if scn.remote_revision != "current":
-            remote_rv += " {}".format(scn.remote_revision)
+        if scn.controller_revision != "current":
+            controller_rv += " {}".format(scn.controller_revision)
         if scn.agent_revision != "current":
             agent_rv += " {}".format(scn.agent_revision)
         return scenario_description_fmt.format(
             mode=scn.mode,
-            release_version="({}, {})".format(remote_rv, agent_rv),
+            release_version="({}, {})".format(controller_rv, agent_rv),
             name=scn.name,
         )
 
@@ -260,10 +254,10 @@ class Runner:
             if scn.mode == "remote":
                 scn.controller_machine = self._load("controller", scn.releases[0])
                 scn.agent_machine = self._load("agent", scn.releases[1])
-                scn.remote_machine.rollback_to("provisioned")
+                scn.controller_machine.rollback_to("provisioned")
                 scn.agent_machine.rollback_to("provisioned")
                 if scn.launcher:
-                    scn.remote_machine.put(scn.LAUNCHER_PATH, scn.launcher)
+                    scn.controller_machine.put(scn.LAUNCHER_PATH, scn.launcher)
                 scn.agent_machine.start_user_session()
             elif scn.mode == "local":
                 scn.local_machine = self._load("local", scn.releases[0])
@@ -292,7 +286,7 @@ class Runner:
                             "the following commands:\n{}\n{}\n"
                             "Press enter to continue testing"
                         ).format(
-                            scn.remote_machine.get_connecting_cmd(),
+                            scn.controller_machine.get_connecting_cmd(),
                             scn.agent_machine.get_connecting_cmd(),
                         )
                     elif scn.mode == "local":

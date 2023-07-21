@@ -57,15 +57,15 @@ class Scenario:
         self,
         mode,
         *releases,
-        remote_revision="current",
+        controller_revision="current",
         agent_revision="current"
     ):
         self.mode = mode
         self.releases = releases
         # machines set up by Runner.run()
         self.local_machine = None
-        self.remote_machine = None
-        self.remote_revision = remote_revision
+        self.controller_machine = None
+        self.controller_revision = controller_revision
         self.agent_machine = None
         self.agent_revision = agent_revision
         self._checks = []
@@ -183,15 +183,15 @@ class Scenario:
 
     def start_all(self, interactive=False, timeout=0):
         self.start_agent()
-        outcome = self.start_remote(interactive, timeout)
+        outcome = self.start_controller(interactive, timeout)
         if interactive:
             self._pts = outcome
         else:
             self._assign_outcome(*outcome)
         return outcome
 
-    def start_remote(self, interactive=False, timeout=0):
-        outcome = self.remote_machine.start_remote(
+    def start_controller(self, interactive=False, timeout=0):
+        outcome = self.controller_machine.start_controller(
             self.agent_machine.address,
             self.LAUNCHER_PATH,
             interactive,
@@ -234,7 +234,7 @@ class Scenario:
             elif target == "agent":
                 self.agent_machine.run_cmd(cmd, env, interactive, timeout)
             else:
-                self.remote_machine.run_cmd(cmd, env, interactive, timeout)
+                self.controller_machine.run_cmd(cmd, env, interactive, timeout)
                 self.agent_machine.run_cmd(cmd, env, interactive, timeout)
         else:
             self.local_machine.run_cmd(cmd, env, interactive, timeout)
@@ -246,7 +246,7 @@ class Scenario:
             elif target == "agent":
                 self.agent_machine.reboot(timeout)
             else:
-                self.remote_machine.reboot(timeout)
+                self.controller_machine.reboot(timeout)
                 self.agent_machine.reboot(timeout)
         else:
             self.local_machine.reboot(timeout)
@@ -258,7 +258,7 @@ class Scenario:
             elif target == "agent":
                 self.agent_machine.put(filepath, data, mode, uid, gid)
             else:
-                self.remote_machine.put(filepath, data, mode, uid, gid)
+                self.controller_machine.put(filepath, data, mode, uid, gid)
                 self.agent_machine.put(filepath, data, mode, uid, gid)
         else:
             self.local_machine.put(filepath, data, mode, uid, gid)
@@ -270,7 +270,7 @@ class Scenario:
             elif target == "agent":
                 self.agent_machine.switch_on_networking()
             else:
-                self.remote_machine.switch_on_networking()
+                self.controller_machine.switch_on_networking()
                 self.agent_machine.switch_on_networking()
         else:
             self.local_machine.switch_on_networking()
@@ -282,7 +282,7 @@ class Scenario:
             elif target == "agent":
                 self.agent_machine.switch_off_networking()
             else:
-                self.remote_machine.switch_off_networking()
+                self.controller_machine.switch_off_networking()
                 self.agent_machine.switch_off_networking()
         else:
             self.local_machine.switch_off_networking()

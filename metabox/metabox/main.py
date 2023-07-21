@@ -92,9 +92,6 @@ def main():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         runner = Runner(parser.parse_args())
-        print("main 79")
-        print(parser.parse_args())
-        print()
         runner.setup()
         runner.run()
         raise SystemExit(not runner.wasSuccessful())

@@ -61,6 +61,8 @@ Examples:
 
   ``checkbox-cli control dut8.local --port 10101``
 
+.. _remote_session_control:
+
 Session control
 ===============
 

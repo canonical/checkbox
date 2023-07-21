@@ -174,10 +174,11 @@ parts:
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
       echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install "build<0.4" "setuptools>=42,<51" setuptools>=42 setuptools_scm[toml]>=3.4 --force-reinstall
-      python3 -m build --no-isolation -x
+      python3 -m pip install -U "pip<21"
+      python3 -m pip install "setuptools>=42,<51" setuptools_scm[toml]>=3.4
       # also, call pip again, this installs the module itself
       python3 -m pip install .
+      python3 -m pip install importlib_metadata==1.0.0 "zipp<2"
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -207,10 +208,11 @@ parts:
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
       echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install "build<0.4" "setuptools>=42,<51" setuptools>=42 setuptools_scm[toml]>=3.4 --force-reinstall
-      python3 -m build --no-isolation -x
+      python3 -m pip install -U "pip<21"
+      python3 -m pip install "setuptools>=42,<51" setuptools_scm[toml]>=3.4
       # also, call pip again, this installs the module itself
       python3 -m pip install .
+      python3 -m pip install importlib_metadata==1.0.0 "zipp<2"
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

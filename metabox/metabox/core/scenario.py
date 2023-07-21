@@ -229,8 +229,8 @@ class Scenario:
 
     def run_cmd(self, cmd, env={}, interactive=False, timeout=0, target="all"):
         if self.mode == "remote":
-            if target == "remote":
-                self.remote_machine.run_cmd(cmd, env, interactive, timeout)
+            if target == "controller":
+                self.controller_machine.run_cmd(cmd, env, interactive, timeout)
             elif target == "agent":
                 self.agent_machine.run_cmd(cmd, env, interactive, timeout)
             else:
@@ -241,8 +241,8 @@ class Scenario:
 
     def reboot(self, timeout=0, target="all"):
         if self.mode == "remote":
-            if target == "remote":
-                self.remote_machine.reboot(timeout)
+            if target == "controller":
+                self.controller_machine.reboot(timeout)
             elif target == "agent":
                 self.agent_machine.reboot(timeout)
             else:
@@ -253,8 +253,8 @@ class Scenario:
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000, target="all"):
         if self.mode == "remote":
-            if target == "remote":
-                self.remote_machine.put(filepath, data, mode, uid, gid)
+            if target == "controller":
+                self.controller_machine.put(filepath, data, mode, uid, gid)
             elif target == "agent":
                 self.agent_machine.put(filepath, data, mode, uid, gid)
             else:
@@ -265,8 +265,8 @@ class Scenario:
 
     def switch_on_networking(self, target="all"):
         if self.mode == "remote":
-            if target == "remote":
-                self.remote_machine.switch_on_networking()
+            if target == "controller":
+                self.controller_machine.switch_on_networking()
             elif target == "agent":
                 self.agent_machine.switch_on_networking()
             else:
@@ -277,8 +277,8 @@ class Scenario:
 
     def switch_off_networking(self, target="all"):
         if self.mode == "remote":
-            if target == "remote":
-                self.remote_machine.switch_off_networking()
+            if target == "controller":
+                self.controller_machine.switch_off_networking()
             elif target == "agent":
                 self.agent_machine.switch_off_networking()
             else:

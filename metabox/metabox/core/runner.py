@@ -74,15 +74,18 @@ class Runner:
     def _gather_all_machine_spec(self):
         for v in self.scn_variants:
             if v.mode == "remote":
-                remote_config = self.config["remote"].copy()
+                controller_config = self.config["controller"].copy()
                 agent_config = self.config["agent"].copy()
-                remote_release, agent_release = v.releases
-                remote_config["alias"] = remote_release
+                controller_release, agent_release = v.releases
+                print("runner 81")
+                print(v.releases)
+                print()
+                controller_config["alias"] = controller_release
                 agent_config["alias"] = agent_release
-                revisions = self._get_revisions_jobs()
-                for remote_revision, agent_revision in revisions:
-                    remote_config["revision"] = remote_revision
-                    self.combo.add(MachineConfig("remote", remote_config))
+                revisions = self._get_revisions_jobs() # DIO what does revisions jobs do?
+                for controller_revision, agent_revision in revisions:
+                    controller_config["revision"] = controller_revision
+                    self.combo.add(MachineConfig("controller", controller_config))
                     agent_config["revision"] = agent_revision
                     self.combo.add(MachineConfig("agent", agent_config))
             elif v.mode == "local":
@@ -138,13 +141,16 @@ class Runner:
                 scenario_cls.modes, scenario_cls.origins
             )
         )
+        print("runner 140")
+        print(self.config)
+        print()
         for scenario_cls, mode, origin in scenarios_modes_origins:
             if mode not in self.config:
                 logger.debug(
                     "Skipping a scenario: [{}] {}", mode, scenario_cls.name
                 )
                 continue
-            if origin != self.config[mode]["origin"]:
+            if origin != self.config[CORRESPONDING_NAME_BETWEEN_MODE_AND_ROLE[mode]]["origin"]: # Max over here!! same as 165
                 logger.debug(
                     "Skipping a scenario: [{}][{}] {}",
                     mode,
@@ -154,8 +160,8 @@ class Runner:
                 continue
             scn_config = scenario_cls.config_override
             if mode == "remote":
-                remote_releases = self._override_filter_or_get(
-                    scn_config, "remote", "releases"
+                controller_releases = self._override_filter_or_get(
+                    scn_config, "controller", "releases"
                 )
                 agent_releases = self._override_filter_or_get(
                     scn_config, "agent", "releases"
@@ -221,7 +227,7 @@ class Runner:
         )
         self.machine_provider.setup()
 
-    def _load(self, mode, release_alias):
+    def _load(self, mode, release_alias): # mode can be local, agent, controller. so it's not exactly mode nor role
         config = self.config[mode].copy()
         config["alias"] = release_alias
         config["role"] = mode
@@ -252,7 +258,7 @@ class Runner:
         total = len(self.scn_variants)
         for idx, scn in enumerate(self.scn_variants, 1):
             if scn.mode == "remote":
-                scn.remote_machine = self._load("remote", scn.releases[0])
+                scn.controller_machine = self._load("controller", scn.releases[0])
                 scn.agent_machine = self._load("agent", scn.releases[1])
                 scn.remote_machine.rollback_to("provisioned")
                 scn.agent_machine.rollback_to("provisioned")

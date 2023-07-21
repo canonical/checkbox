@@ -221,7 +221,7 @@ class Runner:
         )
         self.machine_provider.setup()
 
-    def _load(self, mode, release_alias): # mode can be local, agent, controller. so it's not exactly mode nor role
+    def _load(self, mode, release_alias):
         config = self.config[mode].copy()
         config["alias"] = release_alias
         config["role"] = mode

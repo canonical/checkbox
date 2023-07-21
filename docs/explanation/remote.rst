@@ -67,16 +67,7 @@ Session control
 ===============
 
 While Controller is connected, sending ``SIGINT`` (pressing ``Ctrl-C``) to the
-application invokes the interrupt screen::
-
-      What do you want to interrupt?
-
-  (X) Nothing, continue testing (ESC)
-  ( ) Stop the test case in progress and move on to the next
-  ( ) Disconnect but let the test session continue (CTRL+C)
-  ( ) Exit and stop the Checkbox service on the agent at 127.0.0.1
-  ( ) End this test session preserving its data and launch a new one
-
+application invokes the interrupt screen which provides the following choices:
 
 Nothing, continue testing (ESC)
   As the name implies, it returns to the session. You can press the ``Esc`` key
@@ -85,19 +76,21 @@ Nothing, continue testing (ESC)
 Stop the test case in progress and move on to the next
   Skip current test case and move to the next.
 
-Disconnect but let the test session continue (CTRL+C)
-  Leaves the session on the Agent running, but let the Controller exit.
+Pause the test session and disconnect from the agent (CTRL+C)
+  Leave the session on the Agent running but let the Controller exit.
   Pressing ``Ctrl-C`` a second time will have the same effect. It is possible
   to reconnect to the Agent later on and resume the testing session.
 
 Exit and stop the Checkbox service on the agent at 127.0.0.1
-  Stops the session on and terminates the Checkbox process on the Agent. In
-  addition, stops the Controller.
+  Stop the current test session and terminate the Checkbox Agent. In
+  addition, stop the Controller.
 
 End this test session preserving its data and launch a new one
-  Stops the current session on the Agent and mark it so it is not possible to resume
-  it, then immediately starts a new one. The Controller will be greeted with
-  the test plan selection screen.
+  Stop the current session on the Agent and mark it so it is not possible to
+  resume it, then immediately start a new one. The Controller will be greeted
+  with the test plan selection screen unless a launcher was used to bypass the
+  selection screens, in which case a similar test session is immediately
+  started.
 
 Remote session characteristics
 ==============================

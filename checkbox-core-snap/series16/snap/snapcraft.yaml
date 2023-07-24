@@ -152,15 +152,6 @@ parts:
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
-    override-stage: |
-      snapcraftctl stage
-      # The oneliner below was required in 2019 to fix an upstream bug:
-      # https://github.com/python-distro/distro/issues/260
-      # This patch was meant to catch and ignore subprocess.CalledProcessError
-      # when running lsb_release on ubuntu core
-      # The fix was finally released with the distro 1.6 release available as of
-      # 22.04 (i.e base: core22)
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/**/**/distro.py
     override-pull: |
       PYTHONHOME=/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --upgrade 'pip; python_version >= "3.6"' 'pip<21; python_version < "3.6"' --user
       snapcraftctl pull
@@ -174,11 +165,9 @@ parts:
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
       echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install -U "pip<21"
-      python3 -m pip install "setuptools>=42,<51" setuptools_scm[toml]>=3.4
+      python3 -m pip install --force-reinstall "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
       # also, call pip again, this installs the module itself
       python3 -m pip install .
-      python3 -m pip install importlib_metadata==1.0.0 "zipp<2"
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -208,11 +197,9 @@ parts:
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
       echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install -U "pip<21"
-      python3 -m pip install "setuptools>=42,<51" setuptools_scm[toml]>=3.4
+      python3 -m pip install --force-reinstall "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
       # also, call pip again, this installs the module itself
       python3 -m pip install .
-      python3 -m pip install importlib_metadata==1.0.0 "zipp<2"
 ################################################################################
   checkbox-provider-resource:
     plugin: dump
@@ -428,3 +415,4 @@ parts:
   common-config:
     plugin: dump
     source: config/
+    source-type: local

@@ -739,7 +739,7 @@ def interrupt_dialog(host):
         index = next(
             radio_button_group.index(i) for i in radio_button_group if i.state)
         return ['cancel', 'kill-command', 'kill-controller',
-                'kill-service', 'abandon'][index]
+                'kill-agent', 'abandon'][index]
     except StopIteration:
         return None
 

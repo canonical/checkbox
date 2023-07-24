@@ -81,8 +81,9 @@ Glossary
 
     Bootstrapping
 
-        Phase of a Checkbox session where resource jobs are executed to gather
-        information about the hardware.
+        Phase of a Checkbox session where :ref:`resource jobs<resource>` are
+        executed to gather information about the hardware and :ref:`template
+        jobs<templates>` are instantiated based on said hardware.
 
     Requirement program
 

@@ -50,9 +50,9 @@ def get_audio_cards():
 def print_audio_cards(cards):
     """Print audio card information."""
     for card in cards:
-        print(f"card: {card['Card']}")
-        print(f"device: {card['Device']}")
-        print(f"name: {card['Name']}")
+        print("card: {}.format(card['Card'])")
+        print("device: {}.format(card['Device'])")
+        print("name: {}.format(card['Name'])")
         if card['Playback']:
             print("playback: 1")
         if card['Capture']:

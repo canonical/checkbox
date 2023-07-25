@@ -269,12 +269,6 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     :raises LookupError:
         When no such object can be found.
     """
-    # debian and unconfined checkbox-ng.service
-    # 'checkbox-slave' is deprecated, it's here so people can resume old
-    # session, but the next line should become:
-    #  session_type == 'remote':
-    # with the next release or when we do inclusive naming refactor
-    # or roughly after April of 2022
     if session_type in ('remote', 'checkbox-agent'):
         try:
             env = os.environ
@@ -317,12 +311,6 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     # Classic snaps
     snap_data = os.getenv('SNAP_DATA')
     if snap_data:
-        # Classic snaps w/ remote service enabled and in use
-        # 'checkbox-slave' is deprecated, it's here so people can resume old
-        # session, but the next line should become:
-        #  session_type == 'remote':
-        # with the next release or when we do inclusive naming refactor
-        # or roughly after April of 2022
         if session_type in ('remote', 'checkbox-agent'):
             try:
                 agent_status = subprocess.check_output(

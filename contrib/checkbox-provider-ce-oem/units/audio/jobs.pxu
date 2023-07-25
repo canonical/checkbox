@@ -14,8 +14,8 @@ _steps:
 _verification:
     Do you hear the sound you record clearly?
 command:
-    arecord -d 5 -t wav $PLAINBOX_SESSION_SHARE/mono.wav
-    aplay $PLAINBOX_SESSION_SHARE/mono.wav
+    arecord -d 5 -t wav "$PLAINBOX_SESSION_SHARE/mono.wav"
+    aplay "$PLAINBOX_SESSION_SHARE/mono.wav"
 
 id: ce-oem-audio/alsa-utils-record-stereo
 plugin: user-interact-verify
@@ -33,5 +33,5 @@ _steps:
 _verification:
     Do you hear the sound you record clearly?
 command:
-    arecord -d 5 -f cd -t wav $PLAINBOX_SESSION_SHARE/stereo.wav
-    aplay $PLAINBOX_SESSION_SHARE/stereo.wav
+    arecord -d 5 -f cd -t wav "$PLAINBOX_SESSION_SHARE/stereo.wav"
+    aplay "$PLAINBOX_SESSION_SHARE/stereo.wav"

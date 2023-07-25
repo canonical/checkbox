@@ -6,10 +6,10 @@ command:
  echo "Starting stress-ng in 10s"
  sleep 10
  cur=$(cat /sys/class/thermal/thermal_zone0/temp)
- printf "Before stress: %0.2f°C\n" $(bc -l <<< "$cur/1000")
+ printf "Before stress: %0.2f°C\n" "$(bc -l <<< "$cur/1000")"
  stress-ng --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 20s
  new=$(cat /sys/class/thermal/thermal_zone0/temp)
- printf "After stress:  %0.2f°C\n" $(bc -l <<< "$new/1000")
+ printf "After stress:  %0.2f°C\n" "$(bc -l <<< "$new/1000")"
  [[ $new -gt $cur ]]
 category_id: sensor
 estimated_duration: 30

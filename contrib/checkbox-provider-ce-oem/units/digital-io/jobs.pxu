@@ -80,4 +80,4 @@ command:
     echo "## Perform the digital I/O loopback test"
     echo "DO{DO} register byte is {DO_REGISTER_BYTE}"
     echo "DI{DI} register byte is {DI_REGISTER_BYTE}"
-    digital_io_loopback_serial_test.py -o {DO_REGISTER_BYTE} -i {DI_REGISTER_BYTE} -s $DIGITAL_IO_CONSOLE
+    digital_io_loopback_serial_test.py -o {DO_REGISTER_BYTE} -i {DI_REGISTER_BYTE} -s "$DIGITAL_IO_CONSOLE"

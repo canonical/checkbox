@@ -68,7 +68,12 @@ compareFile() {
 # $2 is the path of compared file 2
 # $3 is the specific mtd. e.g. mtd1
     echo "##### Compare File #####"
-    diff "$1" "$2" && echo "$3 read and write file are consistency!" || (echo "$3 read and write file are inconsistency!!" ; exit 1)
+    if diff "$1" "$2"; then
+        echo "$3 read and write files are consistent!"
+    else
+        echo "$3 read and write files are inconsistent!!"
+        exit 1
+    fi
 }
 
 main(){

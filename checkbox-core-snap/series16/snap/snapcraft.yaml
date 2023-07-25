@@ -165,9 +165,9 @@ parts:
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
       echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install --force-reinstall "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
       # also, call pip again, this installs the module itself
-      python3 -m pip install .
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install .
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -197,9 +197,9 @@ parts:
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
       echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install --force-reinstall "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
       # also, call pip again, this installs the module itself
-      python3 -m pip install .
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install .
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

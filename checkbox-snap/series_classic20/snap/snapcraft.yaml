@@ -29,7 +29,7 @@ apps:
     command: bin/configure
   agent:
     command-chain: [bin/wrapper_local]
-    command: bin/checkbox-cli-wrapper agent
+    command: bin/checkbox-cli-wrapper run-agent
     daemon: simple
     restart-condition: on-failure
   shell:

@@ -20,7 +20,7 @@ unit: test plan
 _name: EEPROM auto tests
 _description: Automated EEPROM tests for devices
 include:
-    ce-oem-eeprom/read-write
+nested_part:
 
 id: after-suspend-ce-oem-eeprom-manual
 unit: test plan
@@ -33,4 +33,4 @@ unit: test plan
 _name: EEPROM auto tests
 _description: Automated EEPROM tests for devices
 include:
-    after-suspend-ce-oem-eeprom/read-write
+nested_part:

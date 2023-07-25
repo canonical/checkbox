@@ -7,7 +7,7 @@ user: root
 command:
     gadget=$(python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print(get_gadget_snap())')
     dest="${PLAINBOX_SESSION_SHARE}"/"$gadget"-device-tree.dts
-    dtc -I fs -O dts -o $dest /proc/device-tree/ > /dev/null 2>&1
+    dtc -I fs -O dts -o "$dest" /proc/device-tree/ > /dev/null 2>&1
     if [ -e "$dest" ]; then
         cat "$dest"
     else

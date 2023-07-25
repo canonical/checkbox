@@ -20,11 +20,8 @@ unit: test plan
 _name: Multiple RTC auto tests
 _description: Automated multiple RTC tests
 bootstrap_include:
-    ce-oem-rtc_list
 include:
-    ce-oem-rtc/rtc_number
-    ce-oem-rtc/rtc_alarm_.*
-    ce-oem-rtc/rtc_clock_.*
+nested_part:
 
 id: after-suspend-ce-oem-rtc-manual
 unit: test plan
@@ -37,8 +34,5 @@ unit: test plan
 _name: Multiple after suspend RTC auto tests
 _description: Automated after suspend multiple RTC tests
 bootstrap_include:
-    ce-oem-rtc_list
 include:
-    after-suspend-ce-oem-rtc/rtc_number
-    after-suspend-ce-oem-rtc/rtc_alarm_.*
-    after-suspend-ce-oem-rtc/rtc_clock_.*
+nested_part:

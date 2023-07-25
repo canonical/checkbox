@@ -9,8 +9,8 @@ requires: manifest.has_caam == 'True'
 imports: from com.canonical.plainbox import manifest
 command:
     hwrng_path="/sys/class/misc/hw_random/rng_current"
-    echo "Hardware RNG currently using in system is: "$(cat $hwrng_path)""
-    if grep -q rng-caam $hwrng_path
+    echo "Hardware RNG currently using in system is: $(cat $hwrng_path)"
+    if grep -q rng-caam "$hwrng_path"
     then
         echo "PASS: rng-caam is available"
         exit 0
@@ -34,12 +34,12 @@ command:
         echo "ERROR: Can not find CAAM job ring interrupts"
         exit 1
     fi
-    echo "CAAM Job ring interrupt before using Hardware RNG: "$init_interrupt""
+    echo "CAAM Job ring interrupt before using Hardware RNG: $init_interrupt"
     echo "Starting DD of /dev/hwrng ..."
     dd if=/dev/hwrng bs=1M count=10 > /dev/null
     echo "Finished DD ..."
     interrupt=$(awk '/\.jr/ {printf "%s ",$2;next;}' /proc/interrupts|sed 's/ //g')
-    echo "CAAM Job ring interrupt after using Hardware RNG: "$interrupt""
+    echo "CAAM Job ring interrupt after using Hardware RNG: $interrupt"
     if [ "$interrupt" -gt "$init_interrupt" ];
     then
         echo "PASS: CAAM job ring interrupts have increased."

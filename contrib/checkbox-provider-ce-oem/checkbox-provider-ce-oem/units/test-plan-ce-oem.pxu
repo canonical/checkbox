@@ -69,6 +69,8 @@ nested_part:
     ce-oem-led-automated
     ce-oem-caam-automated
     ce-oem-crypto-automated
+    com.canonical.certification::eeprom-automated
+    com.canonical.certification::rtc-automated
 
 id: after-suspend-ce-oem-manual
 unit: test plan
@@ -120,6 +122,8 @@ nested_part:
     after-suspend-ce-oem-led-automated
     after-suspend-ce-oem-caam-automated
     after-suspend-ce-oem-crypto-automated
+    com.canonical.certification::after-suspend-eeprom-automated
+    com.canonical.certification::after-suspend-rtc-automated
 
 id: ce-oem-stress
 unit: test plan

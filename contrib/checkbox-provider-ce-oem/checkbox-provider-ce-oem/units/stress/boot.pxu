@@ -33,7 +33,7 @@ unit: job
 plugin: shell
 environ: STRESS_BOOT_WAKEUP_DELAY
 command:
-    cold_reboot_by_pdu.sh -t $NETWORK_PDU_TYPE -p $NETWORK_PDU_CONF -d "$STRESS_BOOT_WAKEUP_DELAY"
+    cold_reboot_by_pdu.sh -t "$NETWORK_PDU_TYPE" -p "$NETWORK_PDU_CONF" -d "$STRESS_BOOT_WAKEUP_DELAY"
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 300

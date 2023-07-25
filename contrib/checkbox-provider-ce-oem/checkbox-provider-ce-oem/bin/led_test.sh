@@ -14,7 +14,7 @@ export_gpio() {
 }
 
 test_gpio_leds() {
-    echo "Testing "$name" on GPIO "$port" ..."
+    echo "Testing $name on GPIO $port ..."
     ori_status=$(cat "$gpio_node"/value)
     i=0
     while [ "$i" -le 3 ]; do
@@ -28,15 +28,15 @@ test_gpio_leds() {
 }
 
 test_sysfs_leds() {
-    ori_status=$(cat /sys/class/leds/$name/brightness)
+    ori_status=$(cat /sys/class/leds/"$name"/brightness)
     for i in $(seq 1 3); do
         for y in 1 0 ; do
-            echo $y > /sys/class/leds/$name/brightness
-            test `cat /sys/class/leds/$name/brightness` == $y || exit 1
+            echo $y > /sys/class/leds/"$name"/brightness
+            test "cat /sys/class/leds/$name/brightness" == $y || exit 1
             sleep 1
         done
     done
-    echo $ori_status > /sys/class/leds/$name/brightness
+    echo "$ori_status" > /sys/class/leds/"$name"/brightness
 }
 
 main() {

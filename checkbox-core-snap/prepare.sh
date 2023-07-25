@@ -47,12 +47,18 @@ echo "Copying over checkbox-ng to $series"
 rsync -r --links ../checkbox-ng $series/
 echo "Copying over checkbox-support to $series"
 rsync -r --links ../checkbox-support $series
-echo "Dumping version in version file for $series"
-# setuptools_scm fetches the version calculating it from the latest tag.
-# We use the default setuptools_scm schema refert to:
-# https://pypi.org/project/setuptools-scm/ for more infos. Generally:
-# no distance and clean: {tag}
-# distance and clean: {next_version}.dev{distance}+{scm letter}{revision hash}
-# no distance and not clean: {tag}+dYYYYMMDD
-# distance and not clean: {next_version}.dev{distance}+{scm letter}{revision hash}.dYYYYMMDD
-(cd .. && python3 -m setuptools_scm | grep -oP "\S+$") 2>/dev/null 1>$series/version.txt
+echo "Dumping version in version file for $series..."
+if python3 -c 'import setuptools_scm' &> /dev/null; then
+	# setuptools_scm fetches the version calculating it from the latest tag.
+	# We use the default setuptools_scm schema refert to:
+	# https://pypi.org/project/setuptools-scm/ for more infos. Generally:
+	# no distance and clean: {tag}
+	# distance and clean: {next_version}.dev{distance}+{scm letter}{revision hash}
+	# no distance and not clean: {tag}+dYYYYMMDD
+	# distance and not clean: {next_version}.dev{distance}+{scm letter}{revision hash}.dYYYYMMDD
+	(cd .. && python3 -m setuptools_scm | grep -oP "\S+$") 2>/dev/null 1>$series/version.txt
+else
+	echo "Error: Python package 'setuptools-scm' not available."
+	echo "Please install it and try again."
+	exit 1
+fi

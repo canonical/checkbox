@@ -57,7 +57,7 @@ class PlainBoxToolBase(ToolBase):
     parser and the full parser. The early parser quickly checks for a fraction
     of supported arguments and uses that data to initialize environment before
     construction of a full parser is possible. The full parser sees the
-    reminder of the input and does not re-parse things that where already
+    reminder of the input and does not re-parse things that were already
     handled.
 
     The second concern is that this command natively supports the concept of a

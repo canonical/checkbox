@@ -159,7 +159,7 @@ class FakeResource:
     """
     A resource that seemingly has any accessed attribute.
 
-    All attributes resolve back to the their name. All accessed attributes are
+    All attributes resolve back to their names. All accessed attributes are
     recorded and can be referenced from a set that needs to be passed to the
     initializer. Knowledge about accessed attributes can be helpful in various
     forms of static analysis.

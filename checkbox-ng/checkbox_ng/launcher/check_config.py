@@ -51,7 +51,6 @@ class CheckConfig:
 
     @classmethod
     def register_arguments(cls, parser):
-        """Register extra args for this subcmd. No extra args ATM."""
         parser.add_argument(
             "launcher", nargs="?", help="launcher definition file to use"
         )

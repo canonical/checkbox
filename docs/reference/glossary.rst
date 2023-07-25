@@ -14,6 +14,14 @@ Glossary
 
         A team inside Canonical working on :term:`Hardware Certification`.
 
+    DUT
+
+        Device Under Test. The device being tested by Checkbox.
+
+    Agent
+
+        Synonym of :term:`DUT`.
+
     Checkbox
 
         Checkbox is a hardware testing tool developed by Canonical for
@@ -24,10 +32,15 @@ Glossary
 
         Name of the package in Ubuntu Archive that contains Checkbox.
 
-    Plainbox
+    Checkbox Controller
 
-        Plainbox is a functional core of the Checkbox.
-        These days it's almost synonymous with Checkbox.
+      Checkbox instance that **controls the execution** of tests on the
+      :term:`DUT` or :term:`agent`, such as a laptop.
+
+    Checkbox Agent
+
+      Checkbox instance that runs on the :term:`DUT` or :term:`agent` and
+      **executes** tests.
 
     Test plan
 
@@ -97,9 +110,3 @@ Glossary
         certification. This identifier is used when interacting with the
         Certification Website, it does not reveal anything about the actual
         hardware (like the manufacturer name or device name).
-
-    PyPI
-
-        The Python Package Index where any developer can share their python
-        programs and libraries. PyPI is available at:
-        https://pypi.org/.

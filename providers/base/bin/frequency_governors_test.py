@@ -366,7 +366,7 @@ class CPUScalingTest(object):
             if not self.setGovernor(governor):
                 success = False
 
-            # Set the the CPU speed to it's lowest value
+            # Set the CPU speed to its lowest value
             frequency = self.minFreq
             logging.info(
                 "Setting CPU frequency to %u MHz" % (int(frequency) / 1000))

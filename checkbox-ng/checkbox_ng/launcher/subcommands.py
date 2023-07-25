@@ -217,10 +217,8 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def invoked(self, ctx):
         if ctx.args.version:
-            from checkbox_ng.version import get_version_info
-
-            for component, version in get_version_info().items():
-                print("{}: {}".format(component, version))
+            import checkbox_ng
+            print(checkbox_ng.__version__)
             return
         if ctx.args.verify:
             # validation is always run, so if there were any errors the program

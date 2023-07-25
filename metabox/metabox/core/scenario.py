@@ -52,13 +52,15 @@ class Scenario:
             cls.origins = ["source", "ppa", "classic-snap", "snap"]
         aggregator.add_scenario(cls)
 
-    def __init__(self, mode, *releases):
+    def __init__(self, mode, *releases, remote_revision="current", service_revision="current"):
         self.mode = mode
         self.releases = releases
         # machines set up by Runner.run()
         self.local_machine = None
         self.remote_machine = None
+        self.remote_revision = remote_revision
         self.service_machine = None
+        self.service_revision = service_revision
         self._checks = []
         self._ret_code = None
         self._stdout = ''

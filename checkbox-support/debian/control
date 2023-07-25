@@ -6,6 +6,7 @@ Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>
 Build-Depends:
  debhelper (>= 9),
  dh-python,
+ pybuild-plugin-pyproject,
  python3-all,
  python3-bluez,
  python3-dbus,
@@ -18,6 +19,7 @@ Build-Depends:
  python3-requests,
  python3-requests-unixsocket,
  python3-setuptools,
+ python3-setuptools-scm,
  python3-yaml
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.5

@@ -5,18 +5,24 @@ Configuration values resolution order
 =====================================
 
 The directories that are searched for config files are:
-``/etc/xdg/``
-``~/.config/``
+
+* ``/etc/xdg/``
+* ``~/.config/``
+* ``$SNAP_DATA`` if run as a snap
 
 Invoking ``checkbox-cli`` (without launcher)
 --------------------------------------------
-Assumed config file name is ``checkbox.conf``
+
+By default, Checkbox will look for a config file named ``checkbox.conf`` in the
+directories mentioned above.
 
 Invoking launcher
 -----------------
-The file name to look for is specified using ``config_filename`` variable from
-launcher, from the ``[config]`` section. If it's not present, ``checkbox.conf``
-is used.
+
+If using a :ref:`launcher<launcher>`, the file name to look for is specified
+using the ``config_filename`` variable from the ``[config]`` section (see
+:ref:`launcher_config` for more information). If it's not present,
+``checkbox.conf`` is used.
 
 Note that if same configuration variable is defined in more than one place, the
 value resolution is as follows:
@@ -29,16 +35,16 @@ value resolution is as follows:
 Configs with Checkbox Remote
 ============================
 
-When the Checkbox Slave starts, it looks for config files in the same places
-that local Checkbox session would look (on the Slave side).
-If the Master uses a Launcher, then the values from that Launcher take
-precedence over the values from configs on the Slave side.
+When the :term:`Checkbox Agent` starts, it looks for config files in the same
+places that local Checkbox session would look (on the :term:`Agent` side). If
+the :term:`Checkbox Controller` uses a Launcher, then the values from that
+Launcher take precedence over the values from configs on the :term:`Agent` side.
 
 Example:
 
 ::
 
-    # checkbox.conf on the Slave
+    # checkbox.conf on the Agent
 
     [environment]
     FOO = 12
@@ -46,7 +52,7 @@ Example:
 
 ::
 
-    # Launcher used by the master
+    # Launcher used by the Controller
 
     # (...)
     [environment]
@@ -54,5 +60,5 @@ Example:
 
 A Checkbox job that runs ``echo $FOO $BAR`` would print ``42 6``
 
-Note that ``BAR`` is still available even though Master used Launcher that did
-not define it.
+Note that ``BAR`` is still available even though the Controller used a Launcher
+that did not define it.

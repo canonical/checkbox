@@ -1,0 +1,32 @@
+name: Test Intel IOTG provider with tox
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - providers/iiotg/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - providers/iiotg/**
+  workflow_dispatch:
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: providers/iiotg
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python: ["3.5", "3.6", "3.8", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tox
+        run: pip install tox
+      - name: Run tox
+        run: tox

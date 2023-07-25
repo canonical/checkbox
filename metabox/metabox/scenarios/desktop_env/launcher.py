@@ -29,8 +29,8 @@ from metabox.core.utils import _re
 
 
 class GlxGears(Scenario):
-
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
     [launcher]
     launcher_version = 1
     stock_reports = text
@@ -39,36 +39,14 @@ class GlxGears(Scenario):
     forced = yes
     [test selection]
     forced = yes
-    """)
+    """
+    )
     steps = [
-        Expect('Pick an action'),
+        Expect("Pick an action"),
         Send(keys.KEY_ENTER),
-        Expect('FPS'),
-        RunCmd('pkill -2 glxgears'),
-        Expect('Pick an action'),
-        Send('p' + keys.KEY_ENTER),
-        Expect(_re('(☑|job passed).*Test that glxgears works')),
-    ]
-
-
-class AudioPlayback(Scenario):
-
-    launcher = textwrap.dedent("""
-    [launcher]
-    launcher_version = 1
-    stock_reports = text
-    [test plan]
-    unit = 2021.com.canonical.certification::audio-manual
-    forced = yes
-    [test selection]
-    forced = yes
-    """)
-    steps = [
-        Expect('Pick an action'),
-        Send(keys.KEY_ENTER),
-        Expect('Pipeline initialized, now starting playback.'),
-        Expect('Pick an action', timeout=10),
-        Send('p' + keys.KEY_ENTER),
-        AssertNotPrinted('Connection failure: Connection refused'),
-        Expect(_re('(☑|job passed).*audio/playback_auto'), timeout=10),
+        Expect("FPS"),
+        RunCmd("pkill -2 glxgears"),
+        Expect("Pick an action"),
+        Send("p" + keys.KEY_ENTER),
+        Expect(_re("(☑|job passed).*Test that glxgears works")),
     ]

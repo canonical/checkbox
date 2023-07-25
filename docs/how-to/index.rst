@@ -8,6 +8,7 @@ These how-to guides cover key operations and processes in Checkbox.
 
    using
    testing-ubuntu-core
+   custom-app
    nested-test-plan
    side-loading
-   slave-daemon
+   agent-service

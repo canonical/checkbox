@@ -14,7 +14,7 @@ virtualenv --quiet --system-site-packages --python=python3 "$venv_path"
 # To prevent https://www.shellcheck.net/wiki/SC1091
 # shellcheck source=/dev/null
 . "$venv_path"/bin/activate
-python3 setup.py develop --quiet | sed -e 's/^/I (develop output) /'
+python3 -m pip install -e .
 pip install tqdm psutil
 
 mkdir -p "$venv_path/share/plainbox-providers-1"

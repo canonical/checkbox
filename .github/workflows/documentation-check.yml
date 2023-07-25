@@ -26,19 +26,18 @@ jobs:
           sudo apt-get install aspell aspell-en
 
       - name: Install the doc framework
+        working-directory: docs/
         run: |
           make install
 
       - name: Build docs and run spelling checker
+        working-directory: docs/
         run: |
           make spelling
 
   woke:
     name: Inclusive language check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: docs
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -48,6 +47,7 @@ jobs:
         with:
           # Cause the check to fail on any broke rules
           fail-on-error: true
+          workdir: docs/
           woke-args: "*.rst **/*.rst -c https://github.com/canonical-web-and-design/Inclusive-naming/raw/main/config.yml"
 
   linkcheck:
@@ -61,9 +61,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install the doc framework
+        working-directory: docs/
         run: |
           make install
 
       - name: Run linkchecker
+        working-directory: docs/
         run: |
           make linkcheck

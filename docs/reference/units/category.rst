@@ -7,8 +7,8 @@ Using category units one can define logical groups of tests that deal with some
 specific testing area (for example, suspend-resume or USB support).
 
 Job definitions can be associated with at most one category using the
-``category_id`` field (see :ref:`job unit reference <category_id>`). Categories
-can be used by particular applications to facilitate test selection.
+``category_id`` field (see :ref:`job unit reference <Category id field>`).
+Categories can be used by particular applications to facilitate test selection.
 
 Category Fields
 ---------------

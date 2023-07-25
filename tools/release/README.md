@@ -17,23 +17,13 @@ packages to the stable PPA and promote all snaps to stable.
 
 Then, it's time to build the new beta version.
 
-## Bump the Checkbox version
-
-Run the [Bumpversion workflow] (the default increment is **minor**).
-
-This workflow will:
-
-- Run [Bumpversion] for all Checkbox sub-projects, Snaps and Debian packages
-- Open a new PR to approve and merge
-- Provide tagging instructions
-
 ## Tag the release
 
-- Clone the repository once the PR is merged
+- Clone the repository
   ```
   git clone git@github.com:canonical/checkbox.git
   ```
-- Tag the release following the instructions given in the PR
+- Tag the release
   ```
   git tag -s "v2.4" -m "Bump version: 2.3 → 2.4"
   ```
@@ -41,11 +31,22 @@ This workflow will:
   ```
   git push --tags
   ```
-  > **_NOTE:_** Having to clone and not push the tag from the bumpversion
+  > **_NOTE:_** Having to clone and not push the tag from an existing
   workflow is actually a Github Action limitation[^1]:
   > *if a workflow run pushes code using the repository's GITHUB_TOKEN, a new
   workflow will not run even when the repository contains a workflow configured
   to run when push events occur.*
+
+## How packages versions are generated? ##
+
+Both Debian packages and checkbox snaps rely on [setuptools_scm] to extract 
+package versions from git metadata.
+
+```
+>>> from setuptools_scm import get_version
+>>> get_version()
+'2.9.dev38+g896ae8978
+```
 
 ## Monitor the build and publish workflows
 
@@ -93,7 +94,7 @@ release
 
 [^1]:https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
 
-[Bumpversion workflow]: https://github.com/canonical/checkbox/actions/workflows/bumpversion.yml
+[setuptools_scm]: https://github.com/pypa/setuptools_scm/
 [Stable release workflow]: https://github.com/canonical/checkbox/actions/workflows/checkbox-stable-release.yml
 [Bumpversion]: https://github.com/c4urself/bump2version
 [Stable]: https://launchpad.net/~hardware-certification/+archive/ubuntu/public

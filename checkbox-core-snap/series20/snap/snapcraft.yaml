@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '2.8'
+adopt-info: version-calculator
 
 base: core20
 
@@ -61,6 +61,15 @@ package-repositories:
     ppa: hardware-certification/public
 
 parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
@@ -87,15 +96,19 @@ parts:
       - libglib2.0-dev
       - libfdt-dev
       - libbsd-dev
+    after: [version-calculator]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.08"
+    source-tag: "V0.15.09"
     source-depth: 1
     plugin: make
+    build-environment:
+      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
+      - LDFLAGS: "-Wl,-z,relro -lrt"
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
-      - STATIC=1
+      - STATIC=1 VERBOSE=1
     build-packages:
       - gcc
       - make
@@ -110,9 +123,11 @@ parts:
       - libatomic1
       - libjudy-dev
       - libjpeg-dev
-      - libglvnd-dev
-      - libgbm-dev
+      - libkmod-dev
+      - libattr1-dev
       - libxxhash-dev
+      - libmd-dev
+      - on amd64: [ libipsec-mb-dev ]
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
@@ -157,15 +172,21 @@ parts:
       - python3-dev
     python-packages:
       - pynmea2
-    after: [acpi-tools]
+    after: [acpi-tools, version-calculator]
     stage:
       - -pyvenv.cfg
       - -bin/activate*
       - -**/RECORD
       - -**/__pycache__
+      - -debian
     build-environment:
       - C_INCLUDE_PATH: /usr/include/python3.8
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup();" > setup.py
+      snapcraftctl build
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -197,15 +218,21 @@ parts:
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
-    after: [checkbox-support]
+    after: [checkbox-support, version-calculator]
     stage:
       - -pyvenv.cfg
       - -bin/activate*
       - -**/RECORD
       - -**/__pycache__
+      - -debian
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - READTHEDOCS: 'True' # simplifies picamera install
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup();" > setup.py
+      snapcraftctl build
 ################################################################################
   checkbox-provider-resource:
     plugin: dump
@@ -232,7 +259,7 @@ parts:
       - libnl-3-dev
       - libnl-genl-3-dev
       - pkg-config
-    after: [checkbox-ng]
+    after: [checkbox-ng, checkbox-support]
 ################################################################################
   checkbox-provider-base:
     plugin: dump
@@ -256,6 +283,7 @@ parts:
       - efibootmgr
       - ethtool
       - freeipmi-tools
+      - freeglut3
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -277,6 +305,7 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libglu1-mesa
       - lsb-release
       - lshw
       - mesa-utils
@@ -452,23 +481,6 @@ parts:
           # native build
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
-################################################################################
-  parts-meta-info:
-    plugin: nil
-    override-build: |
-      snapcraftctl build
-      echo $PWD
-      ls -1 -d ../../*
-      for p in `ls -d ../../*`; do
-          if [ -d $p/src ]; then
-            (cd $p/src
-                if [ -d $p/src/.git ]; then
-                    (echo `basename $p`\: && git show --pretty=format:"%h%d %aN %ci%n%s%n" -q ; echo ) >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
-                fi # for additional `source-type` support, elif them here
-            )
-          fi
-      done
-    after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:
     plugin: dump

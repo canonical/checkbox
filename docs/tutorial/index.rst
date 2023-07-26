@@ -26,7 +26,7 @@ journey through the product.
 .. toctree::
    :maxdepth: 1
 
-   tutorial
+   using-checkbox/test-output
 
 Extended tutorial
 -----------------

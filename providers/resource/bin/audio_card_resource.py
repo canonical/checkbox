@@ -26,7 +26,7 @@ def get_audio_cards():
     PCM_FILE = '/proc/asound/pcm'
     if os.path.exists(PCM_FILE):
         with open(PCM_FILE, 'r') as f:
-            data = f.read()
+            data = f.readlines()
             for line in data:
                 info = [device_line.strip() for device_line in line.split(':')]
                 ids = info[0].split('-')
@@ -50,9 +50,9 @@ def get_audio_cards():
 def print_audio_cards(cards):
     """Print audio card information."""
     for card in cards:
-        print("card: {}.format(card['Card'])")
-        print("device: {}.format(card['Device'])")
-        print("name: {}.format(card['Name'])")
+        print("card: {}".format(card['Card']))
+        print("device: {}".format(card['Device']))
+        print("name: {}".format(card['Name']))
         if card['Playback']:
             print("playback: 1")
         if card['Capture']:

@@ -698,7 +698,11 @@ flags: also-after-suspend
 requires:
   audio_card.Playback == 'supported'
 command:
-  audio_card_resource.py
+  COUNT=$(audio_card_resource.py | grep -c playback)
+  echo "Count: $COUNT"
+  if [ "$COUNT" -eq 0 ]; then
+    exit 1
+  fi
 estimated_duration: 0.5
 
 id: audio/detect-capture-devices
@@ -709,7 +713,11 @@ flags: also-after-suspend
 requires:
   audio_card.Capture == 'supported'
 command:
-  audio_card_resource.py
+  COUNT=$(audio_card_resource.py | grep -c Capture)
+  echo "Count: $COUNT"
+  if [ "$COUNT" -eq 0 ]; then
+    exit 1
+  fi
 esimated_duration: 0.5
 
 id: audio/alsa-playback

@@ -11,7 +11,7 @@ Although code is an important part of the project, anyone is welcome to improve
 the documentation or the wording of the existing jobs. Contributions are always
 welcome!
 
-The `source code`_ lives on Github.
+The `source code`_ lives on GitHub.
 
 To get started, setup a test environment, run Checkbox and its providers, run
 the associated tests and share your contributions with everyone, please check

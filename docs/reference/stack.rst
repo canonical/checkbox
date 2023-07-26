@@ -43,7 +43,7 @@ Component Descriptions
 | Checkbox Support       | - Support code for various providers  | Library     |
 |                        | - Parsers for many text formats       |             |
 +------------------------+---------------------------------------+-------------+
-| PlainBox               | - Almost all core logic               | Library     |
+| Plainbox               | - Almost all core logic               | Library     |
 | (part of Checkbox)     |                                       | and         |
 |                        |   - RFC822 (job definition) parser    | Development |
 |                        |   - Configuration handling            | Toolkit     |

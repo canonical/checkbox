@@ -45,7 +45,7 @@ Now that we have installed both we can launch Checkbox running:
   └─────────────────────────────────────────────────────────────────────────────────────┘
   Press <Enter> to continue                                                      (H) Help
 
-If your screen is similar to this one, rejoyce! You can start using
+If your screen is similar to this one, rejoice! You can start using
 Checkbox! For now you can close it using ``Ctrl+C``.
 
 You may have noticed that this tutorial has guided you to install a specific version of

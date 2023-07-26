@@ -1,5 +1,6 @@
 APIs
 autoconf
+backend
 baz
 Baz
 bluetooth
@@ -26,6 +27,8 @@ ESC
 Fi
 FooBar
 formatter
+frontend
+frontends
 github
 GitHub
 GPLv
@@ -45,6 +48,7 @@ JSON
 keypresses
 libre
 loopback
+LTS
 lv
 mis
 miscellanea
@@ -73,7 +77,10 @@ rtc
 RTC
 runtime
 SIGINT
+snapcraft
 Snapcraft
+Snapcraft
+SRU
 SRU
 SSID
 startprovider

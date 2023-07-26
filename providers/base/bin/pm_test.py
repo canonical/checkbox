@@ -683,7 +683,7 @@ autologin-user-timeout=0
             self.parser = ConfigParser()
             self.parser.optionxform = str
             self.parser.read(self.config_filename)
-            self.parser.set('daemon', 'AutomaticLoginEnable', 'True')
+            self.parser.set('daemon', 'AutomaticLoginEnable', 'true')
             if self.user:
                 self.parser.set('daemon', 'AutomaticLogin', self.user)
 

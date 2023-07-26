@@ -18,7 +18,7 @@ Filter the list of test plans
 
 When you ran Checkbox in the previous section, you were probably overwhelmed
 with the number of test plans available. Using a launcher, it is possible to
-filter out the list of test plans to only select the ones that matter to you.
+filter them to only select the ones that matter to you.
 
 Create a file named ``mylauncher`` and add the following information in it:
 
@@ -28,7 +28,6 @@ Create a file named ``mylauncher`` and add the following information in it:
 
     [launcher]
     launcher_version = 1
-    app_id = com.canonical.certification:tutorial
 
     [test plan]
     filter = *TODO*
@@ -43,13 +42,9 @@ The test plan selection screen should be much less intimidating now!
 
 Let's review the content of this launcher.
 
-The ``[launcher]`` section contains meta-data related to the launcher itself:
-
-- ``launcher_version`` is set to ``1`` as it is the version of the launcher
-  syntax currently in use.
-- ``app_id`` is the identifier used when calling Checkbox with this launcher.
-  It helps identifying what launcher was used to run a specific session, for
-  instance.
+The ``[launcher]`` section contains meta-data related to the launcher itself
+``launcher_version`` is set to ``1`` as it is the version of the launcher
+syntax currently in use.
 
 In the ``[test plan]`` section, we set the ``filter`` to ``*TODO*``. By
 doing so, the only test plans that will be displayed are the one whose
@@ -205,7 +200,7 @@ Create an executable launcher
 
 So far, we have called our launcher using the ``launcher`` option of the
 ``checkbox-cli`` tool. It is however possible to turn our launcher into a
-"standalone" executable.
+file that can be interpreted, similarly to an executable bash script.
 
 At the top of the launcher file, add this line:
 

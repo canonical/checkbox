@@ -27,7 +27,7 @@ Fi
 FooBar
 formatter
 github
-Github
+GitHub
 GPLv
 hostname
 http
@@ -61,7 +61,6 @@ pdf
 Permalink
 plainbox
 Plainbox
-PlainBox
 pre
 prepending
 pxu

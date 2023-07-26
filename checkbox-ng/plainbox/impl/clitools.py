@@ -260,7 +260,7 @@ class ToolBase(metaclass=abc.ABCMeta):
     quickly checks for a fraction of supported arguments and uses that data to
     initialize environment before construction of a full parser is possible.
     The full parser sees the reminder of the input and does not re-parse things
-    that where already handled.
+    that were already handled.
     """
 
     _RELEASELEVEL_TO_TOKEN = {
@@ -652,7 +652,7 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
 
         .. note::
             This method is customized by LazyLoadingToolMixIn and should not be
-            overriden directly. To register your commands use
+            overridden directly. To register your commands use
             :meth:`get_command_collection()`
         """
         if early_ns is not None:
@@ -688,7 +688,7 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
 
         .. note::
             This method is customized by LazyLoadingToolMixIn and should not be
-            overriden directly. To register your commands use
+            overridden directly. To register your commands use
             :meth:`get_command_collection()`
         """
         logger.debug(
@@ -734,7 +734,7 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
 
         .. note::
             This method is customized by LazyLoadingToolMixIn and should not be
-            overriden directly. To register your commands use
+            overridden directly. To register your commands use
             :meth:`get_command_collection()`
         """
         command_collection.load()

@@ -99,7 +99,7 @@ def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
     sl_qual_names = [qualified_name(p) for p in loaded_provs]
     for std_prov in std_providers:
         if qualified_name(std_prov) in sl_qual_names:
-            # this provider got overriden by sideloading
+            # this provider got overridden by sideloading
             # so let's not load the original one
             continue
         loaded_provs.append(std_prov)

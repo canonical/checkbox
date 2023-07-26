@@ -26,6 +26,7 @@ journey through the product.
 .. toctree::
    :maxdepth: 1
 
+   using-checkbox/basic-launcher
    using-checkbox/test-output
 
 Extended tutorial

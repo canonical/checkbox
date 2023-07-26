@@ -248,7 +248,7 @@ class OverridableJobField(pod.Field):
         self.job_field = job_field
 
     def __get__(self, instance, owner):
-        """Get an overriden (if any) value of an overridable job field."""
+        """Get an overridden (if any) value of an overridable job field."""
         value = super().__get__(instance, owner)
         if value is JOB_VALUE:
             return getattr(instance.job, self.job_field)

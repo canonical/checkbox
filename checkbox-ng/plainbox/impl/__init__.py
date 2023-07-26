@@ -72,11 +72,11 @@ def public(import_path, introduced=None, deprecated=None):
           call to a deprecated function will cause a PendingDeprecationWarnings
           to be logged.
 
-    The actual implementation of the function must be in in a module specified
+    The actual implementation of the function must be in a module specified
     by import_path. It can be a module name or a module name and a function
     name, when separated by a colon.
     """
-    # Create a forwarding decorator for the shim function The shim argument is
+    # Create a forwarding decorator for the shim function. The shim argument is
     # the actual empty function from the public module that serves as
     # documentation carrier.
     def decorator(shim):

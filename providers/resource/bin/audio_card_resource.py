@@ -53,9 +53,9 @@ def print_audio_cards(cards):
         print("card: {}".format(card['Card']))
         print("device: {}".format(card['Device']))
         print("name: {}".format(card['Name']))
-        if card['Playback']:
+        if card['Playback'] == "supported":
             print("playback: 1")
-        if card['Capture']:
+        if card['Capture'] == "supported":
             print("capture: 1")
 
 

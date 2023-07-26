@@ -12,10 +12,6 @@ The test output can be generally divided into the following sections:
   
   Some tests rely on the user's manual confirmation of hardware devices on the machine. This section lists the user's confirmation results.
 
-.. note::
-
-    If a hardware device required by a test ID is identified as ``False`` by the user, the test will be skipped.
-
 - **Test ID**:
   
   This section contains all the test IDs run during the test. Each test ID has its own separate section indicating the logs and test results during the test.
@@ -34,9 +30,10 @@ The test output can be generally divided into the following sections:
 
 - **Submit Results**:
   
-  Users are asked whether they want to upload the results to the Certification website.
+  Users are asked whether they want to upload the results to the Canonical :term:`Certification website`.
+  
 
-The following is an example of audio detect tests output to illustrate how to understand the output content:
+Now that you have a basic understanding of the test output, here is an example of audio detect tests for practice:
 
 .. code-block:: none
 
@@ -78,8 +75,6 @@ The following is an example of audio detect tests output to illustrate how to un
       y => yes
       n => no
 
-
 .. note::
 
-    Submit test reports requires secure-id
-
+    If a hardware device required by a test ID is identified as ``False`` by the user, the test will be skipped.

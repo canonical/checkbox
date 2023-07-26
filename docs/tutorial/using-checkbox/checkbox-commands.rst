@@ -12,10 +12,13 @@ a terminal:
     checkbox.checkbox-cli --help
 
     usage: checkbox-cli [-h] [-v] [--debug] [--clear-cache] [--clear-old-sessions] [--version]
-                        {check-config,launcher,list,run,startprovider,submit,show,list-bootstrapped,merge-reports,merge-submissions,tp-export,service,remote}
+                        {check-config,launcher,list,run,startprovider,submit,show,
+                         list-bootstrapped,merge-reports,merge-submissions,tp-export,
+                         service,remote}
 
     positional arguments:
-      {check-config,launcher,list,run,startprovider,submit,show,list-bootstrapped,merge-reports,merge-submissions,tp-export,service,remote}
+      {check-config,launcher,list,run,startprovider,submit,show,list-bootstrapped,
+       merge-reports,merge-submissions,tp-export,service,remote}
                             subcommand to run
 
     options:
@@ -106,7 +109,10 @@ fields available from the jobs. To see what fields are available, run:
     checkbox.checkbox-cli list all-jobs --format ?
     
     Available fields are:
-    _description, _purpose, _siblings, _steps, _summary, _verification, after, category_id, command, depends, environ, estimated_duration, flags, full_id, id, imports, plugin, require, requires, template-engine, template-filter, template-resource, template-unit, unit, user
+    _description, _purpose, _siblings, _steps, _summary, _verification, after,
+    category_id, command, depends, environ, estimated_duration, flags, full_id,
+    id, imports, plugin, require, requires, template-engine, template-filter,
+    template-resource, template-unit, unit, user
 
 .. note::
 
@@ -121,17 +127,17 @@ To create a table listing each job id and their summary, run:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli list all-jobs --format "{id:30} | {_summary}\n"
+    checkbox.checkbox-cli list all-jobs --format "{id:30}\t|\t{_summary}\n"
 
-    6lowpan/kconfig                | kernel config options for 6LoWPAN
-    IEEE_80211                     | Creates resource info for wifi supported protocols/interfaces
-    acpi/oem_osi                   | test ACPI OEM _OSI strings
-    acpi_sleep_attachment          | <missing _summary>
+    6lowpan/kconfig               	|	kernel config options for 6LoWPAN
+    IEEE_80211                    	|	Creates resource info for wifi supported protocols/interfaces
+    acpi/oem_osi                  	|	test ACPI OEM _OSI strings
+    acpi_sleep_attachment         	|	<missing _summary>
     (...)
-    xinput                         | Creates resource info from xinput output.
-    zapper_capabilities            | Get Zapper's setup capabilities
-    collect-manifest               | Collect the hardware manifest (interactively)
-    manifest                       | Hardware Manifest
+    xinput                        	|	Creates resource info from xinput output.
+    zapper_capabilities           	|	Get Zapper's setup capabilities
+    collect-manifest              	|	Collect the hardware manifest (interactively)
+    manifest                      	|	Hardware Manifest
 
 .. note::
 
@@ -219,7 +225,7 @@ Run the following command:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli run .*audio/list_devices
+    checkbox.checkbox-cli run ".*audio/list_devices"
 
     ===========================[ Running Selected Jobs ]============================
     ==============[ Running job 1 / 3. Estimated time left: 0:00:03 ]===============
@@ -294,3 +300,6 @@ written a launcher to customize a test run, discovered how to run Checkbox on
 one device to control another device, and used Checkbox commands to navigate
 the available objects in Checkbox. You are now ready to use Checkbox to test
 any kind of devices!
+
+In the :ref:`advanced tutorial<TODO>`, you will learn how to write new tests
+for Checkbox and how to create your own Checkbox-based snaps.

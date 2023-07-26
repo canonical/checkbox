@@ -1,3 +1,5 @@
+.. _installing_checkbox:
+
 ===================
 Installing Checkbox
 ===================
@@ -7,7 +9,7 @@ and a ``frontend``.
 
 First we need to install the ``runtime``, this tutorial will use the ``checkbox22``
 runtime on Ubuntu22. We also offer versions for ``16``, ``18`` and ``20``
-Use the one that matches your Ubuntu version or refer to `ref_which_snap`_ to
+Use the one that matches your Ubuntu version or refer to :ref:`ref_which_snap` to
 understand and pick the one that fits your needs::
 
    $ sudo snap install checkbox22
@@ -24,7 +26,7 @@ run the following::
 .. note::
   There are multiple frontends as you may discover by typing ``snap info checkbox``.
   If you are unsure about what ``frontend`` you should use, consider
-  reading this page: `ref_which_snap`_ but for the scope of this tutorial the one
+  reading this page: :ref:`ref_which_snap`, but for the scope of this tutorial the one
   installed in this snipped is enough.
 
 Now that we have installed both we can launch Checkbox running:
@@ -47,5 +49,5 @@ If your screen is similar to this one, rejoyce! You can start using
 Checkbox! For now you can close it using ``Ctrl+C``.
 
 You may have noticed that this tutorial has guided you to install a specific version of
-Checkbox: ``checkbox22``. We offer more, please refer to `ref_which_snap`_ to know which
+Checkbox: ``checkbox22``. We offer more, please refer to :ref:`ref_which_snap` to know which
 one you should use.

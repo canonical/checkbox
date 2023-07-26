@@ -30,10 +30,6 @@ class GetAudioCardsTests(unittest.TestCase):
             test_input = "00-00: HDA Analog (*) : : playback 1\n00-01: HDA Digital (*) : : capture 1s"
             with patch("builtins.open", new=mock_open(read_data=test_input)):
                 audio_cards = get_audio_cards()
-                print("\n\n")
-                print("FUCK")
-                print(audio_cards)
-                print("\n\n")
                 self.assertEqual(audio_cards[0], {
                     "Card": "00",
                     "Device": "00",

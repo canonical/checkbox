@@ -1,17 +1,20 @@
 .. _test-report:
 
 Review Test Report 
-======================
+==================
 
-Checkbox optionally generates test reports in different formats that can be used to easily share the results of a test session. Generally, a :ref:`text summary<test-summary>` and :ref:`submission files<submission-files>` would be created. In this section, you will learn where to find the report files and what they contain.
+Once you finish your first test run, you may want to review the test reports. Checkbox generates test reports in different formats that can be used to easily share the results of a test session. By default, a :ref:`text summary<text-summary>` and :ref:`submission files<submission-files>` are created. This section will provide you with information on where to locate the report files and their respective contents.
 
-Note that you can tailor desired reports in your launcher file, or define your own exporter to customize the reports. See :doc:`launcher<../../reference/launcher>` and :doc:`exporter<../../reference/units/exporter>` for more details.
+.. note::
 
-.. _test-summary:
-Text summary
+    You can tailor desired reports in your launcher file, or define your own exporter to customize the reports. See :doc:`launcher<../../reference/launcher>` and :doc:`exporter<../../reference/units/exporter>` for more details.
+
+.. _text-summary:
+
+Text Summary
 ------------
 
-A text summary shows in the console once all jobs complete, providing an overview of test result. You can find the result of each job displaying in a form of ``outcome: summary``.
+You should see a text summary displayed in the console once all jobs are completed. The result of each job is presented in the format: ``outcome: summary``. As it only provides an overview, for more in-depth information, you will need to review the :ref:`submission files<submission-files>`.
 
 Example:
 
@@ -25,40 +28,35 @@ Example:
 
 Types of job's outcome defined in Checkbox:
 
-    ``​ ​`` job didn't run
+.. list-table::
+    :header-rows: 1
+    :widths: 40 60
 
-    ``☑`` job passed
-
-    ``☒`` job failed
-
-    ``☐`` job skipped, job cannot be started
-
-    ``‒`` job is not implemented
-
-    ``⁇`` job needs verification
-
-    ``⚠`` job crashed
+    * - symbol
+      - outcome
+    * - 
+      - job didn't run
+    * - ☑
+      - job passed
+    * - ☒
+      - job failed
+    * - ☐
+      - job skipped, job cannot be started
+    * - ‒
+      - job is not implemented
+    * - ⁇
+      - job needs verification
+    * - ⚠
+      - job crashed
 
 .. _submission-files:
-Submission files
-------------
 
-In Checkbox, the submission files are used for sharing test results to Jenkins and Certification Website. Submission files contain the following files:
+Submission Files
+----------------
+ 
+In Checkbox, submission files encompass report files in various formats (HTML, JSON, and JUnit XML) along with attachments like I/O logs and binary files. These files serve the purpose of sharing test results with other users or services, such as Jenkins and :term:`Certification Website`. 
 
-.. code-block:: none
-
-    ├── html
-    ├── junit
-    └── tar
-         ├── html
-         ├── json
-         ├── junit
-         └── attachments
-
-
-The absolute paths of submission files show in console after the text summary block.
-
-Example:
+You can find absolute paths of submission files displayed in the console right after the text summary block. 
 
 .. code-block:: none
 
@@ -66,22 +64,38 @@ Example:
     file:///home/user/.local/share/checkbox-ng/submission.junit.xml
     file:///home/user/.local/share/checkbox-ng/submission.tar.xz
 
-``html``
-    Self-contained HTML files contain the following sections.
+Head to the folder ``~/.local/share/``, you should find submission files organized as follows:
 
-        - System Information
-        - Tests Results 
-        - Logs
+.. code-block:: none
+
+    ├── html
+    ├── junit
+    └── tar.xz
+         ├── html
+         ├── json
+         ├── junit
+         └── attachments
+
+``html``
+    Open HTML files with your preferred web browser, you will see a System Testing Report with the following sections.
+    
+    - System Information
+    - Tests Results
+    - Logs
+    
+    You can expand entries in Tests Results and Logs sections to access more detailed information. Additionally, you can utilize the search bar to filter specific tests for easier navigation.
 
 .. figure:: ../../_images/checkbox-test-report.png
     
     An example of beginning of a HTML report
 
 ``json``
-    JSON files contain session export compatible for submission to Certification Website.
+    JSON files store session exports that are compatible for submission to Certification Website.
 
 ``junit``
-    JUnit XML files contain test data that can be read by Jenkins.
+    `JUnit XML <https://windyroad.com.au/dl/Open%20Source/JUnit.xsd>`_ files contain test data that can be read by Jenkins.
 
-``tar``
-    Xz compressed tarball of the HTML, JUnit and JSON reports. Also contains all the attachments (I/O logs and binary files). Certification Website only accepts submissions tarballs, from which it extracts the submission.json file to create a new test report in the database.
+``tar.xz``
+    The xz compressed tarball is a comprehensive archive that includes the aforementioned reports and all associated attachments, such as I/O logs and binary files. You can extract the tarball with ``tar -xf sumbission.tar.xz -C /path/to/destination``.
+
+    Certification Website only accepts submissions tarballs, from which it extracts the ``submission.json`` file to create a new test report in the database. 

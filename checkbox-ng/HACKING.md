@@ -16,6 +16,13 @@ To install all dependencies run:
 
 ## Building the documentation
 
+```bash
     sudo apt install python3-sphinx
-    ./setup.py build_sphinx -b html
+    cd docs; make install
+```
 
+To view it:
+
+```bash
+    cd docs; make run;
+```

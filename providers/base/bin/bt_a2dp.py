@@ -60,6 +60,10 @@ def main():
                 break
             except bluetooth.btcommon.BluetoothError as exc:
                 print("Failed to connect. {}".format(exc))
+                # the sleep below lets the Bluetooth stack react to the
+                # changing environment. Without it the retries may happen
+                # too quickly
+                time.sleep(10)
         else:
             raise SystemExit("Failed to connect to Zapper via BT")
 

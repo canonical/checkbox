@@ -24,6 +24,7 @@ import subprocess
 
 from functools import partial
 from contextlib import suppress
+from setuptools_scm import get_version
 
 CONFIG_PPA_DEV_TOOLS = """{{
     'wait_max_age_hours' : 10,
@@ -98,8 +99,9 @@ def main():
         # Kick off daily builds if the new commits got merged into main
         if new_commits:
             output = run(
-                "./tools/daily-builds/lp-recipe-build.py checkbox "
-                "--recipe {}".format(name+'-daily'),
+                "./tools/release/lp-recipe-update-build.py checkbox "
+                "--recipe {} -n {}".format(
+                    name+'-daily', get_version()),
                 shell=True, check=True).stdout.decode().rstrip()
             print(output)
             # We have started the build, store it here so it can

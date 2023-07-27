@@ -41,5 +41,6 @@ fi
 
 echo "Copying over common_series_classic/* to $series"
 rsync -r --links common_series_classic/ $series/
-
+echo "Dumping version in version file for $series"
+(cd .. && python3 -m setuptools_scm | grep -oP "\S+$") 2>/dev/null 1>$series/version.txt
 

@@ -33,16 +33,11 @@ def read_config(filename):
     a configuration object or raise SystemExit on problems.
     """
 
-    try:
-        mod_spec = importlib.util.spec_from_file_location(
-            'config_file', filename)
-        module = importlib.util.module_from_spec(mod_spec)
-        mod_spec.loader.exec_module(module)
-        config = module.configuration
-        return config
-    except (AttributeError, SyntaxError, FileNotFoundError) as exc:
-        logger.critical(exc)
-        raise SystemExit()
+    mod_spec = importlib.util.spec_from_file_location("config_file", filename)
+    module = importlib.util.module_from_spec(mod_spec)
+    mod_spec.loader.exec_module(module)
+    config = module.configuration
+    return config
 
 
 def guess_source_uri(config):
@@ -55,11 +50,12 @@ def guess_source_uri(config):
             if "uri" not in config[kind]:
                 logger.info("Config: No 'uri' element defined.")
                 # e.g. '/mnt/documents/dev/work/checkbox/metabox/metabox'
-                metabox_pkg_path = files('metabox')
+                metabox_pkg_path = files("metabox")
                 uri = metabox_pkg_path.parent.parent
                 logger.info("Config: Setting 'uri' to '{}'.", uri)
                 config[kind]["uri"] = str(uri)
     return config
+
 
 def validate_config(config):
     """
@@ -67,23 +63,23 @@ def validate_config(config):
     Raises SystemExit when a problem is found.
     """
     if not _has_local_or_remote_declaration(config):
-        logger.critical(
+        raise SystemExit(
             "Configuration has to define at least one way of running checkbox."
-            "Define 'local' or 'service' and 'remote'.")
-        raise SystemExit()
+            "Define 'local' or 'service' and 'remote'."
+        )
     for kind in config:
-        if kind not in ('local', 'service', 'remote'):
-            logger.critical(
+        if kind not in ("local", "service", "remote"):
+            raise SystemExit(
                 "Configuration has to define at least one way "
                 "of running checkbox."
-                "Define 'local' or 'service' and 'remote'.")
-            raise SystemExit()
+                "Define 'local' or 'service' and 'remote'."
+            )
         for decl in config[kind]:
             if not _decl_has_a_valid_origin(config[kind]):
-                logger.critical(
+                raise SystemExit(
                     "Missing or invalid origin for the {} "
-                    "declaration in config!", kind)
-                raise SystemExit()
+                    "declaration in config!".format(kind)
+                )
 
 
 def _has_local_or_remote_declaration(config):
@@ -108,8 +104,7 @@ def _has_local_or_remote_declaration(config):
     True
     """
 
-    return bool(config.get('local') or (
-        config.get('service') and config.get('remote')))
+    return bool(config.get("local") or (config.get("service") and config.get("remote")))
 
 
 def _decl_has_a_valid_origin(decl):
@@ -130,32 +125,44 @@ def _decl_has_a_valid_origin(decl):
     >>> _decl_has_a_valid_origin(decl)
     False
     """
-    if 'origin' not in decl:
+    if "origin" not in decl:
         return False
-    if decl['origin'] == 'snap':
+    if decl["origin"] == "snap":
         return True
-    elif decl['origin'] == 'classic-snap':
+    elif decl["origin"] == "classic-snap":
         return True
-    elif decl['origin'] == 'ppa':
+    elif decl["origin"] == "ppa":
         return True
-    elif decl['origin'] == 'source':
-        source = Path(decl['uri']).expanduser()
+    elif decl["origin"] == "source":
+        source = Path(decl["uri"]).expanduser()
         if not source.is_dir():
             logger.error("{} doesn't look like a directory", source)
             return False
-        setup_file = source / 'checkbox-ng' / 'setup.py'
-        if not setup_file.exists():
+        setup_file_location = source / "checkbox-ng"
+        if not setup_file_location.exists():
             logger.error("{} not found", setup_file)
             return False
         try:
-            package_name = subprocess.check_output(
-                [setup_file, '--name'],
-                stderr=subprocess.DEVNULL).decode('utf-8').rstrip()
-        except subprocess.CalledProcessError:
-            logger.error("{} --name failed", setup_file)
-            return False
-        if not package_name == 'checkbox-ng':
-            logger.error("{} must be a fork of gh:canonical/checkbox", source)
+            # this tries to install the package without actually doing it
+            # the command will print:
+            #   Would install [package_name-version]
+            #
+            # Note: The fact that this does run makes the config syntactically
+            #       correct and also somewhat sematically correct. There
+            #       may still be errors (like missing dependencies)
+            package_dry_install_log = subprocess.run(
+                ["python3", "-m", "pip", "install", "--dry-run", "."],
+                cwd=setup_file_location,
+                text=True,
+                capture_output=True,
+            )
+        except subprocess.CalledProcessError as e:
+            logger.error("Failed to dry-run install {}", setup_file_location)
+            raise
+        if "checkbox-ng" not in package_dry_install_log.stdout:
+            logger.error("{} did not install a package named `checkbox-ng`", source)
+            logger.error("Installation stdout:\n{}", package_dry_install_log.stdout)
+            logger.error("Installation stderr:\n{}", package_dry_install_log.stderr)
             return False
         return True
     return False

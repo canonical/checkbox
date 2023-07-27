@@ -10,16 +10,17 @@ jobs:
   metabox_run_required:
     runs-on: ubuntu-latest
     name: Check for changes in metabox and checkbox-ng dirs
+    outputs:
+      required_run: ${{ steps.check_diff.outputs.required_run }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Use git diff to see if there are any changes in the metabox and checkbox-ng directories
         id: check_diff
-        continue-on-error: true
         run: |
-          git diff --exit-code HEAD origin/main -- checkbox-ng metabox
-          if [[ $? -eq 0 ]]
+          DIFF_LENGTH=`git diff HEAD origin/main -- checkbox-ng metabox | wc -l`
+          if [[ $DIFF_LENGTH -eq 0 ]]
             then
               echo "No Metabox run required."
               echo "required_run=false" >> $GITHUB_OUTPUT
@@ -29,7 +30,7 @@ jobs:
           fi
 
   Metabox:
-    if: (github.event.review.state == 'approved' && needs.metabox_run_required.outputs.required_run == 'true') || github.event_name == 'workflow_dispatch'
+    if: (github.event.review.state == 'approved' && true == fromJSON(needs.metabox_run_required.outputs.required_run)) || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -60,7 +61,7 @@ jobs:
           lxc profile device add default root disk path=/ pool=metabox${{ matrix.os }}
           lxc storage list
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pyopenssl
+        run: python3 -m pip install --upgrade pyopenssl pip setuptools
       - name: Install Metabox
         run: python3 -m pip install -e .
       - name: Run Metabox scenarios

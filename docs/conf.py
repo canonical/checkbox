@@ -1,13 +1,9 @@
 import datetime
 import os
 import sys
-
-sys.path.append(os.path.abspath(
-    os.path.join(__file__, "../../checkbox-ng")
-))
+import re
 
 import checkbox_ng
-
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -19,7 +15,10 @@ import checkbox_ng
 project = 'Checkbox'
 author = 'Canonical Group Ltd'
 copyright = "%s, %s" % (datetime.date.today().year, author)
-release = checkbox_ng.__version__
+# Here we just keep the version number and not any .devhash because that would
+#  make the CI/CD spellcheck fail mistaking any .devhash occurence for an
+#  unknown word
+release = re.match(r"(\d+\.{0,1})+", checkbox_ng.__version__).group(0).rstrip(".")
 
 # Open Graph configuration - defines what is displayed in the website preview
 ogp_site_url = "https://checkbox.readthedocs-hosted.com/"

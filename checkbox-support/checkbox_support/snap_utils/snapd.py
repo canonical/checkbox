@@ -138,14 +138,15 @@ class Snapd():
     def info(self, snap):
         return self.find(snap, exact=True)[0]
 
-    def refresh(self, snap, channel='stable', revision=None):
+    def refresh(self, snap, channel='stable', revision=None, reboot=False):
         path = self._snaps + '/' + snap
         data = {'action': 'refresh', 'channel': channel}
         if revision is not None:
             data['revision'] = revision
         r = self._post(path, json.dumps(data))
-        if r['type'] == 'async' and r['status'] == 'Accepted':
+        if r['type'] == 'async' and r['status'] == 'Accepted' and not reboot:
             self._poll_change(r['change'])
+        return r
 
     def change(self, change_id):
         path = self._changes + '/' + change_id
@@ -157,14 +158,15 @@ class Snapd():
         r = self._get(path)
         return r['result']['tasks']
 
-    def revert(self, snap, channel='stable', revision=None):
+    def revert(self, snap, channel='stable', revision=None, reboot=False):
         path = self._snaps + '/' + snap
         data = {'action': 'revert', 'channel': channel}
         if revision is not None:
             data['revision'] = revision
         r = self._post(path, json.dumps(data))
-        if r['type'] == 'async' and r['status'] == 'Accepted':
+        if r['type'] == 'async' and r['status'] == 'Accepted' and not reboot:
             self._poll_change(r['change'])
+        return r
 
     def get_configuration(self, snap, key):
         path = self._snaps + '/' + snap + '/conf'

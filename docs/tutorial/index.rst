@@ -26,8 +26,7 @@ journey through the product.
 .. toctree::
    :maxdepth: 1
 
-   using-checkbox/test-report
-   custom-app
+   tutorial
 
 Extended tutorial
 -----------------

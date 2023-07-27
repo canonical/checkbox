@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '2.8'
+adopt-info: version-calculator
 
 base: core18
 
@@ -61,6 +61,15 @@ package-repositories:
     ppa: hardware-certification/public
 
 parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
@@ -85,15 +94,24 @@ parts:
       - libglib2.0-dev
       - libfdt-dev
       - libbsd-dev
+    after: [version-calculator]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.08"
+    source-tag: "V0.15.09"
     source-depth: 1
     plugin: make
+    build-environment:
+      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
+      - LDFLAGS: "-Wl,-z,relro -lrt"
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
-      - STATIC=1
+      - STATIC=1 VERBOSE=1
+    stage-packages:
+      - libjpeg-turbo8
+      - libjudydebian1
+      - libsctp1
+      - libxxhash0
     build-packages:
       - gcc
       - make
@@ -108,9 +126,11 @@ parts:
       - libatomic1
       - libjudy-dev
       - libjpeg-dev
-      - libglvnd-dev
-      - libgbm-dev
+      - libkmod-dev
+      - libattr1-dev
       - libxxhash-dev
+      - libmd-dev
+      - on amd64: [ libipsec-mb-dev ]
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
@@ -135,6 +155,7 @@ parts:
     stage-packages:
       - python3-requests-unixsocket
       - python3-systemd
+      - libbluetooth3
     python-packages:
       - pynmea2
       - pybluez
@@ -142,9 +163,25 @@ parts:
       - libbluetooth-dev
       - python3-dev
     after: [acpi-tools]
+    build-environment:
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-stage: |
       snapcraftctl stage
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/distro/distro.py
+      # The oneliner below was required in 2019 to fix an upstream bug:
+      # https://github.com/python-distro/distro/issues/260
+      # This patch was meant to catch and ignore subprocess.CalledProcessError
+      # when running lsb_release on ubuntu core
+      # The fix was finally released with the distro 1.6 release available as of
+      # 22.04 (i.e base: core22)
+      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' $SNAPCRAFT_STAGE/lib/python3.*/site-packages/**/**/distro.py
+    override-build: |
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
+      # also use build to ensure install (pip is not compinat to pyproject)
+      # on this version
+      python3 -m pip install build setuptools_scm[toml]>=3.4
+      python3 -m build --no-isolation
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -163,7 +200,17 @@ parts:
       - python3-xlsxwriter
     python-packages:
       - tqdm
+    build-environment:
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     after: [checkbox-support]
+    override-build: |
+      # this is a bodge to be backward compatible
+      echo "from setuptools import setup; setup()" > setup.py
+      snapcraftctl build
+      # also use build to ensure install (pip is not compinat to pyproject)
+      # on this version
+      python3 -m pip install setuptools_scm[toml]>=3.4 build
+      python3 -m build --no-isolation
 ################################################################################
   checkbox-provider-resource:
     plugin: dump
@@ -214,6 +261,7 @@ parts:
       - efibootmgr
       - ethtool
       - freeipmi-tools
+      - freeglut3
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -234,6 +282,9 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libgpm2
+      - libglu1-mesa
+      - libslang2
       - lsb-release
       - lshw
       - mesa-utils
@@ -447,23 +498,6 @@ parts:
       # https://github.com/tpm2-software/tpm2-tools/issues/908
       sed -i 's|LIBMARSHAL_CFLAGS = \\|LIBMARSHAL_CFLAGS = |g' Makefile.am
       sed -i 's|-DALG_ECMQV=1||g' Makefile.am
-################################################################################
-  parts-meta-info:
-    plugin: nil
-    override-build: |
-      snapcraftctl build
-      echo $PWD
-      ls -1 -d ../../*
-      for p in `ls -d ../../*`; do
-          if [ -d $p/src ]; then
-            (cd $p/src
-                if [ -d $p/src/.git ]; then
-                    (echo `basename $p`\: && git show --pretty=format:"%h%d %aN %ci%n%s%n" -q ; echo ) >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
-                fi # for additional `source-type` support, elif them here
-            )
-          fi
-      done
-    after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:
     plugin: dump

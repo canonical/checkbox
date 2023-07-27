@@ -4,7 +4,7 @@ description: "Checkbox runtime and public providers"
 grade: stable
 confinement: strict
 
-version: '2.8'
+adopt-info: version-calculator
 
 base: core
 
@@ -57,6 +57,15 @@ package-repositories:
     ppa: hardware-certification/public
 
 parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
@@ -81,15 +90,23 @@ parts:
       - libglib2.0-dev
       - libfdt-dev
       - libbsd-dev
+    after: [version-calculator]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.08"
+    source-tag: "V0.15.07"
+    # stress-ng remains at version 0.15.07 because libipsec-mb-dev and libxxhash-dev are not available for Ubuntu 16.04 (Xenial).
     source-depth: 1
     plugin: make
+    build-environment:
+      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
+      - LDFLAGS: "-Wl,-z,relro -lrt"
     source: https://github.com/ColinIanKing/stress-ng.git
     make-parameters:
-      - STATIC=1
+      - STATIC=1 VERBOSE=1
+    stage-packages:
+      - libjudydebian1
+      - libsctp1
     build-packages:
       - gcc
       - make
@@ -127,22 +144,40 @@ parts:
       - python3-requests-unixsocket
       - python3-systemd
       - python3-setuptools
+      - libbluetooth3
     python-packages:
       - pynmea2
       - pybluez
     after: [acpi-tools]
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-stage: |
       snapcraftctl stage
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/distro.py
+      # The oneliner below was required in 2019 to fix an upstream bug:
+      # https://github.com/python-distro/distro/issues/260
+      # This patch was meant to catch and ignore subprocess.CalledProcessError
+      # when running lsb_release on ubuntu core
+      # The fix was finally released with the distro 1.6 release available as of
+      # 22.04 (i.e base: core22)
+      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/**/**/distro.py
+    override-pull: |
+      PYTHONHOME=/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --upgrade 'pip; python_version >= "3.6"' 'pip<21; python_version < "3.6"' --user
+      snapcraftctl pull
     build-packages:
       - libbluetooth-dev
       - python3-dev
       - python3-pip
-    override-pull: |
-      PYTHONHOME=/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --upgrade 'pip; python_version >= "3.6"' 'pip<21; python_version < "3.6"' --user
-      snapcraftctl pull
+    override-build: |
+      # this is a bodge to be backward compatible
+      snapcraftctl build
+      # also use build to ensure install (pip is not compinat to pyproject)
+      # on this version
+      echo "from setuptools import setup; setup()" > setup.py
+      python3 -m pip install "build<0.4" "setuptools>=42,<51" setuptools>=42 setuptools_scm[toml]>=3.4 --force-reinstall
+      python3 -m build --no-isolation -x
+      # also, call pip again, this installs the module itself
+      python3 -m pip install .
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -165,6 +200,17 @@ parts:
     after: [checkbox-support]
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      # this is a bodge to be backward compatible
+      snapcraftctl build
+      # also use build to ensure install (pip is not compinat to pyproject)
+      # on this version
+      echo "from setuptools import setup; setup()" > setup.py
+      python3 -m pip install "build<0.4" "setuptools>=42,<51" setuptools>=42 setuptools_scm[toml]>=3.4 --force-reinstall
+      python3 -m build --no-isolation -x
+      # also, call pip again, this installs the module itself
+      python3 -m pip install .
 ################################################################################
   checkbox-provider-resource:
     plugin: dump
@@ -215,6 +261,7 @@ parts:
       - efibootmgr
       - ethtool
       - freeipmi-tools
+      - freeglut3
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -235,6 +282,8 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libglu1-mesa
+      - libgpm2
       - lsb-release
       - lshw
       - mesa-utils
@@ -373,23 +422,6 @@ parts:
         - libraspberrypi0
     organize:
       usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
-################################################################################
-  parts-meta-info:
-    plugin: nil
-    override-build: |
-      snapcraftctl build
-      echo $PWD
-      ls -1 -d ../../*
-      for p in `ls -d ../../*`; do
-          if [ -d $p/src ]; then
-            (cd $p/src
-                if [ -d $p/src/.git ]; then
-                    (echo `basename $p`\: && git show --pretty=format:"%h%d %aN %ci%n%s%n" -q ; echo ) >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
-                fi # for additional `source-type` support, elif them here
-            )
-          fi
-      done
-    after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:
     plugin: dump

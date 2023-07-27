@@ -14,7 +14,7 @@ Once you finish your first test run, you may want to review the test reports. Ch
 Text Summary
 ------------
 
-You should see a text summary displayed in the console once all jobs are completed. The result of each job is presented in the format: ``outcome: summary``. As it only provides an overview, for more in-depth information, you will need to review the :ref:`submission files<submission-files>`.
+You should see a text summary displayed in the console once all jobs are completed. The result of each job is presented in the format: ``outcome: summary``. As it only provides an overview, for more in-depth information, you will need to review :ref:`submission files<submission-files>`.
 
 Example:
 
@@ -60,9 +60,9 @@ You can find absolute paths of submission files displayed in the console right a
 
 .. code-block:: none
 
-    file:///home/user/.local/share/checkbox-ng/submission.html
-    file:///home/user/.local/share/checkbox-ng/submission.junit.xml
-    file:///home/user/.local/share/checkbox-ng/submission.tar.xz
+    file:///home/user/.local/share/checkbox-ng/submission_2023-07-19T07.36.00.399658.html
+    file:///home/user/.local/share/checkbox-ng/submission_2023-07-19T07.36.00.399658.junit.xml
+    file:///home/user/.local/share/checkbox-ng/submission_2023-07-19T07.36.00.399658.tar.xz
 
 Head to the folder ``~/.local/share/``, you should find submission files organized as follows:
 
@@ -76,6 +76,8 @@ Head to the folder ``~/.local/share/``, you should find submission files organiz
          ├── junit
          └── attachments
 
+Let's explore each of the submission files together!
+
 ``html``
     Open HTML files with your preferred web browser, you will see a System Testing Report with the following sections.
     
@@ -83,7 +85,7 @@ Head to the folder ``~/.local/share/``, you should find submission files organiz
     - Tests Results
     - Logs
     
-    You can expand entries in Tests Results and Logs sections to access more detailed information. Additionally, you can utilize the search bar to filter specific tests for easier navigation.
+    You can expand entries in Tests Results and Logs sections to access more detailed information. Additionally, you can utilize *search bar* to filter specific tests for easier navigation.
 
 .. figure:: ../../_images/checkbox-test-report.png
     

@@ -1,0 +1,8 @@
+unit: test plan
+id: tutorial-tp
+_name: Checkbox Tutorial Test Plan
+include:
+ tutorial/passing
+ tutorial/failing
+ tutorial/crashing
+

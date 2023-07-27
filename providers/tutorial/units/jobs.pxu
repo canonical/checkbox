@@ -1,0 +1,19 @@
+id: tutorial/passing
+plugin: shell
+_description: A job that always passes
+command: true
+
+id: tutorial/failing
+plugin: shell
+_description: A job that always fails
+command: false
+
+id: tutorial/crashing
+plugin: shell
+_description: A job that always crashes
+command: 
+ # Start the sleep 5 command, but if it doesn't finish in 1 second, send it the
+ # KILL signal to stop it immediately." Since sleep 5 is meant to run for 5
+ # seconds and the timeout is set to 1 second, the sleep 5 command will be
+ # killed by the KILL signal after just 1 second.
+ timeout -s KILL 1 sleep 5

@@ -114,7 +114,8 @@ class MainLoopStage(CheckboxUiStage):
                     result_builder = JobResultBuilder(
                         outcome=IJobResult.OUTCOME_SKIP,
                         comments=_(
-                            "Trying to run interactive job in a silent" " session"
+                            "Trying to run interactive job in a silent"
+                            " session"
                         ),
                     )
                     return result_builder
@@ -140,14 +141,17 @@ class MainLoopStage(CheckboxUiStage):
                         result_builder = self.sa.run_job(job.id, ui, False)
                     elif cmd == "comment":
                         new_comment = input(
-                            self.C.BLUE(_("Please enter your comments:") + "\n")
+                            self.C.BLUE(
+                                _("Please enter your comments:") + "\n"
+                            )
                         )
                         if new_comment:
                             comments += new_comment + "\n"
                         continue
                     elif cmd == "skip":
                         if (
-                            job_state.effective_certification_status == "blocker"
+                            job_state.effective_certification_status
+                            == "blocker"
                             and comments == ""
                         ):
                             print(
@@ -168,7 +172,9 @@ class MainLoopStage(CheckboxUiStage):
                         else:
                             result_builder = JobResultBuilder(
                                 outcome=IJobResult.OUTCOME_SKIP,
-                                comments=_("Explicitly skipped before execution"),
+                                comments=_(
+                                    "Explicitly skipped before execution"
+                                ),
                             )
                             if comments != "":
                                 result_builder.comments = comments
@@ -259,12 +265,18 @@ class MainLoopStage(CheckboxUiStage):
             print(_("Please decide what to do next:"))
             print("  " + _("outcome") + ": {0}".format(self.C.result(result)))
             if result.comments is None:
-                print("  " + _("comments") + ": {0}".format(C_("none comment", "none")))
+                print(
+                    "  "
+                    + _("comments")
+                    + ": {0}".format(C_("none comment", "none"))
+                )
             else:
                 print(
                     "  "
                     + _("comments")
-                    + ": {0}".format(self.C.CYAN(result.comments, bright=False))
+                    + ": {0}".format(
+                        self.C.CYAN(result.comments, bright=False)
+                    )
                 )
             cmd = self._pick_action_cmd(allowed_actions)
             if cmd == "set-pass":
@@ -276,11 +288,15 @@ class MainLoopStage(CheckboxUiStage):
                 ):
                     print(
                         self.C.RED(
-                            _("This job is required in order to issue a certificate.")
+                            _(
+                                "This job is required in order to issue a certificate."
+                            )
                         )
                     )
                     print(
-                        self.C.RED(_("Please add a comment to explain why it failed."))
+                        self.C.RED(
+                            _("Please add a comment to explain why it failed.")
+                        )
                     )
                     continue
                 else:
@@ -292,7 +308,9 @@ class MainLoopStage(CheckboxUiStage):
                 ):
                     print(
                         self.C.RED(
-                            _("This job is required in order to issue a certificate.")
+                            _(
+                                "This job is required in order to issue a certificate."
+                            )
                         )
                     )
                     print(
@@ -354,7 +372,9 @@ class MainLoopStage(CheckboxUiStage):
                 )
             )
             job = self.sa.get_job(job_id)
-            builder = self._run_single_job_with_ui_loop(job, self._get_ui_for_job(job))
+            builder = self._run_single_job_with_ui_loop(
+                job, self._get_ui_for_job(job)
+            )
             result = builder.get_result()
             self.sa.use_job_result(job_id, result)
             estimated_time -= job.estimated_duration or 0
@@ -377,7 +397,9 @@ class MainLoopStage(CheckboxUiStage):
             cat_id = self.sa.get_job_state(job.id).effective_category_id
             duration_txt = _("No estimated duration provided for this job")
             if job.estimated_duration is not None:
-                duration_txt = "{} {}".format(job.estimated_duration, _("seconds"))
+                duration_txt = "{} {}".format(
+                    job.estimated_duration, _("seconds")
+                )
             test_info = {
                 "id": job.id,
                 "partial_id": job.partial_id,
@@ -391,7 +413,8 @@ class MainLoopStage(CheckboxUiStage):
                 ),
                 "duration": duration_txt,
                 "description": (
-                    job.tr_description() or _("No description provided for this job")
+                    job.tr_description()
+                    or _("No description provided for this job")
                 ),
                 "outcome": self.sa.get_job_state(job.id).result.outcome,
             }
@@ -499,7 +522,9 @@ class ReportsStage(CheckboxUiStage):
                 additional_config = Configuration.from_text(
                     template.format(exporter=exporter, path=path), new_origin
                 )
-                self.sa.config.update_from_another(additional_config, new_origin)
+                self.sa.config.update_from_another(
+                    additional_config, new_origin
+                )
 
     def _prepare_transports(self):
         self.base_dir = os.path.join(
@@ -515,7 +540,9 @@ class ReportsStage(CheckboxUiStage):
         # depending on the type of transport we need to pick variable that
         # serves as the 'where' param for the transport. In case of
         # certification site the URL is supplied here
-        transport_cfg = self.sa.config.get_parametric_sections("transport")[transport]
+        transport_cfg = self.sa.config.get_parametric_sections("transport")[
+            transport
+        ]
         tr_type = transport_cfg["type"]
         if tr_type not in self._available_transports:
             _logger.error(
@@ -526,7 +553,9 @@ class ReportsStage(CheckboxUiStage):
             raise SystemExit(1)
         cls = self._available_transports[tr_type]
         if tr_type == "file":
-            self.transports[transport] = cls(os.path.expanduser(transport_cfg["path"]))
+            self.transports[transport] = cls(
+                os.path.expanduser(transport_cfg["path"])
+            )
         elif tr_type == "stream":
             self.transports[transport] = cls(transport_cfg["stream"])
         elif tr_type == "submission-service":
@@ -534,7 +563,9 @@ class ReportsStage(CheckboxUiStage):
             if self.is_interactive:
                 new_description = input(
                     self.C.BLUE(
-                        _("Enter submission description (press Enter to skip): ")
+                        _(
+                            "Enter submission description (press Enter to skip): "
+                        )
                     )
                 )
                 if new_description:
@@ -583,7 +614,10 @@ class ReportsStage(CheckboxUiStage):
                     # development
                     if self.sa.sideloaded_providers:
                         _logger.warning(
-                            _("Using side-loaded providers " "disabled the %s report"),
+                            _(
+                                "Using side-loaded providers "
+                                "disabled the %s report"
+                            ),
                             report,
                         )
                         continue
@@ -636,7 +670,10 @@ class ReportsStage(CheckboxUiStage):
                             )
                         except ExporterError as exc:
                             _logger.warning(
-                                _("Problem occured when preparing %s report:" "%s"),
+                                _(
+                                    "Problem occured when preparing %s report:"
+                                    "%s"
+                                ),
                                 exporter_id,
                                 exc,
                             )
@@ -665,7 +702,9 @@ class ReportsStage(CheckboxUiStage):
                         done_sending = True
                         continue
                     if self._retry_dialog():
-                        self.sa.config.sections["transports"]["c3"].pop("secure_id")
+                        self.sa.config.sections["transports"]["c3"].pop(
+                            "secure_id"
+                        )
                         continue
                 except Exception as exc:
                     _logger.error(

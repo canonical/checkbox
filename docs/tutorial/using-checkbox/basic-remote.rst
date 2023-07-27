@@ -4,8 +4,10 @@
 Remote testing
 ==============
 
-So far, you have used Checkbox in local mode. It is, however, possible to
-use Checkbox to test a device from another device. In Checkbox language, the
+So far, you have used Checkbox in local mode. It is, however, possible to use
+Checkbox to test a device from another device. It is the preferred method
+of using Checkbox, especially if you plan on running tests that suspend,
+reboot or turn off the device you're testing. In Checkbox language, the
 device being tested is called an :term:`agent<Checkbox Agent>` and the device
 controlling the execution of the tests is called the :term:`controller<Checkbox
 Controller>`. This is the remote mode. In this section, you will use the
@@ -100,17 +102,17 @@ On the agent terminal, you can see a message like:
 This means the test session ``remote-2023-07-21T07.26.58`` has been completed
 and it was not uploaded to the Certification website.
 
-If you have another device running Ubuntu, you can try to install Checkbox on
-it, then connect to it using your own computer with the ``checkbox.checkbox-cli
-remote x.x.x.x`` command, replacing ``x.x.x.x`` by the IP address of the
-other device.
-
 Stop the agent running in the terminal by pressing ``Ctrl+C`` in it, then
 restart the Checkbox agent service with:
 
 .. code-block:: none
 
     sudo systemctl start snap.checkbox.service.service
+
+If you have another device running Ubuntu, you can try to install Checkbox on
+it, then connect to it using your own computer with the ``checkbox.checkbox-cli
+remote x.x.x.x`` command, replacing ``x.x.x.x`` by the IP address of the
+other device.
 
 Launchers in remote mode
 ========================

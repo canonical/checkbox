@@ -30,6 +30,7 @@ github
 GitHub
 GPLv
 hostname
+html
 http
 https
 INI

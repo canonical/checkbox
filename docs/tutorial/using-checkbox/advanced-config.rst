@@ -48,12 +48,12 @@ Create a launcher like the following:
   # and we use the transport we defined as well
   transport = out_to_stdout
 
-Launch checkbox, it should print a human readable output to the stream you chosed!
+Launch checkbox, it should print a human readable output to the stream you chose!
 
 .. note::
 
   Checkbox will ask you if you want to submit the ``screen`` report. This is
-  Checkbox's way of asking if you want it to produce that report. Respond yes.
+  the Checkbox way of asking if you want it to produce that report. Respond yes.
   See the example below to know how to avoid having to give confirmation
   (using forced)
 
@@ -142,7 +142,7 @@ launcher, it will produce one html report and two (equal) textual reports.
 UI Verbosity
 ==============
 
-Sometimes we may want more informations on the tests that are executing, sometimes
+Sometimes we may want more to know more on the tests that are executing, sometimes
 we may only care about the results. Checkbox allows you to customize how much
 output is produced while running via two mechanisms ``ui.output``
 and ``ui.verbosity``.
@@ -178,9 +178,9 @@ obtain that with the following launcher:
   # This also hides resource and attachments, they are automated as well!
   output = hide-automated
 
-We can also obtain the opposite result, sometimes we may want to have more
-informations about a Checkbox execution, for example, we may want to read
-when a job is started. Check out the following launcher to get that.
+We can also obtain the opposite result, sometimes we may want to have as
+much information possible about a Checkbox execution, for example, we may
+want to read when a job is started. Check out the following launcher to get that.
 
 .. code:: none
 
@@ -307,7 +307,7 @@ Now create a launcher file that uses this global configs:
    force = True
 
 Launch checkbox and check that both configs are taken into account. Lets say
-that this is the default behaviour that you use when running tests and
+that this is the default behavior that you use when running tests and
 checking that everything is all right. Now create another launcher that we can use
 for submissions
 

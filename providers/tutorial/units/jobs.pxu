@@ -11,9 +11,42 @@ command: false
 id: tutorial/crashing
 plugin: shell
 _description: A job that always crashes
-command: 
+command:
  # Start the sleep 5 command, but if it doesn't finish in 1 second, send it the
  # KILL signal to stop it immediately." Since sleep 5 is meant to run for 5
  # seconds and the timeout is set to 1 second, the sleep 5 command will be
  # killed by the KILL signal after just 1 second.
- timeout -s KILL 1 sleep 5
+ timeout -s KILL 0.1 sleep 5
+
+id: tutorial/has_resource
+plugin: shell
+requires:
+ (tutorial_resources.name == 'first-resource' and tutorial_resources.has_required_thing == 'true')
+_description: A job that requires a resource and it is available
+command:
+ true  # this will run!
+
+
+id: tutorial/no_resource
+plugin: shell
+requires:
+ (tutorial_resources.name == 'second-resource' and tutorial_resources.has_required_thing == 'true')
+_description: A job that requires a resource but it's not available
+command:
+ true  # doesn't matter - will not run
+
+id: tutorial/passing_dependency
+plugin: shell
+depends:
+ tutorial/passing
+_desciption: A job that depends on other job that passes
+command:
+ true  # this will run!
+
+id: tutorial/failing_dependency
+plugin: shell
+depends:
+ tutorial/failing
+_description: A job that is skipped because it depends on a job that fails
+command:
+ true  # doesn't matter - will not run

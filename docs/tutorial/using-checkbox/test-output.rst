@@ -49,16 +49,28 @@ different **Categories** based on their functionalities or characteristics.
     
     ------------------------------------------------------------------------- >8 ---
 
-This is the output from ``com.canonical.plainbox::manifest``. If a job fails 
-or is skipped, the message will also be shown in this section.
+This is the job stdout from ``com.canonical.plainbox::manifest``. If a job 
+fails or is skipped, the message will also be shown in this section.
 
 In our case, we are testing audio device detection, and the manifest was 
 prompted earlier to ask for user-provided information, this section displays 
 the collected information from the user.
 
-.. note::
+.. code-block:: none
 
-    If a hardware device required by a test ID is identified as ``False`` by the user, the test will be skipped.
+    ------------[ Check that at least one audio playback device exits ]-------------
+    ID: com.canonical.certification::audio/detect-playback-devices
+    Category: com.canonical.plainbox::audio
+    Job cannot be started because:
+     - resource expression "manifest.has_audio_playback == 'True'" evaluates to false
+    Outcome: job cannot be started
+
+Oops! Apparently this job was skipped.Based on the stdout, it seems that this 
+issue occurred because when Checkbox asking hardware manifest, we mistakenly 
+set ``has_audio_playback`` to ``False``. Consequently, Checkbox determined that 
+the machine lacks the necessary audio devices to support the test.
+
+
 
 .. code-block:: none
 

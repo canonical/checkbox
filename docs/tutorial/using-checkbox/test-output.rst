@@ -15,21 +15,27 @@ for audio device detection in practice.
 
     =========[ Running job 1 / 3. Estimated time left (at least): 0:00:01 ]=========
 
-**Progress Indicator:** Shows the current status of the ongoing 
+**Progress Indicator** shows the current status of the ongoing 
 job, including the total number of jobs and the number completed. It also 
 provides an estimated time left for completion, helping users track progress 
 and estimate when the test will finish.
+
 
 .. code-block:: none
 
     -----------------------------[ Hardware Manifest ]------------------------------
 
 **Summary** provides a brief sentence to help users understand the purpose of 
-this job. In this case, it's ``Hardware Manifest``, which provides information 
+this job. 
+
+In this case, it's `Hardware Manifest
+<https://checkbox.readthedocs.io/en/latest/reference/launcher.html
+#manifest-section>`_, which provides information 
 about various hardware devices used in the tests. When certain tests involve 
 specific hardware devices, Checkbox will prompt users to inform in advance 
 whether the machine includes specific hardware devices required for testing 
 purposes.
+
 
 .. code-block:: none
 
@@ -38,6 +44,7 @@ purposes.
 
 **ID** indicates the job IDs run during the test. and it's organized into 
 different **Categories** based on their functionalities or characteristics.
+
 
 .. code-block:: none
 
@@ -56,6 +63,15 @@ In our case, we are testing audio device detection, and the manifest was
 prompted earlier to ask for user-provided information, this section displays 
 the collected information from the user.
 
+
+.. code-block:: none
+
+    Outcome: job passed
+
+At the end of each test, the **Outcome** will be displayed to indicate whether 
+the test has passed.
+
+
 .. code-block:: none
 
     ------------[ Check that at least one audio playback device exits ]-------------
@@ -71,14 +87,6 @@ set ``has_audio_playback`` to ``False``. Consequently, Checkbox determined that
 the machine lacks the necessary audio devices to support the test.
 
 
-
-.. code-block:: none
-
-    Outcome: job passed
-
-At the end of each test, the **Outcome** will be displayed to indicate whether 
-the test has passed.
-
 .. code-block:: none
 
       ☑ : Hardware Manifest
@@ -87,8 +95,8 @@ the test has passed.
       
 After all the jobs are completed, a checklist will summarize the results of 
 each test.
-  
-  
+
+
 .. code-block:: none
 
     file:///home/user/.local/share/checkbox-ng/submission_2023-07-25T07.53.41.800141.html
@@ -97,6 +105,7 @@ each test.
   
 Checkbox collect all data related to the test and generates a **Test Reports** 
 locally.
+
 
 .. code-block:: none
 

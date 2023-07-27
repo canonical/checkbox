@@ -95,7 +95,8 @@ each test.
     file:///home/user/.local/share/checkbox-ng/submission_2023-07-25T07.53.41.800141.junit.xml
     file:///home/user/.local/share/checkbox-ng/submission_2023-07-25T07.53.41.800141.tar.xz
   
-Checkbox collect all data related to the test and generates a **Test Reports** locally.
+Checkbox collect all data related to the test and generates a **Test Reports** 
+locally.
 
 .. code-block:: none
 
@@ -106,6 +107,6 @@ Checkbox collect all data related to the test and generates a **Test Reports** l
 Users would be asked whether they want to upload the results to the Canonical 
 :term:`Certification website`.
 
-Congratz! Now you have a basic understanding 
+Congrats! Now you have a basic understanding 
 of the test output.
 

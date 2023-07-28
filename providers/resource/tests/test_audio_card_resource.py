@@ -24,7 +24,7 @@ from audio_card_resource import get_audio_cards
 
 
 class GetAudioCardsTests(unittest.TestCase):
-    def test_get_audio_card_playback(self):
+    def test_get_audio_card_info(self):
         with patch("os.path.exists") as mock_path:
             mock_path.return_value = True
             test_input = "00-00: HDA Analog (*) : : playback 1\n00-01: HDA Digital (*) : : capture 1s"

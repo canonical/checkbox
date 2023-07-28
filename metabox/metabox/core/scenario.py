@@ -72,12 +72,13 @@ class Scenario:
         self._ret_code = None
         self._stdout = ""
         self._stderr = ""
+        self._oudstr_full = ""
         self._pts = None
 
     def get_output_streams(self):
         if self._pts:
             return self._pts.stdout_data_full.decode("utf-8")
-        return self._stdout + self._stderr
+        return self._outstr_full
 
     def has_passed(self):
         """Check whether all the assertions passed."""
@@ -111,11 +112,12 @@ class Scenario:
             # getting empty log trace events
             self._pts.verbose = False
 
-    def _assign_outcome(self, ret_code, stdout, stderr):
+    def _assign_outcome(self, ret_code, stdout, stderr, outstr_full):
         """Store remnants of a machine that run the scenario."""
         self._ret_code = ret_code
         self._stdout = stdout
         self._stderr = stderr
+        self._outstr_full = outstr_full
 
     # TODO: add storing of what actually failed in the assert methods
     def assert_printed(self, pattern):

@@ -57,6 +57,7 @@ io
 iot
 jinja
 json
+JUnit
 keypresses
 libre
 loopback

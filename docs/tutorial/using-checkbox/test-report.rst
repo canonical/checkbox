@@ -5,17 +5,16 @@ Review Test Report
 
 Once you finish your first test run, you may want to review the test reports. 
 Checkbox generates test reports in different formats that can be used to 
-easily share the results of a test session. By default, a :ref:`text summary<
-text-summary>` and :ref:`submission files<submission-files>` are created. This 
-section will provide you with information on where to locate the report files 
-and their respective contents.
+easily share the results of a test session. By default, a :ref:`text summary<text-summary>` 
+and :ref:`submission files<submission-files>` are created. This section will 
+provide you with information on where to locate the report files and their 
+respective contents.
 
 .. note::
 
     You can tailor desired reports in your launcher file, or define your own 
-    exporter to customize the reports. See :doc:`launcher<../../reference/
-    launcher>` and :doc:`exporter<../../reference/units/exporter>` for more 
-    details.
+    exporter to customize the reports. See :doc:`launcher<../../reference/launcher>` 
+    and :doc:`exporter<../../reference/units/exporter>` for more details.
 
 .. _text-summary:
 
@@ -24,10 +23,7 @@ Text Summary
 
 You should see a text summary displayed in the console once all jobs are 
 completed. The result of each job is presented in the format: ``outcome: 
-summary``. As it only provides an overview, for more in-depth information, you 
-will need to review :ref:`submission files<submission-files>`.
-
-Example:
+summary``, and it looks like:
 
 .. code-block:: none
 
@@ -37,7 +33,7 @@ Example:
      ☑ : Collect information about supported types of USB
      ☒ : Test USB 3.0 or 3.1 ports
 
-Types of job's outcome defined in Checkbox:
+Checkout this table to map outcome symbols to their corresponding descriptions:
 
 .. list-table::
     :header-rows: 1
@@ -59,6 +55,9 @@ Types of job's outcome defined in Checkbox:
       - job needs verification
     * - ⚠
       - job crashed
+
+As text summary only provides an overview, for more in-depth information, you 
+will need to review submission files.
 
 .. _submission-files:
 
@@ -92,7 +91,7 @@ organized as follows:
          ├── junit
          └── attachments
 
-Let's explore each of the submission files together!
+Now, let's explore each of the submission files together!
 
 ``html``
     Open HTML files with your preferred web browser, you will see a System 
@@ -104,7 +103,8 @@ Let's explore each of the submission files together!
     
     You can expand entries in Tests Results and Logs sections to access more 
     detailed information. Additionally, you can utilize *search bar* to filter 
-    specific tests for easier navigation.
+    specific tests for easier navigation. For instance, type "audio" in the 
+    search bar to view all test results related to audio testing.
 
 .. figure:: ../../_images/checkbox-test-report.png
     

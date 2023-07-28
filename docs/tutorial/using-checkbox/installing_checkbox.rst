@@ -19,7 +19,7 @@ understand and pick the one that fits your needs::
 Now that we have the ``checkbox22`` runtime, we need a ``frontend``, to install it
 run the following::
 
-  $ sudo snap install checkbox --channel uc22
+  $ sudo snap install checkbox --channel 22.04/stable --classic
   [...]
   checkbox (22.04/stable) X.Y.Z from Canonical Certification Team (ce-certification-qa) installed
 

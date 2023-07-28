@@ -45,9 +45,9 @@ snap can either use ``strict`` or ``classic`` confinement. Checkbox has a snap
 for both models. The strict snaps are called ``ucXX``, the classic ones have a
 standard LTS name.
 
-In general we advise to use ``strict`` snap whenever possible.
-You are going to need the ``classic`` one whenever the tests you are running
-need a binary that is available in your system but not in the ``strict`` snap.
+In general we advise to use ``classic`` snap. You are going to need the ``classic``
+one whenever the tests you are running needs a binary that is available in your
+system but not in the ``strict`` snap.
 
 .. note::
 

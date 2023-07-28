@@ -65,4 +65,4 @@ jobs:
       - name: Install Metabox
         run: python3 -m pip install -e .
       - name: Run Metabox scenarios
-        run: metabox configs/${{ matrix.mode }}-source-${{ matrix.os }}.py --log INFO
+        run: metabox configs/${{ matrix.mode }}-source-${{ matrix.os }}.py

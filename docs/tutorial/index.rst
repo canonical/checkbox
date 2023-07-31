@@ -27,6 +27,7 @@ journey through the product.
    :maxdepth: 1
 
    using-checkbox/basic-launcher
+   using-checkbox/test-output
 
 Extended tutorial
 -----------------

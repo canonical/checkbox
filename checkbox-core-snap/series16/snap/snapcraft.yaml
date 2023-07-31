@@ -168,6 +168,7 @@ parts:
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
       # also, call pip again, this installs the module itself
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install .
+      sed -iE 's|#!\/root\/parts\/.*|#!/usr/bin/env python3|' $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
 ################################################################################
   checkbox-ng:
     plugin: python

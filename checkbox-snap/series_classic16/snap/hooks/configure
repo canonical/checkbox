@@ -36,9 +36,12 @@ sys.path.append(os.path.expandvars("$SNAP/usr/lib/python3/dist-packages"))
 sitepkgpath = "$SNAP/lib/python3.5/site-packages"
 sys.path.append(os.path.expandvars(sitepkgpath))
 
-sys.path.append(os.path.expandvars(
-    "/snap/checkbox/current/usr/lib/python3/dist-packages"))
-runtimepath = "/snap/checkbox/current/lib/python3.5/site-packages"
+sys.path.append(
+    os.path.expandvars(
+        "/snap/checkbox16/current/usr/lib/python3/dist-packages"
+    )
+)
+runtimepath = "/snap/checkbox16/current/lib/python3.5/site-packages"
 sys.path.append(os.path.expandvars(runtimepath))
 
 try:

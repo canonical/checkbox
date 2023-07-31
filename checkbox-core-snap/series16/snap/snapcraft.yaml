@@ -197,9 +197,17 @@ parts:
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
       echo "from setuptools import setup; setup()" > setup.py
+      # setup the correct pip and related tools version
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
-      # also, call pip again, this installs the module itself
+      # install checkbox-ng
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install .
+      # fix shebangs in bins.This is necessary because by calling pip via the
+      # $SNAPCRAFT_PART_INSTALL path (to get the correct one) this path gets
+      # propagated into bins. This path will be invalid once the snap is installed
+      # so it must be changed to the appropriate one (/usr/bin/env python3) that
+      # we could not use here
+      sed -iE 's|#!\/root\/parts\/.*|#!/usr/bin/env python3|' $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
+      #sed -i "1s/.*/#!\/usr\/bin\/env python3/" $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

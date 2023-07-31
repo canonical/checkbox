@@ -169,7 +169,7 @@ class AxisData(threading.Thread):
         for mapping, data in direction_map.items():
             reading = self.parse_reading(int(data), mapping)
 
-            if type(reading) == int:
+            if isinstance(reading, int):
                 return reading, mapping
 
         # Return nothing if threshold is not met
@@ -180,7 +180,7 @@ class AxisData(threading.Thread):
         while len(rem_tests) > 0:
             axis_data_bundle = self.grab_current_readings()
 
-            if type(axis_data_bundle) != list:
+            if not isinstance(axis_data_bundle, list):
                 logging.error("Failed to grab appropriate readings")
                 return 1
 

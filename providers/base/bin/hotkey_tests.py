@@ -372,7 +372,7 @@ class FauxKeyboard():
         while repetitions:
             if not modifiers.issubset({'alt', 'ctrl', 'shift', 'meta'}):
                 raise SystemExit('Unknown modifier')
-            if type(key_code) == KeyCodes:
+            if isinstance(key_code, KeyCodes):
                 key_code = key_code.value
             data = bytes()
             data += self.event_struct.pack(0, 0, 4, 4, key_code)

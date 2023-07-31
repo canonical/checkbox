@@ -165,7 +165,7 @@ class Reporter(object):
                 # Check for ESC key pressed
                 self.show_text(_("Test cancelled"))
                 self.quit()
-            elif 1 < code < 10 and type(self) == CLIReporter:
+            elif 1 < code < 10 and isinstance(self, CLIReporter):
                 # Check for number to skip
                 self.toggle_key(self.keys[code - 2])
             else:

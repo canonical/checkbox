@@ -374,7 +374,7 @@ estimated_duration: 1.0
 imports: from com.canonical.plainbox import manifest
 requires:
   package.name == 'pulseaudio-utils'
-  audio_card.Playback == 'supported'
+  audio_card.playback == 'supported'
 command:
   pactl_list.sh sinks
 _description:
@@ -388,7 +388,7 @@ estimated_duration: 1.0
 imports: from com.canonical.plainbox import manifest
 requires:
   package.name == 'pulseaudio-utils'
-  audio_card.Capture == 'supported'
+  audio_card.capture == 'supported'
 command:
   pactl_list.sh sources
 _description:
@@ -696,9 +696,9 @@ plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
 requires:
-  audio_card.Playback == 'supported'
+  audio_card.playback == 'supported'
 command:
-  COUNT=$(audio_card_resource.py | grep -c playback)
+  COUNT=$(audio_card_resource.py | grep -c Playback)
   echo "Count: $COUNT"
   if [ "$COUNT" -eq 0 ]; then
     exit 1
@@ -711,7 +711,7 @@ plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
 requires:
-  audio_card.Capture == 'supported'
+  audio_card.capture == 'supported'
 command:
   COUNT=$(audio_card_resource.py | grep -c Capture)
   echo "Count: $COUNT"

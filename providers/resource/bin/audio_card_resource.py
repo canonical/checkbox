@@ -17,46 +17,57 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
+from collections import namedtuple
 
 
 def get_audio_cards():
     """Retrieve audio card information."""
+    AudioCard = namedtuple('AudioCard',
+                           ['card', 'device', 'name', 'playback', 'capture'])
     audio_cards = []
     PCM_FILE = '/proc/asound/pcm'
-    if os.path.exists(PCM_FILE):
+    try:
         with open(PCM_FILE, 'r') as f:
             data = f.readlines()
-            for line in data:
-                info = [device_line.strip() for device_line in line.split(':')]
-                ids = info[0].split('-')
-                card_id = ids[0]
-                device_id = ids[1]
-                device_name = info[1]
-                capabilities = info[3:]
-                audio_cards.append({
-                    'Card': card_id,
-                    'Device': device_id,
-                    'Name': device_name,
-                    'Playback': ("supported" if any(cap.startswith('playback')
-                                 for cap in capabilities) else "unsupported"),
-                    'Capture': ("supported" if any(cap.startswith('capture')
-                                for cap in capabilities) else "unsupported")
+    except OSError:
+        print('Failed to access {}'.format(PCM_FILE))
+        return []
 
-                })
+    for line in data:
+        info = [device_line.strip() for device_line in line.split(':')]
+        ids = info[0].split('-')
+        card_id = ids[0]
+        device_id = ids[1]
+        device_name = info[1]
+        capabilities = info[3:]
+        playback = ("supported" if has_capability('playback', capabilities)
+                    else "unsupported")
+        capture = ("supported" if has_capability('capture', capabilities)
+                   else "unsupported")
+        audio_cards.append(AudioCard(card=card_id,
+                                     device=device_id,
+                                     name=device_name,
+                                     playback=playback,
+                                     capture=capture))
+
     return audio_cards
+
+
+def has_capability(capability_prefix: str, capabilities: list) -> bool:
+    return any(capability.startswith(capability_prefix)
+               for capability in capabilities)
 
 
 def print_audio_cards(cards):
     """Print audio card information."""
     for card in cards:
-        print("card: {}".format(card['Card']))
-        print("device: {}".format(card['Device']))
-        print("name: {}".format(card['Name']))
-        if card['Playback'] == "supported":
-            print("playback: 1")
-        if card['Capture'] == "supported":
-            print("capture: 1")
+        print("Card: {}".format(card.card))
+        print("Device: {}".format(card.device))
+        print("Name: {}".format(card.name))
+        if card.playback == "supported":
+            print("Playback: 1")
+        if card.capture == "supported":
+            print("Capture: 1")
 
 
 def main():

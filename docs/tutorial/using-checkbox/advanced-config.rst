@@ -267,7 +267,7 @@ Config Inheritance
 ==================
 
 Config renaming is useful, but sometimes it is not enough to maintain a clean
-setup. One thing that it common is wanting a basic configuration of Checkbox
+setup. One thing that is common is wanting a basic configuration of Checkbox
 and a few smaller configurations that are specific to each situation.
 
 For example, create the following config file in ``~/.config/checkbox_global.conf``

@@ -16,10 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-import itertools
 import time
-from pathlib import Path
 import textwrap
+import itertools
+import pkg_resources
+from pathlib import Path
 
 import pylxd.exceptions
 from loguru import logger
@@ -309,7 +310,10 @@ class ContainerSourceMachine(ContainerBaseMachine):
                     "sudo python3 -m pip install -e .'"
                 ),
                 # ensure these two are at the correct version to support xenial
-                "bash -c 'sudo python3 -m pip install importlib_metadata==1.0.0 \"zipp<2\"'",
+                (
+                    "bash -c 'sudo python3 -m "
+                    'pip install importlib_metadata==1.0.0 "zipp<2"\'',
+                ),
             ]
         if self.config.alias not in ["focal", "jammy"]:
             logger.warning(
@@ -338,6 +342,11 @@ class ContainerSourceMachine(ContainerBaseMachine):
             (
                 "bash -c 'ls /home/ubuntu/checkbox/providers/*/manage.py"
                 "| xargs -I{} -n1 sudo python3 {} install'"
+            ),
+            (
+                "bash -c 'sudo python3 "
+                "/home/ubuntu/checkbox/metabox/metabox/metabox-provider/manage.py "
+                "install'"
             ),
         ]
 
@@ -464,7 +473,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
     """
 
     CHECKBOX_CORE_SNAP_MAP = {
-        "xenial": "checkbox",
+        "xenial": "checkbox16",
         "bionic": "checkbox18",
         "focal": "checkbox20",
         "jammy": "checkbox22",
@@ -494,6 +503,84 @@ class ContainerSnapMachine(ContainerBaseMachine):
             self.dest = Path("/home", "ubuntu", filename.name)
             file_tranfer_list.append((filename, self.dest))
         return file_tranfer_list
+
+    def get_early_dir_transfer(self):
+        provider_path = pkg_resources.resource_filename(
+            "metabox", "metabox-provider"
+        )
+        return [(provider_path, "/home/ubuntu/metabox-provider")]
+
+    def get_setup_overlay_fs(self):
+        """
+        Overlay here is used to put the metabox provider in the checkbox snap
+        This is done via a service that mounts an overlay fs on the
+        checkbox snap where we have installed the metabox provider
+        """
+        snap_runtime_name = self.CHECKBOX_CORE_SNAP_MAP[self.config.alias]
+        snap_runtime_loc = "/snap/{}/current".format(snap_runtime_name)
+
+        overlay_dir = "/home/ubuntu/.overlay"
+        work_dir = "/home/ubuntu/.work_overlay"
+        service_cmd = (
+            "/bin/mount -t overlay -o "
+            "lowerdir={snap_runtime_loc},upperdir={overlay_dir},workdir={work_dir} "
+            "overlayfs {snap_runtime_loc}"
+        ).format(
+            snap_runtime_loc=snap_runtime_loc,
+            overlay_dir=overlay_dir,
+            work_dir=work_dir,
+        )
+
+        service_content = (
+            textwrap.dedent(
+                """
+            [Unit]
+            Description=Checkbox Overlay Service
+            Wants=network.target
+            Before=snap.{name}.service.service
+
+            [Service]
+            ExecStart={cmd}
+            SyslogIdentifier=overlay-checkbox.service
+            Restart=on-failure
+            TimeoutStopSec=30
+            Type=simple
+
+            [Install]
+            WantedBy=multi-user.target
+            """
+            )
+            .lstrip()
+            .format(name=self._snap_name, cmd=service_cmd)
+        )
+        self.run_cmd("sudo mkdir -p '/usr/lib/systemd/system'")
+        self.run_cmd("sudo mkdir -p '{}'".format(overlay_dir))
+        self.run_cmd("sudo mkdir -p '{}'".format(work_dir))
+        self.put(
+            "/usr/lib/systemd/system/overlay-checkbox.service",
+            service_content,
+            uid=0,
+            gid=0,
+        )
+        install_metabox_provider = (
+            "sudo /snap/checkbox/current/bin/wrapper_local python "
+            "/home/ubuntu/metabox-provider/manage.py install "
+            "--layout=relocatable --prefix=/providers/metabox-provider "
+            "--root={snap_runtime_location}"
+        ).format(
+            snap_runtime_location=snap_runtime_loc,
+        )
+
+        cmds = [
+            "sudo systemctl daemon-reload",
+            "sudo systemctl enable overlay-checkbox.service --now",
+            install_metabox_provider,
+            "sudo systemctl restart snap.{}.service.service".format(
+                self._snap_name
+            ),
+        ]
+
+        return cmds
 
     def get_early_setup(self):
         cmds = []
@@ -528,6 +615,9 @@ class ContainerSnapMachine(ContainerBaseMachine):
                     self._snap_name, channel, confinement
                 )
             )
+
+        cmds += self.get_setup_overlay_fs()
+
         return cmds
 
     def start_service(self, force=False):

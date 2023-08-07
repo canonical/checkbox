@@ -697,6 +697,7 @@ _summary: Check that at least one audio playback device exits
 plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_audio_playback == 'True'
   audio_card.playback == 'supported'
@@ -713,6 +714,7 @@ _summary: Check that at least one audio capture device exists
 plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_audio_capture == 'True'
   audio_card.capture == 'supported'

@@ -8,7 +8,7 @@ In order to install Checkbox you are going to need two parts, a ``runtime``
 and a ``frontend``.
 
 First we need to install the ``runtime``, this tutorial will use the ``checkbox22``
-runtime on Ubuntu22. We also offer versions for ``16``, ``18`` and ``20``
+runtime on Ubuntu22. We also offer versions for ``16``, ``18`` and ``20``.
 Use the one that matches your Ubuntu version or refer to :ref:`ref_which_snap` to
 understand and pick the one that fits your needs::
 
@@ -47,7 +47,3 @@ Now that we have installed both we can launch Checkbox running:
 
 If your screen is similar to this one, rejoice! You can start using
 Checkbox! For now you can close it using ``Ctrl+C``.
-
-You may have noticed that this tutorial has guided you to install a specific version of
-Checkbox: ``checkbox22``. We offer more, please refer to :ref:`ref_which_snap` to know which
-one you should use.

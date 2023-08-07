@@ -17,30 +17,32 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import re
-from typing import IO, NamedTuple
+from typing import NamedTuple
 
-__all__ = ('tag', 'ExecuteResult')
+__all__ = ("tag", "ExecuteResult")
 
 
 def tag(*tags):
     """Decorator to add tags to a scenario class."""
+
     def decorator(obj):
-        setattr(obj, 'tags', set(tags))
+        setattr(obj, "tags", set(tags))
         return obj
+
     return decorator
 
 
 class ExecuteResult(NamedTuple):
-
     exit_code: int
-    stdout: IO
-    stderr: IO
+    stdout: str
+    stderr: str
+    outstr_full: str
 
 
 class _re:
     def __init__(self, pattern, flags=0):
         self._raw_pattern = pattern
-        self._pattern = re.compile(pattern.encode('utf-8'), flags)
+        self._pattern = re.compile(pattern.encode("utf-8"), flags)
 
     def __repr__(self):
         return f"Regex {self._raw_pattern}"

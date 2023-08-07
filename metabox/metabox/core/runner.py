@@ -35,7 +35,6 @@ logger = logger.opt(colors=True)
 class Runner:
     """Metabox scenario discovery and runner."""
 
-
     def __init__(self, args):
         self.args = args
         # logging
@@ -135,15 +134,22 @@ class Runner:
         scenarios_modes_origins = (
             (scenario_cls, mode, origin)
             for scenario_cls in self.scenarios
-            for (mode, origin) in product(scenario_cls.modes, scenario_cls.origins)
+            for (mode, origin) in product(
+                scenario_cls.modes, scenario_cls.origins
+            )
         )
         for scenario_cls, mode, origin in scenarios_modes_origins:
             if mode not in self.config:
-                logger.debug("Skipping a scenario: [{}] {}", mode, scenario_cls.name)
+                logger.debug(
+                    "Skipping a scenario: [{}] {}", mode, scenario_cls.name
+                )
                 continue
             if origin != self.config[mode]["origin"]:
                 logger.debug(
-                    "Skipping a scenario: [{}][{}] {}", mode, origin, scenario_cls.name
+                    "Skipping a scenario: [{}][{}] {}",
+                    mode,
+                    origin,
+                    scenario_cls.name,
                 )
                 continue
             scn_config = scenario_cls.config_override
@@ -183,13 +189,17 @@ class Runner:
                 raise ValueError("Unknown mode {}".format(mode))
             for args, kwargs in releases:
                 logger.debug(
-                    "Adding scenario: [{}][{}] {}", mode, origin, scenario_cls.name
+                    "Adding scenario: [{}][{}] {}",
+                    mode,
+                    origin,
+                    scenario_cls.name,
                 )
                 self.scn_variants.append(scenario_cls(*args, **kwargs))
         if self.args.tags or self.args.exclude_tags:
             if self.args.tags:
                 logger.info(
-                    "Including scenario tag(s): %s" % ", ".join(sorted(self.args.tags))
+                    "Including scenario tag(s): %s"
+                    % ", ".join(sorted(self.args.tags))
                 )
             if self.args.exclude_tags:
                 logger.info(
@@ -215,7 +225,9 @@ class Runner:
         config = self.config[mode].copy()
         config["alias"] = release_alias
         config["role"] = mode
-        return self.machine_provider.get_machine_by_config(MachineConfig(mode, config))
+        return self.machine_provider.get_machine_by_config(
+            MachineConfig(mode, config)
+        )
 
     def _get_scenario_description(self, scn):
         scenario_description_fmt = "[{mode}][{release_version}] {name}"
@@ -256,12 +268,17 @@ class Runner:
 
             scenario_description = self._get_scenario_description(scn)
             logger.info(
-                "Starting scenario ({}/{}): {}".format(idx, total, scenario_description)
+                "Starting scenario ({}/{}): {}".format(
+                    idx, total, scenario_description
+                )
             )
             scn.run()
             if not scn.has_passed():
                 self.failed = True
                 logger.error(scenario_description + " scenario has failed.")
+                logger.error(
+                    "Scenario output:\n" + scn.get_output_streams().strip()
+                )
                 if self.hold_on_fail:
                     if scn.mode == "remote":
                         msg = (
@@ -288,9 +305,7 @@ class Runner:
         timeTaken = stopTime - startTime
         print("-" * 80)
         form = "scenario" if total == 1 else "scenarios"
-        status = "Ran {} {} in {:.3f}s".format(
-            total, form, timeTaken
-        )
+        status = "Ran {} {} in {:.3f}s".format(total, form, timeTaken)
         if self.wasSuccessful():
             logger.success(status)
         else:

@@ -42,6 +42,7 @@ jinja
 Jinja
 json
 JSON
+JUnit
 keypresses
 libre
 loopback

@@ -68,6 +68,7 @@ def print_audio_cards(cards):
             print("Playback: 1")
         if card.capture == "supported":
             print("Capture: 1")
+        print()
 
 
 def main():

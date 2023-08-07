@@ -21,6 +21,11 @@ flags: simple
 command: echo variables: $var1 $var2 $var3 $var4 $var_launcher
 environ: var1 var2 var3 var4
 
+id: config-environ-case
+flags: simple
+command: echo variables: $Case $CASE $case
+environ: Case CASE case
+
 id: stub/manual
 _summary: A simple manual job
 _description:

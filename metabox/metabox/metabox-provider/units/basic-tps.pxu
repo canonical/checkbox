@@ -44,3 +44,4 @@ _name: Checkbox Configuration Tests
 include:
  config-environ-source
  config-environ-vars
+ config-environ-case

@@ -240,6 +240,9 @@ class Configuration:
         """
         cfg = Configuration(origin)
         parser = ConfigParser(delimiters="=")
+        # make the option names case sensitive
+        # else envvars are broken
+        parser.optionxform = str
         parser.read_string(ini_file.read())
         for sect_name, section in parser.items():
             if sect_name == "DEFAULT":

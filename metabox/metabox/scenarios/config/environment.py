@@ -25,6 +25,31 @@ from metabox.core.actions import AssertPrinted, Start, MkTree, Put
 from .config_files import environment
 
 
+class CheckboxConfEnvvarCaseSensitive(Scenario):
+    """
+    Check that environment variables are case sensitive
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        [environment]
+        CASE = CASE
+        Case = Case
+        case = case
+        """)
+    steps = [
+        AssertPrinted("CASE"),
+        AssertPrinted("Case"),
+        AssertPrinted("case"),
+    ]
+
+
 class CheckboxConfXDG(Scenario):
     """
     Check that environment variables are read from the XDG directory when

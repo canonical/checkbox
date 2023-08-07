@@ -19,7 +19,6 @@
 
 import unittest
 from io import StringIO
-from collections import namedtuple
 from unittest.mock import Mock, patch, mock_open
 from audio_card_resource import get_audio_cards
 
@@ -29,10 +28,10 @@ class GetAudioCardsTests(unittest.TestCase):
         with patch("os.path.exists") as mock_path:
             mock_path.return_value = True
             test_input = "00-00: HDA Analog (*) : : playback 1\n00-01: HDA Digital (*) : : capture 1s"
-            AudioCard = namedtuple('AudioCard', ['card', 'device', 'name', 'playback', 'capture'])
-            expected_audio_card1 = AudioCard(card="00", device="00", name="HDA Analog (*)", playback="supported", capture="unsupported")
-            expected_audio_card2 = AudioCard(card="00", device="01", name="HDA Digital (*)", playback="unsupported", capture="supported")
+            expected_audio_card1 = {'card': '00', 'device': '00', 'name': 'HDA Analog (*)', 'playback': True, 'capture': False}
+            expected_audio_card2 = {'card': '00', 'device': '01', 'name': 'HDA Digital (*)', 'playback': False, 'capture': True}
             with patch("builtins.open", new=mock_open(read_data=test_input)):
                 audio_cards = get_audio_cards()
                 self.assertEqual(audio_cards[0], expected_audio_card1)
                 self.assertEqual(audio_cards[1], expected_audio_card2)
+

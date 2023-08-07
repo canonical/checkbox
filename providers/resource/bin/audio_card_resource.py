@@ -17,13 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import namedtuple
-
 
 def get_audio_cards():
     """Retrieve audio card information."""
-    AudioCard = namedtuple('AudioCard',
-                           ['card', 'device', 'name', 'playback', 'capture'])
     audio_cards = []
     PCM_FILE = '/proc/asound/pcm'
     try:
@@ -40,15 +36,15 @@ def get_audio_cards():
         device_id = ids[1]
         device_name = info[1]
         capabilities = info[3:]
-        playback = ("supported" if has_capability('playback', capabilities)
-                    else "unsupported")
-        capture = ("supported" if has_capability('capture', capabilities)
-                   else "unsupported")
-        audio_cards.append(AudioCard(card=card_id,
-                                     device=device_id,
-                                     name=device_name,
-                                     playback=playback,
-                                     capture=capture))
+        playback = has_capability('playback', capabilities)
+        capture = has_capability('capture', capabilities)
+        audio_cards.append({
+                            'card': card_id,
+                            'device': device_id,
+                            'name': device_name,
+                            'playback': playback,
+                            'capture': capture
+                        })
 
     return audio_cards
 
@@ -60,14 +56,20 @@ def has_capability(capability_prefix: str, capabilities: list) -> bool:
 
 def print_audio_cards(cards):
     """Print audio card information."""
+    print(cards)
+
     for card in cards:
-        print("Card: {}".format(card.card))
-        print("Device: {}".format(card.device))
-        print("Name: {}".format(card.name))
-        if card.playback == "supported":
-            print("Playback: 1")
-        if card.capture == "supported":
-            print("Capture: 1")
+        print("card: {}".format(card["card"]))
+        print("device: {}".format(card["device"]))
+        print("name: {}".format(card["name"]))
+        if card["playback"]:
+            print("playback: supported")
+        else:
+            print("playback: unsupported")
+        if card["capture"]:
+            print("capture: supported")
+        else:
+            print("capture: unsupported")
         print()
 
 

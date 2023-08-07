@@ -10,7 +10,7 @@ Advanced Config
 
 This section of the tutorial documents some useful configuration that are commonly
 found in the wild. This is by no means a complete list of all possible items that
-one can find in a configuration. Refer to the `launcher`_ section for more.
+one can find in a configuration. Refer to the :ref:`launcher` section for more.
 
 Transport and Report
 ====================
@@ -28,15 +28,15 @@ Create a launcher like the following:
   [test selection]
   forced = yes
 
-  # note what comes after : is the name of the exporter
+  # note what comes after ":" is the name of the exporter
   [exporter:text]
   # this specific one exports text,
   # you can also try com.canonical.plainbox::html
   unit = com.canonical.plainbox::text
 
-  # similarly, what comes out : is the name of the transport
+  # similarly, what comes after ":" is the name of the transport
   [transport:out_to_stdout]
-  # standard out, you can also try stderr for standard error
+  # standard out, you can also try "stderr" for standard error
   stream = stdout
   type = stream
 
@@ -48,19 +48,19 @@ Create a launcher like the following:
   # and we use the transport we defined as well
   transport = out_to_stdout
 
-Launch checkbox, it should print a human readable output to the stream you chose!
+Launch Checkbox, it should print a human readable output to the stream you chose!
 
 .. note::
 
   Checkbox will ask you if you want to submit the ``screen`` report. This is
   the Checkbox way of asking if you want it to produce that report. Respond yes.
   See the example below to know how to avoid having to give confirmation
-  (using forced)
+  (using `forced`)
 
 
 It may be tempting to redirect this output to file manually, but it is possible to
 save it in a file using the same mechanism. Try the following launcher for
-instance to create a beautiful html report to a file:
+instance to create a beautiful HTML report to a file:
 
 .. code-block:: none
 
@@ -135,19 +135,19 @@ launcher, it will produce one html report and two (equal) textual reports.
 
 .. note::
 
-  If you start Checkbox with this launcher, remember to remove ``~/.last_result.txt``
-  you may not want it to be there
-
+  If you start Checkbox with this launcher, remember that it will
+  create a file in ``~/.last_result.txt``. You may not want
+  to remove it after this experiment.
 
 UI Verbosity
 ==============
 
-Sometimes we may want more to know more on the tests that are executing, sometimes
+Sometimes we may want to know more on the tests that are executing, sometimes
 we may only care about the results. Checkbox allows you to customize how much
-output is produced while running via two mechanisms ``ui.output``
+output is produced while running via two mechanisms: ``ui.output``
 and ``ui.verbosity``.
 
-For example, consider the following launcher, when resource jobs are plenty the
+For example, consider the following launcher. When resource jobs are plenty the
 standard output may fill up with their output and we may not want to read it.
 
 .. code:: none
@@ -306,7 +306,7 @@ Now create a launcher file that uses this global configs:
    unit = com.canonical.certification::smoke
    force = True
 
-Launch checkbox and check that both configs are taken into account. Lets say
+Launch Checkbox and check that both configs are taken into account. Lets say
 that this is the default behavior that you use when running tests and
 checking that everything is all right. Now create another launcher that we can use
 for submissions

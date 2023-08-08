@@ -11,10 +11,12 @@ id: ce-oem-otg-manual
 unit: test plan
 _name: OTG manual tests
 _description: Manual OTG tests for devices
+bootstrap_include:
+    otg_ports
 include:
-    ce-oem-usb-otg/g_serial.*
-    ce-oem-usb-otg/g_mass_storage.*
-    ce-oem-usb-otg/g_ether.*
+    ce-oem-otg/g_serial-.*
+    ce-oem-otg/g_mass_storage-.*
+    ce-oem-otg/g_ether-.*
 
 id: ce-oem-otg-automated
 unit: test plan
@@ -26,10 +28,12 @@ id: after-suspend-ce-oem-otg-manual
 unit: test plan
 _name: After suspend OTG manual tests
 _description: Manual after suspend OTG tests for devices
+bootstrap_include:
+    otg_ports
 include:
-    after-suspend-ce-oem-usb-otg/g_serial.*
-    after-suspend-ce-oem-usb-otg/g_mass_storage.*
-    after-suspend-ce-oem-usb-otg/g_ether.*
+    after-suspend-ce-oem-otg/g_serial-.*
+    after-suspend-ce-oem-otg/g_mass_storage-.*
+    after-suspend-ce-oem-otg/g_ether-.*
 
 id: after-suspend-ce-oem-otg-automated
 unit: test plan

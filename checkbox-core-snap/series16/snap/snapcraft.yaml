@@ -177,7 +177,7 @@ parts:
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
       # also, call pip again, this installs the module itself
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install .
-      sed -iE 's|#!\/root\/parts\/.*|#!/usr/bin/env python3|' $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
+      sed -iE 's|\#\!.*/usr/bin/python3$|#!/usr/bin/env python3|' $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -216,7 +216,7 @@ parts:
       # propagated into bins. This path will be invalid once the snap is installed
       # so it must be changed to the appropriate one (/usr/bin/env python3) that
       # we could not use here
-      sed -iE 's|#!\/root\/parts\/.*|#!/usr/bin/env python3|' $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
+      sed -iE 's|\#\!.*/usr/bin/python3$|#!/usr/bin/env python3|' $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
       #sed -i "1s/.*/#!\/usr\/bin\/env python3/" $SNAPCRAFT_PART_INSTALL/usr/local/bin/*
 ################################################################################
   checkbox-provider-resource:

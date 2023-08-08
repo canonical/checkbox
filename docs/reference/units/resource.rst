@@ -1,3 +1,5 @@
+.. _resource:
+
 ==================
 Resource Job Units
 ==================

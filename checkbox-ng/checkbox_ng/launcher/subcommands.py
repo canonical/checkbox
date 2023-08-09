@@ -290,7 +290,7 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _configure_restart(self, ctx):
         try:
-            strategy = detect_restart_strategy(session_type="local")
+            _ = detect_restart_strategy(session_type="local")
         except LookupError as exc:
             _logger.warning(exc)
             _logger.warning(_("Automatic restart disabled!"))
@@ -308,8 +308,13 @@ class Launcher(MainLoopStage, ReportsStage):
         if ctx.args.launcher:
             respawn_cmd.append(os.path.abspath(ctx.args.launcher))
         respawn_cmd.append("--resume")
+        def join_cmd(args):
+            try:
+                return shlex.join(args)
+            except AttributeError:
+                return " ".join(shlex.quote(x) for x in args)
         ctx.sa.configure_application_restart(
-            lambda session_id: [shlex.join(respawn_cmd.append(session_id))]
+            lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
 
     def _maybe_resume_session(self):

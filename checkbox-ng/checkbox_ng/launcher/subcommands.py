@@ -309,7 +309,7 @@ class Launcher(MainLoopStage, ReportsStage):
             respawn_cmd.append(os.path.abspath(ctx.args.launcher))
         respawn_cmd.append("--resume")
         ctx.sa.configure_application_restart(
-            lambda session_id: [shlex.join(respawn_cmd.append(session_id))]
+            lambda session_id: [shlex.join(respawn_cmd + [session_id])]
         )
 
     def _maybe_resume_session(self):

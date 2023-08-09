@@ -58,8 +58,8 @@ package versions from git metadata.
 - [checkbox core snap packages] *(built and uploaded to their respective beta
   channels)*
 
-In addition to the above workflows, a draft release is created on Github with
-an auto-generated changelog.
+In addition to the above workflows, a [Draft Release Note] is created on Github
+with an auto-generated changelog.
 
 Check the related Github Action logs to see if everything runs as expected:
 
@@ -70,6 +70,17 @@ before finally completing
 a few of the snaps are built, which leads to Github Actions being marked as
 successful even though some snaps are not built (and therefore not pushed to
 the store)
+
+## Send the release e-mail
+
+The release process should have created a new [Draft Release Note]. You can
+use this to prepare a release e-mail that you will send to:
+
+- checkbox-devel@lists.ubuntu.com (public, see [mailing list page])
+- ce-certification-qa@lists.canonical.com (private)
+
+**_Note:_** You need to be registered to both these mailing lists in order to
+be able to send an e-mail to them.
 
 # References
 
@@ -105,3 +116,5 @@ release
 [checkbox snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-beta-release.yml
 [checkbox core snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-core-snap-beta-release.yml
 [build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336
+[Draft Release Note]: https://github.com/canonical/checkbox/releases
+[mailing list page]: https://lists.ubuntu.com/mailman/listinfo/Checkbox-devel

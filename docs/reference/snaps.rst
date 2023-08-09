@@ -24,7 +24,7 @@ Base
 
 The base of a snap is the underlying version of the operating system
 that it uses to run. For example ``checkbox 22.04`` and ``checkbox22``
-are built on top of Ubuntu22.04. This is not an 100% accurate
+are built on top of Ubuntu 22.04. This is not an 100% accurate
 explanation of what a base is but you can use this rule of thumb in your decision.
 If you want a more complete explanation of what bases are and how they are built,
 refer to this
@@ -33,7 +33,7 @@ refer to this
 In general we advise to use the version of Checkbox that most closely matches the
 system that is going to run it. If you are not on an LTS release of Ubuntu or
 you are using a completely different operating system, try to match it to
-the closest release we have. For example, if you are on Ubuntu23.04,
+the closest release we have. For example, if you are on Ubuntu 23.04,
 ``checkbox22`` is probably the one you will have to choose.
 
 Confinement

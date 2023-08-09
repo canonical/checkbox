@@ -8,3 +8,4 @@ Reference
    stack
    launcher
    units/index
+   snaps

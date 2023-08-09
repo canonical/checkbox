@@ -290,7 +290,7 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _configure_restart(self, ctx):
         try:
-            strategy = detect_restart_strategy(session_type="local")
+            _ = detect_restart_strategy(session_type="local")
         except LookupError as exc:
             _logger.warning(exc)
             _logger.warning(_("Automatic restart disabled!"))

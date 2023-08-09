@@ -38,7 +38,6 @@ class TestLauncher(TestCase):
         abspath_mock.return_value = "launcher_path"
 
         Launcher._configure_restart(tested_self, ctx_mock)
-        ctx_mock.sa.configure_application_restart.assert_called()
         (
             get_restart_cmd_f,
         ) = ctx_mock.sa.configure_application_restart.call_args[0]
@@ -62,7 +61,6 @@ class TestLauncher(TestCase):
         abspath_mock.return_value = "launcher_path"
 
         Launcher._configure_restart(tested_self, ctx_mock)
-        ctx_mock.sa.configure_application_restart.assert_called()
         (
             get_restart_cmd_f,
         ) = ctx_mock.sa.configure_application_restart.call_args[0]

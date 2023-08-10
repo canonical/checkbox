@@ -130,4 +130,4 @@ release
 [Draft Release Note]: https://github.com/canonical/checkbox/releases
 [mailing list page]: https://lists.ubuntu.com/mailman/listinfo/Checkbox-devel
 
-[1]: https://lists.canonical.com/mailman3/hyperkitty/list/ce-certification-qa@lists.canonical.com/message/YM2RNSZHZEP2BVXRNGORHWFMTHASHMKM/
+[1]: https://lists.ubuntu.com/archives/checkbox-devel/2023-August/000508.html

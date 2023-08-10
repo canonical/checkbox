@@ -37,7 +37,7 @@ Then, it's time to build the new beta version.
   workflow will not run even when the repository contains a workflow configured
   to run when push events occur.*
 
-## How packages versions are generated? ##
+## How packages versions are generated?
 
 Both Debian packages and checkbox snaps rely on [setuptools_scm] to extract 
 package versions from git metadata.

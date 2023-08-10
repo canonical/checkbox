@@ -534,21 +534,21 @@ class ContainerSnapMachine(ContainerBaseMachine):
         service_content = (
             textwrap.dedent(
                 """
-            [Unit]
-            Description=Checkbox Overlay Service
-            Wants=network.target
-            Before=snap.{name}.service.service
+                [Unit]
+                Description=Checkbox Overlay Service
+                Wants=network.target
+                Before=snap.{name}.service.service
 
-            [Service]
-            ExecStart={cmd}
-            SyslogIdentifier=overlay-checkbox.service
-            Restart=on-failure
-            TimeoutStopSec=30
-            Type=simple
+                [Service]
+                ExecStart={cmd}
+                SyslogIdentifier=overlay-checkbox.service
+                Restart=on-failure
+                TimeoutStopSec=30
+                Type=simple
 
-            [Install]
-            WantedBy=multi-user.target
-            """
+                [Install]
+                WantedBy=multi-user.target
+                """
             )
             .lstrip()
             .format(name=self._snap_name, cmd=service_cmd)

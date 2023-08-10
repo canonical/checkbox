@@ -312,7 +312,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 # ensure these two are at the correct version to support xenial
                 (
                     "bash -c 'sudo python3 -m "
-                    'pip install importlib_metadata==1.0.0 "zipp<2"\'',
+                    'pip install importlib_metadata==1.0.0 "zipp<2"\''
                 ),
             ]
         if self.config.alias not in ["focal", "jammy"]:

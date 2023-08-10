@@ -436,8 +436,8 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         parser.add_argument(
             "-u", "--user", help=_("normal user to run non-root jobs")
         )
-        parser.add_argument("-n", "--dry-run", default=False, action="store_true", help=_(
-            "don't actually do anything"))
+        parser.add_argument("-n", "--dry-run", action="store_true", help=_(
+            "all the tests except attach and resource will be skipped"))
 
     def _handle_interrupt(self):
         """

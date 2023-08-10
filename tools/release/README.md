@@ -25,7 +25,7 @@ Then, it's time to build the new beta version.
   ```
 - Tag the release
   ```
-  git tag -s "v2.4" -m "Bump version: 2.3 → 2.4"
+  git tag -s "v2.10.0" -m "Bump version: 2.9.1 → 2.10.0"
   ```
 - Push the tag to origin
   ```

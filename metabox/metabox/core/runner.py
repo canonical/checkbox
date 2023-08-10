@@ -144,7 +144,7 @@ class Runner:
                     "Skipping a scenario: [{}] {}", mode, scenario_cls.name
                 )
                 continue
-            if origin != self.config[role]["origin"]:
+            if origin != self.config["role"]["origin"]:
                 logger.debug(
                     "Skipping a scenario: [{}][{}] {}",
                     mode,

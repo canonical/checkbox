@@ -17,12 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import itertools
-import os.path
-import re
 import time
 from pathlib import Path
 import textwrap
-from contextlib import suppress
 
 import pylxd.exceptions
 from loguru import logger
@@ -96,12 +93,20 @@ class ContainerBaseMachine:
 
     def execute(self, cmd, env={}, verbose=False, timeout=0):
         return run_or_raise(
-            self._container, self._checkbox_wrapper + cmd, env, verbose, timeout
+            self._container,
+            self._checkbox_wrapper + cmd,
+            env,
+            verbose,
+            timeout,
         )
 
     def interactive_execute(self, cmd, env={}, verbose=False, timeout=0):
         return interactive_execute(
-            self._container, self._checkbox_wrapper + cmd, env, verbose, timeout
+            self._container,
+            self._checkbox_wrapper + cmd,
+            env,
+            verbose,
+            timeout,
         )
 
     def rollback_to(self, savepoint):
@@ -109,7 +114,9 @@ class ContainerBaseMachine:
             self._container.stop(wait=True)
         self._container.restore_snapshot(savepoint, wait=True)
         self._container.start(wait=True)
-        logger.opt(colors=True).debug("[<y>restored</y>    ] {}", self._container.name)
+        logger.opt(colors=True).debug(
+            "[<y>restored</y>    ] {}", self._container.name
+        )
         if self.config.role == "service":
             attempts_left = 60
             out = ""
@@ -134,7 +141,9 @@ class ContainerBaseMachine:
             raise
 
     def get_connecting_cmd(self):
-        return "lxc exec {} -- sudo --user ubuntu --login".format(self._container.name)
+        return "lxc exec {} -- sudo --user ubuntu --login".format(
+            self._container.name
+        )
 
     @property
     def address(self):
@@ -171,19 +180,25 @@ class ContainerBaseMachine:
         if interactive:
             # Return a PTS object to interact with
             return self.interactive_execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
+                "remote {} {}".format(host, launcher),
+                verbose=True,
+                timeout=timeout,
             )
         else:
             # Return an ExecuteResult named tuple
             return self.execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
+                "remote {} {}".format(host, launcher),
+                verbose=True,
+                timeout=timeout,
             )
 
     def start(self, cmd=None, env={}, interactive=False, timeout=0):
         assert self.config.role == "local"
         if interactive:
             # Return a PTS object to interact with
-            return self.interactive_execute(cmd, env=env, verbose=True, timeout=timeout)
+            return self.interactive_execute(
+                cmd, env=env, verbose=True, timeout=timeout
+            )
         else:
             # Return an ExecuteResult named tuple
             return self.execute(cmd, env=env, verbose=True, timeout=timeout)
@@ -192,7 +207,9 @@ class ContainerBaseMachine:
         verbose = True
         if interactive:
             # Return a PTS object to interact with
-            return interactive_execute(self._container, cmd, env, verbose, timeout)
+            return interactive_execute(
+                self._container, cmd, env, verbose, timeout
+            )
         else:
             # Return an ExecuteResult named tuple
             return run_or_raise(self._container, cmd, env, verbose, timeout)
@@ -270,7 +287,9 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "bash -c 'sudo python3 -m pip install -U \"pip<21\"'",
             ]
         if self.config.alias not in ["focal", "jammy"]:
-            logger.warning("Unknown revision dependencies version, installing latest")
+            logger.warning(
+                "Unknown revision dependencies version, installing latest"
+            )
         return [
             "bash -c 'sudo python3 -m pip install -U \"pip>20\"'",
         ]
@@ -293,7 +312,9 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "bash -c 'sudo python3 -m pip install importlib_metadata==1.0.0 \"zipp<2\"'",
             ]
         if self.config.alias not in ["focal", "jammy"]:
-            logger.warning("Unknown revision dependencies version, installing latest")
+            logger.warning(
+                "Unknown revision dependencies version, installing latest"
+            )
         return [
             (
                 "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
@@ -353,9 +374,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 WantedBy=multi-user.target
                 """
             ).lstrip()
-            self.run_cmd(
-                "sudo mkdir -p '/usr/lib/systemd/system'"
-            )
+            self.run_cmd("sudo mkdir -p '/usr/lib/systemd/system'")
             self.put(
                 "/usr/lib/systemd/system/checkbox-ng.service",
                 service_content,
@@ -374,7 +393,9 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def stop_service(self):
         assert self.config.role in ("remote", "service")
-        return run_or_raise(self._container, "sudo systemctl stop checkbox-ng.service")
+        return run_or_raise(
+            self._container, "sudo systemctl stop checkbox-ng.service"
+        )
 
     def reboot_service(self):
         assert self.config.role == "service"
@@ -422,7 +443,9 @@ class ContainerPPAMachine(ContainerBaseMachine):
 
     def stop_service(self):
         assert self.config.role == "service"
-        return run_or_raise(self._container, "sudo systemctl stop checkbox-ng.service")
+        return run_or_raise(
+            self._container, "sudo systemctl stop checkbox-ng.service"
+        )
 
     def is_service_active(self):
         assert self.config.role == "service"
@@ -461,7 +484,9 @@ class ContainerSnapMachine(ContainerBaseMachine):
     def get_file_transfer(self):
         file_tranfer_list = []
         if self.config.checkbox_core_snap.get("uri"):
-            core_filename = Path(self.config.checkbox_core_snap.get("uri")).expanduser()
+            core_filename = Path(
+                self.config.checkbox_core_snap.get("uri")
+            ).expanduser()
             self.core_dest = Path("/home", "ubuntu", core_filename.name)
             file_tranfer_list.append((core_filename, self.core_dest))
         if self.config.checkbox_snap.get("uri"):
@@ -479,13 +504,17 @@ class ContainerSnapMachine(ContainerBaseMachine):
             else:
                 core_snap = self.CHECKBOX_CORE_SNAP_MAP[self.config.alias]
                 channel = f"latest/{self.config.checkbox_core_snap['risk']}"
-                cmds.append(f"sudo snap install {core_snap} --channel={channel}")
+                cmds.append(
+                    f"sudo snap install {core_snap} --channel={channel}"
+                )
         # Then install the checkbox snap
         confinement = "devmode"
         if self.config.origin == "classic-snap":
             confinement = "classic"
         if self.config.checkbox_snap.get("uri"):
-            cmds.append(f"sudo snap install {self.dest} --{confinement} --dangerous")
+            cmds.append(
+                f"sudo snap install {self.dest} --{confinement} --dangerous"
+            )
         else:
             try:
                 track_map = self.config.checkbox_snap["track_map"]
@@ -506,14 +535,18 @@ class ContainerSnapMachine(ContainerBaseMachine):
         if force:
             return run_or_raise(
                 self._container,
-                "sudo systemctl start snap.{}.service.service".format(self._snap_name),
+                "sudo systemctl start snap.{}.service.service".format(
+                    self._snap_name
+                ),
             )
 
     def stop_service(self):
         assert self.config.role == "service"
         return run_or_raise(
             self._container,
-            "sudo systemctl stop snap.{}.service.service".format(self._snap_name),
+            "sudo systemctl stop snap.{}.service.service".format(
+                self._snap_name
+            ),
         )
 
     def is_service_active(self):
@@ -521,7 +554,9 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return (
             run_or_raise(
                 self._container,
-                "systemctl is-active snap.{}.service.service".format(self._snap_name),
+                "systemctl is-active snap.{}.service.service".format(
+                    self._snap_name
+                ),
             ).stdout
             == "active"
         )

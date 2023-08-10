@@ -74,7 +74,18 @@ the store)
 ## Send the release e-mail
 
 The release process should have created a new [Draft Release Note]. You can
-use this to prepare a release e-mail that you will send to:
+use this to prepare a release e-mail:
+
+- If this release comes with big changes for the user, you can talk about
+them in a *Highlights* section.
+- Not all changes in the Release Note from GitHub are meaningful for the
+end users. Highlight the ones that are most important for them by bolding
+them. For instance, changes related to the tooling used for Checkbox releases
+is not important to the users, but fixes for bugs reported by the users are!
+
+You can see a sample release e-mail [here][1].
+
+Send the release e-mail to:
 
 - checkbox-devel@lists.ubuntu.com (public, see [mailing list page])
 - ce-certification-qa@lists.canonical.com (private)
@@ -118,3 +129,5 @@ release
 [build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336
 [Draft Release Note]: https://github.com/canonical/checkbox/releases
 [mailing list page]: https://lists.ubuntu.com/mailman/listinfo/Checkbox-devel
+
+[1]: https://lists.canonical.com/mailman3/hyperkitty/list/ce-certification-qa@lists.canonical.com/message/YM2RNSZHZEP2BVXRNGORHWFMTHASHMKM/

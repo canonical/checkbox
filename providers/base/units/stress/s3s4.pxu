@@ -166,7 +166,6 @@ command:
      echo
  done
 estimated_duration: 1s
-flags: preserve-locale
 
 id: stress_s3_cycles_iterations_multiple
 category_id: stress-tests/suspend
@@ -187,7 +186,6 @@ command:
    done
  done
 estimated_duration: 1s
-flags: preserve-locale
 
 id: stress_suspend_reboot_cycles_iterations
 category_id: stress-tests/suspend
@@ -204,7 +202,6 @@ command:
    echo
  done
 estimated_duration: 1s
-flags: preserve-locale
 
 id: stress_suspend_reboot_iterations
 category_id: stress-tests/suspend
@@ -223,11 +220,9 @@ command:
  echo "sleep_threshold: ${SLEEP_THRESHOLD}"
  echo
 estimated_duration: 1s
-flags: preserve-locale
 
 unit: job
 plugin: shell
-flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend_cycles_1_reboot1
 imports:
@@ -255,7 +250,6 @@ template-resource: stress_s3_cycles_iterations_1
 template-unit: job
 template-engine: jinja2
 plugin: shell
-flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend_cycles_1_reboot{{suspend_reboot_id}}
 imports:
@@ -283,7 +277,6 @@ template-resource: stress_s3_cycles_iterations_multiple
 template-unit: job
 template-engine: jinja2
 plugin: shell
-flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}
 imports:
@@ -323,7 +316,7 @@ estimated_duration: 30.0
 user: root
 command:
  reboot
-flags: preserve-locale noreturn autorestart
+flags: noreturn autorestart
 after: stress-tests/suspend_cycles_{{s3_iterations}}_reboot{{suspend_reboot_id}}
 summary:
     This is part of automated stress suspend cycles test that will force the system to reboot (suspend_cycles_reboot{{suspend_reboot_id}}).
@@ -332,7 +325,6 @@ unit: template
 template-resource: stress_suspend_reboot_iterations
 template-unit: job
 plugin: shell
-flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-check
 requires: cpuinfo.platform in ("i386", "x86_64")
@@ -346,7 +338,6 @@ unit: template
 template-resource: stress_suspend_reboot_iterations
 template-unit: job
 plugin: shell
-flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-time-check
 requires: cpuinfo.platform in ("i386", "x86_64")
@@ -360,7 +351,6 @@ unit: template
 template-resource: stress_suspend_reboot_iterations
 template-unit: job
 plugin: attachment
-flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-attach
 estimated_duration: 1.0

@@ -56,7 +56,7 @@ class SystemConfinement:
 
         Returns:
             str: A detailed output of the system's confinement and
-                sandbox features in JSON format.
+                 sandbox features in JSON format.
         """
         data = Snapd().get_system_info()
 
@@ -125,7 +125,7 @@ class SnapsConfinement:
 
         Returns:
             int: Exit code. 0 if the test passes for all snaps,
-            otherwise 1.
+                 otherwise 1.
         """
         data = Snapd().list()
         exit_code = 0

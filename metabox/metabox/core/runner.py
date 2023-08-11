@@ -48,10 +48,6 @@ class Runner:
         else:
             self.config = read_config(args.config)
             self.config = guess_source_uri(self.config)
-            print()
-            print("HERE")
-            print(self.config)
-            print()
             validate_config(self.config)
         # effective set of machine configs required by scenarios
         self.combo = set()

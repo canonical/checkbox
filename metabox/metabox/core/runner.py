@@ -138,13 +138,20 @@ class Runner:
                 scenario_cls.modes, scenario_cls.origins
             )
         )
+
         for scenario_cls, mode, origin in scenarios_modes_origins:
-            if mode not in self.config:
+            mode_to_any_role = {
+                "remote": "controller",
+                "local": "local",
+                "agent": "agent"
+            }
+            role = mode_to_any_role[mode]
+            if role not in self.config:
                 logger.debug(
                     "Skipping a scenario: [{}] {}", mode, scenario_cls.name
                 )
                 continue
-            if origin != self.config[mode]["origin"]:
+            if origin != self.config[role]["origin"]:
                 logger.debug(
                     "Skipping a scenario: [{}][{}] {}",
                     mode,

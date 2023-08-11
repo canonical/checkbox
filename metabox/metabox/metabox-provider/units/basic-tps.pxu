@@ -45,3 +45,9 @@ include:
  config-environ-source
  config-environ-vars
  config-environ-case
+
+unit: test plan
+id: installation_verify
+_name: Verify Checkbox installation
+include:
+  dependency_installation

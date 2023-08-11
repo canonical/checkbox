@@ -237,3 +237,9 @@ _description:
  VERIFICATION:
      1. Did the 3d animation appear?
      2. Was the animation free from slowness/jerkiness?
+
+plugin: shell
+id: dependency_installation
+command: dependency_test.py
+_summary: Verify that all required modules are installed
+_description: Verify that all required modules are installed

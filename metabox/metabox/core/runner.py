@@ -48,6 +48,10 @@ class Runner:
         else:
             self.config = read_config(args.config)
             self.config = guess_source_uri(self.config)
+            print()
+            print("HERE")
+            print(self.config)
+            print()
             validate_config(self.config)
         # effective set of machine configs required by scenarios
         self.combo = set()
@@ -144,7 +148,7 @@ class Runner:
                     "Skipping a scenario: [{}] {}", mode, scenario_cls.name
                 )
                 continue
-            if origin != self.config["role"]["origin"]:
+            if origin != self.config[mode]["origin"]:
                 logger.debug(
                     "Skipping a scenario: [{}][{}] {}",
                     mode,

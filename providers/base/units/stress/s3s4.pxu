@@ -162,7 +162,6 @@ command:
  for i in $(seq 2 "$REBOOT_ITERATIONS"); do
      echo "suspend_reboot_id: $i"
      echo "suspend_reboot_previous: $((i-1))"
-     python3 -c 'import platform;print("fwts: {}".format("supported" if platform.machine() in ["x86_64", "i386"] else "unsupported"))'
      echo
  done
 estimated_duration: 1s
@@ -181,7 +180,6 @@ command:
      echo "suspend_id: $j"
      echo "suspend_id_previous: $((j-1))"
      echo "suspend_reboot_id: $i"
-     python3 -c 'import platform;print("fwts: {}".format("supported" if platform.machine() in ["x86_64", "i386"] else "unsupported"))'
      echo
    done
  done
@@ -235,13 +233,7 @@ estimated_duration: 75.0
 environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH
 user: root
 command:
- fwts=$(python3 -c 'import platform;print("supported" if platform.machine() in ["x86_64", "i386"] else "unsupported")')
- if [[ $fwts == "supported" ]]; then
-   export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
-   set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_cycles_1_reboot1.log -f none -s s3 --s3-device-check --s3-device-check-delay="${STRESS_S3_WAIT_DELAY:-45}" --s3-sleep-delay="${STRESS_S3_SLEEP_DELAY:-30}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
- else
-   rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
- fi
+   suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
     This is part of automated stress suspend cycles test that will force the system to suspend/resume.
 
@@ -263,12 +255,7 @@ environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LI
 after: stress-tests/suspend_cycles_reboot{{suspend_reboot_previous}}
 user: root
 command:
- {%- if fwts == "supported" %}
- export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
- set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_cycles_1_reboot{{ suspend_reboot_id }}.log -f none -s s3 --s3-device-check --s3-device-check-delay="${STRESS_S3_WAIT_DELAY:-45}" --s3-sleep-delay="${STRESS_S3_SLEEP_DELAY:-30}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
- {%- else %}
- rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
- {% endif -%}
+ suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
     This is part of automated stress suspend cycles (suspend_cycles_1_reboot{{suspend_reboot_id}}) test that will force the system to suspend/resume.
 
@@ -290,12 +277,7 @@ environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LI
 after: stress-tests/suspend_cycles_{{suspend_id_previous}}_reboot{{suspend_reboot_id}}
 user: root
 command:
- {%- if fwts == "supported" %}
- export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
- set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_cycles_{{ suspend_id }}_reboot{{ suspend_reboot_id }}.log -f none -s s3 --s3-device-check --s3-device-check-delay="${STRESS_S3_WAIT_DELAY:-45}" --s3-sleep-delay="${STRESS_S3_SLEEP_DELAY:-30}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
- {%- else %}
- rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
- {% endif -%}
+ suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
     This is part of automated stress suspend cycles (suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}) test that will force the system to suspend/resume.
 
@@ -354,7 +336,6 @@ plugin: attachment
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-attach
 estimated_duration: 1.0
-requires: cpuinfo.platform in ("i386", "x86_64")
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
  Attach the suspend {s3_iterations} cycles with reboot {reboot_iterations} total log.

@@ -240,6 +240,6 @@ _description:
 
 plugin: shell
 id: dependency_installation
-command: dependency_test.py
+command: dependency_installation.py
 _summary: Verify that all required modules are installed
 _description: Verify that all required modules are installed

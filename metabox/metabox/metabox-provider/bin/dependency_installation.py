@@ -7,7 +7,6 @@
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -32,13 +31,13 @@ as well:
 import checkbox_ng
 
 # checkbox-ng dependencies
+import jinja2
 import packaging
 import psutil
 import requests
-import urwid
-import jinja2
-import xlsxwriter
 import tqdm
+import urwid
+import xlsxwriter
 
 try:
     import importlib_metadata
@@ -52,9 +51,9 @@ import plainbox
 import checkbox_support
 
 # checkbox-support dependencies
+import distro
 import pyparsing
 import requests
-import distro
 import requests
 import requests_unixsocket
 

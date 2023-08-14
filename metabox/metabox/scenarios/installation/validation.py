@@ -16,26 +16,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-import textwrap
 
 from metabox.core.actions import AssertPrinted, Start
 from metabox.core.scenario import Scenario
+from metabox.core.utils import tag
 
 
-class VerifyInstallation(Scenario):
+@tag("dependencies", "installation")
+class DependencyInstallation(Scenario):
     """
     This verifies that the checkbox installation installed
     all that is needed
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
-        [test plan]
-        unit = 2021.com.canonical.certification::installation_verify
-        forced = yes
-        [test selection]
-        forced = yes
-        """
-    )
-    steps = [Start(), AssertPrinted("Outcome: job passed")]
+    steps = [
+        Start("run 2021.com.canonical.certification::dependency_installation"),
+        AssertPrinted("Outcome: job passed"),
+    ]

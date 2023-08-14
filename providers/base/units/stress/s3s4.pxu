@@ -154,7 +154,7 @@ _description:
 id: stress_s3_cycles_iterations_1
 category_id: stress-tests/suspend
 summary:
-  Resource job meant to be used in the S3 cycles stress templates
+  This resource generates suspend_reboot iteration numbers for suspend_cycles_1_reboot{2..k} jobs
 plugin: resource
 environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
 command:
@@ -169,7 +169,7 @@ estimated_duration: 1s
 id: stress_s3_cycles_iterations_multiple
 category_id: stress-tests/suspend
 summary:
-  Resource job meant to be used in the S3 cycles stress templates
+  This resource generates suspend_reboot iteration numbers for suspend_cycles_{2..n}_reboot{1..k} jobs
 plugin: resource
 environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
 command:
@@ -188,7 +188,7 @@ estimated_duration: 1s
 id: stress_suspend_reboot_cycles_iterations
 category_id: stress-tests/suspend
 summary:
-  Resource job meant to be used in the suspend stress cycles of reboot template
+  This resource generates suspend_reboot iteration numbers for suspend_cycles_reboot{1..k} jobs
 plugin: resource
 environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
 command:
@@ -204,7 +204,7 @@ estimated_duration: 1s
 id: stress_suspend_reboot_iterations
 category_id: stress-tests/suspend
 summary:
-  Resource job meant to be used in the suspend stress cycles of logcheck timecheck templates
+  This resource generates suspend_reboot iteration numbers for suspend-{n}-cycles-with-reboot-{k}-{log/time}-check jobs
 plugin: resource
 environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS STRESS_SUSPEND_SLEEP_THRESHOLD STRESS_SUSPEND_RESUME_THRESHOLD
 command:

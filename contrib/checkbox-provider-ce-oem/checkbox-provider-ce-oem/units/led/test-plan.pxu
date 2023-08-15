@@ -14,11 +14,7 @@ unit: test plan
 _name: LED manual tests
 _description: Manual LED tests for devices
 bootstrap_include:
-    ce-oem-gpio-leds
-    ce-oem-sysfs-leds
 include:
-    ce-oem-led-indicator/gpio-leds-.*
-    ce-oem-led-indicator/sysfs-leds-.*
     
 id: ce-oem-led-automated
 unit: test plan
@@ -32,8 +28,6 @@ _name: LED manual tests
 _description: Manual LED tests for devices
 bootstrap_include:
 include:
-    after-suspend-ce-oem-led-indicator/gpio-leds-.*
-    after-suspend-ce-oem-led-indicator/sysfs-leds-.*
     
 id: after-suspend-ce-oem-led-automated
 unit: test plan

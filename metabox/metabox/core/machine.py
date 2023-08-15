@@ -286,6 +286,17 @@ class ContainerSourceMachine(ContainerBaseMachine):
             # Use <21 to get the latest 20 as 21+ is not supported here
             return [
                 "bash -c 'sudo python3 -m pip install -U \"pip<21\"'",
+                (
+                    # This is here because this pip version does not support
+                    # installing dependencies from pyproject.toml
+                    "bash -c 'sudo python3 -m pip install "
+                    '"pyparsing<3.0.0" "requests<2.26.0" "distro<1.7.0" '
+                    '"requests_unixsocket<=0.3.0" "importlib_metadata<=1.0.0"'
+                    '"packaging<21.0" "psutil<=5.9.5" "requests<2.26.0" '
+                    '"urwid<=2.1.2" "Jinja2<=2.11.3" "XlsxWriter<=3.0.3" '
+                    '"tqdm<4.65.0" "importlib_metadata<=1.0.0"'
+                    "'"
+                ),
             ]
         if self.config.alias not in ["focal", "jammy"]:
             logger.warning(
@@ -563,7 +574,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
             gid=0,
         )
         install_metabox_provider = (
-            "sudo /snap/checkbox/current/bin/wrapper_local python "
+            "sudo /snap/checkbox/current/bin/wrapper_local python3 "
             "/home/ubuntu/metabox-provider/manage.py install "
             "--layout=relocatable --prefix=/providers/metabox-provider "
             "--root={snap_runtime_location}"

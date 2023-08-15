@@ -1,0 +1,818 @@
+[
+    {
+        "suite": "regression",
+        "test_id": "4101",
+        "test_name": "test_4101",
+        "test_description": "Test TEE Internal API Arithmetical API - Bigint init"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4102",
+        "test_name": "test_4102",
+        "test_description": "Test TEE Internal API Arithmetical API - Octet string"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4103",
+        "test_name": "test_4103",
+        "test_description": "Test TEE Internal API Arithmetical API - S32"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4104",
+        "test_name": "test_4104",
+        "test_description": "Test TEE Internal API Arithmetical API - Compare"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4105",
+        "test_name": "test_4105",
+        "test_description": "Test TEE Internal API Arithmetical API - Add, Sub"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4106",
+        "test_name": "test_4106",
+        "test_description": "Test TEE Internal API Arithmetical API - Neg"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4107",
+        "test_name": "test_4107",
+        "test_description": "Test TEE Internal API Arithmetical API - Mul"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4108",
+        "test_name": "test_4108",
+        "test_description": "Test TEE Internal API Arithmetical API - Div"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4109",
+        "test_name": "test_4109",
+        "test_description": "Test TEE Internal API Arithmetical API - Mod"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4110",
+        "test_name": "test_4110",
+        "test_description": "Test TEE Internal API Arithmetical API - Mod arith"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4111",
+        "test_name": "test_4111",
+        "test_description": "Test TEE Internal API Arithmetical API - Invmod"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4112",
+        "test_name": "test_4112",
+        "test_description": "Test TEE Internal API Arithmetical API - Is prime"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4113",
+        "test_name": "test_4113",
+        "test_description": "Test TEE Internal API Arithmetical API - shift right"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4114",
+        "test_name": "test_4114",
+        "test_description": "Test TEE Internal API Arithmetical API - GCD"
+    },
+    {
+        "suite": "benchmark",
+        "test_id": "1001",
+        "test_name": "xtest_tee_benchmark_1001",
+        "test_description": "TEE Trusted Storage Performance Test (WRITE)"
+    },
+    {
+        "suite": "benchmark",
+        "test_id": "1002",
+        "test_name": "xtest_tee_benchmark_1002",
+        "test_description": "TEE Trusted Storage Performance Test (READ)"
+    },
+    {
+        "suite": "benchmark",
+        "test_id": "1003",
+        "test_name": "xtest_tee_benchmark_1003",
+        "test_description": "TEE Trusted Storage Performance Test (REWRITE)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "5006",
+        "test_name": "xtest_teec_TEE",
+        "test_description": "Tests for Global platform TEEC"
+    },
+    {
+        "suite": "regression",
+        "test_id": "8101",
+        "test_name": "test_8101",
+        "test_description": "TA mbedTLS self tests"
+    },
+    {
+        "suite": "regression",
+        "test_id": "8102",
+        "test_name": "test_8102",
+        "test_description": "TA mbedTLS test cert chain"
+    },
+    {
+        "suite": "regression",
+        "test_id": "8103",
+        "test_name": "test_8103",
+        "test_description": "TA mbedTLS process certificate request"
+    },
+    {
+        "suite": "regression",
+        "test_id": "8001",
+        "test_name": "xtest_tee_test_8001",
+        "test_description": "Test TEE Internal API key derivation extensions"
+    },
+    {
+        "suite": "regression",
+        "test_id": "8002",
+        "test_name": "xtest_tee_test_8002",
+        "test_description": "Secure Storage Key Manager API Self Test"
+    },
+    {
+        "suite": "regression",
+        "test_id": "2001",
+        "test_name": "xtest_tee_test_2001",
+        "test_description": "Trivial TCP iSocket API tests"
+    },
+    {
+        "suite": "regression",
+        "test_id": "2002",
+        "test_name": "xtest_tee_test_2002",
+        "test_description": "Concurrent stressing TCP iSocket API tests"
+    },
+    {
+        "suite": "regression",
+        "test_id": "2003",
+        "test_name": "xtest_tee_test_2003",
+        "test_description": "Timeout TCP iSocket API tests"
+    },
+    {
+        "suite": "regression",
+        "test_id": "2004",
+        "test_name": "xtest_tee_test_2004",
+        "test_description": "UDP iSocket API tests"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1001",
+        "test_name": "xtest_tee_test_1001",
+        "test_description": "Core self tests"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1002",
+        "test_name": "xtest_tee_test_1002",
+        "test_description": "PTA parameters"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1003",
+        "test_name": "xtest_tee_test_1003",
+        "test_description": "Core internal read/write mutex"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1004",
+        "test_name": "xtest_tee_test_1004",
+        "test_description": "Test User Crypt TA"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1005",
+        "test_name": "xtest_tee_test_1005",
+        "test_description": "Many sessions"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1006",
+        "test_name": "xtest_tee_test_1006",
+        "test_description": "Test Basic OS features"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1007",
+        "test_name": "xtest_tee_test_1007",
+        "test_description": "Test Panic"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1008",
+        "test_name": "xtest_tee_test_1008",
+        "test_description": "TEE internal client API"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1009",
+        "test_name": "xtest_tee_test_1009",
+        "test_description": "TEE Wait"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1010",
+        "test_name": "xtest_tee_test_1010",
+        "test_description": "Invalid memory access"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1011",
+        "test_name": "xtest_tee_test_1011",
+        "test_description": "Test TA-to-TA features with User Crypt TA"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1012",
+        "test_name": "xtest_tee_test_1012",
+        "test_description": "Test Single Instance Multi Session features with SIMS TA"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1013",
+        "test_name": "xtest_tee_test_1013",
+        "test_description": "Test concurrency with concurrent TA"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1014",
+        "test_name": "xtest_tee_test_1014",
+        "test_description": "Test secure data path against SDP TAs and pTAs"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1015",
+        "test_name": "xtest_tee_test_1015",
+        "test_description": "FS hash-tree corner cases"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1016",
+        "test_name": "xtest_tee_test_1016",
+        "test_description": "Test TA to TA transfers (in/out/inout memrefs on the stack)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1017",
+        "test_name": "xtest_tee_test_1017",
+        "test_description": "Test coalescing memrefs"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1018",
+        "test_name": "xtest_tee_test_1018",
+        "test_description": "Test memref out of bounds"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1019",
+        "test_name": "xtest_tee_test_1019",
+        "test_description": "Test dynamically linked TA"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1020",
+        "test_name": "xtest_tee_test_1020",
+        "test_description": "Test lockdep algorithm"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1021",
+        "test_name": "xtest_tee_test_1021",
+        "test_description": "Test panic context release"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1022",
+        "test_name": "xtest_tee_test_1022",
+        "test_description": "Test dlopen()/dlsym()/dlclose() API"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1023",
+        "test_name": "xtest_tee_test_1023",
+        "test_description": "Test ELF initialization (.init_array)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1024",
+        "test_name": "xtest_tee_test_1024",
+        "test_description": "Test PTA_SYSTEM_GET_TPM_EVENT_LOG Service"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1025",
+        "test_name": "xtest_tee_test_1025",
+        "test_description": "Test memref NULL and/or 0 bytes size"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1026",
+        "test_name": "xtest_tee_test_1026",
+        "test_description": "Session - public login"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1027",
+        "test_name": "xtest_tee_test_1027",
+        "test_description": "Session - user login for current user"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1028",
+        "test_name": "xtest_tee_test_1028",
+        "test_description": "Session - group login for current user's effective group"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1029",
+        "test_name": "xtest_tee_test_1029",
+        "test_description": "Test __thread attribute"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1030",
+        "test_name": "xtest_tee_test_1030",
+        "test_description": "Test dl_iterate_phdr()"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1031",
+        "test_name": "xtest_tee_test_1031",
+        "test_description": "Test C++ features"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1032",
+        "test_name": "xtest_tee_test_1032",
+        "test_description": "Register read-only shared memory"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1033",
+        "test_name": "xtest_tee_test_1033",
+        "test_description": "Test the supplicant plugin framework"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1034",
+        "test_name": "xtest_tee_test_1034",
+        "test_description": "Test loading a large TA"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1035",
+        "test_name": "xtest_tee_test_1035",
+        "test_description": "Test BTI"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1036",
+        "test_name": "xtest_tee_test_1036",
+        "test_description": "Test PAuth (Pointer Authentication)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1037",
+        "test_name": "xtest_tee_test_1037",
+        "test_description": "Remote attestation"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1038",
+        "test_name": "xtest_tee_test_1038",
+        "test_description": "Test MTE (Memory Tag Extension)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4001",
+        "test_name": "xtest_tee_test_4001",
+        "test_description": "Test TEE Internal API hash operations"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4002",
+        "test_name": "xtest_tee_test_4002",
+        "test_description": "Test TEE Internal API MAC operations"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4003",
+        "test_name": "xtest_tee_test_4003",
+        "test_description": "Test TEE Internal API cipher operations"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4004",
+        "test_name": "xtest_tee_test_4004",
+        "test_description": "Test TEE Internal API get random"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4005",
+        "test_name": "xtest_tee_test_4005",
+        "test_description": "Test TEE Internal API Authenticated Encryption operations"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4006",
+        "test_name": "xtest_tee_test_4006",
+        "test_description": "Test TEE Internal API Asymmetric Cipher operations"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4007_symmetric",
+        "test_name": "xtest_tee_test_4007_symmetric",
+        "test_description": "Test TEE Internal API Generate Symmetric key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4007_rsa",
+        "test_name": "xtest_tee_test_4007_rsa",
+        "test_description": "Test TEE Internal API Generate RSA key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4007_dh",
+        "test_name": "xtest_tee_test_4007_dh",
+        "test_description": "Test TEE Internal API Generate DH key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4007_dsa",
+        "test_name": "xtest_tee_test_4007_dsa",
+        "test_description": "Test TEE Internal API Generate DSA key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4007_ecc",
+        "test_name": "xtest_tee_test_4007_ecc",
+        "test_description": "Test TEE Internal API Generate ECC key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4007_x25519",
+        "test_name": "xtest_tee_test_4007_x25519",
+        "test_description": "Test TEE Internal API Generate X25519 key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4007_ed25519",
+        "test_name": "xtest_tee_test_4007_ed25519",
+        "test_description": "Test TEE Internal API Generate ed25519 key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4008",
+        "test_name": "xtest_tee_test_4008",
+        "test_description": "Test TEE Internal API Derive key"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4009",
+        "test_name": "xtest_tee_test_4009",
+        "test_description": "Test TEE Internal API Derive key ECDH"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4010",
+        "test_name": "xtest_tee_test_4010",
+        "test_description": "Test TEE Internal API create transient object (negative)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4011",
+        "test_name": "xtest_tee_test_4011",
+        "test_description": "Test TEE Internal API Bleichenbacher attack (negative)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4012",
+        "test_name": "xtest_tee_test_4012",
+        "test_description": "Test seeding RNG entropy"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4013",
+        "test_name": "xtest_tee_test_4013",
+        "test_description": "Test generation of device unique TA keys"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4014",
+        "test_name": "xtest_tee_test_4014",
+        "test_description": "Test SM2 KEP (key derivation)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4015",
+        "test_name": "xtest_tee_test_4015",
+        "test_description": "Test TEE Internal API Derive key X25519"
+    },
+    {
+        "suite": "regression",
+        "test_id": "4016_ed25519",
+        "test_name": "xtest_tee_test_4016_ed25519",
+        "test_description": "Test TEE Internal API ED25519 sign/verify"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6001",
+        "test_name": "xtest_tee_test_6001",
+        "test_description": "Test TEE_CreatePersistentObject"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6002",
+        "test_name": "xtest_tee_test_6002",
+        "test_description": "Test TEE_OpenPersistentObject"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6003",
+        "test_name": "xtest_tee_test_6003",
+        "test_description": "Test TEE_ReadObjectData"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6004",
+        "test_name": "xtest_tee_test_6004",
+        "test_description": "Test TEE_WriteObjectData"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6005",
+        "test_name": "xtest_tee_test_6005",
+        "test_description": "Test TEE_SeekObjectData"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6006",
+        "test_name": "xtest_tee_test_6006",
+        "test_description": "Test TEE_CloseAndDeletePersistentObject"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6007",
+        "test_name": "xtest_tee_test_6007",
+        "test_description": "Test TEE_TruncateObjectData"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6008",
+        "test_name": "xtest_tee_test_6008",
+        "test_description": "Test TEE_RenamePersistentObject"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6009",
+        "test_name": "xtest_tee_test_6009",
+        "test_description": "Test TEE Internal API Persistent Object Enumeration Functions"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6010",
+        "test_name": "xtest_tee_test_6010",
+        "test_description": "Test Storage"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6012",
+        "test_name": "xtest_tee_test_6012",
+        "test_description": "Test TEE GP TTA DS init objects"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6013",
+        "test_name": "xtest_tee_test_6013",
+        "test_description": "Key usage in Persistent objects"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6014",
+        "test_name": "xtest_tee_test_6014",
+        "test_description": "Loop on Persistent objects"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6015",
+        "test_name": "xtest_tee_test_6015",
+        "test_description": "Storage isolation"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6016",
+        "test_name": "xtest_tee_test_6016",
+        "test_description": "Storage concurency"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6017",
+        "test_name": "xtest_tee_test_6017",
+        "test_description": "Test Persistent objects info"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6018",
+        "test_name": "xtest_tee_test_6018",
+        "test_description": "Large object"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6019",
+        "test_name": "xtest_tee_test_6019",
+        "test_description": "Storage independence"
+    },
+    {
+        "suite": "regression",
+        "test_id": "6020",
+        "test_name": "xtest_tee_test_6020",
+        "test_description": "Object IDs in SHM (negative)"
+    },
+    {
+        "suite": "benchmark",
+        "test_id": "2001",
+        "test_name": "xtest_tee_benchmark_2001",
+        "test_description": "TEE SHA Performance test (TA_SHA_SHA1)"
+    },
+    {
+        "suite": "benchmark",
+        "test_id": "2002",
+        "test_name": "xtest_tee_benchmark_2002",
+        "test_description": "TEE SHA Performance test (TA_SHA_SHA226)"
+    },
+    {
+        "suite": "benchmark",
+        "test_id": "2011",
+        "test_name": "xtest_tee_benchmark_2011",
+        "test_description": "TEE AES Performance test (TA_AES_ECB)"
+    },
+    {
+        "suite": "benchmark",
+        "test_id": "2012",
+        "test_name": "xtest_tee_benchmark_2012",
+        "test_description": "TEE AES Performance test (TA_AES_CBC)"
+    },
+    {
+        "suite": "regression",
+        "test_id": "1005",
+        "test_name": "xtest_ffa_spmc_test_1005",
+        "test_description": "Test FF-A memory - multiple receiver"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1000",
+        "test_name": "xtest_pkcs11_test_1000",
+        "test_description": "Initialize and close Cryptoki library"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1001",
+        "test_name": "xtest_pkcs11_test_1001",
+        "test_description": "PKCS11 - List PKCS#11 slots and get information from"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1002",
+        "test_name": "xtest_pkcs11_test_1002",
+        "test_description": "PKCS11 - Open and close PKCS#11 sessions"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1003",
+        "test_name": "xtest_pkcs11_test_1003",
+        "test_description": "PKCS11 - Login to PKCS#11 token"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1004",
+        "test_name": "xtest_pkcs11_test_1004",
+        "test_description": "PKCS11 - create/destroy PKCS#11 simple objects"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1005",
+        "test_name": "xtest_pkcs11_test_1005",
+        "test_description": "PKCS11 - Check ciphering with valid and invalid keys #1"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1006",
+        "test_name": "xtest_pkcs11_test_1006",
+        "test_description": "PKCS11 - Check ciphering with valid and invalid keys #2"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1007",
+        "test_name": "xtest_pkcs11_test_1007",
+        "test_description": "PKCS11 - Check operations release at session closure"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1008",
+        "test_name": "xtest_pkcs11_test_1008",
+        "test_description": "PKCS11 - Check Compliance of C_Sign - HMAC algorithms"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1009",
+        "test_name": "xtest_pkcs11_test_1009",
+        "test_description": "PKCS11 - Check Compliance of C_Verify - HMAC Algorithms"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1010",
+        "test_name": "xtest_pkcs11_test_1010",
+        "test_description": "PKCS11 - Key Generation"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1011",
+        "test_name": "xtest_pkcs11_test_1011",
+        "test_description": "PKCS11 - Test Find Objects"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1012",
+        "test_name": "xtest_pkcs11_test_1012",
+        "test_description": "PKCS11 - Serializer tests"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1013",
+        "test_name": "xtest_pkcs11_test_1013",
+        "test_description": "PKCS11 - Object creation upon session type"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1014",
+        "test_name": "xtest_pkcs11_test_1014",
+        "test_description": "PKCS11 - Test C_SetAttributeValue()"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1015",
+        "test_name": "xtest_pkcs11_test_1015",
+        "test_description": "PKCS11 - Test C_CopyObject()"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1016",
+        "test_name": "xtest_pkcs11_test_1016",
+        "test_description": "PKCS11 - Random number generator tests"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1017",
+        "test_name": "xtest_pkcs11_test_1017",
+        "test_description": "PKCS11 - AES Key Derivation tests"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1018",
+        "test_name": "xtest_pkcs11_test_1018",
+        "test_description": "PKCS11 - Digest tests"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1019",
+        "test_name": "xtest_pkcs11_test_1019",
+        "test_description": "PKCS11 - Elliptic Curve key generation and signing"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1020",
+        "test_name": "xtest_pkcs11_test_1020",
+        "test_description": "PKCS11 - AES Key Wrap/UnWrap tests"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1021",
+        "test_name": "xtest_pkcs11_test_1021",
+        "test_description": "PKCS11 - RSA PKCS key generation and signing"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1022",
+        "test_name": "xtest_pkcs11_test_1022",
+        "test_description": "PKCS11 - RSA PSS key generation and signing"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1023",
+        "test_name": "xtest_pkcs11_test_1023",
+        "test_description": "PKCS11 - RSA OAEP key generation and crypto operations"
+    },
+    {
+        "suite": "pkcs11",
+        "test_id": "1024",
+        "test_name": "xtest_pkcs11_test_1024",
+        "test_description": "PKCS11 - X509 Certificate operations"
+    }
+]

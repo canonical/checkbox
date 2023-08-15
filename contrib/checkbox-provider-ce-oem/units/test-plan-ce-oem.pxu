@@ -69,6 +69,7 @@ nested_part:
     ce-oem-led-automated
     ce-oem-caam-automated
     ce-oem-crypto-automated
+    ce-oem-optee-automated
     com.canonical.certification::eeprom-automated
     com.canonical.certification::rtc-automated
 
@@ -122,6 +123,7 @@ nested_part:
     after-suspend-ce-oem-led-automated
     after-suspend-ce-oem-caam-automated
     after-suspend-ce-oem-crypto-automated
+    after-suspend-ce-oem-optee-automated
     com.canonical.certification::after-suspend-eeprom-automated
     com.canonical.certification::after-suspend-rtc-automated
 

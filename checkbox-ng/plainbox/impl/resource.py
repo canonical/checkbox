@@ -665,7 +665,7 @@ class ResourceExpression:
                 logger.debug(
                     _("Exception in requirement expression %r (with %s=%r):"
                       " %r"),
-                    self._text, self._resource_id_list, resource, exc)
+                    self._text, self._resource_id_list, resource_pack, exc)
                 continue
             # Treat any true result as a success
             if result:

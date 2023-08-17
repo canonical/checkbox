@@ -56,8 +56,6 @@ def has_capability(capability_prefix: str, capabilities: list) -> bool:
 
 def print_audio_cards(cards):
     """Print audio card information."""
-    print(cards)
-
     for card in cards:
         print("card: {}".format(card["card"]))
         print("device: {}".format(card["device"]))

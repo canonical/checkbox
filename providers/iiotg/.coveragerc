@@ -1,0 +1,16 @@
+[run]
+branch = True
+source = bin,manage
+omit =
+  tests/*
+
+
+[report]
+exclude_lines =
+    @abc.abstractmethod
+    @abc.abstractproperty
+    @abstractmethod
+    @abstractproperty
+    @public
+    pragma: no cover
+    raise NotImplementedError

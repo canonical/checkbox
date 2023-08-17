@@ -669,6 +669,9 @@ class ResourceExpression:
                 continue
             # Treat any true result as a success
             if result:
+                logger.debug(
+                    _("Requirement %r matched (with %s=%r)"),
+                      self._text, self._resource_id_list, resource_pack)
                 return True
         # If we get here then the expression did not match. It's pointless (as
         # python returns None implicitly) but it's more explicit on the

@@ -86,7 +86,10 @@ depends: ce-oem-ptp/verify-PTP-support-for-{eth-interface}
 command:
     output_file='/var/tmp/ptp4l_output.txt'
     echo "Executing ptp4l for 30s"
-    (set -x; timeout 30s ptp4l -i {eth-interface} -m -s --network_transport=L2 | tee $output_file)
+    # Add --tx_timstamp_timeout=5 due to the patch of ptp4l increace from 1 to 5ms.
+    # https://www.mail-archive.com/linuxptp-devel@lists.sourceforge.net/msg05015.html
+    # And this patch has been merged into the versoin later then V2.0
+    (set -x; timeout 30s ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5 | tee $output_file)
     rms_data=$(tail -5 $output_file | awk '/rms/{{print $3}}')
     if [[ -z $rms_data ]]; then
         echo "ERROR: unable to get rms value from the output file"
@@ -125,7 +128,7 @@ _steps:
        $ sudo ./ptp4l -i <if_name_on_host> -m --step_threshold=1 --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2
     3. Wait for the system to announce it is the Grand Master.
     4. On the DUT, run the command:
-       $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2
+       $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5
     5. The DUT should announce it has selected a foreign master (Host)
     6. Clock readings will appear on the DUT.  When the "rms" value remains below 100ns, 
        the DUT has successfully synchronized to the clock on the Host.

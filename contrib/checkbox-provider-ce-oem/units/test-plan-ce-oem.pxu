@@ -29,7 +29,6 @@ nested_part:
     ce-oem-installation-info-manual
     ce-oem-cpu-manual
     ce-oem-button-manual
-    ce-oem-ptp-manual
     ce-oem-sensor-manual
     ce-oem-gps-manual
     ce-oem-mtd-manual
@@ -87,7 +86,6 @@ include:
 nested_part:
     after-suspend-ce-oem-cpu-manual
     after-suspend-ce-oem-button-manual
-    after-suspend-ce-oem-ptp-manual
     after-suspend-ce-oem-sensor-manual
     after-suspend-ce-oem-gps-manual
     after-suspend-ce-oem-mtd-manual

@@ -16,6 +16,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_scanning_{{ interface }}
+user: root
 _summary: Test system can discover Wi-Fi networks on {{ interface }}
 command:
   net_driver_info.py "$NET_DRIVER_INFO"

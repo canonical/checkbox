@@ -23,3 +23,4 @@ exclude_lines =
     @public
     pragma: no cover
     raise NotImplementedError
+show_missing = True

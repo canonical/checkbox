@@ -1,3 +1,5 @@
+.. _checkbox_configs:
+
 Checkbox Configs
 ^^^^^^^^^^^^^^^^
 
@@ -31,6 +33,44 @@ value resolution is as follows:
 2. config file from ``~/.config``
 3. config file from ``/etc/xdg``
 4. config file from ``$SNAP_DATA``
+
+Check the configuration
+=======================
+
+The values resolution order and the fact that configurations can be stored in
+so many different places may bring confusion when running Checkbox.
+
+Fortunately, the ``check-config`` command will list:
+
+- all the configuration files being used
+- for each section, the configured parameters being used
+- the origin of each of these customized parameters
+- an overall status report
+
+For example:
+
+.. code-block:: none
+
+    $ checkbox-cli check-config
+
+    Configuration files:
+     - /var/snap/checkbox/2799/checkbox.conf
+       [config]
+         config_filename=checkbox.conf      (Default)
+       (...)
+       [test plan]
+         filter=*                           (Default)
+         forced=False                       (Default)
+         unit=                              (Default)
+       [test selection]
+         exclude=                           (Default)
+         forced=False                       (Default)
+       (...)
+       [environment]
+         STRESS_BOOT_ITERATIONS=100         From config file: /var/snap/checkbox/2799/checkbox.conf
+       (...)
+       [manifest]
+    No problems with config(s) found!
 
 Configs with Checkbox Remote
 ============================

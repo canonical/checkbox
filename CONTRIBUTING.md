@@ -125,7 +125,7 @@ Note that every part of this repository has a `.coveragerc` file, they should
 already include anything you may want to see in the report. If something is
 missing you can edit it but please, consult with the team before doing so.
 Tests are intentionally excluded from the coverage report, this is because
-test files tend to inflationate the coverage with no real benefit, so don't
+test files tend to inflate the coverage with no real benefit, so don't
 worry if you can not spot yours in the report.
 
 Of course, you may only be interested in the coverage of your patch (for

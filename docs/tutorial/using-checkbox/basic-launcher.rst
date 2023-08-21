@@ -195,6 +195,96 @@ In Checkbox language, submissions files are the HTML test report as well as
 an archive containing the test results and additional logs that might have
 been produced by the test cases.
 
+A note about config files
+=========================
+
+So far, you have customized Checkbox using a launcher file. It is also
+possible to put these options in a configuration file that Checkbox will use
+when it is launched. The main difference is that you don't have to specify
+the launcher when running Checkbox.
+
+Create the file ``~/.config/checkbox.conf`` and add the following content
+in it:
+
+.. code-block:: none
+
+    [launcher]
+    launcher_version = 1
+    app_id = com.canonical.certification:tutorial
+    stock_reports = text, submission_files
+
+    [test plan]
+    unit = com.canonical.certification::TODO
+    forced = yes
+
+    [test selection]
+    forced = yes
+
+    [environment]
+    TUTO = tutorial
+
+Now, run Checkbox without any argument:
+
+.. code-block:: none
+
+    checkbox.checkbox-cli
+
+You should see that Checkbox behaves exactly the same as in the previous
+section. It found the configuration from the ``~/.config/checkbox.conf``
+file and used it to automatically select the test plan and run it.
+
+Configuration files can be placed elsewhere on the system, and Checkbox
+will follow a certain resolution order to decide what configuration to
+use if more than one configuration files define the same key. Please check
+:ref:`checkbox_configs` for more information.
+
+Checkbox comes with a handy command to check what configuration is being used,
+and where it comes from. Run the following command:
+
+.. code-block:: none
+
+    checkbox.checkbox-cli check-config
+    Configuration files:
+     - /var/snap/checkbox/2799/checkbox.conf
+     - /home/pieq/.config/checkbox.conf
+       [config]
+         config_filename=checkbox.conf      (Default)
+       [launcher]
+         app_id=com.canonical.certification:tutorial From config file: /home/pieq/.config/checkbox.conf
+         app_version=                       (Default)
+         launcher_version=1                 From config file: /home/pieq/.config/checkbox.conf
+         local_submission=True              (Default)
+         session_desc=                      (Default)
+         session_title=session title        (Default)
+         stock_reports=text, submission_files From config file: /home/pieq/.config/checkbox.conf
+       [test plan]
+         filter=*                           (Default)
+         forced=True                        From config file: /home/pieq/.config/checkbox.conf
+         unit=com.canonical.certification::TODO From config file: /home/pieq/.config/checkbox.conf
+       [test selection]
+         exclude=                           (Default)
+         forced=True                        From config file: /home/pieq/.config/checkbox.conf
+       (...)
+       [environment]
+         STRESS_S3_WAIT_DELAY=120           From config file: /var/snap/checkbox/2799/checkbox.conf
+       (...)
+         TUTO=tutorial                      From config file: /home/pieq/.config/checkbox.conf
+       (...)
+    No problems with config(s) found!
+
+You can see:
+
+- a list of the configuration files being used
+- for each section, the configured parameters being used
+- the origin of each of these customized parameters
+- an overall status report ("No problems with config(s) found!")
+
+This can be really helpful when debugging a Checkbox run. For instance,
+looking at the output above, I can see that the ``STRESS_S3_WAIT_DELAY``
+environment variable is set to ``120`` because it is specified in
+a Checkbox configuration that comes with the snap version I'm using
+(``/var/snap/checkbox/2799/checkbox.conf``).
+
 Create an executable launcher
 =============================
 

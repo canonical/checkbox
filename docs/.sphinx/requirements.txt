@@ -1,7 +1,7 @@
 psutil
 urwid
 tqdm
-sphinx
+sphinx==7.1.2
 sphinx-autobuild
 sphinx-design
 furo

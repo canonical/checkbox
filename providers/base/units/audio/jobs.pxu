@@ -921,4 +921,3 @@ flags: also-after-suspend
 requires: snap.name == 'pulseaudio'
 category_id: com.canonical.plainbox::audio
 estimated_duration: 1m
-

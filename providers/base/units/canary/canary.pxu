@@ -85,9 +85,7 @@ include:
  com.canonical.certification::ipv6_link_local_address_.*
  com.canonical.certification::networking/predictable_names
  com.canonical.certification::power-management/warm-reboot
- com.canonical.certification::power-management/warm-reboot
  com.canonical.certification::power-management/post-warm-reboot
- com.canonical.certification::power-management/cold-reboot
  com.canonical.certification::power-management/cold-reboot
  com.canonical.certification::power-management/post-cold-reboot
  com.canonical.certification::snappy/snap-list

@@ -30,5 +30,5 @@ class SessionCommandTests(TestCase):
 
         session_command = SessionCommand([])
         session_command.register_parser(subparser_mock)
-        add_sc.assert_called()
+        self.assertTrue(add_sc.called)
         self.assertEqual(add_sc.return_value.prog, "plainbox session")

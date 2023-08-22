@@ -36,4 +36,4 @@ class SessionInvocationTests(TestCase):
         session_command = SessionInvocation(ns, None)
         session_command.show_session()
 
-        print_mock.assert_called()
+        self.assertTrue(print_mock.called)

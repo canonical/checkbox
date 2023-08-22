@@ -13,6 +13,7 @@ bootstrap_include:
  com.canonical.certification::bootloader
  com.canonical.certification::cpuinfo
  com.canonical.certification::device
+ com.canonical.certification::graphics_card
  com.canonical.certification::interface
  com.canonical.certification::net_if_management
  com.canonical.certification::model_assertion
@@ -73,6 +74,7 @@ include:
  com.canonical.certification::disk/storage_device_.*
  com.canonical.certification::ethernet/detect
  com.canonical.certification::ethernet/ping_.*
+ com.canonical.certification::graphics/.*driver_version_.*
  com.canonical.certification::i2c/i2c-bus-detect
  com.canonical.certification::i2c/i2c-device-detect
  com.canonical.certification::ubuntu_core_features

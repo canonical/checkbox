@@ -105,15 +105,21 @@ class SnapsConfinement:
     Test the confinement status of all installed snaps.
 
     Attributes:
-        whitelist_snaps (list): A list of snap names or regex patterns
-            that are exempted from the confinement check.
+        allowlist_snaps (list): A list of snap names or regex patterns
+            that are exempted from the confinement check. To match the
+            entire snap name, use the pattern "^<snap_name>$". For
+            example, "bugit" matches only "bugit". To match multiple
+            snaps with similar names, use ".*" suffixes. For instance,
+            "checkbox.*" matches all snap names starting with "checkbox".
+            Customize this list to exclude specific snaps from the
+            confinement checks based on their names or patterns.
     """
 
-    whitelist_snaps = [
-        "bugit",
+    allowlist_snaps = [
+        r"^bugit$",
         r"checkbox.*",
-        "mir-test-tools",
-        "graphics-test-tools",
+        r"^mir-test-tools$",
+        r"^graphics-test-tools$",
     ]
 
     def invoked(self):
@@ -138,10 +144,11 @@ class SnapsConfinement:
             if snap_name is None:
                 logging.error("Snap 'name' not found in the snap data.")
                 exit_code = 1
+                continue  # Skipping following checks if snap_name not found
 
             if any(
                 re.match(pattern, snap_name)
-                for pattern in self.whitelist_snaps
+                for pattern in self.allowlist_snaps
             ):
                 print("Skipping whitelisted snap: {}".format(snap_name))
                 continue
@@ -182,7 +189,7 @@ def main():
     }
     parser = argparse.ArgumentParser()
     parser.add_argument("subcommand", type=str, choices=sub_commands)
-    args = parser.parse_args(sys.argv[1:2])
+    args = parser.parse_args()
     return sub_commands[args.subcommand]().invoked()
 
 

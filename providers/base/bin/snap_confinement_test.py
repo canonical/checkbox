@@ -25,13 +25,20 @@ import sys
 from checkbox_support.snap_utils.snapd import Snapd
 
 
-class SystemConfinement:
+def test_system_confinement():
     """
-    Check the confinement status and sandbox features of the system.
+    Test the system's confinement and sandbox features.
 
-    Attributes:
+    This test checks if the system's confinement is 'strict'. If it
+    is 'strict', the test passes; otherwise, it checks the presence
+    of required features and prints out errors for any missing ones.
+
+    Variables:
         features_should_include (list): A list of sandbox features that
             must be present in the 'apparmor' category.
+    Returns:
+        str: A detailed output of the system's confinement and
+             sandbox features in JSON format.
     """
     features_should_include = [
         "kernel:caps",
@@ -46,65 +53,56 @@ class SystemConfinement:
         "parser:unsafe",
     ]
 
-    def invoked(self):
-        """
-        Check the confinement and sandbox features of the system.
+    data = Snapd().get_system_info()
 
-        This test checks if the system's confinement is 'strict'. If it
-        is 'strict', the test passes; otherwise, it checks the presence
-        of required features and prints out errors for any missing ones.
+    confinement = data["confinement"]
+    if confinement == "strict":
+        print("System confinement is \"strict\"")
+        print("Test PASS")
+        return 0
 
-        Returns:
-            str: A detailed output of the system's confinement and
-                 sandbox features in JSON format.
-        """
-        data = Snapd().get_system_info()
+    sandbox_features = data["sandbox-features"]
+    sandbox_features_output = (
+        "\nOUTPUT: confinement: {}\nOUTPUT: sandbox-features:\n{}".format(
+            confinement, json.dumps(sandbox_features, indent=2)
+        )
+    )
 
-        confinement = data["confinement"]
-        if confinement == "strict":
-            print("System confinement is \"strict\"")
-            print("Test PASS")
-            return 0
+    missing_features = []
+    if "apparmor" not in sandbox_features:
+        logging.error("Cannot find 'apparmor' in sandbox-features")
+    else:
+        for feature in features_should_include:
+            if feature not in sandbox_features["apparmor"]:
+                missing_features.append(feature)
 
-        sandbox_features = data["sandbox-features"]
-        sandbox_features_output = (
-            "\nOUTPUT: confinement: {}\nOUTPUT: sandbox-features:\n{}".format(
-                confinement, json.dumps(sandbox_features, indent=2)
-            )
+    if missing_features:
+        logging.error(
+            "Cannot find '%s' in apparmor", missing_features
         )
 
-        missing_features = []
-        if "apparmor" not in sandbox_features:
-            logging.error("Cannot find 'apparmor' in sandbox-features")
-        else:
-            for feature in self.features_should_include:
-                if feature not in sandbox_features["apparmor"]:
-                    missing_features.append(feature)
-
-        if missing_features:
+    categories_to_check = ["mount", "udev"]
+    for category in categories_to_check:
+        if category not in sandbox_features:
             logging.error(
-                "Cannot find '%s' in apparmor", missing_features
+                "Cannot find '%s' in sandbox-features", category
             )
+            break
+        for feature in sandbox_features[category]:
+            if "cgroup-v2" in feature:
+                logging.error("cgroup(%s) must NOT be v2", feature)
 
-        categories_to_check = ["mount", "udev"]
-        for category in categories_to_check:
-            if category not in sandbox_features:
-                logging.error(
-                    "Cannot find '%s' in sandbox-features", category
-                )
-                break
-            for feature in sandbox_features[category]:
-                if "cgroup-v2" in feature:
-                    logging.error("cgroup(%s) must NOT be v2", feature)
-
-        return sandbox_features_output
+    return sandbox_features_output
 
 
-class SnapsConfinement:
+def test_snaps_confinement():
     """
     Test the confinement status of all installed snaps.
 
-    Attributes:
+    A snap confinement should be 'strict', devmode should be False,
+    and should not have a sideloaded revision starts with 'x'.
+
+    Variables:
         allowlist_snaps (list): A list of snap names or regex patterns
             that are exempted from the confinement check. To match the
             entire snap name, use the pattern "^<snap_name>$". For
@@ -113,8 +111,10 @@ class SnapsConfinement:
             "checkbox.*" matches all snap names starting with "checkbox".
             Customize this list to exclude specific snaps from the
             confinement checks based on their names or patterns.
+    Returns:
+            int: Exit code. 0 if the test passes for all snaps,
+                 otherwise 1.
     """
-
     allowlist_snaps = [
         r"^bugit$",
         r"checkbox.*",
@@ -122,75 +122,64 @@ class SnapsConfinement:
         r"^graphics-test-tools$",
     ]
 
-    def invoked(self):
-        """
-        Check the confinement of all snaps installed in the system.
+    data = Snapd().list()
+    exit_code = 0
+    for snap in data:
+        snap_name = snap.get("name")
+        snap_confinement = snap.get("confinement")
+        snap_devmode = snap.get("devmode")
+        snap_revision = snap.get("revision")
 
-        A snap confinement should be 'strict', devmode should be False,
-        and should not have a sideloded revision starts with 'x'.
+        if snap_name is None:
+            logging.error("Snap 'name' not found in the snap data.")
+            exit_code = 1
+            continue  # Skipping following checks if snap_name not found
 
-        Returns:
-            int: Exit code. 0 if the test passes for all snaps,
-                 otherwise 1.
-        """
-        data = Snapd().list()
-        exit_code = 0
-        for snap in data:
-            snap_name = snap.get("name")
-            snap_confinement = snap.get("confinement")
-            snap_devmode = snap.get("devmode")
-            snap_revision = snap.get("revision")
+        if any(
+            re.match(pattern, snap_name)
+            for pattern in allowlist_snaps
+        ):
+            print("Skipping whitelisted snap: {}".format(snap_name))
+            continue
 
-            if snap_name is None:
-                logging.error("Snap 'name' not found in the snap data.")
-                exit_code = 1
-                continue  # Skipping following checks if snap_name not found
+        if snap_confinement != "strict":
+            exit_code = 1
+            logging.error(
+                "Snap '%s' confinement is expected to be 'strict' "
+                "but got '%s'", snap_name, snap_confinement,
+            )
 
-            if any(
-                re.match(pattern, snap_name)
-                for pattern in self.allowlist_snaps
-            ):
-                print("Skipping whitelisted snap: {}".format(snap_name))
-                continue
+        if snap_devmode is not False:
+            exit_code = 1
+            logging.error(
+                "Snap '%s' devmode is expected to be False but "
+                "got '%s'", snap_name, snap_devmode,
+            )
 
-            if snap_confinement != "strict":
-                exit_code = 1
-                logging.error(
-                    "Snap '%s' confinement is expected to be 'strict' "
-                    "but got '%s'", snap_name, snap_confinement,
-                )
-
-            if snap_devmode is not False:
-                exit_code = 1
-                logging.error(
-                    "Snap '%s' devmode is expected to be False but "
-                    "got '%s'", snap_name, snap_devmode,
-                )
-
-            if snap_revision and snap_revision.startswith("x"):
-                exit_code = 1
-                logging.error(
-                    "Snap '%s' has sideloaded revision '%s', which "
-                    "is not allowed", snap_name, snap_revision,
-                )
-            elif snap_revision is None:
-                exit_code = 1
-                logging.error(
-                    "'revision' not found in snap '%s'", snap_name,
-                )
-        return exit_code
+        if snap_revision and snap_revision.startswith("x"):
+            exit_code = 1
+            logging.error(
+                "Snap '%s' has sideloaded revision '%s', which "
+                "is not allowed", snap_name, snap_revision,
+            )
+        elif snap_revision is None:
+            exit_code = 1
+            logging.error(
+                "'revision' not found in snap '%s'", snap_name,
+            )
+    return exit_code
 
 
 def main():
     logging.basicConfig(format='%(levelname)s: %(message)s')
     sub_commands = {
-        "system": SystemConfinement,
-        "snaps": SnapsConfinement,
+        "system": test_system_confinement,
+        "snaps": test_snaps_confinement,
     }
     parser = argparse.ArgumentParser()
     parser.add_argument("subcommand", type=str, choices=sub_commands)
     args = parser.parse_args()
-    return sub_commands[args.subcommand]().invoked()
+    return sub_commands[args.subcommand]()
 
 
 if __name__ == "__main__":

@@ -3,3 +3,8 @@ coverage:
     patch:
       default:
         target: 90%
+flag_manageemnt:
+  default_rules:
+    # carryforward means if a test was not run again, use the previous
+    # coverage result for the current flag (part)
+    carryforward: true

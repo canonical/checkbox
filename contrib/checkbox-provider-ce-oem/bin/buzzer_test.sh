@@ -11,10 +11,6 @@ export_pwm() {
         echo "## Unable to export PWM $port on PWM Chip $chipnum"
         exit 1
     fi
-    echo "Setting up period of $type chip$chipnum pwm$port to 1 sec"
-    echo '1000000000' > "$node"/period
-    echo "Setting up duty cycle to 0.5 sec"
-    echo '500000000' > "$node"/duty_cycle
 }
 
 export_gpio() {
@@ -36,6 +32,22 @@ export_gpio() {
     fi
 }
 
+test_pwm_buzzer() {
+    # Make sounds with different musical scale by pwm
+    echo "Configure $type chip$chipnum pwm$port"
+    echo "Setting up duty cycle to 0.125 sec"
+    echo '125000' > "$node"/duty_cycle
+
+    for i in 262 277 294 311 330 349 370 392 415;
+    do
+        pd=$((1000000000 / "$i"))
+        echo "Setting up period to $pd nano seconds"
+        echo "$pd" > "$node"/period
+        sleep 0.8
+    done
+
+}
+
 test_buzzer() {
     result_pre="Buzzer $name test"
 
@@ -43,11 +55,14 @@ test_buzzer() {
     echo "## Start $type Buzzer $name test"
     echo "## Set $type $port to $enable"
     if [ "$type" == 'gpio' ]; then
-        node="$node"/value
+        enable_node="$node"/value
+        echo "$enable" > "$enable_node"
     else
-        node="$node"/enable
+        enable_node="$node"/enable
+        echo "$enable" > "$enable_node"
+        test_pwm_buzzer
     fi
-    echo "$enable" > "$node"
+
     while true
     do
         echo "Do you hear the sound from buzzer $name? (y/n)"
@@ -61,7 +76,7 @@ test_buzzer() {
     done
 
     echo "## Set $type $port to $disable"
-    echo "$disable" > "$node"
+    echo "$disable" > "$enable_node"
     while true
     do
         echo "Is the buzzer $name stop? (y/n)"

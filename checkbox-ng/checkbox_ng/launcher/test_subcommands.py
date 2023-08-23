@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright 2023 Canonical Ltd.
 # Written by:
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #

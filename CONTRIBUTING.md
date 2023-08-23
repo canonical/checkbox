@@ -72,15 +72,15 @@ you have to activate the `checkbox-cli service` on the Machine under test:
 ```bash
 (venv) # checkbox-cli service
 ```
-> Note: Keep in mind that service has to be run as root and needs the 
+> Note: Keep in mind that service has to be run as root and needs the
 > virtual env, you may have to re-enable/activate it after a `sudo -s`
 
 Now you can run the remote command to connect to it:
 ```bash
-(venv) $ checkbox-cli remote IP 
+(venv) $ checkbox-cli remote IP
 ```
 
-> Note: `service` and `remote` can both run on the same machine. 
+> Note: `service` and `remote` can both run on the same machine.
 > in that situation, simply use `127.0.0.1`
 
 ### Writing and running unit tests for Checkbox
@@ -102,6 +102,40 @@ Run checks for code quality of provider hosted scripts and any unit
 tests for providers:
 
     $ ./manage.py test
+
+### Coverage requirements
+
+In Checkbox we have a coverage requirement for new PRs. This is to ensure
+that if anyone has to edit the source in the future we have a reliable way
+to determine if the edits are changing the meaning of it. Remember, it may be very
+clear to you now, but what about tomorrow? Given this objective, try to
+create your tests in a way that captures this spirit, it is not about having
+a patch coverage of 80% or 81%. It is better to have a very clean and clear
+test collection that covers a little bit less of your patch than a
+monstrosity of mocks and patches that are just there to reach the coverage
+quota.
+
+To collect your coverage you can run the following:
+```
+$ python -m pip install coverage pytest pytest-cov
+# cd to where your test is
+$ python -m coverage run -m pytest .
+```
+Note that every part of this repository has a `.coveragerc` file, they should
+already include anything you may want to see in the report. If something is
+missing you can edit it but please, consult with the team before doing so.
+Tests are intentionally excluded from the coverage report, this is because
+test files tend to inflate the coverage with no real benefit, so don't
+worry if you can not spot yours in the report.
+
+Of course, you may only be interested in the coverage of your patch (for
+example, if you change a file that has a very low coverage, we do not want
+you to take up the challenge of testing it all if you don't want to!). The
+easiest way to get this measurement is to open a new PR and connect it with
+your branch. The `codecov.io` Bot should comment on it as soon as the `tox`
+job relevant to your change is finished, giving you a handy report. Note
+that the bot will tell you what you should improve to meet the requirements,
+the constraints are listed in `codecov.yaml` in the repo root.
 
 ## Version control recommendations
 

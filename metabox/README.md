@@ -150,6 +150,53 @@ configuration = {
 **Note:** Metabox is always going to check **all possible combinations** of
 `releases`, that means that this example will execute 9 test runs.
 
+### Testing Checkbox Snaps
+
+Metabox is able to test both locally built and store snaps.
+
+To test a store snap you can use the following config:
+
+```python
+# The syntax and its meaning is similar to above, the following will run
+# all local and remote tests for the focal snap
+configuration = {
+    "local": {
+        "origin": "classic-snap",
+        # Use the store core snap on the "edge" channel
+        "checkbox_core_snap": {"risk": "edge"},
+        # Use the store frontend snap on the "edge" channel
+        "checkbox_snap": {"risk": "edge"},
+        "releases": ["focal"],
+    },
+    "remote": {
+        "origin": "classic-snap",
+        "checkbox_core_snap": {"risk": "edge"},
+        "checkbox_snap": {"risk": "edge"},
+        "releases": ["focal"],
+    },
+    "service": {
+        "origin": "classic-snap",
+        "checkbox_core_snap": {"risk": "edge"},
+        "checkbox_snap": {"risk": "edge"},
+        "releases": ["focal"],
+    },
+}
+```
+
+To test a locally built snap you can use the following config:
+```python
+configuration = {
+    "local": {
+        "origin": "classic-snap",
+        "checkbox_core_snap": {"uri": "~/checkbox22.snap"},
+        # Note: you can mix and match, for example this uses a locally built
+        #       snap for runtime but a store version of frontend
+        "checkbox_snap": {"risk": "edge"},
+        "releases": ["jammy"],
+    },
+}
+```
+
 [Checkbox]: https://checkbox.readthedocs.io/
 [Linux containers (LXC)]: https://linuxcontainers.org/
 [`desktop_env` scenario]: ./metabox/scenarios/desktop_env/

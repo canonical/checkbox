@@ -25,7 +25,7 @@ Then, it's time to build the new beta version.
   ```
 - Tag the release
   ```
-  git tag -s "v2.4" -m "Bump version: 2.3 → 2.4"
+  git tag -s "v2.10.0" -m "Bump version: 2.9.1 → 2.10.0"
   ```
 - Push the tag to origin
   ```
@@ -37,7 +37,7 @@ Then, it's time to build the new beta version.
   workflow will not run even when the repository contains a workflow configured
   to run when push events occur.*
 
-## How packages versions are generated? ##
+## How packages versions are generated?
 
 Both Debian packages and checkbox snaps rely on [setuptools_scm] to extract 
 package versions from git metadata.
@@ -58,8 +58,8 @@ package versions from git metadata.
 - [checkbox core snap packages] *(built and uploaded to their respective beta
   channels)*
 
-In addition to the above workflows, a draft release is created on Github with
-an auto-generated changelog.
+In addition to the above workflows, a [Draft Release Note] is created on Github
+with an auto-generated changelog.
 
 Check the related Github Action logs to see if everything runs as expected:
 
@@ -70,6 +70,28 @@ before finally completing
 a few of the snaps are built, which leads to Github Actions being marked as
 successful even though some snaps are not built (and therefore not pushed to
 the store)
+
+## Send the release e-mail
+
+The release process should have created a new [Draft Release Note]. You can
+use this to prepare a release e-mail:
+
+- If this release comes with big changes for the user, you can talk about
+them in a *Highlights* section.
+- Not all changes in the Release Note from GitHub are meaningful for the
+end users. Highlight the ones that are most important for them by bolding
+them. For instance, changes related to the tooling used for Checkbox releases
+is not important to the users, but fixes for bugs reported by the users are!
+
+You can see a sample release e-mail [here][1].
+
+Send the release e-mail to:
+
+- checkbox-devel@lists.ubuntu.com (public, see [mailing list page])
+- ce-certification-qa@lists.canonical.com (private)
+
+**_Note:_** You need to be registered to both these mailing lists in order to
+be able to send an e-mail to them.
 
 # References
 
@@ -105,3 +127,7 @@ release
 [checkbox snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-beta-release.yml
 [checkbox core snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-core-snap-beta-release.yml
 [build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336
+[Draft Release Note]: https://github.com/canonical/checkbox/releases
+[mailing list page]: https://lists.ubuntu.com/mailman/listinfo/Checkbox-devel
+
+[1]: https://lists.ubuntu.com/archives/checkbox-devel/2023-August/000508.html

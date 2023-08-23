@@ -1,0 +1,19 @@
+name: Daily tag commit for edge release
+
+on:
+  schedule:
+    - cron: '00 04 * * *'
+  workflow_dispatch:
+
+jobs:
+  daily_edge_tag:
+    name: Daily tag of edge release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
+      - name: Check for new commits, tag edge version and push tags
+        run: |
+          git config --global user.email "robot@lists.canonical.com"
+          git config --global user.name "Certification bot"
+          tools/daily-builds/edge_tag.py

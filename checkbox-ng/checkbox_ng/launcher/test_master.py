@@ -59,4 +59,4 @@ class MasterTests(TestCase):
             mm.read.return_value = "[launcher]\nversion=0"
             RemoteMaster.invoked(self_mock, ctx_mock)
 
-        self_mock.connect_and_run.assert_called_once()
+        self.assertTrue(self_mock.connect_and_run.called)

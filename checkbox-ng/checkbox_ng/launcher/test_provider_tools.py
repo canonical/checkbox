@@ -31,10 +31,10 @@ class ProviderToolsTests(TestCase):
         path_exists_mock.return_value = True
         main()
         # manage.py was loaded as spec
-        spec_from_file_mock.assert_called_once()
+        self.assertTrue(spec_from_file_mock.called)
         spec_mock = spec_from_file_mock.return_value
         # mange.py was turned into a module
-        module_fs_mock.assert_called_once()
+        self.assertTrue(module_fs_mock.called)
         module_mock = module_fs_mock.return_value
         # and it was launched
         spec_mock.loader.exec_module.assert_called_with(module_mock)

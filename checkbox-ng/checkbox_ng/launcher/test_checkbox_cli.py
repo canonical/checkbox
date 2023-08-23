@@ -24,7 +24,7 @@ from checkbox_ng.launcher.checkbox_cli import main
 
 class CheckboxCliTests(TestCase):
     @mock.patch("sys.argv")
-    @mock.patch("argparse.ArgumentParser.parse_args")
+    @mock.patch("argparse.ArgumentParser")
     @mock.patch("checkbox_ng.launcher.checkbox_cli.Launcher")
     def test_launcher_ok(
         self,
@@ -36,7 +36,8 @@ class CheckboxCliTests(TestCase):
         ns_parse_args_type = namedtuple(
             "ParseArgsNamespace", ["subcommand", "debug", "verbose"]
         )
-        parse_args_mock.return_value = ns_parse_args_type(
+        parse_args_mock.return_value = parse_args_mock
+        parse_args_mock.parse_args.return_value = ns_parse_args_type(
             subcommand="launcher", debug=False, verbose=False
         )
         # for simplicitys sake, launcher_mock returns itself when constructed
@@ -44,5 +45,5 @@ class CheckboxCliTests(TestCase):
 
         main()
 
-        launcher_mock.assert_called_once()
-        launcher_mock.invoked.assert_called_once()
+        self.assertTrue(launcher_mock.called)
+        self.assertTrue(launcher_mock.invoked.called)

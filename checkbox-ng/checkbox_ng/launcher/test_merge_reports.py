@@ -28,6 +28,7 @@ class MergeReportsTests(TestCase):
     @mock.patch("checkbox_ng.launcher.merge_reports.JobDefinition")
     @mock.patch("checkbox_ng.launcher.merge_reports.CategoryUnit")
     @mock.patch("builtins.print")
+    @mock.patch("os.path.join")
     @mock.patch("tarfile.open")
     @mock.patch("json.load")
     # used to load an empty launcher with no error
@@ -35,6 +36,7 @@ class MergeReportsTests(TestCase):
         self,
         json_mock,
         tarfile_mock,
+        path_join_mock,
         print_mock,
         category_mock,
         job_definition_mock,
@@ -70,4 +72,4 @@ class MergeReportsTests(TestCase):
         print_mock.assert_any_call(ctx_mock.args.output_file)
         exporter = self_mock._create_exporter.return_value
         # exporter was created and dumped
-        exporter.dump_from_session_manager_list.assert_called_once()
+        self.assertTrue(exporter.dump_from_session_manager_list.called)

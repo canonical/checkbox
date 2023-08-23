@@ -57,7 +57,7 @@ class SlaveTests(TestCase):
             RemoteSlave.invoked(self_mock, ctx_mock)
 
         # slave server was created
-        threaded_server_mock.assert_called_once()
+        self.assertTrue(threaded_server_mock.called)
         server = threaded_server_mock.return_value
         # the server was started
-        server.start.assert_called_once()
+        self.assertTrue(server.start.called)

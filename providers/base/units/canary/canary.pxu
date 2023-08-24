@@ -1,0 +1,123 @@
+id: canary
+unit: test plan
+_name: Checkbox release self-test
+_description:
+ This test plan is meant to run on Checkbox versions that are candidates for
+ a release. The jobs included here are explicitly listed so the same jobs are
+ run in each session. Moreover, the jobs picked here are ones that on a stable
+ device should all pass if the Checkbox stack is ok. In other words, failure
+ to successfully run all the tests contained here should signify that there is
+ a bug in the Checkbox code.
+estimated_duration: 40m
+bootstrap_include:
+ com.canonical.certification::bootloader
+ com.canonical.certification::cpuinfo
+ com.canonical.certification::device
+ com.canonical.certification::graphics_card
+ com.canonical.certification::interface
+ com.canonical.certification::net_if_management
+ com.canonical.certification::model_assertion
+ com.canonical.certification::dmi_present
+ com.canonical.certification::dmi
+ com.canonical.certification::removable_partition
+ com.canonical.certification::serial_ports_static
+include:
+ com.canonical.plainbox::manifest
+ com.canonical.certification::executable
+ com.canonical.certification::connections
+ com.canonical.certification::serial_assertion
+ com.canonical.certification::net_if_management_attachment
+ com.canonical.certification::lspci_attachment
+ com.canonical.certification::lsusb_attachment
+ com.canonical.certification::rtc
+ com.canonical.certification::sleep
+ com.canonical.certification::parts_meta_info_attachment
+ com.canonical.certification::dkms_info_json
+ com.canonical.certification::udev_json
+ com.canonical.certification::package
+ com.canonical.certification::modprobe_json
+ com.canonical.certification::dmi_attachment
+ com.canonical.certification::meminfo
+ com.canonical.certification::sysfs_attachment
+ com.canonical.certification::kernel_cmdline_attachment
+ com.canonical.certification::snap
+ com.canonical.certification::cdimage
+ com.canonical.certification::lsblk_attachment
+ com.canonical.certification::module
+ com.canonical.certification::efi
+ com.canonical.certification::raw_devices_dmi_json
+ com.canonical.certification::lspci_standard_config_json
+ com.canonical.certification::requirements
+ com.canonical.certification::udev_attachment
+ com.canonical.certification::dpkg
+ com.canonical.certification::system_info_json
+ com.canonical.certification::environment
+ com.canonical.certification::uname
+ com.canonical.certification::lsb
+ com.canonical.certification::miscellanea/submission-resources
+ com.canonical.certification::info/systemd-analyze
+ com.canonical.certification::firmware/fwts_desktop_diagnosis
+ com.canonical.certification::firmware/fwts_desktop_diagnosis_results.log.gz
+ com.canonical.certification::acpi/oem_osi
+ com.canonical.certification::audio/detect-playback-devices
+ com.canonical.certification::audio/detect-capture-devices
+ com.canonical.certification::audio/alsa-loopback-automated
+ com.canonical.certification::cpu/scaling_test
+ com.canonical.certification::cpu/scaling_test-log-attach
+ com.canonical.certification::cpu/maxfreq_test
+ com.canonical.certification::cpu/maxfreq_test-log-attach
+ com.canonical.certification::cpu_offlining
+ com.canonical.certification::cpu/offlining_test
+ com.canonical.certification::cpu/topology
+ com.canonical.certification::disk/detect
+ com.canonical.certification::disk/stats_.*
+ com.canonical.certification::disk/storage_device_.*
+ com.canonical.certification::ethernet/detect
+ com.canonical.certification::ethernet/ping_.*
+ com.canonical.certification::graphics/.*driver_version_.*
+ com.canonical.certification::i2c/i2c-bus-detect
+ com.canonical.certification::i2c/i2c-device-detect
+ com.canonical.certification::ubuntu_core_features
+ com.canonical.certification::kernel-snap/booted-kernel-matches-current-grub
+ com.canonical.certification::location/status
+ com.canonical.certification::memory/info
+ com.canonical.certification::ipv6_detect
+ com.canonical.certification::ipv6_link_local_address_.*
+ com.canonical.certification::networking/predictable_names
+ com.canonical.certification::power-management/warm-reboot
+ com.canonical.certification::power-management/post-warm-reboot
+ com.canonical.certification::power-management/cold-reboot
+ com.canonical.certification::power-management/post-cold-reboot
+ com.canonical.certification::snappy/snap-list
+ com.canonical.certification::snappy/snap-search
+ com.canonical.certification::snappy/snap-install
+ com.canonical.certification::snappy/snap-refresh-automated
+ com.canonical.certification::snappy/snap-revert-automated
+ com.canonical.certification::snappy/snap-reupdate-automated
+ com.canonical.certification::snappy/snap-remove
+ com.canonical.certification::snappy/test-store-install-beta
+ com.canonical.certification::snappy/test-store-install-edge
+ com.canonical.certification::snappy/test-snap-confinement-mode
+ com.canonical.certification::socketcan/modprobe_vcan
+ com.canonical.certification::socketcan/send_packet_local_sff_virtual
+ com.canonical.certification::socketcan/send_packet_local_eff_virtual
+ com.canonical.certification::socketcan/send_packet_local_fd_virtual
+ com.canonical.certification::tpm2/fwts-event-log-dump
+ com.canonical.certification::clevis-encrypt-tpm2/precheck
+ com.canonical.certification::clevis-encrypt-tpm2/detect-rsa-capabilities
+ com.canonical.certification::clevis-encrypt-tpm2/rsa
+ com.canonical.certification::clevis-encrypt-tpm2/detect-ecc-capabilities
+ com.canonical.certification::clevis-encrypt-tpm2/ecc
+ com.canonical.certification::usb/storage-detect
+ com.canonical.certification::watchdog/detect
+ com.canonical.certification::watchdog/systemd-config
+ com.canonical.certification::watchdog/trigger-system-reset-auto
+ com.canonical.certification::watchdog/post-trigger-system-reset-auto
+ com.canonical.certification::suspend/suspend_advanced_auto
+ com.canonical.certification::after-suspend-audio/detect-playback-devices
+ com.canonical.certification::after-suspend-audio/detect-capture-devices
+ com.canonical.certification::after-suspend-audio/alsa-loopback-automated
+ com.canonical.certification::after-suspend-ethernet/detect
+ com.canonical.certification::after-suspend-ethernet/ping_.*
+ com.canonical.certification::after-suspend-location/status
+ com.canonical.certification::after-suspend-usb/storage-detect

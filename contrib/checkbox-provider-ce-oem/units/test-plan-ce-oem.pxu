@@ -42,6 +42,7 @@ nested_part:
     ce-oem-led-manual
     ce-oem-caam-manual
     ce-oem-crypto-manual
+    ce-oem-touchscreen-evdev
     com.canonical.certification::led-indicator-manual
 
 id: ce-oem-automated
@@ -99,6 +100,7 @@ nested_part:
     after-suspend-ce-oem-led-manual
     after-suspend-ce-oem-caam-manual
     after-suspend-ce-oem-crypto-manual
+    after-suspend-ce-oem-touchscreen-evdev
     com.canonical.certification::after-suspend-led-indicator-manual
 
 id: after-suspend-ce-oem-automated

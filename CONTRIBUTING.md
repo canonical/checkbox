@@ -103,17 +103,13 @@ tests for providers:
 
     $ ./manage.py test
 
-### Coverage requirements
+### Coverage
 
 In Checkbox we have a coverage requirement for new PRs. This is to ensure
-that if anyone has to edit the source in the future we have a reliable way
-to determine if the edits are changing the meaning of it. Remember, it may be very
-clear to you now, but what about tomorrow? Given this objective, try to
-create your tests in a way that captures this spirit, it is not about having
-a patch coverage of 80% or 81%. It is better to have a very clean and clear
-test collection that covers a little bit less of your patch than a
-monstrosity of mocks and patches that are just there to reach the coverage
-quota.
+that new contributions do not add source path that are not explored in testing
+and therefore easy to break down the line with any change.
+
+#### Collecting Coverage
 
 To collect your coverage you can run the following:
 ```
@@ -136,6 +132,53 @@ your branch. The `codecov.io` Bot should comment on it as soon as the `tox`
 job relevant to your change is finished, giving you a handy report. Note
 that the bot will tell you what you should improve to meet the requirements,
 the constraints are listed in `codecov.yaml` in the repo root.
+
+#### Effective coverage
+
+Getting coverage right is not about having all lines in a source file executed.
+Coverage is more of a proxy measure of how much of your code behaviour does
+your test actually execute.
+
+Consider the following:
+```python
+def get_mod_status(a : int, b : int) -> str:
+    try:
+        if a % b == 0:
+            return "A is divisible by B"
+        return "A is not divisible by B"
+    except ZeroDivisionError:
+        return "B is 0"
+    except ValueError:
+        return "Unknown error"
+``r
+
+To get 100% code coverage you may write the following tests:
+```python
+def test_nominal_ok_0(): assert get_mod_status(10, 2) == "A is divisible by B"
+def test_nominal_ok_1(): assert get_mod_status(10, 3) == "A is not divisible by B"
+def test_error_0(): assert get_mod_status(10, 0) == "B is 0"
+
+def test_error_1():
+    class error_mod:
+        def __mod__(self, other):
+            raise ValueError("Unknown error")
+    assert get_mod_status(error_mod(), 10) == "Unknown error"
+```
+
+This is not a very good test suite but we have reached 100% coverage. Notice
+that most of the function above is easily tested by the first
+three tests and covering the last two lines takes quite a lot of complexity.
+This is already an indicator that it may be worth not covering them.
+Now consider the fact that `a % b` is equivalent to
+`a - (a // b * b)` so they are interchangeable, but if we swap them in the
+implementation, the last test fails. What went wrong here is that to reach
+100% coverage we are giving up on testing the functionality and we are
+writing tests that mindlessly follow specific code path.
+
+Wrapping up, while preparing the tests for your PR use the coverage as an handy
+metric to guide you toward thoroughly tested code. **Do** try to cover all
+important behaviour of your code but **don't** add a lot of mocks and/or
+complexity to squeeze out just a little bit more coverage.
 
 ## Version control recommendations
 

@@ -106,7 +106,7 @@ tests for providers:
 ### Coverage
 
 In Checkbox we have a coverage requirement for new PRs. This is to ensure
-that new contributions do not add source path that are not explored in testing
+that new contributions do not add source paths that are not explored in testing
 and therefore easy to break down the line with any change.
 
 #### Collecting Coverage
@@ -150,7 +150,7 @@ def get_mod_status(a : int, b : int) -> str:
         return "B is 0"
     except ValueError:
         return "Unknown error"
-``r
+```
 
 To get 100% code coverage you may write the following tests:
 ```python
@@ -168,7 +168,7 @@ def test_error_1():
 This is not a very good test suite but we have reached 100% coverage. Notice
 that most of the function above is easily tested by the first
 three tests and covering the last two lines takes quite a lot of complexity.
-This is already an indicator that it may be worth not covering them.
+This is already an indicator that it may not be worth covering them.
 Now consider the fact that `a % b` is equivalent to
 `a - (a // b * b)` so they are interchangeable, but if we swap them in the
 implementation, the last test fails. What went wrong here is that to reach

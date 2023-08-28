@@ -180,7 +180,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         #  check if ever disconnected
         ever_disconnected = False
         #  this to animate the dash
-        spinner = itertools.cycle('-\\|/')
+        spinner = itertools.cycle("-\\|/")
         #  this tracks the disconnection time
         disconnection_time = 0
         while True:
@@ -235,12 +235,22 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     )
                 master_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
                 if slave_api_version != master_api_version:
-                    raise SystemExit(
-                        _(
-                            "Remote API version mismatch. Service "
-                            "uses: {}. Remote uses: {}"
-                        ).format(slave_api_version, master_api_version)
+                    problem_msg = (
+                        "You are trying to connect to an incompatible "
+                        "checkbox agent! To solve this, upgrade the {} to the "
+                        "{} version. (Agent version: {}, Controller "
+                        "version {})"
                     )
+                    if master_api_version > slave_api_version:
+                        solution = ("agent", "controller")
+                    else:
+                        solution = ("controller", "agent")
+
+                    problem_msg = problem_msg.format(
+                        *solution, slave_api_version, master_api_version
+                    )
+
+                    raise SystemExit(_(problem_msg))
                 state, payload = self.sa.whats_up()
                 _logger.info("remote: Main dispatch with state: %s", state)
                 if printed_reconnecting and ever_disconnected:
@@ -297,7 +307,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     ever_disconnected = True
                     printed_reconnecting = True
                 print(next(spinner), end="\b", flush=True)
-                time.sleep(.25)
+                time.sleep(0.25)
             except KeyboardInterrupt:
                 interrupted = True
 

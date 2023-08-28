@@ -9,9 +9,9 @@ user: root
 estimated_duration: 2s
 flags: preserve-locale
 command:
-    KEYWORDS="SOF_TIMESTAMPING_RAW_HARDWARE
-              SOF_TIMESTAMPING_TX_HARDWARE
-              SOF_TIMESTAMPING_RX_HARDWARE"
+    KEYWORDS="hardware-transmit
+              hardware-receive
+              hardware-raw-clock"
     for iface in /sys/class/net/*; do
         iface=${iface##*/}
         supported=true

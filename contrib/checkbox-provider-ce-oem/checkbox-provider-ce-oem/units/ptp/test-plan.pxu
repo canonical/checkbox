@@ -12,7 +12,11 @@ nested_part:
 id: ce-oem-ptp-manual
 unit: test plan
 _name: PTP manual tests
-_description: Manual PTP tests for devices
+_description:
+    Manual PTP tests for devices
+    This is not nested in ce-oem-manual because the current
+    test job steps are duplicated with the auto test job.
+    The manual test steps here is used as a reference.
 bootstrap_include:
     ce-oem-ptp/ptp-devices
 include:
@@ -31,7 +35,11 @@ include:
 id: after-suspend-ce-oem-ptp-manual
 unit: test plan
 _name: After suspend PTP manual tests
-_description: Manual after suspend PTP tests for devices
+_description:
+    Manual after suspend PTP tests for devices
+    This is not nested in after-suspend-ce-oem-manual because
+    the current test job steps are duplicated with the auto test job.
+    The manual test steps here is used as a reference.
 bootstrap_include:
     ce-oem-ptp/ptp-devices
 include:

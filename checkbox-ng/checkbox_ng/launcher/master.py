@@ -166,6 +166,41 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         else:
             print(_("\nConnection timed out."))
 
+    def check_remote_api_match(self):
+        """
+        Check that agent and controller are running on the same
+        REMOTE_API_VERSION else exit checkbox with an error
+        """
+        agent_api_version = self.sa.get_remote_api_version()
+        controller_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
+        if agent_api_version == controller_api_version:
+            return
+        template_msg = (
+            "The controller that you are using is {} than the agent "
+            "you are trying to connect to.\n"
+            "To solve this, upgrade the {} to the "
+            "{} version.\n"
+            "If you are unsure about the nomenclature see:\n"
+            "https://checkbox.readthedocs.io/en/latest/reference"
+            "/glossary.html\n\n"
+            "Error: (Agent version: {}, Controller version {})"
+        )
+        if controller_api_version > agent_api_version:
+            problem = "newer"
+            solution = ("agent", "controller")
+        else:
+            problem = "older"
+            solution = ("controller", "agent")
+        problem_msg = template_msg.format(
+            problem,
+            *solution,
+            agent_api_version,
+            controller_api_version
+        )
+
+        raise SystemExit(_(problem_msg))
+
+
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config["allow_all_attrs"] = True
@@ -233,32 +268,9 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                             " SUT!"
                         )
                     )
-                master_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
-                if slave_api_version != master_api_version:
-                    template_msg = (
-                        "The controller that you are using is {} than the agent "
-                        "you are trying to connect to.\n"
-                        "To solve this, upgrade the {} to the "
-                        "{} version.\n"
-                        "If you are unsure about the nomenclature see:\n"
-                        "https://checkbox.readthedocs.io/en/latest/reference"
-                        "/glossary.html\n\n"
-                        "Error: (Agent version: {}, Controller version {})"
-                    )
-                    if master_api_version > slave_api_version:
-                        problem = "newer"
-                        solution = ("agent", "controller")
-                    else:
-                        problem = "older"
-                        solution = ("controller", "agent")
-                    problem_msg = template_msg.format(
-                        problem,
-                        *solution,
-                        slave_api_version,
-                        master_api_version
-                    )
 
-                    raise SystemExit(_(problem_msg))
+                self.check_remote_api_match()
+
                 state, payload = self.sa.whats_up()
                 _logger.info("remote: Main dispatch with state: %s", state)
                 if printed_reconnecting and ever_disconnected:

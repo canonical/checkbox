@@ -235,19 +235,27 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                     )
                 master_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
                 if slave_api_version != master_api_version:
-                    problem_msg = (
-                        "You are trying to connect to an incompatible "
-                        "checkbox agent! To solve this, upgrade the {} to the "
-                        "{} version. (Agent version: {}, Controller "
-                        "version {})"
+                    template_msg = (
+                        "The controller that you are using is {} than the agent "
+                        "you are trying to connect to.\n"
+                        "To solve this, upgrade the {} to the "
+                        "{} version.\n"
+                        "If you are unsure about the nomenclature see:\n"
+                        "https://checkbox.readthedocs.io/en/latest/reference"
+                        "/glossary.html\n\n"
+                        "Error: (Agent version: {}, Controller version {})"
                     )
                     if master_api_version > slave_api_version:
+                        problem = "newer"
                         solution = ("agent", "controller")
                     else:
+                        problem = "older"
                         solution = ("controller", "agent")
-
-                    problem_msg = problem_msg.format(
-                        *solution, slave_api_version, master_api_version
+                    problem_msg = template_msg.format(
+                        problem,
+                        *solution,
+                        slave_api_version,
+                        master_api_version
                     )
 
                     raise SystemExit(_(problem_msg))

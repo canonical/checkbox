@@ -173,33 +173,40 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         """
         agent_api_version = self.sa.get_remote_api_version()
         controller_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
+
         if agent_api_version == controller_api_version:
             return
-        template_msg = (
-            "The controller that you are using is {} than the agent "
+
+        newer_msg = _(
+            "The controller that you are using is newer than the agent "
             "you are trying to connect to.\n"
-            "To solve this, upgrade the {} to the "
-            "{} version.\n"
-            "If you are unsure about the nomenclature see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference"
-            "/glossary.html\n\n"
+            "To solve this, upgrade the agent to the controller version.\n"
+            "If you are unsure about the nomenclature or what any of this "
+            "means, see:\n"
+            "https://checkbox.readthedocs.io/en/latest/reference/"
+            "glossary.html\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
-        if controller_api_version > agent_api_version:
-            problem = "newer"
-            solution = ("agent", "controller")
-        else:
-            problem = "older"
-            solution = ("controller", "agent")
-        problem_msg = template_msg.format(
-            problem,
-            *solution,
-            agent_api_version,
-            controller_api_version
+
+        older_msg = _(
+            "The controller that you are using is older than the agent "
+            "you are trying to connect to.\n"
+            "To solve this, upgrade the controller to the agent version.\n"
+            "If you are unsure about the nomenclature or what any of this "
+            "means, see:\n"
+            "https://checkbox.readthedocs.io/en/latest/reference/"
+            "glossary.html\n\n"
+            "Error: (Agent version: {}, Controller version {})"
         )
 
-        raise SystemExit(_(problem_msg))
+        if controller_api_version > agent_api_version:
+            problem_msg = newer_msg
+        else:
+            problem_msg = older_msg
 
+        raise SystemExit(
+            problem_msg.format(agent_api_version, controller_api_version)
+        )
 
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()

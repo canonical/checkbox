@@ -62,10 +62,7 @@ class MasterTests(TestCase):
         self.assertTrue(self_mock.connect_and_run.called)
 
     @mock.patch("checkbox_ng.launcher.master.RemoteSessionAssistant")
-    @mock.patch("checkbox_ng.launcher.master._")
-    def test_check_remote_api_match_ok(
-        self, gettext_mock, remote_assistant_mock
-    ):
+    def test_check_remote_api_match_ok(self, remote_assistant_mock):
         """
         Test that the check_remote_api_match function does not fail/crash
         if the two versions match
@@ -78,14 +75,9 @@ class MasterTests(TestCase):
         session_assistant_mock.get_remote_api_version.return_value = 0
 
         RemoteMaster.check_remote_api_match(self_mock)
-        # assert this runs with no problem, the two versions are the same
-        self.assertTrue(True)
 
     @mock.patch("checkbox_ng.launcher.master.RemoteSessionAssistant")
-    @mock.patch("checkbox_ng.launcher.master._")
-    def test_check_remote_api_match_fail(
-        self, gettext_mock, remote_assistant_mock
-    ):
+    def test_check_remote_api_match_fail(self, remote_assistant_mock):
         """
         Test that the check_remote_api_match function exits checkbox
         if the two versions don't match

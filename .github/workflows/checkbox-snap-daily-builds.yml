@@ -33,7 +33,7 @@ jobs:
         type: [classic, uc]
         releases: [16, 18, 20, 22]
     needs: check_history
-    if: ${{ needs.check_history.outputs.should_run != 'false' }}
+    if: ${{ needs.check_history.outputs.should_run != 'false' }} || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}

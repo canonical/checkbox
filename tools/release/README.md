@@ -4,6 +4,41 @@
 Sometimes, the builders will be down and this might prevent building the
 packages.
 
+## When can you relase a new beta candidate
+
+You can release a new beta candidate when you have at least one commit tagged
+by the verification process. This process will add a tag to the latest commit
+it can fetch with the version that is being verified and a
+`edge-validation-success` suffix. The verification process works as follows:
+
+```mermaid
+flowchart TD
+    A[Wait for specific time of the day] --New changes--> D
+    D[Build runtime/frontend snaps]
+    A --No new change--> A
+    D --Build failed--> E(Tag commit with: edge-validation-failed)
+    E --> A
+    D --Build ok--> F[Verify snaps via Metabox]
+    F --Validation ok--> G[Run canary testing via jenkins]
+    F --Validation failed --->E
+    G --Validation failed --->E
+    G --Validation ok--->H(Tag commit with: edge-validation-success)
+```
+
+> **_NOTE:_** This process is fully automated, you don't need to trigger it.
+
+If you want to verify the status of the latest edge build, run:
+```bash
+$ git fetch --tags
+$ git describe --tags --match "*edge-validation*" origin/main &&
+    git log -1 $(
+        git describe --tags --match "*edge-validation*" --abbrev=0 origin/main)
+```
+
+These commands will show you the latest tag that is in the repo and the commit
+it is associated with. If this tag ends with `edge-validation-success` you can
+proceed with the release.
+
 ## Promote the previous beta release to stable
 
 Internal teams (mostly QA and Certification) are using the version in the beta
@@ -39,7 +74,7 @@ Then, it's time to build the new beta version.
 
 ## How packages versions are generated?
 
-Both Debian packages and checkbox snaps rely on [setuptools_scm] to extract 
+Both Debian packages and checkbox snaps rely on [setuptools_scm] to extract
 package versions from git metadata.
 
 ```

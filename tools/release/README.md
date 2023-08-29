@@ -85,7 +85,7 @@ this is what that would look like:
   ```
 - Tag the release
   ```
-  git tag -s "v2.10.0" -m "Bump version: 2.9.1 → 2.10.0"
+  git tag -s "v2.10.0" -m "Beta promotion of: 2.9.1 → 2.10.0"
   ```
 - Push the tag to origin
   ```

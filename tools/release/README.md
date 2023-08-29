@@ -54,6 +54,31 @@ Then, it's time to build the new beta version.
 
 ## Tag the release
 
+First you need to understand what tag to push. Checkbox uses
+[semantic versioning], in order to calculate what version number you should
+push, you need to see what you are actually releasing.
+
+Run the following commands to get a list of changes since the last stable
+release:
+
+```bash
+$ git fetch --tags
+$ git describe --tags --match "*[0123456789]" origin/main &&
+    git log $(
+        git describe --tags --match "*[0123456789]" --abbrev=0 origin/main
+    )..origin/main
+```
+
+If the list includes:
+- Only bugfixes: you can use the version tag that was calculated by the
+`edge-verification` job (increment patch).
+- New, backward compatible features: you have to increment the minor version
+- Non-backward compatible changes: you have to increment the major version
+
+If you were to be at at the tag `v2.9.1-edge-validation-success` and you
+had to release a new version with at least one backward compatible new feature,
+this is what that would look like:
+
 - Clone the repository
   ```
   git clone git@github.com:canonical/checkbox.git
@@ -66,11 +91,6 @@ Then, it's time to build the new beta version.
   ```
   git push --tags
   ```
-  > **_NOTE:_** Having to clone and not push the tag from an existing
-  workflow is actually a Github Action limitation[^1]:
-  > *if a workflow run pushes code using the repository's GITHUB_TOKEN, a new
-  workflow will not run even when the repository contains a workflow configured
-  to run when push events occur.*
 
 ## How packages versions are generated?
 
@@ -82,6 +102,15 @@ package versions from git metadata.
 >>> get_version()
 '2.9.dev38+g896ae8978
 ```
+
+In general, when the HEAD of a branch is tagged, the version is going to be
+the tag. If a branch's HEAD is not tagged, the version is going to be the latest
+tag with the patch number incremented by 1, a postfix that encodes the distance
+from the tag itself (in the form of `dev{N}` where `N` is the number of
+commits since the latest tag) and the hash of the current HEAD.
+
+> **_NOTE_**: If you have some uncommitted changes your version might also have
+a date postfix in the form of `.YYYYMMDD`, this should never happen in a release!
 
 ## Monitor the build and publish workflows
 
@@ -164,5 +193,6 @@ release
 [build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336
 [Draft Release Note]: https://github.com/canonical/checkbox/releases
 [mailing list page]: https://lists.ubuntu.com/mailman/listinfo/Checkbox-devel
+[semantic versioning]: https://semver.org
 
 [1]: https://lists.ubuntu.com/archives/checkbox-devel/2023-August/000508.html

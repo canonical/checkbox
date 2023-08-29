@@ -60,3 +60,43 @@ class MasterTests(TestCase):
             RemoteMaster.invoked(self_mock, ctx_mock)
 
         self.assertTrue(self_mock.connect_and_run.called)
+
+    @mock.patch("checkbox_ng.launcher.master.RemoteSessionAssistant")
+    def test_check_remote_api_match_ok(self, remote_assistant_mock):
+        """
+        Test that the check_remote_api_match function does not fail/crash
+        if the two versions match
+        """
+        self_mock = mock.MagicMock()
+        session_assistant_mock = mock.MagicMock()
+        self_mock.sa = session_assistant_mock
+
+        remote_assistant_mock.REMOTE_API_VERSION = 0
+        session_assistant_mock.get_remote_api_version.return_value = 0
+
+        RemoteMaster.check_remote_api_match(self_mock)
+
+    @mock.patch("checkbox_ng.launcher.master.RemoteSessionAssistant")
+    def test_check_remote_api_match_fail(self, remote_assistant_mock):
+        """
+        Test that the check_remote_api_match function exits checkbox
+        if the two versions don't match
+        """
+        self_mock = mock.MagicMock()
+        session_assistant_mock = mock.MagicMock()
+        self_mock.sa = session_assistant_mock
+
+        remote_assistant_mock.REMOTE_API_VERSION = 1
+        session_assistant_mock.get_remote_api_version.return_value = 0
+
+        with self.assertRaises(SystemExit):
+            # this should exit checkbox because the two versions are different
+            RemoteMaster.check_remote_api_match(self_mock)
+
+        remote_assistant_mock.REMOTE_API_VERSION = 0
+        session_assistant_mock.get_remote_api_version.return_value = 1
+
+        with self.assertRaises(SystemExit):
+            # this should also exit checkbox because the two versions are
+            # different
+            RemoteMaster.check_remote_api_match(self_mock)

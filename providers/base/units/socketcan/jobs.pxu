@@ -101,7 +101,7 @@ command:
   set -ex
   ip link set {interface} down
   ip link set dev {interface} mtu 16
-  ip link set {interface} type can bitrate 100000 loopback on
+  ip link set {interface} type can bitrate 1000000 loopback on
   ip link set {interface} up
   socketcan_test.py {interface} 111
 
@@ -126,7 +126,7 @@ command:
   set -ex
   ip link set {interface} down
   ip link set dev {interface} mtu 16
-  ip link set {interface} type can bitrate 100000 loopback on
+  ip link set {interface} type can bitrate 1000000 loopback on
   ip link set {interface} up
   socketcan_test.py {interface} FA123 --effid
 

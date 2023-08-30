@@ -51,6 +51,10 @@ slots:
     interface: content
     read:
       - $SNAP/providers/checkbox-provider-certification-server
+  provider-tutorial:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-tutorial
   checkbox-runtime:
     interface: content
     read:
@@ -438,6 +442,18 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-server --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-certification-client]
+################################################################################
+  checkbox-provider-tutorial:
+    plugin: dump
+    source: providers/tutorial
+    source-type: local
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tutorial --root="$SNAPCRAFT_PART_INSTALL"
+    after: [checkbox-provider-base]
 ################################################################################
   gnome-randr:
     source: https://github.com/maxwellainatchi/gnome-randr-rust.git

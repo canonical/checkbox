@@ -26,7 +26,6 @@ _description: A job that requires a resource and it is available
 command:
  true  # this will run!
 
-
 id: tutorial/no_resource
 plugin: shell
 requires:
@@ -50,3 +49,10 @@ depends:
 _description: A job that is skipped because it depends on a job that fails
 command:
  true  # doesn't matter - will not run
+
+id: tutorial/environment_variable
+plugin: shell
+_description: A job that displays an environment variable, if set
+environ: TUTORIAL
+command:
+ echo ${TUTORIAL:-"Default Value"}

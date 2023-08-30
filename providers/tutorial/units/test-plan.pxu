@@ -1,6 +1,6 @@
 unit: test plan
-id: tutorial-tp
-_name: Checkbox Tutorial Test Plan
+id: tutorial-base
+_name: Checkbox Base Tutorial Test Plan
 bootstrap_include:
  tutorial_resources
 include:
@@ -11,3 +11,4 @@ include:
  tutorial/failing_dependency
  tutorial/has_resource
  tutorial/no_resource
+ tutorial/environment_variable

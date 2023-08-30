@@ -9,7 +9,12 @@ packages.
 You can release a new beta candidate when you have at least one commit tagged
 by the verification process. This process will add a tag to the latest commit
 it can fetch with the version that is being verified and a
-`edge-validation-success` suffix. The verification process works as follows:
+`edge-validation-success` suffix. Note, any commit with that suffix is in theory
+a valid candidate for promotion but please, if any more recent commit is marked
+as `edge-validation-failed` investigate why, we may have upgraded the testing
+infra from one commit to the other!
+
+The verification process works as follows:
 
 ```mermaid
 flowchart TD
@@ -75,21 +80,29 @@ If the list includes:
 - New, backward compatible features: you have to increment the minor version
 - Non-backward compatible changes: you have to increment the major version
 
+All commit messages in the main history should have a postfix indicating what
+kind of change they are:
+- **Infra:** are changes to our testing infrastructure, you can safely ignore
+them
+- **Bugfix:** are bugfixes, increment patch version
+- **New:** are new backward compatible features, increment minor version
+- **Breaking:** are new breaking changes, increment major version
+
 If you were to be at at the tag `v2.9.1-edge-validation-success` and you
 had to release a new version with at least one backward compatible new feature,
-this is what that would look like:
+run the following commands:
 
 - Clone the repository
   ```
-  git clone git@github.com:canonical/checkbox.git
+  $ git clone git@github.com:canonical/checkbox.git
   ```
 - Tag the release
   ```
-  git tag -s "v2.10.0" -m "Beta promotion of: 2.9.1 → 2.10.0"
+  $ git tag -s "v2.10.0" -m "Beta promotion of: 2.9.1 → 2.10.0"
   ```
 - Push the tag to origin
   ```
-  git push --tags
+  $ git push --tags
   ```
 
 ## How packages versions are generated?

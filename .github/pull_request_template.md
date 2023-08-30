@@ -1,3 +1,19 @@
+<!--
+Make sure that your PR title is clear and contains a traceability marker.
+
+Traceability Markers is what we use to understand the impact of your change at a glance.
+Pick one of the following:
+- Neutral (NE): Your change only includes documentation, comments, github actions or metabox
+- BugFix (BF): Your change fixes a bug
+- NewFeature (NF): Your chage is a new backward compatible feature, a new test/test plan/test inclusion
+- BreakingChange (BC): Your change breaks backward compatibility.
+    - This includes any API change to checkbox-ng/checkbox-support
+    - Changes to PXU grammar/field requirements
+    - Breaking changes to dependencies in snaps (fwts upgrade for example)
+If your change is to providers it can only be (NE, BF or NF)
+
+Example Title: Fixed bugged behaviour of checkbox load config (BF)
+-->
 ## Description
 
 <!--

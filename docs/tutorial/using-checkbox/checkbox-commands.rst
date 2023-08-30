@@ -288,9 +288,10 @@ You can also run a whole test plan using the ``run`` command:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli run TODO
+    checkbox.checkbox-cli run com.canonical.certification::tutorial-base
 
-    ...
+This will run the Checkbox Base Tutorial test plan, executing all the jobs in
+it and providing a text summary of the test run.
 
 Wrapping up
 ===========

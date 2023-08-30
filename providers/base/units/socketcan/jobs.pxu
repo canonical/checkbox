@@ -101,6 +101,7 @@ command:
   set -ex
   ip link set {interface} down
   ip link set dev {interface} mtu 16
+  ip link set {interface} type can bitrate 1000000 loopback on
   ip link set {interface} up
   socketcan_test.py {interface} 111
 
@@ -125,6 +126,7 @@ command:
   set -ex
   ip link set {interface} down
   ip link set dev {interface} mtu 16
+  ip link set {interface} type can bitrate 1000000 loopback on
   ip link set {interface} up
   socketcan_test.py {interface} FA123 --effid
 
@@ -150,7 +152,7 @@ command:
   ip link set {interface} down
   # Following command is only supported configuration method when using the
   # IXXAT driver from HMS
-  ip link set {interface} type can bitrate 1000000 dbitrate 2000000 fd on
+  ip link set {interface} type can bitrate 1000000 dbitrate 2000000 fd on loopback on
   ip link set {interface} up
   socketcan_test.py {interface} 1B --fdmode
 

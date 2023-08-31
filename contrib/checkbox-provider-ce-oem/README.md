@@ -94,6 +94,7 @@ Add export PATH for checkbox-ce-oem in *wrapper_local* of your checkbox interfac
 ```
 example:
 export PATH="$PATH:$SNAP/usr/bin:$SNAP/usr/sbin:$SNAP/sbin:/snap/bin:$SNAP/bin:/snap/checkbox-ce-oem/current/usr/bin/:/snap/checkbox-ce-oem/current/usr/sbin"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/snap/checkbox-ce-oem/current/usr/lib/$ARCH
 ```
 ### After rebuild SNAP for checkbox interface snap
 Install the SNAP of checkbox interface snap and checkbox-ce-oem. Connect slot and plug of *provider-ce-oem*.

@@ -80,4 +80,3 @@ include:
     disk/fstrim_.*                             certification-status=non-blocker
     disk/disk_stress_ng_.*                     certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=blocker
-    disk/apste_support_on_.*                   certification-status=non-blocker

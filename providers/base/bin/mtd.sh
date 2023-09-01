@@ -11,6 +11,12 @@ listAllMtd() {
 }
 
 countMtd() {
+# $1 is the expected count of mtd. e.g. 2
+    if [ -z "${1}" ]; then
+        echo "Please give an expected count as the second parameter when executing 'count' action"
+        exit 1
+    fi
+
     count=$( listAllMtd | grep -c "MTD_NAME")
     echo "The expected count is ${1}"
     echo "The actual count is $count"

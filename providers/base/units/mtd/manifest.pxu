@@ -1,4 +1,4 @@
 unit: manifest entry
 id: has_mtd
-_name: Does platfrom support Memory Technology Device?
+_name: Does platform support Memory Technology Device?
 value-type: bool

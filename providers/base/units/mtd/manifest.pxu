@@ -1,4 +1,4 @@
 unit: manifest entry
 id: has_mtd
-_name: Memory Technology Device (MTD) support?
+_name: Memory Technology Device (MTD)
 value-type: bool

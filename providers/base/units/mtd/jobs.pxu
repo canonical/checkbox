@@ -2,7 +2,7 @@ id: mtd/check-total-count
 category_id: mtd
 _summary: Check the total MTD count for the platform
 _description:
-  Check the total MTD count for the platform, relies on the user specifying the count of mtd.
+  Check the total MTD count for this platform based on the number specified by the user.
   Usage of environment variable: TOTAL_MTD_COUNT={count}
   e.g. TOTAL_MTD_COUNT=2
 plugin: shell
@@ -16,7 +16,7 @@ estimated_duration: 5
 environ: TOTAL_MTD_COUNT
 command:
   if [ -z "$TOTAL_MTD_COUNT" ]; then
-    echo "Missing the 'TOTAL_MTD_COUNT' environment variable. Please define it in checkbox.conf"
+    echo "Missing the 'TOTAL_MTD_COUNT' environment variable. Please define it in the [environment] section of your Checkbox configuration.
     exit 1
   fi
   mtd.sh count "$TOTAL_MTD_COUNT"

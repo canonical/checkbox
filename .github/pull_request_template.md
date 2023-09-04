@@ -29,4 +29,5 @@ Please make sure that...
 <!--
 - How was this PR tested? Please provide steps to follow so that the reviewer(s) can test on their end.
 - Please provide a list of what tests were run and on what platform/configuration.
+- Remember to check the test coverage of your PR as described in CONTRIBUTING.md
 -->

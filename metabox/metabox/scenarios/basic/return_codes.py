@@ -34,10 +34,12 @@ class ReturnCodeIsOneOnFail(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification:: pass-and-fail
+        unit = 2021.com.canonical.certification::pass-and-fail
         forced = yes
         [test selection]
         forced = yes
+        [ui]
+        type = silent
         """
     )
     steps = [

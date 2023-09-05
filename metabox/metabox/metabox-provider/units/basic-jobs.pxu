@@ -6,6 +6,10 @@ id: basic-shell-failing
 flags: simple
 command: false
 
+id: basic-shell-crashing
+flags: simple
+command: timeout -s KILL 0.1 sleep 5
+
 id: basic-environ-printing
 flags: simple
 command: echo foo: $foo

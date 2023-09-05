@@ -46,3 +46,30 @@ class ReturnCodeIsOneOnFail(Scenario):
         Start(),
         AssertRetCode(1),
     ]
+
+
+@tag("return-code", "basic")
+class ReturnCodeIsOneOnCrash(Scenario):
+    """
+    Check that the return code is 1 when one of the tests included
+    in the test plan crashes.
+    """
+
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::pass-and-crash
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """
+    )
+    steps = [
+        Start(),
+        AssertRetCode(1),
+    ]

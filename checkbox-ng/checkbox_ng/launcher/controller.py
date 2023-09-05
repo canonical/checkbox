@@ -37,6 +37,7 @@ from collections import namedtuple
 from functools import partial
 from tempfile import SpooledTemporaryFile
 
+from plainbox.abc import IJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
@@ -508,8 +509,16 @@ class RemoteController(ReportsStage, MainLoopStage):
         job_state_map = (
             self._sa.manager.default_device_context._state._job_state_map
         )
+        failing_outcomes = (
+            IJobResult.OUTCOME_FAIL,
+            IJobResult.OUTCOME_CRASH,
+            # Outcome may be still set to `None`. It may  happen if the job
+            # was interrupted or crashed hasn't been properly registered (yet)
+            None,
+        )
         self._has_anything_failed = any(
-            job.result.outcome == "fail" for job in job_state_map.values()
+            job.result.outcome in (None, "fail", "crashed")
+            for job in job_state_map.values()
         )
 
         self.sa.finalize_session()

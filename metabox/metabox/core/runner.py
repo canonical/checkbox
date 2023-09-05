@@ -276,9 +276,12 @@ class Runner:
             if not scn.has_passed():
                 self.failed = True
                 logger.error(scenario_description + " scenario has failed.")
-                logger.error(
-                    "Scenario output:\n" + scn.get_output_streams().strip()
-                )
+
+                # let's strip < from the output to avoid confusing loguru
+                # loguru assumes that <> is used for colorizing
+                output = scn.get_output_streams().strip().replace("<", "\<")
+
+                logger.error("Scenario output:\n" + output)
                 if self.hold_on_fail:
                     if scn.mode == "remote":
                         msg = (

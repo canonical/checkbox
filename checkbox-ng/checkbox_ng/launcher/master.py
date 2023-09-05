@@ -130,6 +130,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         self._C = Colorizer()
         self._override_exporting(self.local_export)
         self._launcher_text = ""
+        self._has_anything_failed = False
         self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._normal_user = ""
@@ -158,8 +159,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
             )
         while time.time() < deadline:
             try:
-                self.connect_and_run(ctx.args.host, port)
-                break
+                return self.connect_and_run(ctx.args.host, port)
             except (ConnectionRefusedError, socket.timeout, OSError):
                 print(".", end="", flush=True)
                 time.sleep(1)
@@ -340,6 +340,7 @@ class RemoteMaster(ReportsStage, MainLoopStage):
 
             if not keep_running:
                 break
+        return self._has_anything_failed
 
     def new_session(self):
         _logger.info("remote: Starting new session.")
@@ -503,6 +504,14 @@ class RemoteMaster(ReportsStage, MainLoopStage):
                 tmp_sig = signal.signal(signal.SIGINT, signal.SIG_IGN)
                 stack.callback(signal.signal, signal.SIGINT, tmp_sig)
                 self._export_results()
+        # let's see if any of the jobs failed, if so, let's return an error code of 1
+        job_state_map = (
+            self._sa.manager.default_device_context._state._job_state_map
+        )
+        self._has_anything_failed = any(
+            job.result.outcome == "fail" for job in job_state_map.values()
+        )
+
         self.sa.finalize_session()
         return False
 

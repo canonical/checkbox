@@ -160,7 +160,6 @@ class RemoteMaster(ReportsStage, MainLoopStage):
         while time.time() < deadline:
             try:
                 return self.connect_and_run(ctx.args.host, port)
-                break
             except (ConnectionRefusedError, socket.timeout, OSError):
                 print(".", end="", flush=True)
                 time.sleep(1)

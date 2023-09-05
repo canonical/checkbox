@@ -160,4 +160,8 @@ def main():
     if args.debug:
         logging_level = logging.DEBUG
         logging.basicConfig(level=logging_level)
-    subcmd.invoked(ctx)
+    return subcmd.invoked(ctx)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

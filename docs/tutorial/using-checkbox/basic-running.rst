@@ -381,5 +381,14 @@ for this run.
 
 As text summary only provides an overview, for more in-depth
 information, you will need to review submission files (the files such as
-``submission_2023-09-05T14.28.46.861191.tar.xz`` in the output above).
+``submission_2023-09-06T03.33.14.551448.tar.xz`` in the output above).
 We will see that in the next section.
+
+Wrapping up
+===========
+
+Congratulations! You've got familiar with Checkbox user interface by launching
+it, selecting a specific test plan and executing the jobs in it. Once the
+test session was over, Checkbox displayed a summary of the results and
+generated a bunch of "submission" files. In the next section, you will review
+these files.

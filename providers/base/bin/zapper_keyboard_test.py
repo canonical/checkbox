@@ -94,10 +94,11 @@ def main(argv):
     if len(argv) != 2:
         raise SystemExit("Usage: {} <zapper-ip>".format(argv[0]))
 
-    try:
-        event_file = os.path.realpath(f"/dev/input/by-id/{ZAPPER_KBD}", strict=True)
-    except FileNotFoundError as exc:
-        raise SystemExit("Cannot find Zapper Keyboard.") from exc
+    zapper_kbd_path = f"/dev/input/by-id/{ZAPPER_KBD}"
+    if os.path.exists(zapper_kbd_path):
+        event_file = os.path.realpath(zapper_kbd_path)
+    else:
+        raise SystemExit("Cannot find Zapper Keyboard.")
 
     events = []
     threading.Thread(

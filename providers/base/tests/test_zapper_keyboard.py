@@ -86,17 +86,17 @@ class ZapperKeyboardTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1])
 
-    @patch("os.path.realpath")
-    def test_main_no_keyboard(self, mock_realpath):
+    @patch("os.path.exists")
+    def test_main_no_keyboard(self, mock_exists):
         """Check main exits with failure if Zapper keyboard is missing."""
-        mock_realpath.side_effect = FileNotFoundError
+        mock_exists.return_value = False
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1, 2])
 
     @patch("bin.zapper_keyboard_test.assert_type_string")
     @patch("bin.zapper_keyboard_test.assert_key_combo")
     @patch("threading.Thread", Mock())
-    @patch("os.path.realpath", Mock())
+    @patch("os.path.exists", Mock())
     def test_main(self, mock_combo, mock_type):
         """Check main exits with failure if any of the test fails."""
 

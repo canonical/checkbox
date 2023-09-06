@@ -13,8 +13,6 @@ from enum import Enum
 
 from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 
-ZAPPER_KBD = "usb-Canonical_Zapper_main_board_123456-event-kbd"
-EVENT_BIN_FORMAT = "llHHI"
 
 ROBOT_TESTCASE_COMBO = """
 *** Settings ***
@@ -50,6 +48,8 @@ def _listen_keyboard_events(event_file_path, callback):
 
 def read_keyboard_events(event, callback):
     """Read keyboard events from the given file and run the callback."""
+    EVENT_BIN_FORMAT = "llHHI"  # expected data layout
+
     data = event.read(struct.calcsize(EVENT_BIN_FORMAT))
     _, _, event_type, code, value = struct.unpack(EVENT_BIN_FORMAT, data)
     if event_type == 1:  # 0x01 is for _kbd_ events
@@ -96,16 +96,14 @@ def main(argv):
     if len(argv) != 2:
         raise SystemExit("Usage: {} <zapper-ip>".format(argv[0]))
 
-    zapper_kbd_path = f"/dev/input/by-id/{ZAPPER_KBD}"
-    if os.path.exists(zapper_kbd_path):
-        event_file = os.path.realpath(zapper_kbd_path)
-    else:
+    ZAPPER_KBD = "/dev/input/by-id/usb-Canonical_Zapper_main_board_123456-event-kbd"
+    if not os.path.exists(ZAPPER_KBD):
         raise SystemExit("Cannot find Zapper Keyboard.")
 
     events = []
     threading.Thread(
         target=_listen_keyboard_events,
-        args=(event_file, events.append),
+        args=(ZAPPER_KBD, events.append),
         daemon=True,
     ).start()
 

@@ -25,7 +25,7 @@ class ZapperKeyboardTests(unittest.TestCase):
             def read(self, _):
                 """Read mocked data."""
                 return struct.pack(
-                    zapper_keyboard_test.EVENT_BIN_FORMAT,
+                    "llHHI",
                     0,
                     0,
                     event_type,

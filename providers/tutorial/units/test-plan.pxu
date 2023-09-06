@@ -12,3 +12,6 @@ include:
  tutorial/has_resource
  tutorial/no_resource
  tutorial/environment_variable
+ tutorial/manual
+ tutorial/user-interact
+ tutorial/user-interact-verify

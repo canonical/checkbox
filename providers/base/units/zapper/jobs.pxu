@@ -104,3 +104,12 @@ _summary: Check if the system can connect to a Bluetooth speaker using A2DP prof
 environ: ZAPPER_HOST
 command: bt_a2dp.py "$ZAPPER_HOST"
 depends: bluetooth/detect-output
+
+id: input/zapper-keyboard
+category_id: com.canonical.plainbox::input
+plugin: shell
+user: root
+estimated_duration: 10
+_summary: Check if the system recognizes keyboard events from Zapper
+environ: ZAPPER_HOST
+command: zapper_keyboard_test.py "$ZAPPER_HOST"

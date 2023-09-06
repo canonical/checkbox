@@ -57,7 +57,9 @@ def read_keyboard_events(event, callback):
 
 
 def assert_key_combo(host, events):
-    """Request to press a key combination and expect the corresponding events."""
+    """
+    Request to press a key combination and expect the corresponding events.
+    """
 
     events.clear()
     zapper_run(host, "robot_run", ROBOT_TESTCASE_COMBO.encode(), {}, {})
@@ -102,7 +104,9 @@ def main(argv):
 
     events = []
     threading.Thread(
-        target=_listen_keyboard_events, args=(event_file, events.append), daemon=True
+        target=_listen_keyboard_events,
+        args=(event_file, events.append),
+        daemon=True,
     ).start()
 
     try:

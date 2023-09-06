@@ -47,7 +47,7 @@ class RunFailingTestplan(Scenario):
             "run 2021.com.canonical.certification::basic-automated-failing",
             timeout=30,
         ),
-        AssertRetCode(0),
+        AssertRetCode(1),
     ]
 
 

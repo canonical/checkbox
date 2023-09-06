@@ -43,17 +43,17 @@ class KeyEvent(Enum):
 
 def _listen_keyboard_events(event_file_path, callback):
     """Listen for keyboard events on the given file."""
-    while True:
-        read_keyboard_events(event_file_path, callback)
-
-
-def read_keyboard_events(event_file_path, callback):
-    """Read keyboard events from the given file and run the callback."""
     with open(event_file_path, "rb") as event:
-        data = event.read(struct.calcsize(EVENT_BIN_FORMAT))
-        _, _, event_type, code, value = struct.unpack(EVENT_BIN_FORMAT, data)
-        if event_type == 1:  # 0x01 is for _kbd_ events
-            callback((KeyEvent(value), code))
+        while True:
+            read_keyboard_events(event, callback)
+
+
+def read_keyboard_events(event, callback):
+    """Read keyboard events from the given file and run the callback."""
+    data = event.read(struct.calcsize(EVENT_BIN_FORMAT))
+    _, _, event_type, code, value = struct.unpack(EVENT_BIN_FORMAT, data)
+    if event_type == 1:  # 0x01 is for _kbd_ events
+        callback((KeyEvent(value), code))
 
 
 def assert_key_combo(host, events):

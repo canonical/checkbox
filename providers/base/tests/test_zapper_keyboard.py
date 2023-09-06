@@ -9,8 +9,7 @@ from bin import zapper_keyboard_test
 class ZapperKeyboardTests(unittest.TestCase):
     """This class provides test cases for the zapper_keyboard_test module."""
 
-    @patch("builtins.open")
-    def test_read_keyboard_events(self, mock_open):
+    def test_read_keyboard_events(self):
         """
         Read from event file and launch the callback if the event is
         from a keyboard.
@@ -34,9 +33,7 @@ class ZapperKeyboardTests(unittest.TestCase):
                     value,
                 )
 
-        mock_open.return_value.__enter__.return_value = MockData()
-
-        zapper_keyboard_test.read_keyboard_events("", callback.fun1)
+        zapper_keyboard_test.read_keyboard_events(MockData(), callback.fun1)
         callback.fun1.assert_called_with((zapper_keyboard_test.KeyEvent.UP, code))
 
     @patch("bin.zapper_keyboard_test.zapper_run")

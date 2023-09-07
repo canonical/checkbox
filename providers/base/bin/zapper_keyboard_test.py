@@ -6,6 +6,7 @@ USB keyboard.
 To run the test you need Zapper board connected and set up.
 """
 import os
+import select
 import struct
 import sys
 import threading
@@ -35,25 +36,47 @@ Type the requested string
 
 
 class KeyEvent(Enum):
+    """Key events of interest."""
+
     UP = 0
     DOWN = 1
 
 
-def _listen_keyboard_events(event_file_path, callback):
-    """Listen for keyboard events on the given file."""
-    with open(event_file_path, "rb") as event:
-        while True:
-            read_keyboard_events(event, callback)
+class KeyboardListener(threading.Thread):
+    """Listen for keyboard events."""
 
-
-def read_keyboard_events(event, callback):
-    """Read keyboard events from the given file and run the callback."""
     EVENT_BIN_FORMAT = "llHHI"  # expected data layout
+    EVENT_BIN_SIZE = struct.calcsize(EVENT_BIN_FORMAT)
 
-    data = event.read(struct.calcsize(EVENT_BIN_FORMAT))
-    _, _, event_type, code, value = struct.unpack(EVENT_BIN_FORMAT, data)
-    if event_type == 1:  # 0x01 is for _kbd_ events
-        callback((KeyEvent(value), code))
+    def __init__(self, event_file, callback):
+        super().__init__()
+        self._keep_running = True
+        self._event_file = event_file
+        self._callback = callback
+
+    def run(self):
+        """Start polling keyboard events."""
+        with open(self._event_file, "rb") as event:
+            while self._keep_running:
+                self._read_keyboard_events(event)
+
+    def stop(self):
+        """Stop loop."""
+        self._keep_running = False
+
+    def _read_keyboard_events(self, event):
+        """Read keyboard events from the given file and run the callback."""
+
+        readable, _, _ = select.select([event], [], [], 0.1)
+        if not readable:  # timeout
+            return
+
+        data = readable[0].read(self.EVENT_BIN_SIZE)
+        if not data:
+            return
+        _, _, event_type, code, value = struct.unpack(self.EVENT_BIN_FORMAT, data)
+        if event_type == 1:  # 0x01 is for _kbd_ events
+            self._callback((KeyEvent(value), code))
 
 
 def assert_key_combo(host, events):
@@ -93,25 +116,30 @@ def assert_type_string(host, events):
 
 
 def main(argv):
+    """
+    Request Zapper to type on keyboard and assert the received events
+    are like expected.
+    """
+    ZAPPER_KBD = "/dev/input/by-id/usb-Canonical_Zapper_main_board_123456-event-kbd"
+
     if len(argv) != 2:
         raise SystemExit("Usage: {} <zapper-ip>".format(argv[0]))
 
-    ZAPPER_KBD = "/dev/input/by-id/usb-Canonical_Zapper_main_board_123456-event-kbd"
-    if not os.path.exists(ZAPPER_KBD):
-        raise SystemExit("Cannot find Zapper Keyboard.")
+    if not os.access(ZAPPER_KBD, os.R_OK):
+        raise SystemExit("Cannot read from Zapper Keyboard.")
 
     events = []
-    threading.Thread(
-        target=_listen_keyboard_events,
-        args=(ZAPPER_KBD, events.append),
-        daemon=True,
-    ).start()
+    listener = KeyboardListener(ZAPPER_KBD, events.append)
+    listener.start()
 
     try:
         assert_key_combo(argv[1], events)
         assert_type_string(argv[1], events)
     except AssertionError as exc:
         raise SystemExit("Mismatch in received keyboard events.") from exc
+    finally:
+        listener.stop()
+        listener.join()
 
 
 if __name__ == "__main__":

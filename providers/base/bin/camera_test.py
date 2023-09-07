@@ -211,7 +211,8 @@ class CameraTest:
             resolutions = resolutions.replace("Format:", "    Format:")
             print(resolutions)
 
-            if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE:
+            if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE or \
+                    cp.capabilities & V4L2_CAP_STREAMING:
                 cap_status = 0
         return dev_status | cap_status
 

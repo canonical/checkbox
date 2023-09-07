@@ -6,7 +6,6 @@ USB keyboard.
 To run the test you need Zapper board connected and set up.
 """
 import os
-import select
 import struct
 import sys
 import threading
@@ -51,29 +50,27 @@ class KeyboardListener(threading.Thread):
     def __init__(self, event_file, callback):
         super().__init__()
         self._keep_running = True
-        self._event_file = event_file
+        self._event_no = os.open(event_file, os.O_NONBLOCK | os.O_RDONLY)
         self._callback = callback
 
     def run(self):
         """Start polling keyboard events."""
-        with open(self._event_file, "rb") as event:
-            while self._keep_running:
-                self._read_keyboard_events(event)
+        while self._keep_running:
+            self._read_keyboard_events()
 
     def stop(self):
         """Stop loop."""
         self._keep_running = False
+        os.close(self._event_no)
 
-    def _read_keyboard_events(self, event):
+    def _read_keyboard_events(self):
         """Read keyboard events from the given file and run the callback."""
 
-        readable, _, _ = select.select([event], [], [], 0.1)
-        if not readable:  # timeout
+        try:
+            data = os.read(self._event_no, self.EVENT_BIN_SIZE)
+        except BlockingIOError:
             return
 
-        data = readable[0].read(self.EVENT_BIN_SIZE)
-        if not data:
-            return
         _, _, event_type, code, value = struct.unpack(self.EVENT_BIN_FORMAT, data)
         if event_type == 1:  # 0x01 is for _kbd_ events
             self._callback((KeyEvent(value), code))

@@ -15,7 +15,7 @@ be uploaded to the :term:`Canonical test database<certification website>`.
 Running Checkbox and filtering test plans
 =========================================
 
-Let's being! Run the following command to start Checkbox:
+Let's begin! Run the following command to start Checkbox:
 
 .. code-block:: none
 

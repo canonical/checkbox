@@ -1,0 +1,11 @@
+id: tutorial_resources
+category_id: tutorial
+plugin: resource
+_summary: A job that generates different resources for tutorial purposes
+command:
+ echo name: first-resource
+ echo has_required_thing: true
+ echo
+ echo name: second-resource
+ echo has_required_thing: false
+ echo

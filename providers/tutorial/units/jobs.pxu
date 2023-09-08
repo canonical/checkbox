@@ -1,0 +1,125 @@
+id: tutorial/passing
+category_id: tutorial
+plugin: shell
+_summary: A job that always passes
+command:
+ echo This job passes!
+ true
+
+id: tutorial/failing
+category_id: tutorial
+plugin: shell
+_summary: A job that always fails
+command:
+ echo This job fails!
+ false
+
+id: tutorial/crashing
+category_id: tutorial
+plugin: shell
+_summary: A job that always crashes
+command:
+ # Start the sleep 5 command, but if it doesn't finish in 1 second, send it the
+ # KILL signal to stop it immediately." Since sleep 5 is meant to run for 5
+ # seconds and the timeout is set to 1 second, the sleep 5 command will be
+ # killed by the KILL signal after just 1 second.
+ echo "This job crashes because we run a command to kill it before it's finished."
+ timeout -s KILL 0.1 sleep 5
+
+id: tutorial/has_resource
+category_id: tutorial
+plugin: shell
+requires:
+ (tutorial_resources.name == 'first-resource' and tutorial_resources.has_required_thing == 'true')
+_summary: A job that requires a resource and it is available
+command:
+ echo This job runs because its requirements are fulfilled.
+ true
+
+id: tutorial/no_resource
+category_id: tutorial
+plugin: shell
+requires:
+ (tutorial_resources.name == 'second-resource' and tutorial_resources.has_required_thing == 'true')
+_summary: A job that requires a resource but it's not available
+command:
+ true  # doesn't matter - will not run
+
+id: tutorial/passing_dependency
+category_id: tutorial
+plugin: shell
+depends:
+ tutorial/passing
+_summary: A job that depends on other job that passes
+command:
+ true  # this will run!
+
+id: tutorial/failing_dependency
+category_id: tutorial
+plugin: shell
+depends:
+ tutorial/failing
+_summary: A job that is skipped because it depends on a job that fails
+command:
+ true  # doesn't matter - will not run
+
+id: tutorial/environment_variable
+category_id: tutorial
+plugin: shell
+_summary: A job that displays an environment variable, if set
+environ: TUTORIAL
+command:
+ echo This job prints the content of a given environment variable if set, or a default value otherwise
+ echo ${TUTORIAL:-"Default Value"}
+
+id: tutorial/manual
+category_id: tutorial
+plugin: manual
+_summary: A manual job
+estimated_duration: 1m
+_purpose:
+ This is a manual job. User needs to select an outcome.
+_steps:
+ 1. Read the content of this job.
+ 2. Check that there are 3 sections (Purpose, Steps, Verification).
+_verification:
+ Did Checkbox display all 3 sections of the manual job?
+
+id: tutorial/user-interact
+category_id: tutorial
+plugin: user-interact
+_summary: A semi-automated job where the outcome is set automatically
+estimated_duration: 1m
+command: true
+_purpose:
+ This is a "user-interact" semi-automated job. It requires the user to perform
+ an interaction, after which the outcome is automatically set and Checkbox moves
+ on to the next job.
+ .
+ This test will run the command `true`, which always returns 0.
+_steps:
+ 1. Read the content of this job.
+ 2. Press Enter to start the test. The outcome will be set automatically to
+ "pass" based on the return value from the command, and Checkbox will then
+ move on to the next job.
+
+id: tutorial/user-interact-verify
+category_id: tutorial
+plugin: user-interact-verify
+_summary: A semi-automated job where the user manually sets the outcome
+estimated_duration: 1m
+command: true
+_purpose:
+ This is a "user-interact-verify" semi-automated job. It requires the user
+ to perform an interaction, then Checkbox executes a command and suggests
+ an outcome based its return code. However, in the end it is up to the user
+ to manually choose the right outcome.
+ .
+ This test will run the command `true`, which always returns 0.
+_steps:
+ 1. Read the content of this job.
+ 2. Press Enter to start the test. The outcome will be automatically set to
+ "pass" but you will have a chance to manually select another outcome.
+_verification:
+ Make sure that Checkbox suggested the outcome to be "pass", yet you can
+ still manually select another outcome.

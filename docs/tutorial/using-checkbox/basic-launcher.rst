@@ -30,7 +30,7 @@ Create a file named ``mylauncher`` and add the following information in it:
     launcher_version = 1
 
     [test plan]
-    filter = *TODO*
+    filter = *tutorial*
 
 Save it, then launch Checkbox using this launcher:
 
@@ -42,23 +42,23 @@ The test plan selection screen should be much less intimidating now!
 
 Let's review the content of this launcher.
 
-The ``[launcher]`` section contains meta-data related to the launcher itself
+The ``[launcher]`` section contains meta-data related to the launcher itself.
 ``launcher_version`` is set to ``1`` as it is the version of the launcher
 syntax currently in use.
 
-In the ``[test plan]`` section, we set the ``filter`` to ``*TODO*``. By
+In the ``[test plan]`` section, we set the ``filter`` to ``*tutorial*``. By
 doing so, the only test plans that will be displayed are the one whose
-``id`` contain the word ``TODO``. Note the use of the ``*`` `glob pattern
+``id`` contain the word ``tutorial``. Note the use of the ``*`` `glob pattern
 <https://en.wikipedia.org/wiki/Glob_(programming)>`_, similar to Bash for
 instance.
 
-Try replacing ``*TODO*`` with ``*wireless*`` and see how it affects the
+Try replacing ``*tutorial*`` with ``*wireless*`` and see how it affects the
 list of test plans displayed in Checkbox.
 
 Select a test plan by default
 =============================
 
-Set the filter back to ``*TODO*`` in the ``[test plan]`` section and add
+Set the filter back to ``*tutorial*`` in the ``[test plan]`` section and add
 the following line:
 
 .. code-block:: none
@@ -71,12 +71,12 @@ the following line:
     app_id = com.canonical.certification:tutorial
 
     [test plan]
-    filter = *TODO*
-    unit = com.canonical.certification::smoke
+    filter = *tutorial*
+    unit = com.canonical.certification::tutorial-base
 
 Start Checkbox using the launcher. In addition to filtering the list of test
-plans, the TODO test plan is now selected by default. You just need to press
-``Enter`` to go to the test selection screen.
+plans, the "Checkbox Base Tutorial" test plan is now selected by default.
+You just need to press ``Enter`` to go to the test selection screen.
 
 Bypass test plan and test selection screens
 ===========================================
@@ -96,7 +96,7 @@ screen. Modify your launcher so it looks like that:
     app_id = com.canonical.certification:tutorial
 
     [test plan]
-    unit = com.canonical.certification::TODO
+    unit = com.canonical.certification::tutorial-base
     forced = yes
 
     [test selection]
@@ -109,11 +109,11 @@ Run Checkbox with this modified version of the launcher:
     $ checkbox.checkbox-cli launcher mylauncher
 
 Notice how none of the initial screens are shown and Checkbox immediately
-runs the TODO test plan. This is because:
+runs the "Checkbox Base Tutorial" test plan. This is because:
 
 - in the ``[test plan]`` section, we selected a test plan with ``unit =
-  TODO`` and we forced its use with ``forced = yes``, bypassing the test plan
-  selection screen;
+  com.canonical.certification::tutorial-base`` and we forced its use with
+  ``forced = yes``, bypassing the test plan selection screen;
 - in the ``[test selection]`` section, we forced the selection of all the
   tests, bypassing the test selection screen.
 
@@ -133,17 +133,18 @@ environment variable. Add the following lines in the launcher:
     app_id = com.canonical.certification:tutorial
 
     [test plan]
-    unit = com.canonical.certification::TODO
+    unit = com.canonical.certification::tutorial-base
     forced = yes
 
     [test selection]
     forced = yes
 
     [environment]
-    TUTO = tutorial
+    TUTORIAL = Value from my launcher!
 
-Run Checkbox using your launcher, and observe the output of the TODO test
-case. The output now shows ``tutorial``.
+Run Checkbox using your launcher, and observe the output of the
+``tutorial/environment_variable`` test case. The output now shows ``Value
+from my launcher!``.
 
 The ``[environment]`` section is often used to provide customized values to
 test cases. For instance, you may have a generic test case to connect to a
@@ -173,14 +174,14 @@ Edit the launcher file:
     stock_reports = text, submission_files
 
     [test plan]
-    unit = com.canonical.certification::TODO
+    unit = com.canonical.certification::tutorial-base
     forced = yes
 
     [test selection]
     forced = yes
 
     [environment]
-    TUTO = tutorial
+    TUTORIAL = Value from my launcher!
 
 Run Checkbox using this launcher and observe that once the test plan is
 finished running, Checkbox generates a summary on the screen and provides
@@ -307,14 +308,14 @@ At the top of the launcher file, add this line:
     stock_reports = text, submission_files
 
     [test plan]
-    unit = com.canonical.certification::TODO
+    unit = com.canonical.certification::tutorial-base
     forced = yes
 
     [test selection]
     forced = yes
 
     [environment]
-    TUTO = tutorial
+    TUTORIAL = Value from my launcher!
 
 Make the launcher executable:
 

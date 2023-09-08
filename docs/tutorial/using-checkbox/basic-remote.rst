@@ -69,10 +69,10 @@ On the agent terminal, you should see something like  ``Using `$USER` user``
 where ``$USER`` is your local user name.
 
 On the controller terminal, you should get the list of test plans available. Go
-ahead and select the *TODO* test plan, keep all the tests selected and start
-the test session by pressing ``T``. All the test cases are being executed,
-then Checkbox generates the usual text summary as well as the submission
-files. Notice how the output is slightly different:
+ahead and select the "Checkbox Base Tutorial" test plan, keep all the tests
+selected and start the test session by pressing ``T``. All the test cases
+are being executed, then Checkbox generates the usual text summary as well
+as the submission files. Notice how the output is slightly different:
 
 .. code-block:: none
 
@@ -117,9 +117,9 @@ other device.
 Launchers in remote mode
 ========================
 
-In remote mode, you can use launchers the same way you did in local mode. If
-you still have the launcher file you created in the Launchers section*TODO*,
-run the following command:
+In remote mode, you can use launchers the same way you did in
+local mode. If you still have the launcher file you created in the
+:ref:`base_tutorial_launcher` section, run the following command:
 
 .. code-block:: none
 
@@ -138,8 +138,8 @@ of them is the interrupt screen. Run Checkbox remote:
 
     checkbox.checkbox-cli remote 127.0.0.1
 
-Select the *TODO* test plan, leave all the jobs selected, and press ``T``
-to start the testing session.
+Select the "Checkbox Base Tutorial" test plan, leave all the jobs selected,
+and press ``T`` to start the testing session.
 
 Now, while the tests are being executed by the agent, press ``Ctrl+C``
 on the controller. You should see a screen like this:

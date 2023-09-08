@@ -36,7 +36,7 @@ Save it, then launch Checkbox using this launcher:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli launcher mylauncher
+    $ checkbox.checkbox-cli launcher mylauncher
 
 The test plan selection screen should be much less intimidating now!
 
@@ -106,7 +106,7 @@ Run Checkbox with this modified version of the launcher:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli launcher mylauncher
+    $ checkbox.checkbox-cli launcher mylauncher
 
 Notice how none of the initial screens are shown and Checkbox immediately
 runs the TODO test plan. This is because:
@@ -227,7 +227,7 @@ Now, run Checkbox without any argument:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli
+    $ checkbox.checkbox-cli
 
 You should see that Checkbox behaves exactly the same as in the previous
 section. It found the configuration from the ``~/.config/checkbox.conf``
@@ -243,10 +243,10 @@ and where it comes from. Run the following command:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli check-config
+    $ checkbox.checkbox-cli check-config
     Configuration files:
      - /var/snap/checkbox/2799/checkbox.conf
-     - /home/pieq/.config/checkbox.conf
+     - /home/user/.config/checkbox.conf
        [config]
          config_filename=checkbox.conf      (Default)
        [launcher]
@@ -320,13 +320,13 @@ Make the launcher executable:
 
 .. code-block:: none
 
-    chmod +x mylauncher
+    $ chmod +x mylauncher
 
 Run it:
 
 .. code-block:: none
 
-    ./mylauncher
+    $ ./mylauncher
 
 Checkbox runs exactly like before! The line we added is called a `shebang
 <https://en.wikipedia.org/wiki/Shebang_(Unix)>`_ and allows us to run

@@ -26,8 +26,13 @@ journey through the product.
 .. toctree::
    :maxdepth: 1
 
-   using-checkbox/basic-launcher
-   using-checkbox/test-output
+   using-checkbox/installing-checkbox
+   using-checkbox/running-checkbox
+   using-checkbox/test-report
+   using-checkbox/launcher
+   using-checkbox/manifest
+   using-checkbox/remote
+   using-checkbox/advanced-commands
 
 Extended tutorial
 -----------------

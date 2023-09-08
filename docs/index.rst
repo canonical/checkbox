@@ -55,11 +55,9 @@ warmly welcomes community projects, contributions, suggestions, fixes and
 constructive feedback.
 
 * This project follows the `Ubuntu Code of Conduct`_
-* :ref:`Get support <home>`
-* :ref:`Join our online chat <home>`
+* :doc:`Get support <community/support>`
 * :doc:`Report bugs <community/bugs>`
 * :doc:`Contribute <community/contributing>`
-* :ref:`Thinking about using Checkbox for your next project? Get in touch! <home>`
 
 
 .. toctree::

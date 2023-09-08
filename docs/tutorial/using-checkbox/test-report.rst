@@ -1,5 +1,6 @@
 .. _test-report:
 
+==================
 Review Test Report 
 ==================
 
@@ -19,7 +20,7 @@ respective contents.
 .. _text-summary:
 
 Text Summary
-------------
+============
 
 You should see a text summary displayed in the console once all jobs are 
 completed. The result of each job is presented in the format: ``outcome: 
@@ -62,7 +63,7 @@ will need to review submission files.
 .. _submission-files:
 
 Submission Files
-----------------
+================
  
 In Checkbox, submission files encompass report files in various formats (HTML, 
 JSON, and JUnit XML) along with attachments like I/O logs and binary files. 

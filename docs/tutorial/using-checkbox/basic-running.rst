@@ -134,8 +134,8 @@ and their outcome automatically set before Checkbox moves on to the next one:
 
 For each job, we can see:
 
-- How many jobs have run (2), and how many jobs there are in total (11)
-- How much estimated time is remaining before the test session is finished (3 minutes)
+- The number of jobs that have run (2) and the total number of jobs scheduled (11)
+- The estimated time before the test session is finished (3 minutes)
 - The summary of the job ("A job that always fails")
 - The unique identifier for this job (``com.canonical.certification::tutorial/failing``)
 - The category identifier the job falls into

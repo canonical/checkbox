@@ -250,25 +250,25 @@ and where it comes from. Run the following command:
        [config]
          config_filename=checkbox.conf      (Default)
        [launcher]
-         app_id=com.canonical.certification:tutorial From config file: /home/pieq/.config/checkbox.conf
+         app_id=com.canonical.certification:tutorial From config file: /home/user/.config/checkbox.conf
          app_version=                       (Default)
-         launcher_version=1                 From config file: /home/pieq/.config/checkbox.conf
+         launcher_version=1                 From config file: /home/user/.config/checkbox.conf
          local_submission=True              (Default)
          session_desc=                      (Default)
          session_title=session title        (Default)
-         stock_reports=text, submission_files From config file: /home/pieq/.config/checkbox.conf
+         stock_reports=text, submission_files From config file: /home/user/.config/checkbox.conf
        [test plan]
          filter=*                           (Default)
-         forced=True                        From config file: /home/pieq/.config/checkbox.conf
-         unit=com.canonical.certification::TODO From config file: /home/pieq/.config/checkbox.conf
+         forced=True                        From config file: /home/user/.config/checkbox.conf
+         unit=com.canonical.certification::TODO From config file: /home/user/.config/checkbox.conf
        [test selection]
          exclude=                           (Default)
-         forced=True                        From config file: /home/pieq/.config/checkbox.conf
+         forced=True                        From config file: /home/user/.config/checkbox.conf
        (...)
        [environment]
          STRESS_S3_WAIT_DELAY=120           From config file: /var/snap/checkbox/2799/checkbox.conf
        (...)
-         TUTO=tutorial                      From config file: /home/pieq/.config/checkbox.conf
+         TUTO=tutorial                      From config file: /home/user/.config/checkbox.conf
        (...)
     No problems with config(s) found!
 

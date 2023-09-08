@@ -59,7 +59,7 @@ class KeyboardListener(threading.Thread):
             self._read_keyboard_events()
 
     def stop(self):
-        """Stop loop."""
+        """Stop loop and close the file."""
         self._keep_running = False
         os.close(self._event_no)
 
@@ -71,7 +71,9 @@ class KeyboardListener(threading.Thread):
         except BlockingIOError:
             return
 
-        _, _, event_type, code, value = struct.unpack(self.EVENT_BIN_FORMAT, data)
+        _, _, event_type, code, value = struct.unpack(
+            self.EVENT_BIN_FORMAT, data
+        )
         if event_type == 1:  # 0x01 is for _kbd_ events
             self._callback((KeyEvent(value), code))
 
@@ -117,7 +119,9 @@ def main(argv):
     Request Zapper to type on keyboard and assert the received events
     are like expected.
     """
-    ZAPPER_KBD = "/dev/input/by-id/usb-Canonical_Zapper_main_board_123456-event-kbd"
+    ZAPPER_KBD = (
+        "/dev/input/by-id/usb-Canonical_Zapper_main_board_123456-event-kbd"
+    )
 
     if len(argv) != 2:
         raise SystemExit("Usage: {} <zapper-ip>".format(argv[0]))

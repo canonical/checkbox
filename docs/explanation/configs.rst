@@ -34,8 +34,8 @@ value resolution is as follows:
 3. config file from ``/etc/xdg``
 4. config file from ``$SNAP_DATA``
 
-Check the configuration
-=======================
+Configuration checker
+=====================
 
 The values resolution order and the fact that configurations can be stored in
 so many different places may bring confusion when running Checkbox.
@@ -55,11 +55,12 @@ For example:
 
     Configuration files:
      - /var/snap/checkbox/2799/checkbox.conf
+     - /home/user/.config/checkbox.conf
        [config]
          config_filename=checkbox.conf      (Default)
        (...)
        [test plan]
-         filter=*                           (Default)
+         filter=*wireless*                  From config file: /home/user/.config/checkbox.conf
          forced=False                       (Default)
          unit=                              (Default)
        [test selection]
@@ -71,6 +72,31 @@ For example:
        (...)
        [manifest]
     No problems with config(s) found!
+
+A configuration file may have errors. Consider the following ``checkbox.conf``
+placed in ``/home/user/.config/``:
+
+.. code-block:: none
+
+    [tset plan]
+    filter = *wireless*
+
+    [test selection]
+    wrong_var = example
+
+When running the ``check-config`` command, the following will be reported:
+
+.. code-block:: none
+
+    Problems:
+    -  Unexpected section [tset plan]. Origin: /home/user/.config/checkbox.conf
+    -  Unexpected variable 'wrong_var' in section [test selection] Origin: /home/user/.config/checkbox.conf
+
+Indeed, there is a typo in the name of the ``[test plan]`` section, and
+a unknown variable is set in the ``[test selection]`` section. For more
+information on the available sections and variables, please check the
+:ref:`launcher` reference.
+
 
 Configs with Checkbox Remote
 ============================

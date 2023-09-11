@@ -308,16 +308,13 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def _get_install_source_cmds(self):
         if self.config.alias in ["xenial", "bionic"]:
-            # pip<20 does not support editable install without a setup.py file
             return [
                 (
                     "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
-                    'echo "from setuptools import setup; setup()" > setup.py;'
                     "sudo python3 -m pip install -e .'"
                 ),
                 (
                     "bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
-                    'echo "from setuptools import setup; setup()" > setup.py;'
                     "sudo python3 -m pip install -e .'"
                 ),
                 # ensure these two are at the correct version to support xenial

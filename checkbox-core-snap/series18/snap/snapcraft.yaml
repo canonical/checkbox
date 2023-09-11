@@ -177,8 +177,6 @@ parts:
       # 22.04 (i.e base: core22)
       sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' $SNAPCRAFT_STAGE/lib/python3.*/site-packages/**/**/distro.py
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
@@ -206,8 +204,6 @@ parts:
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     after: [checkbox-support]
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version

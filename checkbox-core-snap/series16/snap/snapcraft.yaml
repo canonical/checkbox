@@ -173,8 +173,6 @@ parts:
     override-build: |
       # this is a bodge to be backward compatible
       snapcraftctl build
-      # setup.py is necessary for this old pip verision
-      echo "from setuptools import setup; setup()" > setup.py
       # update pip and setuptools (+deps) because the directive
       # is ignored in pyproject (and pip on xenial is preinstalled 8.x)
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"
@@ -216,8 +214,6 @@ parts:
     override-build: |
       # this is a bodge to be backward compatible
       snapcraftctl build
-      # setup.py is necessary for this old pip verision
-      echo "from setuptools import setup; setup()" > setup.py
       # update pip and setuptools (+deps) because the directive
       # is ignored in pyproject (and pip on xenial is preinstalled 8.x)
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pip<21" "setuptools<48" "setuptools_scm[toml]>=3.4" "importlib_metadata==1.0.0" "zipp<2"

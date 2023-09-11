@@ -82,26 +82,30 @@ def main():
                 )
             )
 
+        # pre-release versions (for us, not tagged daily versions) on LP are denoted
+        # with ~dev[...] not .dev[...] as setuptools_scm marks them
+        new_version = args.new_version.replace(".dev", "~dev")
+
         text = build_recipe.recipe_text
         # 0.28.0rc1 → 0.28.0~rc1
-        deb_version = re.sub(r"(rc\d+)$", "~\g<0>", args.new_version)
+        deb_version = re.sub(r"(rc\d+)$", "~\g<0>", new_version)
         # 0.28.0rc1 → 0.28.0_rc1
-        deb_tag = re.sub(r"(rc\d+)$", "_\g<0>", args.new_version)
+        deb_tag = re.sub(r"(rc\d+)$", "_\g<0>", new_version)
         text = re.sub(
             r"deb-version .*?~ppa",
             "deb-version {}~ppa".format(deb_version),
             text,
         )
         # v0.27.0 → v0.28.0rc1
-        text = re.sub(r"\bv\d\S+", "v{}".format(args.new_version), text)
+        text = re.sub(r"\bv\d\S+", "v{}".format(new_version), text)
         # debian-0.27.0-1 → debian-0.28.0_rc1-1
         text = re.sub(r"debian-(.*)$", "debian-{}-1".format(deb_tag), text)
         # {debupstream}+{revtime:monorepo}+git{git-commit:monorepo} → version
-        text = re.sub(r"{debupstream}\S+", args.new_version, text)
+        text = re.sub(r"{debupstream}\S+", new_version, text)
         # 2.9.dev38+g896ae8978 → 2.9.dev57+g703bc6517
         text = re.sub(
             r"deb-version \d\S+",
-            "deb-version {}".format(args.new_version),
+            "deb-version {}".format(new_version),
             text,
         )
         build_recipe.recipe_text = text

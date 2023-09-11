@@ -35,21 +35,27 @@ from argparse import ArgumentParser
 
 
 def main():
-    parser = ArgumentParser('Invoke a recipe build on specified branch')
-    parser.add_argument('project',
-                        help="Unique name of the project")
-    parser.add_argument('--recipe', '-r',
-                        help="Recipe name to build with. If there is only one "
-                             "then that will be used by default, if not then "
-                             "this must be specified.")
-    parser.add_argument('--new-version', '-n',
-                        help="New version to use in the recipe "
-                             "(for debian changelog) and bzr tags.")
+    parser = ArgumentParser("Invoke a recipe build on specified branch")
+    parser.add_argument("project", help="Unique name of the project")
+    parser.add_argument(
+        "--recipe",
+        "-r",
+        help="Recipe name to build with. If there is only one "
+        "then that will be used by default, if not then "
+        "this must be specified.",
+    )
+    parser.add_argument(
+        "--new-version",
+        "-n",
+        help="New version to use in the recipe "
+        "(for debian changelog) and bzr tags.",
+    )
     args = parser.parse_args()
 
     credentials = Credentials.from_string(os.getenv("LP_CREDENTIALS"))
     lp = Launchpad(
-        credentials, None, None, service_root='production', version='devel')
+        credentials, None, None, service_root="production", version="devel"
+    )
     try:
         project = lp.projects[args.project]
     except KeyError:
@@ -72,25 +78,32 @@ def main():
                 "I don't know which recipe from "
                 "{project} you want to use, specify "
                 "one of '{recipes}' using --recipe".format(
-                    project=args.project,
-                    recipes=', '.join(all_recipe_names)))
+                    project=args.project, recipes=", ".join(all_recipe_names)
+                )
+            )
 
         text = build_recipe.recipe_text
         # 0.28.0rc1 → 0.28.0~rc1
         deb_version = re.sub(r"(rc\d+)$", "~\g<0>", args.new_version)
         # 0.28.0rc1 → 0.28.0_rc1
         deb_tag = re.sub(r"(rc\d+)$", "_\g<0>", args.new_version)
-        text = re.sub(r"deb-version .*?~ppa", "deb-version {}~ppa".format(
-            deb_version), text)
+        text = re.sub(
+            r"deb-version .*?~ppa",
+            "deb-version {}~ppa".format(deb_version),
+            text,
+        )
         # v0.27.0 → v0.28.0rc1
         text = re.sub(r"\bv\d\S+", "v{}".format(args.new_version), text)
         # debian-0.27.0-1 → debian-0.28.0_rc1-1
         text = re.sub(r"debian-(.*)$", "debian-{}-1".format(deb_tag), text)
-        # {debupstream}+{revtime:monorepo}+git{git-commit:monorepo} → 2.9.dev38+g896ae8978
+        # {debupstream}+{revtime:monorepo}+git{git-commit:monorepo} → version
         text = re.sub(r"{debupstream}\S+", args.new_version, text)
         # 2.9.dev38+g896ae8978 → 2.9.dev57+g703bc6517
-        text = re.sub(r"deb-version \d\S+", "deb-version {}".format(
-            args.new_version), text)
+        text = re.sub(
+            r"deb-version \d\S+",
+            "deb-version {}".format(args.new_version),
+            text,
+        )
         build_recipe.recipe_text = text
         build_recipe.lp_save()
         if build_recipe:
@@ -99,10 +112,13 @@ def main():
                     build_recipe.requestBuild(
                         pocket="Release",
                         distroseries=series,
-                        archive=build_recipe.daily_build_archive_link)
+                        archive=build_recipe.daily_build_archive_link,
+                    )
                 except BadRequest:
-                    print("An identical build of this recipe is "
-                          "already pending")
+                    print(
+                        "An identical build of this recipe is "
+                        "already pending"
+                    )
         print("Check builds status: " + build_recipe.web_link)
 
 

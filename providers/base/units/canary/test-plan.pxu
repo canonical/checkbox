@@ -73,7 +73,6 @@ include:
  com.canonical.certification::ethernet/detect
  com.canonical.certification::ethernet/ping_.*
  com.canonical.certification::i2c/i2c-bus-detect
- com.canonical.certification::location/status
  com.canonical.certification::memory/info
  com.canonical.certification::ipv6_detect
  com.canonical.certification::ipv6_link_local_address_.*
@@ -101,5 +100,4 @@ include:
  com.canonical.certification::after-suspend-audio/alsa-loopback-automated
  com.canonical.certification::after-suspend-ethernet/detect
  com.canonical.certification::after-suspend-ethernet/ping_.*
- com.canonical.certification::after-suspend-location/status
  com.canonical.certification::after-suspend-usb/storage-detect

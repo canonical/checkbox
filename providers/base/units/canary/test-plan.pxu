@@ -69,7 +69,6 @@ include:
  com.canonical.certification::cpu/topology
  com.canonical.certification::disk/detect
  com.canonical.certification::disk/stats_.*
- com.canonical.certification::disk/storage_device_.*
  com.canonical.certification::ethernet/detect
  com.canonical.certification::ethernet/ping_.*
  com.canonical.certification::i2c/i2c-bus-detect

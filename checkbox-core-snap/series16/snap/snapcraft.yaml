@@ -147,9 +147,6 @@ parts:
       - python3-systemd
       - python3-setuptools
       - libbluetooth3
-        #python-packages:
-        #- pynmea2
-        #- pybluez
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
@@ -184,6 +181,8 @@ parts:
       # so it must be changed to the appropriate one (/usr/bin/env python3) that
       # we could not use here
       sed -iE 's|\#\!.*/usr/bin/python3$|#!/usr/bin/env python3|' $SNAPCRAFT_PART_INSTALL/usr/bin/*
+      # remove pip from this part because else snapcraft considers it
+      # clashing with the one that checkbox-ng installs
       $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip uninstall -y pip
 ################################################################################
   checkbox-ng:

@@ -851,6 +851,7 @@ class LXDTest_vm(object):
         """
         wait_interval = 5
         test_interval = 300
+        start_interval = 120
 
         result = self.setup()
         if not result:
@@ -881,6 +882,8 @@ class LXDTest_vm(object):
             return False
 
         logging.debug("Wait for vm to boot")
+        # Wait for 2 minutes before checking if the VM has booted
+        time.sleep(start_interval)
         check_vm = 0
         while check_vm < test_interval:
             time.sleep(wait_interval)

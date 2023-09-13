@@ -144,10 +144,10 @@ parts:
     source-type: local
     stage-packages:
       - python3-dbus
+      - python3-dev
       - python3-evdev
       - python3-gi
       - python3-natsort
-      - python3-psutil
       - python3-requests-unixsocket
       - python3-serial
       - python3-setuptools
@@ -173,7 +173,10 @@ parts:
     override-pull: |
       snapcraftctl pull
     build-packages:
+      - gcc
       - libbluetooth-dev
+      - python3-dev
+      - python3-pip
     override-build: |
       # we need a new version of pip and setuptools + dependencies
       # these have an hardcoded version because we need a combination that is
@@ -200,6 +203,7 @@ parts:
       - python3-urwid
       - python3-xlsxwriter
       - python3-setuptools
+      - python3-dev
     python-packages:
       - tqdm
     after: [checkbox-support]

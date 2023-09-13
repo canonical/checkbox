@@ -160,7 +160,7 @@ parts:
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     after:
       - version-calculator
-        #- acpi-tools
+      - acpi-tools
     override-stage: |
       snapcraftctl stage
       # The oneliner below was required in 2019 to fix an upstream bug:
@@ -175,7 +175,9 @@ parts:
     build-packages:
       - libbluetooth-dev
     override-build: |
-      # this is a bodge to be backward compatible
+      # we need a new version of pip and setuptools + dependencies
+      # these have an hardcoded version because we need a combination that is
+      # compatible with python 3.5.1 (note the `.1`)
       /usr/bin/pip3 install --prefix $SNAPCRAFT_PART_INSTALL --upgrade "pip==20.3.4" "setuptools<48" "setuptools_scm[toml]==3.4.3" "importlib_metadata==1.0.0" "zipp<2" "pynmea2" "pybluez"
       snapcraftctl build
       # install the dependencies of checkbox-support itself because this
@@ -205,7 +207,9 @@ parts:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      # this is a bodge to be backward compatible
+      # we need a new version of pip and setuptools + dependencies
+      # these have an hardcoded version because we need a combination that is
+      # compatible with python 3.5.1 (note the `.1`)
       /usr/bin/pip3 install --prefix $SNAPCRAFT_PART_INSTALL --upgrade "pip==20.3.4" "setuptools<48" "setuptools_scm[toml]==3.4.3" "importlib_metadata==1.0.0" "zipp<2"
       snapcraftctl build
       # install the dependencies of checkbox-support itself because this

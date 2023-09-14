@@ -12,12 +12,14 @@ unit: test plan
 _name: Automated Ubuntu Core OS feature tests
 _description: Automated OS feature tests for Ubuntu Core devices
 bootstrap_include:
-    kernel_revision_info
+    snap_revision_info
 include:
-    ubuntucore/kernel-refresh-.*
-    ubuntucore/kernel-verify-after-refresh-.*
-    ubuntucore/kernel-revert-.*
-    ubuntucore/kernel-verify-after-revert-.*
+    ubuntucore/snap-refresh-kernel-.*-stable-rev
+    ubuntucore/reboot-after-snap-refresh-kernel-.*-stable-rev
+    ubuntucore/snap-verify-after-refresh-kernel-.*-stable-rev
+    ubuntucore/snap-revert-kernel-.*-stable-rev
+    ubuntucore/reboot-after-snap-revert-kernel-.*-stable-rev
+    ubuntucore/snap-verify-after-revert-kernel-.*-stable-rev
 
 id: ubuntucore-manual
 unit: test plan

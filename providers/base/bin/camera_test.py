@@ -93,6 +93,7 @@ class v4l2_capability(ctypes.Structure):
 
 # Values for 'capabilities' field
 V4L2_CAP_VIDEO_CAPTURE = 0x00000001
+V4L2_CAP_VIDEO_CAPTURE_MPLANE = 0x00001000
 V4L2_CAP_VIDEO_OVERLAY = 0x00000004
 V4L2_CAP_READWRITE = 0x01000000
 V4L2_CAP_STREAMING = 0x04000000
@@ -193,8 +194,10 @@ class CameraTest:
                 "    version: %s.%s.%s"
                 % (cp.version >> 16, (cp.version >> 8) & 0xff,
                    cp.version & 0xff))
+            capture_cability = cp.capabilities & V4L2_CAP_VIDEO_CAPTURE or \
+                cp.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE
             print("    flags  : 0x%x [" % cp.capabilities,
-                  ' CAPTURE' if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE
+                  ' CAPTURE' if capture_cability
                   else '',
                   ' OVERLAY' if cp.capabilities & V4L2_CAP_VIDEO_OVERLAY
                   else '',
@@ -211,8 +214,9 @@ class CameraTest:
             resolutions = resolutions.replace("Format:", "    Format:")
             print(resolutions)
 
-            if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE:
+            if capture_cability:
                 cap_status = 0
+
         return dev_status | cap_status
 
     def _stop(self):

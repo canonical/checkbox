@@ -32,3 +32,90 @@ include:
     ubuntucore/os-recovery-mode
     ubuntucore/os-fail-boot-(?!with-refresh-control).*
     ubuntucore/sshd
+
+id: ubuntucore-kernel-snap-refresh-revert
+unit: test plan
+_name: Kernel snap refresh and revert automated tests
+_description:
+ This test plan will:
+ - simulate fresh install snap refresh by first refreshing to the base revision
+ of the kernel snap
+ - revert to the version used (usually revision from beta channel if used in
+ the snap-update-verification process)
+ - refresh to the previous stable version
+ - revert to version used
+ This test plan is useful for devices that cannot be provisioned easily in the
+ lab.
+bootstrap_include:
+    snap_revision_info
+include:
+    ubuntucore/snap-refresh-kernel-.*-base-rev
+    ubuntucore/reboot-after-snap-refresh-kernel-.*-base-rev
+    ubuntucore/snap-verify-after-refresh-kernel-.*-base-rev
+    ubuntucore/snap-revert-kernel-.*-base-rev
+    ubuntucore/reboot-after-snap-revert-kernel-.*-base-rev
+    ubuntucore/snap-verify-after-revert-kernel-.*-base-rev
+    ubuntucore/snap-refresh-kernel-.*-stable-rev
+    ubuntucore/reboot-after-snap-refresh-kernel-.*-stable-rev
+    ubuntucore/snap-verify-after-refresh-kernel-.*-stable-rev
+    ubuntucore/snap-revert-kernel-.*-stable-rev
+    ubuntucore/reboot-after-snap-revert-kernel-.*-stable-rev
+    ubuntucore/snap-verify-after-revert-kernel-.*-stable-rev
+
+id: ubuntucore-snapd-snap-refresh-revert
+unit: test plan
+_name: Snapd snap refresh and revert automated tests
+_description:
+ This test plan will:
+ - simulate fresh install snap refresh by first refreshing to the base revision
+ of the snapd snap
+ - revert to the version used (usually revision from beta channel if used in
+ the snap-update-verification process)
+ - refresh to the previous stable version
+ - revert to version used
+ This test plan is useful for devices that cannot be provisioned easily in the
+ lab.
+bootstrap_include:
+    snap_revision_info
+include:
+    ubuntucore/snap-refresh-snapd-.*-base-rev
+    ubuntucore/reboot-after-snap-refresh-snapd-.*-base-rev
+    ubuntucore/snap-verify-after-refresh-snapd-.*-base-rev
+    ubuntucore/snap-revert-snapd-.*-base-rev
+    ubuntucore/reboot-after-snap-revert-snapd-.*-base-rev
+    ubuntucore/snap-verify-after-revert-snapd-.*-base-rev
+    ubuntucore/snap-refresh-snapd-.*-stable-rev
+    ubuntucore/reboot-after-snap-refresh-snapd-.*-stable-rev
+    ubuntucore/snap-verify-after-refresh-snapd-.*-stable-rev
+    ubuntucore/snap-revert-snapd-.*-stable-rev
+    ubuntucore/reboot-after-snap-revert-snapd-.*-stable-rev
+    ubuntucore/snap-verify-after-revert-snapd-.*-stable-rev
+
+id: ubuntucore-gadget-snap-refresh-revert
+unit: test plan
+_name: Gadget snap refresh and revert automated tests
+_description:
+ This test plan will:
+ - simulate fresh install snap refresh by first refreshing to the base revision
+ of the gadget snap
+ - revert to the version used (usually revision from beta channel if used in
+ the snap-update-verification process)
+ - refresh to the previous stable version
+ - revert to version used
+ This test plan is useful for devices that cannot be provisioned easily in the
+ lab.
+bootstrap_include:
+    snap_revision_info
+include:
+    ubuntucore/snap-refresh-gadget-.*-base-rev
+    ubuntucore/reboot-after-snap-refresh-gadget-.*-base-rev
+    ubuntucore/snap-verify-after-refresh-gadget-.*-base-rev
+    ubuntucore/snap-revert-gadget-.*-base-rev
+    ubuntucore/reboot-after-snap-revert-gadget-.*-base-rev
+    ubuntucore/snap-verify-after-revert-gadget-.*-base-rev
+    ubuntucore/snap-refresh-gadget-.*-stable-rev
+    ubuntucore/reboot-after-snap-refresh-gadget-.*-stable-rev
+    ubuntucore/snap-verify-after-refresh-gadget-.*-stable-rev
+    ubuntucore/snap-revert-gadget-.*-stable-rev
+    ubuntucore/reboot-after-snap-revert-gadget-.*-stable-rev
+    ubuntucore/snap-verify-after-revert-gadget-.*-stable-rev

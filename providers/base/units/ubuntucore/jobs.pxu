@@ -153,80 +153,201 @@ _verification:
  "failboot" kernel
 category_id: ubuntucore
 
-id: kernel_revision_info
+id: snap_revision_info
 plugin: resource
-_summary: Gather the name, tracking, and revision info of the kernel snap
+_summary:
+ Gather name, tracking, and revision info of the kernel, snapd and gadget snaps
 estimated_duration: 3s
 command:
-    kernel_snap_test.py --resource
+    snap_update_test.py --resource
 
 unit: template
-template-resource: kernel_revision_info
+template-resource: snap_revision_info
 template-unit: job
-id: ubuntucore/kernel-refresh-{kernel_name}
-_summary: Test refreshing kernel snap to the stable channel
+id: ubuntucore/snap-refresh-{type}-{name}-to-stable-rev
+_summary: Refresh {name} snap to latest revision in stable channel
 _description:
-    This test is currently for SUV process, the kernel to be tested is on
+    This test is currently for SUV process, the snap to be tested is on
     the beta channel. Test the availability to refresh to the older version
     on the stable channel. This test will be excuted only when the current
     installed revision (on beta channel) is different from the revsion in
     stable channel.
 plugin: shell
+estimated_duration: 1m
+category_id: ubuntucore
+user: root
+imports: from com.canonical.certification import snap_revision_info
+command:
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --refresh --rev {stable_rev} --info-path "$path" {name}
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/reboot-after-snap-refresh-{type}-{name}-to-stable-rev
+_summary: Reboot after {name} snap refresh to latest revision in stable channel
+plugin: shell
+flags: noreturn autorestart
 estimated_duration: 3m
 category_id: ubuntucore
 user: root
-imports: from com.canonical.certification import kernel_revision_info
-requires:
-    kernel_revision_info.stable_rev != ""
-    kernel_revision_info.original_installed_rev != kernel_revision_info.stable_rev
-flags: noreturn autorestart
+depends: ubuntucore/snap-refresh-{type}-{name}-to-stable-rev
 command:
-    path="$PLAINBOX_SESSION_SHARE/kernel_revision_info"
-    kernel_snap_test.py --refresh --info-path "$path"
+    echo "Waiting 90s for any snap operation to finish before rebooting..."
     sleep 90
     reboot
 
 unit: template
-template-resource: kernel_revision_info
+template-resource: snap_revision_info
 template-unit: job
-id: ubuntucore/kernel-verify-after-refresh-{kernel_name}
-_summary: Verify the kernel revision after refreshing to stable channel
+id: ubuntucore/snap-verify-after-refresh-{type}-{name}-to-stable-rev
+_summary: Verify {name} snap revision after refreshing to latest revision in stable channel
 plugin: shell
-estimated_duration: 3s
+estimated_duration: 30s
 category_id: ubuntucore
 user: root
-depends: ubuntucore/kernel-refresh-{kernel_name}
+depends: ubuntucore/reboot-after-snap-refresh-{type}-{name}-to-stable-rev
 command:
-    path="$PLAINBOX_SESSION_SHARE/kernel_revision_info"
-    kernel_snap_test.py --verify-refresh --info-path "$path"
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --verify-refresh --info-path "$path" {name}
 
 unit: template
-template-resource: kernel_revision_info
+template-resource: snap_revision_info
 template-unit: job
-id: ubuntucore/kernel-revert-{kernel_name}
-_summary: Revert kernel snap to the original revision
+id: ubuntucore/snap-revert-{type}-{name}-from-stable-rev
+_summary: Revert {name} snap to original revision from stable channel
 plugin: shell
 estimated_duration: 3m
 category_id: ubuntucore
 user: root
-depends: ubuntucore/kernel-verify-after-refresh-{kernel_name}
-flags: noreturn autorestart
+depends: ubuntucore/snap-verify-after-refresh-{type}-{name}-to-stable-rev
 command:
-    path="$PLAINBOX_SESSION_SHARE/kernel_revision_info"
-    kernel_snap_test.py --revert --info-path "$path"
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --revert --info-path "$path" {name}
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/reboot-after-snap-revert-{type}-{name}-from-stable-rev
+_summary: Reboot after {name} snap reverting to latest revision in stable channel
+plugin: shell
+flags: noreturn autorestart
+estimated_duration: 3m
+category_id: ubuntucore
+user: root
+depends: ubuntucore/snap-revert-{type}-{name}-from-stable-rev
+command:
+    echo "Waiting 90s for any snap operation to finish before rebooting..."
     sleep 90
     reboot
 
 unit: template
-template-resource: kernel_revision_info
+template-resource: snap_revision_info
 template-unit: job
-id: ubuntucore/kernel-verify-after-revert-{kernel_name}
-_summary: Verify the kernel revision after reverting
+id: ubuntucore/snap-verify-after-revert-{type}-{name}-from-stable-rev
+_summary: Verify {name} snap revision after reverting from stable revision
 plugin: shell
 estimated_duration: 3s
 category_id: ubuntucore
 user: root
-depends: ubuntucore/kernel-revert-{kernel_name}
+depends: ubuntucore/reboot-after-snap-revert-{type}-{name}-from-stable-rev
 command:
-    path="$PLAINBOX_SESSION_SHARE/kernel_revision_info"
-    kernel_snap_test.py --verify-revert --info-path "$path"
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --verify-revert --info-path "$path" {name}
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/snap-refresh-{type}-{name}-to-base-rev
+_summary: Refresh {name} snap to its base revision
+_description:
+    This test is currently for SUV process, the snap to be tested is on
+    the beta channel. Test the availability to refresh to the base revision
+    (the revision that came with the image). This test will be excuted only
+    when the current installed revision (on beta channel) is different from the
+    base revision.
+    This job (and the jobs depending on it) are useful when the device cannot
+    be reprovisioned easily, but you still want to simulate a fresh install
+    that would bump to the latest revision available.
+plugin: shell
+estimated_duration: 3m
+category_id: ubuntucore
+user: root
+imports: from com.canonical.certification import snap_revision_info
+command:
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --refresh --rev {base_rev} --info-path "$path" {name}
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/reboot-after-snap-refresh-{type}-{name}-to-base-rev
+_summary: Reboot after {name} snap refresh to base revision
+plugin: shell
+flags: noreturn autorestart
+estimated_duration: 3m
+category_id: ubuntucore
+user: root
+depends: ubuntucore/snap-refresh-{type}-{name}-to-base-rev
+command:
+    echo "Waiting 90s for any snap operation to finish before rebooting..."
+    sleep 90
+    reboot
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/snap-verify-after-refresh-{type}-{name}-to-base-rev
+_summary: Verify {name} snap revision after refreshing to base revision
+plugin: shell
+estimated_duration: 30s
+category_id: ubuntucore
+user: root
+depends: ubuntucore/reboot-after-snap-refresh-{type}-{name}-to-base-rev
+command:
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --verify-refresh --info-path "$path" {name}
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/snap-revert-{type}-{name}-from-base-rev
+_summary: Revert {name} snap from base revision to original revision
+plugin: shell
+estimated_duration: 3m
+category_id: ubuntucore
+user: root
+depends: ubuntucore/snap-verify-after-refresh-{type}-{name}-to-base-rev
+command:
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --revert --info-path "$path" {name}
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/reboot-after-snap-revert-{type}-{name}-from-base-rev
+_summary: Reboot after {name} snap revert to base revision
+plugin: shell
+flags: noreturn autorestart
+estimated_duration: 3m
+category_id: ubuntucore
+user: root
+depends: ubuntucore/snap-revert-{type}-{name}-from-base-rev
+command:
+    echo "Waiting 90s for any snap operation to finish before rebooting..."
+    sleep 90
+    reboot
+
+unit: template
+template-resource: snap_revision_info
+template-unit: job
+id: ubuntucore/snap-verify-after-revert-{type}-{name}-from-base-rev
+_summary: Verify {name} snap revision after reverting from base revision
+plugin: shell
+estimated_duration: 3s
+category_id: ubuntucore
+user: root
+depends: ubuntucore/reboot-after-snap-revert-{type}-{name}-from-base-rev
+command:
+    path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
+    snap_update_test.py --verify-revert --info-path "$path" {name}

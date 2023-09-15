@@ -106,7 +106,7 @@ def main():
                     recipes_name, new_version),
                 shell=True, check=True).stdout.decode().rstrip()
             print(output)
-            to_check.append(recipes_name)
+            to_check.append(package_name)
 
     checked = [(name, check_build(name)) for name in to_check]
     for name, ok in checked:

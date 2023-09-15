@@ -16,7 +16,7 @@ estimated_duration: 5
 environ: TOTAL_MTD_COUNT
 command:
   if [ -z "$TOTAL_MTD_COUNT" ]; then
-    echo "Missing the 'TOTAL_MTD_COUNT' environment variable. Please define it in the [environment] section of your Checkbox configuration.
+    echo "Missing the 'TOTAL_MTD_COUNT' environment variable. Please define it in the [environment] section of your Checkbox configuration."
     exit 1
   fi
   mtd.sh count "$TOTAL_MTD_COUNT"

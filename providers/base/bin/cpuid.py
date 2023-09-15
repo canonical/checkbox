@@ -203,7 +203,7 @@ def main():
     complete = False
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:
-            if value in my_id:
+            if value.lower() in my_id.lower():
                 print("CPUID: %s which appears to be a %s processor" %
                       (my_id, key))
                 complete = True

@@ -1,9 +1,9 @@
 .PHONY:
-all: alsa_test clocktest threaded_memtest
+all: alsa_test clocktest threaded_memtest ptrace-test
 
 .PHONY: clean
 clean:
-	rm -f alsa_test clocktest threaded_memtest
+	rm -f alsa_test clocktest threaded_memtest ptrace_test
 
 threaded_memtest: CFLAGS += -pthread
 threaded_memtest: CFLAGS += -Wno-unused-but-set-variable

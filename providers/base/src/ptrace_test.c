@@ -1,0 +1,13 @@
+#include <sys/ptrace.h>
+#include <stdio.h>
+
+int main() {
+    if (ptrace(PTRACE_TRACEME, 0, 1, 0) < 0) {
+        // if ptrace() call return a negative value -> fail (or program is already beeing ptraced?)
+        printf("NOK");
+        return 1;
+    }
+
+    printf("OK");
+    return 0;
+}

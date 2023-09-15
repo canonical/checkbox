@@ -1,0 +1,7 @@
+plugin: shell
+id: tracers/ptrace
+command: ptrace_test
+_summary:
+ Tests the ptrace tracer availability
+_description:
+ Runs a test for ptrace tracer availability.

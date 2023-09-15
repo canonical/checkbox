@@ -177,6 +177,8 @@ estimated_duration: 1m
 category_id: ubuntucore
 user: root
 imports: from com.canonical.certification import snap_revision_info
+requires:
+ (snap_revision_info.name == "{name}") and snap_revision_info.stable_rev != snap_revision_info.original_installed_rev
 command:
     path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
     snap_update_test.py --refresh --rev {stable_rev} --info-path "$path" {name}
@@ -274,6 +276,8 @@ estimated_duration: 3m
 category_id: ubuntucore
 user: root
 imports: from com.canonical.certification import snap_revision_info
+requires:
+ (snap_revision_info.name == "{name}") and snap_revision_info.base_rev != snap_revision_info.original_installed_rev
 command:
     path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
     snap_update_test.py --refresh --rev {base_rev} --info-path "$path" {name}

@@ -512,12 +512,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         failing_outcomes = (
             IJobResult.OUTCOME_FAIL,
             IJobResult.OUTCOME_CRASH,
-            # Outcome may be still set to `None`. It may  happen if the job
-            # was interrupted or crashed hasn't been properly registered (yet)
-            None,
         )
         self._has_anything_failed = any(
-            job.result.outcome in (None, "fail", "crashed")
+            job.result.outcome in failing_outcomes
             for job in job_state_map.values()
         )
 

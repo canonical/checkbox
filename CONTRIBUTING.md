@@ -283,6 +283,9 @@ status will then switch to “Merged”.
 [Read the Docs]. It is written using the [reStructuredText] format and built
 using [Sphinx].
 
+The documentation should follow the [style guide] in use for documentation
+at Canonical. Please refer to it when proposing a change.
+
 To install everything you need, go to the `docs/` directory and type:
 
 ```
@@ -334,3 +337,4 @@ changes using a pull request.
 [Read the Docs]: https://www.readthedocs.com/
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
 [Sphinx]: https://www.sphinx-doc.org/
+[style guide]: https://docs.ubuntu.com/styleguide/en

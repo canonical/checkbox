@@ -2,8 +2,8 @@
 
 ## Introduction
 
-This document provides the information needed to contribute to Checkbox
-and its providers.
+This document provides the information needed to contribute to Checkbox,
+its providers and its documentation.
 
 ## General recommendations
 
@@ -277,6 +277,46 @@ the main branch of the main repository. Ask a member of the Checkbox team to do
 this. The branch should be then shortly automatically merged. The pull request
 status will then switch to “Merged”.
 
+## Documentation
+
+[Checkbox documentation] lives in the `docs/` directory and is deployed on
+[Read the Docs]. It is written using the [reStructuredText] format and built
+using [Sphinx].
+
+The documentation should follow the [style guide] in use for documentation
+at Canonical. Please refer to it when proposing a change.
+
+To install everything you need, go to the `docs/` directory and type:
+
+```
+make install
+```
+
+This will create a virtual environment with all the tooling dedicated to
+output and validate the documentation.
+
+To get a live preview of the documentation, you can then run:
+
+```
+make run
+```
+
+This will provide a link to a locally rendered version of the documentation
+that will be updated every time a file is modified.
+
+Finally, you can validate your changes with:
+
+```
+make spelling  # to make sure there is no typos
+make linkcheck # to make sure there are no dead links
+make woke      # to check for non-inclusive language
+```
+
+***Note:*** Please make sure you wrap the text at 80 characters for easier
+review of the source files.
+
+Once all is good, you can submit your documentation change like any other
+changes using a pull request.
 
 [autopep8]: https://pypi.org/project/autopep8/
 [flake8]: https://flake8.pycqa.org/en/latest/
@@ -293,3 +333,8 @@ status will then switch to “Merged”.
 [fork the repository]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
 [configure Git to sync your fork with the original repository.]: https://docs.github.com/en/get-started/quickstart/fork-a-repo#configuring-git-to-sync-your-fork-with-the-original-repository
 [Push your changes]: https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository
+[Checkbox documentation]: https://checkbox.readthedocs.io/
+[Read the Docs]: https://www.readthedocs.com/
+[reStructuredText]: https://docutils.sourceforge.io/rst.html
+[Sphinx]: https://www.sphinx-doc.org/
+[style guide]: https://docs.ubuntu.com/styleguide/en

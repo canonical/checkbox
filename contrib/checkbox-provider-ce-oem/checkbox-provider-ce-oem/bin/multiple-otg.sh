@@ -2,9 +2,16 @@
 
 usb_dr_modes=()
 udc_list=()
+
+# A list "usb_dr_modes" to store the path of "dr_mode"
 mapfile -t usb_dr_modes < <(find "/sys/firmware/devicetree/base/" -name "dr_mode")
+
+# A list "udc_list" to store the "UDC" listed under sysfs
 mapfile -t udc_list < <(ls "/sys/class/udc/")
+
+# Path to mapping UDC and USB node
 device_path="/sys/devices/platform/"
+
 gadget_path="/sys/kernel/config/usb_gadget"
 vid="0xabcd"
 pid="0x1234"
@@ -13,22 +20,44 @@ language="0x409"  # specifically refers to the English language (English-US).
 otg_info() {
     # Mapping following information: 
     # USB port, USB node, working mode(host/device/otg), UDC
+    # Read -c list from checkbox var $OTG
+    # e.g. OTG=USB-C1:11200000 USB-Micro:112a1000
     IFS=' ' read -ra usb_list <<< "$1"
+
+    # For loop to split $OTG by space, we intend to map the USB node 
+    # input by checkbox config to the USB node that exists in the system.
     for usb in "${usb_list[@]}"; do     
+    
+        # Split by ":" and assigne to "port" "node".
         IFS=':' read -r port node <<< "$usb"
+    
+        # For loop to mapping checkbox config to the dr_mode that exist in the system.
         for dr_mode_file in "${usb_dr_modes[@]}"; do
-            # A list of dr_mode in system.
+            
+            # usb_node is the USB node of dr_mode
             usb_node=$(awk -F'[/@]' '{print $(NF-1)}' <<< "$dr_mode_file")
+
+            # otg_mode is the working mode of the USB node. Could be in host/device/otg
             otg_mode=$(tr -d '\0' < "$dr_mode_file")
+
             # The USB ports and nodes input through the checkbox configuration 
-            # will be mapped to the UDC (USB Device Controller) in the system. 
+            # will be mapped to the UDC (USB Device Controller) in the system.
             if [ "$node" == "$usb_node" ]; then
                 echo -e "USB_port: $port"
                 echo -e "USB_Node: $usb_node"
                 echo -e "Mode: $otg_mode"
                 found_udc="None"
+
+                # For loop to mapping UDC to checkbox config
+                # We observed a few patterns on different ARM-based platforms.
                 for udc in "${udc_list[@]}"; do
-                    if [[ "$udc" == *"$usb_node"* ]] || [[ $(find "$device_path" -wholename "*/$udc/$usb_node.xhci") ]]; then
+                    
+                    # UDC name is include USB node.
+                    # UDC name is not the same as USB node, but can find USB node under UDC folder.
+                    # UDC name is not the same as USB node, but can find UDC folder is under the USB node.
+                    if [[ "$udc" == *"$usb_node"* ]] ||
+                       [[ $(find "$device_path" -wholename "*/$udc/$usb_node*") ]] ||
+                       [[ $(find "$device_path" -wholename "*$usb_node*/udc/$udc") ]]; then
                         found_udc="$udc"
                         break
                     fi

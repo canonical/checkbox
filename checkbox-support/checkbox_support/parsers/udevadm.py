@@ -565,10 +565,10 @@ class UdevadmDevice(object):
                 # for the video decoder, encoder, and ISP resize.
                 # Ignore Mediatek v4l2 encoder, decoder, jpeg codec and
                 # image processor 3
-                driver_black_list = ('bcm2835-codec', 'bcm2835-isp',
+                drivers_blocklist = ('bcm2835-codec', 'bcm2835-isp',
                                      'mtk-vcodec-enc', 'mtk-vcodec-dec',
                                      'mtk-jpeg', 'mtk-mdp3')
-                if self.driver not in driver_black_list:
+                if self.driver not in drivers_blocklist:
                     return "CAPTURE"
             # special device for PiCamera
             if self._environment["SUBSYSTEM"] == "vchiq":

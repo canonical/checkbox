@@ -54,4 +54,4 @@ Check the [contributing guide] to learn how to:
 [providers]: https://checkbox.readthedocs.io/en/latest/understanding.html#provider
 [Ubuntu Certification program]: https://ubuntu.com/certified
 [^1]: formerly known as "Checkbox provider" or `plainbox-provider-checkbox`
-[^2]: providers hosted elsewhere (e.g. providers specific to private projects).
+[^2]: beside Checkbox framework bundled providers, providers hosted elsewhere can also be used (e.g. providers specific to private projects).

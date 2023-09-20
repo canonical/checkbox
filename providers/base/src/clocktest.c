@@ -36,24 +36,36 @@ int test_clock_jitter(){
         printf("Single CPU detected. No clock jitter testing necessary.\n");
         return 0;
     }
+    else if (num_cpus < 1) {
+        printf("Get number of cpu failed.\n");
+        return 1;
+    }
 
     printf ("Testing for clock jitter on %u cpus\n", num_cpus);
 
-    time=malloc(num_cpus * sizeof(struct timespec));
+    time = malloc(num_cpus * sizeof(struct timespec));
+    if (time == NULL) {
+        printf("Malloc memory failed.\n");
+        return 1;
+    }
 
     for (iter=0; iter<ITERATIONS; iter++){
         for (cpu=0; cpu < num_cpus; cpu++) {
             CPU_ZERO(&cpumask); CPU_SET(cpu,&cpumask);
-	        if (setaffinity(cpumask) < 0){
-    	        perror ("sched_setaffinity"); return 1;
-    	    }
-    	    /*
-    	     * by yielding this process should get scheduled on the cpu
-        	 * specified by setaffinity
-	         */
-        	sched_yield();
+            if (setaffinity(cpumask) < 0){
+                perror ("sched_setaffinity");
+                free(time);
+                return 1;
+            }
+            /*
+             * by yielding this process should get scheduled on the cpu
+             * specified by setaffinity
+             */
+            sched_yield();
             if (clock_gettime(CLOCK_REALTIME, &time[cpu]) < 0) {
-                perror("clock_gettime"); return 1;
+                perror("clock_gettime");
+                free(time);
+                return 1;
             }
         }
 
@@ -71,13 +83,13 @@ int test_clock_jitter(){
                 iter,jitter,slow_cpu,fast_cpu);
 #endif
 
-    	if (jitter > MAX_JITTER || jitter < -MAX_JITTER){
-	        printf ("ERROR: jitter = %f Jitter must be < 0.2 to pass\n",jitter);
-	        printf ("ERROR: Failed Iteration = %u, Slowest CPU: %u Fastest CPU: %u\n",iter,slow_cpu,fast_cpu);
+        if (jitter > MAX_JITTER || jitter < -MAX_JITTER){
+            printf ("ERROR: jitter = %f Jitter must be < 0.2 to pass\n",jitter);
+            printf ("ERROR: Failed Iteration = %u, Slowest CPU: %u Fastest CPU: %u\n",iter,slow_cpu,fast_cpu);
             failures++;
-    	}
-	    if (jitter > largest_jitter)
-	        largest_jitter = jitter;
+        }
+        if (jitter > largest_jitter)
+            largest_jitter = jitter;
     }
 
     if (failures == 0)
@@ -85,6 +97,7 @@ int test_clock_jitter(){
     else
         printf ("FAILED: %u iterations failed\n",failures);
 
+    free(time);
     return (failures > 0);
 }
 
@@ -94,26 +107,26 @@ int test_clock_jitter(){
  * This should be removed in the future if the new version pans out.
 int test_clock_direction()
 {
-	time_t starttime = 0;
-	time_t stoptime = 0;
-	int sleeptime = 60;
-	float delta = 0;
+    time_t starttime = 0;
+    time_t stoptime = 0;
+    int sleeptime = 60;
+    float delta = 0;
 
-	time(&starttime);
-	sleep(sleeptime);
-	time(&stoptime);
+    time(&starttime);
+    sleep(sleeptime);
+    time(&stoptime);
 
-	delta = (int)stoptime - (int)starttime - sleeptime;
-	printf("clock direction test: start time %d, stop time %d, sleeptime %u, delta %f\n",
-				(int)starttime, (int)stoptime, sleeptime, delta);
-	if (delta != 0)
-	{
-		printf("FAILED\n");
-		return 1;
-	}
-	/// * otherwise * /
-	printf("PASSED\n");
-	return 0;
+    delta = (int)stoptime - (int)starttime - sleeptime;
+    printf("clock direction test: start time %d, stop time %d, sleeptime %u, delta %f\n",
+                (int)starttime, (int)stoptime, sleeptime, delta);
+    if (delta != 0)
+    {
+        printf("FAILED\n");
+        return 1;
+    }
+    /// * otherwise * /
+    printf("PASSED\n");
+    return 0;
 }*/
 
 int test_clock_direction()

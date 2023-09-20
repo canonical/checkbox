@@ -282,15 +282,13 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def _get_install_dependencies_cmds(self):
         # We need any pip version >20 because we use pyproject.toml
-        if self.config.alias in ["xenial", "bionic"]:
-            # Use <21 to get the latest 20 as 21+ is not supported here
-            return ["bash -c 'sudo python3 -m pip install -U \"pip<21\"'"]
-        if self.config.alias not in ["focal", "jammy"]:
-            logger.warning(
-                "Unknown revision dependencies version, installing latest"
-            )
+        pip_version = (
+            '"pip<21"'
+            if self.config.alias in ["xenial", "bionic"]
+            else '"pip>20"'
+        )
         return [
-            "bash -c 'sudo python3 -m pip install -U \"pip>20\"'",
+            "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
         ]
 
     def _get_install_source_cmds(self):

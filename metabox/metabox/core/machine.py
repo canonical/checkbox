@@ -282,52 +282,17 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def _get_install_dependencies_cmds(self):
         # We need any pip version >20 because we use pyproject.toml
-        if self.config.alias in ["xenial", "bionic"]:
-            # Use <21 to get the latest 20 as 21+ is not supported here
-            return [
-                "bash -c 'sudo python3 -m pip install -U \"pip<21\"'",
-                (
-                    # This is here because this pip version does not support
-                    # installing dependencies from pyproject.toml
-                    "bash -c 'sudo python3 -m pip install "
-                    '"pyparsing<3.0.0" "requests<2.26.0" "distro<1.7.0" '
-                    '"requests_unixsocket<=0.3.0" "importlib_metadata<=1.0.0"'
-                    '"packaging<21.0" "psutil<=5.9.5" "requests<2.26.0" '
-                    '"urwid<=2.1.2" "Jinja2<=2.11.3" "XlsxWriter<=3.0.3" '
-                    '"tqdm<4.65.0" "importlib_metadata<=1.0.0"'
-                    "'"
-                ),
-            ]
-        if self.config.alias not in ["focal", "jammy"]:
-            logger.warning(
-                "Unknown revision dependencies version, installing latest"
-            )
+        pip_version = (
+            '"pip<21"'
+            if self.config.alias in ["xenial", "bionic"]
+            else '"pip>20"'
+        )
         return [
-            "bash -c 'sudo python3 -m pip install -U \"pip>20\"'",
+            "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
         ]
 
     def _get_install_source_cmds(self):
-        if self.config.alias in ["xenial", "bionic"]:
-            return [
-                (
-                    "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
-                    "sudo python3 -m pip install -e .'"
-                ),
-                (
-                    "bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
-                    "sudo python3 -m pip install -e .'"
-                ),
-                # ensure these two are at the correct version to support xenial
-                (
-                    "bash -c 'sudo python3 -m "
-                    'pip install importlib_metadata==1.0.0 "zipp<2"\''
-                ),
-            ]
-        if self.config.alias not in ["focal", "jammy"]:
-            logger.warning(
-                "Unknown revision dependencies version, installing latest"
-            )
-        return [
+        commands = [
             (
                 "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
                 "sudo python3 -m pip install -e .'"
@@ -337,6 +302,15 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "sudo python3 -m pip install -e .'"
             ),
         ]
+        if self.config.alias in ["xenial", "bionic"]:
+            commands.append(
+                # ensure these two are at the correct version to support xenial
+                (
+                    "bash -c 'sudo python3 -m "
+                    'pip install importlib_metadata==1.0.0 "zipp<2"\''
+                )
+            )
+        return commands
 
     def _get_provider_setup_cmds(self):
         # This installs the providers. This is based on the fact

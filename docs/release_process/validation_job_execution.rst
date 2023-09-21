@@ -1,4 +1,5 @@
 There's multiple entities participating in the chain of validating a Checkbox snap.
+
 ```mermaid
 sequenceDiagram
     participant Pipeline as Checkbox Validation Pipeline

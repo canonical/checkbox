@@ -194,10 +194,10 @@ class CameraTest:
                 "    version: %s.%s.%s"
                 % (cp.version >> 16, (cp.version >> 8) & 0xff,
                    cp.version & 0xff))
-            capture_cability = cp.capabilities & V4L2_CAP_VIDEO_CAPTURE or \
+            capture_capabilities = cp.capabilities & V4L2_CAP_VIDEO_CAPTURE or \
                 cp.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE
             print("    flags  : 0x%x [" % cp.capabilities,
-                  ' CAPTURE' if capture_cability
+                  ' CAPTURE' if capture_capabilities
                   else '',
                   ' OVERLAY' if cp.capabilities & V4L2_CAP_VIDEO_OVERLAY
                   else '',
@@ -214,7 +214,7 @@ class CameraTest:
             resolutions = resolutions.replace("Format:", "    Format:")
             print(resolutions)
 
-            if capture_cability:
+            if capture_capabilities:
                 cap_status = 0
 
         return dev_status | cap_status

@@ -55,6 +55,7 @@ All of a sudden, the list becomes much less intimidating!
     ┌──────────────────────────────────────────────────────────────────────────────┐
     │                                                                              │
     │    ( ) Checkbox Base Tutorial Test Plan                                      │
+    │    ( ) Checkbox Base Tutorial Test Plan (using manifest)                     │
     │                                                                              │
     └──────────────────────────────────────────────────────────────────────────────┘
      Press <Enter> to continue                                             (H) Help
@@ -62,9 +63,9 @@ All of a sudden, the list becomes much less intimidating!
 Selecting a test plan and the jobs to run
 =========================================
 
-The ``Checkbox Base Tutorial Test Plan`` should be highlighted. Press
-``space`` to select it, and ``Enter`` to validate. You can now see the list
-of jobs in the test plan you selected:
+Using the arrow keys, highlight the first line (``Checkbox Base Tutorial
+Test Plan``).  Press ``Space`` to select it, and ``Enter`` to validate. You
+can now see the list of jobs in the test plan you selected:
 
 .. code-block:: none
 

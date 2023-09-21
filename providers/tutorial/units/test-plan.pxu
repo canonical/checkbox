@@ -15,3 +15,10 @@ include:
  tutorial/manual
  tutorial/user-interact
  tutorial/user-interact-verify
+
+unit: test plan
+id: tutorial-base-manifest
+_name: Checkbox Base Tutorial Test Plan (using manifest)
+include:
+ tutorial/passing
+ tutorial/manifest

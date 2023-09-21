@@ -258,7 +258,7 @@ Now, run Checkbox using this launcher:
 
 .. code-block:: none
 
-    $ checkbox-cli launcher auto-manifest
+    $ checkbox-cli launcher <path/to/>auto-manifest
     Preparing...
     Reports will be saved to: /home/user/.local/share/checkbox-ng
     =========[ Running job 1 / 3. Estimated time left (at least): 0:00:02 ]=========

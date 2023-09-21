@@ -129,18 +129,19 @@ Modifying the manifest information within Checkbox
 Let's run the same test plan again, but this time we will pretend the device
 has no touch screen.
 
-- Launch Checkbox using ``checkbox.checkbox-cli``.
-- Filter the test plans using the ``f`` shortcut and the ``manifest`` filter.
-- Select the ``Checkbox Base Tutorial Test Plan (using manifest)`` test plan.
-- In the test selection screen, leave all the jobs selected and press ``T``.
-- In the System Manifest screen, note that Checkbox remembers our previous
-  choice (``Touchscreen`` is set to ``Yes``). This is because it parsed the
-  manifest file and found the information stored. Press ``n`` to select ``No``
-  instead, and press ``T`` to start the test.
+1. Launch Checkbox using ``checkbox.checkbox-cli``.
+2. Filter the test plans using the ``f`` shortcut and the ``manifest`` filter.
+3. Select the ``Checkbox Base Tutorial Test Plan (using manifest)`` test plan.
+4. In the test selection screen, leave all the jobs selected and press ``T``.
+5. In the System Manifest screen, note that Checkbox remembers our previous
+   choice (``Touchscreen`` is set to ``Yes``). This is because it parsed the
+   manifest file and found the information stored. Press ``n`` to select ``No``
+   instead, and press ``T`` to start the test.
 
-This time, The jobs re-run screen is shown because the job that uses this
-manifest information has been skipped. Press ``F`` to finish the test run (you
-can select ``n`` when Checkbox asks if you want to upload the test results).
+This time, The screen to re-run failed jobs is shown because the job that
+uses this manifest information has been skipped. Press ``F`` to finish the
+test run (you can select ``n`` when Checkbox asks if you want to upload the
+test results).
 
 You can see the ``has_touchscreen`` key from the Hardware Manifest job is
 now set to ``False``:

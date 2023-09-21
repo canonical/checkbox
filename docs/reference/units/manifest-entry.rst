@@ -158,6 +158,12 @@ User can quickly fill these by using the ``y`` and ``n`` keyboard shortcuts,
 or highlight an entry and select the right answer using the arrow and the
 ``Space`` keys.
 
+.. note::
+    This screen will be skipped if Checkbox is set to run in silent mode
+    (see :ref:`launcher_ui`). In this case, existing values from the manifest
+    file (see below) will be used; if there is no value for a given entry,
+    Checkbox will use ``False`` by default.
+
 Supplying External Manifest
 ---------------------------
 

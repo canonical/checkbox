@@ -734,21 +734,22 @@ class LXDTest_vm(object):
         self.default_remote = "ubuntu:"
         self.os_version = get_release_to_test()
 
-    def run_command(self, cmd):
+    def run_command(self, cmd, log_stderr=True):
         task = RunCommand(cmd)
         if task.returncode != 0:
             logging.error('Command {} returned a code of {}'.format(
                 task.cmd, task.returncode))
             logging.error(' STDOUT: {}'.format(task.stdout))
-            logging.error(' STDERR: {}'.format(task.stderr))
+            if log_stderr:
+                logging.error(' STDERR: {}'.format(task.stderr))
             return False
         else:
             logging.debug('Command {}:'.format(task.cmd))
             if task.stdout != '':
                 logging.debug(' STDOUT: {}'.format(task.stdout))
-            elif task.stderr != '':
+            if task.stderr and log_stderr:
                 logging.debug(' STDERR: {}'.format(task.stderr))
-            else:
+            if not (task.stderr or task.stdout):
                 logging.debug(' Command returned no output')
             return True
 
@@ -842,8 +843,8 @@ class LXDTest_vm(object):
         Clean up test files an Virtual Machines created
         """
         logging.debug('Cleaning up images and VMs created during test')
-        self.run_command('lxc image delete {}'.format(self.image_alias))
-        self.run_command('lxc delete --force {}'.format(self.name))
+        self.run_command('lxc image delete {}'.format(self.image_alias), False)
+        self.run_command('lxc delete --force {}'.format(self.name), False)
 
     def start_vm(self):
         """
@@ -885,7 +886,7 @@ class LXDTest_vm(object):
         while check_vm < test_interval:
             time.sleep(wait_interval)
             cmd = ("lxc exec {} -- lsb_release -a".format(self.name))
-            if self.run_command(cmd):
+            if self.run_command(cmd, False):
                 print("Vm started and booted successfully")
                 return True
             else:

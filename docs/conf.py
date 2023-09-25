@@ -54,8 +54,7 @@ extensions = [
     'sphinx_copybutton',
     'sphinxext.opengraph',
     'myst_parser',
-    'sphinx-jsonschema',
-    'sphinxcontrib.mermaid'
+    'sphinx-jsonschema'
     ]
 
 myst_enable_extensions = [

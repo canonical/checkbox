@@ -54,6 +54,7 @@ extensions = [
     'sphinxext.opengraph',
     'myst_parser',
     'sphinx-jsonschema'
+    'sphinxcontrib.mermaid'
     ]
 
 myst_enable_extensions = [

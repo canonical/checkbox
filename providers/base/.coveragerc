@@ -3,6 +3,8 @@ branch = True
 source = bin,manage
 omit =
     tests/*
+    # vendorized https://github.com/thesofproject/sof/blob/main/tools/sof_ri_info/sof_ri_info.py
+    bin/sof_ri_info.py
 
 [report]
 exclude_lines =

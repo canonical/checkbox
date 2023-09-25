@@ -245,5 +245,5 @@ class SnapRefreshRevertTests(unittest.TestCase):
         }
         with patch("builtins.open", mock_open(read_data=mock_file_data)) as m:
             srr.snap_revert()
-            mock_snapd_revert.assert_called()
+            self.assertTrue(mock_snapd_revert.called)
             m.assert_called_with("/test/info", "w")

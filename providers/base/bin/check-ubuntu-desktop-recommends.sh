@@ -2,6 +2,8 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+target_package=${1:-ubuntu-desktop}
+
 noninstalled=()
 while read -r pkg; do
     # libreoffice-impress provides libreoffice-ogltrans, and libreoffice-ogltrans becomes a transitional package on Ubuntu 20.04.
@@ -9,7 +11,7 @@ while read -r pkg; do
     if ! dpkg-query -W -f='${Status}\n' "$pkg" 2>&1 | grep "install ok installed" >/dev/null 2>&1 && [ "$pkg" != "libreoffice-ogltrans" ]; then
         noninstalled+=("$pkg")
     fi
-done < <(apt-cache show ubuntu-desktop | grep ^Recommends | head -n 1 | cut -d : -f 2- | xargs | sed 's/ //g' | tr , $'\n')
+done < <(apt-cache show "${target_package}" | grep ^Recommends | head -n 1 | cut -d : -f 2- | xargs | sed 's/ //g' | tr , $'\n')
 
 if [ -n "${noninstalled[*]}" ]; then
     IFS=' '
@@ -17,5 +19,5 @@ if [ -n "${noninstalled[*]}" ]; then
     exit 1
 fi
 
-echo "All packages in Recommends of ubuntu-desktop are installed."
+echo "All packages in Recommends of ${target_package} are installed."
 exit 0

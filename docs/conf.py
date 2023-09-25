@@ -48,18 +48,23 @@ if "discourse" in html_context:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinxcontrib.mermaid",
-    "sphinx_design",
-    "sphinx_tabs.tabs",
-    "sphinx_reredirects",
-    "youtube-links",
-    "related-links",
     "custom-rst-roles",
-    "terminal-output",
-    "sphinx_copybutton",
-    "sphinxext.opengraph",
     "myst_parser",
+    "related-links",
+    "sphinx_copybutton",
+    "sphinx_design",
+    "sphinx_reredirects",
+    "sphinx_tabs.tabs",
     "sphinx-jsonschema",
+    "sphinxcontrib.mermaid",
+    "sphinxext.opengraph",
+    "terminal-output",
+    "youtube-links",
+]
+
+myst_enable_extensions = [
+    "substitution",
+    "deflist"
 ]
 
 myst_enable_extensions = ["substitution", "deflist"]

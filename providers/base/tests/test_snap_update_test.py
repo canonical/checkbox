@@ -196,7 +196,7 @@ class SnapRefreshRevertTests(unittest.TestCase):
         )
         self.assertEqual(srr.verify_revert(), 0)
 
-    @mock.patch("builtins.open", new_callable=mock.mock_open())
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
     @mock.patch("snap_update_test.Snapd.list")
     @mock.patch("snap_update_test.Snapd.change")
     @mock.patch("snap_update_test.json.load")
@@ -226,3 +226,24 @@ class SnapRefreshRevertTests(unittest.TestCase):
         )
         logging.disable(logging.CRITICAL)
         self.assertEqual(srr.verify_revert(), 1)
+
+    @mock.patch("snap_update_test.Snapd.revert")
+    @mock.patch("snap_update_test.get_snap_info")
+    def test_snap_revert(self, mock_snap_info, mock_snapd_revert):
+        mock_file_data = (
+            '{"name": "test-snap", "original_revision": "10", '
+            '"destination_revision": "20", "refresh_id": "80"}'
+        )
+        mock_snapd_revert.return_value = {"change": 99}
+        srr = snap_update_test.SnapRefreshRevert(
+            name="test-snap", rev="2", info_path="/test/info"
+        )
+        mock_snap_info.return_value = {
+            "name": "test-snap",
+            "installed_revision": "132",
+            "tracking_channel": "22/beta",
+        }
+        with mock.patch("builtins.open", mock.mock_open(read_data=mock_file_data)) as m:
+            srr.snap_revert()
+            mock_snapd_revert.assert_called()
+            m.assert_called_with("/test/info", "w")

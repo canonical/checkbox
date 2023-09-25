@@ -251,13 +251,9 @@ class SessionAssistant:
             # TODO: REMOTE API RAPI:
             # this heuristic of guessing session type from the title
             # should be changed to a proper arg/flag with the Remote API bump
-            remote_types = ("remote", "checkbox-agent")
-            session_type = "local"
             try:
                 app_blob = json.loads(self._metadata.app_blob.decode("UTF-8"))
                 session_type = app_blob["type"]
-                if session_type in remote_types:
-                    session_type = "remote"
             except (AttributeError, ValueError, KeyError):
                 session_type = "local"
             self._restart_strategy = detect_restart_strategy(

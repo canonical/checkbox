@@ -269,7 +269,7 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     :raises LookupError:
         When no such object can be found.
     """
-    if session_type in ('remote', 'checkbox-agent'):
+    if session_type == 'remote':
         try:
             env = os.environ
             env["SYSTEMD_IGNORE_CHROOT"] = "1"
@@ -311,7 +311,7 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     # Classic snaps
     snap_data = os.getenv('SNAP_DATA')
     if snap_data:
-        if session_type in ('remote', 'checkbox-agent'):
+        if session_type == 'remote':
             try:
                 agent_status = subprocess.check_output(
                     ['snapctl', 'get', 'agent'],

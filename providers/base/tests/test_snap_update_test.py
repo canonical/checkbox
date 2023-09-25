@@ -1,7 +1,7 @@
 import io
 import logging
 import unittest
-from unittest import mock
+from unittest.mock import patch, mock_open
 
 import snap_update_test
 
@@ -16,29 +16,29 @@ from test_data.snap_update_test_data import (
 
 
 class SnapUpdateTests(unittest.TestCase):
-    @mock.patch("snap_update_test.Snapd.list")
+    @patch("snap_update_test.Snapd.list")
     def test_guess_snaps(self, mock_snapd_list):
         mock_snapd_list.return_value = snapd_list_sample
         snaps = snap_update_test.guess_snaps()
         expected_snaps = {"kernel": "pi-kernel", "snapd": "snapd", "gadget": "pi"}
         self.assertEqual(snaps, expected_snaps)
 
-    @mock.patch("snap_update_test.Snapd.list")
+    @patch("snap_update_test.Snapd.list")
     def test_guess_snaps_nothing(self, mock_snapd_list):
         mock_snapd_list.return_value = snapd_list_no_kernel_snapd_gadget_snap
         snaps = snap_update_test.guess_snaps()
         self.assertEqual(snaps, {})
 
-    @mock.patch("snap_update_test.glob")
+    @patch("snap_update_test.glob")
     def test_get_snap_base_rev(self, mock_glob):
         mock_glob.return_value = snapd_seed_glob_data
         snap_rev = snap_update_test.get_snap_base_rev()
         self.assertEqual(len(snap_rev), 4)
         self.assertEqual(snap_rev["pc-kernel"], "1289")
 
-    @mock.patch("snap_update_test.get_snap_base_rev")
-    @mock.patch("snap_update_test.Snapd.list")
-    @mock.patch("snap_update_test.Snapd.find")
+    @patch("snap_update_test.get_snap_base_rev")
+    @patch("snap_update_test.Snapd.list")
+    @patch("snap_update_test.Snapd.find")
     def test_get_snap_info(self, mock_snapd_find, mock_snapd_list, mock_base_revs):
         mock_base_revs.return_value = {"firefox": "2605"}
         mock_snapd_list.return_value = snapd_list_firefox_snap
@@ -63,8 +63,8 @@ class SnapUpdateTests(unittest.TestCase):
         snap_info = snap_update_test.get_snap_info("firefox")
         self.assertEqual(snap_info, expected_snap_info)
 
-    @mock.patch("snap_update_test.get_snap_info")
-    @mock.patch("sys.stdout", new_callable=io.StringIO)
+    @patch("snap_update_test.get_snap_info")
+    @patch("sys.stdout", new_callable=io.StringIO)
     def test_print_resource_info(self, mock_stdout, mock_snap_info):
         mock_snap_info.return_value = snap_info_pi_kernel
         expected_output = (
@@ -78,8 +78,8 @@ class SnapUpdateTests(unittest.TestCase):
 
 
 class SnapRefreshRevertTests(unittest.TestCase):
-    @mock.patch("snap_update_test.Snapd")
-    @mock.patch("snap_update_test.get_snap_info")
+    @patch("snap_update_test.Snapd")
+    @patch("snap_update_test.get_snap_info")
     def test_snap_refresh_same_revision(self, mock_snap_info, mock_snapd):
         mock_snap_info.return_value = {"installed_revision": "132"}
         srr = snap_update_test.SnapRefreshRevert(
@@ -88,9 +88,9 @@ class SnapRefreshRevertTests(unittest.TestCase):
         logging.disable(logging.CRITICAL)
         self.assertEqual(srr.snap_refresh(), 1)
 
-    @mock.patch("builtins.open", new_callable=mock.mock_open())
-    @mock.patch("snap_update_test.Snapd.refresh")
-    @mock.patch("snap_update_test.get_snap_info")
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("snap_update_test.Snapd.refresh")
+    @patch("snap_update_test.get_snap_info")
     def test_snap_refresh_different_revision(
         self, mock_snap_info, mock_snapd_refresh, mock_file
     ):
@@ -104,11 +104,11 @@ class SnapRefreshRevertTests(unittest.TestCase):
         )
         self.assertEqual(srr.snap_refresh(), 0)
 
-    @mock.patch("builtins.open", new_callable=mock.mock_open())
-    @mock.patch("snap_update_test.Snapd.list")
-    @mock.patch("snap_update_test.Snapd.change")
-    @mock.patch("snap_update_test.json.load")
-    @mock.patch("snap_update_test.get_snap_info")
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("snap_update_test.Snapd.list")
+    @patch("snap_update_test.Snapd.change")
+    @patch("snap_update_test.json.load")
+    @patch("snap_update_test.get_snap_info")
     def test_verify_refresh_ok(
         self,
         mock_snap_info,
@@ -134,11 +134,11 @@ class SnapRefreshRevertTests(unittest.TestCase):
         )
         self.assertEqual(srr.verify_refresh(), 0)
 
-    @mock.patch("builtins.open", new_callable=mock.mock_open())
-    @mock.patch("snap_update_test.Snapd.list")
-    @mock.patch("snap_update_test.Snapd.change")
-    @mock.patch("snap_update_test.json.load")
-    @mock.patch("snap_update_test.get_snap_info")
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("snap_update_test.Snapd.list")
+    @patch("snap_update_test.Snapd.change")
+    @patch("snap_update_test.json.load")
+    @patch("snap_update_test.get_snap_info")
     def test_verify_refresh_nok(
         self,
         mock_snap_info,
@@ -166,11 +166,11 @@ class SnapRefreshRevertTests(unittest.TestCase):
         logging.disable(logging.CRITICAL)
         self.assertEqual(srr.verify_refresh(), 1)
 
-    @mock.patch("builtins.open", new_callable=mock.mock_open())
-    @mock.patch("snap_update_test.Snapd.list")
-    @mock.patch("snap_update_test.Snapd.change")
-    @mock.patch("snap_update_test.json.load")
-    @mock.patch("snap_update_test.get_snap_info")
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("snap_update_test.Snapd.list")
+    @patch("snap_update_test.Snapd.change")
+    @patch("snap_update_test.json.load")
+    @patch("snap_update_test.get_snap_info")
     def test_verify_revert_ok(
         self,
         mock_snap_info,
@@ -196,11 +196,11 @@ class SnapRefreshRevertTests(unittest.TestCase):
         )
         self.assertEqual(srr.verify_revert(), 0)
 
-    @mock.patch("builtins.open", new_callable=mock.mock_open)
-    @mock.patch("snap_update_test.Snapd.list")
-    @mock.patch("snap_update_test.Snapd.change")
-    @mock.patch("snap_update_test.json.load")
-    @mock.patch("snap_update_test.get_snap_info")
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("snap_update_test.Snapd.list")
+    @patch("snap_update_test.Snapd.change")
+    @patch("snap_update_test.json.load")
+    @patch("snap_update_test.get_snap_info")
     def test_verify_revert_nok(
         self,
         mock_snap_info,
@@ -227,8 +227,8 @@ class SnapRefreshRevertTests(unittest.TestCase):
         logging.disable(logging.CRITICAL)
         self.assertEqual(srr.verify_revert(), 1)
 
-    @mock.patch("snap_update_test.Snapd.revert")
-    @mock.patch("snap_update_test.get_snap_info")
+    @patch("snap_update_test.Snapd.revert")
+    @patch("snap_update_test.get_snap_info")
     def test_snap_revert(self, mock_snap_info, mock_snapd_revert):
         mock_file_data = (
             '{"name": "test-snap", "original_revision": "10", '
@@ -243,7 +243,7 @@ class SnapRefreshRevertTests(unittest.TestCase):
             "installed_revision": "132",
             "tracking_channel": "22/beta",
         }
-        with mock.patch("builtins.open", mock.mock_open(read_data=mock_file_data)) as m:
+        with patch("builtins.open", mock_open(read_data=mock_file_data)) as m:
             srr.snap_revert()
             mock_snapd_revert.assert_called()
             m.assert_called_with("/test/info", "w")

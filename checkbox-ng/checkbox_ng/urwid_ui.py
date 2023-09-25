@@ -693,7 +693,7 @@ def interrupt_dialog(host):
     choices = [
         _("Nothing, continue testing (ESC)"),
         _("Stop the test case in progress and move on to the next"),
-        _("Disconnect but let the test session continue (CTRL+C)"),
+        _("Pause the test session and disconnect from the agent (CTRL+C)"),
         _("Exit and stop the Checkbox agent on the device at {}".format(host)),
         _("End this test session preserving its data and launch a new one"),
     ]

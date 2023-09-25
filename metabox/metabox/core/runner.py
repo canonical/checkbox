@@ -79,7 +79,7 @@ class Runner:
                 controller_release, agent_release = v.releases
                 controller_config["alias"] = controller_release
                 agent_config["alias"] = agent_release
-                revisions = self._get_revisions_jobs() # DIO what does revisions jobs do?
+                revisions = self._get_revisions_jobs()
                 for controller_revision, agent_revision in revisions:
                     controller_config["revision"] = controller_revision
                     self.combo.add(MachineConfig("controller", controller_config))
@@ -140,12 +140,12 @@ class Runner:
         )
 
         for scenario_cls, mode, origin in scenarios_modes_origins:
-            mode_to_any_role = {
+            mode_to_role = {
                 "remote": "controller",
                 "local": "local",
                 "agent": "agent"
             }
-            role = mode_to_any_role[mode]
+            role = mode_to_role[mode]
             if role not in self.config:
                 logger.debug(
                     "Skipping a scenario: [{}] {}", mode, scenario_cls.name
@@ -170,8 +170,8 @@ class Runner:
                 releases = list(
                     (mode, r_alias, s_alias)
                     for (r_alias, s_alias) in product(
-                        self.config["controller"]["releases"],
-                        self.config["agent"]["releases"],
+                        controller_releases,
+                        agent_releases,
                     )
                 )
                 revisions = self._get_revisions_jobs()

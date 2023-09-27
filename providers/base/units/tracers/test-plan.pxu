@@ -7,3 +7,5 @@ include:
     tracers/ftrace
     tracers/ptrace
     tracers/tracefs
+bootstrap_include:
+    kernel_config_file

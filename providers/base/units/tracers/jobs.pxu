@@ -29,6 +29,8 @@ _summary:
  Tests ftrace kernel tracing infrastructure is enable
 _description:
  Check if kernel configuration item CONFIG_FTRACE bool is set to 'y'.
+requires:
+  kernel_config_file.detected == 'true'
 
 id: tracers/tracefs
 plugin: shell

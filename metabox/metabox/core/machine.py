@@ -519,7 +519,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
                 [Unit]
                 Description=Checkbox Overlay Service
                 Wants=network.target
-                Before=snap.{name}.service.service
+                Before=snap.{name}.agent.service
 
                 [Service]
                 ExecStart={cmd}
@@ -557,7 +557,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
             "sudo systemctl daemon-reload",
             "sudo systemctl enable overlay-checkbox.service --now",
             install_metabox_provider,
-            "sudo systemctl restart snap.{}.service.service".format(
+            "sudo systemctl restart snap.{}.agent.service".format(
                 self._snap_name
             ),
         ]
@@ -607,7 +607,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         if force:
             return run_or_raise(
                 self._container,
-                "sudo systemctl start snap.{}.service.service".format(
+                "sudo systemctl start snap.{}.agent.service".format(
                     self._snap_name
                 ),
             )
@@ -616,7 +616,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         assert self.config.role == "agent"
         return run_or_raise(
             self._container,
-            "sudo systemctl stop snap.{}.service.service".format(
+            "sudo systemctl stop snap.{}.agent.service".format(
                 self._snap_name
             ),
         )
@@ -626,7 +626,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return (
             run_or_raise(
                 self._container,
-                "systemctl is-active snap.{}.service.service".format(
+                "systemctl is-active snap.{}.agent.service".format(
                     self._snap_name
                 ),
             ).stdout

@@ -29,3 +29,19 @@ _summary:
  Tests ftrace kernel tracing infrastructure is enable
 _description:
  Check if kernel configuration item CONFIG_FTRACE bool is set to 'y'.
+
+id: tracers/tracefs
+plugin: shell
+command: 
+  if mount | grep -q tracefs
+  then
+      echo "tracefs: supported"
+      exit 0
+  else
+      echo "ftracefs: unsupported"
+      exit 1
+  fi
+_summary:
+ Tests the tracefs file system availability
+_description:
+ Check if the tracefs is mounted on a system using the mount command.

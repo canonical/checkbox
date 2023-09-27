@@ -6,3 +6,4 @@ _description:
 include:
     tracers/ftrace
     tracers/ptrace
+    tracers/tracefs

@@ -18,16 +18,16 @@
 
 from unittest import TestCase, mock
 
-from checkbox_ng.launcher.master import RemoteMaster
+from checkbox_ng.launcher.controller import RemoteController
 
 
-class MasterTests(TestCase):
+class ControllerTests(TestCase):
     @mock.patch("ipaddress.ip_address")
     @mock.patch("time.time")
     @mock.patch("builtins.print")
     @mock.patch("os.path.exists")
-    @mock.patch("checkbox_ng.launcher.master.Configuration.from_text")
-    @mock.patch("checkbox_ng.launcher.master._")
+    @mock.patch("checkbox_ng.launcher.controller.Configuration.from_text")
+    @mock.patch("checkbox_ng.launcher.controller._")
     # used to load an empty launcher with no error
     def test_invoked_ok(
         self,
@@ -57,11 +57,11 @@ class MasterTests(TestCase):
         with mock.patch("builtins.open") as mm:
             mm.return_value = mm
             mm.read.return_value = "[launcher]\nversion=0"
-            RemoteMaster.invoked(self_mock, ctx_mock)
+            RemoteController.invoked(self_mock, ctx_mock)
 
         self.assertTrue(self_mock.connect_and_run.called)
 
-    @mock.patch("checkbox_ng.launcher.master.RemoteSessionAssistant")
+    @mock.patch("checkbox_ng.launcher.controller.RemoteSessionAssistant")
     def test_check_remote_api_match_ok(self, remote_assistant_mock):
         """
         Test that the check_remote_api_match function does not fail/crash
@@ -74,9 +74,9 @@ class MasterTests(TestCase):
         remote_assistant_mock.REMOTE_API_VERSION = 0
         session_assistant_mock.get_remote_api_version.return_value = 0
 
-        RemoteMaster.check_remote_api_match(self_mock)
+        RemoteController.check_remote_api_match(self_mock)
 
-    @mock.patch("checkbox_ng.launcher.master.RemoteSessionAssistant")
+    @mock.patch("checkbox_ng.launcher.controller.RemoteSessionAssistant")
     def test_check_remote_api_match_fail(self, remote_assistant_mock):
         """
         Test that the check_remote_api_match function exits checkbox
@@ -91,7 +91,7 @@ class MasterTests(TestCase):
 
         with self.assertRaises(SystemExit):
             # this should exit checkbox because the two versions are different
-            RemoteMaster.check_remote_api_match(self_mock)
+            RemoteController.check_remote_api_match(self_mock)
 
         remote_assistant_mock.REMOTE_API_VERSION = 0
         session_assistant_mock.get_remote_api_version.return_value = 1
@@ -99,4 +99,4 @@ class MasterTests(TestCase):
         with self.assertRaises(SystemExit):
             # this should also exit checkbox because the two versions are
             # different
-            RemoteMaster.check_remote_api_match(self_mock)
+            RemoteController.check_remote_api_match(self_mock)

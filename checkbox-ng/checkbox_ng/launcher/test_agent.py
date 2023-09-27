@@ -18,17 +18,17 @@
 
 from unittest import TestCase, mock
 
-from checkbox_ng.launcher.slave import RemoteSlave
+from checkbox_ng.launcher.agent import RemoteAgent
 
 
-class SlaveTests(TestCase):
-    @mock.patch("checkbox_ng.launcher.slave._")
-    @mock.patch("checkbox_ng.launcher.slave._logger")
-    @mock.patch("checkbox_ng.launcher.slave.is_passwordless_sudo")
-    @mock.patch("checkbox_ng.launcher.slave.SessionAssistantSlave")
-    @mock.patch("checkbox_ng.launcher.slave.RemoteDebRestartStrategy")
-    @mock.patch("checkbox_ng.launcher.slave.RemoteSessionAssistant")
-    @mock.patch("checkbox_ng.launcher.slave.ThreadedServer")
+class AgentTests(TestCase):
+    @mock.patch("checkbox_ng.launcher.agent._")
+    @mock.patch("checkbox_ng.launcher.agent._logger")
+    @mock.patch("checkbox_ng.launcher.agent.is_passwordless_sudo")
+    @mock.patch("checkbox_ng.launcher.agent.SessionAssistantAgent")
+    @mock.patch("checkbox_ng.launcher.agent.RemoteDebRestartStrategy")
+    @mock.patch("checkbox_ng.launcher.agent.RemoteSessionAssistant")
+    @mock.patch("checkbox_ng.launcher.agent.ThreadedServer")
     @mock.patch("os.geteuid")
     @mock.patch("os.getenv")
     # used to load an empty launcher with no error
@@ -49,14 +49,14 @@ class SlaveTests(TestCase):
 
         self_mock = mock.MagicMock()
 
-        geteuid_mock.return_value = 0  # slave will not run as non-root
-        pwdless_sudo_mock.return_value = True  # slave needs pwd-less sudo
+        geteuid_mock.return_value = 0  # agent will not run as non-root
+        pwdless_sudo_mock.return_value = True  # agent needs pwd-less sudo
         getenv_mock.return_value = None
 
         with mock.patch("builtins.open"):
-            RemoteSlave.invoked(self_mock, ctx_mock)
+            RemoteAgent.invoked(self_mock, ctx_mock)
 
-        # slave server was created
+        # agent server was created
         self.assertTrue(threaded_server_mock.called)
         server = threaded_server_mock.return_value
         # the server was started

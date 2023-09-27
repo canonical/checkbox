@@ -1,0 +1,15 @@
+id: tracers/ptrace
+plugin: shell
+command:
+  if ptrace_test
+  then
+      echo "ptrace: supported"
+      exit 0
+  else
+      echo "ptrace: unsupported"
+      exit 1
+  fi
+_summary:
+ Tests the ptrace tracer availability
+_description:
+ The test initiates tracing using the ptrace syscall with ptrace_test binary (c source code).

@@ -13,3 +13,19 @@ _summary:
  Tests the ptrace tracer availability
 _description:
  The test initiates tracing using the ptrace syscall with ptrace_test binary (c source code).
+
+id: tracers/ftrace
+plugin: shell
+command: 
+  if grep -q -e "^CONFIG_FTRACE=y" /boot/config-"$(uname -r)"
+  then
+      echo "ftrace: supported"
+      exit 0
+  else
+      echo "ftrace: unsupported"
+      exit 1
+  fi
+_summary:
+ Tests ftrace kernel tracing infrastructure is enable
+_description:
+ Check if kernel configuration item CONFIG_FTRACE bool is set to 'y'.

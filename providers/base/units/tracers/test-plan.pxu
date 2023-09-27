@@ -4,4 +4,5 @@ _name: Tracers tests
 _description:
  Tracers tests
 include:
+    tracers/ftrace
     tracers/ptrace

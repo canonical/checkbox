@@ -37,7 +37,7 @@ include:
 nested_part:
     ce-oem-manual
     com.canonical.certification::client-cert-iot-server-22-04-manual
-    after-suspend-ce-oem-automated
+    after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
 
@@ -51,9 +51,9 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
-    ce-oem-automated
+    ce-oem-manual
     com.canonical.certification::client-cert-iot-server-20-04-manual
-    after-suspend-ce-oem-automated
+    after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
 

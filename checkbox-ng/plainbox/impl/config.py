@@ -173,7 +173,7 @@ class Configuration:
                     self._origins[section] = dict()
             self.sections[section][name] = value
             self._origins[section][name] = origin
-        except TypeError:
+        except (TypeError, ValueError):
             problem = (
                 "Problem with setting field {} in section [{}] "
                 "'{}' cannot be used as {}. Origin: {}"

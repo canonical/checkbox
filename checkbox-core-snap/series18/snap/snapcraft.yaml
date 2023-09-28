@@ -175,7 +175,7 @@ parts:
       # when running lsb_release on ubuntu core
       # The fix was finally released with the distro 1.6 release available as of
       # 22.04 (i.e base: core22)
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' $SNAPCRAFT_STAGE/lib/python3.*/site-packages/**/**/distro.py
+      find -name distro.py | xargs sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g'
     override-build: |
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)

@@ -169,7 +169,7 @@ parts:
       # when running lsb_release on ubuntu core
       # The fix was finally released with the distro 1.6 release available as of
       # 22.04 (i.e base: core22)
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' usr/local/lib/python3.5/dist-packages/distro.py
+      find -name distro.py | xargs sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g'
     override-pull: |
       snapcraftctl pull
     build-packages:

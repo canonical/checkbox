@@ -21,7 +21,7 @@ This module contains tests for the new Checkbox Config module
 from contextlib import contextmanager
 import logging
 from unittest import TestCase
-from unittest.mock import mock_open, patch
+from unittest.mock import mock_open, patch, MagicMock
 
 from plainbox.impl.config import Configuration
 
@@ -139,3 +139,30 @@ class ConfigurationTests(TestCase):
         with patch("builtins.open", mock_open(read_data=ini_data)):
             cfg = Configuration.from_path("unit test")
         self.assertEqual(cfg.get_value("agent", "normal_user"), "testuser")
+
+    def test_parse_error_noticed(self):
+        """
+        The following configuration should yield problems
+        and not crash checkbox on parsing failure
+
+        [ui]
+        max_attempts = invalid_int
+        [test selection]
+        exclude = test # we can't parse this because
+        # the comments are not supported on the same
+        # line, therefore the ' is interpreted as an
+        # opened but unclosed period
+        """
+        self_mock = MagicMock()
+        with muted_logging():
+            Configuration.set_value(
+                self_mock, "ui", "max_attempts", "invalid_int", "test_body"
+            )
+            Configuration.set_value(
+                self_mock,
+                "test selection",
+                "exclude",
+                "test # we can't parse this",
+                "test_body",
+            )
+        self.assertEqual(self_mock.notice_problem.call_count, 2)

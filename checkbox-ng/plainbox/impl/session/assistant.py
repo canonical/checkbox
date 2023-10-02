@@ -505,6 +505,26 @@ class SessionAssistant:
         self._metadata.app_id = self._app_id
         self._metadata.title = title
         self._metadata.flags = {SessionMetaData.FLAG_BOOTSTRAPPING}
+
+        def _get_infos():
+            from subprocess import check_output
+            import json
+            inxi_out_str = check_output(
+                [
+                    "inxi",
+                    "--admin",
+                    "--tty",
+                    "-v8",
+                    "--output",
+                    "json",
+                    "--output-file",
+                    "print",
+                    "-c0",
+                ],
+            )
+            return json.loads(inxi_out_str)
+
+        self._manager.state._system_informations["inxi"] = _get_infos()
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)

@@ -24,7 +24,7 @@ This module defines the Actions classes.
 __all__ = [
     "Start", "Expect", "Send", "SelectTestPlan",
     "AssertPrinted", "AssertNotPrinted", "AssertRetCode",
-    "AssertServiceActive", "Sleep", "RunCmd", "Signal", "Reboot",
+    "AssertAgentActive", "Sleep", "RunCmd", "Signal", "Reboot",
     "NetUp", "NetDown", "Put", "MkTree"
 ]
 
@@ -69,8 +69,8 @@ class AssertRetCode(ActionBase):
     handler = 'assert_ret_code'
 
 
-class AssertServiceActive(ActionBase):
-    handler = 'is_service_active'
+class AssertAgentActive(ActionBase):
+    handler = 'is_agent_active'
 
 
 class Sleep(ActionBase):

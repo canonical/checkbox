@@ -20,6 +20,7 @@
 import metabox.core.keys as keys
 from metabox.core.actions import (
     AssertPrinted,
+    AssertNotPrinted,
     AssertRetCode,
     Expect,
     Send,
@@ -77,4 +78,56 @@ class RunManualplan(Scenario):
         Expect(
             " [32;1m☑ [0m: A simple user interaction and verification job"
         ),
+    ]
+
+
+class RunSlave(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('slave'),
+        AssertPrinted("slave is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
+    ]
+
+
+class RunMaster(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('master'),
+        AssertPrinted("master is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
+    ]
+
+
+class RunService(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('service'),
+        AssertPrinted("service is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
+    ]
+
+class RunRemote(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('remote'),
+        AssertPrinted("remote is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
+    ]
+
+
+class RunRunAgent(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('run-agent'),
+        AssertNotPrinted("Unable to load launcher 'run-agent'. File not found!")
+    ]
+
+class RunControl(Scenario):
+
+    modes = ['local']
+    steps = [
+        Start('control'),
+        AssertNotPrinted("Unable to load launcher 'control'. File not found!")
     ]

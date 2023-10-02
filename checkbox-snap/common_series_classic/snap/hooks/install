@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-snapctl set slave=enabled
+snapctl set agent=enabled
 
 echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/checkbox
 

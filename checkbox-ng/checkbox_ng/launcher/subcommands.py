@@ -271,7 +271,9 @@ class Launcher(MainLoopStage, ReportsStage):
                         break
             self._export_results()
             ctx.sa.finalize_session()
-            return 0 if ctx.sa.get_summary()["fail"] == 0 else 1
+            failed = ctx.sa.get_summary()["fail"] != 0
+            crashed = ctx.sa.get_summary()["crash"] != 0
+            return 0 if not failed and not crashed else 1
         except KeyboardInterrupt:
             return 1
 

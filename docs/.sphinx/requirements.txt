@@ -13,4 +13,8 @@ lxd-sphinx-extensions
 sphinx-copybutton
 myst-parser
 setuptools-scm
+<<<<<<< HEAD
 sphinx-jsonschema
+=======
+sphinxcontrib-mermaid
+>>>>>>> 175d8cdc2 (add sphinx plugin that enables mermaid diagrams)

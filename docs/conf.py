@@ -43,6 +43,7 @@ if 'discourse' in html_context:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'sphinxcontrib.mermaid',
     'sphinx_design',
     'sphinx_tabs.tabs',
     'sphinx_reredirects',

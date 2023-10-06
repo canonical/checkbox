@@ -1,0 +1,22 @@
+id: ce-oem-rpmsg/detect-device
+_summary: Check if the RPMSG devices is initialed.
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py --type detect
+
+id: ce-oem-rpmsg/pingpong
+_summary: Check if M series core RPMSG is loaded and pingpong demo is completed.
+category_id: rpmsg
+estimated_duration: 60
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-device
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py --type pingpong

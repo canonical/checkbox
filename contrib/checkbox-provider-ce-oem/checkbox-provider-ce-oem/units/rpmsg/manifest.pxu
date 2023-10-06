@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_rpmsg
+_name: Remote Processor Messaging (rpmsg) framework supported?
+value-type: bool

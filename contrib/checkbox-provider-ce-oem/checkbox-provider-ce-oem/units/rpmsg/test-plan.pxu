@@ -1,0 +1,22 @@
+id: ce-oem-rpmsg
+unit: test plan
+_name: M-series core RPMSG test
+_description: Check RPMSG framework between A core and M core.
+include:
+nested_part:
+    ce-oem-rpmsg-manual
+    ce-oem-rpmsg-automated
+
+id: ce-oem-rpmsg-manual
+unit: test plan
+_name: M-series core RPMSG manual tests
+_description: Manual RPMSG framework tests
+include:
+
+id: ce-oem-rpmsg-automated
+unit: test plan
+_name: M-series core RPMSG auto tests
+_description: Automated RPMSG framework tests
+include:
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/pingpong

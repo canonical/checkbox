@@ -1,0 +1,3 @@
+unit: category
+id: rpmsg
+_name: M-series core RPMSG test

@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase, mock, MagicMock
+from unittest import TestCase, mock
+from unittest.mock import MagicMock
 
 from checkbox_ng.launcher.check_config import CheckConfig
 from plainbox.impl.config import Configuration

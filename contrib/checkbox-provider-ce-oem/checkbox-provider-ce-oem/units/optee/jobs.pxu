@@ -25,16 +25,22 @@ _summary: Check if xtest is in the gedget snap.
 plugin: shell
 user: root
 estimated_duration: 20.0
+environ: OPTEE_TOOL
 command: 
-    gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-    xtest=$(snap info "$gadget"|grep xtest)
-    if [[ "$xtest" ]]; then
-        echo -e "\nInfo: Gadget snap support xtest command!"
-        echo -e "$xtest"
-        exit 0
+    if [[ -z "$OPTEE_TOOL" ]]; then
+        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
+        xtest=$(snap info "$gadget"|grep xtest)
+        if [[ "$xtest" ]]; then
+            echo -e "\nInfo: Gadget snap support xtest command!"
+            echo -e "$xtest"
+            exit 0
+        else
+            echo -e "\nError: Gadget snap not support xtest command!"
+            echo -e "\nError: Please identify the tool name if needed!"
+            exit 1
+        fi
     else
-        echo -e "\nError: Gadget snap not support xtest command!"
-        exit 1
+        echo -e "\nInfo: Using $OPTEE_TOOL to excute OP-TEE test"
     fi
 depends: ce-oem-optee/device-node
 
@@ -45,17 +51,26 @@ plugin: shell
 user: root
 estimated_duration: 20.0
 depends: ce-oem-optee/xtest-check
-command: 
-    gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-    # TA will be copied into this path once interface tee-tas connected.
-    # optee-test snap need to be installed in devmode
-    ta_path="/snap/$gadget/current/lib/optee_armtz/"
+environ: OPTEE_TOOL
+command:
+    tool=""
+    ta_path=""
+    if [[ -n "$OPTEE_TOOL" ]]; then
+        tool="$OPTEE_TOOL"
+        ta_path="/lib/optee_armtz/"
+    else
+        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
+        # TA will be copied into this path once interface tee-tas connected.
+        # optee-test snap need to be installed in devmode
+        tool="$gadget.xtest"
+        ta_path="/snap/$gadget/current/lib/optee_armtz/"
+    fi
     if [[ -z "$(find "$ta_path" -mindepth 1 -type f -o -type d)" ]]; then
         echo -e "\nError: Not able to find TA!"
         exit 1
     else
         echo -e '\nAttempting to install TA ...'
-        if ! "$gadget.xtest" --install-ta "$ta_path"; then
+        if ! "$tool" --install-ta "$ta_path"; then
             echo -e '\nError: TA installed FAIL!'
             exit 1
         else
@@ -67,14 +82,30 @@ id: ce-oem-optee-test-list
 estimated_duration: 1
 plugin: resource
 user: root
-command: parse_optee_test.py "$PLAINBOX_PROVIDER_DATA/optee-test.json"
+environ: OPTEE_CASES
+command:
+    filepath=""
+    if [[ -n "$OPTEE_CASES" ]]; then
+        filepath="$OPTEE_CASES"
+    else
+        filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
+    fi
+    parse_optee_test.py "$filepath"
 _summary: Collect the test cases support by OP-TEE test(xtest) 
 
 id: ce-oem-optee-test-list-pkcs11
 estimated_duration: 1
 plugin: resource
 user: root
-command: parse_optee_test.py "$PLAINBOX_PROVIDER_DATA/optee-test.json" -p
+environ: OPTEE_CASES
+command: 
+    filepath=""
+    if [[ -n "$OPTEE_CASES" ]]; then
+        filepath="$OPTEE_CASES"
+    else
+        filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
+    fi
+    parse_optee_test.py "$filepath" -p
 _summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest) 
 
 unit: template
@@ -90,9 +121,16 @@ category_id: optee
 estimated_duration: 30
 flags: also-after-suspend
 depends: ce-oem-optee/ta-install
-command: 
-    gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-    "$gadget.xtest" -t {{ suite }} {{ test_id }}
+environ: OPTEE_TOOL
+command:
+    tool=""
+    if [[ -n "$OPTEE_TOOL" ]]; then
+        tool="$OPTEE_TOOL"
+    else
+        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
+        tool="$gadget.xtest"
+    fi
+    "$tool" -t {{ suite }} {{ test_id }}
 
 unit: template
 template-resource: ce-oem-optee-test-list-pkcs11
@@ -108,5 +146,11 @@ estimated_duration: 30
 depends: ce-oem-optee/xtest-check
 flags: also-after-suspend
 command: 
-    gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-    "$gadget.xtest" -t {{ suite }} {{ test_id }}
+    tool=""
+    if [[ -n "$OPTEE_TOOL" ]]; then
+        tool="$OPTEE_TOOL"
+    else
+        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
+        tool="$gadget.xtest"
+    fi
+    "$tool" -t {{ suite }} {{ test_id }}

@@ -1,0 +1,30 @@
+id: genio_boot_storage_device_name
+plugin: resource
+_summary: Collect and report the type of boot storage device
+estimated_duration: 0.1
+command:
+    boot_partition.py --check_device_name
+
+id: genio-boot/device_name_check
+plugin: shell
+category_id: genio-boot
+estimated_duration: 1
+user: root
+flags: also-after-suspend
+_summary: Verify if the model name is correct
+command:
+    boot_partition.py --check_device_name --exit_when_check_fail
+
+unit: template
+template-resource: genio_boot_storage_device_name
+template-unit: job
+id: genio-boot/verify_boot_partition_{device}
+depends: genio-boot/device_name_check
+plugin: shell
+category_id: genio-boot
+estimated_duration: 1
+user: root
+flags: also-after-suspend
+_summary: Verify the boot partition
+command:
+    boot_partition.py --path {path}

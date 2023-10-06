@@ -1,0 +1,242 @@
+id: genio-audio/earphone-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+_description:
+    Check that the various audio channels are working through Earphone / Headset 3.5mm jack port
+_steps:
+    1. Plug the earphone / headset to earphone 3.5mm jack port
+    2. Set the sink as "Built-in Audio Earphone speaker + Lineout speaker"
+        $ pacmd set-default-sink 0
+    3. Set the sink port as Headphones
+        $ pacmd set-sink-port 0 "[Out] Headphones"
+    4. Start channel testing
+        $ speaker-test -c 2 -r 48000 -f S16_LE -l 1 -t wav
+_verification:
+    You should clearly hear a voice from the different audio channels
+
+id: genio-audio/speaker-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+_description:
+    Check that the various audio channels are working through Speaker 3.5mm jack port
+_steps:
+    1. Plug a headset / speaker to speaker 3.5mm jack port
+    2. Set the sink as "Built-in Audio Earphone speaker + Lineout speaker"
+        $ pacmd set-default-sink 0
+    3. Set the sink port as Speaker
+        $ pacmd set-sink-port 0 "[Out] Speaker"
+    4. Start channel testing
+        $ speaker-test -c 2 -r 48000 -f S16_LE -l 1 -t wav
+_verification:
+    You should clearly hear a voice from the left audio channels.
+
+id: genio-audio/hdmi-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+_description:
+    Check that the various audio channels are working through external HDMI monitor
+_steps:
+    1. Connect an external monitor to HDMI TX interface (through HDMI cable)
+    2. Set the sink as "Built-in Audio HDMI/DP output"
+        $ pacmd set-default-sink 1
+    3. Set the sink port as HDMI (G350 skips this step)
+        $ pacmd set-sink-port 1 "[Out] HDMI"
+    4. Start channel testing
+        $ speaker-test -c 2 -r 48000 -f S16_LE -l 1 -t wav
+_verification:
+    You should clearly hear a voice from the different audio channels.
+
+id: genio-audio/type-c-to-dp-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+_description:
+    Check that the various audio channels are working through external monitor with type-c cable
+_steps:
+    1. Connect an external monitor to type-c interface (through type-c to DP/HDMI cable or type-c cable)
+    2. Set the sink as "Built-in Audio HDMI/DP output"
+        $ pacmd set-default-sink 1
+    3. Set the sink port as HDMI
+        $ pacmd set-sink-port 1 "[Out] HDMI"
+    4. Start channel testing
+        $ speaker-test -c 2 -r 48000 -f S16_LE -l 1 -t wav
+_verification:
+    You should clearly hear a voice from the different audio channels.
+
+id: genio-audio/usb-headset-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+_description:
+    Check that the various audio channels are working through USB headset
+_steps:
+    1. Plug the USB headset to device
+    2. Find the sound card via command `$ aplay -l`.
+       For example, the new entry of physical sound card should likes bellow
+          card 1: MS [Jabra EVOLVE LINK MS], device 0: USB Audio [USB Audio]
+            Subdevices: 1/1
+            Subdevice #0: subdevice #0
+    3. Start channels testing
+        $ speaker-test -D plughw:1,0 -c 2 -r 48000 -f S16_LE -l 1 -t wav
+_verification:
+    You should clearly hear a voice from the different audio channels.
+
+id: genio-audio/pcm-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_genio_pcm == 'True'
+_description:
+    This test will check that loopback of PCM works correctly
+_steps:
+    1. GPIO jumper connection
+        # For G1200-evk
+            Use a jumper to short the IO67 and IO65
+        # For G700
+            Use a jumper to short the PCMD0 and PCMD1
+    2. Set the sink and source
+        # For G1200-evk
+            $ pacmd set-default-sink 2
+            $ pacmd set-default-source 5
+        # For G700
+            $ pacmd set-default-sink 2
+            $ pacmd set-default-source 7
+    3. Plug a headset to earphone 3.5mm jack port
+    4. Playback as backgournd
+        $ speaker-test -D pulse -c 2 -r 48000 -f S16_LE -t wav -d 10 &
+    5. Record and Play
+        $ arecord -D pulse -c 2 -r 48000 -f S16_LE | aplay -D hw:0,0 -c 2 -r 48000 -f S16_LE
+_verification:
+    Did you hear the sound of loop audio channel from headset?
+
+id: genio-audio/headset-record-headset-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+_description:
+    This test will check that recording sound using the 3.5mm earphone / headset jack works correctly
+_steps:
+    1. Plug a headset to earphone 3.5mm jack port
+    2. Set the sink and source
+        # For G1200-evk
+            $ pacmd set-default-sink 0
+            $ pacmd set-sink-port 0 "[Out] Headphones"
+            $ pacmd set-default-source 3
+            $ pacmd set-source-port 3 "[In] Headset"
+        # For G700
+            $ pacmd set-default-sink 0
+            $ pacmd set-sink-port 0 "[Out] Headphones"
+            $ pacmd set-default-source 4
+            $ pacmd set-source-port 4 "[In] Headset"
+        # For G350
+            $ pacmd set-default-sink 0  # jack
+            $ pacmd set-sink-port 0 "[Out] Headphones" # Headset
+            $ pacmd set-default-source 3 # PMIC
+            $ pacmd set-source-port 3 "[In] Mic2" # Headset Mic 
+    3. Record for 10 seconds to a wav file
+        $ arecord -D pulse -c 2 -r 48000 -f S16_LE -d 10 headset_record.wav
+    4. Play the record
+        $ aplay -D pulse -c 2 -r 48000 -f S16_LE headset_record.wav
+_verification:
+    Did you hear your speech played back?
+
+id: genio-audio/amic-record-headset-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_genio_amic == 'True'
+_description:
+    This test will check that recording sound using the onboard AMIC works correctly
+_steps:
+    1. Plug a headset to earphone 3.5mm jack port
+    2. Set the sink and source
+        # For G1200-evk
+            $ pacmd set-default-sink 0
+            $ pacmd set-sink-port 0 "[Out] Headphones"
+            $ pacmd set-default-source 3
+            $ pacmd set-source-port 3 "[In] Mic1"
+        # For G700
+            $ pacmd set-default-sink 0
+            $ pacmd set-sink-port 0 "[Out] Headphones"
+            $ pacmd set-default-source 4
+            $ pacmd set-source-port 4 "[In] Mic1"
+        # For G350
+            $ pacmd set-default-sink 0  # jack
+            $ pacmd set-sink-port 0 "[Out] Headphones" # Headset
+            $ pacmd set-default-source 3 # PMIC
+            $ pacmd set-source-port 3 "[In] Mic1" # AMIC
+    2. Record for 10 seconds to a wav file
+        $ arecord -D pulse -c 2 -r 48000 -f S16_LE -d 10 amic_record.wav
+    3. Play the record
+        $ aplay -D pulse -c 2 -r 48000 -f S16_LE amic_record.wav
+_verification:
+    Did you hear your speech played back?
+
+id: genio-audio/dmic-record-headset-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_genio_dmic == 'True'
+_description:
+    This test will check that recording sound using the onboard DMIC works correctly
+_steps:
+    1. Plug a headset to earphone 3.5mm jack port
+    2. Set the sink and source
+        # For G1200-evk
+            $ pacmd set-default-sink 0
+            $ pacmd set-sink-port 0 "[Out] Headphones"
+            $ pacmd set-default-source 4
+        # For G700
+            $ pacmd set-default-sink 0
+            $ pacmd set-sink-port 0 "[Out] Headphones"
+            $ pacmd set-default-source 5
+        # For G350
+            $ pacmd set-default-sink 0  # jack
+            $ pacmd set-sink-port 0 "[Out] Headphones" # Headset
+            $ pacmd set-default-source 2 # DMIC
+            $ pacmd set-source-port 3 "[In] Mic2" # Dmic doesn't work if [In] Mic1 is active
+    2. Record for 10 seconds to a wav file
+        $ arecord -D pulse -c 2 -r 48000 -f S16_LE -d 10 dmic_record.wav
+    3. Play the record
+        $ aplay -D pulse -c 2 -r 48000 -f S16_LE dmic_record.wav
+_verification:
+    Did you hear your speech played back?
+
+id: genio-audio/usb-headset-record-playback
+category_id: genio-audio
+plugin: manual
+flags: also-after-suspend
+estimated_duration: 30.0
+_description:
+    This test will check that recording sound using the USB headset works correctly
+_steps:
+    1. Plug the USB headset to device
+    2. Find the sound card via command `$ aplay -l`.
+       For example, the new entry of physical sound card should likes bellow
+          card 1: MS [Jabra EVOLVE LINK MS], device 0: USB Audio [USB Audio]
+            Subdevices: 1/1
+            Subdevice #0: subdevice #0
+    3. Record for 10 seconds to a wav file with specific card number
+        $ arecord -D plughw:1,0 -c 1 -r 48000 -f S32_LE -d 10 usb_test.wav
+    4. Play the record with specific card number
+        $ aplay -D plughw:1,0 -c 1 -r 48000 -f S32_LE usb_test.wav
+_verification:
+    Did you hear your speech played back?

@@ -1,0 +1,167 @@
+id: client-cert-odm-genio-server-22-04-manual
+unit: test plan
+_name: ODM Client Certification for Genio Server 22.04 - (1/2) Manual tests
+_description:
+    This test plan is intended for use by ODMs in their own facilities as part of
+    the ODM Certification programme. This test plan should be used when certifying
+    Server images.
+mandatory_include:
+    com.canonical.plainbox::manifest
+    executable
+    interface
+    connections
+    model_assertion
+    serial_assertion
+    net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+bootstrap_include:
+    bootloader
+    cpuinfo
+    device
+    net_if_management
+    genio_device_soc
+include:
+nested_part:
+    submission-cert-full
+    self-manual
+    audio-manual
+    bluetooth-manual
+    camera-manual
+    mediacard-manual
+    rtc-manual
+    serial-manual
+    usb-c-manual
+    usb-manual
+    usb3-manual
+    wwan-manual
+    i2c-manual
+    # CE-OEM test plans
+    com.canonical.qa.ceoem::ce-oem-cpu-manual
+    # Genio specific test plans
+    genio-audio-manual
+    genio-display-manual
+    genio-graphic-manual
+    genio-hdmi-rx-manual
+    genio-peripheral-manual
+    genio-power-management-manual
+    # After suspend
+    suspend-tp
+    after-suspend-audio-manual
+    after-suspend-bluetooth-manual
+    after-suspend-ethernet-manual
+    after-suspend-wwan-manual
+    after-suspend-usb-c-manual
+    # CE-OEM test plans after suspend
+    com.canonical.qa.ceoem::after-suspend-ce-oem-cpu-manual
+    # Genio specific test plans after suspend
+    after-suspend-genio-audio-manual
+    after-suspend-genio-display-manual
+    after-suspend-genio-hdmi-rx-manual
+    after-suspend-genio-peripheral-manual
+    after-suspend-genio-power-management-manual
+exclude:
+    mediacard/mmc-.*
+    mediacard/cf-.*
+    mediacard/sdxc-.*
+    mediacard/ms-.*
+    mediacard/msp-.*
+    mediacard/xd-.*
+    mediacard/sd-.*
+    ethernet/wol_S5_.*
+
+id: client-cert-odm-genio-server-22-04-automated
+unit: test plan
+_name: ODM Client Certification for Genio Server 22.04 - (2/2) Automated tests
+_description:
+    This test plan is intended for use by ODMs in their own facilities as part of
+    the ODM Certification programme. This test plan should be used when certifying
+    Server images.
+mandatory_include:
+    com.canonical.plainbox::manifest
+    executable
+    interface
+    connections
+    model_assertion
+    serial_assertion
+    net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+bootstrap_include:
+    bootloader
+    cpuinfo
+    device
+    net_if_management
+    genio_device_soc
+include:
+nested_part:
+    submission-cert-automated
+    self-automated
+    bluez-automated
+    camera-automated
+    mediacard-automated
+    rtc-automated
+    serial-automated
+    usb-c-automated
+    usb-automated
+    usb3-automated
+    watchdog-automated
+    wwan-automated
+    cpu-automated
+    disk-automated
+    ethernet-automated
+    iot-cert-image-automated
+    i2c-automated
+    memory-automated
+    networking-automated
+    snappy-snap-automated
+    wireless-automated
+    wireless-wifi-master-mode-auto
+    # CE-OEM test plans
+    com.canonical.qa.ceoem::ce-oem-cpu-automated
+    # Genio specific test plans
+    genio-thermal-automated
+    genio-boot-automated
+    genio-ebbr-automated
+    genio-peripheral-automated
+    genio-power-management-automated
+    genio-info-automated
+    suspend-tp
+    # After suspend
+    after-suspend-bluez-automated
+    after-suspend-ethernet-automated
+    after-suspend-wireless-automated
+    after-suspend-wwan-automated
+    warm-boot-stress-test
+    cold-boot-stress-test
+    # CE-OEM test plans after suspend
+    com.canonical.qa.ceoem::after-suspend-ce-oem-cpu-automated
+    # Genio specific test plans after suspend
+    after-suspend-genio-boot-automated
+    after-suspend-genio-power-management-automated
+    after-suspend-genio-peripheral-automated
+    after-suspend-genio-power-management-automated
+    # Thermal simulate-overheating will shut system down
+    # So keep it at the bottom of after-suspend
+    after-suspend-genio-thermal-automated
+exclude:
+    mediacard/mmc-.*
+    mediacard/cf-.*
+    mediacard/sdxc-.*
+    mediacard/ms-.*
+    mediacard/msp-.*
+    mediacard/xd-.*
+    rtc/battery
+    networking/predictable_names
+    image/gadget-publisher-canonical
+    image/gadget-tracking-stable
+    image/kernel-publisher-canonical
+    image/kernel-tracking-stable
+    image/model-authority-canonical
+    image/model-brand-canonical
+    wireless/nmcli_wifi_ap_a_.*
+    wireless/nmcli_wifi_ap_bg_.*

@@ -277,6 +277,7 @@ parts:
       - bc
       - bluez-tests
       - bonnie++
+      - clinfo
       - cryptsetup-bin
       - dbus
       - debsums
@@ -284,6 +285,7 @@ parts:
       - dmsetup
       - efibootmgr
       - ethtool
+      - expect
       - freeipmi-tools
       - fswebcam
       - gir1.2-cheese-3.0
@@ -291,6 +293,7 @@ parts:
       - gir1.2-gst-plugins-base-1.0
       - gir1.2-gudev-1.0
       - glmark2-es2
+      - glmark2-es2-wayland
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-pulseaudio
@@ -337,6 +340,7 @@ parts:
       - usbutils
       - util-linux
       - uuid-runtime
+      - vulkan-tools
       - wget
       - wmctrl
       - xz-utils

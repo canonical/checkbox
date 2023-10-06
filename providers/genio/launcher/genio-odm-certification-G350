@@ -1,0 +1,35 @@
+#!/usr/bin/env checkbox-cli-wrapper
+[launcher]
+app_id = com.canonical.certification:checkbox
+launcher_version = 1
+stock_reports = text, submission_files, certification
+
+[test plan]
+unit = com.canonical.certification::client-cert-odm-genio-desktop-22-04-manual
+filter = com.canonical.certification::client-cert-odm-genio-desktop-22-04-manual
+        com.canonical.certification::client-cert-odm-genio-desktop-22-04-automated
+        com.canonical.certification::client-cert-odm-genio-server-22-04-manual
+        com.canonical.certification::client-cert-odm-genio-server-22-04-automated
+
+[test selection]
+exclude = com.canonical.certification::ethernet/wol_S3_.*
+
+[manifest]
+has_ethernet_adapter = true
+has_i2c = true
+has_card_reader = true
+has_audio_capture = true
+has_audio_playback = true
+has_hardware_watchdog = true
+has_usbc_video = false
+has_usbc_data = false
+has_usbc_otg = false
+has_genio_amic = true
+has_genio_dmic = true
+has_genio_pcm = false
+
+
+[environment]
+GENIO_DEVICE=G350
+GENIO_GPU_DRIVER_VERSION=r43p0
+GPIO_LOOPBACK_PIN_MAPPING=0:15:109:0:7:124

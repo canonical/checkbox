@@ -1,0 +1,196 @@
+id: client-cert-odm-genio-desktop-22-04-manual
+unit: test plan
+_name: ODM Client Certification for Genio Desktop 22.04 - (1/2) Manual tests
+_description:
+    This test plan is intended for use by ODMs in their own facilities as part of
+    the ODM Certification programme. This test plan should be used when certifying
+    Desktop images.
+mandatory_include:
+    com.canonical.plainbox::manifest
+    executable
+    interface
+    connections
+    model_assertion
+    serial_assertion
+    net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+bootstrap_include:
+    bootloader
+    cpuinfo
+    device
+    net_if_management
+    genio_device_soc
+include:
+nested_part:
+    submission-cert-full
+    audio-cert-manual
+    bluetooth-cert-manual
+    camera-cert-manual
+    monitor-integrated-gpu-cert-manual
+    graphics-integrated-gpu-cert-manual
+    input-cert-manual
+    disk-cert-manual
+    mediacard-cert-manual
+    mobilebroadband-cert-manual
+    ethernet-cert-manual
+    networking-cert-manual
+    power-management-precheck-cert-manual
+    touchscreen-cert-manual
+    usb-cert-manual
+    usb3-cert-manual
+    usb-c-cert-full # no manual only
+    usb-c-manual
+    wireless-cert-manual
+    # CE-OEM
+    com.canonical.qa.ceoem::ce-oem-cpu-manual
+    # Genio specific test plans
+    genio-audio-manual
+    genio-display-manual
+    genio-graphic-manual
+    genio-hdmi-rx-manual
+    genio-peripheral-manual
+    genio-power-management-manual
+    # start of suspend related tests
+    before-suspend-reference-cert-full
+    # suspend point
+    after-suspend-reference-cert-full
+    after-suspend-graphics-integrated-gpu-cert-manual
+    after-suspend-monitor-integrated-gpu-cert-full
+    after-suspend-audio-cert-full # no-manual only
+    after-suspend-bluetooth-cert-manual
+    after-suspend-camera-cert-full # no-manual only
+    after-suspend-input-cert-full # no-manual only
+    after-suspend-mediacard-cert-full # no-manual only
+    after-suspend-touchscreen-cert-manual
+    after-suspend-usb-cert-full # no-manual only
+    after-suspend-usb3-cert-full # no-manual only
+    after-suspend-usb-c-cert-full # no manual only
+    # after-suspend-wireless-cert-full # auto only
+    after-suspend-usb-c-manual
+    info-attachment-cert-full
+    # CE-OEM after suspend
+    com.canonical.qa.ceoem::after-suspend-ce-oem-cpu-manual
+    # Genio specific test plans after suspend 
+    after-suspend-genio-audio-manual
+    after-suspend-genio-display-manual
+    after-suspend-genio-graphic-manual
+    after-suspend-genio-hdmi-rx-manual
+    after-suspend-genio-peripheral-manual
+    after-suspend-genio-power-management-manual
+exclude:
+    thunderbolt3/daisy-chain
+    graphics/.*_glxgears_.*
+    graphics/.*_glxgears_fullscreen_.*
+    monitor/1_vga_.*
+    monitor/1_type-c_vga_.*
+    monitor/1_thunderbolt3_.*
+    monitor/1_dvi_.*
+    monitor/1_displayport_.*
+    monitor/1_dim_brightness_.*
+    power-management/lid
+    power-management/lid_close_suspend_open
+    power-management/light_sensor
+    usb-c/hid
+    after-suspend-thunderbolt3/daisy-chain
+    after-suspend-graphics/.*_glxgears_.*
+    after-suspend-graphics/.*_glxgears_fullscreen_.*
+    after-suspend-monitor/1_vga_.*
+    after-suspend-monitor/1_type-c_vga_.*
+    after-suspend-monitor/1_thunderbolt3_.*
+    after-suspend-monitor/1_dvi_.*
+    after-suspend-monitor/1_displayport_.*
+    after-suspend-monitor/1_dim_brightness_.*
+    after-suspend-power-management/light_sensor
+    after-suspend-usb-c/hid
+
+id: client-cert-odm-genio-desktop-22-04-automated
+unit: test plan
+_name: ODM Client Certification for Genio Desktop 22.04 - (2/2) Automated tests
+_description:
+    This test plan is intended for use by ODMs in their own facilities as part of
+    the ODM Certification programme. This test plan should be used when certifying
+    Desktop images.
+mandatory_include:
+    com.canonical.plainbox::manifest
+    executable
+    interface
+    connections
+    model_assertion
+    serial_assertion
+    net_if_management_attachment
+    lspci_attachment
+    lsusb_attachment
+    rtc
+    sleep
+bootstrap_include:
+    bootloader
+    cpuinfo
+    device
+    net_if_management
+    genio_device_soc
+include:
+nested_part:
+    submission-cert-full
+    audio-cert-automated
+    bluetooth-cert-automated
+    camera-cert-automated
+    monitor-integrated-gpu-cert-automated
+    graphics-integrated-gpu-cert-automated
+    input-cert-automated
+    disk-cert-manual
+    mediacard-cert-automated
+    mobilebroadband-cert-automated
+    ethernet-cert-automated
+    networking-cert-automated
+    power-management-precheck-cert-automated
+    usb-cert-automated
+    usb3-cert-automated
+    wireless-cert-automated
+    # CE-OEM
+    com.canonical.qa.ceoem::ce-oem-cpu-automated
+    # Genio specific test plans
+    genio-thermal-automated
+    genio-boot-automated
+    genio-ebbr-automated
+    genio-peripheral-automated
+    genio-power-management-automated
+    genio-graphic-automated
+    genio-info-automated
+    before-suspend-reference-cert-full
+    after-suspend-reference-cert-full
+    after-suspend-graphics-integrated-gpu-cert-automated
+    after-suspend-wireless-cert-automated
+    # CE-OEM after suspend
+    com.canonical.qa.ceoem::after-suspend-ce-oem-cpu-automated
+    # Genio specific test plans after suspend
+    after-suspend-genio-graphic-automated
+    after-suspend-genio-boot-automated
+    after-suspend-genio-power-management-automated
+    after-suspend-genio-peripheral-automated
+    # Thermal simulate-overheating will shut system down
+    # So keep it at the bottom of after-suspend 
+    after-suspend-genio-thermal-automated
+    # Automated Tests
+    # The following tests are purely automated and/or lenghty stress tests.
+    # They have been moved to the end of the test run to improve the testing
+    # process.
+    misc-client-cert-full
+    cpu-cert-automated
+    disk-cert-automated
+    stress-iperf3-automated
+    warm-boot-stress-test
+    cold-boot-stress-test
+    suspend-stress-test
+    stress-ng-cert-automated
+    info-attachment-cert-full
+exclude:
+    suspend/1_resolution_before_suspend_.*(?<!_auto_auto)
+    suspend/1_resolution_after_suspend_.*(?<!_auto_auto)
+    suspend/1_suspend-time-check.*
+    suspend/1_suspend-single-log-attach_.*
+    suspend/1_suspend_after_switch_to_card_.*
+    graphics/1_gl_support_.*
+    after-suspend-graphics/1_gl_support_.*

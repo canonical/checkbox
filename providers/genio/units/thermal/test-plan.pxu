@@ -1,0 +1,45 @@
+id: baoshan-thermal-full
+unit: test plan
+_name: Baoshan Thermal tests
+_description: Full Baoshan Thermal tests for devices
+include:
+nested_part:
+    baoshan-thermal-manual
+    baoshan-thermal-automated
+
+id: baoshan-thermal-manual
+unit: test plan
+_name: Baoshan Thermal manual tests
+_description: Manual Baoshan Thermal tests for devices
+include:
+
+id: baoshan-thermal-automated
+unit: test plan
+_name: Baoshan Thermal auto tests
+_description: Automated Baoshan Thermal tests for devices
+include:
+    baoshan-thermal/thermal
+    baoshan-thermal/simulate-overheating
+    baoshan-thermal/post-simulate-overheating
+
+id: after-suspend-baoshan-thermal-full
+unit: test plan
+_name: Baoshan Thermal tests (after suspend)
+_description: Full after suspend Baoshan Thermal tests for devices
+include:
+nested_part:
+
+id: after-suspend-baoshan-thermal-manual
+unit: test plan
+_name: Baoshan Thermal manual tests (after suspend)
+_description: Manual after suspend Baoshan Thermal tests for devices
+include:
+
+id: after-suspend-baoshan-thermal-automated
+unit: test plan
+_name: Baoshan Thermal auto tests (after suspend)
+_description: Automated after suspend Baoshan Thermal tests for devices
+include:
+    after-suspend-baoshan-thermal/thermal
+    after-suspend-baoshan-thermal/simulate-overheating
+    after-suspend-baoshan-thermal/post-simulate-overheating

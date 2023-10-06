@@ -1,0 +1,40 @@
+id: fwts_ebbr_resource
+_summary: Generates a Fwts EBBR cases for EBBR test
+estimated_duration: 0.02
+category_id: genio-ebbr
+plugin: resource
+environ: GPIO_LOOPBACK_PIN_MAPPING GENIO_DEVICE
+command:
+    ebbr_resource.py
+
+unit: template
+template-resource: fwts_ebbr_resource
+template-unit: job
+id: genio-ebbr/fwts-ebbr-{case}
+_summary: Fwts EBBR {case} test
+_description: {description}
+plugin: shell
+user: root
+category_id: genio-ebbr
+estimated_duration: 5s
+flags: also-after-suspend
+environ: PLAINBOX_SESSION_SHARE
+command:
+    fwts -q {case} -r "$PLAINBOX_SESSION_SHARE"/{case}.log
+    RET=$?
+    cat "$PLAINBOX_SESSION_SHARE"/{case}.log
+    exit $RET
+
+id: genio-ebbr/ebbr-boot
+category_id: genio-ebbr
+plugin: shell
+user: root
+estimated_duration: 0.5
+_summary: UEFI-EBBR Boot Flow
+_description: Standard UEFI-EBBR boot flow porposed by the ARM SystemReady IR specification
+command:
+    if ! dmesg | grep -P 'efi: EFI .* by Das U-Boot' ; then
+        echo "FAIL: unable to find 'efi: EFI ... by Das U-Boot' in dmesg"
+        exit 1
+    fi
+    echo "PASS: System follows the UEFI-EBBR boot flow."

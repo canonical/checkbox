@@ -1,0 +1,17 @@
+unit: manifest entry
+id: has_genio_dsi
+_name: DSI Display Panel
+_prompt: Does this machine have the following built-in display?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_edp
+_name: eDP Display Panel
+_prompt: Does this machine have the following built-in display?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_lvds
+_name: LVDS Display Panel
+_prompt: Does this machine have the following built-in display?
+value-type: bool

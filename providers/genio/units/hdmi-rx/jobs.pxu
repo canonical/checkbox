@@ -1,0 +1,219 @@
+id: genio-hdmi-rx/module-detect
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 1
+requires: genio_device_soc.SoC == "mt8395"
+user: root
+_summary: Check the mtk_hdmirx module has been loaded
+command:
+    echo "Check the mtk_hdmirx module has been loaded..."
+    lsmod | grep -w mtk_hdmirx
+    if [[ "$?" -ne 0 ]]; then
+        echo "Failed: The 'mtk_hdmirx' module isn't loaded!"
+        exit 1
+    fi
+    echo
+    echo "Pass"
+
+id: genio-hdmi-rx/plug-event-detect
+plugin: user-interact
+category_id: genio-hdmi-rx
+estimated_duration: 20
+depends: genio-hdmi-rx/module-detect
+requires: genio_device_soc.SoC == "mt8395"
+flags: also-after-suspend
+user: root
+command:
+    EXIT=0
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log start_observing
+    echo
+    expected_events='HDMI_RX_PWR_5V_CHANGE HDMI_RX_PLUG_IN HDMI_RX_TIMING_LOCK HDMI_RX_AUD_LOCK'
+    for event in $expected_events
+    do
+        echo "Checking event: $event..."
+        if [ "$(grep -w $event $temp_log)" == "" ]; then
+            echo "- FAIL: Unable to find the '$event' event"
+            EXIT=1
+        else
+            echo "- PASS"
+        fi
+    done
+    exit $EXIT
+_summary: Check the event by hdmi_rx tool while plugging the HDMI cable to HDMI RX port
+_purpose:
+    This test checks the HDMI_RX_PWR_5V_CHANGE, HDMI_RX_PLUG_IN, HDMI_RX_TIMING_LOCK and HDMI_RX_AUD_LOCK events can be detected
+    while the HDMI RX port be connected with a Host or Player such as Laptop through HDMI cable.
+_steps:
+    On Host or Player side such as a Laptop with Ubuntu 22.04 Desktop Image:
+        1. Check and set the value of Sample Specification to be "s16le 2ch 48000Hz"
+            - List all sinks via command '$ pactl list sinks' and check the value of specific HDMI output
+        2. Plug a HDMI cable to Host or Player
+    On DUT side:
+        1. Press "Enter" to perform event detection
+        2. You will have 15 seconds to plug the HDMI cable to HDMI RX port
+
+id: genio-hdmi-rx/check-hdmi-cable-connection
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends: genio-hdmi-rx/module-detect
+requires: genio_device_soc.SoC == "mt8395"
+flags: also-after-suspend
+user: root
+command:
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log check_cable
+    echo
+    hdmirx_output_checker.sh $temp_log verify_check_cable_output "hdmi connected"
+_summary: Check the HDMI connection by using hdmi_rx tool 
+_description:
+    This test checks the hdmi_rx tool should shows the "hdmi connected" information after
+    the HDMI RX port be connected with a Host or Player such as Laptop through HDMI cable.
+
+id: genio-hdmi-rx/check-video-info
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends:
+    genio-hdmi-rx/module-detect
+    genio-hdmi-rx/check-hdmi-cable-connection
+requires: genio_device_soc.SoC == "mt8395"
+flags: also-after-suspend
+user: root
+command:
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log check_video_locked
+    echo
+    hdmirx_output_checker.sh $temp_log verify_check_video_locked_output "video locked"
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log get_video_info
+    echo
+    expected_values="1920 1080 60"
+    hdmirx_output_checker.sh $temp_log verify_get_video_info_output "${expected_values}"
+_summary: Check the event by hdmi_rx tool while plugging the HDMI cable to HDMI RX port
+_description:
+    This test checks some video information from hdmi_rx tool should match the expectation.
+    It expectes v.hactive = 1920, v.vactive = 1080 and v.frame_rate = 60 once the HDMI RX port
+    be connected with a Host or Player such as Laptop through HDMI cable.
+
+id: genio-hdmi-rx/check-audio-info
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends:
+    genio-hdmi-rx/module-detect
+    genio-hdmi-rx/check-hdmi-cable-connection
+requires: genio_device_soc.SoC == "mt8395"
+flags: also-after-suspend
+user: root
+command:
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log check_audio_locked
+    echo
+    hdmirx_output_checker.sh $temp_log verify_check_audio_locked_output "video locked"
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log get_audio_info
+    echo
+    expected_values="24 bits, Channel Number [2], 48.0 kHz"
+    hdmirx_output_checker.sh $temp_log verify_get_audio_info_output "${expected_values}"
+_summary: Check the event by hdmi_rx tool while plugging the HDMI cable to HDMI RX port
+_description:
+    This test checks some audio information from hdmi_rx tool should match the expectation.
+    It expectes '24 bits' in 'Audio Bits' section , 'Channel Number [2]' in 'Audio Channel Info' section and
+    '48.0 kHz' in 'Audio Sample Freq' section once the HDMI RX port be connected with a Host or Player such as Laptop through HDMI cable.
+
+id: genio-hdmi-rx/disable-hdmi
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends:
+    genio-hdmi-rx/module-detect
+    genio-hdmi-rx/check-hdmi-cable-connection
+requires: genio_device_soc.SoC == "mt8395"
+flags: also-after-suspend
+user: root
+command:
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log disable_hdmi
+    hdmirx_tool_runner.sh $temp_log check_cable
+    echo
+    hdmirx_output_checker.sh $temp_log verify_check_cable_output "hdmi disconnected"
+_summary: Disable the HDMI RX functionaliy by hdmi_rx tool
+_description:
+    This test will disable the functionaliy of HDMI RX by using hdmi_rx tool and the HDMI RX port still be connected.
+
+id: genio-hdmi-rx/enable-hdmi
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends:
+    genio-hdmi-rx/module-detect
+    genio-hdmi-rx/disable-hdmi
+requires: genio_device_soc.SoC == "mt8395"
+flags: also-after-suspend
+user: root
+command:
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log enable_hdmi
+    hdmirx_tool_runner.sh $temp_log check_cable
+    echo
+    hdmirx_output_checker.sh $temp_log verify_check_cable_output "hdmi connected"
+    # Verify Video info
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log check_video_locked
+    echo
+    hdmirx_output_checker.sh $temp_log verify_check_video_locked_output "video locked"
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log get_video_info
+    echo
+    expected_values="1920 1080 60"
+    hdmirx_output_checker.sh $temp_log verify_get_video_info_output "${expected_values}"
+    # Verify Audio info
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log check_audio_locked
+    echo
+    hdmirx_output_checker.sh $temp_log verify_check_audio_locked_output "video locked"
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log get_audio_info
+    echo
+    expected_values="24 bits, Channel Number [2], 48.0 kHz"
+    hdmirx_output_checker.sh $temp_log verify_get_audio_info_output "${expected_values}"
+_summary: Enable the HDMI RX functionaliy by hdmi_rx tool
+_description:
+    This test will enable the functionaliy of HDMI RX by using hdmi_rx tool and the HDMI RX port still be connected.
+
+id: genio-hdmi-rx/unplug-event-detect
+plugin: user-interact
+category_id: genio-hdmi-rx
+estimated_duration: 20
+depends: genio-hdmi-rx/module-detect
+requires: genio_device_soc.SoC == "mt8395"
+flags: also-after-suspend
+user: root
+command:
+    EXIT=0
+    temp_log=$( mktemp )
+    hdmirx_tool_runner.sh $temp_log start_observing
+    echo
+    expected_events='HDMI_RX_AUD_UNLOCK HDMI_RX_TIMING_UNLOCK HDMI_RX_PWR_5V_CHANGE HDMI_RX_PLUG_OUT'
+    for event in $expected_events
+    do
+        echo "Checking event: $event ..."
+        if [ "$(grep -w $event $temp_log)" == "" ]; then
+            echo "- FAIL: Unable to find the '$event' event"
+            EXIT=1
+        else
+            echo "- PASS"
+        fi
+    done
+    exit $EXIT
+_summary: Check the event by hdmi_rx tool while removing the HDMI cable from HDMI RX port
+_purpose:
+    This test checks the HDMI_RX_AUD_UNLOCK, HDMI_RX_TIMING_UNLOCK, HDMI_RX_PWR_5V_CHANGE and HDMI_RX_PLUG_OUT events can be detected
+    while removing the HDMI cable from HDMI RX port.
+_steps:
+    1. Plug the HDMI cable to HDMI RX port if it's not connected yet
+    2. Press "Enter" to perform event detection
+    3. You will have 15 seconds to remove the HDMI cable from HDMI RX port
+

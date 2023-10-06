@@ -1,0 +1,8 @@
+id: genio-info/fw_printenv
+category_id: genio-info
+plugin: shell
+user: root
+estimated_duration: 0.5
+_summary: Dump u-boot environment variables from OS via command fw_printenv
+_description: Dump u-boot environment variables
+command: fw_printenv

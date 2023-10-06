@@ -1,0 +1,53 @@
+id: genio-graphic-full
+unit: test plan
+_name: Genio Graphic tests
+_description: Full Genio Graphic tests for devices
+include:
+nested_part:
+    genio-graphic-manual
+    genio-graphic-automated
+
+id: genio-graphic-manual
+unit: test plan
+_name: Genio Graphic manual tests
+_description: Manual Genio Graphic tests for devices
+include:
+
+id: genio-graphic-automated
+unit: test plan
+_name: Genio Graphic auto tests
+_description: Automated Genio Graphic tests for devices
+include:
+    genio-graphic/eglinfo
+    genio-graphic/rendering-api-vulkan
+    genio-graphic/computation-api-opencl
+    genio-graphic/set-device-to-performance-mode
+    genio-graphic/glmark2-es2-wayland
+    genio-graphic/set-device-back-to-origianl-mode
+
+id: after-suspend-genio-graphic-full
+unit: test plan
+_name: Genio Graphic tests (after suspend)
+_description: Full after suspend Genio Graphic tests for devices
+include:
+nested_part:
+    after-suspend-genio-graphic-manual
+    after-suspend-genio-graphic-automated
+
+id: after-suspend-genio-graphic-manual
+unit: test plan
+_name: Genio Graphic manual tests (after suspend)
+_description: Manual after suspend Genio Graphic tests for devices
+include:
+
+id: after-suspend-genio-graphic-automated
+unit: test plan
+_name: Genio Graphic auto tests (after suspend)
+_description: Automated after suspend Genio Graphic tests for devices
+include:
+    after-suspend-genio-graphic/eglinfo
+    after-suspend-genio-graphic/rendering-api-vulkan
+    after-suspend-genio-graphic/computation-api-opencl
+    after-suspend-genio-graphic/set-device-to-performance-mode
+    after-suspend-genio-graphic/glmark2-es2-wayland
+    after-suspend-genio-graphic/set-device-back-to-origianl-mode

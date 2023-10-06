@@ -2,7 +2,7 @@ id: ce-oem-crypto/caam/rng-available
 _summary: Check if rng-caam is avaliable.
 plugin: shell
 user: root
-category_id: caam
+category_id: crypto
 flags: also-after-suspend
 estimated_duration: 1
 requires: manifest.has_caam == 'True'
@@ -23,7 +23,7 @@ id: ce-oem-crypto/caam/caam_hwrng_test
 _summary: Check if CAAM job ring increased after generate random number by using hwrng.
 plugin: shell
 user: root
-category_id: caam
+category_id: crypto
 flags: also-after-suspend
 estimated_duration: 10
 depends: ce-oem-crypto/caam/rng-available
@@ -52,7 +52,7 @@ command:
 id: ce-oem-crypto/caam/algo_check
 _summary: Check CAAM algorithm is in the system /proc/crypto
 plugin: shell
-category_id: caam
+category_id: crypto
 flags: also-after-suspend
 estimated_duration: 1
 requires: manifest.has_caam == 'True'
@@ -68,62 +68,35 @@ command:
     echo -e "\nPlease refer to resource job cryptoinfo for more detail"
     exit "$status"
 
-id: ce-oem-crypto/caam/af_alg_hash_test
-_summary: Check if CAAM job ring increased after using AF_ALG with type HASH.
+id: ce-oem-crypto/check-caam-priority
+_summary: Check CAAM priority is in the system /proc/crypto
 plugin: shell
-user: root
-category_id: caam
+category_id: crypto
 flags: also-after-suspend
-depends: ce-oem-crypto/caam/algo_check
-estimated_duration: 10
-requires:
-    ('caam' in cryptoinfo.driver and cryptoinfo.name == 'sha256' and cryptoinfo.type == 'ahash')
-imports:
-    from com.canonical.qa.ceoem import cryptoinfo
+estimated_duration: 1
+requires: manifest.has_caam == 'True'
+imports: from com.canonical.plainbox import manifest
 command:
-    af_alg_test.py hash
+    crypto_priority_check.py -t caam
 
-id: ce-oem-crypto/caam/af_alg_aead_test
-_summary: Check if CAAM job ring increased after using AF_ALG with type AEAD.
+id: ce-oem-crypto/check-mcrc-priority
+_summary: Check MCRC priority is in the system /proc/crypto
 plugin: shell
-user: root
-category_id: caam
+category_id: crypto
 flags: also-after-suspend
-depends: ce-oem-crypto/caam/algo_check
-estimated_duration: 10
-requires:
-    ('caam' in cryptoinfo.driver and cryptoinfo.name == 'gcm(aes)' and cryptoinfo.type == 'aead')
-imports:
-    from com.canonical.qa.ceoem import cryptoinfo
+estimated_duration: 1
+requires: manifest.has_mcrc_engine == 'True'
+imports: from com.canonical.plainbox import manifest
 command:
-    af_alg_test.py aead
+    crypto_priority_check.py -t mcrc
 
-id: ce-oem-crypto/caam/af_alg_skcipher_test
-_summary: Check if CAAM job ring increased after using AF_ALG with type SKCIPHER.
+id: ce-oem-crypto/check-sa2ul-priority
+_summary: Check SA2UL priority is in the system /proc/crypto
 plugin: shell
-user: root
-category_id: caam
+category_id: crypto
 flags: also-after-suspend
-depends: ce-oem-crypto/caam/algo_check
-estimated_duration: 10
-requires:
-    ('caam' in cryptoinfo.driver and cryptoinfo.name == 'cbc(aes)' and cryptoinfo.type == 'skcipher')
-imports:
-    from com.canonical.qa.ceoem import cryptoinfo
+estimated_duration: 1
+requires: manifest.has_sa2ul_engine == 'True'
+imports: from com.canonical.plainbox import manifest
 command:
-    af_alg_test.py skcipher
-
-id: ce-oem-crypto/caam/af_alg_rng_test
-_summary: Check if CAAM job ring increased after using AF_ALG with type RNG.
-plugin: shell
-user: root
-category_id: caam
-flags: also-after-suspend
-depends: ce-oem-crypto/caam/algo_check
-estimated_duration: 10
-requires:
-    ('caam' in cryptoinfo.driver and cryptoinfo.name == 'stdrng' and cryptoinfo.type == 'rng')
-imports:
-    from com.canonical.qa.ceoem import cryptoinfo
-command:
-    af_alg_test.py rng
+    crypto_priority_check.py -t sa2ul

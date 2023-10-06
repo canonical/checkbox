@@ -22,6 +22,11 @@ bootstrap_include:
     hwrng
 include:
     ce-oem-crypto/benchmark
+    ce-oem-crypto/af_alg_hash_crc64_test
+    ce-oem-crypto/af_alg_hash_sha256_test
+    ce-oem-crypto/af_alg_aead_gcm_aes_test
+    ce-oem-crypto/af_alg_skcipher_cbc_aes_test
+    ce-oem-crypto/af_alg_rng_stdrng_test
 
 id: after-suspend-ce-oem-crypto-full
 unit: test plan
@@ -46,4 +51,9 @@ bootstrap_include:
     cryptoinfo
     hwrng
 include:
-    also-after-suspend-ce-oem-crypto/benchmark
+    after-suspend-ce-oem-crypto/benchmark
+    after-suspend-ce-oem-crypto/af_alg_hash_crc64_test
+    after-suspend-ce-oem-crypto/af_alg_hash_sha256_test
+    after-suspend-ce-oem-crypto/af_alg_aead_gcm_aes_test
+    after-suspend-ce-oem-crypto/af_alg_skcipher_cbc_aes_test
+    after-suspend-ce-oem-crypto/af_alg_rng_stdrng_test

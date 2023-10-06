@@ -3,15 +3,16 @@ import socket
 import argparse
 import unittest
 import struct
+import os
 
 
 # This socket unit test is from python package /Lib/test/test_socket.py
 class LinuxKernelCryptoAPI(unittest.TestCase):
     # tests for AF_ALG
-    def create_alg(self, typ, name):
+    def create_alg(self, crypto_type, name):
         sock = socket.socket(socket.AF_ALG, socket.SOCK_SEQPACKET, 0)
         try:
-            sock.bind((typ, name))
+            sock.bind((crypto_type, name))
         except FileNotFoundError as e:
             # type / algorithm is not available
             sock.close()
@@ -23,7 +24,17 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
         else:
             return sock
 
-    def test_sha256(self):
+    def test_hash_crc64(self):
+        data = b"abcdefghijklmnopqrstuvwxyz" * 1024 * 1024
+        with self.create_alg("hash", "crc64") as algo:
+            op, _ = algo.accept()
+            with op:
+                op.send(data, socket.MSG_MORE)
+                return_data = op.recv(64).hex()
+                self.assertEqual(len(return_data), 16)
+                print("hash: {}".format(return_data))
+
+    def test_hash_sha256(self):
         expected = bytes.fromhex(
             "ba7816bf8f01cfea414140de5dae2223b00361a396"
             "177a9cb410ff61f20015ad"
@@ -43,7 +54,7 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
                 self.assertEqual(op.recv(512), expected)
                 print("hash: {}".format(op.recv(512).hex()))
 
-    def test_aes_cbc(self):
+    def test_skcipher_cbc_aes(self):
         key = bytes.fromhex("06a9214036b8a15b512e03d534120006")
         iv = bytes.fromhex("3dafba429d9eb430b422da802c9fac41")
         msg = b"Single block msg"
@@ -82,7 +93,7 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
             self.assertEqual(dec, msg * multiplier)
             print("skcipher: {}".format(dec.hex()))
 
-    def test_aead_aes_gcm(self):
+    def test_aead_gcm_aes(self):
         key = bytes.fromhex("c939cc13397c1d37de6ae0e1cb7c423c")
         iv = bytes.fromhex("b3d8cc017cbb89b39e0f67e2")
         plain = bytes.fromhex("c3b3c41f113a31b73d9a5cd432103069")
@@ -170,10 +181,13 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
                 self.assertEqual(plain, res[assoclen:])
                 print("aead: {}".format(res[assoclen:].hex()))
 
-    def test_rng(self):
+    def test_rng_stdrng(self):
         with self.create_alg("rng", "stdrng") as algo:
-            # extra_seed = os.urandom(32)
-            # algo.setsockopt(socket.SOL_ALG, socket.ALG_SET_KEY, extra_seed)
+            try:
+                extra_seed = os.urandom(32)
+                algo.setsockopt(socket.SOL_ALG, socket.ALG_SET_KEY, extra_seed)
+            except OSError:
+                print("failed to seeded {} to RNG".format(extra_seed))
             op, _ = algo.accept()
             with op:
                 rn = op.recv(32)
@@ -181,57 +195,24 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
                 print("rng: {}".format(rn.hex()))
 
 
-def get_interrupt():
-    interrupt_sum = 0
-    with open("/proc/interrupts", "r") as a:
-        data = a.readlines()
-    for line in data:
-        if ".jr" in line:
-            interrupt_sum += int(line.split()[1])
-    if not interrupt_sum:
-        raise Exception("Error: Cannot find CAAM job ring interrupts")
-    return interrupt_sum
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "type",
-        choices=["aead", "hash", "skcipher", "rng"],
-        help='AF_ALG type in "aead", "hash", "skcipher" and "rng"',
+        "--type",
+        choices=[
+            "hash_crc64",
+            "hash_sha256",
+            "skcipher_cbc_aes",
+            "aead_gcm_aes",
+            "rng_stdrng"
+        ],
+        help='AF_ALG type and algorithm',
     )
     args = parser.parse_args()
-    rng_test = LinuxKernelCryptoAPI()
-    init_interrupt = get_interrupt()
-    print(
-        "CAAM Job ring interrupt before using Hardware RNG: {}".format(
-            init_interrupt
-        )
-    )
-    if args.type == "hash":
-        print("Starting AF_ALG type {}...".format(args.type))
-        rng_test.test_sha256()
-    elif args.type == "skcipher":
-        print("Starting AF_ALG type {}...".format(args.type))
-        rng_test.test_aes_cbc()
-    elif args.type == "aead":
-        print("Starting AF_ALG type {}...".format(args.type))
-        rng_test.test_aead_aes_gcm()
-    elif args.type == "rng":
-        print("Starting AF_ALG type {}...".format(args.type))
-        rng_test.test_rng()
-    else:
-        raise Exception("Error: non-defined AF_ALG type!")
-    current_interrupt = get_interrupt()
-    print(
-        "CAAM Job ring interrupt after using Hardware RNG: {}".format(
-            current_interrupt
-        )
-    )
-    if current_interrupt > init_interrupt:
-        print("PASS: CAAM job ring interrupts have increased.")
-    else:
-        raise Exception("FAIL: CAAM job ring interrupts didn't increase!")
+    crypto_test = LinuxKernelCryptoAPI()
+
+    print("Starting AF_ALG type {}...".format(args.type))
+    getattr(crypto_test, "test_{}".format(args.type))()
 
 
 if __name__ == "__main__":

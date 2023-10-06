@@ -10,20 +10,20 @@ id: hwrng
 estimated_duration: 1
 plugin: resource
 user: root
-command: 
+command:
     path_hwrng='/sys/class/misc/hw_random/'
     if [ -e "$path_hwrng/rng_available" ]; then
         echo "HWRNG_Available: $(cat "$path_hwrng"rng_available)"
     fi
     if [ -e "$path_hwrng/rng_current" ]; then
         echo "HWRNG_Current: $(cat "$path_hwrng"rng_current)"
-    fi        
+    fi
     if [ -e "$path_hwrng/rng_qulity" ]; then
         echo "HWRNG_Quality: $(cat "$path_hwrng"rng_qulity)"
-    fi        
+    fi
     if [ -e "$path_hwrng/rng_selected" ]; then
         echo "HWRNG_Selected: $(cat "$path_hwrng"rng_selected)"
-    fi        
+    fi
 _summary: Collect information about the Hardware RNG in system
 
 id: ce-oem-crypto/cryptsetup_benchmark
@@ -31,7 +31,7 @@ _summary: Measure the cryptographic performance of system
 _description: Measure the cryptographic performance of system by using cryptsetup
 plugin: shell
 user: root
-category_id: caam
+category_id: crypto
 flags: also-after-suspend
 estimated_duration: 30
 command:
@@ -39,3 +39,69 @@ command:
     echo "Starting cryptographic benchmark testing ..."
     cryptsetup benchmark | tee "$log"
     awk '/aes-xts *512b/ {encryption=$3; decryption=$5} END {print "Performace of AES-XTS 512b", "\nEncryption:", encryption, "Mib/s", "\nDecryption:", decryption, "Mib/s"}' "$log"
+
+id: ce-oem-crypto/af_alg_hash_crc64_test
+_summary: Check kernel crypto API is functional with type HASH - CRC64 algorithm
+plugin: shell
+user: root
+category_id: crypto
+flags: also-after-suspend
+estimated_duration: 10
+requires: cryptoinfo.name == 'crc64'
+imports:
+    from com.canonical.qa.ceoem import cryptoinfo
+command:
+    af_alg_test.py --type hash_crc64
+
+id: ce-oem-crypto/af_alg_hash_sha256_test
+_summary: Check kernel crypto API is functional with type HASH - SHA256 algorithm
+plugin: shell
+user: root
+category_id: crypto
+flags: also-after-suspend
+estimated_duration: 10
+requires: cryptoinfo.name == 'sha256'
+imports:
+    from com.canonical.qa.ceoem import cryptoinfo
+command:
+    af_alg_test.py --type hash_sha256
+
+id: ce-oem-crypto/af_alg_aead_gcm_aes_test
+_summary: Check if kernel crypto API is functional with type AEAD - GCM AES algorithm.
+plugin: shell
+user: root
+category_id: crypto
+flags: also-after-suspend
+estimated_duration: 10
+requires:
+    (cryptoinfo.name == 'gcm(aes)' and cryptoinfo.type == 'aead')
+imports:
+    from com.canonical.qa.ceoem import cryptoinfo
+command:
+    af_alg_test.py --type aead_gcm_aes
+
+id: ce-oem-crypto/af_alg_skcipher_cbc_aes_test
+_summary: Check if kernel crypto API is functional with type SKCIPHER - CBC AES algorithm.
+plugin: shell
+user: root
+category_id: crypto
+flags: also-after-suspend
+estimated_duration: 10
+requires: cryptoinfo.name == 'cbc(aes)'
+imports:
+    from com.canonical.qa.ceoem import cryptoinfo
+command:
+    af_alg_test.py --type skcipher_cbc_aes
+
+id: ce-oem-crypto/af_alg_rng_stdrng_test
+_summary: Check if kernel crypto API is functional with type RNG - stdrng algorithm.
+plugin: shell
+user: root
+category_id: crypto
+flags: also-after-suspend
+estimated_duration: 10
+requires: cryptoinfo.name == 'stdrng'
+imports:
+    from com.canonical.qa.ceoem import cryptoinfo
+command:
+    af_alg_test.py --type rng_stdrng

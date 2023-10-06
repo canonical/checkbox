@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase, mock
+from unittest import TestCase, mock, MagicMock
 
 from checkbox_ng.launcher.check_config import CheckConfig
 from plainbox.impl.config import Configuration
@@ -49,3 +49,10 @@ class CheckConfigTests(TestCase):
         mock_print.assert_any_call("Problems:")
         mock_print.assert_any_call("- ", "Test problem")
         self.assertEqual(ret_val, 1)
+
+    def test_register_argument(self):
+        self_mock = MagicMock()
+        parser_mock = MagicMock()
+        CheckConfig.register_argument(self_mock, parser_mock)
+
+        self.assertTrue(parser_mock.add_argument.called)

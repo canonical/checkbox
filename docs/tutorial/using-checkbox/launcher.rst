@@ -244,8 +244,8 @@ and where it comes from. Run the following command:
 
 .. code-block:: none
 
-    $ checkbox.checkbox-cli check-config
-    Configuration files:
+   $ checkbox.checkbox-cli check-config
+   Configuration files:
      - /var/snap/checkbox/2799/checkbox.conf
      - /home/user/.config/checkbox.conf
        [config]
@@ -285,6 +285,43 @@ looking at the output above, I can see that the ``STRESS_S3_WAIT_DELAY``
 environment variable is set to ``120`` because it is specified in
 a Checkbox configuration that comes with the snap version I'm using
 (``/var/snap/checkbox/2799/checkbox.conf``).
+
+If you want to debug a Checkbox run that involves a ``launcher``, fear not.
+The ``check-config`` command works with launchers as well. Try the previous
+command with the ``launcher`` we created before:
+
+.. code-block:: none
+    :emphasize-lines: 8,14,17-18,21,28
+
+    $ checkbox.checkbox-cli check-config mylauncher
+    Configuration files:
+     - /var/snap/checkbox/2799/checkbox.conf
+     - /home/user/.config/checkbox.conf
+       [config]
+         config_filename=checkbox.conf      (Default)
+       [launcher]
+         app_id=com.canonical.certification:tutorial From config file: /home/user/mylauncher
+         app_version=                       (Default)
+         launcher_version=1                 From config file: /home/user/.config/checkbox.conf
+         local_submission=True              (Default)
+         session_desc=                      (Default)
+         session_title=session title        (Default)
+         stock_reports=text, submission_files From config file: /home/user/mylauncher
+       [test plan]
+         filter=*                           (Default)
+         forced=True                        From config file: /home/user/mylauncher
+         unit=com.canonical.certification::tutorial-base From config file: /home/user/mylauncher
+       [test selection]
+         exclude=                           (Default)
+         forced=True                        From config file: /home/user/mylauncher
+       (...)
+       [environment]
+         STRESS_S3_WAIT_DELAY=120           From config file: /var/snap/checkbox/2799/checkbox.conf
+       (...)
+         TUTO=tutorial                      From config file: /home/user/.config/checkbox.conf
+       (...)
+         TUTORIAL=Value from my launcher!   From config file: /home/user/mylauncher
+    No problems with config(s) found!
 
 Create an executable launcher
 =============================

@@ -1430,7 +1430,7 @@ def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
         # older GPUs have subdevices with OTHER which are uninteresting. If
         # Intel, we only consider OTHER devices as VIDEO if they are in this
         # explicit list
-        return product_id in [0x0152, 0x0412, 0x0402]
+        return product_id in [0x0152, 0x0412, 0x0402, 0xa780]
 
 
 def parse_udevadm_output(output, lsblk=None, list_partitions=False, bits=None):

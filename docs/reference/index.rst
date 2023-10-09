@@ -4,7 +4,7 @@ Reference
 .. toctree::
    :maxdepth: 1
 
-   changes
+   changelog
    glossary
    stack
    launcher

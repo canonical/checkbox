@@ -40,18 +40,17 @@ def zapper_run(host, cmd, *args, **kwargs):
                         or a service error occurs
     """
     try:
-        _rpyc = import_module('rpyc')
+        _rpyc = import_module("rpyc")
     except ImportError:
         try:
-            _rpyc = import_module('plainbox.vendor.rpyc')
+            _rpyc = import_module("plainbox.vendor.rpyc")
         except ImportError as exc:
             msg = "RPyC not found. Neither from sys nor from Checkbox"
             raise SystemExit(msg) from exc
 
     for _ in range(2):
         try:
-            conn = _rpyc.connect(
-                host, 60000, config={"allow_all_attrs": True})
+            conn = _rpyc.connect(host, 60000, config={"allow_all_attrs": True})
             break
         except ConnectionRefusedError:
             time.sleep(1)
@@ -61,17 +60,28 @@ def zapper_run(host, cmd, *args, **kwargs):
     try:
         return getattr(conn.root, cmd)(*args, **kwargs)
     except AttributeError:
-        raise SystemExit("Zapper host does not provide a '{}' command.".format(cmd))
+        raise SystemExit(
+            "Zapper host does not provide a '{}' command.".format(cmd)
+        )
     except _rpyc.core.vinegar.GenericException as exc:
-        raise SystemExit("Zapper host failed to process the requested command.") from exc
+        raise SystemExit(
+            "Zapper host failed to process the requested command."
+        ) from exc
+
 
 def get_capabilities(host):
     """Get Zapper capabilities."""
-    capabilities = zapper_run(host, "get_capabilities")
+    try:
+        capabilities = zapper_run(host, "get_capabilities")
+    except SystemExit:
+        capabilities = []
+
     def stringify_cap(cap):
-        return '\n'.join(
-            '{}: {}'.format(key, val) for key, val in sorted(cap.items()))
-    print('\n\n'.join(stringify_cap(cap) for cap in capabilities))
+        return "\n".join(
+            "{}: {}".format(key, val) for key, val in sorted(cap.items())
+        )
+
+    print("\n\n".join(stringify_cap(cap) for cap in capabilities))
 
 
 def main():
@@ -79,18 +89,22 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--host', default=os.environ.get('ZAPPER_HOST'),
-        help=("Address of Zapper to connect to. If not supplied, "
-              "ZAPPER_HOST environment variable will be used.")
+        "--host",
+        default=os.environ.get("ZAPPER_HOST"),
+        help=(
+            "Address of Zapper to connect to. If not supplied, "
+            "ZAPPER_HOST environment variable will be used."
+        ),
     )
-    parser.add_argument('cmd')
-    parser.add_argument('args', nargs="*")
+    parser.add_argument("cmd")
+    parser.add_argument("args", nargs="*")
     args = parser.parse_args()
 
     if args.host is None:
         raise SystemExit(
             "You have to provide Zapper host, either via '--host' or via "
-            "ZAPPER_HOST environment variable")
+            "ZAPPER_HOST environment variable"
+        )
 
     if args.cmd == "get_capabilities":
         get_capabilities(args.host)
@@ -99,5 +113,5 @@ def main():
         print(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

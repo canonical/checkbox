@@ -109,15 +109,33 @@ estimated_duration: 1.2
 depends: camera/detect
 requires:
   {%- if __on_ubuntucore__ %}
- executable.name == 'fswebcam'
- {%- else %}
- package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
- {% endif -%}
+  executable.name == 'fswebcam'
+  {%- else %}
+  package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
+  {% endif -%}
 command:
   camera_test.py resolutions -d /dev/{{ name }}
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: shell
+template-engine: jinja2
+category_id: com.canonical.plainbox::camera
+id: camera/camera-quality_{{ name }}
+flags: also-after-suspend
+_summary: Webcam brisque score for {{ product_slug }}
+estimated_duration: 20s
+depends: camera/detect
+command:
+  camera_quality_test.py -d {{ name }}
+_description:
+  Takes multiple pictures and computes the quality based on a No-Reference image
+  quality assessment algorithm called BRISQUE.
 
 unit: template
 template-resource: device

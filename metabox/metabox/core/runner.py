@@ -277,7 +277,7 @@ class Runner:
                 self.failed = True
                 logger.error(scenario_description + " scenario has failed.")
 
-                # let's strip < from the output to avoid confusing loguru
+                # let's escape < from the output to avoid confusing loguru
                 # loguru assumes that <> is used for colorizing
                 output = scn.get_output_streams().strip().replace("<", "\<")
 

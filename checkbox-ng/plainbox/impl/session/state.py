@@ -746,7 +746,7 @@ class SessionState:
         self._resource_map = {}
         self._fake_resources = False
         self._metadata = SessionMetaData()
-        self._system_informations = {}
+        self._system_information = {}
         super(SessionState, self).__init__()
 
     def trim_job_list(self, qualifier):

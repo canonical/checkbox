@@ -661,12 +661,16 @@ class SessionSuspendHelper7(SessionSuspendHelper6):
         data['last_job_start_time'] = obj.last_job_start_time
         return data
 
-class Pain(SessionSuspendHelper7):
+class SessionSuspendHelper8(SessionSuspendHelper7):
     VERSION = 8
+
     def _repr_SessionState(self, obj, session_dir):
         data = super()._repr_SessionState(obj, session_dir)
-        data["system_informations"] = obj._system_informations
+        data["system_information"] = {
+            tool_name: tool_output.to_dict()
+            for (tool_name, tool_output) in obj._system_information.items()
+        }
         return data
 
 # Alias for the most recent version
-SessionSuspendHelper = Pain
+SessionSuspendHelper = SessionSuspendHelper8

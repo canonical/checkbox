@@ -152,7 +152,7 @@ class RecoveryInfo():
             if partition is None:
                 raise SystemExit("FAIL: Recovery partition not found")
             else:
-                print("Found recovery partiion")
+                print("Found recovery partition")
                 return
 
         (recovery_type, recovery_partition) = partition

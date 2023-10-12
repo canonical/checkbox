@@ -10,7 +10,11 @@ environ: OTG
 flags: preserve-locale
 user: root
 command:
-    multiple-otg.sh -c "$OTG"
+    if [ "$OTG" ]; then
+        multiple-otg.sh -c "$OTG"
+    else
+        echo "OTG config variable: not found"
+    fi
 
 unit: template
 template-resource: otg_ports

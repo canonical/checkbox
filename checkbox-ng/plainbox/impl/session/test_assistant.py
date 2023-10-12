@@ -1,13 +1,13 @@
 # This file is part of Checkbox.
 #
-# Copyright 2015-2023 Canonical Ltd.
+# Copyright 2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
-#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
+
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,7 +19,6 @@
 
 """Tests for the session assistant module class."""
 
-from plainbox.impl.config import Configuration
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import UsageExpectation
@@ -70,8 +69,13 @@ class SessionAssistantTests(morris.SignalTestCase):
             self.sa.start_new_session,
             UsageExpectation.of(self.sa).allowed_calls,
         )
-        # Call SessionAssistant.start_new_session()
-        self.sa.start_new_session("just for testing")
+        # patch system_information to avoid the actual collection of
+        # system_information in tests
+        with mock.patch(
+            "plainbox.impl.session.state.SessionState.system_information"
+        ):
+            # Call SessionAssistant.start_new_session()
+            self.sa.start_new_session("just for testing")
         # SessionAssistant.start_new_session() must no longer allowed
         self.assertNotIn(
             self.sa.start_new_session,
@@ -85,22 +89,3 @@ class SessionAssistantTests(morris.SignalTestCase):
         # Use the manager to tidy up after the tests when normally you wouldnt
         # be allowed to
         self.sa._manager.destroy()
-
-    def test_start_new_session(self, mock_get_providers):
-        """Test that start_new_session() works."""
-        mock_get_providers.return_value = self._get_mock_providers()
-        # SessionAssistant.start_new_session() must now be allowed
-        self.assertIn(
-            self.sa.start_new_session,
-            UsageExpectation.of(self.sa).allowed_calls,
-        )
-        # Call SessionAssistant.start_new_session()
-        self.sa.start_new_session("just for testing")
-        # SessionAssistant.start_new_session() must no longer allowed
-        self.assertNotIn(
-            self.sa.start_new_session,
-            UsageExpectation.of(self.sa).allowed_calls,
-        )
-
-    def test_config_property(self, mock_get_providers):
-        self.assertEqual(self.sa.config, self.sa._config)

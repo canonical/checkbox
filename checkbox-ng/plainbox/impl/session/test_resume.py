@@ -522,6 +522,16 @@ class SessionStateResumeHelper8Tests(TestCase):
         session_state_mock.update_system_information.assert_called_once_with(
             {}
         )
+    def test_calls_build_SessionState(self):
+        # mock super to avoid super._build_SessionState call in this test
+        with mock.patch(
+            "plainbox.impl.session.resume.SessionResumeHelper7._build_SessionState"
+        ):
+            session_resume_helper = SessionResumeHelper8([], None, None)
+            session_state = session_resume_helper._build_SessionState({
+                "system_information" : {}
+            })
+        self.assertTrue(session_state.update_system_information.called)
 
 class SessionStateResumeTests(TestCaseWithParameters):
     """

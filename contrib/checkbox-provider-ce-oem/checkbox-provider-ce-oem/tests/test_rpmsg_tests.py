@@ -1,6 +1,9 @@
 import unittest
+import sys
+from unittest.mock import patch, MagicMock
+sys.modules["systemd"] = MagicMock()
 import rpmsg_tests
-from unittest.mock import patch
+
 
 class RpmsgTests(unittest.TestCase):
     """

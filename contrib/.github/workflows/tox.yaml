@@ -22,14 +22,14 @@ jobs:
           git clone --depth=1 https://github.com/canonical/checkbox.git
           cd -
           cp -r checkbox-provider-ce-oem ~/checkbox/providers
-      - name: Install debian packages
-        run:  sudo apt-get install -y libsystemd-dev
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
-      - name: Install tox
-        run: pip install tox
+      - name: Install tox and otehr dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
       - name: Run tox
         working-directory: /home/runner/checkbox/providers/checkbox-provider-ce-oem/
         run: tox

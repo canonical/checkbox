@@ -8,6 +8,7 @@ from plainbox.impl.session.system_information import (
     OutputSuccess,
     OutputFailure,
     CollectionOutput,
+    collect,
 )
 
 
@@ -207,3 +208,12 @@ class TestCollectionOutput(TestCase):
         self.assertEqual(collection_output.outputs.stdout, "Failure")
         self.assertEqual(collection_output.outputs.stderr, "")
         self.assertFalse(collection_output.outputs.success)
+
+
+class TestCollect(TestCase):
+    def test_collect(self):
+        with patch(
+            "plainbox.impl.session.system_information.InxiCollector"
+        ) as inxi_collector:
+            collect()
+        self.assertTrue(inxi_collector.collect.called)

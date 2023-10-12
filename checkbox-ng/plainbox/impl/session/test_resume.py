@@ -505,6 +505,23 @@ class SessionResumeTests(TestCase):
             SessionResumeHelper([], None, None).resume(data)
         self.assertIsInstance(boom.exception.__context__, ValueError)
 
+class SessionStateResumeHelper8Tests(TestCase):
+    def test_calls_restore_SessionState_system_information(self):
+        self_mock = mock.MagicMock()
+        session_state_mock = mock.MagicMock()
+
+        session_repr = {
+            "system_information": {
+            }
+        }
+
+        SessionResumeHelper8._restore_SessionState_system_information(
+            self_mock, session_state_mock, session_repr
+        )
+
+        session_state_mock.update_system_information.assert_called_once_with(
+            {}
+        )
 
 class SessionStateResumeTests(TestCaseWithParameters):
     """

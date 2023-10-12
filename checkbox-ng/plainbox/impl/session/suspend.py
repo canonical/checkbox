@@ -668,7 +668,7 @@ class SessionSuspendHelper8(SessionSuspendHelper7):
         data = super()._repr_SessionState(obj, session_dir)
         data["system_information"] = {
             tool_name: tool_output.to_dict()
-            for (tool_name, tool_output) in obj._system_information.items()
+            for (tool_name, tool_output) in obj.system_information.items()
         }
         return data
 

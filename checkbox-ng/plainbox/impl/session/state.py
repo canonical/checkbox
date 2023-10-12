@@ -816,6 +816,15 @@ class SessionState:
                 self.on_job_removed(job)
                 self.on_unit_removed(job)
 
+    def update_system_information(self, system_information):
+        """
+        Update the system information with every tool and its output.
+
+        This method simply stores the dict of system_information jobs inside
+        the session state.
+        """
+        self._system_information = system_information
+
     def update_mandatory_job_list(self, mandatory_job_list):
         """
         Update the set of mandatory jobs (that must run).
@@ -1171,6 +1180,13 @@ class SessionState:
         Resources silently overwrite any old resources with the same id.
         """
         self._resource_map[resource_id] = resource_list
+
+    @property
+    def system_information(self):
+        """
+        Dict of all system information.
+        """
+        return self._system_information
 
     @property
     def job_list(self):

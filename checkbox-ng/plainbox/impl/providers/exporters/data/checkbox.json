@@ -3,7 +3,7 @@
 {%- set resource_map = state.resource_map -%}
 {%- set job_state_map = state.job_state_map -%}
 {%- set category_map = state.category_map -%}
-{%- set system_information = state._system_information -%}
+{%- set system_information = state.system_information -%}
 {
     "title": {{ state.metadata.title | jsonify | safe }},
 {%- if "testplan_id" in app_blob %}

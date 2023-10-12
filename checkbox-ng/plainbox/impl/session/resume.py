@@ -1179,14 +1179,21 @@ class SessionResumeHelper7(MetaDataHelper7MixIn, SessionResumeHelper6):
     pass
 
 class SessionResumeHelper8(SessionResumeHelper7):
-    def _build_SessionState(self, session_repr, early_cb=None):
-        session_state = super()._build_SessionState(session_repr, early_cb)
-        session_state._system_information = {
+    def _restore_SessionState_system_information(self, session_state, session_repr):
+        _validate(session_repr, key="system_information", value_type=dict)
+        system_information = {
             tool_name: CollectionOutput.from_dict(tool_output_json)
             for (tool_name, tool_output_json) in session_repr[
                 "system_information"
             ].items()
         }
+        session_state.update_system_information(system_information)
+
+    def _build_SessionState(self, session_repr, early_cb=None):
+        session_state = super()._build_SessionState(session_repr, early_cb)
+        self._restore_SessionState_system_information(
+            session_state, session_repr
+        )
         return session_state
 
 def _validate(obj, **flags):

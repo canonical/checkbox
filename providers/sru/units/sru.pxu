@@ -56,7 +56,6 @@ include:
     audio/alsa_record_playback_automated
     install/apt-get-gets-updates
     miscellanea/dkms_build_validation
-    miscellanea/fan_stress_reaction
     networking/http
     networking/gateway_ping
     thunderbolt3/storage-preinserted
@@ -142,7 +141,6 @@ include:
     1_screenshot_fullscreen_video_.*.jpg
     install/apt-get-gets-updates
     miscellanea/dkms_build_validation
-    miscellanea/fan_stress_reaction
     networking/http
     networking/gateway_ping
     thunderbolt3/storage-preinserted

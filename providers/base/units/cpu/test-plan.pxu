@@ -19,6 +19,8 @@ id: cpu-cert-automated
 unit: test plan
 _name: CPU tests (automated)
 _description: CPU tests (automated)
+bootstrap_include:
+    cpufreq_policy_list
 include:
     cpu/cstates                                    certification-status=blocker
     cpu/cstates_results.log
@@ -29,11 +31,20 @@ include:
     cpu/offlining_test                             certification-status=blocker
     cpu/topology                                   certification-status=blocker
     cpu/clocktest
+    cpu/cpufreq_driver_detect
+    cpu/cpufreq-governor-performance-.*
+    cpu/cpufreq-governor-powersave-.*
+    cpu/cpufreq-governor-userspace-.*
+    cpu/cpufreq-governor-schedutil-.*
+    cpu/cpufreq-governor-ondemand-.*
+    cpu/cpufreq-governor-conservative-.*
 
 id: after-suspend-cpu-cert-automated
 unit: test plan
 _name: CPU tests after suspend (automated)
 _description: CPU tests after suspend (automated)
+bootstrap_include:
+    cpufreq_policy_list
 include:
     after-suspend-cpu/cstates                      certification-status=blocker
     after-suspend-cpu/cstates_results.log
@@ -44,6 +55,13 @@ include:
     after-suspend-cpu/offlining_test                             certification-status=blocker
     after-suspend-cpu/topology                     certification-status=blocker
     after-suspend-cpu/clocktest
+    after-suspend-cpu/cpufreq_driver_detect
+    after-suspend-cpu/cpufreq-governor-performance-.*
+    after-suspend-cpu/cpufreq-governor-powersave-.*
+    after-suspend-cpu/cpufreq-governor-userspace-.*
+    after-suspend-cpu/cpufreq-governor-schedutil-.*
+    after-suspend-cpu/cpufreq-governor-ondemand-.*
+    after-suspend-cpu/cpufreq-governor-conservative-.*
 
 id: cpu-cert-blockers
 unit: test plan
@@ -77,6 +95,8 @@ id: cpu-automated
 unit: test plan
 _name: Automated CPU tests
 _description: Automated CPU tests for Snappy Ubuntu Core devices
+bootstrap_include:
+    cpufreq_policy_list
 include:
     cpu/scaling_test
     cpu/scaling_test-log-attach
@@ -88,6 +108,38 @@ include:
     cpu/arm_vfp_support_.*
     cpu/cstates
     cpu/cstates_results.log
+    cpu/cpufreq_driver_detect
+    cpu/cpufreq-governor-performance-.*
+    cpu/cpufreq-governor-powersave-.*
+    cpu/cpufreq-governor-userspace-.*
+    cpu/cpufreq-governor-schedutil-.*
+    cpu/cpufreq-governor-ondemand-.*
+    cpu/cpufreq-governor-conservative-.*
+
+id: after-suspend-cpu-automated
+unit: test plan
+_name: Automated CPU tests after suspend
+_description: Automated CPU tests for Snappy Ubuntu Core devices after suspend
+bootstrap_include:
+    cpufreq_policy_list
+include:
+    after-suspend-cpu/scaling_test
+    after-suspend-cpu/scaling_test-log-attach
+    after-suspend-cpu/maxfreq_test
+    after-suspend-cpu/maxfreq_test-log-attach
+    after-suspend-cpu/clocktest
+    after-suspend-cpu/offlining_test
+    after-suspend-cpu/topology
+    after-suspend-cpu/arm_vfp_support_.*
+    after-suspend-cpu/cstates
+    after-suspend-cpu/cstates_results.log
+    after-suspend-cpu/cpufreq_driver_detect
+    after-suspend-cpu/cpufreq-governor-performance-.*
+    after-suspend-cpu/cpufreq-governor-powersave-.*
+    after-suspend-cpu/cpufreq-governor-userspace-.*
+    after-suspend-cpu/cpufreq-governor-schedutil-.*
+    after-suspend-cpu/cpufreq-governor-ondemand-.*
+    after-suspend-cpu/cpufreq-governor-conservative-.*
 
 id: server-cpu
 unit: test plan

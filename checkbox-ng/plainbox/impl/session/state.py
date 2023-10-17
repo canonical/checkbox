@@ -35,6 +35,9 @@ from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
+from plainbox.impl.session.system_information import(
+    collect as collect_system_information
+)
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
@@ -746,7 +749,9 @@ class SessionState:
         self._resource_map = {}
         self._fake_resources = False
         self._metadata = SessionMetaData()
-        self._system_information = {}
+        # If unset, this is loaded via system_information
+        self._system_information = None
+
         super(SessionState, self).__init__()
 
     def trim_job_list(self, qualifier):
@@ -816,14 +821,17 @@ class SessionState:
                 self.on_job_removed(job)
                 self.on_unit_removed(job)
 
-    def update_system_information(self, system_information):
-        """
-        Update the system information with every tool and its output.
+    @property
+    def system_information(self):
+        if not self._system_information:
+            # This is a new session, we need to query this infos
+            self._system_information = collect_system_information()
+        return self._system_information
 
-        This method simply stores the dict of system_information jobs inside
-        the session state.
-        """
-        self._system_information = system_information
+    @system_information.setter
+    def system_information(self, value):
+        #TODO: check if system_information was already set
+        self._system_information = value
 
     def update_mandatory_job_list(self, mandatory_job_list):
         """
@@ -1180,13 +1188,6 @@ class SessionState:
         Resources silently overwrite any old resources with the same id.
         """
         self._resource_map[resource_id] = resource_list
-
-    @property
-    def system_information(self):
-        """
-        Dict of all system information.
-        """
-        return self._system_information
 
     @property
     def job_list(self):

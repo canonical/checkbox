@@ -510,19 +510,20 @@ class SessionStateResumeHelper8Tests(TestCase):
         self_mock = mock.MagicMock()
         session_state_mock = mock.MagicMock()
 
-        session_repr = {
-            "system_information": {
-            }
-        }
+        session_repr = {"system_information": {}}
 
         SessionResumeHelper8._restore_SessionState_system_information(
             self_mock, session_state_mock, session_repr
         )
 
-        session_state_mock.update_system_information.assert_called_once_with(
-            {}
-        )
-    def test_calls_build_SessionState(self):
+        with mock.patch(
+            "plainbox.impl.session.system_information.collect"
+        ) as collect_mock:
+            _ = session_state_mock.system_information
+            self.assertFalse(collect_mock.called)
+
+    @mock.patch("plainbox.impl.session.system_information.collect")
+    def test_calls_build_SessionState(self, collect_mock):
         # mock super to avoid super._build_SessionState call in this test
         with mock.patch(
             "plainbox.impl.session.resume.SessionResumeHelper7._build_SessionState"
@@ -531,7 +532,8 @@ class SessionStateResumeHelper8Tests(TestCase):
             session_state = session_resume_helper._build_SessionState({
                 "system_information" : {}
             })
-        self.assertTrue(session_state.update_system_information.called)
+        self.assertNotEqual(session_state.system_information, None)
+        self.assertFalse(collect_mock.called)
 
 class SessionStateResumeTests(TestCaseWithParameters):
     """

@@ -69,7 +69,6 @@ from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.unit.unit import Unit
-from plainbox.impl.session import system_information
 from plainbox.vendor import morris
 
 _logger = logging.getLogger("plainbox.session.assistant")
@@ -506,9 +505,6 @@ class SessionAssistant:
         self._metadata.app_id = self._app_id
         self._metadata.title = title
         self._metadata.flags = {SessionMetaData.FLAG_BOOTSTRAPPING}
-
-        self._manager.state.update_system_information(system_information.collect())
-
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)

@@ -1187,7 +1187,7 @@ class SessionResumeHelper8(SessionResumeHelper7):
                 "system_information"
             ].items()
         }
-        session_state.update_system_information(system_information)
+        session_state.system_information = system_information
 
     def _build_SessionState(self, session_repr, early_cb=None):
         session_state = super()._build_SessionState(session_repr, early_cb)

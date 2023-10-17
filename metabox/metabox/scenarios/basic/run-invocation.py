@@ -44,11 +44,9 @@ class RunTestplan(Scenario):
 class RunFailingTestplan(Scenario):
     modes = ["local"]
     steps = [
-        Start(
-            "run 2021.com.canonical.certification::basic-automated-failing",
-            timeout=30,
-        ),
-        AssertRetCode(1),
+        Start('run 2021.com.canonical.certification::'
+              'basic-automated-failing', timeout=30),
+        AssertRetCode(1)
     ]
 
 

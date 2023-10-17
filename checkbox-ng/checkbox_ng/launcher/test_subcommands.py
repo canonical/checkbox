@@ -72,3 +72,43 @@ class TestLauncher(TestCase):
                 "launcher_path --resume session_id"
             ],
         )
+
+
+class TestLauncherReturnCodes(TestCase):
+    def setUp(self):
+        self.launcher = Launcher()
+        self.launcher._maybe_resume_session = Mock(return_value=False)
+        self.launcher._start_new_session = Mock()
+        self.launcher._pick_jobs_to_run = Mock()
+        self.launcher._export_results = Mock()
+        self.ctx = Mock()
+        self.ctx.args = Mock(version=False, verify=False, launcher="")
+        self.ctx.sa = Mock(
+            get_resumable_sessions=Mock(return_value=[]),
+            get_dynamic_todo_list=Mock(return_value=[]),
+        )
+
+    def test_invoke_returns_0_on_no_fails(self):
+        mock_results = {"fail": 0, "crash": 0, "pass": 1}
+        self.ctx.sa.get_summary = Mock(return_value=mock_results)
+        self.assertEqual(self.launcher.invoked(self.ctx), 0)
+
+    def test_invoke_returns_1_on_fail(self):
+        mock_results = {"fail": 1, "crash": 0, "pass": 1}
+        self.ctx.sa.get_summary = Mock(return_value=mock_results)
+        self.assertEqual(self.launcher.invoked(self.ctx), 1)
+
+    def test_invoke_returns_1_on_crash(self):
+        mock_results = {"fail": 0, "crash": 1, "pass": 1}
+        self.ctx.sa.get_summary = Mock(return_value=mock_results)
+        self.assertEqual(self.launcher.invoked(self.ctx), 1)
+
+    def test_invoke_returns_0_on_no_tests(self):
+        mock_results = {"fail": 0, "crash": 0, "pass": 0}
+        self.ctx.sa.get_summary = Mock(return_value=mock_results)
+        self.assertEqual(self.launcher.invoked(self.ctx), 0)
+
+    def test_invoke_returns_1_on_many_diff_outcomes(self):
+        mock_results = {"fail": 6, "crash": 7, "pass": 8}
+        self.ctx.sa.get_summary = Mock(return_value=mock_results)
+        self.assertEqual(self.launcher.invoked(self.ctx), 1)

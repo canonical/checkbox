@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import json
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
@@ -152,10 +154,18 @@ InxiCollector = Collector(
 )
 
 
-def collect():
+def collect() -> dict:
     collectors = {
         "inxi": InxiCollector,
     }
     return {
         name: collector.collect() for (name, collector) in collectors.items()
     }
+
+
+if __name__ == "__main__":
+    collection = collect()
+    to_dump = {
+        name: collected.to_dict() for (name, collected) in collection.items()
+    }
+    print(json.dumps(to_dump, indent=4))

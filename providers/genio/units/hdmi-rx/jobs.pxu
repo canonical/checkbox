@@ -2,7 +2,8 @@ id: genio-hdmi-rx/module-detect
 plugin: shell
 category_id: genio-hdmi-rx
 estimated_duration: 1
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
 user: root
 _summary: Check the mtk_hdmirx module has been loaded
 command:
@@ -20,7 +21,10 @@ plugin: user-interact
 category_id: genio-hdmi-rx
 estimated_duration: 20
 depends: genio-hdmi-rx/module-detect
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
 flags: also-after-suspend
 user: root
 command:
@@ -58,7 +62,10 @@ plugin: shell
 category_id: genio-hdmi-rx
 estimated_duration: 5
 depends: genio-hdmi-rx/module-detect
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
 flags: also-after-suspend
 user: root
 command:
@@ -78,7 +85,10 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/check-hdmi-cable-connection
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
 flags: also-after-suspend
 user: root
 command:
@@ -104,7 +114,10 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/check-hdmi-cable-connection
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
 flags: also-after-suspend
 user: root
 command:
@@ -130,7 +143,10 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/check-hdmi-cable-connection
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
 flags: also-after-suspend
 user: root
 command:
@@ -150,7 +166,10 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/disable-hdmi
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
 flags: also-after-suspend
 user: root
 command:
@@ -188,7 +207,10 @@ plugin: user-interact
 category_id: genio-hdmi-rx
 estimated_duration: 20
 depends: genio-hdmi-rx/module-detect
-requires: genio_device_soc.SoC == "mt8395"
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
 flags: also-after-suspend
 user: root
 command:

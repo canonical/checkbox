@@ -87,7 +87,6 @@ plugin: shell
 category_id: genio-graphic
 flags: also-after-suspend
 depends: genio-graphic/set-device-to-performance-mode
-imports: from com.canonical.certification import executable
 requires: executable.name == "glmark2-es2-wayland"
 estimated_duration: 60
 environ: GENIO_GPU_DRIVER_VERSION

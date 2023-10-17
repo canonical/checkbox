@@ -63,8 +63,8 @@ _steps:
     1. Connect an external monitor to type-c interface (through type-c to DP/HDMI cable or type-c cable)
     2. Set the sink as "Built-in Audio HDMI/DP output"
         $ pacmd set-default-sink 1
-    3. Set the sink port as HDMI
-        $ pacmd set-sink-port 1 "[Out] HDMI"
+    3. Set the sink port as DP
+        $ pacmd set-sink-port 1 "[Out] DP"
     4. Start channel testing
         $ speaker-test -c 2 -r 48000 -f S16_LE -l 1 -t wav
 _verification:
@@ -102,20 +102,24 @@ _description:
 _steps:
     1. GPIO jumper connection
         # For G1200-evk
-            Use a jumper to short the IO67 and IO65
+            1. Remove the jumper on J43
+            2. Use a jumper to short the IO67 and IO65
         # For G700
             Use a jumper to short the PCMD0 and PCMD1
-    2. Set the sink and source
+    2. Configure the mixer for alsa soundcard driver
+        $ amixer -c mt8395evk cset name='HP Mux' 'Audio Playback'
+        $ amixer -c mt8395evk cset name='LOL Mux' 0
+    3. Set the sink and source
         # For G1200-evk
             $ pacmd set-default-sink 2
             $ pacmd set-default-source 5
         # For G700
             $ pacmd set-default-sink 2
             $ pacmd set-default-source 7
-    3. Plug a headset to earphone 3.5mm jack port
-    4. Playback as backgournd
+    4. Plug a headset to earphone 3.5mm jack port
+    5. Playback as backgournd
         $ speaker-test -D pulse -c 2 -r 48000 -f S16_LE -t wav -d 10 &
-    5. Record and Play
+    6. Record and Play
         $ arecord -D pulse -c 2 -r 48000 -f S16_LE | aplay -D hw:0,0 -c 2 -r 48000 -f S16_LE
 _verification:
     Did you hear the sound of loop audio channel from headset?
@@ -146,7 +150,7 @@ _steps:
             $ pacmd set-default-source 3 # PMIC
             $ pacmd set-source-port 3 "[In] Mic2" # Headset Mic 
     3. Record for 10 seconds to a wav file
-        $ arecord -D pulse -c 2 -r 48000 -f S16_LE -d 10 headset_record.wav
+        $ arecord -D pulse -r 48000 -f S16_LE -d 10 headset_record.wav
     4. Play the record
         $ aplay -D pulse -c 2 -r 48000 -f S16_LE headset_record.wav
 _verification:

@@ -66,8 +66,7 @@ store_setting() {
             cat /sys/class/thermal/thermal_zone0/trip_point_"$i"_temp > "$STORE_HOUSE"/"$i"_temp
         done
     elif [ "${1}" == "G350" ]; then
-        # TODO
-        echo "Not implement yet"
+        cat /sys/devices/system/cpu/cpufreq/policy0/scaling_governor > "$STORE_HOUSE"/p0_sg
     fi
     cat /sys/devices/platform/soc/"$MALI_SOC"/devfreq/"$MALI_SOC"/governor > "$STORE_HOUSE"/mali_g
     echo "Store Done"
@@ -91,14 +90,14 @@ set_to_performance_mode() {
             echo "performance" > /sys/devices/system/cpu/cpufreq/policy$i/scaling_governor
         done
         # disable cpuidle
-        toggle_cpuidle_state_disable 7 7 set_1
+        toggle_cpuidle_state_disable 2 7 set_1
         for i in {0..2}
         do
             echo "115000" > /sys/class/thermal/thermal_zone0/trip_point_"$i"_temp
         done
     elif [ "${1}" == "G350" ]; then
-        # TODO
-        echo "Not implement yet"
+        echo "performance" > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+        echo disabled > /sys/class/thermal/thermal_zone0/mode
     fi
     echo "performance" > /sys/devices/platform/soc/"$MALI_SOC"/devfreq/"$MALI_SOC"/governor
     echo "Setting Done"
@@ -122,16 +121,16 @@ back_to_original_mode_from_performance() {
             cat "$STORE_HOUSE"/p"$i"_sg > /sys/devices/system/cpu/cpufreq/policy$i/scaling_governor
         done  
         # enable cpuidle
-        toggle_cpuidle_state_disable 7 7 set_0
+        toggle_cpuidle_state_disable 2 7 set_0
         for i in {0..2}
         do
             cat "$STORE_HOUSE"/"$i"_temp > /sys/class/thermal/thermal_zone0/trip_point_"$i"_temp
         done
     elif [ "${1}" == "G350" ]; then
-        # TODO
-        echo "Not implement yet"
+        cat "$STORE_HOUSE"/p0_sg > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+        echo enabled > /sys/class/thermal/thermal_zone0/mode
     fi
-cat "$STORE_HOUSE"/mali_g > /sys/devices/platform/soc/"$MALI_SOC"/devfreq/"$MALI_SOC"/governor
+    cat "$STORE_HOUSE"/mali_g > /sys/devices/platform/soc/"$MALI_SOC"/devfreq/"$MALI_SOC"/governor
     echo "Setting Done"
     echo
 }

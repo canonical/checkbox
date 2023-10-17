@@ -84,7 +84,7 @@ def get_capabilities(host):
     print("\n\n".join(stringify_cap(cap) for cap in capabilities))
 
 
-def main(arguments):
+def main(arguments=None):
     """Entry point."""
 
     parser = argparse.ArgumentParser()

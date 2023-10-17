@@ -6,6 +6,45 @@ from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 from plainbox.vendor import system_information
 
 
+class CollectorMeta(type):
+    """
+    Creates an instance of a Collector type storing what was created
+    if it has a REGISTER_NAME attribute. The purpose of this is
+    collecting
+    """
+
+    collectors = {}
+
+    def __new__(cls, clsname, bases, attrs):
+        collector_type = super().__new__(cls, clsname, bases, attrs)
+        if "REGISTER_NAME" in attrs:
+            name = attrs["REGISTER_NAME"]
+            if name in cls.collectors:
+                raise ValueError(
+                    (
+                        "Failed to register class '{class_name}' as '{name}'. "
+                        "Name is taken by class '{other_class_name}'"
+                    ).format(
+                        name=name,
+                        class_name=clsname,
+                        other_class_name=cls.collectors[name].__name__,
+                    )
+                )
+            cls.collectors[name] = collector_type
+        return collector_type
+
+    @classmethod
+    def collect(cls):
+        return {
+            name: collector().collect()
+            for (name, collector) in cls.collectors.items()
+        }
+
+
+def collect() -> dict:
+    return CollectorMeta.collect()
+
+
 class OutputSuccess:
     def __init__(self, json_output: dict, stderr: str):
         self.json_output = json_output
@@ -25,51 +64,53 @@ class OutputSuccess:
 
 
 class OutputFailure:
-    def __init__(self, stdout: str, stderr: str):
+    def __init__(self, stdout: str, stderr: str, return_code: int):
         self.stdout = stdout
         self.stderr = stderr
-        self.success = False
+        self.return_code = return_code
 
     def to_dict(self):
         return {
             "stdout": self.stdout,
             "stderr": self.stderr,
-            "success": self.success,
+            "return_code": self.return_code,
         }
 
     @classmethod
     def from_dict(cls, dct):
-        return cls(dct["stdout"], dct["stderr"])
+        return cls(dct["stdout"], dct["stderr"], dct["return_code"])
 
 
 class CollectionOutput:
     def __init__(
         self,
         tool_version: str,
-        return_code: int,
         outputs: "OutputSuccess|OutputFailure",
     ):
         self.tool_version = tool_version
-        self.return_code = return_code
         self.outputs = outputs
+
+    @property
+    def success(self):
+        return isinstance(self.outputs, OutputSuccess)
 
     def to_dict(self):
         return {
             "tool_version": self.tool_version,
-            "return_code": self.return_code,
+            "success": self.success,
             "outputs": self.outputs.to_dict(),
         }
 
     @classmethod
     def from_dict(cls, dct):
-        if dct["outputs"]["success"]:
+        if dct["success"]:
             outputs = OutputSuccess.from_dict(dct["outputs"])
         else:
             outputs = OutputFailure.from_dict(dct["outputs"])
-        return cls(dct["tool_version"], dct["return_code"], outputs)
+        return cls(dct["tool_version"], outputs)
 
 
-class Collector:
+class Collector(metaclass=CollectorMeta):
     def __init__(self, collection_cmd: list, version_cmd: list):
         self.collection_cmd = collection_cmd
         self.version_cmd = version_cmd
@@ -92,7 +133,7 @@ class Collector:
         except CalledProcessError as e:
             return "Failed to collect with error: {}".format(e)
 
-    def collect_outputs(self) -> "(OutputSuccess|OutputFailure, int)":
+    def collect_outputs(self) -> "(OutputSuccess|OutputFailure)":
         """
         Runs the collection_cmd and creates an output.
 
@@ -111,6 +152,7 @@ class Collector:
             outputs = OutputFailure(
                 stdout=collection_result.stdout,
                 stderr=collection_result.stderr,
+                return_code=collection_result.returncode,
             )
         else:
             try:
@@ -125,42 +167,37 @@ class Collector:
                     "Collection output:\n{}"
                 ).format(str(e), collection_result.stdout)
                 outputs = OutputFailure(
-                    stdout=output, stderr=collection_result.stderr
+                    stdout=output,
+                    stderr=collection_result.stderr,
+                    return_code=0,
                 )
-        return (outputs, collection_result.returncode)
+        return outputs
 
     def collect(self) -> CollectionOutput:
         version_str = self.collect_version()
-        outputs, return_code = self.collect_outputs()
+        outputs = self.collect_outputs()
 
-        return CollectionOutput(
-            tool_version=version_str, return_code=return_code, outputs=outputs
+        return CollectionOutput(tool_version=version_str, outputs=outputs)
+
+
+class InxiCollector(Collector):
+    REGISTER_NAME = "inxi"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=[
+                str(system_information.INXI_PATH),
+                "--admin",
+                "--tty",
+                "-v8",
+                "--output",
+                "json",
+                "--output-file",
+                "print",
+                "-c0",
+            ],
+            version_cmd=[str(system_information.INXI_PATH), "--vs"],
         )
-
-
-InxiCollector = Collector(
-    collection_cmd=[
-        system_information.INXI_PATH,
-        "--admin",
-        "--tty",
-        "-v8",
-        "--output",
-        "json",
-        "--output-file",
-        "print",
-        "-c0",
-    ],
-    version_cmd=[system_information.INXI_PATH, "--vs"],
-)
-
-
-def collect() -> dict:
-    collectors = {
-        "inxi": InxiCollector,
-    }
-    return {
-        name: collector.collect() for (name, collector) in collectors.items()
-    }
 
 
 if __name__ == "__main__":

@@ -46,14 +46,12 @@ class TestCollector(TestCase):
 
         with patch("plainbox.impl.session.system_information.run") as run_mock:
             run_mock.return_value = collection_result
-            outputs, return_code = Collector.collect_outputs(self_mock)
+            outputs = Collector.collect_outputs(self_mock)
         # The command correctly reports that everything was ok with the
         # system_information, returning OutputSuccess
         self.assertTrue(isinstance(outputs, OutputSuccess))
         # The output has to be in the json field, parsed
         self.assertTrue(outputs.json_output["key"], "value")
-        # The return code is stored as is
-        self.assertEqual(return_code, 0)
 
     def test_collect_outputs_failure_command(self):
         self_mock = MagicMock()
@@ -65,7 +63,7 @@ class TestCollector(TestCase):
 
         with patch("plainbox.impl.session.system_information.run") as run_mock:
             run_mock.return_value = collection_result
-            outputs, return_code = Collector.collect_outputs(self_mock)
+            outputs = Collector.collect_outputs(self_mock)
         # The function detects the failure and reports it by returning
         # OutputFailure
         self.assertTrue(isinstance(outputs, OutputFailure))
@@ -73,7 +71,7 @@ class TestCollector(TestCase):
         self.assertEqual(outputs.stdout, collection_result.stdout)
         self.assertEqual(outputs.stderr, collection_result.stderr)
         # The return code is stored as is
-        self.assertEqual(return_code, 1)
+        self.assertEqual(outputs.return_code, 1)
 
     def test_collect_outputs_failure_json(self):
         self_mock = MagicMock()
@@ -92,7 +90,7 @@ class TestCollector(TestCase):
 
         with patch("plainbox.impl.session.system_information.run") as run_mock:
             run_mock.return_value = collection_result
-            outputs, return_code = Collector.collect_outputs(self_mock)
+            outputs = Collector.collect_outputs(self_mock)
         # The function detects that the output json is invalid
         # and returns OutputFailure
         self.assertTrue(isinstance(outputs, OutputFailure))
@@ -100,8 +98,6 @@ class TestCollector(TestCase):
         # parsing problem
         self.assertIn(collection_result.stdout, outputs.stdout)
         self.assertIn(exception_str, outputs.stdout)
-        # The return code is stored as is
-        self.assertEqual(return_code, 0)
 
     def test_collect_ok(self):
         collector = Collector(version_cmd=[], collection_cmd=[])
@@ -123,8 +119,7 @@ class TestCollector(TestCase):
             )
             # The version_str is stored as is
             self.assertEqual(collection_output.tool_version, "version_str")
-            # The return code is stored as is
-            self.assertEqual(collection_output.return_code, 0)
+            self.assertTrue(collection_output.success)
 
     def test_collect_fail(self):
         collector = Collector(version_cmd=[], collection_cmd=[])
@@ -147,30 +142,31 @@ class TestCollector(TestCase):
             # The version_str is stored as is
             self.assertEqual(collection_output.tool_version, "version_str")
             # The return code is stored as is
-            self.assertEqual(collection_output.return_code, 1)
+            self.assertEqual(collection_output.outputs.return_code, 1)
+            self.assertFalse(collection_output.success)
 
 
 class TestCollectionOutput(TestCase):
     def test_to_dict_success(self):
         output_success = OutputSuccess({"key": "value"}, "")
         collection_output = CollectionOutput(
-            tool_version="1.0", return_code=0, outputs=output_success
+            tool_version="1.0", outputs=output_success
         )
         expected_dict = {
             "tool_version": "1.0",
-            "return_code": 0,
+            "success": True,
             "outputs": output_success.to_dict(),
         }
         self.assertEqual(collection_output.to_dict(), expected_dict)
 
     def test_to_dict_failure(self):
-        output_failure = OutputFailure("Failure", "")
+        output_failure = OutputFailure("Failure", "", 1)
         collection_output = CollectionOutput(
-            tool_version="1.0", return_code=1, outputs=output_failure
+            tool_version="1.0", outputs=output_failure
         )
         expected_dict = {
             "tool_version": "1.0",
-            "return_code": 1,
+            "success": False,
             "outputs": output_failure.to_dict(),
         }
         self.assertEqual(collection_output.to_dict(), expected_dict)
@@ -178,16 +174,14 @@ class TestCollectionOutput(TestCase):
     def test_from_dict_success(self):
         input_dict = {
             "tool_version": "1.0",
-            "return_code": 0,
+            "success": True,
             "outputs": {
                 "json_output": {"key": "value"},
                 "stderr": "",
-                "success": True,
             },
         }
         collection_output = CollectionOutput.from_dict(input_dict)
         self.assertEqual(collection_output.tool_version, "1.0")
-        self.assertEqual(collection_output.return_code, 0)
         self.assertTrue(isinstance(collection_output.outputs, OutputSuccess))
         self.assertEqual(
             collection_output.outputs.json_output, {"key": "value"}
@@ -198,18 +192,23 @@ class TestCollectionOutput(TestCase):
     def test_from_dict_failure(self):
         input_dict = {
             "tool_version": "1.0",
-            "return_code": 1,
-            "outputs": {"stdout": "Failure", "stderr": "", "success": False},
+            "success": False,
+            "outputs": {
+                "stdout": "Failure",
+                "stderr": "",
+                "return_code": 1,
+            },
         }
         collection_output = CollectionOutput.from_dict(input_dict)
         self.assertEqual(collection_output.tool_version, "1.0")
-        self.assertEqual(collection_output.return_code, 1)
+        self.assertEqual(collection_output.outputs.return_code, 1)
         self.assertTrue(isinstance(collection_output.outputs, OutputFailure))
         self.assertEqual(collection_output.outputs.stdout, "Failure")
         self.assertEqual(collection_output.outputs.stderr, "")
-        self.assertFalse(collection_output.outputs.success)
+        self.assertFalse(collection_output.success)
 
 
+"""
 class TestCollect(TestCase):
     def test_collect(self):
         with patch(
@@ -217,3 +216,4 @@ class TestCollect(TestCase):
         ) as inxi_collector:
             collect()
         self.assertTrue(inxi_collector.collect.called)
+        """

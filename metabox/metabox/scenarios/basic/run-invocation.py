@@ -45,7 +45,7 @@ class RunFailingTestplan(Scenario):
     modes = ["local"]
     steps = [
         Start(
-            "run 2021.com.canonical.certification::basic-automated-failing",
+            "run 2021.com.canonical.certification::" "basic-automated-failing",
             timeout=30,
         ),
         AssertRetCode(1),
@@ -82,52 +82,58 @@ class RunManualplan(Scenario):
 
 
 class RunSlave(Scenario):
-
-    modes = ['local']
+    modes = ["local"]
     steps = [
-        Start('slave'),
-        AssertPrinted("slave is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
+        Start("slave"),
+        AssertPrinted(
+            "slave is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead"
+        ),
     ]
 
 
 class RunMaster(Scenario):
-
-    modes = ['local']
+    modes = ["local"]
     steps = [
-        Start('master'),
-        AssertPrinted("master is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
+        Start("master"),
+        AssertPrinted(
+            "master is deprecated and will be removed in the next major release of Checkbox. Please use control instead"
+        ),
     ]
 
 
 class RunService(Scenario):
-
-    modes = ['local']
+    modes = ["local"]
     steps = [
-        Start('service'),
-        AssertPrinted("service is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead")
+        Start("service"),
+        AssertPrinted(
+            "service is deprecated and will be removed in the next major release of Checkbox. Please use run-agent instead"
+        ),
     ]
 
-class RunRemote(Scenario):
 
-    modes = ['local']
+class RunRemote(Scenario):
+    modes = ["local"]
     steps = [
-        Start('remote'),
-        AssertPrinted("remote is deprecated and will be removed in the next major release of Checkbox. Please use control instead")
+        Start("remote"),
+        AssertPrinted(
+            "remote is deprecated and will be removed in the next major release of Checkbox. Please use control instead"
+        ),
     ]
 
 
 class RunRunAgent(Scenario):
-
-    modes = ['local']
+    modes = ["local"]
     steps = [
-        Start('run-agent'),
-        AssertNotPrinted("Unable to load launcher 'run-agent'. File not found!")
+        Start("run-agent"),
+        AssertNotPrinted(
+            "Unable to load launcher 'run-agent'. File not found!"
+        ),
     ]
 
-class RunControl(Scenario):
 
-    modes = ['local']
+class RunControl(Scenario):
+    modes = ["local"]
     steps = [
-        Start('control'),
-        AssertNotPrinted("Unable to load launcher 'control'. File not found!")
+        Start("control"),
+        AssertNotPrinted("Unable to load launcher 'control'. File not found!"),
     ]

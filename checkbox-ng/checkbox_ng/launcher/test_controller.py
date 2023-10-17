@@ -100,3 +100,59 @@ class ControllerTests(TestCase):
             # this should also exit checkbox because the two versions are
             # different
             RemoteController.check_remote_api_match(self_mock)
+
+    def test_finish_session_all_pass(self):
+        """
+        Check if the finish_session function properly computes the
+        `_has_anything_failed` flag when all jobs pass.
+        """
+        self_mock = mock.MagicMock()
+
+        mock_job_state_map = {
+            "job1": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
+            "job2": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
+        }
+        self_mock._sa.manager.default_device_context._state._job_state_map = (
+            mock_job_state_map
+        )
+        RemoteController.finish_session(self_mock)
+
+        self.assertFalse(self_mock._has_anything_failed)
+
+    def test_finish_session_with_failure(self):
+        """
+        Check if the finish_session function properly computes the
+        `_has_anything_failed` flag when a job fails.
+        """
+        self_mock = mock.MagicMock()
+
+        mock_job_state_map = {
+            "job1": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
+            "job2": mock.MagicMock(result=mock.MagicMock(outcome="fail")),
+            "job3": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
+        }
+        self_mock._sa.manager.default_device_context._state._job_state_map = (
+            mock_job_state_map
+        )
+        RemoteController.finish_session(self_mock)
+
+        self.assertTrue(self_mock._has_anything_failed)
+
+    def test_finish_session_with_crash(self):
+        """
+        Check if the finish_session function properly computes the
+        `_has_anything_failed` flag when a job crashes.
+        """
+        self_mock = mock.MagicMock()
+
+        mock_job_state_map = {
+            "job1": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
+            "job2": mock.MagicMock(result=mock.MagicMock(outcome="crash")),
+            "job3": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
+        }
+        self_mock._sa.manager.default_device_context._state._job_state_map = (
+            mock_job_state_map
+        )
+        RemoteController.finish_session(self_mock)
+
+        self.assertTrue(self_mock._has_anything_failed)

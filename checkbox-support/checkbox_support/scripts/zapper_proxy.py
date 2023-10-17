@@ -21,7 +21,6 @@ It uses internal Zapper Control RPyC API.
 """
 import argparse
 import os
-import sys
 import time
 
 from importlib import import_module
@@ -109,4 +108,4 @@ def main(arguments):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

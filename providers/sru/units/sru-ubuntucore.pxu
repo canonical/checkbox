@@ -84,7 +84,6 @@ include:
     wireless/wireless_connection_open_ac_nm_.*
 #     suspend/audio_before_suspend
     bluetooth4/beacon_eddystone_url_.*
-    zapper-enabled-automated
     cpu/cpuinfo_before_suspend
 #    suspend/network_before_suspend
     memory/meminfo_before_suspend

@@ -86,7 +86,6 @@ nested_part:
     usb-cert-automated
     usb-automated
     wireless-cert-automated
-    zapper-enabled-automated
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point

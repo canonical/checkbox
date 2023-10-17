@@ -1,10 +1,13 @@
 import json
+from copy import copy
 from unittest import TestCase
+from contextlib import contextmanager
 from subprocess import CalledProcessError
 from unittest.mock import MagicMock, patch
 
 from plainbox.impl.session.system_information import (
     Collector,
+    CollectorMeta,
     OutputSuccess,
     OutputFailure,
     CollectionOutput,
@@ -208,12 +211,44 @@ class TestCollectionOutput(TestCase):
         self.assertFalse(collection_output.success)
 
 
-"""
-class TestCollect(TestCase):
-    def test_collect(self):
-        with patch(
-            "plainbox.impl.session.system_information.InxiCollector"
-        ) as inxi_collector:
-            collect()
-        self.assertTrue(inxi_collector.collect.called)
-        """
+class TestCollectorMeta(TestCase):
+    @contextmanager
+    def _preserve_collectors(self):
+        collectors = copy(CollectorMeta.collectors)
+        try:
+            yield
+        finally:
+            CollectorMeta.collectors = collectors
+
+    def test_meta_register(self):
+        with self._preserve_collectors():
+            class WillRegister(metaclass=CollectorMeta):
+                REGISTER_NAME = "will_register"
+            self.assertIn("will_register", CollectorMeta.collectors)
+
+    def test_meta_no_register(self):
+        with self._preserve_collectors():
+            collectors_count = len(CollectorMeta.collectors)
+            class WontRegister(metaclass=CollectorMeta):
+                ...
+            after_wont_register_count = len(CollectorMeta.collectors)
+            self.assertEqual(collectors_count, after_wont_register_count)
+
+    def test_meta_no_duplicates(self):
+        with self._preserve_collectors():
+            class WillRegister(metaclass=CollectorMeta):
+                REGISTER_NAME = "will_register"
+            self.assertIn("will_register", CollectorMeta.collectors)
+
+            with self.assertRaises(ValueError):
+                class WillError(metaclass=CollectorMeta):
+                    REGISTER_NAME = "will_register"
+
+    def test_meta_inheritance(self):
+        with self._preserve_collectors():
+            class WontRegister(metaclass=CollectorMeta):
+                ...
+            class WillRegister(WontRegister):
+                REGISTER_NAME = "will_register"
+
+            self.assertIn("will_register", CollectorMeta.collectors)

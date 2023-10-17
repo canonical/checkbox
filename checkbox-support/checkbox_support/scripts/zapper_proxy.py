@@ -21,6 +21,7 @@ It uses internal Zapper Control RPyC API.
 """
 import argparse
 import os
+import sys
 import time
 
 from importlib import import_module
@@ -84,7 +85,7 @@ def get_capabilities(host):
     print("\n\n".join(stringify_cap(cap) for cap in capabilities))
 
 
-def main():
+def main(arguments):
     """Entry point."""
 
     parser = argparse.ArgumentParser()
@@ -98,13 +99,7 @@ def main():
     )
     parser.add_argument("cmd")
     parser.add_argument("args", nargs="*")
-    args = parser.parse_args()
-
-    if args.host is None:
-        raise SystemExit(
-            "You have to provide Zapper host, either via '--host' or via "
-            "ZAPPER_HOST environment variable"
-        )
+    args = parser.parse_args(arguments)
 
     if args.cmd == "get_capabilities":
         get_capabilities(args.host)
@@ -114,4 +109,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

@@ -295,7 +295,7 @@ class Launcher(MainLoopStage, ReportsStage):
             _ = detect_restart_strategy(session_type="local")
         except LookupError as exc:
             _logger.warning(exc)
-            _logger.warning(_("Automatic restart disabled!"))
+            _logger.warning(gettext.gettext("Automatic restart disabled!"))
             return
 
         snap_name = os.getenv("SNAP_NAME")

@@ -77,14 +77,6 @@ flags: also-after-suspend
 _summary: Webcam still image capture test for {{ product_slug }}
 estimated_duration: 120.0
 depends: camera/detect
-requires:
- {%- if __on_ubuntucore__ %}
- executable.name == 'fswebcam'
- {%- else %}
- package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'eog'
- package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
- {% endif -%}
 command:
   camera_test.py still -d /dev/{{ name }}
 _description:
@@ -107,12 +99,6 @@ flags: also-after-suspend
 _summary: Webcam multiple resolution capture test for {{ product_slug }}
 estimated_duration: 1.2
 depends: camera/detect
-requires:
-  {%- if __on_ubuntucore__ %}
-  executable.name == 'fswebcam'
-  {%- else %}
-  package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-1.0'
-  {% endif -%}
 command:
   camera_test.py resolutions -d /dev/{{ name }}
 _description:

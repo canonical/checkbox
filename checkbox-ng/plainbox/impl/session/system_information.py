@@ -9,27 +9,43 @@ from plainbox.vendor import system_information
 class CollectorMeta(type):
     """
     Creates an instance of a Collector type storing what was created
-    if it has a REGISTER_NAME attribute. The purpose of this is
-    collecting
+    if it has a COLLECTOR_NAME attribute. The purpose of this is
+    centralizing the collection of collectors with this mechanism so
+    that whenever a new collector is created the list of them doesn't
+    need to be manually updated.
+
+    To subscribe a new Collector simply use this class as the metaclass
+    and give it a COLLECTOR_NAME:
+
+        >>> class WillSubscribe(metaclass=CollectorMeta):
+        >>>     COLLECTOR_NAME="will_subscribe"
+
+    If you want to create a base collector that will not be subscribed
+    here, for example because it needs to be specialized, simply omit the
+    COLLECTOR_NAME:
+
+        >>> class WillNotSubscribe(metaclass=CollectorMeta): ...
+        >>> class WillSubscribe(WillNotSubscribe):
+        >>>     COLLECTOR_NAME = "will_subscribe"
     """
 
     collectors = {}
 
     def __new__(cls, clsname, bases, attrs):
         collector_type = super().__new__(cls, clsname, bases, attrs)
-        if "REGISTER_NAME" in attrs:
-            name = attrs["REGISTER_NAME"]
-            if name in cls.collectors:
-                raise ValueError(
-                    (
-                        "Failed to register class '{class_name}' as '{name}'. "
-                        "Name is taken by class '{other_class_name}'"
-                    ).format(
-                        name=name,
-                        class_name=clsname,
-                        other_class_name=cls.collectors[name].__name__,
-                    )
+        name = attrs.get("COLLECTOR_NAME")
+        if name and name in cls.collectors:
+            raise ValueError(
+                (
+                    "Failed to register class '{class_name}' as '{name}'. "
+                    "Name is taken by class '{other_class_name}'"
+                ).format(
+                    name=name,
+                    class_name=clsname,
+                    other_class_name=cls.collectors[name].__name__,
                 )
+            )
+        if name:
             cls.collectors[name] = collector_type
         return collector_type
 
@@ -181,7 +197,7 @@ class Collector(metaclass=CollectorMeta):
 
 
 class InxiCollector(Collector):
-    REGISTER_NAME = "inxi"
+    COLLECTOR_NAME = "inxi"
 
     def __init__(self):
         super().__init__(

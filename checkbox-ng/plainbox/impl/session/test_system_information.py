@@ -223,7 +223,7 @@ class TestCollectorMeta(TestCase):
     def test_meta_register(self):
         with self._preserve_collectors():
             class WillRegister(metaclass=CollectorMeta):
-                REGISTER_NAME = "will_register"
+                COLLECTOR_NAME = "will_register"
             self.assertIn("will_register", CollectorMeta.collectors)
 
     def test_meta_no_register(self):
@@ -237,18 +237,18 @@ class TestCollectorMeta(TestCase):
     def test_meta_no_duplicates(self):
         with self._preserve_collectors():
             class WillRegister(metaclass=CollectorMeta):
-                REGISTER_NAME = "will_register"
+                COLLECTOR_NAME = "will_register"
             self.assertIn("will_register", CollectorMeta.collectors)
 
             with self.assertRaises(ValueError):
                 class WillError(metaclass=CollectorMeta):
-                    REGISTER_NAME = "will_register"
+                    COLLECTOR_NAME = "will_register"
 
     def test_meta_inheritance(self):
         with self._preserve_collectors():
             class WontRegister(metaclass=CollectorMeta):
                 ...
             class WillRegister(WontRegister):
-                REGISTER_NAME = "will_register"
+                COLLECTOR_NAME = "will_register"
 
             self.assertIn("will_register", CollectorMeta.collectors)

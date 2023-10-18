@@ -77,6 +77,7 @@ class TestLauncher(TestCase):
 class TestLauncherReturnCodes(TestCase):
     def setUp(self):
         self.launcher = Launcher()
+        self.launcher._maybe_rerun_jobs = Mock(return_value=False)
         self.launcher._maybe_resume_session = Mock(return_value=False)
         self.launcher._start_new_session = Mock()
         self.launcher._pick_jobs_to_run = Mock()

@@ -106,6 +106,7 @@ command: bt_a2dp.py "$ZAPPER_HOST"
 depends: bluetooth/detect-output
 
 id: input/zapper-keyboard
+requires: zapper_capabilities.capability == 'hid'
 category_id: com.canonical.plainbox::input
 plugin: shell
 user: root

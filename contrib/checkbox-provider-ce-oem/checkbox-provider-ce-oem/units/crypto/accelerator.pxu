@@ -1,21 +1,35 @@
-id: ce-oem-crypto/caam/rng-available
-_summary: Check if rng-caam is avaliable.
+id: ce-oem-crypto/hwrng-current
+_summary: Check if current Hardware Random Number Generate is expected.
 plugin: shell
 user: root
 category_id: crypto
 flags: also-after-suspend
 estimated_duration: 1
-requires: manifest.has_caam == 'True'
+environ: HWRNG
+requires: manifest.has_hardware_rng == 'True'
 imports: from com.canonical.plainbox import manifest
 command:
-    hwrng_path="/sys/class/misc/hw_random/rng_current"
-    echo "Hardware RNG currently using in system is: $(cat $hwrng_path)"
-    if grep -q rng-caam "$hwrng_path"
-    then
-        echo "PASS: rng-caam is available"
+    path_hwrng='/sys/class/misc/hw_random/'
+    if [ -e "$path_hwrng/rng_available" ]; then
+        echo "HWRNG_Available: $(cat "$path_hwrng"rng_available)"
+    fi
+    if [ -e "$path_hwrng/rng_current" ]; then
+        echo "HWRNG_Current: $(cat "$path_hwrng"rng_current)"
+    fi
+    if [ -e "$path_hwrng/rng_qulity" ]; then
+        echo "HWRNG_Quality: $(cat "$path_hwrng"rng_qulity)"
+    fi
+    if [ -e "$path_hwrng/rng_selected" ]; then
+        echo "HWRNG_Selected: $(cat "$path_hwrng"rng_selected)"
+    fi
+    if [ -z "$HWRNG" ];then
+        echo "FAIL: Checkbox config HWRNG has not been set!"
+        exit 1
+    elif [ "$HWRNG" == "$(cat "$path_hwrng"rng_current)" ];then
+        echo "PASS: $HWRNG is available"
         exit 0
     else
-        echo "FAIL: rng-caam is unavailable"
+        echo "FAIL: $HWRNG is not available"
         exit 1
     fi
 
@@ -26,7 +40,9 @@ user: root
 category_id: crypto
 flags: also-after-suspend
 estimated_duration: 10
-depends: ce-oem-crypto/caam/rng-available
+depends: ce-oem-crypto/hwrng-current
+requires: manifest.has_caam == 'True'
+imports: from com.canonical.plainbox import manifest
 command:
     init_interrupt=$(awk '/\.jr/ {printf "%s ",$2;next;}' /proc/interrupts|sed 's/ //g')
     if [ -z "$init_interrupt" ]

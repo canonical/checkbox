@@ -19,9 +19,8 @@ _name: Crypto auto tests
 _description: Automated crypto tests for devices
 bootstrap_include:
     cryptoinfo
-    hwrng
 include:
-    ce-oem-crypto/benchmark
+    ce-oem-crypto/cryptsetup_benchmark
     ce-oem-crypto/af_alg_hash_crc64_test
     ce-oem-crypto/af_alg_hash_sha256_test
     ce-oem-crypto/af_alg_aead_gcm_aes_test
@@ -49,9 +48,8 @@ _name: After suspend crypto auto tests
 _description: Automated after-suspend crypto tests for devices
 bootstrap_include:
     cryptoinfo
-    hwrng
 include:
-    after-suspend-ce-oem-crypto/benchmark
+    after-suspend-ce-oem-crypto/cryptsetup_benchmark
     after-suspend-ce-oem-crypto/af_alg_hash_crc64_test
     after-suspend-ce-oem-crypto/af_alg_hash_sha256_test
     after-suspend-ce-oem-crypto/af_alg_aead_gcm_aes_test

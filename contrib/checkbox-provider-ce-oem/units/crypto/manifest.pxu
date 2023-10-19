@@ -12,3 +12,8 @@ unit: manifest entry
 id: has_sa2ul_engine
 _name: SA2UL(Security Accelerator 2 Ultra Light) support
 value-type: bool
+
+unit: manifest entry
+id: has_hardware_rng
+_name: Hardware Random Number Generate support
+value-type: bool

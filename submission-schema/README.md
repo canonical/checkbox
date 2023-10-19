@@ -11,13 +11,15 @@ In this folder you can find the schema for the submission.json that's sent to ce
 The `schema.json` can be generated using a existing submission tarballs.
 Follow the steps below to generate a fresh `schema.json`
 
-### Obtaining tarballs
+### Obtaining submission tarballs
 
-Hexr repository has a useful
-[helper program](https://github.com/canonical/hexr/blob/main/scripts/download_submissions.py) that downloads the existing submissions from C3.
+If you have access to the Hexr repository, you will find a useful
+[helper program](https://github.com/canonical/hexr/blob/main/scripts/download_submissions.py) that downloads a series of submissions from C3.
+
 Follow the [README for that tool](https://github.com/canonical/hexr/blob/main/scripts/README.md) to get started.
-Note that you'll have to tweak the `LIMIT` parameter to download more sessions.
-Also note that by default the tool is designed to process the submissions
+
+You will have to tweak the `LIMIT` parameter to download more sessions.
+Also note that at the time of writing, this tool is designed to process the submissions
 after downloading and then dispose them. Deleting the `os.remove` calls will
 make the submission tarballs stay on the filesystem.
 
@@ -65,30 +67,36 @@ With genson installed you can now run the `build_schema.py` program.
 
 ### Generating Python loader out of the schema
 
-Quicktype can generate a valid Python class parallel to the object described by the generated schema. It can also be used to generate schema, though it's significantly slower than the genson method.
+As an alternative to `genson`, `quicktype` can be used to generate the schema, as well as Python types using classes.
 
-Getting quicktype
+#### Getting quicktype
+
+1. Install `nodejs` [using the nodesource.com provided Node.js binary distribution](https://github.com/nodesource/distributions#nodejs).
+
+2. Install dependencies (`quicktype` and its transitive dependencies are installed under `./submission-schema/node_modules`).
 
 ```bash
-sudo apt install npm  # warning - a lot of packages will be pulled
-sudo sudo npm install -g quicktype
+cd submission-schema
+npm install
 ```
 
-Generating schema with Quicktype using
+#### Generating schema with Quicktype from input JSON data
 
 ```bash
-quicktype --lang json-schema --out schema-from-qt.json --src-lang json ../jsons/*.json
+npm run generate-schema-from-input-jsons
 ```
 
-Generating Python class with Quicktype using the existing schema.
-Note that this is less reliable than generating Python class directly from the jsons.
+#### Generating Python class with Quicktype using the existing schema
 
 ```bash
-    quicktype --src-lang json-schema -s schema.json -o submission_from_schema.py
+npm run generate-python-types-from-schema
 ```
 
-Generating Python class with Quicktype using submissions
+
+#### Generating Python class with Quicktype using submissions
+
+Python classes can be created directly from input JSONs.
 
 ```bash
-quicktype --lang python --out submission.py --src-lang json ../jsons/*.json
+npm run generate-python-types-from-input-jsons
 ```

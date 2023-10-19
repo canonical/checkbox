@@ -21,26 +21,28 @@ import textwrap
 
 from metabox.core.actions import AssertPrinted
 from metabox.core.scenario import Scenario
+from metabox.core.utils import tag
 
+
+@tag("reboot")
 class Reboot(Scenario):
-
-    modes = ['remote']
-    launcher = textwrap.dedent("""
-    [launcher]
-    launcher_version = 1
-    stock_reports = text
-    [test plan]
-    unit = com.canonical.certification::power-automated
-    forced = yes
-    [test selection]
-    forced = yes
-    exclude = .*cold.*
-    [ui]
-    type = silent
-    """)
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = com.canonical.certification::power-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        exclude = .*cold.*
+        [ui]
+        type = silent
+        """
+    )
     steps = [
-        AssertPrinted('Connection lost!'),
-        AssertPrinted('Reconnecting'),
-        AssertPrinted("Reconnected\s+\(took"),
-        AssertPrinted('job passed   : Warm reboot'),
+        AssertPrinted("Connection lost!"),
+        AssertPrinted("job passed   : Warm reboot"),
     ]

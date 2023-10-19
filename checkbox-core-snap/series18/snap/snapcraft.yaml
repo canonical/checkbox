@@ -78,7 +78,7 @@ parts:
     source-tag: "V23.09.00"
     source-depth: 1
     plugin: autotools
-    source: git://git.launchpad.net/~firmware-testing-team/fwts/+git/fwts
+    source: https://github.com/fwts/fwts.git
     stage-packages:
       - libfdt1
       - libbsd0

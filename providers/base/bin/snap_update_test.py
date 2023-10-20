@@ -200,18 +200,18 @@ class SnapRefreshRevert:
             elif result == "Error":
                 tasks = self.snapd.tasks(str(change_id))
                 for task in tasks:
-                    logger.error("%s | %s | %s",
-                                 task["id"],
-                                 task["status"],
-                                 task["summary"]
+                    logger.error(
+                        "%s | %s | %s",
+                        task["id"],
+                        task["status"],
+                        task["summary"],
                     )
                     if task.get("log"):
                         for log in task["log"]:
                             logger.error("\t %s", log)
-                raise SystemExit("Error during snap {} {}.".format(
-                    self.name, type)
+                raise SystemExit(
+                    "Error during snap {} {}.".format(self.name, type)
                 )
-
 
             current_time = time.time()
             if current_time - start_time >= timeout:
@@ -222,15 +222,18 @@ class SnapRefreshRevert:
                 )
             logger.info("Waiting for %s snap %s to be done...",
                         self.name,
-                        type)
+                        type
+                        )
             logger.info("Trying again in 10 seconds...")
             time.sleep(10)
 
     def verify(self, type, timeout=300):
         logger.info("Beginning verify...")
         if type not in ("refresh", "revert"):
-            msg = ("'{}' verification unknown. Can be either 'refresh' "
-                   "or 'revert'.").format(type)
+            msg = (
+                "'{}' verification unknown. Can be either 'refresh' "
+                "or 'revert'."
+            ).format(type)
             raise SystemExit(msg)
         data = load_change_info(self.path)
         id = data["change_id"]
@@ -243,10 +246,11 @@ class SnapRefreshRevert:
         else:
             tested_rev = data["original_revision"]
         if current_rev != tested_rev:
-            msg = ("Current revision ({}) is different from expected revision "
-                   "({})").format(current_rev, tested_rev)
-            raise SystemExit(
-            )
+            msg = (
+                "Current revision ({}) is different from expected revision "
+                "({})"
+            ).format(current_rev, tested_rev)
+            raise SystemExit()
         else:
             logger.info(
                 "PASS: current revision (%s) matches the expected revision",

@@ -49,7 +49,7 @@ class RemoteAssistantTests(TestCase):
 
 class RemoteAssistantFinishJobTests(TestCase):
     def setUp(self):
-        self.rsa = remote_assistant.RemoteSessionAssistant("")
+        self.rsa = mock.MagicMock()
         self.rsa._sa = mock.Mock()
         self.rsa._be = None
 
@@ -61,7 +61,7 @@ class RemoteAssistantFinishJobTests(TestCase):
         mock_builder = MockJobResultBuilder.return_value
         mock_builder.get_result.return_value = IJobResult.OUTCOME_PASS
 
-        result = self.rsa.finish_job()
+        result = remote_assistant.RemoteSessionAssistant.finish_job(self.rsa)
 
         self.rsa._sa.use_job_result.assert_called_with("job_id", "pass")
         self.assertEqual(result, IJobResult.OUTCOME_PASS)
@@ -79,7 +79,7 @@ class RemoteAssistantFinishJobTests(TestCase):
         self.rsa._be.wait().get_result = wait_get_result_res
         wait_get_result_res.return_value = IJobResult.OUTCOME_PASS
 
-        result = self.rsa.finish_job()
+        result = remote_assistant.RemoteSessionAssistant.finish_job(self.rsa)
 
         self.assertTrue(self.rsa._be.wait.called)
         self.assertTrue(self.rsa._be.wait().get_result)

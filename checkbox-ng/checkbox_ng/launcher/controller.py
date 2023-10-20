@@ -533,9 +533,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.run_jobs()
 
     def _handle_last_job_after_resume(self, resumed_session_info):
-        if self.launcher.get_value("ui", "type") == "silent":
-            time.sleep(20)
-        else:
+        if self.launcher.get_value("ui", "type") != "silent":
             resume_dialog(10)
         jobs_repr = json.loads(
             self.sa.get_jobs_repr([resumed_session_info["last_job"]])

@@ -199,7 +199,29 @@ class SnapRefreshRevertTests(unittest.TestCase):
         mock_snap_info = MagicMock()
         mock_self.snap_info = mock_snap_info
         mock_self.snapd.change.return_value = "Done"
-        snap_update_test.SnapRefreshRevert.wait_for_snap_change(mock_self, change_id=1)
+        snap_update_test.SnapRefreshRevert.wait_for_snap_change(
+            mock_self, change_id=1, type="refresh"
+        )
+
+    def test_wait_for_snap_change_error(self):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        mock_self.snapd.change.return_value = "Error"
+        mock_self.snapd.tasks.return_value = [{
+            "id": "3285",
+            "kind": "auto-connect",
+            "log": ["ERROR cannot finish pi-kernel installation"],
+            "progress": {"done": 1, "label": "", "total": 1},
+            "ready-time": "2023-10-20T04:36:29.493419161Z",
+            "spawn-time": "2023-10-20T04:34:44.614034129Z",
+            "status": "Error",
+            "summary": "Automatically connect eligible plugs and slots"
+        }]
+        with self.assertRaises(SystemExit):
+            snap_update_test.SnapRefreshRevert.wait_for_snap_change(
+                mock_self, change_id=1, type="refresh"
+            )
 
     def test_wait_for_snap_change_timeout(self):
         mock_self = MagicMock()
@@ -207,7 +229,7 @@ class SnapRefreshRevertTests(unittest.TestCase):
         mock_self.snap_info = mock_snap_info
         with self.assertRaises(SystemExit):
             snap_update_test.SnapRefreshRevert.wait_for_snap_change(
-                mock_self, change_id=1, timeout=-1
+                mock_self, change_id=1, type="refresh", timeout=-1
             )
 
     @patch("snap_update_test.time.time")
@@ -218,4 +240,6 @@ class SnapRefreshRevertTests(unittest.TestCase):
         mock_self.snap_info = mock_snap_info
         mock_self.snapd.change.side_effect = ["Doing", "Done"]
         mock_time.return_value = 1
-        snap_update_test.SnapRefreshRevert.wait_for_snap_change(mock_self, change_id=1)
+        snap_update_test.SnapRefreshRevert.wait_for_snap_change(
+            mock_self, change_id=1, type="refresh"
+        )

@@ -197,6 +197,21 @@ class SnapRefreshRevert:
             if result == "Done":
                 logger.info("%s snap %s complete", self.name, type)
                 return
+            elif result == "Error":
+                tasks = self.snapd.tasks(str(change_id))
+                for task in tasks:
+                    logger.error("%s | %s | %s",
+                                 task["id"],
+                                 task["status"],
+                                 task["summary"]
+                    )
+                    if task.get("log"):
+                        for log in task["log"]:
+                            logger.error("\t %s", log)
+                raise SystemExit("Error during snap {} {}.".format(
+                    self.name, type)
+                )
+
 
             current_time = time.time()
             if current_time - start_time >= timeout:

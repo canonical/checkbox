@@ -156,3 +156,39 @@ class ControllerTests(TestCase):
         RemoteController.finish_session(self_mock)
 
         self.assertTrue(self_mock._has_anything_failed)
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    @mock.patch("checkbox_ng.launcher.controller.resume_dialog")
+    def test__handle_last_job_after_resume_when_silent(self, res_dia_mock, _):
+        self_mock = mock.MagicMock()
+        self_mock.launcher = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = "silent"
+        self_mock.sa.get_jobs_repr.return_value = [
+            {"name": "job", "category_name": "category", "id": "job_id"}
+        ]
+        with mock.patch("json.loads") as _:
+            with mock.patch("builtins.print") as print_mock:
+                RemoteController._handle_last_job_after_resume(
+                    self_mock, {"last_job": "job_id"}
+                )
+
+        self.assertFalse(res_dia_mock.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    @mock.patch("checkbox_ng.launcher.controller.resume_dialog")
+    def test__handle_last_job_after_resume_when_not_silent(
+        self, res_dia_mock, _
+    ):
+        self_mock = mock.MagicMock()
+        self_mock.launcher = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = "loud"
+        self_mock.sa.get_jobs_repr.return_value = [
+            {"name": "job", "category_name": "category", "id": "job_id"}
+        ]
+        with mock.patch("json.loads") as _:
+            with mock.patch("builtins.print") as print_mock:
+                RemoteController._handle_last_job_after_resume(
+                    self_mock, {"last_job": "job_id"}
+                )
+
+        self.assertTrue(res_dia_mock.called)

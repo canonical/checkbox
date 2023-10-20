@@ -27,6 +27,13 @@ import time
 
 from checkbox_support.snap_utils.snapd import Snapd
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
 
 def guess_snaps() -> list:
     """
@@ -68,7 +75,11 @@ class SnapInfo:
         self.type = snap["type"]
         self.tracking_channel = snap["tracking-channel"]
         self.installed_revision = snap["revision"]
-        self.tracking_prefix = (self.tracking_channel.split("/")[0] + "/") if "/" in self.tracking_channel else ""
+        self.tracking_prefix = (
+            (self.tracking_channel.split("/")[0] + "/")
+            if "/" in self.tracking_channel
+            else ""
+        )
         self.base_revision = get_snaps_base_rev().get(name, "")
 
         revisions = {}
@@ -106,19 +117,22 @@ def print_resource_info():
     for snap in guess_snaps():
         SnapInfo(snap).print_as_resource()
 
+
 def save_change_info(path, data):
     with open(path, "w") as file:
         json.dump(data, file)
+
 
 def load_change_info(path):
     try:
         with open(path, "r") as file:
             data = json.load(file)
     except FileNotFoundError:
-        logging.error("File not found: %s", path)
-        logging.error("Did the previous job run as expected?")
+        logger.error("File not found: %s", path)
+        logger.error("Did the previous job run as expected?")
         raise SystemExit(1)
     return data
+
 
 class SnapRefreshRevert:
     def __init__(self, name, revision, info_path):
@@ -132,14 +146,14 @@ class SnapRefreshRevert:
         data = {}
         original_revision = self.snap_info.installed_revision
         if original_revision == self.revision:
-            logging.error(
+            logger.error(
                 "Trying to refresh to the same revision (%s)!", self.revision
             )
             raise SystemExit(1)
         data["name"] = self.name
         data["original_revision"] = original_revision
         data["destination_revision"] = self.revision
-        logging.info(
+        logger.info(
             "Refreshing %s snap from revision %s to revision %s",
             self.name,
             original_revision,
@@ -151,62 +165,62 @@ class SnapRefreshRevert:
             revision=self.revision,
             reboot=True,
         )
-        logging.info(
+        logger.info(
             "Refreshing requested (channel %s, revision %s)",
             self.snap_info.tracking_channel,
             self.revision,
         )
         data["change_id"] = response["change"]
         save_change_info(self.path, data)
-        logging.info("Waiting for reboot...")
+        logger.info("Waiting for reboot...")
 
     def snap_revert(self):
         data = load_change_info(self.path)
         original_rev = data["original_revision"]
         destination_rev = data["destination_revision"]
-        logging.info(
+        logger.info(
             "Reverting %s snap (from revision %s to revision %s)",
             self.name,
             destination_rev,
             original_rev,
         )
         response = self.snapd.revert(self.name, reboot=True)
-        logging.info("Reverting requested")
+        logger.info("Reverting requested")
         data["change_id"] = response["change"]
         save_change_info(self.path, data)
-        logging.info("Waiting for reboot...")
+        logger.info("Waiting for reboot...")
 
-    def verify(self, type):
-        if type not in ("refresh", "revert"):
-            raise SystemExit(
-                "'{}' verification unknown. Can be either 'refresh' or 'revert'.".format(
-                    type
+    def wait_for_snap_change(self, change_id, type, timeout=300):
+        start_time = time.time()
+        while True:
+            result = self.snapd.change(str(change_id))
+            if result == "Done":
+                logger.info("%s snap %s complete", self.name, type)
+                return
+
+            current_time = time.time()
+            if current_time - start_time >= timeout:
+                raise SystemExit(
+                    "{} snap {} did not complete within {} seconds".format(
+                        self.name, type, timeout
+                    )
                 )
-            )
+            logger.info("Waiting for %s snap %s to be done...",
+                        self.name,
+                        type)
+            logger.info("Trying again in 10 seconds...")
+            time.sleep(10)
+
+    def verify(self, type, timeout=300):
+        logger.info("Beginning verify...")
+        if type not in ("refresh", "revert"):
+            msg = ("'{}' verification unknown. Can be either 'refresh' "
+                   "or 'revert'.").format(type)
+            raise SystemExit(msg)
         data = load_change_info(self.path)
         id = data["change_id"]
-
-        logging.info("Checking %s status for snap %s...", type, self.name)
-        start_time = time.time()
-        timeout = 300  # 5 minutes timeout
-        while True:
-            result = self.snapd.change(str(id))
-            if result == "Done":
-                logging.info("%s snap %s complete", self.name, type)
-                break
-
-            if time.time() - start_time >= timeout:
-                logging.error(
-                    "%s snap %s did not complete within 5 minutes",
-                    self.name,
-                    type,
-                )
-                raise SystemExit(1)
-            logging.info(
-                "Waiting for %s snap %s to be done...", self.name, type
-            )
-            logging.info("Trying again in 10 seconds...")
-            time.sleep(10)
+        self.wait_for_snap_change(id, type, timeout)
+        logger.info("Checking %s status for snap %s...", type, self.name)
 
         current_rev = self.snapd.list(self.name)["revision"]
         if type == "refresh":
@@ -214,25 +228,18 @@ class SnapRefreshRevert:
         else:
             tested_rev = data["original_revision"]
         if current_rev != tested_rev:
-            logging.error(
-                "Current revision (%s) is different from expected revision (%s)",
-                current_rev,
-                tested_rev,
+            msg = ("Current revision ({}) is different from expected revision "
+                   "({})").format(current_rev, tested_rev)
+            raise SystemExit(
             )
-            raise SystemExit(1)
         else:
-            logging.info(
+            logger.info(
                 "PASS: current revision (%s) matches the expected revision",
                 current_rev,
             )
 
 
-def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)-8s %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "name", nargs="?", default="", help="Name of the snap to act upon"
@@ -271,7 +278,7 @@ def main():
         help="Revision to refresh to",
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if args.resource:
         print_resource_info()
@@ -290,4 +297,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

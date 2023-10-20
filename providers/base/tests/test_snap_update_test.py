@@ -1,7 +1,7 @@
 import io
 import logging
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
 
 import snap_update_test
 
@@ -20,230 +20,202 @@ class SnapUpdateTests(unittest.TestCase):
     def test_guess_snaps(self, mock_snapd_list):
         mock_snapd_list.return_value = snapd_list_sample
         snaps = snap_update_test.guess_snaps()
-        expected_snaps = {"kernel": "pi-kernel", "snapd": "snapd", "gadget": "pi"}
+        expected_snaps = ["pi-kernel", "snapd", "pi"]
         self.assertEqual(snaps, expected_snaps)
 
     @patch("snap_update_test.Snapd.list")
     def test_guess_snaps_nothing(self, mock_snapd_list):
         mock_snapd_list.return_value = snapd_list_no_kernel_snapd_gadget_snap
         snaps = snap_update_test.guess_snaps()
-        self.assertEqual(snaps, {})
+        self.assertEqual(snaps, [])
 
-    @patch("snap_update_test.glob")
-    def test_get_snap_base_rev(self, mock_glob):
+    @patch("snap_update_test.Path.glob")
+    def test_get_snaps_base_rev(self, mock_glob):
         mock_glob.return_value = snapd_seed_glob_data
-        snap_rev = snap_update_test.get_snap_base_rev()
+        snap_rev = snap_update_test.get_snaps_base_rev()
         self.assertEqual(len(snap_rev), 4)
         self.assertEqual(snap_rev["pc-kernel"], "1289")
 
-    @patch("snap_update_test.get_snap_base_rev")
-    @patch("snap_update_test.Snapd.list")
-    @patch("snap_update_test.Snapd.find")
-    def test_get_snap_info(self, mock_snapd_find, mock_snapd_list, mock_base_revs):
+    @patch("builtins.open", new_callable=mock_open)
+    def test_load_change_info_file_not_found(self, mock_open):
+        mock_open.side_effect = FileNotFoundError()
+        logging.disable(logging.CRITICAL)
+        with self.assertRaises(SystemExit):
+            snap_update_test.load_change_info("/file/not/found")
+
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("snap_update_test.json")
+    def test_load_change_info(self, mock_json, mock_open):
+        snap_update_test.load_change_info("test")
+        mock_json.load.assert_called()
+
+    @patch("snap_update_test.print_resource_info")
+    def test_main_print_resource(self, mock_print_resource_info):
+        args = ["--resource"]
+        snap_update_test.main(args)
+        mock_print_resource_info.assert_called()
+
+    @patch("snap_update_test.SnapRefreshRevert")
+    def test_main_refresh(self, mock_srr):
+        args = ["--refresh", "--info-path", "/tmp/change.json", "chromium"]
+        snap_update_test.main(args)
+        instance = mock_srr.return_value
+        instance.snap_refresh.assert_called()
+
+    @patch("snap_update_test.SnapRefreshRevert")
+    def test_main_verify_refresh(self, mock_srr):
+        args = ["--verify-refresh", "--info-path", "/tmp/change.json", "chromium"]
+        snap_update_test.main(args)
+        instance = mock_srr.return_value
+        instance.verify.assert_called_with("refresh")
+
+    @patch("snap_update_test.SnapRefreshRevert")
+    def test_main_revert(self, mock_srr):
+        args = ["--revert", "--info-path", "/tmp/change.json", "chromium"]
+        snap_update_test.main(args)
+        instance = mock_srr.return_value
+        instance.snap_revert.assert_called()
+
+    @patch("snap_update_test.SnapRefreshRevert")
+    def test_main_verify_revert(self, mock_srr):
+        args = ["--verify-revert", "--info-path", "/tmp/change.json", "chromium"]
+        snap_update_test.main(args)
+        instance = mock_srr.return_value
+        instance.verify.assert_called_with("revert")
+
+
+class SnapInfoTests(unittest.TestCase):
+    @patch("snap_update_test.get_snaps_base_rev")
+    @patch("snap_update_test.Snapd")
+    def test_init(self, mock_snapd, mock_base_revs):
         mock_base_revs.return_value = {"firefox": "2605"}
-        mock_snapd_list.return_value = snapd_list_firefox_snap
-        mock_snapd_find.return_value = snapd_find_firefox_snap
-        expected_snap_info = {
-            "installed_revision": "3026",
-            "base_revision": "2605",
-            "name": "firefox",
-            "type": "app",
-            "revisions": {
-                "esr/candidate": "3052",
-                "esr/stable": "3052",
-                "latest/beta": "3099",
-                "latest/candidate": "3068",
-                "latest/edge": "3102",
-                "latest/stable": "3068",
-            },
-            "tracking_channel": "latest/stable",
-            "tracking_prefix": "latest/",
-        }
+        mock_snapd.return_value.list.return_value = snapd_list_firefox_snap
+        mock_snapd.return_value.find.return_value = snapd_find_firefox_snap
 
-        snap_info = snap_update_test.get_snap_info("firefox")
-        self.assertEqual(snap_info, expected_snap_info)
+        snap_info = snap_update_test.SnapInfo("firefox")
+        self.assertEqual(snap_info.installed_revision, "3026")
+        self.assertEqual(snap_info.base_revision, "2605")
+        self.assertEqual(snap_info.tracking_channel, "latest/stable")
+        self.assertEqual(snap_info.tracking_prefix, "latest/")
+        self.assertEqual(snap_info.stable_revision, "3068")
+        self.assertEqual(snap_info.candidate_revision, "3068")
+        self.assertEqual(snap_info.beta_revision, "3099")
+        self.assertEqual(snap_info.edge_revision, "3102")
 
-    @patch("snap_update_test.get_snap_info")
     @patch("sys.stdout", new_callable=io.StringIO)
-    def test_print_resource_info(self, mock_stdout, mock_snap_info):
-        mock_snap_info.return_value = snap_info_pi_kernel
-        expected_output = (
-            "name: pi-kernel\ntype: kernel\n"
-            "tracking: 22/stable\nbase_rev: 567\nstable_rev: 658\n"
-            "candidate_rev: 663\nbeta_rev: 663\nedge_rev: 663\n"
-            "original_installed_rev: 567\n\n"
-        )
-        snap_update_test.print_resource_info()
-        self.assertEqual(mock_stdout.getvalue(), expected_output)
+    def test_print_as_resource(self, mock_stdout):
+        mock_self = MagicMock()
+        snap_update_test.SnapInfo.print_as_resource(mock_self)
+        assert "name:" in mock_stdout.getvalue()
+        assert "type:" in mock_stdout.getvalue()
+        assert "tracking:" in mock_stdout.getvalue()
+        assert "base_rev:" in mock_stdout.getvalue()
+        assert "stable_rev:" in mock_stdout.getvalue()
+        assert "candidate_rev:" in mock_stdout.getvalue()
+        assert "beta_rev:" in mock_stdout.getvalue()
+        assert "edge_rev:" in mock_stdout.getvalue()
+        assert "original_installed_rev:" in mock_stdout.getvalue()
+        # Make sure there is a blank line at the end, as this is required by
+        # Checkbox resource jobs
+        assert mock_stdout.getvalue().endswith("\n\n")
 
 
 class SnapRefreshRevertTests(unittest.TestCase):
-    @patch("snap_update_test.Snapd")
-    @patch("snap_update_test.get_snap_info")
-    def test_snap_refresh_same_revision(self, mock_snap_info, mock_snapd):
-        mock_snap_info.return_value = {"installed_revision": "132"}
-        srr = snap_update_test.SnapRefreshRevert(
-            name="test", rev="132", info_path="/test/info"
-        )
+    def test_snap_refresh_same_revision(self):
+        mock_self = MagicMock()
+        mock_self.revision = "1"
+        mock_snap_info = MagicMock()
+        mock_snap_info.installed_revision = "1"
+        mock_self.snap_info = mock_snap_info
         logging.disable(logging.CRITICAL)
-        self.assertEqual(srr.snap_refresh(), 1)
+        with self.assertRaises(SystemExit):
+            snap_update_test.SnapRefreshRevert.snap_refresh(mock_self)
 
-    @patch("builtins.open", new_callable=mock_open)
     @patch("snap_update_test.Snapd.refresh")
-    @patch("snap_update_test.get_snap_info")
+    @patch("snap_update_test.save_change_info")
     def test_snap_refresh_different_revision(
-        self, mock_snap_info, mock_snapd_refresh, mock_file
+        self, mock_save_change_info, mock_snapd_refresh
     ):
-        mock_snap_info.return_value = {
-            "installed_revision": "132",
-            "tracking_channel": "22/beta",
-        }
-        mock_snapd_refresh.return_value = {"change": "1"}
-        srr = snap_update_test.SnapRefreshRevert(
-            name="test", rev="137", info_path="/test/info"
-        )
-        self.assertEqual(srr.snap_refresh(), 0)
-
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("snap_update_test.Snapd.list")
-    @patch("snap_update_test.Snapd.change")
-    @patch("snap_update_test.json.load")
-    @patch("snap_update_test.get_snap_info")
-    def test_verify_refresh_ok(
-        self,
-        mock_snap_info,
-        mock_json_load,
-        mock_snapd_change,
-        mock_snapd_list,
-        mock_file,
-    ):
-        mock_snap_info.return_value = {
-            "name": "test-snap",
-            "installed_revision": "132",
-            "tracking_channel": "22/beta",
-        }
-        mock_json_load.return_value = {
-            "refresh_id": "1",
-            "name": "test-snap",
-            "destination_revision": "2",
-        }
-        mock_snapd_change.return_value = "Done"
-        mock_snapd_list.return_value = {"revision": "2"}
-        srr = snap_update_test.SnapRefreshRevert(
-            name="test-snap", rev="2", info_path="/test/info"
-        )
-        self.assertEqual(srr.verify_refresh(), 0)
-
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("snap_update_test.Snapd.list")
-    @patch("snap_update_test.Snapd.change")
-    @patch("snap_update_test.json.load")
-    @patch("snap_update_test.get_snap_info")
-    def test_verify_refresh_nok(
-        self,
-        mock_snap_info,
-        mock_json_load,
-        mock_snapd_change,
-        mock_snapd_list,
-        mock_file,
-    ):
-        mock_snap_info.return_value = {
-            "name": "test-snap",
-            "installed_revision": "132",
-            "tracking_channel": "22/beta",
-        }
-        mock_json_load.return_value = {
-            "refresh_id": "1",
-            "name": "test-snap",
-            "destination_revision": "2",
-        }
-        mock_snapd_change.return_value = "Done"
-        mock_snapd_list.return_value = {"revision": "1"}
-        srr = snap_update_test.SnapRefreshRevert(
-            name="test-snap", rev="2", info_path="/test/info"
-        )
-
+        mock_self = MagicMock()
+        mock_self.revision = "1"
+        mock_snap_info = MagicMock()
+        mock_snap_info.installed_revision = "2"
+        mock_self.snap_info = mock_snap_info
         logging.disable(logging.CRITICAL)
-        self.assertEqual(srr.verify_refresh(), 1)
-
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("snap_update_test.Snapd.list")
-    @patch("snap_update_test.Snapd.change")
-    @patch("snap_update_test.json.load")
-    @patch("snap_update_test.get_snap_info")
-    def test_verify_revert_ok(
-        self,
-        mock_snap_info,
-        mock_json_load,
-        mock_snapd_change,
-        mock_snapd_list,
-        mock_file,
-    ):
-        mock_snap_info.return_value = {
-            "name": "test-snap",
-            "installed_revision": "132",
-            "tracking_channel": "22/beta",
-        }
-        mock_json_load.return_value = {
-            "revert_id": "1",
-            "name": "test-snap",
-            "original_revision": "2",
-        }
-        mock_snapd_change.return_value = "Done"
-        mock_snapd_list.return_value = {"revision": "2"}
-        srr = snap_update_test.SnapRefreshRevert(
-            name="test-snap", rev="2", info_path="/test/info"
-        )
-        self.assertEqual(srr.verify_revert(), 0)
-
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("snap_update_test.Snapd.list")
-    @patch("snap_update_test.Snapd.change")
-    @patch("snap_update_test.json.load")
-    @patch("snap_update_test.get_snap_info")
-    def test_verify_revert_nok(
-        self,
-        mock_snap_info,
-        mock_json_load,
-        mock_snapd_change,
-        mock_snapd_list,
-        mock_file,
-    ):
-        mock_snap_info.return_value = {
-            "name": "test-snap",
-            "installed_revision": "132",
-            "tracking_channel": "22/beta",
-        }
-        mock_json_load.return_value = {
-            "revert_id": "1",
-            "name": "test-snap",
-            "original_revision": "2",
-        }
-        mock_snapd_change.return_value = "Done"
-        mock_snapd_list.return_value = {"revision": "1"}
-        srr = snap_update_test.SnapRefreshRevert(
-            name="test-snap", rev="2", info_path="/test/info"
-        )
-        logging.disable(logging.CRITICAL)
-        self.assertEqual(srr.verify_revert(), 1)
+        snap_update_test.SnapRefreshRevert.snap_refresh(mock_self)
+        snap_update_test.save_change_info.assert_called()
 
     @patch("snap_update_test.Snapd.revert")
-    @patch("snap_update_test.get_snap_info")
-    def test_snap_revert(self, mock_snap_info, mock_snapd_revert):
-        mock_file_data = (
-            '{"name": "test-snap", "original_revision": "10", '
-            '"destination_revision": "20", "refresh_id": "80"}'
-        )
-        mock_snapd_revert.return_value = {"change": 99}
-        srr = snap_update_test.SnapRefreshRevert(
-            name="test-snap", rev="2", info_path="/test/info"
-        )
-        mock_snap_info.return_value = {
-            "name": "test-snap",
-            "installed_revision": "132",
-            "tracking_channel": "22/beta",
-        }
-        with patch("builtins.open", mock_open(read_data=mock_file_data)) as m:
-            srr.snap_revert()
-            self.assertTrue(mock_snapd_revert.called)
-            m.assert_called_with("/test/info", "w")
+    @patch("snap_update_test.load_change_info")
+    @patch("snap_update_test.save_change_info")
+    def test_snap_revert(
+        self, mock_save_change_info, mock_load_change_info, mock_snapd_revert
+    ):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        snap_update_test.SnapRefreshRevert.snap_revert(mock_self)
+        snap_update_test.load_change_info.assert_called()
+        snap_update_test.save_change_info.assert_called()
+
+    def test_verify_invalid(self):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        with self.assertRaises(SystemExit):
+            snap_update_test.SnapRefreshRevert.verify(mock_self, type="invalid")
+
+    @patch("snap_update_test.load_change_info")
+    def test_verify_refresh_wrong_revision(self, mock_load_change):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        mock_load_change.return_value = {"change_id": "1", "destination_revision": "1"}
+        mock_self.snapd.list.return_value = {"revision": "2"}
+        with self.assertRaises(SystemExit):
+            snap_update_test.SnapRefreshRevert.verify(mock_self, type="refresh")
+
+    @patch("snap_update_test.load_change_info")
+    def test_verify_refresh_expected_revision(self, mock_load_change):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        mock_load_change.return_value = {"change_id": "1", "destination_revision": "1"}
+        mock_self.snapd.list.return_value = {"revision": "1"}
+        snap_update_test.SnapRefreshRevert.verify(mock_self, type="refresh")
+
+    @patch("snap_update_test.load_change_info")
+    def test_verify_reverting_wrong_revision(self, mock_load_change):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        mock_load_change.return_value = {"change_id": "1", "original_revision": "1"}
+        mock_self.snapd.list.return_value = {"revision": "2"}
+        with self.assertRaises(SystemExit):
+            snap_update_test.SnapRefreshRevert.verify(mock_self, type="revert")
+
+    def test_wait_for_snap_change(self):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        mock_self.snapd.change.return_value = "Done"
+        snap_update_test.SnapRefreshRevert.wait_for_snap_change(mock_self, change_id=1)
+
+    def test_wait_for_snap_change_timeout(self):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        with self.assertRaises(SystemExit):
+            snap_update_test.SnapRefreshRevert.wait_for_snap_change(
+                mock_self, change_id=1, timeout=-1
+            )
+
+    @patch("snap_update_test.time.time")
+    @patch("snap_update_test.time.sleep")
+    def test_wait_for_snap_change_ongoing(self, mock_sleep, mock_time):
+        mock_self = MagicMock()
+        mock_snap_info = MagicMock()
+        mock_self.snap_info = mock_snap_info
+        mock_self.snapd.change.side_effect = ["Doing", "Done"]
+        mock_time.return_value = 1
+        snap_update_test.SnapRefreshRevert.wait_for_snap_change(mock_self, change_id=1)

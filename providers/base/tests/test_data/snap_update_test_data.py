@@ -1,3 +1,5 @@
+from pathlib import Path
+
 snapd_list_sample = [
     {
         "channel": "22/stable",
@@ -296,10 +298,10 @@ snapd_list_no_kernel_snapd_gadget_snap = [
 ]
 
 snapd_seed_glob_data = [
-    "/var/lib/snapd/seed/snaps/firefox_2605.snap",
-    "/var/lib/snapd/seed/snaps/snapd_19267.snap",
-    "/var/lib/snapd/seed/snaps/pc-kernel_1289.snap",
-    "/var/lib/snapd/seed/snaps/core22_617.snap",
+    Path("/var/lib/snapd/seed/snaps/firefox_2605.snap"),
+    Path("/var/lib/snapd/seed/snaps/snapd_19267.snap"),
+    Path("/var/lib/snapd/seed/snaps/pc-kernel_1289.snap"),
+    Path("/var/lib/snapd/seed/snaps/core22_617.snap"),
 ]
 
 snapd_list_firefox_snap = {

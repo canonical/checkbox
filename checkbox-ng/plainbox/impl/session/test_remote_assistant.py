@@ -69,3 +69,18 @@ class RemoteAssistantFinishJobTests(TestCase):
             outcome=IJobResult.OUTCOME_PASS,
             comments="Automatically passed while resuming",
         )
+
+    def test_no_result_with_be(self):
+        self.rsa._currently_running_job = "job_id"
+        self.rsa._be = mock.Mock()
+        wait_res = mock.Mock()
+        self.rsa._be.wait.return_value = wait_res
+        wait_get_result_res = mock.Mock()
+        self.rsa._be.wait().get_result = wait_get_result_res
+        wait_get_result_res.return_value = IJobResult.OUTCOME_PASS
+
+        result = self.rsa.finish_job()
+
+        self.rsa._be.wait.assert_called()
+        self.rsa._be.wait().get_result.assert_called()
+        self.assertEqual(result, IJobResult.OUTCOME_PASS)

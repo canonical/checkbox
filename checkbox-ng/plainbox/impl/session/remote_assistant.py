@@ -596,7 +596,16 @@ class RemoteSessionAssistant:
             # it is already determined
             return
         if not result:
-            result = self._be.wait().get_result()
+            if not self._be:
+                # the job is considered done and there's no background
+                # executor, because the job was auto-passed from the session
+                # resume mechanism after a no-return job has been run
+                result = result_builder = JobResultBuilder(
+                    outcome=IJobResult.OUTCOME_PASS,
+                    comments="Automatically passed while resuming",
+                ).get_result()
+            else:
+                result = self._be.wait().get_result()
         self._sa.use_job_result(self._currently_running_job, result)
         if self._state != Bootstrapping:
             if not self._sa.get_dynamic_todo_list():

@@ -81,6 +81,6 @@ class RemoteAssistantFinishJobTests(TestCase):
 
         result = self.rsa.finish_job()
 
-        self.rsa._be.wait.assert_called()
-        self.rsa._be.wait().get_result.assert_called()
+        self.assertTrue(self.rsa._be.wait.called)
+        self.assertTrue(self.rsa._be.wait().get_result)
         self.assertEqual(result, IJobResult.OUTCOME_PASS)

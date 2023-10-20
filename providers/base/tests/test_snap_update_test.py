@@ -47,20 +47,20 @@ class SnapUpdateTests(unittest.TestCase):
     @patch("snap_update_test.json")
     def test_load_change_info(self, mock_json, mock_open):
         snap_update_test.load_change_info("test")
-        mock_json.load.assert_called()
+        self.assertTrue(mock_json.load.called)
 
     @patch("snap_update_test.print_resource_info")
     def test_main_print_resource(self, mock_print_resource_info):
         args = ["--resource"]
         snap_update_test.main(args)
-        mock_print_resource_info.assert_called()
+        self.assertTrue(mock_print_resource_info.called)
 
     @patch("snap_update_test.SnapRefreshRevert")
     def test_main_refresh(self, mock_srr):
         args = ["--refresh", "--info-path", "/tmp/change.json", "chromium"]
         snap_update_test.main(args)
         instance = mock_srr.return_value
-        instance.snap_refresh.assert_called()
+        self.assertTrue(instance.snap_refresh.called)
 
     @patch("snap_update_test.SnapRefreshRevert")
     def test_main_verify_refresh(self, mock_srr):
@@ -74,7 +74,7 @@ class SnapUpdateTests(unittest.TestCase):
         args = ["--revert", "--info-path", "/tmp/change.json", "chromium"]
         snap_update_test.main(args)
         instance = mock_srr.return_value
-        instance.snap_revert.assert_called()
+        self.assertTrue(instance.snap_revert.called)
 
     @patch("snap_update_test.SnapRefreshRevert")
     def test_main_verify_revert(self, mock_srr):
@@ -143,7 +143,7 @@ class SnapRefreshRevertTests(unittest.TestCase):
         mock_self.snap_info = mock_snap_info
         logging.disable(logging.CRITICAL)
         snap_update_test.SnapRefreshRevert.snap_refresh(mock_self)
-        snap_update_test.save_change_info.assert_called()
+        self.assertTrue(snap_update_test.save_change_info.called)
 
     @patch("snap_update_test.Snapd.revert")
     @patch("snap_update_test.load_change_info")
@@ -155,8 +155,8 @@ class SnapRefreshRevertTests(unittest.TestCase):
         mock_snap_info = MagicMock()
         mock_self.snap_info = mock_snap_info
         snap_update_test.SnapRefreshRevert.snap_revert(mock_self)
-        snap_update_test.load_change_info.assert_called()
-        snap_update_test.save_change_info.assert_called()
+        self.assertTrue(snap_update_test.load_change_info.called)
+        self.assertTrue(snap_update_test.save_change_info.called)
 
     def test_verify_invalid(self):
         mock_self = MagicMock()

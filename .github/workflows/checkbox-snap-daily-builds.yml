@@ -19,8 +19,8 @@ jobs:
       - name: Check for checkbox snap new commits
         id: check_log
         run: |
-          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-snap
-          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-snap)
+          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap
+          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap)
           if [[ -z $changes ]]
             then
               echo "should_run=false" >> $GITHUB_OUTPUT

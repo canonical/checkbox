@@ -44,11 +44,11 @@ jobs:
         with:
           fetch-depth: 0
       - uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        name: Check for new commits, push build and wait result
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
         with:
-          name: Check for new commits, push build and wait result
           retry_wait_seconds: 600 # 10min
           max_attempts: 3
           command: |

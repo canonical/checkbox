@@ -78,8 +78,8 @@ jobs:
           name: series_${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
       - uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        name: Upload checkbox snaps to the store
         with:
-          name: Upload checkbox snaps to the store
           retry_wait_seconds: 600 # 10min
           max_attempts: 3
           command: |

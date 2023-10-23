@@ -55,7 +55,7 @@ jobs:
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # 1.3.0
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         with:
           action: snapcore/action-build@v1
           id: snapcraft
@@ -77,12 +77,11 @@ jobs:
         with:
           name: series_${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         name: Upload checkbox snaps to the store
         with:
-          retry_wait_seconds: 600 # 10min
-          max_attempts: 3
-          timeout_minutes: 480 # 8h
+          attempt_delay: 600000 # 10min
+          attempt_limit: 3
           command: |
             for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
             do

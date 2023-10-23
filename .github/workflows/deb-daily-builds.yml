@@ -51,5 +51,5 @@ jobs:
           name: Check for new commits, push build and wait result
           retry_wait_seconds: 600 # 10min
           max_attempts: 3
-          run: |
+          command: |
             tools/daily-builds/deb_daily_builds.py

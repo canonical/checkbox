@@ -82,7 +82,7 @@ jobs:
           name: Upload checkbox snaps to the store
           retry_wait_seconds: 600 # 10min
           max_attempts: 3
-          run: |
+          command: |
             for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
             do
               echo "Uploading $snap..."

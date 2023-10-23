@@ -6,7 +6,10 @@ on:
 jobs:
   checkbox-core-snap-daily:
     uses: ./.github/workflows/checkbox-core-snap-daily-builds.yml
+    secrets: inherit
   checkbox-snap-daily:
     uses: ./.github/workflows/checkbox-snap-daily-builds.yml
+    secrets: inherit
   checkbox-deb-daily:
     uses: ./.github/workflows/deb-daily-builds.yml
+    secrets: inherit

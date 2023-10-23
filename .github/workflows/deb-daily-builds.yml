@@ -51,5 +51,6 @@ jobs:
         with:
           retry_wait_seconds: 600 # 10min
           max_attempts: 3
+          timeout_minutes: 480 # 8h
           command: |
             tools/daily-builds/deb_daily_builds.py

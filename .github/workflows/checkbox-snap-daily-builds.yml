@@ -82,6 +82,7 @@ jobs:
         with:
           retry_wait_seconds: 600 # 10min
           max_attempts: 3
+          timeout_minutes: 480 # 8h
           command: |
             for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
             do

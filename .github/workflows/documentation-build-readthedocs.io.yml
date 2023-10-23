@@ -11,7 +11,7 @@ on:
 jobs:
   if_merged:
     if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - run: |
         curl -X POST -d "branches=latest" -d "token=${{ secrets.RTD_TOKEN }}" https://readthedocs.org/api/v2/webhook/checkbox/137367/

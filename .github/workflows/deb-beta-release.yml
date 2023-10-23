@@ -9,7 +9,7 @@ on:
 
 jobs:
   Release:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Install dependencies
         run: |

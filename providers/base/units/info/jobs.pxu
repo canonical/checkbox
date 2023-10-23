@@ -366,14 +366,14 @@ command:
             exit 1
         fi
     {% else -%}
-        if [ -s /var/log/installer/media-info ]; then  # Stock installer info
+        if [ -s /var/lib/ubuntu_dist_channel ]; then  # PC projects
+            cat /var/lib/ubuntu_dist_channel
+        elif [ -s /var/log/installer/media-info ]; then  # Stock installer info
             cat /var/log/installer/media-info
         elif [ -s /.disk/info ]; then
             cat /.disk/info
         elif [ -s /etc/media-info ]; then
             cat /etc/media-info
-        elif [ -s /var/lib/ubuntu_dist_channel ]; then  # PC projects
-            cat /var/lib/ubuntu_dist_channel
         else
             exit 1
         fi

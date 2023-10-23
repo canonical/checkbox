@@ -19,8 +19,8 @@ jobs:
       - name: Check for new commits to any deb
         id: check_log
         run: |
-          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers
-          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers)
+          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap
+          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap)
           if [[ -z $changes ]]
             then
               echo "should_run=false" >> $GITHUB_OUTPUT

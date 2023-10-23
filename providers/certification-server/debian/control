@@ -16,6 +16,7 @@ Architecture: all
 Depends: checkbox-provider-base, ${plainbox:Depends}
 Recommends: bonnie++,
             canonical-certification-submit,
+            checkbox-provider-gpgpu,
             cpu-checker,
             freeipmi-tools,
             fwts (>=16.02.00-0ubuntu1~),

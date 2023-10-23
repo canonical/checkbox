@@ -96,40 +96,29 @@ def main():
     to_check = []
     # Find projects new commits from the last 24 hours
     for name, path in sorted(projects.items(), key=lambda i: i[1]):
-        new_commits = int(
+        output = (
             run(
-                "git rev-list --count HEAD --not "
-                '$(git rev-list -n1 --before="24 hours" '
-                "--first-parent HEAD) -- :{}".format(path),
+                "./tools/release/lp-recipe-update-build.py checkbox "
+                "--recipe {} -n {}".format(name + "-daily", get_version()),
                 shell=True,
                 check=True,
             )
             .stdout.decode()
             .rstrip()
         )
-        # Kick off daily builds if the new commits got merged into main
-        if new_commits:
-            output = (
-                run(
-                    "./tools/release/lp-recipe-update-build.py checkbox "
-                    "--recipe {} -n {}".format(name + "-daily", get_version()),
-                    shell=True,
-                    check=True,
-                )
-                .stdout.decode()
-                .rstrip()
-            )
-            print(output)
-            # We have started the build, store it here so it can
-            # be checked after.
-            to_check.append(name)
+        print(output)
+        # We have started the build, store it here so it can
+        # be checked after.
+        to_check.append(name)
 
     checked = [(name, check_build(name)) for name in to_check]
+    any_failed = False
     for name, ok in checked:
         if not ok:
+            any_failed = True
             print("Failed to build:", name)
-    if any(not ok for (_, ok) in checked):
-        raise SystemExit(1)
+    if any_failed:
+        raise SystemExit("Some build failed")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,6 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 300
 requires:
-    package.name == 'cuda'
+    package.name == 'cuda-toolkit'
 _summary: GPGPU stress testing
 command: cd /opt/gpu-burn/ && ./gpu_burn 14400 | grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"

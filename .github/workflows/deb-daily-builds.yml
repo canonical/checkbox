@@ -43,9 +43,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Check for new commits, push build and wait result
+      - uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
-        run: |
-          tools/daily-builds/deb_daily_builds.py
+        with:
+          name: Check for new commits, push build and wait result
+          retry_wait_seconds: 600 # 10min
+          max_attempts: 3
+          run: |
+            tools/daily-builds/deb_daily_builds.py

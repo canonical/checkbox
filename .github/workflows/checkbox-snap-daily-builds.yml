@@ -55,12 +55,16 @@ jobs:
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
-      - uses: snapcore/action-build@v1
-        id: snapcraft
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # 1.3.0
         with:
-          path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
-          snapcraft-channel: 7.x/stable
-          snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
+          action: snapcore/action-build@v1
+          id: snapcraft
+          attempt_delay: 600000 # 10min
+          attempt_limit: 3
+          with: |
+            path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
+            snapcraft-channel: 7.x/stable
+            snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
@@ -73,18 +77,22 @@ jobs:
         with:
           name: series_${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - name: Upload checkbox snaps to the store
-        run: |
-          for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-          do
-            echo "Uploading $snap..."
-            if [[ ${{ matrix.type }} == 'classic' ]]; then
-              if [[ ${{ matrix.releases }} == '22' ]]; then
-                snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge
+      - uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        with:
+          name: Upload checkbox snaps to the store
+          retry_wait_seconds: 600 # 10min
+          max_attempts: 3
+          run: |
+            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
+            do
+              echo "Uploading $snap..."
+              if [[ ${{ matrix.type }} == 'classic' ]]; then
+                if [[ ${{ matrix.releases }} == '22' ]]; then
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge
+                else
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge
+                fi
               else
-                snapcraft upload $snap --release ${{ matrix.releases }}.04/edge
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge
               fi
-            else
-              snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge
-            fi
-          done
+            done

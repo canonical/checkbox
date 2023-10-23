@@ -9,7 +9,7 @@ on:
       - edited
 jobs:
   validate_title:
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, X64, two-xlarge]
     steps:
     - name: Checking the presence of the Traceability Marker in the PR title
       env:

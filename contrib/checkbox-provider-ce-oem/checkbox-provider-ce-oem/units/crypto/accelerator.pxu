@@ -52,18 +52,20 @@ command:
     fi
     echo "CAAM Job ring interrupt before using Hardware RNG: $init_interrupt"
     echo "Starting DD of /dev/hwrng ..."
-    dd if=/dev/hwrng bs=1M count=10 > /dev/null
-    echo "Finished DD ..."
-    interrupt=$(awk '/\.jr/ {printf "%s ",$2;next;}' /proc/interrupts|sed 's/ //g')
-    echo "CAAM Job ring interrupt after using Hardware RNG: $interrupt"
-    if [ "$interrupt" -gt "$init_interrupt" ];
-    then
-        echo "PASS: CAAM job ring interrupts have increased."
-        exit 0
-    else
-        echo "FAIL: CAAM job ring interrupts didn't increase!"
-        exit 1
-    fi
+    for i in {1..20}
+    do
+        dd if=/dev/hwrng bs=512K count=1 > /dev/null
+        echo "Finished $i/20 times DD ..."
+        interrupt=$(awk '/\.jr/ {printf "%s ",$2;next;}' /proc/interrupts|sed 's/ //g')
+        echo "Current job ring interrupt: $interrupt"
+        if [ "$interrupt" -gt "$init_interrupt" ];
+        then
+            echo "PASS: CAAM job ring interrupts have increased."
+            exit 0
+        fi
+    done
+    echo "FAIL: CAAM job ring interrupts didn't increase!"
+    exit 1
 
 id: ce-oem-crypto/caam/algo_check
 _summary: Check CAAM algorithm is in the system /proc/crypto

@@ -43,9 +43,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Check for new commits, push build and wait result
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Check for new commits, push build and wait result
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
-        run: |
-          tools/daily-builds/deb_daily_builds.py
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 3
+          command: |
+            tools/daily-builds/deb_daily_builds.py

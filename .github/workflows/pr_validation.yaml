@@ -17,17 +17,17 @@ jobs:
       env:
         PR_TITLE: ${{ github.event.pull_request.title }}
       with:
-        attempt_delay: 6000 # 10min
+        attempt_delay: 6000
         attempt_limit: 3
         command : |
           if echo "$PR_TITLE" | grep -iqP "\((infra|bugfix|new|breaking)\)$"; then \
-            echo "PR title contains the traceability marker" \
-            exit 0 \
+            echo "PR title contains the traceability marker"; \
+            exit 0; \
           else \
-            echo "Traceability marker missing" \
-            echo "Update your title with one of the following postfix" \
-            echo "(Infra,Bugfix,New,Breaking)" \
-            echo \
-            echo "e.g. $PR_TITLE (BugFix)" \
-            exit 1 \
+            echo "Traceability marker missing"; \
+            echo "Update your title with one of the following postfix"; \
+            echo "(Infra,Bugfix,New,Breaking)"; \
+            echo ; \
+            echo "e.g. $PR_TITLE (BugFix)" ; \
+            exit 1 ;\
           fi

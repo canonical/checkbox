@@ -82,8 +82,8 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 3
           command: |
-            for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap
-            do
-              echo "Uploading $snap..."
-              snapcraft upload $snap --release edge
+            for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              snapcraft upload $snap --release edge ; \
             done

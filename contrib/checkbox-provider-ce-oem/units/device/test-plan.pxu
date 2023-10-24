@@ -20,8 +20,6 @@ id: ce-oem-dtb-automated
 unit: test plan
 _name: Device Tree auto tests
 _description: Automated Device Tree tests for devices
-bootstrap_include:
-    ce-oem-device-tree/dump
 include:
     ce-oem-device-tree/log-attach
 

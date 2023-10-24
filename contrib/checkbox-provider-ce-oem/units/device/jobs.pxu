@@ -4,6 +4,29 @@ _summary: Dump the device tree from runtime system
 imports: from com.canonical.certification import cpuinfo
 requires: cpuinfo.platform in ("aarch64", "armv7l")
 user: root
+estimated_duration: 5s
+command:
+    # Currently not included in the test plan.
+    # Plan to parse the device tree to resource format (key: value) in the future.
+    # So that many jobs can get the information directly from the resource job.
+    gadget=$(python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print(get_gadget_snap())')
+    dest="${PLAINBOX_SESSION_SHARE}"/"$gadget"-device-tree.dts
+    dtc -I fs -O dts -o "$dest" /proc/device-tree/ > /dev/null 2>&1
+    if [ -e "$dest" ]; then
+        cat "$dest"
+    else
+        echo "Unable to generate device tree dts file"
+        exit 1
+    fi
+
+plugin: attachment
+id: ce-oem-device-tree/log-attach
+estimated_duration: 5s
+_description: Dump device tree dts file to attachment
+imports: from com.canonical.certification import cpuinfo
+requires: cpuinfo.platform in ("aarch64", "armv7l")
+user: root
+category_id: dtb
 command:
     gadget=$(python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print(get_gadget_snap())')
     dest="${PLAINBOX_SESSION_SHARE}"/"$gadget"-device-tree.dts
@@ -11,18 +34,5 @@ command:
     if [ -e "$dest" ]; then
         cat "$dest"
     else
-        echo "Unable to genarte device tree dts file"
-        exit 1
+        echo "Unable to generate device tree dts file"
     fi
-estimated_duration: 30s
-
-plugin: attachment
-id: ce-oem-device-tree/log-attach
-depends: ce-oem-device-tree/dump
-estimated_duration: 2.0
-_description: Attach device tree dts file
-category_id: dtb
-command:
-    gadget=$(python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print(get_gadget_snap())')
-    dest="${PLAINBOX_SESSION_SHARE}"/"$gadget"-device-tree.dts
-    [ -e "$dest" ] && cat "$dest"

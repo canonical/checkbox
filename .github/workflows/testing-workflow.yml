@@ -1,0 +1,18 @@
+name: Workflow that works on PRs
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      - edited
+jobs:
+  validate_title:
+    runs-on: [self-hosted, linux, X64, two-xlarge]
+    steps:
+    - name: do stuff!
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      run: |
+        echo processing the PR: "$PR_TITLE"

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     name: PR Validator
     steps:
-    - uses: Wandalen/wretry.action@v1
+    - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
       name: Checking the presence of the Traceability Marker in the PR title
       env:
         PR_TITLE: ${{ github.event.pull_request.title }}

@@ -83,16 +83,16 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 3
           command: |
-            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap \
+            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
             do \
-              echo "Uploading $snap..." \
+              echo "Uploading $snap..." ; \
               if [[ ${{ matrix.type }} == 'classic' ]]; then \
                 if [[ ${{ matrix.releases }} == '22' ]]; then \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
                 else \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
                 fi \
               else \
-                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge \
-              fi \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
+              fi ; \
             done

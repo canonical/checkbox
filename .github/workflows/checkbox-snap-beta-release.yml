@@ -14,7 +14,7 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20, 22]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -88,7 +88,7 @@ jobs:
           done
 
   changelog:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     name: checkbox-snap changelog (${{ github.ref_name }})
     if: ${{ github.event_name == 'push' }}
     steps:

@@ -8,7 +8,7 @@ on:
 
 jobs:
   check_history:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     name: Check for new commits
     outputs:
       should_run: ${{ steps.check_log.outputs.should_run }}
@@ -35,7 +35,7 @@ jobs:
         releases: [16, 18, 20, 22]
     needs: check_history
     if: ${{ needs.check_history.outputs.should_run != 'false' }} || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}

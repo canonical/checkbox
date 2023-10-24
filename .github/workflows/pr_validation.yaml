@@ -14,20 +14,20 @@ jobs:
     steps:
     - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
       name: Checking the presence of the Traceability Marker in the PR title
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
       with:
         attempt_delay: 6000 # 10min
         attempt_limit: 3
-      env:
-        PR_TITLE: ${{ github.event.pull_request.title }}
-      command : |
-        if echo "$PR_TITLE" | grep -iqP "\((infra|bugfix|new|breaking)\)$"; then
-          echo "PR title contains the traceability marker"
-          exit 0
-        else
-          echo "Traceability marker missing"
-          echo "Update your title with one of the following postfix"
-          echo "(Infra,Bugfix,New,Breaking)"
-          echo
-          echo "e.g. $PR_TITLE (BugFix)"
-          exit 1
-        fi
+        command : |
+          if echo "$PR_TITLE" | grep -iqP "\((infra|bugfix|new|breaking)\)$"; then
+            echo "PR title contains the traceability marker"
+            exit 0
+          else
+            echo "Traceability marker missing"
+            echo "Update your title with one of the following postfix"
+            echo "(Infra,Bugfix,New,Breaking)"
+            echo
+            echo "e.g. $PR_TITLE (BugFix)"
+            exit 1
+          fi

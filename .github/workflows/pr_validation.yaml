@@ -37,7 +37,7 @@ jobs:
         attempt_delay: 6000
         attempt_limit: 3
         command : |
-          for snap in checkbox-core-snap/series*; do \
+          for snap in $(find checkbox-core-snap -name "series*"); do \
             echo "Uploading $snap..." ; \
             echo upload "$snap" --release edge ; \
           done

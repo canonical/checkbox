@@ -31,3 +31,13 @@ jobs:
             echo "e.g. $PR_TITLE (BugFix)" ; \
             exit 1 ; \
           fi
+    - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      name: For cycle test
+      with:
+        attempt_delay: 6000
+        attempt_limit: 3
+        command : |
+          for snap in checkbox-core-snap/series*; do \
+            echo "Uploading $snap..." ; \
+            echo upload "$snap" --release edge ; \
+          done

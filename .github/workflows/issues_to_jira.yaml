@@ -12,7 +12,7 @@ on:
 jobs:
   update:
     name: Update Issue
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, large]
     steps:
       - name: Create JIRA ticket
         env:

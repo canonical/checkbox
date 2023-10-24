@@ -9,7 +9,7 @@ on:
 
 jobs:
   Release:
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, large]
     steps:
       - name: Install dependencies
         run: |

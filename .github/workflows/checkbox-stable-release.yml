@@ -7,7 +7,7 @@ on:
 jobs:
   release:
     name: Publish the release
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, large]
     steps:
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
 
   checkbox_deb_packages:
     name: Checkbox Debian packages
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, large]
     steps:
       - name: Install dependencies
         run: |
@@ -39,7 +39,7 @@ jobs:
 
   checkbox_core_snap:
     name: Checkbox core snap packages
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, large]
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
     steps:
@@ -59,7 +59,7 @@ jobs:
 
   checkbox_snap:
     name: Checkbox snap packages
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, large]
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
     steps:

@@ -33,7 +33,7 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20, 22]
-        arch: [amd64,arm64,armhf,i386]
+        arch: [amd64,arm64,armhf]
     needs: check_history
     if: ${{ needs.check_history.outputs.should_run != 'false' }} || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

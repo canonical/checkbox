@@ -64,7 +64,7 @@ jobs:
           with: |
             path: checkbox-core-snap/series${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            snapcraft-args: remote-build --build-on ${{ matrix.arch }} --launchpad-accept-public-upload
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload
       - uses: actions/upload-artifact@v3
         if: failure()
         with:

@@ -8,7 +8,7 @@ on:
 
 jobs:
   metabox_run_required:
-    runs-on: [self-hosted, linux, large]
+    runs-on: ubuntu-latest
     name: Check for changes in metabox and checkbox-ng dirs
     outputs:
       required_run: ${{ steps.check_diff.outputs.required_run }}

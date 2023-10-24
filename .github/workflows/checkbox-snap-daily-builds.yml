@@ -33,6 +33,7 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20, 22]
+        arch: [amd64,arm64,armhf,i386]
     needs: check_history
     if: ${{ needs.check_history.outputs.should_run != 'false' }} || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -64,7 +65,7 @@ jobs:
           with: |
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
+            snapcraft-args: remote-build --build-on ${{ matrix.arch }} --launchpad-accept-public-upload
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
@@ -86,8 +87,8 @@ jobs:
             for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
             do \
               echo "Uploading $snap..." ; \
-              if [[ ${{ matrix.type }} == 'classic' ]]; then \
-                if [[ ${{ matrix.releases }} == '22' ]]; then \
+              if [ ${{ matrix.type }} = 'classic' ]; then \
+                if [ ${{ matrix.releases }} = '22' ]; then \
                   snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
                 else \
                   snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \

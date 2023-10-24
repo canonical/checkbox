@@ -39,7 +39,7 @@ jobs:
     env:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Checkbox Core snap for series ${{ matrix.releases }}
+    name: Runtime (${{ matrix.releases }}, ${{ matrix.arch }})
     steps:
       - uses: actions/checkout@v3
         with:

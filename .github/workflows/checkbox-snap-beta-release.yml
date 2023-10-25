@@ -34,7 +34,7 @@ jobs:
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
-      - uses: snapcore/action-build@v1
+      - uses: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
         id: snapcraft
         with:
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}

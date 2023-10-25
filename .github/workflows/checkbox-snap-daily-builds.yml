@@ -57,7 +57,7 @@ jobs:
           git config --global user.name "Certification bot"
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         with:
-          action: snapcore/action-build@v1
+          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
           id: snapcraft
           attempt_delay: 600000 # 10min
           attempt_limit: 3

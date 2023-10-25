@@ -1,6 +1,8 @@
 name: Daily builds
 
 on:
+  schedule:
+    - cron: '00 19 * * *'
   workflow_dispatch:
 
 jobs:

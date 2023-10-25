@@ -1,8 +1,6 @@
 name: checkbox snap daily build
 
 on:
-  schedule:
-    - cron: '00 04 * * *'
   workflow_dispatch:
   workflow_call:
 

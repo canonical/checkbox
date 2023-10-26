@@ -84,3 +84,22 @@ class RemoteAssistantFinishJobTests(TestCase):
         self.assertTrue(self.rsa._be.wait.called)
         self.assertTrue(self.rsa._be.wait().get_result)
         self.assertEqual(result, IJobResult.OUTCOME_PASS)
+
+    @mock.patch("plainbox.impl.session.remote_assistant.JobResultBuilder")
+    def test_no_result_with_be_but_no_builder(self, MockJobResultBuilder):
+        self.rsa._currently_running_job = "job_id"
+        mock_job = mock.Mock()
+        mock_job.plugin = "shell"
+        self.rsa._be = mock.Mock()
+        self.rsa._be.wait.return_value = None
+        mock_builder = MockJobResultBuilder.return_value
+        mock_builder.get_result.return_value = IJobResult.OUTCOME_PASS
+
+        result = remote_assistant.RemoteSessionAssistant.finish_job(self.rsa)
+
+        self.rsa._sa.use_job_result.assert_called_with("job_id", "pass")
+        self.assertEqual(result, IJobResult.OUTCOME_PASS)
+        MockJobResultBuilder.assert_called_with(
+            outcome=IJobResult.OUTCOME_PASS,
+            comments="Automatically passed while resuming",
+        )

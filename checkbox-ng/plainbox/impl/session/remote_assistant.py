@@ -596,7 +596,7 @@ class RemoteSessionAssistant:
             # it is already determined
             return
         if not result:
-            if not self._be:
+            if not self._be or not self._be.wait():
                 # the job is considered done and there's no background
                 # executor, because the job was auto-passed from the session
                 # resume mechanism after a no-return job has been run

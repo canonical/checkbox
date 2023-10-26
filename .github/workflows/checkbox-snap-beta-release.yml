@@ -61,7 +61,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/checkbox*.txt
       - uses: actions/upload-artifact@v3
-        name: Upload the snaps as artefacts
+        name: Upload the snaps as artifacts
         with:
           name: series_${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap

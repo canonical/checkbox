@@ -30,14 +30,17 @@ jobs:
     strategy:
       matrix:
         releases: [16, 18, 20, 22]
-        arch: [amd64,arm64,armhf]
+        arch: [amd64, arm64, armhf]
     needs: check_history
     if: ${{ needs.check_history.outputs.should_run != 'false' }} || github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, linux, large]
     env:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Runtime${{ matrix.releases }}-${{ matrix.arch }}
+      # snapcraft remote-build will create a repository with the name decided by the --build-id arg
+      # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
+      SNAPCRAFT_BUILDER_ID: checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
+    name: Runtime (Core) ${{ matrix.releases }}-${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -55,20 +58,17 @@ jobs:
           git config --global user.name "Certification bot"
       - name: Print Launchpad build repository
         run: |
-          # snapcraft remote-build will create a repository with the name decided by the --build-id arg
-          # it is useful to have this URL to debug builds, note that it will not change if the same workflow is re-run
-          # as the run_id will not change
-          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+git/checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}"
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+git/$SNAPCRAFT_BUILDER_ID"
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
-        name: Build Snap
+        name: Build the snap
         with:
           action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
           attempt_delay: 600000 # 10min
-          attempt_limit: 3
+          attempt_limit: 5
           with: |
             path: checkbox-core-snap/series${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            snapcraft-args: remote-build --build-on ${{ matrix.arch }} --launchpad-accept-public-upload --build-id checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
       - uses: actions/upload-artifact@v3
         name: Upload logs on failure
         if: failure()
@@ -79,15 +79,15 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.releases }}/checkbox*.txt
       - uses: actions/upload-artifact@v3
-        name: Upload snaps as artifact
+        name: Upload the snap as artifact
         with:
           name: series${{ matrix.releases }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
-        name: Upload checkbox core snaps to the store
+        name: Upload the snap to the store
         with:
           attempt_delay: 600000 # 10min
-          attempt_limit: 3
+          attempt_limit: 10
           command: |
             for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap ; \
             do \

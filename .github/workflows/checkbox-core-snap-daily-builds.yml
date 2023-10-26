@@ -68,7 +68,6 @@ jobs:
           with: |
             path: checkbox-core-snap/series${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            # Note: if you change this --build-id arg, change it above as well and keep them consisten
             snapcraft-args: remote-build --build-on ${{ matrix.arch }} --launchpad-accept-public-upload --build-id checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
       - uses: actions/upload-artifact@v3
         name: Upload logs on failure

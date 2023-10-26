@@ -118,10 +118,12 @@ _summary: Webcam brisque score for {{ product_slug }}
 estimated_duration: 20s
 depends: camera/detect
 command:
-  camera_quality_test.py -d {{ name }}
+  timeout 120 camera_quality_test.py -d {{ name }} || 
+  (>&2 echo "Timeout computing score"; false)
 _description:
-  Takes multiple pictures and computes the quality based on a No-Reference image
-  quality assessment algorithm called BRISQUE.
+  Takes a picture and computes the quality based on a No-Reference image
+  quality assessment algorithm called BRISQUE. This test will timeout and fail
+  if the quality has not been compute within 120 seconds.
 
 unit: template
 template-resource: device

@@ -13,33 +13,45 @@ jobs:
       fail-fast: false
       matrix:
         releases: [16, 18, 20, 22]
+        arch: [amd64, arm64, armhf]
     runs-on: [self-hosted, linux, large]
     env:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Checkbox core snap for series${{ matrix.releases }}
+      # snapcraft remote-build will create a repository with the name decided by the --build-id arg
+      # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
+      SNAPCRAFT_BUILDER_ID: checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
+    name: Runtime (Core) ${{ matrix.releases }}-${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Copy over the common files for series${{ matrix.releases }}
+      - name: Copy over the common files for series ${{ matrix.releases }}
         run: |
           cd checkbox-core-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare.sh $SERIES
-      - name: add LP credentials
+      - name: Add LP credentials
         run: |
           mkdir -p ~/.local/share/snapcraft/provider/launchpad/
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
-      - uses: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
-        id: snapcraft
+      - name: Print Launchpad build repository
+        run: |
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Build the snap
         with:
-          path: checkbox-core-snap/series${{ matrix.releases }}
-          snapcraft-channel: 7.x/stable
-          snapcraft-args: remote-build --build-on amd64,arm64,armhf --launchpad-accept-public-upload
+          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          attempt_delay: 600000 # 10min
+          attempt_limit: 5
+          with: |
+            path: checkbox-core-snap/series${{ matrix.releases }}
+            snapcraft-channel: 7.x/stable
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
       - uses: actions/upload-artifact@v3
+        name: Upload logs on failure
         if: failure()
         with:
           name: snapcraft-log-series${{ matrix.releases }}
@@ -48,24 +60,21 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.releases }}/checkbox*.txt
       - uses: actions/upload-artifact@v3
+        name: Upload the snap as artifact
         with:
           name: series${{ matrix.releases }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
-      - name: Check that snapcraft built the expected amount of snaps
-        run: |
-          NB_SNAPS=$(find checkbox-core-snap/series${{ matrix.releases }} -maxdepth 1 -type f -name *.snap | wc -l)
-          if [ ${NB_SNAPS} != "3" ]
-          then
-            echo "Error: Snapcraft should have produced 3 snaps, found ${NB_SNAPS} instead."
-            exit 1
-          fi
-      - name: Upload checkbox core snaps to the store
-        run: |
-          for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap
-          do
-            echo "Uploading $snap..."
-            snapcraft upload $snap --release beta
-          done
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Upload the snap to the store
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              snapcraft upload $snap --release beta ; \
+            done
 
   changelog:
     runs-on: [self-hosted, linux, large]

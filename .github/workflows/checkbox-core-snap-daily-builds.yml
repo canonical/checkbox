@@ -47,14 +47,20 @@ jobs:
           cd checkbox-core-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare.sh $SERIES
-      - name: add LP credentials
+      - name: Add LP credentials
         run: |
           mkdir -p ~/.local/share/snapcraft/provider/launchpad/
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
+      - name: Print Launchpad build repository
+        run: |
+          # snapcraft remote-build will create a repository with the name decided by the --build-id arg
+          # it is useful to have this URL to debug builds, note that it will not change if the same workflow is re-run
+          # as the run_id will not change
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+git/checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}"
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
-        name: Building at: https://git.launchpad.net/~ce-certification-qa/+git/checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
+        name: Build Snap
         with:
           action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
           attempt_delay: 600000 # 10min
@@ -62,8 +68,10 @@ jobs:
           with: |
             path: checkbox-core-snap/series${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
+            # Note: if you change this --build-id arg, change it above as well and keep them consisten
             snapcraft-args: remote-build --build-on ${{ matrix.arch }} --launchpad-accept-public-upload --build-id checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
       - uses: actions/upload-artifact@v3
+        name: Upload logs on failure
         if: failure()
         with:
           name: snapcraft-log-series${{ matrix.releases }}
@@ -72,6 +80,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.releases }}/checkbox*.txt
       - uses: actions/upload-artifact@v3
+        name: Upload snaps as artifact
         with:
           name: series${{ matrix.releases }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap

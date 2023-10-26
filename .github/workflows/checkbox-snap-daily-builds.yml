@@ -31,13 +31,14 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20, 22]
+        arch: [amd64, arm64, armhf]
     needs: check_history
     if: ${{ needs.check_history.outputs.should_run != 'false' }} || github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, linux, large]
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Checkbox snap for series ${{ matrix.type }}${{ matrix.releases }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }}-${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -54,15 +55,15 @@ jobs:
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Building at: https://git.launchpad.net/~ce-certification-qa/+git/checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
         with:
           action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
-          id: snapcraft
           attempt_delay: 600000 # 10min
           attempt_limit: 3
           with: |
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            snapcraft-args: remote-build --build-on amd64,arm64,armhf --launchpad-accept-public-upload
+            snapcraft-args: remote-build --build-on ${{ matrix.arch }} --launchpad-accept-public-upload --build-id checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
